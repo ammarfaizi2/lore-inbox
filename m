@@ -1,145 +1,645 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268504AbUIGUTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268525AbUIGUWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268504AbUIGUTz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIGUTF
+	id S268525AbUIGUWq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 16:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUIGUWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:19:05 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:10429 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S268534AbUIGUEE (ORCPT
+	Tue, 7 Sep 2004 16:22:14 -0400
+Received: from cantor.suse.de ([195.135.220.2]:29592 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268193AbUIGUAR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:04:04 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Subject: Re: [PATCH] ACPI-based i8042 keyboard/aux controller enumeration
-Date: Tue, 7 Sep 2004 14:03:58 -0600
-User-Agent: KMail/1.6.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <1094585860.2506.15.camel@deimos.microgate.com>
-In-Reply-To: <1094585860.2506.15.camel@deimos.microgate.com>
-MIME-Version: 1.0
+	Tue, 7 Sep 2004 16:00:17 -0400
+Date: Tue, 7 Sep 2004 22:00:13 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Tom Rini <trini@kernel.crashing.org>
+Subject: [PATCH] update arch/ppc/defconfig
+Message-ID: <20040907200013.GA14330@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409071403.58198.bjorn.helgaas@hp.com>
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 September 2004 1:37 pm, Paul Fulghum wrote:
-> > This can be disabled with "i8042.no_acpi=1".
-> > If you need to disable
-> > it, please let me know so I can fix it.
-> 
-> I have an HP Netserver LC3 that requires i8042.noacpi=1
-> in order to work with 2.6.9-rc1-mm4
 
-Thanks for the report.  Figures that it would be an HP machine ;-)
-Can you apply the following patch on top of 2.6.9-rc1-mm4, boot
-with "i8042.lsacpi", and post the resulting dmesg?
+run make oldconfig, and enable a few useful options.
 
-There are a zillion PNP IDs for keyboards and mice, but we're
-currently only looking for PNP0303 and PNP0F13, which seem to be
-fairly generic.  I suspect that the LC3 may be using one of the
-more obscure PNP IDs.
+Signed-off-by: Olaf Hering <olh@suse.de>
 
---- 2.6.9-rc1-mm4/drivers/input/serio/i8042.c.orig	2004-09-07 13:40:13.000000000 -0600
-+++ 2.6.9-rc1-mm4/drivers/input/serio/i8042.c	2004-09-07 13:42:38.000000000 -0600
-@@ -62,6 +62,10 @@
- static int i8042_noacpi;
- module_param_named(noacpi, i8042_noacpi, bool, 0);
- MODULE_PARM_DESC(noacpi, "Do not use ACPI to detect controller settings");
-+
-+static int i8042_lsacpi;
-+module_param_named(lsacpi, i8042_lsacpi, bool, 0);
-+MODULE_PARM_DESC(lsacpi, "List PNP IDs of all ACPI devices (debug only)");
- #endif
+
+diff -purN linux-2.6.9-rc1-bk14.orig/arch/ppc/defconfig linux-2.6.9-rc1-bk14/arch/ppc/defconfig
+--- linux-2.6.9-rc1-bk14.orig/arch/ppc/defconfig	2004-08-14 07:37:38.000000000 +0200
++++ linux-2.6.9-rc1-bk14/arch/ppc/defconfig	2004-09-07 21:48:20.259734125 +0200
+@@ -1,5 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
++# Linux kernel version: 2.6.9-rc1-bk14
++# Tue Sep  7 21:46:10 2004
+ #
+ CONFIG_MMU=y
+ CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+@@ -13,7 +15,6 @@ CONFIG_GENERIC_NVRAM=y
+ #
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+-# CONFIG_STANDALONE is not set
+ CONFIG_BROKEN_ON_SMP=y
  
- __obsolete_setup("i8042_noaux");
---- 2.6.9-rc1-mm4/drivers/input/serio/i8042-x86ia64io.h.orig	2004-09-07 13:43:19.000000000 -0600
-+++ 2.6.9-rc1-mm4/drivers/input/serio/i8042-x86ia64io.h	2004-09-07 13:50:22.000000000 -0600
-@@ -112,6 +112,8 @@
- 		case ACPI_RSTYPE_IO:
- 			io = &res->data.io;
- 			if (io->range_length) {
-+				if (i8042_lsacpi)
-+					printk("  io  0x%x (size 0x%x)\n", io->min_base_address, io->range_length);
- 				if (!i8042_res->port1)
- 					i8042_res->port1 = io->min_base_address;
- 				else
-@@ -121,20 +123,26 @@
+ #
+@@ -31,6 +32,8 @@ CONFIG_IKCONFIG=y
+ CONFIG_IKCONFIG_PROC=y
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
++# CONFIG_KALLSYMS_ALL is not set
++# CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+ CONFIG_IOSCHED_NOOP=y
+@@ -38,6 +41,8 @@ CONFIG_IOSCHED_AS=y
+ CONFIG_IOSCHED_DEADLINE=y
+ CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
++CONFIG_SHMEM=y
++# CONFIG_TINY_SHMEM is not set
  
- 		case ACPI_RSTYPE_IRQ:
- 			irq = &res->data.irq;
--			if (irq->number_of_interrupts > 0)
-+			if (irq->number_of_interrupts > 0) {
- 				i8042_res->irq =
- 					acpi_register_gsi(irq->interrupts[0],
- 							  irq->edge_level,
- 							  irq->active_high_low);
-+				if (i8042_lsacpi)
-+					printk("  gsi %d -> irq %d\n", irq->interrupts[0], i8042_res->irq);
-+			}
- 			break;
+ #
+ # Loadable module support
+@@ -58,6 +63,7 @@ CONFIG_6xx=y
+ # CONFIG_POWER3 is not set
+ # CONFIG_POWER4 is not set
+ # CONFIG_8xx is not set
++# CONFIG_E500 is not set
+ CONFIG_ALTIVEC=y
+ CONFIG_TAU=y
+ # CONFIG_TAU_INT is not set
+@@ -69,6 +75,7 @@ CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=
+ CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+ CONFIG_CPU_FREQ_GOV_POWERSAVE=y
+ CONFIG_CPU_FREQ_GOV_USERSPACE=y
++CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+ # CONFIG_CPU_FREQ_24_API is not set
+ CONFIG_CPU_FREQ_PMAC=y
+ CONFIG_CPU_FREQ_TABLE=y
+@@ -98,9 +105,12 @@ CONFIG_PPC_MULTIPLATFORM=y
+ # CONFIG_PAL4 is not set
+ # CONFIG_GEMINI is not set
+ # CONFIG_EST8260 is not set
++# CONFIG_SBC82xx is not set
+ # CONFIG_SBS8260 is not set
+-# CONFIG_RPX6 is not set
++# CONFIG_RPX8260 is not set
+ # CONFIG_TQM8260 is not set
++# CONFIG_ADS8272 is not set
++# CONFIG_LITE5200 is not set
+ CONFIG_PPC_CHRP=y
+ CONFIG_PPC_PMAC=y
+ CONFIG_PPC_PREP=y
+@@ -109,11 +119,9 @@ CONFIG_PPCBUG_NVRAM=y
+ # CONFIG_SMP is not set
+ # CONFIG_PREEMPT is not set
+ # CONFIG_HIGHMEM is not set
+-CONFIG_KERNEL_ELF=y
+ CONFIG_BINFMT_ELF=y
+ CONFIG_BINFMT_MISC=m
+ CONFIG_PROC_DEVICETREE=y
+-CONFIG_PPC_RTAS=y
+ CONFIG_PREP_RESIDUAL=y
+ CONFIG_PROC_PREPRESIDUAL=y
+ CONFIG_CMDLINE_BOOL=y
+@@ -138,13 +146,14 @@ CONFIG_PCMCIA_PROBE=y
+ #
+ # Advanced setup
+ #
+-CONFIG_ADVANCED_OPTIONS=y
++# CONFIG_ADVANCED_OPTIONS is not set
++
++#
++# Default settings for advanced configuration options are used
++#
+ CONFIG_HIGHMEM_START=0xfe000000
+-# CONFIG_LOWMEM_SIZE_BOOL is not set
+ CONFIG_LOWMEM_SIZE=0x30000000
+-# CONFIG_KERNEL_START_BOOL is not set
+ CONFIG_KERNEL_START=0xc0000000
+-# CONFIG_TASK_SIZE_BOOL is not set
+ CONFIG_TASK_SIZE=0x80000000
+ CONFIG_BOOT_LOAD=0x00800000
  
- 		case ACPI_RSTYPE_EXT_IRQ:
- 			ext_irq = &res->data.extended_irq;
--			if (ext_irq->number_of_interrupts > 0)
-+			if (ext_irq->number_of_interrupts > 0) {
- 				i8042_res->irq =
- 					acpi_register_gsi(ext_irq->interrupts[0],
- 							  ext_irq->edge_level,
- 							  ext_irq->active_high_low);
-+				if (i8042_lsacpi)
-+					printk("  gsi %d -> irq %d\n", ext_irq->interrupts[0], i8042_res->irq);
-+			}
- 			break;
- 	}
- 	return AE_OK;
-@@ -197,10 +205,46 @@
- 	},
- };
+@@ -155,7 +164,10 @@ CONFIG_BOOT_LOAD=0x00800000
+ #
+ # Generic Driver Options
+ #
++# CONFIG_STANDALONE is not set
++CONFIG_PREVENT_FIRMWARE_BUILD=y
+ # CONFIG_FW_LOADER is not set
++# CONFIG_DEBUG_DRIVER is not set
  
-+static acpi_status acpi_list_device(acpi_handle handle, u32 level, void *context, void **retval)
-+{
-+	acpi_status status;
-+	struct acpi_buffer buffer;
-+	struct acpi_device_info *dev_info;
-+	struct acpi_compatible_id_list *cid_list;
-+	struct i8042_acpi_resources i8042;
-+	int i;
-+
-+	buffer.length = ACPI_ALLOCATE_LOCAL_BUFFER;
-+	status = acpi_get_object_info(handle, &buffer);
-+	if (ACPI_FAILURE(status))
-+		return AE_OK;
-+
-+	dev_info = buffer.pointer;
-+	if (!dev_info->hardware_id.value[0])
-+		return AE_OK;
-+
-+	printk("HID %s", dev_info->hardware_id.value);
-+	cid_list = &dev_info->compatibility_id;
-+	if (cid_list->count) {
-+		printk(" CID");
-+		for (i = 0; i < cid_list->count; i++)
-+			printk(" %s", cid_list->id[i].value);
-+	}
-+	printk("\n");
-+
-+	acpi_walk_resources(handle, METHOD_NAME__CRS,
-+		i8042_acpi_parse_resource, &i8042);
-+
-+	return AE_OK;
-+}
-+
- static int i8042_acpi_init(void)
- {
- 	int result;
+ #
+ # Memory Technology Devices (MTD)
+@@ -176,6 +188,7 @@ CONFIG_BOOT_LOAD=0x00800000
+ # Block devices
+ #
+ CONFIG_BLK_DEV_FD=m
++# CONFIG_MAC_FLOPPY is not set
+ # CONFIG_BLK_DEV_XD is not set
+ # CONFIG_BLK_CPQ_DA is not set
+ # CONFIG_BLK_CPQ_CISS_DA is not set
+@@ -184,7 +197,8 @@ CONFIG_BLK_DEV_FD=m
+ CONFIG_BLK_DEV_LOOP=y
+ # CONFIG_BLK_DEV_CRYPTOLOOP is not set
+ # CONFIG_BLK_DEV_NBD is not set
+-# CONFIG_BLK_DEV_CARMEL is not set
++# CONFIG_BLK_DEV_SX8 is not set
++# CONFIG_BLK_DEV_UB is not set
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
+@@ -199,13 +213,13 @@ CONFIG_BLK_DEV_IDE=y
+ #
+ # Please see Documentation/ide.txt for help/info on IDE drives
+ #
++# CONFIG_BLK_DEV_IDE_SATA is not set
+ CONFIG_BLK_DEV_IDEDISK=y
+ # CONFIG_IDEDISK_MULTI_MODE is not set
+-# CONFIG_IDEDISK_STROKE is not set
+ CONFIG_BLK_DEV_IDECD=y
+ # CONFIG_BLK_DEV_IDETAPE is not set
+ CONFIG_BLK_DEV_IDEFLOPPY=y
+-CONFIG_BLK_DEV_IDESCSI=y
++# CONFIG_BLK_DEV_IDESCSI is not set
+ # CONFIG_IDE_TASK_IOCTL is not set
+ # CONFIG_IDE_TASKFILE_IO is not set
  
-+	if (i8042_lsacpi)
-+		acpi_get_devices(NULL, acpi_list_device, NULL, NULL);
+@@ -249,6 +263,7 @@ CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST=y
+ CONFIG_BLK_DEV_IDEDMA_PMAC=y
+ CONFIG_BLK_DEV_IDE_PMAC_BLINK=y
+ CONFIG_BLK_DEV_IDEDMA_PMAC_AUTO=y
++# CONFIG_IDE_ARM is not set
+ # CONFIG_IDE_CHIPSETS is not set
+ CONFIG_BLK_DEV_IDEDMA=y
+ # CONFIG_IDEDMA_IVB is not set
+@@ -275,7 +290,6 @@ CONFIG_CHR_DEV_SG=y
+ # Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+ #
+ # CONFIG_SCSI_MULTI_LUN is not set
+-CONFIG_SCSI_REPORT_LUNS=y
+ CONFIG_SCSI_CONSTANTS=y
+ # CONFIG_SCSI_LOGGING is not set
+ 
+@@ -289,6 +303,7 @@ CONFIG_SCSI_SPI_ATTRS=y
+ # SCSI low-level drivers
+ #
+ # CONFIG_BLK_DEV_3W_XXXX_RAID is not set
++# CONFIG_SCSI_3W_9XXX is not set
+ # CONFIG_SCSI_7000FASST is not set
+ # CONFIG_SCSI_ACARD is not set
+ # CONFIG_SCSI_AHA152X is not set
+@@ -297,18 +312,17 @@ CONFIG_SCSI_SPI_ATTRS=y
+ CONFIG_SCSI_AIC7XXX=m
+ CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+ CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+-# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+ CONFIG_AIC7XXX_DEBUG_ENABLE=y
+ CONFIG_AIC7XXX_DEBUG_MASK=0
+ CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+ CONFIG_SCSI_AIC7XXX_OLD=m
+ # CONFIG_SCSI_AIC79XX is not set
+-CONFIG_SCSI_ADVANSYS=m
++# CONFIG_SCSI_DPT_I2O is not set
+ # CONFIG_SCSI_IN2000 is not set
+-# CONFIG_SCSI_MEGARAID is not set
++# CONFIG_MEGARAID_NEWGEN is not set
++# CONFIG_MEGARAID_LEGACY is not set
+ # CONFIG_SCSI_SATA is not set
+ # CONFIG_SCSI_BUSLOGIC is not set
+-# CONFIG_SCSI_CPQFCTS is not set
+ # CONFIG_SCSI_DMX3191D is not set
+ # CONFIG_SCSI_DTC3280 is not set
+ # CONFIG_SCSI_EATA is not set
+@@ -385,8 +399,6 @@ CONFIG_ADB_PMU=y
+ CONFIG_PMAC_PBOOK=y
+ CONFIG_PMAC_APM_EMU=y
+ CONFIG_PMAC_BACKLIGHT=y
+-# CONFIG_MAC_FLOPPY is not set
+-CONFIG_MAC_SERIAL=m
+ CONFIG_ADB_MACIO=y
+ CONFIG_INPUT_ADBHID=y
+ CONFIG_MAC_EMUMOUSEBTN=y
+@@ -419,6 +431,7 @@ CONFIG_SYN_COOKIES=y
+ # CONFIG_INET_AH is not set
+ # CONFIG_INET_ESP is not set
+ # CONFIG_INET_IPCOMP is not set
++# CONFIG_INET_TUNNEL is not set
+ 
+ #
+ # IP: Virtual Server Configuration
+@@ -432,6 +445,8 @@ CONFIG_NETFILTER=y
+ # IP: Netfilter Configuration
+ #
+ CONFIG_IP_NF_CONNTRACK=m
++# CONFIG_IP_NF_CT_ACCT is not set
++# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+ CONFIG_IP_NF_TFTP=m
+@@ -456,8 +471,14 @@ CONFIG_IP_NF_MATCH_HELPER=m
+ CONFIG_IP_NF_MATCH_STATE=m
+ CONFIG_IP_NF_MATCH_CONNTRACK=m
+ CONFIG_IP_NF_MATCH_OWNER=m
++# CONFIG_IP_NF_MATCH_ADDRTYPE is not set
++# CONFIG_IP_NF_MATCH_REALM is not set
++# CONFIG_IP_NF_MATCH_SCTP is not set
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
++# CONFIG_IP_NF_TARGET_LOG is not set
++# CONFIG_IP_NF_TARGET_ULOG is not set
++CONFIG_IP_NF_TARGET_TCPMSS=m
+ CONFIG_IP_NF_NAT=m
+ CONFIG_IP_NF_NAT_NEEDED=y
+ CONFIG_IP_NF_TARGET_MASQUERADE=m
+@@ -471,16 +492,13 @@ CONFIG_IP_NF_NAT_FTP=m
+ CONFIG_IP_NF_NAT_TFTP=m
+ CONFIG_IP_NF_NAT_AMANDA=m
+ # CONFIG_IP_NF_MANGLE is not set
+-# CONFIG_IP_NF_TARGET_LOG is not set
+-# CONFIG_IP_NF_TARGET_ULOG is not set
+-CONFIG_IP_NF_TARGET_TCPMSS=m
++CONFIG_IP_NF_RAW=m
++CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+ CONFIG_IP_NF_ARPFILTER=m
+ CONFIG_IP_NF_ARP_MANGLE=m
+ CONFIG_IP_NF_COMPAT_IPCHAINS=m
+ # CONFIG_IP_NF_COMPAT_IPFWADM is not set
+-CONFIG_IP_NF_TARGET_NOTRACK=m
+-CONFIG_IP_NF_RAW=m
+ 
+ #
+ # SCTP Configuration (EXPERIMENTAL)
+@@ -504,6 +522,7 @@ CONFIG_IP_NF_RAW=m
+ # QoS and/or fair queueing
+ #
+ # CONFIG_NET_SCHED is not set
++# CONFIG_NET_CLS_ROUTE is not set
+ 
+ #
+ # Network testing
+@@ -533,9 +552,8 @@ CONFIG_MII=y
+ CONFIG_MACE=y
+ # CONFIG_MACE_AAUI_PORT is not set
+ CONFIG_BMAC=y
+-# CONFIG_OAKNET is not set
+ # CONFIG_HAPPYMEAL is not set
+-# CONFIG_SUNGEM is not set
++CONFIG_SUNGEM=y
+ # CONFIG_NET_VENDOR_3COM is not set
+ # CONFIG_LANCE is not set
+ # CONFIG_NET_VENDOR_SMC is not set
+@@ -571,6 +589,7 @@ CONFIG_PCNET32=y
+ # CONFIG_SUNDANCE is not set
+ # CONFIG_TLAN is not set
+ # CONFIG_VIA_RHINE is not set
++# CONFIG_VIA_VELOCITY is not set
+ # CONFIG_NET_POCKET is not set
+ 
+ #
+@@ -634,15 +653,14 @@ CONFIG_NET_WIRELESS=y
+ # CONFIG_HIPPI is not set
+ CONFIG_PPP=y
+ CONFIG_PPP_MULTILINK=y
+-# CONFIG_PPP_FILTER is not set
++CONFIG_PPP_FILTER=y
+ CONFIG_PPP_ASYNC=y
+ # CONFIG_PPP_SYNC_TTY is not set
+ CONFIG_PPP_DEFLATE=y
+-# CONFIG_PPP_BSDCOMP is not set
+-# CONFIG_PPPOE is not set
++CONFIG_PPP_BSDCOMP=m
++CONFIG_PPPOE=m
+ # CONFIG_SLIP is not set
+ # CONFIG_NET_FC is not set
+-# CONFIG_RCPCI is not set
+ # CONFIG_SHAPER is not set
+ # CONFIG_NETCONSOLE is not set
+ 
+@@ -671,7 +689,7 @@ CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+ # CONFIG_INPUT_JOYDEV is not set
+ # CONFIG_INPUT_TSDEV is not set
+ CONFIG_INPUT_EVDEV=y
+-CONFIG_INPUT_EVBUG=y
++# CONFIG_INPUT_EVBUG is not set
+ 
+ #
+ # Input I/O drivers
+@@ -724,12 +742,12 @@ CONFIG_SERIAL_8250_NR_UARTS=4
+ # Non-8250 serial port support
+ #
+ CONFIG_SERIAL_CORE=y
++CONFIG_SERIAL_CORE_CONSOLE=y
+ CONFIG_SERIAL_PMACZILOG=y
+-# CONFIG_SERIAL_PMACZILOG_CONSOLE is not set
++CONFIG_SERIAL_PMACZILOG_CONSOLE=y
+ CONFIG_UNIX98_PTYS=y
+ CONFIG_LEGACY_PTYS=y
+ CONFIG_LEGACY_PTY_COUNT=256
+-# CONFIG_QIC02_TAPE is not set
+ 
+ #
+ # IPMI
+@@ -750,7 +768,6 @@ CONFIG_GEN_RTC=y
+ #
+ # Ftape, the floppy tape device driver
+ #
+-# CONFIG_FTAPE is not set
+ # CONFIG_AGP is not set
+ # CONFIG_DRM is not set
+ # CONFIG_RAW_DRIVER is not set
+@@ -766,6 +783,7 @@ CONFIG_I2C_CHARDEV=m
+ #
+ CONFIG_I2C_ALGOBIT=y
+ # CONFIG_I2C_ALGOPCF is not set
++# CONFIG_I2C_ALGOPCA is not set
+ 
+ #
+ # I2C Hardware Bus support
+@@ -793,23 +811,29 @@ CONFIG_I2C_KEYWEST=m
+ # CONFIG_I2C_VIA is not set
+ # CONFIG_I2C_VIAPRO is not set
+ # CONFIG_I2C_VOODOO3 is not set
++# CONFIG_I2C_PCA_ISA is not set
+ 
+ #
+ # Hardware Sensors Chip support
+ #
+ # CONFIG_I2C_SENSOR is not set
+ # CONFIG_SENSORS_ADM1021 is not set
++# CONFIG_SENSORS_ADM1025 is not set
++# CONFIG_SENSORS_ADM1031 is not set
+ # CONFIG_SENSORS_ASB100 is not set
+ # CONFIG_SENSORS_DS1621 is not set
+ # CONFIG_SENSORS_FSCHER is not set
+ # CONFIG_SENSORS_GL518SM is not set
+ # CONFIG_SENSORS_IT87 is not set
+ # CONFIG_SENSORS_LM75 is not set
++# CONFIG_SENSORS_LM77 is not set
+ # CONFIG_SENSORS_LM78 is not set
+ # CONFIG_SENSORS_LM80 is not set
+ # CONFIG_SENSORS_LM83 is not set
+ # CONFIG_SENSORS_LM85 is not set
+ # CONFIG_SENSORS_LM90 is not set
++# CONFIG_SENSORS_MAX1619 is not set
++# CONFIG_SENSORS_SMSC47M1 is not set
+ # CONFIG_SENSORS_VIA686A is not set
+ # CONFIG_SENSORS_W83781D is not set
+ # CONFIG_SENSORS_W83L785TS is not set
+@@ -821,12 +845,18 @@ CONFIG_I2C_KEYWEST=m
+ # CONFIG_SENSORS_EEPROM is not set
+ # CONFIG_SENSORS_PCF8574 is not set
+ # CONFIG_SENSORS_PCF8591 is not set
++# CONFIG_SENSORS_RTC8564 is not set
+ # CONFIG_I2C_DEBUG_CORE is not set
+ # CONFIG_I2C_DEBUG_ALGO is not set
+ # CONFIG_I2C_DEBUG_BUS is not set
+ # CONFIG_I2C_DEBUG_CHIP is not set
+ 
+ #
++# Dallas's 1-wire bus
++#
++# CONFIG_W1 is not set
 +
- 	if (i8042_noacpi) {
- 		printk("i8042: ACPI detection disabled\n");
- 		return 0;
++#
+ # Misc devices
+ #
+ 
+@@ -844,6 +874,8 @@ CONFIG_I2C_KEYWEST=m
+ # Graphics support
+ #
+ CONFIG_FB=y
++CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_CIRRUS is not set
+ # CONFIG_FB_PM2 is not set
+ # CONFIG_FB_CYBER2000 is not set
+ CONFIG_FB_OF=y
+@@ -851,8 +883,8 @@ CONFIG_FB_CONTROL=y
+ CONFIG_FB_PLATINUM=y
+ CONFIG_FB_VALKYRIE=y
+ CONFIG_FB_CT65550=y
++# CONFIG_FB_ASILIANT is not set
+ CONFIG_FB_IMSTT=y
+-# CONFIG_FB_S3TRIO is not set
+ # CONFIG_FB_VGA16 is not set
+ # CONFIG_FB_RIVA is not set
+ CONFIG_FB_MATROX=y
+@@ -877,6 +909,7 @@ CONFIG_FB_ATY_GX=y
+ # CONFIG_FB_NEOMAGIC is not set
+ # CONFIG_FB_KYRO is not set
+ CONFIG_FB_3DFX=y
++# CONFIG_FB_3DFX_ACCEL is not set
+ # CONFIG_FB_VOODOO1 is not set
+ # CONFIG_FB_TRIDENT is not set
+ # CONFIG_FB_VIRTUAL is not set
+@@ -888,7 +921,6 @@ CONFIG_VGA_CONSOLE=y
+ # CONFIG_MDA_CONSOLE is not set
+ CONFIG_DUMMY_CONSOLE=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+-CONFIG_PCI_CONSOLE=y
+ # CONFIG_FONTS is not set
+ CONFIG_FONT_8x8=y
+ CONFIG_FONT_8x16=y
+@@ -897,9 +929,9 @@ CONFIG_FONT_8x16=y
+ # Logo configuration
+ #
+ CONFIG_LOGO=y
+-CONFIG_LOGO_LINUX_MONO=y
++# CONFIG_LOGO_LINUX_MONO is not set
+ CONFIG_LOGO_LINUX_VGA16=y
+-CONFIG_LOGO_LINUX_CLUT224=y
++# CONFIG_LOGO_LINUX_CLUT224 is not set
+ 
+ #
+ # Sound
+@@ -967,6 +999,7 @@ CONFIG_SND_CS4232=m
+ #
+ # CONFIG_SND_ALI5451 is not set
+ # CONFIG_SND_ATIIXP is not set
++# CONFIG_SND_ATIIXP_MODEM is not set
+ # CONFIG_SND_AU8810 is not set
+ # CONFIG_SND_AU8820 is not set
+ # CONFIG_SND_AU8830 is not set
+@@ -1009,6 +1042,7 @@ CONFIG_SND_POWERMAC=m
+ # ALSA USB devices
+ #
+ CONFIG_SND_USB_AUDIO=m
++# CONFIG_SND_USB_USX2Y is not set
+ 
+ #
+ # Open Sound System
+@@ -1027,6 +1061,8 @@ CONFIG_USB=y
+ CONFIG_USB_DEVICEFS=y
+ # CONFIG_USB_BANDWIDTH is not set
+ # CONFIG_USB_DYNAMIC_MINORS is not set
++CONFIG_USB_SUSPEND=y
++# CONFIG_USB_OTG is not set
+ 
+ #
+ # USB Host Controller Drivers
+@@ -1045,6 +1081,7 @@ CONFIG_USB_ACM=m
+ CONFIG_USB_PRINTER=m
+ CONFIG_USB_STORAGE=m
+ # CONFIG_USB_STORAGE_DEBUG is not set
++CONFIG_USB_STORAGE_RW_DETECT=y
+ # CONFIG_USB_STORAGE_DATAFAB is not set
+ CONFIG_USB_STORAGE_FREECOM=y
+ # CONFIG_USB_STORAGE_ISD200 is not set
+@@ -1066,6 +1103,7 @@ CONFIG_USB_HIDINPUT=y
+ # CONFIG_USB_KBTAB is not set
+ # CONFIG_USB_POWERMATE is not set
+ # CONFIG_USB_MTOUCH is not set
++# CONFIG_USB_EGALAX is not set
+ # CONFIG_USB_XPAD is not set
+ # CONFIG_USB_ATI_REMOTE is not set
+ 
+@@ -1115,18 +1153,18 @@ CONFIG_USB_SERIAL_VISOR=m
+ # CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+ # CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+ CONFIG_USB_SERIAL_KEYSPAN=m
+-# CONFIG_USB_SERIAL_KEYSPAN_MPR is not set
++CONFIG_USB_SERIAL_KEYSPAN_MPR=y
+ CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+ CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+-# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+-# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
++CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
++CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
+ CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+ CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+ CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+-# CONFIG_USB_SERIAL_KEYSPAN_USA19QW is not set
+-# CONFIG_USB_SERIAL_KEYSPAN_USA19QI is not set
++CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
++CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
+ CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+-# CONFIG_USB_SERIAL_KEYSPAN_USA49WLC is not set
++CONFIG_USB_SERIAL_KEYSPAN_USA49WLC=y
+ # CONFIG_USB_SERIAL_KLSI is not set
+ # CONFIG_USB_SERIAL_KOBIL_SCT is not set
+ # CONFIG_USB_SERIAL_MCT_U232 is not set
+@@ -1149,6 +1187,7 @@ CONFIG_USB_EZUSB=y
+ # CONFIG_USB_LCD is not set
+ # CONFIG_USB_LED is not set
+ # CONFIG_USB_CYTHERM is not set
++# CONFIG_USB_PHIDGETSERVO is not set
+ # CONFIG_USB_TEST is not set
+ 
+ #
+@@ -1176,8 +1215,9 @@ CONFIG_EXT2_FS=y
+ # CD-ROM/DVD Filesystems
+ #
+ CONFIG_ISO9660_FS=y
+-# CONFIG_JOLIET is not set
+-# CONFIG_ZISOFS is not set
++CONFIG_JOLIET=y
++CONFIG_ZISOFS=y
++CONFIG_ZISOFS_FS=y
+ # CONFIG_UDF_FS is not set
+ 
+ #
+@@ -1186,6 +1226,8 @@ CONFIG_ISO9660_FS=y
+ CONFIG_FAT_FS=m
+ CONFIG_MSDOS_FS=m
+ CONFIG_VFAT_FS=m
++CONFIG_FAT_DEFAULT_CODEPAGE=437
++CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+ # CONFIG_NTFS_FS is not set
+ 
+ #
+@@ -1194,9 +1236,7 @@ CONFIG_VFAT_FS=m
+ CONFIG_PROC_FS=y
+ CONFIG_PROC_KCORE=y
+ CONFIG_SYSFS=y
+-CONFIG_DEVFS_FS=y
+-# CONFIG_DEVFS_MOUNT is not set
+-# CONFIG_DEVFS_DEBUG is not set
++# CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
+ # CONFIG_HUGETLB_PAGE is not set
+@@ -1212,7 +1252,7 @@ CONFIG_HFSPLUS_FS=m
+ # CONFIG_BEFS_FS is not set
+ # CONFIG_BFS_FS is not set
+ # CONFIG_EFS_FS is not set
+-# CONFIG_CRAMFS is not set
++CONFIG_CRAMFS=m
+ # CONFIG_VXFS_FS is not set
+ # CONFIG_HPFS_FS is not set
+ # CONFIG_QNX4FS_FS is not set
+@@ -1235,6 +1275,7 @@ CONFIG_LOCKD_V4=y
+ CONFIG_EXPORTFS=y
+ CONFIG_SUNRPC=y
+ # CONFIG_RPCSEC_GSS_KRB5 is not set
++# CONFIG_RPCSEC_GSS_SPKM3 is not set
+ # CONFIG_SMB_FS is not set
+ # CONFIG_CIFS is not set
+ # CONFIG_NCP_FS is not set
+@@ -1256,7 +1297,6 @@ CONFIG_MSDOS_PARTITION=y
+ # CONFIG_SOLARIS_X86_PARTITION is not set
+ # CONFIG_UNIXWARE_DISKLABEL is not set
+ # CONFIG_LDM_PARTITION is not set
+-# CONFIG_NEC98_PARTITION is not set
+ # CONFIG_SGI_PARTITION is not set
+ # CONFIG_ULTRIX_PARTITION is not set
+ # CONFIG_SUN_PARTITION is not set
+@@ -1290,6 +1330,7 @@ CONFIG_NLS_DEFAULT="iso8859-1"
+ # CONFIG_NLS_ISO8859_8 is not set
+ # CONFIG_NLS_CODEPAGE_1250 is not set
+ # CONFIG_NLS_CODEPAGE_1251 is not set
++CONFIG_NLS_ASCII=m
+ CONFIG_NLS_ISO8859_1=m
+ # CONFIG_NLS_ISO8859_2 is not set
+ # CONFIG_NLS_ISO8859_3 is not set
+@@ -1303,20 +1344,35 @@ CONFIG_NLS_ISO8859_1=m
+ # CONFIG_NLS_ISO8859_15 is not set
+ # CONFIG_NLS_KOI8_R is not set
+ # CONFIG_NLS_KOI8_U is not set
+-# CONFIG_NLS_UTF8 is not set
++CONFIG_NLS_UTF8=m
+ 
+ #
+ # Library routines
+ #
++CONFIG_CRC_CCITT=y
+ CONFIG_CRC32=y
+ # CONFIG_LIBCRC32C is not set
+ CONFIG_ZLIB_INFLATE=y
+ CONFIG_ZLIB_DEFLATE=y
+ 
+ #
++# Profiling support
++#
++# CONFIG_PROFILING is not set
++
++#
+ # Kernel hacking
+ #
+-# CONFIG_DEBUG_KERNEL is not set
++CONFIG_DEBUG_KERNEL=y
++CONFIG_DEBUG_SEND_SIGSTOP=y
++CONFIG_MAGIC_SYSRQ=y
++# CONFIG_DEBUG_SLAB is not set
++# CONFIG_DEBUG_SPINLOCK is not set
++# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
++# CONFIG_DEBUG_INFO is not set
++# CONFIG_XMON is not set
++# CONFIG_BDI_SWITCH is not set
++# CONFIG_SCHEDSTATS is not set
+ CONFIG_BOOTX_TEXT=y
+ 
+ #
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

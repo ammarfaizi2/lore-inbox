@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268938AbTGJFky (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 01:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268939AbTGJFky
+	id S266275AbTGJFwv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 01:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268939AbTGJFwv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 01:40:54 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:36931 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S268938AbTGJFkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 01:40:53 -0400
-Date: Thu, 10 Jul 2003 01:55:26 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200307100555.h6A5tQV21673@devserv.devel.redhat.com>
-To: Werner Almesberger <wa@almesberger.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: crypto API and IBM z990 hardware support
-In-Reply-To: <mailman.1057799700.15422.linux-kernel2news@redhat.com>
-References: <OF1BACB1D3.F4409038-ONC1256D57.00247A0A-C1256D57.002701D8@de.ibm.com> <Mutt.LNX.4.44.0307021913540.31308-100000@excalibur.intercode.com.au> <20030707080929.A1848@infradead.org> <20030707.195350.39170946.davem@redhat.com> <mailman.1057799700.15422.linux-kernel2news@redhat.com>
+	Thu, 10 Jul 2003 01:52:51 -0400
+Received: from holomorphy.com ([66.224.33.161]:44975 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S266275AbTGJFwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 01:52:50 -0400
+Date: Wed, 9 Jul 2003 23:08:41 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Piet Delaney <piet@www.piet.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
+Message-ID: <20030710060841.GQ15452@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@osdl.org>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030708223548.791247f5.akpm@osdl.org> <200307091106.00781.schlicht@uni-mannheim.de> <20030709021849.31eb3aec.akpm@osdl.org> <1057815890.22772.19.camel@www.piet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1057815890.22772.19.camel@www.piet.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I totally disagree.  I think the way we do things today is _STUPID_.
->> We put arch code far away from the generic version which makes finding
->> stuff very difficult for people inspecting the code for the first time.
->> 
->> For example, the fact that I have to go groveling in
->> arch/foo/lib/whoknowswhatfile.whoknowswhatextension to look at
->> the memcpy/checksum/whatever implementation is completely busted.
+On Wed, Jul 09, 2003 at 10:44:50PM -0700, Piet Delaney wrote:
+> I'll settle for Matt Mackall <mpm@selenic.com> fix for now:
+>     +#define apm_save_cpus()        (current->cpus_allowed)
+> I wonder why other, like Thomas Schlichter <schlicht@uni-mannheim.de>,
+> had no problem with the CPU_MASK_NONE fix.
+> I tried adding the #include <linux/cpumask.h> that Marc-Christian
+> Petersen <m.c.p@wolk-project.de> sugested but it didn't help. Looks
+> like Jan De Luyck <lkml@kcore.org> had a similar result. 
 
-> E.g. most of include/net/tcp.h pretty much only matters for
-> net/ipv4/. It would be so nice if a  grep -w thing *.[ch]  in
-> net/ipv4/ would really find all uses of "thing".
+Ugh. Fixing.
 
-I always do this:
 
-cd linux
-find . \( -name 'Make*' -o -name '*.[hcS]' \) > src.list
-cat src.list| LANG=C xargs grep foo
-
-It's only a CPU time, really.
-
--- Pete
+-- wli

@@ -1,76 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265393AbTFZDZf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 23:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265392AbTFZDZf
+	id S265375AbTFZDYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 23:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbTFZDYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 23:25:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24588 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S265383AbTFZDZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 23:25:25 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Crusoe's performance on linux?
-Date: 25 Jun 2003 20:39:32 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <bddptk$gqc$1@cesium.transmeta.com>
-References: <3EF1E6CD.4040800@thai.com> <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com>
+	Wed, 25 Jun 2003 23:24:07 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:32522 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S265375AbTFZDYE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 23:24:04 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Larry McVoy" <lm@bitmover.com>, "David Schwartz" <davids@webmaster.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Wed, 25 Jun 2003 20:38:15 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGGEFBDBAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20030626011440.GB17417@work.bitmover.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3EF67AD4.4040601@thai.com>
-By author:    Samphan Raruenrom <samphan@thai.com>
-In newsgroup: linux.dev.kernel
->
-> Vojtech Pavlik wrote:
-> > Could you a test just for me? Take vanilla 2.4.21 and then
-> > make oldconfig; make dep; time make bzImage 
-> > That's basically what I want to know how long will take, since
-> > it's one of the most common time consuming tasks the thing will
-> > have to handle.
-> Done! Here're the results:-
-> 
-> Desktop - Pentium III 1 G Hz 754 MB	->	10.x min.
-> Tablet PC - Crusoe TM5800 1 GHz 731 MB	->	17.x min.
-> 
->  From freshdiagnos benchmack, the TPC has about 2x faster RAM.
-> I use tmpfs for the whole process so disk speed didn't count.
-> Both test run without X or any foreground process using
-> 2.4.21-ac1 and RedHat kernel.
-> 
+With apologies to the group, I have to call a foul...
 
-For what it's worth, we have been completely unable to reproduce these
-kinds of results at Transmeta; our results are in fact very consistent
-with the numbers reported by some people for the Sharp MM-10 "Kitty"
-which is also a 1 GHz TM5800; all of them have been in the 10 minute
-ballpark.
+-----Original Message-----
+From: Larry McVoy [mailto:lm@bitmover.com]
+Sent: Wednesday, June 25, 2003 6:15 PM
+To: David Schwartz
+Cc: Larry McVoy; Robert White; linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
 
-I have written a script to try to give a consistent compile benchmark;
-however, one still needs to make sure that DMA is turned on (hdparm -d
-/dev/hda); obviously, the compiler etc should not be on NFS.
 
-The timed portion (make -j3 bzImage) part of this script takes
-10m15.035s real time (user 9m10.890s, sys 0m43.350s) on my 1067 MHz
-Crusoe prototype system (256MB SDR, 256MB DDR, ATA33 disk) -- don't
-have TC1000 Tablet PC numbers yet, but I have asked someone to run it
--- running RedHat 9 including distro kernel and gcc 3.2.2.  It
-produced a bzImage file that's 1151608 bytes long when I ran it.
+> On Wed, Jun 25, 2003 at 04:05:01PM -0700, David Schwartz wrote:
+> > 	If I see an argument, I don't give a damn who made it.
 
-Note that it uses "make -j3" for the bzImage, and so aren't really
-comparable to your times listed above.
+> Couldn't agree more.
 
-You obviously need to point the KERNEL variable at a suitable copy of
-linux-2.4.21.tar.gz.  The script needs to run as root in order to
-create the tmpfs.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Sorry Larry, but you lie.  Pick a position and stick to it.
+
+Three messages ago you came right out and said:
+
+From: Larry McVoy [mailto:lm@bitmover.com]
+Sent: Tuesday, June 24, 2003 8:50 PM
+
+> Hmm.  With all due respect, I think that arguing business with someone
+> who has yet to be sucessful at it is not likely to help me or help the
+> open source world.
+
+Which is *EXACTLY* measuring an argument on "who said it" and not on the
+merits of the argument itself.  And was a restatement of clear subtext of
+the message two back from that one:
+
+From: Larry McVoy [mailto:lm@bitmover.com]
+Sent: Tuesday, June 24, 2003 6:21 PM
+
+> I've taken one pass through your message.  Sounds like you have thought
+> about this.  My question for you is have you run a business?  Do you
+> have employees?  How many?
+
+> I have no idea where on the spectrum you sit but the thought has occurred
+> to me that arguing business models with people who are operating from
+> a 100% theoretical position is likely to not reach any agreement in my
+> lifetime.
+
+
+I see now that you are just here to lobby for your unsupportable position
+and you will pander to the appearance of reasonability while you demonstrate
+your fundamental inability to stick to a position.
+
+Go into politics, it is calling you...
+
+
+Rob.
+

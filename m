@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269987AbTGOX7D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 19:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269983AbTGOX7D
+	id S269925AbTGPAB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 20:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269933AbTGPAB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 19:59:03 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:4434 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S269957AbTGOX66 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 19:58:58 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200307160013.h6G0Df906030@devserv.devel.redhat.com>
-Subject: Re: [PATCH] (2.4.22-pre6 BK) New (IDE) driver: SGI IOC4
-To: jgarzik@pobox.com (Jeff Garzik)
-Date: Tue, 15 Jul 2003 20:13:41 -0400 (EDT)
-Cc: cw@sgi.com (Christopher Wedgwood),
-       marcelo@conectiva.com.br (Marcelo Tosatti), alan@redhat.com (Alan Cox),
-       linux-kernel@vger.kernel.org, wildos@sgi.com
-In-Reply-To: <3F149276.10600@pobox.com> from "Jeff Garzik" at Gor 15, 2003 07:47:02 
-X-Mailer: ELM [version 2.5 PL6]
+	Tue, 15 Jul 2003 20:01:58 -0400
+Received: from [66.62.77.7] ([66.62.77.7]:61912 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S269925AbTGPAB4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 20:01:56 -0400
+Date: Tue, 15 Jul 2003 18:16:46 -0600 (MDT)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: linux-kernel@vger.kernel.org
+Subject: Synaptics Touchpad 2.6.0-test1 problem
+Message-ID: <Pine.LNX.4.44.0307151809380.31633-100000@mooru.gurulabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ITYM TASK_UNINTERRUPTIBLE, because you definitely don't handle being 
-> interrupted... :)
 
-<2.4 IDE maintainer hat on>
-Marcelo can you skip integrating this until we work through the questions
-and a few others I'll write down tomorrow, so we get this merged nicely
-</Hat>
+I'm using XFree86-4.3.0-17, I have the synaptics XF86 0.11.3p6 driver 
+installed.
+
+I have input, evdev, mousedev, psmouse in the kernel.
+
+I get happy dmesg output when psmouse loads.
+
+When X starts the cursor sits in the middle of the screen and won't move 
+when I touch the touchpad or the buttons.
+
+On the TTY from which I started the X server I see:
+
+Synaptics DeviceInit called
+SynapticsCtrl called
+Synaptics DeviceOn called
+SynapticsCtrl called
+SynapticsCtrl called
+Synaptics DeviceOff called
+
+This last message looks suspicious. I dunno, maybe it's normal.  Either 
+way the touchpad doesn't work.
+
+Dax
+

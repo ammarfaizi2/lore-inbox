@@ -1,71 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318982AbSHFESB>; Tue, 6 Aug 2002 00:18:01 -0400
+	id <S317845AbSHFHRc>; Tue, 6 Aug 2002 03:17:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318984AbSHFESB>; Tue, 6 Aug 2002 00:18:01 -0400
-Received: from 24.213.60.123.up.mi.chartermi.net ([24.213.60.123]:50623 "EHLO
-	front1.chartermi.net") by vger.kernel.org with ESMTP
-	id <S318982AbSHFESA>; Tue, 6 Aug 2002 00:18:00 -0400
-From: Nathaniel Russell <reddog83@chartermi.net> (by way of Nathaniel
-	Russell <reddog83@chartermi.net>)
-Reply-To: reddog83@chartermi.net
-Organization: RedDog GNu/Linux
-Subject: [PATCH] trivial patch for 2.4.20-pre1 8139too.c driver
-Date: Tue, 6 Aug 2002 00:18:01 +0000
-X-Mailer: KMail [version 1.4]
-To: linux-kernel@vger.kernel.org
+	id <S318175AbSHFHRc>; Tue, 6 Aug 2002 03:17:32 -0400
+Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:40630 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S317845AbSHFHRb>;
+	Tue, 6 Aug 2002 03:17:31 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: venom@sns.it, Thomas Munck Steenholdt <tmus@get2net.dk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: i810 sound broken...
+References: <Pine.LNX.4.43.0208051546120.8463-100000@cibs9.sns.it>
+	<1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 05 Aug 2002 23:38:10 +0200
+In-Reply-To: <1028561325.18478.55.camel@irongate.swansea.linux.org.uk>
+Message-ID: <m31y9dt29p.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_1IBEL9KKBJDQAD86XGC8"
-Message-Id: <200208060018.01472.reddog83@chartermi.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_1IBEL9KKBJDQAD86XGC8
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Different thing about 810, brand spanking new Compaq
+Game^H^H^H^Hlaptop and it gives good sound, but shows this on boot:
 
-This patch removes unneeded code for the Realtek driver this patch does n=
-ot
-harm the performance of the driver at all it just removes dead code
+i810: Intel ICH3 found at IO 0x4400 and 0x4000, IRQ 5
+i810_audio: Audio Controller supports 6 channels.
+ac97_codec: AC97 Audio codec, id: 0x4144:0x5363 (Unknown)
+i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's \
+not present), total channels = 2
 
+lspci -vvv shows this:
 
---------------Boundary-00=_1IBEL9KKBJDQAD86XGC8
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="diff"
+00:1f.5 Multimedia audio controller: Intel Corp. 82801CA/CAM AC'97 Audio (rev 02)
+	Subsystem: Compaq Computer Corporation: Unknown device 004a
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin B routed to IRQ 5
+	Region 0: I/O ports at 4000 [size=256]
+	Region 1: I/O ports at 4400 [size=64]
 
-diff -urN linux-2.4/drivers/net/8139too.c.tmp linux/drivers/net/8139too.c
---- linux-2.4/drivers/net/8139too.c.tmp	Mon Aug  5 18:06:03 2002
-+++ linux/drivers/net/8139.c	Tue Aug  6 00:09:20 2002
-@@ -211,7 +211,6 @@
- 	RTL8139 = 0,
- 	RTL8139_CB,
- 	SMC1211TX,
--	/*MPX5030,*/
- 	DELTA8139,
- 	ADDTRON8139,
- 	DFE538TX,
-@@ -230,7 +229,6 @@
- 	{ "RealTek RTL8139 Fast Ethernet", RTL8139_CAPS },
- 	{ "RealTek RTL8139B PCI/CardBus", RTL8139_CAPS },
- 	{ "SMC1211TX EZCard 10/100 (RealTek RTL8139)", RTL8139_CAPS },
--/*	{ MPX5030, "Accton MPX5030 (RealTek RTL8139)", RTL8139_CAPS },*/
- 	{ "Delta Electronics 8139 10/100BaseTX", RTL8139_CAPS },
- 	{ "Addtron Technolgy 8139 10/100BaseTX", RTL8139_CAPS },
- 	{ "D-Link DFE-538TX (RealTek RTL8139)", RTL8139_CAPS },
-@@ -245,7 +243,6 @@
- 	{0x10ec, 0x8139, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8139 },
- 	{0x10ec, 0x8138, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8139_CB },
- 	{0x1113, 0x1211, PCI_ANY_ID, PCI_ANY_ID, 0, 0, SMC1211TX },
--/*	{0x1113, 0x1211, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MPX5030 },*/
- 	{0x1500, 0x1360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DELTA8139 },
- 	{0x4033, 0x1360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ADDTRON8139 },
- 	{0x1186, 0x1300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DFE538TX },
+Under Windows XP it likes to call itself a SoundMAX device.
 
---------------Boundary-00=_1IBEL9KKBJDQAD86XGC8--
+Hope its of help?
 
+ttfn,
+A
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> On Mon, 2002-08-05 at 14:47, venom@sns.it wrote:
+> > Still OSS modules for i810 does not work with 2.5 kernels, actually 2.4
+> > is fine. No time to switch to alsa (and not interested for now too).
+> 
+> OSS for 2.5 is someone elses problem. I have no plan to do any work on
+> the old OSS drivers for the 2.5 tree or even to submit 2.4 updates into
+> 2.5 for it. 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbULPOAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbULPOAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbULPOAy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 09:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbULPOAy
+	id S261934AbULPOAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 09:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbULPOAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:00:54 -0500
-Received: from h64-5-255-70.gtconnect.net ([64.5.255.70]:58884 "EHLO
-	jingo.impsolweb.ca") by vger.kernel.org with ESMTP id S261933AbULPN73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 08:59:29 -0500
-Date: Thu, 16 Dec 2004 09:59:19 -0400 (AST)
-From: Steve Bromwich <kernel@fop.ns.ca>
-To: Park Lee <parklee_sel@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Issue on connect 2 modems with a single phone line 
-In-Reply-To: <20041215184206.43601.qmail@web51505.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0412160950070.17472@brain.fop.ns.ca>
-References: <20041215184206.43601.qmail@web51505.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 16 Dec 2004 09:00:45 -0500
+Received: from almesberger.net ([63.105.73.238]:31243 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262660AbULPN55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 08:57:57 -0500
+Date: Thu, 16 Dec 2004 10:57:47 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org, kernel@kolivas.org
+Subject: Re: [RFC] Generalized prio_tree, revisited
+Message-ID: <20041216105747.T1229@almesberger.net>
+References: <20041216053118.M1229@almesberger.net> <41C16D8D.7020702@umich.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41C16D8D.7020702@umich.edu>; from vrajesh@umich.edu on Thu, Dec 16, 2004 at 06:12:13AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Dec 2004, Park Lee wrote:
+Rajesh Venkatasubramanian wrote:
+> The "raw" prio_tree can only handle unique intervals, i.e., we cannot
+> insert two intervals with the same indices.
 
-> Hi,
->   I want to try serial console in order to see the
-> complete Linux kernel oops.
->   I have 2 computers, one is a PC, and the other is a
-> Laptop. Unfortunately,my Laptop doesn't have a serial
-> port on it. But then, the each machine has a internal
-> serial modem respectively.
->   Then, can I use a telephone line to directly connect
-> the two machines via their internal modems (i.e. One
-> end of the telephone line is plugged into The PC's
-> modem, and the other end is plugged into The Laptop's
-> modem directly), and let them do the same function as
-> two serial ports and a null modem can do? If it is,
-> How to achieve that?
+Yes, I admit that I found it convenient (laziness is a survival
+trait :-) to preserve this property of the underlying code.
 
-Hi,
+In fact, I'm not so sure if we should really offer alternatives at
+that level, since it seems that adding a conflict resolution layer
+on top of prio_tree (or including it in the user) is about as much
+work as including one inside, and the former could be tailored to
+the specific needs of the user, e.g.
 
-This used to come up every now and then on the UK USR HST Fidonet echo.
-You can do this back to back with a crossover phone cable with some
-modems. Other modems require a circuit with a battery inline and resistors
-(see http://www.repairfaq.org/ELE/F_ASCII_Schem_Tel.html#ASCIISCHEMTEL_010
-for an example of the sort of thing you'd need, but I'd imagine you'll
-need to change it for your local standards). You will need to set up your
-modem on your laptop to auto-answer and save to NVRAM (usually ATS0=1&W),
-and also disable DTR detection and again save to NVRAM (usually AT&D0&W).
-On the other end you'll need to disable dial tone detection (usually ATX3)
-and then dial a dummy number (ATDT0).
+ - new entry is rejected
+ - new entry replaces old entry
+ - entries are somehow merged (reference count, add partial
+   content, etc.)
+ - entries neutralize each other
+ - both entries are kept, in a list (like VMA and the ABISS
+   elevator do)
+ - both entries are kept, ordered by some other key
+ - action depends on context
 
-As was already noted, if the modem in the laptop is a softmodem you won't
-be able to do this.
+and so on. So it seems to me that we're just at the level of
+abstraction that gives us the most narrow interface and that
+doesn't hide any information we need to implement the other
+cases. And it's just the "engine" that would be used in all
+cases anyway.
 
-Cheers, Steve
+Besides, handling of non-unique entries shouldn't such a big
+deal that the user whould be seriously inconvenienced by having
+to do it. E.g. in the case of red-black trees, we also expect
+the user to do a lot for us.
+
+> Maybe in your case you don't have to worry about storing multiple
+> identical intervals.
+
+I just build a list that's usually read in FIFO order. In
+my case, any kind of overlap needs special handling, so
+non-unique entries aren't much extra work.
+
+If I was really ambitious, I could try to combine non-unique
+requests if they all are writes (but then, having a lot of
+these is probably an indication of problems elsewhere).
+
+Thanks,
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

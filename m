@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130486AbQKJLHx>; Fri, 10 Nov 2000 06:07:53 -0500
+	id <S129932AbQKJLLN>; Fri, 10 Nov 2000 06:11:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129922AbQKJLHn>; Fri, 10 Nov 2000 06:07:43 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:21377 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129608AbQKJLHa>;
-	Fri, 10 Nov 2000 06:07:30 -0500
-Date: Fri, 10 Nov 2000 02:52:54 -0800
-Message-Id: <200011101052.CAA12344@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: asl@launay.org
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20001110115925.A16777@profile4u.com> (asl@launay.org)
-Subject: Re: Linux 2.2.18pre21
-In-Reply-To: <E13u4XD-0001oe-00@the-village.bc.nu> <20001110115925.A16777@profile4u.com>
+	id <S129722AbQKJLLD>; Fri, 10 Nov 2000 06:11:03 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:6413 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129932AbQKJLKp>; Fri, 10 Nov 2000 06:10:45 -0500
+Date: Fri, 10 Nov 2000 06:10:40 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test11-pre2
+In-Reply-To: <3A0B5C0F.D7C23116@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0011100609310.677-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2000 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Fri, 10 Nov 2000 11:59:25 +0100
-   From: "Arnaud S . Launay" <asl@launay.org>
+On Thu, 9 Nov 2000, Jeff V. Merkey wrote:
 
-   trivial patch included, not sure it's the right one.
+>>     - David Miller: sparc64 updates, make sparc32 boot again
+>>     - Davdi Millner: spel "synchronous" correctly
+>Spell "David Miller" correctly.  8).
 
-This one is better:
+I believe that was a taste of Linus's good sense of humor there
+Jeff.  ;o)  I got a good kick out of it anyway.  ;o)
 
---- kernel/sysctl.c.~1~	Thu Nov  9 19:41:52 2000
-+++ kernel/sysctl.c	Fri Nov 10 02:52:30 2000
-@@ -1173,6 +1173,13 @@
- 	return -ENOSYS;
- }
- 
-+int sysctl_jiffies(ctl_table *table, int *name, int nlen,
-+		void *oldval, size_t *oldlenp,
-+		void *newval, size_t newlen, void **context)
-+{
-+	return -ENOSYS;
-+}
-+
- int proc_dostring(ctl_table *table, int write, struct file *filp,
- 		  void *buffer, size_t *lenp)
- {
+
+----------------------------------------------------------------------
+      Mike A. Harris  -  Linux advocate  -  Open source advocate
+          This message is copyright 2000, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+
+Are you an open source developer?  Need web space?  Your own project mailing
+lists?  Bug tracking software?  CVS Repository?  Build environments?
+Head over to http://sourceforge.net for all of that, and more, for free!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

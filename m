@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270171AbRHMMrQ>; Mon, 13 Aug 2001 08:47:16 -0400
+	id <S270174AbRHMM4g>; Mon, 13 Aug 2001 08:56:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270173AbRHMMrG>; Mon, 13 Aug 2001 08:47:06 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:55547 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S270171AbRHMMqz>; Mon, 13 Aug 2001 08:46:55 -0400
-Message-Id: <5.1.0.14.2.20010813133901.02884c90@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 13 Aug 2001 13:47:02 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live!
-  heads-up
-Cc: rui.p.m.sousa@clix.pt, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), pgallen@randomlogic.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E15WGwB-0007Iq-00@the-village.bc.nu>
-In-Reply-To: <no.id>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S270176AbRHMM41>; Mon, 13 Aug 2001 08:56:27 -0400
+Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:45564 "EHLO
+	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S270174AbRHMM4M>; Mon, 13 Aug 2001 08:56:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: "Samium Gromoff" <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: strange gcc crashes...
+Date: Mon, 13 Aug 2001 05:56:06 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E15WGJY-000Ecx-00@f12.port.ru>
+In-Reply-To: <E15WGJY-000Ecx-00@f12.port.ru>
+MIME-Version: 1.0
+Message-Id: <01081305560700.00343@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:35 13/08/01, Alan Cox wrote:
-> > > It hung my SMP box solid
-> > > It spews white noise on my box with surround speakers
+On Monday 13 August 2001 04:55 am, Samium Gromoff wrote:
+> at Aug 11, 01 06:51:15 PM +0000 Mark Hahn wrote:
+> >>     so it seems to me like kernel problem...
 > >
-> > Digital or analog speakers?
+> >why is that?  I've never seen a sig11 from production >code
+> >that wasn't caused by flakey ram.  in fact, your >descriptions
+> >are a perfect example of similar hardware problems.
 >
->Analogue four output - I didnt know you had digital out working
+> and some other people told me about cpu overheating...
+>
+> but 55 minutes long memtest run showed no problems et al
+>  with cpu (P166-nonMMX-oc`ed to 180) staying warm, not by any means hot
+>  on mobo Zida 5DVX.
+>
+>  maybe 55 min is not enough for proper mem testing?
 
-Digital output on my SB Live! has been working since before the original 
-emu10k1 driver went into the kernel if my memory hasn't flipped a few bits (-;
-
-And the old driver worked absolutely fine for that matter on my Dual 
-Celeron workstation...
-
-Haven't tried the new 2.4.8 emu10k1 addition yet, and considering you are 
-reporting it hangs on smp it's probably a waste of time except to confirm 
-the hangs...
-
-Anton
-
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Synthetic tests are never as good as a real good gcc run, I'd *never* 
+trust them over the indications given by attempting to compile the kernel 
+or something big like XFree86.

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUI2Nta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268468AbUI2NxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268425AbUI2Nta (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 09:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268457AbUI2NtL
+	id S268468AbUI2NxB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 09:53:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUI2Ntm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 09:49:11 -0400
-Received: from acsn03.bu.edu ([128.197.159.63]:14787 "EHLO acsn03.bu.edu")
-	by vger.kernel.org with ESMTP id S268372AbUI2NkI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 09:40:08 -0400
-From: Geoff Mishkin <gmishkin@bu.edu>
-Reply-To: gmishkin@bu.edu
-To: linux-kernel@vger.kernel.org
-Subject: Re: Data corruption on IDE disk via USB.
-Date: Wed, 29 Sep 2004 09:37:10 -0400
+	Wed, 29 Sep 2004 09:49:42 -0400
+Received: from p5089E8E5.dip.t-dialin.net ([80.137.232.229]:1796 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S268407AbUI2Nql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 09:46:41 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: 2.6.9-rc2-mm4 drm and XFree oopses
+Date: Wed, 29 Sep 2004 15:17:58 +0200
 User-Agent: KMail/1.7
-Cc: jrxr@softhome.net
+References: <20040929102840.GA11325@none> <21d7e99704092905284f48af35@mail.gmail.com>
+In-Reply-To: <21d7e99704092905284f48af35@mail.gmail.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart9626632.vmZlGvOOSv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200409290937.17500.gmishkin@acs.bu.edu>
+Content-Disposition: inline
+Message-Id: <200409291517.58750.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart9626632.vmZlGvOOSv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wednesday 29 September 2004 14:28, Dave Airlie wrote:
+> It might help if you enabled AGP for your chipset, you have no agp
+> compiled in for your Intel motherboard, you need intel agp chipset
+> support..
+>
+> Dave.
+<snip>
+Hi Dave,
+do you mean the CONFIG_AGP_INTEL option? Because my chipset is ICH4 and the 
+help text for that option doesn't mention support for ICH4 chipsets.
 
-I have a similar problem with a hard disk enclosure.  However, instead of=20
-getting corruption, the device just stops responding and the activity light=
-=20
-on the enclosure stays pinned.  Then, even after power-cycling the disk, I'=
-m=20
-not able to remount it; I have to reboot.  Removing all of the USB modules=
-=20
-and re-loading them doesn't seem to help either.
+Regards,
+Boris.
 
-I'll post usb-storage verbose debugging output when I have some.
-
-   --Geoff Mishkin <gmishkin@bu.edu>
-
---nextPart9626632.vmZlGvOOSv
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBWrqNCByDbUAKi3URAjavAKCA448F2CtH4ZxDVmInV5XeIgQSiwCfbLbq
-2qxIaUpVcORhQfll8+pajOs=
-=O8HT
------END PGP SIGNATURE-----
-
---nextPart9626632.vmZlGvOOSv--

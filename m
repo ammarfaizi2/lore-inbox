@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262588AbREVH6j>; Tue, 22 May 2001 03:58:39 -0400
+	id <S262585AbREVH6j>; Tue, 22 May 2001 03:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262585AbREVH6U>; Tue, 22 May 2001 03:58:20 -0400
+	id <S262587AbREVH6V>; Tue, 22 May 2001 03:58:21 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:62850 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262587AbREVH6N>;
-	Tue, 22 May 2001 03:58:13 -0400
-X-From-Line: nobody Tue May 22 08:50:17 2001
-From: Christoph Rohland <cr@sap.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: tmpfs + sendfile bug ?
-In-Reply-To: <XFMail.20010521183553.petchema@concept-micro.com>
-	<m3bsomwsgs.fsf@linux.local>
-	<200105212201.PAA17247@penguin.transmeta.com>
-Organisation: SAP LinuxLab
-Date: 22 May 2001 08:50:11 +0200
-In-Reply-To: <200105212201.PAA17247@penguin.transmeta.com>
-Message-ID: <m3ofslvpwc.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
+	by vger.kernel.org with ESMTP id <S262594AbREVH6R>;
+	Tue, 22 May 2001 03:58:17 -0400
+Subject: Re: Linux 2.4.4-ac12 -- fs/fs.o: In function `bm_register_write':
+	undefined reference to `lookup_one'
+From: Miles Lane <miles@megapathdsl.net>
+To: Alan Cox <laughing@shared-source.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010521201418.A2863@lightning.swansea.linux.org.uk>
+In-Reply-To: <20010521201418.A2863@lightning.swansea.linux.org.uk>
+Content-Type: text/plain
+X-Mailer: Evolution/0.10 (Preview Release)
+Date: 21 May 2001 22:53:28 -0700
+Message-Id: <990510889.12510.0.camel@agate>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-On Mon, 21 May 2001, Linus Torvalds wrote:
-> In article <m3bsomwsgs.fsf@linux.local>, Christoph Rohland
-> <cr@sap.com> wrote:
->>
->>tmpfs does not provide the necessary functions for sendfile and lo:
->>readpage, prepare_write and commitwrite.
->>
->>And I do not see a way how to provide readpage in tmpfs :-(
-> 
-> Why not just do it the same way ramfs does?
-> 
-> If you don't have any backing store, you know that the page is
-> empty. If you _do_ have backing store, a readpage() won't be
-> called. Ergo:
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+	--start-group \
+	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/net/appletalk/appletalk.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pcmcia/pcmcia.o drivers/pnp/pnp.o drivers/video/video.o \
+	net/network.o \
+	/usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+	--end-group \
+	-o vmlinux
+fs/fs.o: In function `bm_register_write':
+fs/fs.o(.text+0x1b460): undefined reference to `lookup_one'
+make: *** [vmlinux] Error 1
 
-AFAIU readpage is fine as long as there is no backing store. But if
-the page is in the swap cache, the lookup of the page in the page
-cache will fail; generic_file_read, loop, sendfile will allocate a
-page and call readpage with that. Now readpage has to copy the swap
-cache page over to this page :-(
-
-IMHO Copying on swapin is really not worth the additional
-functionality.
-
-Did I miss something?
-
-		Christoph
+CONFIG_QUOTA=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=m
+CONFIG_REISERFS_CHECK=y
+CONFIG_HFS_FS=m
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_DEBUG=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
 
 

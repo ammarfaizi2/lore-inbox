@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTFIUpn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 16:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTFIUpn
+	id S262000AbTFIUwY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 16:52:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTFIUwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 16:45:43 -0400
-Received: from gateway.penguincomputing.com ([64.243.132.186]:58008 "EHLO
-	inside.penguincomputing.com") by vger.kernel.org with ESMTP
-	id S261932AbTFIUpm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 16:45:42 -0400
-Date: Mon, 9 Jun 2003 13:26:37 -0700 (PDT)
-From: Dan Carpenter <dcarpenter@penguincomputing.com>
-X-X-Sender: <dcarpenter@ddcarpen1.penguincompting.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <ppokorny@penguincomputing.com>
-Subject: Re: memtest86 on the opteron
-Message-ID: <Pine.LNX.4.33.0306091320500.2640-100000@ddcarpen1.penguincompting.com>
+	Mon, 9 Jun 2003 16:52:23 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:52752 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262000AbTFIUwW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 16:52:22 -0400
+From: Steve Brueggeman <xioborg@yahoo.com>
+To: "Lars Unin" <lars_unin@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What are .s files in arch/i386/boot
+Date: Mon, 09 Jun 2003 16:06:01 -0500
+Message-ID: <mkt9evc8eossmephq3675ep0u0e73h690l@4ax.com>
+References: <20030609153039.1427.qmail@linuxmail.org>
+In-Reply-To: <20030609153039.1427.qmail@linuxmail.org>
+X-Mailer: Forte Agent 1.93/32.576 English (American)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks all,
+Not sure, but I think this is what you want.
 
-Here is the patch for the CPU ID.
+http://www.ibiblio.org/pub/Linux/docs/HOWTO/other-formats/html_single/Linux-Init-HOWTO.html
 
-regards,
-dan carpenter
-Penguin Computing
-
---- init.c.orig	Mon Jun  9 10:23:10 2003
-+++ init.c	Mon Jun  9 10:25:44 2003
-@@ -402,6 +402,16 @@
- 			}
- 			l1_cache = cpu_id.cache_info[3];
- 			l1_cache += cpu_id.cache_info[7];
-+                case 15:
-+                        switch(cpu_id.model) {
-+                        case 5:
-+				cprint(LINE_CPU, 0, "AMD Opteron");
-+				off = 11;
-+				l1_cache = cpu_id.cache_info[3];
-+				l1_cache += cpu_id.cache_info[7];
-+				l2_cache = (cpu_id.cache_info[11] << 8);
-+				l2_cache += cpu_id.cache_info[10];
-+                        }
- 		}
- 		break;
+Steve Brueggeman
 
 
+On Mon, 09 Jun 2003 23:30:38 +0800, you wrote:
+
+>From: Mark Hahn <hahn@physics.mcmaster.ca>
+> > > > What are .s files in arch/i386/boot, are they c sources of some sort?
+>> 
+>> no.  is there some reason you can't just look at them?
+>> 
+>> > > > Where can I find the specifications documents they were made from? 
+>> > > 
+>> > > There are not c files.
+>> > > They are assembler files
+>> 
+>> .s files are versions of .S files that have been run through cpp (gcc -E).
+>> you can know this simply by looking at the makefiles or watching a build,
+>> or by looking at the .s file and noticing the #line directives.
+>> 
+>> > > Try running gcc on a c file with the -S option
+>> > > it will generate the same then you can tweak the
+>> > > assembler produced to make it faster.
+>> 
+>> that's useful advice, but irrelevant in this case.
+>> 
+>> > Where can I find the .c files they were made from,
+>> 
+>> they aren't.
+>> 
+>> > and the spec sheets the .c files were made from? 
+>> 
+>> what the heck is a "spec sheet"?
+>
+>I mean where can I find the information from which
+>
+>"* It then loads 'setup' directly after itself (0x90200), and the system
+> * at 0x10000, using BIOS interrupts. "
+>-- bootsect.S
+>
+>The ability to know how to get the BIOS to do that comes from, e.g. a
+>book that can tell me how to do that without taking another degree...
+>Where the information can be found, that says what BIOS memory 
+>area 0x90200 is for etc.
 

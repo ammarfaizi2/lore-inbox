@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292239AbSB0O13>; Wed, 27 Feb 2002 09:27:29 -0500
+	id <S292395AbSB0O2n>; Wed, 27 Feb 2002 09:28:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292515AbSB0O1U>; Wed, 27 Feb 2002 09:27:20 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:27304 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S292406AbSB0O1K>; Wed, 27 Feb 2002 09:27:10 -0500
-Date: Wed, 27 Feb 2002 15:27:05 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Bjorn Wesen <bjorn.wesen@axis.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is TCPRenoRecoveryFail ?
-Message-ID: <20020227152705.A18366@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Bjorn Wesen <bjorn.wesen@axis.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1020227144128.18713E-100000@fafner.axis.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1020227144128.18713E-100000@fafner.axis.se>; from bjorn.wesen@axis.com on Wed, Feb 27, 2002 at 01:46:55PM +0000
+	id <S292399AbSB0O2c>; Wed, 27 Feb 2002 09:28:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:23180 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292511AbSB0O2I>; Wed, 27 Feb 2002 09:28:08 -0500
+Date: Wed, 27 Feb 2002 09:29:58 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jesper Juhl <jju@dif.dk>
+cc: barubary@cox.net, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: ISO9660 bug and loopback driver bug - a bigger problem then it would appear?
+In-Reply-To: <3C7C1797.7050604@dif.dk>
+Message-ID: <Pine.LNX.3.95.1020227092650.12981A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 01:46:55PM +0000, Bjorn Wesen wrote:
-> I have a TCP connection that is sending bulk data from a Linux 2.4.17
-> machine to a client. At some point, one of the packets from the Linux
-> machine is lost, so the client asks for a retransmit by acking the last
-> received correct packet. Then the Linux machine just keeps filling the
-> clients open window, ignoring that and subsequent retransmit requests,
-> never retransmitting any data.
+On Wed, 27 Feb 2002, Jesper Juhl wrote:
+[SNIPPED year 2100 "bug"]
+[SNIPPED year 2100 "bug" --fix!]
 
-Please show a tcpdump -v of this happening, including the initial SYN
-packets. I strongly suspect something in your network of mucking with TCP
-options.
+> 
+> If the above is indeed correct, wouldn't it then be better to just do 
+> those changes in 2.5.x instead of 2.4.x (and then maybe backport them 
+> later)...
 
-> Around the time of the packet loss happened, the counter
-> TCPRenoRecoveryFail increased by one, but I'm not sufficiently into the
-> TCP code to figure out why that happens and if that is the reason why
-> Linux stop retransmitting anything.. any ideas ?
+I suggest the changes wait until Version 99.99.  Many of the File Systems
+affected won't even exist 98 years from now -and an 'int' will probably
+be 256 bits.
 
-See RFC2001. Might well be related.
 
-Regards,
+Cheers,
+Dick Johnson
 
-bert
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+

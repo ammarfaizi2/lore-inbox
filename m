@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVCaNdf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVCaNkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVCaNdf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 08:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVCaNdf
+	id S261447AbVCaNkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 08:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVCaNkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 08:33:35 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:55494 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261438AbVCaNdd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 08:33:33 -0500
-Date: Thu, 31 Mar 2005 15:33:25 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Esben Nielsen <simlo@phys.au.dk>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050331133325.GA31903@elte.hu>
-References: <Pine.OSF.4.05.10503311301210.11827-100000@da410.phys.au.dk> <1112271270.3691.209.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112271270.3691.209.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 31 Mar 2005 08:40:12 -0500
+Received: from host-216-252-217-242.interpacket.net ([216.252.217.242]:16075
+	"EHLO forof.hylink.am") by vger.kernel.org with ESMTP
+	id S261447AbVCaNkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 08:40:04 -0500
+Message-ID: <001001c535f7$1e934790$1000000a@araavanesyan>
+From: "Ara Avanesyan" <araav@hylink.am>
+To: "Eugene Surovegin" <ebs@ebshome.net>
+Cc: <linux-kernel@vger.kernel.org>, <avila@lists.unixstudios.net>
+References: <006b01c5047e$1efc78a0$1000000a@araavanesyan> <20050127144441.GB4848@home.fluff.org> <00ae01c533a6$85ddf1f0$1000000a@araavanesyan> <20050330072110.GA7027@gate.ebshome.net>
+Subject: Re: Strange memory problem with Linux booted from U-Boot
+Date: Thu, 31 Mar 2005 18:39:51 +0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.0
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Mon, Mar 28, 2005 at 07:57:52PM +0500, Ara Avanesyan wrote:
+> > Hi,
+> >
+> > I need some help on solving this strange problem.
+> > Here is what I have,
+> > I have a loadable module (linux.2.4.20) which contains a 2 mb static
+gloabal
+> > array.
+> > When I load it from linux booted via U-Boot the system crashes.
+> > Everything works ok if I do the same thing with the same linux booted
+with
+> > RedBoot.
+>
+> As usual for such problems, check how different firmware configure
+> memory controller, etc. Get dump of relevant chip registers under
+> U-Boot and RedBoot and compare them.
+>
+> Other possible problem area can be firmware -> kernel interface. I'm
+> not familiar with that particular chip and RedBoot, but it's not
+> uncommon for different firmware to have different conventions for the
+> environment in which kernel starts execution.
+>
+> I'd recommend posting to the specific mail-lists, lkml doesn't seem
+> a good place for embedded and firmware related questions :)
+>
+> --
+> Eugene
+>
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+Eugene,
 
-> > I was going to say the opposit. I know that there are many more rt_locks
-> > locks around and the fields thus will take more memory when put there but
-> > I believe it is more logical to have the fields there.
-> 
-> It seems logical to be there, but in practicality, it's not.
-> 
-> The problem is that the flags represent a state of the task with 
-> respect to a single lock.  When the task loses ownership of a lock, 
-> the state of the task changes. But the the lock has a different state 
-> at that moment (it has a new onwner).  Now when it releases the lock, 
-> it might give the lock to another task, and that becomes the pending 
-> owner. Now the state of the lock is the same as in the beginning. But 
-> the first task needs to see this change.
-> 
-> You can still pull this off by testing the state of the lock and 
-> compare it to the current owner, but I too like the fact that you 
-> don't increase the size of the kernel statically.  There are a lot 
-> more locks in the kernel than tasks on most systems. And those systems 
-> that will have more tasks than locks, need a lot of memory anyway.  So 
-> we only punish the big systems (that expect to be punished) and keep 
-> the little guys safe.
+Thanks for your response and ideas.
+Actually the problem is concerning to linux part as the same code works fine
+within U-Boot as I posted before. This is why I asked lkml for help what
+might
+cause this behaviour.
 
-no system is punished. Since task_struct embedds 2 locks already, moving 
-the field(s) into task_struct is already a win.
+__
+Thanks,
+Ara
 
-	Ingo

@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131612AbRBDLE3>; Sun, 4 Feb 2001 06:04:29 -0500
+	id <S130609AbRBDLE7>; Sun, 4 Feb 2001 06:04:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130609AbRBDLET>; Sun, 4 Feb 2001 06:04:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30990 "EHLO
+	id <S131616AbRBDLE3>; Sun, 4 Feb 2001 06:04:29 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31502 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130277AbRBDLEN>; Sun, 4 Feb 2001 06:04:13 -0500
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-To: leitner@convergence.de (Felix von Leitner)
-Date: Sun, 4 Feb 2001 11:04:42 +0000 (GMT)
+	id <S130277AbRBDLEY>; Sun, 4 Feb 2001 06:04:24 -0500
+Subject: Re: PS hanging in 2.4.1 - More interesting things
+To: Shawn.Starr@Home.net (Shawn Starr)
+Date: Sun, 4 Feb 2001 11:05:25 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010204002627.A9527@convergence.de> from "Felix von Leitner" at Feb 04, 2001 12:26:27 AM
+In-Reply-To: <3A7C9638.63C513D0@Home.net> from "Shawn Starr" at Feb 03, 2001 06:37:28 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14PMyK-0001N4-00@the-village.bc.nu>
+Message-Id: <E14PMz2-0001NA-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > can bracket his code in 'if [ $TRUSTED = "y" ] ... fi', so if some driver-fs
-> > fails with untrusted compilers it is just not selectable.
-> 
-> What kind of crap is this?
-> It is not the kernel's job to work around RedHat bugs.
+> Ok, I rebooted the system, then syslogd was using 100% cpu?
+> it seems like perhaps reiserfs is causing this problem??
 
-The kernel actually works round gcc 2.7.2, egcs-1.1.2 and gcc-2.95 bugs, but
-in this case having some CONFIG option and all the glue for it isnt right
-especially because there _is_ a fixed compiler and the documentation tells
-you to use 1.1.2 or 2.95 anyway
+Typically it means your syslogd (klogd actually) is too old and has a bug that
+a 0 length printk causes it to spin.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

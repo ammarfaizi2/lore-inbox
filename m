@@ -1,149 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269315AbUIYM1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUIYMnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269315AbUIYM1K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 08:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUIYM1K
+	id S266386AbUIYMnr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 08:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269319AbUIYMnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 08:27:10 -0400
-Received: from cs.rice.edu ([128.42.1.30]:20418 "EHLO cs.rice.edu")
-	by vger.kernel.org with ESMTP id S269315AbUIYM0a (ORCPT
+	Sat, 25 Sep 2004 08:43:47 -0400
+Received: from holomorphy.com ([207.189.100.168]:13544 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266386AbUIYMnp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 08:26:30 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Sluggishness in 2.6.7 caused by IDE stack
-From: Scott A Crosby <scrosby@cs.rice.edu>
-Organization: Rice University
-Date: Sat, 25 Sep 2004 07:26:19 -0500
-Message-ID: <oydsm964jro.fsf@bert.cs.rice.edu>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Sat, 25 Sep 2004 08:43:45 -0400
+Date: Sat, 25 Sep 2004 05:43:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm3
+Message-ID: <20040925124334.GL9106@holomorphy.com>
+References: <20040924014643.484470b1.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040924014643.484470b1.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was burning a DVD-R on a new brand of media and I was experience
-fairly high system sluggishness. I've burned other DVD's on a
-different brand of media on this drive at a slower speed without this
-effect.
+On Fri, Sep 24, 2004 at 01:46:43AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm3/
+> - This is a quick not-very-well-tested release - it can't be worse than
+>   2.6.9-rc2-mm2, which had a few networking problems.
+> - Added Dmitry Torokhov's input system tree to the -mm bk tree lineup.
 
-The system is an Athlon XP 2500+ running 2.6.7 with a Liteon 832s dvd
-burner.
-
-Much of the CPU time was spent in system mode. I setup a quick
-oprofile, which blamed the function task_no_data_intr, but an
-opannotate reports confusing results, possibly from interrupts? dmesg
-reported nothing interesting.
+I hope this isn't terribly redundant, but I've tripped over a bogon in
+2.6.9-rc2-mm3 similar to the one I reported for 2.6.9-rc2-mm1. The box
+was actually idle at the time.
 
 
-Scott
+-- wli
 
+# ----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at cfq_iosched:1395
+invalid operand: 0000 [1] SMP
+CPU 0
+Modules linked in: st sr_mod floppy usbserial parport_pc lp parport thermal snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_ioctl32 processor fan button battery snd_intel8x0 snd_ac97_codec snd_pcm ac snd_timer ipv6 snd soundcore snd_page_alloc af_packet joydev usbhid e1000 ehci_hcd i2c_i801 i2c_core uhci_hcd usbcore hw_random evdev dm_mod ext3 jbd aic79xx ata_piix libata sd_mod scsi_mod
+Pid: 0, comm: swapper Tainted: MG   2.6.9-rc2-mm3
+RIP: 0010:[<ffffffff80293e5b>] <ffffffff80293e5b>{cfq_put_request+139}
+RSP: 0018:ffffffff804ce5c8  EFLAGS: 00010046
+RAX: 0000000000000000 RBX: 000001017e251b80 RCX: 000001017dc7f0c0
+RDX: 0000000000000001 RSI: 000001017e9a7888 RDI: 000001017dc164a8
+RBP: 000001010d0e4bd8 R08: 0000000000390625 R09: 0000000000800110
+R10: 0000000000000001 R11: 00000000ffffffff R12: 000001017ff67d68
+R13: 000001017e9a7888 R14: 000001017ffe0580 R15: 0000000000000200
+FS:  0000000000000000(0000) GS:ffffffff80552e80(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000002a95d17808 CR3: 0000000000101000 CR4: 00000000000006e0
+Process swapper (pid: 0, threadinfo ffffffff80556000, task ffffffff80421c00)
+Stack: 000001017e9a7888 000001017e251b80 0000000000000001 0000000000000001
+       000001017e251b80 ffffffff8028855f 000001012f22d180 ffffffff8028aedb
+       000001017e9a7888 000001007fe76a00
+Call Trace:<IRQ> <ffffffff8028855f>{elv_put_request+15} <ffffffff8028aedb>{__blk_put_request+139}
+       <ffffffff8028b013>{end_that_request_last+243} <ffffffffa0006178>{:scsi_mod:scsi_end_request+200}
+       <ffffffffa00063f0>{:scsi_mod:scsi_io_completion+576}
+       <ffffffffa0000506>{:scsi_mod:scsi_finish_command+214}
+       <ffffffffa0000e4a>{:scsi_mod:scsi_softirq+234} <ffffffff8013fd61>{__do_softirq+113}
+       <ffffffff8013fe15>{do_softirq+53} <ffffffff80113f1f>{do_IRQ+335}
+       <ffffffff80110d27>{ret_from_intr+0}  <EOI> <ffffffff8010f5a6>{mwait_idle+86}
+       <ffffffff8010f9fd>{cpu_idle+29} <ffffffff8055971a>{start_kernel+490}
+       <ffffffff805591e0>{_sinittext+480}
 
-*** vmstat output ***
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- 1  1 410496   8520  14224 1253716    0    0  2180    16  409   633 10 43  0 48
- 7  1 410496   6920  14236 1255380    0    0  1668    20  589   832  9 18  0 73
- 3  0 410496   8264  14232 1253988    0    0  2436    80  334   438 18 82  0  0
- 0  1 410496   8384  14244 1253860    0    0  1932     0  464   706 13 35  0 52
- 5  1 410496   8056  14264 1253872  328    0  2280     0  717   965 14 20  0 65
- 8  1 410496   7352  14268 1254640    0    0  2692     0  351   485 17 83  0  0
- 2  2 410496   6968  14264 1255036   32    0  2336     0  332   522 17 83  0  0
- 5  0 410496   8568  14276 1253384    0    0  2192    12  464   794 19 33  0 48
-
-*** oprofile output ***
-
-samples  %        app name                 symbol name
-1217485  94.2994  vmlinux                  task_no_data_intr
-7714      0.5975  firefox-bin              (no symbols)
-5975      0.4628  libc-2.3.2.so            (no symbols)
-5199      0.4027  vmlinux                  pci_bus_match_dynids
-3798      0.2942  XFree86                  (no symbols)
-
-
-*** opreport -d output ***
-
-c022f520 1218267  89.3898  task_no_data_intr
-  c022f530 2        1.6e-04
-  c022f535 30        0.0025
-  c022f53a 2186      0.1794
-  c022f54a 90        0.0074
-  c022f561 2        1.6e-04
-  c022f56d 1196860  98.2428
-  c022f570 19037     1.5626
-  c022f571 1        8.2e-05
-  c022f584 2        1.6e-04
-  c022f589 57        0.0047
-
-*** Relevant assembly code in task_no_data_intr ***
-
-c022f520 <task_no_data_intr>: /* task_no_data_intr total: 1218267 89.3898 */
-               :c022f520:       sub    $0x1c,%esp
-               :c022f523:       mov    %edi,0x14(%esp,1)
-               :c022f527:       mov    %ebx,0xc(%esp,1)
-               :c022f52b:       mov    %esi,0x10(%esp,1)
-               :c022f52f:       mov    0x20(%esp,1),%edi
-               :c022f533:       mov    %ebp,0x18(%esp,1)
-               :c022f537:       mov    0x70(%edi),%esi
-  2186  0.1604 :c022f53a:       mov    0x8(%esi),%eax
-               :c022f53d:       mov    0x20(%eax),%eax
-               :c022f540:       mov    0x68(%eax),%ebp
-               :c022f543:       sti    
-               :c022f544:       mov    0x70(%edi),%eax
-               :c022f547:       mov    0x34(%eax),%eax
-    90  0.0066 :c022f54a:       mov    %eax,(%esp,1)
-               :c022f54d:       call   *0x4b8(%esi)
-               :c022f553:       movzbl %al,%ebx
-               :c022f556:       mov    %ebx,%eax
-               :c022f558:       and    $0xc9,%eax
-               :c022f55d:       cmp    $0x40,%eax
-               :c022f560:       je     c022f58b <task_no_data_intr+0x6b>
-               :c022f562:       mov    0x1c(%edi),%eax
-               :c022f565:       mov    %edi,(%esp,1)
-               :c022f568:       movl   $0xc02dfecf,0x4(%esp,1)
- 19037  1.3968 :c022f570:       mov    %ebx,0x8(%esp,1)
-               :c022f574:       call   *0x20(%eax)
-               :c022f577:       mov    0xc(%esp,1),%ebx
-               :c022f57b:       mov    0x10(%esp,1),%esi
-               :c022f57f:       mov    0x14(%esp,1),%edi
-               :c022f583:       mov    0x18(%esp,1),%ebp
-               :c022f587:       add    $0x1c,%esp
-               :c022f58a:       ret    
-               :c022f58b:       test   %ebp,%ebp
-               :c022f58d:       je     c022f5b1 <task_no_data_intr+0x91>
-               :c022f58f:       mov    0x70(%edi),%eax
-               :c022f592:       mov    0x1c(%eax),%eax
-               :c022f595:       mov    %eax,(%esp,1)
-               :c022f598:       call   *0x4b8(%esi)
-               :c022f59e:       mov    %edi,(%esp,1)
-               :c022f5a1:       mov    %ebx,0x4(%esp,1)
-               :c022f5a5:       movzbl %al,%eax
-               :c022f5a8:       mov    %eax,0x8(%esp,1)
-               :c022f5ac:       call   c0229b90 <ide_end_drive_cmd>
-               :c022f5b1:       xor    %eax,%eax
-               :c022f5b3:       jmp    c022f577 <task_no_data_intr+0x57>
-               :c022f5b5:       lea    0x0(%esi,1),%esi
-               :c022f5b9:       lea    0x0(%edi,1),%edi
-               :
-
-** Source code for function ***
-**     drivers/ide/ide-taskfile.c:278
-
-ide_startstop_t task_no_data_intr (ide_drive_t *drive)
-{
-        ide_task_t *args        = HWGROUP(drive)->rq->special;
-        ide_hwif_t *hwif        = HWIF(drive);
-        u8 stat;
-
-        local_irq_enable();
-        if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),READY_STAT,BAD_STAT)) {
-                DTF("%s: command opcode 0x%02x\n", drive->name,
-                        args->tfRegister[IDE_COMMAND_OFFSET]);
-                return DRIVER(drive)->error(drive, "task_no_data_intr", stat);
-                /* calls ide_end_drive_cmd */
-        }
-        if (args)
-                ide_end_drive_cmd(drive, stat, hwif->INB(IDE_ERROR_REG));
-
-        return ide_stopped;
-}
+Code: 0f 0b 88 d3 38 80 ff ff ff ff 73 05 ff c8 48 89 ef 41 89 44
+RIP <ffffffff80293e5b>{cfq_put_request+139} RSP <ffffffff804ce5c8>
+ <0>Kernel panic - not syncing: Aiee, killing interrupt handler!

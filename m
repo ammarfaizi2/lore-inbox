@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130368AbRAAU3v>; Mon, 1 Jan 2001 15:29:51 -0500
+	id <S130299AbRAAUdc>; Mon, 1 Jan 2001 15:33:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130663AbRAAU3l>; Mon, 1 Jan 2001 15:29:41 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:41476 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130368AbRAAU33>; Mon, 1 Jan 2001 15:29:29 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: test13-pre5
-Date: 1 Jan 2001 11:58:39 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <92qnhf$va2$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10012281459150.995-100000@penguin.transmeta.com> <Pine.LNX.4.10.10012301422310.581-100000@cassiopeia.home>
+	id <S130417AbRAAUdW>; Mon, 1 Jan 2001 15:33:22 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:52495 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130299AbRAAUdT>;
+	Mon, 1 Jan 2001 15:33:19 -0500
+Message-ID: <3A50E1E4.26A8124A@innominate.de>
+Date: Mon, 01 Jan 2001 21:00:36 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [RFC] Generic deferred file writing
+In-Reply-To: <Pine.GSO.4.10.10101010332330.1050-100000@zeus.fh-brandenburg.de> <Pine.GSO.4.21.0012312220290.7648-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.10.10012301422310.581-100000@cassiopeia.home>
-By author:    Geert Uytterhoeven <geert@linux-m68k.org>
-In newsgroup: linux.dev.kernel
+Alexander Viro wrote:
+> GFP_BUFFER _may_ become an issue if we move bitmaps into pagecache.
+> Then we'll need a per-address_space gfp_mask. Again, patches exist
+> and had been tested (not right now - I didn't port them to current
+> tree yet). Bugger if I remember whether they were posted or not - they've
+> definitely had been mentioned on linux-mm, but IIRC I had sent the
+> modifications of VM code only to Jens. I can repost them.
+
+Please, and I'll ask Rik to post them on the kernelnewbies.org patch
+page.  (Rik?)  Putting bitmaps and group descriptors into the page cache
+will allow the current adhoc bitmap and groupdesc caching code to be
+deleted - the for-real cache should have better lru, be more efficient
+to access, not need special locking and won't have an arbitrary limit on
+number of cached bitmaps.  About 300 lines of spagetti gone.  I suppose
+the group descriptor pages still need to be locked in memory so we can
+address them through a table instead of searching the hash.  OK, this
+must be what you meant by a 'proper' fix to the ialloc group desc bug I
+posted last month, which by the way is *still* there.  How about
+applying my patch in the interim?  It's a real bug, it just doesn't
+trigger often.
+
+> Some pieces of balloc.c cleanup had been posted on fsdevel. Check the
+> archives. They prepare the ground for killing lock_super() contention
+> on ext2_new_inode(), but that part wasn't there back then.
 > 
-> What about defining new types for this? Like e.g. `x8', being `u8' on platforms
-> were that's OK, and `u32' on platforms where that's more efficient?
-> 
+> I will start -bird (aka FS-CURRENT) branch as soon as Linus opens 2.4.
+> Hopefully by the time of 2.5 it will be tested well enough. Right now
+> it exists as a large patchset against more or less recent -test<n> and
+> I'm waiting for slowdown of the changes in main tree to put them all
+> together.
 
-You may just want to look at how C99 handles this using <stdint.h>;
-stdint.h defines types of the following format:
+It would be awfully nice to have those patches available via ftp. 
+Web-based mail archives don't make it because you can't generally can't
+get the patches out intact - the tabs get expanded and other noise
+inserted.
 
-	 int, uint		... signed/unsigned
-
-	 <size>			... exact size
-	 _least<size>		... no smaller than
-	 _fast<size>		... no smaller than, and efficient
-
-	 _t
-
-E.g. uint32_t, int_least64_t, uint_fast8_t (the latter could easily be
-a 32-bit type, for eaxmple.)
-
-In addition, constructor macros are defined, as well as (u)intmax_t
-and (u)intptr_t; which are defined as the largest
-possible integer and an integer large enough to hold a (void *),
-respectively.
-
-In other words:
-
-	(void *)(uintptr_t)(void *)foo == (void *)foo
-
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

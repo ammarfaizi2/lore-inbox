@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130989AbQKVBmY>; Tue, 21 Nov 2000 20:42:24 -0500
+	id <S132097AbQKVBoy>; Tue, 21 Nov 2000 20:44:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132097AbQKVBmS>; Tue, 21 Nov 2000 20:42:18 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:22028
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130989AbQKVBmA>; Tue, 21 Nov 2000 20:42:00 -0500
-Date: Tue, 21 Nov 2000 17:11:40 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Peter Samuelson <peter@cadcamlab.org>,
-        Hakan Lennestal <hakanl@cdt.luth.se>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0, test10, test11: HPT366 problem
-In-Reply-To: <Pine.LNX.4.30.0011211914400.22252-100000@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.10.10011211710200.29032-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S132111AbQKVBoo>; Tue, 21 Nov 2000 20:44:44 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:28938 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S132097AbQKVBoh>; Tue, 21 Nov 2000 20:44:37 -0500
+Date: Tue, 21 Nov 2000 19:14:32 -0600
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Jakub Jelinek <jakub@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: beware of dead string constants
+Message-ID: <20001121191432.H2918@wire.cadcamlab.org>
+In-Reply-To: <14874.25691.629724.306563@wire.cadcamlab.org> <20001121071327.R1514@devserv.devel.redhat.com> <20001121215145.C748@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001121215145.C748@werewolf.able.es>; from jamagallon@able.es on Tue, Nov 21, 2000 at 09:51:45PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, David Woodhouse wrote:
 
-> On Tue, 21 Nov 2000, Andre Hedrick wrote:
-> 
-> > No, if it doesn not hang and we get iCRC errors it will down grade
-> > automatically, but it is a transfer rate issue than it must be hard coded
-> > to force an upper threshold limit.
-> 
-> Do we downgrade gracefully, or do we just drop directly to non-DMA mode?
+    [I wrote]
+> > >   void foo (void)
+> > >   {
+> > >     if (0)
+> > >       printk(KERN_INFO "bar");
+> > >   }
+> > > 
 
-With Grace, and now you blessed, go in peace my son.
+[J . A . Magallon]
+> Is it related to opt level ? -O3 does auto-inlining and -O2 does not
+> (discovered that here, auto inlining in kernel trashes the cache...)
 
-grep crc ./drivers/ide/*
+See for yourself.  'gcc -S' is most helpful.  The above generates a
+string constant "bar\0" for all optimization levels.
 
-Cheers,
+Jakub Jelinek claims to have fixed this particular bug in the last week
+or so, although I have not downloaded and compiled recent CVS to verify
+this.  (Didn't someone at some point have a cgi frontend to
+CVS-snapshot 'gcc -S'?  I can't find it now.)
 
+There is a similar case of scoped 'static' variables, like 'bar' here:
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+  extern void baz (int *);
+  void foo (void)
+  {
+    if (0) {
+      static int bar[1024];	/* useless 4096-byte hole in bss */
+      baz(bar);
+    }
+  }
 
+and according to Jeff Law, this case is *not* fixed yet.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSGVCJr>; Sun, 21 Jul 2002 22:09:47 -0400
+	id <S316390AbSGVF4m>; Mon, 22 Jul 2002 01:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSGVCJr>; Sun, 21 Jul 2002 22:09:47 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:30937 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S315491AbSGVCJr>; Sun, 21 Jul 2002 22:09:47 -0400
-Message-ID: <3D3B6A5F.1010608@snapgear.com>
-Date: Mon, 22 Jul 2002 12:13:51 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S316397AbSGVF4m>; Mon, 22 Jul 2002 01:56:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64267 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316390AbSGVF4l>;
+	Mon, 22 Jul 2002 01:56:41 -0400
+Message-ID: <3D3BA131.34D2BD86@zip.com.au>
+Date: Sun, 21 Jul 2002 23:07:45 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE]: linux-2.5.27uc0 MMU-less patches
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@surriel.com,
+       anton@samba.org
+Subject: Re: pte_chain_mempool-2.5.27-1
+References: <20020721035513.GD6899@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+> 
+> This patch, in order to achieve more reliable and efficient allocation,
+> converts the pte_chain freelist to use mempool, which in turn uses the
+> slab allocator as a front-end.
 
-Hi All,
+Using slab seems like a good idea to me.  It gives us the per-cpu
+freelists and GC for free.
 
-Latest uClinux (MMU-less) patches up at:
+mempool?  Guess so.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.27uc0.patch.gz
+mempool is really designed for things like IO request structures.
+BIOs, etc.  Things which are guaranteed to have short lifecycles.
+Things which make the "wait for some objects to be freed" loop
+in mempool_alloc() reliable.
 
-I had to do a little hacking around the reverse mapping.
-Probably needs more testing, but seems to work ok for now.
+However when mempool went in, a bunch of developers (including
+myself) went "oh goody" and reused mempool to add some buffering
+to things like radix tree nodes, buffer_heads, pte_chains, etc.
 
-Still tracking down an existing problem where the mmnommu
-page_alloc is occassionaly giving out a memory address as
-free memory that is really in use...
+This is inappropriate, because those objects have a very different
+lifecycle.
 
-Evertyhing else seems to work well (at least on the 5272 ColdFire
-target board that I have tested on!)
+For example, back when swap was using buffer_heads, I was getting
+tasks locked up in mempool_alloc(GFP_NOIO), waiting for buffer_heads
+to come free.  But no buffer_heads were being freed because there was
+no memory pressure any more - somebody had just done a truncate() or
+an exit(), there was plenty of free memory, nobody was calling 
+try_to_free_buffers() and the mempool_alloc caller was in indefinite
+sleep.  Waiting for someone to free up a buffer_head.
 
-Regards
-Greg
+We could fix this problem by changing the schedule() in mempool_alloc()
+into a schedule_timeout(not much), but Ingo didn't seem to like that.
+Perhaps because we're using mempool in ways for which it was not
+designed.
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+> +       pte_chain_pool = mempool_create(16*1024,
+> +                                       pte_chain_pool_alloc,
+> +                                       pte_chain_pool_free,
+> +                                       NULL);
+> +
 
+Be aware that mempool kmallocs a contiguous chunk of element
+pointers.  This statement is asking for a
+kmalloc(16384 * sizeof(void *)), which is 128k. It will work,
+but only just.
+
+How did you engineer the size of this pool, btw?  In the
+radix_tree code, we made the pool enormous.  It was effectively
+halved in size when the ratnodes went to 64 slots, but I still
+have the fun task of working out what the pool size should really
+be.  In retrospect it would have been smarter to make it really
+small and then increase it later in response to tester feedback.
+Suggest you do that here.
+
+-

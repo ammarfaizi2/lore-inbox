@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310333AbSCKSRW>; Mon, 11 Mar 2002 13:17:22 -0500
+	id <S284933AbSCKSW4>; Mon, 11 Mar 2002 13:22:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310364AbSCKSRM>; Mon, 11 Mar 2002 13:17:12 -0500
-Received: from fmfdns01.fm.intel.com ([132.233.247.10]:5853 "EHLO
-	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S310333AbSCKSRI>; Mon, 11 Mar 2002 13:17:08 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7CCE@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Wolly'" <wwolly@gmx.net>, acpi-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [patch] minimal ACPI bugfix
-Date: Mon, 11 Mar 2002 10:17:05 -0800
+	id <S285060AbSCKSWr>; Mon, 11 Mar 2002 13:22:47 -0500
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:58006 "EHLO
+	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S284933AbSCKSWc>; Mon, 11 Mar 2002 13:22:32 -0500
+Reply-To: <robertp@ustri.com>
+From: "Robert Pfister" <robertp@ustri.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: VMS File versions (was RE: linux-2.5.4-pre1 - bitkeeper testing)
+Date: Mon, 11 Mar 2002 11:22:21 -0700
+Message-ID: <033101c1c929$b00f7650$1e00a8c0@nomaam>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <200203111540.IAA11492@tstac.esa.lanl.gov>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Wolly [mailto:wwolly@gmx.net]
-> "Avoid creating multiple /proc entries when (buggy) ACPI
-> BIOS tables erroneously list both fixed- and generic-
-> feature buttons."
-> While the function already prints a disgnostic message 
-> on this and registers the new button dir in /proc, it fails to 
-> remove the old one. 
 
-> Patch is against 2.4.18 kernel;
-> patched file sm_osl.c is in drivers/acpi/ospm/button/
+>That is not my recollection.  What I remember is that our system
+admistrator
+>set up people's accounts so that the default behaviour was as desired by
+>the individual.  This has gotten me curious, so I went out to a storage
+container
+>and dug out an old VAX 4000/60 which hasn't run since about 1992.  If it
+works,
+>I'll be able to answer with more than vague memories.  At least for VMS
+5.1, which
+>is just a bit out of date as the current version is 7.3 or so.  Now, if can
+just
+>remember the SYSTEM password. ;-)
 
-Hi Wolly,
+My recollection is that you could set the version limit on a directory, and
+this would propogate to all the files underneath, unless you explicitly
+changed it.
 
-ACPI development is happening out of the mainline for now, until it
-stabilizes. Please try the latest patches available at
-http://sf.net/projects/acpi . AFAIK the button thing is fixed in the latest
-ACPI patch, although the sysrq hookup feature is new, so that is definitely
-useful code, thanks.
+>Perhaps others whose VMS experience is more recent than mine can answer
+this question.
+>More generally, if the infrastructure for keeping file versions around is
+going
+>to be generated for other reasons, having the option to have file versions
+could
+>be useful for some people.  I certainly remember people who loved that
+feature,
+>but I wasn't one of them.
 
-Regards -- Andy
+I liked file versions when I was doing intense development, and it took a
+lot of concentration to keep it all straight. It confused the heck out of
+many people, and most sysadmins ran batch jobs to "purge" every night -- so
+you could only count on versions being available for a limited time.
+
+Is anyone working on version support for a Linux filesystem, as well as all
+the utilities that would need to change?
+
+Robb
+

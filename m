@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264990AbRGQKaO>; Tue, 17 Jul 2001 06:30:14 -0400
+	id <S266031AbRGQLQR>; Tue, 17 Jul 2001 07:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265148AbRGQKaE>; Tue, 17 Jul 2001 06:30:04 -0400
-Received: from mx1.nameplanet.com ([62.70.3.31]:17938 "HELO mx1.nameplanet.com")
-	by vger.kernel.org with SMTP id <S264990AbRGQK34>;
-	Tue, 17 Jul 2001 06:29:56 -0400
-Date: Tue, 17 Jul 2001 14:23:00 +0200 (CEST)
-From: Ketil Froyn <ketil@froyn.com>
-X-X-Sender: <ketil@ketil.np>
-To: <linux-kernel@vger.kernel.org>
-Subject: syncronous symlink()
-Message-ID: <Pine.LNX.4.33.0107171400050.1817-100000@ketil.np>
+	id <S266047AbRGQLQH>; Tue, 17 Jul 2001 07:16:07 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:22352 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S266031AbRGQLPy> convert rfc822-to-8bit; Tue, 17 Jul 2001 07:15:54 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<christian@borntraeger.net>
+To: David Balazic <david.balazic@uni-mb.si>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
+Date: Tue, 17 Jul 2001 13:14:47 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3B5413C9.2CE16AC9@uni-mb.si>
+In-Reply-To: <3B5413C9.2CE16AC9@uni-mb.si>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01071713144700.02683@Einstein.P-netz>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> /proc/cpuinfo gives :
+> cache size: 64 KB
+>
+> This is wrong :
+>  - the Duron has 192 kilobytes of cache ( 64 L1 I, 64 L1 D , 64 L2 unified
+> ) - what is KB ?
 
-How can I make be sure a symlink is on disk? In other words, I need to be
-sure that both the symbolic link and the 'newpath' are on disk, so that
-once the call has returned, I can pull out the plug of the computer and
-not lose any data. Is it enough to sync() the directory to which the new
-symlink was written?
+As far as I know older Durons have a bug. They report a wrong size for the 
+cache.
 
-Ketil
+>    - "kilo" is abbreviated to 'k' , not 'K'
 
+Hmm, I think kilo is 1000 and K is 1024.

@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVB1Qvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVB1Qvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVB1Qvu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 11:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVB1Qud
+	id S261683AbVB1Qvv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 11:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVB1QuZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 11:50:33 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:4477 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261688AbVB1Qsw (ORCPT
+	Mon, 28 Feb 2005 11:50:25 -0500
+Received: from [63.227.221.253] ([63.227.221.253]:46825 "EHLO home.keithp.com")
+	by vger.kernel.org with ESMTP id S261683AbVB1QsF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 11:48:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=epdCUSFoBqurwL/GFEIMBbGTXLdqPxi1gL1+oxiRWF2+itI9wFNaTSxqsWgOAV+m5NIrpZipih3o//BUyYNRA6y1NNNlZMpoLTlkKkde3DOe9zmtoUmFQ63XhMq1Roaz8S3Y5PVEqlUJl3GA6c49uC5c/41Xch6tbn15EMjrofU=
-Message-ID: <f2833c7605022808486c81bd33@mail.gmail.com>
-Date: Mon, 28 Feb 2005 10:48:47 -0600
-From: "Timothy R. Chavez" <chavezt@gmail.com>
-Reply-To: "Timothy R. Chavez" <chavezt@gmail.com>
-To: Ravindra Nadgauda <rnadgauda@velankani.com>
-Subject: Re: Signals/ Communication from kernel to user!
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <042701c51dab$561ef650$280e000a@blr.velankani.com>
+	Mon, 28 Feb 2005 11:48:05 -0500
+X-Mailer: exmh version 2.3.1 11/28/2001 with nmh-1.1
+To: Vladimir Dergachev <volodya@mindspring.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Dave Airlie <airlied@linux.ie>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       xorg@lists.freedesktop.org, Alex Deucher <alexdeucher@gmail.com>,
+       dri-devel@lists.sourceforge.net, Keith Packard <keithp@keithp.com>
+Subject: Re: POSTing of video cards (WAS: Solo Xgl..) 
+From: Keith Packard <keithp@keithp.com>
+In-Reply-To: Your message of "Mon, 28 Feb 2005 11:06:12 EST."
+             <Pine.LNX.4.62.0502281051350.28870@node2.an-vo.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1169233748P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-References: <42233772.7020409@structurenet.com>
-	 <042701c51dab$561ef650$280e000a@blr.velankani.com>
+Date: Mon, 28 Feb 2005 08:47:41 -0800
+Message-Id: <E1D5o3Z-0001Zo-As@evo.keithp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Feb 2005 21:06:57 +0530, Ravindra Nadgauda
-<rnadgauda@velankani.com> wrote:
-> 
-> 
-> Hello,
->    We wanted to establish a communication from kernel module (possibly a
-> driver) to a user level process.
-> 
->    Wanted to know whether signals can be used for this purpose OR there any
-> other (better) methods of communication??
+--==_Exmh_1169233748P
+Content-Type: text/plain; charset=utf-8
 
-Perhaps netlink?  Here's an introduction: http://qos.ittc.ku.edu/netlink/html/
 
-> 
-> Regards,
-> Ravindra N.
- 
--- 
-- Timothy R. Chavez
+Around 11 o'clock on Feb 28, Vladimir Dergachev wrote:
+
+> I agree. For example, on my Dell notebook the graphics card is not 
+> reinitialized properly on return from resume. At some point I'll get 
+> bothered enough to write code that does it.
+
+# vbetool post
+
+Run from your suspend script while on a text VT.
+
+-keith
+
+
+
+--==_Exmh_1169233748P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.3.1 11/28/2001
+
+iD8DBQFCI0stQp8BWwlsTdMRAnDNAKDbkbohNn6ndTbNkGXiVagWcNwkFQCfS8AM
+PmjEW3CZysjq4bxIPwib4LU=
+=zwE0
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1169233748P--

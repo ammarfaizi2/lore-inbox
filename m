@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbTI1Vll (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 17:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbTI1Vll
+	id S262753AbTI1ViM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 17:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262754AbTI1ViM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 17:41:41 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:53063 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S262763AbTI1Vli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 17:41:38 -0400
-Date: Sun, 28 Sep 2003 14:55:31 +0200
-Message-Id: <200309281255.h8SCtVE1005594@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 320] Macintosh CS89x0 Ethernet is broken
+	Sun, 28 Sep 2003 17:38:12 -0400
+Received: from gprs147-229.eurotel.cz ([160.218.147.229]:63617 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262753AbTI1ViK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 17:38:10 -0400
+Date: Sun, 28 Sep 2003 23:37:36 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [pm] Some typos
+Message-ID: <20030928213736.GA16797@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Macintosh CS89x0 Ethernet is broken (needs netif updates)
+Hi!
 
---- linux-2.6.0-test6/drivers/net/Kconfig	Tue Sep  9 10:12:56 2003
-+++ linux-m68k-2.6.0-test6/drivers/net/Kconfig	Fri Sep 19 14:25:48 2003
-@@ -351,7 +351,7 @@
+This fixes two small typos in powermanagment, please apply.
+
+							Pavel
+
+--- /usr/src/tmp/linux/kernel/power/disk.c	2003-09-28 22:06:44.000000000 +0200
++++ /usr/src/linux/kernel/power/disk.c	2003-09-28 22:50:47.000000000 +0200
+@@ -4,7 +4,7 @@
+  * Copyright (c) 2003 Patrick Mochel
+  * Copyright (c) 2003 Open Source Development Lab
+  *
+- * This file is release under the GPLv2
++ * This file is released under the GPLv2.
+  *
+  */
  
- config MAC89x0
- 	tristate "Macintosh CS89x0 based ethernet cards"
--	depends on NETDEVICES && MAC
-+	depends on NETDEVICES && MAC && BROKEN
- 	---help---
- 	  Support for CS89x0 chipset based Ethernet cards.  If you have a
- 	  Nubus or LC-PDS network (Ethernet) card of this type, say Y and
+--- /usr/src/tmp/linux/kernel/power/pmdisk.c	2003-09-28 22:06:44.000000000 +0200
++++ /usr/src/linux/kernel/power/pmdisk.c	2003-09-28 22:53:12.000000000 +0200
+@@ -448,7 +448,7 @@
+ 
+ 
+ /**
+- *	copy_pages - Atmoically snapshot memory.
++ *	copy_pages - Atomically snapshot memory.
+  *
+  *	Iterate over all the pages in the system and copy each one 
+  *	into its corresponding location in the pagedir.
 
-Gr{oetje,eeting}s,
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

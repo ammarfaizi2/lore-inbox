@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314356AbSDROCo>; Thu, 18 Apr 2002 10:02:44 -0400
+	id <S314357AbSDROGM>; Thu, 18 Apr 2002 10:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314357AbSDROCn>; Thu, 18 Apr 2002 10:02:43 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:6157 "EHLO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S314356AbSDROCm>; Thu, 18 Apr 2002 10:02:42 -0400
-Date: Thu, 18 Apr 2002 16:02:39 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: [OT: nostalgia] Re: SSE related security hole
-Message-ID: <20020418140239.GF22378@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020417194249.B23438@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S314359AbSDROGL>; Thu, 18 Apr 2002 10:06:11 -0400
+Received: from em.njupt.edu.cn ([202.119.230.11]:9688 "HELO em.njupt.edu.cn")
+	by vger.kernel.org with SMTP id <S314357AbSDROGL>;
+	Thu, 18 Apr 2002 10:06:11 -0400
+From: "yangrunhua" <yangrunhua@njupt.edu.cn>
+To: <linux-kernel@vger.kernel.org>
+Subject: Questions about using usbnet.c
+Date: Thu, 18 Apr 2002 22:08:28 +0800
+Message-ID: <000601c1e6e2$83a28c70$d1010a0a@yu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Doug Ledford wrote:
+Hi all!
+When I use dev_queue_xmit( ) to send packets directly to the usb device
+from a netfilter hook( in a ipt target function),
+( I want to forward packet from eth0 directly into usb0, so I do it like
+that)
+the rate is so slow that dev_queue_xmit always returns 1 which means
+droped ( 200kbits/s at most). 
+But when I used a user-space (TCP) program to send packet, and receive
+on the other machine,
+the rate grew up to 6Mbits/s.
+Is there any limit on using dev_queue_xmit( ) directly ?
+Regards,
+yangrunhua
 
-> pxor instruction with xorps instead makes it work.  So, that's a bug in
-> gcc I suspect, using sse2 instructions when only called to use sse
-> instructions.  It seems odd to me that the CPU wouldn't generate an
-> illegal instruction exception, but oh well, it evidently doesn't.
 
-Remember ye goode olde 6502/6510 processors used in the famous Commodore
-64 computers? These don't bail out when using undefined opcodes either,
-some opcodes actually had undocumented but consistent behaviour and were
-used in "my program is shorter than yours" 1000 byte demo contests and
-the like.
+

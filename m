@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273366AbRI0Phq>; Thu, 27 Sep 2001 11:37:46 -0400
+	id <S273371AbRI0Pl0>; Thu, 27 Sep 2001 11:41:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273371AbRI0Phg>; Thu, 27 Sep 2001 11:37:36 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:11392 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S273366AbRI0Ph1>; Thu, 27 Sep 2001 11:37:27 -0400
-Date: Thu, 27 Sep 2001 11:37:33 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Norbert Roos <n.roos@berlin.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: System hangs during interruptible_sleep_on_timeout() under 2.4.9
-In-Reply-To: <3BB33E88.ACD1E426@berlin.de>
-Message-ID: <Pine.LNX.3.95.1010927112759.1310A-100000@chaos.analogic.com>
+	id <S273376AbRI0PlR>; Thu, 27 Sep 2001 11:41:17 -0400
+Received: from dict.and.org ([63.113.167.10]:3493 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S273371AbRI0PlF>;
+	Thu, 27 Sep 2001 11:41:05 -0400
+To: Andreas Schwab <schwab@suse.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
+In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel>
+	<E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel>
+	<9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
+	<oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
+	<jeelp4rbtf.fsf@sykes.suse.de>
+	<20010918143827.A16003@gruyere.muc.suse.de>
+	<nn3d59qzho.fsf@code.and.org> <jezo7gu78f.fsf@sykes.suse.de>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 27 Sep 2001 11:41:22 -0400
+In-Reply-To: <jezo7gu78f.fsf@sykes.suse.de>
+Message-ID: <nnvgi4prod.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001, Norbert Roos wrote:
+Andreas Schwab <schwab@suse.de> writes:
 
-> Ingo Molnar wrote:
+> James Antill <james@and.org> writes:
 > 
-> > are you sure timer interrupts are processed while you are waiting for the
-> > timeout to expire? I'd suggest to put a:
-> > 
-> >         printk("<%d>", irq);
-> > 
-> > into arch/i386/kernel/irq.c:do_IRQ().
+> |>  unlikely() also needs to be...
+> |> 
+> |> #define unlikely(x)  __builtin_expect(!(x), 1) 
+> |> 
+> |> ...or...
+> |> 
+> |> #define unlikely(x)  __builtin_expect(!!(x), 0) 
 > 
-> Until the call of interruptible_sleep_on_timeout(), timer interrupts
-> were processed. Right after the call no more output is made.
-> 
-[SNIPPED...]
+> This is not needed, since only 0 is the likely value and !! does not
+> change that.
 
-wait_queue_head_t wait_thing;
+ Yes it is, given the code...
 
-Interruptible_sleep_on_timeount(&wait_thing, timeout), now requires
-that "wait_thing" must have been initialized with:
+struct blah *ptr = NULL;
 
-init_waitqueue_head(&wait_thing);
+if (unlikely(ptr))
 
-If you didn't do this before this object was used, all bets are
-off.
+...you'll get a warning from gcc because you are implicitly converting
+from a pointer to a long.
 
-Also, you cannot sleep during an interrupt or when you are holding
-a spin-lock that disables interrupts.
-
-
-> __asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
-> 
-> (x ist the variable where the IRQ flags are stored)
-> I'm not familiar with x86 assembler; is it possible that something can
-> go wrong here?
-
-This is correct. The flags are pushed then popped into the
-variable provided.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268674AbRGZVNl>; Thu, 26 Jul 2001 17:13:41 -0400
+	id <S268670AbRGZVLu>; Thu, 26 Jul 2001 17:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268676AbRGZVNb>; Thu, 26 Jul 2001 17:13:31 -0400
-Received: from atlrel1.hp.com ([156.153.255.210]:48634 "HELO atlrel1.hp.com")
-	by vger.kernel.org with SMTP id <S268674AbRGZVNY>;
-	Thu, 26 Jul 2001 17:13:24 -0400
-Message-ID: <3B60880E.9FBAA76B@fc.hp.com>
-Date: Thu, 26 Jul 2001 15:13:50 -0600
-From: Khalid Aziz <khalid@fc.hp.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Support for serial console on legacy free machines
+	id <S268690AbRGZVLk>; Thu, 26 Jul 2001 17:11:40 -0400
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:52034 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S268670AbRGZVL3>; Thu, 26 Jul 2001 17:11:29 -0400
+Date: Thu, 26 Jul 2001 21:10:45 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: nfs weirdness
+Message-ID: <20010726211045.K19492@grobbebol.xs4all.nl>
+In-Reply-To: <20010723154217.F19492@grobbebol.xs4all.nl> <15197.21462.625678.700365@notabene.cse.unsw.edu.au> <20010726193741.J19492@grobbebol.xs4all.nl> <15200.33212.620647.474271@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <15200.33212.620647.474271@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Fri, Jul 27, 2001 at 06:46:52AM +1000
+X-OS: Linux grobbebol 2.4.6 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I am working on adding support for serial console on legacy free
-machines. Legacy free machines are not expected to have the legacy COM
-ports. The serial ports on these machines can exist in I/O space, memory
-space or they could be PCI devices. This brings up the problem of
-detecting where the serial console is. This problem is supposed to be
-solved by ACPI 2.0 tables. The table that gives the details of serial
-console is "Serial Port Console Redirection" (SPCR) table. This table
-gives me almost all the information I need to initialize and use a
-serial console. The bummer is this table was designed by Microsoft and
-Microsoft owns the copyright on it. Microsoft primarily designed this
-table for use by Whistler. Their copyright may cause potential problems
-with using it in Linux. This makes me reluctant to use this table. I
-would like to know how do others feel about using an ACPI table with
-Microsoft copyright. I would like to try to push for another table in
-ACPI spec that is free from copyright by any corporation and is simply a
-part of spec, if most Linux developers are opposed to using a
-copyrighted ACPI table.
+On Fri, Jul 27, 2001 at 06:46:52AM +1000, Neil Brown wrote:
+> http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.7/patch-E-fatnfs
+> 
+> that should fix this.  I have done minimal testing, but I am waiting
+> for someone who actually needs to use this functionality to try it out
+> and confirm that it works for real-life situations before I recommend
+> it to Linus.
 
-Please ask questions if you need more info. URL for SPCR table
-definition, if you would like to look at it, is
-<http://www.microsoft.com/hwdev/headless/download/SerialPortRedir.zip>.
+I'll see what I can do to cross compile && install. I'll let you know in
+a reasonable time.
 
 -- 
-Khalid
-
-====================================================================
-Khalid Aziz                              Linux Systems Operation R&D
-(970)898-9214                                        Hewlett-Packard
-khalid@fc.hp.com                                    Fort Collins, CO
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

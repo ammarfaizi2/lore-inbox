@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317331AbSHGM2f>; Wed, 7 Aug 2002 08:28:35 -0400
+	id <S316971AbSHGMNt>; Wed, 7 Aug 2002 08:13:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317338AbSHGM2f>; Wed, 7 Aug 2002 08:28:35 -0400
-Received: from theorie3.physik.uni-erlangen.de ([131.188.166.130]:46857 "EHLO
-	theorie3.physik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S317331AbSHGM2f>; Wed, 7 Aug 2002 08:28:35 -0400
-Date: Wed, 7 Aug 2002 14:32:09 +0200
-From: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with various networking-cards (tulip,3c59x,etc.) on 2.4.19-smp machine
-Message-ID: <20020807122953.GA580@theorie3.physik.uni-erlangen.de>
-Reply-To: Norbert Nemec <nobbi@theorie3.physik.uni-erlangen.de>
+	id <S316997AbSHGMNt>; Wed, 7 Aug 2002 08:13:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11991 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316971AbSHGMNt>;
+	Wed, 7 Aug 2002 08:13:49 -0400
+Date: Wed, 07 Aug 2002 05:03:29 -0700 (PDT)
+Message-Id: <20020807.050329.92273054.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: rkuhn@e18.physik.tu-muenchen.de, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at tg3.c:1557
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1028726077.18478.284.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.44.0208071332110.3394-100000@pc40.e18.physik.tu-muenchen.de>
+	<1028726077.18478.284.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 07 Aug 2002 14:14:37 +0100
 
-I have been trying to update a SMP machine to kernel 2.4, but I stubled over
-the same problem over and over again:
+   I've never been able to get a broadcom chipset ethernet card stable on a
+   dual athlon with AMD 76x chipset. I have no idea what the problem is
+   although it certainly appears to be PCI versus main memory ordering
+   funnies.
 
-With SMP enabled, the network card does neither send nor receive any data. There are
-no error messages, but the card behaves just as if the cable was physically disconnected.
+One thing you can try is the following in tg3.c:
 
-I have tried the de4x5 and the tulip driver with no success, and a 3c59x-card
-with just the same problem.
+1) Force TG3_FLAG_PCIX_TARGET_HWBUG to be set in tp->tg3_flags
 
-The problem occurred on two identical dual-PPro machines, so hardware problems
-should be excluded. Kernel 2.2.13 does work without problems. With SMP disabled,
-the problem disappears. I have tried 2.4.18 as well as 2.4.19
-
-Could anyone help me to find the correct person to contact about it?
-
-Thanks,
-Nobbi
-
-PS: Please CC me, I've not subscribed.
-
--- 
--- _____________________________________Norbert "Nobbi" Nemec
--- Hindenburgstr. 44   ...   D-91054 Erlangen   ...   Germany
--- eMail: <Norbert@Nemec-online.de>  Tel: +49-(0)-9131-204180
+2) Change "tw32_mailbox(reg, val)" define to just be identical
+   to "tw32(reg, val)"

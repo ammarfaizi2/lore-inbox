@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbULRSJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbULRSQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbULRSJA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 13:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbULRSJA
+	id S261212AbULRSQb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 13:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbULRSQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 13:09:00 -0500
-Received: from main.gmane.org ([80.91.229.2]:34457 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261213AbULRSIv (ORCPT
+	Sat, 18 Dec 2004 13:16:31 -0500
+Received: from ntp.nuit.ca ([66.11.160.83]:14464 "EHLO smtp.nuit.ca")
+	by vger.kernel.org with ESMTP id S261212AbULRSQ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 13:08:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 18 Dec 2004 13:16:28 -0500
+Date: Sat, 18 Dec 2004 13:16:27 -0500
+From: simon@nuit.ca
 To: linux-kernel@vger.kernel.org
-From: "Joseph Seigh" <jseigh_02@xemaps.com>
-Subject: Re: What does atomic_read actually do?
-Date: Sat, 18 Dec 2004 13:14:25 -0500
-Message-ID: <opsi7uaby0s29e3l@grunion>
-References: <opsi7o5nqfs29e3l@grunion> <20041218181102.69c37e84@tux.homenet>
+Subject: PPP woes, continued
+Message-ID: <20041218181627.GA8047@nuit.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: stenquists.ne.client2.attbi.com
-User-Agent: Opera M2/7.54 (Win32, build 3865)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Disposition: inline
+X-Operating-System: Debian GNU/Linux
+X-GPG-Key-Server: x-hkp://subkeys.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
+X-Scan-Signature: smtp.nuit.ca 1Cfj7z-00027M-Cn 2e3c26f822620af3767e81d2d0f6375a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Dec 2004 18:11:02 +0100, Paolo Ornati <ornati@fastwebnet.it>  
-wrote:
 
-> On Sat, 18 Dec 2004 11:23:37 -0500
-> "Joseph Seigh" <jseigh_02@xemaps.com> wrote:
->
->> It doesn't do anything that would actually guarantee that the fetch
->> from memory would be atomic as far as I can see, at least in the x86
->> version. The C standard has nothing to say about atomicity w.r.t.
->> multithreading or multiprocessing.  Is this a gcc compiler thing?  If
->> so, does gcc guarantee that it will fetch aligned ints with a single
->> instruction on all platforms or just x86?   And what's with volatile
->> since if the C standard implies nothing about multithreading then it
->> follows that volatile has no meaning with respect to multithreading
->> either?  Also a gcc thing?  Are volatile semantics well defined enough
->> that you can use it to make the compiler synchronize memory state as
->> far as it is concerned?
->
-> http://www.gnu.org/software/libc/manual/html_node/Atomic-Data-Access.html#Atomic%20Data%20Access
->
-> http://www.gnu.org/software/libc/manual/html_node/Atomic-Types.html#Atomic%20Types
+--/9DWx/yDrRhgMJTb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-sig_atomic_t is only meaningful with respect to unix signals and is  
-meaningless with
-respect to threads.  And sig_atomic_t isn't atomic_t anyway.  And it has  
-to useful
-size, it could be in int on some platforms but only a byte on others.   
-Signals and
-threading are difficult enough as separate subjects.  Combining them is  
-insanely
-difficult but that's another topic.
 
->
-> http://gcc.gnu.org/onlinedocs/gcc/Volatiles.html
+hello again,
 
-"The C standard leaves it implementation defined as to what constitutes a  
-volatile access."
-Plus, I'm not sure sequence points are defined in C, and IIRC, C++ can  
-combine and/or
-reorder volatile accesses between sequence points.
+made an interesting discovery. i'm willing to bet that pppd is still
+unstable as hell, *but*, i've been able to work around the problems with
+ifconfig locking up the box or causing oopses by using the iproute
+utils. good incentive to work exclusively with those tools, at least for
+now ;).
 
-Joe Seigh
+again, please CC: me.
 
+eric
+
+
+--=20
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+
+--/9DWx/yDrRhgMJTb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iQGVAwUBQcRz+mqIeuJxHfCXAQIsegv+N/SHb6n4r2Y8+/6uXG3nMj/Nb9JauMnJ
+LCvTHG4F8ypdwZbDa3ucH8ZtSpl0F9SWgX9ydSHK6J263hBaOZkkxexG+Kfl9n8+
+7pbFF057VXwxmPvDJKZUIrxZrwB5JljmeqdO0XTxfQFNyokT0vZDpPV/n9gTMov4
+AbdJ1v64rT8rKjr1sVTK4cBrUBY8EMRJHmREImP8y5B7jZ7SJuZkyRMo5h5paane
+H0h2ZETk7OaZJWgXXTNCOYhssbxNQQNxkSTLuzeazn3PYTAAo3OncDsIm6gl8eO/
+kwXh9KPl+oOS1cowPGkYpnmjgxqp9Gd+LqKkKqk41y4OAN9I59QhCMdMqM/uUHUl
++RFn/SozlIAUnpU6in0BC3rvzAFDV0s3xVxD1MBG2QNLQUQ5QxodXyAhb64K6JIZ
+9dvhYguWloJQkg1e/wUHt7whEwEbJROhOQ/dSgjq7tHxn2R953ME9GFih3bONsed
+x8tbi8AOnzu4UWO05+ieDCLn33aO3O4f
+=wcDk
+-----END PGP SIGNATURE-----
+
+--/9DWx/yDrRhgMJTb--

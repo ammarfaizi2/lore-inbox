@@ -1,54 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVADWc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262402AbVADWgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262401AbVADWc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 17:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVADWcl
+	id S262402AbVADWgn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 17:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVADWfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 17:32:41 -0500
-Received: from mlf.linux.rulez.org ([192.188.244.13]:28172 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S262123AbVADWYG
+	Tue, 4 Jan 2005 17:35:24 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:57260 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S262123AbVADWdJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 17:24:06 -0500
-Date: Tue, 4 Jan 2005 23:24:00 +0100 (MET)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: tridge@samba.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Michael B Allen <mba2000@ioplex.com>,
-       sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
-       samba-technical@lists.samba.org, aia21@cantab.net,
-       hirofumi@mail.parknet.co.jp,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-NTFS-Dev] Re: FAT, NTFS, CIFS and DOS attributes
-In-Reply-To: <16857.57572.25294.431752@samba.org>
-Message-ID: <Pine.LNX.4.21.0501042312550.22795-100000@mlf.linux.rulez.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Jan 2005 17:33:09 -0500
+From: James Nelson <james4765@cwazy.co.uk>
+To: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Cc: ralf@linux-mips.org, James Nelson <james4765@cwazy.co.uk>
+Message-Id: <20050104223327.21889.11863.64754@localhost.localdomain>
+Subject: [PATCH 0/4] mips: remove cli()/sti() from arch/mips/*
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 16:33:07 -0600
+Date: Tue, 4 Jan 2005 16:33:07 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This series of patches is to remove the last cli()/sti() function calls in arch/mips.
 
-On Tue, 4 Jan 2005 tridge@samba.org wrote:
+These are the only instances in active code that grep could find.
 
-> you need more than one byte for DOS attrib. These are the bits Samba4
-> defines:
-> 
-> /* FileAttributes (search attributes) field */
- [ ... ]
-> #define FILE_ATTRIBUTE_SPARSE		0x0200
- [ ... ]
-> #define FILE_ATTRIBUTE_COMPRESSED	0x0800
- [ ... ] 
->
-> while most apps don't care about the bits beyond 0xFF at the moment, I
-> think that might change, especially for win32 clients accessing linux
-> filesystems via wine and Samba.
-
-Setting the above two attributes from a Linux client accessing NTFS via
-cifsfs pops up more often too. One scenario would be
-
-  ntfsclone --fs-compression --output /mnt/cifsfs/backup.img /dev/foo
-
-and the transparently compressed backup.img should be loopback mountable
-by whatever preferred NTFS driver for whatever reason.
-
-	Szaka
-
+ gt64120/ev64120/irq.c                            |    2 +-
+ jmr3927/rbhma3100/setup.c                        |    2 +-
+ tx4927/toshiba_rbtx4927/toshiba_rbtx4927_irq.c   |    2 +-
+ tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c |    4 ++--
+ 4 files changed, 5 insertions(+), 5 deletions(-)

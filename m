@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265495AbTIDTB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 15:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265500AbTIDTB1
+	id S265512AbTIDTM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 15:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265515AbTIDTM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 15:01:27 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:49040 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S265495AbTIDTBZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 15:01:25 -0400
-Subject: [PATCH] 2.4.22 precedes 0.9.9 in module-init-tools of course
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062702349.4977.15.camel@lintel>
+	Thu, 4 Sep 2003 15:12:56 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:10247
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S265512AbTIDTMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 15:12:54 -0400
+Date: Thu, 4 Sep 2003 12:12:55 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: precise characterization of ext3 atomicity
+Message-ID: <20030904191255.GE13676@matchmail.com>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
+	linux-kernel@vger.kernel.org
+References: <3F574A49.7040900@namesys.com> <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com> <3F578656.60005@namesys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 04 Sep 2003 13:05:49 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Sep 2003 19:01:24.0928 (UTC) FILETIME=[EFFC7400:01C37316]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F578656.60005@namesys.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: linux-2.6.0-test4/Documentation/Changes
-> o  module-init-tools      0.9.9                   # depmod -V
+On Thu, Sep 04, 2003 at 10:37:10PM +0400, Hans Reiser wrote:
+> Mike Fedyk wrote:
+> 
+> >On Thu, Sep 04, 2003 at 08:25:18PM +0400, Hans Reiser wrote:
+> > 
+> >
+> >>In data=journal and data=ordered modes ext3 also guarantees that the 
+> >>metadata will be committed atomically with the data they point to.  
+> >>However ext3 does not provide user data atomicity guarantees beyond the 
+> >>scope of a single filesystem disk block (usually 4 kilobytes).  If a 
+> >>single write() spans two disk blocks it is possible that a crash partway 
+> >>through the write will result in only one of those blocks appearing in 
+> >>the file after recovery.
+> >>   
+> >>
+> >
+> >And how does reiser4 do this without changing the userspace apps?
+> >
+> We don't.  We just make the hovercraft, we don't force you to go over 
+> the water.....
 
-Newbie me, I was slow to imagine that depmod -V could be helpfully
-reporting two independent series of version numbers, the older prefaced
-with "depmod version ", the newer prefaced with "module-init-tools ".
+So by default with no user space modifications, reiser4 will be atomic for
+each write() call, and ext3 will if it aligns withing a single page.
 
-I wrongly thought that 2.4.22 was 0.9.9 or better, even when I saw the
-modprobe complaint:
-QM_MODULES: Function not implemented
+Is that correct?
 
-Therefore I propose the following patch.
-
-Pat LaVarre
-
---- linux-2.6.0-test4/Documentation/Changes	2003-08-22 18:00:12.000000000 -0600
-+++ linux/Documentation/Changes	2003-09-03 15:18:30.691529216 -0600
-@@ -65,6 +65,9 @@
- o  procps                 2.0.9                   # ps --version
- o  oprofile               0.5.3                   # oprofiled --version
- 
-+Also upgrade your module-init-tools if your depmod -V gives you a
-+"depmod version" rather than a "module-init-tools" version.
-+
- Kernel compilation
- ==================
- 
-
-
-
+Then you can go on to specify that you can have larger transactions if you
+make some changes to the userspace apps.

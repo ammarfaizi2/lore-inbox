@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbQLDQmD>; Mon, 4 Dec 2000 11:42:03 -0500
+	id <S129844AbQLDRFH>; Mon, 4 Dec 2000 12:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129535AbQLDQly>; Mon, 4 Dec 2000 11:41:54 -0500
-Received: from smtp2.ihug.co.nz ([203.109.252.8]:35853 "EHLO smtp2.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S129532AbQLDQlj>;
-	Mon, 4 Dec 2000 11:41:39 -0500
-Message-ID: <3A2BC207.45B8EF2E@ihug.co.nz>
-Date: Tue, 05 Dec 2000 05:10:47 +1300
-From: Gerard Sharp <gsharp@ihug.co.nz>
-Reply-To: gsharp@ihug.co.nz
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test11-ac4-smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Gnea <gnea@rochester.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11
-In-Reply-To: <3A2785BB.EB36DDE0@ihug.co.nz> <20001202162105.AAA28297@mail2.nyroc.rr.com@celery>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130119AbQLDRE6>; Mon, 4 Dec 2000 12:04:58 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:51465 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129844AbQLDREk>; Mon, 4 Dec 2000 12:04:40 -0500
+Message-Id: <200012041633.eB4GXOt26866@pincoya.inf.utfsm.cl>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: 2.4.0.12.4: drivers/net/dummy.c fails compile
+X-Mailer: MH [Version 6.8.4]
+Date: Mon, 04 Dec 2000 13:33:24 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gnea wrote:
-> >  [1.] One line summary of the problem:
-> >  Intermittent corruption of 4 bytes in SMP kernels using HPT366
-> [snip]
-> Have you tried updating the bios on the bp6? This solved a LOT of
-> problems for me, and afaik, ru is the latest... 
-
-RU seems the latest. Flashed bios as per your nicely detailed
-instructions.
-No improvement in condition, alas.
-
-> also, the overclocking might be a bad thing in this case unless you 
-> have the proper cooling for it (lm-sensors is great for this sort of
-> thing :) there's a neat wm applet called wmbp6 too) so u may want to 
-> try clocking it straight at 300 for awhile and see what effect that 
-> has.. hope this helps
-
-Err. "300(66)" probably won't help too much. The cpu's are multiplier
-locked (love that one, Intel); so will run at 7 * 66 (466) when set to
-chip defaults - which I currently am - to rule out flaky / stressed
-hardware.
-
-Temperatures are a nice frosty 30 deg C across all the temperature
-sensors lm_sensors offers; and the thermal probe I have dangling in the
-psu exhaust :)
-[this is with two rc5des clients running - loadavg of 2 - btw]
-
-Back to the original topic, I've done some more 'research'; and I'm not
-_certain_ of my findings, but there's a few coincidences here...
-
-I think I'll make a more general post to lkml direct in a minute.
+SPARC64, Red Hat 6.2 + local updates
 
 
-Gerard Sharp
-Two penguins at 1024x768
+dummy.c: In function `dummy_init_module':
+dummy.c:103: invalid type argument of `->'
+
+A patch follows:
+
+--- linux-2.4.0-test/drivers/net/dummy.c~	Mon Dec  4 09:03:05 2000
++++ linux-2.4.0-test/drivers/net/dummy.c	Mon Dec  4 13:27:23 2000
+@@ -100,7 +100,7 @@
+ 	int err;
+ 
+ 	dev_dummy.init = dummy_init;
+-	SET_MODULE_OWNER(&dev_dummy);
++	SET_MODULE_OWNER((&dev_dummy));
+ 
+ 	/* Find a name for this unit */
+ 	err=dev_alloc_name(&dev_dummy,"dummy%d");
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,103 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266259AbSLIWzS>; Mon, 9 Dec 2002 17:55:18 -0500
+	id <S266323AbSLIXE4>; Mon, 9 Dec 2002 18:04:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbSLIWzS>; Mon, 9 Dec 2002 17:55:18 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:2944 "EHLO
-	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S266259AbSLIWzQ>;
-	Mon, 9 Dec 2002 17:55:16 -0500
-Date: Mon, 9 Dec 2002 18:02:56 -0500 (EST)
-From: tmrbilldavidsen <root@tmr.com>
-Reply-To: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] ctxbench kernel.org 2.5.50
-Message-ID: <Pine.LNX.4.44.0212091758280.1420-200000@bilbo.tmr.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810548-1952715543-1039474976=:1420"
+	id <S266298AbSLIXE4>; Mon, 9 Dec 2002 18:04:56 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:22728 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266323AbSLIXEz>;
+	Mon, 9 Dec 2002 18:04:55 -0500
+Subject: Re: [PATCH] aacraid 2.5
+From: Mark Haverkamp <markh@osdl.org>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <15861.4842.846748.181660@wombat.chubb.wattle.id.au>
+References: <15861.4842.846748.181660@wombat.chubb.wattle.id.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1039475591.28638.31.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 09 Dec 2002 15:13:11 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 2002-12-09 at 14:02, Peter Chubb wrote:
+> >>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
+> 
+> Mark> On Fri, 2002-12-06 at 16:30, Christoph Hellwig wrote:
+> >> On Fri, Dec 06, 2002 at 07:45:42AM -0800, Mark Haverkamp wrote: >
+> >> +/** > + * Convert capacity to cylinders > + * accounting for the
+> >> fact capacity could be a 64 bit value > + * > + */ > +static inline
+> >> u32 cap_to_cyls(sector_t capacity, u32 divisor) > +{ > +#ifdef
+> >> CONFIG_LBD > + do_div(capacity, divisor); > +#else > + capacity /=
+> >> divisor; > +#endif > + return (u32) capacity; > +}
+> >> 
+> >> Please use sector_div() instead.  It exists for a reason.
+> 
+> 
+> Mark> Thanks for finding this.  I have enclosed a change using your
+> Mark> suggestion.
+> 
+> 
+> sector_div(a, b) is just like do_div(a, b) -- it returns the
+> remainder, and sets a to a/b which is not reflected in your patch...
+> 
 
----1463810548-1952715543-1039474976=:1420
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-Runs were smp kernel, smp kernel with nospm option, uni kernel. Uni was 
-much faster, smp results varied highly.
-
-I tried more runs and longer runs with the SMP kernel, results (single 
-user mode) still vary a lot.
-
+oops, I didn't look closely enough at the sector_div code.
 -- 
-bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
-  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
-since using 2.5 kernels includes a lot of things jumping out of dark
-corners to scare you.
+Mark Haverkamp <markh@osdl.org>
 
-
----1463810548-1952715543-1039474976=:1420
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="y.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212091802560.1420@bilbo.tmr.com>
-Content-Description: kernel.org 2.5.50
-Content-Disposition: attachment; filename="y.tmp"
-
-DQoNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0NCiAgICBSdW4gaW5mb3JtYXRpb24N
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT0NCg0KUnVuOiAyLjUuNTBub3NtcC1ibA0K
-ICBDUFVfTUh6ICAgICAgICAgICAgICA0OTguMDQ5DQogIENQVXR5cGUgICAg
-ICAgICAgICAgIENlbGVyb24gKE1lbmRvY2lubykNCiAgSG9zdE5hbWUgICAg
-ICAgICAgICAgYmlsYm8udG1yLmNvbQ0KICBLZXJuZWxOYW1lICAgICAgICAg
-ICAyLjUuNTBzbXANCiAgTmNwdSAgICAgICAgICAgICAgICAgMQ0KUnVuOiAy
-LjUuNTBzbXAtYmwNCiAgQ1BVX01IeiAgICAgICAgICAgICAgNDk3Ljg5OA0K
-ICBDUFV0eXBlICAgICAgICAgICAgICBDZWxlcm9uIChNZW5kb2Npbm8pDQog
-IEhvc3ROYW1lICAgICAgICAgICAgIGJpbGJvLnRtci5jb20NCiAgS2VybmVs
-TmFtZSAgICAgICAgICAgMi41LjUwc21wDQogIE5jcHUgICAgICAgICAgICAg
-ICAgIDINClJ1bjogMi41LjUwdW5pLWJsDQogIENQVV9NSHogICAgICAgICAg
-ICAgIDQ5Ny45NTMNCiAgQ1BVdHlwZSAgICAgICAgICAgICAgQ2VsZXJvbiAo
-TWVuZG9jaW5vKQ0KICBIb3N0TmFtZSAgICAgICAgICAgICBiaWxiby50bXIu
-Y29tDQogIEtlcm5lbE5hbWUgICAgICAgICAgIDIuNS41MA0KICBOY3B1ICAg
-ICAgICAgICAgICAgICAxDQoNCg0KPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KICAg
-IFJlc3VsdHMgYnkgSVBDIHR5cGUNCj09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCg0K
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb29wcy9zZWMN
-ClNJR1VTUjEgICAgICAgICAgICAgICAgICAgICBsb3cgICAgICAgaGlnaCAg
-ICBhdmVyYWdlDQogIDIuNS41MG5vc21wLWJsICAgICAgICAgIDUxNjc1ICAg
-ICAgNTY0MDMgICAgICA1NDgxOA0KICAyLjUuNTBzbXAtYmwgICAgICAgICAg
-ICAgODg0MSAgICAgIDU1NTM0ICAgICAgMzg2MzINCiAgMi41LjUwdW5pLWJs
-ICAgICAgICAgICAgNjYzNzQgICAgICA2NjUzNiAgICAgIDY2NDM0DQoNCiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9vcHMvc2VjDQpt
-ZXNzYWdlIHF1ZXVlICAgICAgICAgICAgICAgbG93ICAgICAgIGhpZ2ggICAg
-YXZlcmFnZQ0KICAyLjUuNTBub3NtcC1ibCAgICAgICAgIDEwNDk2NSAgICAg
-MTA1MjYxICAgICAxMDUxMDUNCiAgMi41LjUwc21wLWJsICAgICAgICAgICAg
-NDYxODQgICAgIDEwNDY0MCAgICAgIDcxOTI1DQogIDIuNS41MHVuaS1ibCAg
-ICAgICAgICAgMTIxMzgzICAgICAxMjIzNTcgICAgIDEyMTg1MQ0KDQogICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3BzL3NlYw0KcGlw
-ZXMgICAgICAgICAgICAgICAgICAgICAgIGxvdyAgICAgICBoaWdoICAgIGF2
-ZXJhZ2UNCiAgMi41LjUwbm9zbXAtYmwgICAgICAgICAgODEyMTEgICAgICA4
-MTUyOSAgICAgIDgxNDExDQogIDIuNS41MHNtcC1ibCAgICAgICAgICAgIDQy
-NTczICAgICAgNzA5MTAgICAgICA1NjkwMA0KICAyLjUuNTB1bmktYmwgICAg
-ICAgICAgIDEyNzkxMCAgICAgMTI5NjY5ICAgICAxMjg2MDMNCg0KICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb29wcy9zZWMNCnNlbWlw
-aG9yZSAgICAgICAgICAgICAgICAgICBsb3cgICAgICAgaGlnaCAgICBhdmVy
-YWdlDQogIDIuNS41MG5vc21wLWJsICAgICAgICAgMTEwNTgyICAgICAxMTIw
-NDQgICAgIDExMTQ1MA0KICAyLjUuNTBzbXAtYmwgICAgICAgICAgICA1NDA4
-NSAgICAgIDc4NzQyICAgICAgNjM2NTQNCiAgMi41LjUwdW5pLWJsICAgICAg
-ICAgICAxMzE0MjUgICAgIDEzMjI3NCAgICAgMTMxNzk0DQoNCiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9vcHMvc2VjDQpzcGluK3lp
-ZWxkICAgICAgICAgICAgICAgICAgbG93ICAgICAgIGhpZ2ggICAgYXZlcmFn
-ZQ0KICAyLjUuNTBub3NtcC1ibCAgICAgICAgIDI1MjA1NSAgICAgMjUyNTI5
-ICAgICAyNTIzNjENCiAgMi41LjUwc21wLWJsICAgICAgICAgICAyNDQxNDYg
-ICAgIDM0NDU5MiAgICAgMjc5MDIyDQogIDIuNS41MHVuaS1ibCAgICAgICAg
-ICAgMzIyNzQyICAgICAzMjUxMDAgICAgIDMyMzU5NA0KDQogICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIGxvb3BzL3NlYw0Kc3BpbmxvY2sg
-ICAgICAgICAgICAgICAgICAgIGxvdyAgICAgICBoaWdoICAgIGF2ZXJhZ2UN
-CiAgMi41LjUwbm9zbXAtYmwgICAgICAgICAgICAgIDMgICAgICAgICAgMyAg
-ICAgICAgICAzDQogIDIuNS41MHNtcC1ibCAgICAgICAgICAxMTk0Nzg1ICAg
-IDExOTQ4ODIgICAgMTE5NDg0MQ0KICAyLjUuNTB1bmktYmwgICAgICAgICAg
-ICAgICAgMyAgICAgICAgICAzICAgICAgICAgIDMNCg0K
----1463810548-1952715543-1039474976=:1420--

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314584AbSEHQbb>; Wed, 8 May 2002 12:31:31 -0400
+	id <S314487AbSEHQjq>; Wed, 8 May 2002 12:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314620AbSEHQba>; Wed, 8 May 2002 12:31:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55290 "EHLO
+	id <S314625AbSEHQjq>; Wed, 8 May 2002 12:39:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42493 "EHLO
 	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S314584AbSEHQba>; Wed, 8 May 2002 12:31:30 -0400
-Subject: Re: O(1) scheduler gives big boost to tbench 192
+	id <S314487AbSEHQjp>; Wed, 8 May 2002 12:39:45 -0400
+Subject: Re: [PATCH] preemptive kernel for 2.4.19-pre7-ac4
 From: Robert Love <rml@tech9.net>
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-Cc: Mike Kravetz <kravetz@us.ibm.com>, mingo@elte.hu,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CD94582.DE18AB99@kolumbus.fi>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020508123221.GF22050@louise.pinerecords.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 08 May 2002 09:31:39 -0700
-Message-Id: <1020875500.2078.117.camel@bigsur>
+Date: 08 May 2002 09:39:56 -0700
+Message-Id: <1020875996.2084.121.camel@bigsur>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-05-08 at 08:34, Jussi Laako wrote:
+On Wed, 2002-05-08 at 05:32, Tomas Szepe wrote:
 
-> Mike Kravetz wrote:
-> > 
-> > I'd really like to know if there are any real workloads that
-> > benefited from this feature, rather than just some benchmark.
+> > The preempt-kernel patch for 2.4.19-pre7-ac4 is now available at
+> > 	http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.19-pre7-ac4-1.patch
 > 
-> Maybe this is the reason why O(1) scheduler has big latencies with
-> pthread_cond_*() functions which original scheduler doesn't have?
-> I think I tracked the problem down to try_to_wake_up(), but I was unable to
-> fix it.
+> ... applies to -pre8-ac1 as well. Safe to use?
 
-Ah this could be the same case.  I just looked into the definition of
-the conditional variable pthread stuff and it looks like it _could_ be
-implemented using pipes but I do not see why it would per se.  If it
-does not use pipes, then this sync issue is not at hand (only the pipe
-code passed 1 for the sync flag).
+Yep.  I sent Alan a few more scheduler updates - if he puts them in
+pre8-ac2, that may break the diff but still nothing incompatible. 
+Always assume (with most patches, really) that if it applies, it is
+fine.
 
-If it does not use pipes, we could have another problem - but I doubt
-it.  Maybe the benchmark is just another case where it shows worse
-performance due to some attribute of the scheduler or load balancer?
+An exception would be things like lock-break or low-latency that assume
+intricate knowledge of the locking and calling semantics of functions. 
+If they apply, they should compile and boot, but a deadlock may lurk. 
+This is partly why these solutions are horrible to maintain or get right
+and the preemptible kernel is a wiser long-term solution to latency and
+such.
 
 	Robert Love
 

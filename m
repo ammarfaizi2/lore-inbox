@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUIANvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUIANy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUIANvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 09:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUIANj6
+	id S266680AbUIANy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 09:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267258AbUIANxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 09:39:58 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:50560
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266319AbUIANh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 09:37:28 -0400
-To: akpm@osdl.org
-Subject: [PATCH 1/2] topdown support for ppc64
-Cc: apw@shadowen.org, linux-kernel@vger.kernel.org
-Message-Id: <E1C2VIe-0005pb-P5@localhost.localdomain>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Wed, 01 Sep 2004 14:37:20 +0100
+	Wed, 1 Sep 2004 09:53:46 -0400
+Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:45958 "EHLO
+	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266680AbUIANwS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 09:52:18 -0400
+From: Stuart Young <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1 : Weirdness after shutdown - ACPI or Suspend bug?
+Date: Wed, 1 Sep 2004 23:52:20 +1000
+User-Agent: KMail/1.7
+References: <200409012020.42482.cef-lkml@optusnet.com.au>
+In-Reply-To: <200409012020.42482.cef-lkml@optusnet.com.au>
+Cc: len.brown@intel.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200409012352.21576.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent patches introduced a top down user process address space
-allocation policy; further patches enable this for ppc64.
-Although these work correctly for normal maps, the topdown
-algorithm does not take into account stringent mixing constraints
-for small and large pages on this architecture.  These patches
-introduce a ppc64 specific arch_get_unused_area_topdown() variant.
-The first introduces infrastructure to allow replacement of the
-generic arch_get_unused_area_topdown() and the second utilises
-this infrastructure.
+On Wed, 1 Sep 2004 20:20, Stuart Young wrote:
+> OK, this one is weirding me out.
+>
+> Note that when using 2.6.8.1 all is fine. The following situation only
+> happens in 2.6.9-rc1 or later.
+>
+> If I shutdown my laptop (ie: halt) it goes through the motions and
+> everything goes off. If the lid switch changes state AFTER powerdown, the
+> laptop starts up. Removing AC power, or with AC power connected and
+> removing the battery does not trigger this, just seemingly the lid switch.
+> This works on lid close, AND lid open.
 
-In this patch I have followed the pattern set by the
-arch_get_unused_area() using HAVE_ARCH_UNMAPPED_AREA_TOPDOWN to
-be consistent.  However, it would also be possible to simply have
-a ppc64_get_unused_area_topdown() in the arch/ppc64/mm/mmap.c or
-to use weak bindings.
+Len, I've tentatively traced this down to the addition of the ACPI 
+wakeup_devices module that went into the kernel via ACPI 20040715.
 
--apw
+>From a quick look at the code, the wakeup devices get set at boot, but on 
+shutdown, they don't get unset. Is this intentional?
 
-=== 8< ===
-Allow an architecture to override the default definition of
-arch_get_unmapped_area_topdown().
+Any clues, ideas, or suggestions?
 
-Revision: $Rev: 602 $
+Notes:
+ Asus L7300/L7200 series laptop
+ Latest BIOS from the Asus website
+ PIII-600 on Intel 82440MX chipset
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-
-diffstat 090-arch_topdown
----
- mmap.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/mmap.c current/mm/mmap.c
---- reference/mm/mmap.c	2004-08-25 12:33:42.000000000 +0100
-+++ current/mm/mmap.c	2004-08-26 12:26:59.000000000 +0100
-@@ -1078,6 +1078,7 @@ void arch_unmap_area(struct vm_area_stru
-  * This mmap-allocator allocates new areas top-down from below the
-  * stack's low limit (the base):
-  */
-+#ifndef HAVE_ARCH_UNMAPPED_AREA_TOPDOWN
- unsigned long
- arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
- 			  const unsigned long len, const unsigned long pgoff,
-@@ -1162,6 +1163,7 @@ fail:
- 
- 	return addr;
- }
-+#endif
- 
- void arch_unmap_area_topdown(struct vm_area_struct *area)
- {
+-- 
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

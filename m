@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbUKSOUC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbUKSOWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbUKSOUC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:20:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUKSOSO
+	id S261427AbUKSOWX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUKSOUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:18:14 -0500
-Received: from zhabb.mics.msu.su ([158.250.28.142]:51645 "EHLO
-	zhabb.mics.msu.su") by vger.kernel.org with ESMTP id S261430AbUKSORc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:17:32 -0500
-X-SMScore: 0
-X-SMRecipient: linux-kernel@vger.kernel.org
-From: Peter Volkov Alexandrovich <pvolkov@mics.msu.su>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6 and route nat. Who know what is going on?
-Date: Fri, 19 Nov 2004 17:20:13 +0300
-User-Agent: KMail/1.7.1
-Organization: GPI RAN
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Nov 2004 09:20:20 -0500
+Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:19645 "EHLO
+	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S261431AbUKSOTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:19:47 -0500
+Date: Fri, 19 Nov 2004 16:19:45 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+To: alsa-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Maestro3 hw volume buttons on HP OB6000 (need help from HP)
+Message-ID: <20041119141945.GA27175@sci.fi>
+Mail-Followup-To: alsa-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200411191720.13423.pvolkov@mics.msu.su>
-X-OriginalArrivalTime: 19 Nov 2004 14:20:06.0703 (UTC) FILETIME=[DE5D33F0:01C4CE42]
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+I've been trying to get the hardware volume buttons to work on my HP 
+OmniBook 6000 laptop. The audio chip is an ESS Maestro 3 and the specs are 
+available. Unfortunately that doesn't seem to be enough to make the 
+buttons work.
 
-The problem I have is route nat.
+There is something messing with hw volume pins since I get a constant 
+flood of events. I can't enable the hw volume interrupt because the system 
+will hang under the interrupt load. It does appear that the the buttons 
+are actually connected to the right pins since I can see some changes in 
+the data when I press the buttons (observed using another interrupt 
+source).
 
-Short question: Must "route nat", mentioned in ip-cref documentation coming 
-with iproute2 package, work with 2.6.9 kernel?
+The laptop requires a HP specific driver even under Windows. Otherwise the 
+hw volume buttons don't behave properly (mute and vol up act as mute, vol 
+down does nothing). The standard driver doesn't hang the machine though.
 
-Long question and description of the problem:
-There is an appendix C in ip-cref by Alexey Kuznetsov called "Route NAT 
-Status". I've followed this configuration with 2.4.2x kernel and everything 
-works. But now I'm forced to move to 2.6.9 kernel due to new SATA controller 
-in my server. And problem is that it is not working. When I issue:
+I'd really appreciate some help from HP.
 
-# ip route nat <inet_ip_address> via <local_ip_address>
-
-I the answer is: RTNETLINK answers: invalid argument
-
-So seems like some option is not enabled in my kernel. Well actually I have 
-all options and suboptions enabled in my kernel configuration under "TCP/IP 
-networking" -> "IP: advanced router".
-
-I've tried 2.6.8.1 kernel. And found out that there exist option "IP: fast 
-network address translation" under "IP: advanced router" that is absent in 
-2.6.9. When I enable this option the kernel seems to accept my command. My 
-router starts to answer arp requests for <inet_ip_addres>, as it should. But 
-no route DNAT seems to occur. If I add some LOG rule to FORWARD iptables chain 
-I can see packets to <inet_ip_address> being forwarded but not DNATed as it 
-should.
-
-Who supports this route nat code in the kernel? Are they going to support this 
-cool feature or it's deprecated and I should look for other solution? How 
-can this be done???
-
-I've tried to google and I've even tried to find an answer in sources, but 
-with no success also. I've asked about this about in LARTC mailing list, where 
-Anwara suggested me to ask for help on this list.
-
-If this is the wrong place to ask my question or anybody knows the right place 
-for this question, please tell me.
-
-Thank you very much in advance,
 -- 
-
-______________________________________
-
-Volkov Peter, <pvolkov@mics.msu.su>
-Moscow State University, Phys. Dep.
-______________________________________
-
-NO ePATENTS, eSIGN now on:
-http://petition.eurolinux.org
-and maybe this helps...
-
-Linux 2.4.26-gentoo-r9 i686
-Mobile Intel(R) Celeron(R) CPU 1.60GHz
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/

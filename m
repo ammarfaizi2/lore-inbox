@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUL0Tiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbUL0TjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUL0Tiz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 14:38:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUL0Tiz
+	id S261950AbUL0TjK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 14:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUL0TjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 14:38:55 -0500
-Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:12047 "EHLO
-	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
-	id S261951AbUL0Tix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 14:38:53 -0500
-Message-ID: <41D064D0.6050509@transtec.demon.co.uk>
-Date: Mon, 27 Dec 2004 19:38:56 +0000
-From: AJM <ajm@transtec.demon.co.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-gb, en-us, en
+	Mon, 27 Dec 2004 14:39:10 -0500
+Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:65492 "EHLO
+	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
+	id S261950AbUL0TjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 14:39:05 -0500
+Message-ID: <41D064D5.1030900@rnl.ist.utl.pt>
+Date: Mon, 27 Dec 2004 19:39:01 +0000
+From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Module Names - Hyphen Converted to Underscore
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [RFC] pid randomness
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have compiled stock (kernel.org) 2.6.3 and 2.6.9 kernels which exhibit 
-the following unusual behaviour on module loading: If the kernel module 
-has a hyphen in its name, then this appears to be translated into an 
-underscore by the kernel, such that, for example after "insmod 3w-xxxx", 
-lsmod shows "3w_xxxx", "rmmod 3w-xxxx" fails but "rmmod 3w_xxxx" succeeds.
+hi everyone,
 
-The distribution I am compiling the kernels under is Mandrake 10.0, and 
-if I compile the 2.6.3-4mdk kernel source supplied with the distribution 
-  then this problem does not arise.
+I don't know if this has been discussed before... but I'd like to ask 
+why isn't the pids randomized by default?
 
-A Google search reveals a number of similar problems, but with no 
-explanation other than possible typing errors.
+I mean, of course it's not required for normal functioning but it'd be 
+nice to have a Kconfig option to make it happen.
 
-Any suggestions as to why this is happening?
+The (newbie) way I see it, it'd not be hard to do... generate pid, check 
+if it's unique, give pid to process. It could bring some minor security 
+enhancements while taking a slight performance hit (seek & compare 
+algorithm for used pids).
 
-Thanks in advance,
+What are the pros and cons of this? What are your oppinions on this subjet?
 
-Jonathan.
+regards,
+pedro venda.
+-- 
+Pedro João Lopes Venda
+email: pjvenda@rnl.ist.utl.pt
+http://maxwell.rnl.ist.utl.pt
+
+Equipa de Administração de Sistemas
+Rede das Novas Licenciaturas (RNL)
+Instituto Superior Técnico
+http://www.rnl.ist.utl.pt
+http://mega.ist.utl.pt

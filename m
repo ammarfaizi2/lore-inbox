@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbTLXLcL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 06:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTLXLcK
+	id S263564AbTLXL2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 06:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTLXL2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 06:32:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53409 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263592AbTLXLcH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 06:32:07 -0500
-Date: Wed, 24 Dec 2003 03:32:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: GCS <gcs@lsc.hu>
-Cc: linux-kernel@vger.kernel.org, Peter Osterlund <petero2@telia.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.0-mm1
-Message-Id: <20031224033200.0763f2a2.akpm@osdl.org>
-In-Reply-To: <20031224095921.GA8147@lsc.hu>
-References: <20031224095921.GA8147@lsc.hu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 24 Dec 2003 06:28:16 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:5286 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S263564AbTLXL2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 06:28:14 -0500
+Date: Wed, 24 Dec 2003 12:10:55 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6] fix pci_update_resource() / IORESOURCE_UNSET on PPC
+Message-ID: <20031224111054.GB941@obroa-skai.de.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
+Content-Disposition: inline
+X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.6.0-ben1
+X-Date: Today is Prickle-Prickle, the 62nd day of The Aftermath in the YOLD 3169
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GCS <gcs@lsc.hu> wrote:
->
-> Hi,
-> 
-> On Tue, Dec 23, 2003 at 05:11:31AM +0200, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > It would be appreciated if people who have
-> > significant patches in -mm could retest please.
->  It seems I can write CDs on my laptop now. AFAICR I was last trying it on
-> test8, but it was the same: if the image is over ~400Mb, the machine
-> freezes hard. If it's shorter, then it's ok, but still some lock or sth
-> is not unlocked, as the CPU is used more and more about five secs by one
-> or two percent. Sooner or later it's crashed as well, but I could
-> restart the machine before that happened. Rebooting to 2.4.2x and
-> writing CDs there was working all the time.
->  So I do not know if it's fixed since test8, or in 2.6.0-mm1, but I am
-> happy with it. Also, I have two problems with 2.6.0-mm1:
 
-> - I can not deselect CONFIG_SCSI, only module or built-in available.
->   Maybe something is depend on it, but could not figure out what (no
->   CONFIG_BLK_DEV_IDESCSI, nothing is selected under CONFIG_SCSI).
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, this part of the config system is hard.  It always has been.  It's
-similar to "wtf do I have to enable to make the <foo> menu appear.
+Hi!
 
-I bit of grepping tells us that CONFIG_USB_STORAGE turns on CONFIG_SCSI.
+[disclaimer:  This was posted on the linuxppc list before, BenH asked me=20
+ to re-post it to lkml]
 
-> - I have a synaptics touchpad, which is detected correctly, but only
->   works if I set psmouse_noext=1. Under vanilla 2.6.0 it still works this
->   way, but with 2.6.0-mm1 it works only on the console, but not under
->   XFree86. Strange, as gpm interprets the input and pipes thru gpmdata
->   to XFree86 4.3.0. Any idea what broke this configuration?
+The prism54 (http://prism54.org) driver for my cardbus adapter works
+with 2.4.x, but not 2.6.x on a Titanium G4 Powerbook IV.
 
-Peter or Dmitry may be able to tell us.
+On 2.6.x the error message was
+PCI:0001:02:00.0 Resource 0 [00000000-00001fff] is unassigned
+
+After investigating differences in the PCI code of 2.4.x and 2.6.x, i
+noticed that 2.4.x/arc/ppc/kernel/pci.c:pcibios_update_resource()
+contained a couple of lines that unset the IORESOURCE_UNSET bitflag.
+
+In 2.6.x, this is handled by the generic PCI core in
+drivers/pci/setup-res.c:pci_update_resource() code.  However, the code
+is missing the 'res->flags &=3D ~IORESOURCE_UNSET' part.
+
+The below fix re-adds that section from 2.4.x.=20
+
+I'm not sure wether this belongs into the arch-independent PCI api.
+Anyway, on PPC it seems to be needed for certain cardbus devices.
+
+Any comments welcome.
+
+diff -Nru linuxppc25bh-031214-plain/drivers/pci/setup-res.c linuxppc25bh-03=
+1214-orinoco_monitor/drivers/pci/setup-res.c
+--- linuxppc25bh-031214-plain/drivers/pci/setup-res.c	2003-12-05 02:37:16.0=
+00000000 +0100
++++ linuxppc25bh-031214-orinoco_monitor/drivers/pci/setup-res.c	2003-12-15 =
+12:08:11.000000000 +0100
+@@ -84,6 +84,10 @@
+ 			       pci_name(dev), resno, new, check);
+ 		}
+ 	}
++	res->flags &=3D ~IORESOURCE_UNSET;
++	printk(KERN_INFO "PCI: moved device %s resource %d (%lx) to %x\n",
++		dev->slot_name, resno, res->flags,
++		new & ~PCI_REGION_FLAG_MASK);
+ }
+=20
+ int __init
+
+--=20
+- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+Programming is like sex: One mistake and you have to support it your lifeti=
+me
+
+--rJwd6BRFiFCcLxzm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/6XQ+XaXGVTD0i/8RAv1XAKCSG19r7LQxdmdUrMBUxAG/rM5L3gCfT4JM
+bf7Zx4yhtRyKUyMrkKT3SUA=
+=eW/c
+-----END PGP SIGNATURE-----
+
+--rJwd6BRFiFCcLxzm--

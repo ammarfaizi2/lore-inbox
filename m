@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315971AbSHFVE0>; Tue, 6 Aug 2002 17:04:26 -0400
+	id <S315870AbSHFVB7>; Tue, 6 Aug 2002 17:01:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315919AbSHFVDX>; Tue, 6 Aug 2002 17:03:23 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1273 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S315709AbSHFVCM>; Tue, 6 Aug 2002 17:02:12 -0400
-Date: Tue, 6 Aug 2002 23:05:44 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, <davem@nuts.ninka.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre1
-In-Reply-To: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva>
-Message-ID: <Pine.NEB.4.44.0208062302190.27501-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S316591AbSHFVAz>; Tue, 6 Aug 2002 17:00:55 -0400
+Received: from pensacola.gci.com ([205.140.80.79]:45576 "EHLO
+	pensacola.gci.com") by vger.kernel.org with ESMTP
+	id <S315709AbSHFVAC>; Tue, 6 Aug 2002 17:00:02 -0400
+Message-ID: <BF9651D8732ED311A61D00105A9CA31509E4BD84@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: Ben Greear <greearb@candelatech.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: abraham@2d3d.co.za, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: ethtool documentation
+Date: Tue, 6 Aug 2002 12:57:56 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Greear responded to:
+> "Richard B. Johnson" who wrote:
+>> Because of this, there is no such thing as 'unused eeprom space'
+>> in the Ethernet Controllers. Be careful about putting this weapon
+>> in the hands of the 'public'. All you need is for one Linux Machine
+>> on a LAN to end up with the same IEEE Station Address as another
+>> on that LAN and connectivity to everything on that segment will
+>> stop. You do this once at an important site and Linux will get a
+>> very black eye.
+> 
+> Actually, any important site has some kind of failover in 
+> place, and they could very well be using this feature to provide
+> seamless MAC/IP takeover in the case of a server outtage.
+> 
+> This feature also allows bridging to work, and anyone with 
+> root priviledges can send any ethernet packet they want using
+> a raw packet socket anyway.
 
-The changes to drivers/net/tg3.c in -pre1 broke the compilation:
+Absolutely.  Remember this is all about Freedoms.  Why try to take
+away the ability to do something?  Especially when it already exists
+and is very usefull.
 
-<--  snip  -->
+I recently replaced a firewall "live"  by using mac-address spoofing.
+Nobody noticed anything, except for a 30-sec 'hiccup' when traffic
+"slowed down."
 
-...
-gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
-/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=tg3  -c -o
-tg3.o tg3.c
-In file included from tg3.c:25:
-/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/if_vlan.h: In
-function `__vlan_hwaccel_rx':
-/home/bunk/linux/kernel-2.4/linux-2.4.19-full/include/linux/if_vlan.h:186:
-warning: implicit declaration of function `netif_receive_skb'
-tg3.c: In function `tg3_poll':
-tg3.c:1936: structure has no member named `quota'
-tg3.c:1937: structure has no member named `quota'
-tg3.c:1942: structure has no member named `quota'
-tg3.c:1949: warning: implicit declaration of function `netif_rx_complete'
-tg3.c: In function `tg3_interrupt_main_work':
-tg3.c:1976: warning: implicit declaration of function
-`netif_rx_schedule_prep'
-tg3.c:1979: warning: implicit declaration of function
-`__netif_rx_schedule'
-tg3.c: In function `tg3_init_one':
-tg3.c:5991: structure has no member named `poll'
-tg3.c:5992: structure has no member named `weight'
-make[3]: *** [tg3.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.19-full/drivers/net'
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+And really, Richard, If you want to take that argument, why would you
+want anybody to change IP's?  Because if one Linux Machine on a LAN
+ended up with the same IP of another machine on that LAN, then connectivity
+to those two machines is flakey at best.  Or if it took over the IP of
+the default GW, then all communication outside of the LAN will stop.
+And this _never happens_ in real life?  Yet we still can change IP
+addresses freely.  ( e.g., VLANs, Frame Relay DLCIs, ATM, AX.25, DecNet
+nodes, etc...)
 

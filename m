@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbUKQOel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbUKQOgH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbUKQOel (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 09:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbUKQOel
+	id S262333AbUKQOgH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 09:36:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbUKQOgH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 09:34:41 -0500
-Received: from mail.convergence.de ([212.227.36.84]:45017 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S262330AbUKQOek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 09:34:40 -0500
-Date: Wed, 17 Nov 2004 15:38:29 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Alex Woods <linux-dvb@giblets.org>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-dvb-maintainer] [2.6 patch] remove some unneeded #ifdefs from dvb/ttusb-dec/ttusb_dec.c (fwd)
-Message-ID: <20041117143829.GA6084@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Adrian Bunk <bunk@stusta.de>, Alex Woods <linux-dvb@giblets.org>,
-	linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-References: <20041116011824.GD4946@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041116011824.GD4946@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 17 Nov 2004 09:36:07 -0500
+Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:48664 "EHLO
+	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S262333AbUKQOf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 09:35:59 -0500
+Message-ID: <419B61CA.7010505@blueyonder.co.uk>
+Date: Wed, 17 Nov 2004 14:35:54 +0000
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040914)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: RE: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Nov 2004 14:36:24.0077 (UTC) FILETIME=[D01923D0:01C4CCB2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 02:18:24AM +0100, Adrian Bunk wrote:
-> 
-> The patch forwarded below still applies against 2.6.10-rc1-mm5.
-> 
-> Please apply.
-...
-> DVB_TTUSB_DEC selects CRC32, do the #ifdefs can be removed.
-
-I've applied the patch to linuxtv.org CVS.
-
-
-Thanks,
-Johannes
+Looks like the prject suffered instant death by the responses. Apart 
+from Tech Source, perhaps other companies such as IBM, HP, OSDL, RedHat, 
+Novell, etc. could be tapped for funding the 3D side of the development, 
+just an idea.
+Regards
+Sid.
+-- 
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====

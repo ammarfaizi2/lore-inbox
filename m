@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267009AbSIRPP3>; Wed, 18 Sep 2002 11:15:29 -0400
+	id <S264704AbSIRPWc>; Wed, 18 Sep 2002 11:22:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266964AbSIRPP2>; Wed, 18 Sep 2002 11:15:28 -0400
-Received: from sky.skycomputers.com ([198.4.246.2]:42917 "HELO
-	sky.skycomputers.com") by vger.kernel.org with SMTP
-	id <S266963AbSIRPP0> convert rfc822-to-8bit; Wed, 18 Sep 2002 11:15:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Brian Waite <waite@skycomputers.com>
-To: Patrick Mansfield <patmans@us.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [RFC] [PATCH] 0/7 2.5.35 SCSI multi-path
-Date: Wed, 18 Sep 2002 11:17:59 -0400
-User-Agent: KMail/1.4.1
-References: <20020917154940.A18401@eng2.beaverton.ibm.com>
-In-Reply-To: <20020917154940.A18401@eng2.beaverton.ibm.com>
+	id <S266962AbSIRPWc>; Wed, 18 Sep 2002 11:22:32 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60639 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S264704AbSIRPWc>;
+	Wed, 18 Sep 2002 11:22:32 -0400
+Date: Wed, 18 Sep 2002 17:33:54 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Cort Dougan <cort@fsmlabs.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
+ elimination, 2.5.35-BK
+In-Reply-To: <20020918090104.E14918@host110.fsmlabs.com>
+Message-ID: <Pine.LNX.4.44.0209181711350.22395-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209181117.59388.waite@skycomputers.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 September 2002 6:49 pm, Patrick Mansfield wrote:
 
->
-> Currently, multi-path support requires a SCSI device that supports one of
-> the SCSI INQUIRY device identification pages (page 0x80 or 0x83). Devices
-> not supporting one of these pages are treated as if they were separate
-> devices. Devices that do not give a unique serial number per LUN for these
-> commands might incorrectly be identified as multi-pathed.
->
-I might be wrong about this, I have put most of this out of my mind, but I 
-belive that many tape drives and many cdrom drives do not return a serial 
-number. Does this mean two seperate tape drives will "appear" as a single 
-multi-port device, and worse could a cdrom and a tape device appear as the 
-same device or do you seperate between device types and then serial numbers.\
+On Wed, 18 Sep 2002, Cort Dougan wrote:
 
- I was working on exactly this problem in Linux a while ago and we were 
-running into serial number as uniqueness problems. What we chose to do was 
-create a "uniqueness" driver that would first use a customer derived 
-uniquness mecanism, IE "host:bus:channel:device is a single ported device of 
-type XXX". The fall though mechanism was to query the serial number and if it 
-was zero, or provided no serial number,  then it could not be a multiported 
-device. Of course for most scsi disks, the serial number was adequate to 
-provide multiported-ness.
+> Can we get a lockless, scalable, fault-tolerant, pre-emption safe,
+> zero-copy and distributed get_pid() that meets the Carrier Grade
+> specification? [...]
 
-PS. There is nothing funnier than putting 2 tape drives on a system that 
-decides it is a single multiported device, starting a tar, and pulling the 
-drive it was writing to, only to watch the tar continue merrily ontl the 
-second tape drive. Sure you get your backup, the restore is a real bugger tho 
-:)
+of course, and it should also be massively-threaded, LSB-compliant,
+enterprise-ready, secure, cluster-aware, power-saving and self-healing. I
+admit that there's still lots of work to be done, but there's just so many
+hours in a day.
 
-Sorry to waste bandwidth if you've already discussed, I am probably a bit late 
-to the discussion.
-Thanks
-Brian
+> If at all possible I need it to do garbage collection, too.
 
+actually, on-the-fly O(log(N)) multiprocessor garbage collection is
+already integrated into its high-end modular OO design.
 
+> Perhaps a get_pid() that solves the Turning Halting Problem should be on
+> the todo list for 2.6.
 
+the first small mystery to solve are certain perturbations in Alan
+Turing's name. But, yes, it's definitely a goal of the PID allocator to be
+an answer to all, but also for it to avoid infinite loops for every
+possible input value, while yielding slightly more subtle output than the
+numeric value of 42. Patch in a few minutes.
 
+	Ingo
 

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277231AbRJIOI4>; Tue, 9 Oct 2001 10:08:56 -0400
+	id <S277239AbRJIOKq>; Tue, 9 Oct 2001 10:10:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277237AbRJIOIq>; Tue, 9 Oct 2001 10:08:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2569 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277231AbRJIOIb>; Tue, 9 Oct 2001 10:08:31 -0400
-Subject: Re: [LTP] VFS: brelse: started after 2.4.10-ac7
-To: rwhron@earthlink.net
-Date: Tue, 9 Oct 2001 15:14:34 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-In-Reply-To: <20011009094707.B4951@earthlink.net> from "rwhron@earthlink.net" at Oct 09, 2001 09:47:07 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277238AbRJIOKg>; Tue, 9 Oct 2001 10:10:36 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54287 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S277235AbRJIOKU>; Tue, 9 Oct 2001 10:10:20 -0400
+Date: Tue, 9 Oct 2001 10:48:46 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+In-Reply-To: <Pine.LNX.4.21.0110091031470.5604-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0110091048150.5604-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qxeU-0004JI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> About 2 minutes into "runalltests.sh" on ltp, ac kernels after 2.4.10-ac7
-> give a message like:
+
+
+On Tue, 9 Oct 2001, Marcelo Tosatti wrote:
+
 > 
-> Oct  9 01:55:09 rushmore kernel: VFS: brelse: Trying to free free buffer
-> Oct  9 01:55:09 rushmore kernel: VFS: brelse: Trying to free free buffer
+> Hi, 
+> 
+> I've been testing pre6 (actually its pre5 a patch which Linus sent me
+> named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
 
-You are using reiserfs ? Certainly there appears to a buffer cache problem
-with the remaining unmerged reiserfs changes from namesys that are in -ac.
+I haven't woke up correctly yet, I guess. 
 
-Alan
+I mean its pre6 with a patch named "p5p6" which Linus sent me.
+

@@ -1,95 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314458AbSFQPfB>; Mon, 17 Jun 2002 11:35:01 -0400
+	id <S314475AbSFQPjv>; Mon, 17 Jun 2002 11:39:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSFQPfA>; Mon, 17 Jun 2002 11:35:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5381 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314458AbSFQPe7>;
-	Mon, 17 Jun 2002 11:34:59 -0400
-Date: Mon, 17 Jun 2002 16:35:00 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: serial drivers using BHs
-Message-ID: <20020617163500.X9435@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314485AbSFQPju>; Mon, 17 Jun 2002 11:39:50 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:43269 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314475AbSFQPjt> convert rfc822-to-8bit; Mon, 17 Jun 2002 11:39:49 -0400
+Message-ID: <3D0E02C2.5010304@evision-ventures.com>
+Date: Mon, 17 Jun 2002 17:39:46 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
+MIME-Version: 1.0
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.22 broke modversions
+References: <Pine.LNX.4.44.0206171029400.22308-100000@chaos.physics.uiowa.edu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+U¿ytkownik Kai Germaschewski napisa³:
+> On Mon, 17 Jun 2002, Martin Dalecki wrote:
+> 
+> 
+>>BTW> There is some different thing broken: TEMP files
+>>used by make menuconfig don't get clean up even after make distclean.
+> 
+> 
+> Could you be more specific? The only file I can see lying around here
+> is .menuconfig.log, and that gets cleaned up.
+> 
 
-The quest to eradicate bottom halves continues.  This installment: all the
-serial drivers.  They each have a bottom half which, er, does exactly the
-same thing as IMMEDIATE_BH.  So why not make them all use IMMEDIATE_BH?
-This patch does exactly that:
 
-ftp://ftp.uk.linux.org/pub/linux/willy/patches/serial-bh-ectomy.diff
+Bjez probljemaw:
 
-(it's 30k, and i seem to remember l-k having a limit of 20k).  Here's
-a sample from it; all drivers are pretty much equivalent here:
+The following diff clutter appears in every diff after make menuconfig
 
-diff -urNX dontdiff linux-2.5.22/drivers/char/cyclades.c linux-2.5.22-bh/drivers/char/cyclades.c
---- linux-2.5.22/drivers/char/cyclades.c	Sun Jun  2 18:44:43 2002
-+++ linux-2.5.22-bh/drivers/char/cyclades.c	Mon Jun 17 07:04:32 2002
-@@ -712,8 +712,6 @@
- 
- #define	JIFFIES_DIFF(n, j)	((j) - (n))
- 
--static DECLARE_TASK_QUEUE(tq_cyclades);
--
- static struct tty_driver cy_serial_driver, cy_callout_driver;
- static int serial_refcount;
- 
-@@ -934,8 +932,8 @@
- cy_sched_event(struct cyclades_port *info, int event)
- {
-     info->event |= 1 << event; /* remember what kind of event and who */
--    queue_task(&info->tqueue, &tq_cyclades); /* it belongs to */
--    mark_bh(CYCLADES_BH);                       /* then trigger event */
-+    queue_task(&info->tqueue, &tq_immediate); /* it belongs to */
-+    mark_bh(IMMEDIATE_BH);                       /* then trigger event */
- } /* cy_sched_event */
- 
- 
-@@ -962,12 +960,6 @@
-  * had to poll every port to see if that port needed servicing.
-  */
- static void
--do_cyclades_bh(void)
--{
--    run_task_queue(&tq_cyclades);
--} /* do_cyclades_bh */
--
--static void
- do_softint(void *private_)
- {
-   struct cyclades_port *info = (struct cyclades_port *) private_;
-@@ -5513,8 +5505,6 @@
-   unsigned short chip_number;
-   int nports;
- 
--    init_bh(CYCLADES_BH, do_cyclades_bh);
--
-     show_version();
- 
-     /* Initialize the tty_driver structure */
-@@ -5791,7 +5781,6 @@
- #endif /* CONFIG_CYZ_INTR */
- 
-     save_flags(flags); cli();
--    remove_bh(CYCLADES_BH);
- 
-     if ((e1 = tty_unregister_driver(&cy_serial_driver)))
-             printk("cyc: failed to unregister Cyclades serial driver(%d)\n",
+diff -urN linux-2.5.21/scripts/lxdialog/.checklist.o.cmd 
+linux/scripts/lxdialog/.checklist.o.cmd
+--- linux-2.5.21/scripts/lxdialog/.checklist.o.cmd	1970-01-01 0
+diff -urN linux-2.5.21/scripts/lxdialog/.inputbox.o.cmd 
+linux/scripts/lxdialog/.inputbox.o.cmd
+--- linux-2.5.21/scripts/lxdialog/.inputbox.o.cmd	1970-01-01 01:00:00.000000000 +0100
++++ linux/scripts/lxdialog/.inputbox.o.cmd	2002-06-13 12:50:06.000000000 +
+diff -urN linux-2.5.21/scripts/lxdialog/.menubox.o.cmd 
+linux/scripts/lxdialog/.menubox.o.cmd
+--- linux-2.5.21/scripts/lxdialog/.menubox.o.cmd	1970-01-01 01:00:00.000000000 +0100
++++ linux/scripts/lxdialog/.menubox.o.cmd	2002-06-13 12:50:04.000000000
+diff -urN linux-2.5.21/scripts/lxdialog/.msgbox.o.cmd 
+linux/scripts/lxdialog/.msgbox.o.cmd
+--- linux-2.5.21/scripts/lxdialog/.msgbox.o.cmd	1970-01-01 01:00:00.000000000 +0100
++++ linux/scripts/lxdialog/.msgbox.o.cmd	2002-06-13 12:50:07.000000000 3.1/include/stdbool.h \
++
+diff -urN linux-2.5.21/scripts/lxdialog/.textbox.o.cmd 
+linux/scripts/lxdialog/.textbox.o.cmd
+--- linux-2.5.21/scripts/lxdialog/.textbox.o.cmd	1970-01-01 01:00:00.000000000 +0100
++++ linux/scripts/lxdialog/.textbox.o.cmd	2002-06-13 12:50:05.000000000 +0200
+@@ -0,0 +1,48 @@
++cmd_textbox.o := gcc -Wp,-MD,.textbox.o.d -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer -DLOCALE  -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>" 
+-c -o textbox.o textbox.c
 
-BTW, people have been asking why I don't include a patch which removes
-the now-unused constants from interrupt.h -- the reson is that these
-patches might be applied out of order and we'd get spurious conflicts.
-Also, it's an enum and I'd prefer to add numbers to them if we're going
-to start removing some from the middle.  In my tree, we're down to just
-IMMEDIATE_BH and TIMER_BH in that enum.  I believe Robert Love has a
-patch to kill TIMER_BH, and I'm working on IMMEDIATE_BH.
+diff -urN linux-2.5.21/scripts/lxdialog/.yesno.o.cmd 
+linux/scripts/lxdialog/.yesno.o.cmd
+--- linux-2.5.21/scripts/lxdialog/.yesno.o.cmd	1970-01-01 01:00:00.000000000 +0100
++++ linux/scripts/lxdialog/.yesno.o.cmd	2002-06-13 12:50:06.000000000 +0200
+ude/stdbool.h \
++
 
--- 
-Revolutions do not require corporate support.

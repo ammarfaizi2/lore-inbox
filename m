@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284141AbRLKXBU>; Tue, 11 Dec 2001 18:01:20 -0500
+	id <S284153AbRLKXF7>; Tue, 11 Dec 2001 18:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284153AbRLKXBJ>; Tue, 11 Dec 2001 18:01:09 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45582 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284141AbRLKXBA>; Tue, 11 Dec 2001 18:01:00 -0500
-Date: Tue, 11 Dec 2001 19:44:43 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Dan Maas <dmaas@dcine.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: IO degradation in 2.4.17-pre2 vs. 2.4.16
-In-Reply-To: <048e01c18294$7a497650$1a01a8c0@allyourbase>
-Message-ID: <Pine.LNX.4.21.0112111944330.26533-100000@freak.distro.conectiva>
+	id <S284175AbRLKXFt>; Tue, 11 Dec 2001 18:05:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33287 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284178AbRLKXFi>; Tue, 11 Dec 2001 18:05:38 -0500
+Subject: Re: Linux 2.4.17-pre5
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 11 Dec 2001 23:14:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rusty@rustcorp.com.au (Rusty Russell),
+        anton@samba.org, davej@suse.de, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <m1ofl6uo60.fsf@frodo.biederman.org> from "Eric W. Biederman" at Dec 11, 2001 02:00:23 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Dw6c-0007IB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Actually we don't do a 1:1 physical to logical mapping.  I currently
+> have a board that has physical id's of:  0:6 and logical id's of 0:1
+> with no changes to the current x86 code. 
 
+I mistook the physical to apic ones. My fault
 
-On Tue, 11 Dec 2001, Dan Maas wrote:
-
-> > > Yes, throughtput-only tests will have their numbers degradated with the
-> > > change applied on 2.4.16-pre2.
-> > > 
-> > > The whole thing is just about tradeoffs: Interactivity vs throughtput.
-> > > 
-> > > I'm not going to destroy interactivity for end users to get beatiful
-> > > dbench numbers.
-> >
-> > Latency is more of an issue for end user machines.
-> 
-> Time for CONFIG_OPTIMIZE_THROUGHPUT / CONFIG_OPTIMIZE_LATENCY ?
-
-That would be the best thing to do, yes.
-
+/*
+ * On x86 all CPUs are mapped 1:1 to the APIC space.
+ * This simplifies scheduling and IPI sending and
+ * compresses data structures.
+ */
+static inline int cpu_logical_map(int cpu)
+{
+        return cpu;
+}
+static inline int cpu_number_map(int cpu)
+{
+        return cpu;
+}

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315442AbSEYW5w>; Sat, 25 May 2002 18:57:52 -0400
+	id <S315423AbSEYXA2>; Sat, 25 May 2002 19:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315443AbSEYW5v>; Sat, 25 May 2002 18:57:51 -0400
-Received: from dsl-213-023-040-043.arcor-ip.net ([213.23.40.43]:34769 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315442AbSEYW5u>;
-	Sat, 25 May 2002 18:57:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc,patch] breaking up sched.h
-Date: Sun, 26 May 2002 00:57:34 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.33.0205242219001.30843-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17BkTf-0003p3-00@starship>
+	id <S315425AbSEYXA1>; Sat, 25 May 2002 19:00:27 -0400
+Received: from berta.E-Technik.Uni-Dortmund.DE ([129.217.182.12]:49157 "HELO
+	kt.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S315423AbSEYXA0>; Sat, 25 May 2002 19:00:26 -0400
+Date: Sun, 26 May 2002 01:00:25 +0200
+From: Wolfgang Wegner <ww@kt.e-technik.uni-dortmund.de>
+To: Wolfgang Wegner <ww@kt.e-technik.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: sk_buff modification problem
+Message-ID: <20020526010025.A18021@bigmac.e-technik.uni-dortmund.de>
+In-Reply-To: <20020524100434.B1778@bigmac.e-technik.uni-dortmund.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 May 2002 22:34, Tim Schmielau wrote:
-> While it's quite common to do "current->foo", every file doing
-> so needs to #include <linux/sched.h> for the declaration of
-> task_struct.
-> In order to reduce the number of #include <linux/sched.h>, I'd propose to
-> move task_struct to a separate header file (patch below), and include it
-> from <asm/current.h>.
+Hi,
 
-Such separation of data vs function declarations is a good thing.  This
-results in a source tree which is easier to work with and contains fewer
-strange hacks to get around include order problems.  Possibly, the kernel
-may end up compiling faster as well, if some of the includes aimed merely
-at obtaining the data definitions don't have to pick up the (much
-bulkier) operation definitions as well.
+as my first post was a bit confused maybe, I try again - hopefully
+more specific...
 
-This is the same technique I used in my 'early_page' patch set, which 
-gave me the ability to rewrite all the address operations in the page.h
-and pgtable.h headers as inline functions instead of macros.
+i am trying to do a modification in the kernel to get a more precise
+timestamp directly from a modified network driver, and am having some
+difficulty (or maybe misunderstanding) with sk_buff's... Kernel used
+is 2.4.18.
 
--- 
-Daniel
+Here's a list what I modified:
+
+- struct sk_buff has a new member, struct ww_timestamp rcvtime, containing
+  the actual timestamp and a flag is_valid. The flag is initialized to
+  "0" in alloc_skb as well as skb_headerinit, and the complete struct
+  is copied in skb_clone and copy_skb_header.
+- the driver (currently orinoco.c from pcmcia_cs) is modified to fill
+  the my_timestamp struct and sets is_valid.
+- when passing the packet to a socket, this new timestamp is evaluated
+  (in sock_recv_timestamp, where both sk_buff _and_ sock are known)
+
+The problem is: in sock_recv_timestamp, is_valid is reset to 0 - and i
+have no idea why. To track it down I tried to put some printk's in the
+sk_buff handling functions and sock_recv_timestamp, but it seems there
+is not even any copying done (as "&skb" is the same in orinoco.c and
+sock_recv_timestamp):
+
+> May 24 08:55:43 licht kernel: skb_head_from_pool, skb=cfaa6d80
+> May 24 08:55:43 licht kernel: orinoco.c: skb=cfaa6d80
+> May 24 08:55:43 licht kernel: skb=cfaa6d80, timestamp.is_valid=0!
+> May 24 08:55:43 licht kernel: skb_head_from_pool, skb=cfaa6d80
+> May 24 08:55:43 licht kernel: skb_head_from_pool, skb=cf0fa200
+
+In case somebody wants to look at it, the patch is at
+http://www-kt.e-technik.uni-dortmund.de/m_ww/l-k/patch-2.4.18-ww3.gz
+and the orinoco_ev_rx part of orinoco.c is at
+http://www-kt.e-technik.uni-dortmund.de/m_ww/l-k/orinoco.c
+
+I am really out of ideas here, especially I do not know how to
+debug it, because I do not see any further possibility where (and
+why) the value gets overwritten.
+
+Thanks,
+Wolfgang
+

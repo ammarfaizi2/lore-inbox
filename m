@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264258AbTDPIOX (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 04:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbTDPIOX 
+	id S264264AbTDPITR (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 04:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTDPITR 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 04:14:23 -0400
-Received: from h80ad2792.async.vt.edu ([128.173.39.146]:3968 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264258AbTDPIOW (for <RFC822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 04:14:22 -0400
-Message-Id: <200304160825.h3G8PtMS001267@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4+dev
-To: Joseph Fannin <jhf@rivenstone.net>
-Cc: Florin Iucha <florin@iucha.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates 
-In-Reply-To: Your message of "Wed, 16 Apr 2003 00:41:48 EDT."
-             <20030416044144.GA32400@rivenstone.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030415133608.A1447@cuculus.switch.gts.cz> <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com> <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net>
-            <20030416044144.GA32400@rivenstone.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1702215697P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 16 Apr 2003 04:19:17 -0400
+Received: from [62.231.65.103] ([62.231.65.103]:14600 "HELO ultrapopular.com")
+	by vger.kernel.org with SMTP id S264264AbTDPITQ 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 04:19:16 -0400
+Message-ID: <3E9D150E.6000601@easynet.ro>
+Date: Wed, 16 Apr 2003 11:32:14 +0300
+From: Alexandru Damian <ddalex_krn@easynet.ro>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ro-RO; rv:1.2.1) Gecko/20030225
+X-Accept-Language: ro, en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: PixelView video4linux driver
+References: <Pine.LNX.4.53.0303211420170.13876@chaos> <1048324118.3306.3.camel@LNX.iNES.RO> <3E7F1B6A.2000103@easynet.ro> <1048525157.25655.1.camel@irongate.swansea.linux.org.uk> <3E7F321A.1000809@easynet.ro> <87ptog628m.fsf@bytesex.org> <3E9C196F.5060205@easynet.ro>
+In-Reply-To: <3E9C196F.5060205@easynet.ro>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Apr 2003 04:25:54 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1702215697P
-Content-Type: text/plain; charset=us-ascii
 
-On Wed, 16 Apr 2003 00:41:48 EDT, Joseph Fannin said:
 
->     Except that I'm seeing the very same sort of freeze on with a
->  Rage128 card with XFree86 4.2.1.
-> 
->     Are we all Debian sid users, perhaps?
+> Alex Damian wrote:
 
-Nice try, but I'm seeing it on a RedHat 9-ish laptop with this card:
+> For now, you have to load the module after the X starts. Otherwise
+> it stucks up (deadlock I think ).
+>    
 
-01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 440 Go] (rev a3)
 
-using XFree86 4.3.0 and the binary NVidia 4191 driver.  I hadn't posted because
-I figured it was an NVidia problem and tainted  quite thoroughly.
+I switched to Linux RedHat 9, XFree 4.3.0, running with vanilla 2.4.20 
+and my module.
+I didn't change anything into my code, but the problem with X freezing 
+while loading
+with my module (called clgdtv ) insmoded into the kernel dissapeared.
 
-Another data point:  I *dont* see this sort of freeze if I start it with
-'NvAGP=1' (use internal agp), but I *do* see it with 'NvAGP=2' or '3'
-(which tell it to use the kernel 'agpgart' code).
+Maybe someone can help me with a hint about what's going on, and how should
+I handle interlocking between X and clgdtv.
 
-Sorry Dave, looks like a bug in AGP....
+>> Sounds like it needs some more work ...
+>
+It sure does
 
---==_Exmh_1702215697P
-Content-Type: application/pgp-signature
+>>  Gerd
+>
+Alex
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+nRORcC3lWbTT17ARAvw6AKDqAa5BfI5nbpovK5xOBqOkZPGVzQCgxA9S
-+J4j0UJDQfSS8nusTScLJkk=
-=mIYN
------END PGP SIGNATURE-----
-
---==_Exmh_1702215697P--

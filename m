@@ -1,55 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263065AbREaLHS>; Thu, 31 May 2001 07:07:18 -0400
+	id <S263070AbREaL2C>; Thu, 31 May 2001 07:28:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263066AbREaLHH>; Thu, 31 May 2001 07:07:07 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:3474 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S263065AbREaLHB>; Thu, 31 May 2001 07:07:01 -0400
-Date: Thu, 31 May 2001 12:06:54 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Richard Zidlicky <rz@linux-m68k.org>, tim@cyberelk.net,
-        linux-kernel@vger.kernel.org, Fred Barnes <Frederick.Barnes@cern.ch>
-Subject: Re: insl/outsl in parport_pc and !CONFIG_PCI
-Message-ID: <20010531120654.H13668@redhat.com>
-In-Reply-To: <20010527191613.A2808@rz.informatik.uni-erlangen.de> <20010529021156.B6061@pcep-jamie.cern.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Rn7IEEq3VEzCw+ji"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010529021156.B6061@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Tue, May 29, 2001 at 02:11:56AM +0200
+	id <S263072AbREaL1w>; Thu, 31 May 2001 07:27:52 -0400
+Received: from mail.onet.pl ([213.180.128.16]:2516 "EHLO marlin.onet.pl")
+	by vger.kernel.org with ESMTP id <S263070AbREaL1p>;
+	Thu, 31 May 2001 07:27:45 -0400
+Content-Type: text/plain;
+  charset="iso-8859-2"
+From: robert seczkowski <j_red@sz.onet.pl>
+Reply-To: j_red@sz.onet.pl
+To: kaos@ocs.com.au
+Subject: kernel
+Date: Thu, 31 May 2001 13:31:56 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01053113302200.01722@laptop>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have problem with kernel 2.4.2 from red hat 7.2 distribution.
+This problem appears when I type make modules.
+and it seems like compiler doesn't understand extern in function
+declaration
+gcc version 2.96 20000731
+Thanks in advance
 
---Rn7IEEq3VEzCw+ji
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+below log:
 
-On Tue, May 29, 2001 at 02:11:56AM +0200, Jamie Lokier wrote:
 
-> Will 4 * inb() cycles have the same effect as 1 * inl() cycle for an EPP
-> mode read?
 
-4 inb() cycles on the same port, yes, I think so (but not on
-successive ports).
-
-Tim.
-*/
-
---Rn7IEEq3VEzCw+ji
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7FiXNONXnILZ4yVIRAsfwAJ9A3i9fee5MfJ07eHUM8Q1qOaABYACeKWrS
-qQar58hJNatZV2gPCperHNU=
-=5GW6
------END PGP SIGNATURE-----
-
---Rn7IEEq3VEzCw+ji--
+make -C  kernel CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4/include -Wall 
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-Wno-unused -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE 
+-DMODVERSIONS -include /usr/src/linux-2.4/include/linux/modversions.h" 
+MAKING_MODULES=1 modules
+make[1]: Wchodzê katalog `/home/linux-2.4.2/kernel'
+make[1]: Nie nic do roboty w `modules'.
+make[1]: Opuszczam katalog `/home/linux-2.4.2/kernel'
+make -C  drivers CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4/include -Wall 
+-Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-Wno-unused -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE 
+-DMODVERSIONS -include /usr/src/linux-2.4/include/linux/modversions.h" 
+MAKING_MODULES=1 modules
+make[1]: Wchodzê katalog `/home/linux-2.4.2/drivers'
+make -C block modules
+make[2]: Wchodzê katalog `/home/linux-2.4.2/drivers/block'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes -O2 
+-fomit-frame-pointer -fno-strict-aliasing -fno-common -Wno-unused -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include 
+/usr/src/linux-2.4/include/linux/modversions.h   -c -o floppy.o floppy.c
+In file included from /usr/src/linux-2.4/include/linux/spinlock.h:35,
+                 from /usr/src/linux-2.4/include/linux/module.h:11,
+                 from floppy.c:137:
+/usr/src/linux-2.4/include/asm/spinlock.h:8: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/asm/spinlock.h:8: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/asm/spinlock.h:8: parse error before `1b7d4074'
+/usr/src/linux-2.4/include/asm/spinlock.h:9: `printk_R_ver_str' declared as 
+function returning a function
+/usr/src/linux-2.4/include/asm/spinlock.h:9: warning: function declaration 
+isn't a prototype
+In file included from floppy.c:137:
+/usr/src/linux-2.4/include/linux/module.h:173: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:173: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:173: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:173: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:173: parse error before `62dada05'
+/usr/src/linux-2.4/include/linux/module.h:173: 
+`inter_module_register_R_ver_str' declared as function returning a function
+/usr/src/linux-2.4/include/linux/module.h:173: warning: function declaration 
+isn't a prototype
+/usr/src/linux-2.4/include/linux/module.h:174: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:174: missing white space after 
+number `7a9e845'
+/usr/src/linux-2.4/include/linux/module.h:174: parse error before `7a9e845'
+/usr/src/linux-2.4/include/linux/module.h:174: 
+`inter_module_unregister_R_ver_str' declared as function returning a function
+/usr/src/linux-2.4/include/linux/module.h:174: warning: function declaration 
+isn't a prototype
+/usr/src/linux-2.4/include/linux/module.h:175: `inter_module_get_R_ver_str' 
+declared as function returning a function
+/usr/src/linux-2.4/include/linux/module.h:175: warning: parameter names 
+(without types) in function declaration
+/usr/src/linux-2.4/include/linux/module.h:176: 
+`inter_module_get_request_R_ver_str' declared as function returning a function
+/usr/src/linux-2.4/include/linux/module.h:176: warning: parameter names 
+(without types) in function declaration
+/usr/src/linux-2.4/include/linux/module.h:177: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:177: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:177: nondigits in number and not 
+hexadecimal
+/usr/src/linux-2.4/include/linux/module.h:177: parse error before `6b99f7d8'
+/usr/src/linux-2.4/include/linux/module.h:177: `inter_module_put_R_ver_str' 
+declared as function returning a function
+/usr/src/linux-2.4/include/linux/module.h:177: warning: function declaration 
+isn't a prototype
+/usr/src/linux-2.4/include/linux/module.h:186: `try_inc_mod_count_R_ver_str' 
+declared as function returning a function
+/usr/src/linux-2.4/include/linux/module.h:186: warning: parameter names 
+(without types) in function declaration
+make[2]: *** [floppy.o] B³±d 1
+make[2]: Opuszczam katalog `/home/linux-2.4.2/drivers/block'
+make[1]: *** [_modsubdir_block] B³±d 2
+make[1]: Opuszczam katalog `/home/linux-2.4.2/drivers'
+make: *** [_mod_drivers] B³±d 2

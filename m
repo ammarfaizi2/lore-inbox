@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131153AbRAKKde>; Thu, 11 Jan 2001 05:33:34 -0500
+	id <S131150AbRAKKeY>; Thu, 11 Jan 2001 05:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131088AbRAKKdY>; Thu, 11 Jan 2001 05:33:24 -0500
-Received: from quechua.inka.de ([212.227.14.2]:19224 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S131153AbRAKKdK>;
-	Thu, 11 Jan 2001 05:33:10 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: The latest instance in the A20 farce
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDEF6@orsmsx31.jf.intel.com> <3A5CF9C2.CE5EFF42@transmeta.com>
-Organization: private Linux site, southern Germany
-Date: Thu, 11 Jan 2001 11:32:31 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14Gf24-0002PZ-00@g212.hadiko.de>
+	id <S131202AbRAKKeG>; Thu, 11 Jan 2001 05:34:06 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:40196 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131088AbRAKKeA>;
+	Thu, 11 Jan 2001 05:34:00 -0500
+Date: Thu, 11 Jan 2001 11:33:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Andrea Arcangeli <andrea@suse.de>, Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <20010111113353.B20569@gruyere.muc.suse.de>
+In-Reply-To: <20010111005924.L29093@athlon.random> <200101110734.f0B7Y1x01512@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101110734.f0B7Y1x01512@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Jan 11, 2001 at 07:34:01AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I also really, really, *REALLY* hate them for killing serial ports.  It's
-> a Bad Idea[TM].
+On Thu, Jan 11, 2001 at 07:34:01AM +0000, Russell King wrote:
+> 1. Yucky code in the NFS layers to copy a nfs_fh from userspace to kernel
+>    space, translating it into something sane.
+> 2. Yucky code in the NFS layers to manually handle the nfs_fh to knfs_fh
+>    translation.
+> 3. Accept the breakage of a *brand new* API in 2.2.18 and suffer zero
+>    yucky code.
 
-Why, it opens up the market for serial-ports-on-USB devices. HW
-manufactures can make significantly more money on that than on $7.95
-ISA multi I/O cards[1] ;-)
+The change is rather useless anyways, because even in NFSv3 file handles
+cannot be >64bytes. Would even fit in a char, doesn't need a short nor an
+int. 
 
-Olaf
-
-[1] and I still dislike those, because they are only useful with lots
-and lots of jumpers for which you always can't find the description...
-but RS232 ports _are_ necessary in the real world, and more often than
-you like you need more than 2 of them.
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267196AbTAUVXR>; Tue, 21 Jan 2003 16:23:17 -0500
+	id <S266948AbTAUVgF>; Tue, 21 Jan 2003 16:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267228AbTAUVXR>; Tue, 21 Jan 2003 16:23:17 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:31735 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S267196AbTAUVXR>; Tue, 21 Jan 2003 16:23:17 -0500
-Message-ID: <3E2DBBAD.80206@mvista.com>
-Date: Tue, 21 Jan 2003 14:29:17 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S267084AbTAUVgF>; Tue, 21 Jan 2003 16:36:05 -0500
+Received: from gate.perex.cz ([194.212.165.105]:16389 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S266948AbTAUVgD>;
+	Tue, 21 Jan 2003 16:36:03 -0500
+Date: Tue, 21 Jan 2003 22:43:43 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [alsa, pnp] more on opl3sa2
+In-Reply-To: <20030121160228.GH26108@neo.rr.com>
+Message-ID: <Pine.LNX.4.44.0301212223550.6355-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-To: Joel Becker <Joel.Becker@oracle.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 32bit dev_t
-References: <20030121195041.GE20972@ca-server1.us.oracle.com>
-In-Reply-To: <20030121195041.GE20972@ca-server1.us.oracle.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joel,
+On Tue, 21 Jan 2003, Adam Belay wrote:
 
-Linux doesn't really need a 32 bit kdev_t structure to support 1000 
-disks.  There is plenty of device space available to support over 1500 
-disks by modifying the linux scsi layer.
+> On Tue, Jan 21, 2003 at 09:09:14PM +0100, Jaroslav Kysela wrote:
+> 
+> > > the card is not detected by pnp, that problem stays. is that a problem of the pnp layer or is
+> > > my toshiba laptop just so damn stupid??
+> > 
+> > Nope. It's fault of the driver. It scans for a card. Actually, the
+> > structure card -> devices is created only by the ISA PnP driver.
+> > 
+> > I don't see any reason to not group the PnP BIOS devices into one "card", 
+> > too. Adam, do you have any comments?
+> > 
+> 
+> I have considered this approach several times.  However, there are the following
+> problems with representing the pnpbios devices under one card:
+> 
+> 1.) If a driver attaches to the pnpbios card all other card-based drivers will
+> be unable to use the pnpbios.  One will attach and cause the others to fail.  It
+> is possible for the user to have more than one pnpbios sound card but with this
+> approach such a user would only be able to use one sound device from the entire
+> pnpbios.
 
-Thanks
--steve
+I see. I think it's a design problem then. The rule card -> one driver is
+bad. We need something between card and device which will take care about
+drivers. Unfortunately, this information is dynamic (only driver knows
+which devices have to be attached).
 
-Joel Becker wrote:
+I think that we need to discuss this thing very carefully.
 
->Folks,
->	Who is tracking the 32bit dev_t effort for 2.5?  There are
->already existing installations with 500 to 1000 disks attached to a
->system, and I don't know that Linux really wants to wait four years to
->get there!
->	If someone could point me to a current patch or any current
->information about the issues, I'd really appreciate it.
->
->Joel
->
->  
->
+> 2.) Doing so would misrepresent the pnpbios topology because it physically
+> doesn't have any cards.
+> 
+> 3.) The opl3sa2 driver doesn't need a card because it is only asking for one
+> device anyway.  Using the card interface puts unnecessary overhead on both the
+> driver and the pnp layer.
+
+Yes, but IT SHOULD WORK. Although it isn't an most efficient way. (I
+personally think that it's better to keep as much IDs as possible to avoid
+clashes in future).
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311862AbSCNXKC>; Thu, 14 Mar 2002 18:10:02 -0500
+	id <S311859AbSCNXOc>; Thu, 14 Mar 2002 18:14:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311861AbSCNXJw>; Thu, 14 Mar 2002 18:09:52 -0500
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:29127 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S311859AbSCNXJs>; Thu, 14 Mar 2002 18:09:48 -0500
-Date: Fri, 15 Mar 2002 00:09:41 +0100 (CET)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Jonathan Barker <jbarker@ebi.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS mediator?
-In-Reply-To: <200203141351.NAA257264@alpha1.ebi.ac.uk>
-Message-Id: <Pine.LNX.4.44.0203150006550.6903-100000@phobos>
+	id <S311861AbSCNXOW>; Thu, 14 Mar 2002 18:14:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41221 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311859AbSCNXOL>; Thu, 14 Mar 2002 18:14:11 -0500
+Subject: Re: IO delay, port 0x80, and BIOS POST codes
+To: kerndev@sc-software.com (John Heil)
+Date: Thu, 14 Mar 2002 23:29:45 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@zytor.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0203141437450.1286-100000@scsoftware.sc-software.com> from "John Heil" at Mar 14, 2002 02:39:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lefJ-0002EK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Mar 2002, Jonathan Barker wrote:
+> > We've got one. Its 0x80. It works everywhere with only marginal non
+> > problematic side effects
+> >
+> 
+> Ok, cool but does that mean you agree or disagree with a configurable
+> override for those of us in the minority?
 
-> In brief: a kernel module which "exported" VFS requests to a (specified)
-> user-space daemon would be useful. My particular application is a daemon
-> which generates files on the fly - I would like to expose this as part of the
-> filesystem. Ideally, the kernel module would deal with generation of fake
-> inode numbers etc and the user-space daemon would simply be asked to create a
-> pipe corresponding to a "filename" and (possibly) supply a directory tree.
+If we put every single requested obscure fix for one or two boxes into
+the kernel configuration you'd be spending weeks wading through
 
-I have experimented with using NFS for that -- start a local daemon that
-exports a virtual filesystem and mount that. The great bonus is that it's
-platform independent -- it works on Solaris, HP-UX and even Ultrix just as
-well. Other projects have become more important, however, and I haven't
-finished it. If you're interested, drop me a line.
+"Handle weird APM on Dave's homebrew mediagx"
 
-   Simon
+and other questions.
 
--- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: 040E B5F7 84F1 4FBC CEAD  ADC6 18A0 CC8D 5706 A4B4
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+Let me suggest something else. For any kernel built with TSC assumed
+(586TSC +) initialize the udelay loop to something guaranteed to be at
+least too long for any conceivable processor and use udelay() for the I/O
+delay timing.
 
+Alan

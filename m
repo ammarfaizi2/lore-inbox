@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265338AbUAET60 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 14:58:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265344AbUAET6Z
+	id S265229AbUAETxW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 14:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265304AbUAETxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 14:58:25 -0500
-Received: from magic-mail.adaptec.com ([216.52.22.10]:31883 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP id S265338AbUAET6W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 14:58:22 -0500
-Date: Mon, 05 Jan 2004 13:04:01 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Andi Kleen <ak@muc.de>
-cc: linux-kernel@vger.kernel.org, davem@redhat.com, linux-scsi@vger.kernel.org
-Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple map/unmaps
-Message-ID: <2997092704.1073333041@aslan.btc.adaptec.com>
-In-Reply-To: <m3brpi41q0.fsf@averell.firstfloor.org>
-References: <2938942704.1073325455@aslan.btc.adaptec.com> <m3brpi41q0.fsf@averell.firstfloor.org>
-X-Mailer: Mulberry/3.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jan 2004 14:53:21 -0500
+Received: from pooh.lsc.hu ([195.56.172.131]:53632 "EHLO pooh.lsc.hu")
+	by vger.kernel.org with ESMTP id S265229AbUAETxN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 14:53:13 -0500
+Date: Mon, 5 Jan 2004 20:38:17 +0100
+From: GCS <gcs@lsc.hu>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1 affected?
+Message-ID: <20040105193817.GA4366@lsc.hu>
+References: <1073320318.21198.2.camel@midux> <Pine.LNX.4.58.0401050840290.21265@home.osdl.org> <1073326471.21338.21.camel@midux> <Pine.LNX.4.58.0401051027430.2115@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401051027430.2115@home.osdl.org>
+X-Operating-System: GNU/Linux
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Justin T. Gibbs" <gibbs@scsiguy.com> writes:
-> 
->> Berkley Shands recently tripped over this problem.  The 2.6.X pci_map_sg
->> code for x86_64 modifies the passed in S/G list to compact it for mapping
->> by the GART.  This modification is not reversed when pci_unmap_sg is
->> called.  In the case of a retried SCSI command, this causes any attempt
-> 
-> Qlogic has the same bug.
+On Mon, Jan 05, 2004 at 10:31:02AM -0800, Linus Torvalds <torvalds@osdl.org> wrote:
+[snip]
+> And because nobody has an exploit yet, and one may be hard or
+> impossible to create?
+ There _is_ an exploit: http://isec.pl/vulnerabilities/isec-0013-mremap.txt
+"Since no special privileges are required to use the mremap(2) system
+call any process may misuse its unexpected behavior to disrupt the kernel
+memory management subsystem. Proper exploitation of this vulnerability may
+lead to local privilege escalation including execution of  arbitrary code
+with kernel level access. Proof-of-concept exploit code has been created 
+and successfully tested giving UID 0 shell on vulnerable systems."
 
-Which bug is this?  Not updating use_sg, or mapping the command the
-second time when it is retried?  If the latter, I don't think this is an
-HBA bug.  The HBA driver doesn't know that the command has been mapped in
-the past, so it will blindly map/unmap it again.
-
-...
-
->> DMA-API.txt doesn't seem to cover this issue.
-> 
-> It does actually, but not very clearly. I've suggested changes of wording
-> recently to make this more clear, but it hasn't gotten in.
-
-Can you point to the section of the document you believe applies?
-
-> You should never remap an already mapped sg list.
-
-But the sg list is no longer mapped.  The HBA driver did call pci_unmap_sg
-on it.  Did you mean to say, "Never map an sg list again that has been
-mapped in the past"?
-
-> Either reuse the already mapped list or keep a copy of the original list
-> around. First is better because the later may have problems with the page
-> reference counts.
-
-The mid-layer doesn't map the list.  The HBA drivers do.  So you're saying
-that either the mid-layer or the HBA drivers need to copy the list so it
-can be restored just in case the command will be retried?
-
---
-Justin
-
+Cheers,
+GCS

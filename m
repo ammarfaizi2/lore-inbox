@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262930AbTDAXVQ>; Tue, 1 Apr 2003 18:21:16 -0500
+	id <S262931AbTDAX2y>; Tue, 1 Apr 2003 18:28:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262934AbTDAXVQ>; Tue, 1 Apr 2003 18:21:16 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:670 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262930AbTDAXVP>; Tue, 1 Apr 2003 18:21:15 -0500
-Date: Wed, 2 Apr 2003 00:32:29 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5][RFT] sfence wmb for K7,P3,VIAC3-2(?)
-Message-ID: <20030401233229.GC6456@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Daniel Egger <degger@fhm.edu>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>, Andi Kleen <ak@suse.de>,
-	Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.50.0304010242250.8773-100000@montezuma.mastecende.com> <Pine.LNX.4.50.0304010320220.8773-100000@montezuma.mastecende.com> <1049191863.30759.3.camel@averell> <20030401112800.GA23027@suse.de> <1049197774.31041.15.camel@averell> <Pine.LNX.4.50.0304011105540.8773-100000@montezuma.mastecende.com> <20030401162615.GA1131@suse.de> <1049221861.2643.17.camel@localhost>
+	id <S262924AbTDAX2y>; Tue, 1 Apr 2003 18:28:54 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:10865 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S262931AbTDAX2x>;
+	Tue, 1 Apr 2003 18:28:53 -0500
+Date: Tue, 1 Apr 2003 15:39:45 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: colpatch@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [patch][rfc] Memory Binding (1/1)
+Message-Id: <20030401153945.17d26219.akpm@digeo.com>
+In-Reply-To: <3E8A151A.1040800@us.ibm.com>
+References: <3E8A135B.3030106@us.ibm.com>
+	<3E8A151A.1040800@us.ibm.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049221861.2643.17.camel@localhost>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Apr 2003 23:40:11.0344 (UTC) FILETIME=[0943FD00:01C2F8A8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 01, 2003 at 08:31:01PM +0200, Daniel Egger wrote:
+Matthew Dobson <colpatch@us.ibm.com> wrote:
+>
+> Okee dokee...  Here's the real core of the patch.
 
- > > I'm not 100% sure on this, but I *think* 3dnow had an sfence which was
- > > opcode compatable with SSE's instruction.
- > At best the enhanced 3dnow had it. I couldn't find it in the regular
- > 3dnow "technology manual" and don't know where I put the darn other
- > one....
+Looks saneish to me.  I'd like to see thorough benchmark results when it is
+complete.  And it would be nice to make address_space.binding go away if
+!CONFIG_NUMA.
 
-Even the early athlons had 3dnowext, so this is a mystery solved afiacs
+The explicit knowledge of ZONE_DMA/ZONE_NORMAL/ZONE_HIGHMEM in get_zonetype()
+should not be necessary - you don't want it to explode if ZONE_DMA32 is
+added.  It should be indexing into node_zonelists in some manner.
 
-		Dave
+Will this code work if all memory is in ZONE_DMA, as some architectures do?

@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbUKSIDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbUKSIIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbUKSIDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 03:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUKSIDK
+	id S261302AbUKSIIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 03:08:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbUKSIIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 03:03:10 -0500
-Received: from [213.188.213.77] ([213.188.213.77]:28135 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S261296AbUKSIDH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 03:03:07 -0500
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'Chris Wright'" <chrisw@osdl.org>
-Cc: "'Barry K. Nathan'" <barryn@pobox.com>, "'O.Sezer'" <sezeroz@ttnet.net.tr>,
-       <linux-kernel@vger.kernel.org>, <marcelo.tosatti@cyclades.com>
-Subject: RE: Linux 2.4.28-rc4
-Date: Fri, 19 Nov 2004 09:03:01 +0100
+	Fri, 19 Nov 2004 03:08:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30679 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261302AbUKSIIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 03:08:14 -0500
+Date: Fri, 19 Nov 2004 03:08:11 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: tridge@samba.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: performance of filesystem xattrs with Samba4
+In-Reply-To: <16797.41728.984065.479474@samba.org>
+Message-ID: <Xine.LNX.4.44.0411190302300.8456-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <20041118162531.A14339@build.pdx.osdl.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Thread-Index: AcTNzk6qzsqpqQPUSJmsjCecId73qwAP8wcA
-Message-Id: <20041119080301.92EBB84008@server1.navynet.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> * Massimo Cetra (mcetra@navynet.it) wrote:
-> > I don't think 2.4.29 will see the light in a short time so, unless 
-> > there are serious problems arising from these patches (and 
-> 2.6 should 
-> > be affected too), I think that for the sake of security it may be 
-> > worthy and clever includind these patches (and delay 2.4.28 
-> for some 
-> > days...)
-> 
-> 2.4.28 is already out.
+On Fri, 19 Nov 2004 tridge@samba.org wrote:
 
-Too much work for me.
-Sorry -__-
+> The tmpfs+xattr failure above is because tmpfs didn't seem to allow
+> user xattrs, despite having CONFIG_TMPFS_XATTR=y.
 
-max
+tmpfs does not have a 'user' xattr handler.  xattr support was added to 
+tmpfs only to provide a 'security' xattr handler which calls out to LSM 
+modules such as SELinux.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

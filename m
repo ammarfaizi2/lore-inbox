@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282978AbRLMB0r>; Wed, 12 Dec 2001 20:26:47 -0500
+	id <S282988AbRLMBrY>; Wed, 12 Dec 2001 20:47:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282983AbRLMB01>; Wed, 12 Dec 2001 20:26:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4612 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282978AbRLMB0T>; Wed, 12 Dec 2001 20:26:19 -0500
-Subject: Re: Network related
-To: jjs@lexus.com (J Sloan)
-Date: Thu, 13 Dec 2001 01:35:13 +0000 (GMT)
-Cc: atici@math.columbia.edu (Alp ATICI), linux-kernel@vger.kernel.org
-In-Reply-To: <3C17ED1D.8B091206@lexus.com> from "J Sloan" at Dec 12, 2001 03:49:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S282998AbRLMBrO>; Wed, 12 Dec 2001 20:47:14 -0500
+Received: from sunfish.linuxis.net ([64.71.162.66]:52106 "HELO
+	sunfish.linuxis.net") by vger.kernel.org with SMTP
+	id <S282993AbRLMBrE>; Wed, 12 Dec 2001 20:47:04 -0500
+Date: Wed, 12 Dec 2001 17:42:04 -0800
+To: Alp ATICI <atici@math.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops on 2.2.14-xfs (1.0.2 release)
+Message-ID: <20011212174204.V24626@flounder.net>
+In-Reply-To: <20011212164033.U24626@flounder.net> <Pine.LNX.4.40.0112121953300.5026-100000@intel4.math.columbia.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16EKmH-0003EP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.40.0112121953300.5026-100000@intel4.math.columbia.edu>
+User-Agent: Mutt/1.3.21i
+X-Delivery-Agent: TMDA v0.42/Python 2.1.1 (sunos5)
+From: "Adam McKenna" <adam-dated-1008639726.a6b186@flounder.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> echo "0" > /proc/sys/net/ipv4/tcp_ecn
+On Wed, Dec 12, 2001 at 07:53:39PM -0500, Alp ATICI wrote:
+> I have the same problems with 2.4.14-xfs as well. I didn't think
+> it had much to do with xfs though. Now I'm pretty sure.
 
-You forgot
+Was it with a very large partition/filesystem?  (Mine is about 70 gig.)
 
-mail webmaster postmaster dns contact @ site
-
+--Adam

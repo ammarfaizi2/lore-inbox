@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263929AbRFHI0t>; Fri, 8 Jun 2001 04:26:49 -0400
+	id <S263930AbRFHI3T>; Fri, 8 Jun 2001 04:29:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263931AbRFHI0k>; Fri, 8 Jun 2001 04:26:40 -0400
-Received: from web10404.mail.yahoo.com ([216.136.130.96]:63752 "HELO
-	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263929AbRFHI0Z>; Fri, 8 Jun 2001 04:26:25 -0400
-Message-ID: <20010608082621.71437.qmail@web10404.mail.yahoo.com>
-Date: Fri, 8 Jun 2001 18:26:21 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: 2.2.20 pre2 compilation broken
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E15848C-0001gX-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S263932AbRFHI3J>; Fri, 8 Jun 2001 04:29:09 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:41344 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S263930AbRFHI3E>; Fri, 8 Jun 2001 04:29:04 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
+Date: Fri, 8 Jun 2001 08:29:02 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9fq2ce$gkb$1@forge.intermeta.de>
+In-Reply-To: <9fnjh0$d1c$1@forge.intermeta.de> <E1583xV-0001f3-00@the-village.bc.nu>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 991988942 17629 212.34.181.4 (8 Jun 2001 08:29:02 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 8 Jun 2001 08:29:02 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry :-), I apply the reiserfs patch from namesys.com
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Anyway it is because the reiserfs code and gcc 2.96 in
-Mandrake. It is ok using gcc 2.95.3 downward.
-Suprisingly gcc 2.96 compile 2.4.x without any problem
-at least to me.
+>> And this is legal according to the "Kernel GPL, Linus Torvalds edition
+>> (TM)" which says "any loadable module can be binary only". Not "only
+>> loadable modules which are drivers". It may not be the intention but
+>> it is the fact.
 
+>Linus opinion on this is irrelevant. Neither I nor the FSF nor many others
+>have released code under anything but the vanilla GPL. By merging such code
+>Linus lost his ability to vary the license.
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote: > >
-fs/filesystems.a(reiserfs.o): In function
-> > `ip_check_balance':
-> > reiserfs.o(.text+0x9dde): undefined reference to
-> 
-> This isnt Linux 2.2. Linux 2.2 does not include
-reiserfs.
+Ok, this is a new opinion, because it voids the "using the published
+module ABI is unconditionally ok as stated again and again.
 
+>So it comes down to the question of whether the module is linking (which is
+>about dependancies and requirements) and what the legal scope is. Which
+>is a matter for lawyers.
 
-=====
-S.KIEU
+And this would void DaveMs' argument, that only the "official in
+Linus' kernel published interface is allowed for binary modules". This
+would mean, that putting the posted, unofficial patch under GPL into
+the kernel and then using this interface for a binary module is just
+the same as using only the official ABI from a lawyers' point of
+view! 
 
-_____________________________________________________________________________
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- Voice chat, mail alerts, stock quotes and favourite news and lots more!
+This would make DaveMs' position even less understandable, because
+there would be no difference for a proprietary vendor but keeping the
+patch out of the kernel makes life harder for people like the original
+poster that want to test new (open sourced) protocols like SCTP.
+
+> Anyone releasing binary only modules does so having made their own
+> appropriate risk assessment and having talked (I hope) to their
+> insurers
+
+Ugh, this is a sentence we're bound to read out of context on ZDNet
+and m$.com... =:-( (Linux head developer warns companies to do risk
+assessment before releasing drivers for Linux... Film at 11.)
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

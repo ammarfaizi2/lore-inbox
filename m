@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269184AbUIBVoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269198AbUIBVoJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269184AbUIBVoJ (ORCPT <rfc822;willy@w.ods.org>);
+	id S269198AbUIBVoJ (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 17:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269180AbUIBVmx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269201AbUIBVmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 17:42:53 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:11524 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S269184AbUIBVkj
+	Thu, 2 Sep 2004 17:42:25 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:17413 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S269180AbUIBVkE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 17:40:39 -0400
-To: george@mvista.com
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
-       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, david+powerix@blue-labs.org
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-References: <87smcf5zx7.fsf@devron.myhome.or.jp>
-	<20040816124136.27646d14.akpm@osdl.org>
-	<Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
-	<412285A5.9080003@mvista.com>
-	<1092782243.2429.254.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
-	<1092787863.2429.311.camel@cog.beaverton.ibm.com>
-	<1092781172.2301.1654.camel@cube>
-	<1092791363.2429.319.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
-	<20040819191537.GA24060@elektroni.ee.tut.fi>
-	<20040826040436.360f05f7.akpm@osdl.org>
-	<Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>
-	<Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
-	<1093916047.14662.144.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>
-	<87fz61yf75.fsf@devron.myhome.or.jp> <4137896E.5080802@mvista.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 03 Sep 2004 06:38:17 +0900
-In-Reply-To: <4137896E.5080802@mvista.com>
-Message-ID: <87u0uggxme.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+	Thu, 2 Sep 2004 17:40:04 -0400
+Date: Thu, 2 Sep 2004 14:37:55 -0700
+To: Diego Calleja <diegocg@teleline.es>
+Cc: Bill Huey <bhuey@lnxw.com>, jgarzik@pobox.com, torvalds@osdl.org,
+       tmv@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Userspace file systems & MKs (Re: silent semantic changes with reiser4)
+Message-ID: <20040902213755.GA15605@nietzsche.lynx.com>
+References: <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com> <20040831053055.GA8654@nietzsche.lynx.com> <4134131D.6050001@pobox.com> <20040831155613.2b25df1e.diegocg@teleline.es> <20040831205211.GA23395@nietzsche.lynx.com> <20040902192058.64f3ee03.diegocg@teleline.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040902192058.64f3ee03.diegocg@teleline.es>
+User-Agent: Mutt/1.5.6+20040818i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger <george@mvista.com> writes:
+On Thu, Sep 02, 2004 at 07:20:58PM +0200, Diego Calleja wrote:
+> El Tue, 31 Aug 2004 13:52:11 -0700 Bill Huey (hui) <bhuey@lnxw.com> escribi?:
+> 
+> > As you can see the numbers are very fast for a general purpose system
+> > like that. Add that with their XIO framework for data propagation and
+> 
+> For the syscall case, I remember that they would be able to "batch" syscalls,
+> so this framework could have even better performance in some cases.
+> The good thing is that they didn't do it just for the sake of doing it
+> (like microkernel people) but to achieve their goals (SSI, etc)
 
-> OGAWA Hirofumi wrote:
-> Well, my machine says the result should be 996000000, so something is
-> wrong with your or my math.
+For what they're doing, they have minimize the overhead cross boundaries
+as much as possible for usage in both user and kernel spaces. If dfBSD
+achieves what they intend to do, they'll have on of the best SSI systems
+on the planet and it'll be able to use the VFS layer in ways that other
+systems can't even touch with iSCSI drivers, etc...
 
-Hmm.. I don't know why. I'm using x86 cpu machine.
+They've got process suspend and restore already in order to support
+serialization across machines. Having it VFS driven, VM objects, etc...
+makes the concept of migration a function of the VFS layer. It's quite
+clever and I'm sure that it's driven by Matt's experience with distributed
+databases, specifically Backplane.
 
-> As to if the initial jiffie value should
-> be a multiple of HZ, I don't see why.  I think it is several counts
-> off of this value when the system wall clock is set in any case.
+All locking in his system is CPU local, no mutexes of any sort, so
+migration as a function of messaging, scheduling and other things are
+done in per-CPU chunks. It's quite clever make handling in per-process
+resources chunks.
 
-Ah, sorry for quite insufficiency explanation.
+	http://twiki.im.ufba.br/pub/MAT154/WebHome/duality78.pdf
 
-Since INITIAL_JIFFIES is -5 minutes, so I though tv.tv_nsec should be 0.
-The cause of this is
+Talks about part of this and how "procedural" is isomorphic to "message-passing"
+concurrency system. One can be transformed to another.
 
-     INITIAL_JIFFIES % HZ (4294667296 % 1000)
+It's a project that's move much faster in the area of SMP than FreeBSD 5.x
+(Solaris style SMP) and really the only BSD project on this planet that has
+the talent and social chemistry to make it happen.
 
-because INITIAL_JIFFIES is unsigned long.
+bill
 
-So, I guessed this is not intention.
-Looks like this should be (-300*1000) % 1000.
-
-What do you think of this?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313906AbSERT0P>; Sat, 18 May 2002 15:26:15 -0400
+	id <S313898AbSERTxt>; Sat, 18 May 2002 15:53:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313898AbSERT0P>; Sat, 18 May 2002 15:26:15 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:56848 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S313867AbSERT0O>; Sat, 18 May 2002 15:26:14 -0400
-Date: Sat, 18 May 2002 21:26:06 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org,
-        linux-ide@vger.kernel.org
-Subject: Re: IO/MMIO 2.4 ATA/IDE driver recore near complete
-Message-ID: <20020518212606.H635@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.10.10205180230290.774-100000@master.linux-ide.org> <20020517031515.20062@smtp.wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S313925AbSERTxs>; Sat, 18 May 2002 15:53:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:27873 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S313898AbSERTxr>; Sat, 18 May 2002 15:53:47 -0400
+Date: Sat, 18 May 2002 21:53:40 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: mikeH <mikeH@notnowlewis.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.5.16 and VIA Chipset
+In-Reply-To: <5.1.0.14.2.20020518194031.04025d10@pop.cus.cam.ac.uk>
+Message-ID: <Pine.NEB.4.44.0205182152080.27644-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 04:15:15AM +0100, Benjamin Herrenschmidt wrote:
-> >Please note BMDMA for MMIO is not native since there appears to be
-> >pci-posting errors under x86.
-> 
-> Can you elaborate ? I had to deal with driver bugs related to
-> PCI wr. posting in the past. I assume you know what you are doing,
-> but just in case, you missed a SW bug, I may be able to help.
+On Sat, 18 May 2002, Anton Altaparmakov wrote:
 
-I'm also interested in these issues, since I plan to use BMDMA
-into MMIO areas in my own driver. So maybe we should discuss this
-on the list? ;-)
+>...
+> Not true in 2.5.x. ACPI is not dependent on config experimental. Just checked.
+>...
+> Not true in 2.5.x. Power management is not a prerequisite for ACPI in
+>...
 
-Also the machines/chipsets, where this happens would be nice to
-know. How to detect and workaround such errors is another
-challenging topic I would like to discuss.
+Ups, sorry, my error. Despite the subject of the thread I was looking
+in 2.4 ...
 
-Thanks and Regards
 
-Ingo Oeser
+> Anton
+
+cu
+Adrian
+
 -- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

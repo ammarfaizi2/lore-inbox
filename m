@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSLCNNK>; Tue, 3 Dec 2002 08:13:10 -0500
+	id <S261527AbSLCNWp>; Tue, 3 Dec 2002 08:22:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261416AbSLCNNK>; Tue, 3 Dec 2002 08:13:10 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9221 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261401AbSLCNND>; Tue, 3 Dec 2002 08:13:03 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: bincancels in linux.kernel
-Date: 3 Dec 2002 13:19:13 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <asib0h$51r$1@gatekeeper.tmr.com>
-References: <fa.fv5l6nv.1am209b@ifi.uio.no> <fa.jsbpciv.t2snp4@ifi.uio.no> <ylr8czu4hi.fsf@windlord.stanford.edu>
-X-Trace: gatekeeper.tmr.com 1038921553 5179 192.168.12.62 (3 Dec 2002 13:19:13 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	id <S261524AbSLCNWp>; Tue, 3 Dec 2002 08:22:45 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:28341 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261486AbSLCNWo>;
+	Tue, 3 Dec 2002 08:22:44 -0500
+Date: Tue, 3 Dec 2002 13:26:21 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: "Vamsi Krishna S ." <vamsi@in.ibm.com>, torvalds@transmeta.com,
+       lkml <linux-kernel@vger.kernel.org>,
+       dprobes <dprobes@www-124.southbury.usf.ibm.com>,
+       richard <richardj_moore@uk.ibm.com>, tom <hanrahat@us.ibm.com>
+Subject: Re: [PATCH] kprobes for 2.5.50-bk2
+Message-ID: <20021203132621.GA811@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andi Kleen <ak@suse.de>, "Vamsi Krishna S ." <vamsi@in.ibm.com>,
+	torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>,
+	dprobes <dprobes@www-124.southbury.usf.ibm.com>,
+	richard <richardj_moore@uk.ibm.com>, tom <hanrahat@us.ibm.com>
+References: <20021203125447.A2951@in.ibm.com.suse.lists.linux.kernel> <20021203121858.GC30431@suse.de.suse.lists.linux.kernel> <p734r9vtg62.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p734r9vtg62.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <ylr8czu4hi.fsf@windlord.stanford.edu>,
-Russ Allbery  <rra@stanford.edu> wrote:
-| Andrew Gierth <andrew@erlenstar.demon.co.uk> writes:
+On Tue, Dec 03, 2002 at 01:56:05PM +0100, Andi Kleen wrote:
 
-| > I don't personally consider that the fact that a group is gatewayed
-| > from a mailing list to be significant when deciding how to apply Usenet
-| > policies to it.
-| 
-| Maybe think of the mailing list as a moderator that's permitted to approve
-| binaries and only cancel binaries that were posted directly to the group
-| rather than going through the list?  That would seem to avoid any problems
-| with deleting legitimate traffic.
-| 
-| If people start flooding the list with binaries, I'm sure that will be
-| dealt with quite promptly, before Usenet even notices.
+ > > This last part just got me thinking.
+ > > What stops someone for example using this to implement a binary
+ > > only replacement of the TCP/IP stack, or any other part of the
+ > > kernel for that matter ?
+ > 
+ > It can be already easily done, just patch the kernel code in /dev/kmem
+ > and add some jump instructions to your loaded module.
+ > But it's not practical, because it's 100% binary dependent and would
+ > break with every small change.
 
-Agreed. I gateway the list to an internal group just because the news
-tools seem to be better than the mail tools for this. The filters in the
-m/l should keep out problems.
+indeed.
+ 
+ > Similar to kprobes. But kprobes is actually useful for kernel debugging/
+ > tracing and unlike many other of these patches not very intrusive.
 
-I have no idea what the news2mail gateway is on the open net, I have
-marked it moderated and ship everything back to the list address.
+Suparna also just told me I overlooked the _GPL on the export.
 
+		Dave
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+| Dave Jones.        http://www.codemonkey.org.uk

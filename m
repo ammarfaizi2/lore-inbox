@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272082AbRHVTAI>; Wed, 22 Aug 2001 15:00:08 -0400
+	id <S272087AbRHVTBS>; Wed, 22 Aug 2001 15:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272084AbRHVS77>; Wed, 22 Aug 2001 14:59:59 -0400
-Received: from mail2.svr.pol.co.uk ([195.92.193.210]:47464 "EHLO
-	mail2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S272082AbRHVS7s>; Wed, 22 Aug 2001 14:59:48 -0400
-Message-ID: <3B84012D.1010303@humboldt.co.uk>
-Date: Wed, 22 Aug 2001 19:59:57 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Filling holes in ext2
-In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk> <3B83FB3F.A0BDC056@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S272086AbRHVTBA>; Wed, 22 Aug 2001 15:01:00 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:54444 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272087AbRHVTAj>;
+	Wed, 22 Aug 2001 15:00:39 -0400
+Date: Wed, 22 Aug 2001 12:00:51 -0700 (PDT)
+Message-Id: <20010822.120051.25423285.davem@redhat.com>
+To: kakadu_croc@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: brlock_is_locked()?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010822185351.55288.qmail@web10904.mail.yahoo.com>
+In-Reply-To: <20010822.114735.128125464.davem@redhat.com>
+	<20010822185351.55288.qmail@web10904.mail.yahoo.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Adrian Cox wrote:
+   From: Brad Chapman <kakadu_croc@yahoo.com>
+   Date: Wed, 22 Aug 2001 11:53:51 -0700 (PDT)
 
->>Can this actually be exploited?  I assume the test on __copy_from_user()
->>is there in case another thread changes memory mappings while
->>generic_file_write() is running. My attempts to do this haven't yet
->>succeeded.
-> I'd expect it to occur if you simply pass an unmapped address
-> to write()?
+   	It's not really a deficiency. Rusty apparently decided that in
+   order to be SMP-compliant and to prevent Oopses, that the unregistration
+   function should grab the brlock so that all the packets would pass through
+   the protocol-handling functions.
 
-No, because the first thing generic_file_write does is an access_ok() 
-check. It can only happen if the permissions change during the function. 
-That's why it's hard to exploit for real.
+So arrange you code such that you aren't holding the netproto
+lock when you call the unregistration function.
 
--- 
-Adrian Cox   http://www.humboldt.co.uk/
+It is possible to shut down all references to whatever you
+are unregistering, safely drop the lock, then call the
+netfilter unregister routine.
 
+   (I checked the brlock code and didn't find any schedule()s; there's
+    probably a reason for that).
+
+Ummm, this is SMP 101, you can't sleep with a lock held.
+The global kernel lock is special in this regard, but all
+other SMP locking primitives may not sleep.
+
+Later,
+David S. Miller
+davem@redhat.com

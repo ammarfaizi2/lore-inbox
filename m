@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266036AbRF1QqM>; Thu, 28 Jun 2001 12:46:12 -0400
+	id <S266034AbRF1Qtw>; Thu, 28 Jun 2001 12:49:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266037AbRF1QqC>; Thu, 28 Jun 2001 12:46:02 -0400
-Received: from AMontpellier-201-1-2-148.abo.wanadoo.fr ([193.253.215.148]:53765
-	"EHLO awak") by vger.kernel.org with ESMTP id <S266036AbRF1Qp5>;
-	Thu, 28 Jun 2001 12:45:57 -0400
-Subject: Re: 2.4.5-ac19: hang on IDE DVD read error
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: liste noyau linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <993744819.9219.12.camel@nomade>
-In-Reply-To: <993744819.9219.12.camel@nomade>
-Content-Type: text/plain
+	id <S266032AbRF1Qtm>; Thu, 28 Jun 2001 12:49:42 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:49590 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266031AbRF1Qtg>; Thu, 28 Jun 2001 12:49:36 -0400
+Message-ID: <3B3B5FCE.EF80E5E9@vnet.ibm.com>
+Date: Thu, 28 Jun 2001 11:48:14 -0500
+From: Todd Inglett <tinglett@vnet.ibm.com>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3.c4eb i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: tgall%rchland.vnet@RCHGATE.RCHLAND.IBM.COM, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com> <15162.33158.683289.641171@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 28 Jun 2001 18:41:39 +0200
-Message-Id: <993746499.9219.13.camel@nomade>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Jun 2001 18:13:38 +0200, Xavier Bestel wrote:
-> Hi,
+"David S. Miller" wrote:
 > 
-> I retested my scratched DVD on 2.4.5-ac19, and the machine still hangs
-> (when using drip) after spitting a few errors in the log:
-> Jun 28 00:32:55 bip kernel: Info fld=0x1f49e0, Current sd0b:00: sense key Medium Error
-> Jun 28 00:32:55 bip kernel: Additional sense indicates Unrecovered read error
-> Jun 28 00:32:55 bip kernel:  I/O error: dev 0b:00, sector 8202112
+> Tom Gall writes:
+>  >   The first part changes number, primary, and secondary to unsigned ints from
+>  > chars. What we do is encode the PCI "domain" aka PCI Primary Host Bridge, aka
+>  > pci controller in with the bus number. In our case we do it like this:
+>  >
+>  > pci_controller=dev->bus->number>>8) &0xFF0000
+>  > bus_number= dev->bus->number&0x0000FF),
+>  >
+>  >   Is this reasonable for everyone?
 > 
-> As I'm under X, I had no chance to try Magic Sysreq. But machine doesn't
-> respond on pings.
-> A have a Dual PIII, via686b, Hitachi DVD-ROM GD-7500 on builtin IDE
-> controler.
-> I'm booting with 'noapic acpi=no-idle', more info on demand.
+> This is totally unreasonable.
 
-Oh, and I'm using ide-scsi to access my drive.
+Well, back in the "Going beyond 256 PCI buses" thread two weeks ago when
+you argued that Linux not supporting >256 busses was a fallacy...
 
-Xav
+"David S. Miller" wrote:
+> There are only two real issues: 
+> 
+> 1) Extending the type bus numbers use inside the kernel. 
+> 
+>    Basically how most multi-controller platforms work now 
+>    is they allocate bus numbers in the 256 bus space as 
+>    controllers are probed. If we change the internal type 
+>    used by the kernel to "u32" or whatever, we expand that 
+>   available space accordingly. 
+> 
+>   For the lazy, basically go into include/linux/pci.h 
+>   and change the "unsigned char"s in struct pci_bus into 
+>   some larger type. This is mindless work. 
 
+Yes it is mindless work and is in that patch.  Should we attempt to go
+beyond 256 physical busses in 2.4?  Maybe not.  But it is a simple
+change and it does work and it works around the existing drivers which
+compare busid+devfn for uniqueness when they really should compare
+pci_dev pointers.  Should it be redone the correct way (domains) in
+2.5?  Absolutely.
+
+The patch does not handle the user mode case.  This leaves the X server
+broken.  We could probably weed out busses beyond 256 under
+/proc/bus/pci as a workaround -- meaning the video adapter (if any --
+rare in these boxes) must be in one of the first I/O drawers.
+
+The added pci_op functions are probably not needed if the code probes
+ahead in pcibios_fixup_bus().
+
+> What you want are PCI domains.
+
+Correct.  This is 2.5.
+
+-- 
+-todd

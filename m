@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbUCIL1u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 06:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbUCIL1u
+	id S261876AbUCILcN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 06:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCILcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 06:27:50 -0500
-Received: from ns.bitdefender.com ([217.156.83.1]:14536 "EHLO avxfw.softwin.ro")
-	by vger.kernel.org with ESMTP id S261880AbUCIL1s (ORCPT
+	Tue, 9 Mar 2004 06:32:13 -0500
+Received: from zork.zork.net ([64.81.246.102]:40083 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S261876AbUCILcL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 06:27:48 -0500
-X-BitDefender-Spam: No (0)
-X-BitDefender-Scanner: Clean, Agent: Qmail 1.5.6 (mail.dsd.ro)
-Date: Tue, 9 Mar 2004 13:27:41 +0200
-From: "Viorel Canja, Softwin" <vcanja@bitdefender.com>
-X-Mailer: The Bat! (v2.00)
-Reply-To: "Viorel Canja, Softwin" <vcanja@bitdefender.com>
-Organization: Softwin
-X-Priority: 3 (Normal)
-Message-ID: <684501482.20040309132741@bitdefender.com>
+	Tue, 9 Mar 2004 06:32:11 -0500
 To: linux-kernel@vger.kernel.org
-Subject: problem in tcp_v4_synq_add ?
+Subject: Re: Bind Mount Extensions (RO --bind mounts)
+References: <404DA061.8000806@infini.fr>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Tue, 09 Mar 2004 11:32:10 +0000
+In-Reply-To: <404DA061.8000806@infini.fr> (Olivier ARCHER's message of "Tue,
+ 09 Mar 2004 11:45:53 +0100")
+Message-ID: <6ullmajlxh.fsf@zork.zork.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Olivier ARCHER <olivier.archer@infini.fr> writes:
 
-I was looking through the networking code in 2.6.1 kernel and it seems
-to me there could be a problem in tcp_ipv4.c in function tcp_v4_synq_add :
+> Hi,
+> 	I've tried
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0309.3/0802.html
+> to try the 'Bind Mount Extensions (RO --bind mounts)'
+>
+> I've applied the patch on 2.4.24 and 2.6.3, without effects, ie
+>
+> mount -t ext2 -o ro /dev/hdc7 /mnt/ro
+> mount --bind -o rw /mnt/ro /mnt/ro2rw
+> touch  /mnt/ro2rw/test
+> touch: connot touch '/mnt/ro2rw/test': Read Only file system
+>
+> have I miss something ?
 
-904 static void tcp_v4_synq_add(struct sock *sk, struct open_request *req)
-905 {
-906         struct tcp_opt *tp = tcp_sk(sk);
-907         struct tcp_listen_opt *lopt = tp->listen_opt;
-908         u32 h = tcp_v4_synq_hash(req->af.v4_req.rmt_addr, req->rmt_port, lopt->hash_rnd);
-909 
-910         req->expires = jiffies + TCP_TIMEOUT_INIT;
-911         req->retrans = 0;
-912         req->sk = NULL;
-913         req->dl_next = lopt->syn_table[h];
-914 
-915         write_lock(&tp->syn_wait_lock);
-916         lopt->syn_table[h] = req;
-917         write_unlock(&tp->syn_wait_lock);
-918 
-919         tcp_synq_added(sk);
-920 }
-
-Shouldn't  "write_lock(&tp->syn_wait_lock);" be moved before
-"req->dl_next = lopt->syn_table[h];" to avoid a race condition ?
-
-I am new to the linux kernel so it is likely that I am missing
-something. What am I missing ?
-
-Thanks in advance,
-Viorel
+As far as I can tell, you have it backwards.  BME seems to be designed
+to enable you to do ro binds of an rw FS, not an rw bind of an ro FS.
 

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314329AbSDVRoV>; Mon, 22 Apr 2002 13:44:21 -0400
+	id <S314339AbSDVRpn>; Mon, 22 Apr 2002 13:45:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314332AbSDVRoU>; Mon, 22 Apr 2002 13:44:20 -0400
-Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:31645 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314329AbSDVRoS>;
-	Mon, 22 Apr 2002 13:44:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Date: Sun, 21 Apr 2002 19:44:43 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jeff Garzik <garzik@havoc.gtf.org>, Larry McVoy <lm@bitmover.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zKy9-0001Hw-00@starship> <20020422102143.E17613@work.bitmover.com>
+	id <S314340AbSDVRpm>; Mon, 22 Apr 2002 13:45:42 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:22283 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S314339AbSDVRpk>;
+	Mon, 22 Apr 2002 13:45:40 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Daniel Phillips <phillips@bonn-fries.net>
+Date: Mon, 22 Apr 2002 19:45:09 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16zLOF-0001II-00@starship>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+CC: Larry McVoy <lm@bitmover.com>, Ian Molton <spyro@armlinux.org>,
+        linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <31CB8B22019@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 April 2002 19:21, Larry McVoy wrote:
-> On Sun, Apr 21, 2002 at 07:17:45PM +0200, Daniel Phillips wrote:
-> > On Monday 22 April 2002 19:10, Jeff Garzik wrote:
-> > > Do you have a problem with moving other docs out to Websites, which are
-> > > describing closed-spec hardware?  Such hardware (and their vendors) are
-> > > actively anti-open source, yet we have documents describing those, too.
-> > 
-> [response not answering the question deleted]
-
-Huh?  Are you reading the same mails I am?
-
-As far as I can see: question about moving the jfs CVS docs out of the tree
-as well, answered fully and, imho, correctly by me.
-
-> Daniel, this is yet another example of you not answering the question asked.
-> Let's try it again.  Please answer the following question, since you seem
-> to have elected yourself to position of license policeman:
+On 21 Apr 02 at 19:34, Daniel Phillips wrote:
 > 
-> There are number of different places in the linux kernel source tree
-> where there are docs/code/whatever related to non-open source features
-> included in the tree.  Are you advocating a "cleansing" of all of these
-> or are you specifically targetting BitKeeper.  If you are only focussed
-> on BitKeeper, why?
+> True, but I'm a contributor and so I have an interest in it.  It would be
+> better if you didn't pursue that line of argument.
+> 
+> How about the URL?
 
-Focussed on BitKeeper.  It's the license.  Simple, we can all coexist happily,
-and profit from each other's endeavors, but our little commons here should not
-be carrying Bitkeeper ads.
+Why we have kernel tarball at all, then? Just put URLs where you can 
+download different pieces of kernel, and we are done. You finally
+solved problem how to help users who do not want to download different
+arch subdirectories, or different drivers, as they do not need them
+for their hardware, and downloading them takes a precious time.
 
-> That's two questions, just answer those, nothing but those.
+As there is definitely at least one developer who uses Bitkeeper, and
+as this information is seen useful at least by some people (me including),
+I see no reason why this information should not be part of kernel.
 
-<counts question marks>  Oh right, one missing.  Well I answered both
-questionish things anyway.  Please let me know when you're done with your
-cross examination and we can return to my question to you about the URL.
-
--- 
-Daniel
+Otherwise we must remove ncpfs and matroxfb from the kernel immediately, as
+they both use proprietary protocol/interface, and there is available only 
+one vendor on the world who provides/supports this protocol/interface 
+(Novell resp. Matrox), and matroxfb documentation is just hidden advertising
+of Matrox corp.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz

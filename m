@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272838AbTHEPCi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272844AbTHEPCh
+	id S272841AbTHEPDD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 11:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272844AbTHEPCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:02:37 -0400
-Received: from waste.org ([209.173.204.2]:10906 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272838AbTHEPCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 11:02:41 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:64250 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S272843AbTHEPCg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 5 Aug 2003 11:02:36 -0400
-Date: Tue, 5 Aug 2003 10:02:07 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: kbuild (was Re: lk maintainers)
-Message-ID: <20030805150207.GH22824@waste.org>
-References: <200308051226.h75CQVj19345@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308051226.h75CQVj19345@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>, root@chaos.analogic.com
+Subject: Re: FS: hardlinks on directories
+Date: Tue, 5 Aug 2003 10:02:04 -0500
+X-Mailer: KMail [version 1.2]
+Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
+References: <20030804141548.5060b9db.skraw@ithnet.com> <Pine.LNX.4.53.0308050916140.5994@chaos> <20030805160435.7b151b0e.skraw@ithnet.com>
+In-Reply-To: <20030805160435.7b151b0e.skraw@ithnet.com>
+MIME-Version: 1.0
+Message-Id: <03080510020503.05972@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 03:36:03PM +0300, Denis Vlasenko wrote:
-> This document is mailed to lkml regularly and will be modified
-> whenever new victim wishes to be listed in it or someone can
-> no longer devote his time to maintainer work.
-> 
-> If you want your entry added/updated/removed, contact me.
-> 
-> BTW, requests to move your entry to the top of the list
-> without actually changing the text are fine too: that
-> will indicate that entry is not outdated, so don't be shy ;-)
+On Tuesday 05 August 2003 09:04, Stephan von Krawczynski wrote:
+> On Tue, 5 Aug 2003 09:36:37 -0400 (EDT)
+>
+> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+> > A hard-link is, by definition, indistinguishable from the original
+> > entry. In fact, with fast machines and the course granularity of
+> > file-system times, even the creation time may be exactly the
+> > same.
+>
+> Hello Richard,
+>
+> I really don't mind if you call the thing I am looking for a hardlink or a
+> chicken. And I am really not sticking to creating them by ln or mount or
+> just about anything else. I am, too, not bound to making them permanent on
+> the media. All I really want to do is to _export_ them via nfs.
+> And guys, looking at mount -bind makes me think someone else (before poor
+> me) needed just about the same thing.
+> So, instead of constantly feeding my bad conscience, can some kind soul
+> explain the possibilities to make "mount -bind/rbind" work over a network
+> fs of some flavor, please?
 
-Neither this nor MAINTAINERS has current listings for kbuild. 
+Not sure, but I suspect there would be a problem IF the -bind mount crosses 
+filesystems. If it doesn't cross the filesystems I wouldn't think there
+would be much problem.
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+You do have to remember that any NFS export gives IMPLICIT access to the
+entire filesystem (it is the device number that is actually exported). If
+the attacker can generate device:inode number, then that file reference can
+be opened. I haven't read/seen anything yet that has said different.

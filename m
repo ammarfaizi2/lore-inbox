@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286895AbSBIUVg>; Sat, 9 Feb 2002 15:21:36 -0500
+	id <S287134AbSBIUXg>; Sat, 9 Feb 2002 15:23:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287111AbSBIUV0>; Sat, 9 Feb 2002 15:21:26 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:24267 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S286895AbSBIUVI>;
-	Sat, 9 Feb 2002 15:21:08 -0500
-Date: Sat, 09 Feb 2002 20:21:01 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, zaitcev@redhat.com
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: The IBM order relaxation patch
-Message-ID: <2345050357.1013286061@[195.224.237.69]>
-In-Reply-To: <E16YpHW-0000aw-00@starship.berlin>
-In-Reply-To: <E16YpHW-0000aw-00@starship.berlin>
-X-Mailer: Mulberry/2.1.0 (Win32)
+	id <S287111AbSBIUX0>; Sat, 9 Feb 2002 15:23:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58123 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287134AbSBIUXK>;
+	Sat, 9 Feb 2002 15:23:10 -0500
+Message-ID: <3C6584F3.D571C1CB@zip.com.au>
+Date: Sat, 09 Feb 2002 12:22:11 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: paule@ilu.vu
+CC: Chris Ball <chris@void.printf.net>, linux-kernel@vger.kernel.org
+Subject: Re: 3com pcmcia modules.
+In-Reply-To: <20020209151533.A644@ilu.vu> <877kpmvetv.fsf@lexis.house.pkl.net>,
+		<877kpmvetv.fsf@lexis.house.pkl.net>; from chris@void.printf.net on Sat, Feb 09, 2002 at 03:45:48PM +0000 <20020209160407.A1222@ilu.vu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+paule@ilu.vu wrote:
+> 
+> root@paule:/lib/modules/2.5.3/kernel/drivers/net# insmod 3c59x
+> Using /lib/modules/2.5.3/kernel/drivers/net/3c59x.o
+> /lib/modules/2.5.3/kernel/drivers/net/3c59x.o: unresolved symbol
+> del_timer_sync
 
+That can't happen :)
 
---On Thursday, 07 February, 2002 3:12 PM +0100 Daniel Phillips 
-<phillips@bonn-fries.net> wrote:
+I have checked 2.5.4-pre5 SMP and UP, and the module loads
+OK.  Possibly 2.5.3 was broken, but it's unlikely.  Please
+try a `make clean'.  
 
-> Maybe Rik's
->> rmap method could help here, because with reverse mappings we
->> can at least try to free adjacent areas (because we then at least
->> *know* who's using the pages).
->
-> Yes, that's one of leading reasons for wanting rmap.  (Number one and two
-> reasons are: allow forcible unmapping of multiply referenced pages for
-> swapout; get more reliable hardware ref bit readings.)
->
-> Note that even if we can do forcible freeing we still have to deal with
-> the  issue of fragmentation due to pinned pages, e.g., slab cache,
-> admittedly a  rarer problem.
-
-Perhaps mitigated if you use the same technology as you are using to do the
-freeing, to ensure that pinned pages (slab cache etc.) are preferentially
-allocated next to other pinned pages.
-
---
-Alex Bligh
+-

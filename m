@@ -1,38 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262895AbTDAWjV>; Tue, 1 Apr 2003 17:39:21 -0500
+	id <S262914AbTDAWm3>; Tue, 1 Apr 2003 17:42:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262906AbTDAWjV>; Tue, 1 Apr 2003 17:39:21 -0500
-Received: from asie314yy33z9.bc.hsia.telus.net ([216.232.196.3]:15490 "EHLO
-	saurus.asaurus.invalid") by vger.kernel.org with ESMTP
-	id <S262895AbTDAWjU>; Tue, 1 Apr 2003 17:39:20 -0500
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Stateless dropping of packets
-References: <87he9ilz05.fsf@deneb.enyo.de>
-From: Kevin Buhr <buhr@telus.net>
-In-Reply-To: <87he9ilz05.fsf@deneb.enyo.de>
-Date: 01 Apr 2003 14:50:39 -0800
-Message-ID: <87d6k5ltmo.fsf@saurus.asaurus.invalid>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262915AbTDAWm3>; Tue, 1 Apr 2003 17:42:29 -0500
+Received: from jalon.able.es ([212.97.163.2]:8951 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S262914AbTDAWm1>;
+	Tue, 1 Apr 2003 17:42:27 -0500
+Date: Wed, 2 Apr 2003 00:53:44 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: netfilter/iptables bug ?
+Message-ID: <20030401225344.GA4397@werewolf.able.es>
+References: <20030401224446.GA4349@werewolf.able.es> <1049237482.25150.4.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1049237482.25150.4.camel@tux.rsn.bth.se>; from gandalf@wlug.westbo.se on Wed, Apr 02, 2003 at 00:51:22 +0200
+X-Mailer: Balsa 2.0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <fw@deneb.enyo.de> writes:
->
-> Is it possible to drop packets, preferably using 2.4 iptables, before
-> the packet triggers updates of some caches (e.g. the route cache)?
 
-If you DROP the packet in a PREROUTING chain, that should work.  Since
-the "filter" table doesn't have a PREROUTING chain, you need to use a
-table that does, like the "mangle" table.  For example:
+On 04.02, Martin Josefsson wrote:
+> On Wed, 2003-04-02 at 00:44, J.A. Magallon wrote:
+> > Hi all...
+> > 
+> > I'm trying to do NAT from a internal eth1 to external eth0 (connected
+> > with a cable modem). Every doc I read says I should do:
+> > 
+> > iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+> > 
+> > But I just keep getting:
+> > 
+> > iptables: Invalid argument
+> > 
+> > Kernel: 2.4.21-pre6 + -pre5-aa. iptables 1.2.7a.
+> 
+> Recompile iptables against your new kernel.
+> A major NAT patch (newnat) went into 2.4.20 which changed a lot of
+> structures. A recompile against a >= 2.4.20 kernel will get it working
+> again.
+> 
+> I suggest that you post further mail about iptables-problems to
+> netfilter@lists.netfilter.org as that's where you are most likely to get
+> help.
+> 
 
-        iptables -t mangle -A PREROUTING -s 10.0.0.0/8 -j DROP
+Thankyou very much.
 
-should drop everything with a source in 10.0.0.0/8 without touching
-the routing cache.
+Sometimes I doubt if this is a maling list or an IRC channel ;))
+
 
 -- 
-Kevin <buhr@telus.net>
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Bamboo) for i586
+Linux 2.4.21-pre6-jam1 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

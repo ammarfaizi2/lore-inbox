@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283310AbRLIK62>; Sun, 9 Dec 2001 05:58:28 -0500
+	id <S283311AbRLILK7>; Sun, 9 Dec 2001 06:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283311AbRLIK6S>; Sun, 9 Dec 2001 05:58:18 -0500
-Received: from colorfullife.com ([216.156.138.34]:43533 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S283310AbRLIK6D>;
-	Sun, 9 Dec 2001 05:58:03 -0500
-Message-ID: <3C1343B3.3090304@colorfullife.com>
-Date: Sun, 09 Dec 2001 11:57:55 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jack Steiner <steiner@sgi.com>
-CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S283316AbRLILKs>; Sun, 9 Dec 2001 06:10:48 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:42002 "EHLO
+	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S283311AbRLILK2>; Sun, 9 Dec 2001 06:10:28 -0500
+Date: Sun, 9 Dec 2001 00:04:52 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Cory Bell <cory.bell@usa.net>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+        Andrew Grover <andrew.grover@intel.com>,
+        John Clemens <john@deater.net>
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-ID: <20011209000451.A117@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0112070925280.851-100000@segfault.osdlab.org> <1007760235.10687.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1007760235.10687.0.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->Assuming the slab allocator manages by node, kmem_cache_alloc_node() & 
->kmem_cache_alloc_cpu() would be identical (exzcept for spelling :-). 
->Each would pick up the nodeid from the cpu_data struct, then allocate 
->from the slab cache for that node.
->
+Hi!
 
-kmem_cache_alloc is simple - the complex operation is kmem_cache_free.
+So I investigated a little more, and maestro3 soundcard is also hooked
+at irq 11 -- with this *very* cruel hack it works for me (at least
+playback).
 
-The current implementation
-- assumes that virt_to_page() and reading one cacheline from the page 
-structure is fast. Is that true for your setups?
-- uses an array to batch several free calls together: If the array 
-overflows, then up to 120 objects are freed in one call, to reduce 
-cacheline trashing.
 
-If virt_to_page is fast, then a NUMA allocator would be a simple 
-extention of the current implementation:
+--- clean/drivers/sound/maestro3.c	Thu Oct 11 18:43:30 2001
++++ linux/drivers/sound/maestro3.c	Sat Dec  8 23:39:28 2001
+@@ -2685,7 +2683,7 @@
+         }
+     }
+     
+-    if(request_irq(card->irq, m3_interrupt, SA_SHIRQ, card_names[card->card_type], card)) {
++    if(request_irq(11 /* card->irq Gross hack */, m3_interrupt, SA_SHIRQ, card_names[card->card_type], card)) {
+ 
+         printk(KERN_ERR PFX "unable to allocate irq %d,\n", card->irq);
+ 
 
-* one slab chain for each node, one spinlock for each node.
-* 2 per-cpu arrays for each cpu: one for "correct node" kmem_cache_free 
-calls , one for "foreign node" kmem_cache_free calls.
-* kmem_cache_alloc allocates from the "correct node" per-cpu array, 
-fallback to the per-node slab chain, then fallback to __get_free_pages.
-* kmem_cache_free checks to which node the freed object belongs and adds 
-it to the appropriate per-cpu array. The array overflow function then 
-sorts the objects into the correct slab chains.
-
-If virt_to_page is slow we need a different design. Currently it's 
-called in every kmem_cache_free/kfree call.
-
---
-    Manfred
-
+								Pavel
+-- 
+"I do not steal MS software. It is not worth it."
+                                -- Pavel Kankovsky

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130307AbQK1Cm1>; Mon, 27 Nov 2000 21:42:27 -0500
+        id <S129960AbQK1DAa>; Mon, 27 Nov 2000 22:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130232AbQK1CmS>; Mon, 27 Nov 2000 21:42:18 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:63751 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S129960AbQK1CmB>; Mon, 27 Nov 2000 21:42:01 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
-Date: 27 Nov 2000 18:11:43 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vv48v$7q7$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.30.0011280012530.22068-100000@space.comunit.de> <3A22EF12.4A5D0121@timpanogas.org>
+        id <S130232AbQK1DAU>; Mon, 27 Nov 2000 22:00:20 -0500
+Received: from clem.digital.net ([204.215.239.73]:16403 "EHLO clem.digital.net")
+        by vger.kernel.org with ESMTP id <S129960AbQK1DAG>;
+        Mon, 27 Nov 2000 22:00:06 -0500
+From: Pete Clements <clem@clem.digital.net>
+Message-Id: <200011280230.VAA12126@clem.digital.net>
+Subject: 2.4.0-test12pre1 fails compile (vmscan.c)
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Mon, 27 Nov 2000 21:30:01 -0500 (EST)
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A22EF12.4A5D0121@timpanogas.org>
-By author:    "Jeff V. Merkey" <jmerkey@timpanogas.org>
-In newsgroup: linux.dev.kernel
-> > 
-> > Let me guess: it's a 4 cpu smp system?
-> 
-> Correct.  I take it them this is supposed to happen.
-> 
+FYI:
 
-Yup, one penguin per CPU.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.0-test12/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o vmscan.o vmscan.c
+vmscan.c: In function `try_to_swap_out':
+vmscan.c:199: duplicate label `out_failed'
+make[2]: *** [vmscan.o] Error 1
+make[2]: Leaving directory `/sda3/usr/src/linux-2.4.0-test12/mm'
 
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Pete Clements 
+clem@clem.digital.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

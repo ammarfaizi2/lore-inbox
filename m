@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289163AbSAJEtA>; Wed, 9 Jan 2002 23:49:00 -0500
+	id <S289167AbSAJFK0>; Thu, 10 Jan 2002 00:10:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289165AbSAJEsu>; Wed, 9 Jan 2002 23:48:50 -0500
-Received: from mail.broadpark.no ([217.13.4.2]:30921 "HELO mail.broadpark.no")
-	by vger.kernel.org with SMTP id <S289163AbSAJEse>;
-	Wed, 9 Jan 2002 23:48:34 -0500
-Date: Thu, 10 Jan 2002 05:45:55 +0100
-From: jon svendsen <jon-sven@frisurf.no>
-To: linux-kernel@vger.kernel.org
-Subject: xfree86 compilation failure due to naming conflict (linux 2.4.17, Xfree86 4.1.0)
-Message-ID: <20020110054555.C4116@fig.aubernet>
-In-Reply-To: <20020110053949.A4116@fig.aubernet>
+	id <S289227AbSAJFKQ>; Thu, 10 Jan 2002 00:10:16 -0500
+Received: from pool-141-157-232-117.ny325.east.verizon.net ([141.157.232.117]:10505
+	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
+	id <S289167AbSAJFKG>; Thu, 10 Jan 2002 00:10:06 -0500
+Date: Thu, 10 Jan 2002 00:10:02 -0500
+From: kevin@koconnor.net
+To: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: lock order in O(1) scheduler
+Message-ID: <20020110001002.A13456@arizona.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020110053949.A4116@fig.aubernet>; from jon-sven@frisurf.no on Thu, Jan 10, 2002 at 05:39:49 +0100
-X-Mailer: Balsa 1.2.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002.01.10 05:39 jon svendsen wrote:
-Hello,
 
-The SiS DRM drivers in the 2.4.17 linux kernel has caused the 
-possibility of failure to compile xfree86 4.1.0 (and CVS). The cause of 
-the conflict is the definition of CONFIG_DRM_SIS, used both in kernel 
-configuration and in the xfree86 DRM code.
+Hi Ingo,
 
-If DRM is enabled in the kernel (CONFIG_DRM) but the SiS driver is 
-disabled or configured as a module, <linux/autoconf.h>, included from 
-<linux/config.h>, will contain an #undef CONFIG_DRM_SIS.
+I was looking through the new O(1) scheduler (found in linux-2.5.2-pre11),
+when I came upon the following code in try_to_wake_up():
 
-<linux/config.h> is included from 
-xc/programs/Xserver/hw/xfree86/os-support/linux/drm/kernel/drm.h in the 
-xfree86 source tree. The file 
-xc/programs/Xserver/hw/xfree86/os-support/linux/drm/xf86drmSiS.c does a 
-#define CONFIG_DRM_SIS prior to including this file in order to have 
-necessary parts of it included.
+        lock_task_rq(rq, p, flags);
+        p->state = TASK_RUNNING;
+        if (!p->array) {
+                if (!rt_task(p) && synchronous && (smp_processor_id() < p->cpu)) {
+                        spin_lock(&this_rq()->lock);
+                        p->cpu = smp_processor_id();
+                        activate_task(p, this_rq());
+                        spin_unlock(&this_rq()->lock);
+                } else {
 
-It flows something like this:
+I was unable to figure out what the logic of the '(smp_processor_id() <
+p->cpu)' test is..  (Why should the CPU number of the process being awoken
+matter?)  My best guess is that this is to enforce a locking invariant -
+but if so, isn't this test backwards?  If p->cpu > current->cpu then
+p->cpu's runqueue is locked first followed by this_rq - locking greatest to
+least, where the rest of the code does least to greatest..
 
-xf86drmSiS.c:
-#define CONFIG_DRM_SIS
-#include "drm.h"
+Also, this code in set_cpus_allowed() looks bogus:
 
-drm.h:
-#include <linux/config.h> // #undef CONFIG_DRM_SIS
+        if (target_cpu < smp_processor_id()) {
+                spin_lock_irq(&target_rq->lock);
+                spin_lock(&this_rq->lock);
+        } else {
+                spin_lock_irq(&target_rq->lock);
+                spin_lock(&this_rq->lock);
+        }
 
-#ifdef CONFIG_DRM_SIS
-// stuff necessary for compilation of xf86drmSiS.c
-#endif
-
-And compilation of xf86drmSiS.c fails.
-
-I'd supply a patch, but I'm not familiar enough with the relationship 
-between the kernel and xfree86 drivers to know what the proper solution 
-would be, nor am I certain if the modification should happen in linux 
-or in xfree86. Hopefully I have supplied enough information facilitiate 
-a fairly simple solution.
-
-Jon Svendsen
---- Sorcerer GNU Linux (http://sorcerer.wox.org)
+The lock order is the same regardless of the if statement..
 
 
+-Kevin
 
+-- 
+ ------------------------------------------------------------------------
+ | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
+ | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
+ ------------------------------------------------------------------------

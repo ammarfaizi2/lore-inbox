@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbTEVAeP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 20:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbTEVAeP
+	id S262413AbTEVAe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 20:34:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbTEVAe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 20:34:15 -0400
-Received: from dp.samba.org ([66.70.73.150]:47760 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262412AbTEVAeM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 20:34:12 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3 
-In-reply-to: Your message of "Wed, 21 May 2003 11:48:49 +0200."
-             <Pine.LNX.4.44.0305211140120.2045-100000@localhost.localdomain> 
-Date: Thu, 22 May 2003 10:30:54 +1000
-Message-Id: <20030522004714.C3A2F2C0A7@lists.samba.org>
+	Wed, 21 May 2003 20:34:27 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:2508 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S262413AbTEVAeZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 20:34:25 -0400
+From: Rusty Russell <rusty@au1.ibm.com>
+To: dipankar@in.ibm.com
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       David Mosberger-Tang <davidm@hpl.hp.com>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>
+Subject: Re: [PATCH 4/3] Replace dynamic percpu implementation 
+In-reply-to: Your message of "Wed, 21 May 2003 16:01:56 +0530."
+             <20030521103156.GB2861@in.ibm.com> 
+Date: Thu, 22 May 2003 10:35:51 +1000
+Message-Id: <20030522004716.2B69817DE5@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0305211140120.2045-100000@localhost.localdomain> you 
-write:
-> 
-> On Wed, 21 May 2003, Rusty Russell wrote:
-> 
-> > Perhaps I was reading too much into Linus' mail, but I read it as "don't
-> > obsolete the old interface and introduce a new one just because of some
-> > sense of aesthetics".
-> 
-> no. The concept is: "dont cause the user any pain". Reshuffling the
-> syscall internally and providing new interfaces for the feature to be
-> exposed in a cleaner way is perfectly OK as long as this does not hurt
-> anything else
+In message <20030521103156.GB2861@in.ibm.com> you write:
+> Considering these results, this allocator seems to be a step in the right
+> direction.
 
-I understand what you're saying, but I disagree.
+I had a great chat with David M-T: I'm backing off this until we have
+a IA64 code which keeps its current advantages.
 
-See, I don't think the current interface is too ugly to live.
-Especially since you don't need to introduce a new arg to implement
-FUTEX_REQUEUE, so there's no immediate problem with it.
+If you can find someone to work on the IA64 specific stuff, I think
+everyone will be happy.
 
-Do you understand what I'm saying?  If so, we can agree to disagree,
-and it doesn't matter, because Linus will take your patch 8)
-
-Cheers,
+Cheers!
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

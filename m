@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTJKPCL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 11:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTJKPCL
+	id S262795AbTJKPP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 11:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbTJKPP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 11:02:11 -0400
-Received: from ns.suse.de ([195.135.220.2]:21449 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263319AbTJKPCI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 11:02:08 -0400
-Date: Sat, 11 Oct 2003 17:00:09 +0200
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_AGP_AMD_{8151->K8} Configure.help entry
-Message-ID: <20031011150009.GA6674@wotan.suse.de>
-References: <20031011121107.GV24300@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031011121107.GV24300@fs.tum.de>
+	Sat, 11 Oct 2003 11:15:28 -0400
+Received: from ms-smtp-04.texas.rr.com ([24.93.36.232]:647 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262795AbTJKPP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 11:15:27 -0400
+Date: Sat, 11 Oct 2003 10:13:57 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@dell.com>
+X-X-Sender: mdomsch@iguana.domsch.com
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       "list, linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-pre7 build problems
+In-Reply-To: <Pine.LNX.4.44.0310111146190.1700-100000@logos.cnet>
+Message-ID: <Pine.LNX.4.44.0310111011470.7261-100000@iguana.domsch.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 11, 2003 at 02:11:07PM +0200, Adrian Bunk wrote:
-> In 2.4.23-pre CONFIG_AGP_AMD_8151 was renamed to CONFIG_AGP_AMD_K8, but 
-> the configure.help entry was forgotten. he following trivial patch fixes 
-> this:
+> I have the fix for the nsp driver but not for the megaraid2.
 
-Thanks. Fixed in my tree.
+ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.9/megaraid-2009-wo-hostlock.patch.gz
+ftp://ftp.lsil.com/pub/linux-megaraid/drivers/version-2.00.9/megaraid-2009-wo-hostlock.patch.gz.sig
 
--Andi
+and appended.  Done by Atul Mukker @ LSIL.
+
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
+diff -Naur linux/drivers/scsi/megaraid2.c linux/drivers/scsi/megaraid2.c
+--- linux/drivers/scsi/megaraid2.c	2003-09-09 15:31:43.000000000 -0400
++++ linux/drivers/scsi/megaraid2.c	2003-09-09 15:32:03.000000000 -0400
+@@ -398,9 +398,7 @@
+ 		// replace adapter->lock with io_request_lock for kernels w/o
+ 		// per host lock and delete the line which tries to initialize
+ 		// the lock in host structure.
+-		adapter->host_lock = &adapter->lock;
+-
+-		host->lock = adapter->host_lock;
++		adapter->host_lock = &io_request_lock;
+ 
+ 		host->cmd_per_lun = max_cmd_per_lun;
+ 		host->max_sectors = max_sectors_per_io;
+

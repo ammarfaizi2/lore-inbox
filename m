@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266135AbTATPrA>; Mon, 20 Jan 2003 10:47:00 -0500
+	id <S266043AbTATPnr>; Mon, 20 Jan 2003 10:43:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266161AbTATPrA>; Mon, 20 Jan 2003 10:47:00 -0500
-Received: from thunk.org ([140.239.227.29]:18134 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S266135AbTATPq7>;
-	Mon, 20 Jan 2003 10:46:59 -0500
-Date: Mon, 20 Jan 2003 10:55:23 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: David Schwartz <davids@webmaster.com>
-Cc: adilger@clusterfs.com, Roman Zippel <zippel@linux-m68k.org>,
-       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is the BitKeeper network protocol documented?
-Message-ID: <20030120155523.GB3513@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	David Schwartz <davids@webmaster.com>, adilger@clusterfs.com,
-	Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
+	id <S266100AbTATPnr>; Mon, 20 Jan 2003 10:43:47 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:25868 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S266043AbTATPnq>; Mon, 20 Jan 2003 10:43:46 -0500
+Date: Mon, 20 Jan 2003 15:52:50 +0000
+From: John Levon <levon@movementarian.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5] initrd/mkinitrd still not working
+Message-ID: <20030120155250.GB58326@compsoc.man.ac.uk>
+References: <200301201457.PAA25276@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <200301201457.PAA25276@harpo.it.uu.se>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18aeEE-00061j-00*tISYMjw8ai2*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 03:57:40PM -0800, David Schwartz wrote:
-> 	I think you're ignoring the way the GPL defines the "source code". 
-> The GPL defines the "source code" as the preferred form for modifying 
-> the program. If the preferred form of a work for purposes of 
-> modifying it is live access to a BK repository, then that's the 
-> "source code" for GPL purposes.
+On Mon, Jan 20, 2003 at 03:57:22PM +0100, Mikael Pettersson wrote:
 
-You're being insane.  The preferred form is still the C source code.
-You can store that C source code in many different forms.  For
-example, I could put that C code in a CVS source repository, and only
-allow access to it to core team members.  Many other open source
-projects do things that way.  And many other open source projects
-don't give raw access to the CVS source repository.  Sometimes this is
-necessary, if they need to fix a security bug before it is announced
-to the entire world.  
+> >/lib/modules/2.5.56/kernel/drivers/scsi/sym53c8xx_2/sym53c8xx.ko
+> 
+> As to why the .o -> .ko name change was necessary, I have no idea.
+> Rusty?
 
-The GPL does not guarantee that you have access to the master source
-repository, whether it is stored in a CVS repository, or a BK
-repository.  And whether the master source repository is CVS or BK,
-the preferred form for modifications doesn't change; it's still the C
-code.
+For one thing, it means you can do :
 
-> 	You are using the conventional meaning of "source code", which is 
-> roughly, "whatever you compile to get the executable". However, this 
-> is not the "source" for GPL purposes. For GPL purposes, the source is 
-> the preferred form of a work for purposes of modifying it.
+obj-$(CONFIG_OPROFILE) += oprofile.o
+oprofile-y                              := $(DRIVER_OBJS) init.o
+timer_int.o
+oprofile-$(CONFIG_X86_LOCAL_APIC)       += nmi_int.o op_model_athlon.o \
+                                           op_model_ppro.o op_model_p4.o
 
-You don't run emacs on the CVS ,v files, or BK's s. files.  That's
-just the container.  It's no different from the raw underlying
-filesystem format.  
+which is very nice. I don't know why they're installed like that though.
 
-You need to distinguish between how information is stored, and the
-information itself.  If I store the master repository for an Open
-Source project on an NTFS filesystem, does that make the NTFS
-filesystem part of the preferred form?  Of course not!  You might have
-to use the NTFS filesystem to get at the sources, but that doesn't
-make it part of the preferred form.
-
-						- Ted
+regards
+john
+-- 
+"Anyone who quotes Rusty in their sig is an idiot."
+	- me

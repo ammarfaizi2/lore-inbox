@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261205AbSLMGsY>; Fri, 13 Dec 2002 01:48:24 -0500
+	id <S261527AbSLMGuM>; Fri, 13 Dec 2002 01:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbSLMGsY>; Fri, 13 Dec 2002 01:48:24 -0500
-Received: from smtp001.mail.tpe.yahoo.com ([202.1.238.48]:51216 "HELO
-	smtp001.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
-	id <S261205AbSLMGsX>; Fri, 13 Dec 2002 01:48:23 -0500
-Message-ID: <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
-From: "Joseph" <jospehchan@yahoo.com.tw>
-To: "Dave Jones" <davej@codemonkey.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu> <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw> <20021212133339.GE1145@suse.de>
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-Date: Fri, 13 Dec 2002 14:55:04 +0800
+	id <S261529AbSLMGuM>; Fri, 13 Dec 2002 01:50:12 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17089 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261527AbSLMGuK>; Fri, 13 Dec 2002 01:50:10 -0500
+From: David Stevens <dlstevens@us.ibm.com>
+Importance: Normal
+Sensitivity: 
+Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
+To: "David S. Miller" <davem@redhat.com>
+Cc: matti.aarnio@zmailer.org, niv@us.ibm.com, alan@lxorguk.ukuu.org.uk,
+       stefano.andreani.ap@h3g.it, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF38D59D15.E0619D28-ON88256C8E.0023807F@us.ibm.com>
+Date: Thu, 12 Dec 2002 23:55:35 -0700
+X-MIMETrack: Serialize by Router on D03NM035/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
+ 12/12/2002 23:55:38
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>On Thu, Dec 12, 2002 at 05:17:29PM +0800, Joseph wrote:
->> Thanks for all response. :)
- >> I think I know more why it downgrades.
- >> But one more curious question.
- >> In the file, arch/i386/Makefile, under kernel 2.5.51.
- >> I found the C3 alignments , $(call check_gcc, -march=c3,-march=i486).
- >> Does the C3 CPU type be included in gcc compile option??
- >> I've downloaded the latest gcc 3.2.1 version.
- >> But I don't find the c3 options in the file gcc/config/i396/i386.c,
-i386.h
- >> or etc.
 
->Not in a currently released gcc. CVS HEAD supports it, as will 3.3
->Dave
 
-I've checked the gcc CVS. But it seems to use i486 pluse MMX and 3DNOW
-instructions.
-* config.gcc: Treat winchip_c6-*|winchip2-*|c3-* as pentium-mmx.
-* config/i386/i386.c (processor_alias_table): Add winchip-c6, winchip2 and
-c3.
-* doc/invoke.texi: Mention new aliases.
-**  {"c3", PROCESSOR_I486, PTA_MMX | PTA_3DNOW},   **
-Is there any plan to optimize for C3 CPU in future gcc released version?
-BR,
-  Joseph
 
------------------------------------------------------------------
-< ¨C¤Ñ³£ Yahoo!©_¼¯ >  www.yahoo.com.tw
+
+      I believe the very large BSD number was based on the large
+granularity of the timer (500ms for slowtimeout), designed for use on a VAX
+780. The PC on my desk is 3500 times faster than a VAX 780, and you can
+send a lot of data on Gigabit Ethernet instead of sitting on your hands for
+an enormous min timeout on modern hardware. Switched gigabit isn't exactly
+the same kind of environment as shared 10 Mbps (or 2 Mbps) when that stuff
+went in, but the min timeouts are the same.
+      I think the exponential back-off should handle most issues for
+underestimated timers, and the min RTO should be the timer granularity.
+Variability in that is already accounted for by the RTT estimator.
+      I certainly agree it needs careful investigating, but it's been a pet
+peeve of mine for years on BSD systems that it forced an arbitrary minimum
+that had no accounting for hardware differences over the last 20 years.
+
+                                    +-DLS
+
+
+"David S. Miller" <davem@redhat.com>@vger.kernel.org on 12/12/2002 09:23:35
+PM
+
+Sent by:    linux-net-owner@vger.kernel.org
+
+
+To:    matti.aarnio@zmailer.org
+cc:    niv@us.ltcfwd.linux.ibm.com, alan@lxorguk.ukuu.org.uk,
+       stefano.andreani.ap@h3g.it, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject:    Re: R: Kernel bug handling TCP_RTO_MAX?
+
+
+
+   From: Matti Aarnio <matti.aarnio@zmailer.org>
+   Date: Fri, 13 Dec 2002 05:39:28 +0200
+
+   On Thu, Dec 12, 2002 at 06:26:45PM -0800, Nivedita Singhvi wrote:
+   > Assuming you are on a local lan, your round trip
+   > times are going to be much less than 200 ms, and
+   > so using the TCP_RTO_MIN of 200ms ("The algorithm
+   > ensures that the rto cant go below that").
+
+     The RTO steps in only when there is a need to RETRANSMIT.
+     For that reason, it makes no sense to place its start
+     any shorter.
+
+Actually, TCP_RTO_MIN cannot be made any smaller without
+some serious thought.
+
+The reason it is 200ms is due to the granularity of the BSD
+TCP socket timers.
+
+In short, the repercussions are not exactly well known, so it's
+a research problem to fiddle here.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-net" in
+the body of a message to majordomo@vger.kernel.org
+ More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+

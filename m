@@ -1,95 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbTK1POS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 10:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTK1POS
+	id S262352AbTK1PMg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 10:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTK1PMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 10:14:18 -0500
-Received: from mail1.neceur.com ([193.116.254.3]:47246 "EHLO mail1.neceur.com")
-	by vger.kernel.org with ESMTP id S262360AbTK1POC (ORCPT
+	Fri, 28 Nov 2003 10:12:35 -0500
+Received: from [212.102.131.179] ([212.102.131.179]:50589 "EHLO acs.vm")
+	by vger.kernel.org with ESMTP id S262352AbTK1PMe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 10:14:02 -0500
-In-Reply-To: <001a01c3b515$b6030de0$0f00a8c0@client.attbi.com>
-To: "Brendan Howes" <brendan@netzentry.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: NForce2 pseudoscience stability testing (2.6.0-test11)
+	Fri, 28 Nov 2003 10:12:34 -0500
+Message-ID: <3FC75F23.6010508@transacty.co.yu>
+Date: Fri, 28 Nov 2003 15:43:47 +0100
+From: Zoran Davidovac <zoran.davidovac@transacty.co.yu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Lotus Notes Build V65_M1_04032003NP April 03, 2003
-Message-ID: <OF6617181D.A93B9D63-ON80256DEC.004D7534-80256DEC.0053A823@uk.neceur.com>
-From: ross.alexander@uk.neceur.com
-Date: Fri, 28 Nov 2003 15:13:45 +0000
-X-MIMETrack: Serialize by Router on LDN-THOTH/E/NEC(Release 5.0.10 |March 22, 2002) at
- 11/28/2003 03:13:44 PM,
-	Serialize complete at 11/28/2003 03:13:44 PM,
-	Itemize by SMTP Server on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
- 11/28/2003 03:13:44 PM,
-	Serialize by Router on ldn-hermes/E/NEC(Release 5.0.10 |March 22, 2002) at
- 11/28/2003 03:13:46 PM,
-	Serialize complete at 11/28/2003 03:13:46 PM
-Content-Type: text/plain; charset="US-ASCII"
+To: Magnus Stenman <stone@hkust.se>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oops on P4 i875 w/ 2 gig RAM [2.4 stuff]
+References: <3FC1EE97.7020302@hkust.se> <3FC72D71.9090708@hkust.se>
+In-Reply-To: <3FC72D71.9090708@hkust.se>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brendan et al,
+Here is same board with 2.4GHz (no HT) P4 and with 1G ram works perfectly,
+but I am running 2.4.21 & 2.4.22 (vanila kernel) did not test it with
+2.4.20  but it also works ok with 2.6-test9, the only problem with 2.4.22
+was that i875 was not fully recognized.
 
-I have been test various kernel parameter combinations to test stability.
+Try to put new 2.4.22.
 
-Basic scenario is default IDE driver, AIC7xxx PCI SCSI connected to HP 
-externel DVD.
-Using grip (CDDA ripper) to test if system locks up.  Unstable systems 
-will normally lock up
-around track two or three.  Stable systems are those which haven't locked 
-up after half
-a dozen different CDs have been ripped.
+Great MOBO.
+>  > Machine has a Gigabyte GA-8IK1100 mobo (intel i875 chipset)
 
-MB: ASUS A7N8X
-CPU: Athlon XP 2700+
-Memory: 1.5GB (3 x 512MB DIMMs)
-Disk: Internal 80GB IDE
 
-COMPILE         SMP     ACPI    PCI     LAPIC   APIC    RESULT  NOTE
-SMP,PREM                ON                              F
-SMP,PREM                ON      NOACPI                  F
-SMP,PREM                OFF                             F
-SMP,PREM                OFF             NO      NO      S
-SMP,PREM                OFF                     NO      F
-SMP,PREM                OFF             NO              S
-SMP,PREM                ON              NO      NO      F       1
-SMP                     ON              NO              F       2
-SMP                                                     F       3
-APIC,LAPIC                                              S
-PREM,APIC,LAPIC                                         S
 
-* SMP = On (if compiled it) unless nosmp set.  Using nosmp with smp kernel 
-causes very odd results.
-* ACPI = Compiled by default.  Set off using kernel paramter acpi=off.
-* PCI = Kernel parameter.  Only used to turn APCI routing off.
-* LAPIC = Kernel paramter to turn it off (nolapic).
-* APIC = Kernel paramter to turn it off (noapic).
+-- 
 
-1. Using APCI PCI routing and nolapic gives very odd results.  As soon as 
-the network tries
-to configure itself it simple hangs (but C-Alt-Del will reboot it).
+-------------------------
+Zoran Davidovac
+System & Network Administrator
+Transacty (A Telenor company)
+Kopernikova 8
+11000 Beograd
+Tel.:     + 381 11 32 92 616
+Fax.:     + 381 11 76 40 12
+Mobile :  + 381 63 355 458
+E-mail :   zoran.davidovac@transacty.co.yu
+Website:   http://www.transacty.co.yu/
 
-2. Using the nolapic kernel parameter without disabling ACPI does nothing.
-
-3. Using kernel parameter nosmp on and SMP kernel causes all the lower 16 
-IRQs to work in XT-PIC
-mode and the PCI network card to use IRQ 21 with IO-APIC-level.  Trying to 
-modprobe aic7xxx hung
-modprobe but not system.
-
-The conclusion to this is the problem is in Local APIC with SMP.  I'm not 
-saying this is actually true
-only that is what the data suggests.  If anybody wants me to try some 
-other stuff feel free to suggest
-ideas.
-
-Cheers,
-
-Ross
-
----------------------------------------------------------------------------------
-Ross Alexander                           "We demand clearly defined
-MIS - NEC Europe Limited            boundaries of uncertainty and
-Work ph: +44 20 8752 3394         doubt."

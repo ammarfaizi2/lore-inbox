@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261158AbSJLMhp>; Sat, 12 Oct 2002 08:37:45 -0400
+	id <S261173AbSJLM6G>; Sat, 12 Oct 2002 08:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261165AbSJLMho>; Sat, 12 Oct 2002 08:37:44 -0400
-Received: from services.cam.org ([198.73.180.252]:40916 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S261158AbSJLMhm>;
-	Sat, 12 Oct 2002 08:37:42 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: Linux v2.5.42
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Sat, 12 Oct 2002 08:37:38 -0400
-References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
-Organization: me
-User-Agent: KNode/0.7.1
+	id <S261177AbSJLM6G>; Sat, 12 Oct 2002 08:58:06 -0400
+Received: from [192.67.198.71] ([192.67.198.71]:42665 "EHLO
+	mout00-12.webmailer.de") by vger.kernel.org with ESMTP
+	id <S261173AbSJLM6F>; Sat, 12 Oct 2002 08:58:05 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] tasks.h
+Date: Sat, 12 Oct 2002 17:03:11 +0200
+User-Agent: KMail/1.4.3
+Cc: John Levon <levon@movementarian.org>
+References: <Pine.LNX.4.33.0210120842070.25918-100000@gans.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.33.0210120842070.25918-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20021012123739.E4D284B43@oscar.casa.dyndns.org>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210121703.11220.arnd@bergmann-dalldorf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Saturday 12 October 2002 08:59, Tim Schmielau wrote:
 
-> PS: NOTE - I'm not going to merge either EVMS or LVM2 right now as things
-> stand.  I'm not using any kind of volume management personally, so I just
-> don't have the background or inclination to walk through the patches and
-> make that kind of decision. My non-scientific opinion is that it looks
-> like the EVMS code is going to be merged, but ..
-> 
-> Alan, Jens, Christoph, others - this is going to be an area where I need
-> input from people I know, and preferably also help merging. I've been
-> happy to see the EVMS patches being discussed on linux-kernel, and I just
-> wanted to let people know that this needs outside help.
+> More work will be neccessary to completely disentangle both files, so that
+> sched.h doesn't need to include tasks.h. Biggest obstacle is get_task_mm()
+> which needs both task_struct and mm_struct. Maybe I'll break out something
+> like a <linux/task_mm.h> later.
 
-I support a SAP system (so far on solaris) at work.  I make extensive use
-of a volume manager there.  On linux I have tried both LVM1 and EVMS.  I
-stopped using LVM1 the thrid time it caused me to restore after a clean 
-boot...  This problem may well have been fixed in LVM2 - I have not used it.
-On the other had EVMS has never scrambled my disks.  It also offers more
-options, including an encapsulated LVM1.  From my perspective EVMS wins.
+AFAICS, get_task_mm() is never used in a fast path, only in
+ptrace and procfs code where a few cpu cycles don't hurt anyone.
+Any reason why you can't just make it an extern function?
 
-Ed Tomlinson
+	Arnd <><

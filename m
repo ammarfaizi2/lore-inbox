@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274976AbTHFTIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 15:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274978AbTHFTIy
+	id S270859AbTHFTH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 15:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270862AbTHFTH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 15:08:54 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24584
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S274976AbTHFTIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 15:08:52 -0400
-Date: Wed, 6 Aug 2003 12:08:50 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Diego Calleja Garc?a <diegocg@teleline.es>
-Cc: reiser@namesys.com, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: Filesystem Tests
-Message-ID: <20030806190850.GF21290@matchmail.com>
-Mail-Followup-To: Diego Calleja Garc?a <diegocg@teleline.es>,
-	reiser@namesys.com, linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-References: <3F306858.1040202@mrs.umn.edu> <20030805224152.528f2244.akpm@osdl.org> <3F310B6D.6010608@namesys.com> <20030806183410.49edfa89.diegocg@teleline.es> <20030806180427.GC21290@matchmail.com> <20030806204514.00c783d8.diegocg@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030806204514.00c783d8.diegocg@teleline.es>
-User-Agent: Mutt/1.5.4i
+	Wed, 6 Aug 2003 15:07:26 -0400
+Received: from tribal.metalab.unc.edu ([152.2.210.122]:54180 "EHLO
+	tribal.metalab.unc.edu") by vger.kernel.org with ESMTP
+	id S270859AbTHFTHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 15:07:25 -0400
+Date: Wed, 6 Aug 2003 15:07:21 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-pcmcia <linux-pcmcia@lists.infradead.org>,
+       Daniel Ritz <daniel.ritz@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] ToPIC specific init for yenta_socket
+In-Reply-To: <20030806194430.D16116@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.56.0308061452310.3849@marabou.research.att.com>
+References: <200308062025.08861.daniel.ritz@gmx.ch> <20030806194430.D16116@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 08:45:14PM +0200, Diego Calleja Garc?a wrote:
-> El Wed, 6 Aug 2003 11:04:27 -0700 Mike Fedyk <mfedyk@matchmail.com> escribi?:
-> 
-> > 
-> > Journaled filesystems have a much smaller chance of having problems after a
-> > crash.
-> 
-> I've had (several) filesystem corruption in a desktop system with (several)
-> journaled filesystems on several disks. (They seem pretty stable these days,
-> though)
-> 
-> However I've not had any fs corrution in ext2; ext2 it's (from my experience)
-> rock stable.
-> 
-> Personally I'd consider twice the really "serious" option for a serious server.
+On Wed, 6 Aug 2003, Russell King wrote:
 
-I've had corruption caused by hardware, and nothing else.  I haven't run
-into any serious bugs.
+> On Wed, Aug 06, 2003 at 08:25:08PM +0200, Daniel Ritz wrote:
+> > this patch adds override functions for the ToPIC family of controllers.
+> > also adds the device id for ToPIC100 and (untested) support for zoom
+> > video for ToPIC97/100.
+> >
+> > tested with start/stop and suspend/resume.
+>
+> We currently have some fairly serious IRQ problems with yenta at the
+> moment.  I'm holding all patches until we get this problem resolved -
+> it seems to be caused by several bad changes over the past couple of
+> years accumulating throughout the 2.5 series.
 
-But with servers, the larger your filesystem, the longer it will take to
-fsck.  And that is bad for uptime.  Period.
+I read the PCMCIA list, but not LKML, and I have no idea what problems you
+are talking about.  Could you please explain of give a pointer to a
+previous post?  I could cross-check the problem against plx9052 driver.
 
-I would be running ext2 also if I wasn't running so many test kernels (and
-they do oops on you), and I've been glad that I didn't have to fsck every
-time I oopsed (though I do every once in a while, just to make sure).
+I'm sorry for asking you to spend some time and possibly repeat something
+that was said before, but sometimes talking about the problem makes it
+easier to understand it and find the best solution.
+
+> Also, assigning to socket->socket.ops->init modifies the global
+> yenta_socket_operations structure, which I'm far from happy about.
+
+The same is done for TI and Ricoh bridges.  Just search the sources for
+"socket->socket.ops->init".  You may have a good reason to be unhappy, but
+coherent code is normally easier to fix than a bunch of different hacks.
+
+-- 
+Regards,
+Pavel Roskin

@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbUC1U1t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 15:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUC1U1s
+	id S262468AbUC1Uc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 15:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbUC1Uc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 15:27:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21472 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262453AbUC1U0K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 15:26:10 -0500
-Message-ID: <406734D3.7070501@pobox.com>
-Date: Sun, 28 Mar 2004 15:25:55 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+	Sun, 28 Mar 2004 15:32:56 -0500
+Received: from fw.osdl.org ([65.172.181.6]:46000 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262461AbUC1Ucx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 15:32:53 -0500
+Date: Sun, 28 Mar 2004 12:32:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, axboe@suse.de, wli@holomorphy.com,
+       nickpiggin@yahoo.com.au, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406616EE.80301@pobox.com> <40667FAB.2090802@stesmi.com>
-In-Reply-To: <40667FAB.2090802@stesmi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20040328123240.4332964e.akpm@osdl.org>
+In-Reply-To: <406720A7.1050501@pobox.com>
+References: <4066021A.20308@pobox.com>
+	<200403282030.11743.bzolnier@elka.pw.edu.pl>
+	<20040328183010.GQ24370@suse.de>
+	<200403282045.07246.bzolnier@elka.pw.edu.pl>
+	<406720A7.1050501@pobox.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski wrote:
-> Hi Jeff.
-> 
->> I'm about to add a raft of SATA-2 hardware, all of which are queued. 
->> The standard depth is 32, but one board supports a whopping depth of 256.
-> 
-> 
-> Speaking of which .. I just read an announcement that someone (of course
-> the name eludes me) announced a DVD Burner that's SATA.
-> 
-> Found it:
-> 
-> http://www.plextor.com/english/news/press/712SA_pr.htm
-> 
-> a) Are there provisions in the SATA (1) SPEC for support of
-> non-disk units?
-> 
-> b) if (strcmp(a, "no"))
->      Do you know anything about it, ie is it SATA1 or 2 or what?
-> 
-> c) Let's ponder one gets a unit like this - is it usable with
-> libata yet?
-> 
-> d) if (strcmp(c, "no"))
->      Will it? :)
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+>  I like generic tunables such as "laptop mode" or "low latency" or "high 
+>  throughput".  These sorts of tunables should affect the "automagic" 
+>  calculations.
 
+Not sure.  Things like "low latency" and "high throughput" may need other
+things, such as "seek latency" and "bandwidth" as _inputs_, not as outputs.
 
-SATA ATAPI looks and works just like PATA ATAPI, with one notable 
-exception:  S/ATAPI will include "asynchronous notification", a feature 
-that allows you to eliminate the polling of the cdrom driver that 
-normally occurs.
-
-You can use ATAPI on SATA today, using a PATA->SATA bridge.  In fact 
-that's the only way I can test SATA ATAPI at all, right now.
-
-I hope somebody sends me one of these Plextor devices for testing ;-)
-
-	Jeff
-
-
-
+Such device parameters should have reasonable defaults, and use a userspace
+app which runs a quick seek latency and bandwidth test at mount-time,
+poking the results into sysfs.

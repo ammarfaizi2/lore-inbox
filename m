@@ -1,33 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVCTCkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVCTC7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVCTCkP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 21:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVCTCkP
+	id S261347AbVCTC7S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 21:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVCTC7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 21:40:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20139 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261385AbVCTCkL (ORCPT
+	Sat, 19 Mar 2005 21:59:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:50721 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261347AbVCTC7Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 21:40:11 -0500
-Date: Sat, 19 Mar 2005 18:40:05 -0800
-From: Richard Henderson <rth@redhat.com>
-To: jgarzik@pobox.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] _raw_read_trylock for alpha
-Message-ID: <20050320024005.GA11737@redhat.com>
-References: <20050319203933.GD7404@devserv.devel.redhat.com>
+	Sat, 19 Mar 2005 21:59:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=GdFOjU2er2Pcknth8jz6Vtdz8lSy+GC680tToKtNPNNJMA82AA7uyxUKBACnNJFA1dauMKi+rg1UZaDCelJ5IcaL6qb5yJP5+i0CqJ60CN5YtZNmP28DaAiISBJEY6/EKI6AXO1qCrTP3GwX5RXwb8eMgjrjRl5Pqy0M4kS/MAE=
+Message-ID: <df47b87a050319185918be6c19@mail.gmail.com>
+Date: Sat, 19 Mar 2005 21:59:16 -0500
+From: Ioan Ionita <opslynx@gmail.com>
+Reply-To: Ioan Ionita <opslynx@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Unreliable TCP?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050319203933.GD7404@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 19, 2005 at 03:39:33PM -0500, Jeff Garzik wrote:
-> Don't send this patch upstream until its been verified to actually work.
-
-It certainly won't.  I'll gen up something soon.
-
-
-r~
+Hello.  I apologize if this may sound stupid/unknowledgeable.  I'm
+currently fooling around with real time voice conferencing
+applications which use the UDP protocol.  However, certain firewalls
+don't allow UDP traffic, therefore I tried UDP over TCP as a
+workaround.  This failed miserably, as the ACK aspect of TCP, which
+delays everything when a packet is lost or received out of order makes
+voice conferencing anything but real time.  So I was wondering if
+there's any way to disable the whole reliability checking of TCP in
+the linux kernel. Maybe configure the kernel to never request the
+retransmission of a packet, even if it detects packet loss/bad order?
+Thanks :)

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUH0K2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUH0K2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUH0K2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 06:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUH0K2Y
+	id S263540AbUH0K2j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 06:28:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUH0K2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 06:28:24 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:51210 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262574AbUH0K2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 06:28:22 -0400
-Date: Fri, 27 Aug 2004 11:28:13 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       steved@redhat.com, dwmw2@redhat.com
-Subject: Re: [PATCH] CacheFS - general filesystem cache
-Message-ID: <20040827112813.A30219@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-	akpm@osdl.org, linux-kernel@vger.kernel.org, steved@redhat.com,
-	dwmw2@redhat.com
-References: <17777.1093566183@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <17777.1093566183@redhat.com>; from dhowells@redhat.com on Fri, Aug 27, 2004 at 01:23:03AM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 27 Aug 2004 06:28:39 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:57841 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S263540AbUH0K2f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 06:28:35 -0400
+Date: Fri, 27 Aug 2004 11:28:34 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [bk pull] DRM tree - i915 driver only..
+Message-ID: <Pine.LNX.4.58.0408271123060.32411@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 01:23:03AM +0100, David Howells wrote:
-> 
-> Hi Linus, Andrew,
-> 
-> I've packaged my generic filesystem cache filesystem into patches and also
-> produced patches for my AFS filesystem to use it. Work is also in progress to
-> alter the NFS client use this interface too, and I think the ISO9660
-> filesystem could also benefit.
-> 
-> I've put a tarball of them on my Red Hat webpage because one of them is rather
-> large. If you grab:
-> 
-> 	http://people.redhat.com/~dhowells/cachefs/cachefs-patches.tar.bz2
 
-Umm, a tarball is the worst possible distribution method for patches.
-Either inline them in the mail or if they are too large provide a direct
-url to the patch.
+Hi Linus,
+
+Please do a
+	bk pull bk://drm.bkbits.net/drm-2.6
+
+This is just the i915 driver, which is required for the upcoming Xorg
+release,
+
+the patch is quite large so I've not attached it, its also at
+http://www.skynet.ie/~airlied/patches/dri/i915_linux.diff
+
+It's been run through Lindent.
+
+Dave.
+
+ drivers/char/drm/Kconfig        |   13
+ drivers/char/drm/Makefile       |    2
+ drivers/char/drm/drm_os_linux.h |    4
+ drivers/char/drm/drm_pciids.h   |    8
+ drivers/char/drm/i915.h         |   88 ++++
+ drivers/char/drm/i915_dma.c     |  714 ++++++++++++++++++++++++++++++++++++++++
+ drivers/char/drm/i915_drm.h     |  154 ++++++++
+ drivers/char/drm/i915_drv.c     |   31 +
+ drivers/char/drm/i915_drv.h     |  214 +++++++++++
+ drivers/char/drm/i915_irq.c     |  162 +++++++++
+ drivers/char/drm/i915_mem.c     |  347 +++++++++++++++++++
+ 11 files changed, 1736 insertions(+), 1 deletion(-)
+
 

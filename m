@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262432AbTCRJ5q>; Tue, 18 Mar 2003 04:57:46 -0500
+	id <S262428AbTCRJ5a>; Tue, 18 Mar 2003 04:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262433AbTCRJ5q>; Tue, 18 Mar 2003 04:57:46 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:648 "EHLO smtp2.clear.net.nz")
-	by vger.kernel.org with ESMTP id <S262432AbTCRJ5o>;
-	Tue, 18 Mar 2003 04:57:44 -0500
-Date: Tue, 18 Mar 2003 22:06:20 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [PATCH] Don't refill pcp lists during SWSUSP.
-In-reply-to: <20030318081809.GB10472@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: akpm@digeo.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1047981979.2206.3.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1047945372.1714.19.camel@laptop-linux.cunninghams>
- <20030318081809.GB10472@atrey.karlin.mff.cuni.cz>
+	id <S262432AbTCRJ5a>; Tue, 18 Mar 2003 04:57:30 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:22788 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262428AbTCRJ53>; Tue, 18 Mar 2003 04:57:29 -0500
+Date: Tue, 18 Mar 2003 11:08:08 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: CaT <cat@zip.com.au>
+cc: Linus Torvalds <torvalds@transmeta.com>, <hch@lst.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.65
+In-Reply-To: <20030318052257.GB635@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0303181040150.12110-100000@serv>
+References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
+ <20030318052257.GB635@zip.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pavel.
+Hi,
 
-You need to remember that this is infrastructure for later. I tried it
-other ways and would have needed a number of calls to drain local pages.
-Perhaps I'm taking the wrong approach, trying to feed a patch at a time
-when you can't see how it all fits together. If you like, I'll send a
-'whole kit and caboodle' patch as soon as I get the last bugs ironed
-out. I have it suspending and resuming at the moment, but have one last
-bug to iron out that's stopping me getting back from
-do_suspend_lowlevel. It's just a matter of time, and then that will be
-fixed. I could send you a monster patch then :> (I'll be posting it
-somewhere anyway - I'll want others to test it, of course).
+On Tue, 18 Mar 2003, CaT wrote:
 
-Regards,
-
-Nigel
-
-On Tue, 2003-03-18 at 20:18, Pavel Machek wrote:
-> Hi!
+> One question. Should PCMCIA_AHA152X only be compilable as a module? I
+> found this in Kconfig:
 > 
-> > Here's another patch (the last for a little while, I promise!). It stops
-> > the pcp lists from being refilled while SWSUSP is running. Despite the
-> > comment in the page, drain_local_pages does only need to get called once
-> > right now, but I have patches coming that will (DV) change that. This
-> > patch is thus groundwork for them.
+> config PCMCIA_AHA152X
+>         tristate "Adaptec AHA152X PCMCIA support"
+>         depends on m
+>         help
+>           Say Y here if you intend to attach this type of PCMCIA SCSI host
+>           adapter to your computer.
+> 	  ...
 > 
-> This adds external (and pretty  ugly) dependency of swsusp on the
-> outside. And as it still needs to drain_local_pages(), nothing is
-> gained. I believe it is better to just call drain_local_pages few
-> times. Magic hooks "if suspending, don't do this" seem like wrong
-> approach to me.
-> 
-> 								Pavel
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+> The help and the tristate seems to indicate that I should be able to
+> compile it into the kernel, but menuconfig wont let me. This is
+> presumably due to the dependancy but is it right?
 
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
+Yes, this was the behaviour of the old config tools, which was restored 
+with 2.5.65. This means 'm' is a marker that this thing works only as a 
+module.
+If you want the other behaviour, that it can only be built as a module in 
+a modular kernel, but compile it into a nonmodular kernel, you can use "m 
+|| !MODULES" instead.
+
+bye, Roman
 

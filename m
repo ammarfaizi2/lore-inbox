@@ -1,61 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276576AbRJGSnd>; Sun, 7 Oct 2001 14:43:33 -0400
+	id <S276594AbRJGSud>; Sun, 7 Oct 2001 14:50:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276587AbRJGSnN>; Sun, 7 Oct 2001 14:43:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53816 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S276576AbRJGSnK>; Sun, 7 Oct 2001 14:43:10 -0400
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.LNX.3.96.1011006210743.7808D-100000@artax.karlin.mff.cuni. cz>
-	<482450248.1002414411@[195.224.237.69]>
-From: ebiederman@uswest.net (Eric W. Biederman)
-In-Reply-To: <482450248.1002414411@[195.224.237.69]>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-Date: 07 Oct 2001 12:32:55 -0600
-Message-ID: <m1u1xbwbag.fsf@frodo.biederman.org>
+	id <S276600AbRJGSuY>; Sun, 7 Oct 2001 14:50:24 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45065 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S276594AbRJGSuR> convert rfc822-to-8bit; Sun, 7 Oct 2001 14:50:17 -0400
+Date: Sun, 7 Oct 2001 11:49:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux-2.4.11-pre5
+Message-ID: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id LAA09967
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> writes:
 
-> Mikulas,
-> 
-> > It uses vmalloc only when __GFP_VMALLOC flag is given - and so it is
-> > expected to not use __GFP_VMALLOC flag in IRQ.
-> 
-> Ah OK. If your point is that people use GFP_ATOMIC when it's
-> not needed, and demand physically contiguous memory when only
-> virtually contiguous memory is needed, in several places in
-> the kernel, then you are correct. [I am not convinced that
-> vmalloc() is the best way to fix it though.]
-> 
-> Most of the order>0 users of __get_free_pages() don't
-> 'need' to do that. For instance I was convinced that networking
-> code needed this for larger than 4k packets (pre-fragmentation
-> or post-prefragmentation) until someone pointed out that
-> the kiovec stuff was there, waiting to be used, if someone
-> made the code changes. But the code changes are non-trivial.
+USB and quota update.
 
-The zero copy stuff introduced in 2.4.4 allows for skb fragments.
-I haven't seen any of the network drivers using it on their receive
-path but it should be possible.
+And the fix for VM breakage in pre4.
 
-> Note also that something (not sure what) has made fragmentation
-> increasingly prevalent over the years since the buddy allocator
-> was originally put in. 
+		Linus
 
-Actually it seems to be situations like the stack now being two
-contiguous pages instead of one, where the demand for contiguous
-memory has increased instead of the amount of fragmentation having
-increased. 
+-----
 
-Eric
+pre5:
+ - Keith Owens: module exporting error checking
+ - Greg KH: USB update
+ - Paul Mackerras: clean up wait_init_idle(), ppc prefetch macros
+ - Jan Kara: quota fixes
+ - Abraham vd Merwe: agpgart support for Intel 830M
+ - Jakub Jelinek: ELF loader cleanups
+ - Al Viro: more cleanups
+ - David Miller: sparc64 fix, netfilter fixes
+ - me: tweak resurrected oom handling
+
+pre4:
+ - Al Viro: separate out superblocks and FS namespaces: fs/super.c fathers
+   fs/namespace.c
+ - David Woodhouse: large MTD and JFFS[2] update
+ - Marcelo Tosatti: resurrect oom handling
+ - Hugh Dickins: add_to_swap_cache racefix cleanup
+ - Jean Tourrilhes: IrDA update
+ - Martin Bligh: support clustered logical APIC for >8 CPU x86 boxes
+ - Richard Henderson: alpha update
+
+pre3:
+ - Al Viro: superblock cleanups, partition handling fixes and cleanups
+ - Ben Collins: firewire update
+ - Jeff Garzik: network driver updates
+ - Urban Widmark: smbfs updates
+ - Kai Mäkisara: SCSI tape driver update
+ - various: embarrassing lack of error checking in ELF loader
+ - Neil Brown: md formatting cleanup.
+
+pre2:
+ - me/Al Viro: fix bdget() oops with block device modules that don't
+   clean up after they exit
+ - Alan Cox: continued merging (drivers, license tags)
+ - David Miller: sparc update, network fixes
+ - Christoph Hellwig: work around broken drivers that add a gendisk more
+   than once
+ - Jakub Jelinek: handle more ELF loading special cases
+ - Trond Myklebust: NFS client and lockd reclaimer cleanups/fixes
+ - Greg KH: USB updates
+ - Mikael Pettersson: sparate out local APIC / IO-APIC config options
+
+pre1:
+ - Chris Mason: fix ppp race conditions
+ - me: buffers-in-pagecache coherency, buffer.c cleanups
+ - Al Viro: block device cleanups/fixes
+ - Anton Altaparmakov: NTFS 1.1.20 update
+ - Andrea Arcangeli: VM tweaks
+

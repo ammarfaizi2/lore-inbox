@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313769AbSDHVwN>; Mon, 8 Apr 2002 17:52:13 -0400
+	id <S313773AbSDHVzH>; Mon, 8 Apr 2002 17:55:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313770AbSDHVwM>; Mon, 8 Apr 2002 17:52:12 -0400
-Received: from jalon.able.es ([212.97.163.2]:39381 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S313769AbSDHVwL>;
-	Mon, 8 Apr 2002 17:52:11 -0400
-Date: Mon, 8 Apr 2002 23:51:58 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Robert Love <rml@tech9.net>
-Cc: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: system call for finding the number of cpus??
-Message-ID: <20020408215158.GA13043@werewolf.able.es>
-In-Reply-To: <6B003D25ADBDE347B5542AFE6A55B42E01A4451A@tayexc13.americas.cpqcorp.net> <1018301108.913.167.camel@phantasy>
-Mime-Version: 1.0
+	id <S313774AbSDHVzF>; Mon, 8 Apr 2002 17:55:05 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.104]:64785 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S313773AbSDHVzA> convert rfc822-to-8bit; Mon, 8 Apr 2002 17:55:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
 Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+Subject: RE: system call for finding the number of cpus??
+Date: Mon, 8 Apr 2002 17:54:58 -0400
+Message-ID: <6B003D25ADBDE347B5542AFE6A55B42E01A44520@tayexc13.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: system call for finding the number of cpus??
+Thread-Index: AcHfR1+v4jJ+uly7R4WUvdqu8Qc6UwAAA41w
+From: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>
+To: "Davide Libenzi" <davidel@xmailserver.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 08 Apr 2002 21:54:58.0266 (UTC) FILETIME=[067E3BA0:01C1DF48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't think that (sysconf(_SC_NPROCESSORS_CONF)) command works on linux. It works on Unix. I tried that. It returns 1 when there are 4 processors on linux.
 
-On 2002.04.08 Robert Love wrote:
->On Mon, 2002-04-08 at 17:18, Kuppuswamy, Priyadarshini wrote:
->
->>   I have a script that is using the /cpu/procinfo file to determine the
->>  number of cpus present in the system. But I would like to implement it 
->> using a system call rather than use the environment variables?? I couldn't
->> find a system call for linux that would give me the result. Could anyone
->> please let me know if there is one for redhat linux??
->
->Linux does not implement such a syscall.  Note
->
 
-How about this:
+-----Original Message-----
+From: Davide Libenzi [mailto:davidel@xmailserver.org]
+Sent: Monday, April 08, 2002 5:57 PM
+To: Kuppuswamy, Priyadarshini
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: system call for finding the number of cpus??
 
-#include <sys/sysinfo.h>       
-...
-    //nproc = get_nprocs(); // Available processors
-    nproc = get_nprocs_conf(); // Configured processors (some can be down...)
 
-(glibc 2.2.5, but i think it keeps working since time ago).
+On Mon, 8 Apr 2002, Kuppuswamy, Priyadarshini wrote:
 
-BTW, why linux does not implement sysconf(_SC_NPROC_[CONF,ONLN]) ??
+> Hi!
+>   I have a script that is using the /cpu/procinfo file to determine the
+> number of cpus present in the system. But I would like to implement it
+> using a system call rather than use the environment variables?? I
+> couldn't find a system call for linux that would give me the result.
+> Could anyone please let me know if there is one for redhat linux??
 
-TIA
+sysconf(_SC_NPROCESSORS_CONF);
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre6-jam1 #1 SMP Sun Apr 7 00:50:05 CEST 2002 i686
+
+
+
+- Davide
+
+

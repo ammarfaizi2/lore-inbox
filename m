@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbTE2JtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 05:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTE2JtK
+	id S262063AbTE2JsH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 05:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTE2JsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 05:49:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54436 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262066AbTE2JtI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 05:49:08 -0400
-Date: Thu, 29 May 2003 03:01:16 -0700 (PDT)
-Message-Id: <20030529.030116.115912655.davem@redhat.com>
-To: ak@suse.de
-Cc: pavel@suse.cz, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: must-fix list, v5
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030529094648.GB15333@wotan.suse.de>
-References: <p73wuga6rin.fsf@oldwotan.suse.de>
-	<20030529.023203.41634240.davem@redhat.com>
-	<20030529094648.GB15333@wotan.suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 May 2003 05:48:07 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:3763 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S262063AbTE2JsG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 05:48:06 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc6
+Date: Thu, 29 May 2003 20:02:34 +1000
+User-Agent: KMail/1.5.1
+References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305292002.34494.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: Thu, 29 May 2003 11:46:48 +0200
+On Thu, 29 May 2003 10:55, Marcelo Tosatti wrote:
+> Hi,
+>
+> Here goes -rc6. I've decided to delay 2.4.21 a bit and try Andrew's fix
+> for the IO stalls/deadlocks.
+>
+> Please test it.
+>
+>
 
-   I believe the remaining limits are harmless, but of course it's cleaner
-   to not have them.
-   
-The ethtool one was the worst.  It's why I didn't copy your code :-)
+> Andrew Morton <akpm@digeo.com>:
+>   o Fix IO stalls and deadlocks
 
-   If you use the function that extensively it would be better to allow
-   it to nest (e.g. add a field for the current offset in  task struct). 
-   Otherwise someone will get it wrong sooner or later.
-   (like the sock/tw_bucket ;) 
-   
-This is why I kept it private to the compat layer, I see no reason
-to let it slip into other code at all.
+As this is only patches 1 and 2 from akpm's suggested changes I was wondering 
+if my report got lost in the huge thread so I've included it here:
 
-   Ok thanks. I will port it to my 2.4 code.
-   
-   Did you test them all?
+Ok patch combination final score for me is as follows in the presence of a 
+large continuous write:
+1 No change
+2 No change
+3 improvement++; minor hangs with reads
+1+2 improvement+++; minor pauses with switching applications
+1+2+3 improvement++++; no pauses
 
-I tested most of them, but very lightly.  I didn't test the
-SG_IO stuff but that barely worked even beforehand :-)
+Applications may start up slowly that's fine. The mouse cursor keeps spinning 
+and responding at all times though with 1+2+3 which it hasn't done in 2.4 for 
+a year or so.
+
+Is there a reason the 3rd patch was omitted?
+
+Con

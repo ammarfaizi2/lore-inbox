@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUGHEVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUGHE1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUGHEVM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 00:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUGHEVM
+	id S265768AbUGHE1W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 00:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265774AbUGHE1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 00:21:12 -0400
-Received: from postoffice01.Princeton.EDU ([128.112.129.75]:32702 "EHLO
-	Princeton.EDU") by vger.kernel.org with ESMTP id S265772AbUGHEVK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 00:21:10 -0400
-Date: Thu, 8 Jul 2004 00:21:01 -0400 (EDT)
-From: "Alexey N. Spiridonov" <aspirido@Princeton.EDU>
-Cc: Antille Julien <julien.antille@eivd.ch>
-Subject: Re: kacpid takes 99% of CPU when laptop lid is closed
-Message-Id: <20040708001546.32d324a4@sheepiness>
-In-Reply-To: <200406161244.55502.julien.antille@eivd.ch>
-References: <200406161244.55502.julien.antille@eivd.ch>
-Organization: Princeton University
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 8 Jul 2004 00:27:22 -0400
+Received: from [202.125.86.130] ([202.125.86.130]:22718 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S265768AbUGHE1V convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 00:27:21 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: Is there any equivalent function for itoa
+Date: Thu, 8 Jul 2004 09:53:51 +0530
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB34811038A53@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Is there any equivalent function for itoa
+Thread-Index: AcRko1+Qzvbp76d2RLGBv3oXPev0GA==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have exactly the same laptop as Antille and exactly the same problem.
+Hi
 
-I did some stuff to diagnose it. I have the output of oprofile, my startup messages with ACPI debug messages enabled, and the messages when the lid is closed for about 2 seconds.
-The debug configuration is: all components, and level VERBOSITY1.
+I have not found any itoa function in the linux library. 
 
-They're all available here:
-  http://www.math.princeton.edu/~aspirido/gpe-bug/
-Watch out -- the two debug logs, uncompressed, are  pretty big (~20mb).
+Is there any equivalent for that?
 
-Here's the DSDT for the laptop:
-http://acpi.sourceforge.net/dsdt/tables/Dell/Inspiron_2650/Dell-Inspiron_2650-A05-original.asl.gz
+Thanks and regards,
 
-I know next to nothing about ACPI, but I hope I can help debug it, if it hasn't been fixed.
-Otherwise, I'd like to help test the patch.
-
-Best,
-
-Alexey
-
+Srinivas G

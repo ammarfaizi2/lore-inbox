@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbUJ0Nbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbUJ0Ngp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbUJ0Nbj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 09:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0Nbj
+	id S262437AbUJ0Ngp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 09:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUJ0Ngo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 09:31:39 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:47254 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262435AbUJ0N3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 09:29:43 -0400
-Subject: Re: Strange IO behaviour on wakeup from sleep
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <1098882498.9497.17.camel@gaston>
-References: <1098845804.606.4.camel@gaston>
-	 <Pine.LNX.4.53.0410271308360.9839@gockel.physik3.uni-rostock.de>
-	 <1098878790.9478.11.camel@gaston>
-	 <1098882118.4097.10.camel@desktop.cunninghams>
-	 <1098882498.9497.17.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1098883255.4097.12.camel@desktop.cunninghams>
+	Wed, 27 Oct 2004 09:36:44 -0400
+Received: from nessie.weebeastie.net ([220.233.7.36]:25735 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262437AbUJ0NfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 09:35:05 -0400
+Date: Wed, 27 Oct 2004 23:34:31 +1000
+From: CaT <cat@zip.com.au>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] ide-2.6 update
+Message-ID: <20041027133431.GF1127@zip.com.au>
+References: <58cb370e04102706074c20d6d7@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 27 Oct 2004 23:20:55 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e04102706074c20d6d7@mail.gmail.com>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
+On Wed, Oct 27, 2004 at 03:07:14PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> <bzolnier@trik.(none)> (04/10/26 1.2192)
+>    [ide] pdc202xx_old: PDC20267 needs the same LBA48 fixup as PDC20265
 
-On Wed, 2004-10-27 at 23:08, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-10-27 at 23:01 +1000, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Wed, 2004-10-27 at 22:06, Benjamin Herrenschmidt wrote:
-> > > The problem has been observed on ppc, while this patch only affects
-> > > i386...
-> > 
-> > Another shot in the dark....
-> > 
-> > Nothing interesting about /proc/interrupts?
-> 
-> Nope, looked already, interrupts seem to flow normally... the box works,
-> there are no errors or lost interrupts, it's just that disk IOs are
-> _extremely_ slow...
+What would the symptoms of this bug be? I've got a PDC20267 and I'm
+having a few issues transferring from hde to hdh (ie across two ports)
+it seems. My work at duplicating things seems to work best when I do a
+transfer like that rather then going from say, a totall different
+controller to the pdc (hdh) or even from generated input to the pdc (hdh).
 
-One more, if I may... no processes sucking CPU? (That would indicate a
-thread not properly handled by the refrigerating).
-
-Regards,
-
-Nigel
 -- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Everyone lives by faith. Some people just don't believe it.
-Want proof? Try to prove that the theory of evolution is true.
-
+    Red herrings strewn hither and yon.

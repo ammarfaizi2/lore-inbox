@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265635AbRGFAX4>; Thu, 5 Jul 2001 20:23:56 -0400
+	id <S264872AbRGFAd6>; Thu, 5 Jul 2001 20:33:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265640AbRGFAXr>; Thu, 5 Jul 2001 20:23:47 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:21054 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S265635AbRGFAXh>;
-	Thu, 5 Jul 2001 20:23:37 -0400
-Message-ID: <3B4504FA.A9DF3682@melbourne.sgi.com>
-Date: Fri, 06 Jul 2001 10:23:22 +1000
-From: Tony Kavadias <tonza@melbourne.sgi.com>
-Organization: SGI Australia, Pty. Ltd.
-X-Mailer: Mozilla 4.77C-SGI [en] (X11; I; IRIX 6.5-ALPHA-1287440220 IP32)
-X-Accept-Language: en
+	id <S265646AbRGFAdr>; Thu, 5 Jul 2001 20:33:47 -0400
+Received: from mcp.physics.ucsb.edu ([128.111.16.33]:49416 "EHLO
+	mcp.physics.ucsb.edu") by vger.kernel.org with ESMTP
+	id <S264872AbRGFAdh>; Thu, 5 Jul 2001 20:33:37 -0400
+Date: Thu, 5 Jul 2001 17:33:36 -0700 (PDT)
+From: David Whysong <dwhysong@physics.ucsb.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 4-order allocation failed
+Message-ID: <Pine.LNX.4.30.0107051730330.13297-100000@sal.physics.ucsb.edu>
 MIME-Version: 1.0
-To: asun@cobaltnet.com
-CC: linux-kernel@vger.kernel.org
-Subject: Support for HFS Plus?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Jes Sorensen (jes@sunsite.dk) wrote:
 
-I don't know whether this is the right place to send this question,
-but do you have any software for Linux which allows me to mount
-HFS Plus file systems on a Linux 2.4.x kernel?
+>You ran out of memory, ie. there were no more free blocks of 16
+>consecutive pages available in the system. This is what happens on a
+>system with little memory or which is loaded with memory intensive
+>applications.
 
-I am particularly interested in mounting file systems which have
-been created under Mac OS 9.1 or Mac OS X.
+I'm seeing the same thing here on a machine with 256 MB RAM and 1.5
+gigabytes of swap. There is no chance I am using anywhere near that
+much virtual memory.
 
-Thanks.
+Something is wrong with the MM in 2.4.6-pre9.
 
--- 
-------------------------------------------------------------------------
-    Tony Kavadias,                           E-mail: tonza@sgi.com
-    SGI Australia, Pty. Ltd.                  Phone: +61 3 9834 8200x234
-    357 Camberwell Road, Camberwell, VIC, 3124.
+Dave
+
+David Whysong                                       dwhysong@physics.ucsb.edu
+Astrophysics graduate student         University of California, Santa Barbara
+My public PGP keys are on my web page - http://www.physics.ucsb.edu/~dwhysong
+DSS PGP Key 0x903F5BD6  :  FE78 91FE 4508 106F 7C88  1706 B792 6995 903F 5BD6
+D-H PGP key 0x5DAB0F91  :  BC33 0F36 FCCD E72C 441F  663A 72ED 7FB7 5DAB 0F91
+

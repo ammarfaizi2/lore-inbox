@@ -1,25 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288830AbSCGAed>; Wed, 6 Mar 2002 19:34:33 -0500
+	id <S288801AbSCGAed>; Wed, 6 Mar 2002 19:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288914AbSCGAeZ>; Wed, 6 Mar 2002 19:34:25 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:23977 "EHLO
+	id <S288958AbSCGAe0>; Wed, 6 Mar 2002 19:34:26 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:24233 "EHLO
 	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S288801AbSCGAeK>; Wed, 6 Mar 2002 19:34:10 -0500
+	id <S288830AbSCGAeK>; Wed, 6 Mar 2002 19:34:10 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Hubertus Franke <frankeh@watson.ibm.com>
 Reply-To: frankeh@watson.ibm.com
 Organization: IBM Research
 To: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: Futexes III : performance numbers
-Date: Wed, 6 Mar 2002 19:25:45 -0500
+Date: Wed, 6 Mar 2002 19:35:05 -0500
 X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
 In-Reply-To: <E16iQrS-0005vY-00@wagner.rustcorp.com.au>
 In-Reply-To: <E16iQrS-0005vY-00@wagner.rustcorp.com.au>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020307003402.8A7503FE06@smtp.linux.ibm.com>
+Message-Id: <20020307003402.DBB263FE07@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261722AbREOX4c>; Tue, 15 May 2001 19:56:32 -0400
+	id <S261716AbREOX7C>; Tue, 15 May 2001 19:59:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261718AbREOX4M>; Tue, 15 May 2001 19:56:12 -0400
-Received: from mailproxy.de.uu.net ([192.76.144.34]:23714 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S261716AbREOX4A>; Tue, 15 May 2001 19:56:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Date: Wed, 16 May 2001 01:56:23 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <047801c0dd95$231331e0$6800000a@brownell.org>
-In-Reply-To: <047801c0dd95$231331e0$6800000a@brownell.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
+	id <S261720AbREOX6w>; Tue, 15 May 2001 19:58:52 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:28679 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S261716AbREOX6m>;
+	Tue, 15 May 2001 19:58:42 -0400
+To: <linux-kernel@vger.kernel.org>
+Cc: "Daniela P. R. Magri Squassoni" <daniela@cyclades.com>
+Subject: New generic HDLC available
+From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Date: 16 May 2001 01:28:28 +0200
+Message-ID: <m3bsoumbtv.fsf@intrepid.pm.waw.pl>
 MIME-Version: 1.0
-Message-Id: <01051601562302.01000@cookie>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 May 2001 01:16, David Brownell wrote:
->Only if it's augmented by additional device IDs, such as the
->"what 's the physical connection for this interface" sort of
->primitive that's been mentioned.
->[...]
-> I suppose that for network interface names, some convention for
-> interface ioctls would suffice to solve that "identify" step.  PCI
-> devices would return the slot_name, USB devices need something
-> like a patch I posted to linux-usb-devel a few months back.
+Hi,
 
-At this point of the discussion I would like to point to the Device Registry 
-patch (http://www.tjansen.de/devreg) that already solves these problems and 
-offers stable device ids for the identification of devices and finding their 
-/dev nodes.
+I've put new experimental version of my generic HDLC code on
+http://hq.pm.waw.pl/hdlc/ ( ftp://ftp.pm.waw.pl/pub/linux/hdlc/experimental/ )
 
-The devreg device id has four components: the bus identifier, the location of 
-the device (for pci bus number and slot number, for usb the bus number and a 
-list of port numbers), a model (product and device id) and, if available, a 
-serial number. 
-With the matching algorithm from the libdevreg library you can correctly 
-identifiy after a hotplug action or reboot
-- each device that has a serial numberas most of the better USB devices do, 
-even if it location has changed
-- a device without a serial number whose location has not changed
+Currently supported (hw drivers) are C101 and N2 (untested) boards.
+Protocols supported:
+- X.25 and PPP (via X.25 and syncppp routines)
+- Frame Relay (CCITT and ANSI LMI, or no LMI)
+- Cisco HDLC
+- raw HDLC (you can select NRZ/NRZI/Manchester/FM codes and parity)
 
-If you have a device without serial number and you changed its location the 
-device id can be used for a guess that is correct as long as you dont have 
-two devices of the same kind (same product and vendor ids). 
+This version uses new ioctl interface. Comments welcome.
 
-bye...
+No HDLC/FR bridging code yet. No Cisco LMI support (for FR) yet.
+No docs (except Documentation/networking/generic-hdlc.txt) yet.
+I'm thinking about implementing asynchronous HDLC driver.
+
+The patch has been generated against 2.4.4-ac6 tree. It should apply to
+pure 2.4.4 as well. Protocol support is now split into separate files
+hdlc_fr.c, hdlc_cisco.c etc.
+-- 
+Krzysztof Halasa
+Network Administrator

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270042AbRHGCcL>; Mon, 6 Aug 2001 22:32:11 -0400
+	id <S269436AbRHGDFP>; Mon, 6 Aug 2001 23:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270044AbRHGCcB>; Mon, 6 Aug 2001 22:32:01 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:13065 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S270041AbRHGCbu>; Mon, 6 Aug 2001 22:31:50 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: tulip driver problem
-Reply-To: klink@clouddancer.com
-Message-Id: <20010807023200.0E3D2784C1@mail.clouddancer.com>
-Date: Mon,  6 Aug 2001 19:32:00 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+	id <S270044AbRHGDEz>; Mon, 6 Aug 2001 23:04:55 -0400
+Received: from [211.100.84.134] ([211.100.84.134]:62990 "HELO linux.tcpip.cxm")
+	by vger.kernel.org with SMTP id <S269436AbRHGDEs>;
+	Mon, 6 Aug 2001 23:04:48 -0400
+Date: Tue, 7 Aug 2001 11:04:51 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: chen_xiangping@emc.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems in using loadLin
+Message-Id: <20010807110451.312b4ffd.linuxbest@soul.com.cn>
+In-Reply-To: <20010807105559.32d36713.hugang@linux.tcpip.cxm>
+In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC549@elway.lss.emc.com>
+	<20010807105559.32d36713.hugang@linux.tcpip.cxm>
+Organization: soul
+X-Mailer: Sylpheed version 0.5.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In clouddancer.list.kernel, Tom Rini wrote:
->
->On Mon, Aug 06, 2001 at 12:19:10PM -0400, Albert D. Cahalan wrote:
->
->> This is the Force PowerCore 6750 single-board computer with
->> a PowerPC processor and the DEC 21143 Ethernet chip.
->
->Just wondering, but when booting 2.4.x, do you see something like:
->"Unknown bridge resource %d: assuming transparent"
->for the tulip?
->
-
-Linux ns1.clouddancer.com 2.4.8-pre4 #3 SMP Sat Aug 4 12:32:55 PDT 2001 i686 unknown
-...
-Unknown bridge resource 0: assuming transparent
-Unknown bridge resource 1: assuming transparent
-Unknown bridge resource 2: assuming transparent
-...
-Linux Tulip driver version 0.9.15-pre6 (July 2, 2001)
-tulip0:  EEPROM default media type Autosense.
-tulip0:  Index #0 - Media MII (#11) described by a 21140 MII PHY (1) block.
-tulip0:  MII transceiver #0 config 1000 status 782d advertising 01e1.
-eth0: Digital DS21140 Tulip rev 34 at 0xb400, 00:80:C8:45:97:AF, IRQ 12.
-
-
-It's been working fine here, 3 cards over 2 computers.
-
-
-
--- 
-Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+> On Mon, 6 Aug 2001 10:20:46 -0400 
+> "chen, xiangping" <chen_xiangping@emc.com> wrote:
+> 
+> > Hi,
+> > 
+> > I am trying to use loadlin to boot up a machine. But after I 
+> > replaced the bzImage, the kernel fails to boot up. It prints 
+> > out error messages like:
+> > 	...
+> > 	VFS: Mounted root (ext2 filesystem) readonly
+> > 	Freeing unused kernel memory : 96K freed
+> > 	Warning: unable to open an initial console
+> > 	Kernel panic: No init found. Try passing init= option to kernel.
+> > 
+> > The boot.bat file is:
+> > 	loadlin.exe bzImage ro root=0x0821
+> > 
+> > Thanks,
+> > 
+> > Xiangping
+> 
+> 	I thinks this problem  that is root=0x821 is not real root partition.
+> 
+> -- 
+> Best Regard!
+> 礼！
+> ----------------------------------------------------
+> hugang : 胡刚 	GNU/Linux User
+> email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+> Tel    : +861068425741/2/3/4
+> Web    : http://www.soul.com.cn
+> 
+> 	Beijing Soul technology Co.Ltd.
+> 	   北京众志和达科技有限公司
+> ----------------------------------------------------

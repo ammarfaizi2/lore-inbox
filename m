@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263588AbTH0QRg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 12:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTH0QHi
+	id S263623AbTH0QLp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 12:11:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTH0QK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 12:07:38 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:57813 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S263588AbTH0QDF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 12:03:05 -0400
-Date: Wed, 27 Aug 2003 18:03:18 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: UP optimizations ..
-Message-ID: <20030827160315.GD26817@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Wed, 27 Aug 2003 12:10:28 -0400
+Received: from gw-nl5.philips.com ([212.153.235.109]:22510 "EHLO
+	gw-nl5.philips.com") by vger.kernel.org with ESMTP id S263610AbTH0QJU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 12:09:20 -0400
+Message-ID: <3F4CD7FC.4040309@basmevissen.nl>
+Date: Wed, 27 Aug 2003 18:10:36 +0200
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: usb-storage: how to ruin your hardware(?)
+References: <200308271511.h7RFBFHu017520@wildsau.idv.uni.linz.at>
+In-Reply-To: <200308271511.h7RFBFHu017520@wildsau.idv.uni.linz.at>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H.Rosmanith (Kernel Mailing List) wrote:
+>>>
+> okidok.... I got an new flashdisk from the vendor, but managed to ruin
+> it again. anyway, I also managed to repair it again. the vendor ships
+> a seperate formating-tool, which will repair the device, even when you
+> get "SCSI sense key errors".
+> 
 
-Hi Mikael!
-Hi Marcelo!
+Q for the specialists: What SCSI access can still work then? I'm 
+wondering if you can still write something to it. My first guess about 
+that vender tool was that it just writes a valid partition table to the 
+disk. The only problem is that you need to deduce the actual size of the 
+flashdisk. But that can be retrieved from some USB identification string.
 
-stumbled repeatedly over the patches (or what remained of them)
-from Mikael?, replacing task->processor and friends by inline
-functions task_cpu(task), to eliminate them on UP systems ...
+But it's more likely that it just uses some propriety interface to reset 
+the device.
 
-my questions: 
- - is there an up to date patchset?
- - is it planned to include this into 2.4.23?
+> however, I still don't understand what's going on and *why* it is not
+> allowed to format the drive "at will". I'd also would like to know how
+> this vendor supplied formating-tool works. Possibly some vendor-specific
+> usb-commands to ... do what? hm. I can only guess.
+> 
 
-TIA,
-Herbert
+You can use USB Snoopy <http://www.wingmanteam.com/usbsnoopy/> to find 
+out what that vendor tool (for Windows, I presume) does.
+
+Bas.
+
 

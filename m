@@ -1,41 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263137AbTLXDlY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 22:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTLXDlY
+	id S263303AbTLXEBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 23:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTLXEBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 22:41:24 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58785 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263137AbTLXDlX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 22:41:23 -0500
-Date: Wed, 24 Dec 2003 03:41:21 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ian Kent <raven@themaw.net>, greg@kroah.com, ULMO@Q.NET,
-       linux-kernel@vger.kernel.org
+	Tue, 23 Dec 2003 23:01:49 -0500
+Received: from herald.cc.purdue.edu ([128.210.11.29]:18661 "EHLO
+	herald.cc.purdue.edu") by vger.kernel.org with ESMTP
+	id S263303AbTLXEBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 23:01:47 -0500
+Date: Tue, 23 Dec 2003 23:01:45 -0500 (EST)
+From: "alex.g.goddard.1" <agoddard@purdue.edu>
+X-X-Sender: agoddard@herald.cc.purdue.edu
+To: linux-kernel@vger.kernel.org
 Subject: Re: DevFS vs. udev
-Message-ID: <20031224034121.GH4176@parcelfarce.linux.theplanet.co.uk>
-References: <20031223215910.GA15946@kroah.com> <Pine.LNX.4.33.0312240938450.890-100000@wombat.indigo.net.au> <20031223183820.5b297c50.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223183820.5b297c50.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1AYvs0-0000Xp-3G@O.Q.NET>
+Message-ID: <Pine.SOL.4.51.0312232236170.1447@herald.cc.purdue.edu>
+References: <E1AYvs0-0000Xp-3G@O.Q.NET>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 06:38:20PM -0800, Andrew Morton wrote:
- 
-> And yes, there are architectural/cleanliness issues with devfs.  In 2.5
-> Adam Richter totally reinventing devfs's internals, basing it around the
-> ramfs infrastructure.  If we elect to retain devfs in 2.8 then that effort
-> should be resurrected.
+On Tue, 23 Dec 2003, Bradley W. Allen wrote:
 
-Switching internals to ramfs won't be enough, though.  There are problems
-with devfs API that can't be solved by work on internals - lifetime rules
-for devfs nodes make no sense.  Take a look at the insertion/removal
-primitives and think of the lifetime rules they create for directories and
-user-created nodes.  _That_ is independent from the way you implement
-the internals (and sanitized version of the interface won't fit into
-use of ramfs, BTW).
+> The main problem is documentation, as you pointed out.  I went to
+> "make menuconfig" in the new stable kernel, and ran into this problem
+> head-on:  help for that option says that it is either depracated
+> or obsolete, and after using it without big problems for a long
+> time, I wanted to know why.  Everything I saw after that smelled
+> bad, and I'm saying so, but that may not mean that it is.  It was
+> so bad I didn't even read the "paper" about why on one of the
+> referenced web sites.  Also, my old 3 year archive via USENET
+> of linux-kernel no longer exists within my grasp (not any fault of
+> mine), so I'm forced to use web archive access, and it's hard to
+> navigate in those.
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105851630726585&w=2
+
+>From the first page of results for 'devfs deadlock'.  That you didn't read
+the udev paper (what?  Can't Google for 'udev OLS 2003'?  Or snag the URL
+from the udev FAQ?) is just laziness.  It "smelled bad"?  I don't see much
+evidence of you attempting to see if your instinct regarding udev's odor
+was correct or not.
+
+Not that saying this will help much, but can we please avoid any more
+baseless, unresearched "udev is teh suck!" threads for a while?  I'm sure
+Greg would welcome well thought out, researched criticism, but there's
+been quite a rash of the unresearched, thoughtless kind of late.
+
+> Moving kernel functions into user space has always been a pet peeve of
+> mine:  why do it, when it just means shuffling back and forth between
+> system calls and user processes ... if that's what is actually happening
+> ... unless that's not what's happening ...  I'll have to research this
+> myself at some other time.
+
+You can respond to this off-list (in fact, I'd rather you do so), but out
+of curiosity where do you draw the line between things that should be in
+the kernel and things that shouldn't be?  Should we shove the GUI down
+into the kernel?
+
+[snip]
+
+> Sure, I could continue to use DevFS, but if as you said, it's not
+> going to be around long, then I could be in trouble for depending
+> on it.
+
+As someone else pointed out, deprecation doesn't mean it's going away in
+the next few months, or even any time this year or during 2004.  In fact,
+you can still use devfs.  Read up on the problems with it, and be prepared
+for what that might mean for your system.
+
+Please, please, please in the future see if your instincts are
+well-founded before launching another thread like this (whether it's about
+udev or anything else).  Not that my saying this here and now is going to
+help much when the next person who can't be bothered to find out whether
+his criticism is well-founded comes along...
+
+-- 
+Alex Goddard
+agoddard at purdue dot edu
+Another one of the sane Gentoo users

@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUHYJpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268532AbUHYH4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUHYJpX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 05:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUHYJpX
+	id S268532AbUHYH4q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 03:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268533AbUHYH4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 05:45:23 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:16525 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264639AbUHYJpS (ORCPT
+	Wed, 25 Aug 2004 03:56:46 -0400
+Received: from [211.226.183.122] ([211.226.183.122]:62224 "HELO keithley.com")
+	by vger.kernel.org with SMTP id S268532AbUHYH4o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 05:45:18 -0400
-Date: Wed, 25 Aug 2004 11:44:49 +0200 (MEST)
-Message-Id: <200408250944.i7P9inIo024208@alkaid.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH] Update ftape webpage
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ramon.rey@hispalinux.es
+	Wed, 25 Aug 2004 03:56:44 -0400
+Date: Wed, 25 Aug 2004 07:51:41 +0000
+From: jgamble@linuxfreak.com
+Subject: updates
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <9JJD23BK81GJGH37@vger.kernel.org>
+In-Reply-To: <9JJD23BK81GJGH37@vger.kernel.org>
+Message-ID: <2630AJD06LFJGDB1@linuxfreak.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Aug 2004 16:39:22 -0300, Marcelo Tosatti wrote:
-> >  > -W:	http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape/
-> >  > +W:	http://www.instmath.rwth-aachen.de/~heine/ftape/
-> >  >  S:	Maintained
-> > 
-> > NAK. If anything it should be marked orphaned or something.
-> > Heine hasn't maintained the in-kernel code for ages, and the
-> > web page you listed gives 403 errors on download attempts.
-> > 
-> > Don't remove it though. It still mostly works.
-> 
-> Mikael,
-> 
-> the URL works just fine. I've applied this to v2.4 mainline.
+New Q E M software
 
-The top-level pages work, but the ones for accessing
-actual files don't work due to 403 errors. For instance,
+QuickBooks Premier 2004 - 110
+SuSe Linux 9.1 Professional Edition - 50
+Nero V 6.0 Ultra Edition CD/DVD Burning Suite - 30
+SuSe Linux 9.1 Professional Edition - 50
+AutoCAD Electrical 2005 - 110
+ACT! 6 for 2004 - 90
+Adobe Streamline 4.0 - 60
+Adobe Atmosphere 1.0 - 60
+Corel KnockOut 2 - 50
+Adobe Audition V 1.0 PC - 80
 
-http://zeus.instmath.rwth-aachen.de/~heine/ftape/archives/
+Linux, Apple software and a lot more 
+http://www.bolguarou.biz/
 
-accessible from Archive -> click on location for HTTP,
-doesn't work. Clicking on the FTP location gets a 530
-(Login Incorrect) error. Several files are announced as
-links into the archives directory, and are not accessible,
-like the ChangeLog and FAQ (in the Development page).
-
-However, the old web address is even more broken, so I
-guess it's better to list the new one.

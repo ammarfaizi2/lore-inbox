@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131017AbQLIOrp>; Sat, 9 Dec 2000 09:47:45 -0500
+	id <S130382AbQLIOrz>; Sat, 9 Dec 2000 09:47:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130763AbQLIOrf>; Sat, 9 Dec 2000 09:47:35 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:63487 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130382AbQLIOrY>;
-	Sat, 9 Dec 2000 09:47:24 -0500
-Date: Sat, 9 Dec 2000 09:16:56 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-cc: Ben Ford <ben@kalifornia.com>, Chris Lattner <sabre@nondot.org>,
-        linux-kernel@vger.kernel.org, orbit-list@gnome.org,
-        korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.GSO.4.21.0012090028550.29053-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0012090902290.29053-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131625AbQLIOrp>; Sat, 9 Dec 2000 09:47:45 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:46728 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130382AbQLIOrl>;
+	Sat, 9 Dec 2000 09:47:41 -0500
+Date: Sat, 9 Dec 2000 06:00:42 -0800
+Message-Id: <200012091400.GAA17948@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: torvalds@transmeta.com
+CC: viro@math.psu.edu, dwmw2@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012082356020.2121-100000@penguin.transmeta.com>
+	(message from Linus Torvalds on Sat, 9 Dec 2000 00:45:51 -0800 (PST))
+Subject: Re: [PATCH] Re: kernel BUG at buffer.c:827 in test12-pre6 and 7
+In-Reply-To: <Pine.LNX.4.10.10012082356020.2121-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> Yeah... "Infinitely extendable API" and all such. Roughly translated
-> as "we can't live without API bloat". Frankly, judging by the GNOME
-> codebase people who designed the thing are culturally incompatible with
-> UNIX.
+   Date: 	Sat, 9 Dec 2000 00:45:51 -0800 (PST)
+   From: Linus Torvalds <torvalds@transmeta.com>
 
-	Hrrm. After rereading... I suspect that I wasn't clear enough -
-s/thing/GNOME/. IOW, the comment applies to shining example of (ab)use
-of mechanism.
+    out:
+   -	if (nr) {
+   -		ll_rw_block(WRITE, nr, arr);
+   -	} else {
+   -		UnlockPage(page);
+   -	}
+   +	UnlockPage(page);
+	   ClearPageUptodate(page);
+	   return err;
+    }
+   @@ -1669,7 +1665,6 @@
 
-PS: apologies for crossposting that in the first place - I ought to look
-at the Cc. Sorry.
+It would seem that you would want to unlock the page _after_ clearing
+the uptodate bit to make sure people sleeping on the page do not see
+it set by accident.
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

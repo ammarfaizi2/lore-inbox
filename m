@@ -1,88 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265187AbUFHMhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUFHMrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265187AbUFHMhi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 08:37:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265122AbUFHMhi
+	id S265196AbUFHMrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 08:47:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265197AbUFHMrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 08:37:38 -0400
-Received: from [196.25.168.8] ([196.25.168.8]:61925 "EHLO lbsd.net")
-	by vger.kernel.org with ESMTP id S265187AbUFHMhf (ORCPT
+	Tue, 8 Jun 2004 08:47:16 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:50633 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S265196AbUFHMrD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 08:37:35 -0400
-Date: Tue, 8 Jun 2004 14:36:56 +0200
-From: Nigel Kukard <nkukard@lbsd.net>
-To: linux-kernel@vger.kernel.org
-Subject: SMBFS crash
-Message-ID: <20040608123656.GG14247@lbsd.net>
+	Tue, 8 Jun 2004 08:47:03 -0400
+Date: Tue, 8 Jun 2004 22:46:46 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus <torvalds@osdl.org>, linuxppc64-dev@lists.linuxppc.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] PPC64 iSeries virtual DVD-RAM
+Message-Id: <20040608224646.529860f4.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8sQsHfNlXZNubEnG"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__8_Jun_2004_22_46_46_+1000_sgWRfCfyIwnZHIuo"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---8sQsHfNlXZNubEnG
-Content-Type: text/plain; charset=us-ascii
+--Signature=_Tue__8_Jun_2004_22_46_46_+1000_sgWRfCfyIwnZHIuo
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Hi Guys,
+Hi Andrew, Linus,
 
-I get the following error trying to access a mounted smb filesystem.
-100% reproducable on my sytem.
+This patch enables access to DVD-RAM devices on iSeries boxes.  It also
+adds some more device ids for some newer DVD-RAM drives.
 
-Please let me know if you require anymore info.
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.6.7-rc3/drivers/cdrom/viocd.c 2.6.7-rc3.dvd/drivers/cdrom/viocd.c
+--- 2.6.7-rc3/drivers/cdrom/viocd.c	2004-05-10 15:31:08.000000000 +1000
++++ 2.6.7-rc3.dvd/drivers/cdrom/viocd.c	2004-06-08 22:28:43.000000000 +1000
+@@ -120,7 +120,10 @@
+ };
+ 
+ static struct capability_entry capability_table[] __initdata = {
+-	{ "6330", CDC_LOCK | CDC_DVD_RAM },
++	{ "6330", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
++	{ "6331", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
++	{ "6333", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
++	{ "632A", CDC_LOCK | CDC_DVD_RAM | CDC_RAM },
+ 	{ "6321", CDC_LOCK },
+ 	{ "632B", 0 },
+ 	{ NULL  , CDC_LOCK },
+@@ -330,10 +333,19 @@
+ 	struct disk_info *diskinfo = req->rq_disk->private_data;
+ 	u64 len;
+ 	dma_addr_t dmaaddr;
++	int direction;
++	u16 cmd;
+ 	struct scatterlist sg;
+ 
+ 	BUG_ON(req->nr_phys_segments > 1);
+-	BUG_ON(rq_data_dir(req) != READ);
++
++	if (rq_data_dir(req) == READ) {
++		direction = DMA_FROM_DEVICE;
++		cmd = viomajorsubtype_cdio | viocdread;
++	} else {
++		direction = DMA_TO_DEVICE;
++		cmd = viomajorsubtype_cdio | viocdwrite;
++	}
+ 
+         if (blk_rq_map_sg(req->q, req, &sg) == 0) {
+ 		printk(VIOCD_KERN_WARNING
+@@ -341,7 +353,7 @@
+ 		return -1;
+ 	}
+ 
+-	if (dma_map_sg(iSeries_vio_dev, &sg, 1, DMA_FROM_DEVICE) == 0) {
++	if (dma_map_sg(iSeries_vio_dev, &sg, 1, direction) == 0) {
+ 		printk(VIOCD_KERN_WARNING "error allocating sg tce\n");
+ 		return -1;
+ 	}
+@@ -349,8 +361,7 @@
+ 	len = sg_dma_len(&sg);
+ 
+ 	hvrc = HvCallEvent_signalLpEventFast(viopath_hostLp,
+-			HvLpEvent_Type_VirtualIo,
+-			viomajorsubtype_cdio | viocdread,
++			HvLpEvent_Type_VirtualIo, cmd,
+ 			HvLpEvent_AckInd_DoAck,
+ 			HvLpEvent_AckType_ImmediateAck,
+ 			viopath_sourceinst(viopath_hostLp),
+@@ -455,6 +466,35 @@
+ 	return 0;
+ }
+ 
++static int viocd_packet(struct cdrom_device_info *cdi,
++		struct packet_command *cgc)
++{
++	unsigned int buflen = cgc->buflen;
++	int ret = -ENOTTY;
++
++	switch (cgc->cmd[0]) {
++	case GPCMD_READ_DISC_INFO:
++		{
++			disc_information *di = (disc_information *)cgc->buffer;
++
++			if (buflen >= 2) {
++				di->disc_information_length = cpu_to_be16(1);
++				ret = 0;
++			}
++			if (buflen >= 3)
++				di->erasable =
++					(cdi->ops->capability & ~cdi->mask
++					 & (CDC_DVD_RAM | CDC_RAM)) != 0;
++		}
++		break;
++	default:
++		break;
++	}
++
++	cgc->stat = ret;
++	return ret;
++}
++
+ /* This routine handles incoming CD LP events */
+ static void vio_handle_cd_event(struct HvLpEvent *event)
+ {
+@@ -508,6 +548,7 @@
+ 	case viocdclose:
+ 		break;
+ 
++	case viocdwrite:
+ 	case viocdread:
+ 		/*
+ 		 * Since this is running in interrupt mode, we need to
+@@ -515,7 +556,8 @@
+ 		 */
+ 		spin_lock_irqsave(&viocd_reqlock, flags);
+ 		dma_unmap_single(iSeries_vio_dev, bevent->token, bevent->len,
+-				DMA_FROM_DEVICE);
++				((event->xSubtype & VIOMINOR_SUBTYPE_MASK) == viocdread)
++				?  DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 		req = (struct request *)bevent->event.xCorrelationToken;
+ 		rwreq--;
+ 
+@@ -552,14 +594,15 @@
+ 	.release = viocd_release,
+ 	.media_changed = viocd_media_changed,
+ 	.lock_door = viocd_lock_door,
+-	.capability = CDC_CLOSE_TRAY | CDC_OPEN_TRAY | CDC_LOCK | CDC_SELECT_SPEED | CDC_SELECT_DISC | CDC_MULTI_SESSION | CDC_MCN | CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET | CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_GENERIC_PACKET | CDC_CD_R | CDC_CD_RW | CDC_DVD | CDC_DVD_R | CDC_DVD_RAM
++	.generic_packet = viocd_packet,
++	.capability = CDC_CLOSE_TRAY | CDC_OPEN_TRAY | CDC_LOCK | CDC_SELECT_SPEED | CDC_SELECT_DISC | CDC_MULTI_SESSION | CDC_MCN | CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET | CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_GENERIC_PACKET | CDC_CD_R | CDC_CD_RW | CDC_DVD | CDC_DVD_R | CDC_DVD_RAM | CDC_RAM
+ };
+ 
+ static int __init find_capability(const char *type)
+ {
+ 	struct capability_entry *entry;
+ 
+-	for(entry = capability_table; entry->type; ++entry)
++	for (entry = capability_table; entry->type; ++entry)
+ 		if(!strncmp(entry->type, type, 4))
+ 			break;
+ 	return entry->capability;
 
-Regards
-Nigel Kukard
-
-
-smb_lookup: find //.Trash-nkukard failed, error=-5
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
- printing eip:
-00000000
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP
-CPU:    0
-EIP:    0060:[<00000000>]    Tainted: P
-EFLAGS: 00210246   (2.6.6)
-EIP is at 0x0
-eax: c4b94e80   ebx: c9d71b90   ecx: c016e430   edx: d00e3fa0
-esi: 00000000   edi: c4b94e80   ebp: c93f0cf8   esp: d00e3f18
-ds: 007b   es: 007b   ss: 0068
-Process nautilus (pid: 4131, threadinfo=d00e2000 task=defa5670)
-Stack: e0ac90b2 d00e3f40 c0dccebc 00000000 c101b160 c0d8b000 c0d81c54
-c0dcce18
-       c016e430 d00e3fa0 00000000 00462953 00000000 00000000 00000000
-c0d8b000
-       00000002 00000000 00000000 00000001 00000004 ffffffe0 e0ad1d80
-c4b94e80
-Call Trace:
- [<e0ac90b2>] smb_readdir+0x162/0x4e0 [smbfs]
- [<c016e430>] filldir64+0x0/0xf0
- [<c016e1ab>] vfs_readdir+0x8b/0xa0
- [<c016e430>] filldir64+0x0/0xf0
- [<c016e585>] sys_getdents64+0x65/0xa1
- [<c0105f57>] syscall_call+0x7/0xb
-
-Code:  Bad EIP value.
-
-
---8sQsHfNlXZNubEnG
+--Signature=_Tue__8_Jun_2004_22_46_46_+1000_sgWRfCfyIwnZHIuo
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAxbLoKoUGSidwLE4RArUiAKCFDP831/2Drq9kEk0ABUgPqEzGgwCgilHG
-dqvLDie0y1J1yfD6U6GgLY4=
-=5J58
+iD8DBQFAxbU8FG47PeJeR58RAtaNAJ9VljG8kNn4mx1xaQyZtoZHc9/qSACdF7IM
+DI1AR/oWggFOwi9pQbZqJvo=
+=zHSi
 -----END PGP SIGNATURE-----
 
---8sQsHfNlXZNubEnG--
+--Signature=_Tue__8_Jun_2004_22_46_46_+1000_sgWRfCfyIwnZHIuo--

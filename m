@@ -1,42 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314551AbSGUV22>; Sun, 21 Jul 2002 17:28:28 -0400
+	id <S313898AbSGUVez>; Sun, 21 Jul 2002 17:34:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSGUV22>; Sun, 21 Jul 2002 17:28:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:21888 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S314340AbSGUV21>;
-	Sun, 21 Jul 2002 17:28:27 -0400
-Date: Sun, 21 Jul 2002 14:31:31 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
-Message-ID: <20020721213131.GA919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu>
-Mime-Version: 1.0
+	id <S314278AbSGUVez>; Sun, 21 Jul 2002 17:34:55 -0400
+Received: from nameservices.net ([208.234.25.16]:27093 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S313898AbSGUVey>;
+	Sun, 21 Jul 2002 17:34:54 -0400
+Message-ID: <3D3B2A11.5DB3C08B@opersys.com>
+Date: Sun, 21 Jul 2002 17:39:29 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Mark Spencer <markster@linux-support.net>
+CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
+Subject: Re: Zaptel Pseudo TDM Bus
+References: <Pine.LNX.4.33.0207211551350.25617-100000@hoochie.linux-support.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 21, 2002 at 04:24:55AM -0700, Craig Kulesa wrote:
-> This is an update for the 2.5 port of Ed Tomlinson's patch to move slab
-> pages onto the lru for page aging, atop 2.5.27 and the full rmap patch.  
-> It is aimed at being a fairer, self-tuning way to target and evict slab
-> pages.
 
-In combination with the pte_chain in slab patch, this should at long last
-enable reclamation of unused pte_chains after surges in demand. Can you
-test this to verify that reclamation is actually done? (I'm embroiled in
-a long debugging session at the moment.)
+Mark Spencer wrote:
+> > That said, Adeos does offer what appears to be an very efficient model for
+> > handling interrupts.  (Caveat: I haven't tried it myself yet, much less
+> > measured it, just eyeballed the code)  You can load a module directly into
+> > the interrupt pipeline and bypass all of Linux's interrupt machinery, even
+> > bypass cli (it just sets a flag in Adeos).
+> 
+> If someone involved with, or familiar with, this project would care to
+> contact me, I'd be happy to talk about RT enabling zaptel / asterisk.
 
+Right here :)
 
-Thanks,
-Bill
+Any driver that needs direct access to the interrupts can use Adeos' interrupt
+pipeline. Your driver's low-level operations should be fairly easy to port to
+Adeos.
+
+Since Adeos' release, such porting of code has actually been successfully
+done a couple of times already. Apart from Philippe's porting of the Xenomai
+interface, here's an interesting tidbit that appeared on the Adeos mailing
+list:
+> We managed to get a proprietary (sorry nobody's perfect) RT nanokernel
+> working with ADEOS. Thus we have two different OSes working at the same
+> time on the same computer thanks to ADEOS. 
+
+And yet another:
+> I explored yesterday the Adeos nanokernel and was surprised by the
+> possibilities and also the stability!
+> 
+> I tested for example multiple domains having different priorities and
+> installing handlers on the same interrupt which works exactly is it is
+> described.
+> 
+> I also tested snooping other interrupts (mouse/keyboard/ide0/ethernet)
+> then the timer example provided in the package. (which works ofcourse
+> also great)
+
+Feel free to post any questions to Adeos' mailing list. It's been quite
+active lately and I'm sure your application will interest others.
+
+Adeos' web site is at:
+http://www.freesoftware.fsf.org/adeos/
+
+If you're looking for an introduction to Adeos' functionality have a look
+at the original LKML announcement:
+http://lwn.net/Articles/1743/
+
+Best regards,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

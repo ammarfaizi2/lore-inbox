@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129181AbRBUVYU>; Wed, 21 Feb 2001 16:24:20 -0500
+	id <S129539AbRBUV2k>; Wed, 21 Feb 2001 16:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129539AbRBUVYK>; Wed, 21 Feb 2001 16:24:10 -0500
-Received: from kerberos.suse.cz ([195.47.106.10]:33549 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129181AbRBUVYG>;
-	Wed, 21 Feb 2001 16:24:06 -0500
-Date: Wed, 21 Feb 2001 22:23:58 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] VIA 4.2x driver for 2.2 kernels
-Message-ID: <20010221222358.A1665@suse.cz>
-In-Reply-To: <20010220134028.A5762@suse.cz> <20010220155927.A1543@cm.nu> <20010221080919.A469@suse.cz> <20010220231502.A4618@cm.nu> <20010221082348.A908@suse.cz> <20010221110533.B3374@iname.com>
-Mime-Version: 1.0
+	id <S129691AbRBUV2a>; Wed, 21 Feb 2001 16:28:30 -0500
+Received: from dns-229.dhcp-248.nai.com ([161.69.248.229]:6626 "HELO
+	localdomain") by vger.kernel.org with SMTP id <S129624AbRBUV2P>;
+	Wed, 21 Feb 2001 16:28:15 -0500
+Message-ID: <XFMail.20010221132959.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010221110533.B3374@iname.com>; from rbrito@iname.com on Wed, Feb 21, 2001 at 11:05:33AM -0300
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010221220835.A8781@atrey.karlin.mff.cuni.cz>
+Date: Wed, 21 Feb 2001 13:29:59 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Martin Mares <mj@suse.cz>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Cc: Linux-kernel@vger.kernel.org, tytso@valinux.com,
+        Andreas Dilger <adilger@turbolinux.com>, hch@ns.caldera.de,
+        ext2-devel@lists.sourceforge.net,
+        Daniel Phillips <phillips@innominate.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21, 2001 at 11:05:33AM -0300, Rogerio Brito wrote:
-> On Feb 21 2001, Vojtech Pavlik wrote:
-> > On Tue, Feb 20, 2001 at 11:15:02PM -0800, Shane Wegner wrote:
-> > > Ok, can I still use -u1 -k1 -c1 on the drives or is it even
-> > > necessary anymore.
-> > 
-> > If you enable automatic DMA in the kernel config, it isn't necessary
-> > at all. The VIA driver sets up everything.
-> 
-> 	Ok. Please disregard my last message (this one contains
-> 	exactly what I was looking for).
-> 
-> > 4) But VIA is still set to PIO mode
-> 
-> 	Why does this happen?
-> 
-> 	And what about the other options to hdparm (-u1 -k1 -c1)? Are
-> 	they potentially dangerous also?
 
-Well, I checked today and my fears were *not* confirmed. Actually the
-VIA driver will set up the chipset for UDMA even when UDMA won't be
-later used, so it's all OK.
+On 21-Feb-2001 Martin Mares wrote:
+> Hello!
+> 
+>> Have You tried to use skiplists ?
+>> In 93 I've coded a skiplist based directory access for Minix and it gave
+>> very
+>> interesting performances.
+>> Skiplists have a link-list like performance when linear scanned, and overall
+>> good performance in insertion/seek/delete.
+> 
+> Skip list search/insert/delete is O(log N) in average as skip lists are just
+> a
+> dynamic version of interval bisection. Good hashing is O(1).
 
--- 
-Vojtech Pavlik
-SuSE Labs
+To have O(1) you've to have the number of hash entries > number of files and a
+really good hasing function.
+
+
+
+> 
+>                               Have a nice fortnight
+
+To be sincere, here is pretty daylight :)
+
+
+
+- Davide
+

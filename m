@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUJRPQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUJRPjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUJRPQF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 11:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUJRPQF
+	id S266721AbUJRPjm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 11:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUJRPjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 11:16:05 -0400
-Received: from gprs214-57.eurotel.cz ([160.218.214.57]:18050 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266578AbUJRPQB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 11:16:01 -0400
-Date: Mon, 18 Oct 2004 17:10:53 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Nathan Lynch <nathanl@austin.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] i386 CPU hotplug updated for -mm
-Message-ID: <20041018151053.GA23069@elf.ucw.cz>
-References: <20041001204533.GA18684@elte.hu> <20041001204642.GA18750@elte.hu> <20041001143332.7e3a5aba.akpm@osdl.org> <Pine.LNX.4.61.0410091550300.2870@musoma.fsmlabs.com> <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 18 Oct 2004 11:39:42 -0400
+Received: from lax-gate7.raytheon.com ([199.46.200.238]:64074 "EHLO
+	lax-gate7.raytheon.com") by vger.kernel.org with ESMTP
+	id S266721AbUJRPjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 11:39:35 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
+Date: Mon, 18 Oct 2004 10:38:11 -0500
+Message-ID: <OF7D12F73F.EA6A61CE-ON86256F31.0055E47B-86256F31.0055E4B1@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 10/18/2004 10:38:27 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>i have released the -U4 PREEMPT_REALTIME patch:
+>
+>http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U4
 
+I still cannot get the network up and running with this. The BUG messages
+are gone but the system stops processing init scripts somewhere in the
+network related scripts. One time, it stopped in portmapper, the next it
+got past that and stopped in the imapd script.
 
-> +#ifdef CONFIG_HOTPLUG_CPU
-> +#include <asm/nmi.h>
-> +/* We don't actually take CPU down, just spin without interrupts. */
-> +static inline void play_dead(void)
-> +{
-> +	/* Ack it */
-> +	__get_cpu_var(cpu_state) = CPU_DEAD;
-> +
-> +	/* We shouldn't have to disable interrupts while dead, but
-> +	 * some interrupts just don't seem to go away, and this makes
-> +	 * it "work" for testing purposes. */
-> +	/* Death loop */
-> +	while (__get_cpu_var(cpu_state) != CPU_UP_PREPARE)
-> +		cpu_relax();
-> +
-> +	local_irq_disable();
-> +	__flush_tlb_all();
-> +	cpu_set(smp_processor_id(), cpu_online_map);
-> +	enable_APIC_timer();
-> +	local_irq_enable();
-> +}
-> +#else
+What I see on the screen is the normal boot, a few latency trace outputs
+indicating increasing latency (up to about 2.3 msec) and then I make it to
+single user mode. You can see those traces in /var/log/messages; I will
+send that separately.
 
-Having real implementation of this one would be very welcome for
-suspend-to-{RAM,disk} on smp machines....
+By doing the scripts in
+  /etc/rc3.d/
+by hand or by using
+  telinit 3
+I get normal displays until the system stops running the scripts. It just
+stops at that point. No response to Ctrl-C (if done by hand). Alt-SysRq
+keyboard commands do work (displayed on the screen) but the output does
+not make it to /var/log/messages. The output from the second run is
+particularly disappointing, it appears to be truncated.
 
-Are there really no i386 machines whose hardware supports hotplug?
+I will rebuild with -U5 since I noticed it is available, but if you
+have some suggestions on a way to capture more helpful data, I would
+be glad to do it.
 
-							Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+  --Mark
+

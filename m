@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267903AbUHXUNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268265AbUHXUQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267903AbUHXUNe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHXUNe
+	id S268265AbUHXUQx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267941AbUHXUQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:13:34 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:16259 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267903AbUHXUNa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:13:30 -0400
-Subject: Re: Linux 2.6.9-rc1
-From: Josh Boyer <jdub@us.ibm.com>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <871xhwb9c6.fsf@deneb.enyo.de>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-	 <20040824184245.GE5414@waste.org>
-	 <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-	 <871xhwb9c6.fsf@deneb.enyo.de>
-Content-Type: text/plain
-Message-Id: <1093378401.2991.32.camel@weaponx.rchland.ibm.com>
+	Tue, 24 Aug 2004 16:16:53 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30886 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268266AbUHXUQN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:16:13 -0400
+Date: Tue, 24 Aug 2004 15:40:15 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, us15@os.inf.tu-dresden.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Message-ID: <20040824184015.GD8806@logos.cnet>
+References: <20040812180033.62b389db@laptop.delusion.de> <Pine.LNX.4.58.0408121813190.1839@ppc970.osdl.org> <20040820000238.55e22081@laptop.delusion.de> <20040820001154.0a5cf331.akpm@osdl.org> <20040820001905.27a9ff8f@laptop.delusion.de> <4125AD23.4000705@yahoo.com.au> <20040823230824.3c937d88@laptop.delusion.de> <412AF113.6000804@yahoo.com.au> <20040824182036.GB8806@logos.cnet> <20040824130027.77b7b0f9.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 24 Aug 2004 15:13:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040824130027.77b7b0f9.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 14:54, Florian Weimer wrote:
-> * Linus Torvalds:
-> 
-> > On Tue, 24 Aug 2004, Matt Mackall wrote:
-> >> 
-> >> Phew, I was worried about that. Can I get a ruling on how you intend
-> >> to handle a x.y.z.1 to x.y.z.2 transition? I've got a tool that I'm
-> >> looking to unbreak. My preference would be for all x.y.z.n patches to
-> >> be relative to x.y.z.
+On Tue, Aug 24, 2004 at 01:00:27PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 > >
-> > Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
-> > ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
-> > any ordering wrt the bugfixes), so either interdiffs or whole new full 
-> > diffs are totally "logical". We just have to chose one way or the other, 
-> > and I don't actually much care.
+> > I dont fully understand the all_unreclaimable logic yet.
 > 
-> It would be slightly more consistent to diff .2 against .1 because
-> this is what already happens when a new x.y.z release is published.
+> 1) bk revtool include/linux/mmzone.h
+> 2) double-click on declaration of all_unreclaimable
+> 3) read changelog ;)
 
-Yes, but the -rcX releases aren't done that way.  It's mostly how you
-view things.  From a users point of view, do I want to download x.y.z
-and apply patches .1 through .N?  Or do I want to download x.y.z and
-apply 1 patch to get me to the x.y.z.N level?
+Will do, but my question is still unanswered, why stop IO throttling when all_unreclaimable
+is set? 
 
-Personally, I prefer the "one patch to rule them all" method. :)
+Doesnt make sense to me right now.
 
-josh
+OK, will RTFS.
 
+> 
+> > --- mm/vmscan.c.orig	2004-08-24 16:48:09.467086840 -0300
+> > +++ mm/vmscan.c	2004-08-24 16:51:55.304754296 -0300
+> > @@ -878,7 +878,8 @@
+> >  		if (zone->prev_priority > sc->priority)
+> >  			zone->prev_priority = sc->priority;
+> >  
+> > -		if (zone->all_unreclaimable && sc->priority != DEF_PRIORITY)
+> > +		if (zone->all_unreclaimable && 
+> > +				(sc->priority < DEF_PRIORITY && sc->priority > 0))
+> >  			continue;	/* Let kswapd poll it */
+> >  
+> >  		shrink_zone(zone, sc);
+> > @@ -1054,7 +1055,8 @@
+> >  		for (i = 0; i <= end_zone; i++) {
+> >  			struct zone *zone = pgdat->node_zones + i;
+> >  
+> > -			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
+> > +			if (zone->all_unreclaimable && 
+> > +					(priority < DEF_PRIORITY && priority > 0))
+> >  				continue;
+> >  
+> >  			if (nr_pages == 0) {	/* Not software suspend */
+> 
+> Does anyone understand _why_ all_unreclaimable is getting set?
+> 
+> If not, it's too early to be writing patches...
+
+As I wrote down in the first email, kswapd does
+
+                        if (zone->pages_scanned > zone->present_pages * 2)
+                                zone->all_unreclaimable = 1;
+
+Sure, it makes perfect sense to happen when we can't unreclaim pages
+from the zone.
+
+Its not something hard to understand. What is your point?
+
+I suppose your question is not "_why_ all_unreclaimable is getting set?" but 
+"maybe it should not be getting set?". 
+
+Anyway, will RTFS.

@@ -1,54 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263077AbTEBSUC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 14:20:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEBSUC
+	id S261294AbTEBQNG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbTEBQNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 14:20:02 -0400
-Received: from [65.198.37.67] ([65.198.37.67]:18615 "EHLO gghcwest.com")
-	by vger.kernel.org with ESMTP id S263077AbTEBST7 (ORCPT
+	Fri, 2 May 2003 12:13:06 -0400
+Received: from mx0.gmx.de ([213.165.64.100]:55301 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S261294AbTEBQND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 14:19:59 -0400
-Date: Fri, 2 May 2003 11:32:22 -0700
-From: Jeffrey Baker <jwbaker@acm.org>
+	Fri, 2 May 2003 12:13:03 -0400
+Date: Fri, 2 May 2003 18:25:23 +0200 (MEST)
+From: Wiktor Wodecki <wodecki@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: centrino
-Message-ID: <20030502183222.GA30189@heat>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="========GMXBoundary237131051892723"
+Subject: [PATCH] scripts/patch-kernel bk support
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0000656085@gmx.net
+X-Authenticated-IP: [217.82.10.253]
+Message-ID: <23713.1051892723@www30.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here was my collected experience on a Centrino machine,
-before I returned it in favor of an iBook:
+This is a MIME encapsulated multipart message -
+please use a MIME-compliant e-mail program to open it.
 
-The AGP worked in 2.4.21-pre but not in 2.5.68-mm2,
-regardless of agp_try_unsupported=1.  The Radeon 9000
-Mobility in the Acer Travelmate is supported in XFree86
-4.3.0.  Don't know about the IBM.
+Dies ist eine mehrteilige Nachricht im MIME-Format -
+bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
 
-The IDE DMA seemed to work fine in both 2.4.21 and 2.5.68.
+--========GMXBoundary237131051892723
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Power management didn't work at all because ACPI is a sick
-joke.  In 2.4 ACPI does nothing, and in 2.5.68 it can put
-the machine to sleep, but not wake it up.  APM could almost
-wake the system from sleep, but then it crashed immediately.
-ACPI incorrectly reports the state of the system fans, the
-battery, the battery charger, and the temperature sensor.
-In other words, no part of it functions correctly .  This is
-either a problem with Centrino chipset in general or Acer
-BIOS programming in particular.
+Hello,
 
-CPU frequency scaling didn't work in either kernel but there
-seem to be rumbles of reverse engineering going on with
-that.
+this patch adds -bk support to scripts/patch-kernel. Just a small hack.
+Consider applying.
 
-The wireless doesn't work in any kernel, and Intel have
-stated specifically on their web site that they have no
-plans for any future Linux driver for that device.
 
-The Centrino package is altogether hostile to Linux.
+-- 
+Regards,
 
--jwb
+Wiktor Wodecki
+wodecki@gmx.de
+
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
+--========GMXBoundary237131051892723
+Content-Type: application/octet-stream; name="patch-kernel.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-kernel.patch"
+
+LS0tIHBhdGNoLWtlcm5lbC5vcmlnCTIwMDMtMDUtMDIgMTc6NDc6NTMuMDAwMDAwMDAwICswMjAw
+CisrKyBwYXRjaC1rZXJuZWwJMjAwMy0wNS0wMiAxNzo0Nzo1My4wMDAwMDAwMDAgKzAyMDAKQEAg
+LTEsNiArMSw2IEBACiAjISAvYmluL3NoCiAjIFNjcmlwdCB0byBhcHBseSBrZXJuZWwgcGF0Y2hl
+cy4KLSMgICB1c2FnZTogcGF0Y2gta2VybmVsIFsgc291cmNlZGlyIFsgcGF0Y2hkaXIgWyBzdG9w
+dmVyc2lvbiBdIFsgLWFjeHggXSBdIF0KKyMgICB1c2FnZTogcGF0Y2gta2VybmVsIFsgc291cmNl
+ZGlyIFsgcGF0Y2hkaXIgWyBzdG9wdmVyc2lvbiBdIFsgLWFjeHggfHwgLWJreHggXSBdIF0KICMg
+ICAgIFRoZSBzb3VyY2UgZGlyZWN0b3J5IGRlZmF1bHRzIHRvIC91c3Ivc3JjL2xpbnV4LCBhbmQg
+dGhlIHBhdGNoCiAjICAgICBkaXJlY3RvcnkgZGVmYXVsdHMgdG8gdGhlIGN1cnJlbnQgZGlyZWN0
+b3J5LgogIyBlLmcuCkBAIC00MSw2ICs0MSwxMSBAQAogIyBBZGRlZCAtYWMgb3B0aW9uLCB1c2Ug
+LWFjIG9yIC1hYzkgKHNheSkgdG8gc3RvcCBhdCBhIHBhcnRpY3VsYXIgdmVyc2lvbgogIyAgICAg
+ICBEYXZlIEdpbGJlcnQgPGxpbnV4QHRyZWJsaWcub3JnPiwgMjl0aCBTZXB0ZW1iZXIgMjAwMS4K
+IAorIyBBZGRlZCBhYmlsaXR5IHRvIGRlYWwgd2l0aCAtYmsgcGF0Y2hlcyBmcm9tIGxpbnVzCisj
+CisjIEFkZGVkIC1iayBvcHRpb24sIHVzZSAtYmsgb3IgLWJrOSAoc2F5KSB0byBzdG9wIGF0IGEg
+cGFydGljdWxhciB2ZXJzaW9uCisjICAgICAgIFdpa3RvciBXb2RlY2tpIDx3b2RlY2tpQHdvZGVj
+a2kuZGU+LCAwMnRoIE1heSAyMDAzLgorCiAjIFNldCBkaXJlY3RvcmllcyBmcm9tIGFyZ3VtZW50
+cywgb3IgdXNlIGRlZmF1bHRzLgogc291cmNlZGlyPSR7MS0vdXNyL3NyYy9saW51eH0KIHBhdGNo
+ZGlyPSR7Mi0ufQpAQCAtNDgsMTkgKzUzLDE5IEBACiAKIGlmIFsgIiQxIiA9IC1oIC1vICIkMSIg
+PSAtLWhlbHAgLW8gISAtciAiJHNvdXJjZWRpci9NYWtlZmlsZSIgXTsgdGhlbgogY2F0IDw8IFVT
+QUdFCi11c2FnZTogcGF0Y2gta2VybmVsIFstaF0gWyBzb3VyY2VkaXIgWyBwYXRjaGRpciBbIHN0
+b3B2ZXJzaW9uIF0gWyAtYWN4eCBdIF0gXQordXNhZ2U6IHBhdGNoLWtlcm5lbCBbLWhdIFsgc291
+cmNlZGlyIFsgcGF0Y2hkaXIgWyBzdG9wdmVyc2lvbiBdIFsgLWFjeHggfCAtYmt4eCBdIF0gXQog
+ICBUaGUgc291cmNlIGRpcmVjdG9yeSBkZWZhdWx0cyB0byAvdXNyL3NyYy9saW51eCwgYW5kCiAg
+IHRoZSBwYXRjaCBkaXJlY3RvcnkgZGVmYXVsdHMgdG8gdGhlIGN1cnJlbnQgZGlyZWN0b3J5Lgog
+VVNBR0UKIGV4aXQgMQogZmkKIAotIyBTZWUgaWYgd2UgaGF2ZSBhbnkgLWFjIG9wdGlvbnMKKyMg
+U2VlIGlmIHdlIGhhdmUgYW55IC1hYy8tYmsgb3B0aW9ucwogZm9yIFBBUk0gaW4gJCoKIGRvCiAg
+IGNhc2UgJFBBUk0gaW4KLQkgIC1hYyopCi0JCSAgZ290YWM9JFBBUk07CisJICAtYWMqfC1iayop
+CisJCSAgZ290YmxlZWRpbmc9JFBBUk07CiAKIAllc2FjOwogZG9uZQpAQCAtMTYzLDM5ICsxNjgs
+MzkgQEAKICAgICBhcHBseVBhdGNoICRwYXRjaCB8fCBicmVhawogZG9uZQogCi1pZiBbIHgkZ290
+YWMgIT0geCBdOyB0aGVuCi0gICMgT3V0IGdyZWF0IHVzZXIgd2FudHMgdGhlIC1hYyBwYXRjaGVz
+CitpZiBbIHgkZ290YmxlZWRpbmcgIT0geCBdOyB0aGVuCisgICMgT3V0IGdyZWF0IHVzZXIgd2Fu
+dHMgdGhlIC1hYy9iayBwYXRjaGVzCiAJIyBUaGV5IGNvdWxkIGhhdmUgZG9uZSAtYWMgKGdldCBs
+YXRlc3QpIG9yIC1hY3h4IHdoZXJlIHh4PXZlcnNpb24gdGhleSB3YW50Ci0JaWYgWyAkZ290YWMg
+PT0gIi1hYyIgXQorCWlmIFsgJGdvdGJsZWVkaW5nID09ICItYWMiIF0gfHwgWyAkZ290YmxlZWRp
+bmcgPT0gIi1iayIgXQogCXRoZW4KIAkgICMgVGhleSB3YW50IHRoZSBsYXRlc3QgdmVyc2lvbgog
+CQlISUdIRVNUUEFUQ0g9MAotCQlmb3IgUEFUQ0hOQU1FUyBpbiAkcGF0Y2hkaXIvcGF0Y2gtJHtD
+VVJSRU5URlVMTFZFUlNJT059LWFjKlwuKgorCQlmb3IgUEFUQ0hOQU1FUyBpbiAkcGF0Y2hkaXIv
+cGF0Y2gtJHtDVVJSRU5URlVMTFZFUlNJT059LSR7Z290YmxlZWRpbmd9KlwuKgogCQlkbwotCQkJ
+QUNWQUxVRT1gZWNobyAkUEFUQ0hOQU1FUyB8IHNlZCAtZSAncy9eLipwYXRjaC1bMC05Ll0qLWFj
+XChbMC05XSpcKS4qL1wxLydgCisJCQlCTEVFRFZBTFVFPWBlY2hvICRQQVRDSE5BTUVTIHwgc2Vk
+IC1lICdzL14uKnBhdGNoLVswLTkuXSotJHtnb3RibGVlZGluZ31cKFswLTldKlwpLiovXDEvJ2AK
+IAkJCSMgQ2hlY2sgaXQgaXMgYWN0dWFsbHkgYSByZWNvZ25pc2VkIHBhdGNoIHR5cGUKLQkJCWZp
+bmRGaWxlICRwYXRjaGRpci9wYXRjaC0ke0NVUlJFTlRGVUxMVkVSU0lPTn0tYWMke0FDVkFMVUV9
+IHx8IGJyZWFrCisJCQlmaW5kRmlsZSAkcGF0Y2hkaXIvcGF0Y2gtJHtDVVJSRU5URlVMTFZFUlNJ
+T059LSR7Z290YmxlZWRpbmd9JHtCTEVFRFZBTFVFfSB8fCBicmVhawogCi0JCSAgaWYgWyAkQUNW
+QUxVRSAtZ3QgJEhJR0hFU1RQQVRDSCBdCisJCSAgaWYgWyAkQkxFRURWQUxVRSAtZ3QgJEhJR0hF
+U1RQQVRDSCBdCiAJCQl0aGVuCi0JCQkgIEhJR0hFU1RQQVRDSD0kQUNWQUxVRQorCQkJICBISUdI
+RVNUUEFUQ0g9JEJMRUVEVkFMVUUKIAkJICBmaQogCQlkb25lCiAKIAkJaWYgWyAkSElHSEVTVFBB
+VENIIC1uZSAwIF0KIAkJdGhlbgotCQkJZmluZEZpbGUgJHBhdGNoZGlyL3BhdGNoLSR7Q1VSUkVO
+VEZVTExWRVJTSU9OfS1hYyR7SElHSEVTVFBBVENIfSB8fCBicmVhawotCQkJYXBwbHlQYXRjaCBw
+YXRjaC0ke0NVUlJFTlRGVUxMVkVSU0lPTn0tYWMke0hJR0hFU1RQQVRDSH0KKwkJCWZpbmRGaWxl
+ICRwYXRjaGRpci9wYXRjaC0ke0NVUlJFTlRGVUxMVkVSU0lPTn0tJHtnb3RibGVlZGluZ30ke0hJ
+R0hFU1RQQVRDSH0gfHwgYnJlYWsKKwkJCWFwcGx5UGF0Y2ggcGF0Y2gtJHtDVVJSRU5URlVMTFZF
+UlNJT059LSR7Z290YmxlZWRpbmd9JHtISUdIRVNUUEFUQ0h9CiAJCWVsc2UKLQkJICBlY2hvICJO
+byBhYyBwYXRjaGVzIGZvdW5kIgorCQkgIGVjaG8gIk5vIGBlY2hvICRnb3RibGVlZGluZ3xhd2sg
+LUZcLSAne3ByaW50ICQyfSdgIHBhdGNoZXMgZm91bmQiCiAJCWZpCiAJZWxzZQogCSAgIyBUaGV5
+IHdhbnQgYW4gZXhhY3QgdmVyc2lvbgotCQlmaW5kRmlsZSAkcGF0Y2hkaXIvcGF0Y2gtJHtDVVJS
+RU5URlVMTFZFUlNJT059JHtnb3RhY30gfHwgewotCQkgIGVjaG8gIlNvcnJ5LCBJIGNvdWxkbid0
+IGZpbmQgdGhlICRnb3RhYyBwYXRjaCBmb3IgJENVUlJFTlRGVUxMVkVSU0lPTi4gIEhvaHVtLiIK
+KwkJZmluZEZpbGUgJHBhdGNoZGlyL3BhdGNoLSR7Q1VSUkVOVEZVTExWRVJTSU9OfSR7Z290Ymxl
+ZWRpbmd9IHx8IHsKKwkJICBlY2hvICJTb3JyeSwgSSBjb3VsZG4ndCBmaW5kIHRoZSBgZWNobyAk
+Z290YmxlZWRpbmd8YXdrIC1GXC0gJ3twcmludCAkMn0nYCBwYXRjaCBmb3IgJENVUlJFTlRGVUxM
+VkVSU0lPTi4gIEhvaHVtLiIKIAkJCWV4aXQgMQogCQl9Ci0JCWFwcGx5UGF0Y2ggcGF0Y2gtJHtD
+VVJSRU5URlVMTFZFUlNJT059JHtnb3RhY30KKwkJYXBwbHlQYXRjaCBwYXRjaC0ke0NVUlJFTlRG
+VUxMVkVSU0lPTn0ke2dvdGJsZWVkaW5nfQogCWZpCiBmaQogCg==
+
+--========GMXBoundary237131051892723--
+

@@ -1,98 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266658AbUBMCFa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 21:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUBMCFa
+	id S266681AbUBMCGW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 21:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266682AbUBMCGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 21:05:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61077 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266658AbUBMCFM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 21:05:12 -0500
-Date: Thu, 12 Feb 2004 18:06:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Journalled quota (fwd)
-Message-Id: <20040212180659.7d5bcb07.akpm@osdl.org>
-In-Reply-To: <20040212111128.GA32552@atrey.karlin.mff.cuni.cz>
-References: <20040212111128.GA32552@atrey.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 12 Feb 2004 21:06:22 -0500
+Received: from mail-10.iinet.net.au ([203.59.3.42]:59324 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266681AbUBMCGR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 21:06:17 -0500
+Message-ID: <402C30F7.9040407@cyberone.com.au>
+Date: Fri, 13 Feb 2004 13:05:43 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Valdis.Kletnieks@vt.edu,
+       Michael Frank <mhf@linuxmail.org>, Giuliano Pochini <pochini@shiny.it>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
+References: <XFMail.20040212104215.pochini@shiny.it> <402B5502.2010207@cyberone.com.au> <200402130105.22554.mhf@linuxmail.org> <200402121718.i1CHITFf018390@turing-police.cc.vt.edu> <20040212205503.GA13934@hh.idb.hist.no> <20040213015757.GC25499@mail.shareable.org>
+In-Reply-To: <20040213015757.GC25499@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Kara <jack@suse.cz> wrote:
+
+
+Jamie Lokier wrote:
+
+>Helge Hafting wrote:
 >
->   Here comes journalled quota patch for 2.6.3-rc2.
+>>Something similiar could be done for io niceness.  If we run out of
+>>normal priority io, how about not issuing the low priority io
+>>right away.  Anticipate there will be more high-priority io
+>>and wait for some idle time before letting low-priority
+>>requests through.  And of course some maximum wait to prevent
+>>total starvation.
+>>
+>
+>The problem is quite similar to scheduling for quality on a network
+>device.  Once a packet has started going it, usually you cannot abort
+>the packet for a higher priority one.
+>
+>I thought there was a CBQ I/O scheduling patch or such to offer some
+>kind of I/O niceness these days?
+>
+>
 
-Could you please document the locking rules?  For example, functions such
-as DQUOT_FREE_SPACE_NODIRTY() (and all similar) should have a little
-comment above them describing the caller's locking responsibilities.
+Yeah its Jens' CFQ io scheduler. It is in -mm, and I think it
+has adjustable priorities now.
 
-Because it looks to me like DQUOT_FREE_SPACE_NODIRTY() is supposed to be
-called under i_lock, but will call dquot_free_space(), which does
-down_read().
+I have plans to do IO priorities in the anticipatory scheduler
+(significantly differently to CFQ). One day...
 
-
-I didn't review your changes to the ext3 transaction space reservation
-constants.  Did you get them right?  Mistakes here tend to take a long time
-to show up.
-
-In ext3_orphan_cleanup():
-
-  - Local variable `i' is unused if !CONFIG_QUOTA and will generate a
-    compiler warning.
-
-  - This
-
-	for (i=0; i < MAXQUOTAS; i++)
-
-    introduces coding style inconsistency.  Please do
-
-	for (i = 0; i < MAXQUOTAS; i++)
-
-  - Please edit in an 80-column xterm.  Changes you have made to this
-    filesystem are quite infuriating to those who _do_ use 80-cols and need
-    to be cleaned up.
-
-  - This
-
-	for (i=0; i < MAXQUOTAS; i++)
-		if (EXT3_SB(sb)->s_qf_names[i]) {
-			int ret = ext3_quota_on_mount(sb, i);
-
-    introduces coding style inconsistency.  Please do
-
-	for (i=0; i < MAXQUOTAS; i++) {
-		if (EXT3_SB(sb)->s_qf_names[i]) {
-			int ret = ext3_quota_on_mount(sb, i);
-
-    (several places)
-
-
-Please document writes_to_blocks()
-
-
-The locking in v2_commit_dquot() looks fishy.
-
-The locking in dquot_mark_dquot_dirty() and in mark_info_dirty() also look
-fishy.  For example:
-
-	void mark_info_dirty(struct super_block *sb, int type)
-	{
-		spin_lock(&dq_data_lock);
-		set_bit(DQF_INFO_DIRTY_B, &sb_dqopt(sb)->info[type].dqi_flags);
-		spin_unlock(&dq_data_lock);
-	}
-
-what is the spinlock doing there?
-
-
-I'm not really in a position to review the deadlockiness of this code
-without some sort of documentation of the lock ranking (including where
-journal_start() sits in that ranking).  Is that something you could add?
-
-Thanks.

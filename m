@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264646AbTEQBlH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 21:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTEQBlG
+	id S264647AbTEQCDN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 22:03:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264649AbTEQCDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 21:41:06 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:50103 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264646AbTEQBlG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 21:41:06 -0400
-Date: Sat, 17 May 2003 02:55:41 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Marek Habersack <grendel@caudium.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops on boot with 2.5.69-mm{5,6}
-Message-ID: <20030517015541.GA26464@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Marek Habersack <grendel@caudium.net>, linux-kernel@vger.kernel.org
-References: <20030516230526.GA1527@thanes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030516230526.GA1527@thanes.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 16 May 2003 22:03:13 -0400
+Received: from maceio.ic.unicamp.br ([143.106.7.31]:18389 "EHLO
+	maceio.ic.unicamp.br") by vger.kernel.org with ESMTP
+	id S264647AbTEQCDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 22:03:12 -0400
+Date: Fri, 16 May 2003 23:16:03 -0300 (EST)
+From: Felipe Massia Pereira <massia@ic.unicamp.br>
+To: linux-kernel@vger.kernel.org
+Subject: mtu_expires variable
+Message-ID: <Pine.GSO.4.10.10305162243050.13822-100000@tigre.dcc.unicamp.br>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2003 at 01:05:26AM +0200, Marek Habersack wrote:
- > Hello all,
- > 
- > 2.5.69-mm3 works fine, mm4 wasn't tested. Kernel oopses right after attempting to
- > initialize agpgart. I've managed to copy only the little data from the oops
- > that is shown below, enough to locate it (oops happened in the swapper task):
+Hello,
 
-patch from Christoph Hellwig attached.
-Still waiting for Linus to pull this (and other) agp bits from bkbits.
+I've been searching for the exact meaning of this variable through
+Documentation and I've found just empty descriptions (to be filled in, in
+Advanced Linux Routing HOWTO, and nothing also in
+Documentation/networking/ip-sysctl.txt). I've tried also to read the
+kernel source code (net/ipv4/route.c) but I could not figure out what they
+mean.
 
-		Dave
+I've came accross this var because we want to do some experiments in class
+with Path MTU discovery.  But it happens that MTU is recorded between
+experiments (and it's what we expect: that the stack does not do a PMTU
+every time). BTW where is the PMTU value kept? Is MTU value recorded for
+each destination or for each route?
 
+So it would be nice if we could make the value found in a experiment to be
+forgotten by the kernel so the students could execute the ping several
+times. (ping -c 2 -m want ...) Is mtu_expires what we're looking for?
 
---- 1.39/drivers/char/agp/via-agp.c	Mon Apr 28 03:32:35 2003
-+++ edited/drivers/char/agp/via-agp.c	Tue May 13 10:51:00 2003
-@@ -402,6 +402,7 @@
- 
- 	bridge->dev = pdev;
- 	bridge->capndx = cap_ptr;
-+	bridge->driver = &via_driver; /* might be overriden later */
- 
- 	switch (pdev->device) {
- 	case PCI_DEVICE_ID_VIA_8367_0:
-@@ -427,7 +428,6 @@
- 		}
- 		/*FALLTHROUGH*/
- 	default:
--		bridge->driver = &via_driver;
- 		break;
- 	}
- 
+We tried to "echo 1 > /proc/sys/net/ipv4/route/mtu_expires" considering
+that it's expressed in seconds. The usual value is 600. But I've read that
+it's expressed in jiffies. Jiffies occur 100 times per sec on a PC, is it?
+So the value 600 on a PC means 6 seconds?
+
+tia, 
+-- 
+Felipe
 

@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUHKSC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268165AbUHKSCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268145AbUHKSC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 14:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268158AbUHKR7g
+	id S268165AbUHKSCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 14:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268145AbUHKSAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:59:36 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:34228 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S268145AbUHKR4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:56:12 -0400
-Date: Wed, 11 Aug 2004 19:56:13 +0200
-From: Sascha Wilde <wilde@sha-bang.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: "David N. Welton" <davidw@eidetix.com>,
-       LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
-Message-ID: <20040811175613.GA829@kenny.sha-bang.local>
-References: <20040811141408.17933.qmail@web81304.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040811141408.17933.qmail@web81304.mail.yahoo.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 11 Aug 2004 14:00:06 -0400
+Received: from mailer.nec-labs.com ([138.15.108.3]:49359 "EHLO
+	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S268156AbUHKR6r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:58:47 -0400
+Message-ID: <411A5E55.3050508@nec-labs.com>
+Date: Wed, 11 Aug 2004 10:58:45 -0700
+From: Lei Yang <leiyang@nec-labs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Compression algorithm in cloop
+References: <411A4D34.6000104@lougher.demon.co.uk>
+In-Reply-To: <411A4D34.6000104@lougher.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Aug 2004 17:58:42.0258 (UTC) FILETIME=[D6891320:01C47FCC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 07:14:08AM -0700, Dmitry Torokhov wrote:
-> Sorry for breaking the thread....
-> 
-> Sascha Wilde wrote:
-> > On Wed, Aug 11, 2004 at 02:27:11PM +0200, Vojtech Pavlik wrote:
-> > > On Wed, Aug 11, 2004 at 01:31:13AM -0500, Dmitry Torokhov wrote:
-> > > > On Thursday 05 August 2004 07:48 am, David N. Welton wrote:
-> > > > > By putting a series of 'crashme/reboot' calls into the kernel, I
-> > > > > narrowed a possibl cause of it down to this bit of code in
-> > > > > drivers/input/serio.c:753
-> > [...]
-> > > > Could you please try the patch below? I am interested in tests both
-> > > > with and without keyboard/mouse. The main idea is to leave ports that
-> > > > have been disabled by BIOS alone... The patch compiles but otherwise
-> > > > untested. Against 2.6.7.
-> > >
-> > > Well, this has a problem - plugging a mouse later will never work, as
-> > > the interface will be disabled by the BIOS if a mouse is not present at
-> > > boot.
-> > 
-> > Is PS/2 supposed to support hotpluging at all?  I guess it's not, but I
-> > may be wrong...
-> 
-> Yes it is, at least with newer (or rather not ancient) hardware...
 
-well, so the patch obviously can't be a final solution...
- 
-> From what I can see 2.4 does not have this problem because before
-> toucing the control register it tries to reset the keyboard and
-> stops if there is not response. I think this also menas that 2.4
-> does not support keyboard hot-plugging. In 2.6 we do not make any
-> assumptions on what kind of hardware attached to a port (KBD, mouse)
-> so reset test probably won't work...
+If I don't want to build a new compression library and port it to 
+kernel, all I want to do is to try out the idea -- whether it could work 
+on cloop, whether the compression ratio is acceptable, can I just change 
+the cloop code? In other words, I just need a loopback block device with 
+other compression scheme.
+
+I know that adding the new algorithm support to kernel would be standard 
+way to do this and would be helpful to more people, it's just that I 
+don't have that time :(
+
+Phillip Lougher wrote:
+>  > Hello,
+>  >
+>  > I am trying to do some experiment on compression ratios with cloop. I
+>  > know that currently cloop uses zlib. How can I change it to other
+>  > algorithms?
 > 
-> I wonder if simply resetting controller (by passing i8042.reset)
-> would help in your case?
-
-It helps in a sense, as rebooting works with this option --
-unfortunately when passing i8042.reset on boottime the keyboard is
-dead, so it doesn't help.
-
-cheers
--- 
-Sascha Wilde
-... mein Opa [...]  würde an dieser Stelle zu Dir sagen: Junge, such Dir 
-ne Frau, bau Dir ein Haus, mach ein Kind und laß' die Finger von dem Zeug,
-das Du gerade machst. -- Michael Winklhofer in d.a.e.auktionshaeuser
+> Changing the algorithm from gzip is going to be probably unpopular.
+> Cloop uses the gzip deflate library inside the kernel shared by a
+> large number of other programs.  To change the algorithm you'll have
+> to add more (private) decompression code to the kernel.  This is a 
+> retrograde
+> step because the shared library was only introduced in 2.4.17 to avoid lots
+> of private copies of gzip.
+> 
+>  > Where should I start from? Really a newbie to this,
+>  > appreciate any comments and suggestions!!
+> 
+> There has been discussion on this list before about adding
+> bzip2 support to the kernel.  Do a search on the list for this.
+> 
+> Regards
+> 
+> Phillip
+> 

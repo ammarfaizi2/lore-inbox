@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbVAFRm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVAFRm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbVAFRm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:42:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262929AbVAFRi7
+	id S262935AbVAFRm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 12:42:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbVAFRjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:38:59 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:2750 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262935AbVAFRhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:37:16 -0500
-Subject: Re: Open hardware wireless cards
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
-Cc: Norbert van Nobelen <norbert-kernel@edusupport.nl>,
-       linux-kernel@vger.kernel.org, prism54-devel@prism54.org
-In-Reply-To: <20050106172438.GT5159@ruslug.rutgers.edu>
-References: <20050105200526.GL5159@ruslug.rutgers.edu>
-	 <41DC4B43.7090109@imag.fr> <20050105202626.GN5159@ruslug.rutgers.edu>
-	 <200501060902.07502.norbert-kernel@edusupport.nl>
-	 <20050106172438.GT5159@ruslug.rutgers.edu>
+	Thu, 6 Jan 2005 12:39:21 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:47291 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262936AbVAFRh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:37:26 -0500
+Subject: Re: [Alsa-devel] Re: 2.6.10-mm1: ALSA ac97 compile error with
+	CONFIG_PM=n
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Takashi Iwai <tiwai@suse.de>, Mark_H_Johnson@raytheon.com, bunk@stusta.de,
+       alsa-devel@alsa-project.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, perex@suse.cz
+In-Reply-To: <20050105132711.70f74ecc.akpm@osdl.org>
+References: <OF5A3BD386.A1A4C579-ON86256F7F.00688E0E@raytheon.com>
+	 <s5his6cm1re.wl@alsa2.suse.de>  <20050105132711.70f74ecc.akpm@osdl.org>
 Content-Type: text/plain
-Date: Thu, 06 Jan 2005 12:37:15 -0500
-Message-Id: <1105033035.15352.0.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1105024104.24896.219.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 06 Jan 2005 16:30:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-06 at 12:24 -0500, Luis R. Rodriguez wrote:
-> On Thu, Jan 06, 2005 at 09:02:07AM +0100, Norbert van Nobelen wrote:
-> > You don't have to buy a company. There are white label manufacturers which are 
-> > happy to produce any card you like 
+On Mer, 2005-01-05 at 21:27, Andrew Morton wrote:
+> Takashi Iwai <tiwai@suse.de> wrote:
+> >
+> > The default blocking behavior of OSS devices was changed recently.
+> >  When the device is in use, open returns -EBUSY immediately in the
+> >  latest version while it was blocked until released in the former
+> >  version.
+> > 
 > 
-> Excellent
+> whoa.  That's a significant change in user-visible behaviour.  Why was this
+> done?
 
-Wireless?!?  How abour a freaking pro audio interface (aka "sound
-card")?  Wireless is like rocket science by comparison.
-
-Lee
+It now emulates the later OSS PCI and other devices not 2.2 OSS. As such
+its the right thing to have done for emulation of OSS IMHO. It also
+works with more apps several of which hang on opening /dev/dsp0
+expecting OSS -EBUSY responses.
 

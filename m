@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317882AbSGKTin>; Thu, 11 Jul 2002 15:38:43 -0400
+	id <S317890AbSGKTmD>; Thu, 11 Jul 2002 15:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317884AbSGKTim>; Thu, 11 Jul 2002 15:38:42 -0400
-Received: from server72.aitcom.net ([208.234.0.72]:42905 "EHLO test-area.com")
-	by vger.kernel.org with ESMTP id <S317882AbSGKTik>;
-	Thu, 11 Jul 2002 15:38:40 -0400
-Message-Id: <200207111941.PAA31668@test-area.com>
-Content-Type: text/plain; charset=US-ASCII
-From: anton wilson <anton.wilson@camotion.com>
+	id <S317891AbSGKTmC>; Thu, 11 Jul 2002 15:42:02 -0400
+Received: from centauri.artland.com.pl ([62.233.164.19]:45443 "EHLO
+	centauri.artland.com.pl") by vger.kernel.org with ESMTP
+	id <S317890AbSGKTmA>; Thu, 11 Jul 2002 15:42:00 -0400
+Date: Thu, 11 Jul 2002 21:23:57 +0200
 To: linux-kernel@vger.kernel.org
-Subject: MAX_USER_RT_PRIO < MAX_RT_PRIO limits user-space?
-Date: Thu, 11 Jul 2002 15:39:01 -0400
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Subject: compilation of floppy as module failure
+Message-ID: <20020711192357.GA3722@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: =?iso-8859-1?Q?Micha=B3_Adamczak?= <pokryfka@druid.if.uj.edu.pl>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+just wanted to report that in 2.4.19-rc1
+the kernel image does not compile if floppy (CONFIG_BLK_DEV_FD) is 
+to be compiled as a module.
 
+the problem does not exist when the floppy is built in.
 
-Sorry to post such a simple question but I'm having trouble comprehending the 
-new priority range scheme used with O(1) and no one on kernelnewbies can help.
+the listing of the ver_linux:
 
-Documentation states that priorities are inverted.
-It also states that the separation between MAX_USER_RT_PRIO and MAX_RT_PRIO 
-allows kernel threads to have a higher priority if MAX_USER_RT_PRIO < 
-MAX_RT_PRIO.
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.15
+e2fsprogs              1.27
+PPP                    2.4.1
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.12
 
-I don't see how this is possible because in setscheduler
-
-* Valid priorities for SCHED_FIFO and SCHED_RR are
-* 1..MAX_USER_RT_PRIO-1
-
-and the p->static_prio for RT tasks is determined by
-
-p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-
-so the static_prio for a RT task has a range: [0 ... MAX_USER_RT_PRIO - 2 ]
-
-Fluctuating MAX_USER_RT_PRIO will never prevent a RT process from accessing 
-the bottom of the priority range. And lower means higher priority.
-
-What am I misunderstanding?
-
-Anton
+-- 
+Michal Adamczak
+pokryfka@druid.if.uj.edu.pl
 

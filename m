@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264681AbUD1Hns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUD1Hwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264681AbUD1Hns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 03:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264683AbUD1Hns
+	id S264683AbUD1Hwl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 03:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264684AbUD1Hwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 03:43:48 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:29831 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S264681AbUD1Hnp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 03:43:45 -0400
-Content-class: urn:content-classes:message
+	Wed, 28 Apr 2004 03:52:40 -0400
+Received: from p213.54.6.152.tisdip.tiscali.de ([213.54.6.152]:60683 "EHLO
+	mail.our-home.net") by vger.kernel.org with ESMTP id S264683AbUD1Hwj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 03:52:39 -0400
+Message-Id: <37355407.b2srnFq9xu@rohde-29233.user.cis.dfn.de>
+From: Henning Rohde <Rohde.Henning@gmx.net>
+Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
+To: linux-kernel@vger.kernel.org
+Date: Wed, 28 Apr 2004 09:52:40 +0200
+User-Agent: KNode/0.7.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: SMP kernel network problem
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Wed, 28 Apr 2004 13:03:48 +0530
-Message-ID: <1118873EE1755348B4812EA29C55A9721D6D54@esnmail.esntechnologies.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: SMP kernel network problem
-Thread-Index: AcQs8yTtWnF7J//jSCeFPN4MT6yI4A==
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dear Mr. Viro,
 
-We are using P4 HT Processor, RealTech 8139 Network card, Redhat 9.0
-Kernel version 2.4.20-8smp.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Tue, Apr 27, 2004 at 10:39:09PM +0200, Grzegorz Kulewski wrote:
+>> > c) nobody sane should put that as default.  Oh, wait, it's gentoo
+>> > we are talking about?  Nevermind, then.
+>> 
+>> But what default? Gentoo just calls evms_activate before mounting
+>> filesystems to check if there are evms volumes (because filesystems can
+>> reside on it). And, according to man page, this is the right usage of
+>> evms_activate.
+> 
+> And that usage of evms_activate takes over all normally partitioned
+> devices
+> and shoves equivalents of partitions under /dev/evms, right?  So in which
+> universe would that be the right thing to do without a big fat warning and
+> update of /etc/fstab?
 
-When the system is booting form uni processor mode, I am able to ping
-other systems in the network. But when I boot in SMP mode I am not able
-to ping remote systems and am able to self ping. What may be the
-problem? Is there any hardware problem? Is there any OS problem? 
+please have a look at http://evms.sourceforge.net/install/kernel.html,
+chapter 3, part E: BD-Claim Patch.
 
-If any body knows about it please let me know.
+Just my 2 cents of EUR,
 
-Thanks and regards,
-
-Srinivas G
-
-
+        Henning Rohde

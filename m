@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130356AbRADOc7>; Thu, 4 Jan 2001 09:32:59 -0500
+	id <S133053AbRADOd6>; Thu, 4 Jan 2001 09:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbRADOct>; Thu, 4 Jan 2001 09:32:49 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:18926 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129572AbRADOch>; Thu, 4 Jan 2001 09:32:37 -0500
-Date: Thu, 4 Jan 2001 12:32:23 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: try_to_swap_out() return value problem?
-In-Reply-To: <Pine.LNX.4.21.0101040308450.1174-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101041225140.1188-100000@duckman.distro.conectiva>
+	id <S130151AbRADOds>; Thu, 4 Jan 2001 09:33:48 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23310 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129477AbRADOdj>; Thu, 4 Jan 2001 09:33:39 -0500
+Subject: Re: 2.4.0-prerelease: System dies after leaving XF86_4.0.2
+To: nbreun@gmx.de
+Date: Thu, 4 Jan 2001 14:35:43 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01010406154500.01435@nmb> from "Norbert Breun" at Jan 04, 2001 06:15:45 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14EBUX-0005nN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Marcelo Tosatti wrote:
+> I've tested 2.4.0prerelease pure - ac1-ac2-ac3-ac4-ac5 and my system crashed 
+> whenever I left X. 
+> Having switched back to 2.4.0-test13pre7 all is fine. 
+> I'm no developer, so if you need more information, give me some hints.
 
-> Your latest changes to try_to_swap_out() does not seem to be
-> obviously correct.
-
-> Now refill_inactive() relies on the assumption that swap_out()
-> returning 1 means we successfully freed a page:
-
-The changes try_to_swap_out() has seen in recent
-months indeed have the potential to really disturb
-the balance between refill_inactive_scan() and
-swap_out() ...
-
-Looking into changing/fixing/... this balance may
-have some influence on performance, but now that
-aging has been reintroduced tweaking the balance no
-longer seems to have the huge influence it had in
-2.2.
-
-Having said that, it may be good to re-balance the
-VM a bit for 2.4.1...
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+What video card do you have and are you using AGP or DRM (an lsmod will tell
+you)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

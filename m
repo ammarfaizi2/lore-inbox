@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316958AbSFFMVO>; Thu, 6 Jun 2002 08:21:14 -0400
+	id <S316892AbSFFMvl>; Thu, 6 Jun 2002 08:51:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316959AbSFFMVN>; Thu, 6 Jun 2002 08:21:13 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:23549 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316958AbSFFMVN>; Thu, 6 Jun 2002 08:21:13 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020605134945.7ad22093.kristian.peters@korseby.net> 
-To: Kristian Peters <kristian.peters@korseby.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: -ac series won't compile without fix 
+	id <S316906AbSFFMvk>; Thu, 6 Jun 2002 08:51:40 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:41228 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316892AbSFFMvk>;
+	Thu, 6 Jun 2002 08:51:40 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre10-ac2 
+In-Reply-To: Your message of "Thu, 06 Jun 2002 11:11:09 +0100."
+             <Pine.LNX.4.44.0206061110410.16548-100000@jester.mews> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Jun 2002 13:21:13 +0100
-Message-ID: <30073.1023366073@redhat.com>
+Date: Thu, 06 Jun 2002 22:51:31 +1000
+Message-ID: <4646.1023367891@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 6 Jun 2002 11:11:09 +0100 (BST), 
+Matt Bernstein <matt@theBachChoir.org.uk> wrote:
+>Since when was it OK to do a parallel make dep?
 
-kristian.peters@korseby.net said:
-> I'm unable to compile the -ac series correctly.  A "make mrproper"
-> does not help here.
+Arch dependent.  Parallel make dep will generate incomplete output on
+some architectures, mainly those that generate files at make dep time.
+mkdep.c only adds .h files to .[h]depend if the file exists.  With
+parallel make dep the scanning of .c files can occur before the .h
+files have been generated, resulting in an incomplete dependency tree.
+Later changes may not rebuild everything that should be rebuilt.
 
-> make[1]: *** No rule to make target `/usr/src/linux-2.4.19-pre10-ac1/fs/inflate_fs/infblock.h', needed by `/usr/src/linux-2.4.19-pre10-ac1/fs/inflate_fs/infcodes.h'.  Stop.
-
-This is one of many symptoms of the broken kbuild system in current 2.4 and
-2.5 kernels. You need to re-run 'make dep'.
-
---
-dwmw2
-
+Not a problem for kbuild 2.5 of course.
 

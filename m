@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264671AbTFLCJY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 22:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbTFLCJY
+	id S264675AbTFLC1t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 22:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264676AbTFLC1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 22:09:24 -0400
-Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:21684 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S264671AbTFLCJX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 22:09:23 -0400
-Subject: Re: [PATCH] io stalls
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-In-Reply-To: <20030612012951.GG1500@dualathlon.random>
-References: <20030611003356.GN26270@dualathlon.random>
-	 <1055292839.24111.180.camel@tiny.suse.com>
-	 <20030611010628.GO26270@dualathlon.random>
-	 <1055296630.23697.195.camel@tiny.suse.com>
-	 <20030611021030.GQ26270@dualathlon.random>
-	 <1055353360.23697.235.camel@tiny.suse.com>
-	 <20030611181217.GX26270@dualathlon.random>
-	 <1055356032.24111.240.camel@tiny.suse.com>
-	 <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au>
-	 <20030612012951.GG1500@dualathlon.random>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055384547.24111.322.camel@tiny.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 11 Jun 2003 22:22:28 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jun 2003 22:27:49 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:36876 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S264675AbTFLC1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 22:27:47 -0400
+Date: Thu, 12 Jun 2003 12:41:19 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove anon_hash_chain
+Message-ID: <Mutt.LNX.4.44.0306121238450.19403-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-11 at 21:29, Andrea Arcangeli wrote:
-
-> this will avoid get_request_wait_wakeup to mess the wakeup, so we can
-> wakep_nr(rq.count) safely.
-> 
-> then there's the last issue raised by Chris, that is if we get request
-> released faster than the tasks can run, still we can generate a not
-> perfect fairness. My solution to that is to change wake_up to have a
-> nr_exclusive not obeying to the try_to_wakeup retval. that should
-> guarantee exact FIFO then, but it's a minor issue because the requests
-> shouldn't be released systematically in a flood. So I'm leaving it
-> opened for now, the others already addressed should be the major ones.
-
-I think the only time we really need to wakeup more than one waiter is
-when we hit the q->batch_request mark.  After that, each new request
-that is freed can be matched with a single waiter, and we know that any
-previously finished requests have probably already been matched to their
-own waiter.
-
--chris
+This patch against current bk removes anon_hash_chain from fs/inode.c, as 
+all inodes in the 2.5 kernel must be associated with a superblock, and the 
+anon hash is no longer needed.
 
 
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
+
+diff -purN -X dontdiff bk.pending/fs/inode.c bk.w1/fs/inode.c
+--- bk.pending/fs/inode.c	2003-06-12 10:57:14.000000000 +1000
++++ bk.w1/fs/inode.c	2003-06-12 11:36:44.255403074 +1000
+@@ -71,7 +71,6 @@ static unsigned int i_hash_shift;
+ LIST_HEAD(inode_in_use);
+ LIST_HEAD(inode_unused);
+ static struct hlist_head *inode_hashtable;
+-static HLIST_HEAD(anon_hash_chain); /* for inodes with NULL i_sb */
+ 
+ /*
+  * A simple spinlock to protect the list manipulations.
+@@ -918,15 +917,12 @@ EXPORT_SYMBOL(iget_locked);
+  *	@hashval: unsigned long value used to locate this object in the
+  *		inode_hashtable.
+  *
+- *	Add an inode to the inode hash for this superblock. If the inode
+- *	has no superblock it is added to a separate anonymous chain.
++ *	Add an inode to the inode hash for this superblock.
+  */
+  
+ void __insert_inode_hash(struct inode *inode, unsigned long hashval)
+ {
+-	struct hlist_head *head = &anon_hash_chain;
+-	if (inode->i_sb)
+-		head = inode_hashtable + hash(inode->i_sb, hashval);
++	struct hlist_head *head = inode_hashtable + hash(inode->i_sb, hashval);
+ 	spin_lock(&inode_lock);
+ 	hlist_add_head(&inode->i_hash, head);
+ 	spin_unlock(&inode_lock);
+@@ -936,7 +932,7 @@ void __insert_inode_hash(struct inode *i
+  *	remove_inode_hash - remove an inode from the hash
+  *	@inode: inode to unhash
+  *
+- *	Remove an inode from the superblock or anonymous hash.
++ *	Remove an inode from the superblock.
+  */
+  
+ void remove_inode_hash(struct inode *inode)
 

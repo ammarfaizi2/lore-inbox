@@ -1,107 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271835AbTGYAN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 20:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271837AbTGYAN0
+	id S271839AbTGYAXa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 20:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271842AbTGYAXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 20:13:26 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:30339 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S271835AbTGYANY (ORCPT
+	Thu, 24 Jul 2003 20:23:30 -0400
+Received: from aneto.able.es ([212.97.163.22]:18659 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S271839AbTGYAX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 20:13:24 -0400
-Date: Fri, 25 Jul 2003 02:28:40 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: ROOT NFS fixes now for -pre9
-Message-ID: <20030725002840.GA19709@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
+	Thu, 24 Jul 2003 20:23:28 -0400
+Date: Fri, 25 Jul 2003 00:59:19 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: in-kernel crypto
+Message-ID: <20030724225919.GE12002@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all...
 
-Hi Trond!
+Just a couple questions about the crypto routines present in kernel:
 
-I'm sure you're a busy man, but please have a look at 
-the attached patch, which addresses the root=/dev/wossname 
-issue, when ROOT_NFS is configured. IMHO this is a NFS only 
-issue, and fixes an erroneous behaviour.
+- Are they just for in-kernel use, some like encrypted filesystems, or can
+  it be used from userspace ?
+- It it is usable from userland, has it any advantage over doing it in
+  userspace ? IE, for example, can ssh be faster it used the kernel crypto ?
+- If so, how ? Special library ? syscalls ?
 
-if it seems okay to you, please let Marcelo know,
-so he could add this patch to the next -pre kernel
+If this is on a faq everywhere, a pointer is just enough, thanks.
 
-MTIA,
-Herbert
+TIA
 
-PS: I hope this will make it into 2.4.22-pre9 ...
-
-
-diff -NurbP --minimal linux-2.4.22-pre7/fs/nfs/nfsroot.c linux-2.4.22-pre7-fix/fs/nfs/nfsroot.c
---- linux-2.4.22-pre7/fs/nfs/nfsroot.c	2003-06-13 16:51:37.000000000 +0200
-+++ linux-2.4.22-pre7-fix/fs/nfs/nfsroot.c	2003-07-21 22:15:12.000000000 +0200
-@@ -305,7 +305,7 @@
-  */
- int __init nfs_root_setup(char *line)
- {
--	ROOT_DEV = MKDEV(UNNAMED_MAJOR, 255);
-+	ROOT_DEV = MKDEV(NFS_MAJOR, NFS_MINOR);
- 	if (line[0] == '/' || line[0] == ',' || (line[0] >= '0' && line[0] <= '9')) {
- 		strncpy(nfs_root_name, line, sizeof(nfs_root_name));
- 		nfs_root_name[sizeof(nfs_root_name)-1] = '\0';
-diff -NurbP --minimal linux-2.4.22-pre7/include/linux/nfs.h linux-2.4.22-pre7-fix/include/linux/nfs.h
---- linux-2.4.22-pre7/include/linux/nfs.h	2000-04-01 18:04:27.000000000 +0200
-+++ linux-2.4.22-pre7-fix/include/linux/nfs.h	2003-07-21 22:13:12.000000000 +0200
-@@ -30,6 +30,9 @@
- #define NFS_MNT_PROGRAM	100005
- #define NFS_MNT_PORT	627
- 
-+#define NFS_MAJOR   	UNNAMED_MAJOR
-+#define NFS_MINOR   	0xff
-+
- /*
-  * NFS stats. The good thing with these values is that NFSv3 errors are
-  * a superset of NFSv2 errors (with the exception of NFSERR_WFLUSH which
-diff -NurbP --minimal linux-2.4.22-pre7/init/do_mounts.c linux-2.4.22-pre7-fix/init/do_mounts.c
---- linux-2.4.22-pre7/init/do_mounts.c	2003-07-19 14:14:31.000000000 +0200
-+++ linux-2.4.22-pre7-fix/init/do_mounts.c	2003-07-21 22:13:12.000000000 +0200
-@@ -88,7 +88,7 @@
- 	const char *name;
- 	const int num;
- } root_dev_names[] __initdata = {
--	{ "nfs",     0x00ff },
-+	{ "nfs",     MKDEV(NFS_MAJOR, NFS_MINOR) },
- 	{ "hda",     0x0300 },
- 	{ "hdb",     0x0340 },
- 	{ "loop",    0x0700 },
-@@ -759,7 +759,8 @@
- static void __init mount_root(void)
- {
- #ifdef CONFIG_ROOT_NFS
--	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR) {
-+       if (MAJOR(ROOT_DEV) == NFS_MAJOR
-+           && MINOR(ROOT_DEV) == NFS_MINOR) {
- 		if (mount_nfs_root()) {
- 			sys_chdir("/root");
- 			ROOT_DEV = current->fs->pwdmnt->mnt_sb->s_dev;
-diff -NurbP --minimal linux-2.4.22-pre7/net/ipv4/ipconfig.c linux-2.4.22-pre7-fix/net/ipv4/ipconfig.c
---- linux-2.4.22-pre7/net/ipv4/ipconfig.c	2003-07-19 14:14:31.000000000 +0200
-+++ linux-2.4.22-pre7-fix/net/ipv4/ipconfig.c	2003-07-21 22:15:50.000000000 +0200
-@@ -1234,7 +1234,7 @@
- 			 * 				-- Chip
- 			 */
- #ifdef CONFIG_ROOT_NFS
--			if (ROOT_DEV == MKDEV(UNNAMED_MAJOR, 255)) {
-+			if (ROOT_DEV == MKDEV(NFS_MAJOR, NFS_MINOR)) {
- 				printk(KERN_ERR 
- 					"IP-Config: Retrying forever (NFS root)...\n");
- 				goto try_try_again;
-
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre7-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))

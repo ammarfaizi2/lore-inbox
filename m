@@ -1,45 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266905AbUG1NDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUG1NLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266905AbUG1NDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 09:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266908AbUG1NDJ
+	id S266910AbUG1NLt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 09:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUG1NLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 09:03:09 -0400
-Received: from cantor.suse.de ([195.135.220.2]:55956 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266905AbUG1NDH (ORCPT
+	Wed, 28 Jul 2004 09:11:49 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:52675 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S266910AbUG1NLs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 09:03:07 -0400
-Subject: Re: writepages drops bh on not uptodate page
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040728045156.GH15895@dualathlon.random>
-References: <20040728045156.GH15895@dualathlon.random>
-Content-Type: text/plain
-Message-Id: <1091019818.6333.84.camel@watt.suse.com>
+	Wed, 28 Jul 2004 09:11:48 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: jmoyer@redhat.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: allow recursive die() on i386 
+In-reply-to: Your message of "Wed, 28 Jul 2004 08:35:39 -0400."
+             <16647.40347.365356.770724@segfault.boston.redhat.com> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Jul 2004 09:03:39 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 28 Jul 2004 23:11:37 +1000
+Message-ID: <9424.1091020297@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-28 at 00:51, Andrea Arcangeli wrote:
-> Hi Andrew,
-> 
-> I think I understood why some ext2 fs corruption still happens even
-> after the last i_size fix.
-> 
-> what happened I believe is that the writepages layer got a not a fully
-> uptodate page (in turn with bh mapped on top of it), and then right
-> before unlocking the page and entering the writeback mode, it freed all
-> the bh. 
+On Wed, 28 Jul 2004 08:35:39 -0400, 
+Jeff Moyer <jmoyer@redhat.com> wrote:
+>This patch allows for a recursive die() on i386.  This closely resembles
+>what is done on x86_64, fwiw.
 
-Ahhhh, this really explains it, thanks andrea.  I agree your fix should
-solve things, but I'm wondering if we shouldn't make readpage[s] do a
-wait_on_page_writeback().  That might do a better job of protecting us
-from future variations of this problem.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc2/2.6.8-rc2-mm1/broken-out/make-i386-die-more-resilient-against-recursive-errors.patch
 
--chris
-
+does this and more, it also guards against too many recursive calls to
+die.  The patch is already in Andrew's tree.
 

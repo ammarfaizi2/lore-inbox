@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262450AbSKHVcL>; Fri, 8 Nov 2002 16:32:11 -0500
+	id <S262464AbSKHVcK>; Fri, 8 Nov 2002 16:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262460AbSKHVbK>; Fri, 8 Nov 2002 16:31:10 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:12548 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262450AbSKHVbI>;
+	id <S262450AbSKHVbM>; Fri, 8 Nov 2002 16:31:12 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:12804 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262452AbSKHVbI>;
 	Fri, 8 Nov 2002 16:31:08 -0500
-Date: Wed, 16 Jan 2002 14:28:20 -0500
+Date: Wed, 16 Jan 2002 14:35:46 -0500
 From: Pavel Machek <pavel@ucw.cz>
-To: Paul Larson <plars@linuxtestproject.org>
-Cc: Frank Cornelis <fcorneli@elis.rug.ac.be>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Frank Cornelis <fcorneli@trappist.elis.rug.ac.be>
-Subject: Re: [PATCH] extended ptrace
-Message-ID: <20020116192812.GB2947@zaurus>
-References: <Pine.LNX.4.44.0210231656080.19811-100000@trappist.elis.rug.ac.be> <1035387198.3447.39.camel@plars>
+To: Dave Jones <davej@codemonkey.org.uk>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       chrisl@vmware.com, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] How to get number of physical CPU in linux from user space?
+Message-ID: <20020116193539.GC2947@zaurus>
+References: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com> <1035572950.1501.3429.camel@phantasy> <20021025191356.GA11189@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1035387198.3447.39.camel@plars>
+In-Reply-To: <20021025191356.GA11189@suse.de>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>  > +#ifdef CONFIG_SMP
+>  > +	seq_printf(m, "physical processor ID\t: %d\n", phys_proc_id[n]);
+>  > +	seq_printf(m, "number of siblings\t: %d\n", smp_num_siblings);
+>  > +#endif
+> 
+> Should this be wrapped in a if (cpu_has_ht(c)) { }  ?
+> Seems silly to be displaying HT information on non-HT CPUs.
 
-> Do you (or anyone else) have any good tests for this, or even ptrace in
-> general?  I'm working on some ptrace tests for LTP, but if someone
-> already has something to contribute it would save me some time. :)
-
-You may try to use subterfugue.sf.net to stress ptrace....
+Well, without if () you can tell the difference
+between 'no hyperthreading' and 'too old
+kernel to tell me about hyperthreading so I'd
+suggest kill the if ().
 				Pavel

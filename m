@@ -1,126 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280088AbRJaFjb>; Wed, 31 Oct 2001 00:39:31 -0500
+	id <S280086AbRJaGUU>; Wed, 31 Oct 2001 01:20:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280086AbRJaFjT>; Wed, 31 Oct 2001 00:39:19 -0500
-Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:42172 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S280083AbRJaFjG>; Wed, 31 Oct 2001 00:39:06 -0500
-Date: Wed, 31 Oct 2001 00:41:29 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.ent,
-        torvalds@transmeta.com
-Subject: Re: VM test comparison of 2.4.14-pre5, aa1, and 2.4.13-ac5-fs
-Message-ID: <20011031004129.A207@earthlink.net>
-In-Reply-To: <20011030022640.A225@earthlink.net> <20011030154911.E1340@athlon.random>
+	id <S280089AbRJaGUJ>; Wed, 31 Oct 2001 01:20:09 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:10839 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S280086AbRJaGTw>;
+	Wed, 31 Oct 2001 01:19:52 -0500
+Date: Tue, 30 Oct 2001 23:19:27 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Theodore Tso <tytso@mit.edu>, Oliver Xymoron <oxymoron@waste.org>,
+        Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] random.c bugfix
+Message-ID: <20011030231926.E800@lynx.no>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011029163920.F806@lynx.no> <Pine.LNX.4.30.0110291814100.30096-100000@waste.org> <20011029205005.L806@lynx.no> <20011030110713.A583@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011030154911.E1340@athlon.random>; from andrea@suse.de on Tue, Oct 30, 2001 at 03:49:11PM +0100
-From: rwhron@earthlink.net
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011030110713.A583@thunk.org>; from tytso@mit.edu on Tue, Oct 30, 2001 at 11:07:13AM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 03:49:11PM +0100, Andrea Arcangeli wrote:
-> > 
-> > Averages for 10 mtest01 runs
-> > bytes allocated:                    1241933414
-> > bytes allocated:                    1250217164
-> > bytes allocated:                    1244345139
+On Oct 30, 2001  11:07 -0500, Theodore Tso wrote:
+> On Mon, Oct 29, 2001 at 08:50:05PM -0700, Andreas Dilger wrote:
+> > Well, I just saw that the "in++" and "nwords * 4" patches went into -pre4.
+> > These are the only real non-cosmetic parts of what has been sent.  The
+> > other patches were not officially submitted to Linus yet (using bytes
+> > as parameters, and removing poolwords from the struct).  I have reverted
+> > those patches in my tree, and gone back to using words as units for
+> > add_entropy(), since it doesn't make sense to take bytes as a parameter
+> > and then require a multiple of 4 bytes for input sizes.
 > 
-> the mtest01 -p may comparing apples to oranges. Please make sure to apply
-> the -p fix I posted in the last days before using the -p option,
+> Oops, ouch.  Thanks for catching the in++ bug; I can't believe that
+> remained unnoticed for so long.  
 > 
-> thanks!
-> 
-> Andrea
+> Could you send me a pointer to the proposed change to remove poolwords
+> from the struct?  I'm not sure why that wwould be a good thing at all.
 
-I put Andrea's patch on mtest01.c to remove the variation of memory allocated
-between runs.  So far I've only tested it on 2.4.14pre5aa1.  
+No point - I reverted them and will not use them.  The goal was to
+simplify the "unit" issue in random.c becuase the previous bug about
+truncating "entropy_count" to "poolwords" instead of "poolbits" was
+caused specifically by a misunderstanding about the unit sizes of
+function parameters.
 
-Paul Larson's comments about the test working as designed make sense too.  
+add_entropy_words -> words == 4 bytes
+credit_entropy_store -> bits
+extract_entropy -> bytes
 
-Jen Axboe's comment about how much I/O comes into play in these tests is
-right on.  The mmap001 test pounds the disk with 20000-30000 Blk_wrtn/s.
-mtest01 can do over 50000 Blk_wrtn/s.
+What I have done instead of changing "poolwords" to "poolbytes"
+everywhere, is rename "credit_entropy_store" to "credit_entropy_bits"
+and rename the struct field "entropy_count" to "entropy_bits".
 
-Small differences in any results should be ignored, because there is always some 
-variation in the test.  I.E. One run may receive 120 lines of input from the IRC 
-clients, and another only 30.  One run I may type 30 characters, another 200.  
-Not a lot of difference when you think about bytes processed, but it can affect 
-the results.
+> Also, the reason why add_entropy_words did stuff in multiple of 4
+> bytes was simply because it made the code much more efficient.
 
-This isn't a perfectly controlled test, though I try to keep variations
-down to the things listed above.  For the last 10 days or so, I always use
-the same mp3 sampled at 128k.
+I didn't disagree with that at all.  All that I tried (and ended up not
+using) was to change all the word units to be bytes.  The algorithm was
+not changed.  In the end, one of the reasons to not use it was that it
+introduced a few cases where we scaled a variable value instead of a
+constant value, and introduced a small run-time overhead.  It also didn't
+make sense to pass a byte value to add_entropy_words() and then restrict
+it to being a multiple of 4.  Ugh.
 
-There are differences in .config too.  They all started with the same .config,
-but after "make oldconfig", they change a little.  In the diff below, aa=Andrea, 
-ac=Alan, lt=Linus.  (This is from latest pre5aa1, ac5, and pre5 kernels)
+> Zero-padding isn't a problem, since it's perfectly safe to mix in zero
+> bytes into the pool.
 
-diff aa ac
-> CONFIG_GENERIC_ISA_DMA=y
-> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-> CONFIG_X86_PPRO_FENCE=y
-< CONFIG_NO_PAGE_VIRTUAL=y
+Well, Oliver tends to disagree.  I don't know enough either way.  It _does_
+seem bad that if you wrote continually wrote 1-byte values into /dev/random
+and padded out the end of the word that it would be bad.  However, in the
+end this is no worse than cat /dev/zero > /dev/random, which is also allowed.
 
-diff aa lt
-> CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-< CONFIG_NO_PAGE_VIRTUAL=y
+The only place were we submit non-word-sized values to add_entropy_words()
+is in random_write(), and I fixed that to accumulate bytes until we
+have a full word to mix in.  One possible "optimization" that could
+be done in that function is instead of copy_from_user(), we could use
+verify_area() instead, directly add any fully-aligned words into the pool,
+and then "accumulate" any misaligned or partial words.  This saves us a
+memcpy() of all the data being written into /dev/random, but whether the
+performance improvement is noticable on this non-fast-path is important
+is questionable.  Another question is whether "rounding" a char pointer
+to a multiple of 4 is legal/portable.  Maybe I'll put in a comment and
+wait until someone else wants to do it...
 
-diff ac lt
-< CONFIG_GENERIC_ISA_DMA=y
-< CONFIG_X86_PPRO_FENCE=y
-
-
-The kernels themselves vary in size a bit.
-
-2.4.14pre5aa
-Memory: 514516k/524224k available (912k kernel code, 9320k reserved, 231k data, 208k init
-
-2.4.13-ac5
-Memory: 513492k/524224k available (911k kernel code, 10344k reserved, 235k data, 212k init
-
-2.4.14-pre5
-Memory: 514060k/524224k available (904k kernel code, 9776k reserved, 228k data, 208k init
-
-
-This is from 2.4.14pre5aa1 with mtest01 patch.
-
-mp3 played 288 seconds of 392 second run (new run with patch - more bytes allocated)
-mp3 played 318 seconds of 383 second run (previous run).
-
-Averages for 10 mtest01 runs
-bytes allocated:                    1284505600
-User time (seconds):                2.145
-System time (seconds):              3.005
-Elapsed (wall clock) time:          39.206
-Percent of CPU this job got:        12.60
-Major (requiring I/O) page faults:  132.1
-Minor (reclaiming a frame) faults:  314387.9
-
-mp3 played 848 seconds of  875 second run.
-mp3 played 823 seconds of  878 second run (previous run).
-
-Average for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.530
-System time (seconds):              14.396
-Elapsed (wall clock seconds) time:  174.98
-Percent of CPU this job got:        19.00
-Major (requiring I/O) page faults:  500165.0
-Minor (reclaiming a frame) faults:  43.0
-
-For the re-run of mmap001, the seconds played varied by 3% from the
-previous run.  Any difference of 5% or less should be ignored, imho.
-
-So I'm thinking about just continuing to use the mtest01 from LTP, 
-knowing that with my test conditions, a variation of a few percent 
-isn't significant.
-
-Andrea, is that okay with you?
-
--- 
-Randy Hron
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

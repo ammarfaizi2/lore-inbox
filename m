@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270680AbTG0GIK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 02:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270681AbTG0GIK
+	id S270681AbTG0GK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 02:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270685AbTG0GK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 02:08:10 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:46095 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S270680AbTG0GIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 02:08:09 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 - sysfs sensor nameing inconsistency
-Date: Sun, 27 Jul 2003 10:23:13 +0400
-User-Agent: KMail/1.5
-Cc: margitsw@t-online.de (Margit Schubert-While)
+	Sun, 27 Jul 2003 02:10:26 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:53131 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S270681AbTG0GKX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 02:10:23 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Kernel Developer List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] System stalls using usb-storage
+Date: Sun, 27 Jul 2003 08:24:44 +0200
+User-Agent: KMail/1.5.1
+References: <20030723200051.C18354@one-eyed-alien.net>
+In-Reply-To: <20030723200051.C18354@one-eyed-alien.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200307271023.15304.arvidjaar@mail.ru>
+Message-Id: <200307270824.44851.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Attached is patch against 2.6.0-test1 that adds type_name to all in-tree
->> sensors; it sets it to the same values as corr. 2.4 senors and (in one 
-case)
->> changes client name to match that of 2.4.
->
-> Well, it certainly doesn't with the lm85.c  :-)
-> Hint - names are in lib/chips.h in sensors package :-)
+Am Donnerstag, 24. Juli 2003 05:00 schrieb Matthew Dharm:
+> Many people, including myself, have observed system stalls when using
+> usb-storage.  It happens when copying large amounts of data to a USB device
+> -- everything (except the USB access) just stops for a little while.  My
+> best guess is that the block cache is filling up (easy since USB is so
+> slow).
 
-It was my fault I should not start changing names, sorry. Sometimes this 
-happens.
+Can you do a vmstat run? That should provide conclusive data.
+If so, write throteling is failing.
 
-If this patch is accepted it is OK though, we may change other names to be 
-more user-friendly as well.
+> The question is, what is the best way to handle this.  I'm guessing that
+> increasing the priority of the usb-storage control thread will help, but
+> that's just a guess.  I'm not even sure how to go about doing that, tho...
 
--andrey
+A kernel thread in the block io path has to have a higher priority than
+any user task. Otherwise a priority inversion is possible.
 
-Please Cc me I am not on lkml
-
+	Regards
+		Oliver
 

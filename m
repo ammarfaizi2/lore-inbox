@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319667AbSIMTkO>; Fri, 13 Sep 2002 15:40:14 -0400
+	id <S319760AbSIMTww>; Fri, 13 Sep 2002 15:52:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319762AbSIMTkO>; Fri, 13 Sep 2002 15:40:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19660 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319667AbSIMTkN>;
-	Fri, 13 Sep 2002 15:40:13 -0400
-Date: Fri, 13 Sep 2002 12:36:41 -0700 (PDT)
-Message-Id: <20020913.123641.50140065.davem@redhat.com>
-To: akropel1@rochester.rr.com
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: Streaming DMA mapping question
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020913193916.GA5004@www.kroptech.com>
-References: <20020913193916.GA5004@www.kroptech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S319763AbSIMTww>; Fri, 13 Sep 2002 15:52:52 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:57593 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S319760AbSIMTww>; Fri, 13 Sep 2002 15:52:52 -0400
+Date: Fri, 13 Sep 2002 15:57:44 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Jens Axboe <axboe@suse.de>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Linux Aio <linux-aio@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 port of aio-20020619 for raw devices
+Message-ID: <20020913155744.C2969@redhat.com>
+References: <3D80DB14.2040809@watson.ibm.com> <20020912143540.J18217@redhat.com> <20020913184652.C2758@in.ibm.com> <20020913134404.GG935@suse.de> <3D823DCC.3E303941@digeo.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D823DCC.3E303941@digeo.com>; from akpm@digeo.com on Fri, Sep 13, 2002 at 12:34:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Adam Kropelin <akropel1@rochester.rr.com>
-   Date: Fri, 13 Sep 2002 15:39:16 -0400
-   
-   According to the docs, you should either unmap or sync your DMA buffer before
-   touching it from the host. The i386 implementation of pci_unmap is empty --no
-   problem; there must not be any unmap work to do on this arch. But the 
-   implementation of pci_dma_sync does contain a flush_write_buffers() call. This
-   makes me think that perhaps if I'm going to modify the buffer before I submit it
-   back to the controller I need to do:
+On Fri, Sep 13, 2002 at 12:34:36PM -0700, Andrew Morton wrote:
+> It has the disadvantage that we may have some data which is mergeable,
+> and would in fact nonblockingly fit into a "congested" queue.  Don't
+> know if that makes a lot of difference in practice.
 
-Actually, rather it appears that the i386 pci_unmap_*() routines need
-the write buffer flush as well.
+That's what I was thinking.  Not having a congested queue really breaks 
+aio as your submit point is not supposed to incur significant latency: an 
+io should -EAGAIN if it would cost a large delay to setup.
 
-The x86 implementation is a bad example to read if you're trying to
-see what the worst case scenerio is.
-
-Just follow the document and your driver will work properly on all
-platforms.  DMA-mapping.txt was meant to be written in a way such
-that you should not ever need to look at an implementation of the
-interfaces to figure out how to use them.
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

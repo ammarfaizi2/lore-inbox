@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262448AbTCIHD3>; Sun, 9 Mar 2003 02:03:29 -0500
+	id <S262450AbTCIHFC>; Sun, 9 Mar 2003 02:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbTCIHD3>; Sun, 9 Mar 2003 02:03:29 -0500
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:26888
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
-	id <S262448AbTCIHD2>; Sun, 9 Mar 2003 02:03:28 -0500
-Subject: Still getting some NFS htree strangeness
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ext2 devel <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <E18re9F-00086y-00@think.thunk.org>
-References: <E18re9F-00086y-00@think.thunk.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047194045.8991.71.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 08 Mar 2003 23:14:05 -0800
-Content-Transfer-Encoding: 7bit
+	id <S262455AbTCIHFC>; Sun, 9 Mar 2003 02:05:02 -0500
+Received: from comtv.ru ([217.10.32.4]:4554 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S262450AbTCIHFA>;
+	Sun, 9 Mar 2003 02:05:00 -0500
+X-Comment-To: Daniel Phillips
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [Bug 417] New: htree much slower than regular ext3
+References: <11490000.1046367063@[10.10.2.4]> <m34r6fyya8.fsf@lexa.home.net>
+	<20030307173425.5C4D3FAAAE@mx12.arcor-online.net>
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 09 Mar 2003 10:08:34 +0300
+In-Reply-To: <20030307173425.5C4D3FAAAE@mx12.arcor-online.net>
+Message-ID: <m3r89hrp8t.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-08 at 05:13, Theodore Ts'o wrote:
-> I've backported all of the bugfixes to the 2.5 dxdir/htree patches to
-> 2.4, and have created a new set of patches for Linux 2.4.21rc5.  At this
-> point it *looks* like we've fixed all of the htree bugs that people have
-> reported, including the brelse bug, the memory leak bugs, and the NFS
-> compatibility problems.
+>>>>> Daniel Phillips (DP) writes:
 
-I'm still getting odd results from programs doing readdir over NFS.  I
-haven't really nailed down what's happening yet, but I'm getting readdir
-failing with EOVERFLOW.  Strace doesn't show any syscalls failing, and
-an inspection of the glibc source of readdir() shows that it can return
-EOVERFLOW, but I don't really understand the code yet.  It may be that
-it assumes that the getdents "offset" is really a file offset rather
-than a random number.  
+ DP> On Fri 07 Mar 03 16:46, Alex Tomas wrote:
+ DP> The problem I see with your approach is that the traversal is no
+ DP> longer in hash order, so a leaf split in the middle of a
+ DP> directory traversal could result in a lot of duplicate dirents.
+ DP> I'm not sure there's a way around that.
 
-I'm inclined to suspect that it is a glibc bug, but I'm not willing to
-say so until I've worked out what's really going on.  Also, even if it
-were, it would be worth working around if possible (otherwise htree+nfs
-is still effectively useless).
+1) As far as I understand, duplicates are possible even in classic ext2
+   w/o sortdir/index. See the diagram:
 
-I'll see if I can get something more concrete showing what's going on.
+                    Process 1                  Process 2
 
-	J
+                    getdents(2) returns
+                    dentry1 (file1 -> Inode1)
+                    dentry2 (file2 -> Inode2)
+
+context switch -->
+                                               unlink(file1), empty dentry1
+                                               creat(file3), Inode3, use dentry1
+                                               creat(file1), Inode1, use dentry3
+
+context switch -->
+
+                    getdents(2) returns
+                    dentry3(file1 -> Inode1)
+
+
+Am I right?
+
+
+2) Why do not use hash order for traversal like ext3_dx_readdir() does?
+   Upon reading several dentries within some hash set readdir() sorts them
+   in inode order and returns to an user.
+
+
+with best regards, Alex
 

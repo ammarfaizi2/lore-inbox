@@ -1,89 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUENO65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUENPHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUENO65 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 10:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUENO65
+	id S261451AbUENPHU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 11:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUENPHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 10:58:57 -0400
-Received: from email-out2.iomega.com ([147.178.1.83]:47781 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S261474AbUENO6X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 10:58:23 -0400
-Subject: Re: oops ACPI in Linux-2.6.6-bk1
-From: Pat LaVarre <p.lavarre@ieee.org>
-To: len.brown@intel.com
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1084511992.12354.256.camel@dhcppc4>
-References: <A6974D8E5F98D511BB910002A50A6647615FB4FE@hdsmsx403.hd.intel.com
-	 ><1084511992.12354.256.camel@dhcppc4>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1084546675.7796.12.camel@patibmrh9>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 May 2004 08:57:55 -0600
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 May 2004 14:58:22.0509 (UTC) FILETIME=[E6B2A5D0:01
-	C439C3]
-X-imss-version: 2.0
-X-imss-result: Passed
-X-imss-scores: Clean:37.31947 C:20 M:1 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+	Fri, 14 May 2004 11:07:20 -0400
+Received: from lucidpixels.com ([66.45.37.187]:2275 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S261451AbUENPHG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 11:07:06 -0400
+Date: Fri, 14 May 2004 11:07:04 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel 2.6 SMP+HT + 1 Intel P4 HT CPU
+In-Reply-To: <20040514133947.GB21039@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.4.58.0405141106460.24191@p500>
+References: <5D3C2276FD64424297729EB733ED1F7605FAE205@email1.mitretek.org>
+ <Pine.LNX.4.58.0405140848220.24191@p500> <20040514133947.GB21039@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There were no ACPI changes between 2.6.6 and 2.6.6-bk1.
+So essentially, if one does not enable SMP in Linux, they are not taking
+advantage of hyper threading!?
 
-The change my newbie eye sees here is that the effect of CONFIG_ACPI=y
-changes from imperceptible in 2.6.6 to kernel won't boot in 2.6.6-bk1.
+On Fri, 14 May 2004, bert hubert wrote:
 
-> Does 2.6.6 work for you?
-
-2.6.6 works for me, yes, as did 2.6.5, 2.6.4, etc. ...
-
-$ grep 'CONFIG_ACPI=' .config
-CONFIG_ACPI=y
-$ grep 'ACPI.*=y$' .config | grep -v '^#' | wc -l
-     16
-$
-
-The motherboard labels in front of me include:
-
-"INTEL DESKTOP BOARD"
-"D865GBF/D865PERC".
-
-> > > ACPI: Subsystem revision 20040326 ...
-> > > [<c01eef72>] acpi_ev_save_method_info+0x44/0x75 ...
-> > > Unable to handle kernel NULL pointer dereferencec01e1194 ...
-> > > Kernel panic: Aiee, killing interrupt handler! ...
-> > > Unable <o ha1dleUn kernel NULL pointer dereferenceer
-> > dereferenceOoops: ...
-> > > Unable to handle kernel NULL pointer dereference at virtual address
-> > ...
-> > 
-> > Theory confirmed:
-> > 
-> > Deleting CONFIG_ACPI=y etc. via `make xconfig` fixes this.
-> 
-> what theory?
-
-Thanks for making the time to say I was unclear.
-
-In launching a thread titled "oops ACPI" I was guessing that lossy dmesg
-spew appearing immediately past "ACPI: Subsystem revision 20040326" was
-caused by me living too close to `make defconfig`.  I then revisited
-`make xconfig`, asked to turn off ACPI, and suddenly life got better.
-
-I'm working from local copies of the kernel.org files:
-
-$ ls -l *2.6.6*
--rw-rw-r--    1 pat      pat      34896138 May 10 11:14 linux-2.6.6.tar.bz2
--rw-------    1 pat      pat       1072216 May 12 08:47 patch-2.6.6-bk1.bz2
-$
-
-I can fsck the containing volume, but I haven't yet otherwise learned
-how to crc-check their integrity.
-
-Pat LaVarre
-
-
+> On Fri, May 14, 2004 at 08:49:39AM -0400, Justin Piszcz wrote:
+> > Why would you use SMP on an HT cpu?
+> > Is this reccomended?
+>
+> Yes, it acts like one.
+>
+> >
+> > >
+> > >
+> > > -----Original Message-----
+> > > From: linux-kernel-owner@vger.kernel.org
+> > > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Alberto
+> > > Bertogli
+> > > Sent: Thursday, May 13, 2004 8:42 PM
+> > > To: linux-usb-devel@lists.sourceforge.net
+> > > Cc: linux-kernel@vger.kernel.org
+> > > Subject: BUG when removing USB flash drive
+> > >
+> > > Hi!
+> > >
+> > > I've just hit a bug after removing a Kingston USB flash drive.
+> > >
+> > > I have removed it several (probably more than 40) times today without
+> > > problems until now. I'm removing it while doing streaming write()s on
+> > > the device (using /dev/sda) because I'm testing some things with the
+> > > drive. This was just like all the other times, so it looks like a race
+> > > somewhere.
+> > >
+> > > This is a stock 2.6.6 kernel, on a Pentium 4 with HT (the kernel is
+> > > compiled with both SMP and preempt).
+> > >
+> > > After the BUG the kernel doesn't detect the device anymore.
+> > >
+> > > Please let me know if you need any more information or if I can give you
+> > > a
+> > > hand with testing.
+> > >
+> > > Thanks a lot,
+> > > 		Alberto
+> > >
+> > >
+> > > kernel BUG at drivers/usb/storage/usb.c:848!
+> > > invalid operand: 0000 [#1]
+> > > PREEMPT SMP
+> > > CPU:    1
+> > > EIP:    0060:[<c030843c>]    Not tainted
+> > > EFLAGS: 00010202   (2.6.6)
+> > > EIP is at usb_stor_release_resources+0xa3/0xcd
+> > > eax: 00002832   ebx: c639e200   ecx: c04bd768   edx: debf2888
+> > > esi: c04c6780   edi: c308ac00   ebp: c308ac24   esp: dededeb0
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process khubd (pid: 10, threadinfo=dedec000 task=dedef770)
+> > > Stack: debf2888 debf2854 c02e9f48 c639e200 debf2854 de40a670 debf2864
+> > > c04c67a0
+> > >        c0272926 debf2864 debf288c debf2864 c308acd0 c0272a4d debf2864
+> > > debf28bc
+> > >        debf2864 c308acd0 c0271b06 debf2864 debf2864 c308ac00 c0271b57
+> > > debf2864
+> > > Call Trace:
+> > >  [<c02e9f48>] usb_unbind_interface+0x7a/0x7c
+> > >  [<c0272926>] device_release_driver+0x64/0x66
+> > >  [<c0272a4d>] bus_remove_device+0x56/0x98
+> > >  [<c0271b06>] device_del+0x5f/0x9d
+> > >  [<c0271b57>] device_unregister+0x13/0x23
+> > >  [<c02eff98>] usb_disable_device+0x71/0xac
+> > >  [<c02eaa32>] usb_disconnect+0x9c/0xeb
+> > >  [<c02ecb1d>] hub_port_connect_change+0x274/0x279
+> > >  [<c02ec509>] hub_port_status+0x45/0xb0
+> > >  [<c02ece0b>] hub_events+0x2e9/0x364
+> > >  [<c02eceb3>] hub_thread+0x2d/0xe8
+> > >  [<c0105f86>] ret_from_fork+0x6/0x14
+> > >  [<c011a3a1>] default_wake_function+0x0/0x12
+> > >  [<c02ece86>] hub_thread+0x0/0xe8
+> > >  [<c0104271>] kernel_thread_helper+0x5/0xb
+> > >
+> > > Code: 0f 0b 50 03 05 a6 43 c0 e9 7c ff ff ff c7 80 e0 01 00 00 00
+> > >
+> > >
+> > > Five seconds later, this comes out:
+> > >
+> > >  <1>Unable to handle kernel paging request at virtual address 31a875c8
+> > >  printing eip:
+> > > c0307b2b
+> > > *pde = 00000000
+> > > Oops: 0002 [#2]
+> > > PREEMPT SMP
+> > > CPU:    0
+> > > EIP:    0060:[<c0307b2b>]    Not tainted
+> > > EFLAGS: 00010002   (2.6.6)
+> > > EIP is at usb_stor_control_thread+0x14d/0x2c9
+> > > eax: 31a875c8   ebx: c639e200   ecx: c639e200   edx: 00002003
+> > > esi: c639e600   edi: d3c84000   ebp: d3c84000   esp: d3c85f9c
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process usb-storage (pid: 10290, threadinfo=d3c84000 task=c76b0130)
+> > > Stack: dec00800 c639e200 c76b0698 c639e310 c639e324 c76b0130 c13e5ca0
+> > > dededda8
+> > >        c0105f86 dedef770 c03079de 00000000 c639e200 00000000 00000000
+> > > 00000000
+> > >        00000000 c03079de 00000000 00000000 00000000 c0104271 c639e200
+> > > 00000000
+> > > Call Trace:
+> > >  [<c0105f86>] ret_from_fork+0x6/0x14
+> > >  [<c03079de>] usb_stor_control_thread+0x0/0x2c9
+> > >  [<c03079de>] usb_stor_control_thread+0x0/0x2c9
+> > >  [<c0104271>] kernel_thread_helper+0x5/0xb
+> > >
+> > > Code: f0 fe 08 0f 88 38 0b 00 00 8b 83 b8 00 00 00 81 b8 50 01 00
+> > >  <6>note: usb-storage[10290] exited with preempt_count 1
+> > >
+> > >
+> > >
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > > in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> > >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> --
+> http://www.PowerDNS.com      Open source, database driven DNS Software
+> http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+>

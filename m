@@ -1,86 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVCVLcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVCVL3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbVCVLcp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 06:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVCVL36
+	id S262653AbVCVL3l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 06:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVCVL2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 06:29:58 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:35256 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262269AbVCVL3M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 06:29:12 -0500
-Date: Tue, 22 Mar 2005 12:28:56 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050322112856.GA25129@elte.hu>
-References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050322100153.GA23143@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 22 Mar 2005 06:28:54 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:10404 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262658AbVCVL0a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 06:26:30 -0500
+Date: Tue, 22 Mar 2005 06:26:28 -0500
+From: Hikaru1@verizon.net
+Subject: Re: forkbombing Linux distributions
+In-reply-to: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <20050322112628.GA18256@roll>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-disposition: inline
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alright, I noticed this article scared a few of my friends, so I decided to
+figure out on my own a way to prevent fork bombing from completely disabling
+my machine.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+This is only one way to do this, and it's not particularly elegant, but it
+gets the job done. If you want something more elegant, try using ulimit or
+/etc/limits instead. Me? This is good enough.
 
-> 
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> > hm, another thing: i think call_rcu() needs to take the read-lock.
-> > Right now it assumes that it has the data structure private, but
-> > that's only statistically true on PREEMPT_RT: another CPU may have
-> > this CPU's RCU control structure in use. So IRQs-off (or preempt-off)
-> > is not a guarantee to have the data structure, the read lock has to be
-> > taken.
-> 
-> i've reworked the code to use the read-lock to access the per-CPU data
-> RCU structures, and it boots with 2 CPUs and PREEMPT_RT now. The
-> -40-05 patch can be downloaded from the usual place:
+Create, or edit the file /etc/sysctl.conf
 
-bah, it's leaking dentries at a massive scale. I'm giving up on this
-variant for the time being and have gone towards a much simpler variant,
-implemented in the -40-07 patch at:
+In the file, find a line or otherwise create one labelled:
+kernel.threads-max = 250
 
-   http://redhat.com/~mingo/realtime-preempt/
+Now make sure at startup something runs
 
-it's along the lines of Esben's patch, but with the conceptual bug fixed
-via the rcu_read_lock_nesting code from Paul's patch.
+sysctl -p
 
-there's a new CONFIG_PREEMPT_RCU option. (always-enabled on PREEMPT_RT)
-It builds & boots fine on my 2-way box, doesnt leak dentries and
-networking is up and running.
+ - on my slackware 10.1 system I had to edit /etc/rc.d/rc.local and add a
+line specifically to do this.
 
-first question, (ignoring the grace priod problem) is this a correct RCU
-implementation? The critical scenario is when a task gets migrated to
-another CPU, so that current->rcu_data is that of another CPU's. That is
-why ->active_readers is an atomic variable now. [ Note that while
-->active_readers may be decreased from another CPU, it's always
-increased on the current CPU, so when a preemption-off section
-determines that a quiescent state has passed that determination stays
-true up until it enables preemption again. This is needed for correct
-callback processing. ]
+Mind that this isn't the best solution. This limits all users, everything to
+250 procs, you cannot run more. If your running system or server uses more,
+adjust the number accordingly.
 
-this implementation has the 'long grace periods' problem. Starvation
-should only be possible if a system has zero idle time for a long period
-of time, and even then it needs the permanent starvation of
-involuntarily preempted rcu-read-locked tasks. Is there any way to force
-such a situation? (which would turn this into a DoS)
+An example of an attack this stops in its tracks:
+:(){ :|:&};:
 
-[ in OOM situations we could force quiescent state by walking all tasks
-and checking for nonzero ->rcu_read_lock_nesting values and priority
-boosting affected tasks (to RT prio 99 or RT prio 1), which they'd
-automatically drop when they decrease their rcu_read_lock_nesting
-counter to zero. ]
+(as a command to bash)
 
-	Ingo
+Attacks this *limits* and enables the user to do something about:
+Create a file, and put in it:
+
+#!/bin/bash
+$0 & $0 &
+
+chmod +x it, then run it.
+
+This will prevent it from exceeding the procs limits, but it will *not*
+completely stop it. The only way to kill it off successfully is to killall
+-9 the script name repeatedly. Note that you'll occasionally be unable to
+run killall since the forkbomb will be hitting the limit very often.
+
+Like I said, this is not an elegant solution, however it does increase the
+ability of the person owning the machine to do something about it.
+
+Of course, you should always use a bat on the user if nothing else works. ;)
+
+Hikaru

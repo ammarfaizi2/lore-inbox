@@ -1,42 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbTD1BE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 21:04:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbTD1BE3
+	id S262599AbTD1BFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 21:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTD1BFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 21:04:29 -0400
-Received: from user72.209.42.38.dsli.com ([209.42.38.72]:14391 "EHLO
-	nolab.conman.org") by vger.kernel.org with ESMTP id S262706AbTD1BE2
+	Sun, 27 Apr 2003 21:05:24 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:41871 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262599AbTD1BFT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 21:04:28 -0400
-Date: Sun, 27 Apr 2003 21:16:44 -0400 (EDT)
-From: Mark Grosberg <mark@nolab.conman.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 27 Apr 2003 21:05:19 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 27 Apr 2003 18:17:58 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mark Grosberg <mark@nolab.conman.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [RFD] Combined fork-exec syscall.
-In-Reply-To: <20030428005925.GC27729@work.bitmover.com>
-Message-ID: <Pine.BSO.4.44.0304272114560.23296-100000@kwalitee.nolab.conman.org>
+In-Reply-To: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
+Message-ID: <Pine.LNX.4.50.0304271814410.7601-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.BSO.4.44.0304272036360.23296-100000@kwalitee.nolab.conman.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 Apr 2003, Mark Grosberg wrote:
+
+> Is there any interest in a single system call that will perform both a
+> fork() and exec()? Could this save some extra work of doing a
+> copy_mm(), copy_signals(), etc?
+>
+> I would think on large, multi-user systems that are spawning processes all
+> day, this might improve performance if the shells on such a system were
+> patched.
+>
+> Perhaps a system call like:
+>
+>    pid_t spawn(const char *p_path,
+>                const char *argv[],
+>                const char *envp[],
+>                const int   filp[]);
+>
+> The filp array would allow file descriptors to be redirected. It could be
+> terminated by a -1 and reference the file descriptors of the current
+> process (this could also potentially save some dup() syscalls).
+>
+> If any of these parameters (exclusing p_path) are NULL, then the
+> appropriate values are taken from the current process.
+>
+> I originally was thinking of a name of fexec() for such a syscall, but
+> since there are already "f" variant syscalls (fchmod, fstat, ...) that an
+> fexec() would make more sense about executing an already open file, so the
+> name spawn() came to mind.
+>
+> I know almost all of my fork()-exec() code does almost the same thing. I
+> guess vfork() was a potential solution, but this somehow seems cleaner
+> (and still may be more efficient than having to issue two syscalls)...
+> the downside is, of course, another syscall.
+
+This is very much library stuff. I don't think that saving a couple of
+system calls will give you an edge, expecially when we're talking of
+spawning another process. Even if the process itself does nothing but
+return. Ulrich might be eventually interested ...
 
 
-On Sun, 27 Apr 2003, Larry McVoy wrote:
 
-> If you do this, _please_ make it compat with NT.
 
-Actually, I thought about this. My first thought is this could benefit
-WINE running on Linux. Then (not like I'm a Wine expert by any means) I
-figured it might be an issue as far as having to do some preliminary
-wineserver setup work (if anybody on this list knows better than me, speak
-up!)
-
-But yeah, basically, something similar to NT's CreateProcess(). For the
-cases where the one-step process creation is sufficient.
-
-L8r,
-Mark G.
-
+- Davide
 

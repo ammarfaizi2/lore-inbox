@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292289AbSBBOou>; Sat, 2 Feb 2002 09:44:50 -0500
+	id <S292290AbSBBOqU>; Sat, 2 Feb 2002 09:46:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292290AbSBBOor>; Sat, 2 Feb 2002 09:44:47 -0500
-Received: from mail.cogenit.fr ([195.68.53.173]:20887 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S292289AbSBBOo2>;
-	Sat, 2 Feb 2002 09:44:28 -0500
-Date: Sat, 2 Feb 2002 15:44:24 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Subject: SIOCDEVICE ?
-Message-ID: <20020202154424.A5845@fafner.intra.cogenit.fr>
-In-Reply-To: <200201311304.FAA00344@adam.yggdrasil.com> <20020131181241.A3524@fafner.intra.cogenit.fr> <m3665iqhqn.fsf@defiant.pm.waw.pl>
+	id <S292291AbSBBOqR>; Sat, 2 Feb 2002 09:46:17 -0500
+Received: from brick.kernel.dk ([195.249.94.204]:59540 "EHLO
+	burns.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S292290AbSBBOpI>; Sat, 2 Feb 2002 09:45:08 -0500
+Date: Sat, 2 Feb 2002 15:44:49 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Roger Larsson <roger.larsson@norran.net>, Andrew Morton <akpm@zip.com.au>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Errors in the VM - detailed
+Message-ID: <20020202154449.D4934@suse.de>
+In-Reply-To: <200202011847.g11Ilwa14845@maila.telia.com> <Pine.LNX.4.30.0202021543310.10436-100000@mustard.heime.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3665iqhqn.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Thu, Jan 31, 2002 at 11:26:56PM +0100
-X-Organisation: Marie's fan club - II
+In-Reply-To: <Pine.LNX.4.30.0202021543310.10436-100000@mustard.heime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@pm.waw.pl> :
-> Francois Romieu <romieu@cogenit.fr> writes:
+On Sat, Feb 02 2002, Roy Sigurd Karlsbakk wrote:
+> > Jens said earlier "Roy, please try and change
+> > the queue_nr_requests assignment in ll_rw_blk:blk_dev_init() to
+> > something like 2048." - Roy have you tested this too?
 > 
-> > Bug the official HDLC maintainer if you want him to push his work. :o)
-> > 
-> > PS: I read l-k
-> 
-> BTW: I do too :-)
+> No ... Where do I change it?
 
-Nice. Let's write then.
-Your patch doesn't apply against 2.5.3. I did a quick update and noticed the
-patch is the sole user of SIOCDEVICE (with dscc4) and SIOCDEVPRIVATE.
+drivers/block/ll_rw_blk.c:blk_dev_init()
+{
+	queue_nr_requests = 64;
+	if (total_ram > MB(32))
+		queue_nr_requests = 256;
 
-Is there some announce/changelog/heads up I missed ?
-Is something supposed to replace both ?
+Change the 256 to 2048.
 
 -- 
-Ueimor
+Jens Axboe
+

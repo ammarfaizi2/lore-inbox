@@ -1,89 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264574AbTLCPo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 10:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264603AbTLCPo4
+	id S265045AbTLCPwI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 10:52:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265046AbTLCPwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 10:44:56 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:34439 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264574AbTLCPoy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 10:44:54 -0500
-Date: Wed, 3 Dec 2003 10:43:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-In-Reply-To: <7A25937D23A1E64C8E93CB4A50509C2A0310EFAA@stca204a.bus.sc.rolm.com>
-Message-ID: <Pine.LNX.4.53.0312031037440.17092@chaos>
-References: <7A25937D23A1E64C8E93CB4A50509C2A0310EFAA@stca204a.bus.sc.rolm.com>
+	Wed, 3 Dec 2003 10:52:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5030 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265045AbTLCPwF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 10:52:05 -0500
+Date: Wed, 3 Dec 2003 07:51:57 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhcs-devel@lists.sourceforge.net, Ingo Molnar <mingo@elte.hu>
+Subject: Re: kernel BUG at kernel/exit.c:792!
+In-Reply-To: <20031203153858.C14999@in.ibm.com>
+Message-ID: <Pine.LNX.4.58.0312030748240.5258@home.osdl.org>
+References: <20031203153858.C14999@in.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Dec 2003, Bloch, Jack wrote:
 
-> I try to open a non-existan device driver node file. The Kernel returns a
-> value of -1 (expected). However, when I read the value of errno it contains
-> a value of 29. A call to the perror functrion does print out the correct
-> error message (a value of 2). Why does this happen?
+
+On Wed, 3 Dec 2003, Srivatsa Vaddagiri wrote:
 >
-> Jack Bloch
-> Siemens ICN
-> phone                (561) 923-6550
-> e-mail                jack.bloch@icn.siemens.com
+> 	I hit a kernel BUG while running some stress tests
+> on a SMP machine. Details are below:
+>
+> Kernel	:  2.6.0-test9-bk23  + CPU Hotplug Patch
+> Machine	:  Intel 4-Way SMP box
+>
+> kernel BUG at kernel/exit.c:792!
+> EIP is at next_thread+0x16/0x50
+> Call Trace:
+>  [<c0180328>] get_tid_list+0x58/0x70
+>  [<c0180524>] proc_task_readdir+0xc4/0x17c
+>  [<c01658dc>] vfs_readdir+0x5c/0x70
+>  [<c0165be0>] filldir64+0x0/0x120
+>  [<c0165d64>] sys_getdents64+0x64/0xa3
+>  [<c0165be0>] filldir64+0x0/0x120
+>  [<c0109291>] sysenter_past_esp+0x52/0x71
+>
+> I suspect this is because when read_lock call in 'get_tid_list'
+> returns, the leader_task had exited already. This
+> causes the NULL sighand check to fail in the subsequent call
+> to 'next_thread' ?
 
+Yup, looks right.
 
-Because it doesn't happen! You are likely polluting the errno
-variable either with another system call before you test it
-or by not including the correct header file (errno may be a
-MACRO).
+I think the problem is the BUG() itself, not really the caller. So I'd
+prefer the fix for this to be to just entirely remove the debug tests
+withing that "#ifdef CONFIG_SMP", rather than hide the threads from /proc
+when this happens.
 
+Ingo, comments?
 
-Try this program:
-
-
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <errno.h>
-
-int main(int args, char *argv[])
-{
-    int fd, save_errno;
-    if(args < 2) {
-        fprintf(stderr, "Usage:\n%s <filename>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-    if((fd = open(argv[1], O_RDONLY)) < 0) {
-        save_errno = errno;
-        perror("open");
-        fprintf(stderr, "Was %d (%s)\n", save_errno, strerror(save_errno));
-        exit(EXIT_FAILURE);
-    }
-    (void)close(fd);
-    return 0;
-}
-
-Script started on Wed Dec  3 10:41:24 2003
-# ./xxx /dev/XXX
-open: No such file or directory
-Was 2 (No such file or directory)
-# ./xxx /dev/VXI
-open: Operation not supported by device
-Was 19 (Operation not supported by device)
-# exit
-exit
-Script done on Wed Dec  3 10:42:12 2003
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+			Linus

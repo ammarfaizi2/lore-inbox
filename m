@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267805AbTAMKMF>; Mon, 13 Jan 2003 05:12:05 -0500
+	id <S267821AbTAMKXO>; Mon, 13 Jan 2003 05:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267821AbTAMKMF>; Mon, 13 Jan 2003 05:12:05 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:18154 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP
-	id <S267805AbTAMKME>; Mon, 13 Jan 2003 05:12:04 -0500
-Message-ID: <01fe01c2baed$5c123db0$6900a8c0@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>,
-       "Kai Germaschewski" <kai@tp1.ruhr-uni-bochum.de>
-References: <20030112220741.GA15849@mars.ravnborg.org>
-Subject: Re: [RFC] Consolidate vmlinux.lds.S files
-Date: Mon, 13 Jan 2003 11:19:58 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267823AbTAMKXO>; Mon, 13 Jan 2003 05:23:14 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:61842 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267821AbTAMKXN>; Mon, 13 Jan 2003 05:23:13 -0500
+Message-Id: <200301131032.h0DAWHEG022612@eeyore.valparaiso.cl>
+To: robw@optonline.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: gotos in kernel [Was: Re: any chance of 2.6.0-test*?]
+In-Reply-To: Your message of "Sun, 12 Jan 2003 14:34:54 EST."
+             <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> 
+Date: Mon, 13 Jan 2003 11:32:17 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Wilkens <robw@optonline.net> said:
+> I'm REALLY opposed to the use of the word "goto" in any code where it's
+> not needed.  OF course, I'm a linux kernel newbie, so I'm in no position
+> to comment
 
-> Recently we have seen seveal changes to arch/*/vmlinux-lds.S,
-> mainly introduced by the module support but also other changes.
->
-> This is first version, where I have converted i386, s390 and sparc64.
-> The latter two is not tested, only to make sure it can be used by more
-> than one platform.
->
+My, my, my, an anti-goto zealot now.
 
-...
+> Let me comment below the relevant code snippet below as to how I would
+> change it:
+> 
+> On Sun, 2003-01-12 at 14:15, Linus Torvalds wrote:
+> > 		if (spin_trylock(&tty_lock.lock))
+> > 			goto got_lock;
+> > 		if (tsk == tty_lock.lock_owner) {
+> > 			WARN_ON(!tty_lock.lock_count);
+> > 			tty_lock.lock_count++;
+> > 			return flags;
+> > 		}
+> > 		spin_lock(&tty_lock.lock);
+> > 	got_lock:
+> > 		WARN_ON(tty_lock.lock_owner);
+> 	    	   <etc...>
+> 
+> I would change it to something like the following (without testing the
+> code through a compiler or anything to see if it's valid):
 
-> + TEXT_SECTION_CMD(0xC0000000 + 0x100000,, 0x9090, )
+It just to happens that sometimes the compiler generates stupid code for
+goto-less solutions. While the famous "no goto needed" theorem is certainly
+true, it duplicates lots of code to get rid of gotos, and that is a no -
+never - only over my dead body proposition in a kernel that tries to be as
+fast as humanly possible.
 
-
-Nice job indeed.
-
-Could you change in arch/i386/vmlinux-lds.S the 0xC0000000 by PAGE_OFFSET
-(defined in include/asm-i386/page.h)
-
-TEXT_SECTION_CMD(PAGE_OFFSET + 0x100000,, 0x9090, )
-
-This way, one could change PAGE_OFFSET if he needs too, without having to
-change vmlinux-lds.S accordingly
-
-Thanks
-
+And if used with care and good taste, a goto can lead to clearer, more
+understandable (and thus more probably correct) code. Just look up what
+sort of "programming style" Dijkstra was complaining about when asking to
+ban gotos, and what D. E. Knuth has to say on structured programming with
+gotos.
+--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

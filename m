@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262931AbTCSGH4>; Wed, 19 Mar 2003 01:07:56 -0500
+	id <S262932AbTCSGUt>; Wed, 19 Mar 2003 01:20:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262932AbTCSGH4>; Wed, 19 Mar 2003 01:07:56 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:56194 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262931AbTCSGHz>;
-	Wed, 19 Mar 2003 01:07:55 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm1
-References: <20030318031104.13fb34cc.akpm@digeo.com>
-	<87adfs4sqk.fsf@lapper.ihatent.com>
-	<87bs08vfkg.fsf@lapper.ihatent.com>
-	<20030318160902.C21945@flint.arm.linux.org.uk>
-	<873clkw6ui.fsf@lapper.ihatent.com>
-	<20030318162601.78f11739.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 19 Mar 2003 07:16:48 +0100
-In-Reply-To: <20030318162601.78f11739.akpm@digeo.com>
-Message-ID: <87llzbc23z.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262933AbTCSGUt>; Wed, 19 Mar 2003 01:20:49 -0500
+Received: from adsl-67-121-154-32.dsl.pltn13.pacbell.net ([67.121.154.32]:5600
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id <S262932AbTCSGUs>; Wed, 19 Mar 2003 01:20:48 -0500
+Date: Tue, 18 Mar 2003 22:31:43 -0800
+To: Andrew Morton <akpm@digeo.com>, mingo@elte.hu
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
+Message-ID: <20030319063143.GA22551@triplehelix.org>
+References: <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain> <20030318215228.417e0a58.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Disposition: inline
+In-Reply-To: <20030318215228.417e0a58.akpm@digeo.com>
+User-Agent: Mutt/1.5.3i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
 
-> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
-> >
-> > I'm not suspecting the PCI in particular for the PCIC-bits, only
-> > making X and the Radeon work again. But here you are:
-> 
-> Something bad has happened to the Radeon driver in recent kernels.  I've seen
-> various reports with various syptoms and some suspicion has been directed at
-> the AGP changes.
-> 
-> But as far as I know nobody has actually got down and done the binary search
-> to find out exactly when it started happening.
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The AGP code enables my machine with 1xAGP, but under 2.4 with same X
-version it will support 4x. I had a poke around in the Intel AGP code
-and there doesn't seem to be a way to manually convinve the driver of
-the truth :)
+On Tue, Mar 18, 2003 at 09:52:28PM -0800, Andrew Morton wrote:
+> > Could people, who can reproduce 'audio skips' kind of problems even with
+> > BK-curr, give this patch a go?
+>=20
+> I do not test for multimedia performance and cannot comment on this.
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Andrew, you're no fun :)
+
+I'll test it on my desktop and see whether things get jerky. More to=20
+come later.
+
+Regards
+Josh
+
+--=20
+New PGP public key: 0x27AFC3EE
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+eA7PT2bz5yevw+4RAl44AJ47PcD8iXz8naQwt0itZ7oP13KaMwCgkRKE
+PEWWirtBtUerkji17Pue6KU=
+=3EET
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--

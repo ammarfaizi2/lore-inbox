@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272272AbRHXRUn>; Fri, 24 Aug 2001 13:20:43 -0400
+	id <S272277AbRHXRZx>; Fri, 24 Aug 2001 13:25:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272271AbRHXRUd>; Fri, 24 Aug 2001 13:20:33 -0400
-Received: from mx5.port.ru ([194.67.57.15]:15108 "EHLO mx5.port.ru")
-	by vger.kernel.org with ESMTP id <S272268AbRHXRUV>;
-	Fri, 24 Aug 2001 13:20:21 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: Florian.Weimer@RUS.Uni-Stuttgart.DE
-Cc: linux-kernel@vger.kernel.org
+	id <S272274AbRHXRZo>; Fri, 24 Aug 2001 13:25:44 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:25945
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S272277AbRHXRZd>; Fri, 24 Aug 2001 13:25:33 -0400
+Date: Fri, 24 Aug 2001 10:25:48 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: Florian.Weimer@RUS.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org
 Subject: Re: source control?
+Message-ID: <20010824102548.U25998@work.bitmover.com>
+Mail-Followup-To: Samium Gromoff <_deepfire@mail.ru>,
+	Florian.Weimer@RUS.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org
+In-Reply-To: <E15aKdG-000KU2-00@f12.port.ru>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.172]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15aKdG-000KU2-00@f12.port.ru>
-Date: Fri, 24 Aug 2001 21:20:34 +0400
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E15aKdG-000KU2-00@f12.port.ru>; from _deepfire@mail.ru on Fri, Aug 24, 2001 at 09:20:34PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > That's a great description of all source control!  "Makes it all to easy
-> > for other people to push crap into your tree"!
+[Aegis == good discussion]
+[Aegis == bad discussion]
 
-> Try Aegis.  It enforces a develop/review/integrate cycle for each
-> change.
-  and slows down the things...
-  and hides (though not completely) the process from the people...
-
-  one-thread-modify of some piece of code is inefficeient.
-
-    When X code hacker splits his changes on small pieces
-  and feeds them to Linus^WSourceControl, does he need
-  to move each of his patches thru these
-  develop/review/integrate cycles?
-
+Before people open up this can of worms again, which happens about once a year,
+could you please go search the archives for the discussion of this in the past?
+This always turns into a flame fest and it never resolves anything.
+-- 
 ---
-
-
-cheers,
-
-
-   Samium Gromoff
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

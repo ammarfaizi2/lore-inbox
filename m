@@ -1,104 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTLTAh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 19:37:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTLTAh7
+	id S263762AbTLTAvb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 19:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbTLTAvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 19:37:59 -0500
-Received: from port-212-202-159-243.reverse.qsc.de ([212.202.159.243]:38379
-	"EHLO mail.onestepahead.de") by vger.kernel.org with ESMTP
-	id S263760AbTLTAht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 19:37:49 -0500
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-From: Christian Meder <chris@onestepahead.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3FE39603.9000501@cyberone.com.au>
-References: <1071864709.1044.172.camel@localhost>
-	 <20031219203227.GR31393@holomorphy.com>
-	 <1071876632.1044.179.camel@localhost>  <3FE39603.9000501@cyberone.com.au>
-Content-Type: text/plain
-Message-Id: <1071880660.1044.194.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 20 Dec 2003 01:37:40 +0100
+	Fri, 19 Dec 2003 19:51:31 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:6610 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263762AbTLTAv1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 19:51:27 -0500
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200312200035.hBK0ZwWR005874@fsgi900.americas.sgi.com>
+Subject: Re: [PATCH] Updating our sn code in 2.6
+To: hch@infradead.org (Christoph Hellwig)
+Date: Fri, 19 Dec 2003 18:35:57 -0600 (CST)
+Cc: pfg@sgi.com (Pat Gefre), akpm@osdl.org, davidm@napali.hpl.hp.com,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20031219114328.A26526@infradead.org> from "Christoph Hellwig" at Dec 19, 2003 11:43:28 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-12-20 at 01:21, Nick Piggin wrote:
-> Christian Meder wrote:
-> 
-> >On Fri, 2003-12-19 at 21:32, William Lee Irwin III wrote:
-> >
-> >>On Fri, Dec 19, 2003 at 09:11:50PM +0100, Christian Meder wrote:
-> >>
-> >>>I've got a longstanding regression in gnomemeeting usage when switching
-> >>>between 2.4 and 2.6 kernels.
-> >>>Phenomenon: 
-> >>>Without load gnomemeeting VOIP connections are fine. As soon as some
-> >>>load like a kernel compile is put on the laptop the gnomemeeting audio
-> >>>stream is cut to pieces and gets unintelligible . On 2.4.2x I don't get
-> >>>even the slightest distortion in the audio stream under load. I played
-> >>>around with different nice levels with no success. The problem persisted
-> >>>during the whole 2.6.0-test series no matter whether I used -mm kernels
-> >>>or pristine Linus kernels. Even when nicing the kernel compile to +19
-> >>>the distortions start right away. I tried Nick Piggin's scheduler which
-> >>>fared slightly better after changing the nice level of gnomemeeting to
-> >>>-10 but it's still a far cry from the 2.4.2x feeling without any
-> >>>fiddling with nice values.
-> >>>Any hints where to start looking are greatly appreciated.
-> >>>
-> >>Please instrument your workload with the following, and send logs of the
-> >>output (preferably compressed) to me and possibly others:
-> >>
-> >>top b d 5
-> >>vmstat 5
-> >>while true; do cat /proc/vmstat; sleep 5; done
-> >>while true; do cat /proc/meminfo; sleep 5; done
-> >>
-> >>A good way to log commands like this is:
-> >>
-> >>(command) > /home/foo.log.1 2>&1 &
-> >>
-> >>where parentheses surround the command in the actual shell input.
-> >>
-> >
-> >Hi,
-> >
-> >I've attached the tarred output of a gnomemeeting run without load and
-> >without distortions and another tarred output of a gnomemeeting run
-> >while compiling a kernel with severe distortions in the audio stream.
-> >
-> 
-> You're getting a lot fewer interrupts in the loaded case. Maybe its
-> the sound card driver that has the regression from 2.4? It could be
-> that 2.6 allows a smaller sound fragment size which is more stressful.
-> 
+Christoph,
 
-Well I had the same problem with the OSS driver on 2.6. Now I use the
-ALSA driver because I thought that could possibly improve things. The
-ALSA driver is better indeed but it doesn't change this particular
-phenomenon. Additionally I'd guess that the latest ALSA driver in 2.4
-and 2.6 doesn't differ significantly and 2.4.2x with the latest ALSA
-works great while 2.6 doesn't.
+Some general comments/questions and then the specifics follow.
+
+First off, some of the changed/reorg'd code is foundation code for a
+new ASIC that we are working on - so it now looks a little silly and
+maybe a little like overkill, but we would like to start moving this
+code into the community base.
+
+I'm not sure where you are going with the IP27 idea. IP27 is mips so
+the code doesn't belong in the ia64 directories - we also don't support
+Bridge/Xbridge in our ia64 code which is why we'd like to get rid of it
+and if you wanted to use the code as framework for other work I would
+think you could archive a version of the tree now ? So I'm a bit
+confused - there must be something I'm missing.
+
+Also I did these patches sequentially (hence the numbering) - so in
+some cases I may have taken out code that wasn't being used at the
+time, but then added in back in when it was used.
+
+Thanks for reviewing this for me - it sounds like we are making some
+progress.
+
+-- Pat
+
++ 004-fakeprom-update.patch
++ 
++ 	OK, but why is fakeprom in the kernel at all?
+
+I took the fakeprom patch out.
 
 
-			Christian Meder
++ 036-shub-redirect.patch
++ 
++ 	Wrong opening placement of first opening brace in
++ 	sn_shub_redirect_intr :)
+
+OK - fixed.
+
+
++ 
++ 037-shub-redirect1.patch
++ 
++ 	What's the point point of these pcireq stuff?  And what's the
++ 	relation to the shub redirection?
+
+The idea was to move this code into functions - making it more portable
+(future changes just needed to be made to the function).  This
+(037-shub-redirect1.patch) was actually a patch that was needed for the
+previous patch (I had referenced these functions in the previous patch
+but didn't have the functions themselves in the patch).  The redirect
+code is for interrupt redirection - handling the interrupt on a
+different cpu that it was being handled on.
+
+
++ 
++ 048-pci_provider.patch
++ 
++ 	At least better than the previous variant.. :)
++ 	set_sn_pci64() is bogus, I'm certain the qla2x00 driver
++ 	uses the right dma interface and if qlogicfc doesn't either
++ 	fix it or (better) don't use that broken old driver..
+
+OK - I see your point - I pulled out the set_sn_pci64() code.
+
+
++ 
++ 051-cbrick.type.patch
++ 
++ 	Code is ok, but wrong brace placement again..
+
+OK - fixed.
+
+
++ 071-xswitch.devfunc.patch
++ 
++ 	The whole indirection was develeted on a purpose.  Do you really
++ 	have different xswitches now?  (Don't seem to be in this patchkit).
++ 	If yes we'd better come up with a btter abstraction.
++ 
+
+This is still up in the air here - as in it hasn't been decided yet -
+so we can pass on this patch if you want.
+
+
++ 075-rename-reorg.patch
++ 
++ 	BRIDGE_TYPE_AND_PTR_GET is totally bogus..
++ 	Moving pcibr_attach2 to pic_attach2 is bogus and really wrong.
++ 	Even if _you_ don't support Bridge/Xbridge anyore it's still
++ 	common code for all of those.  While you're at it pic.c
++ 	really should move to the pcibr dir.
++ 	bridge.h -> pcibr_asic move seems really pointless to me, but
++ 	if you really want it..
++ 	BUT: Please remove the random renamaing of the include/asm/sn/pci
++ 	constants froms the patch, else it looks mostly okay (although
++ 	that's hard with such a large patch doing just code reorganization),
++ 	dito for the struct typedef names.  This really breaks anyone
++ 	doing work on Bridge/Xbridge without any purpose.
+
+This is foundation work for the next ASIC. So hopefully at some point
+in the future it will all make sense.
+
 
 -- 
-Christian Meder, email: chris@onestepahead.de
- 
-What's the railroad to me ?
-I never go to see
-Where it ends.
-It fills a few hollows,
-And makes banks for the swallows, 
-It sets the sand a-blowing,
-And the blackberries a-growing.
-                      (Henry David Thoreau)
- 
 
-
-
-
+Patrick Gefre
+Silicon Graphics, Inc.                     (E-Mail)  pfg@sgi.com
+2750 Blue Water Rd                         (Voice)   (651) 683-3127
+Eagan, MN 55121-1400                       (FAX)     (651) 683-3054

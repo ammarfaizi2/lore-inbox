@@ -1,144 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271230AbTGWTIg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271234AbTGWTHv
+	id S271222AbTGWTHN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271232AbTGWTFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:07:51 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:59666
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S271230AbTGWTFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:05:33 -0400
-Date: Wed, 23 Jul 2003 12:12:47 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Dave Lawrence <dgl@integrinautics.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: compact flash IDE hot-swap summary please
-In-Reply-To: <3F1ECFDD.D561D861@integrinautics.com>
-Message-ID: <Pine.LNX.4.10.10307231211060.13376-100000@master.linux-ide.org>
+	Wed, 23 Jul 2003 15:05:34 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:1004 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S271231AbTGWTEc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:04:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: no_spam@ntlworld.com
+Subject: Missing interrupts? - more...
+Date: Wed, 23 Jul 2003 20:19:37 +0100
+User-Agent: KMail/1.4.3
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200307232019.37810.no_spam@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-You never remove the "TrueIDE" from the cable so the bridge chip saves
-you.  Go try it with standard media and you will see different.
+The missing interrupts gets murkier-
 
-Andre Hedrick
-LAD Storage Consulting Group
+On all good machines interrupts are routed regardless of the PCI slot or IRQ 
+allocated.
 
-On Wed, 23 Jul 2003, Dave Lawrence wrote:
+On the one bad machine interrupts are received iff the IRQ is 11.
+I have tried all the available slots in the machine for my card and I have 
+tried reconfiguring the IRQs allocated to these slots via the BIOS.  The 
+upshot is that on interrupts 3 9 10 nothing is received by the card 
+regardless of slot location.  If I select IRQ 11 for the card then it works 
+perfectly. (I can only select 3 9 10 11 in the BIOS).
 
-> I have read through some old threads on this mailing
-> list and am confused about what is and isn't supported
-> by Linux in the area of removable IDE devices.  I
-> apologize in advance for my ignorance, but I think there
-> are others nearly as ignorant as I that could benefit
-> from answers to these questions.
-> 
-> I have a Zaurus handheld that runs Linux that seems 
-> to be able to hot-swap its IDE compact flash device
-> with no problems.  But I've read in a recent
-> thread "hdparm and removable IDE?" that hot-swap
-> isn't "fully" supported and that is won't be
-> until:
-> 
-> >2.7 at the earliest, and only if there is a general buy in about such a
-> >change to the init handling. Similarly the big issues with hdparm -U and
-> >-R are the same as with hotplug races, and will take a lot more than
-> >quick hacks to fix.
-> >
-> >Alan Cox
-> 
-> How come my Zaurus hot-swaps fine (or does it have
-> intermittent problems that I've just never seen?)?
-> 
-> 
-> I have a single board computer with one IDE connector
-> that has two compact flash (one master (hda), one slave (hdb))
-> IDE devices connected to the one cable.  Is it possible in
-> Linux now to (safely) remove the slave compact flash
-> device after unmounting all partitions on that device?
-> If not, will it ever be possible (or is there a hardware
-> limitation that precludes doing this?)?
-> 
-> Is it possible in Linux now to (safely) remove the slave 
-> compact flash without unmounting the partitions (assuming
-> you're using a file system like ext3 that is robust to
-> shutdowns)?
-> 
-> If not, will this ever be supported (and when?) or is there a 
-> hardware limitation that precludes it?
-> 
-> How about if the compact flash device is in a SanDisk
-> USB card reader or a Lexar Jumpshot USB card reader?
-> Is hot-swapping of such media supported today without
-> unmounting the partitions?  If not, will it ever be?
-> 
-> 
-> Also, there were two related threads in January/February of
-> 2002 that discussed the removability of compact flash:
-> 
-> false positives on disk change checks 
-> PROBLEM: ext2/mount - multiple mounts corrupts inodes 
-> 
-> The original problem was that in 2.4 kernels, compact
-> flash disks are corrupted if you remount already mounted
-> partitions.  Somebody found a hack workaround for this
-> problem, which was to remove the following lines of
-> code from ide-probe.c:
-> 
-> > if (id->config & (1<<7)) 
-> > drive->removable = 1; 
-> > +#endif 
-> 
-> However, Andre Hedrick had the following response to
-> this hack:
-> 
-> >REGARDLESS, it is removable media and this it reports so. 
-> >The driver will not change to create false reports, because CFA has its 
-> >own rules, and if you can figure them out great. 
-> >
-> >Removable media shall always report as Removable media. 
-> >
-> >If you purchase enough of the media, the OEM will allow you to alter the 
-> >identify page and this it will not longer report "Removable". 
-> >
-> >Regards, 
-> >
-> >Andre Hedrick 
-> >Linux Disk Certification Project Linux ATA Development 
-> 
-> It seems like Andre is implying the problem that is
-> causing my compact flash disk corruption is that the
-> disk is reporting being removable when it actually
-> is not.  But what good is it for the disk to be
-> flagged as removable if hot-swapping isn't supported?
-> Shouldn't the "hack" solution be put into the kernel
-> (at least as a configuration option) until the kernel
-> fully supports removable compact flash (at which time,
-> one would hope that you could remount compact flash
-> without disk curruption)?  In 2.2 kernels,
-> compact flash disks weren't corrupted by remounts - in
-> 2.4 they are.
-> 
-> On a potentially related note (or maybe completely
-> off-topic), I always get these kernel messages when
-> using compact flash:
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> They don't seem to be related to any real problem.  How do
-> I make those error messages go away?
-> 
-> 
-> Thanks in advance for a "hotswap for dummies" summary.
-> 
->                                Dave
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I have also witnessed a couple of "spurious interrupt" messages in the kernel 
+on good and the bad machines - these are received when the driver registers 
+the interrupt (always seem to be routed to IRQ7). Like so: (from dmesg)
+
+....
+PI: init_module: installing /proc
+PI: installation complete
+PI: enabling board
+PI: open: registered interrupt 10 Ok
+spurious 8259A interrupt: IRQ7.    <-------------- on good or bad machine
+PI: reset performed
+
+
+Since the original post I have changed the way I discover the IRQ and now 
+query the pci_dev structure rather than the pci config space (although these 
+have agreed so far) but it makes no difference.
+
+
+On the bad machine:
+cat /proc/interrupts
+           CPU0
+  0:     408059          XT-PIC  timer
+  1:         24          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:          0          XT-PIC  usb-uhci
+  8:          1          XT-PIC  rtc
+  9:          0          XT-PIC  usb-uhci
+ 10:          0          XT-PIC  ehci-hcd
+ 11:      34980          XT-PIC  usb-uhci, e100
+ 12:        474          XT-PIC  PS/2 Mouse
+ 14:      11376          XT-PIC  ide0
+ 15:         22          XT-PIC  ide1
+NMI:          0
+ERR:          0
+ - no interrupts are ever received on irqs 3 9 10 regardless of the settings 
+in the BIOS.
+
+
+Any suggestions (broken computer?) I am about to release the driver......
+
+Thanks SA
+
+On bad machine:
+cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 1.80GHz
+stepping        : 4
+cpu MHz         : 1799.843
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 3591.37
+
+
+Also some sort of intel motherboard - no sure of exact type.
+
+dmesg after boot  truncated....
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xf0031, last bus=2
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Unknown bridge resource 0: assuming transparent
+PCI: Using IRQ router PIIX [8086/24c0] at 00:1f.0
+PCI: Found IRQ 9 for device 00:1f.1
+PCI: Sharing IRQ 9 with 00:1d.2
+
+
+
+
+
+
+------
+Dear LK,
+
+I am testing a new device driver and have found that one one machine it does
+ not receive any interrupts. I am stumped by this problem and wonder if
+ anyone had any advice before I start to take things apart blindly.
+
+Machines test where everything worked: kernels 2.4.18-10 and  2.4.18-24.8.0
+ on athlon based PCs
+
+Machine where interrupts failed to appear: kernel 2.4.18-3 on a pentium 4.
+
+I register the interrupt on open with
+       
+ err=request_irq(pi_stage.interrupt,pi_int_handler,SA_SHIRQ,PI_IRQ_ID,(void*)
+&pi_stage);
+
+My handler looks like
+
+static void pi_int_handler(int irq, void *dev_id,struct pt_regs *regs){
+u32 event;
+        pi_stage.ints_all++;
+        event=pi_read_control(PI_STAGE_INTEVENTSET);
+        if(event & PI_STAGE_ALLINTS){
+                pi_write_control(PI_STAGE_INTEVENTCLEAR,event 
+ &PI_STAGE_ALLINTS); if(event & PI_STAGE_INTGPIO3)
+                        pi_stage.ints_io++;
+                if(event & PI_STAGE_GPINT){
+                        pi_stage.ints_axis++;
+                        tasklet_schedule(&pi_tasklet);
+                        }
+                pi_stage.ints_board++;
+                }
+        }
+
+On the dodgy machine I see the driver and card working fine except for the
+ missing interrupts. The variable pi_stage.ints_all is never incremented and
+ /proc/interrupts never reports any interrupts. On all machines the
+ conditions that generate the interrupts do occur.
+
+It looks like on this one machine that interrupts are never received by the
+ system.
+
+Is it possible that differences between the BIOSs on the machines could cause
+ this? (ie my card is init'd differently so on the bad machine the ints are
+ never generated or received).
+
+Any suggestions?
+
+Thanks SA
 

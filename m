@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281283AbRKETFu>; Mon, 5 Nov 2001 14:05:50 -0500
+	id <S281278AbRKETAa>; Mon, 5 Nov 2001 14:00:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281282AbRKETFk>; Mon, 5 Nov 2001 14:05:40 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:9276 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281281AbRKETFa>; Mon, 5 Nov 2001 14:05:30 -0500
-Date: Mon, 5 Nov 2001 20:05:30 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jeff Dike <jdike@karaya.com>
+	id <S281280AbRKETAV>; Mon, 5 Nov 2001 14:00:21 -0500
+Received: from mnh-1-11.mv.com ([207.22.10.43]:60166 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S281279AbRKETAJ>;
+	Mon, 5 Nov 2001 14:00:09 -0500
+Message-Id: <200111052018.PAA03082@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Andrea Arcangeli <andrea@suse.de>
 Cc: Ryan Cumming <bodnar42@phalynx.dhs.org>, linux-kernel@vger.kernel.org
-Subject: Re: Special Kernel Modification
-Message-ID: <20011105200530.G18319@athlon.random>
-In-Reply-To: <20011105175337.D18319@athlon.random> <200111052018.PAA03082@ccure.karaya.com>
+Subject: Re: Special Kernel Modification 
+In-Reply-To: Your message of "Mon, 05 Nov 2001 17:53:37 +0100."
+             <20011105175337.D18319@athlon.random> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200111052018.PAA03082@ccure.karaya.com>; from jdike@karaya.com on Mon, Nov 05, 2001 at 03:18:42PM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Mon, 05 Nov 2001 15:18:42 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 03:18:42PM -0500, Jeff Dike wrote:
-> eliminating caching as much as possible.  If the metadata/data ratio is
-> small, then the metadata caching probably won't be noticable.
+andrea@suse.de said:
+> O_DIRECT is synchronous but only in terms of data, if you want the
+> metadata to be synchronous as well you need to open with
+> O_SYNC|O_DIRECT, and even in such case all the metadata reads will
+> came from cache. 
 
-yes, of course the metadata/data ratio is very small, O_DIRECT isn't
-slower than rawio infact (assuming the file isn't fragmented).
+That's OK.  The goal is to cram as many UMLs onto a host as possible by
+eliminating caching as much as possible.  If the metadata/data ratio is
+small, then the metadata caching probably won't be noticable.
 
-Andrea
+				Jeff
+

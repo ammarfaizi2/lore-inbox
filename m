@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVABUln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVABUro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261330AbVABUln (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 15:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVABUhh
+	id S261328AbVABUro (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 15:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVABUrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 15:37:37 -0500
-Received: from holomorphy.com ([207.189.100.168]:41365 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261330AbVABUgV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 15:36:21 -0500
-Date: Sun, 2 Jan 2005 12:36:15 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+	Sun, 2 Jan 2005 15:47:43 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:27062 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261328AbVABUrm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 15:47:42 -0500
+To: Christoph Hellwig <hch@lst.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050102203615.GL29332@holomorphy.com>
-References: <1697129508.20050102210332@dns.toxicfilms.tv>
-Mime-Version: 1.0
+Subject: Re: [PATCH] disallow modular capabilities
+References: <20050102200032.GA8623@lst.de> <m1mzvry3sf.fsf@muc.de>
+	<20050102203005.GA9491@lst.de>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 02 Jan 2005 21:47:41 +0100
+In-Reply-To: <20050102203005.GA9491@lst.de> (Christoph Hellwig's message of
+ "Sun, 2 Jan 2005 21:30:05 +0100")
+Message-ID: <m1is6fy2vm.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1697129508.20050102210332@dns.toxicfilms.tv>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 09:03:32PM +0100, Maciej Soltysiak wrote:
-> I was wondering in the tram today are we close to branching
-> off to 2.7
-> Do the mighty kernel developers have solid plans, ideas, etc
-> to start experimental code
+Christoph Hellwig <hch@lst.de> writes:
 
-I have a plan to never ever stop experimental code, which is to
-actually move on the 2.6.x.y strategy if no one else does and these
-kinds of complaints remain persistent and become more widespread.
+> On Sun, Jan 02, 2005 at 09:28:00PM +0100, Andi Kleen wrote:
+>> Christoph Hellwig <hch@lst.de> writes:
+>> 
+>> > There's been a bugtraq report about a root exploit with modular
+>> > capabilities LSM support out for more than a week.
+>> 
+>> It was a root exploit only triggerable by root. Not exactly
+>> what I would call a real problem.
+>
+> At least Debian currently inserts the capabilities module on boot.
 
-There is a standard. Breaking things and hoping someone cleans up
-later doesn't work. So it has to be stable all the time anyway, and
-this is one of the observations upon which the "2.6 forever" theme is
-based. Frozen "minimal fix trees" for the benefit of those terrified of
-new working code (or alternatively, the astoundingly risk-averse) are a
-relatively straightforward theme, which kernel maintainers should be
-fully able to faithfully develop.
+That is fine as long as they control all code executed before
+that module loading.  And if they do not it is their own fault
+and they have to fix that in user space or compile the capability in.
+Unix policy is to not stop root from doing stupid things because
+that would also stop him from doing clever things.
 
-
--- wli
+-Anddi

@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265515AbUABL2K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 06:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbUABL2K
+	id S265505AbUABLkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 06:40:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265513AbUABLkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 06:28:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:37066 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265515AbUABL2B (ORCPT
+	Fri, 2 Jan 2004 06:40:16 -0500
+Received: from main.gmane.org ([80.91.224.249]:19900 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265505AbUABLkN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 06:28:01 -0500
-Date: Fri, 2 Jan 2004 12:27:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Hugang <hugang@soulinfo.com>
-Cc: Bart Samwel <bart@samwel.tk>, Andrew Morton <akpm@osdl.org>,
-       smackinlay@mail.com, Bartek Kania <mrbk@gnarf.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
-Message-ID: <20040102112733.GA19526@suse.de>
-References: <20031231210756.315.qmail@mail.com> <3FF3887C.90404@samwel.tk> <20031231184830.1168b8ff.akpm@osdl.org> <3FF43BAF.7040704@samwel.tk> <3FF457C0.2040303@samwel.tk> <20040101183545.GD5523@suse.de> <20040102170234.66d6811d@localhost>
+	Fri, 2 Jan 2004 06:40:13 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "John L. Fjellstad" <john-krnl@fjellstad.org>
+Subject: Re: bootup with Sony Vaio laptop
+Date: Fri, 02 Jan 2004 11:33:55 +0100
+Message-ID: <jeh3tb.r15.ln@192.168.1.1>
+References: <bc6usb.oe4.ln@192.168.1.1> <20040101190120.GA3297@homebox2>
+Reply-To: john-krnl@fjellstad.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040102170234.66d6811d@localhost>
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Hugang wrote:
-> Organization: Beijing Soul
-> X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-> Mime-Version: 1.0
-> Content-Type: text/plain; charset=US-ASCII
-> Content-Transfer-Encoding: 7bit
-> 
-> On Thu, 1 Jan 2004 19:35:45 +0100
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> > Patch is obviously bogus, just look at the comm definition in sched.h:
-> > 
-> > 	char comm[16];
-> > 
-> > IO submission must happen in process context, so we also know that
-> > current is valid.
-> 
-> You are right. But why add this patch, My laptop not crash when I
-> enable block dump, So I try to find where is the Bug. Final, The bug
+smcguire@nyc.rr.com wrote:
 
-I dunno, I can't possibly tell since you haven't given any info about
-this crash. Where does it crash, do you have an oops? All I could say
-from your report + patch is that it wasn't valid. There's just no way
-for current->comm to be NULL, so your patch couldn't possibly have made
-a difference.
+> I had a similar problem with a Vaio GRX600 although it's been long
+> enough since that I don't remember if the error messages were
+> precisely the same.  Compiling the kernel without PNP solved the
+> problem for me.
 
-> is in sector_t, I was enable CONFIG_LBD, So sector_t is u64, So We
-> have to change the code when enable CONFIG_LBD.
-> 
-> I'd like the 2.4 style so add count number into printf.
-> 
-> Here is the patch fix it
-> +
-> +   if (unlikely(block_dump)) {
-> +       char b[BDEVNAME_SIZE];
-> +       printk("%s(%d): %s block %llu/%u on %s\n",
-> +           current->comm, current->pid,
-> +           (rw & WRITE) ? "WRITE" : (rw == READA ? "READA" : "READ"),
-> +           (u64)bio->bi_sector, count, bdevname(bio->bi_bdev,b));
-> +   }
-
-It's best to keep the line as minimal as possible, count isn't really
-very interesting. What is interesting is process, offset (for finding
-the file, if you need to), and data direction.
-
-> I think, also have this bug in 2.4.23, here is the patch for it, Hope can helpful.
-> Index: linux-2.4.23/drivers/block/ll_rw_blk.c
-> ===================================================================
-> --- linux-2.4.23/drivers/block/ll_rw_blk.c      (revision 4)
-> +++ linux-2.4.23/drivers/block/ll_rw_blk.c      (working copy)
-> @@ -1298,7 +1298,7 @@
->                 wake_up(&bh->b_wait);
->  
->         if (block_dump)
-> -               printk(KERN_DEBUG "%s: %s block %lu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", bh->b_rsector, count, kdevname(bh->b_rdev));
-> +               printk(KERN_DEBUG "%s: %s block %llu/%u on %s\n", current->comm, rw == WRITE ? "WRITE" : "READ", (u64)bh->b_rsector, count, kdevname(bh->b_rdev));
-
-2.4 stock doesn't have 64-bit sectors, please consult (again) the
-canonical source (include file). There's no need to cast.
+Yup, that helped.  I'm slightly disappointed that I didn't figure that out
+myself:-)  Anyways, now to see why the mouse is acting up, and the sound is
+not working...
 
 -- 
-Jens Axboe
+John L. Fjellstad____________________________________________________
+web: http://www.fjellstad.org/          Quis custodiet ipsos custodes
 

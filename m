@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTLWXDl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 18:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTLWXDl
+	id S262315AbTLWX03 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 18:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTLWX03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 18:03:41 -0500
-Received: from smtp.terra.es ([213.4.129.129]:10428 "EHLO tsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S262694AbTLWXDh convert rfc822-to-8bit
+	Tue, 23 Dec 2003 18:26:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3738 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262315AbTLWX02
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 18:03:37 -0500
-Date: Wed, 24 Dec 2003 00:03:41 +0100
-From: "grundig@teleline.es" <grundig@teleline.es>
-To: <hzhong@cisco.com>
-Cc: rml@ximian.com, Jari.Soderholm@edu.stadia.fi, linux-kernel@vger.kernel.org
+	Tue, 23 Dec 2003 18:26:28 -0500
+Date: Tue, 23 Dec 2003 23:26:27 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Hua Zhong <hzhong@cisco.com>
+Cc: "'Rob Love'" <rml@ximian.com>,
+       "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>,
+       linux-kernel@vger.kernel.org
 Subject: Re: DEVFS is very good compared to UDEV
-Message-Id: <20031224000341.5ccaa46d.grundig@teleline.es>
-In-Reply-To: <008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
-References: <1072216884.6987.52.camel@fur>
-	<008401c3c9a3$0d11abe0$ca41cb3f@amer.cisco.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Message-ID: <20031223232627.GG4176@parcelfarce.linux.theplanet.co.uk>
+References: <1072218603.6987.57.camel@fur> <008901c3c9a8$97ac5c50$ca41cb3f@amer.cisco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <008901c3c9a8$97ac5c50$ca41cb3f@amer.cisco.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 23 Dec 2003 14:21:03 -0800 "Hua Zhong" <hzhong@cisco.com> escribió:
+On Tue, Dec 23, 2003 at 03:00:43PM -0800, Hua Zhong wrote:
+ 
+> Me neither :-) and when he is not flaming me (which I have not got the
+> chance yet), it's fun to read. But I hate him, you know, because I now
+> tend to be influenced by the way he (and several others on this list)
+> writes emails, and that's not nice in a corporate environment!!
 
-> From my memory, at some point in time, somebody (Al Viro?) reviewed
-> devfs code and flamed the author in public (klml), throwing lots of bad
-> impolite words to him, which I think was the biggest reason that the
-> author stopped maintaining it. This was one of the projects that got
-> killed by flames, or improper handling with flames (another one that
-> comes to mind is CML2).
-
-I think the problem with CML2 was the author not willing to submit
-CML2 in small patches adressing single problems instead of One Big Patch. 
+Why, thank you.  It's a bit early for New Year present, but it certainly
+makes a good one ;-)

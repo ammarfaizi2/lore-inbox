@@ -1,47 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135899AbRAHSLh>; Mon, 8 Jan 2001 13:11:37 -0500
+	id <S136033AbRAHSTi>; Mon, 8 Jan 2001 13:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136033AbRAHSL1>; Mon, 8 Jan 2001 13:11:27 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:39692 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136192AbRAHSLM>; Mon, 8 Jan 2001 13:11:12 -0500
-Date: Mon, 8 Jan 2001 10:10:53 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: "Sergey E. Volkov" <sve@raiden.bancorp.ru>, linux-kernel@vger.kernel.org,
-        Christoph Rohland <cr@sap.com>
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <Pine.LNX.4.21.0101081550590.21675-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.10.10101081003410.3750-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136558AbRAHST1>; Mon, 8 Jan 2001 13:19:27 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:58870 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S136033AbRAHSTT>;
+	Mon, 8 Jan 2001 13:19:19 -0500
+Date: Mon, 8 Jan 2001 19:18:33 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Stefan Traby <stefan@hello-penguin.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+Message-ID: <20010108191833.A1764@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <20010108172225.A1391@stefan.sime.com> <Pine.GSO.4.21.0101081304380.4061-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0101081304380.4061-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Jan 08, 2001 at 01:05:49PM -0500
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 8 Jan 2001, Rik van Riel wrote:
+On Mon, Jan 08, 2001 at 01:05:49PM -0500, Alexander Viro wrote:
 > 
-> We need a check in deactivate_page() to prevent the kernel
-> from moving pages from locked shared memory segments to the
-> inactive_dirty list.
 > 
-> Christoph?  Linus?
+> On Mon, 8 Jan 2001, Stefan Traby wrote:
+> 
+> > On Mon, Jan 08, 2001 at 04:01:10PM +0000, Alan Cox wrote:
+> > > > I prefer SuS fpathconf(), pathconf() is just a wrapper to fpathconf();
+> > > 
+> > > You can't implement it that way in the corner cases.
+> > 
+> > I reread SuSv2 again and didn't found corner cases.
+> > Do you mean FIFO/pipe stuff ? I can't see the problem in this area.
+> > 
+> > In which case is an emulation of pathconf by fpathconf impossible ?
+> 
+> Damnit, symlinks for one thing.
 
-The only solution I see is something like a "active_immobile" list, and
-add entries to that list whenever "writepage()" returns 1 - instead of
-just moving them to the active list.
+No this is no problem.
 
-Seems to be a simple enough change. The main worry would be getting the
-pages _off_ such a list: anything that unlocks a shared memory segment
-(can you even do that? If the only way to unlock is to remove, we have no
-problems) would have to have a special function to move all pages from the
-immobile list back to the active list (and then they'd get moved back if
-they were for another segment that is still locked).
+ For pathconf(), the path argument points to the pathname of a file
+      or directory.
 
-		Linus
+IMHO lstat can dedect this case.
+Where is the problem ?
+Calling pathconf with a symlink is not defined. I suggest
+an implementation of "yankee doodle" for that case.
+Anyway the broken SuS standard wants that pathconf follow symlinks.
+Or how do you interpret this:
 
+ [ELOOP]
+           Too many symbolic links were encountered in resolving path.
+
+But Alan's case "out of filedescriptor" fully counts.
+Anyway, I personally would ignore it, but I agree, it's a completely
+valid argument.
+
+-- 
+
+  ciao - 
+    Stefan
+
+"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
+    
+Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
+Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
+8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
+Austria                                    mailto://st.traby@opengroup.org
+Europe                                   mailto://stefan@hello-penguin.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

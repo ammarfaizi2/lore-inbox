@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315838AbSEEIms>; Sun, 5 May 2002 04:42:48 -0400
+	id <S315843AbSEEJFY>; Sun, 5 May 2002 05:05:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315839AbSEEImr>; Sun, 5 May 2002 04:42:47 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:51439
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S315838AbSEEImq>; Sun, 5 May 2002 04:42:46 -0400
-Date: Sun, 5 May 2002 01:42:43 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Vikram <vvikram@stanford.edu>
-Cc: Jeff Dike <jdike@karaya.com>, Guest section DW <dwguest@win.tue.nl>,
-        Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
-        user-mode-linux-devel@lists.sourceforge.net,
-        user-mode-linux-user@lists.sourceforge.net
-Subject: Re: UML is now self-hosting!
-Message-ID: <20020505084243.GF2392@matchmail.com>
-Mail-Followup-To: Vikram <vvikram@stanford.edu>,
-	Jeff Dike <jdike@karaya.com>, Guest section DW <dwguest@win.tue.nl>,
-	Gerrit Huizenga <gh@us.ibm.com>, linux-kernel@vger.kernel.org,
-	user-mode-linux-devel@lists.sourceforge.net,
-	user-mode-linux-user@lists.sourceforge.net
-In-Reply-To: <20020505082505.GE2392@matchmail.com> <Pine.GSO.4.44.0205050127080.6221-100000@epic7.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315844AbSEEJFX>; Sun, 5 May 2002 05:05:23 -0400
+Received: from Ptrillia.EUnet.sk ([193.87.242.40]:4577 "EHLO meduna.org")
+	by vger.kernel.org with ESMTP id <S315843AbSEEJFX>;
+	Sun, 5 May 2002 05:05:23 -0400
+From: Stanislav Meduna <stano@meduna.org>
+Message-Id: <200205050904.g4594GV05355@meduna.org>
+Subject: CRC32 - computed or table-driven?
+To: linux-kernel@vger.kernel.org
+Date: Sun, 5 May 2002 09:44:12 +0200 (CEST)
+X-Mailer: ELM [version 2.5 PL6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 05, 2002 at 01:29:43AM -0700, Vikram wrote:
-> 
-> >
-> > How would this be better than MOSIX, or other clustering solutions?
-> >
-> > Any URLs you may have on this would be quite helpful.
-> 
-> uh-huh, you miss the pt maybe? uml offers a great testing, debugging,
-> developing platform. the whole idea is to replace the real thing (say like
-> kernel devel) with UML and your qn is more like why cant we use the real
-> thing itself....:)
+Hello,
 
-If you want to test clustering (or "UML SMP over several seperate hosts"
--JDike) with UML, why not just create a UML kernel with the clustering
-support (ie, MOSIX) in that UML kernel?  
+I need to compute a crc32 in my small not-ready-for-the-prime-time
+patch against 2.4.19-pre. I do not (yet) follow the 2.5 development.
 
-Really, I'm just asking what the benifit is to use UML for clustering as
-oposed to MOSIX.  I can think of one, testing NUMA without special
-hardware...
+There is <linux/crc32.h> that does what I want, but not quite
+effectively and with comments that it is unsuitable for bulk data
+and that it will migrate to net/core/crc.c.
+
+There are table-driven /usr/src/linux-2.4.19/fs/jffs2/crc32.*, but
+this code is hidden in a filesystem subtree.
+
+Any plans to do it "the right way" in 2.4? Is net/core (mentioned
+in the crc32.h) the right place? - as we see it is used also
+in the filesystem code and lib would be probably a better place.
+
+I can post a patch, but I cannot test whether it breaks jffs2
+and as this adds 1 kB to the kernel that might not be needed
+I would like to ask first. Who is hacking these parts?
+
+Regards
+-- 
+                                   Stano
+
+

@@ -1,309 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263680AbTE3NoC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 09:44:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTE3NoC
+	id S263673AbTE3Nl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 09:41:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTE3Nl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 09:44:02 -0400
-Received: from relax.cmf.nrl.navy.mil ([134.207.10.227]:640 "EHLO
-	relax.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S263680AbTE3Nnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 09:43:53 -0400
-Date: Fri, 30 May 2003 09:57:11 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-Message-Id: <200305301357.h4UDvBq01098@relax.cmf.nrl.navy.mil>
-To: davem@redhat.com
-Subject: [PATCH][ATM] hold rtnl around device {de}registration
-Cc: linux-kernel@vger.kernel.org
+	Fri, 30 May 2003 09:41:57 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:23499 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263673AbTE3Nlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 09:41:53 -0400
+X-From-Line: linux-kernel@gitteundmarkus.de Fri May 30 13:52:54 2003
+To: Markus Plail <linux-kernel@gitteundmarkus.de>
+Subject: Re: [PATCH] SG_IO readcd and various bugs
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+References: <20030530130230.GD813@suse.de> <878ysopmus.fsf@gitteundmarkus.de>
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Fri, 30 May 2003 15:52:40 +0200
+In-Reply-To: <878ysopmus.fsf@gitteundmarkus.de> (Markus Plail's message of
+ "Fri, 30 May 2003 15:47:55 +0200")
+Message-ID: <874r3cpmmv.fsf@gitteundmarkus.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Relays-Trusted: 
+X-Spam-Relays-Untrusted: [ ip=212.227.126.233 rdns=pop.kundenserver.de helo=
+ by=localhost ident= ] [ ip=212.227.126.161 rdns=
+ helo=mrelayng.kundenserver.de by=mxng10.kundenserver.de ident= ] [
+ ip=217.225.97.102 rdns= helo=localhost.localdomain
+ by=mrelayng.kundenserver.de ident= ]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-at one point you suggested using the rtnl_lock to protect the
-atm device registration/deregistation nonsense.  how 'bout this?
+On Fri, 30 May 2003, Markus Plail wrote:
 
-[ATM]: hold rtnl around device {de}registration
+> The patch makes readcd work just fine here :-) Many thanks!
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1157  -> 1.1158 
-#	      net/atm/proc.c	1.15    -> 1.16   
-#	 net/atm/signaling.c	1.8     -> 1.9    
-#	 net/atm/resources.c	1.9     -> 1.10   
-#	    net/atm/common.c	1.26    -> 1.27   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/19	chas@relax.cmf.nrl.navy.mil	1.1158
-# [ATM]: hold rtnl around device {de}registration
-# --------------------------------------------
-#
-diff -Nru a/net/atm/common.c b/net/atm/common.c
---- a/net/atm/common.c	Fri May 30 09:49:21 2003
-+++ b/net/atm/common.c	Fri May 30 09:49:21 2003
-@@ -376,18 +376,16 @@
- 		struct atm_dev *dev = NULL;
- 		struct list_head *p, *next;
- 
--		spin_lock(&atm_dev_lock);
-+		rtnl_lock();
- 		list_for_each_safe(p, next, &atm_devs) {
- 			dev = list_entry(p, struct atm_dev, dev_list);
- 			atm_dev_hold(dev);
--			spin_unlock(&atm_dev_lock);
- 			if (!atm_do_connect_dev(vcc,dev,vpi,vci))
- 				break;
- 			atm_dev_release(dev);
- 			dev = NULL;
--			spin_lock(&atm_dev_lock);
- 		}
--		spin_unlock(&atm_dev_lock);
-+		rtnl_lock();
- 		if (!dev) return -ENODEV;
- 	}
- 	if (vpi == ATM_VPI_UNSPEC || vci == ATM_VCI_UNSPEC)
-@@ -642,17 +640,17 @@
- 				goto done;
- 			}
- 			size = 0;
--			spin_lock(&atm_dev_lock);
-+			rtnl_lock();
- 			list_for_each(p, &atm_devs)
- 				size += sizeof(int);
- 			if (size > len) {
--				spin_unlock(&atm_dev_lock);
-+				rtnl_unlock();
- 				ret_val = -E2BIG;
- 				goto done;
- 			}
- 			tmp_buf = kmalloc(size, GFP_ATOMIC);
- 			if (!tmp_buf) {
--				spin_unlock(&atm_dev_lock);
-+				rtnl_unlock();
- 				ret_val = -ENOMEM;
- 				goto done;
- 			}
-@@ -661,7 +659,7 @@
- 				dev = list_entry(p, struct atm_dev, dev_list);
- 				*tmp_p++ = dev->number;
- 			}
--			spin_unlock(&atm_dev_lock);
-+			rtnl_unlock();
- 		        ret_val = ((copy_to_user(buf, tmp_buf, size)) ||
- 			    put_user(size, &((struct atm_iobuf *) arg)->length)
- 			    ) ? -EFAULT : 0;
-diff -Nru a/net/atm/proc.c b/net/atm/proc.c
---- a/net/atm/proc.c	Fri May 30 09:49:21 2003
-+++ b/net/atm/proc.c	Fri May 30 09:49:21 2003
-@@ -314,16 +314,16 @@
- 		    "AAL(TX,err,RX,err,drop) ...               [refcnt]\n");
- 	}
- 	left = pos-1;
--	spin_lock(&atm_dev_lock);
-+	rtnl_lock();
- 	list_for_each(p, &atm_devs) {
- 		dev = list_entry(p, struct atm_dev, dev_list);
- 		if (left-- == 0) {
- 			dev_info(dev,buf);
--			spin_unlock(&atm_dev_lock);
-+			rtnl_unlock();
- 			return strlen(buf);
- 		}
- 	}
--	spin_unlock(&atm_dev_lock);
-+	rtnl_unlock();
- 	return 0;
- }
- 
-@@ -349,7 +349,7 @@
- 	if (try_atm_clip_ops())
- 		clip_info = 1;
- #endif
--	spin_lock(&atm_dev_lock);
-+	rtnl_lock();
- 	list_for_each(p, &atm_devs) {
- 		dev = list_entry(p, struct atm_dev, dev_list);
- 		spin_lock_irqsave(&dev->lock, flags);
-@@ -357,7 +357,7 @@
- 			if (vcc->sk->family == PF_ATMPVC && vcc->dev && !left--) {
- 				pvc_info(vcc,buf,clip_info);
- 				spin_unlock_irqrestore(&dev->lock, flags);
--				spin_unlock(&atm_dev_lock);
-+				rtnl_unlock();
- #if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- 				if (clip_info)
- 					module_put(atm_clip_ops->owner);
-@@ -366,7 +366,7 @@
- 			}
- 		spin_unlock_irqrestore(&dev->lock, flags);
- 	}
--	spin_unlock(&atm_dev_lock);
-+	rtnl_unlock();
- #if defined(CONFIG_ATM_CLIP) || defined(CONFIG_ATM_CLIP_MODULE)
- 	if (clip_info)
- 		module_put(atm_clip_ops->owner);
-@@ -388,7 +388,7 @@
- 		    "Address"," Itf VPI VCI   Fam Flags Reply Send buffer"
- 		    "     Recv buffer\n");
- 	left = pos-1;
--	spin_lock(&atm_dev_lock);
-+	rtnl_lock();
- 	list_for_each(p, &atm_devs) {
- 		dev = list_entry(p, struct atm_dev, dev_list);
- 		spin_lock_irqsave(&dev->lock, flags);
-@@ -396,12 +396,12 @@
- 			if (!left--) {
- 				vc_info(vcc,buf);
- 				spin_unlock_irqrestore(&dev->lock, flags);
--				spin_unlock(&atm_dev_lock);
-+				rtnl_unlock();
- 				return strlen(buf);
- 			}
- 		spin_unlock_irqrestore(&dev->lock, flags);
- 	}
--	spin_unlock(&atm_dev_lock);
-+	rtnl_unlock();
- 
- 	return 0;
- }
-@@ -418,7 +418,7 @@
- 	if (!pos)
- 		return sprintf(buf,"Itf VPI VCI           State      Remote\n");
- 	left = pos-1;
--	spin_lock(&atm_dev_lock);
-+	rtnl_lock();
- 	list_for_each(p, &atm_devs) {
- 		dev = list_entry(p, struct atm_dev, dev_list);
- 		spin_lock_irqsave(&dev->lock, flags);
-@@ -426,12 +426,12 @@
- 			if (vcc->sk->family == PF_ATMSVC && !left--) {
- 				svc_info(vcc,buf);
- 				spin_unlock_irqrestore(&dev->lock, flags);
--				spin_unlock(&atm_dev_lock);
-+				rtnl_unlock();
- 				return strlen(buf);
- 			}
- 		spin_unlock_irqrestore(&dev->lock, flags);
- 	}
--	spin_unlock(&atm_dev_lock);
-+	rtnl_unlock();
- 
- 	return 0;
- }
-diff -Nru a/net/atm/resources.c b/net/atm/resources.c
---- a/net/atm/resources.c	Fri May 30 09:49:21 2003
-+++ b/net/atm/resources.c	Fri May 30 09:49:21 2003
-@@ -27,7 +27,7 @@
- 
- 
- LIST_HEAD(atm_devs);
--spinlock_t atm_dev_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t atm_dev_lock = SPIN_LOCK_UNLOCKED;
- 
- static struct atm_dev *__alloc_atm_dev(const char *type)
- {
-@@ -58,7 +58,6 @@
- 	list_for_each(p, &atm_devs) {
- 		dev = list_entry(p, struct atm_dev, dev_list);
- 		if ((dev->ops) && (dev->number == number)) {
--			atm_dev_hold(dev);
- 			return dev;
- 		}
- 	}
-@@ -71,6 +70,8 @@
- 
- 	spin_lock(&atm_dev_lock);
- 	dev = __atm_dev_lookup(number);
-+	if (dev)
-+		atm_dev_hold(dev);
- 	spin_unlock(&atm_dev_lock);
- 	return dev;
- }
-@@ -86,11 +87,9 @@
- 		    type);
- 		return NULL;
- 	}
--	spin_lock(&atm_dev_lock);
-+	rtnl_lock();
- 	if (number != -1) {
- 		if ((inuse = __atm_dev_lookup(number))) {
--			atm_dev_release(inuse);
--			spin_unlock(&atm_dev_lock);
- 			__free_atm_dev(dev);
- 			return NULL;
- 		}
-@@ -98,7 +97,6 @@
- 	} else {
- 		dev->number = 0;
- 		while ((inuse = __atm_dev_lookup(dev->number))) {
--			atm_dev_release(inuse);
- 			dev->number++;
- 		}
- 	}
-@@ -110,8 +108,6 @@
- 		memset(&dev->flags, 0, sizeof(dev->flags));
- 	memset(&dev->stats, 0, sizeof(dev->stats));
- 	atomic_set(&dev->refcnt, 1);
--	list_add_tail(&dev->dev_list, &atm_devs);
--	spin_unlock(&atm_dev_lock);
- 
- #ifdef CONFIG_PROC_FS
- 	if (ops->proc_read) {
-@@ -119,15 +115,17 @@
- 			printk(KERN_ERR "atm_dev_register: "
- 			       "atm_proc_dev_register failed for dev %s\n",
- 			       type);
--			spin_lock(&atm_dev_lock);
--			list_del(&dev->dev_list);
--			spin_unlock(&atm_dev_lock);
- 			__free_atm_dev(dev);
- 			return NULL;
- 		}
- 	}
- #endif
- 
-+	spin_lock(&atm_dev_lock);
-+	list_add_tail(&dev->dev_list, &atm_devs);
-+	spin_unlock(&atm_dev_lock);
-+	rtnl_unlock();
-+
- 	return dev;
- }
- 
-@@ -136,6 +134,7 @@
- {
- 	unsigned long warning_time;
- 
-+	rtnl_lock();
- #ifdef CONFIG_PROC_FS
- 	if (dev->ops->proc_read)
- 		atm_proc_dev_deregister(dev);
-@@ -156,6 +155,7 @@
-                         warning_time = jiffies;
-                 }
-         }
-+	rtnl_unlock();
- 
- 	__free_atm_dev(dev);
- }
-diff -Nru a/net/atm/signaling.c b/net/atm/signaling.c
---- a/net/atm/signaling.c	Fri May 30 09:49:21 2003
-+++ b/net/atm/signaling.c	Fri May 30 09:49:21 2003
-@@ -220,14 +220,14 @@
- 		printk(KERN_ERR "sigd_close: closing with requests pending\n");
- 	skb_queue_purge(&vcc->sk->receive_queue);
- 
--	spin_lock(&atm_dev_lock);
-+	rtnl_lock();
- 	list_for_each(p, &atm_devs) {
- 		dev = list_entry(p, struct atm_dev, dev_list);
- 		spin_lock_irqsave(&dev->lock, flags);
- 		purge_vccs(dev->vccs);
- 		spin_unlock_irqrestore(&dev->lock, flags);
- 	}
--	spin_unlock(&atm_dev_lock);
-+	rtnl_unlock();
- }
- 
- 
+Just realized that C2 scans don't yet work.
+
+regards
+Markus
+
+[15:49:37]-[Fri May 30]-[/home/plail]
+[root@plailis_lfs]strace /opt/schily/bin/readcd dev=/dev/hdb -c2scan
+execve("/opt/schily/bin/readcd", ["/opt/schily/bin/readcd", "dev=/dev/hdb", "-c2scan"], [/* 45 vars */]) = 0
+brk(0)                                  = 0x806a000
+open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY)      = 3
+fstat64(3, {st_mode=S_IFREG|0644, st_size=66034, ...}) = 0
+old_mmap(NULL, 66034, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40017000
+close(3)                                = 0
+open("/lib/libc.so.6", O_RDONLY)        = 3
+read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\10\332"..., 1024) = 1024
+fstat64(3, {st_mode=S_IFREG|0755, st_size=5021367, ...}) = 0
+old_mmap(NULL, 1215588, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40028000
+mprotect(0x40146000, 44132, PROT_NONE)  = 0
+old_mmap(0x40146000, 28672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 3, 0x11d000) = 0x40146000
+old_mmap(0x4014d000, 15460, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x4014d000
+close(3)                                = 0
+munmap(0x40017000, 66034)               = 0
+brk(0)                                  = 0x806a000
+brk(0x806a0a8)                          = 0x806a0a8
+brk(0x806b000)                          = 0x806b000
+brk(0x806d000)                          = 0x806d000
+open("/dev/hdb", O_RDWR|O_NONBLOCK)     = 3
+fcntl64(3, F_GETFL)                     = 0x8802 (flags O_RDWR|O_NONBLOCK|O_LARGEFILE)
+fcntl64(3, F_SETFL, O_RDWR|O_LARGEFILE) = 0
+ioctl(3, 0x5382, 0xbffff164)            = 0
+ioctl(3, 0x5386, 0xbffff160)            = 0
+ioctl(3, 0x2282, 0xbffff168)            = 0
+ioctl(3, 0x5382, 0xbffff104)            = 0
+ioctl(3, 0x5386, 0xbffff100)            = 0
+ioctl(3, 0x2201, 0xbffff018)            = 0
+fstat64(3, {st_mode=S_IFBLK|0660, st_rdev=makedev(3, 64), ...}) = 0
+ioctl(3, 0x2272, 0xbffff338)            = 0
+ioctl(3, 0x2272, 0xbffff338)            = 0
+ioctl(3, 0x2275, 0xbffff334)            = -1 EINVAL (Invalid argument)
+ioctl(3, 0x2272, 0xbffff334)            = 0
+ioctl(3, 0x2272, 0xbffff318)            = 0
+ioctl(3, 0x2272, 0xbffff314)            = 0
+old_mmap(NULL, 139264, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40151000
+geteuid32()                             = 0
+getuid32()                              = 0
+getuid32()                              = 0
+setreuid32(0xffffffff, 0)               = 0
+gettimeofday({1054302587, 28334}, NULL) = 0
+ioctl(3, 0x2285, 0xbffff0fc)            = 0
+gettimeofday({1054302587, 29005}, NULL) = 0
+gettimeofday({1054302587, 29274}, NULL) = 0
+ioctl(3, 0x2285, 0xbffff13c)            = 0
+...
+...[snip]...
+...
+ioctl(3, 0x2285, 0xbfffee8c)            = 0
+gettimeofday({1054302587, 141430}, NULL) = 0
+write(2, "Read  speed:  8310 kB/s (CD  47x"..., 44Read  speed:  8310 kB/s (CD  47x, DVD  6x).
+) = 44
+write(2, "Write speed:  2770 kB/s (CD  15x"..., 44Write speed:  2770 kB/s (CD  15x, DVD  2x).
+) = 44
+rt_sigaction(SIGINT, {0x8049d48, [INT], SA_RESTART|0x4000000}, {SIG_DFL}, 8) = 0
+rt_sigaction(SIGTERM, {0x8049d48, [TERM], SA_RESTART|0x4000000}, {SIG_DFL}, 8) = 0
+gettimeofday({1054302587, 143382}, NULL) = 0
+ioctl(3, 0x2285, 0xbffff28c)            = 0
+gettimeofday({1054302587, 144030}, NULL) = 0
+gettimeofday({1054302587, 144315}, NULL) = 0
+ioctl(3, 0x2285, 0xbffff25c)            = 0
+gettimeofday({1054302587, 150267}, NULL) = 0
+gettimeofday({1054302587, 150526}, NULL) = 0
+ioctl(3, 0x2285, 0xbffff25c)            = 0
+gettimeofday({1054302587, 151355}, NULL) = 0
+write(2, "Capacity: 49843 Blocks = 99686 k"..., 61Capacity: 49843 Blocks = 99686 kBytes = 97 MBytes = 102 prMB
+) = 61
+write(2, "Sectorsize: 2048 Bytes\n", 23Sectorsize: 2048 Bytes
+) = 23
+gettimeofday({1054302587, 152679}, NULL) = 0
+ioctl(3, 0x2285, 0xbfffedfc)            = 0
+gettimeofday({1054302587, 156396}, NULL) = 0
+gettimeofday({1054302587, 156644}, NULL) = 0
+ioctl(3, 0x2285, 0xbfffec7c)            = 0
+...
+...[snip]...
+...
+ioctl(3, 0x2285, 0xbfffefcc)            = 0
+gettimeofday({1054302587, 244917}, NULL) = 0
+write(2, "Copy from SCSI (0,0,0) disk to f"..., 48Copy from SCSI (0,0,0) disk to file '/dev/null'
+) = 48
+open("/dev/null", O_WRONLY|O_CREAT|O_TRUNC|O_LARGEFILE, 0666) = 4
+fcntl64(4, F_GETFL)                     = 0x8001 (flags O_WRONLY|O_LARGEFILE)
+fstat64(4, {st_mode=S_IFCHR|0666, st_rdev=makedev(1, 3), ...}) = 0
+ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbfffedb8) = -1 ENOTTY (Inappropriate ioctl for device)
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40017000
+_llseek(4, 0, [0], SEEK_CUR)            = 0
+munmap(0x40017000, 4096)                = 0
+write(2, "end:     49843\n", 15end:     49843
+)        = 15
+gettimeofday({1054302587, 248522}, NULL) = 0
+) = 232, "addr:        0 cnt: 48\r", 23addr:        0 cnt: 48
+gettimeofday({1054302587, 249061}, NULL) = 0
+ioctl(3, 0x2285, 0xbfffef6c)            = 0
+gettimeofday({1054302587, 259824}, NULL) = 0
+write(2, "/opt/schily/bin/readcd: Success."..., 352/opt/schily/bin/readcd: Success. read_cd: scsi sendcmd: no error
+CDB:  BE 00 00 00 00 00 00 00 30 FA 00 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70
+Sense Key: 0x0 No Additional Sense, Segment 0
+Sense Code: 0x00 Qual 0x00 (no additional sense information) Fru 0x0
+Sense flags: Blk 0 (not valid) 
+resid: 127008
+cmd finished after 0.010s timeout 40s
+) = 352
+write(2, "/opt/schily/bin/readcd: Success."..., 57/opt/schily/bin/readcd: Success. Cannot read source disk
+) = 57
+write(2, "/opt/schily/bin/readcd: Retrying"..., 48/opt/schily/bin/readcd: Retrying from sector 0.
+) = 48
+write(2, ".", 1.)                        = 1
+gettimeofday({1054302587, 262470}, NULL) = 0
+ioctl(3, 0x2285, 0xbfffcf4c)            = 0
+gettimeofday({1054302587, 263143}, NULL) = 0
+gettimeofday({1054302587, 263402}, NULL) = 0
+
+

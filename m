@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262432AbRFRSbe>; Mon, 18 Jun 2001 14:31:34 -0400
+	id <S262582AbRFRSx4>; Mon, 18 Jun 2001 14:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262445AbRFRSbZ>; Mon, 18 Jun 2001 14:31:25 -0400
-Received: from dialin-194-29-61-221.berlin.gigabell.net ([194.29.61.221]:33285
-	"EHLO server1.localnet") by vger.kernel.org with ESMTP
-	id <S262432AbRFRSbN>; Mon, 18 Jun 2001 14:31:13 -0400
-Date: Mon, 18 Jun 2001 20:32:03 +0200
-From: =?ISO-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: linux-kernel@vger.kernel.org, ademar@conectiva.com.br, rolf@sir-wum.de,
-        linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: sis630 - help needed debugging in the kernel
-Message-Id: <20010618203203.35390ca8.rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.10.10106170652280.17509-100000@transvirtual.com>
-In-Reply-To: <20010616232740.092475e2.rene.rebe@gmx.net>
-	<Pine.LNX.4.10.10106170652280.17509-100000@transvirtual.com>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S262593AbRFRSxq>; Mon, 18 Jun 2001 14:53:46 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2980 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262582AbRFRSxi>; Mon, 18 Jun 2001 14:53:38 -0400
+Date: Mon, 18 Jun 2001 12:53:06 -0600
+Message-Id: <200106181853.f5IIr6u02682@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: Re: [PATCH] devfs v181 available
+In-Reply-To: <Pine.GSO.4.21.0106181240360.18769-100000@weyl.math.psu.edu>
+In-Reply-To: <200106181515.f5IFFcA00598@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0106181240360.18769-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jun 2001 07:03:55 -0700 (PDT)
-James Simmons <jsimmons@transvirtual.com> wrote:
+Alexander Viro writes:
+> 
+> 
+> On Mon, 18 Jun 2001, Richard Gooch wrote:
+> 
+> > > Irrelevant. BKL provides an exclusion only on non-blocking areas.
+> > 
+> > Yeah, I know all that.
+> 
+> So what the hell are you talking about?
 
-[...]
+Never mind. We seem to be talking at cross purposes. We both know how
+the BKL works and the implications, so there's not much point beating
+our heads trying to communicate redundant information :-)
 
-> Yes. It oops in fbcon_cfb8_putc. I haven't figured out yet what exactly
-> caused it. I don't have this card to play with :-( Did you run the other
-> test I suggested.
+> > > _Moved_ them there from the callers of these functions. And AFAICS
+> > > you do need BKL for get_devfs_entry_...(); otherwise relocation of
+> > > the table will be able to screw you inside of that function. Now, it
+> > > will merrily screw you anyway in a lot of places, but that's another
+> > > story.
+> > 
+> > OK, so it was another global change.
+> 
+> Moving BKL into the ->readlink() and ->follow_link()? Sure, it was a global
+> change. About a year ago.
+> 
+> > Question: assuming data fed to vfs_follow_link() is "safe", does it
+>             ^^^^^^^^
+> > need the BKL? I can see that vfs_readlink() obviously doesn't need
+> > it. From reading Documentation/filesystems/Locking I suspect it
+> > doesn't need the BKL, but the way I read it says "follow_link() method
+> > does not *have* the BKL already". But that doesn't explicitely say
+> > whether vfs_follow_link() needs it.
+> 
+> vfs_follow_link() doesn't need it. Moreover, if data fed to it is
+> unsafe without BKL, you are screwed even if you take BKL. So
+> assumption above is bogus - you _never_ need BKL on that call.
 
-Never arrived here :-(. (Pleas cc me, since I'm not on this lists ...)
+OK, you didn't see what I was driving at. If I had said "if my data is
+protected by a semaphore, do I still need the BKL for
+vfs_follow_link()" I guess it would have been clearer. Anyway, you've
+answered my question, thanks.
 
-> Try booting at 640x480 with a color depth of 32. Then
-> try booting at a different resolution (1024x768) at the default color
-> depth. I want to see if its a error with the resolution setting or if it
-> is a error with setting up the data relating to the color depth handling. 
-> The results should give me some clue.
+				Regards,
 
-I can't set the videomode for the driver ...? I tried:
-
-video=sis:vesa:0x112
-video=sis:xres:640,yres:480,depth:32
-video=sis,xres:640,yres:480,depth:32
-
-Is there another way to tell the fb driver what mode to use??
-
-I set the shared memory size from 16MB to 64 MB: results:
-  sisfb: framebuffer at 0xe0000000, mapped to 0xc8800000, size 65536k
-  sisfb: MMIO at 0xefce0000, mapped to 0xcc801000, size 128k
-  Unable to handle kernel paging request at virtual address cc8002e0
-
-old results:
-  sisfb: framebuffer at 0xe0000000, mapped to 0xcb800000, size 16384k
-  sisfb: MMIO at 0xefce0000, mapped to 0xcc801000, size 128k
-  Unable to handle kernel paging request at virtual address cc800180
-
-(Maybe some typo somewhere ??)
-
-PS: I have more free time the next days -> shorter latency and more kernel
-source read time ...
-
-k33p h4ck1n6 René
-
--- 
-René Rebe (Registered Linux user: #127875)
-http://www.rene.rebe.myokay.net/
--Germany-
-
-Anyone sending unwanted advertising e-mail to this address will be charged
-$25 for network traffic and computing time. By extracting my address from
-this message or its header, you agree to these terms.
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

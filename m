@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262795AbTDATta>; Tue, 1 Apr 2003 14:49:30 -0500
+	id <S262811AbTDAToX>; Tue, 1 Apr 2003 14:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262810AbTDATta>; Tue, 1 Apr 2003 14:49:30 -0500
-Received: from smtp-out.comcast.net ([24.153.64.116]:62472 "EHLO
-	smtp.comcast.net") by vger.kernel.org with ESMTP id <S262795AbTDATt3>;
-	Tue, 1 Apr 2003 14:49:29 -0500
-Date: Tue, 01 Apr 2003 14:55:14 -0500
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-Subject: Re: [Bug 529] New: ACPI under 2.5.50+ (approx) locks system hard
-	during bootup
-In-reply-to: <20030401114749.A7647@figure1.int.wirex.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: chris@wirex.com, andrew.grover@intel.com
-Reply-to: Matthew Harrell 
-	  <mharrell-dated-1049658915.d5a407@bittwiddlers.com>
-Message-id: <20030401195514.GA29214@bittwiddlers.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.4i
-X-Delivery-Agent: TMDA/0.68 (Shut Out)
-X-Primary-Address: mharrell@bittwiddlers.com
-References: <130680000.1049224849@flay>
- <20030401114749.A7647@figure1.int.wirex.com>
+	id <S262812AbTDAToX>; Tue, 1 Apr 2003 14:44:23 -0500
+Received: from B583e.pppool.de ([213.7.88.62]:47264 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S262811AbTDAToW>; Tue, 1 Apr 2003 14:44:22 -0500
+Subject: Re: flash as hda causes 2.4.18 to hang in
+	grok_partitions()...add_to_page_cache_unique()
+From: Daniel Egger <degger@fhm.edu>
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+Cc: David Wuertele <dave-gnus@bfnet.com>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030401184348.GB3736@arthur.home>
+References: <m3smt3xuo1.fsf@bfnet.com> <1049212755.7628.5.camel@localhost>
+	 <20030401184348.GB3736@arthur.home>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wSY/j0vbZkFJOgXQP3O2"
+Organization: 
+Message-Id: <1049226944.11985.2.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 01 Apr 2003 21:55:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've tried every kernel I could get to build up through 2.5.66 and nothing 
-changed.  Same behavior every time
+--=-wSY/j0vbZkFJOgXQP3O2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Also, I can get them all to boot into single user mode.  I'm going to check
-if the hang is caused by the loading of the alsa modules (which run on the
-same interrupt) or something else.
+Am Die, 2003-04-01 um 20.43 schrieb Erik Mouw:
 
+> It usually is a CF bug. I've seen failing CF cards on one machine which
+> work perfectly well in another machine. Just try the same card in
+> another machine, or a get a new card. I haven't tried it with the new
+> IDE code, though.
 
+Well, I've seen CF cards not working in LBA mode, so changing that might
+work. However the failures are of a completely different nature; read
+errors seem to magically appear while here the detection is crashing.
 
-: Try >= 2.5.64.  It has a derive_pci_id ACPI patch that fixed this problem
-: for me[*].
-: 
-: ChangeSet@1.889.255.2, 2003-02-26 13:47:36-08:00, agrover@groveronline.com
-:   ACPI: Fix derive_pci_id (Ducrot Bruno, Alvaro Lopez)
-: 
-: thanks,
-: -chris
-: 
-: [*] There is still a case where a warm reboot from a 2.4 kernel will
-: hang, but warm reboot from 2.5 kernel, or cold boot no longer hangs.
-: -- 
-: Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--=20
+Servus,
+       Daniel
 
--- 
-  Matthew Harrell                          I love defenseless animals,
-  Bit Twiddlers, Inc.                       especially in a good gravy.
-  mharrell@bittwiddlers.com     
+--=-wSY/j0vbZkFJOgXQP3O2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+ie7Achlzsq9KoIYRArGhAKCBKJcjQZditzsa9VAARwKAjxxrdQCg1IMC
+MeYD63e1bVAJMbyaDpCJVYQ=
+=zSJ5
+-----END PGP SIGNATURE-----
+
+--=-wSY/j0vbZkFJOgXQP3O2--
+

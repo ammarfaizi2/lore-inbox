@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131323AbRDBVik>; Mon, 2 Apr 2001 17:38:40 -0400
+	id <S131349AbRDBVou>; Mon, 2 Apr 2001 17:44:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131324AbRDBVib>; Mon, 2 Apr 2001 17:38:31 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:23211 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S131320AbRDBViT>; Mon, 2 Apr 2001 17:38:19 -0400
-Importance: Normal
-Subject: Announcing Journaled  File System (JFS)  release 0.2.2 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Mon, 2 Apr 2001 17:37:35 -0400
-Message-ID: <OF189F5459.F38C9965-ON85256A22.00761CAB@raleigh.ibm.com>
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 04/02/2001 05:37:37 PM
+	id <S131352AbRDBVok>; Mon, 2 Apr 2001 17:44:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26897 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131349AbRDBVoc>; Mon, 2 Apr 2001 17:44:32 -0400
+Subject: Re: Larger dev_t
+To: Andries.Brouwer@cwi.nl
+Date: Mon, 2 Apr 2001 22:45:03 +0100 (BST)
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, hpa@transmeta.com,
+   linux-kernel@vger.kernel.org, tytso@MIT.EDU
+In-Reply-To: <UTC200104022017.WAA89061.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Apr 02, 2001 10:17:02 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kC8N-0006nc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest drop of JFS was made available today.
+> Not using 64 also gives interesting small problems with Solaris or
+> FreeBSD NFS mounts. One uses 14+18, the other 8+24, so with 12+20
+> we cannot handle Solaris' majors and we cannot handle FreeBSD's minors.
 
-The file system has fixes included. Also, the utilities have
-been cleaned up to use standard types.
-
-In the file system the following problems have been fixed.
-
-- Fix for assert(iagp->wmap[extno] & mask); (line #2875) in jfs_imap
-  while running dbench
-- Fixed hang on scsi
-- added /proc/fs/jfs/jfsFYI (2.4.* kernels only)
-     echo 1 > /proc/fs/jfs/jfsFYI  ; Turns on very verbose output to syslog
-     echo 0 > /proc/fs/jfs/jfsFYI  ; Turns it back off
-
-For more details about the problems fixed, please see the README.
-
-Steve
-JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
-
+Mount NFS device areas with NFSv2. Thats the standard workaround for the
+fact the NFSv3 designers got a good idea slightly wrong. There are other
+approaches too that also do not need 64bits.

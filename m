@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTIZOFz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 10:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbTIZOFz
+	id S262240AbTIZOKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 10:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTIZOKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 10:05:55 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:63237 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S262228AbTIZOFx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 10:05:53 -0400
-Date: Fri, 26 Sep 2003 16:05:50 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Syscall security
-Message-ID: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
+	Fri, 26 Sep 2003 10:10:10 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:49933 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S262240AbTIZOKE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 10:10:04 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG?] SIS IDE DMA errors
+Date: Fri, 26 Sep 2003 22:08:30 +0800
+User-Agent: KMail/1.5.2
+References: <yw1x7k3vlokf.fsf@users.sourceforge.net>
+In-Reply-To: <yw1x7k3vlokf.fsf@users.sourceforge.net>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309262208.30582.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+> SIS5513: IDE controller at PCI slot 0000:00:02.5
+> SIS5513: chipset revision 208
+> SIS5513: not 100% native mode: will probe irqs later
+> SIS5513: SiS 961 MuTIOL IDE UDMA100 controller
+>     ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
+>     ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:pio
+> hda: IC25N040ATMR04-0, ATA DISK drive
 
-I'm wondering if there is any way to provide per process bitmasks of 
-available/illegal syscalls.  Obviously this should most likely be 
-inherited through exec/fork.
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+SIS5513: IDE controller at PCI slot 00:02.5
+PCI: Found IRQ 10 for device 00:02.5
+SIS5513: chipset revision 0
+SIS5513: not 100% native mode: will probe irqs later
+SIS5513: SiS 962/963 MuTIOL IDE UDMA133 controller
+    ide0: BM-DMA at 0x4000-0x4007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x4008-0x400f, BIOS settings: hdc:pio, hdd:pio
+hda: IC35L090AVV207-0, ATA DISK drive
 
-For example specyfying that pid N should return -ENOSYS on all syscalls 
-except read/write/exit.
 
-The reason I'm asking is because I want to run totally untrusted 
-statically linked binary code (automatically compiled from user 
-submitted untrusted sources) which only needs read/write access to stdio 
-which means it only requires syscalls read/write/exit + a few more for
-memory alloc/free (like brk) + a few more generated before main is called 
-(execve and uname I believe).
+Jul 27 04:22:26 mhfl4 kernel: hda: lost interrupt
+Jul 27 04:23:15 mhfl4 kernel: hda: dma_timer_expiry: dma status == 0x24
+Jul 27 04:23:25 mhfl4 kernel: hda: DMA interrupt recovery
 
-Currently I'm running the code in a chroot'ed environment (to an empty 
-dir) under a 'nobody' uid/gid with no open fd's except for std in/out/err 
-with limits for mem, processor usage, open files, processes (to 1), etc.
-Obviously this still allows calling code like 'time', 'getuid', etc and 
-the like.
-Modifying the compiler (or removing the headers) won't help since at worst 
-I can code it in asm in the source or even in a plain byte table.
+Running mostly 2.4 on this board, not using ACPI, Got similar problems 
+with 2.4 and when running occasionally 2.6, but not as bad except with 
+2.4.22-pre7. 
 
-I have a working (very much a hack) patch which turns of all but 7 (or 
-so) of the syscalls (via pseudo-bitmaps).
+Suspect chipset related issue which should be looked into.
 
-Basically my question is: has this been done before (if so where/when?), 
-what would be considered 'the right' way to do this, would this be a 
-feature to include in the main kernel source?
+You could try setting udma mode with hdparm -Xudma[12345] and see
+if it helps.  
 
-Thanks,
+I use from a script on startup 
 
-MaZe.
+sync
+hdparm -S 255 -K1 -c3 -Xudma5 /dev/hda.
+
+Note: IME, hdparm should not be used when there is substantial 
+disk activity.
+
+Regards
+Michael
+
 

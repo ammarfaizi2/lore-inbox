@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264933AbUF1NBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264946AbUF1NRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264933AbUF1NBm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 09:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbUF1NBl
+	id S264946AbUF1NRS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 09:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUF1NRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 09:01:41 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:27344 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264933AbUF1NBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 09:01:36 -0400
-Date: Mon, 28 Jun 2004 14:01:29 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Brian <bmg300@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel VM bug?
-In-Reply-To: <20040628025832.GM21066@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0406281342480.13228-100000@localhost.localdomain>
+	Mon, 28 Jun 2004 09:17:18 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:9138 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S264936AbUF1NRN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 09:17:13 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: PATCH: Further aacraid work
+Date: Mon, 28 Jun 2004 09:17:09 -0400
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D56C@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH: Further aacraid work
+Thread-Index: AcRcbN+oEKqpYE4ST0KnVx+eKib9AgApPy0w
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>,
+       "William Lee Irwin III" <wli@holomorphy.com>
+Cc: "Alan Cox" <alan@redhat.com>, "Arjan van de Ven" <arjanv@redhat.com>,
+       "Clay Haapala" <chaapala@cisco.com>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004, William Lee Irwin III wrote:
+Wow!
+
+& Thanks!
+
+Sincerely -- Mark Salyzyn
+
+-----Original Message-----
+From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
+Sent: Sunday, June 27, 2004 1:33 PM
+To: William Lee Irwin III
+Cc: Alan Cox; Salyzyn, Mark; Arjan van de Ven; Clay Haapala; Christoph
+Hellwig; Linux Kernel; SCSI Mailing List; Andrew Morton
+Subject: Re: PATCH: Further aacraid work
+
+On Fri, 2004-06-18 at 15:32, William Lee Irwin III wrote:
+> On Fri, Jun 18, 2004 at 08:05:18AM -0700, William Lee Irwin III wrote:
+> > Proper changelog this time, and comments, too. Adaptec et al, please
+> > verify this resolves the issues you've been having.
+> > Someone say _something_.
 > 
-> Strict non-overcommit is also good to have in order for orderly
-> application shutdown or otherwise application self-regulation of
-> resource demands to occur at the time of hardware resource exhaustion.
-> This is by necessity enabled by default and has to be disabled at
-> runtime. You shouldn't have to do anything to enable it, but to
-> doublecheck that strict non-overcommit hasn't been disabled by e.g.
-> initscripts, please check that /proc/sys/vm/overcommit_memory stays 0.
+> jejb's seeing such improved results that I don't believe we need to
+> wait for Adaptec's ack to merge this.
+> 
+> akpm, please apply.
 
-I'm not sure if I'm niggling over terminology, or pointing out a
-significant misunderstanding: but /proc/sys/vm/overcommit_memory 0
-(indeed the default) is not what I call strict non-overcommit: that's 2.
+The patch is already in mainline, but here's my final set of statistics
+on it.  I traced the effectiveness over a full day's operations on a
+scsi build and test machine (I don't get uptime much over a day on these
+machines since they're usually being rebooted to test new patches).
 
-All settings (0, 1, 2) maintain the Committed_AS count shown in
-/proc/meminfo; but only /proc/sys/vm/overcommit_memory 2 totals and
-limits reservations using it.  1 imposes no limit.  0 checks that the
-particular "reservation" could plausibly be made available now, but
-without considering the total: so allows any number of concurrent
-maximum reservations - traditional relaxed Linux behaviour, not strict.
+The machine is an 8-way p66 voyager with 256k of memory.
 
-(2 came along much later, yes the naming and numbering are both horrid.)
+I did notice the mergers start off high (at around 50%) after first boot
+and then decline.  The asymptote of the decline appears to be around 26%
+which is still a respectable merge rate for a non-iommu machine.  I was
+impressed to see that even at the end of the day I was still getting
+multi-page merges (still up to 128 pages).
 
-Hugh
+The instrumentation counts the total number of pages in merged segments
+and the total number of segments through the machine.  The final figures
+for the day were
+
+Total pages merged:	192682
+Total segments:		549497
+
+So the amount of I/O through the system is 2.2-2.9GB or more than ten
+times the machine's actual memory capacity (hopefully this puts me well
+up into the usual operating region for physical page fragmentation).
+
+James
+
 

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264434AbTKMWWS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 17:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264441AbTKMWWS
+	id S264451AbTKMW1w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 17:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTKMW1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 17:22:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27290 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264434AbTKMWWR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 17:22:17 -0500
-Date: Thu, 13 Nov 2003 14:21:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jochen Voss <voss@seehuhn.de>
-cc: "Nakajima, Jun" <jun.nakajima@intel.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
-In-Reply-To: <20031113193043.GA1366@seehuhn.de>
-Message-ID: <Pine.LNX.4.44.0311131408250.1861-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Nov 2003 17:27:52 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39948
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264451AbTKMW1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 17:27:50 -0500
+Date: Thu, 13 Nov 2003 14:27:51 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mary Edie Meredith <maryedie@osdl.org>, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, jenny@osdl.org
+Subject: Re: Nick's scheduler v18
+Message-ID: <20031113222751.GJ2014@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Mary Edie Meredith <maryedie@osdl.org>, piggin@cyberone.com.au,
+	linux-kernel@vger.kernel.org, jenny@osdl.org
+References: <3FAFC8C6.8010709@cyberone.com.au> <1068746827.1750.1358.camel@ibm-e.pdx.osdl.net> <20031113113906.65431b18.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031113113906.65431b18.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 13 Nov 2003, Jochen Voss wrote:
+On Thu, Nov 13, 2003 at 11:39:06AM -0800, Andrew Morton wrote:
+> What filesystem was being used?
 > 
-> > In 2.6 we don't look at the MPS table if ACPI is
-> > available. Or ACPI detection is failing?
->
-> How do I check this?
+> If it was ext2 then perhaps you hit the recently-fixed block allocator
+> race.  That fix was merged after test9.  Please check the kernel logs for
+> any filesystem error messages.
+> 
+> Also, please retry the run, see if it is repeatable.
 
-Well, I just checked, and with my setup the IOAPIC and LAPIC information 
-is all from ACPI.
+Did that hit ext3 also?  ISTR, getting some "access beyond end of device"
+while running ext3.
 
-In particular, if your ACPI tables have the information, you should have 
-seen something like this:
+Interestingly enough, I didn't get this while using reiserfs3...
 
-	..
-	ACPI: Local APIC address 0xfee00000
-	ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-	Processor #0 15:2 APIC version 20
-	ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
-	Processor #1 15:2 APIC version 20
-	ACPI: LAPIC_NMI (acpi_id[0x00] polarity[0x1] trigger[0x1] lint[0x1])
-	ACPI: LAPIC_NMI (acpi_id[0x01] polarity[0x1] trigger[0x1] lint[0x1])
-	ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
-	...
-
-and you shouldn't ever have gotten to the SMP table parsing, because the 
-kernel doesn't need the information.
-
-However, your dmesg doesn't have that. Which means that either you don't 
-have the proper ACPI tables, or you don't ave CONFIG_ACPI_BOOT set.
-
-Your .config file says you _do_ have CONFIG_ACPI_BOOT set, which would
-imply that your BIOS tables really _are_ UP-only, even for ACPI.
-
-Did they actually sell you the thing as being HT-enabled? It doesn't look 
-like it is..
-
-		Linus
-
+And me still running 2.6.0-test6-mm4 :-/

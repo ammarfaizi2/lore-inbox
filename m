@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292544AbSBPV3I>; Sat, 16 Feb 2002 16:29:08 -0500
+	id <S292551AbSBPVoz>; Sat, 16 Feb 2002 16:44:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292546AbSBPV26>; Sat, 16 Feb 2002 16:28:58 -0500
-Received: from mail311.mail.bellsouth.net ([205.152.58.171]:44774 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S292544AbSBPV2u>; Sat, 16 Feb 2002 16:28:50 -0500
-Subject: future of rmap VM
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Rik van Riel <riel@conectiva.com.br>
+	id <S292553AbSBPVoo>; Sat, 16 Feb 2002 16:44:44 -0500
+Received: from mail.cogenit.fr ([195.68.53.173]:41422 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S292551AbSBPVoe>;
+	Sat, 16 Feb 2002 16:44:34 -0500
+Date: Sat, 16 Feb 2002 22:44:16 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Eric Gillespie <viking@flying-brick.caverock.net.nz>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 (1.0.2-1) 
-Date: 16 Feb 2002 16:29:23 -0500
-Message-Id: <1013894969.1283.8.camel@tiger>
+Subject: Re: What? Clock Slowdown Again?
+Message-ID: <20020216224416.A32624@fafner.intra.cogenit.fr>
+In-Reply-To: <Pine.LNX.4.21.0108201013170.4109-100000@brick.flying-brick.caverock.net.nz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0108201013170.4109-100000@brick.flying-brick.caverock.net.nz>; from viking@flying-brick.caverock.net.nz on Sat, Feb 16, 2002 at 09:51:02PM +1300
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When do you plan to have a complete rmap VM ready for general use? Whats left to do?
+Eric Gillespie <viking@flying-brick.caverock.net.nz> :
+[...]
+> Also, what are the plans for replacing the virt_to_bus / bus_to_virt
+> functions?  The sourcecode basically says to use pci_map functions, but, being
+> almost a kernel illiterate (I know how to compile, apply patches, and not much
+> else) I don't know how to get started on converting.  I thought that
+> pci_resource_{start,end,len} may also be needed too.  Am I right?
 
-Also, have you discussed merging this VM into the mainline kernel, either 2.4 or 2.5?
+Look at Documentation/DMA-mapping.txt, section "Types of DMA mappings"
+Read it again from the start. If you aren't familiar with PCI, 
+http://ww.google.com/search?hl=en&q=PCI+dual+address+cycle+explanation may
+help. Then look at drivers/net/{epic/eepro100/3c59x}.c and grep for the
+functions quoted in DMA-mapping.txt. After that, glue all the pieces in 
+your head. 
 
-To me, this VM is far better than the current VM.
-
---Louis
-
+-- 
+Ueimor

@@ -1,58 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUFRUit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUFRUnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUFRUit (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUFRUif
+	id S262406AbUFRUnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUFRUly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:38:35 -0400
-Received: from null.rsn.bth.se ([194.47.142.3]:41186 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S263750AbUFRUhM (ORCPT
+	Fri, 18 Jun 2004 16:41:54 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:3034 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S266810AbUFRUIz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:37:12 -0400
-Subject: Re: [PATCH] Add kallsyms_lookup() result cache
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Brent Casavant <bcasavan@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com>
-References: <Pine.SGI.4.58.0406181435570.5029@kzerza.americas.sgi.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6WaM2kVgmmjwcFp0T44w"
-Message-Id: <1087591028.1019.77.camel@tux.rsn.bth.se>
+	Fri, 18 Jun 2004 16:08:55 -0400
+Date: Fri, 18 Jun 2004 22:08:48 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618200848.GL20632@lug-owl.de>
+Mail-Followup-To: Rik van Riel <riel@redhat.com>,
+	Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+	4Front Technologies <dev@opensound.com>
+References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 22:37:08 +0200
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/tCUuHqq+dV/zcM0"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-6WaM2kVgmmjwcFp0T44w
-Content-Type: text/plain
+--/tCUuHqq+dV/zcM0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2004-06-18 at 22:03, Brent Casavant wrote:
+On Fri, 2004-06-18 16:05:46 -0400, Rik van Riel <riel@redhat.com>
+wrote in message <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.=
+redhat.com>:
+> On Fri, 18 Jun 2004, Tim Bird wrote:
 
-Hi Brent
+> Since the people benefitting from this work are the
+> embedded developers, it would seem logical that they
+> should bear the cost of this effort, too.
 
-just something that cought my eye.
+It's not only all the embedded stuff (where the -tiny tree is a nice
+start!). Remember the bits of the pc98 arch that got ripped these days?
+Remember the CRIS architecture being hopefully out of sync? They're all
+good candidates to profit from such a helper.
 
-> +static rwlock_t namecache_lock;
-
-should be
-
-static rwlock_t namecache_lock =3D RW_LOCK_UNLOCKED;
+MfG, JBG
 
 --=20
-/Martin
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
---=-6WaM2kVgmmjwcFp0T44w
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--/tCUuHqq+dV/zcM0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBA01JzWm2vlfa207ERAhy2AJ9Gq1pU0RVF60HcXrorPUQwXJfbewCeM8zm
-lKvUcWUDUmUWhVZm8hz5j1A=
-=08Ld
+iD8DBQFA00vQHb1edYOZ4bsRAiuwAJ9T3k53c8l0M8x8hQIqdjmRZlzbZgCaAv5r
+OnWCU1utf8CB+8bhzzocTXM=
+=gjxa
 -----END PGP SIGNATURE-----
 
---=-6WaM2kVgmmjwcFp0T44w--
+--/tCUuHqq+dV/zcM0--

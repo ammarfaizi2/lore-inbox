@@ -1,53 +1,105 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315631AbSFJSYd>; Mon, 10 Jun 2002 14:24:33 -0400
+	id <S315634AbSFJSYn>; Mon, 10 Jun 2002 14:24:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315634AbSFJSYd>; Mon, 10 Jun 2002 14:24:33 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:36851 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S315631AbSFJSYb>; Mon, 10 Jun 2002 14:24:31 -0400
-Message-ID: <3D04EDC1.8010402@drugphish.ch>
-Date: Mon, 10 Jun 2002 20:19:45 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire Disks. (fwd)
-In-Reply-To: <Pine.LNX.3.95.1020610141042.17451B-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315690AbSFJSYm>; Mon, 10 Jun 2002 14:24:42 -0400
+Received: from doninha.ip.pt ([195.23.132.12]:60332 "HELO doninha.ip.pt")
+	by vger.kernel.org with SMTP id <S315634AbSFJSYi>;
+	Mon, 10 Jun 2002 14:24:38 -0400
+Message-ID: <20020610182431.15750.qmail@webmail.clix.pt>
+X-Originating-IP: [198.62.10.2]
+X-Mailer: Clix Webmail 2.0
+In-Reply-To: <auto-000027137622@mx12.cluster1.charter.net>
+From: "Rui Sousa" <rui.p.m.sousa@clix.pt>
+To: Cory Watson <gphat@cafes.net>
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: emu10k1, 2.5.21
+Date: Mon, 10 Jun 2002 18:24:31 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> I know there is support for "firewire" in the kernel. Is there
-> support for "firewire" disks? If so, how do I enable it?
+Cory Watson writes:
 
-Yes, there is and it is attached to the SCSI layer via the sbp2 driver. 
-You need following set of modules to get it working:
+This is for the ALSA emu10k1 driver, not the OSS.
 
-scsi_mod, sd_mod, ohci1394, raw1394, ieee1394, sbp2
+Rui Sousa
 
-I know that you will find out which options you need to enable in the 
-kernel config ;).
+> emu10k1 wouldn't compile for me, this patch fixes it via #including 
+> linux/init.h.  Perhaps this is the wrong way, but it works for me.
+> 
+> Attached, and below:
+> 
+> iff -urN a/sound/pci/emu10k1/emufx.c b/sound/pci/emu10k1/emufx.c
+> --- a/sound/pci/emu10k1/emufx.c	Sun May  5 22:37:52 2002
+> +++ b/sound/pci/emu10k1/emufx.c	Sun Jun  9 15:04:01 2002
+> @@ -29,6 +29,7 @@
+>  #include <sound/driver.h>
+>  #include <linux/delay.h>
+>  #include <linux/slab.h>
+> +#include <linux/init.h>
+>  #include <sound/core.h>
+>  #include <sound/emu10k1.h>
+>  
+> diff -urN a/sound/pci/emu10k1/emumixer.c b/sound/pci/emu10k1/emumixer.c
+> --- a/sound/pci/emu10k1/emumixer.c	Sun May  5 22:37:58 2002
+> +++ b/sound/pci/emu10k1/emumixer.c	Sun Jun  9 15:03:36 2002
+> @@ -29,6 +29,7 @@
+>  #define __NO_VERSION__
+>  #include <sound/driver.h>
+>  #include <linux/time.h>
+> +#include <linux/init.h>
+>  #include <sound/core.h>
+>  #include <sound/emu10k1.h>
+>  
+> diff -urN a/sound/pci/emu10k1/emumpu401.c b/sound/pci/emu10k1/emumpu401.c
+> --- a/sound/pci/emu10k1/emumpu401.c	Sun May  5 22:37:55 2002
+> +++ b/sound/pci/emu10k1/emumpu401.c	Sun Jun  9 15:01:36 2002
+> @@ -22,6 +22,7 @@
+>  #define __NO_VERSION__
+>  #include <sound/driver.h>
+>  #include <linux/time.h>
+> +#include <linux/init.h>
+>  #include <sound/core.h>
+>  #include <sound/emu10k1.h>
+>  
+> diff -urN a/sound/pci/emu10k1/emupcm.c b/sound/pci/emu10k1/emupcm.c
+> --- a/sound/pci/emu10k1/emupcm.c	Sun May  5 22:37:53 2002
+> +++ b/sound/pci/emu10k1/emupcm.c	Sun Jun  9 15:02:52 2002
+> @@ -29,6 +29,7 @@
+>  #include <sound/driver.h>
+>  #include <linux/slab.h>
+>  #include <linux/time.h>
+> +#include <linux/init.h>
+>  #include <sound/core.h>
+>  #include <sound/emu10k1.h>
+>  
+> diff -urN -X dontdiff a/sound/pci/emu10k1/emuproc.c 
+> b/sound/pci/emu10k1/emuproc.c
+> --- a/sound/pci/emu10k1/emuproc.c	Sun May  5 22:37:59 2002
+> +++ b/sound/pci/emu10k1/emuproc.c	Sun Jun  9 15:03:15 2002
+> @@ -28,6 +28,7 @@
+>  #define __NO_VERSION__
+>  #include <sound/driver.h>
+>  #include <linux/slab.h>
+> +#include <linux/init.h>
+>  #include <sound/core.h>
+>  #include <sound/emu10k1.h>
+>  
+> -- 
+> Cory 'G' Watson
+> 
+> "You know the old saying -- any technology sufficiently advanced is 
+> indistinguishable from a Perl script."
+>      - "Programming Perl", page 301
 
-You might want to check out the CVS version of the ieee1394 drivers but 
-I don't think it is necessary. It works perfectly back here with a 
-Maxtor 160GB. Funny enough I had 158GB with the VFAT on it and 152GB 
-with ext2/ext3.
 
-The speed results were also quite interessing:
 
-VFAT writing     : 12.8 Mbyte/s
-ext2/ext3 writing: 19.2 Mbyte/s
 
-I simply like that disk and it's a nice extension for a laptop :).
 
-Cheers,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
-
+--
+Crie o seu Email Grátis no Clix em
+http://registo.clix.pt/

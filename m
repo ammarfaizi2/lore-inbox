@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262785AbTHZUOH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 16:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbTHZUOH
+	id S262166AbTHZUYE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 16:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTHZUYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 16:14:07 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:62731 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262785AbTHZUOD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 16:14:03 -0400
-Date: Tue, 26 Aug 2003 22:09:09 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       lkml <linux-kernel@vger.kernel.org>
+	Tue, 26 Aug 2003 16:24:03 -0400
+Received: from [62.241.33.80] ([62.241.33.80]:51205 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262166AbTHZUYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 16:24:01 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
 Subject: Re: [PATCH 2.4.23-pre1] /proc/ikconfig support
-Message-ID: <20030826200909.GK734@alpha.home.local>
+Date: Tue, 26 Aug 2003 22:23:08 +0200
+User-Agent: KMail/1.5.3
+Cc: lkml <linux-kernel@vger.kernel.org>, Willy Tarreau <willy@w.ods.org>
 References: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308262223.08827.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 04:33:09PM -0300, Marcelo Tosatti wrote:
- 
+On Tuesday 26 August 2003 21:33, Marcelo Tosatti wrote:
+
+Hi Marcelo,
+
+> > I have the same question about the seq_file "single" additions
+> > patch that I sent yesterday.... ???
+> The seq_file patch needs EXPORT_SYMBOL right?
+
+I've send the export_symbol patch yesterday to you cc'ed lkml and randy etc.
+
 > And about ikconfig, hum, I'm not sure if I want that. Its nice, yes, but I
 > still wonder. You are free to convince me though: I think people usually
 > know what they compile in their kernels, dont they?
 
-Marcelo,
+grmpf. Absolutely wrong argumentation. People like me compile kernels a lot, 
+for tons of different machines, for customers and so on. My brain is not that 
+good that I'll remember each and every customers kernel/machine config ;)
 
-I can say for sure that I would really like to have ikconfig (I've been using
-other sorts of proc_config patches for a long time now). It's not something
-strictly necessary (otherwise it would already have been in), but it's really
-userful in some situations because we're humans and not fail-safe :
+Many people forget to copy the current .config to somewhere else in /boot or 
+such. And I agree 100% with Willy :)
 
-  - when a default kernel and a default config doesn't work on a customer's
-    system, and I insist on the fact it's someone else, you end up trying
-    several tricks till the time it finally runs. When you do this at a
-    customer's and you're compiling your 30rd kernel at 23h40 with the man
-    behind you with red eyes, you know for sure that at the very moment he
-    will see it boot, he will say "ok, thanks a lot, now let's go to bed. bye!"
-    When you come again several weeks after, he tells you that /usr/src/linux
-    took lots of useless space on his tapes and he removed it. Given the late
-    hour the last time, you didn't save the .config and definitely lost it.
-    Believe me, I was happy to see that I still had the .config for the 500+
-    days uptime kernel I reported a few days ago because that's not always the
-    case (even if I didn't need it this time).
+P.S.: Alan planed it for .23-pre1 ;-))
 
-  - when trying patches, config options, optimizations, etc... it's common for
-    some (most ?) of us to quickly copy a bzimage.test under /boot, which entry
-    is already filled in lilo.conf, reboot it with init=/bin/sh and trying lots
-    of dirty tricks. After a while, you don't remember which .config was used
-    for the only one which causes trouble or which works, or you simply lost it
-    in a quick "make distclean" or "cd ..&&rm -rf linux&&tar x&&cd -", and being
-    able to recover it from bzimage or at run time would be great.
-
-As you see, nothing much important in my opinion, but definitely compensates
-for my unreliable brain and saves me much time. I don't really matter whether
-you merge it or not, since I will use it anyway, but I see no reason it couldn't
-serve others as well.
-
-Cheers,
-Willy
+ciao, Marc
 

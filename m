@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbTJJJHl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 05:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTJJJHl
+	id S262726AbTJJJIc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 05:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262708AbTJJJIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 05:07:41 -0400
-Received: from holomorphy.com ([66.224.33.161]:2177 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262768AbTJJJHk (ORCPT
+	Fri, 10 Oct 2003 05:08:32 -0400
+Received: from holomorphy.com ([66.224.33.161]:3457 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262726AbTJJJI3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 05:07:40 -0400
-Date: Fri, 10 Oct 2003 02:09:42 -0700
+	Fri, 10 Oct 2003 05:08:29 -0400
+Date: Fri, 10 Oct 2003 02:11:34 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: YoshiyaETO <eto@soft.fujitsu.com>
-Cc: Stuart Longland <stuartl@longlandclan.hopto.org>,
-       linux-kernel@vger.kernel.org,
-       Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
-       Fabian.Frederick@prov-liege.be
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010090942.GC700@holomorphy.com>
+To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: [2.7 "thoughts"] V0.3
+Message-ID: <20031010091134.GA682@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	YoshiyaETO <eto@soft.fujitsu.com>,
-	Stuart Longland <stuartl@longlandclan.hopto.org>,
-	linux-kernel@vger.kernel.org,
-	Stephan von Krawczynski <skraw@ithnet.com>, lgb@lgb.hu,
-	Fabian.Frederick@prov-liege.be
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010063039.GA700@holomorphy.com> <047b01c38f00$60b34840$6a647c0a@eto> <20031010074030.GB700@holomorphy.com> <04d501c38f0b$2864c210$6a647c0a@eto>
+	"Frederick, Fabian" <Fabian.Frederick@prov-liege.be>,
+	"Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <04d501c38f0b$2864c210$6a647c0a@eto>
+In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> I don't see any reason to connect it with the notion of a node.
+On Fri, Oct 10, 2003 at 09:54:12AM +0200, Frederick, Fabian wrote:
+> 2.7 "thoughts"
+> Thanks to Gabor, Stuart, Stephan and others
+> Don't hesitate to send me more or comment.
 
-On Fri, Oct 10, 2003 at 05:47:37PM +0900, YoshiyaETO wrote:
->     If the word "Node" is not so appropriate, I will use "Unit".
-> And I also make it simple, "Unit" will have CPUs and/or Memory.
-> On the other hand IO-Unit will have IOs.
+Ugh, this is all crackpot wishlist gunk.
 
-Well, that's precisely what I was saying was unnecessary. The VM
-mechanics are orthogonal to the rest, so there's no reason to tie
-their handling together. The coincidence that they appear bundled
-on one system or another is irrelevant.
+How about some goodies backed with real working code, like:
 
+* O(1) proc_pid_statm()
+	-- originally by bcrl for 2.4, fwd port maintained by wli
+* O(lg(n)) proc_pid_readdir()/proc_task_readdir()
+	-- original O(1) proc_pid_readdir() by manfred, rewritten by
+	-- wli to use rbtrees for O(lg(n)) seeks into the relevant
+	-- lists (walking over empty buckets had overhead)
+* 4KB ia32 kernel stacks + irqstacks
+	-- original by bcrl, fwd port maintained by dhansen for a
+	-- substantial amount of time, now maintained by wli
+* ia32 leaf pagetable node cache
+	-- wli
+* node-local per_cpu areas for ia32 NUMA
+	-- wli
+* highpmd, analogue of highpte for pmd's
+	-- wli. Gets pmd's on node-local mem on ia32 NUMA, and
+	-- alleviates a lot of lowmem pressure under heavy
+	-- multiprogramming levels on PAE.
 
-At some point in the past, I wrote:
-> > The main points of contention would appear to be cooperative vs.
-> > forcible (where I believe cooperative is acknowledged as the only
+Some benchmarks of a patchset including these (and several other things)
+are at http://home.earthlink.net/~rwhron/kernel/wli.html, and some ports
+of the patch set are at ftp://ftp.kernel.org/people/wli/kernels/
 
-On Fri, Oct 10, 2003 at 05:47:37PM +0900, YoshiyaETO wrote:
->     I could not understand what is forcible.
-> Everything should be cooperative, I think.
-
-"Forcible" would be "the kernel receives a magic interrupt, and in
-some mailbox the interrupt handler discovers the memory has either
-already disappeared or will disappear in some amount of time regardless
-of whether the kernel is prepared to handle its removal." The
-distinction is meaningless for the case of onlining. The case of
-offlining (perhaps by some deadline) is widely considered infeasible,
-but there are some environments that could consider it desirable.
-
-The bit that was actually expected to spark debate was the ZONE_HIGHMEM
-notion purported to be a desirable method for resolving the conflict
-between pinned/wired kernel allocations and cooperative offlining by
-restricting pinned/wired kernel allocations to some fixed physical
-arena. The two issues mentioned above are in reality non-issues.
+Whatever fantasy may be worth, working code is worth a lot more. I'll
+refrain from mentioning prototype-quality patches I'm hacking on atm.
 
 
 -- wli

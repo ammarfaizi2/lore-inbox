@@ -1,64 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278709AbRKHHJV>; Thu, 8 Nov 2001 02:09:21 -0500
+	id <S281255AbRKHHWG>; Thu, 8 Nov 2001 02:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281199AbRKHHJL>; Thu, 8 Nov 2001 02:09:11 -0500
-Received: from leeor.math.technion.ac.il ([132.68.115.2]:11171 "EHLO
-	leeor.math.technion.ac.il") by vger.kernel.org with ESMTP
-	id <S278709AbRKHHJA>; Thu, 8 Nov 2001 02:09:00 -0500
-Date: Thu, 8 Nov 2001 09:08:26 +0200 (IST)
-From: "Zvi Har'El" <rl@math.technion.ac.il>
-To: <arjan@fenrus.demon.nl>
-cc: <linux-kernel@vger.kernel.org>, "Nadav Har'El" <nyh@math.technion.ac.il>
-Subject: Re: ext3 vs resiserfs vs xfs
-In-Reply-To: <E161aYo-0000ch-00@fenrus.demon.nl>
-Message-ID: <Pine.GSO.4.33.0111080903360.28492-100000@leeor.math.technion.ac.il>
+	id <S281480AbRKHHV5>; Thu, 8 Nov 2001 02:21:57 -0500
+Received: from borderworlds.dk ([193.162.142.101]:30213 "HELO
+	klingon.borderworlds.dk") by vger.kernel.org with SMTP
+	id <S281255AbRKHHVm>; Thu, 8 Nov 2001 02:21:42 -0500
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ext2 directory index, updated
+In-Reply-To: <20011104022659Z16995-4784+750@humbolt.nl.linux.org>
+	<m3hesatcgq.fsf@borg.borderworlds.dk>
+	<20011105014225Z17055-18972+38@humbolt.nl.linux.org>
+From: Christian Laursen <xi@borderworlds.dk>
+Date: 08 Nov 2001 08:21:39 +0100
+In-Reply-To: <20011105014225Z17055-18972+38@humbolt.nl.linux.org>
+Message-ID: <m3vggliv7g.fsf@borg.borderworlds.dk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Daniel Phillips <phillips@bonn-fries.net> writes:
 
-Initrd did it! I was not using initrd. I generated the relevant initrd.img and
-added the line to my grub.conf configuration, and the problem is solved.
-System crashes are now easily recovered.
+> On November 4, 2001 11:09 pm, Christian Laursen wrote:
+> > Daniel Phillips <phillips@bonn-fries.net> writes:
+> > 
+> > > ***N.B.: still for use on test partitions only.***
+> > 
+> > It's the first time, I've tried this patch and I must say, that
+> > the first impression is very good indeed.
+> > 
+> > I took a real world directory (my linux-kernel MH folder containing
+> > roughly 115000 files) and did a 'du -s' on it.
+> >
+> Which kernel are you using?  From 2.4.10 on ext2 has an accelerator in 
+> ext2_find_entry - it caches the last lookup position.  I'm wondering how that 
+> affects this case.
 
-The only mystery is, why RedHat has ext3fs compiled as a module?
+I ran the tests again and got some real numbers this time.
 
-Lot of thanks,
+The accelerator should work as normal, when the filesystem is not
+mounted with -o index, shouldn't it (Although it's on a kernel
+with the directory index patch)?
 
-Zvi.
+xi@tam:~/Mail > uname -a
+Linux tam 2.4.13-3um #1 Sun Nov 4 14:29:19 CET 2001 i686 unknown
 
-On Wed, 7 Nov 2001 arjan@fenrus.demon.nl wrote:
+xi@tam:~/Mail > mount
+/dev/ubd0 on / type ext2 (rw,index)
+proc on /proc type proc (rw)
+devpts on /dev/pts type devpts (rw,mode=0620,gid=5)
+/dev/ubd2 on /mnt/flaf type ext2 (rw)
 
-> In article <Pine.GSO.4.33.0111072302460.12525-100000@leeor.math.technion.ac.il> you wrote:
-> > On Wed, 7 Nov 2001, Andreas Dilger wrote:
->
-> > /dev/root / ext2 rw 0 0
->
-> ext2!
->
-> > /dev/hda6 /home ext3 rw 0 0
->
-> > How do  fix the situation at this stage? I am using Redhat 7.2 with kernel
-> > 2.4.9-13
->
-> Be sure to use the initrd as used by default in when you install the kernel.
-> Are you using lilo ?   If so add
->
-> initrd /boot/initrd-2.4.9-13.img
->
-> to the lilo.conf in the relevant kernel section.
->
-> Greetings,
->   Arjan van de Ven
->
+xi@tam:/mnt/flaf > time du -s linux-kernel/
+685652  linux-kernel
+
+real    19m14.689s
+user    0m1.650s
+sys     23m39.000s
+
+xi@tam:~/Mail > time du -s linux-kernel/
+686432  linux-kernel
+
+real    1m8.363s
+user    0m5.500s
+sys     0m57.350s
+
 
 -- 
-Dr. Zvi Har'El     mailto:rl@math.technion.ac.il     Department of Mathematics
-tel:+972-54-227607                   Technion - Israel Institute of Technology
-fax:+972-4-8324654 http://www.math.technion.ac.il/~rl/     Haifa 32000, ISRAEL
-"If you can't say somethin' nice, don't say nothin' at all." -- Thumper (1942)
-                          Thursday, 22 Heshvan 5762,  8 November 2001,  9:03AM
-
+Best regards
+    Christian Laursen

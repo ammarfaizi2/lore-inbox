@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312486AbSDJOrJ>; Wed, 10 Apr 2002 10:47:09 -0400
+	id <S313175AbSDJOuf>; Wed, 10 Apr 2002 10:50:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312570AbSDJOrI>; Wed, 10 Apr 2002 10:47:08 -0400
-Received: from CPE-144-132-248-138.nsw.bigpond.net.au ([144.132.248.138]:45184
-	"EHLO orthos") by vger.kernel.org with ESMTP id <S312486AbSDJOrI>;
-	Wed, 10 Apr 2002 10:47:08 -0400
-Date: Thu, 11 Apr 2002 00:47:09 +1000
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ACPI oops with 2.5.8-pre3 on asus dual athlon (A7M266-D)
-Message-ID: <20020410144709.GA852@orthos.rcpt.to>
+	id <S313176AbSDJOue>; Wed, 10 Apr 2002 10:50:34 -0400
+Received: from [195.157.147.30] ([195.157.147.30]:21259 "HELO
+	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
+	id <S313175AbSDJOud>; Wed, 10 Apr 2002 10:50:33 -0400
+Date: Wed, 10 Apr 2002 15:52:42 +0100
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Geoffrey Gallaway <geoffeg@sin.sloth.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Update - Ramdisks and tmpfs problems
+Message-ID: <20020410155242.H4493@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Geoffrey Gallaway <geoffeg@sin.sloth.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020409144639.A14678@sin.sloth.org> <20020410102343.A31552@sin.sloth.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: dichro@orthos.rcpt.to (Mikolaj J. Habryn)
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just a data point:  I have been using multiple tmpfs bind mounts for some time
+on smp without this problem.
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+none on /dev/shm type tmpfs (rw,nosuid,nodev,mode=1777,size=256M)
+/dev/shm on /tmp type none (rw,bind)
+/dev/shm on /usr/tmp type none (rw,bind)
 
-  Null pointer dereference in some deep internal ACPI state thing.
-Attached patch gets it past that point, but kernel then hangs after
-probing disks (as did -pre2, and possibly earlier ones). Almost
-certainly not the right fix :)
+Never had a reboot fail for this reason.
 
-m.
+Sean
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=acpi-diff
 
---- linux-2.5.8-pre3/drivers/acpi/executer/exfield.c.orig	Thu Apr 11 00:40:19 2002
-+++ linux-2.5.8-pre3/drivers/acpi/executer/exfield.c	Thu Apr 11 00:36:52 2002
-@@ -103,6 +103,10 @@
- 	/* Handle both ACPI 1.0 and ACPI 2.0 Integer widths */
- 
- 	integer_size = sizeof (acpi_integer);
-+	if (!walk_state || !walk_state->method_node) {
-+		printk("ACPI argh!\n");
-+		return_ACPI_STATUS(AE_ERROR);
-+	}
- 	if (walk_state->method_node->flags & ANOBJ_DATA_WIDTH_32) {
- 		/*
- 		 * We are running a method that exists in a 32-bit ACPI table.
-
---qMm9M+Fa2AknHoGS--
+On Wed, Apr 10, 2002 at 10:23:43AM -0400, Geoffrey Gallaway wrote:
+> I finally found the problem, which appears to be a combination of things:
+> 
+> Multiple tmpfs mounts and SMP.
+> 
+> I am using a Dual Intel PIII 1Ghz box. When I use a SMP kernel AND do
+> multiple tmpfs mounts (mount --bind /dev/shm/etc /etc; mount --bind
+> /dev/shm/var /var) the machine goes into a reset loop. HOWEVER, when I use a
+> non-SMP kernel and still do multiple tmpfs mounts OR when I use a SMP kernel
+> and do only one tmpfs mount, the machine boots fine. Every once in a while
+> (1 out of 20 times?) the machine would boot fine with a SMP kernel and
+> multiple tmpfs mounts. Is this a timing issue?
+> 
+> If I can help to nail down this (apparent) bug more, please let me know.
+> 
+> Thanks,
+> Geoffeg
+> 

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274426AbRJ2RdM>; Mon, 29 Oct 2001 12:33:12 -0500
+	id <S279303AbRJ2Rjc>; Mon, 29 Oct 2001 12:39:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279303AbRJ2RdC>; Mon, 29 Oct 2001 12:33:02 -0500
-Received: from t2.redhat.com ([199.183.24.243]:1014 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S274426AbRJ2Rcu>; Mon, 29 Oct 2001 12:32:50 -0500
-Message-ID: <3BDD92E5.40EFFE90@redhat.com>
-Date: Mon, 29 Oct 2001 17:33:25 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-4smp i686)
-X-Accept-Language: en
+	id <S279313AbRJ2RjW>; Mon, 29 Oct 2001 12:39:22 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:40166 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S279303AbRJ2RjL>; Mon, 29 Oct 2001 12:39:11 -0500
+Date: Mon, 29 Oct 2001 09:42:37 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: Justin Mierta <Crazed_Cowboy@stones.com>
+cc: <linux-kernel@vger.kernel.org>, <hahn@physics.mcmaster.ca>,
+        <alan@lxorguk.ukuu.org.uk>, <lung@theuw.net>
+Subject: Re: ECS k7s5a motherboard doesnt work
+In-Reply-To: <3BDD0D0E.6000609@stones.com>
+Message-ID: <Pine.LNX.4.33.0110290942190.27558-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100.c & Intel integrated MBs
-In-Reply-To: <11361.1004374395@nova.botz.org> <3BDD8EEC.6DFE6BA5@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> 
-> Jurgen Botz wrote:
-> 
-> > I'm now using the e100 driver from the Intel web site, which works
-> > perfectly, and light testing shows the Scyld (Don Becker) driver
-> > to work as well.  The Intel driver seems to have an incompatible
-> > license (noxious advertising clause?), but the Scyld drivers don't...
-> > at least there isn't any license mentioned and of course many
-> > of the net drivers in the current kernel are just earlier versions
-> > of the Scyld drivers.
-> 
-> The Scyld drivers have only recently started working with the 2.4 series,
-> and there is some unholly war between Becker and the rest of the kernel
-> hackers...so I don't think you'll ever see his drivers in the standard
-> kernel again...  RH usually tries to load the e100 (Intel's driver)
-> instead of the eepro100. 
+sis900 is the integrated ethernet controller...
 
-No we do not.  eepro100 is the default in Red Hat Linux 7.1 and 7.2 at
-least.
-I wish Intel would help fix eepro100 for the last few remaining issues
-it has....
+joelja
+
+On Mon, 29 Oct 2001, Justin Mierta wrote:
+
+> here's some more info for everyone trying to help:
+> redhat says (at some point) that it insmod'd sis900, not the sis5513
+> that mark had suggested, and the sis735 that everything says is actually
+> in the motherboard.  (i have to assume the sis900 was ide, because it
+> didnt tell me anything more useful than "insmod sis900" and that it worked)
+>
+> however, the messages i'm seeing are something like this:
+> hda atapi: reset complete
+> irq timeout: complete status = 0xC0   { busy }       (sometimes thats 0xD0)
+>
+> then there's a few lines every now and then saying "drive not ready for
+> command" and "I/O error"
+>
+> any suggestions?
+>
+> justin
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+-- 
+--------------------------------------------------------------------------
+Joel Jaeggli				       joelja@darkwing.uoregon.edu
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
+
+

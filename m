@@ -1,551 +1,772 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUFHL4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265198AbUFHL4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUFHL4g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 07:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbUFHLxt
+	id S265198AbUFHL4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 07:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbUFHL4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 07:53:49 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:63167 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S265112AbUFHLqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 07:46:49 -0400
-Date: Tue, 8 Jun 2004 12:46:48 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
-       Pawel Kot <pkot@bezsensu.pl>
-Subject: Re: [2.6.7-BK] NTFS 2.1.13 patch 8/8
-In-Reply-To: <Pine.SOL.4.58.0406081246070.21854@orange.csi.cam.ac.uk>
-Message-ID: <Pine.SOL.4.58.0406081246340.21854@orange.csi.cam.ac.uk>
-References: <Pine.SOL.4.58.0406081236450.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081243060.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081244330.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081244580.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081245130.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081245290.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081245500.21854@orange.csi.cam.ac.uk>
- <Pine.SOL.4.58.0406081246070.21854@orange.csi.cam.ac.uk>
+	Tue, 8 Jun 2004 07:56:18 -0400
+Received: from ozlabs.org ([203.10.76.45]:61346 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265044AbUFHLsc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 07:48:32 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16581.36680.665915.435522@cargo.ozlabs.ibm.com>
+Date: Tue, 8 Jun 2004 20:04:56 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linuxppc64-dev@lists.linuxppc.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, anton@samba.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: PREEMPT for ppc64
+In-Reply-To: <Pine.LNX.4.58.0406070737240.1730@ppc970.osdl.org>
+References: <16580.7953.94871.281986@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0406070737240.1730@ppc970.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 8 in the series.  It contains the following ChangeSet:
+Linus Torvalds writes:
 
-<aia21@cantab.net> (04/06/08 1.1750)
-   NTFS: 2.1.13 - Enable overwriting of resident files and housekeeping of system files.
-   - Mark the volume dirty when (re)mounting read-write and mark it clean
-     when unmounting or remounting read-only.  If any volume errors are
-     found, the volume is left marked dirty to force chkdsk to run.
-   - Add code to set the NT4 compatibility flag when (re)mounting
-     read-write for newer NTFS versions but leave it commented out for now
-     since we do not make any modifications that are NTFS 1.2 specific yet
-     and since setting this flag breaks Captive-NTFS which is not nice.
-     This code must be enabled once we start writing NTFS 1.2 specific
-     changes otherwise Windows NTFS driver might crash / cause corruption.
-   - Fix a silly bug that caused a deadlock in ntfs_mft_writepage().
-     For inode 0, i.e. $MFT itself, we cannot use ilookup5() from
-     there because the inode is already locked by the kernel
-     (fs/fs-writeback.c::__sync_single_inode()) and ilookup5() waits
-     until the inode is unlocked before returning it and it never gets
-     unlocked because ntfs_mft_writepage() never returns.  )-:
-     Fortunately, we have inode 0 pinned in icache for the duration
-     of the mount so we can access it directly.
+> The most _common_ bug (and the one I don't see any code for at all in your
+> patch) is stuff that knows which CPU it is on, or that reads actual
+> special CPU registers and acts on them. The other thing to look out for is
+> anything that gets the CPU number: use "get_cpu() + put_cpu()" rather than
+> "smp_processor_id()".
 
-   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+I went through and looked at all the uses of smp_processor_id(),
+get_paca(), mfspr(), and mtspr().  There were a few places in
+arch/ppc64/mm/*.c that were using smp_processor_id() to do the
+optimization of using the local-processor-only form of the tlb
+invalidate instruction.  I changed them to use get_cpu/put_cpu and
+that has fixed the problem.  It's running well now, I have been using
+it on a G5 and other boxes and it hasn't hung or crashed.
 
-Best regards,
+I also made flush_fp_to_thread() and flush_altivec_to_thread()
+functions.  It is necessary to disable preemption before testing
+regs->msr (as Ben noted) so I put in a comment about that.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+Here's the current patch.  I think it should go in after 2.6.7 is out.
 
-===================================================================
+Regards,
+Paul.
 
-diff -Nru a/Documentation/filesystems/ntfs.txt b/Documentation/filesystems/ntfs.txt
---- a/Documentation/filesystems/ntfs.txt	2004-06-08 12:22:24 +01:00
-+++ b/Documentation/filesystems/ntfs.txt	2004-06-08 12:22:24 +01:00
-@@ -273,6 +273,19 @@
-
- Note, a technical ChangeLog aimed at kernel hackers is in fs/ntfs/ChangeLog.
-
-+2.1.13:
-+	- Implement writing of inodes (access time updates are not implemented
-+	  yet so mounting with -o noatime,nodiratime is enforced).
-+	- Enable writing out of resident files so you can now overwrite any
-+	  uncompressed, unencrypted, nonsparse file as long as you do not
-+	  change the file size.
-+	- Add housekeeping of ntfs system files so that ntfsfix no longer needs
-+	  to be run after writing to an NTFS volume.
-+	  NOTE:  This still leaves quota tracking and user space journalling on
-+	  the side but they should not cause data corruption.  In the worst
-+	  case the charged quotas will be out of date ($Quota) and some
-+	  userspace applications might get confused due to the out of date
-+	  userspace journal ($UsnJrnl).
- 2.1.12:
- 	- Fix the second fix to the decompression engine from the 2.1.9 release
- 	  and some further internals cleanups.
-diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	2004-06-08 12:22:24 +01:00
-+++ b/fs/ntfs/ChangeLog	2004-06-08 12:22:24 +01:00
-@@ -1,4 +1,4 @@
--ToDo:
-+ToDo/Notes:
- 	- Find and fix bugs.
- 	- Either invalidate quotas or update the quota charges on NTFS 3.x
- 	  volumes with quota tracking enabled ($Quota).
-@@ -32,8 +32,10 @@
- 	  inode having been discarded already.  Whether this can actually ever
- 	  happen is unclear however so it is worth waiting until someone hits
- 	  the problem.
-+	- Enable the code for setting the NT4 compatibility flag when we start
-+	  making NTFS 1.2 specific modifications.
-
--2.1.13 - WIP.
-+2.1.13 - Enable overwriting of resident files and housekeeping of system files.
-
- 	- Implement writing of mft records (fs/ntfs/mft.[hc]), which includes
- 	  keeping the mft mirror in sync with the mft when mirrored mft records
-@@ -70,6 +72,15 @@
- 	  are present and ask the user to email us if they see this happening.
- 	- Add functions ntfs_{clear,set}_volume_flags(), to modify the volume
- 	  information flags (fs/ntfs/super.c).
-+	- Mark the volume dirty when (re)mounting read-write and mark it clean
-+	  when unmounting or remounting read-only.  If any volume errors are
-+	  found, the volume is left marked dirty to force chkdsk to run.
-+	- Add code to set the NT4 compatibility flag when (re)mounting
-+	  read-write for newer NTFS versions but leave it commented out for now
-+	  since we do not make any modifications that are NTFS 1.2 specific yet
-+	  and since setting this flag breaks Captive-NTFS which is not nice.
-+	  This code must be enabled once we start writing NTFS 1.2 specific
-+	  changes otherwise Windows NTFS driver might crash / cause corruption.
-
- 2.1.12 - Fix the second fix to the decompression engine and some cleanups.
-
-diff -Nru a/fs/ntfs/Makefile b/fs/ntfs/Makefile
---- a/fs/ntfs/Makefile	2004-06-08 12:22:24 +01:00
-+++ b/fs/ntfs/Makefile	2004-06-08 12:22:24 +01:00
-@@ -5,7 +5,7 @@
- ntfs-objs := aops.o attrib.o compress.o debug.o dir.o file.o inode.o mft.o \
- 	     mst.o namei.o super.o sysctl.o unistr.o upcase.o
-
--EXTRA_CFLAGS = -DNTFS_VERSION=\"2.1.13-WIP\"
-+EXTRA_CFLAGS = -DNTFS_VERSION=\"2.1.13\"
-
- ifeq ($(CONFIG_NTFS_DEBUG),y)
- EXTRA_CFLAGS += -DDEBUG
-diff -Nru a/fs/ntfs/mft.c b/fs/ntfs/mft.c
---- a/fs/ntfs/mft.c	2004-06-08 12:22:24 +01:00
-+++ b/fs/ntfs/mft.c	2004-06-08 12:22:24 +01:00
-@@ -933,44 +933,77 @@
- 		na.name = NULL;
- 		na.name_len = 0;
- 		na.type = AT_UNUSED;
+diff -urN linux-2.5/arch/ppc64/Kconfig test25/arch/ppc64/Kconfig
+--- linux-2.5/arch/ppc64/Kconfig	2004-05-26 07:58:59.000000000 +1000
++++ test25/arch/ppc64/Kconfig	2004-06-05 20:42:42.000000000 +1000
+@@ -198,7 +198,6 @@
+ 
+ config PREEMPT
+ 	bool "Preemptible Kernel"
+-	depends on BROKEN
+ 	help
+ 	  This option reduces the latency of the kernel when reacting to
+ 	  real-time or interactive events by allowing a low priority process to
+diff -urN linux-2.5/arch/ppc64/kernel/align.c test25/arch/ppc64/kernel/align.c
+--- linux-2.5/arch/ppc64/kernel/align.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/align.c	2004-06-08 15:37:40.000000000 +1000
+@@ -22,8 +22,6 @@
+ #include <asm/cache.h>
+ #include <asm/cputable.h>
+ 
+-void disable_kernel_fp(void); /* asm function from head.S */
 -
- 		/*
- 		 * Check if the inode corresponding to this mft record is in
- 		 * the VFS inode cache and obtain a reference to it if it is.
- 		 */
--		vi = ilookup5(sb, mft_no, (test_t)ntfs_test_inode, &na);
-+		ntfs_debug("Looking for inode 0x%lx in icache.", mft_no);
-+		/*
-+		 * For inode 0, i.e. $MFT itself, we cannot use ilookup5() from
-+		 * here or we deadlock because the inode is already locked by
-+		 * the kernel (fs/fs-writeback.c::__sync_single_inode()) and
-+		 * ilookup5() waits until the inode is unlocked before
-+		 * returning it and it never gets unlocked because
-+		 * ntfs_mft_writepage() never returns.  )-:  Fortunately, we
-+		 * have inode 0 pinned in icache for the duration of the mount
-+		 * so we can access it directly.
-+		 */
-+		if (!mft_no) {
-+			/* Balance the below iput(). */
-+			vi = igrab(mft_vi);
-+			BUG_ON(vi != mft_vi);
-+		} else
-+			vi = ilookup5(sb, mft_no, (test_t)ntfs_test_inode, &na);
- 		if (vi) {
-+			ntfs_debug("Inode 0x%lx is in icache.", mft_no);
- 			/* The inode is in icache.  Check if it is dirty. */
- 			ni = NTFS_I(vi);
- 			if (!NInoDirty(ni)) {
- 				/* The inode is not dirty, skip this record. */
-+				ntfs_debug("Inode 0x%lx is not dirty, "
-+						"continuing search.", mft_no);
- 				iput(vi);
- 				continue;
- 			}
-+			ntfs_debug("Inode 0x%lx is dirty, aborting search.",
-+					mft_no);
- 			/* The inode is dirty, no need to search further. */
- 			iput(vi);
- 			is_dirty = TRUE;
- 			break;
- 		}
-+		ntfs_debug("Inode 0x%lx is not in icache.", mft_no);
- 		/* The inode is not in icache. */
- 		/* Skip the record if it is not a mft record (type "FILE"). */
--		if (!ntfs_is_mft_recordp(maddr))
-+		if (!ntfs_is_mft_recordp(maddr)) {
-+			ntfs_debug("Mft record 0x%lx is not a FILE record, "
-+					"continuing search.", mft_no);
- 			continue;
-+		}
- 		m = (MFT_RECORD*)maddr;
- 		/*
- 		 * Skip the mft record if it is not in use.  FIXME:  What about
- 		 * deleted/deallocated (extent) inodes?  (AIA)
- 		 */
--		if (!(m->flags & MFT_RECORD_IN_USE))
-+		if (!(m->flags & MFT_RECORD_IN_USE)) {
-+			ntfs_debug("Mft record 0x%lx is not in use, "
-+					"continuing search.", mft_no);
- 			continue;
-+		}
- 		/* Skip the mft record if it is a base inode. */
--		if (!m->base_mft_record)
-+		if (!m->base_mft_record) {
-+			ntfs_debug("Mft record 0x%lx is a base record, "
-+					"continuing search.", mft_no);
- 			continue;
-+		}
- 		/*
- 		 * This is an extent mft record.  Check if the inode
- 		 * corresponding to its base mft record is in icache.
- 		 */
- 		na.mft_no = MREF_LE(m->base_mft_record);
-+		ntfs_debug("Mft record 0x%lx is an extent record.  Looking "
-+				"for base inode 0x%lx in icache.", mft_no,
-+				na.mft_no);
- 		vi = ilookup5(sb, na.mft_no, (test_t)ntfs_test_inode,
- 				&na);
- 		if (!vi) {
-@@ -978,8 +1011,11 @@
- 			 * The base inode is not in icache.  Skip this extent
- 			 * mft record.
- 			 */
-+			ntfs_debug("Base inode 0x%lx is not in icache, "
-+					"continuing search.", na.mft_no);
- 			continue;
- 		}
-+		ntfs_debug("Base inode 0x%lx is in icache.", na.mft_no);
- 		/*
- 		 * The base inode is in icache.  Check if it has the extent
- 		 * inode corresponding to this extent mft record attached.
-diff -Nru a/fs/ntfs/super.c b/fs/ntfs/super.c
---- a/fs/ntfs/super.c	2004-06-08 12:22:24 +01:00
-+++ b/fs/ntfs/super.c	2004-06-08 12:22:24 +01:00
-@@ -411,27 +411,63 @@
- 	 * For the read-write compiled driver, if we are remounting read-write,
- 	 * make sure there are no volume errors and that no unsupported volume
- 	 * flags are set.  Also, empty the logfile journal as it would become
--	 * stale as soon as something is written to the volume.
-+	 * stale as soon as something is written to the volume and mark the
-+	 * volume dirty so that chkdsk is run if the volume is not umounted
-+	 * cleanly.
-+	 *
-+	 * When remounting read-only, mark the volume clean if no volume errors
-+	 * have occured.
- 	 */
- 	if ((sb->s_flags & MS_RDONLY) && !(*flags & MS_RDONLY)) {
- 		static const char *es = ".  Cannot remount read-write.";
-
-+		/* Remounting read-write. */
- 		if (NVolErrors(vol)) {
- 			ntfs_error(sb, "Volume has errors and is read-only%s",
- 					es);
- 			return -EROFS;
- 		}
-+		if (vol->vol_flags & VOLUME_IS_DIRTY) {
-+			ntfs_error(sb, "Volume is dirty and read-only%s", es);
-+			return -EROFS;
-+		}
- 		if (vol->vol_flags & VOLUME_MUST_MOUNT_RO_MASK) {
- 			ntfs_error(sb, "Volume has unsupported flags set and "
- 					"is read-only%s", es);
- 			return -EROFS;
- 		}
-+		if (ntfs_set_volume_flags(vol, VOLUME_IS_DIRTY)) {
-+			ntfs_error(sb, "Failed to set dirty bit in volume "
-+					"information flags%s", es);
-+			return -EROFS;
-+		}
-+#if 0
-+		// TODO: Enable this code once we start modifying anything that
-+		//	 is different between NTFS 1.2 and 3.x...
-+		/* Set NT4 compatibility flag on newer NTFS version volumes. */
-+		if ((vol->major_ver > 1)) {
-+			if (ntfs_set_volume_flags(vol, VOLUME_MOUNTED_ON_NT4)) {
-+				ntfs_error(sb, "Failed to set NT4 "
-+						"compatibility flag%s", es);
-+				NVolSetErrors(vol);
-+				return -EROFS;
-+			}
-+		}
-+#endif
- 		if (!ntfs_empty_logfile(vol->logfile_ino)) {
- 			ntfs_error(sb, "Failed to empty journal $LogFile%s",
- 					es);
- 			NVolSetErrors(vol);
- 			return -EROFS;
- 		}
-+	} else if (!(sb->s_flags & MS_RDONLY) && (*flags & MS_RDONLY)) {
-+		/* Remounting read-only. */
-+		if (!NVolErrors(vol)) {
-+			if (ntfs_clear_volume_flags(vol, VOLUME_IS_DIRTY))
-+				ntfs_warning(sb, "Failed to clear dirty bit "
-+						"in volume information "
-+						"flags.  Run chkdsk.");
-+		}
+ struct aligninfo {
+ 	unsigned char len;
+ 	unsigned char flags;
+@@ -280,8 +278,11 @@
  	}
- 	// TODO:  For now we enforce no atime and dir atime updates as they are
- 	// not implemented.
-@@ -1232,7 +1268,7 @@
- 			le32_to_cpu(ctx->attr->data.resident.value_length) >
- 			(u8*)ctx->attr + le32_to_cpu(ctx->attr->length))
- 		goto err_put_vol;
--	/* Setup volume flags and version. */
-+	/* Copy the volume flags and version to the ntfs_volume structure. */
- 	vol->vol_flags = vi->flags;
- 	vol->major_ver = vi->major_ver;
- 	vol->minor_ver = vi->minor_ver;
-@@ -1243,9 +1279,12 @@
- #ifdef NTFS_RW
- 	/* Make sure that no unsupported volume flags are set. */
- 	if (vol->vol_flags & VOLUME_MUST_MOUNT_RO_MASK) {
--		static const char *es1 = "Volume has unsupported flags set";
-+		static const char *es1a = "Volume is dirty";
-+		static const char *es1b = "Volume has unsupported flags set";
- 		static const char *es2 = ".  Run chkdsk and mount in Windows.";
--
-+		const char *es1;
-+
-+		es1 = vol->vol_flags & VOLUME_IS_DIRTY ? es1a : es1b;
- 		/* If a read-write mount, convert it to a read-only mount. */
- 		if (!(sb->s_flags & MS_RDONLY)) {
- 			if (!(vol->on_errors & (ON_ERRORS_REMOUNT_RO |
-@@ -1272,10 +1311,12 @@
- 	 */
- 	if (!load_and_check_logfile(vol) ||
- 			!ntfs_is_logfile_clean(vol->logfile_ino)) {
--		static const char *es1 = "Failed to load $LogFile";
--		static const char *es2 = "$LogFile is not clean";
--		static const char *es3 = ".  Mount in Windows.";
-+		static const char *es1a = "Failed to load $LogFile";
-+		static const char *es1b = "$LogFile is not clean";
-+		static const char *es2 = ".  Mount in Windows.";
-+		const char *es1;
-
-+		es1 = !vol->logfile_ino ? es1a : es1b;
- 		/* If a read-write mount, convert it to a read-only mount. */
- 		if (!(sb->s_flags & MS_RDONLY)) {
- 			if (!(vol->on_errors & (ON_ERRORS_REMOUNT_RO |
-@@ -1283,21 +1324,66 @@
- 				ntfs_error(sb, "%s and neither on_errors="
- 						"continue nor on_errors="
- 						"remount-ro was specified%s",
--						!vol->logfile_ino ? es1 : es2,
--						es3);
-+						es1, es2);
- 				goto iput_logfile_err_out;
+ 
+ 	/* Force the fprs into the save area so we can reference them */
+-	if ((flags & F) && (regs->msr & MSR_FP))
+-		giveup_fpu(current);
++	if (flags & F) {
++		if (!user_mode(regs))
++			return 0;
++		flush_fp_to_thread(current);
++	}
+ 	
+ 	/* If we are loading, get the data from user space */
+ 	if (flags & LD) {
+@@ -310,9 +311,11 @@
+ 		if (flags & F) {
+ 			if (nb == 4) {
+ 				/* Doing stfs, have to convert to single */
++				preempt_disable();
+ 				enable_kernel_fp();
+ 				cvt_df(&current->thread.fpr[reg], (float *)&data.v[4], &current->thread.fpscr);
+ 				disable_kernel_fp();
++				preempt_enable();
  			}
- 			sb->s_flags |= MS_RDONLY | MS_NOATIME | MS_NODIRATIME;
--			ntfs_error(sb, "%s.  Mounting read-only%s",
--					!vol->logfile_ino ? es1 : es2, es3);
-+			ntfs_error(sb, "%s.  Mounting read-only%s", es1, es2);
- 		} else
- 			ntfs_warning(sb, "%s.  Will not be able to remount "
--					"read-write%s",
--					!vol->logfile_ino ? es1 : es2, es3);
-+					"read-write%s", es1, es2);
- 		/* This will prevent a read-write remount. */
- 		NVolSetErrors(vol);
--	/* If a read-write mount, empty the logfile. */
--	} else if (!(sb->s_flags & MS_RDONLY) &&
-+	}
-+	/* If (still) a read-write mount, mark the volume dirty. */
-+	if (!(sb->s_flags & MS_RDONLY) &&
-+			ntfs_set_volume_flags(vol, VOLUME_IS_DIRTY)) {
-+		static const char *es1 = "Failed to set dirty bit in volume "
-+				"information flags";
-+		static const char *es2 = ".  Run chkdsk.";
+ 			else
+ 				data.dd = current->thread.fpr[reg];
+@@ -344,9 +347,11 @@
+ 		if (flags & F) {
+ 			if (nb == 4) {
+ 				/* Doing lfs, have to convert to double */
++				preempt_disable();
+ 				enable_kernel_fp();
+ 				cvt_fd((float *)&data.v[4], &current->thread.fpr[reg], &current->thread.fpscr);
+ 				disable_kernel_fp();
++				preempt_enable();
+ 			}
+ 			else
+ 				current->thread.fpr[reg] = data.dd;
+diff -urN linux-2.5/arch/ppc64/kernel/asm-offsets.c test25/arch/ppc64/kernel/asm-offsets.c
+--- linux-2.5/arch/ppc64/kernel/asm-offsets.c	2004-06-04 07:19:00.000000000 +1000
++++ test25/arch/ppc64/kernel/asm-offsets.c	2004-06-05 20:43:03.000000000 +1000
+@@ -48,6 +48,7 @@
+ 	DEFINE(THREAD_SHIFT, THREAD_SHIFT);
+ 	DEFINE(THREAD_SIZE, THREAD_SIZE);
+ 	DEFINE(TI_FLAGS, offsetof(struct thread_info, flags));
++	DEFINE(TI_PREEMPT, offsetof(struct thread_info, preempt_count));
+ 
+ 	/* task_struct->thread */
+ 	DEFINE(THREAD, offsetof(struct task_struct, thread));
+diff -urN linux-2.5/arch/ppc64/kernel/entry.S test25/arch/ppc64/kernel/entry.S
+--- linux-2.5/arch/ppc64/kernel/entry.S	2004-05-01 12:59:54.000000000 +1000
++++ test25/arch/ppc64/kernel/entry.S	2004-06-06 18:31:22.000000000 +1000
+@@ -371,15 +371,27 @@
+ 	andc	r9,r10,r4	/* clear MSR_EE */
+ 	mtmsrd	r9,1		/* Update machine state */
+ 
++#ifdef CONFIG_PREEMPT
++	clrrdi	r9,r1,THREAD_SHIFT	/* current_thread_info() */
++	ld	r3,_MSR(r1)
++	ld	r4,TI_FLAGS(r9)
++	andi.	r0,r3,MSR_PR
++	mtcrf	1,r4		/* get bottom 4 thread flags into cr7 */
++	bt	31-TIF_NEED_RESCHED,do_resched
++	beq	restore		/* if returning to kernel */
++	bt	31-TIF_SIGPENDING,do_user_signal
 +
-+		/* Convert to a read-only mount. */
-+		if (!(vol->on_errors & (ON_ERRORS_REMOUNT_RO |
-+				ON_ERRORS_CONTINUE))) {
-+			ntfs_error(sb, "%s and neither on_errors=continue nor "
-+					"on_errors=remount-ro was specified%s",
-+					es1, es2);
-+			goto iput_logfile_err_out;
-+		}
-+		ntfs_error(sb, "%s.  Mounting read-only%s", es1, es2);
-+		sb->s_flags |= MS_RDONLY | MS_NOATIME | MS_NODIRATIME;
-+		/*
-+		 * Do not set NVolErrors() because ntfs_remount() might manage
-+		 * to set the dirty flag in which case all would be well.
-+		 */
-+	}
-+#if 0
-+	// TODO: Enable this code once we start modifying anything that is
-+	//	 different between NTFS 1.2 and 3.x...
-+	/*
-+	 * If (still) a read-write mount, set the NT4 compatibility flag on
-+	 * newer NTFS version volumes.
-+	 */
-+	if (!(sb->s_flags & MS_RDONLY) && (vol->major_ver > 1) &&
-+			ntfs_set_volume_flags(vol, VOLUME_MOUNTED_ON_NT4)) {
-+		static const char *es1 = "Failed to set NT4 compatibility flag";
-+		static const char *es2 = ".  Run chkdsk.";
-+
-+		/* Convert to a read-only mount. */
-+		if (!(vol->on_errors & (ON_ERRORS_REMOUNT_RO |
-+				ON_ERRORS_CONTINUE))) {
-+			ntfs_error(sb, "%s and neither on_errors=continue nor "
-+					"on_errors=remount-ro was specified%s",
-+					es1, es2);
-+			goto iput_logfile_err_out;
-+		}
-+		ntfs_error(sb, "%s.  Mounting read-only%s", es1, es2);
-+		sb->s_flags |= MS_RDONLY | MS_NOATIME | MS_NODIRATIME;
-+		NVolSetErrors(vol);
-+	}
++#else /* !CONFIG_PREEMPT */
+ 	ld	r3,_MSR(r1)	/* Returning to user mode? */
+ 	andi.	r3,r3,MSR_PR
+ 	beq	restore		/* if not, just restore regs and return */
+ 
+ 	/* Check current_thread_info()->flags */
+-	clrrdi	r3,r1,THREAD_SHIFT
+-	ld	r3,TI_FLAGS(r3)
+-	andi.	r0,r3,_TIF_USER_WORK_MASK
++	clrrdi	r9,r1,THREAD_SHIFT
++	ld	r4,TI_FLAGS(r9)
++	andi.	r0,r4,_TIF_USER_WORK_MASK
+ 	bne	do_work
 +#endif
-+	/* If (still) a read-write mount, empty the logfile. */
-+	if (!(sb->s_flags & MS_RDONLY) &&
- 			!ntfs_empty_logfile(vol->logfile_ino)) {
- 		static const char *es1 = "Failed to empty $LogFile";
- 		static const char *es2 = ".  Mount in Windows.";
-@@ -1310,12 +1396,11 @@
- 					es1, es2);
- 			goto iput_logfile_err_out;
- 		}
--		sb->s_flags |= MS_RDONLY | MS_NOATIME | MS_NODIRATIME;
- 		ntfs_error(sb, "%s.  Mounting read-only%s", es1, es2);
--		/* This will prevent a read-write remount. */
-+		sb->s_flags |= MS_RDONLY | MS_NOATIME | MS_NODIRATIME;
- 		NVolSetErrors(vol);
- 	}
--#endif
-+#endif /* NTFS_RW */
- 	/*
- 	 * Get the inode for the attribute definitions file and parse the
- 	 * attribute definitions.
-@@ -1390,19 +1475,18 @@
-
- /**
-  * ntfs_put_super - called by the vfs to unmount a volume
-- * @vfs_sb:	vfs superblock of volume to unmount
-+ * @sb:		vfs superblock of volume to unmount
-  *
-  * ntfs_put_super() is called by the VFS (from fs/super.c::do_umount()) when
-  * the volume is being unmounted (umount system call has been invoked) and it
-  * releases all inodes and memory belonging to the NTFS specific part of the
-  * super block.
-  */
--static void ntfs_put_super(struct super_block *vfs_sb)
-+static void ntfs_put_super(struct super_block *sb)
+ 
+ 	addi	r0,r1,INT_FRAME_SIZE	/* size of frame */
+ 	ld	r4,PACACURRENT(r13)
+@@ -452,18 +464,47 @@
+ 
+ 	rfid
+ 
++#ifndef CONFIG_PREEMPT
+ /* Note: this must change if we start using the  TIF_NOTIFY_RESUME bit */
+ do_work:
+-	/* Enable interrupts */
+-	mtmsrd	r10,1
++	andi.	r0,r4,_TIF_NEED_RESCHED
++	beq	do_user_signal
++
++#else /* CONFIG_PREEMPT */
++do_resched:
++	bne	do_user_resched		/* if returning to user mode */
++	/* Check that preempt_count() == 0 and interrupts are enabled */
++	lwz	r8,TI_PREEMPT(r9)
++	cmpwi	cr1,r8,0
++#ifdef CONFIG_PPC_ISERIES
++	ld	r0,SOFTE(r1)
++	cmpdi	r0,0
++#else
++	andi.	r0,r3,MSR_EE
++#endif
++	crandc	eq,cr1*4+eq,eq
++	bne	restore
++	/* here we are preempting the current task */
++1:	lis	r0,PREEMPT_ACTIVE@h
++	stw	r0,TI_PREEMPT(r9)
++#ifdef CONFIG_PPC_ISERIES
++	li	r0,1
++	stb	r0,PACAPROCENABLED(r13)
++#endif
++#endif /* CONFIG_PREEMPT */
+ 
+-	andi.	r0,r3,_TIF_NEED_RESCHED
+-	beq	1f
++do_user_resched:
++	mtmsrd	r10,1		/* reenable interrupts */
+ 	bl	.schedule
++#ifdef CONFIG_PREEMPT
++	clrrdi	r9,r1,THREAD_SHIFT
++	li	r0,0
++	stw	r0,TI_PREEMPT(r9)
++#endif
+ 	b	.ret_from_except
+ 
+-1:	andi.	r0,r3,_TIF_SIGPENDING
+-	beq	.ret_from_except
++do_user_signal:
++	mtmsrd	r10,1
+ 	li	r3,0
+ 	addi	r4,r1,STACK_FRAME_OVERHEAD
+ 	bl	.do_signal
+diff -urN linux-2.5/arch/ppc64/kernel/process.c test25/arch/ppc64/kernel/process.c
+--- linux-2.5/arch/ppc64/kernel/process.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/process.c	2004-06-08 16:23:02.968947112 +1000
+@@ -65,8 +65,43 @@
+ 	.page_table_lock = SPIN_LOCK_UNLOCKED,
+ };
+ 
++/*
++ * Make sure the floating-point register state in the
++ * the thread_struct is up to date for task tsk.
++ */
++void flush_fp_to_thread(struct task_struct *tsk)
++{
++	if (tsk->thread.regs) {
++		/*
++		 * We need to disable preemption here because if we didn't,
++		 * another process could get scheduled after the regs->msr
++		 * test but before we have finished saving the FP registers
++		 * to the thread_struct.  That process could take over the
++		 * FPU, and then when we get scheduled again we would store
++		 * bogus values for the remaining FP registers.
++		 */
++		preempt_disable();
++		if (tsk->thread.regs->msr & MSR_FP) {
++#ifdef CONFIG_SMP
++			/*
++			 * This should only ever be called for current or
++			 * for a stopped child process.  Since we save away
++			 * the FP register state on context switch on SMP,
++			 * there is something wrong if a stopped child appears
++			 * to still have its FP state in the CPU registers.
++			 */
++			BUG_ON(tsk != current);
++#endif
++			giveup_fpu(current);
++		}
++		preempt_enable();
++	}
++}
++
+ void enable_kernel_fp(void)
  {
--	ntfs_volume *vol = NTFS_SB(vfs_sb);
-+	ntfs_volume *vol = NTFS_SB(sb);
-
- 	ntfs_debug("Entering.");
--
- #ifdef NTFS_RW
- 	/*
- 	 * Commit all inodes while they are still open in case some of them
-@@ -1431,8 +1515,28 @@
-
- 	if (vol->mftmirr_ino)
- 		ntfs_commit_inode(vol->mftmirr_ino);
--
- 	ntfs_commit_inode(vol->mft_ino);
++	WARN_ON(preemptible());
 +
-+	/*
-+	 * If a read-write mount and no volume errors have occured, mark the
-+	 * volume clean.  Also, re-commit all affected inodes.
-+	 */
-+	if (!(sb->s_flags & MS_RDONLY)) {
-+		if (!NVolErrors(vol)) {
-+			if (ntfs_clear_volume_flags(vol, VOLUME_IS_DIRTY))
-+				ntfs_warning(sb, "Failed to clear dirty bit "
-+						"in volume information "
-+						"flags.  Run chkdsk.");
-+			ntfs_commit_inode(vol->vol_ino);
-+			ntfs_commit_inode(vol->root_ino);
-+			if (vol->mftmirr_ino)
-+				ntfs_commit_inode(vol->mftmirr_ino);
-+			ntfs_commit_inode(vol->mft_ino);
-+		} else {
-+			ntfs_warning(sb, "Volume has errors.  Leaving volume "
-+					"marked dirty.  Run chkdsk.");
+ #ifdef CONFIG_SMP
+ 	if (current->thread.regs && (current->thread.regs->msr & MSR_FP))
+ 		giveup_fpu(current);
+@@ -80,12 +115,9 @@
+ 
+ int dump_task_fpu(struct task_struct *tsk, elf_fpregset_t *fpregs)
+ {
+-	struct pt_regs *regs = tsk->thread.regs;
+-
+-	if (!regs)
++	if (!tsk->thread.regs)
+ 		return 0;
+-	if (tsk == current && (regs->msr & MSR_FP))
+-		giveup_fpu(current);
++	flush_fp_to_thread(current);
+ 
+ 	memcpy(fpregs, &tsk->thread.fpr[0], sizeof(*fpregs));
+ 
+@@ -96,6 +128,8 @@
+ 
+ void enable_kernel_altivec(void)
+ {
++	WARN_ON(preemptible());
++
+ #ifdef CONFIG_SMP
+ 	if (current->thread.regs && (current->thread.regs->msr & MSR_VEC))
+ 		giveup_altivec(current);
+@@ -107,10 +141,29 @@
+ }
+ EXPORT_SYMBOL(enable_kernel_altivec);
+ 
++/*
++ * Make sure the VMX/Altivec register state in the
++ * the thread_struct is up to date for task tsk.
++ */
++void flush_altivec_to_thread(struct task_struct *tsk)
++{
++#ifdef CONFIG_ALTIVEC
++	if (tsk->thread.regs) {
++		preempt_disable();
++		if (tsk->thread.regs->msr & MSR_VEC) {
++#ifdef CONFIG_SMP
++			BUG_ON(tsk != current);
++#endif
++			giveup_altivec(current);
 +		}
++		preempt_enable();
 +	}
- #endif /* NTFS_RW */
-
- 	iput(vol->vol_ino);
-@@ -1464,7 +1568,6 @@
- 		iput(vol->logfile_ino);
- 		vol->logfile_ino = NULL;
++#endif
++}
++
+ int dump_task_altivec(struct pt_regs *regs, elf_vrregset_t *vrregs)
+ {
+-	if (regs->msr & MSR_VEC)
+-		giveup_altivec(current);
++	flush_altivec_to_thread(current);
+ 	memcpy(vrregs, &current->thread.vr[0], sizeof(*vrregs));
+ 	return 1;
+ }
+@@ -245,16 +298,8 @@
+  */
+ void prepare_to_copy(struct task_struct *tsk)
+ {
+-	struct pt_regs *regs = tsk->thread.regs;
+-
+-	if (regs == NULL)
+-		return;
+-	if (regs->msr & MSR_FP)
+-		giveup_fpu(current);
+-#ifdef CONFIG_ALTIVEC
+-	if (regs->msr & MSR_VEC)
+-		giveup_altivec(current);
+-#endif /* CONFIG_ALTIVEC */
++	flush_fp_to_thread(current);
++	flush_altivec_to_thread(current);
+ }
+ 
+ /*
+@@ -439,12 +484,8 @@
+ 	error = PTR_ERR(filename);
+ 	if (IS_ERR(filename))
+ 		goto out;
+-	if (regs->msr & MSR_FP)
+-		giveup_fpu(current);
+-#ifdef CONFIG_ALTIVEC
+-	if (regs->msr & MSR_VEC)
+-		giveup_altivec(current);
+-#endif /* CONFIG_ALTIVEC */
++	flush_fp_to_thread(current);
++	flush_altivec_to_thread(current);
+ 	error = do_execve(filename, (char __user * __user *) a1,
+ 				    (char __user * __user *) a2, regs);
+   
+diff -urN linux-2.5/arch/ppc64/kernel/ptrace.c test25/arch/ppc64/kernel/ptrace.c
+--- linux-2.5/arch/ppc64/kernel/ptrace.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/ptrace.c	2004-06-08 14:20:46.000000000 +1000
+@@ -119,8 +119,7 @@
+ 		if (index < PT_FPR0) {
+ 			tmp = get_reg(child, (int)index);
+ 		} else {
+-			if (child->thread.regs->msr & MSR_FP)
+-				giveup_fpu(child);
++			flush_fp_to_thread(child);
+ 			tmp = ((unsigned long *)child->thread.fpr)[index - PT_FPR0];
+ 		}
+ 		ret = put_user(tmp,(unsigned long __user *) data);
+@@ -152,8 +151,7 @@
+ 		if (index < PT_FPR0) {
+ 			ret = put_reg(child, index, data);
+ 		} else {
+-			if (child->thread.regs->msr & MSR_FP)
+-				giveup_fpu(child);
++			flush_fp_to_thread(child);
+ 			((unsigned long *)child->thread.fpr)[index - PT_FPR0] = data;
+ 			ret = 0;
+ 		}
+@@ -245,8 +243,7 @@
+ 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
+ 		unsigned long __user *tmp = (unsigned long __user *)addr;
+ 
+-		if (child->thread.regs->msr & MSR_FP)
+-			giveup_fpu(child);
++		flush_fp_to_thread(child);
+ 
+ 		for (i = 0; i < 32; i++) {
+ 			ret = put_user(*reg, tmp);
+@@ -263,8 +260,7 @@
+ 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
+ 		unsigned long __user *tmp = (unsigned long __user *)addr;
+ 
+-		if (child->thread.regs->msr & MSR_FP)
+-			giveup_fpu(child);
++		flush_fp_to_thread(child);
+ 
+ 		for (i = 0; i < 32; i++) {
+ 			ret = get_user(*reg, tmp);
+diff -urN linux-2.5/arch/ppc64/kernel/ptrace32.c test25/arch/ppc64/kernel/ptrace32.c
+--- linux-2.5/arch/ppc64/kernel/ptrace32.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/ptrace32.c	2004-06-08 14:35:01.000000000 +1000
+@@ -136,8 +136,7 @@
+ 		if (index < PT_FPR0) {
+ 			tmp = get_reg(child, index);
+ 		} else {
+-			if (child->thread.regs->msr & MSR_FP)
+-				giveup_fpu(child);
++			flush_fp_to_thread(child);
+ 			/*
+ 			 * the user space code considers the floating point
+ 			 * to be an array of unsigned int (32 bits) - the
+@@ -179,8 +178,7 @@
+ 			break;
+ 
+ 		if (numReg >= PT_FPR0) {
+-			if (child->thread.regs->msr & MSR_FP)
+-				giveup_fpu(child);
++			flush_fp_to_thread(child);
+ 			tmp = ((unsigned long int *)child->thread.fpr)[numReg - PT_FPR0];
+ 		} else { /* register within PT_REGS struct */
+ 			tmp = get_reg(child, numReg);
+@@ -244,8 +242,7 @@
+ 		if (index < PT_FPR0) {
+ 			ret = put_reg(child, index, data);
+ 		} else {
+-			if (child->thread.regs->msr & MSR_FP)
+-				giveup_fpu(child);
++			flush_fp_to_thread(child);
+ 			/*
+ 			 * the user space code considers the floating point
+ 			 * to be an array of unsigned int (32 bits) - the
+@@ -283,8 +280,7 @@
+ 				|| ((numReg > PT_CCR) && (numReg < PT_FPR0)))
+ 			break;
+ 		if (numReg >= PT_FPR0) {
+-			if (child->thread.regs->msr & MSR_FP)
+-				giveup_fpu(child);
++			flush_fp_to_thread(child);
+ 		}
+ 		if (numReg == PT_MSR)
+ 			data = (data & MSR_DEBUGCHANGE)
+@@ -379,8 +375,7 @@
+ 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
+ 		unsigned int __user *tmp = (unsigned int __user *)addr;
+ 
+-		if (child->thread.regs->msr & MSR_FP)
+-			giveup_fpu(child);
++		flush_fp_to_thread(child);
+ 
+ 		for (i = 0; i < 32; i++) {
+ 			ret = put_user(*reg, tmp);
+@@ -397,8 +392,7 @@
+ 		unsigned long *reg = &((unsigned long *)child->thread.fpr)[0];
+ 		unsigned int __user *tmp = (unsigned int __user *)addr;
+ 
+-		if (child->thread.regs->msr & MSR_FP)
+-			giveup_fpu(child);
++		flush_fp_to_thread(child);
+ 
+ 		for (i = 0; i < 32; i++) {
+ 			ret = get_user(*reg, tmp);
+diff -urN linux-2.5/arch/ppc64/kernel/rtas.c test25/arch/ppc64/kernel/rtas.c
+--- linux-2.5/arch/ppc64/kernel/rtas.c	2004-05-22 09:08:53.000000000 +1000
++++ test25/arch/ppc64/kernel/rtas.c	2004-06-08 16:24:40.010838888 +1000
+@@ -68,10 +68,11 @@
+ void
+ call_rtas_display_status(char c)
+ {
+-	struct rtas_args *args = &(get_paca()->xRtas);
++	struct rtas_args *args;
+ 	unsigned long s;
+ 
+ 	spin_lock_irqsave(&rtas.lock, s);
++	args = &(get_paca()->xRtas);
+ 
+ 	args->token = 10;
+ 	args->nargs = 1;
+@@ -145,7 +146,7 @@
+ 	va_list list;
+ 	int i, logit = 0;
+ 	unsigned long s;
+-	struct rtas_args *rtas_args = &(get_paca()->xRtas);
++	struct rtas_args *rtas_args;
+ 	long ret;
+ 
+ 	PPCDBG(PPCDBG_RTAS, "Entering rtas_call\n");
+@@ -158,6 +159,7 @@
+ 
+ 	/* Gotta do something different here, use global lock for now... */
+ 	spin_lock_irqsave(&rtas.lock, s);
++	rtas_args = &(get_paca()->xRtas);
+ 
+ 	rtas_args->token = token;
+ 	rtas_args->nargs = nargs;
+diff -urN linux-2.5/arch/ppc64/kernel/signal.c test25/arch/ppc64/kernel/signal.c
+--- linux-2.5/arch/ppc64/kernel/signal.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/signal.c	2004-06-08 16:25:15.899840320 +1000
+@@ -131,8 +131,7 @@
+ #endif
+ 	long err = 0;
+ 
+-	if (regs->msr & MSR_FP)
+-		giveup_fpu(current);
++	flush_fp_to_thread(current);
+ 
+ 	/* Make sure signal doesn't get spurrious FP exceptions */
+ 	current->thread.fpscr = 0;
+@@ -141,9 +140,8 @@
+ 	err |= __put_user(v_regs, &sc->v_regs);
+ 
+ 	/* save altivec registers */
+-	if (current->thread.used_vr) {		
+-		if (regs->msr & MSR_VEC)
+-			giveup_altivec(current);
++	if (current->thread.used_vr) {
++		flush_altivec_to_thread(current);
+ 		/* Copy 33 vec registers (vr0..31 and vscr) to the stack */
+ 		err |= __copy_to_user(v_regs, current->thread.vr, 33 * sizeof(vector128));
+ 		/* set MSR_VEC in the MSR value in the frame to indicate that sc->v_reg)
+diff -urN linux-2.5/arch/ppc64/kernel/signal32.c test25/arch/ppc64/kernel/signal32.c
+--- linux-2.5/arch/ppc64/kernel/signal32.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/signal32.c	2004-06-08 16:25:26.220868592 +1000
+@@ -130,11 +130,10 @@
+ {
+ 	elf_greg_t64 *gregs = (elf_greg_t64 *)regs;
+ 	int i, err = 0;
+-	
+-	/* Make sure floating point registers are stored in regs */ 
+-	if (regs->msr & MSR_FP)
+-		giveup_fpu(current);
+-	
++
++	/* Make sure floating point registers are stored in regs */
++	flush_fp_to_thread(current);
++
+ 	/* save general and floating-point registers */
+ 	for (i = 0; i <= PT_RESULT; i ++)
+ 		err |= __put_user((unsigned int)gregs[i], &frame->mc_gregs[i]);
+@@ -148,8 +147,7 @@
+ #ifdef CONFIG_ALTIVEC
+ 	/* save altivec registers */
+ 	if (current->thread.used_vr) {
+-		if (regs->msr & MSR_VEC)
+-			giveup_altivec(current);
++		flush_altivec_to_thread(current);
+ 		if (__copy_to_user(&frame->mc_vregs, current->thread.vr,
+ 				   ELF_NVRREG32 * sizeof(vector128)))
+ 			return 1;
+diff -urN linux-2.5/arch/ppc64/kernel/sys_ppc32.c test25/arch/ppc64/kernel/sys_ppc32.c
+--- linux-2.5/arch/ppc64/kernel/sys_ppc32.c	2004-06-01 08:11:19.000000000 +1000
++++ test25/arch/ppc64/kernel/sys_ppc32.c	2004-06-08 15:19:01.000000000 +1000
+@@ -617,12 +617,8 @@
+ 	error = PTR_ERR(filename);
+ 	if (IS_ERR(filename))
+ 		goto out;
+-	if (regs->msr & MSR_FP)
+-		giveup_fpu(current);
+-#ifdef CONFIG_ALTIVEC
+-	if (regs->msr & MSR_VEC)
+-		giveup_altivec(current);
+-#endif /* CONFIG_ALTIVEC */
++	flush_fp_to_thread(current);
++	flush_altivec_to_thread(current);
+ 
+ 	error = compat_do_execve(filename, compat_ptr(a1), compat_ptr(a2), regs);
+ 
+diff -urN linux-2.5/arch/ppc64/kernel/traps.c test25/arch/ppc64/kernel/traps.c
+--- linux-2.5/arch/ppc64/kernel/traps.c	2004-05-22 09:08:53.000000000 +1000
++++ test25/arch/ppc64/kernel/traps.c	2004-06-08 16:26:54.933962616 +1000
+@@ -308,8 +308,7 @@
+ 	siginfo_t info;
+ 	unsigned long fpscr;
+ 
+-	if (regs->msr & MSR_FP)
+-		giveup_fpu(current);
++	flush_fp_to_thread(current);
+ 
+ 	fpscr = current->thread.fpscr;
+ 
+@@ -521,8 +520,7 @@
+ void
+ AltivecAssistException(struct pt_regs *regs)
+ {
+-	if (regs->msr & MSR_VEC)
+-		giveup_altivec(current);
++	flush_altivec_to_thread(current);
+ 	/* XXX quick hack for now: set the non-Java bit in the VSCR */
+ 	current->thread.vscr.u[3] |= 0x10000;
+ }
+diff -urN linux-2.5/arch/ppc64/mm/hash_utils.c test25/arch/ppc64/mm/hash_utils.c
+--- linux-2.5/arch/ppc64/mm/hash_utils.c	2004-04-01 06:59:36.000000000 +1000
++++ test25/arch/ppc64/mm/hash_utils.c	2004-06-08 13:51:25.000000000 +1000
+@@ -251,6 +251,7 @@
+ 	struct mm_struct *mm;
+ 	pte_t *ptep;
+ 	int ret;
++	int cpu;
+ 	int user_region = 0;
+ 	int local = 0;
+ 	cpumask_t tmp;
+@@ -302,7 +303,8 @@
+ 	if (pgdir == NULL)
+ 		return 1;
+ 
+-	tmp = cpumask_of_cpu(smp_processor_id());
++	cpu = get_cpu();
++	tmp = cpumask_of_cpu(cpu);
+ 	if (user_region && cpus_equal(mm->cpu_vm_mask, tmp))
+ 		local = 1;
+ 
+@@ -311,11 +313,13 @@
+ 		ret = hash_huge_page(mm, access, ea, vsid, local);
+ 	else {
+ 		ptep = find_linux_pte(pgdir, ea);
+-		if (ptep == NULL)
++		if (ptep == NULL) {
++			put_cpu();
+ 			return 1;
++		}
+ 		ret = __hash_page(ea, access, vsid, ptep, trap, local);
  	}
 -
- 	if (vol->mftmirr_ino) {
- 		/* Re-commit the mft mirror and mft just in case. */
- 		ntfs_commit_inode(vol->mftmirr_ino);
-@@ -1481,26 +1584,27 @@
- 	 */
- 	ntfs_commit_inode(vol->mft_ino);
- 	write_inode_now(vol->mft_ino, 1);
--	if (!list_empty(&vfs_sb->s_dirty)) {
--		char *s1, *s2;
-+	if (!list_empty(&sb->s_dirty)) {
-+		const char *s1, *s2;
-
- 		down(&vol->mft_ino->i_sem);
- 		truncate_inode_pages(vol->mft_ino->i_mapping, 0);
- 		up(&vol->mft_ino->i_sem);
- 		write_inode_now(vol->mft_ino, 1);
--		if (!list_empty(&vfs_sb->s_dirty)) {
--			static char *_s1 = "inodes";
--			static char *_s2 = "";
-+		if (!list_empty(&sb->s_dirty)) {
-+			static const char *_s1 = "inodes";
-+			static const char *_s2 = "";
- 			s1 = _s1;
- 			s2 = _s2;
- 		} else {
--			static char *_s1 = "mft pages";
--			static char *_s2 = "They have been thrown away.  ";
-+			static const char *_s1 = "mft pages";
-+			static const char *_s2 = "They have been thrown "
-+					"away.  ";
- 			s1 = _s1;
- 			s2 = _s2;
- 		}
--		ntfs_error(vfs_sb, "Dirty %s found at umount time.  %s"
--				"You should run chkdsk.  Please email "
-+		ntfs_error(sb, "Dirty %s found at umount time.  %sYou should "
-+				"run chkdsk.  Please email "
- 				"linux-ntfs-dev@lists.sourceforge.net and say "
- 				"that you saw this message.  Thank you.", s1,
- 				s2);
-@@ -1513,7 +1617,7 @@
- 	vol->upcase_len = 0;
- 	/*
- 	 * Decrease the number of mounts and destroy the global default upcase
--	 * table if necessary. Also decrease the number of upcase users if we
-+	 * table if necessary.  Also decrease the number of upcase users if we
- 	 * are a user.
- 	 */
- 	down(&ntfs_lock);
-@@ -1537,7 +1641,7 @@
- 		unload_nls(vol->nls_map);
- 		vol->nls_map = NULL;
- 	}
--	vfs_sb->s_fs_info = NULL;
-+	sb->s_fs_info = NULL;
- 	kfree(vol);
- 	return;
++	put_cpu();
+ 
+ 	return ret;
  }
+diff -urN linux-2.5/arch/ppc64/mm/hugetlbpage.c test25/arch/ppc64/mm/hugetlbpage.c
+--- linux-2.5/arch/ppc64/mm/hugetlbpage.c	2004-05-23 17:45:55.000000000 +1000
++++ test25/arch/ppc64/mm/hugetlbpage.c	2004-06-08 13:52:16.000000000 +1000
+@@ -375,6 +375,7 @@
+ 	unsigned long addr;
+ 	hugepte_t *ptep;
+ 	struct page *page;
++	int cpu;
+ 	int local = 0;
+ 	cpumask_t tmp;
+ 
+@@ -383,7 +384,8 @@
+ 	BUG_ON((end % HPAGE_SIZE) != 0);
+ 
+ 	/* XXX are there races with checking cpu_vm_mask? - Anton */
+-	tmp = cpumask_of_cpu(smp_processor_id());
++	cpu = get_cpu();
++	tmp = cpumask_of_cpu(cpu);
+ 	if (cpus_equal(vma->vm_mm->cpu_vm_mask, tmp))
+ 		local = 1;
+ 
+@@ -406,6 +408,7 @@
+ 
+ 		put_page(page);
+ 	}
++	put_cpu();
+ 
+ 	mm->rss -= (end - start) >> PAGE_SHIFT;
+ }
+diff -urN linux-2.5/arch/ppc64/mm/init.c test25/arch/ppc64/mm/init.c
+--- linux-2.5/arch/ppc64/mm/init.c	2004-05-28 07:16:52.000000000 +1000
++++ test25/arch/ppc64/mm/init.c	2004-06-08 13:52:50.000000000 +1000
+@@ -764,6 +764,7 @@
+ 	void *pgdir;
+ 	pte_t *ptep;
+ 	int local = 0;
++	int cpu;
+ 	cpumask_t tmp;
+ 
+ 	/* handle i-cache coherency */
+@@ -794,12 +795,14 @@
+ 
+ 	vsid = get_vsid(vma->vm_mm->context.id, ea);
+ 
+-	tmp = cpumask_of_cpu(smp_processor_id());
++	cpu = get_cpu();
++	tmp = cpumask_of_cpu(cpu);
+ 	if (cpus_equal(vma->vm_mm->cpu_vm_mask, tmp))
+ 		local = 1;
+ 
+ 	__hash_page(ea, pte_val(pte) & (_PAGE_USER|_PAGE_RW), vsid, ptep,
+ 		    0x300, local);
++	put_cpu();
+ }
+ 
+ void * reserve_phb_iospace(unsigned long size)
+diff -urN linux-2.5/arch/ppc64/mm/tlb.c test25/arch/ppc64/mm/tlb.c
+--- linux-2.5/arch/ppc64/mm/tlb.c	2004-05-23 17:45:55.000000000 +1000
++++ test25/arch/ppc64/mm/tlb.c	2004-06-08 13:54:44.000000000 +1000
+@@ -91,12 +91,15 @@
+ void __flush_tlb_pending(struct ppc64_tlb_batch *batch)
+ {
+ 	int i;
+-	cpumask_t tmp = cpumask_of_cpu(smp_processor_id());
++	int cpu;
++	cpumask_t tmp;
+ 	int local = 0;
+ 
+ 	BUG_ON(in_interrupt());
+ 
++	cpu = get_cpu();
+ 	i = batch->index;
++	tmp = cpumask_of_cpu(cpu);
+ 	if (cpus_equal(batch->mm->cpu_vm_mask, tmp))
+ 		local = 1;
+ 
+@@ -106,6 +109,7 @@
+ 	else
+ 		flush_hash_range(batch->context, i, local);
+ 	batch->index = 0;
++	put_cpu();
+ }
+ 
+ #ifdef CONFIG_SMP
+diff -urN linux-2.5/include/asm-ppc64/hardirq.h test25/include/asm-ppc64/hardirq.h
+--- linux-2.5/include/asm-ppc64/hardirq.h	2003-10-17 06:01:35.000000000 +1000
++++ test25/include/asm-ppc64/hardirq.h	2004-06-06 20:37:24.000000000 +1000
+@@ -82,9 +82,11 @@
+ 
+ #ifdef CONFIG_PREEMPT
+ # define in_atomic()	((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
++# define preemptible()	(preempt_count() == 0 && !irqs_disabled())
+ # define IRQ_EXIT_OFFSET (HARDIRQ_OFFSET-1)
+ #else
+ # define in_atomic()	(preempt_count() != 0)
++# define preemptible()	0
+ # define IRQ_EXIT_OFFSET HARDIRQ_OFFSET
+ #endif
+ #define irq_exit()							\
+diff -urN linux-2.5/include/asm-ppc64/system.h test25/include/asm-ppc64/system.h
+--- linux-2.5/include/asm-ppc64/system.h	2004-05-22 09:08:54.000000000 +1000
++++ test25/include/asm-ppc64/system.h	2004-06-08 16:29:24.431868072 +1000
+@@ -111,6 +111,8 @@
+ extern int _get_PVR(void);
+ extern void giveup_fpu(struct task_struct *);
+ extern void disable_kernel_fp(void);
++extern void flush_fp_to_thread(struct task_struct *);
++extern void flush_altivec_to_thread(struct task_struct *);
+ extern void enable_kernel_fp(void);
+ extern void giveup_altivec(struct task_struct *);
+ extern void disable_kernel_altivec(void);
+diff -urN linux-2.5/include/asm-ppc64/thread_info.h test25/include/asm-ppc64/thread_info.h
+--- linux-2.5/include/asm-ppc64/thread_info.h	2004-05-26 18:14:47.000000000 +1000
++++ test25/include/asm-ppc64/thread_info.h	2004-06-06 18:23:21.000000000 +1000
+@@ -13,6 +13,7 @@
+ #ifndef __ASSEMBLY__
+ #include <linux/config.h>
+ #include <asm/processor.h>
++#include <asm/page.h>
+ #include <linux/stringify.h>
+ 
+ /*
+@@ -23,7 +24,7 @@
+ 	struct exec_domain *exec_domain;	/* execution domain */
+ 	unsigned long	flags;			/* low level flags */
+ 	int		cpu;			/* cpu we're on */
+-	int		preempt_count;		/* not used at present */
++	int		preempt_count;
+ 	struct restart_block restart_block;
+ };
+ 
+@@ -73,7 +74,7 @@
+ static inline struct thread_info *current_thread_info(void)
+ {
+ 	struct thread_info *ti;
+-	__asm__("clrrdi %0,1,14" : "=r"(ti));
++	__asm__("clrrdi %0,1,%1" : "=r"(ti) : "i" (THREAD_SHIFT));
+ 	return ti;
+ }
+ 
+@@ -83,6 +84,8 @@
+ 
+ /*
+  * thread information flag bit numbers
++ * N.B. If TIF_SIGPENDING or TIF_NEED_RESCHED are changed
++ * to be >= 4, code in entry.S will need to be changed.
+  */
+ #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
+ #define TIF_NOTIFY_RESUME	1	/* resumption notification requested */

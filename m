@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264417AbSIQSCC>; Tue, 17 Sep 2002 14:02:02 -0400
+	id <S264440AbSIQSKO>; Tue, 17 Sep 2002 14:10:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264436AbSIQSCC>; Tue, 17 Sep 2002 14:02:02 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264417AbSIQSCB>; Tue, 17 Sep 2002 14:02:01 -0400
-Date: Tue, 17 Sep 2002 14:06:48 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Greg KH <greg@kroah.com>
-cc: Thomas Dodd <ted@cypress.com>, linux-kernel@vger.kernel.org,
-       linux-usb-users@lists.sourceforge.net, gen-lists@blueyonder.co.uk
+	id <S264441AbSIQSKN>; Tue, 17 Sep 2002 14:10:13 -0400
+Received: from vena.lwn.net ([206.168.112.25]:16389 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S264440AbSIQSKN>;
+	Tue, 17 Sep 2002 14:10:13 -0400
+Message-ID: <20020917181513.9217.qmail@eklektix.com>
+To: gen-lists@blueyonder.co.uk
 Subject: Re: Problems accessing USB Mass Storage
-In-Reply-To: <20020917174631.GD2569@kroah.com>
-Message-ID: <Pine.LNX.3.95.1020917135645.147A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+cc: linux-kernel@vger.kernel.org
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Tue, 17 Sep 2002 12:15:13 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Sep 2002, Greg KH wrote:
+Don't know if this is helpful or not, but, based on my messing around with
+SmartMedia USB stuff...
 
-> On Tue, Sep 17, 2002 at 12:37:37PM -0500, Thomas Dodd wrote:
-> > 
-> > I get the feeling it's not a true mass storage device.
-> 
-> Sounds like it.
-> 
-> > The windows drivers talk about TWAIN. And the vendor ID
-> > is for ViewQuest Technologies, which has a similar camera,
-> > also with TWAIN drivers. I can send you the drivers from both
-> > if you think they would help.
+SmartMedia cards are weird in that they have a (seemingly) random amount of
+waste space at the beginning of the card.  Your 8MB card, in particular,
+has nothing of interest in the first 25 sectors.  Some cards have a
+reasonable partition table in the first sector, and some don't.  Modern
+Windows systems (and cameras, of course) seem to be able to access the
+filesystem on the card without needing to see a partition table.
 
-TWAIN is an old attempt at an Apple standard, started in 1992.
-It is a protocol for Scanners, Audio, and Camera controls, etc.
-The last 'event' recorded by www.twain.org was in May of 2001,
-supporting Mac OS X. It is an API, i.e., applicatons programming
-Interface, not a protocol on the wire or related to hardware.
+A little while I posted a Lexar SmartMedia driver patch which hacked around
+this by substituting a fake partition table when the first sector was read.
+I'm not sure it's the right solution, though.  A better way, perhaps, is a
+little user-space program which writes the appropriate partition table
+depending on the card capacity.  Note that fdisk doesn't (easily) work for
+this purpose, since it wants partitions to start on cylinder boundaries.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+You might try just using dd to copy your card to disk with an offset of 25
+sectors, and see of you can mount the resulting image.
 
+Then again, the interface to some SmartMedia readers is vastly more
+complicated, as the sddr09 driver shows.
+
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292284AbSBTU1P>; Wed, 20 Feb 2002 15:27:15 -0500
+	id <S292281AbSBTU1Y>; Wed, 20 Feb 2002 15:27:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292282AbSBTU0y>; Wed, 20 Feb 2002 15:26:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59911 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292281AbSBTU0j>;
-	Wed, 20 Feb 2002 15:26:39 -0500
-Message-ID: <3C74067C.EE824444@mandrakesoft.com>
-Date: Wed, 20 Feb 2002 15:26:36 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S292282AbSBTU1P>; Wed, 20 Feb 2002 15:27:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:16772 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292281AbSBTU0z>; Wed, 20 Feb 2002 15:26:55 -0500
+Date: Wed, 20 Feb 2002 15:29:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jason Yan <jasonyanjk@yahoo.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: initialize page tables --  Re: paging question
+In-Reply-To: <20020220195513.EIBW1236.tomts21-srv.bellnexxia.net@abc337>
+Message-ID: <Pine.LNX.3.95.1020220151844.11610A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] struct page, new bk tree
-In-Reply-To: <Pine.LNX.4.33L.0202192044140.7820-100000@imladris.surriel.com> <20020219155706.H26350@work.bitmover.com> <20020220201716.45A574E2E@oscar.casa.dyndns.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
+On Wed, 20 Feb 2002, Jason Yan wrote:
+
+> Thank you Dick
 > 
-> In my opinion the idea of cset -x (while usefull) is fundamentally
-> broken.  The result of this is that ideas like blacklist need to be
-> considered.  I would propose instead an undo -x, that would
-> generate a cset to reverse the one following the -x.  This might
-> lead to conflicts - these would be resolved the normal bk fashion.
-> If bk handled ¯bad¯ csets in this manner there would be no need for
-> blacklists - it is more robust in that you can always used undo -x.
+> Oops, I use a wrong subject, what I want to ask is how the pg0 be initialized
+> 
+> in head.S,
+> 
+> 395 .org 0x2000
+> 396 ENTRY(pg0)
 
-Well, if the changes are properly split up, you shouldn't need to do
-this...  In the ideal situation it is easiest for Linus to accept or
-reject a "bk pull" in its entirety.  Then he can just do a "bk unpull"
+Last I checked the page-table was 1 megabyte + that origin. Anyways,
+it doesn't matter. It is all referenced by labels which are fixed up
+by the linker.
 
-	Jeff
+> 
+> so $pg0-__PAGE_OFFSET = 0x2000 - 0xC0000000 = 40002000, how comes bff00000 ?
+> 
+> >84 movl $pg0-_PAGE_OFFSET,%edi
+> 
+> %edi = bff00000 (or 40002000) ?
+> 
+> >87 2:      stosl
+> 
+> that's  move %eax  to  %es:%edi, __KERNEL_DS = 0x18, so %es is 0x18,
+> according the gdt_table, 0x00cf92000000ffff, the base linear address
+> is 0x00000000, that means
+> %es:%edi = bff00000 (or 40002000), how can the %eax be moved into an
+                                     EAX contents ^^^
+> nonexist ram, cause at that time, no page directory and and page table
+> yet.
 
+The RAM exists and is addressed as linear address space because the
+paging bit in CR0 isn't set yet. This is the reason why all the
+operations that change or modify paging have to be done in a region
+where there is a 1:1 physical/virtual address translation. If the
+correct PTEs are present, once the paging bit is set, the stuff
+being executed doesn't change, but now exists at the (unchanged)
+virtual address.
 
+Cheers,
+Dick Johnson
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+

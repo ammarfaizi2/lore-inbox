@@ -1,102 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266679AbUIOQvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266833AbUIOQvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266679AbUIOQvK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266708AbUIOQsw
+	id S266833AbUIOQvt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbUIOQv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:48:52 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:27031 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266821AbUIOQrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:47:07 -0400
-Date: Wed, 15 Sep 2004 09:46:06 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: john stultz <johnstul@us.ibm.com>
-cc: george anzinger <george@mvista.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-In-Reply-To: <1095265942.29408.2847.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.58.0409150940420.1249@schroedinger.engr.sgi.com>
-References: <1095265942.29408.2847.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Sep 2004 12:51:29 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:14803 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266643AbUIOQut
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 12:50:49 -0400
+Date: Wed, 15 Sep 2004 18:49:14 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Tomasz Rola <rtomek@cis.com.pl>
+Cc: Andre Bonin <kernel@bonin.ca>, linux-kernel@vger.kernel.org
+Subject: Re: PCI coprocessors
+Message-ID: <20040915164914.GG24818@thundrix.ch>
+References: <41483BD3.4030405@bonin.ca> <Pine.LNX.3.96.1040915164509.26011A-100000@pioneer.space.nemesis.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4ndw/alBWmZEhfcZ"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1040915164509.26011A-100000@pioneer.space.nemesis.pl>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, john stultz wrote:
 
-> > struct time_source_t {
-> > 	u8 type;
-> > 	u8 shift;
-> > 	u32 multiply;
-> > 	void *address;
-> > 	u64 mask;
-> > 	int (*interrupt_at)(u64 counter_value);
-> > };
->
-> Could you explain the interrupt_at function further?
+--4ndw/alBWmZEhfcZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Generates a timer interrupt when a certain counter value has been reached.
-This is a common feature of most clock chips that I am aware of.
+Salut,
 
-> > 	make_time_source(1200000000, TIME_SOURCE_FUNCTION, cpu_time_filtered, 44, itm_setup);
->
-> Out of curiosity, what happens in your fsyscall code in these cases
-> where TIME_SOURCE_FUNCTION is used?
+On Wed, Sep 15, 2004 at 04:55:53PM +0200, Tomasz Rola wrote:
+> After loading  a kernel into it  somehow, boot it with  nfs root and
+> run the rest from nfs server  that would be provided by a host Intel
+> machine.
 
-It backs out of the fast call track and does a regular call instead.
+I'd rather not do that via nfs. Rather some special "hostfs" port over
+PCI.
 
-> > /* simulation of the old tick behavior */
-> > tick(u64 when) {
-> > 	/* do tick stuff */
-> >
-> > 	/* time base update .... */
-> > 	time_source_adjust(0);
-> > 	/* Schedule next timer tick */
-> > 	event_new(when + NSEC_PER_SEC / HZ , tick,  when + NSEC_PER_SEC / HZ);
-> > }
->
-> Hmm. This is getting somewhat tangled in my mind. Who is calling tick()
-> originally? How is event_run being called?
+But  anyway, reading  his original  post  he seems  to have  something
+completely different  in mind than booting  a second PC on  his PC: to
+boot a supportive processor..
 
-This is just some toying around with the concept. Maybe tick could be
-called by the regular timer interrupt?
+			    Tonnerre
 
->
-> > /* New tick would be scheduled by the ntp logic when a correction is needed.
-> >  * ntp logic needs to decide when to skip a few nanosecond or slow down the clock or
-> >  * make the clock run faster.
-> >  * One way to do this is to accumulate a time difference to real time.
-> >  * if this time difference is small and positive then skip time forward a bit.
-> >  * if the time difference is negative then slow down the clock.
-> >  * if the time difference is way too high then accelerate the clock
-> >  */
->
-> Well, this is still a bit vague.  do_adjtimex gives us 4 values we need
-> to use in adjusting time. The parts-per-million (ppm - all of which are
-> signed) tick adjustment value, the ppm frequency adjustment, the ppm
-> offset adjustment, and the singleshot offset adjustment length (# of
-> nsecs in which we apply the maximum ppm singleshot offset adjustment).
->
-> How do these 4 values get translated to adjusting the time source?
+--4ndw/alBWmZEhfcZ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-I agree this is vague and I have no clue here. I hoped that you
-could come up with some may to use these functions for adjtimex etc? I
-would need some time to figure out how the adjusting works in order to
-come up with a solution. I thought we agreed you do the NTP and time
-adjustment things ;-) I have never touched that code....
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
 
-> You might want to just swipe my timeofday-core patch and re-work the
-> timesource.h interface to your liking (make it like time_source_t). That
-> way you get all the NTP details as well as the interrupt separation for
-> free.
+iD8DBQFBSHKJ/4bL7ovhw40RAt6sAKCr/ZIccnRtPkgwBFr7HNPp/+8PBACbBLYC
+hWK+4bl3UsZ9TXhLGhE0zkU=
+=Hqeu
+-----END PGP SIGNATURE-----
 
-Will have a look at it and put it together when I have some time.
+--4ndw/alBWmZEhfcZ--

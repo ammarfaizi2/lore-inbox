@@ -1,77 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262356AbTJIRmd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 13:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTJIRmd
+	id S262345AbTJIRwU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 13:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTJIRwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 13:42:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1966 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262356AbTJIRmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 13:42:31 -0400
-Subject: Re: 2.6.0-test6-mm4 - oops in __aio_run_iocbs()
-From: Daniel McNeil <daniel@osdl.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-In-Reply-To: <20031009125902.GA11697@in.ibm.com>
-References: <20031005013326.3c103538.akpm@osdl.org>
-	 <1065655095.1842.34.camel@ibm-c.pdx.osdl.net>
-	 <20031009111624.GA11549@in.ibm.com>  <20031009125902.GA11697@in.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065721345.1821.21.camel@ibm-c.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Oct 2003 10:42:25 -0700
+	Thu, 9 Oct 2003 13:52:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15249 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262345AbTJIRwT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 13:52:19 -0400
+Message-ID: <3F85A044.5040109@pobox.com>
+Date: Thu, 09 Oct 2003 13:52:04 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Manfred Spraul <manfred@colorfullife.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] disable_irq()/enable_irq() semantics and ide-probe.c
+References: <Pine.LNX.4.44.0310091029070.22114-100000@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0310091029070.22114-100000@home.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-10-09 at 05:59, Suparna Bhattacharya wrote:
-> On Thu, Oct 09, 2003 at 04:46:24PM +0530, Suparna Bhattacharya wrote:
-> > On Wed, Oct 08, 2003 at 04:18:15PM -0700, Daniel McNeil wrote:
-> > > I'm been testing AIO on test6-mm4 using a ext3 file system and
-> > > copying a 88MB file to an already existing preallocated file of 88MB.
-> > > I been using my aiocp program to copy the file using i/o sizes of
-> > > 1k to 512k and outstanding aio requests of between 1 and 64 using
-> > > O_DIRECT, O_SYNC and O_DIRECT & O_SYNC.  Everything works as long
-> > > as the file is pre-allocated.  When copying the file to a new file
-> > > (O_CREAT|O_DIRECT), I get the following oops:
-> > 
-> > What are the i/o sizes and block sizes for which you get the oops ?
-> > Is this only for large i/o sizes ?
-> > 
-> > __aio_run_iocbs should have been called only for buffered i/o, 
-> > so this sounds like an O_DIRECT fallback to buffered i/o.
-> > Possibly after already submitting some blocks direct to BIO,
-> > the i/o completion path for which ends up calling aio_complete
-> > releasing the iocb. That could explain the use-after-free situation
-> > you see.
-> > 
-> > But, O_DIRECT write should fallback to buffered i/o only if it 
-> > encounters holes in the middle of the file, not for simple appends 
-> > as in your case. Need to figure out how this could have happened ...
+Linus Torvalds wrote:
+> On Thu, 9 Oct 2003, Jeff Garzik wrote:
 > 
-> Took a quick look at aiocp.c - wondering if its possible that
-> some of the later read requests complete earlier and trigger
-> a write to higher offset first. Resulting in the file being
-> extended with holes in between - holes which get overwritten
-> at a later point as the earlier read requests complete.
-
-That is an interesting idea.  I can change my aiocp program to
-do a printf if it hits this situation.
-
+>>If you can't stop the NIC hardware from generating interrupts, that's a 
+>>driver bug.
 > 
-> Though I don't yet see how a situation could arise in the 
-> single threaded case where part of the request gets submitted 
-> direct to BIO and the rest falls back to buffered-io ... Need 
-> to think about it a bit more. 
-> Are your writes all block aligned ?
+> 
+> No it's not.
+> 
+> Think shared interrupts here.
 
-All i/o is aligned to the size of the block size (128k in this
-test).
+I was being specific in what I said :)
 
-Daniel
+Sure, shared interrupts can still call a driver's handler.
+
+But if the driver doesn't stop _its own_ hardware from generating 
+interrupts, you've got screaming interrupts the minute it issues 
+free_irq and signals it doesn't care anymore.  The driver damn well 
+better be able to stop the _NIC hardware_ from generating interrupts :)
+
+	Jeff
+
+
 

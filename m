@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbRBSBan>; Sun, 18 Feb 2001 20:30:43 -0500
+	id <S129424AbRBSBgY>; Sun, 18 Feb 2001 20:36:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbRBSBad>; Sun, 18 Feb 2001 20:30:33 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53262 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129281AbRBSBaX>; Sun, 18 Feb 2001 20:30:23 -0500
-Subject: Re: [patch] smbfs does not support LFS (2.4.1-ac18)
-To: urban@teststation.com (Urban Widmark)
-Date: Mon, 19 Feb 2001 01:30:27 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.30.0102180118460.10156-100000@cola.teststation.com> from "Urban Widmark" at Feb 18, 2001 03:13:30 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129460AbRBSBgO>; Sun, 18 Feb 2001 20:36:14 -0500
+Received: from [207.1.200.39] ([207.1.200.39]:58630 "EHLO
+	ded-tscs.innovsoftd.com") by vger.kernel.org with ESMTP
+	id <S129424AbRBSBgE>; Sun, 18 Feb 2001 20:36:04 -0500
+Date: Sun, 18 Feb 2001 19:36:40 -0600 (CST)
+From: "Gregory S. Youngblood" <greg@tcscs.com>
+Reply-To: <greg@tcscs.com>
+To: "Michael H. Warfield" <mhw@wittsend.com>
+cc: Ben Ford <ben@kalifornia.com>, linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <20010218130400.B13553@alcove.wittsend.com>
+Message-ID: <Pine.LNX.4.30.0102181932100.20181-100000@ded-tscs.innovsoftd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Uf9q-00024z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it ok to at mount time set it to non-LFS and then later change it to be
-> something larger? smbfs doesn't actually know what the server and smbmount
-> negotiates until later, but no smbfs operation can take place before that
-> anyway.
+On Sun, 18 Feb 2001, Michael H. Warfield wrote:
 
-You can change it per superblock later at the moment. Its probably best
-to set it as soon as possible. NFS sets it at mount time conditional on
-NFSv2 versus v3 for example
+> On Sun, Feb 18, 2001 at 12:00:03PM -0600, Gregory S. Youngblood wrote:
+>
+> > I remember being at a computer show in Minneapolis where a small company
+> > was showing off this mouse that worked on a variety of surfaces without a
+> > ball. I'm trying to remember if the mouse was optical or used yet another
+> > method of functioning -- I think it was optical, though I could be
+> > mistaken. This was in 1992/1993.
+>
+> 	I think you are correct here.  I seem to recall mention of some
+> of those earlier devices at the time of the Microsoft announcement.  I
+> seem to also recall some of the reliability problem they had.  I believe
+> they were extremely fussy about the surface they were on.
 
-Alan
+In the demo I saw, they had about 6 sample surfaces ranging from
+a mirror to blue jeans. I also got to play with the mouse on the demo
+system and it worked very well. At the time, mice were about $25 to $35
+dollars, and theirs were like $79 or $99. I remember thinking it was a
+cool toy, but the price difference was going to keep it from mass market
+potential.
+
 

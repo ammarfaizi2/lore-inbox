@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262889AbSJGFww>; Mon, 7 Oct 2002 01:52:52 -0400
+	id <S262886AbSJGFvL>; Mon, 7 Oct 2002 01:51:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262890AbSJGFww>; Mon, 7 Oct 2002 01:52:52 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:44696 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262889AbSJGFwv>;
-	Mon, 7 Oct 2002 01:52:51 -0400
-Date: Mon, 7 Oct 2002 08:08:40 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Ulrich Drepper <drepper@redhat.com>, <bcollins@debian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: BK MetaData License Problem?
-In-Reply-To: <20021006155217.Y29486@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0210070758490.2557-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262889AbSJGFvL>; Mon, 7 Oct 2002 01:51:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:12160 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S262886AbSJGFvK>;
+	Mon, 7 Oct 2002 01:51:10 -0400
+Date: Mon, 7 Oct 2002 07:56:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jure Repinc <jlp@holodeck1.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Support for Mount Rainier / Packet Writing
+Message-ID: <20021007055637.GD1738@suse.de>
+References: <3DA09C34.4070709@holodeck1.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA09C34.4070709@holodeck1.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 06 2002, Jure Repinc wrote:
+> Hi all.
+> 
+> Now that feature freeze is just around the corner I would like to ask 
+> you if we will get support for packet writing in the 2.6/3.0 kernel. It 
+> would be especialy nice to have support for Mount Rainier which enables 
+> easy use of CD-RWs and that would help people (especially newbies) that 
+> use CD-RWs a lot.
+> 
+> There are some patches from Jens Axboe that are available here:
+> http://w1.894.telia.com/~u89404340/patches/packet/2.5/
 
-On Sun, 6 Oct 2002, Larry McVoy wrote:
+These are for CD-RW transparent writing, not cd-mrw.
 
-> Yes, but you'd want to make sure that you stated that your license
-> extended to the BK metadata.  In our opinion, only you as the creator of
-> the repository gets to make that rule but you certainly can, that's one
-> of the reasons we put that clause in there.
+> Are patches these OK for this or would support have to be completely 
+> rewriten?
 
-so in theory it's perfectly possible to 'link' the data's and metadata's
-license via BKL.txt - after all you already added licensing rules for the
-metadata into the BK license, for the purposes of OpenLogging.
+I had patches for 2.4 that enable mt rainier support in ide-cd and sr,
+they need to be polished a bit and submitted. I don't view the feature
+freeze as a big problem here, it's just minor additions to the cd-rom
+driver so...
 
-It would also perhaps make your position slightly more robust - besides
-you already having the right to 'republish' metadata [which is a term not
-directly defined in the license], you'd also have all the rights that come
-through the license of the data it describes - whatever that is worth.
-
-There are some problems like the fact that metadata might describe
-multiple pieces of data that might have different licenses, the solution
-would be to license metadata under every license that data is licensed
-under - if there's any. This would be in addition to the already existing
-republishing rights for OpenLogging.
-
-> By the way, the way this code works in bk-3.0 is that it saves a md5sum
-> or some sort of strong hash of the license in question and it will ask
-> you only once, assuming you are using the same home directory.  It will
-> ask you again if the license changes, that's what the hash is for.
-
-this sounds really nice and unintrusive, how does one enable it? Is this
-BK_FORCE, or something else? I cannot find any reference to this in 'bk
-helptool'.
-
-	Ingo
+-- 
+Jens Axboe
 

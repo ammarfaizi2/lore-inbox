@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266240AbUHMR0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266281AbUHMR0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266240AbUHMR0k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHMR0j
+	id S266281AbUHMR0r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 13:26:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHMR0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:26:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42369 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266240AbUHMRZn (ORCPT
+	Fri, 13 Aug 2004 13:26:46 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47809 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266281AbUHMR0M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:25:43 -0400
-Date: Fri, 13 Aug 2004 10:00:40 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: bunk@fs.tum.de, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let W1 select NET
-Message-Id: <20040813100040.3fce00db.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0408131312390.20634@scrub.home>
-References: <20040813101717.GS13377@fs.tum.de>
-	<Pine.LNX.4.58.0408131231480.20635@scrub.home>
-	<1092394019.12729.441.camel@uganda>
-	<Pine.LNX.4.58.0408131253000.20634@scrub.home>
-	<20040813110137.GY13377@fs.tum.de>
-	<Pine.LNX.4.58.0408131312390.20634@scrub.home>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 13 Aug 2004 13:26:12 -0400
+Date: Fri, 13 Aug 2004 19:26:05 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Stefan Meyknecht <sm0407@nurfuerspam.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
+Message-ID: <20040813172605.GA9673@suse.de>
+References: <200408061833.30751.sm0407@nurfuerspam.de> <200408071412.17411.sm0407@nurfuerspam.de> <20040809063323.GB10418@suse.de> <200408131917.48833.sm0407@nurfuerspam.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408131917.48833.sm0407@nurfuerspam.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Aug 2004 14:11:28 +0200 (CEST) Roman Zippel wrote:
+On Fri, Aug 13 2004, Stefan Meyknecht wrote:
+> Hi,
+> 
+> Jens Axboe <axboe@suse.de> wrote:
+> > Patch looks fine (last hunk is a little code, but that's not your
+> > fault). Thanks!
+> 
+> Do you consider including the patch into 2.6.8 or is it too late? 
+> Please mail me if something is missing or to resend.
 
-| Hi,
-| 
-| On Fri, 13 Aug 2004, Adrian Bunk wrote:
-| 
-| > But the similar case of USB_STORAGE selecting SCSI is an example where 
-| > select is a big user-visible improvement over depends.
-| 
-| comment "USB storage requires SCSI"
-| 	depends on SCSI=n
-| 
-| That's also user visible and doesn't confuse the user later, why he can't 
-| deselect SCSI.
+IMHO it's fine for 2.6.8, please resend the patch and CC Linus.
 
-User-visible in xconfig (and gconfig?).  Not in menuconfig, right?
-Maybe menuconfig's Help could also display dependency info...
+-- 
+Jens Axboe
 
-| Abusing select is really the wrong answer. What is needed is an improved 
-| user interface, which allows to search through the kconfig information or 
-| even can match hardware information to a driver and aids the user in 
-| selecting the required dependencies.
-
-Nice idea.  So are there places where SELECT is the right thing to do,
-i.e., it's required?  (examples, please)
-
-| Keeping the kconfig database clean and making kernel configuration easier 
-| are really two separate problems and we shouldn't sacrifice the former for 
-| the latter.
-
-
---
-~Randy

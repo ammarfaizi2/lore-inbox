@@ -1,192 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267744AbUHPPst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267806AbUHPPsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267744AbUHPPst (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 11:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267687AbUHPPfk
+	id S267806AbUHPPsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUHPPpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:35:40 -0400
-Received: from out009pub.verizon.net ([206.46.170.131]:3997 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S267744AbUHPPZM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:25:12 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Possible dcache BUG
-Date: Mon, 16 Aug 2004 11:25:10 -0400
-User-Agent: KMail/1.6.82
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408161013.38430.gene.heskett@verizon.net> <200408161749.23663.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408161749.23663.vda@port.imtp.ilyichevsk.odessa.ua>
+	Mon, 16 Aug 2004 11:45:18 -0400
+Received: from web14925.mail.yahoo.com ([216.136.225.11]:5822 "HELO
+	web14925.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267809AbUHPPmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 11:42:45 -0400
+Message-ID: <20040816154240.54747.qmail@web14925.mail.yahoo.com>
+Date: Mon, 16 Aug 2004 08:42:40 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: your mail
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408161125.10269.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.63.91] at Mon, 16 Aug 2004 10:25:10 -0500
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 August 2004 10:49, Denis Vlasenko wrote:
->> >>> Ok, non-preempt is building.  Will reboot to it when the build
->> >>> is done.
->> >>
->> >>Do not load sound modules too please, unless you absolutely need
->> >> sound.
->> >
->> >One thing at a time I think.  Thats major surgery on
->> > modprobe.conf to disable that, plus a chkconfig alsasound off.
->> >
->> >I've noticed that with preempt off, my kde curser motions are
->> > back to using the mouse if I want to move it more than a word or
->> > so to hit a typu and fix it.  Its an effect that comes and goes,
->> > often in the same message reply.  X is running at -1 I think. 
->> > Other than that (knock on wood) its running ok so far, but only
->> > 9h50m uptime.
->>
->> [...]
->> With PREEMPT off, and a 16 hour uptime, I am suddenly nearly out
->> of memory again. As an additional tool, I had started ksysguard
->> for its
->
->That depends of what you call "out of memory". It's normal for Linux
->to have very little free memory. top shows on my 256Mb home box:
->
->224 processes: 223 sleeping, 1 running, 0 zombie, 0 stopped
->CPU states:   2.9% user  13.8% system   0.0% nice   0.1% iowait 
-> 82.9% idle Mem:   254936k av,  252736k used,    2200k free,      
-> 0k shrd,   38872k buff ^^^^^^^^^^
->       197796k active,              31396k inactive
->Swap:  262136k av,       0k used,  262136k free                  
-> 95868k cached ^^^^^^^^^^^^^
->
->Of course, when you're fresh after reboot, you do have
->tons of free memory. How quickly cache will fill your RAM
->depends on RAM amount and your usage pattern.
->With 1Gig of RAM and mild usage it can take e.g. 16 hours or so. ;)
->
->> gfx memory display and set it for a 1 minute update interval. 
->> When I awoke again, the memory panel was 100% blue since some
->> major event, I assume logrotate by cron, ran but hadn't quite
->> scrolled off screen.
->
->Quite possibly. Reboot, run "grep -rF 'something' ." in a kernel
-> tree and see your RAM quickly filled with cache.
->
->> However, there is no swapping yet, and nothing unusual in the log.
->> Here are /proc/meminfo:
->> MemTotal:      1035956 kB
->> Buffers:        181044 kB
->
->I'm not sure. Maybe this is a bit high. Other values look ok.
->
->> and /proc/slabinfo:
->> slabinfo - version: 2.0
->> # name            <active_objs> <num_objs> <objsize> <objperslab>
->> <pagesperslab> : tunables <batchcount> <limit> <sharedfactor> :
->> slabdata <active_slabs> <num_slabs> <sharedavail>
->>
->> Note the size-64, dentry_cache and ext3_inode_cache lines
->
->Yes, dentry_cache and ext3_inode_cache are filesystem cache.
->So far, nothing looks wrong.
->
->> Now if I can remember that shell line to check /proc/fs/ext3
->> for dups:
->
->Sorry, I am all-reiserfs now. ;]
+Graphics drivers in the kernel are broken. The kernel was never
+designed to have two device drivers trying to control the same piece of
+hardware. 
+I have posted a long list of 25 points that we are working towards to
+unify things. http://lkml.org/lkml/2004/8/2/111 The PCI ROM patch that
+has been posted recently addresses the first one.
 
-I believe it was Viro that sent me a patch that instrumented
-the inode handling of ext3.  This is the results of that,
-otherwise /proc/fs/ext3 doesn't exist.
+In the meanwhile we have to transition somehow between what we have and
+where we are going. Since fbdev has taken the path to pretend that DRM
+doesn't exist DRM has to go through a lot of trouble to work when fbdev
+is in the system. DRM also has to work when fbdev is not in the system.
 
->> [root@coyote linux-2.6.8-rc4]# grep ' 2 ' /ext3-allocs
->>       2 3:8:8227974:100644
->>       2 3:8:8227973:100644
->>       2 3:8:8227972:100644
->>       2 3:8:8227971:100644
->>       2 3:8:8193936:100644
->>       2 3:8:8193935:100644
->>       2 3:8:8193934:100644
->>       2 3:8:8193738:100644
->>       2 3:8:7834144:100644
->>       2 3:8:7834143:100644
->>       2 3:8:7684604:100644
->>       2 3:8:7521425:100644
->>       2 3:8:7521411:100644
->>       2 3:8:6360398:40755
->>       2 3:8:6013120:40755
->>       2 3:8:6013101:40755
->>       2 3:8:5982111:40755
->>       2 3:8:5982098:40755
->>       2 3:8:5982088:40775
->>       2 3:8:5949697:40777
->>       2 3:8:5949683:40777
->>       2 3:8:5947892:42755
->>       2 3:8:5947890:42755
->>       2 3:8:5915386:42755
->>       2 3:8:5915379:42755
->>       2 3:8:5901299:42755
->>       2 3:8:5901289:42755
->>       2 3:8:5835169:42777
->>       2 3:8:5835162:40755
->>       2 3:8:5835159:40755
->>       2 3:8:1250790:100644
->>       2 3:8:1250789:100644
+DRM is being reworked into a first class driver with full support for
+2.6 and hotplug. Part of being a first class driver means that DRM has
+to register itself with the kernel like a real driver and claim all of
+it's resources. I'm also fixing the driver to use 2.6 module parameters
+and to support dynamic assignment of minors. Sysfs support is in the
+patch being discussed.
 
-The first ' 2 ' represents an error in that only one process
-should have allocated that block of ram _1_ time only for 
-that particular inode.  This could, but hasn't yet that I know of,
-lead to disk corruption I'm sure.  These are the most thoroughly
-e2fsck'd drives on the planet I'd think.  Somewhat more than
-an average of once daily now for several weeks.  I'd also bet
-a cold one that if I typed reboot, I would end up having to use
-the reset button to finish the job at some point, its a 75% sure
-thing.
+But DRM still has to live with existing fbdev drivers. The same DRM
+code is used in 2.4 and 2.6 so existing fbdev drivers are not going
+away anytime soon. When DRM detects a fbdev it will revert back into
+stealth mode where is attaches itself to the hardware without telling
+the kernel that it is doing so. DRM can not use stealth mode when
+running without fbdev present since it will mess up hotplug by not
+marking the resources in use.
 
-And, wonder of wonders, this list has self-shortened!:  And still
-no Oops either.  The number of leading 2's had gone down the next
-time I ran that line.  I'd taken a shower between runs but didn't 
-know it would clean this up too :-)
+I don't believe the ordering between fbdev and DRM is an issue. If you
+are using fbdev you likely have it compiled in. In that case fbdev
+always loads first and DRM second. In the non-ppc world, most of us
+have x86 boxes which don't use fbdev. In those machines DRM needs to be
+a first class driver. In the real world I don't know anyone other than
+a developer who would load DRM first and then fbdev. If this is a
+problem you will need to fixed fbdev to fall back into stealth mode
+like DRM does.
 
-Then reading up on grep, I used this command line the next time:
+I would like to encourage you to work towards the points on the above
+referenced list. It has been widely distributed and commented on. It
+has been posted to lkml, dri-dev, fb-dev and xorg lists and discussed
+at OLS. 
 
-#>cat /proc/fs/ext3|sort|uniq -c|sort -nr|grep -v ' 1 ' >/ext3-allocs-bad;cat /ext3-allocs-bad
+Sorry, but I can't add an In-Reply-To header in the middle of thread on
+yahoo. cc me on a reply to the main thread so that I will pick up the header.
 
-and got this, a much shorter list:
-      2 3:8:8405754:40775
-      2 3:8:7850178:100644
-      2 3:8:7816153:100644
-      2 3:8:7816152:100644
-      2 3:8:7803727:100644
-      2 3:8:7803726:100644
-      2 3:8:7803033:100644
-      2 3:8:7684502:100644
-      2 3:8:7407284:100644
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-But I still don't know enough about this to point any fingers
-at anything.
 
-[... old list]
-
->> So now we have an odor of a problem, the question is what does
->> it smell like?  What can I do next to shine a light on this?
-
-Questions still valid IMO.
-
->--
->vda
-
--- 
-Cheers & thanks Denis, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail

@@ -1,138 +1,608 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264958AbTFLTs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 15:48:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbTFLTs6
+	id S264972AbTFLT4K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 15:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbTFLT4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 15:48:58 -0400
-Received: from devil.servak.biz ([209.124.81.2]:62656 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S264958AbTFLTs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 15:48:56 -0400
-Subject: [OOPS] 2.5.70-bk15: sbp2: oops on unplug, replug
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Ben Collins <bcollins@debian.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055448156.1789.7.camel@torrey.et.myrio.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Jun 2003 13:02:36 -0700
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - arnor.net
+	Thu, 12 Jun 2003 15:56:10 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:46305 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264972AbTFLTzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 15:55:07 -0400
+From: "Andreas Achtzehn" <linux-kernel@achtzehn.homelinux.org>
+To: <mostrows@styx.uwaterloo.ca>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: pppoe + sk_run_filter
+Date: Thu, 12 Jun 2003 22:08:20 +0200
+Message-ID: <EMEAKOPCBDOCHKHEEBCGIEBJCDAA.linux-kernel@achtzehn.homelinux.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_002B_01C3312F.220B3690"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.10; AVE: 6.20.0.0; VDF: 6.20.0.7; host: achtzehn.homelinux.org)
+X-Seen: false
+X-ID: TFsWnkZ1QeXLBdUCF7tqyTGzNbuoKOB9Q1nV+78rjqgZ9-d9dYMV89@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After (re)booting 2.5.70-bk15 I plugged in a 250 GB drive, mounted the
-single reiserfs partition on it, copied some data to it, and ran "sync".
+This is a multi-part message in MIME format.
 
-Without unmounting the partition, I then unplugged the firewire cable,
-and a few seconds later plugged it in again.  This produced an OOPS. 
-The dmesg log of the whole thing is as follows:
+------=_NextPart_000_002B_01C3312F.220B3690
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-- - - -
+Dear Michal,
 
-SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
-sda: asking for cache data failed
-sda: assuming drive cache: write through
- sda: sda1
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-found reiserfs format "3.6" with standard journal
-Reiserfs journal params: device sda1, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-reiserfs: checking transaction log (sda1) for (sda1)
-Using r5 hash to sort names
-ieee1394: Node 01:1023 changed to 00:1023
-ieee1394: Device removed: ID:BUS[00:1023]  GUID[0004830000002cb3]
-ieee1394: sbp2: Logged out of SBP-2 device
-ieee1394: sbp2: Logged into SBP-2 device
-ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-  Vendor: Maxtor 4  Model: A250J8            Rev:     
-  Type:   Direct-Access                      ANSI SCSI revision: 06
-SCSI device sda: 490234752 512-byte hdwr sectors (251000 MB)
-sda: asking for cache data failed
-sda: assuming drive cache: write through
-Unable to handle kernel NULL pointer dereference at virtual address 0000004c
- printing eip:
-e88caaae
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<e88caaae>]    Not tainted
-EFLAGS: 00010286
-EIP is at scsi_device_get+0xe/0x40 [scsi_mod]
-eax: 00000000   ebx: c1740900   ecx: 00000001   edx: e68f2b60
-esi: e68f2b60   edi: e6dd54e0   ebp: e68a5a20   esp: e68a5a20
-ds: 007b   es: 007b   ss: 0068
-Process knodemgrd_0 (pid: 350, threadinfo=e68a4000 task=e75f00c0)
-Stack: e68a5a3c e88b3319 e68f2b60 c02117a2 c1740900 e88b32f0 e88b5c60 e68a5a7c 
-       c0151fba e51f9ba0 e68a5b30 e66cdf18 c0118bcc e68a5a7c 00000046 e7fedc30 
-       00000001 c1740918 c0118d9a 00000000 c1740900 00000001 e68a5b30 e68a5bb8 
-Call Trace:
- [<e88b3319>] sd_open+0x29/0xf0 [sd_mod]
- [<c02117a2>] get_gendisk+0x22/0x40
- [<e88b32f0>] sd_open+0x0/0xf0 [sd_mod]
- [<e88b5c60>] +0x0/0x100 [sd_mod]
- [<c0151fba>] do_open+0x2ea/0x320
- [<c0118bcc>] schedule+0x19c/0x340
- [<c0118d9a>] default_wake_function+0x2a/0x30
- [<c0152055>] blkdev_get+0x65/0x70
- [<c0175004>] register_disk+0xb4/0x150
- [<c0211731>] add_disk+0x51/0x60
- [<c02116b0>] exact_match+0x0/0x10
- [<c02116c0>] exact_lock+0x0/0x20
- [<e88b47c3>] sd_probe+0x1a3/0x260 [sd_mod]
- [<e88b5bc4>] +0x4/0x70 [sd_mod]
- [<c020baf3>] bus_match+0x43/0x80
- [<e88b5bc4>] +0x4/0x70 [sd_mod]
- [<e88b5bf4>] +0x34/0x70 [sd_mod]
- [<e88d8d1c>] scsi_bus_type+0x5c/0xe8 [scsi_mod]
- [<c020bb7f>] device_attach+0x4f/0x90
- [<e88b5bc4>] +0x4/0x70 [sd_mod]
- [<e88d8cc0>] scsi_bus_type+0x0/0xe8 [scsi_mod]
- [<c020bd33>] bus_add_device+0x63/0xb0
- [<c020ae1f>] device_add+0xcf/0x100
- [<e88d0720>] scsi_device_release+0x0/0x20 [scsi_mod]
- [<e88d8cc0>] scsi_bus_type+0x0/0xe8 [scsi_mod]
- [<e88d0824>] scsi_device_register+0xe4/0x180 [scsi_mod]
- [<e88d2758>] +0x4b8/0xc00 [scsi_mod]
- [<e88cfbae>] scsi_add_lun+0x1be/0x3a0 [scsi_mod]
- [<e88cfe36>] scsi_probe_and_add_lun+0xa6/0x120 [scsi_mod]
- [<e88cffb5>] scsi_add_device+0x35/0x50 [scsi_mod]
- [<e88a39f9>] sbp2_start_device+0x219/0x3d0 [sbp2]
- [<e88a37a3>] sbp2_start_ud+0xa3/0xe0 [sbp2]
- [<e88a3472>] sbp2_probe+0x32/0x40 [sbp2]
- [<e88a876c>] sbp2_driver+0xc/0x70 [sbp2]
- [<c020baf3>] bus_match+0x43/0x80
- [<e88a876c>] sbp2_driver+0xc/0x70 [sbp2]
- [<e88a879c>] sbp2_driver+0x3c/0x70 [sbp2]
- [<e88c885c>] ieee1394_bus_type+0x5c/0x100 [ieee1394]
- [<c020bb7f>] device_attach+0x4f/0x90
- [<e88a876c>] sbp2_driver+0xc/0x70 [sbp2]
- [<e88c8800>] ieee1394_bus_type+0x0/0x100 [ieee1394]
- [<c020bd33>] bus_add_device+0x63/0xb0
- [<c020ae1f>] device_add+0xcf/0x100
- [<e88c867c>] nodemgr_dev_template_ud+0xbc/0xc0 [ieee1394]
- [<e88be768>] nodemgr_process_unit_directory+0x188/0x490 [ieee1394]
- [<e88c1199>] +0x289/0x330 [ieee1394]
- [<e88bec52>] nodemgr_process_root_directory+0x1e2/0x1f0 [ieee1394]
- [<e88bef3e>] nodemgr_process_config_rom+0x8e/0xc0 [ieee1394]
- [<e88c873c>] nodemgr_dev_template_ne+0xbc/0xc0 [ieee1394]
- [<e88be203>] nodemgr_create_node+0x153/0x1e0 [ieee1394]
- [<e88bf376>] nodemgr_node_probe_one+0xe6/0xf0 [ieee1394]
- [<e88bf4c4>] nodemgr_node_probe+0x104/0x110 [ieee1394]
- [<e88bf7b8>] nodemgr_host_thread+0x118/0x180 [ieee1394]
- [<e88bf6a0>] nodemgr_host_thread+0x0/0x180 [ieee1394]
- [<c010912d>] kernel_thread_helper+0x5/0x18
+I have serious problems trying to get PPPoE running with socket filtering
+activated. I need socket filtering for my DHCP server and PPPoE for routing
+purposes. I've been using a vanilla 2.4.20 kernel as well as a 2.4.21-rc8
+patched one.
+I did following:
 
-Code: 8b 40 4c 8b 00 85 c0 74 0b 83 38 02 74 19 ff 80 a0 00 00 00 
- 
+Working .config with PPPOE activated (as module), added Socket Filtering.
 
--- 
-Torrey Hoffman <thoffman@arnor.net>
+Result:
+
+/lib/modules/2.4.21-rc8/kernel/drivers/net/pppoe.o: unresolved symbol
+sk_run_filter
+
+According to System.map the sk_run_filter is compiled in:
+
+c0228480 T sk_run_filter
+c02bd898 R __kstrtab_sk_run_filter
+c02c3cf8 R __ksymtab_sk_run_filter
+
+So, why doesn't pppoe load? I also tried activating PPP_FILTER. Didn't work
+either.
+
+
+I read on some mailing lists that this might be a bug. That's why I
+contacted you. 2.4.21 is soon to be released. Maybe pppoe needs a bugfix?
+I'd really appreciate your help.
+
+Thanks in advance from Germany,
+
+Andreas
+
+PS: Attached you will find the .conf diff of my used conf and the standard
+conf at arch/i386/defconf for 2.4.21-rc8.
+
+------=_NextPart_000_002B_01C3312F.220B3690
+Content-Type: application/octet-stream;
+	name="diff_config"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="diff_config"
+
+2c2=0A=
+< # Automatically generated by make menuconfig: don't edit=0A=
+---=0A=
+> # Automatically generated make config: don't edit=0A=
+4a5=0A=
+> CONFIG_ISA=3Dy=0A=
+11c12=0A=
+< CONFIG_EXPERIMENTAL=3Dy=0A=
+---=0A=
+> # CONFIG_EXPERIMENTAL is not set=0A=
+25c26=0A=
+< CONFIG_M586=3Dy=0A=
+---=0A=
+> # CONFIG_M586 is not set=0A=
+29c30=0A=
+< # CONFIG_MPENTIUMIII is not set=0A=
+---=0A=
+> CONFIG_MPENTIUMIII=3Dy=0A=
+33d33=0A=
+< # CONFIG_MK8 is not set=0A=
+40d39=0A=
+< # CONFIG_MVIAC3_2 is not set=0A=
+50,53c49,52=0A=
+< CONFIG_X86_USE_STRING_486=3Dy=0A=
+< CONFIG_X86_ALIGNMENT_16=3Dy=0A=
+< CONFIG_X86_PPRO_FENCE=3Dy=0A=
+< # CONFIG_X86_F00F_WORKS_OK is not set=0A=
+---=0A=
+> CONFIG_X86_TSC=3Dy=0A=
+> CONFIG_X86_GOOD_APIC=3Dy=0A=
+> CONFIG_X86_PGE=3Dy=0A=
+> CONFIG_X86_USE_PPRO_CHECKSUM=3Dy=0A=
+63d61=0A=
+< # CONFIG_HIGHMEM is not set=0A=
+66,69c64,66=0A=
+< # CONFIG_SMP is not set=0A=
+< # CONFIG_X86_UP_APIC is not set=0A=
+< # CONFIG_X86_UP_IOAPIC is not set=0A=
+< # CONFIG_X86_TSC_DISABLE is not set=0A=
+---=0A=
+> CONFIG_SMP=3Dy=0A=
+> # CONFIG_MULTIQUAD is not set=0A=
+> CONFIG_HAVE_DEC_LOCK=3Dy=0A=
+74a72,73=0A=
+> CONFIG_X86_IO_APIC=3Dy=0A=
+> CONFIG_X86_LOCAL_APIC=3Dy=0A=
+81d79=0A=
+< CONFIG_ISA=3Dy=0A=
+101a100=0A=
+> # CONFIG_HOTPLUG_PCI_IBM is not set=0A=
+112,120c111=0A=
+< # CONFIG_ACPI is not set=0A=
+< CONFIG_APM=3Dy=0A=
+< # CONFIG_APM_IGNORE_USER_SUSPEND is not set=0A=
+< # CONFIG_APM_DO_ENABLE is not set=0A=
+< CONFIG_APM_CPU_IDLE=3Dy=0A=
+< # CONFIG_APM_DISPLAY_BLANK is not set=0A=
+< # CONFIG_APM_RTC_IS_GMT is not set=0A=
+< # CONFIG_APM_ALLOW_INTS is not set=0A=
+< # CONFIG_APM_REAL_MODE_POWER_OFF is not set=0A=
+---=0A=
+> # CONFIG_APM is not set=0A=
+130,143c121=0A=
+< CONFIG_PARPORT=3Dm=0A=
+< CONFIG_PARPORT_PC=3Dm=0A=
+< CONFIG_PARPORT_PC_CML1=3Dm=0A=
+< # CONFIG_PARPORT_SERIAL is not set=0A=
+< # CONFIG_PARPORT_PC_FIFO is not set=0A=
+< # CONFIG_PARPORT_PC_SUPERIO is not set=0A=
+< # CONFIG_PARPORT_PC_PCMCIA is not set=0A=
+< # CONFIG_PARPORT_AMIGA is not set=0A=
+< # CONFIG_PARPORT_MFC3 is not set=0A=
+< # CONFIG_PARPORT_ATARI is not set=0A=
+< # CONFIG_PARPORT_GSC is not set=0A=
+< # CONFIG_PARPORT_SUNBPP is not set=0A=
+< # CONFIG_PARPORT_OTHER is not set=0A=
+< # CONFIG_PARPORT_1284 is not set=0A=
+---=0A=
+> # CONFIG_PARPORT is not set=0A=
+164,167c142,143=0A=
+< CONFIG_BLK_DEV_RAM=3Dy=0A=
+< CONFIG_BLK_DEV_RAM_SIZE=3D10000=0A=
+< CONFIG_BLK_DEV_INITRD=3Dy=0A=
+< # CONFIG_BLK_STATS is not set=0A=
+---=0A=
+> # CONFIG_BLK_DEV_RAM is not set=0A=
+> # CONFIG_BLK_DEV_INITRD is not set=0A=
+187,189c163,164=0A=
+< CONFIG_NETFILTER=3Dy=0A=
+< # CONFIG_NETFILTER_DEBUG is not set=0A=
+< CONFIG_FILTER=3Dy=0A=
+---=0A=
+> # CONFIG_NETFILTER is not set=0A=
+> # CONFIG_FILTER is not set=0A=
+195c170=0A=
+< CONFIG_NET_IPIP=3Dm=0A=
+---=0A=
+> # CONFIG_NET_IPIP is not set=0A=
+198d172=0A=
+< # CONFIG_ARPD is not set=0A=
+200c174,175=0A=
+< CONFIG_SYN_COOKIES=3Dy=0A=
+---=0A=
+> # CONFIG_SYN_COOKIES is not set=0A=
+> # CONFIG_VLAN_8021Q is not set=0A=
+203c178=0A=
+< #   IP: Netfilter Configuration=0A=
+---=0A=
+> #  =0A=
+205,254d179=0A=
+< CONFIG_IP_NF_CONNTRACK=3Dm=0A=
+< CONFIG_IP_NF_FTP=3Dm=0A=
+< # CONFIG_IP_NF_AMANDA is not set=0A=
+< # CONFIG_IP_NF_TFTP is not set=0A=
+< CONFIG_IP_NF_IRC=3Dm=0A=
+< # CONFIG_IP_NF_QUEUE is not set=0A=
+< CONFIG_IP_NF_IPTABLES=3Dm=0A=
+< CONFIG_IP_NF_MATCH_LIMIT=3Dm=0A=
+< CONFIG_IP_NF_MATCH_MAC=3Dm=0A=
+< CONFIG_IP_NF_MATCH_PKTTYPE=3Dm=0A=
+< CONFIG_IP_NF_MATCH_MARK=3Dm=0A=
+< CONFIG_IP_NF_MATCH_MULTIPORT=3Dm=0A=
+< CONFIG_IP_NF_MATCH_TOS=3Dm=0A=
+< CONFIG_IP_NF_MATCH_ECN=3Dm=0A=
+< CONFIG_IP_NF_MATCH_DSCP=3Dm=0A=
+< CONFIG_IP_NF_MATCH_AH_ESP=3Dm=0A=
+< CONFIG_IP_NF_MATCH_LENGTH=3Dm=0A=
+< CONFIG_IP_NF_MATCH_TTL=3Dm=0A=
+< CONFIG_IP_NF_MATCH_TCPMSS=3Dm=0A=
+< CONFIG_IP_NF_MATCH_HELPER=3Dm=0A=
+< CONFIG_IP_NF_MATCH_STATE=3Dm=0A=
+< CONFIG_IP_NF_MATCH_CONNTRACK=3Dm=0A=
+< CONFIG_IP_NF_MATCH_UNCLEAN=3Dm=0A=
+< CONFIG_IP_NF_MATCH_OWNER=3Dm=0A=
+< CONFIG_IP_NF_FILTER=3Dm=0A=
+< CONFIG_IP_NF_TARGET_REJECT=3Dm=0A=
+< CONFIG_IP_NF_TARGET_MIRROR=3Dm=0A=
+< CONFIG_IP_NF_NAT=3Dm=0A=
+< CONFIG_IP_NF_NAT_NEEDED=3Dy=0A=
+< CONFIG_IP_NF_TARGET_MASQUERADE=3Dm=0A=
+< CONFIG_IP_NF_TARGET_REDIRECT=3Dm=0A=
+< CONFIG_IP_NF_NAT_LOCAL=3Dy=0A=
+< # CONFIG_IP_NF_NAT_SNMP_BASIC is not set=0A=
+< CONFIG_IP_NF_NAT_IRC=3Dm=0A=
+< CONFIG_IP_NF_NAT_FTP=3Dm=0A=
+< CONFIG_IP_NF_MANGLE=3Dm=0A=
+< CONFIG_IP_NF_TARGET_TOS=3Dm=0A=
+< # CONFIG_IP_NF_TARGET_ECN is not set=0A=
+< # CONFIG_IP_NF_TARGET_DSCP is not set=0A=
+< CONFIG_IP_NF_TARGET_MARK=3Dm=0A=
+< CONFIG_IP_NF_TARGET_LOG=3Dm=0A=
+< # CONFIG_IP_NF_TARGET_ULOG is not set=0A=
+< CONFIG_IP_NF_TARGET_TCPMSS=3Dm=0A=
+< # CONFIG_IP_NF_ARPTABLES is not set=0A=
+< # CONFIG_IP_NF_COMPAT_IPCHAINS is not set=0A=
+< # CONFIG_IP_NF_COMPAT_IPFWADM is not set=0A=
+< # CONFIG_IPV6 is not set=0A=
+< # CONFIG_KHTTPD is not set=0A=
+< # CONFIG_ATM is not set=0A=
+< # CONFIG_VLAN_8021Q is not set=0A=
+264,271d188=0A=
+< # CONFIG_X25 is not set=0A=
+< # CONFIG_LAPB is not set=0A=
+< # CONFIG_LLC is not set=0A=
+< # CONFIG_NET_DIVERT is not set=0A=
+< # CONFIG_ECONET is not set=0A=
+< # CONFIG_WAN_ROUTER is not set=0A=
+< # CONFIG_NET_FASTROUTE is not set=0A=
+< # CONFIG_NET_HW_FLOWCONTROL is not set=0A=
+298a216,219=0A=
+> =0A=
+> #=0A=
+> # Please see Documentation/ide.txt for help/info on IDE drives=0A=
+> #=0A=
+303a225,233=0A=
+> # CONFIG_BLK_DEV_IDEDISK_VENDOR is not set=0A=
+> # CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set=0A=
+> # CONFIG_BLK_DEV_IDEDISK_IBM is not set=0A=
+> # CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set=0A=
+> # CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set=0A=
+> # CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set=0A=
+> # CONFIG_BLK_DEV_IDEDISK_WD is not set=0A=
+> # CONFIG_BLK_DEV_COMMERIAL is not set=0A=
+> # CONFIG_BLK_DEV_TIVO is not set=0A=
+309a240,243=0A=
+> =0A=
+> #=0A=
+> # IDE chipset support/bugfixes=0A=
+> #=0A=
+312a247=0A=
+> CONFIG_BLK_DEV_RZ1000=3Dy=0A=
+314d248=0A=
+< # CONFIG_BLK_DEV_GENERIC is not set=0A=
+323c257,259=0A=
+< # CONFIG_BLK_DEV_ADMA100 is not set=0A=
+---=0A=
+> # CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set=0A=
+> # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set=0A=
+> CONFIG_BLK_DEV_ADMA=3Dy=0A=
+324a261=0A=
+> # CONFIG_AEC62XX_TUNING is not set=0A=
+330c267=0A=
+< # CONFIG_BLK_DEV_TRIFLEX is not set=0A=
+---=0A=
+> # CONFIG_BLK_DEV_CMD680 is not set=0A=
+336a274=0A=
+> CONFIG_PIIX_TUNING=3Dy=0A=
+339c277=0A=
+< # CONFIG_BLK_DEV_PDC202XX_OLD is not set=0A=
+---=0A=
+> # CONFIG_BLK_DEV_PDC202XX is not set=0A=
+341,343c279=0A=
+< # CONFIG_BLK_DEV_PDC202XX_NEW is not set=0A=
+< CONFIG_BLK_DEV_RZ1000=3Dy=0A=
+< # CONFIG_BLK_DEV_SC1200 is not set=0A=
+---=0A=
+> # CONFIG_PDC202XX_FORCE is not set=0A=
+345d280=0A=
+< # CONFIG_BLK_DEV_SIIMAGE is not set=0A=
+358d292=0A=
+< # CONFIG_BLK_DEV_ATARAID_SII is not set=0A=
+363a298,301=0A=
+> =0A=
+> #=0A=
+> # SCSI support type (disk, tape, CD-ROM)=0A=
+> #=0A=
+369a308,311=0A=
+> =0A=
+> #=0A=
+> # Some SCSI devices (e.g. CD jukebox) support multiple LUNs=0A=
+> #=0A=
+384d325=0A=
+< # CONFIG_SCSI_AACRAID is not set=0A=
+386d326=0A=
+< # CONFIG_SCSI_AIC79XX is not set=0A=
+406,407d345=0A=
+< # CONFIG_SCSI_PPA is not set=0A=
+< # CONFIG_SCSI_IMM is not set=0A=
+419d356=0A=
+< # CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT is not set=0A=
+435,436d371=0A=
+< # CONFIG_SCSI_NSP32 is not set=0A=
+< # CONFIG_SCSI_DEBUG is not set=0A=
+453,457d387=0A=
+< # IEEE 1394 (FireWire) support (EXPERIMENTAL)=0A=
+< #=0A=
+< # CONFIG_IEEE1394 is not set=0A=
+< =0A=
+< #=0A=
+480d409=0A=
+< # CONFIG_ETHERTAP is not set=0A=
+492,502c421=0A=
+< CONFIG_NET_VENDOR_3COM=3Dy=0A=
+< # CONFIG_EL1 is not set=0A=
+< # CONFIG_EL2 is not set=0A=
+< # CONFIG_ELPLUS is not set=0A=
+< # CONFIG_EL16 is not set=0A=
+< CONFIG_EL3=3Dm=0A=
+< # CONFIG_3C515 is not set=0A=
+< # CONFIG_ELMC is not set=0A=
+< # CONFIG_ELMC_II is not set=0A=
+< # CONFIG_VORTEX is not set=0A=
+< # CONFIG_TYPHOON is not set=0A=
+---=0A=
+> # CONFIG_NET_VENDOR_3COM is not set=0A=
+512d430=0A=
+< # CONFIG_AMD8111_ETH is not set=0A=
+517a436=0A=
+> # CONFIG_TC35815 is not set=0A=
+522,523d440=0A=
+< # CONFIG_EEPRO100_PIO is not set=0A=
+< # CONFIG_E100 is not set=0A=
+531c448=0A=
+< CONFIG_8139TOO=3Dm=0A=
+---=0A=
+> # CONFIG_8139TOO is not set=0A=
+535c452=0A=
+< # CONFIG_8139_OLD_RX_RESET is not set=0A=
+---=0A=
+> # CONFIG_8139_NEW_RX_RESET is not set=0A=
+539d455=0A=
+< # CONFIG_SUNDANCE_MMIO is not set=0A=
+541d456=0A=
+< # CONFIG_TC35815 is not set=0A=
+552d466=0A=
+< # CONFIG_E1000 is not set=0A=
+557d470=0A=
+< # CONFIG_R8169 is not set=0A=
+561d473=0A=
+< # CONFIG_HIPPI is not set=0A=
+563,570c475=0A=
+< CONFIG_PPP=3Dm=0A=
+< # CONFIG_PPP_MULTILINK is not set=0A=
+< CONFIG_PPP_FILTER=3Dy=0A=
+< CONFIG_PPP_ASYNC=3Dm=0A=
+< # CONFIG_PPP_SYNC_TTY is not set=0A=
+< # CONFIG_PPP_DEFLATE is not set=0A=
+< # CONFIG_PPP_BSDCOMP is not set=0A=
+< CONFIG_PPPOE=3Dm=0A=
+---=0A=
+> # CONFIG_PPP is not set=0A=
+583,584d487=0A=
+< # CONFIG_RCPCI is not set=0A=
+< # CONFIG_SHAPER is not set=0A=
+653,655d555=0A=
+< # CONFIG_PRINTER is not set=0A=
+< # CONFIG_PPDEV is not set=0A=
+< # CONFIG_TIPAR is not set=0A=
+675a576,583=0A=
+> =0A=
+> #=0A=
+> # Input core support is needed for gameports=0A=
+> #=0A=
+> =0A=
+> #=0A=
+> # Input core support is needed for joysticks=0A=
+> #=0A=
+677,681d584=0A=
+< # CONFIG_IPMI_HANDLER is not set=0A=
+< # CONFIG_IPMI_PANIC_EVENT is not set=0A=
+< # CONFIG_IPMI_DEVICE_INTERFACE is not set=0A=
+< # CONFIG_IPMI_KCS is not set=0A=
+< # CONFIG_IPMI_WATCHDOG is not set=0A=
+687d589=0A=
+< # CONFIG_SCx200_GPIO is not set=0A=
+690d591=0A=
+< # CONFIG_AMD_PM768 is not set=0A=
+696d596=0A=
+< # CONFIG_SONYPI is not set=0A=
+707d606=0A=
+< # CONFIG_AGP_AMD_8151 is not set=0A=
+712a612,615=0A=
+> =0A=
+> #=0A=
+> # DRM 4.1 drivers=0A=
+> #=0A=
+719d621=0A=
+< # CONFIG_DRM_I830 is not set=0A=
+727d628=0A=
+< # CONFIG_SYNCLINK_CS is not set=0A=
+748,749d648=0A=
+< # CONFIG_BEFS_FS is not set=0A=
+< # CONFIG_BEFS_DEBUG is not set=0A=
+754c653=0A=
+< CONFIG_FAT_FS=3Dm=0A=
+---=0A=
+> # CONFIG_FAT_FS is not set=0A=
+765c664=0A=
+< CONFIG_JOLIET=3Dy=0A=
+---=0A=
+> # CONFIG_JOLIET is not set=0A=
+767,769d665=0A=
+< # CONFIG_JFS_FS is not set=0A=
+< # CONFIG_JFS_DEBUG is not set=0A=
+< # CONFIG_JFS_STATISTICS is not set=0A=
+800d695=0A=
+< # CONFIG_NFSD_TCP is not set=0A=
+803,804c698=0A=
+< CONFIG_SMB_FS=3Dm=0A=
+< # CONFIG_SMB_NLS_DEFAULT is not set=0A=
+---=0A=
+> # CONFIG_SMB_FS is not set=0A=
+814a709=0A=
+> # CONFIG_ZLIB_FS_INFLATE is not set=0A=
+821,864c716,717=0A=
+< CONFIG_SMB_NLS=3Dy=0A=
+< CONFIG_NLS=3Dy=0A=
+< =0A=
+< #=0A=
+< # Native Language Support=0A=
+< #=0A=
+< CONFIG_NLS_DEFAULT=3D"iso8859-1"=0A=
+< # CONFIG_NLS_CODEPAGE_437 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_737 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_775 is not set=0A=
+< CONFIG_NLS_CODEPAGE_850=3Dy=0A=
+< # CONFIG_NLS_CODEPAGE_852 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_855 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_857 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_860 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_861 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_862 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_863 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_864 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_865 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_866 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_869 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_936 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_950 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_932 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_949 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_874 is not set=0A=
+< # CONFIG_NLS_ISO8859_8 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_1250 is not set=0A=
+< # CONFIG_NLS_CODEPAGE_1251 is not set=0A=
+< CONFIG_NLS_ISO8859_1=3Dy=0A=
+< # CONFIG_NLS_ISO8859_2 is not set=0A=
+< # CONFIG_NLS_ISO8859_3 is not set=0A=
+< # CONFIG_NLS_ISO8859_4 is not set=0A=
+< # CONFIG_NLS_ISO8859_5 is not set=0A=
+< # CONFIG_NLS_ISO8859_6 is not set=0A=
+< # CONFIG_NLS_ISO8859_7 is not set=0A=
+< # CONFIG_NLS_ISO8859_9 is not set=0A=
+< # CONFIG_NLS_ISO8859_13 is not set=0A=
+< # CONFIG_NLS_ISO8859_14 is not set=0A=
+< # CONFIG_NLS_ISO8859_15 is not set=0A=
+< # CONFIG_NLS_KOI8_R is not set=0A=
+< # CONFIG_NLS_KOI8_U is not set=0A=
+< # CONFIG_NLS_UTF8 is not set=0A=
+---=0A=
+> # CONFIG_SMB_NLS is not set=0A=
+> # CONFIG_NLS is not set=0A=
+871,876d723=0A=
+< # CONFIG_MDA_CONSOLE is not set=0A=
+< =0A=
+< #=0A=
+< # Frame-buffer support=0A=
+< #=0A=
+< # CONFIG_FB is not set=0A=
+882d728=0A=
+< # CONFIG_SOUND_ALI5455 is not set=0A=
+894d739=0A=
+< # CONFIG_SOUND_FORTE is not set=0A=
+910a756,759=0A=
+> =0A=
+> #=0A=
+> # Miscellaneous USB options=0A=
+> #=0A=
+912a762,766=0A=
+> # CONFIG_USB_LONG_TIMEOUT is not set=0A=
+> =0A=
+> #=0A=
+> # USB Host Controller Drivers=0A=
+> #=0A=
+915a770,773=0A=
+> =0A=
+> #=0A=
+> # USB Device Class drivers=0A=
+> #=0A=
+919d776=0A=
+< # CONFIG_USB_MIDI is not set=0A=
+928d784=0A=
+< # CONFIG_USB_STORAGE_SDDR55 is not set=0A=
+931a788,791=0A=
+> =0A=
+> #=0A=
+> # USB Human Interface Devices (HID)=0A=
+> #=0A=
+932a793,796=0A=
+> =0A=
+> #=0A=
+> #     Input core support is needed for USB HID input layer or HIDBP =
+support=0A=
+> #=0A=
+937d800=0A=
+< # CONFIG_USB_AIPTEK is not set=0A=
+939,940c802,805=0A=
+< # CONFIG_USB_KBTAB is not set=0A=
+< # CONFIG_USB_POWERMATE is not set=0A=
+---=0A=
+> =0A=
+> #=0A=
+> # USB Imaging devices=0A=
+> #=0A=
+945a811,822=0A=
+> =0A=
+> #=0A=
+> # USB Multimedia devices=0A=
+> #=0A=
+> =0A=
+> #=0A=
+> #   Video4Linux support is needed for USB Multimedia device support=0A=
+> #=0A=
+> =0A=
+> #=0A=
+> # USB Network adaptors=0A=
+> #=0A=
+951a829,832=0A=
+> =0A=
+> #=0A=
+> # USB port drivers=0A=
+> #=0A=
+957a839,868=0A=
+> # CONFIG_USB_SERIAL_GENERIC is not set=0A=
+> # CONFIG_USB_SERIAL_BELKIN is not set=0A=
+> # CONFIG_USB_SERIAL_WHITEHEAT is not set=0A=
+> # CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set=0A=
+> # CONFIG_USB_SERIAL_EMPEG is not set=0A=
+> # CONFIG_USB_SERIAL_FTDI_SIO is not set=0A=
+> # CONFIG_USB_SERIAL_VISOR is not set=0A=
+> # CONFIG_USB_SERIAL_IPAQ is not set=0A=
+> # CONFIG_USB_SERIAL_IR is not set=0A=
+> # CONFIG_USB_SERIAL_EDGEPORT is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_PDA is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set=0A=
+> # CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set=0A=
+> # CONFIG_USB_SERIAL_MCT_U232 is not set=0A=
+> # CONFIG_USB_SERIAL_KLSI is not set=0A=
+> # CONFIG_USB_SERIAL_PL2303 is not set=0A=
+> # CONFIG_USB_SERIAL_CYBERJACK is not set=0A=
+> # CONFIG_USB_SERIAL_XIRCOM is not set=0A=
+> # CONFIG_USB_SERIAL_OMNINET is not set=0A=
+> =0A=
+> #=0A=
+> # USB Miscellaneous drivers=0A=
+> #=0A=
+960d870=0A=
+< # CONFIG_USB_TIGL is not set=0A=
+962d871=0A=
+< # CONFIG_USB_LCD is not set=0A=
+973,978d881=0A=
+< =0A=
+< #=0A=
+< # Library routines=0A=
+< #=0A=
+< # CONFIG_ZLIB_INFLATE is not set=0A=
+< # CONFIG_ZLIB_DEFLATE is not set=0A=
+
+------=_NextPart_000_002B_01C3312F.220B3690--
 

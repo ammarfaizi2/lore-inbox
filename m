@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVAGOCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVAGOEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVAGOCo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 09:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVAGOCo
+	id S261331AbVAGOEp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 09:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVAGOEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 09:02:44 -0500
-Received: from [212.20.225.142] ([212.20.225.142]:54590 "EHLO
+	Fri, 7 Jan 2005 09:04:44 -0500
+Received: from [212.20.225.142] ([212.20.225.142]:6207 "EHLO
 	orlando.wolfsonmicro.main") by vger.kernel.org with ESMTP
-	id S261416AbVAGOCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 09:02:39 -0500
-Subject: [PATCH 1/5] WM97xx touch driver AC97 plugin
+	id S261426AbVAGODI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 09:03:08 -0500
+Subject: [PATCH 5/5] WM97xx touch driver AC97 plugin
 From: Liam Girdwood <Liam.Girdwood@wolfsonmicro.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Zabolotny <zap@homelink.ru>,
-       Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@simtec.co.uk>
-Content-Type: text/plain
-Message-Id: <1105106557.9143.1001.camel@cearnarfon>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-2PFnEs7HmIXqFB6suAGt"
+Message-Id: <1105106587.9143.1009.camel@cearnarfon>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 07 Jan 2005 14:02:37 +0000
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Jan 2005 14:02:38.0515 (UTC) FILETIME=[8BD62830:01C4F4C1]
+Date: Fri, 07 Jan 2005 14:03:08 +0000
+X-OriginalArrivalTime: 07 Jan 2005 14:03:08.0155 (UTC) FILETIME=[9D80DCB0:01C4F4C1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The wm97xx AC97 plugin. This is the driver for the wm9705, wm9712 and
-wm9713.
 
-This file is > 40k so it is available here:-
+--=-2PFnEs7HmIXqFB6suAGt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-ftp://62.49.7.54/pub/ac97_plugin_wm97xx.diff
+This is an entry to the MAINTAINERS file for the wm97xx codecs and
+touchscreen controllers.
 
-Signed-off-by: Andrew Zabolotny <zap@homelink.ru>
-Signed-off-by: Ian Molton <spyro@f2s.com>
-Signed-off-by: Vincent Sanders <vince@simtec.co.uk>
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
 Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
 
+--=-2PFnEs7HmIXqFB6suAGt
+Content-Disposition: attachment; filename=MAINTAINERS.diff
+Content-Type: text/x-patch; name=MAINTAINERS.diff; charset=
+Content-Transfer-Encoding: 7bit
 
+--- a/MAINTAINERS	2004-12-24 21:35:00.000000000 +0000
++++ b/MAINTAINERS	2005-01-05 16:59:27.000000000 +0000
+@@ -2533,6 +2533,12 @@
+ W:	http://advogato.org/person/acme
+ S:	Maintained
+ 
++WOLFSON AUDIO CODECS & TOUCHSCREEN CONTROLLERS
++P:  Liam Girdwood
++M:  liam.girdwood@wolfsonmicro.com
++W:  http://www.wolfsonmicro.com
++S:  Supported
++
+ X.25 NETWORK LAYER
+ P:	Henner Eisen
+ M:	eis@baty.hanse.de
+
+--=-2PFnEs7HmIXqFB6suAGt--
 

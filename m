@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270256AbRHIRQn>; Thu, 9 Aug 2001 13:16:43 -0400
+	id <S270336AbRHIRZo>; Thu, 9 Aug 2001 13:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270335AbRHIRQd>; Thu, 9 Aug 2001 13:16:33 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42344 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S270256AbRHIRQV>; Thu, 9 Aug 2001 13:16:21 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dws@dirksteinberg.de (Dirk W. Steinberg),
-        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Swapping for diskless nodes
-In-Reply-To: <E15UrbB-0007T9-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 09 Aug 2001 11:09:37 -0600
-In-Reply-To: <E15UrbB-0007T9-00@the-village.bc.nu>
-Message-ID: <m1snf1tb1q.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+	id <S270349AbRHIRZe>; Thu, 9 Aug 2001 13:25:34 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:29188 "HELO dvmwest.gt.owl.de")
+	by vger.kernel.org with SMTP id <S270336AbRHIRZV>;
+	Thu, 9 Aug 2001 13:25:21 -0400
+Date: Thu, 9 Aug 2001 19:25:31 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Cc: Anton Altaparmakov <antona@users.sourceforge.net>
+Subject: [PATCH] ./fs/partitions/ldm.h
+Message-ID: <20010809192531.D25724@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Anton Altaparmakov <antona@users.sf.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux mail 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Hi!
 
-> > the memory of a fast server could have much less latency that writing 
-> > that page out to a local old, slow IDE disk. Clusters could even have
-> > special high-bandwidth, low latency networks that could be used for
-> > remote paging.
-> > 
-> > In a perfect world, all nodes in a cluster would be able to dynamically 
-> > share a pool of "cluster swap" space, so any locally available swap that
-> > is not used could be utilized by other nodes in the cluster.
-> 
-> That I think is a 2.5 problem. One thing that has been talked about several
-> times now is removing all the swap special case crap from the mm and making
-> swap a file system. That removes special cases and means anyone can write
-> or use custom, or multiple swap filesystems, in theory including things like
-> swap over a shared GFS pool
-> 
-> But its not for 2.4, no way
+The following patch is a compile fix for missing braces around
+#define parameters...
 
-I don't know about that.  We already can swap over just about everything 
-because we can swap over the loopback device.  So moving making the swapping
-code do the right thing is not that big of an allowance, nor that
-much of extra code so if 2.5 actually starts up I can see us doing that.
+MfG, JBG
 
-Eric
+--- linux/fs/partitions/ldm.h.orig	Thu Aug  9 19:20:33 2001
++++ linux/fs/partitions/ldm.h	Thu Aug  9 19:19:17 2001
+@@ -81,7 +81,7 @@
+ #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
+ 
+ /* Borrowed from msdos.c */
+-#define SYS_IND(p)		(get_unaligned(&p->sys_ind))
++#define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
+ #define NR_SECTS(p)		({ __typeof__(p->nr_sects) __a =	\
+ 					get_unaligned(&p->nr_sects);	\
+ 					le32_to_cpu(__a);		\

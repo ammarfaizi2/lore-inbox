@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbUASKsz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 05:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbUASKsz
+	id S264507AbUASKtC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 05:49:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbUASKtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 05:48:55 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:44301 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264505AbUASKsx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 05:48:53 -0500
-Message-ID: <400BB8EB.2070500@aitel.hist.no>
-Date: Mon, 19 Jan 2004 12:00:59 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.1-mm4 same sound oops as mm3
-References: <20040115225948.6b994a48.akpm@osdl.org>
-In-Reply-To: <20040115225948.6b994a48.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jan 2004 05:49:02 -0500
+Received: from openoffice.demon.nl ([212.238.150.237]:15379 "EHLO
+	sahara.openoffice.nl") by vger.kernel.org with ESMTP
+	id S264507AbUASKs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 05:48:58 -0500
+Date: Mon, 19 Jan 2004 11:48:54 +0100
+From: Valentijn Sessink <linux-kernel-1074509192@mail.v.sessink.nl>
+To: linux-kernel@vger.kernel.org
+Subject: hard crash in IPsec
+Message-ID: <20040119104854.GA2991@openoffice.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Message-Flag: Open Office - Linux for the desktop
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.1-mm4 gets the same sound oops as I reported for mm3.
-mm4 is compiled with regparm=3, that doesn't seem to make
-anything worse or better.
-I'm using alsa and this driver:
- Intel i8x0/MX440, SiS 7012; Ali 5455; NForce Audio; AMD768/8111
+Hello list,
 
-Helge Hafting
+2.6.0/IPsec crashes, fully reproducable. Verified with 2.6.1.
 
+Details of the crash are on a couple of jpg's,
+http://valentijn.sessink.nl/fotoalbum/2004-01-14%20afscheidscollege%20Frits/img_0017.jpg
+and img_0018.jpg
 
-Unable to handle kernel paging request at virtual address e295f000
- printing eip:
-c02986cb
-*pde = 1fe09067
-*pte = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c02986cb>]    Not tainted VLI
-EFLAGS: 00010202
-EIP is at resample_expand+0x169/0x333
-eax: c02986cb   ebx: 00000000   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: e295b5a2   ebp: e295effe   esp: ddde1e2c
-ds: 007b   es: 007b   ss: 0068
-Process mozilla-bin (pid: 29173, threadinfo=ddde0000 task=da9aace0)
-Stack: c029878e c02986cb df150b10 df150af0 00000000 00000004 00000004 00000001 
-       00000000 0000023d 00001169 00000800 df150a80 dae9b1c0 c0298cde df150a80 
-       dae9b680 dae9b1c0 00000800 00001169 df150a80 00000800 00001169 daa81a00 
-Call Trace:
- [<c029878e>] resample_expand+0x22c/0x333
- [<c02986cb>] resample_expand+0x169/0x333
- [<c0298cde>] rate_transfer+0x34/0x3e
- [<c02964ee>] snd_pcm_plug_write_transfer+0x8b/0xbd
- [<c0292c7f>] snd_pcm_oss_write2+0xce/0x116
- [<c02931a0>] snd_pcm_oss_sync1+0x49/0xdb
- [<c0118422>] default_wake_function+0x0/0x12
- [<c02a23a4>] snd_pcm_format_set_silence+0x69/0x176
- [<c0293334>] snd_pcm_oss_sync+0x102/0x197
- [<c02942fe>] snd_pcm_oss_release+0x22/0x6d
- [<c0142082>] __fput+0x37/0x9b
- [<c0140ec0>] filp_close+0x59/0x62
- [<c0140f0e>] sys_close+0x45/0x50
- [<c036095f>] syscall_call+0x7/0xb
- [<c036007b>] direct_csum_partial_copy_generic+0xe1b/0x15b8
+IPsec config on the crashing machine:
 
-Code: 22 8b 44 24 10 ff 4c 24 10 85 c0 0f 8e 80 00 00 00 8b 44 24 04 ff e0 0f b6 45 00 eb 07 0f b6 45 00 83 f0 80 89 c6 c1 e6 08 eb 5d <8b> 75 00 eb 58 8b 75 00 eb 34 eb 39 eb 3d 8b 45 00 89 c6 c1 ee 
+add $ip1 $ip2 esp 0x202 -m tunnel -E 3des-cbc $passwd1
+ -A hmac-md5 $passwd2;
+add $ip2 $ip1 esp 0x302 -m tunnel -E 3des-cbc $passwd3
+ -A hmac-md5 $passwd4;
+spdadd net/24 work/24 any -P out ipsec esp/tunnel/$ip1-$ip2/require;
+spdadd net/24 work/24 any -P out ipsec esp/tunnel/$ip2-$ip1/require;
 
+note the wrong config, where the second spdadd has an "out" instead of the
+correct "in". The other end has correct configuration.
+
+tcpdumping the network now says:
+15:07:07.335105 $ip1 > $ip2: ESP(spi=0x00000202,seq=0x1) (DF)
+15:07:07.365947 $ip2 > $ip1: ESP(spi=0x00000302,seq=0x5)
+15:07:07.365947 truncated-ip - 16 bytes missing!$ip2 > 69.0.0.84:
+$ip1 > 69.0.0.84: (frag 13828:4294967256@29112) [tos 0x4c] (ipip)
+15:07:08.331514 $ip1 > $ip2: ESP(spi=0x00000202,seq=0x2) (DF)
+15:07:08.361917 $ip2 > $ip1: ESP(spi=0x00000302,seq=0x6)
+15:07:08.361917 truncated-ip - 16 bytes missing!$ip2 > 69.0.0.84:
+$ip1 > 69.0.0.84: (frag 13828:4294967256@29096) [tos 0x4e,ECT] (ipip)
+15:07:09.330341 $ip1 > $ip2: ESP(spi=0x00000202,seq=0x3) (DF)
+15:07:09.362973 $ip2 > $ip1: ESP(spi=0x00000302,seq=0x7)
+15:07:09.362973 truncated-ip - 16 bytes missing!$ip2 > 69.0.0.84:
+$ip1 > 69.0.0.84: (frag 13828:4294967256@29080) [tos 0x50] (ipip)
+15:07:10.331186 $ip1 > $ip2: ESP(spi=0x00000202,seq=0x4) (DF)
+
+Once the setup was corrected, everything was fine (no crashes).
+
+This is Debian GNU/Linux 3.0, kernel compiled with GCC 2.95.4, a 32Mb Cyrix
+6x86MX machine.
+
+Best regards,
+
+Valentijn
+-- 
+http://www.openoffice.nl/   Open Office - Linux Office Solutions
+Valentijn Sessink  valentyn+sessink@nospam.openoffice.nl

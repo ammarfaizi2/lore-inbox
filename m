@@ -1,100 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275261AbTHGKc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 06:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275263AbTHGKc4
+	id S275255AbTHGK1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 06:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275260AbTHGK1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 06:32:56 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:42631 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S275261AbTHGKcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 06:32:53 -0400
-Message-ID: <3F322919.AFFC7B6F@cs.fujitsu.co.jp>
-Date: Thu, 07 Aug 2003 19:25:29 +0900
-From: Takeharu KATO <tkato@cs.fujitsu.co.jp>
-Organization: Fujitsu Limited
-X-Mailer: Mozilla 4.75 [ja] (Win98; U)
-X-Accept-Language: ja
+	Thu, 7 Aug 2003 06:27:25 -0400
+Received: from host81-136-142-241.in-addr.btopenworld.com ([81.136.142.241]:31458
+	"EHLO mx.homelinux.com") by vger.kernel.org with ESMTP
+	id S275255AbTHGK1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 06:27:23 -0400
+Date: Thu, 7 Aug 2003 11:27:18 +0100 (BST)
+From: Mitch@0Bits.COM
+X-X-Sender: mitch@mx.homelinux.com
+Reply-To: Mitch@0Bits.COM
+To: fbusse@gmx.de
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-rc1
+Message-ID: <Pine.LNX.4.53.0308071119200.27424@mx.homelinux.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linuxppc-dev@lists.linuxppc.org
-Subject: [RFC] new feattures to improve linux interrupt response
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Hits: -0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear developers:
 
-We have a plan to implement new features of Linux kernel for
-embedded systems.
-In particular, these features are planed to improve interrupt 
-response on Linux. 
-Please tell us whether someone has been engaged in 
-working about the same features yet.
-Of course any comments are welcome.
-We describe the feature as follows. 
+Not enough info.
 
-[1] Problems to be solved
+What usb controller do you have ? Which usb driver ?
+ohci ? uhci ? ehci ? usb 2.0 ?
 
-We focus on the following problems to use Linux on the embedded systems.
+I reported this a long time ago on the usb lists, but
+never got down to the bottom of the problem (my fault for
+not following thru). However if i disable the usb 2.0
+driver (i.e. not loading the ehci driver) which my external
+storage is connected to, then everything works fine - albeit
+it much more slowly. Appears to be a timing issue on some
+usb <-> ide controller chips since not everyone is seeing this.
 
-(1)　Long critical sections
-	Linux has longer critical sections than RTOS.
-	So the invocation of interrupt handler may be delayed until executions of 
-	critical section 
-	is ended for long time.	The issue declines the response time to interrupts.
+Mitch
 
-(2)　The handling order of interrupts is not guaranteed.
-	Current Linux kernel does not guarantee the handling order of interrupts
- 	, so any kind of interruptions can interrupt on  handlers
-	which is not set SA_INTERRUPT flags.
-	
-	By the way, typically, when we design the systems, we assign the interrupt
-	priority on each devices by its importance.
-	(e.g. Some systems need to handle network devices before disk devices,
-	other systems need to handle disk devices have most important priority.).
-	These priorities are decided by the system's character. In such cases,
-	developers need the mechanism to guarantee interruption handling order for
-	their systems.
-	
-
-[2] The proposed features
-
-	We are engaged in implementing following facilities.
-	These features can be enabled/disabled by kernel configuration.
-	If users disable these features in kernel configuration,
-	our modification will make no effect on kernel behaviors.
-
-	a)　Quick interruption handling facility for embedded systems
-		We are designing and implementing quick interrupt handling facility 
-		for embedded systems. This is achieved by accepting some 
-		interrupts(these are pre-defined in kernel configuration.) in current 
-		Linux kernel's critical sections. 
-		
-		We will modify local_irq_disable/local_irq_enable macros
-		to keep interrupt masks of some interrupts which need to handle quickly
-		un-masked in most of kernel critical sections.
-		
-	b)　Priority based interrupt handler facility
-		We adopt interrupt priorities for interrupt handlers(top half handlers)
-		to handle interruption orderly(like Solaris).  
-		In current plan, these priorities are set in kernel configuration,
-		so this feature will make no effects on  current interrupt handler
-		handlers API (request_irq/free_irq and so on.). 
-		
-		This is achieved by invoking interrupt handlers by kernel threads.
-		These threads are created for each priority. Interrupt 
-		priority is represented by thread's priority.
-
-
-[3] About target platform
-We will implement these features on PowerPC 405GP(r) platform at first.
-
-Sincerely, yours
-
-
--- 
-Takeharu KATO
-Fujitsu Limited
-Email:tkato@cs.fujitsu.co.jp
+Fridtjof Busse wrote:
+>
+> * Marcelo Tosatti <marcelo@conectiva.com.br>:
+> > Hello,
+> >
+> > Here goes the first release candidate of 2.4.22.
+> >
+> > Please test it extensively.
+>
+> Still the same USB-problem I reported for pre5 and pre10:
+>
+> kernel: hub.c: new USB device 00:02.2-2, assigned address 4
+> kernel: scsi1 : SCSI emulation for USB Mass Storage devices
+> kernel:   Vendor: Maxtor 6  Model: Y120L0            Rev: 0811
+> kernel:   Type:   Direct-Access                   ANSI SCSI revision: 02
+> kernel: Attached scsi disk sda at scsi1, channel 0, id 0, lun 0
+> kernel: SCSI device sda: 240121728 512-byte hdwr sectors (122942 MB)
+> kernel:  /dev/scsi/host1/bus0/target0/lun0: p1
+> kernel: WARNING: USB Mass Storage data integrity not assured
+> kernel: USB Mass Storage device found at 4
+>
+> Now I start 'dump':
+>
+> kernel: usb_control/bulk_msg: timeout
+> kernel: usb_control/bulk_msg: timeout
+> kernel: usb_control/bulk_msg: timeout
+> kernel: usb.c: USB disconnect on device 00:02.2-2 address 4
+> kernel: usb-storage: host_reset() requested but not implemented
+> kernel: scsi: device set offline - command error recover failed: host 1
+> channel 0 id 0 lun 0
+> kernel: 192
+> kernel:  I/O error: dev 08:01, sector 81655440
+> lots of I/O errors following
+>
+> Works fine with 2.4.21.
+> Could someone please fix that before 2.4.22 becomes stable?
+>
+> Please CC me, thanks

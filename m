@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVBWLsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVBWLvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVBWLsw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 06:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVBWLsw
+	id S261468AbVBWLvi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 06:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVBWLvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 06:48:52 -0500
-Received: from mail.dif.dk ([193.138.115.101]:1934 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261465AbVBWLss (ORCPT
+	Wed, 23 Feb 2005 06:51:38 -0500
+Received: from downeast.net ([204.176.212.2]:37069 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261468AbVBWLv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 06:48:48 -0500
-Date: Wed, 23 Feb 2005 12:49:27 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1
-Message-ID: <Pine.LNX.4.62.0502231208470.2948@dragon.hygekrogen.localhost>
+	Wed, 23 Feb 2005 06:51:29 -0500
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: linux-kernel@vger.kernel.org
+Subject: Slightly OT: We should move linux related channels off of FreeNode
+Date: Wed, 23 Feb 2005 06:51:08 -0500
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1992143.soLE4jIml9";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502230651.16151.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1992143.soLE4jIml9
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> - Last, final, ultimate call: if anyone has patches in here which are 2.6.11
->   material, please tell me.
+Today lilo (the FreeNode network owner) has decided to make one step away i=
+n a=20
+direction opposite of freedom, and banned all Tor users from the FreeNode=20
+network.
 
-I guess that depends on how you define 2.6.11 material at this point, but 
-I have a few patches that I wrote in there, that I think are potential 
-candidates due to them being fairly trivial, obviously correct and not 
-having caused any problems since entering -mm. Those patches might as well 
-get merged into 2.6.11 now and get out of your queue/hair.
+Tor ( http://tor.eff.org ) is an open source anonymous gateway system. Many=
+=20
+users who are not in the position to be able to use IRC otherwise (such as=
+=20
+those who live in countries who do not believe in free speech) now cannot u=
+se=20
+=46reenode any longer.
 
+Do we want to use an IRC network that no longer supports freedom? Our only=
+=20
+option is to move to another network, such as irc.noderebellion.net or=20
+irc.oftc.net. Channels such as #kernelnewbies have already moved to oftc du=
+e=20
+to lilo's past actions.
 
-The patches I have in mind are these:
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-fix-placement-of-static-inline-in-nfsdh.patch
---
-This one has no actual impact on the generated code, it just kills a few 
-warnings when building with gcc -W, so merging that up should be harmless.
+--nextPart1992143.soLE4jIml9
+Content-Type: application/pgp-signature
 
-kyrofb-copy__user-return-value-checks-added-to-kyro-fb.patch
---
-This one just adds a few return value checks to copy_*_user calls and 
-returns -EFAULT when failing. I've seen no complains about the patch on 
-the list and it seems to be the obviously correct thing to do - might as 
-well get merged.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-warning-fix-in-drivers-cdrom-mcdc.patch
---
-Trivial, obviously correct, warning fix to an ancient driver. No point in 
-having you carry it around in -mm, let's just merge it.
+iD8DBQBCHG408Gvouk7G1cURAjlUAJ9si7m5iuFQNvdN177C1T2M5bA77QCfVYwu
+Gd3rQgF6eF12aDH5CzME7R4=
+=rvqp
+-----END PGP SIGNATURE-----
 
-make-loglevels-in-init-mainc-a-little-more-sane.patch
---
-This one just changes a few loglevels, so the potential for breakage is 
-extremely low. Besides I believe I've argued the case for the new 
-loglevels being more sane than the old ones well enough, and noone has 
-complained about the patch.
-
-
-The patches above are all very low risk, so they shouldn't cause any 
-problems for 2.6.11. Let us merge them now to a) get the bennefit of them 
-in 2.6.11 and b) get them out of your -mm queue.
-
-
-nitpick note: despite some of these patches having From: lines in them in 
-your -mm patch set that list other people they where all written by me. 
-Other people getting listed as From: (and thus later as patch author in 
-the changelogs and bk) seems to happen when other people resend the 
-patches to the list or when they pass through maintainers before they 
-reach you. Just to set the record straight; I initially wrote the patches 
-above.
-
-
-Kind regards,
-
-Jesper Juhl <juhl-lkml@dif.dk>
-
-
+--nextPart1992143.soLE4jIml9--

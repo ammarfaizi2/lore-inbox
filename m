@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267053AbRHAOWZ>; Wed, 1 Aug 2001 10:22:25 -0400
+	id <S267140AbRHAOgr>; Wed, 1 Aug 2001 10:36:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267088AbRHAOWF>; Wed, 1 Aug 2001 10:22:05 -0400
-Received: from mx01.tricord.com ([64.240.27.4]:3603 "HELO ns1.tricord.com")
-	by vger.kernel.org with SMTP id <S267053AbRHAOV4>;
-	Wed, 1 Aug 2001 10:21:56 -0400
-Message-ID: <3B68107C.954E31C7@niptron.com>
-Date: Wed, 01 Aug 2001 09:21:48 -0500
-From: "D. R. Holsbeck" <drh@niptron.com>
-Organization: Tricord Systems
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test mail]
-In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch> <OE54msfGdMNFmWAFsTm00002ea9@hotmail.com> <20010731103413.E28761@pc8.lineo.fr> <OE34vSVMum03yMJiQTy000031e1@hotmail.com> <20010731140927.A31267@pc8.lineo.fr> <3B671CCD.FB1E2FEF@randomlogic.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S267159AbRHAOgi>; Wed, 1 Aug 2001 10:36:38 -0400
+Received: from 2Cust215.tnt1.cbr1.da.uu.net ([210.84.113.215]:50567 "EHLO
+	backdraft") by vger.kernel.org with ESMTP id <S267140AbRHAOg1>;
+	Wed, 1 Aug 2001 10:36:27 -0400
+Date: Thu, 2 Aug 2001 00:36:07 +1000
+From: Patrick Cole <z@amused.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tulip driver still broken
+Message-ID: <20010802003607.A9699@backdraft.amused.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1010730180814.27870D-100000@mandrakesoft.mandrakesoft.com>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you could allways try and get them tu turn on the
-pop3 port in exchange. this allows you to use any 
-standard pop3 client to get your mail. but no 
-scheduling, calendar, etc.
+Mon, Jul 30, 2001 at 06:09:33PM -0500, Jeff Garzik wrote:
 
-"Paul G. Allen" wrote:
+> On Mon, 30 Jul 2001, Joshua Schmidlkofer wrote:
+>
+> > I am afraid of post these days.  However, I must comment that I too am having 
+> > trouble with the tulip driver, on several SMC nic's that use the DEC  
+> > chipset.  I tried mii_tool, with no success.
+> > 
+> > I have just been copying the tulip driver from 2.4.4 forward...   because I 
+> > don't have enough time to try and create an intelligent error report.
 > 
-> Sorry for the OT post folks, but...
+> Thanks for the report!
 > 
-> christophe barbé wrote:
-> 
-> >
-> > Christophe
-> >
-> > PS: I don't remember the name but there is a unix tool that provide
-> > everything for MsExchange sharing facilities.
-> >
-> 
-> You struck a chord here. I am forced to use Exchange here at work for my company e-mail (which would be pallen@akamai.com). I much prefer to use any Linux/UNIX
-> (I have a solaris box here as well) mail client and say off of Outhouse/Windows.
+> Currently there are problems with 21041 old chipsets, which include SMC
+> and several other cards.  You can use 0.9.14 from
+> http://sf.net/projects/tulip/ until I get around to fixing it.
+
+My 21041 is also not working with late 2.4 series tulip drver. I've heard the
+de4x5 driver does however work.
 
 -- 
-drh@niptron.com
-
-"Necessity is the mother of taking chances."
---Mark Twain.
+Patrick Cole - Debian Developer    <ltd@debian.org>
+             - Linux.com Volunteer <z@linux.com>
+             - ANU JCSMR ICU Staff <Patrick.Cole@anu.edu.au>
+             - PGP 1024R/60D74C7D  C8 E0 BC 79 69 BE 78 99 
+                                   AA 0F EB 16 F8 4B FE 5A   

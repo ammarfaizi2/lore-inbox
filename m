@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272874AbTHRQu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 12:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272691AbTHRQu5
+	id S272118AbTHRRHE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 13:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272046AbTHRRHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 12:50:57 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:15890 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S272874AbTHRQuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 12:50:55 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6 - sysfs sensor nameing inconsistency
-Date: Mon, 18 Aug 2003 20:49:57 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200307152214.38825.arvidjaar@mail.ru> <200308161938.47935.arvidjaar@mail.ru> <20030816165016.GE9735@kroah.com>
-In-Reply-To: <20030816165016.GE9735@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308182049.57093.arvidjaar@mail.ru>
+	Mon, 18 Aug 2003 13:07:04 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:54145 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272130AbTHRRG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 13:06:58 -0400
+Date: Mon, 18 Aug 2003 18:18:30 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200308181718.h7IHIUwU001800@81-2-122-30.bradfords.org.uk>
+To: alan@lxorguk.ukuu.org.uk, torvalds@osdl.org
+Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 16 August 2003 20:50, Greg KH wrote:
-> > > I like this idea, but now that the name logic has changed in the i2c
-> > > code, care to re-do this patch?  Just set the name field instead of
-> > > creating a new file in sysfs.
-> >
-> > something like attached patch? I like it as well :)
+> > Well, in theory short/int/long can all be the same size and thus a
+> > "unsigned short" may not actually fit in a "long". I think that was the
+> > case on the old 64-bit cray machines, for example ("char" was a very slow
+> > 8-bit thing, everything else was purely 64-bit).
+> > 
+> > Not likely something we want to port Linux to, admittedly.
 >
-> Why rename local variables?  Your patch would be a lot smaller if you
-> just keep the same local name variable, and fix up the name strings.
->
+> Bear in mind we have the compiler source 8). If someone desperately
+> wants to run Linux (probably ucLinux) on their cray they can fix the
+> types too.
 
-To make it clear for anyone porting other drivers that we are using type_name 
-and not client_name or whatever. In 2.4 every driver have both; mixing name, 
-type_name and client_name will just add to confusion.
+Hmmm, at least some Cray machines require three-phase power, though,
+which is a problem for home use.
 
-I will redo patch if you insist but I really prefer having things consistent 
-if possible.
+Do Cray boxes support virtualisation in hardware, or is it all done in
+software?
 
-thank you
+> Things like the DEC10 (9,18,36 bit) and HLH Orion (word addressed) would
+> be a lot more fun but thankfully are extinct 
 
--andrey
+No architecture is _thankfully_ extinct :-).
+
+John.

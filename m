@@ -1,44 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUGITvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUGITxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265517AbUGITvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 15:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUGITvJ
+	id S265872AbUGITxi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 15:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUGITxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 15:51:09 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:34992 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265517AbUGITvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 15:51:06 -0400
-Date: Fri, 9 Jul 2004 20:51:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040709195105.GA4807@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-	Arjan van de Ven <arjanv@redhat.com>
-References: <20040709182638.GA11310@elte.hu>
+	Fri, 9 Jul 2004 15:53:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48284 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265872AbUGITvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 15:51:47 -0400
+Date: Fri, 9 Jul 2004 12:47:04 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: fastboot@lists.osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] kexec 2.6.7-v2 and kexec-tools-1.95
+Message-Id: <20040709124704.1874a10b.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040709182638.GA11310@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> unlike the lowlatency patches, this patch doesn't add a lot of new
-> scheduling points to the source code, it rather reuses a rich but
-> currently inactive set of scheduling points that already exist in the
-> 2.6 tree: the might_sleep() debugging checks. Any code point that does
-> might_sleep() is in fact ready to sleep at that point. So the patch
-> activates these debugging checks to be scheduling points. This reduces
-> complexity and impact quite significantly.
 
-I don't think this is a good idea.  Just because a function might sleep
-it doesn't mean it should sleep.  I'd rather add the might_sleep() to
-cond_resched() and replace the former with the latter in the cases where
-it makes sense.
+The kexec patch has been updated a bit (but this is still diffed
+against 2.6.7 vanilla).  It WorksForMe (x86-32), using kexec-tools
+(/sbin/kexec) to reboot or using sysvinit reboot (with patch
+below) to reboot.  /sbin/kexec is used to load the new kernel
+image in either case.
 
+PPC32/GameCube port is now added here.  It's home is
+  http://www.gc-linux.org/down/isobel/kexec/
+
+There is ongoing work and/or interest in ports for PPC64,
+IA-64, and x86-64, but I haven't seen code for them (yet).
+
+
+
+
+http://developer.osdl.org/rddunlap/kexec/2.6.7-v2/
+
+kexec-267-v2.diff
+. kexec kernel patch for 2.6.7, with patches from Albert, Eric, Randy
+
+gc-linux-2.6.7-isobel.kexec.patch
+. GameCube patch (Albert Herranz)
+
+README
+. what kexec is, how to use it
+
+Changelog
+. actually updated, for a change
+
+
+
+http://developer.osdl.org/rddunlap/kexec/kexec-tools/
+
+sysvinit-2.85-kexec.patch
+. sysvinit halt.c patch for kexec reboot (Eric, Albert)
+
+kexec-tools-1.95.tar.gz
+. kexec-tools-1.95 tarball with
+  PPC64 support (Adam Litke),
+  GameCube/PPC32 support (Albert),
+  use syscall() for kexec_load() and reboot() (Randy),
+  no-ifdown patch (Albert)
+
+News
+. changelog updated
+
+--
+~Randy

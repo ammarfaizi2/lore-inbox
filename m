@@ -1,68 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267682AbTAMAjQ>; Sun, 12 Jan 2003 19:39:16 -0500
+	id <S267678AbTAMAgO>; Sun, 12 Jan 2003 19:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267689AbTAMAjQ>; Sun, 12 Jan 2003 19:39:16 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:53696 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267682AbTAMAjP>;
-	Sun, 12 Jan 2003 19:39:15 -0500
-From: Randy Dunlap <rddunlap@osdl.org>
-Message-ID: <1818.4.64.197.173.1042418884.squirrel@www.osdl.org>
-Date: Sun, 12 Jan 2003 16:48:04 -0800 (PST)
-Subject: Re: any chance of 2.6.0-test*?
-To: <Valdis.Kletnieks@vt.edu>
-In-Reply-To: <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
-References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
-        <1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
-        <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
-X-Priority: 3
-Importance: Normal
-Cc: <robw@optonline.net>, <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S267682AbTAMAgO>; Sun, 12 Jan 2003 19:36:14 -0500
+Received: from rj.SGI.COM ([192.82.208.96]:3783 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S267678AbTAMAgN>;
+	Sun, 12 Jan 2003 19:36:13 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Edward Kuns <ekuns@kilroy.chi.il.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops in 2.4.21-pre3-ac2 
+In-reply-to: Your message of "12 Jan 2003 17:47:31 MDT."
+             <1042415250.1602.14.camel@kilroy.chi.il.us> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 13 Jan 2003 11:44:33 +1100
+Message-ID: <2443.1042418673@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 12 Jan 2003 14:59:57 EST, Rob Wilkens said:
->
->> In general, if you can structure your code properly, you should never need
->> a goto, and if you don't need a goto you shouldn't use it.  It's just
->> "common sense" as I've always been taught.  Unless you're
->> intentionally trying to write code that's harder for others to read.
->
-> Now, it's provable you never *NEED* a goto.  On the other hand, *judicious*
-> use of goto can prevent code that is so cluttered with stuff of the form:
->
->         if(...) {
-> 		...
-> 		die_flag = 1;
-> 		if (!die _flag) {...
->
-> Pretty soon, you have die_1_flag, die_2_flag, die_3_flag and so on, rather
-> than 3 or 4 "goto bail_now;".
+On 12 Jan 2003 17:47:31 -0600, 
+Edward Kuns <ekuns@kilroy.chi.il.us> wrote:
+>Rebooted into the same kerne so I could run ksymoops.  Looked in
+>/var/log/messages and found two OOPses.  They are decoded below.  I
+>don't know why I got the various "cannot stat(....)" lines, nor why I
+>got the complaints "cannot match loaded modile raid0 to a unique module
+>object" (and same for ehci-hcd).
 
-Right.
-
-> The real problem is that C doesn't have a good multi-level "break"
-> construct. On the other hand, I don't know of any language that has a good
-> one - some allow "break 3;" to break 3 levels- but that's still bad because
-> you get screwed if somebody adds an 'if' clause....
-
-
-The one that I used in a previous life was like so.  No "while"
-or "for" constructs, only "do thisloop forever" with conditionals
-all being explicitly coded inside the loop(s).  All based on:
-  do [loopname] [forever];
-    {block};
-  end [loopname];
-
-with {block} possibly containing "undo [loopname]".
-An unnamed undo just terminates the innermost loop.
-Named undo's can be used to terminate any loop level.
-
-~Randy
-
-
+ksymoops -i when loading modules from a ramdisk.  man ksymoops for the
+reason.
 

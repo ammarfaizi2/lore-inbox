@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261725AbSJAQvR>; Tue, 1 Oct 2002 12:51:17 -0400
+	id <S262175AbSJAQsv>; Tue, 1 Oct 2002 12:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262195AbSJAQuW>; Tue, 1 Oct 2002 12:50:22 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:20957 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262173AbSJAQtU>;
-	Tue, 1 Oct 2002 12:49:20 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200210011654.g91GsaU29508@eng2.beaverton.ibm.com>
-Subject: USB OOPS in 2.5.40 ?
-To: gregkh@us.ibm.com (Greg Kroah-Hartman)
-Date: Tue, 1 Oct 2002 09:54:36 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262178AbSJAQrX>; Tue, 1 Oct 2002 12:47:23 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:21647 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262173AbSJAQqb>;
+	Tue, 1 Oct 2002 12:46:31 -0400
+Date: Tue, 1 Oct 2002 18:51:54 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Skip Ford <skip.ford@verizon.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: KDSETKEYCODE work with new input layer?
+Message-ID: <20021001185154.A13641@ucw.cz>
+References: <200209301440.g8UEeBOp000435@pool-141-150-241-241.delv.east.verizon.net> <20021001115413.B9131@ucw.cz> <200210011231.g91CVCdG000289@pool-141-150-241-241.delv.east.verizon.net> <20021001151722.A11750@ucw.cz> <200210011532.g91FW4fG000308@pool-141-150-241-241.delv.east.verizon.net> <20021001174129.A12995@ucw.cz> <200210011649.g91GnDfG000953@pool-141-150-241-241.delv.east.verizon.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210011649.g91GnDfG000953@pool-141-150-241-241.delv.east.verizon.net>; from skip.ford@verizon.net on Tue, Oct 01, 2002 at 12:49:08PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 01, 2002 at 12:49:08PM -0400, Skip Ford wrote:
+> Vojtech Pavlik wrote:
+> > On Tue, Oct 01, 2002 at 11:32:02AM -0400, Skip Ford wrote:
+> > > Vojtech Pavlik wrote:
+> > > 
+> > > setkeycodes rejects it.
+> > > 
+> > > I changed setkeycodes.c to add 256 instead of 128 and bumped up the
+> > > bounds checking, but it's still strange.  It now works for e063, but
+> > > still doesn't work for e05e.  Many other keys in the same area as 0x5e
+> > > don't work.  The only one that does work that I tried is e063.
+> > 
+> > There is another thing that has changed - the scancode numbers. So if
+> > you're using the same commands as on 2.4, you're setting scancodes for
+> > different keys. We now use 'at keyboard - set 2' scancodes as opposed to
+> > 'xt keyboard - set 1' used by the older driver. See the 'dmesg' output
+> > for keys ("unknown scancode ...") that are not known to the keyboard
+> > driver.
+> 
+> showkey is still showing me the same scancodes.
 
-I get following Debug Stack while rebooting the machine. (8x P-III).
-Is this USB related ? It is not causing me any trouble, just an
-FYI.
+The raw mode showkey -s is now using to show scancodes is completely
+simulated by the kernel.
 
-Thanks,
-Badari
+> The new AT driver
+> doesn't log any 'unknown scancode' messages for the same buttons the
+> old XT driver did.
 
+That means it understands them. If it did not, showkey -s wouldn't work.
 
-Please stand by while rebooting the system...
-Shutting down devices
-hcd-pci.c: remove: 00:0f.2, state 3
-usb.c: USB disconnect on device 1
-Debug: sleeping function called from illegal context at /usr/src/linux-2.5.40/include/asm/semaphore.h:119
-f73abdf4 c0119df6 c03ca360 c03c36e0 00000077 bffffcc8 c0182f5d c03c36e0 
-       00000077 c3ddc850 c044f0a0 00000286 c0258283 c3ddc8f4 c0406b88 c3ddc850 
-       f7a20784 f7a20784 c020dd06 c3ddc850 c044f0a0 000000cc 00000000 f79e6000 
-Call Trace:
- [<c0119df6>]__might_sleep+0x56/0x5d
- [<c0182f5d>]driverfs_remove_file+0x1d/0x80
- [<c0258283>]device_remove_file+0x23/0x40
- [<c020dd06>]pci_pool_destroy+0x156/0x200
- [<c0307dbe>]hcd_buffer_destroy+0x2e/0x40
- [<c03089ba>]usb_hcd_pci_remove+0x6a/0x150
- [<c020e8c9>]pci_device_remove+0x19/0x30
- [<c0256af5>]device_shutdown+0xc5/0x180
- [<c012b36b>]sys_reboot+0x12b/0x370
- [<c013cc12>]free_block+0x1a2/0x2d0
- [<c013d4ad>]kmem_cache_free+0x14d/0x160
- [<c013d4ad>]kmem_cache_free+0x14d/0x160
- [<c035b734>]sock_destroy_inode+0x14/0x90
- [<c0169062>]destroy_inode+0x32/0x50
- [<c016681c>]dput+0x1c/0x240
- [<c014ffa0>]__fput+0x130/0x150
- [<c035befe>]sock_ioctl+0x7e/0xf0
- [<c014de4f>]filp_close+0x10f/0x120
- [<c014dee6>]sys_close+0x86/0xc0
- [<c01078af>]syscall_call+0x7/0xb
+> > > Will you be releasing an updated kbd package?
+> > 
+> > Well, I'm not the maintainer of the kbd package, but I probably will
+> > have to release a new tool to set the keycode table.
+> 
+> Sorry about that.  Didn't mean to volunteer you.  Thanks for all your
+> help.  I'll try to verify the scancodes I'm using.
 
-hcd.c: USB bus 1 deregistered
-Restarting system.
+Just update the keymap - you don't need to change the scancode table if
+the keys are working.
 
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267382AbUI0WUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUI0Wg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267382AbUI0WUm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 18:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUI0WUm
+	id S266200AbUI0Wg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 18:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUI0Wg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 18:20:42 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:1977 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S267382AbUI0WUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 18:20:38 -0400
-Subject: Re: mlock(1)
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Stefan Seyfried <seife@suse.de>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040927141652.GF28865@dualathlon.random>
-References: <E1CAzyM-0008DI-00@calista.eckenfels.6bone.ka-ip.net>
-	 <1096071873.3591.54.camel@desktop.cunninghams>
-	 <20040925011800.GB3309@dualathlon.random> <4157B04B.2000306@suse.de>
-	 <20040927141652.GF28865@dualathlon.random>
-Content-Type: text/plain
-Message-Id: <1096323761.3606.3.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 28 Sep 2004 08:22:41 +1000
+	Mon, 27 Sep 2004 18:36:27 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61865 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266200AbUI0WgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:36:25 -0400
+Message-ID: <4158956F.3030706@engr.sgi.com>
+Date: Mon, 27 Sep 2004 15:34:23 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: lse-tech <lse-tech@lists.sourceforge.net>, CSA-ML <csa@oss.sgi.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Arthur Corliss <corliss@digitalmages.com>
+Subject: [PATCH 2.6.9-rc2 0/2] enhanced accounting data collection
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+This is an effort of providing an enhanced accounting data collection.
 
-On Tue, 2004-09-28 at 00:16, Andrea Arcangeli wrote: 
-> On Mon, Sep 27, 2004 at 08:16:43AM +0200, Stefan Seyfried wrote:
-> > Andrea Arcangeli wrote:
-> > 
-> > > random keys are exactly fine, but only for the swap usage on a desktop
-> > > machine (the one I mentioned above, where the user will not be asked for
-> > > a password), but it's not ok for suspend/resume, suspend/resume needs
-> > > a regular password asked to the user both at suspend time and at resume
-> > > time.
-> > 
-> > Why not ask on every boot? (and yes, the passphrase could be stored on a
-> > fixed disk location - hashed with a function of sufficient complexity
-> > and number of bits, just to warn the user if he does a typo, couldn't
-> > it?). If suspend is working, you basically never reboot. So why ask on
-> > suspend _and_ resume? This also solves the "suspend on lid close" issue.
-> 
-> because I never use suspend/resume on my desktop, I never shutdown my
-> desktop. I don't see why should I spend time typing a password when
-> there's no need to. Every single guy out there will complain at linux
-> hanging during boot asking for password before reaching kdm.
-> 
-> I figured out how to make the swap encryption completely transparent to
-> userspace, and even to swap suspend, so I think it's much better than
-> having userspace asking the user for a password, or userspace choosing a
-> random password.
+It is intended to offer common data collection method for various
+accounting packages including BSD accouting, ELSA, CSA, and any other
+acct packages that favor a common layer of data collection, separated
+from data presentation layer and management of process groups layer.
 
-The public/private key idea makes good sense to me.
+This patchset consists of two parts: acct_io and acct_mm as we
+identified useful spots for improved data collection in the area
+of IO and MM.
 
-> > And a resume is - in the beginning - a boot, so just ask early enough
-> > (maybe the bootloader could do this?)
-> 
-> yes, but the bootloader passes the paramters via /proc/cmdline, and it's
-> not nice to show the password in cleartext there.
+This patchset is to replace the previously submitted CSA patchset
+of four. The CSA kernel module is a standalone module. The csa_eop
+patch was to provide a hook for end-of-process handling and that
+can be considered separately unless there is enough common interest.
 
-If this password is only needed when resuming, that's not an issue
-because the command line given when resuming will be lost when the
-original kernel data is copied back.
+Now that the patchset is down to IO and MM, i hope it is more
+appealing :)
 
-> suspend/resume is just unusable for me on the laptop until we fix the
-> crypto issues.
+Comments?
 
-There's already compression support. It's simpler to reverse, of course,
-but it doesn't help?
-
-Regards,
-
-Nigel
+Best Regards,
+  - jay
+---
+Jay Lan - Linux System Software
+Silicon Graphics Inc., Mountain View, CA
 

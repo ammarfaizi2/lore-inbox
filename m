@@ -1,111 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUFPSLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264368AbUFPSN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUFPSLx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbUFPSLx
+	id S264368AbUFPSN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUFPSN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:11:53 -0400
-Received: from pop.gmx.de ([213.165.64.20]:61569 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264411AbUFPSHX (ORCPT
+	Wed, 16 Jun 2004 14:13:59 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:16398 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S264368AbUFPSMI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:07:23 -0400
-Date: Wed, 16 Jun 2004 20:07:22 +0200 (MEST)
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 16 Jun 2004 14:12:08 -0400
+Message-ID: <40D08D7A.9020909@aknet.ru>
+Date: Wed, 16 Jun 2004 22:12:10 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-References: <Pine.LNX.4.58.0406160910020.27252@ppc970.osdl.org>
-Subject: Re: [PATCH 2.6.7] kill(2), killpg(2) wrongly fail with EPERM
-X-Priority: 3 (Normal)
-X-Authenticated: #2864774
-Message-ID: <25304.1087409242@www3.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: [patch][rfc] expandable anonymous shared mappings
+Content-Type: multipart/mixed;
+ boundary="------------030307010400080007040904"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gidday Linus,
-
-> On Wed, 16 Jun 2004, Michael Kerrisk wrote:
-> > 
-> > The following patch for 2.6.7 fixes the problem.  Please apply.
-> 
-> How about this imho nicer version instead? It results in the main loop
-> being just:
-> 
->         success = 0;
->         retval = -ESRCH;
->         for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
->                 int err = group_send_sig_info(sig, info, p);
->                 success |= !err;
->                 retval = err;  
->         }
->         return success ? 0 : retval;
-
-Yes, it is nicer.
-
-> which seems sensible. If _any_ group-send succeeded, we want to return 
-> success (ie this is not a EPERM vs everything else issue).
-> 
-> Does this work for you?
-
-Well, in terms of SUSv3/POSIX, I don't think there's a problem, 
-since the only errors trhat are specified for kill()/killpg() 
-are EPERM, ESRCH, and EINVAL (invalid signal number).  Aside 
-from the fact that I didn't spot the nice way, I wrote my 
-patch as I did since I was worried about the possibility of 
-some other Linux-specific errno values creeping around in the 
-woodwork.  But a little further investigation seems to show that
-there aren't other cases to worry about (EAGAIN in send_sig()
-doesn't apply for kill()/killpg().  So, your patch is better, 
-since simpler.  I've tested it, and it works as I would expect 
-for EPERM.
-
-Thanks,
-
-Michael
+--------------030307010400080007040904
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-> -----
-> ===== kernel/signal.c 1.120 vs edited =====
-> --- 1.120/kernel/signal.c	Wed Jun  9 01:46:51 2004
-> +++ edited/kernel/signal.c	Wed Jun 16 09:09:51 2004
-> @@ -1071,23 +1071,19 @@
->  	struct task_struct *p;
->  	struct list_head *l;
->  	struct pid *pid;
-> -	int retval;
-> -	int found;
-> +	int retval, success;
->  
->  	if (pgrp <= 0)
->  		return -EINVAL;
->  
-> -	found = 0;
-> -	retval = 0;
-> +	success = 0;
-> +	retval = -ESRCH;
->  	for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
-> -		int err;
-> -
-> -		found = 1;
-> -		err = group_send_sig_info(sig, info, p);
-> -		if (!retval)
-> -			retval = err;
-> +		int err = group_send_sig_info(sig, info, p);
-> +		success |= !err;
-> +		retval = err;
->  	}
-> -	return found ? retval : -ESRCH;
-> +	return success ? 0 : retval;
->  }
->  
->  int
-> 
+Hello.
 
--- 
-+++ Jetzt WLAN-Router für alle DSL-Einsteiger und Wechsler +++
-GMX DSL-Powertarife zudem 3 Monate gratis* http://www.gmx.net/dsl
+It seems right now there is no way to
+expand the anonymous shared mappings
+(or am I missing something?)
+This makes this mechanism practically
+useless for many tasks, it otherwise could
+suit very well, I beleive.
+The attached patch implements a simple
+nopage vm op for anonymous shared mappings,
+which allows to expand them with mremap().
+Attached is also a test-case which crashes
+with bus error without the patch and works
+properly with the patch (it tries to expand
+the mapping, but without the patch it is
+not possible).
+The patch is against 2.6.7-rc3-mm2, but
+should work with any 2.6.6 I beleive.
 
+I would be glad to hear any comments on that.
+I really would like to use the anonymous shared
+mappings rather than those heavy-weight
+alternatives like shm_open() and such, when
+appropriate, but without the mremap() support,
+this looks quite impossible to me.
+
+
+--------------030307010400080007040904
+Content-Type: text/x-patch;
+ name="anon_nopg.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="anon_nopg.diff"
+
+
+--- linux/mm/shmem.c	2004-06-15 09:51:54.000000000 +0400
++++ linux/mm/shmem.c	2004-06-15 17:03:04.000000000 +0400
+@@ -169,6 +169,7 @@
+ static struct inode_operations shmem_inode_operations;
+ static struct inode_operations shmem_dir_inode_operations;
+ static struct vm_operations_struct shmem_vm_ops;
++static struct vm_operations_struct shmem_zero_vm_ops;
+ 
+ static struct backing_dev_info shmem_backing_dev_info = {
+ 	.ra_pages	= 0,	/* No readahead */
+@@ -1095,6 +1096,27 @@
+ 	return page;
+ }
+ 
++struct page *shmem_zero_nopage(struct vm_area_struct *vma, unsigned long address, int *type)
++{
++	struct inode *inode = vma->vm_file->f_dentry->d_inode;
++	loff_t vm_size = address + PAGE_SIZE - vma->vm_start;
++	loff_t i_size = i_size_read(inode);
++
++	if (i_size < vm_size) {
++		int error;
++		error = shmem_acct_size(SHMEM_I(inode)->flags, vm_size - i_size);
++		if (error)
++			return NOPAGE_SIGBUS;
++		down(&inode->i_sem);
++		error = vmtruncate(inode, vm_size);
++		up(&inode->i_sem);
++		if (error)
++			return NOPAGE_SIGBUS;
++	}
++
++	return shmem_nopage(vma, address, type);
++}
++
+ static int shmem_populate(struct vm_area_struct *vma,
+ 	unsigned long addr, unsigned long len,
+ 	pgprot_t prot, unsigned long pgoff, int nonblock)
+@@ -1970,6 +1992,15 @@
+ #endif
+ };
+ 
++static struct vm_operations_struct shmem_zero_vm_ops = {
++	.nopage		= shmem_zero_nopage,
++	.populate	= shmem_populate,
++#ifdef CONFIG_NUMA
++	.set_policy     = shmem_set_policy,
++	.get_policy     = shmem_get_policy,
++#endif
++};
++
+ static struct super_block *shmem_get_sb(struct file_system_type *fs_type,
+ 	int flags, const char *dev_name, void *data)
+ {
+@@ -2101,7 +2132,7 @@
+ 	if (vma->vm_file)
+ 		fput(vma->vm_file);
+ 	vma->vm_file = file;
+-	vma->vm_ops = &shmem_vm_ops;
++	vma->vm_ops = &shmem_zero_vm_ops;
+ 	return 0;
+ }
+ 
+
+--------------030307010400080007040904
+Content-Type: text/x-csrc;
+ name="shar_grow.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="shar_grow.c"
+
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+
+#define NPAG 200
+
+int main(int argc, char *argv[])
+{
+  char *src, *dst, *ptr, buf[255];
+
+  if ((src = mmap(0, getpagesize(), PROT_READ | PROT_WRITE,
+      MAP_SHARED | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) {
+    perror("mmap()");
+    return 1;
+  }
+
+  printf("mapped to %p\n", src);
+  if ((dst = mremap(src, getpagesize(), NPAG * getpagesize(),
+      MREMAP_MAYMOVE)) == MAP_FAILED) {
+    perror("mremap()");
+    return 1;
+  }
+
+  sprintf(buf, "cat /proc/%i/maps", getpid());
+  system(buf);
+  fflush(stdout);
+
+  ptr = dst + (NPAG - 5) * getpagesize();
+  printf("trying %p (%p)...\n", ptr, ptr-dst);
+  *ptr = 20;
+  printf("%#x, works!\n", *ptr);
+  ptr = dst + (NPAG - 3) * getpagesize();
+  printf("trying %p (%p)...\n", ptr, ptr-dst);
+  *ptr = 20;
+  printf("%#x, works!\n", *ptr);
+  return 0;
+}
+
+--------------030307010400080007040904
+Content-Type: text/plain
+
+
+Scanned by evaluation version of Dr.Web antivirus Daemon 
+http://drweb.ru/unix/
+
+
+--------------030307010400080007040904--

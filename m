@@ -1,51 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130461AbRAaBlA>; Tue, 30 Jan 2001 20:41:00 -0500
+	id <S130515AbRAaBqn>; Tue, 30 Jan 2001 20:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130515AbRAaBku>; Tue, 30 Jan 2001 20:40:50 -0500
-Received: from shell.cyberus.ca ([209.195.95.7]:48823 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S130461AbRAaBkf>;
-	Tue, 30 Jan 2001 20:40:35 -0500
-Date: Tue, 30 Jan 2001 20:39:42 -0500 (EST)
-From: jamal <hadi@cyberus.ca>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Ion Badulescu <ionut@cs.columbia.edu>, Andrew Morton <andrewm@uow.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: Still not sexy! (Re: sendfile+zerocopy: fairly sexy (nothing to
- do with ECN)
-In-Reply-To: <Pine.LNX.4.30.0101310213400.13467-100000@elte.hu>
-Message-ID: <Pine.GSO.4.30.0101302037080.3017-100000@shell.cyberus.ca>
+	id <S131230AbRAaBqd>; Tue, 30 Jan 2001 20:46:33 -0500
+Received: from dns2.chaven.com ([207.238.162.18]:27298 "EHLO shell.chaven.com")
+	by vger.kernel.org with ESMTP id <S130515AbRAaBqW>;
+	Tue, 30 Jan 2001 20:46:22 -0500
+Message-ID: <033c01c08b27$5944a430$160912ac@stcostlnds2zxj>
+From: "List User" <lists@chaven.com>
+To: "Timur Tabi" <ttabi@interactivesi.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <FLRPM.A.TsC.j41d6@dinero.interactivesi.com>
+Subject: Re: Request: increase in PCI bus limit
+Date: Tue, 30 Jan 2001 19:44:23 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+He's probably sending it to the list the same reason why most in tech
+circles do.
+To cut down on the amount of work required.  Personally I would love to have
+all my custom changes put into a 'standard' distribution that way I wouldn't
+need
+to keep as many custom notes for x,y,z platforms or what-else.  Also for the
+fact that it gives something back (generally if I run into a situation there
+is a good
+chance that someone else will run into it as well, so if I can make _his_
+life
+easier if he doesn't have the same knowledge it's worth it).
+
+Steve
+----- Original Message -----
+From: "Timur Tabi" <ttabi@interactivesi.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, January 30, 2001 18:36
+Subject: Re: Request: increase in PCI bus limit
 
 
-On Wed, 31 Jan 2001, Ingo Molnar wrote:
-
+> ** Reply to message from Christopher Neufeld <neufeld@linuxcare.com> on
+Tue, 30
+> Jan 2001 16:08:32 -0800
 >
-> On Tue, 30 Jan 2001, jamal wrote:
 >
-> > > - is this UDP or TCP based? (UDP i guess)
-> > >
-> > TCP
+> > Would it be possible to bump it up to 128, or even
+> > 256, in later 2.4.* kernel releases?  That would allow this customer to
+> > work with an unpatched kernel, at the cost of an additional 3.5 kB of
+> > variables in the kernel.
 >
-> well then i'd suggest to do:
+> I don't think that's going to happen.  If we did this for your obscure
+system,
+> then we'd have to do it for every obscure system, and before you know it,
+the
+> kernel is 200KB larger.
 >
-> 	echo 100000 100000 100000 > /proc/sys/net/ipv4/tcp_wmem
+> Besides, why is your client afraid of patched kernels?  It sounds like a
+very
+> odd request from someone with a linuxcare.com email address.  I would
+think that
+> you'd WANT to provide patched kernels so that the customer can keep paying
+you
+> (until they learn how to use a text editor, at which point they can patch
+the
+> kernel themselves!!!)
 >
-> does this make any difference?
-
-According to my notes, i dont see this.
-however, 262144 into /proc/sys/net/core/*mem_max/default.
-
-I have access to my h/ware this weekend. Hopefully i should get something
-better than ttcp to use.
-
-cheers,
-jamal
+>
+> --
+> Timur Tabi - ttabi@interactivesi.com
+> Interactive Silicon - http://www.interactivesi.com
+>
+> When replying to a mailing-list message, please direct the reply to the
+mailing list only.  Don't send another copy to me.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

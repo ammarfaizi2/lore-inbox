@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265974AbSKZN5L>; Tue, 26 Nov 2002 08:57:11 -0500
+	id <S266274AbSKZOCI>; Tue, 26 Nov 2002 09:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266101AbSKZN5L>; Tue, 26 Nov 2002 08:57:11 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:37265 "EHLO
+	id <S266112AbSKZOCI>; Tue, 26 Nov 2002 09:02:08 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:38545 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265974AbSKZN5K>; Tue, 26 Nov 2002 08:57:10 -0500
-Subject: Re: [PATCH] ncpfs seems to need the timer init
+	id <S266101AbSKZOCH>; Tue, 26 Nov 2002 09:02:07 -0500
+Subject: Re: IO-APIC on SiS P4 messes interrupts
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+To: devik <devik@cdi.cz>
+Cc: linux-smp@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021126135322.GA30362@vana>
-References: <200211260411.gAQ4BUo24135@hera.kernel.org> 
-	<20021126135322.GA30362@vana>
+In-Reply-To: <Pine.LNX.4.33.0211261307200.530-100000@devix>
+References: <Pine.LNX.4.33.0211261307200.530-100000@devix>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Nov 2002 14:35:24 +0000
-Message-Id: <1038321324.2594.0.camel@irongate.swansea.linux.org.uk>
+Date: 26 Nov 2002 14:40:07 +0000
+Message-Id: <1038321607.2594.5.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-26 at 13:53, Petr Vandrovec wrote:
-> On Tue, Nov 26, 2002 at 02:12:52AM +0000, Linux Kernel Mailing List wrote:
+On Tue, 2002-11-26 at 12:21, devik wrote: 
+> I used two MSI 8533 mobos for our 1U rack servers.
+> These mobos are for P4 and uses SiS 5513 chipset.
+> They have integrated VGA and NIC (RTL8139).
 > 
-> Linus, please revert this. It is changeset 
-> 
-> alan@lxorguk.ukuu.org.uk|ChangeSet|20021126021252|43411
-> 
-> Timer is already initialized few lines above in the code. If you'll look
-> through fs/ncpfs/inode.c history, you'll find that I already asked once
-> for removing this redundant timer initialization, but unfortunately it
-> found its way to the tree again :-(
+> When I boot 2.4.19 or 2.4.20rc2 with IO-APIC enabled
+> the NIC doesn't work. It get IRQ 18 (instead of
+> IRQ 11 in non-ioapic mode) but IRQ routing is bad
+> because it got no irqs at that line.
 
-Sorry. I'll revert that in my tree too
+SiS IO-APICs are not supported currently. Ollie at SiS kindly provided
+the relevant information to fix that so I hope to have support included
+soon.
+
+For uniprocessors just skip using the apic
 

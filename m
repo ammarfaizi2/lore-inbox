@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272227AbTGYRF4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 13:05:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272226AbTGYRFi
+	id S272224AbTGYRDt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 13:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272225AbTGYRDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 13:05:38 -0400
-Received: from dhcp538.linuxsymposium.org ([209.151.10.36]:15488 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S272227AbTGYRFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 13:05:33 -0400
-Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Dominik Brugger <ml.dominik83@gmx.net>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org>
-References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059153629.528.2.camel@gaston>
+	Fri, 25 Jul 2003 13:03:49 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:59296 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S272224AbTGYRDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 13:03:48 -0400
+Date: Fri, 25 Jul 2003 13:07:53 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
+       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030725170753.GC14038@phunnypharm.org>
+References: <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org> <20030725053920.GH23196@ruvolo.net> <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net> <20030725142926.GD1512@phunnypharm.org> <20030725154009.GF1512@phunnypharm.org> <20030725160706.GK23196@ruvolo.net> <20030725161803.GJ1512@phunnypharm.org> <20030725170255.GN23196@ruvolo.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 25 Jul 2003 13:20:29 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725170255.GN23196@ruvolo.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I think the hub driver's power management code may be at fault.  It needs
-> to cancel the status interrupt URB when suspending and resubmit it when
-> waking up; right now it probably does neither one.
+On Fri, Jul 25, 2003 at 10:02:55AM -0700, Chris Ruvolo wrote:
+> On Fri, Jul 25, 2003 at 12:18:04PM -0400, Ben Collins wrote:
+> > Ok, in ieee1394_core.c, when it does the "packet removed in
+> > abort_timedouts" could you make it print the value of jiffies, expire
+> > and packet->sendtime?
 > 
-> Or maybe I'm wrong about that.  Perhaps it's okay to leave the URB active.  
-> If that's the case, then the root hub power management code needs to be 
-> changed to restart the status URB timer after a wakeup.
 > 
-> I'm not sure how the design is intended to work, but either way something 
-> needs to be fixed.
+> So, abort_timedouts() is called by the scheduler as part of work queue
+> handling?  Every HZ or based on the expire timeout?
 
-Could well be. I need to spend some time auditing power management
-in the USB drivers in general. The idea here is that a sub-driver
-(USB device driver) should make sure it has no more pending URBs
-when returning from suspend() and the HCD driver should just cancel
-pending URBs if still any and reject any one that would be submited
-before it's woken up. It's especially very important on OHCI to not
-touch chip registers (like enabling bulk queue etc...) after the chip
-have been put to suspend state. On some chips, that can cause random
-bus mastering to main memory during sleep, which can cause all sorts
-of interesting results especially when the north bridge is asleep...
+Hmm. It's scheduled as soon as there are pending_packets, and it is
+rescheduled as long as the pending_packets list isn't empty. Maybe it
+isn't relinquishing enough time to the nodemgr to get it's job done.
 
-Ben.
+I think that's the problem. Let me code up a patch.
 
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/

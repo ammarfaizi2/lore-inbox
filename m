@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUKWVOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUKWVa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261507AbUKWVOr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 16:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbUKWTIU
+	id S261232AbUKWVa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 16:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUKWV3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:08:20 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:31978 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S261421AbUKWSB2 (ORCPT
+	Tue, 23 Nov 2004 16:29:09 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11172 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261292AbUKWV2Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 13:01:28 -0500
-Message-ID: <41A37AF0.3000207@candelatech.com>
-Date: Tue, 23 Nov 2004 10:01:20 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Drivers For Multi-Port Nic Question
-References: <Pine.LNX.4.61.0411230822170.3740@p500>
-In-Reply-To: <Pine.LNX.4.61.0411230822170.3740@p500>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Nov 2004 16:28:24 -0500
+Date: Wed, 24 Nov 2004 08:27:36 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Jan De Luyck <lkml@kcore.org>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: [2.6.10-rc2] XFS filesystem corruption
+Message-ID: <20041124082736.E6205230@wobbly.melbourne.sgi.com>
+References: <200411221530.30325.lkml@kcore.org> <20041122155106.GG2714@holomorphy.com> <41A30D3E.9090506@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <41A30D3E.9090506@gmx.de>; from prakashkc@gmx.de on Tue, Nov 23, 2004 at 11:13:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
-> Does it matter what driver I use for a tulip-based board?
-> It is tulip based, but two drivers seem to work for it.
+On Tue, Nov 23, 2004 at 11:13:18AM +0100, Prakash K. Cheemplavam wrote:
+> 
+> While we are at it: Is xfs known to be broken while preempt is on? (Esp 
 
-What is the manufacturer and model of this ethernet card?
+Nope.
 
-Usually, the tulip is the best driver....
+> using ck's preemp big kernel lock?) I got following using a raid0 setup 
+> with xfs. I thought it would be a driver issue, but reformatting to ext3 
+> the stripe array runs now w/o probs for a few days. (xfs crapped out 
+> after a few hours on heavy disk activity.)
+> ...
+> Nov 21 10:10:45 tachyon end_request: I/O error, dev sdb, sector 10480855
+> Nov 21 10:10:45 tachyon I/O error in filesystem ("md0") meta-data dev 
+> md0 block 0x13fd990       ("xfs_trans_read_buf") error 5 buf count 8192
 
-Ben
+This looks like your driver passed an error back up to the
+filesystem while it was doing metadata IO and XFS chose to
+shut it down to prevent further damage.  It's unlikely to
+be a preempt/xfs problem.  Possibly hardware.  Did you see
+any of those device errors since switching to ext3?
+
+cheers.
 
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+Nathan

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129845AbQLHRPX>; Fri, 8 Dec 2000 12:15:23 -0500
+	id <S129824AbQLHRSO>; Fri, 8 Dec 2000 12:18:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132377AbQLHRPN>; Fri, 8 Dec 2000 12:15:13 -0500
-Received: from cm698210-a.denton1.tx.home.com ([24.17.129.59]:8466 "HELO
-	cm698210-a.denton1.tx.home.com") by vger.kernel.org with SMTP
-	id <S132364AbQLHRPD>; Fri, 8 Dec 2000 12:15:03 -0500
-Message-ID: <3A310FF3.97C02D1@home.com>
-Date: Fri, 08 Dec 2000 10:44:35 -0600
-From: Matthew Vanecek <linux4us@home.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i586)
-X-Accept-Language: en
+	id <S129733AbQLHRSE>; Fri, 8 Dec 2000 12:18:04 -0500
+Received: from Mail.Mankato.MSUS.EDU ([134.29.1.12]:60177 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id <S129535AbQLHRRy>;
+	Fri, 8 Dec 2000 12:17:54 -0500
+Date: Fri, 8 Dec 2000 10:47:26 -0600 (CST)
+From: Ricardo Muggli <ricardo.muggli@mnsu.edu>
+To: linux-lvm@sistina.com, linux-kernel@vger.kernel.org
+Subject: Linux 2.4.0-test12-pre7 LVM .9 vs .8final
+Message-ID: <Pine.OSF.4.21.0012081042590.14388-100000@mail.mnsu.edu>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Signal 11
-In-Reply-To: <Pine.LNX.4.21.0012080321180.13163-100000@neo.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-davej@suse.de wrote:
-> 
-> On Thu, 7 Dec 2000, Jeff V. Merkey wrote:
-> 
-> > I think there may be a case when a process forks, that the MMU or some
-> > other subsystem is either not setting the page bits correctly, or
-> > mapping in a bad page.  It's a LEVEL I bug in 2.4 is this is the case,
-> > BTW.  In core dumps (I've looked at 2 of them from SSH) it barfs right
-> > after executing fork() or one of the exec functions and at some places
-> > in the code where there's not any obvious coding bugs.  Looks like some
-> > type of mapping problem.  I reported it three months ago, but it was
-> > pretty much ignored.
-> >
-> > Linus needs to add this one to the pre-12 list -- looks like some type
-> > of mapping bug.
-> 
-> Now that you mention it, every app that has bombed has been the type
-> that forks a lot. MpegTV, gtv, and make spring to mind. All apps drive
-> the CPU load up quite a lot, which was why I initially suspected
-> overheating. I don't see it on my other 2.4 boxes though which is
-> suspicious. But they don't get as much of a beating as this, which was
-> up until last week my main workstation.
-> 
-> regards,
-> 
-> Dave.
-> 
+I have noticed that Linux 2.4.0-test12-pre7 still comes with .8final. Is
+there a plan to have .9 incorporated at some future time into the stock
+2.4 kernels? Will this happen before 2.4 comes out?
 
-I've noticed the same problem, and it occasionally happens with XFree86
-4.0.1, as well.  Hopefully we've established that this is not the
-hardware issue which gcc people of so fond of pushing sig 11s on (even
-in the face of overwhelming evidence to the contrary).  It would be good
-to have this put on a current to-do list and looked into.
+Also is there a transition path between .8final and .9? (short of save
+everything to tape and restore?)
+
 
 -- 
-Matthew Vanecek
-perl -e 'print
-$i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
-********************************************************************************
-For 93 million miles, there is nothing between the sun and my shadow
-except me.
-I'm always getting in the way of something...
+Ricardo Muggli (ricardo.muggli@mnsu.edu)
+Systems Manager
+Information and Technology Services
+Minnesota State University, Mankato
+101 Morris Hall
+Mankato, MN  56001
+Phone: (507) 389-1164 Fax: (507) 389-6115
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

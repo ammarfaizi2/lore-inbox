@@ -1,66 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272723AbRILJuL>; Wed, 12 Sep 2001 05:50:11 -0400
+	id <S272730AbRILKCd>; Wed, 12 Sep 2001 06:02:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272730AbRILJuB>; Wed, 12 Sep 2001 05:50:01 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:6156 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S272723AbRILJty>; Wed, 12 Sep 2001 05:49:54 -0400
-Date: Wed, 12 Sep 2001 10:51:51 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: linux-kernel@vger.kernel.org
-Subject: /proc/meminfo swap counter wraparound in 2.2
-Message-ID: <20010912105151.L6126@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S272732AbRILKCX>; Wed, 12 Sep 2001 06:02:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:522 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272730AbRILKCK>; Wed, 12 Sep 2001 06:02:10 -0400
+Subject: Re: [GOLDMINE!!!] Athlon optimisation bug (was Re: Duron kernel crash)
+To: vdb@mail.ru (Dmitry Volkoff)
+Date: Wed, 12 Sep 2001 11:06:44 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010912082935.A391@localhost> from "Dmitry Volkoff" at Sep 12, 2001 08:29:35 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15h6uq-0004F9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there
+> 2.4.10pre[47]. My motherbord is Chaintech CT-7AIA2 (kt133A/686A), Duron 600.
+> I did'nt see such things with kernels 2.4.[78]. The problem persists even 
+> after recompiling kernel with K6-III optimisation. Note, this motherboard
 
-Having put 8Gb of swap on one of our production database servers[1], I found
-that "top", "free" et al report the amount of available swap space incorrectly.
-
-This is because they all parse /proc/meminfo, and its counters seem to wrap
-when they encounter very high numbers.  The relevant bit is the totalswap
-member of "struct sysinfo"
-
-sean@lisa:~$ cat /proc/swaps
-Filename                        Type            Size    Used    Priority
-/dev/rd/c0d2p1                  partition       530104  41436   10
-/usr/SWAPFILE1                  file            1048568 56      2
-/usr/local/SWAPFILE1            file            1048568 52      2
-/usr/SWAPFILE2                  file            1572856 0       3
-/usr/local/SWAPFILE2            file            1572856 0       3
-/var/SWAPFILE2                  file            1572856 0       3
-/home/SWAPFILE2                 file            1572856 0       -6
-
-sean@lisa:~$ cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  4125683712 2820616192 1305067520        0 82919424 232722432
-Swap: 542777344 42541056 500236288
-MemTotal:   4028988 kB
-MemFree:    1274480 kB
-MemShared:        0 kB
-Buffers:      80976 kB
-Cached:      227268 kB
-BigTotal:   3111908 kB
-BigFree:    1266988 kB
-SwapTotal:   530056 kB
-SwapFree:    488512 kB
-
-sean@lisa:~$ uname -a
-Linux lisa.sportingbet.com 2.2.19-6.2.7enterprise #1 SMP Thu Jun 14 07:34:12 EDT 2001 i686 unknown
-
-As you can see, we are running redhat's "enterprise" 2.2.19 kernel.
-
-I would be amazed if this bug were not also in the main 2.2.x tree.  Is a fix
-likely or even possible in 2.2 ?
-
-Sean
-
-[1]One of several changes to avoid random oracle 600 errors under heavy load.
+Thats unrelated. Thats 2.4.10pre being exactly what it sounds - a buggy
+pre-release snapshot

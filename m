@@ -1,51 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbTB0VUG>; Thu, 27 Feb 2003 16:20:06 -0500
+	id <S267023AbTB0Vd1>; Thu, 27 Feb 2003 16:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266810AbTB0VUG>; Thu, 27 Feb 2003 16:20:06 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:28801 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266805AbTB0VUF>; Thu, 27 Feb 2003 16:20:05 -0500
-Date: Thu, 27 Feb 2003 15:29:19 -0600
-From: latten@austin.ibm.com
-Message-Id: <200302272129.h1RLTJW28434@faith.austin.ibm.com>
-To: davem@redhat.com, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: PATCH: IPSec not using padding when Null Encryption
+	id <S267043AbTB0VdY>; Thu, 27 Feb 2003 16:33:24 -0500
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:49926 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S267023AbTB0Vbx>; Thu, 27 Feb 2003 16:31:53 -0500
+Date: Thu, 27 Feb 2003 15:38:19 -0600
+From: Art Haas <ahaas@airmail.net>
+To: Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] C99 initiailzers for xor.h
+Message-ID: <20030227213819.GB8116@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-When using the Null Encryption algorithm, the ESP packet is
-not on a 4-byte boundary. That is, the ciphertext, pad-length and
-next-header fields are not right aligned on a 4-byte boundary and
-no padding is used to ensure it.
+This patch converts the file to use C99 initializers. It's against the
+current BK.
 
-RFC 2406, section 2.4 states irrespective of encryption algorithm
-requirements,  padding may be required to ensure that
-resulting ciphertext terminates on a 4-byte boundary. Specifically,
-the Pad Length and Next Header fields must be right aligned within
-a 4-byte word to ensure that the Authentication Data field (if present)
-is aligned on a 4-byte boundary.
+Art Haas
 
-Ok, anyway, this fix just pretty much makes sure that
-when Null Encryption or any algorithm with a blocksize less
-than 4 is used, that the ciphertext, any padding, and next-header
-and pad-length fields terminate on a 4-byte boundary.
-I have tested it. Please let me know if all is well. 
-
-Thanks,
-Joy
+===== include/asm-generic/xor.h 1.2 vs edited =====
+--- 1.2/include/asm-generic/xor.h	Mon Oct 21 03:13:10 2002
++++ edited/include/asm-generic/xor.h	Thu Feb 27 10:27:14 2003
+@@ -678,35 +678,35 @@
+ }
  
---- esp.c.orig	2003-02-20 16:07:59.000000000 -0600
-+++ esp.c	2003-02-27 10:30:25.000000000 -0600
-@@ -360,7 +360,7 @@
- 	esp = x->data;
- 	alen = esp->auth.icv_trunc_len;
- 	tfm = esp->conf.tfm;
--	blksize = crypto_tfm_alg_blocksize(tfm);
-+	blksize = (crypto_tfm_alg_blocksize(tfm) + 3) & ~3;
- 	clen = (clen + 2 + blksize-1)&~(blksize-1);
- 	if (esp->conf.padlen)
- 		clen = (clen + esp->conf.padlen-1)&~(esp->conf.padlen-1);
+ static struct xor_block_template xor_block_8regs = {
+-	name: "8regs",
+-	do_2: xor_8regs_2,
+-	do_3: xor_8regs_3,
+-	do_4: xor_8regs_4,
+-	do_5: xor_8regs_5,
++	.name = "8regs",
++	.do_2 = xor_8regs_2,
++	.do_3 = xor_8regs_3,
++	.do_4 = xor_8regs_4,
++	.do_5 = xor_8regs_5,
+ };
+ 
+ static struct xor_block_template xor_block_32regs = {
+-	name: "32regs",
+-	do_2: xor_32regs_2,
+-	do_3: xor_32regs_3,
+-	do_4: xor_32regs_4,
+-	do_5: xor_32regs_5,
++	.name = "32regs",
++	.do_2 = xor_32regs_2,
++	.do_3 = xor_32regs_3,
++	.do_4 = xor_32regs_4,
++	.do_5 = xor_32regs_5,
+ };
+ 
+ static struct xor_block_template xor_block_8regs_p = {
+-	name: "8regs_prefetch",
+-	do_2: xor_8regs_p_2,
+-	do_3: xor_8regs_p_3,
+-	do_4: xor_8regs_p_4,
+-	do_5: xor_8regs_p_5,
++	.name = "8regs_prefetch",
++	.do_2 = xor_8regs_p_2,
++	.do_3 = xor_8regs_p_3,
++	.do_4 = xor_8regs_p_4,
++	.do_5 = xor_8regs_p_5,
+ };
+ 
+ static struct xor_block_template xor_block_32regs_p = {
+-	name: "32regs_prefetch",
+-	do_2: xor_32regs_p_2,
+-	do_3: xor_32regs_p_3,
+-	do_4: xor_32regs_p_4,
+-	do_5: xor_32regs_p_5,
++	.name = "32regs_prefetch",
++	.do_2 = xor_32regs_p_2,
++	.do_3 = xor_32regs_p_3,
++	.do_4 = xor_32regs_p_4,
++	.do_5 = xor_32regs_p_5,
+ };
+ 
+ #define XOR_TRY_TEMPLATES			\
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUIIOSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUIIO2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbUIIOSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 10:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUIIORn
+	id S264704AbUIIO2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 10:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264915AbUIIO2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 10:17:43 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5526 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264917AbUIIOQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 10:16:48 -0400
-Message-ID: <414066D7.60508@sgi.com>
-Date: Thu, 09 Sep 2004 09:21:11 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Thu, 9 Sep 2004 10:28:03 -0400
+Received: from jade.spiritone.com ([216.99.193.136]:60095 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S264704AbUIIO2A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 10:28:00 -0400
+Date: Thu, 09 Sep 2004 07:27:48 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.9-rc1-mm4
+Message-ID: <564620000.1094740068@[10.10.2.4]>
+In-Reply-To: <20040907141741.58174cfd.akpm@osdl.org>
+References: <544180000.1094575502@[10.10.2.4]> <20040907141741.58174cfd.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
-       piggin@cyberone.com.au, mbligh@aracnet.com
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-References: <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com> <20040908193036.GH4284@logos.cnet> <413FC8AC.7030707@sgi.com> <20040909021409.GA2122@logos.cnet>
-In-Reply-To: <20040909021409.GA2122@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Marcelo Tosatti wrote:
-
+>> Well, the good news is that it compiles now, and without forcing ACPI on.
+>>  Yay!
 > 
->>Have you still been unable to duplicate this problem on a small i386 
->>platform?
-> 
-> 
-> Yes right, I have been unable to duplicate the problem on small i386 box. 
-> What about your tests?
-> 
-> 
->
+> Does it boot?
 
-I haven't had time to try on i386 yet.  I guess I will have to.
-Thanks for trying, anyway.
+Yup. Performance is the same as other -mm's (scheduler changes bring it
+down from mainline quite a bit, but otherwise OK).
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
+                              Elapsed      System        User         CPU
+                2.6.9-rc1       44.97       98.66      576.77     1501.33
+            2.6.9-rc1-mm1       46.92      107.27      594.10     1493.67
+            2.6.9-rc1-mm2       46.95      107.80      593.65     1493.33
+            2.6.9-rc1-mm4       46.93      108.91      593.19     1495.00
+
+M.
 

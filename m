@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpI6yZ4fUInZfTVef1+WfQj8wcw==
+thread-index: AcQVpHAVHd7uB24STWeB5j6SbV8ciA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 22:02:49 +0000
-Message-ID: <024d01c415a4$8eb25c10$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
+Delivery-date: Sun, 04 Jan 2004 12:30:06 +0000
+Message-ID: <01ca01c415a4$70159920$d100000a@sbs2003.local>
 X-Mailer: Microsoft CDO for Exchange 2000
 Content-Class: urn:content-classes:message
 Importance: normal
-Date: Mon, 29 Mar 2004 16:43:18 +0100
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-From: "Arjan van de Ven" <arjanv@redhat.com>
+Date: Mon, 29 Mar 2004 16:42:27 +0100
+From: "Mikael Pettersson" <mikpe@csd.uu.se>
 To: <Administrator@smtp.paston.co.uk>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <davej@redhat.com>
-Subject: Re: 2.6.1-rc1 arch/i386/kernel/setup.c   wrong parameter order to request resources ?
-References: <20040104153928.GB2416@devserv.devel.redhat.com> <Pine.LNX.4.58.0401041305440.2162@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-	micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401041305440.2162@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+Subject: Re: Pentium M config option for 2.6
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:43:20.0093 (UTC) FILETIME=[8F94CCD0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:29.0906 (UTC) FILETIME=[71AADF20:01C415A4]
 
-This is a multi-part message in MIME format.
+On Sun, 4 Jan 2004 03:28:48 +0100, Tomas Szepe wrote:
+>Since the Pentium M has 64 byte cache lines and is not a K7 or K8...  ;)
+...
+>--- a/arch/i386/Makefile	2003-09-28 11:38:05.000000000 +0200
+>+++ b/arch/i386/Makefile	2004-01-04 03:02:52.000000000 +0100
+>@@ -35,6 +35,7 @@
+> cflags-$(CONFIG_MPENTIUMII)	+= $(call check_gcc,-march=pentium2,-march=i686)
+> cflags-$(CONFIG_MPENTIUMIII)	+= $(call check_gcc,-march=pentium3,-march=i686)
+> cflags-$(CONFIG_MPENTIUM4)	+= $(call check_gcc,-march=pentium4,-march=i686)
+>+cflags-$(CONFIG_MPENTIUMM)	+= $(call check_gcc,-march=pentium4,-march=i686)
+> cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
+> # Please note, that patches that add -march=athlon-xp and friends are pointless.
+> # They make zero difference whatsosever to performance at this time.
 
---5vNYLRcllDrimb99
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+P-M is not a P4 core, it's an enhanced PIII core.
+SSE2 was added, but compiler support for SSE2 f.p.
+math shouldn't matter for the kernel.
 
-On Sun, Jan 04, 2004 at 01:08:52PM -0800, Linus Torvalds wrote:
->=20
->=20
-> On Sun, 4 Jan 2004, Arjan van de Ven wrote:
-> >=20
-> > in setup.c  the kernel tries to reserve ram resources for system ram etc
-> > etc. However it seems it's done with the parameters to request_resource=
- in
-> > the wrong order (it certainly is opposite order from other neighboring
-> > code). Can someone confirm I'm not overlooking something?
->=20
-> You've overlooked something.
->=20
-> The core uses the rigth order: it's literally trying to find _which_ of=
-=20
-> the e820 resources contains the "code" and "data" resource.
->=20
-> In other words: the code and data resources don't contain anything. They=
-=20
-> are contained _in_ something, but we don't know which one off-hand, so we=
-=20
-> try to register them in all the memory resources we find.=20
+Using P4 optimisations on a P-M may actually reduce
+performance, due to the different micro-architectures.
+(P4 made shifts and some leas more expensive, and
+simple add/and/sub/etc less expensive.)
 
-> and not used for anything else.
+IOW, don't lie to the compiler and pretend P-M == P4
+with that -march=pentium4.
 
-ok fair enough; maybe deserves more comment but it makes sense.
+And since P-M doesn't do SMP, does cache line size even
+matter? There are no locks to protect from ping-ponging.
 
---5vNYLRcllDrimb99
-Content-Transfer-Encoding: 7bit
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/+IzkxULwo51rQBIRAouSAJ9R/idYX2X+FfBjGi/GRA+vtfXlmACfSlB0
-q6bVKG9rc2IGFa37MUjSJ4Y=
-=zjZH
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+/Mikael

@@ -1,60 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264839AbTGBIp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 04:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264842AbTGBIp2
+	id S264848AbTGBIr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 04:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbTGBIr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 04:45:28 -0400
-Received: from smithers.nildram.co.uk ([195.112.4.34]:57613 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S264839AbTGBIp1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 04:45:27 -0400
-Date: Wed, 2 Jul 2003 09:59:51 +0100
-From: Joe Thornber <thornber@sistina.com>
-To: Kevin Corry <kevcorry@us.ibm.com>
-Cc: DevMapper <dm-devel@sistina.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 3/3] dm: v4 ioctl interface
-Message-ID: <20030702085951.GB410@fib011235813.fsnet.co.uk>
-References: <20030701145812.GA1596@fib011235813.fsnet.co.uk> <20030701150246.GD1596@fib011235813.fsnet.co.uk> <200307011505.07184.kevcorry@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307011505.07184.kevcorry@us.ibm.com>
-User-Agent: Mutt/1.5.4i
+	Wed, 2 Jul 2003 04:47:28 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:30641 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S264848AbTGBIr1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 04:47:27 -0400
+Date: Wed, 2 Jul 2003 10:01:50 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+In-Reply-To: <4340000.1057096683@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.53.0307020957180.25694@skynet>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet> <200306301943.04326.phillips@arcor.de>
+ <Pine.LNX.4.53.0307012202510.16265@skynet> <4340000.1057096683@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 01, 2003 at 03:05:07PM -0500, Kevin Corry wrote:
-> The "unregister" call needs to be before the actual rename. Same patch as a 
-> couple weeks ago.
+On Tue, 1 Jul 2003, Martin J. Bligh wrote:
 
-Agreed.
+>
+> Sigh. Sadly I have a lot of this written up (including for object-based
+> rmap you were thinkin about doing, etc), but it's an OLS paper, so I
 
-> > +static int check_name(const char *name)
-> > +{
-> > +	if (strchr(name, '/')) {
-> > +		DMWARN("invalid device name");
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> 
-> Can't we allow slashes in device names? I thought we discussed this before 
-> (http://marc.theaimsgroup.com/?t=104628092700011&r=1&w=2). Any reason for the 
-> change?
+have it on the TODO list all right.
 
-I think I made the wrong decision before.  Still thinking about it though.
+As for written up, "Sadly" my eye. I'm delighted you have it written up,
+it means I can check how close I am/was whenever I read it! I'm not going
+to reach OLS unless I find a giant trebuchet facing west to slingshot me
+over so I'll just dig it out of the proceedings :-)
 
-> Does this imply that if the dm_swap_table() call fails, then the "inactive" 
-> mapping is automatically deleted?
-
-Yes, that is the behaviour ATM.  Would you rather it didn't ?
-
-> As a side note, the __bind() function in dm.c currently will never return an 
-> error, so dm_swap_table() doesn't necessarily need to check for one.
-
-y, __bind can become void.
-
-- Joe
+-- 
+Mel Gorman

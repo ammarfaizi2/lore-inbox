@@ -1,78 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUE0Pt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264822AbUE0Pt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264821AbUE0Pt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 11:49:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264822AbUE0Pt2
+	id S264822AbUE0Pt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 11:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUE0Pt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 11:49:28 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:39553 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264821AbUE0PtV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 11:49:21 -0400
-Date: Thu, 27 May 2004 19:49:20 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch 2.6] don't put IDE disks in standby mode on halt on Alpha
-Message-ID: <20040527194920.A1709@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 May 2004 11:49:59 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4341 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264822AbUE0Pty
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 11:49:54 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Zhu, Yi" <yi.zhu@intel.com>, "Auzanneau Gregory" <mls@reolight.net>
+Subject: Re: idebus setup problem (2.6.7-rc1)
+Date: Thu, 27 May 2004 17:51:04 +0200
+User-Agent: KMail/1.5.3
+Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+References: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F842DB1E0@PDSMSX403.ccr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Message-Id: <200405271751.04788.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spinning the disks down across a 'halt' on Alpha is even
-worse than doing that on reboot on i386 (assuming the
-boot device is IDE disk).
-Typically, the sequence to boot another kernel is:
-# halt
-kernel shuts down, firmware re-initializes,
-then on firmware prompt we type something like
->>> boot -file new_kernel_image.gz
+On Thursday 27 of May 2004 17:21, Zhu, Yi wrote:
+> Bartlomiej Zolnierkiewicz [B.Zolnierkiewicz@elka.pw.edu.pl] wrote:
+> > I remember seeing patch related to handling '=' in kernel
+> > params, maybe it's related (or maybe not).
+>
+> Yes, this is caused by my kernel-parameter-parsing-fix.patch.
+>
+> But I think below code in ide.c is a hack.
+> __setup("", ide_setup);
 
-Unfortunately, the firmware does not expect the IDE drive
-to be in standby mode and reports 'bootstrap failure' on
-the first and all subsequent boot attempts until the
-drive spins up, which is extremely annoying and
-confuses users a lot.
+It is a really bad hack but unfortunately it is not easy to fix.
+We can only do it by introducing new kernel parameters and obsoleting
+current braindamage (+ halting boot if obsolete parameter is detected).
 
-This patch allows architectures override the default
-behavior (don't spin the disks down on reboot only)
-in asm/ide.h.
+Please note that in (very) rare corner cases current breakage can cause
+data corruption.
 
-Ivan.
+> How about below change?
 
---- 2.6/drivers/ide/ide-disk.c	Fri May 21 21:06:12 2004
-+++ linux/drivers/ide/ide-disk.c	Fri May 21 21:48:09 2004
-@@ -1723,7 +1723,7 @@ static void ide_device_shutdown(struct d
- {
- 	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
- 
--	if (system_state == SYSTEM_RESTART) {
-+	if (ide_shutdown_omit_standby(system_state)) {
- 		ide_cacheflush_p(drive);
- 		return;
- 	}
---- 2.6/include/linux/ide.h	Fri May 21 21:47:13 2004
-+++ linux/include/linux/ide.h	Fri May 21 21:48:09 2004
-@@ -1709,4 +1709,8 @@ static inline int ata_can_queue(ide_driv
- 
- extern struct bus_type ide_bus_type;
- 
-+#ifndef ide_shutdown_omit_standby
-+#define ide_shutdown_omit_standby(sys_state)	(sys_state == SYSTEM_RESTART)
-+#endif
-+
- #endif /* _IDE_H */
---- 2.6/include/asm-alpha/ide.h	Fri May 21 21:47:54 2004
-+++ linux/include/asm-alpha/ide.h	Fri May 21 21:48:34 2004
-@@ -52,6 +52,8 @@ static inline unsigned long ide_default_
- #define ide_init_default_irq(base)	ide_default_irq(base)
- #endif
- 
-+#define ide_shutdown_omit_standby(sys_state)	(sys_state != SYSTEM_POWER_OFF)
-+
- #include <asm-generic/ide_iops.h>
- 
- #endif /* __KERNEL__ */
+It breaks all "idex=" and "hdx=" options.
+Please take a look at how ide_setup().
+
+> --- linux-2.6.7-rc1-mm1.orig/drivers/ide/ide.c      2004-05-27
+> 23:07:59.405138992 +0800
+> +++ linux-2.6.7-rc1-mm1/drivers/ide/ide.c   2004-05-27
+> 23:09:47.529701560 +0800
+> @@ -2459,7 +2459,8 @@ void cleanup_module (void)
+>
+>  #else /* !MODULE */
+>
+> -__setup("", ide_setup);
+> +__setup("hd", ide_setup);
+> +__setup("ide", ide_setup);
+>
+>  module_init(ide_init);
+>
+>
+> -yi
+

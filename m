@@ -1,53 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265061AbSKESEo>; Tue, 5 Nov 2002 13:04:44 -0500
+	id <S265093AbSKESWj>; Tue, 5 Nov 2002 13:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265143AbSKESEo>; Tue, 5 Nov 2002 13:04:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54279 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265061AbSKESEn>; Tue, 5 Nov 2002 13:04:43 -0500
-Date: Tue, 5 Nov 2002 10:10:01 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/4] timers: scsi, input, networking
-In-Reply-To: <3DC75B04.FE54B2E1@digeo.com>
-Message-ID: <Pine.LNX.4.44.0211051009290.2777-100000@penguin.transmeta.com>
+	id <S265094AbSKESWj>; Tue, 5 Nov 2002 13:22:39 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65285 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265093AbSKESWi>; Tue, 5 Nov 2002 13:22:38 -0500
+Subject: PATCH: Driver Maintainers
+To: torvalds@transmeta.com
+Date: Tue, 5 Nov 2002 18:22:31 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E1898LP-0003Ie-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've been getting more and more people talking to me looking to pay people to 
+fix small Linux bugs but having problems finding smaller companies. Obviously
+wanting to send $1000 to have someone fix a driver simply doesn't work when
+you talk to big companies.
 
-Hmm.. The subject says "scsi, input, networking", but there is only a scsi 
-part to the patch. Messed up patch?
+One thing the FSF do which is rather sensible is keep a list in the packages
+of people who you can pay to fix stuff in them. I asked on Linux-kernel
+and got a small initial set of company responses. hopefully more will appear
+once its merged.
 
-		Linus
+The order is alphabetical logically enough
 
-On Mon, 4 Nov 2002, Andrew Morton wrote:
->
-> The patches which I needed to avoid the warnings with my build. 
-> 
-> --- 25/drivers/scsi/scsi.c~scsi-timer-init	Mon Nov  4 18:47:02 2002
-> +++ 25-akpm/drivers/scsi/scsi.c	Mon Nov  4 18:47:02 2002
-> @@ -603,6 +603,7 @@ inline void __scsi_release_command(Scsi_
->  				 GFP_DMA : 0));
->  		if(newSCpnt) {
->  			memset(newSCpnt, 0, sizeof(Scsi_Cmnd));
-> +			init_timer(&newSCpnt->eh_timeout);
->  			newSCpnt->host = SDpnt->host;
->  			newSCpnt->device = SDpnt;
->  			newSCpnt->target = SDpnt->id;
-> @@ -1551,6 +1552,7 @@ void scsi_build_commandblocks(Scsi_Devic
->  	}
->  
->  	memset(SCpnt, 0, sizeof(Scsi_Cmnd));
-> +	init_timer(&SCpnt->eh_timeout);
->  	SCpnt->host = SDpnt->host;
->  	SCpnt->device = SDpnt;
->  	SCpnt->target = SDpnt->id;
-> 
-> 
-> 
-> 
+[Marcelo this seems to apply cleanly to 2.4 as well]
 
+Alan
+--
+
+
+--- ../linux.2.5.46/MAINTAINERS	2002-11-05 13:54:42.000000000 +0000
++++ MAINTAINERS	2002-11-05 16:11:31.000000000 +0000
+@@ -1,6 +1,9 @@
+ 
+ 	List of maintainers and how to submit kernel changes
+ 
++ (Please also see Documentation/DriverFixers for people who offer driver
++	 development and fixing as a business)
++
+ Please try to follow the guidelines below.  This will make things
+ easier on the maintainers.  Not all of these guidelines matter for every
+ trivial patch so apply some common sense.
+--- /dev/null	2002-08-31 00:31:37.000000000 +0100
++++ Documentation/DriverFixers	2002-11-05 18:41:26.000000000 +0000
+@@ -0,0 +1,37 @@
++People who fix drivers as a business - ie for money. (No recommendation,
++business association or other relationship implied. This for the benefit of 
++American lawyers is just a list of people who have asked to be listed - nothing
++more).
++
++
++Company:	BitWizard
++Contact:	Rogier Wolff
++E-Mail:		R.E.Wolff@BitWizard.nl
++
++Company:	Caederus
++Contact:	Justin Mitchell
++E-Mail:		info@caederus.com
++URL:		http://www.caederus.com/
++Location:	Swansea, Wales, UK
++
++Company:	Weinigel Ingenjörsbyrå AB
++Contact:	Christer Weinigel
++E-Mail:		christer@weinigel.se
++Location:	Stockholm, Sweden
++
++Company:	WildOpenSource
++Contact:	Martin Hicks
++E-Mail:		info@wildopensource.com
++
++
++To be added to the list: email <alan@lxorguk.ukuu.org.uk> giving the
++following information
++
++Company:	CompanyName		[Required]
++Contact:	ContactName		[Required]
++E-Mail:		An email address	[Required]
++URL:		Web site		[Optional]
++Location:	Area/Country		[Optional]
++Telephone:	Contact phone number	[Optional]
++Notes:		Any other notes (eg certifications, specialities)
++

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUIIB1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269344AbUIIB1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269333AbUIIB1x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 21:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269342AbUIIB1j
+	id S269344AbUIIB1J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 21:27:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269329AbUIIBYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 21:27:39 -0400
-Received: from holomorphy.com ([207.189.100.168]:44716 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269341AbUIIB0r (ORCPT
+	Wed, 8 Sep 2004 21:24:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:41900 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269333AbUIIBWf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 21:26:47 -0400
-Date: Wed, 8 Sep 2004 18:26:39 -0700
+	Wed, 8 Sep 2004 21:22:35 -0400
+Date: Wed, 8 Sep 2004 18:22:29 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Roger Luethi <rl@hellgate.ch>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
-Subject: [3/2] round up text memory to the nearest page in fs/proc/task_mmu.c
-Message-ID: <20040909012639.GO3106@holomorphy.com>
+Subject: Re: [2/2] handle CONFIG_MMU=n and use new vm stats for CONFIG_MMU=y
+Message-ID: <20040909012229.GN3106@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	Roger Luethi <rl@hellgate.ch>, Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
@@ -38,22 +38,7 @@ On Wed, Sep 08, 2004 at 06:21:37PM -0700, William Lee Irwin III wrote:
 > does not involve acquiring mm->mmap_sem for any per-mm statistics. The
 > CONFIG_MMU=n case still needs iteration over tblocks to calculate them.
 
-Round up text memory to the nearest page to resolve potential alignment
-anomalies in reported statistics. Compiletested on ia64.
+Once again, compiletested only on ia64.
 
 
 -- wli
-
-Index: mm4-2.6.9-rc1/fs/proc/task_mmu.c
-===================================================================
---- mm4-2.6.9-rc1.orig/fs/proc/task_mmu.c	2004-09-08 06:10:35.000000000 -0700
-+++ mm4-2.6.9-rc1/fs/proc/task_mmu.c	2004-09-08 18:27:39.401017905 -0700
-@@ -9,7 +9,7 @@
- 	unsigned long data, text, lib;
- 
- 	data = mm->total_vm - mm->shared_vm - mm->stack_vm;
--	text = (mm->end_code - mm->start_code) >> 10;
-+	text = PAGE_ALIGN(mm->end_code - mm->start_code) >> 10;
- 	lib = (mm->exec_vm << (PAGE_SHIFT-10)) - text;
- 	buffer += sprintf(buffer,
- 		"VmSize:\t%8lu kB\n"

@@ -1,84 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131680AbRAHT6c>; Mon, 8 Jan 2001 14:58:32 -0500
+	id <S132131AbRAHUAV>; Mon, 8 Jan 2001 15:00:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131569AbRAHT6V>; Mon, 8 Jan 2001 14:58:21 -0500
-Received: from mailer.psc.edu ([128.182.58.100]:21260 "EHLO mailer.psc.edu")
-	by vger.kernel.org with ESMTP id <S132617AbRAHT6I>;
-	Mon, 8 Jan 2001 14:58:08 -0500
-Date: Mon, 8 Jan 2001 14:58:04 -0500 (EST)
-From: John Heffner <jheffner@psc.edu>
-To: Tim Sailer <sailer@bnl.gov>
-cc: linux-kernel@vger.kernel.org, jfung@bnl.gov
-Subject: Re: Network Performance?
-In-Reply-To: <20010108090644.A12440@bnl.gov>
-Message-ID: <Pine.NEB.4.05.10101081415330.3675-100000@dexter.psc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132265AbRAHUAL>; Mon, 8 Jan 2001 15:00:11 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:11782 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S132131AbRAHT77>; Mon, 8 Jan 2001 14:59:59 -0500
+Date: Mon, 8 Jan 2001 20:50:01 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: richbaum@acm.org
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] More compile warning fixes for 2.4.0
+Message-ID: <20010108205001.S3472@arthur.ubicom.tudelft.nl>
+In-Reply-To: <3A5790E3.18256.963C79@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A5790E3.18256.963C79@localhost>; from baumr1@coral.indstate.edu on Sat, Jan 06, 2001 at 09:40:51PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Tim Sailer wrote:
+On Sat, Jan 06, 2001 at 09:40:51PM -0500, Rich Baum wrote:
+> Here's a patch that fixes more of the compile warnings with gcc 
+> 2.97.
 
-> > What is the round-trip time on the WAN?
-> > 
-> > Packet loss?
-> 
-> 101 packets transmitted, 101 packets received, 0% packet loss
-> round-trip min/avg/max = 109.6/110.3/112.2 ms
+> -    case FORE200E_STATE_BLANK:
+> +    case FORE200E_STATE_BLANK:;
 
-Packet loss and RTT can be greatly affected by how much data you're
-sending through a path, so a simple ping is probably not adequate.
+Is this really a kernel bug? This is common idiom in C, so gcc
+shouldn't warn about it. If it does, it is a bug in gcc IMHO.
 
-Also, even a much smaller packet loss rate than 1/100 could really kill
-your throughput.
 
-> > Does the problem occur in both directions?
-> 
-> Good question. I'll find out.
-> 
-> > Are you _sure_ the window size is being set correctly? How
-> > is it being set?
-> 
-> I'm fairly sure. We echo the value to the file. catting it back
-> shows the correct value. If we go lower than default, it slows
-> down even more.
+Erik
+(compiling a GCC CVS snapshot to see if it really breaks)
 
-You have to be certain you restart any applications currently running, but
-it seems like you're probably already doing that, since you observe a
-slow-down with smaller windows.
-
-Is window scaling enabled in the kernel?
-(/proc/sys/net/ipv4/tcp_window_scaling)
-
-You said you're using this as a proxy.  To rule out the real ftp server
-machine as a problem, are you doing an FTP directly from the Linux machine
-to your destination?
-
-Also, your destination machine must have an appropriate receive
-window/buffer.
-
-> > Are you able to generate TCP dumps when the problem is happening?
-> 
-> We can, if it will help.
-
-Viewing a trace of the connection is often the most informative and
-effective means of debugging a connection.  One note, traces should
-probably be collected from the sender.  Receiver traces rarely contain
-useful information.
-
-Other questions: What kind of router(s) are you using?  How big are its
-buffers?  What drop algorithm does it use?  Have you successfully had any
-bulk TCP flows (from other OS's) go through this particular path at near
-the full 80Mb?
-
-There are a number of difficulties that may occur when trying to get full
-bandwidth out of a long fat pipe (LFP).  You certainly aren't the only one
-having problems.  Unfortunately it often takes a TCP expert to diagnose
-the problem (or problems), since there are so many possible problems.
-
-  -John
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRCWEMd>; Thu, 22 Mar 2001 23:12:33 -0500
+	id <S129464AbRCWEWc>; Thu, 22 Mar 2001 23:22:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129509AbRCWEMW>; Thu, 22 Mar 2001 23:12:22 -0500
-Received: from nrcvicex1a.hia.nrc.ca ([204.174.103.8]:53002 "EHLO
-	nrcvicex1.hia.nrc.ca") by vger.kernel.org with ESMTP
-	id <S129051AbRCWEMQ>; Thu, 22 Mar 2001 23:12:16 -0500
-Message-ID: <3ABACD48.34848C56@nrc.ca>
-Date: Thu, 22 Mar 2001 20:12:56 -0800
-X-Sybari-Trust: 7c7fecdc 050014e6 00000000
-From: Tony Hoffmann <tony.hoffmann@nrc.ca>
-Organization: National Research Council of Canada
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129466AbRCWEWX>; Thu, 22 Mar 2001 23:22:23 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:44202 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129464AbRCWEWK>; Thu, 22 Mar 2001 23:22:10 -0500
+Date: Thu, 22 Mar 2001 23:21:14 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac21
-In-Reply-To: <20010322162802.A909@the-penguin.otak.com> <3ABAA2E6.9D40B7B6@asiapacificm01.nt.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Please review patchlet for ov511 (2.4.2-ac19)
+Message-ID: <20010322232114.B14771@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also had my 3c905 behave this way with ac21.  ac20 is ok.  System uses an ABit kt7a board.
+Here is the deal:
 
-Andrew Morton wrote:
+we have a guy here with a webcam and the following scenario:
+1. ov511 disconnects, everything dies/releases/closes fine,
+2. webcam soft starts polling open/sleep/open/sleep/...
+3. ov511_probe works and reaches ov511_configure,
+   calls video_register_device().
+4. Webcam software opens and oopses on the semafore
+   that was not initialized yet.
 
-> Lawrence Walton wrote:
-> >
-> > Hello all
-> > 2.4.2-ac21 seems to have a couple problems.
-> > ...
-> >
-> > Mar 22 15:15:55 the-penguin kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > ...
-> > 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (prog-if 00 [Normal decode])
->
-> People have recently been changing VIA PCI bridge settings
-> to try to fix the file corruption thing.  There has been one
-> report that this change causes a 3c905C to go silly.
->
-> This looks like the same problem to me.
->
-> Arjan?
->
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I think video_register_device needs to be done last, when
+everything else is ready to accept appliction requests.
 
+Someone please review. The error handling style
+of ov511 spins my head. I may be missing a code path somewhere.
+
+Thanks in advance,
+-- Pete
+
+--- linux-2.4.2-ac19/drivers/usb/ov511.c	Thu Jan  4 13:15:32 2001
++++ linux-2.4.2-ac19-p3/drivers/usb/ov511.c	Thu Mar 22 19:55:59 2001
+@@ -3141,11 +3141,6 @@
+ 
+ 	init_waitqueue_head(&ov511->wq);
+ 
+-	if (video_register_device(&ov511->vdev, VFL_TYPE_GRABBER) < 0) {
+-		err("video_register_device failed");
+-		return -EBUSY;
+-	}
+-
+ 	if (ov511_write_regvals(dev, aRegvalsInit)) goto error;
+ 	if (ov511_write_regvals(dev, aRegvalsNorm511)) goto error;
+ 
+@@ -3214,7 +3209,6 @@
+ 	return 0;
+ 	
+ error:
+-	video_unregister_device(&ov511->vdev);
+ 	usb_driver_release_interface(&ov511_driver,
+ 		&dev->actconfig->interface[ov511->iface]);
+ 
+@@ -3323,6 +3317,11 @@
+ 		ov511->buf_state = BUF_NOT_ALLOCATED;
+ 	} else {
+ 		err("Failed to configure camera");
++		goto error;
++	}
++
++	if (video_register_device(&ov511->vdev, VFL_TYPE_GRABBER) < 0) {
++		err("video_register_device failed");
+ 		goto error;
+ 	}
+ 

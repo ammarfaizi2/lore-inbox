@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbUCRUg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 15:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUCRUgz
+	id S262931AbUCRUhg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 15:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262926AbUCRUhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 15:36:55 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28678 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262942AbUCRUgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 15:36:49 -0500
-Date: Thu, 18 Mar 2004 20:36:38 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Ian Campbell <icampbell@arcom.com>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] PXA255 LCD Driver
-Message-ID: <20040318203638.A12978@flint.arm.linux.org.uk>
-Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
-	Ian Campbell <icampbell@arcom.com>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>
-References: <1079525185.13373.143.camel@icampbell-debian> <Pine.LNX.4.44.0403171723330.15898-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0403171723330.15898-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Wed, Mar 17, 2004 at 07:03:06PM +0000
+	Thu, 18 Mar 2004 15:37:36 -0500
+Received: from moutng.kundenserver.de ([212.227.126.185]:19455 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262942AbUCRUh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 15:37:27 -0500
+Date: Thu, 18 Mar 2004 21:37:19 +0100 (MET)
+From: Armin Schindler <armin@melware.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 2.6] serialization of kernelcapi work
+In-Reply-To: <20040318121826.61c9f145.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.31.0403182126360.13676-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 17, 2004 at 07:03:06PM +0000, James Simmons wrote:
-> behavior is struct fb_monspecs. Take a look at it in fb.h. I'm interested 
-> if I got all the needed data from the EDID about a display panel.
+On Thu, 18 Mar 2004, Andrew Morton wrote:
+> Armin Schindler <armin@melware.de> wrote:
+> >
+> > Hi all,
+> >
+> > the ISDN kernelcapi function recv_handler() is triggered by
+> > schedule_work() and dispatches the CAPI messages to the applications.
+> >
+> > Since a workqueue function may run on another CPU at the same time,
+> > reordering of CAPI messages may occur.
+>
+> TCP has the same problem.
+>
+> > For serialization I suggest a mutex semaphore in recv_handler(),
+> > patch is appended (yet untested).
+>
+> It will work OK.  It isn't very scalable of course, but I assume you're
+> dealing with relatively low bandwidths.
 
-You're thinking too PC-centric.  You don't get EDID data with embedded
-LCD panels.  Instead, you get timing information, number of pixels per
-line, and other parameters either from a PDF or paper datasheet on the
-device.
+Right, compared with network, I guess it is low bandwith.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> I would suggest that you look at avoiding the global semaphore.  Suppose
+> someone has 64 interfaces or something.  Is that possible?  It might be
+> better to put the semaphore into struct capi_ctr so you can at least
+> process frames from separate cards in parallel.
+
+This was just mentioned on the i4l-developer list too.
+But not on capi_ctr basis, a semaphore per application (struct capi20_appl)
+should be better.
+
+The reason for the serialization is a possible re-ordering of messages
+per application, so only the application needs the semaphore.
+
+Thanks Andrew, I will prepare a new patch.
+
+Armin
+
+

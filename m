@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbTGLW5G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbTGLW5G
+	id S268710AbTGLXCl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 19:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269992AbTGLXCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:57:06 -0400
-Received: from ev2.cpe.orbis.net ([209.173.192.122]:2470 "EHLO srv.foo21.com")
-	by vger.kernel.org with ESMTP id S268680AbTGLW5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:57:03 -0400
-Date: Sat, 12 Jul 2003 18:11:47 -0500
-From: Eric Varsanyi <e0206@foo21.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Eric Varsanyi <e0206@foo21.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch][RFC] epoll and half closed TCP connections
-Message-ID: <20030712231147.GI15643@srv.foo21.com>
-References: <20030712181654.GB15643@srv.foo21.com> <20030712194432.GE10450@mail.jlokier.co.uk> <20030712205114.GC15643@srv.foo21.com> <Pine.LNX.4.55.0307121346140.4720@bigblue.dev.mcafeelabs.com> <20030712211941.GD15643@srv.foo21.com> <Pine.LNX.4.55.0307121436460.4720@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307121436460.4720@bigblue.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+	Sat, 12 Jul 2003 19:02:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:916 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268710AbTGLXCk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 19:02:40 -0400
+Message-ID: <3F1096EE.7010601@pobox.com>
+Date: Sat, 12 Jul 2003 19:17:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.75
+References: <200307121920.h6CJKFZY004864@eeyore.valparaiso.cl>
+In-Reply-To: <200307121920.h6CJKFZY004864@eeyore.valparaiso.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I guess my only argument would be that edge triggered mode isn't really
-> > workable with TCP connections if there's no way to solve the ambiguity
-> > between EOF and no data in buffer (at least w/o an extra syscall). I just
-> > realized that the race you mention in the man page (reading data from
-> > the 'next' event that hasn't been polled into user mode yet) will lead to
-> > the same issue: how do you know if you got this event because you consumed
-> > the data on the previous interrupt or if this is an EOF condition.
+Horst von Brand wrote:
+> Arjan van de Ven <arjanv@redhat.com> said:
 > 
-> (Sorry, I missed this)
-> You can work that out very easily. When your read/write returns a lower
-> number of bytes, it means that it is time to stop processing this fd. If
-> events happened meanwhile, you will get them at the next epoll_wait(). If
-> not, the next time they'll happen. There's no blind spot if you follow
-> this simple rule, and you do not even have the extra syscall with EAGAIN.
+> [...]
+> 
+> 
+>>fwiw there are rpms of 2.5.75 that fit in Red Hat Linux 9 (plus updated
+>>modutils, initscripts and mkinitrd from rawhide) on
+>>http://people.redhat.com/arjanv/2.5
+>>for people to play with.
+> 
+> 
+> Where are the non-kernel files? A kernel RPM on itself is not enough... and
+> for me at least ((semi-)regular bk-kernel tester) the least useful.
 
-The scenario that I think is still uncovered (edge trigger only):
 
-User					Kernel
---------				----------
-					Read data added to socket
+rawhide, like arjan said :)
 
-					Socket posts read event to epfd
+Pick your favorite rawhide mirror.
 
-epoll_wait()				Event cleared from epfd, EPOLLIN
-					  returned to user
+	Jeff
 
-					more read data added to socket
 
-					Socket posts a new read event to epfd
 
-read() until short read with EAGAIN 	all data read from socket
-
-epoll_wait()				returns another EPOLLIN for socket and
-					  clears it from epfd
-
-read(), returns 0 right away		socket buffer is empty
-
-This is your 'false positive' case in the epoll(4) man page.
-
-How does the app tell the 0 read here from a read EOF coming from the remote?
-
-If it assumes this is a false positive and there was also an EOF
-indication, the EOF will be lost; if it assumes it an EOF the connection
-will be prematurely terminated.
-
--Eric

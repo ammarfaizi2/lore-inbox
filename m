@@ -1,49 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbUKWCv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbUKWCv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbUKWCv0 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261170AbUKWCv0 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 21:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUKWCuF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbUKWCt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:50:05 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53997 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262463AbUKWCqR (ORCPT
+	Mon, 22 Nov 2004 21:49:58 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:30092 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S261170AbUKWCrE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 21:46:17 -0500
-Date: Mon, 22 Nov 2004 18:45:34 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Len Brown <len.brown@intel.com>
-cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stian Jordet <stian_web@jordet.nu>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-In-Reply-To: <1101155893.20007.125.camel@d845pe>
-Message-ID: <Pine.LNX.4.58.0411221815460.20993@ppc970.osdl.org>
-References: <20041115152721.U14339@build.pdx.osdl.net>  <1100819685.987.120.camel@d845pe>
- <20041118230948.W2357@build.pdx.osdl.net>  <1100941324.987.238.camel@d845pe>
- <20041120124001.GA2829@stusta.de>  <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
-  <1101151780.20006.69.camel@d845pe>  <Pine.LNX.4.58.0411221137200.20993@ppc970.osdl.org>
- <1101155893.20007.125.camel@d845pe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Nov 2004 21:47:04 -0500
+Date: Tue, 23 Nov 2004 11:46:58 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc2 1/4] module sysfs: make module.mkobj inline
+Message-ID: <20041123024658.GB7326@home-tj.org>
+References: <20041123024537.GA7326@home-tj.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041123024537.GA7326@home-tj.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 01_mkobj_inline.patch
+> 	Make module.mkobj inline.  As this is simpler and what's
+> 	usually done with kobjs when it's representing an entity.
 
 
-On Mon, 22 Nov 2004, Len Brown wrote:
-> 
-> I think the VIA case is more complicated than that, but I'll take
-> another look at it.
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Ok, having looked at the bugzilla entry, I have to concur. Looks like we 
-do need to disable the PCI interrupts and re-enable them. Mea culpa.
 
-So what's the right way to get ELCR into a useful state? I'm starting to
-lean towards your "just clear it all" after all, but that does the wrong
-thing for SCI (which is _usually_ level-triggered), and I worry that there
-are other cases too.
+Index: linux-export/include/linux/module.h
+===================================================================
+--- linux-export.orig/include/linux/module.h	2004-11-23 10:57:37.000000000 +0900
++++ linux-export/include/linux/module.h	2004-11-23 11:31:32.000000000 +0900
+@@ -250,7 +250,7 @@ struct module
+ 	char name[MODULE_NAME_LEN];
+ 
+ 	/* Sysfs stuff. */
+-	struct module_kobject *mkobj;
++	struct module_kobject mkobj;
+ 	struct param_kobject *params_kobject;
+ 
+ 	/* Exported symbols */
+Index: linux-export/kernel/module.c
+===================================================================
+--- linux-export.orig/kernel/module.c	2004-11-23 10:57:37.000000000 +0900
++++ linux-export/kernel/module.c	2004-11-23 11:31:32.000000000 +0900
+@@ -964,9 +964,6 @@ static void add_sect_attrs(struct module
+ 	unsigned int nloaded = 0, i;
+ 	struct module_sect_attr *sattr;
+ 	
+-	if (!mod->mkobj)
+-		return;
+-	
+ 	/* Count loaded sections and allocate structures */
+ 	for (i = 0; i < nsect; i++)
+ 		if (sechdrs[i].sh_flags & SHF_ALLOC)
+@@ -980,7 +977,7 @@ static void add_sect_attrs(struct module
+ 	memset(mod->sect_attrs, 0, sizeof(struct module_sections));
+ 	if (kobject_set_name(&mod->sect_attrs->kobj, "sections"))
+ 		goto out;
+-	mod->sect_attrs->kobj.parent = &mod->mkobj->kobj;
++	mod->sect_attrs->kobj.parent = &mod->mkobj.kobj;
+ 	mod->sect_attrs->kobj.ktype = &module_sect_ktype;
+ 	if (kobject_register(&mod->sect_attrs->kobj))
+ 		goto out;
+@@ -1029,11 +1026,11 @@ static inline void remove_sect_attrs(str
+ #ifdef CONFIG_MODULE_UNLOAD
+ static inline int module_add_refcnt_attr(struct module *mod)
+ {
+-	return sysfs_create_file(&mod->mkobj->kobj, &refcnt.attr);
++	return sysfs_create_file(&mod->mkobj.kobj, &refcnt.attr);
+ }
+ static void module_remove_refcnt_attr(struct module *mod)
+ {
+-	return sysfs_remove_file(&mod->mkobj->kobj, &refcnt.attr);
++	return sysfs_remove_file(&mod->mkobj.kobj, &refcnt.attr);
+ }
+ #else
+ static inline int module_add_refcnt_attr(struct module *mod)
+@@ -1052,17 +1049,13 @@ static int mod_sysfs_setup(struct module
+ {
+ 	int err;
+ 
+-	mod->mkobj = kmalloc(sizeof(struct module_kobject), GFP_KERNEL);
+-	if (!mod->mkobj)
+-		return -ENOMEM;
+-
+-	memset(&mod->mkobj->kobj, 0, sizeof(mod->mkobj->kobj));
+-	err = kobject_set_name(&mod->mkobj->kobj, "%s", mod->name);
++	memset(&mod->mkobj.kobj, 0, sizeof(mod->mkobj.kobj));
++	err = kobject_set_name(&mod->mkobj.kobj, "%s", mod->name);
+ 	if (err)
+ 		goto out;
+-	kobj_set_kset_s(mod->mkobj, module_subsys);
+-	mod->mkobj->mod = mod;
+-	err = kobject_register(&mod->mkobj->kobj);
++	kobj_set_kset_s(&mod->mkobj, module_subsys);
++	mod->mkobj.mod = mod;
++	err = kobject_register(&mod->mkobj.kobj);
+ 	if (err)
+ 		goto out;
+ 
+@@ -1077,11 +1070,8 @@ static int mod_sysfs_setup(struct module
+ 	return 0;
+ 
+ out_unreg:
+-	/* Calls module_kobj_release */
+-	kobject_unregister(&mod->mkobj->kobj);
+-	return err;
++	kobject_unregister(&mod->mkobj.kobj);
+ out:
+-	kfree(mod->mkobj);
+ 	return err;
+ }
+ 
+@@ -1090,8 +1080,7 @@ static void mod_kobject_remove(struct mo
+ 	module_remove_refcnt_attr(mod);
+ 	module_param_sysfs_remove(mod);
+ 
+-	/* Calls module_kobj_release */
+-	kobject_unregister(&mod->mkobj->kobj);
++	kobject_unregister(&mod->mkobj.kobj);
+ }
+ 
+ /* Free a module, remove from lists, etc (must hold module mutex). */
+@@ -2089,11 +2078,9 @@ void module_add_driver(struct module *mo
+ {
+ 	if (!mod || !drv)
+ 		return;
+-	if (!mod->mkobj)
+-		return;
+ 
+ 	/* Don't check return code; this call is idempotent */
+-	sysfs_create_link(&drv->kobj, &mod->mkobj->kobj, "module");
++	sysfs_create_link(&drv->kobj, &mod->mkobj.kobj, "module");
+ }
+ EXPORT_SYMBOL(module_add_driver);
+ 
+Index: linux-export/kernel/params.c
+===================================================================
+--- linux-export.orig/kernel/params.c	2004-11-23 10:57:38.000000000 +0900
++++ linux-export/kernel/params.c	2004-11-23 11:31:32.000000000 +0900
+@@ -567,7 +567,7 @@ int module_param_sysfs_setup(struct modu
+ {
+ 	struct param_kobject *pk;
+ 
+-	pk = param_sysfs_setup(mod->mkobj, kparam, num_params, 0);
++	pk = param_sysfs_setup(&mod->mkobj, kparam, num_params, 0);
+ 	if (IS_ERR(pk))
+ 		return PTR_ERR(pk);
+ 
+@@ -710,14 +710,8 @@ static struct sysfs_ops module_sysfs_ops
+ };
+ #endif
+ 
+-static void module_kobj_release(struct kobject *kobj)
+-{
+-	kfree(container_of(kobj, struct module_kobject, kobj));
+-}
+-
+ static struct kobj_type module_ktype = {
+ 	.sysfs_ops =	&module_sysfs_ops,
+-	.release =	&module_kobj_release,
+ };
+ 
+ decl_subsys(module, &module_ktype, NULL);
 
-Any reasonably simple patch that likely gets it right?
-
-		Linus

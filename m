@@ -1,56 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316675AbSHBTYK>; Fri, 2 Aug 2002 15:24:10 -0400
+	id <S316838AbSHBT2r>; Fri, 2 Aug 2002 15:28:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSHBTYK>; Fri, 2 Aug 2002 15:24:10 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:34058 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316675AbSHBTYJ>; Fri, 2 Aug 2002 15:24:09 -0400
-Date: Fri, 2 Aug 2002 21:27:32 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: manipulating sigmask from filesystems and drivers 
-In-Reply-To: <Pine.LNX.4.44.0208020833110.18265-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208022025510.28515-100000@serv>
+	id <S316842AbSHBT2r>; Fri, 2 Aug 2002 15:28:47 -0400
+Received: from hdfdns02.hd.intel.com ([192.52.58.11]:35070 "EHLO
+	mail2.hd.intel.com") by vger.kernel.org with ESMTP
+	id <S316838AbSHBT2q>; Fri, 2 Aug 2002 15:28:46 -0400
+Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA56C0@fmsmsx114.fm.intel.com>
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Cc: gh@us.ibm.com, riel@conectiva.com.br, akpm@zip.com.au,
+       "Seth, Rohit" <rohit.seth@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "David S. Miller" <davem@redhat.com>,
+       "'davidm@hpl.hp.com'" <davidm@hpl.hp.com>
+Subject: RE: large page patch 
+Date: Fri, 2 Aug 2002 12:31:58 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-On Fri, 2 Aug 2002, Linus Torvalds wrote:
+We agree that there are few different ways to get this support implemented
+in base kernel.  Also, the extent to which this support needs to go is also
+debatable (like whether the large_pages could be made swapable etc.)  Just
+to give little history, we also started with prototyping changes in kernel
+that would get the large page support transparent to end user (as we wanted
+to see the benefit of large apps like databases, spec benchmark and HPC
+applications using different page sizes on IA-64).  And under some
+conditions automagically user start using large pages for shm and private
+anonymous pages.  But we would call this at best a kludge because there are
+quite a number of conditions in these execution paths that one has to do
+differently for large_pages.  For example,
+make_pages_present/handle_mm_fault for anonymous or shmem type of pages need
+to be modified to embed the knowledge of different page size in generic
+kernel. Also, there are places where semantics of changes may not completely
+match.  For example, doing a shm_lock/unlock on these segments were not
+exactly doing the expected.  All those extra changes add cost in the normal
+execution path (severity could differ from app to app). 
 
-> Binary compatibility is important. As is the larger issue of generic UNIX
-> compatibility. You had better have some really strong arguments for why
-> you would think I'd be willing to break compatibility. So far you have had
-> _no_ arguments for the question "Why?".
+So, we needed to treat the large pages as a special case and want to make
+sure that the application that will be using the large pages understand that
+these pages are special (avoid transperent usage model until the large pages
+are treated the same way as normal pages). This led to cleaner solution
+(input for which also came from Linus himself).  The new APIs enable the
+kernel to contain the changes to be architecture specific and limited to
+very few kernel changes.  And above all it looks so much portable. Fact is,
+the initial implementation was done for IA-64 and porting to x86 took couple
+of hours. One of the other key advantage is that this design does not tie
+the supported large_page size(s) to any specific size in the generic mm
+code.  It supports all the underlying architecture supported page sizes
+quite independent of generic code.  And architecture dependent code could
+support multiple large_page sizes in the same kernel.
 
-I never asked for breaking binary compatibility.
-On the other hand I can give you an example, why I'd like to have a
-choice. I expect from a good application that it recovers gracefully from
-failures, so if I'm saving a file and the server goes down, I would
-really, really like it if something happened when I push that stop button
-or I press Esc and the application should offer me the possibility to save
-the file somewhere else.
-
-To implement this I would suggest using file flags instead of new task
-flags:
-
-	O_ATOMIC
-	O_NONBLOCK
-	O_SIGNALINT
-	O_KILLINT
-	O_DONT_BOTHER_ME
-
-The first one might be useful for aio, it wants something like that
-already anyway.
-This way applications had a choice, how read/write should behave on
-signals.
-
-bye, Roman
+We presented our work to Oracle and they were acceptable to the new APIs
+(not saying Oracle is the only DB in world that one has to worry about, but
+it clearly indicates that the move from shm apis to this new APIs is easy.
+Obviously the input from other big app vendors will be highly appreciated.).
 
 
+Sceintific apps people who have the sources should also like this approach,
+as there changes will be even more trivial (changes to malloc).  And above
+all, for those people who really want to get this extra buck transparently,
+the changes could be done to user land libraries to selectively map to these
+new APIs.  LD_PRELOAD could be another way to do.  Ofcourse, there will be
+changes that need to be done in user land.  But they are self contained
+changes.  And one of the key point is that application knows what it is
+demanding/getting form kernel.
+
+Now to the point where the large_pages themselves could be made swapable. In
+our opinion (and this may not be this API dependent), it is not a good idea
+to look at these pages as swapable candidates.  Most of the big apps who are
+going to use this feature will use them for the data that they really need
+available all the time (prefereably in RAM if not on caches :-)).  And the
+sysadm could easily configure the amount of large mem pool as per the needs
+for a specific environment.
+
+To the point where the whole kernel starts supporting (as David Mosberger
+refered) superpages where support is built in kernel to basically treat
+superpages as just another size the whole kernel supports will be great too.
+But those need quite a lot of exhaustive changes in kernel layers as weill
+as lot of tuning.....may be a little further away in future.
+
+thanks,
+asit & rohit

@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265549AbTL3H0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 02:26:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbTL3H0Z
+	id S265609AbTL3HbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 02:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbTL3HbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 02:26:25 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:35818 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S265549AbTL3H0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 02:26:22 -0500
-Date: Tue, 30 Dec 2003 08:26:20 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [NEW FEATURE]Partitions on loop device for 2.6
-Message-ID: <20031230072620.GB1517@louise.pinerecords.com>
-References: <200312241341.23523.blaisorblade_spam@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312241341.23523.blaisorblade_spam@yahoo.it>
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Dec 2003 02:31:25 -0500
+Received: from mail2.megatrends.com ([155.229.80.16]:21252 "EHLO
+	atl-ms1.megatrends.com") by vger.kernel.org with ESMTP
+	id S265609AbTL3HbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 02:31:22 -0500
+Message-ID: <8CCBDD5583C50E4196F012E79439B45C0568D7F0@atl-ms1.megatrends.com>
+From: Srikumar Subramanian <SrikumarS@ami.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: Srikumar Subramanian <SrikumarS@ami.com>,
+       Boopathi Veerappan <BoopathiV@ami.com>
+Subject: memory leak in call_usermodehelper()
+Date: Tue, 30 Dec 2003 02:32:01 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-24 2003, Wed, 18:20 +0100
-BlaisorBlade <blaisorblade_spam@yahoo.it> wrote:
+Hi All,
 
-Thanks for the patch.  Would you please inline it (instead
-of attaching it) the next time you're sending one?
+>From my customized system call, I merely call call_usermodehelper() to spawn
+a process. When I call my_system_call around 1000 times in order to spawn
+'hello world' program, I noticed in 'top' program that system has lost 200
+KB of free memory.
+I just increased the iteration to 700000, I lost the entire 128 MB free
+memory from my system and eventually the system is freezed.
 
-> 	if (register_blkdev(LOOP_MAJOR, "loop"))
-> 		return -EIO;
-> 
->+	if (register_blkdev(PLOOP_MAJOR, "ploop")) {
->+		ret = -EIO;
->+		goto out_noreg;
->+	}
+Any suggestion or patch to over come this issue ?
 
-Let's make these consistent.
+Please 'cc' me in your reply.
 
->+	printk(KERN_INFO "loop: loaded (max %d not partitioned devices "
->+	    		 "and %d partitioned ones)\n", max_nopart_loop, max_part_loop);
-
-... "%d regular loop devices and %d partitionable ones"
-
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Thanks & Regards,
+Srikumar.

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274971AbRIXUr3>; Mon, 24 Sep 2001 16:47:29 -0400
+	id <S274164AbRIXUyB>; Mon, 24 Sep 2001 16:54:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274967AbRIXUrU>; Mon, 24 Sep 2001 16:47:20 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:55561 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S274962AbRIXUrF>;
-	Mon, 24 Sep 2001 16:47:05 -0400
-Date: Mon, 24 Sep 2001 23:47:17 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Simon Kirby <sim@netnation.com>, linux-kernel@vger.kernel.org
-Subject: Re: O_NONBLOCK on files
-Message-ID: <20010924234717.V11046@mea-ext.zmailer.org>
-In-Reply-To: <20010918234648.A21010@netnation.com> <m1r8t3fyot.fsf@frodo.biederman.org> <20010919002439.A21138@netnation.com>
+	id <S274167AbRIXUxw>; Mon, 24 Sep 2001 16:53:52 -0400
+Received: from t2.redhat.com ([199.183.24.243]:241 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S274164AbRIXUxj>; Mon, 24 Sep 2001 16:53:39 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.30.0109242233150.18098-100000@Appserv.suse.de> 
+In-Reply-To: <Pine.LNX.4.30.0109242233150.18098-100000@Appserv.suse.de> 
+To: Dave Jones <davej@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] compilation fix for nand.c 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010919002439.A21138@netnation.com>; from sim@netnation.com on Wed, Sep 19, 2001 at 12:24:39AM -0700
+Date: Mon, 24 Sep 2001 21:54:02 +0100
+Message-ID: <30460.1001364842@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 12:24:39AM -0700, Simon Kirby wrote:
-> On Wed, Sep 19, 2001 at 01:05:06AM -0600, Eric W. Biederman wrote:
-> > What would cause the data to be read in if read just checks the caches?
-> > With sockets the other side is clearing pushing or pulling the data.  With
-> > files there is no other side...
-> 
-> Hmm...Without even thinking about it, I assumed it would start a read and
-> select() or poll() or some later call would return readable when my
-> outstanding request was fulfilled.  But yes, I guess you're right, this is
-> different behavior because there is no other side.
 
-   To push the idea into ultimate:  AIO
+davej@suse.de said:
+>  nand.c uses do_softirq() without including interrupt.h. Patch below
+> makes things compile again.
 
-   You open file, start IO, and do other things while the machine
-   is doing IO.    Doing open() asynchronously would be ultimate,
-   but alas, not particularly trivial.
+Fixed in ftp.uk.linux.org:/pub/people/dwmw2/mtd/mtd-diff-against-2.4.10-v4
 
-   There are problems also in the AIO status rendezvous mechanisms.
+I haven't finished reading through that and taking compatibility cruft out 
+yet, but I expect to have it split up and sent to Linus some time this week.
 
-   Your best choice could be (with moderation) to do synchronous
-   operations at separate threads.
+--
+dwmw2
 
-> Reading a file would need a receive queue to make this work, I guess. :)
-> Simon-
-> [       sim@stormix.com       ][       sim@netnation.com        ]
 
-/Matti Aarnio

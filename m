@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbTEFGq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 02:46:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbTEFGq2
+	id S262416AbTEFGwr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 02:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTEFGwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 02:46:28 -0400
-Received: from h234n2fls24o900.telia.com ([217.208.132.234]:51690 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id S262403AbTEFGq1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 02:46:27 -0400
-Date: Tue, 6 May 2003 09:00:06 +0200
-From: Voluspa <lista1@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.69
-Message-Id: <20030506090006.74cb7cc7.lista1@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 6 May 2003 02:52:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20709 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262416AbTEFGwq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 02:52:46 -0400
+Date: Mon, 05 May 2003 22:57:48 -0700 (PDT)
+Message-Id: <20030505.225748.35026531.davem@redhat.com>
+To: akpm@digeo.com
+Cc: rusty@rustcorp.com.au, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc_percpu
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030505235549.5df75866.akpm@digeo.com>
+References: <20030505224815.07e5240c.akpm@digeo.com>
+	<20030505.223554.88485673.davem@redhat.com>
+	<20030505235549.5df75866.akpm@digeo.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Andrew Morton <akpm@digeo.com>
+   Date: Mon, 5 May 2003 23:55:49 -0700
 
-Mon, 5 May 2003 06:19:51 +0200 I wrote:
+   How about we leave kmalloc_per_cpu as-is (it uses kmalloc()), and
+   only apply Rusty's new code to DEFINE_PER_CPU?
+   
+I propose to make it use kmalloc() all the time.
 
->/tmp/ccKug4Ma.s:1102: Error: Unknown pseudo-op:  `.incbin'
->/tmp/ccKug4Ma.s:1107: Error: Unknown pseudo-op:  `.incbin'
->make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
->make: *** [arch/i386/kernel] Error 2
+It simply doesn't make sense to use a pool given what you've
+shown me.  If we've decided that any limit whatsover is bad,
+why impose any limit at all?  Smells like bad design frankly.
 
-Turns out I got bitten by too old binutils. Could you do a "feet/metre" convertion in
-Documentation/Changes under _Current Minimal Requirements_, something like:
+Normal DEFINE_PER_CPU() need not a pool, therefore we don't need
+a pool for anything.
 
-o  binutils               2.9.5.0.25              # ld -v
-+or
-+o GNU/binutils           2.13.(wherever 'as' got to know about incbin)
-
-I had the GNU 2.11.2 which is higher than 2.9.x... right ;-)
-
-Regards,
-Mats Johannesson
+Make kmalloc_per_cpu() merely a convenience macro, made up of existing
+non-percpu primitives.

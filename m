@@ -1,58 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130792AbQKHADP>; Tue, 7 Nov 2000 19:03:15 -0500
+	id <S130325AbQKHADz>; Tue, 7 Nov 2000 19:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129940AbQKHADG>; Tue, 7 Nov 2000 19:03:06 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:20234 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129975AbQKHACw>;
-	Tue, 7 Nov 2000 19:02:52 -0500
-Message-ID: <3A089752.505816BA@mandrakesoft.com>
-Date: Tue, 07 Nov 2000 18:59:14 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+	id <S129210AbQKHADt>; Tue, 7 Nov 2000 19:03:49 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:23559 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130481AbQKHAD2>; Tue, 7 Nov 2000 19:03:28 -0500
+Message-ID: <3A089766.43FD7CC0@timpanogas.org>
+Date: Tue, 07 Nov 2000 16:59:34 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Sven Koch <haegar@cut.de>
-CC: David Lang <david.lang@digitalinsight.com>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>, kernel@kvack.org,
-        Martin Josefsson <gandalf@wlug.westbo.se>,
-        Tigran Aivazian <tigran@veritas.com>, Anil kumar <anils_r@yahoo.com>,
-        linux-kernel@vger.kernel.org
+To: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Installing kernel 2.4
-In-Reply-To: <Pine.LNX.4.30.0011080047260.10874-100000@space.comunit.de>
+In-Reply-To: <Pine.LNX.4.21.0011072322120.8187-100000@neo.local> <3A089254.397115FE@timpanogas.org> <3A08947C.1161F13C@timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Koch wrote:
+
+
+"Jeff V. Merkey" wrote:
 > 
-> On Tue, 7 Nov 2000, David Lang wrote:
+> "Jeff V. Merkey" wrote:
+> >
+> > davej@suse.de wrote:
+> > >
+> > > > There are tests for all this in the feature flags for intel and
+> > > > non-intel CPUs like AMD -- including MTRR settings.  All of this could
+> > > > be dynamic.  Here's some code that does this, and it's similiar to
+> > > > NetWare.  It detexts CPU type, feature flags, special instructions,
+> > > > etc.  All of this on x86 could be dynamically detected.
+> > >
+> > > Detecting the CPU isn't the issue (we already do all this), it's what to
+> > > do when you've figured out what the CPU is. Show me code that can
+> > > dynamically adjust the alignment of the routines/variables/structs
+> > > dependant upon cacheline size.
 > 
-> > depending on what CPU you have the kernel (and compiler) can use different
-> > commands/opmizations/etc, if you want to do this on boot you have two
-> > options.
+> ftp.timpanogas.org/manos/manos0817.tar.gz
 > 
-> Wouldn't it be possible to compile the parts of the kernel needed to
-> uncompress and to detect the cpu with lower optimizations and then abort
-> with an error message?
+> Look in the PE loader -- Microsoft's PE loader can do this since
+> everything is RVA based.  If you want to take the loader and put it in
+> Linux, be my guest.  You can even combine mutiple i86 segments all
+> compiled under different options (or architectures) and bundle them into
+> a single executable file -- not somthing gcc can do today -- even with
+> DLL.  This code is almost identical to the PE loader used in NT -- with
+> one exception, I omit the fs:_THREAD_DLS startup code...
 > 
-> "Error: Kernel needs a PIII" sounds much better than just stoping dead.
+> 8)
+> 
+> Jeff
+> 
+> >
+> > If the compiler always aligned all functions and data on 16 byte
+> > boundries (NetWare)
+> > for all i386 code, it would run a lot faster.  Cache line alignment
+> > could be an option in the loader .... after all, it's hte loader that
+> > locates data in memory.  If Linux were PE based, relocation logic would
+> > be a snap with this model (like NT).
 
-I agree...   maybe we can solve this simply by giving the CPU detection
-module the -march=i386 flag hardcoded, or editing the bootstrap, or
-something like that...
+Also, init.386 has an x86 real mode PE loader as well that could easily
+be used to load Linux as a DLL instead of a coff binary.  Then you could
+combine several executable segments of differing optimizations and
+select the correct one at load time.  I do this now.  It's pretty easy
+to do with PE ...
 
-	Jeff
+Jeff
 
-
-
--- 
-Jeff Garzik             | "When I do this, my computer freezes."
-Building 1024           |          -user
-MandrakeSoft            | "Don't do that."
-                        |          -level 1
+> >
+> > Jeff
+> >
+> > >
+> > > regards,
+> > >
+> > > Davej.
+> > >
+> > > --
+> > > | Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+> > > | SuSE Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281030AbRKGWwt>; Wed, 7 Nov 2001 17:52:49 -0500
+	id <S281046AbRKGXBU>; Wed, 7 Nov 2001 18:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281040AbRKGWwk>; Wed, 7 Nov 2001 17:52:40 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13822
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281030AbRKGWwg>; Wed, 7 Nov 2001 17:52:36 -0500
-Date: Wed, 7 Nov 2001 14:52:29 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 vs resiserfs vs xfs
-Message-ID: <20011107145229.A560@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>, <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE9AF15.50524856@zip.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S281040AbRKGXBL>; Wed, 7 Nov 2001 18:01:11 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:53766 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S281043AbRKGXBE>; Wed, 7 Nov 2001 18:01:04 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+Date: Wed, 7 Nov 2001 23:01:02 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9scefe$hgf$1@ncc1701.cistron.net>
+In-Reply-To: <F57jukJ1zkc6g9wHRQa0000b09f@hotmail.com>
+X-Trace: ncc1701.cistron.net 1005174062 17935 195.64.65.67 (7 Nov 2001 23:01:02 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 02:00:53PM -0800, Andrew Morton wrote:
-> Mike Fedyk wrote:
-> > 
-> > I have a switch "data=journal" that ext2 will choke on when I boot into an
-> > ext2 only kernel.
-> > 
-> > Is there another way to change the journaling mode besides modifying
-> > /etc/fstab?
-> 
-> Try  adding `rootflags=data=journal' to your kernel boot
-> commandline.
+In article <F57jukJ1zkc6g9wHRQa0000b09f@hotmail.com>,
+William Knop <w_knop@hotmail.com> wrote:
 >
+>>Yes, but I meant a program which reads a single binary value and >outputs 
+>>it as ascii, as a generic layer between the binary /proc and >the ascii 
+>>world of shell scripts.
+>>
+>>I don't like a binary /proc.
+>
+>The binary issue could very easily be solved, as you said, by a small 
+>generic program to do the conversion. Upside it only shell scripts need 
+>this, while more advanced (lower level) programs will get better preformance 
+>out of binary format. Downside? I am not sure I see the problem. If a 
+>program needs to get a lot of /proc info frequently, a binary interface will 
+>be faster. Idealistically, do we want the kernel interfaces binary or ascii? 
+>Do we want them to preform best with (be native to) shell scripts or 
+>programs?
 
-Oh, JOY!
+Both. /proc in ascii for shell scripts etc, and sysctl() in binary
+for C programs and the like.
 
-adding that line to an ext2 only kernel will make it kernel panic when it
-tries to mount root because it doesn't understand the option!
+Something like
 
-Mike
+sysctl(SYSCTL_GET, "fs.file-max", SYSCTL_TYPE_INT, &val, sizeof(val))
+
+It gets you free type checking as well.
+
+Perhaps you even want a opendir()/getdents() type sysctl function
+so you can walk the tree without /proc being mounted at all.
+
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
+

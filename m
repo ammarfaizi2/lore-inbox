@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbUBVQzR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 11:55:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUBVQzR
+	id S261698AbUBVRAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 12:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUBVRAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 11:55:17 -0500
-Received: from ncc1701.cistron.net ([62.216.30.38]:40870 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261696AbUBVQzN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 11:55:13 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
-Date: Sun, 22 Feb 2004 16:55:12 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <c1amtg$1up$1@news.cistron.nl>
-References: <16435.61622.732939.135127@samba.org> <20040220120417.GA4010@elte.hu> <m3vfm1trj8.fsf@zoo.weinigel.se> <20040222150753.GB25664@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1077468912 2009 62.216.29.200 (22 Feb 2004 16:55:12 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Sun, 22 Feb 2004 12:00:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63149 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261698AbUBVRAR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 12:00:17 -0500
+Date: Sun, 22 Feb 2004 09:05:27 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <piggin@cyberone.com.au>, cw@f00f.org, mfedyk@matchmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Large slab cache in 2.6.1
+In-Reply-To: <20040221220927.198749d4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0402220903360.3301@ppc970.osdl.org>
+References: <4037FCDA.4060501@matchmail.com> <20040222023638.GA13840@dingdong.cryptoapps.com>
+ <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org>
+ <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org>
+ <20040222033111.GA14197@dingdong.cryptoapps.com> <4038299E.9030907@cyberone.com.au>
+ <40382BAA.1000802@cyberone.com.au> <4038307B.2090405@cyberone.com.au>
+ <20040221220927.198749d4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040222150753.GB25664@mail.shareable.org>,
-Jamie Lokier  <jamie@shareable.org> wrote:
->Christer Weinigel wrote:
->> > 	long sys_mark_dir_clean(dirfd);
->> > 
->> > the syscall returns whether the directory was valid/clean already.
->> 
->> Isn't this rather bad, it's only possible to have one process that
->> does this magic clean bit thing.  Other applications such as Wine or
->> a DOS emulator might want to get the same speedups.
->
->No.  The magic clean bit is associated with dirfd - different file
->descriptors have separate magic clean bits.
->
->> Add a new create syscall with the same idea as your one bit syscall,
->> which checks that the generation number matches.  If the generation
->> number doesn't match the create call fails.
->> 
->>     int create_synchronized(name, mode, generation);
->
->Hmm.  That's an interesting idea.
 
-Generalize it. sys_set_required_generation(generation) - works
-with all create/rename/delete/link calls. Setting it to zero
-turns it off.
 
-Mike.
+On Sat, 21 Feb 2004, Andrew Morton wrote:
+>
+> yeah.  We should have made that change when making shrink_slab() ignore
+> highmem scanning.
+> 
+> Something like this (the function needs a rename)
 
+Why not just pass in the list of zones? That way the _caller_ determines 
+what zones he is interested in.
+
+So just add a "struct zonelist *zonelist" as the argument, the same way 
+"__alloc_pages()" has..
+
+		Linus

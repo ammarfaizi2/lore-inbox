@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUJGSsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267806AbUJGSz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267748AbUJGSsc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 14:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267709AbUJGSq6
+	id S267806AbUJGSz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 14:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUJGSzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 14:46:58 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:5849 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267708AbUJGSpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 14:45:41 -0400
-Message-Id: <200410071845.i97Ijcv2025341@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Fabiano Ramos <ramos_fabiano@yahoo.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: strange AMD x Intel Behaviour in 2.4.26 
-In-Reply-To: Your message of "Thu, 07 Oct 2004 15:15:36 -0300."
-             <1097172936.3832.1.camel@lfs.barra.bali> 
-From: Valdis.Kletnieks@vt.edu
-References: <1097172936.3832.1.camel@lfs.barra.bali>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_53856430P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 7 Oct 2004 14:55:18 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52205 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267826AbUJGSuM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 14:50:12 -0400
+Message-ID: <41658FDB.4070101@redhat.com>
+Date: Thu, 07 Oct 2004 14:50:03 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Gabor Z. Papp" <gzp@papp.hu>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Michael Buesch <mbuesch@freenet.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] 0-order allocation failed
+References: <200410071318.21091.mbuesch@freenet.de>	<20041007151518.GA14614@logos.cnet>	<200410071917.40896.mbuesch@freenet.de>	<20041007153929.GB14614@logos.cnet> <x67jq2bcy3@gzp>
+In-Reply-To: <x67jq2bcy3@gzp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 07 Oct 2004 14:45:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_53856430P
-Content-Type: text/plain; charset=us-ascii
+Gabor Z. Papp wrote:
+> * Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
+> 
+> | > > Can you check how much swap space is there available when
+> | > > the OOM killer trigger? I bet this is the case.
+> | > 
+> | > The machine doesn't have swap.
+> | 
+> | Well then you're probably facing true OOM.
+> | 
+> | Add some swap.
+> 
+> There is really no way to run 2.4 without swap?
+> 
+> I have the same problem with nfsroot and ramdisk based setups after
+> 1-2 weeks uptime.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On Thu, 07 Oct 2004 15:15:36 -0300, Fabiano Ramos said:
+sure, you can run a system without swap, you just run the risk of not 
+being able to start new processes, or OOM kills if your running 
+processees try to allocate too much memory.  You can turn the OOM killer 
+off if you like, but then you run the risk of wedging the machine.
 
->   The code is producing correct results (same as ptrace, I mean)
-> but is RUNNING FASTER on a 500Mhz AMD K6-2 than on a 2.6Ghz HT
-> Pentium 4 !!!!  The monitored code runs faster on P4 if not being
-> monitored, as expected.
+Neil
 
-Most likely, the old slow AMD chipset doesn't take a big performance
-hit for each of the loops into debug-land, and the P4 chipset takes a
-big hit.  Not sure if it's a pipeline-drain issue, or relative cost
-of L1/2 cache misses, or what - an architecture expert could probably
-say more.  Basically, the AMD goes faster because it has less to forget
-at the end of each counted instruction, while the P4 gains much of its
-speed via a lot of caching/decoding/pipelining tricks, so it has to throw
-away more, and then re-establish state when it comes back.
-
-Imagine 2 people walking down a hallway - one moves at 1 mile per hour
-when walking, the other at 5.  However, every third step each of them drops
-the stack of papers they are carrying - and the slow person drops 5 sheets
-of paper and the fast one drops 200.  Who reaches the end of the hall first?
-
-It's probably sort of like that....
-
---==_Exmh_53856430P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBZY7ScC3lWbTT17ARAvJpAKCt/IqFsrEwUSQPeocUuksmaXTlBQCg08mX
-OBv/LYJaA2k5CrtD4DuBD+o=
-=6XbY
------END PGP SIGNATURE-----
-
---==_Exmh_53856430P--
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

@@ -1,53 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVBVXKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVBVXOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVBVXKj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 18:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVBVXKj
+	id S261347AbVBVXOy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 18:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVBVXOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 18:10:39 -0500
-Received: from waste.org ([216.27.176.166]:62912 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261336AbVBVXKP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 18:10:15 -0500
-Date: Tue, 22 Feb 2005 15:10:00 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
-Message-ID: <20050222231000.GA3163@waste.org>
-References: <200502211216.35194.gene.heskett@verizon.net> <200502211325.55013.gene.heskett@verizon.net> <20050221182952.GF6722@wiggy.net> <200502211708.27211.gene.heskett@verizon.net>
+	Tue, 22 Feb 2005 18:14:53 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:22441 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261335AbVBVXOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 18:14:10 -0500
+Subject: Re: JFFS2 Extended attributes support & SELinux in handhelds
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Josh Boyer <jdub@us.ibm.com>
+Cc: familiar-dev@handhelds.org, selinux@tycho.nsa.gov,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       familiar@handhelds.org, handhelds@handhelds.org,
+       kernel-discuss@handhelds.org, oe@handhelds.org, agruen@suse.de,
+       Russell Coker <rcoker@redhat.com>
+In-Reply-To: <1109096502.7813.5.camel@windu.rchland.ibm.com>
+References: <1109089039.4100.114.camel@localhost.localdomain>
+	 <1109096502.7813.5.camel@windu.rchland.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GIpU+2InhgwMn2MGFZRL"
+Date: Wed, 23 Feb 2005 00:13:37 +0100
+Message-Id: <1109114017.4100.139.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502211708.27211.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 21, 2005 at 05:08:27PM -0500, Gene Heskett wrote:
-> On Monday 21 February 2005 13:29, Wichert Akkerman wrote:
-> >Previously Gene Heskett wrote:
-> >> Thats what I was afraid of, which makes using it for a motion
-> >> detected burgular alarm source considerably less than practical
-> >> since the machine must be able to do other things too.
-> >
-> >Dependin on the type of compression used you might be able to detect
-> >motion by analyzing the compressed datastream.
-> >
-> Its jpg coming out of the camera, but I don't know to capture the raw 
-> stream and do the comparisons.  One would have to first subtract the 
-> expected peak values of the sensors noise (snow if you will), either 
-> by a running average obtained by frame addition on a pixel by pixel 
-> basis.  Somehow, that seems to imply a decoded stream.  And thats 
-> obviously not going to be anything but cpu intensive too.  So I'm 
-> less than enthusiastic that its a workable solution unless one is 
-> able to dedicate a machine to that job exclusively.  X10 FIR's like 
-> the EagleEye or HawkEye will need to be used to detect when the 
-> recording should be started (and stopped)
 
-JPEG data is DCT of 8x8 pixel chunks. If you can get at that, you can
-compare the DC terms of each chunk with minimal decoding. Various
-thumbnailers do this for speed already.
+--=-GIpU+2InhgwMn2MGFZRL
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Mathematics is the supreme nostalgia of our time.
+El mar, 22-02-2005 a las 12:21 -0600, Josh Boyer escribi=F3:
+> You should send this to the JFFS2 development list.  The xattr support
+> is probably a JFFS3 candidate.
+>=20
+> The mtd tree is the most current.  Any development would probably get
+> the most benefit from being done there.  Especially since JFFS3 doesn't
+> exist anywhere else :).
+
+As we have talked in #mtd, I've moved everything to JFFS3 code and
+re-worked the pretty basic stuff that was already done, as a really
+dirty night-hack.
+
+I hadn't time to fix the remaining errors (no, it's not a working
+patch), nor the remaining "stolen" ReiserFS code that needs to be
+modified in order to make JFFS3 happy with it (priv. directory handling
+in xattr initialization, etc).
+I'm going to have limited time for it, I have exams these two weeks and
+also finish some other work in progress.
+
+I've uploaded a patch that applies to 2.6.11-rc4 tree, with latest mtd
+tree included.
+
+http://pearls.tuxedo-es.org/patches/mtd-jffs3-xattr-20050222-2.6.11-rc4.pat=
+ch
+(998Kb)
+
+I would appreciate any collaboration and help with it.
+
+Cheers, thanks in advance and enjoy (not working) it.
+:)
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-GIpU+2InhgwMn2MGFZRL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCG7yhDcEopW8rLewRAsCcAJ0VszZeor6cyo4agnO8yTvmfkOJWACeM3yo
+WOcOVilekHd0pQYJaGjmBJA=
+=uEtg
+-----END PGP SIGNATURE-----
+
+--=-GIpU+2InhgwMn2MGFZRL--
+

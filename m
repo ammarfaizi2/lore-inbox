@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129322AbRBAMVt>; Thu, 1 Feb 2001 07:21:49 -0500
+	id <S129612AbRBAMdp>; Thu, 1 Feb 2001 07:33:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbRBAMVi>; Thu, 1 Feb 2001 07:21:38 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:45791 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129322AbRBAMVZ>;
-	Thu, 1 Feb 2001 07:21:25 -0500
-Date: Thu, 1 Feb 2001 12:19:07 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: bsuparna@in.ibm.com
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-Message-ID: <20010201121907.M11607@redhat.com>
-In-Reply-To: <CA2569E6.001B9D72.00@d73mta03.au.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <CA2569E6.001B9D72.00@d73mta03.au.ibm.com>; from bsuparna@in.ibm.com on Thu, Feb 01, 2001 at 10:25:22AM +0530
+	id <S129589AbRBAMdg>; Thu, 1 Feb 2001 07:33:36 -0500
+Received: from celebris.bdk.pl ([212.182.99.100]:27923 "EHLO celebris.bdk.pl")
+	by vger.kernel.org with ESMTP id <S129348AbRBAMdW>;
+	Thu, 1 Feb 2001 07:33:22 -0500
+Date: Thu, 1 Feb 2001 13:34:08 +0100 (CET)
+From: Wojtek Pilorz <wpilorz@bdk.pl>
+To: Robert Kaiser <rob@sysgo.de>
+cc: Patrizio Bruno <patrizio@dada.it>, linux-kernel@vger.kernel.org
+Subject: Re: Disk is cheap?
+In-Reply-To: <200101311612.RAA02360@rob.devdep.sysgo.de>
+Message-ID: <Pine.LNX.4.21.0102011326330.11671-100000@celebris.bdk.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 31 Jan 2001, Robert Kaiser wrote:
 
-On Thu, Feb 01, 2001 at 10:25:22AM +0530, bsuparna@in.ibm.com wrote:
+> Date: Wed, 31 Jan 2001 17:12:47 +0100
+> From: Robert Kaiser <rob@sysgo.de>
+> To: Patrizio Bruno <patrizio@dada.it>, linux-kernel@vger.kernel.org
+> Subject: Re: Disk is cheap?
 > 
-> >We _do_ need the ability to stack completion events, but as far as the
-> >kiobuf work goes, my current thoughts are to do that by stacking
-> >lightweight "clone" kiobufs.
+> In article <Pine.LNX.4.10.10101311550150.3588-100000@blacksheep.at.dada.it>,
+> 	patrizio@dada.it (Patrizio Bruno) writes:
+> > I built a embedded dvd/cdda/mp3 player based on linux, using a p200mmx
+> > with 24mb with a bus of 75mhx, but it still takes about 20 seconds to boot,
+> > I think that an embedded device (for home use) should boot in less than
+> > 5 seconds, how could be possible with a slow p133? (I've also tried a p133
+> > on 66mhz of bus and it takes almost 35 seconds to boot)
 > 
-> Would that work with stackable filesystems ?
+> Usually most of the startup time is spent by the BIOS doing
+> extensive self-test stuff and for firing up services (http,
+> inetd, sendmail, ...) that many embedded systems have little use for.
+> 
+> I have a 25MHz 386EX (~2.2 Bogomips) here that boots Linux out of ROM
+> in roughly 30 seconds. Most of _that_ time however is spent decompressing
+> the kernel.
+>
+[...]
+If someone would modify kernel to allow LZO compression then the
+decompression would be 3 times faster at the expense of
+compressed part of the image being 9..10% larger (assuming LZO1X-999/9
+method used by lzop -9)
+(I have done decompression speed tests on Pentium MMX 166 MHz)
 
-Only if the filesystems were using VFS interfaces which used kiobufs.
-Right now, the only filesystem using kiobufs is XFS, and it only
-passes them down to the block device layer, not to other filesystems.
+Best regards,
 
-> Being able to track the children of a kiobuf would help with I/O
-> cancellation (e.g. to pull sub-ios off their request queues if I/O
-> cancellation for the parent kiobuf was issued). Not essential, I guess, in
-> general, but useful in some situations.
+Wojtek
+--------------------
+Wojtek Pilorz
+Wojtek.Pilorz@bdk.pl
 
-What exactly is the justification for IO cancellation?  It really
-upsets the normal flow of control through the IO stack to have
-voluntary cancellation semantics.
 
---Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

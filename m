@@ -1,135 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSHBTQZ>; Fri, 2 Aug 2002 15:16:25 -0400
+	id <S316712AbSHBTRd>; Fri, 2 Aug 2002 15:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316709AbSHBTQZ>; Fri, 2 Aug 2002 15:16:25 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:56748 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S316695AbSHBTQX>;
-	Fri, 2 Aug 2002 15:16:23 -0400
-Date: Fri, 2 Aug 2002 21:19:55 +0200
-From: Axel Siebenwirth <axel@hh59.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
-Message-ID: <20020802191955.GA15968@prester.freenet.de>
-Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0208011425410.1612-100000@penguin.transmeta.com> <20020802012517.GA196@prester.freenet.de> <20020802181343.A15483@flint.arm.linux.org.uk>
+	id <S316789AbSHBTRd>; Fri, 2 Aug 2002 15:17:33 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:19212 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316712AbSHBTRc>;
+	Fri, 2 Aug 2002 15:17:32 -0400
+Date: Fri, 2 Aug 2002 12:19:07 -0700
+From: Greg KH <greg@kroah.com>
+To: John Levon <movement@marcelothewonderpenguin.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: network driver informations [general NIC, Wireless and e100]
+Message-ID: <20020802191907.GA953@kroah.com>
+References: <20020731212426.GA3342@schottelius.org> <3D492531.9030905@mandrakesoft.com> <20020801174252.GA58488@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020802181343.A15483@flint.arm.linux.org.uk>
-Organization: hh59.org
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <20020801174252.GA58488@compsoc.man.ac.uk>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Fri, 05 Jul 2002 18:11:02 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 01, 2002 at 06:42:52PM +0100, John Levon wrote:
+> On Thu, Aug 01, 2002 at 08:10:25AM -0400, Jeff Garzik wrote:
+> 
+> > Al Viro has talked about, long term, making this information available 
+> > through a filesystem.  When that happens, your request will have 
+> > basically been implemented.
+> 
+> It would probably help if some of the basic code needed was wrapped in
+> an even more "dumbed-down" API - most of the stuff in say pcihpfs is
+> generically useful for this sort of configfs thing.
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hm, like perhaps 'driverfs'?  :)
 
-Hi Russell!
+That's where pcihpfs is going to go to, as soon as Pat makes a few more
+changes to the API.
 
-On Fri, 02 Aug 2002, Russell King wrote:
+thanks,
 
-> Oddly, other people appear to be able to build it fine.  Could you start
-> from a brand new 2.5.30 source and try again with the same configuration
-> please?
-
-Ok. I'll do so. Maybe it's related to an odd configuration, all the debug
-stuff...?
-
-.config.gz attached.
-
-Regards and many thanks,
-Axel
-
---AqsLC8rIMeq19msA
-Content-Type: application/x-gunzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
-
-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
-GEkAAA==
-
---AqsLC8rIMeq19msA--
+greg k-h

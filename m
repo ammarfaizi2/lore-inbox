@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbULBUHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbULBULR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbULBUHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 15:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULBUHW
+	id S261745AbULBULR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 15:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbULBULQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 15:07:22 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:1737 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261322AbULBUHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 15:07:19 -0500
-Subject: Re: [Jackit-devel] Re: Real-Time Preemption,
-	-RT-2.6.10-rc2-mm3-V0.7.31-19
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Andrew Burgess <aab@cichlid.com>,
-       linux-kernel@vger.kernel.org, jackit-devel@lists.sourceforge.net
-In-Reply-To: <87hdn4eihw.fsf@sulphur.joq.us>
-References: <200412021546.iB2FkK5a005502@cichlid.com>
-	 <20041202170315.067d7853@mango.fruits.de> <87y8ggekds.fsf@sulphur.joq.us>
-	 <20041202175756.0e50f101@mango.fruits.de>  <87hdn4eihw.fsf@sulphur.joq.us>
-Content-Type: text/plain
-Date: Thu, 02 Dec 2004 15:07:15 -0500
-Message-Id: <1102018036.31206.8.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Thu, 2 Dec 2004 15:11:16 -0500
+Received: from mail1.skjellin.no ([80.239.42.67]:1159 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S261745AbULBULO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 15:11:14 -0500
+Message-ID: <41AF76E0.5050907@tomt.net>
+Date: Thu, 02 Dec 2004 21:11:12 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tglx@linutronix.de
+Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+References: <20041201104820.1.patchmail@tglx>	 <20041201211638.GB4530@dualathlon.random>	 <1101938767.13353.62.camel@tglx.tec.linutronix.de>	 <20041202033619.GA32635@dualathlon.random>	 <1101985759.13353.102.camel@tglx.tec.linutronix.de>	 <1101995280.13353.124.camel@tglx.tec.linutronix.de>	 <20041202164725.GB32635@dualathlon.random>	 <20041202085518.58e0e8eb.akpm@osdl.org>	 <20041202180823.GD32635@dualathlon.random>	 <1102013716.13353.226.camel@tglx.tec.linutronix.de>	 <20041202110729.57deaf02.akpm@osdl.org>	 <1102014493.13353.239.camel@tglx.tec.linutronix.de>	 <20041202112208.34150647.akpm@osdl.org> <1102015450.13353.245.camel@tglx.tec.linutronix.de>
+In-Reply-To: <1102015450.13353.245.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-02 at 11:07 -0600, Jack O'Quin wrote:
-> Is printk() guaranteed not to wait inside the kernel?  I am not
-> familiar with its internal implementation.
+Thomas Gleixner wrote:
+> On Thu, 2004-12-02 at 11:22 -0800, Andrew Morton wrote:
+>>You can issue sysrq commands over serial consoles too.
+> 
+> I know, but the console and the reset button are 150km away. When I dial
+> into the machine or try to connect via the network, I cannot connect
+> with the current kernels. Neither 2.4, because the fork fails, nor 2.6
+> because oom killed sshd. So I cannot send anything except a service man,
+> who drives 150km to hit sysrq-F or the reset button.
 
-Yes.  It just writes to a ring buffer and klogd dumps this to syslog.
-So if you really start to spew printk's they don't all make it to the
-log but you never get blocked.
+Get one of those terminal server/concentrators that export the serial 
+consoles over IP. Or one of those KVM-over-IP extenders. Worth every penny.
 
-The implementation probably looks a lot like a correct solution to fix
-the printf-from-RT-context issue in JACK would.
-
-Lee
-
+[sorry thomas, forgot reply all first time aound, so you'll get a dupe.]

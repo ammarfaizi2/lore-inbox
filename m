@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262221AbVCVBA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVCVAwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbVCVBA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 20:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVCVAwc
+	id S262245AbVCVAwF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVCVAtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 19:52:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63456 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262252AbVCVAtn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 21 Mar 2005 19:49:43 -0500
-Date: Mon, 21 Mar 2005 16:49:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jonsmirl@gmail.com, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: current linus bk, error mounting root
-Message-ID: <20050322004935.GB10270@kroah.com>
-References: <9e47339105030909031486744f@mail.gmail.com> <20050321154131.30616ed0.akpm@osdl.org> <9e473391050321155735fc506d@mail.gmail.com> <20050321161925.76c37a7f.akpm@osdl.org> <20050322003807.GA10180@kroah.com> <20050321164318.04a5dc82.akpm@osdl.org>
+Received: from gate.crashing.org ([63.228.1.57]:46468 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262221AbVCVAtG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 19:49:06 -0500
+Subject: Re: Radeonfb blanks the screen / hangs the system with 2.6.11
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dmitry Antipov <dmitry.antipov@mail.ru>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <423EA96D.1030201@mail.ru>
+References: <423EA96D.1030201@mail.ru>
+Content-Type: text/plain
+Date: Tue, 22 Mar 2005 11:47:41 +1100
+Message-Id: <1111452461.25180.318.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050321164318.04a5dc82.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 04:43:18PM -0800, Andrew Morton wrote:
-> Greg KH <greg@kroah.com> wrote:
-> >
-> > > I don't agree that this is a userspace issue.  It's just not sane for a
-> > > driver to be in an unusable state for an arbitrary length of time after
-> > > modprobe returns.
-> > 
-> > It is a userspace issue.  If you have a static /dev there are no
-> > problems, right?  If you use udev, you need to wait for the device node
-> > to show up, it will not be there right after modprobe returns.
+On Mon, 2005-03-21 at 14:01 +0300, Dmitry Antipov wrote:
+> Hello,
 > 
-> OK, that's different.
+> this looks like an issue with radeonfb driver.
 > 
-> (grumble, mutter)
+> If radeonfb and fb console are built-in, the console blanks and system 
+> bootup
+> stopped immediately after switching to fb console, and monitor displays 
+> "No signal"
+> message. C-A-D works, but nothing is logged.
+> 
+> For modular radeonfb, the console becomes blank after 'modprobe 
+> radeonfb'. But the
+> rest of the system is fine and console input works, so I can safely 
+> reboot the box
+> and get log messages at the next boot:
+> The host OS is Fedora Core 3. Hardware is:
+>  - MB Asus P5GD1
+>  - CPU Intel P4 3.2 GHz
+>  - Video Asus EAX600XT/HTVD (PCIE)
 
-Heh, the sound people went through the same grumblings a few months ago
-:)
+You mean the card is a PCI Express card ? Hrm... I'm not sure that was
+ever tested. I can't tell precisely what's up at this point, the dmesg
+looks normal except that the panel appears to be detected twice, but
+that's harmless.
 
-> It would be very convenient, tidy and sane if we _could_ arrange for
-> modprobe to block until the device node appears though.  I think devfs can
-> do that ;)
+> According to http://kerneltrap.org/mailarchive/1/message/28472/thread, 
+> I've also
+> tried both built-in and modular versions with non-default 'default_dynclk'
+> (-1, 0 and 1), but this was a no-op in my case.
+> 
+> Dmitry
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-devfs _can_ do that, as it waits on the register block device to create
-the node.  All udev can do is act apon the call to hotplug as fast as it
-can (in the correct order).  The kernel issues the call and then
-returns, causing modprobe to return.
-
-The distros that use udev have already all worked out these issues with
-their init scripts and such, so it shouldn't be an issue anymore.
-
-Jon, what distro are you using?
-
-thanks,
-
-greg k-h

@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbTLUS4H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 13:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbTLUS4H
+	id S263646AbTLUSsx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 13:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTLUSsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 13:56:07 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:10887 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263766AbTLUS4E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 13:56:04 -0500
-Date: Sun, 21 Dec 2003 16:45:38 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Octave <oles@ovh.net>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Peter Zaitsev <peter@mysql.com>, linux-kernel@vger.kernel.org
+	Sun, 21 Dec 2003 13:48:53 -0500
+Received: from ping.ovh.net ([213.186.33.13]:21220 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id S263646AbTLUSsv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 13:48:51 -0500
+Date: Sun, 21 Dec 2003 19:47:09 +0100
+From: Octave <oles@ovh.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: lot of VM problem with 2.4.23
-In-Reply-To: <20031221161324.GN25043@ovh.net>
-Message-ID: <Pine.LNX.4.58L.0312211643470.6632@logos.cnet>
-References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local>
- <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221150312.GJ25043@ovh.net>
- <20031221154227.GB1323@alpha.home.local> <20031221161324.GN25043@ovh.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+Message-ID: <20031221184709.GO25043@ovh.net>
+References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58L.0312211235010.6632@logos.cnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> How much swap do you have in your system?
+> 
+> This is happening because the system is unable to free memory (you
+> probably ran out of swap for some reason).
+
+Marcelo,
+You can run this easy script. 2.4.19 takes about 30 minutes 
+to kill all process. 2.4.23 takes about 60 minutes.
+
+I think, server crashs when VM kills a process like watchdog (why ?).
+
+Octave
+
+# head -n 100000 /dev/urandom > file
+# cat > full.pl
+#!/usr/bin/perl
+
+open (F,"file");@F=<F>;close(F);
+for (;;) { push @F,@F; }
+# chmod 755 full.pl
+# for i in `seq 1 100`; do ./full.pl &  done
+[1] 767
+[2] 768
+[3] 769
+[4] 770
+[5] 771
+[...]
 
 
-On Sun, 21 Dec 2003, Octave wrote:
-
-> > one of my collegues had a server which occasionally crashed at night with
-> > mysql taking all the memory. I think it was with an old 2.4.18 kernel. He
-> > finally reinstalled all the machine and it never happened anymore. So
-> > eventhough it works for you with 2.4.22, perhaps 2.4.23 triggers a mysql
-> > bug which is fixed in more recent releases ?
->
-> Willy,
-> Hmm ... could be, but I don't think so. I use last mysql3 version and
-> I have this problem without mysql too.
->
-> For example on this box there is no mysql (Piv 2.4GHz/512Mo):
-> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> VM: killing process watchdog
-> __alloc_pages: 1-order allocation failed (gfp=0x1f0/0)
-> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
-> VM: killing process watchdog
->
-> # free
->              total       used       free     shared    buffers     cached
-> Mem:        514468     508416       6052          0      11608     205464
-> -/+ buffers/cache:     291344     223124
-> Swap:       265032      77524     187508
->
-> When I swithed more that 700 servers 10-15 days ago to 2.4.23, I saw that
-> servers swaped less that with 2.4.22. So I believe VM was modified. Cool.
-> Great job. Now servers begin to crash :/
-
-Octave,
-
-Can you please "echo 1 > /proc/sys/vm_gfp_debug" (to turn VM debugging on)
-and rerun the tests which crash the box.
-
-Also run "vmstat 5" in the background and save that to a file.
+# tail -f /var/log/messages
+Dec 21 18:55:32 stock kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec 21 18:55:32 stock kernel: VM: killing process full.pl
+Dec 21 18:55:37 stock kernel: __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+Dec 21 18:55:37 stock kernel: VM: killing process full.pl
 
 

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVCAUuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVCAUzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbVCAUuM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 15:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVCAUrp
+	id S262060AbVCAUzP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 15:55:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVCAUq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 15:47:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:39109 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262054AbVCAUnC (ORCPT
+	Tue, 1 Mar 2005 15:46:56 -0500
+Received: from mail.kroah.org ([69.55.234.183]:21191 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262069AbVCAUp7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 15:43:02 -0500
-Date: Tue, 1 Mar 2005 12:42:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Valdis.Kletnieks@vt.edu, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc5-mm1
-Message-Id: <20050301124211.01375439.akpm@osdl.org>
-In-Reply-To: <20050301152735.B1940@flint.arm.linux.org.uk>
-References: <20050301012741.1d791cd2.akpm@osdl.org>
-	<200503011336.j21DaaqC008164@turing-police.cc.vt.edu>
-	<20050301135529.A1940@flint.arm.linux.org.uk>
-	<200503011518.j21FIuQl004840@turing-police.cc.vt.edu>
-	<20050301152735.B1940@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 1 Mar 2005 15:45:59 -0500
+Date: Tue, 1 Mar 2005 12:15:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Corey Minyard <minyard@acm.org>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New operation for kref to help avoid locks
+Message-ID: <20050301201528.GA23484@kroah.com>
+References: <42209BFD.8020908@acm.org> <20050226232026.5c12d5b0.vsu@altlinux.ru> <4220F6C8.4020002@acm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4220F6C8.4020002@acm.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->
-> On Tue, Mar 01, 2005 at 10:18:56AM -0500, Valdis.Kletnieks@vt.edu wrote:
-> > On Tue, 01 Mar 2005 13:55:29 GMT, Russell King said:
-> > > The PCI updates change the prototype of a helper function for 
-> > > pci_bus_alloc_resource(), but don't touch the actual helper function
-> > > in PCMCIA.
-> > 
-> > That explains the warning messages that gcc was tossing, which I suspected was
-> > involved...
-> > 
-> > > This means that the PCI update is actually broken - if it's merged as
-> > > is into Linus' tree, PCMCIA will break there as well.
-> > 
-> > Is the patch made to PCI actually incorrect, or is the proper way to do this
-> > to propagate the changes into the relevant PCMCIA code?
+On Sat, Feb 26, 2005 at 04:23:04PM -0600, Corey Minyard wrote:
+> Add a routine to kref that allows the kref_put() routine to be
+> unserialized even when the get routine attempts to kref_get()
+> an object without first holding a valid reference to it.  This is
+> useful in situations where this happens multiple times without
+> freeing the object, as it will avoid having to do a lock/semaphore
+> except on the final kref_put().
 > 
-> PCI has been updated to accept 64-bit resources, but the PCMCIA code 
-> has been missed.  So the correct fix is to propagate the changes where
-> necessary into the PCMCIA code.
+> This also adds some kref documentation to the Documentation
+> directory.
 
-hmm, I missed that.  That's the price of two screenfuls of fscking compile
-warnings.
+I like the first part of the documentation, that's nice.
 
-> The minimalist solution is to fix up the PCMCIA alignment functions.
+But I don't like the new kref_get_with_check() function that you
+implemented.  If you look in the -mm tree, kref_put() now returns if
+this was the last put on the reference count or not, to help with lists
+of objects with a kref in it.
 
-Greg's dropping the 64-bit-resource patch for now.
+Perhaps you can use that to implement what you need instead?
+
+thanks,
+
+greg k-h

@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275983AbRJYSwA>; Thu, 25 Oct 2001 14:52:00 -0400
+	id <S275994AbRJYTCT>; Thu, 25 Oct 2001 15:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275989AbRJYSvu>; Thu, 25 Oct 2001 14:51:50 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:63503 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S275983AbRJYSvg>; Thu, 25 Oct 2001 14:51:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>,
-        Patrick Ouellet <patrick.ouellet@microtecsecurite.com>
-Subject: Re: In great need
-Date: Thu, 25 Oct 2001 20:52:01 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Kernel Mailing lists <linux-kernel@vger.kernel.org>,
-        <kernelnewbies@nl.linux.org>
-In-Reply-To: <Pine.LNX.4.33L.0110251356150.3690-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0110251356150.3690-100000@imladris.surriel.com>
+	id <S275989AbRJYTCJ>; Thu, 25 Oct 2001 15:02:09 -0400
+Received: from mailout2.informatik.tu-muenchen.de ([131.159.254.8]:56797 "EHLO
+	mailout2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S275990AbRJYTCB>; Thu, 25 Oct 2001 15:02:01 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] generic eui-64 addressing
+Reply-To: Daniel Stodden <stodden@in.tum.de>
+From: Daniel Stodden <stodden@in.tum.de>
+Date: 25 Oct 2001 21:02:31 +0200
+Message-ID: <87r8rr35mg.fsf@bitch.localnet>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011025185206Z16552-698+412@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 25, 2001 05:58 pm, Rik van Riel wrote:
-> On Thu, 25 Oct 2001, Patrick Ouellet wrote:
-> 
-> > As a follower of linux for a couple of years now
-> > I wanted to go deeper into the madness,
-> > so I said to myself, why no go as deep as you
-> > can and get yourself into the Kernel.
-> >
-> > My simple question is this:
-> >
-> > Were should I start.
-> 
-> A good place to start would be  http://kernelnewbies.org/
-> and also the kernelnewbies mailing list and IRC channel.
 
-Highly recommended.
 
-> > I would like to have a nice overview of the kernel
-> > something that would help me understand all the part
-> > of the kernel and how they work toghether.
-> 
-> The book "Understanding the Linux Kernel" by O'Reilly
-> is nice, also see http://kernelnewbies.org/books.php3
+hi.
 
-More than nice, I'd say essential.  Even though it's based on the 2.2 series 
-it's still 95% relevant.
 
-Here's the best place to start:
+i'm developing prototype modules[1] for a data link network using
+EUI-64[2] addressing.
 
-   http://lxr.linux.no/source/init/main.c#L793
+what i'm missing are macros for hw type and address length from the
+kernel headers.
 
---
-Daniel
+could someone please rewrite if_arp.h around the patch below? taken
+from iana values
+
+plus: to make my world perfect, maybe a macro somewhat like
+
+#define EUI64_ALEN 8
+
+not sure where this might go into...
+
+
+thanx,
+dns
+
+--- if_arp.h.orig       Thu Oct 25 19:15:19 2001
++++ if_arp.h    Thu Oct 25 20:46:24 2001
+@@ -39,6 +39,7 @@
+ #define ARPHRD_ATM     19              /* ATM                          */
+ #define ARPHRD_METRICOM        23              /* Metricom STRIP (new IANA id)*       /
+ #define        ARPHRD_IEEE1394 24              /* IEEE 1394 IPv4 - RFC 2734   *       /
++#define ARPHRD_EUI64    27              /* EUI-64                       */
+ 
+ /* Dummy types for non ARP hardware */
+ #define ARPHRD_SLIP    256
+
+-- 
+___________________________________________________________________________
+ mailto:stodden@in.tum.de

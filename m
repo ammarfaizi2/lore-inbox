@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288511AbSA3Eyh>; Tue, 29 Jan 2002 23:54:37 -0500
+	id <S288512AbSA3Ez1>; Tue, 29 Jan 2002 23:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288512AbSA3Ey2>; Tue, 29 Jan 2002 23:54:28 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:46047 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288511AbSA3EyT>;
-	Tue, 29 Jan 2002 23:54:19 -0500
-Date: Tue, 29 Jan 2002 23:54:14 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+	id <S288548AbSA3EzP>; Tue, 29 Jan 2002 23:55:15 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:22283 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S288512AbSA3EzA>;
+	Tue, 29 Jan 2002 23:55:00 -0500
+Date: Wed, 30 Jan 2002 15:50:40 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Robert Love <rml@tech9.net>
+Cc: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5: push BKL out of llseek
-In-Reply-To: <Pine.LNX.4.33.0201291602510.1747-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0201292349260.11157-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020130045040.GA18567@krispykreme>
+In-Reply-To: <1012348838.817.50.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1012348838.817.50.camel@phantasy>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> This patch pushes the BKL out of llseek() and into the individual llseek
+> methods.  For generic_file_llseek, I replaced it with the inode
+> semaphore.  The lock contention is noticeable even on 2-way systems. 
+> Since we simply push the BKL further down the call chain (its the llseek
+> method's responsibilities now) we aren't doing anything hackish or
+> unsafe.
 
-On Tue, 29 Jan 2002, Linus Torvalds wrote:
+A great idea, I wonder why someone didnt think of it before?
 
-> 
-> On 29 Jan 2002, Robert Love wrote:
-> >
-> > This patch pushes the BKL out of llseek() and into the individual llseek
-> > methods.  For generic_file_llseek, I replaced it with the inode
-> > semaphore.
-> 
-> Thinking about that, that actally sounds like the _right_ thing to do even
-> from a correctness standpoint - as llseek() looks at the inode size, so we
-> should have that lock anyway.
-> 
-> So I'd suggest doing the inode semaphore globally, instead of using
-> kernel_lock at all.
-> 
-> Al?
+http://banyan.dlut.edu.cn/news/112801/0186.html
 
-It's OK for regular files and directories, but I'm not sure about devices.
+Wow someone did! And the patch basically matches yours including whitespace.
 
-So I'd prefer to do it in two stages - shift BKL into ->llseek() and then
-see where it can be dropped/replaced with ->i_sem.
+Robert _please_ attribute your sources more carefully. 
 
+Anton

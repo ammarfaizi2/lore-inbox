@@ -1,64 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129901AbRBYGg3>; Sun, 25 Feb 2001 01:36:29 -0500
+	id <S129911AbRBYHQi>; Sun, 25 Feb 2001 02:16:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129902AbRBYGgU>; Sun, 25 Feb 2001 01:36:20 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:58629 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S129901AbRBYGgA>;
-	Sun, 25 Feb 2001 01:36:00 -0500
-Message-ID: <3A98A7C9.B7F512DD@sh0n.net>
-Date: Sun, 25 Feb 2001 01:35:53 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net - http://www.sh0n.net/spstarr
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
+	id <S129906AbRBYHQ2>; Sun, 25 Feb 2001 02:16:28 -0500
+Received: from mail.myrealbox.com ([192.108.102.201]:19155 "EHLO myrealbox.com")
+	by vger.kernel.org with ESMTP id <S129902AbRBYHQP>;
+	Sun, 25 Feb 2001 02:16:15 -0500
+Subject: Re:  Re: 2.2.18: weird eepro100 msgs
+From: angelcode <angelcode@myrealbox.com>
+To: lists@cyclades.com, ionut@moisil.cs.columbia.edu,
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Date: Sun, 25 Feb 2001 07:14:09 GMT
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
-In-Reply-To: <Pine.LNX.4.33.0102250725180.1864-100000@mikeg.weiden.de>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Message-ID: <983085249.280angelcode@myrealbox.com>
+Content-type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right now before OOPS:
-Mem:    62244K av,   61292K used,     952K free,       0K shrd,    1496K buff
-Swap:  467444K av,   37344K used,  430100K free                   29528K cached
+I've been seeing the same kind of messages with an eepro100 
+but they don't happen when the module is loaded.  They 
+happen after it has been running for a few days.  I am 
+running 2.4.1.  I haven't seen any real problems but these 
+messages still scare me.  
 
-I got a lot of things running, several daemons, netscape, and other things. I put
-a 400MB swap for now just to help things.
+Micah
 
-Here's what happens after oops:
+> 
+> On Fri, 2 Feb 2001, Ivan Passos wrote:
+> > 
+> > On Fri, 2 Feb 2001, Ion Badulescu wrote:
+> > 
+> > > On Fri, 2 Feb 2001 15:01:05 -0800 (PST), Ivan Passos 
+<lists@cyclades.com> wrote:
+> > > 
+> > > > Sometimes when I reboot the system, as soon as the 
+eepro100 module is
+> > > > loaded, I start to get these msgs on the screen:
+> > > > 
+> > > > eth0: card reports no resources.
+> > > > eth0: card reports no RX buffers.
+> > > > eth0: card reports no resources.
+> > > > eth0: card reports no RX buffers.
+> > > > eth0: card reports no resources.
+> > > > eth0: card reports no RX buffers.
+> > > > (...)
+> > > 
+> > > Does the following patch, taken from 2.4.1, help?
+> > 
+> > I'm currently testing. I'll get back to you soon (have 
+to reboot the
+> > system a lot to make sure it's really solved ... :)).
+> 
+> Yes, the patch did solve the problem.
+> 
+> Alan, could you please include this patch on your 
+2.2.19pre series (if
+> it's not already included)??
+> 
+> Ion, thanks again for your help!!
+> 
+> Later,
+> Ivan
+> 
+> --- linux-2.2.18/drivers/net/eepro100-old.c	Fri Feb  
+2 15:30:23 2001
+> +++ linux-2.2.18/drivers/net/eepro100.c	Fri Feb  2 
+15:33:19 2001
+> @@ -751,6 +751,7 @@
+>  	   This takes less than 10usec and will easily 
+finish before the next
+>  	   action. */
+>  	outl(PortReset, ioaddr + SCBPort);
+> +	inl(ioaddr + SCBPort);
+>  	/* Honor PortReset timing. */
+>  	udelay(10);
+>  
+> @@ -839,6 +840,7 @@
+>  #endif  /* kernel_bloat */
+>  
+>  	outl(PortReset, ioaddr + SCBPort);
+> +	inl(ioaddr + SCBPort);
+>  	/* Honor PortReset timing. */
+>  	udelay(10);
+>  
+> @@ -1062,6 +1064,9 @@
+>  	/* Set the segment registers to '0'. */
+>  	wait_for_cmd_done(ioaddr + SCBCmd);
+>  	outl(0, ioaddr + SCBPointer);
+> +	/* impose a delay to avoid a bug */
+> +	inl(ioaddr + SCBPointer);
+> +	udelay(10);
+>  	outb(RxAddrLoad, ioaddr + SCBCmd);
+>  	wait_for_cmd_done(ioaddr + SCBCmd);
+>  	outb(CUCmdBase, ioaddr + SCBCmd);
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-
+info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Wait a second...before I didn't have the 400MB swap on, and I had about 952K of
-physical ram left. Shouldn't it try and swap if it cant get enough physical
-memory?
-
-It did NOT oops with that amount of swap:
-
-If i turn it off:
-
-Mem:    62244K av,   61288K used,     956K free,       0K shrd,    1448K buff
-Swap:   64252K av,   38024K used,   26228K free                   29880K cached
-
-and try the xcdrgtk (X CDRoaster)
-
-I get...hrm.. this is really strange. Now its not ooping?!
-
-I dont know it must have to do with something somewhere I cant tell you.
-
-Mike Galbraith wrote:
-
-> On Sun, 25 Feb 2001, Shawn Starr wrote:
->
-> > Unsure, the system remains stable after the fault though, strangely /dev/dsp
-> > becomes "busy". I suspect it has to do with this somehow.. but im not sure.
-> > I submitted a ksymoops dump, maybe that can help.
->
-> Drop to single user and do a whopping big dd or iozone or bonnie
-> and see what free reports afterward.  If much of your ram becomes
-> available, it's not a leak.
->
->         -Mike
 

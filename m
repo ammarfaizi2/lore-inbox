@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136082AbREGKu1>; Mon, 7 May 2001 06:50:27 -0400
+	id <S136087AbREGKwg>; Mon, 7 May 2001 06:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136084AbREGKuQ>; Mon, 7 May 2001 06:50:16 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21768 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136082AbREGKuC>; Mon, 7 May 2001 06:50:02 -0400
-Subject: Re: page_launder() bug
-To: tori@tellus.mine.nu (Tobias Ringstrom)
-Date: Mon, 7 May 2001 11:52:26 +0100 (BST)
-Cc: davem@redhat.com (David S. Miller),
-        chromi@cyberspace.org (Jonathan Morton),
-        szabi@inf.elte.hu (BERECZ Szabolcs), linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus> from "Tobias Ringstrom" at May 07, 2001 08:26:58 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136084AbREGKw0>; Mon, 7 May 2001 06:52:26 -0400
+Received: from smtp.kpnqwest.com ([193.242.92.8]:3340 "EHLO ntexgswp02.DMZ")
+	by vger.kernel.org with ESMTP id <S136087AbREGKwP>;
+	Mon, 7 May 2001 06:52:15 -0400
+Message-ID: <5F6171E541C8D311B9F200508B63D32801C31F50@ntexgvie01>
+From: "Bene, Martin" <Martin.Bene@KPNQwest.com>
+To: "'Juhan-Peep Ernits'" <juhan@cc.ioc.ee>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: what causes Machine Check exception? revisited (2.2.18)
+Date: Mon, 7 May 2001 12:50:41 +0200 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14wicu-0003L5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > It is the most straightforward way to make a '1' or '0'
-> > integer from the NULL state of a pointer.
+Hi Juhan,
+
+> After searching the archives of the list I found some similar reports
+> from September and December 2000 but as far as I understood 
+> the cause of
+> the error was blamed on the CPU. Is this the most probable case? 
 > 
-> But is it really specified in the C "standards" to be exctly zero or one,
-> and not zero and non-zero?
+> Best regards,
+> 
+> Juhan Ernits
+> 
+> 	-- /var/log/kern.log
+> 
+> May  6 06:47:25 market kernel: CPU 0: Machine Check 
+> Exception: 0000000000000004
+> May  6 06:47:25 market kernel: Bank 4: b200000000040151<0>Kernel
+> panic: CPU context corrupt
 
-Yes. (Fortunately since when this argument occurred Linus said he would eat
-his underpants if he was wrong)
+Yes. consensus of the messages I received is that it's the cpu flagging an
+internal hardware problem. 
 
-Alan
+Suggested causes include:
+	overclocking
+	thermal problems
+	CPU actually bad
 
+Definitely not caused by:
+	Bad Rams, mb-chipset.
+
+In my case the error only occured once and never again - marked it up to bad
+karma on that day.
+
+Bye, Martin

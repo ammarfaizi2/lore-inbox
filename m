@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUJRSpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUJRS4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267423AbUJRSpy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUJRSnq
+	id S267466AbUJRS4m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbUJRSz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:43:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13219 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267254AbUJRSmM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:42:12 -0400
-Date: Mon, 18 Oct 2004 19:42:10 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: "Martin K. Petersen" <mkp@wildopensource.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, akpm@osdl.org, tony.luck@intel.com
-Subject: Re: [PATCH] General purpose zeroed page slab
-Message-ID: <20041018184210.GI16153@parcelfarce.linux.theplanet.co.uk>
-References: <yq1oej5s0po.fsf@wilson.mkp.net> <20041014180427.GA7973@wotan.suse.de> <yq1ekjvrjd6.fsf@wilson.mkp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 18 Oct 2004 14:55:59 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:6086 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267466AbUJRSvd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 14:51:33 -0400
+From: Hollis Blanchard <hollisb@us.ibm.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: using cc-option in arch/ppc64/boot/Makefile
+Date: Mon, 18 Oct 2004 13:47:55 +0000
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <200410141611.32198.hollisb@us.ibm.com> <20041017095700.GB16186@mars.ravnborg.org>
+In-Reply-To: <20041017095700.GB16186@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <yq1ekjvrjd6.fsf@wilson.mkp.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200410181347.55746.hollisb@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 02:06:45PM -0400, Martin K. Petersen wrote:
-> Andi> The means every user has to memset it to zero before free.  Add
-> Andi> a comment for that at least.
-> 
-> Andi> Also that's pretty dumb. How about keeping track how much of the
-> Andi> page got non zeroed (e.g. by using a few free words in struct
-> Andi> page for a coarse grained dirty bitmap)
-> 
-> Andi> Then you could memset on free only the parts that got actually
-> Andi> changed, and never waste cache lines for anything else.
-> 
-> Ayup.  I'll ponder this a bit.  For now I think I'm going to leave the
-> page table cache stuff as is and make the general purpose slab a
-> separate project.  It'll be easy to switch the page tables over later.
+On Sunday 17 October 2004 09:57, Sam Ravnborg wrote:
+> Something like this should do the trick?
+> You could also include everything in your Makefile but I prefer
+> Makefile.lib to make it a bit more general.
 
-It's probably worth doing this with a static cachep in slab.c and only
-exposing a get_zeroed_page() / free_zeroed_page() interface, with the
-latter doing the memset to 0.  I disagree with Andi over the dumbness
-of zeroing the whole page.  That makes it cache-hot, which is what you
-want from a page you allocate from slab.
+That's what I had tried. I'm having strange problems though. This patch:
+
+--- 1.25/arch/ppc64/boot/Makefile       Sun Oct  3 12:23:50 2004
++++ edited/arch/ppc64/boot/Makefile     Mon Oct 18 14:03:40 2004
+@@ -20,6 +20,8 @@
+ #      CROSS32_COMPILE is setup as a prefix just like CROSS_COMPILE
+ #      in the toplevel makefile.
+
++include scripts/Makefile.lib
++
+ CROSS32_COMPILE ?=
+ #CROSS32_COMPILE = /usr/local/ppc/bin/powerpc-linux-
+
+@@ -72,7 +74,12 @@
+ quiet_cmd_stripvm = STRIP $@
+       cmd_stripvm = $(STRIP) -s $< -o $@
+
++HAS_BIARCH      := $(call cc-option-yn, -lalala)
++
+ vmlinux.strip: vmlinux FORCE
++       echo $(cc-option-yn)
++       echo $(HAS_BIARCH)
++       $(call cc-option-yn, -m64)
+        $(call if_changed,stripvm)
+ $(obj)/vmlinux.initrd: vmlinux.strip $(obj)/addRamDisk 
+$(obj)/ramdisk.image.gz FORCE
+        $(call if_changed,ramdisk)
+
+... yields the following output:
+
+make -f scripts/Makefile.build obj=arch/ppc64/boot arch/ppc64/boot/zImage
+echo y
+y
+echo y
+y
+y
+make[1]: y: Command not found
+
+Also confusing: the gcc switch "-lalala" is invalid, so I don't know where 
+*any* y's came from. User error?
 
 -- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Hollis Blanchard
+IBM Linux Technology Center

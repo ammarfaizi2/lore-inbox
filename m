@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271042AbTHQVIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 17:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271043AbTHQVIQ
+	id S271036AbTHQVFH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 17:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271043AbTHQVFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 17:08:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12493 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271042AbTHQVIO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 17:08:14 -0400
-Message-ID: <3F3FEEAF.2070608@pobox.com>
-Date: Sun, 17 Aug 2003 17:07:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rob@landley.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: make htmldocs is broken.
-References: <200308170618.35939.rob@landley.net>
-In-Reply-To: <200308170618.35939.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 17 Aug 2003 17:05:07 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:43663 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S271036AbTHQVFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 17:05:02 -0400
+Subject: Re: Requested FAQ addition - Mandrake and partial-i686 platforms
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Jan Rychter <jan@rychter.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030817202229.GB3543@mail.jlokier.co.uk>
+References: <3F38FE5B.1030102@yahoo.com>
+	 <1060705037.12532.49.camel@dhcp22.swansea.linux.org.uk>
+	 <864r0lwmov.fsf@trasno.mitica> <m2r83kce2h.fsf@tnuctip.rychter.com>
+	 <1061148472.23525.7.camel@dhcp23.swansea.linux.org.uk>
+	 <20030817202229.GB3543@mail.jlokier.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1061154277.23696.3.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 17 Aug 2003 22:04:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> Standard Red Hat 9 install (with 2.6.0-test3-bk1), did a make htmldocs, and it 
-> barfed like so:
+> > The chips report cmov only if they have full cmov instructions, so
+> > a look at /proc/cpuinfo will tell you.
 > 
-> 
->> DOCPROC Documentation/DocBook/parportbook.sgml
->> FIG2PNG Documentation/DocBook/parport-share.png
->>/bin/sh: line 1: fig2dev: command not found
->>make[1]: *** [Documentation/DocBook/parport-share.png] Error 127
-> 
-> 
-> Does this command live on default installs of SuSE or debian or something?  
-> (Or maybe it was in RH 7 or so and has been removed?)
+> So the register-only cmov on the Cyrix which you mentioned does not
+> come with the cpuid cmov flag?
 
-
-Red Hat and Debian ship this program in their current distros, in the 
-transfig package.
-
-	Jeff
-
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 7
+model name      : VIA Samuel 2
+stepping        : 3
+cpu MHz         : 531.829
+cache size      : 64 KB
+physical id     : 0
+siblings        : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
+bogomips        : 1061.68
 
 

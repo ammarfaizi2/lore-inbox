@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282688AbRLKTMb>; Tue, 11 Dec 2001 14:12:31 -0500
+	id <S282695AbRLKTWL>; Tue, 11 Dec 2001 14:22:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282668AbRLKTML>; Tue, 11 Dec 2001 14:12:11 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30620 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282525AbRLKTMF>; Tue, 11 Dec 2001 14:12:05 -0500
-Date: Tue, 11 Dec 2001 12:11:58 -0700
-Message-Id: <200112111911.fBBJBw404510@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	id <S282778AbRLKTWB>; Tue, 11 Dec 2001 14:22:01 -0500
+Received: from [213.96.124.18] ([213.96.124.18]:58090 "HELO dardhal")
+	by vger.kernel.org with SMTP id <S282769AbRLKTVp>;
+	Tue, 11 Dec 2001 14:21:45 -0500
+Date: Tue, 11 Dec 2001 20:21:38 +0100
+From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
 	<jdomingo@internautas.org>
-Cc: linux-kernel@vger.kernel.org
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
+	<jdomingo@internautas.org>,
+        linux-kernel@vger.kernel.org
 Subject: Re: Devfs and raw devices
-In-Reply-To: <20011211184642.GB1123@dardhal.mired.net>
-In-Reply-To: <1008026021.2388.3.camel@tiger>
-	<20011211184642.GB1123@dardhal.mired.net>
+Message-ID: <20011211192138.GC1123@dardhal.mired.net>
+Mail-Followup-To: Richard Gooch <rgooch@ras.ucalgary.ca>,
+	=?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= <jdomingo@internautas.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1008026021.2388.3.camel@tiger> <20011211184642.GB1123@dardhal.mired.net> <200112111911.fBBJBw404510@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200112111911.fBBJBw404510@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jdomingo@internautas.org writes:
-> On Monday, 10 December 2001, at 18:13:40 -0500,
-> Louis Garcia wrote:
-> 
-> > Is their any reason raw devices are not supported by devfs? Is it that no
-> > one has bothered with implementation.
+On Tuesday, 11 December 2001, at 12:11:58 -0700,
+Richard Gooch wrote:
+
+> jdomingo@internautas.org writes:
+> > On Monday, 10 December 2001, at 18:13:40 -0500,
+> > Louis Garcia wrote:
 > > 
-> Somebody sent a patch to support raw devices on devfs a couple of days
-> ago. Search the list archives and it should be there. As far as I know,
-> Richard Gooch hasn't integrated this code into devfs yet.
+> Huh? Every time someone has asked about this, I've said "good idea,
+> code it up and send a patch to Linus/Marcelo". I don't want to deal
+> 
+Just in case, my email was plainly informative, not trying to push stuff
+of any kind :-)
 
-Huh? Every time someone has asked about this, I've said "good idea,
-code it up and send a patch to Linus/Marcelo". I don't want to deal
-with pushing this into the kernel, I'm having enough trouble getting
-Linus to apply the current batch of devfs fixes.
+-- 
+José Luis Domingo López
+Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
+ 
+jdomingo EN internautas PUNTO org  => ¿ Spam ? Atente a las consecuencias
+jdomingo AT internautas DOT   org  => Spam at your own risk
 
-As long as I'm in the loop somewhere, just to do a sanity check, I'm
-satisfied. I don't have an overwhelming urge to maintain various devfs
-patches for drivers. Been there, done that :-(
-I'm even willing to sprinkle my own unholy penguin pee on a patch if
-someone thinks (wrongly:-) that it will help get it applied. You can't
-ask for more than that, right? (OK, you can, but you won't get it:-).
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

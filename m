@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316858AbSE1RdX>; Tue, 28 May 2002 13:33:23 -0400
+	id <S316857AbSE1Rik>; Tue, 28 May 2002 13:38:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSE1RdV>; Tue, 28 May 2002 13:33:21 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:28178 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316858AbSE1Rcb>; Tue, 28 May 2002 13:32:31 -0400
-Date: Tue, 28 May 2002 10:32:17 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Russell King <rmk@arm.linux.org.uk>,
-        A Guy Called Tyketto <tyketto@wizard.com>, Dave Jones <davej@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.18-dj1
-In-Reply-To: <15600.51720.488266.491713@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.10.10205281031270.16297-100000@www.transvirtual.com>
+	id <S316861AbSE1Rij>; Tue, 28 May 2002 13:38:39 -0400
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:50136 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S316857AbSE1Rii>; Tue, 28 May 2002 13:38:38 -0400
+Date: Tue, 28 May 2002 18:38:37 +0100 (BST)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VM oops in RH7.3 2.4.18-3
+In-Reply-To: <Pine.LNX.4.44.0205271518270.5065-100000@nick.dcs.qmul.ac.uk>
+Message-ID: <Pine.LNX.4.44.0205281834580.5065-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-uvscan-result: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+memtest86 3.0 (which knows something about ECC :) found the problem in
+seconds. It had passed a memtest86 2.something months ago before going
+into production. Case closed--thanks/sorry!
 
-> That looks like my patch.  It stops the oops (by fixing a signed
-> vs. unsigned comparison bug) but doesn't fix the colormap handling.
-> On my G4 powerbook, which has an ATI Rage 128 (Mobility M3 AGP 2x) the
-> screen colours are all totally wrong under X when I boot 2.5.18.  I
-> have Option "UseFBDev" in my /etc/X11/XF86Config-4, so the X server is
-> using the kernel frame buffer driver to do colormap updates.  (The
-> colours are all OK on the text consoles though.)
+On May 27 Matt Bernstein wrote:
 
-Where is the latest ATI 128 driver? I like to port it over to the new api.
-
+>This is a dual Athlon, 1 gig registered ECC DDR RAM, will try 2.4.18-4 but
+>it doesn't look ext3-related (the only big local filesystem is reiserfs
+>over s/w raid0).
 

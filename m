@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265525AbUBAWmy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 17:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265532AbUBAWmy
+	id S265532AbUBAWof (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 17:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbUBAWof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 17:42:54 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:64234 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S265525AbUBAWmw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 17:42:52 -0500
-Date: Mon, 2 Feb 2004 00:42:48 +0200 (EET)
-From: =?iso-8859-1?Q?Markus_H=E4stbacka?= <midian@ihme.org>
-X-X-Sender: midian@midi
-To: David Weinehall <tao@acc.umu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Uptime counter
-In-Reply-To: <20040201221900.GE15492@khan.acc.umu.se>
-Message-ID: <Pine.LNX.4.44.0402020041350.7645-100000@midi>
+	Sun, 1 Feb 2004 17:44:35 -0500
+Received: from mail008.syd.optusnet.com.au ([211.29.132.212]:43495 "EHLO
+	mail008.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265532AbUBAWod (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 17:44:33 -0500
+From: Christian Unger <chakkerz@optusnet.com.au>
+Reply-To: chakkerz@optusnet.com.au
+Organization: naiv.sourceforge.net
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Timothy Miller <miller@techsource.com>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+Date: Mon, 2 Feb 2004 09:41:22 +1100
+User-Agent: KMail/1.5.4
+Cc: John Bradford <john@grabjohn.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <4017F2C0.4020001@techsource.com> <40195AE0.2010006@techsource.com> <Pine.GSO.4.58.0402011123010.20933@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.58.0402011123010.20933@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402020941.22607.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Feb 2004, David Weinehall wrote:
-
-> On Mon, Feb 02, 2004 at 12:07:40AM +0200, Markus Hästbacka wrote:
-[..snip..]
+> > Ok, so, how about this idea:
+> >
+> > - Small Xilinx FPGA, 16M of RAM, and a DAC on a board.
+> > - AGP 2X
+> > - Up to 2048x2048 resolution at 8, 16, and 32 bpp.
+> > - Acceleration ONLY for solid fills and bitblts on-screen.
 >
-> Well, since most of the changes in the latest kernels involve
-> networking, trying it with various different network-adapters would be
-> interesting, and stress-testing the network-code in general.
->
-> If you have the hardware or a really good confidence, a recent
-> 2.2-kernel to compare with and sufficient knowledge of C, have a look at
-> the network-drivers for a2065 and ariadne, both of which lack the
-> padding-fixes the other adapters have, since I didn't want to touch that
-> mess...
->
-I don't have that hardware to test on, but I can stress test it tomorrow,
-give the box a _high_ load, and that way help testing.
+> Sounds OK to me.
 
-Thanks for the suggestions.
+Disregarding what i said 5 min ago on modular RAM (sorry ... delusions of 
+grandure).
 
-	Markus
+Would it have to be AGP? afteall the data volumes pumping through that would 
+probably be not that high, and with the PCI express being backwards 
+compatible, this would evade a dying bus.
+-- 
+with kind regards,
+  Christian Unger
+
+-<< Contact Details >>- < > - < > - < > - < > - < > -<< Naiv Status >>- < > -
+
+  Alt. Email:  chakkerz_dev@optusnet.com.au      |   Stable:    0.2.3 r3
+  ICQ:         204184156                         |   Latest:    0.3.0
+  Mobile:      0402 268904                       |   Current:   0.3.1
+  Web:         http://naiv.sourceforge.net       |   Focus:     File Handling
+
+  "You don't need eyes to see ... You need vision" (Faithless - Revenrence)
 

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131638AbQLLMYD>; Tue, 12 Dec 2000 07:24:03 -0500
+	id <S131639AbQLLMZd>; Tue, 12 Dec 2000 07:25:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131639AbQLLMXx>; Tue, 12 Dec 2000 07:23:53 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:32474 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131638AbQLLMXo>; Tue, 12 Dec 2000 07:23:44 -0500
-Date: Tue, 12 Dec 2000 06:53:16 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test12 not liking high disk i/o
-In-Reply-To: <Pine.LNX.4.30.0012120636480.1053-100000@viper.haque.net>
-Message-ID: <Pine.LNX.4.30.0012120650060.9714-100000@viper.haque.net>
+	id <S131771AbQLLMZX>; Tue, 12 Dec 2000 07:25:23 -0500
+Received: from marraco.udl.es ([193.144.8.14]:23303 "EHLO marraco.udl.es")
+	by vger.kernel.org with ESMTP id <S131639AbQLLMZL>;
+	Tue, 12 Dec 2000 07:25:11 -0500
+Message-ID: <3A3611BC.DF3A6D58@alumnes.udl.es>
+Date: Tue, 12 Dec 2000 12:53:33 +0100
+From: jordi <jpallares@alumnes.udl.es>
+X-Mailer: Mozilla 4.7 [ca] (Win98; I)
+X-Accept-Language: ca
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: llistakernel <linux-kernel@vger.kernel.org>
+Subject: kernel error
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If anyone is interested, this is what I am doing before it blows up
-everytime...
+hi
 
-sudo tar zxfv ~mhaque/linux-2.4.0-test5.tar.gz
-cd linux
-cat ~mhaque/kernel-patches/patch-2.4.0-test? ~mhaque/kernel-patches/patch-2.4.0-test1? | sudo patch -p1
-sudo make mrproper
-sudo cp ~/kernel-config .config
-sudo make oldconfig
-sudo make dep bzImage modules modules_install install
+I try to upgrade my 2.2.5-17 kernel to 2.4-test11 but when I put make
+modules_install  and it is in pcmacia module the make crash because it
+put -F option.
+
+when I see the syntax not appear this option and I don't have a answer?
+
+You can help me?
+
+Thanks a lot for all
+Jordi Pallarès
 
 
-On Tue, 12 Dec 2000, Mohammad A. Haque wrote:
-
-> Hey guys,
->
-> Any one else experiencing problems when they do lots of disk activity
-> in test12?
->
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281558AbRKUJcm>; Wed, 21 Nov 2001 04:32:42 -0500
+	id <S281568AbRKUJec>; Wed, 21 Nov 2001 04:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281441AbRKUJcc>; Wed, 21 Nov 2001 04:32:32 -0500
-Received: from krista.yaroslavl.ru ([217.15.132.26]:31751 "EHLO
-	mailserv.rybinsk.ru") by vger.kernel.org with ESMTP
-	id <S281555AbRKUJcV>; Wed, 21 Nov 2001 04:32:21 -0500
-Date: Wed, 21 Nov 2001 12:32:15 +0300 (MSK)
-From: Dmitri Popov <popov@krista.ru>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Documentation/Changes
-In-Reply-To: <20011121022049.GR11449@pervalidus>
-Message-ID: <Pine.LNX.4.31.0111211210040.5542-100000@popov.krista.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=koi8-r
-Content-Transfer-Encoding: 8BIT
+	id <S281565AbRKUJeW>; Wed, 21 Nov 2001 04:34:22 -0500
+Received: from gate.mesa.nl ([194.151.5.70]:42249 "EHLO joshua.mesa.nl")
+	by vger.kernel.org with ESMTP id <S281441AbRKUJeO>;
+	Wed, 21 Nov 2001 04:34:14 -0500
+Date: Wed, 21 Nov 2001 10:33:54 +0100
+From: "Marcel J.E. Mol" <marcel@mesa.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: New ac patch???
+Message-ID: <20011121103354.E15851@joshua.mesa.nl>
+Reply-To: marcel@mesa.nl
+In-Reply-To: <20011121100849.D15851@joshua.mesa.nl> <E166TZh-0004T8-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E166TZh-0004T8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 21, 2001 at 09:21:45AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, [unknown-8bit] Frédéric L. W. Meunier wrote:
+On Wed, Nov 21, 2001 at 09:21:45AM +0000, Alan Cox wrote:
+> > 2.4.13-ac will "flushing ide drives" on shutdown. This helped my laptop
+> > from not '/dev/hdax no cleanly unmounted, checking' on startup. I'm sure
+> > the system did not crash before that.
+> 
+> You have a box with an IBM 20Gig 2.5" drive (just out of interest)
 
-> BTW, with the addition of ext3 in 2.4.15pre2, maybe it's time
-> to require the latest e2fsprogs, 1.25, or include a note
-> about ext3 requirements ?
+Not exaclty. It is a 48Gig drive in a dell inspiron 8000. I think it is
+IBM but the logs do not show a brandname. I can try open up the case tonight
+if you want to know for sure?
 
-I'd like to note that there is nothing abount quota tools in
-Documentation/Changes. I tried to use one of Alan Cox kernels some weeks
-ago, and was very surprised, when quota utilities 2.00 stopped working.
-And I didn't find any information about correct quota tools in all the
-source tree! At last I searched for the latest quota-tools in the Internet
-(ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/utils/)
-and installed it. Now it works. As I can understand, the current 2.4.*
-will also need new utilities.
-
-I also tried to mail the maintainer according to MAINTAINERS, but got no
-response yet. If someone knows the exact minimum version of quota tools,
-it would be good to include that information into the Changes file.
-
+-Marcel
 -- 
-Dmitri Popov, mailto:popov@krista.ru
-
-
+     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
+    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
+    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
+__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
+ They couldn't think of a number,           Linux user 1148  --  counter.li.org
+    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbVAKHrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbVAKHqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262477AbVAKHrB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 02:47:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVAKHrA
+	id S262499AbVAKHqE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 02:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbVAKHoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 02:47:00 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:26374 "EHLO
+	Tue, 11 Jan 2005 02:44:07 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:24582 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262477AbVAKHqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 02:46:14 -0500
-Subject: Re: Preemptible Big Kernel Lock?
+	id S262498AbVAKHms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 02:42:48 -0500
+Subject: Re: address space reservation functionality?
 From: Arjan van de Ven <arjan@infradead.org>
-To: walt <wa1ter@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050110172910.F49234@x9.ybpnyarg>
-References: <20050110172910.F49234@x9.ybpnyarg>
+To: "Robert W. Fuller" <orangemagicbus@sbcglobal.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41E2EB09.5000603@sbcglobal.net>
+References: <41E2EB09.5000603@sbcglobal.net>
 Content-Type: text/plain
-Date: Tue, 11 Jan 2005 08:46:03 +0100
-Message-Id: <1105429563.3917.5.camel@laptopd505.fenrus.org>
+Date: Tue, 11 Jan 2005 08:42:42 +0100
+Message-Id: <1105429362.3917.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
@@ -38,17 +38,21 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-10 at 17:48 -0800, walt wrote:
-
-> Would I expect to see a difference on a uni-processor
-> machine?  (That's all I have.)
+On Mon, 2005-01-10 at 15:52 -0500, Robert W. Fuller wrote:
+> Hi,
 > 
+> I was wondering if some functionality existed in Linux.  Specifically, 
+> in Solaris, you can mmap the null device in order to reserve part of the 
+> address space without otherwise consuming resources.  This is detailed 
+> in the Solaris manpage null(7D).  The same functionality is also 
+> available under Windows NT/XP/2K by calling the VirtualAlloc function 
+> with the MEM_RESERVE flag omitting the MEM_COMMIT flag.  Does Linux have 
+> a similar mechanism buried somewhere whereby I can reserve a part of the 
+> address space and not increase the "virtual size" of the process or the 
+> system's idea of the amount of memory in use?  I could not find one by 
+> using the source.
 
-humans in general don't notice things < 1 milisecond. The preemptable
-BKL and other latency fixes are (most) there to reduce the existing
-typical latency that is < 1 msec to something even far lower. (and the
-maximum which is a bit above 1 msec to below it.. but that you hardly
-ever trigger unless you try).
-So I doubt that you as human will perceive this.
-Professional audio applications might notice though..,. ;)
+malloc() already does this...
+what you describe is the default behavior of linux; only when you
+actually write to the memory does it get backed by ram.
 

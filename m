@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUKVNzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbUKVOBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUKVNzK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 08:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUKVNzK
+	id S262111AbUKVOBV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 09:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUKVOBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 08:55:10 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:51944 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262104AbUKVNyg (ORCPT
+	Mon, 22 Nov 2004 09:01:21 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:4835 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262135AbUKVN60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 08:54:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=Gd4YfV2j248WmddDVxBh70VHXROJbfHGp9Sxg2BPUMvLY/al9L/q3k24fW925Z9wvd72FFqIuwW+iG903eCgMFSOwwnfO7dl/Yz0jkrhg3abpFo/aU+/1F8UQ4Cg+ePsM+9V2g6w3zasw44Lka1uibs7arQ/e+lSWuqVTwi6vD4=
-Message-ID: <2c59f00304112205546349e88e@mail.gmail.com>
-Date: Mon, 22 Nov 2004 19:24:36 +0530
-From: Amit Gud <amitgud1@gmail.com>
-Reply-To: Amit Gud <amitgud1@gmail.com>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: file as a directory
+	Mon, 22 Nov 2004 08:58:26 -0500
+Date: Mon, 22 Nov 2004 16:00:46 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+Message-ID: <20041122150046.GA30371@elte.hu>
+References: <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041122020741.5d69f8bf@mango.fruits.de> <20041122094602.GA6817@elte.hu> <56781.195.245.190.93.1101119801.squirrel@195.245.190.93> <20041122132459.GB19577@elte.hu> <18923.195.245.190.93.1101128215.squirrel@195.245.190.93>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <18923.195.245.190.93.1101128215.squirrel@195.245.190.93>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people,
 
- A straight forward question. Wouldn't adding a "file as a directory"
-mechanism more logical in VFS itself, rather than having each fs (like
-reiser4) to implement it seperately? My vision is to give archive-file
-(.tar, .tar.gz, ...) support in the VFS itself, and of course
-transparent to any fs and any user-land application. There are many
-archive FSs around, but how feasible would it be to implement the
-archive file support in the VFS at dentry-level? I'd be happy to share
-my proposal.
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-AG
---
-May the source be with you.
+> These are the command-lines of my test suite:
+> 
+>   jackd -R -dalsa -dhw:0 -P20 -r44100 -p64 -n2 -S -P &
+>   fluidsynth -s -i -a jack -j -o jack.audio.id=fluid1 -o shell.port=9800
+> ct4mgm.sf2 &
+>   fluidsynth -s -i -a jack -j -o jack.audio.id=fluid2 -o shell.port=9801
+> ct4mgm.sf2 &
+
+is this enough to generate the xruns in jackd? Shouldnt fluidsynth be
+given a MIDI file to play back? (if yes, what is the method i should use
+- should i give it on the command line?)
+
+	Ingo

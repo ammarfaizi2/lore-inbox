@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265884AbUGEBD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUGEBYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265884AbUGEBD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 21:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265885AbUGEBD1
+	id S265887AbUGEBYv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 21:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbUGEBYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 21:03:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35549 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265884AbUGEBD0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 21:03:26 -0400
-Date: Sun, 4 Jul 2004 21:34:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Chris Mason <mason@suse.com>
-Cc: Rob Mueller <robm@fastmail.fm>, linux-kernel@vger.kernel.org
-Subject: Re: Processes stuck in unkillable D state (2.4 and 2.6)\
-Message-ID: <20040705003413.GC20847@logos.cnet>
-References: <006a01c45de6$e4442930$62afc742@ROBMHP> <1088604723.1589.1387.camel@watt.suse.com> <007901c45ebc$5dc0b730$62afc742@ROBMHP> <1088614262.1589.1395.camel@watt.suse.com> <20040704173936.GA19545@logos.cnet>
+	Sun, 4 Jul 2004 21:24:51 -0400
+Received: from almesberger.net ([63.105.73.238]:45065 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S265887AbUGEBYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 21:24:49 -0400
+Date: Sun, 4 Jul 2004 22:24:38 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: prio_tree generalization
+Message-ID: <20040704222438.A11865@almesberger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040704173936.GA19545@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 04, 2004 at 02:39:36PM -0300, Marcelo Tosatti wrote:
-> On Wed, Jun 30, 2004 at 12:51:02PM -0400, Chris Mason wrote:
-> > On Wed, 2004-06-30 at 10:58, Rob Mueller wrote:
-> > > > Hi, could you please post the full sysrq-t output?
-> > > 
-> > > Sure. The 2 procs stuck in D state were 5873 and 15071.
-> > 
-> > Well, you've got two procs waiting for pages but it isn't entirely clear
-> > why they aren't getting them.  There have been quite a few fixes in this
-> > area since 2.6.4, how hard is it for you to upgrade?
-> 
-> Chris,
-> 
-> However the said should not be present in v2.4, right?
+Hi Rajesh,
 
-Ugh, I meant, "however said bug (which affects v2.6.4-earlier) did not 
-exist in v2.4", so, what would be causing the eternal "D" processes on v2.4 ?
+I'm currently experimenting with the prio_tree code in an elevator
+("IO scheduler"), and I'm thinking about a way to avoid code
+duplication.
 
+The most straightforward approach seems to be to put everything
+after prio_tree_init and before vma_prio_tree_add into a new file,
+and #include that file. (And prio_tree_init should be shared.)
+
+#including a .c file normally isn't exactly considered an epitome
+of elegance, but in this case, there doesn't seem to be much of a
+choice.
+
+There's another issue: in the elevator, entries overlap only
+rarely if at all, and it is sometimes useful to walk the tree in
+sort order. As far as I can tell, RPSTs can be walked just like
+RB trees if there are no overlaps on the path from the current to
+the respective adjacent node.
+
+Unfortunately, "prio_tree_next" is already taken. It would be nice
+to follow the same naming scheme as RB trees, so perhaps
+prio_tree_next could become prio_tree_more, or such ?
+
+What do you think ?
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

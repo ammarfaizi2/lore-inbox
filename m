@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311262AbSDMXqk>; Sat, 13 Apr 2002 19:46:40 -0400
+	id <S311403AbSDMXwC>; Sat, 13 Apr 2002 19:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311320AbSDMXqj>; Sat, 13 Apr 2002 19:46:39 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:42891 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S311262AbSDMXqi>; Sat, 13 Apr 2002 19:46:38 -0400
-Date: Sat, 13 Apr 2002 17:46:34 -0600
-Message-Id: <200204132346.g3DNkYt09482@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S311424AbSDMXwB>; Sat, 13 Apr 2002 19:52:01 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:12304 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S311403AbSDMXwA>; Sat, 13 Apr 2002 19:52:00 -0400
+Message-ID: <3CB8B5F4.8040402@evision-ventures.com>
+Date: Sun, 14 Apr 2002 00:49:24 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andre Hedrick <andre@linux-ide.org>, Russell King <rmk@arm.linux.org.uk>,
         linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-In-Reply-To: <20020413220800.GA4283@werewolf.able.es>
+Subject: Re: VIA, 32bit PIO and 2.5.x kernel
+In-Reply-To: <E16wRU9-0000hL-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J. A. Magallon writes:
+Alan Cox wrote:
+>>>The global "wheee I'm a poor and can't afford 32 bit IO" option will remain
+>>>there of course.
+>>>
+>>>So we have no  issue here. OK?
+>>
 > 
-> On 2002.04.13 Richard Gooch wrote:
-> >H. Peter Anvin writes:
-> >> Richard Gooch wrote:
-> >> > 
-> >> > Actually, there is some impedance matching. I've seen monitors with
-> >> > hi/lo impedance switches. And I've used 15 m long high-quality VGA
-> >> > cables. The result has been pretty good.
-> >> > 
-> >> 
-> >> The best I've seen is to use Sun D-sub coax or plain coax inputs on
-> >> the monitors that have them.  Those are impedance matched and can be
-> >> extended without problem.
-> >
-> >Sure, coax inputs are the best. But there are still problems. Even
-> >expensive coax has higher attenuation at higher frequencies, so the
-> >longer the cable, the more fuzziness you get. Also, there are
-> >differential delay effects between the R, G and B components. You
-> >don't want the pixel components to arrive at different times. So
-> >there's a length limitation there as well.
-> >
-> >But even though coax is better, VGA isn't that bad. 15 m gets you
-> >quite a lot of terminals in a web kiosk (or undergrad computer lab).
-> >
-> >BTW: I agree that X terminals suck. Even worse are SunRays. Ug!
-> >
-> 
-> We have built a 'pseudo-CAVE' for presentations, and have six vgas
-> feeding sony projectors with cabling between 15 and 20m, running
-> at 1024x768@32. Quality is ok.
-> 
-> The problem is finding good PCI vga cards, even finding any,
-> good or bad. Now they are TNT-M64. I'm also aware that SiS has some,
-> but nothing special. But, to use it as terminals, they could be ok.
-> 
-> And coax is not so good. Even with expensive cable, the bounces of
-> the signal made me see double like drunk. Video did not worked right
-> until we got _golden_ connectors and soldered with silver. Believe
-> me you could even put more mony on the cables that on the box.
+> What if the user doesn't know the precise innards of their hardware. IDE
+> more than anything else has to automagically do the right thing. Given the
+> size of the PIO transfer loop and the way for some boards its weirdly 
+> dependant on hardware magic and wonder is there any reason for not just 
+> making the host controller provide the function or reference an ide library
+> function for "sane" hardware ?
 
-Are you sure your monitors had properly matched terminators?
+Alan - that's not the issue here.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265065AbUGIQiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265074AbUGIQjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265065AbUGIQiG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 12:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbUGIQiG
+	id S265074AbUGIQjW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 12:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUGIQjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 12:38:06 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:38575 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S265065AbUGIQh7 (ORCPT
+	Fri, 9 Jul 2004 12:39:21 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:33251 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S265074AbUGIQif (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 12:37:59 -0400
-Message-ID: <40EEC9DC.8080501@tlinx.org>
-Date: Fri, 09 Jul 2004 09:37:48 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: XFS: how to NOT null files on fsck?
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx>
-In-Reply-To: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Fri, 9 Jul 2004 12:38:35 -0400
+Subject: Re: 2.6.7-mm7
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1089384059.1742.3.camel@teapot.felipe-alfaro.com>
+References: <20040708235025.5f8436b7.akpm@osdl.org>
+	 <1089369159.3198.4.camel@paragon.slim>
+	 <1089384059.1742.3.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
+Message-Id: <1089391222.3205.3.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 09 Jul 2004 18:40:22 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a feature! :-)
+On Fri, 2004-07-09 at 16:40, Felipe Alfaro Solana wrote:
+> Have you tried reverting bk-usb? 2.6.7-mm7 won't work for me without
+> reverting it.
 
-It's been in the code for years to randomly write nulls to some files 
-that have been
-modified in the past few days after a bad shutdown.  Reported on XFS 
-list and got same
-overwhelming response there. 
+Just tried it (reverted bk-usb.patch), still no go. Maybe PCI related?
+> On Fri, 2004-07-09 at 12:32 +0200, Jurgen Kramer wrote:
+> > On Fri, 2004-07-09 at 08:50, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm7/
+> > > 
+> > My EHCI controller still won't come back to life. I have tried 
+> > various boot options to no avail. I still gives:
 
-Apparently not easily reproduced, no one has a clue why it does it.  
-Just does. 
-Even after multiple syncs, files edited within the past few days
-will sometimes go mysteriously null.  Good reason to do daily backups as the
-backups will usually contain the correct file...
+JK
 
-Now if we could just come up with a reproducable test case...but when I
-try to reproduce it, it doesn't.  Grrr....it knows when I'm 
-scrutinizing!! :-)
 
--l
-
-Norberto Bensa wrote:
-
->Hello,
->
->how do I setup XFS to not null files after a bad shutdown?
->
->Thanks,
->Norberto
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->

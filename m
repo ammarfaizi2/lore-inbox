@@ -1,81 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbUKRArn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbUKRAnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbUKRArn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 19:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbUKRApk
+	id S262403AbUKRAnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 19:43:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbUKRAln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 19:45:40 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:64918 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S262602AbUKRAnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 19:43:07 -0500
-Message-ID: <419BF015.3050900@mega.ist.utl.pt>
-Date: Thu, 18 Nov 2004 00:43:01 +0000
-From: Pedro Venda <pjlv@mega.ist.utl.pt>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041107)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Trivial update: option for default ondemand cpufreq governor
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 17 Nov 2004 19:41:43 -0500
+Received: from pop.gmx.net ([213.165.64.20]:22217 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262608AbUKQWCx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 17:02:53 -0500
+X-Authenticated: #1892127
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <CA837452-38E4-11D9-8FA5-0003931E0B62@gmx.li>
+Content-Transfer-Encoding: 7bit
+From: Martin Schaffner <schaffner@gmx.li>
+Subject: HFS+ Bug which causes coreutils "make test" to fail
+Date: Wed, 17 Nov 2004 23:05:28 +0100
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a trivial patch that adds a Kconfig option to select the
-*ondemand* cpufreq governor as the *default cpufreq governor*.
+I'm installing my system using an HFS+ partition as root.
+When I installed the GNU coreutils, I noticed that some test fail, even 
+though they succeed on other fs such as ext2.
+I've tracked down one failure to the following:
 
-It seemed as useful as the other default governor options, and since
-nobody else did it, here it is.
+mkdir a; chmod 1777 a; touch a/b; su otheruser -c "rm -rf a"
 
-Feedback would be very appreciated. Also, please note that this is my first patch.
+gives differing results. On ext2:
 
-Applies cleanly to 2.6.10-rc2, 2.6.10-rc2-bk2 and 2.6.10-rc2-mm1.
-Applies to 2.6.9 sources with line offset errors only.
+rm: cannot remove 'a': Permission denied
 
-Signed-off-by; Pedro Venda <pjlv@mega.ist.utl.pt>
+On HFS+:
 
-diff -uprN linux-2.6.10-rc2-original/drivers/cpufreq/Kconfig linux-2.6.10-rc2/drivers/cpufreq/Kconfig
---- linux-2.6.10-rc2-original/drivers/cpufreq/Kconfig	2004-11-17 23:37:48.000000000 +0000
-+++ linux-2.6.10-rc2/drivers/cpufreq/Kconfig	2004-11-17 23:52:32.153215407 +0000
-@@ -65,6 +65,15 @@ config CPU_FREQ_DEFAULT_GOV_USERSPACE
-  	  program shall be able to set the CPU dynamically without having
-  	  to enable the userspace governor manually.
-
-+config CPU_FREQ_DEFAULT_GOV_ONDEMAND
-+	bool "ondemand"
-+	select CPU_FREQ_GOV_ONDEMAND
-+	help
-+	  Use the CPUFreq governor 'ondemand' as default. This uses a
-+	  polling mechanism to dynamically change frequency based on
-+	  the CPU utilization. The desired functioning of this governor
-+	  depends on the CPU capability to do fast frequency switching.
-+	
-  endchoice
-
-  config CPU_FREQ_GOV_PERFORMANCE
-diff -uprN linux-2.6.10-rc2-original/include/linux/cpufreq.h linux-2.6.10-rc2/include/linux/cpufreq.h
---- linux-2.6.10-rc2-original/include/linux/cpufreq.h	2004-11-17 23:38:07.000000000 +0000
-+++ linux-2.6.10-rc2/include/linux/cpufreq.h	2004-11-17 23:53:48.000000000 +0000
-@@ -323,6 +323,9 @@ extern struct cpufreq_governor cpufreq_g
-  #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE)
-  extern struct cpufreq_governor cpufreq_gov_userspace;
-  #define CPUFREQ_DEFAULT_GOVERNOR	&cpufreq_gov_userspace
-+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND)
-+extern struct cpufreq_governor cpufreq_gov_dbs;
-+#define CPUFREQ_DEFAULT_GOVERNOR	&cpufreq_gov_dbs
-  #endif
+rm: reading directory 'a/b': Not a directory
+rm: cannot remove directory 'a': Directory not empty
 
 
+The other failure related to the fact that all pipe files are suffixed 
+by "|", and all links by "@" when doing "ls -1F" on HFS+
 
--- 
-
-Pedro João Lopes Venda
-email: pjlv@mega.ist.utl.pt
-http://arrakis.dhis.org
-
-
+--
+Martin
 

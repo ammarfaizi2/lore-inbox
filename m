@@ -1,132 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263969AbUCZIu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 03:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbUCZIu2
+	id S263976AbUCZIxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 03:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263977AbUCZIxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 03:50:28 -0500
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:13233 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S263969AbUCZIuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 03:50:16 -0500
-From: Eric <eric@cisu.net>
-To: linux-kernel@vger.kernel.org
-Subject: Is irqbalance working?
-Date: Fri, 26 Mar 2004 02:49:42 -0600
-User-Agent: KMail/1.6.1
+	Fri, 26 Mar 2004 03:53:20 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:2982 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S263976AbUCZIxP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 03:53:15 -0500
+Message-ID: <4063EEC1.9080203@stesmi.com>
+Date: Fri, 26 Mar 2004 09:50:09 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@fs.tum.de>,
+       239952@bugs.debian.org, debian-devel@lists.debian.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Binary-only firmware covered by the GPL?
+References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de>	 <20040325082949.GA3376@gondor.apana.org.au>	 <20040325220803.GZ16746@fs.tum.de>  <40635DD9.8090809@pobox.com> <1080260235.3643.103.camel@imladris.demon.co.uk>
+In-Reply-To: <1080260235.3643.103.camel@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403260249.42926.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-	vanilla 2.6.4 with kernel irqbalance enabled. Dual athlon MP 2000. I do not 
-think that irqbalance is working correctly. Should most of the interrupts 
-still be handled by cpu0? Is this a bug or am I misunderstanding how 
-irqbalance works? Do other machines show about the same #'s with irqbalance 
-enabled  or do I have devices that can't be load balanced nicely? More 
-information available upon request.
+Hi David.
 
-cat /proc/interrupts
-         CPU0       CPU1
-  0:     802023        410    IO-APIC-edge  timer
-  1:        994          1    IO-APIC-edge  i8042
-  2:          0          0          XT-PIC  cascade
-  8:          2          0    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 12:      15692          1    IO-APIC-edge  i8042
- 14:         86          1    IO-APIC-edge  ide0
- 15:       2682          1    IO-APIC-edge  ide1
-169:      24384          0   IO-APIC-level  sym53c8xx, eth0
-177:          0          0   IO-APIC-level  eth1, sym53c8xx
-185:       3605          1   IO-APIC-level  EMU10K1
-193:          3          0   IO-APIC-level  ohci1394, ohci_hcd
-NMI:          0          0
-LOC:     802246     802264
-ERR:          0
-MIS:          0
+> The firmware blob in question can be reasonably considered to be an
+> independent and separate work in itself. The GPL doesn't apply to it
+> when it is distributed as a SEPARATE work. But when you distribute it as
+> part of a whole which is a work based on other parts of the kernel, by
+> including it in the kernel source in such a manner, the distribution of
+> the whole must be on the terms of the GPL, whose permissions for other
+> licensees extend to the entire whole, and thus to each and every part.
+> 
+> It's not the intent of the GPL to claim rights to firmware written
+> independently for such hardware; rather, the intent is to exercise the
+> right to control the distribution of _COLLECTIVE_ works based on the
+> indisputably GPL'd parts of the kernel.
+> 
 
-cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(tm) MP 2000+
-stepping        : 1
-cpu MHz         : 1667.572
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3284.99
+But the firmware comes after a GPL statement thereby leading to the
+conclusion that it is their INTENTION to GPL the firmware.
 
-processor       : 1
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(tm) MP
-stepping        : 1
-cpu MHz         : 1667.572
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3325.95
+If we have a source:
 
-lspci
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
-Controller (rev 11)
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP 
-Bridge
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 05)
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 
-04)
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
-00:08.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 SCSI 
-Adapter (rev 01)
-00:08.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1010 Ultra3 SCSI 
-Adapter (rev 01)
-00:09.0 Ethernet controller: National Semiconductor Corporation DP83820 
-10/100/1000 Ethernet Controller
-00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 05)
-01:05.0 VGA compatible controller: ATI Technologies Inc Radeon R200 QL [Radeon 
-8500 LE]
-02:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-768 [Opus] USB (rev 
-07)
-02:04.0 Ethernet controller: National Semiconductor Corporation DP83815 
-(MacPhyter) Ethernet Controller
-02:05.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture 
-(rev 02)
-02:05.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 
-02)
-02:06.0 Multimedia audio controller: Creative Labs SB Audigy (rev 03)
-02:06.1 Input device controller: Creative Labs SB Audigy MIDI/Game port (rev 
-03)
-02:06.2 FireWire (IEEE 1394): Creative Labs SB Audigy FireWire Port
+--
 
+/*
+     This file is under the GPL, yada yada
+*/
+#include "things.h"
 
+void some_func(void)
+{
+   does_something();
+}
 
+char firmware[]={0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
 
--- 
--------------------------
-Eric Bambach
-Eric at cisu dot net
--------------------------
+void upload_firmware(void)
+{
+   do_upload(firmware);
+}
+
+--
+
+Then it seems clear to me that the firmware is under the GPL because it
+is PART of the GPL'd file. If not, then I don't see how any statement
+can ever be true to similar effect, even for some_func().
+
+// Stefan

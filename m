@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVATHnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVATH4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVATHnG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 02:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVATHnG
+	id S262069AbVATH4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 02:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVATH4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 02:43:06 -0500
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:8349 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S261942AbVATHmu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 02:42:50 -0500
-Message-ID: <1065.192.168.1.113.1106206839.squirrel@pat.int.jonmasters.org>
-Date: Thu, 20 Jan 2005 07:40:39 -0000 (GMT)
-Subject: Re: [Lists-linux-kernel-news] Re: [PATCH] raid6: altivec support
-From: "Jon Masters" <jonathan@jonmasters.org>
-To: <benh@kernel.crashing.org>
-In-Reply-To: <1106177129.5327.43.camel@gaston>
-References: <1106120622.10851.42.camel@baythorne.infradead.org>
-        <BD84893E-6A28-11D9-AC28-000393DBC2E8@freescale.com>
-        <1106146083.26551.526.camel@hades.cambridge.redhat.com>
-        <1106177129.5327.43.camel@gaston>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <dwmw2@infradead.org>, <linuxppc-dev@ozlabs.org>, <torvalds@osdl.org>,
-       <paulus@samba.org>, <olh@suse.de>, <jonathan@jonmasters.org>,
-       <kumar.gala@freescale.com>, <hpa@zytor.com>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.6)
+	Thu, 20 Jan 2005 02:56:05 -0500
+Received: from news.suse.de ([195.135.220.2]:31461 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262069AbVATHz6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 02:55:58 -0500
+Message-ID: <41EF640D.60102@suse.de>
+Date: Thu, 20 Jan 2005 08:55:57 +0100
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner: Found to be clean
+To: Greg KH <greg@kroah.com>
+Cc: dtor_core@ameritech.net, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] remove input_call_hotplug (Take#2)
+References: <41EE651E.1060201@suse.de> <20050119214249.GC4151@kroah.com>
+In-Reply-To: <20050119214249.GC4151@kroah.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[excuse formatting, adhoc connectivity]
+Greg KH wrote:
+> On Wed, Jan 19, 2005 at 02:48:14PM +0100, Hannes Reinecke wrote:
+> 
+>>Hi Dmitry,
+>>
+>>attached is the reworked patch for removing the call to 
+>>call_usermodehelper from input.c
+>>I've used the 'phys' attribute to generate the device names, this way we 
+>>don't need to touch all drivers and the patch itself is nice and small.
+> 
+> 
+> The main problem of this is the input_dev structures are created
+> statically, right?  Because of this, the release function really doesn't
+> work out correctly I think....
+> 
+That depends on the driver. input_dev is in general a static entry in 
+the driver-dependend structure, which in turn may be statically or 
+dynamically allocated (depending on whether the driver allows for more 
+than one instance of the device to be connected).
+Would dynamic allocation be of any help here?
 
+I must admit that reference counting in sysfs is still a somewhat 
+darkish grey box to me.
 
-Ben writes:
+> Other than that this looks a lot better.
+> 
+kewl.
 
+> Hm, you're still generating hotplug events with this patch of the
+> "input_device" type, right?
+> 
+Of course. I didn't see another way, as already stated the originial 
+input events were something of a misnomer.
+So either I had to change the existing sysfs layout by renaming the 
+current 'input' class and retain compability with the events
+or change the event types and retain compability with the sysfs layout.
+I opted for the latter, as AFAIK more userland tools might be reading 
+from sysfs than processing hotplug events.
 
-> And ppc64 adds a flattened device-tree format, even better imho :)
+Cheers,
 
-
-This is exactly what I was looking at - pulling that in to ppc32, helps
-with stuff like kexec too. Like everything else, it helps to have people
-moaning at me to make me get on with it :-) I'll see if I can't spend a
-few hours on the plane and ressurrect this instead of window gazing.
-
-Jon.
-
-
-
+Hannes
+-- 
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

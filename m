@@ -1,32 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313315AbSC2AZk>; Thu, 28 Mar 2002 19:25:40 -0500
+	id <S313321AbSC2A3A>; Thu, 28 Mar 2002 19:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313316AbSC2AZa>; Thu, 28 Mar 2002 19:25:30 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:13556
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313315AbSC2AZV>; Thu, 28 Mar 2002 19:25:21 -0500
-Date: Thu, 28 Mar 2002 16:26:58 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.7-dj1
-Message-ID: <20020329002658.GF8627@matchmail.com>
-Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
-	Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020328015928.A3607@suse.de> <Pine.LNX.4.10.10203271943420.6661-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S313320AbSC2A2v>; Thu, 28 Mar 2002 19:28:51 -0500
+Received: from mg01.austin.ibm.com ([192.35.232.18]:57293 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S313317AbSC2A2g>; Thu, 28 Mar 2002 19:28:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: evms-devel@lists.sourceforge.net
+Subject: [ANNOUNCE] EVMS Release 1.0.0
+Date: Thu, 28 Mar 2002 18:16:24 -0600
+X-Mailer: KMail [version 1.2]
+Cc: evms-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <02032818104600.29828@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 27, 2002 at 07:44:55PM -0800, Andre Hedrick wrote:
-> 
-> Anton A reported an error so I need to go back and see what else got
-> broken before this release.  Since there is not diag layer anymore it is
-> all a pig in a poke :-/
+The EVMS team is announcing the first full release of the Enterprise Volume 
+Management System. Package 1.0.0 is now available for download at the project 
+web site:
+http://www.sf.net/projects/evms
 
-You could always just patch that layer back in to do the testing...
+Highlights for version 1.0.0:
+
+v1.0.0 - 3/28/02
+ - Core Kernel
+   - Support for /proc.
+     - New directory /proc/evms/.
+     - File entries: volumes, info, plugins
+     - Sysctl entry: /proc/sys/dev/evms/evms_info_level can be used to
+       query and set the EVMS kernel messaging level.
+ - GUI
+   - Option panel fixes.
+   - New columns in most panels: Read-only and Corrupt.
+   - Default engine logging level changed from "everything" to "default".
+   - Check for minimum required engine API version.
+ - Text-Mode UI
+   - Added "F5=Commit" to menu to allow saving changes without exiting.
+   - Screen refresh fixes.
+   - Default engine logging level changed from "everything" to "default".
+   - Check for minimum required engine API version.
+ - Command Line
+   - On-line help cleanup.
+ - New Plugin: s390 Segment Manager
+   - Recognizes existing CDL, LDL, and CMS partitions.
+   - Can build on top of these partitions in the engine, but
+     cannot yet create new s390 partitions.
+ - MD Plugin
+   - Added proc entry: /proc/evms/mdstat
+   - Added sysctl entries: /proc/sys/dev/evms/md/speed_limit_[min|max] for
+     controlling the speed of RAID-1 and RAID-5 sync'ing.
+ - BBR Plugin
+   - Bug fixes to the I/O error remap handling.
+ - AIX Plugin
+   - Bug fixes in the discovery path and mirroring I/O path.
+ - LVM Plugin
+   - Added proc entry: /proc/evms/lvm/global
+
+
+Kevin Corry
+corryk@us.ibm.com
+Enterprise Volume Management System
+http://www.sf.net/projects/evms

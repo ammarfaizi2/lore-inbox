@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264344AbTFIIau (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 04:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTFIIau
+	id S262166AbTFIJyq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 05:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTFIJyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 04:30:50 -0400
-Received: from ny.sm.luth.se ([130.240.3.1]:6319 "EHLO sm.luth.se")
-	by vger.kernel.org with ESMTP id S264344AbTFIIat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 04:30:49 -0400
-Date: Mon, 9 Jun 2003 10:47:46 +0200 (MEST)
-From: Hakan Lennestal <hakanl@cdt.luth.se>
-X-X-Sender: hakanl@delta1
-To: Martin List-Petersen <martin@list-petersen.dk>
-cc: Hakan Lennestal <hakanl@cdt.luth.se>, linux-kernel@vger.kernel.org
-Subject: Re: Linksys WRT54G and the GPL
-In-Reply-To: <1055116508.26305.67.camel@loke>
-Message-ID: <Pine.GSO.4.53.0306091041470.12020@delta1>
-References: <Pine.GSO.4.53.0306090106220.10922@delta1> <1055116508.26305.67.camel@loke>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 9 Jun 2003 05:54:46 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:24585 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S262166AbTFIJyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 05:54:45 -0400
+Date: Mon, 9 Jun 2003 14:07:49 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org, David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] [3/3] PCI segment support
+Message-ID: <20030609140749.A15138@jurassic.park.msu.ru>
+References: <20030407234411.GT23430@parcelfarce.linux.theplanet.co.uk> <20030408203824.A27019@jurassic.park.msu.ru> <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030608164351.GI28581@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Sun, Jun 08, 2003 at 05:43:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 08, 2003 at 05:43:51PM +0100, Matthew Wilcox wrote:
+>  - Use pci_domain_nr() macro to determine which domain a bus or device
+>    is in.
+>  - Default implementation for architectures which don't support PCI
+>    domains.
+>  - Implementation for ia64.
 
+Looks good, but shouldn't we pass 'struct pci_bus *' instead
+of pci_dev to pci_domain_nr()?
+Because another place where the domain number must be checked on is
+pci_bus_exists().
 
-On Mon, 9 Jun 2003, Martin List-Petersen wrote:
-
-> On Mon, 2003-06-09 at 01:25, Hakan Lennestal wrote:
-> > Linux drivers, etc for Broadcom wlan chipsets
-> > is to be found within the AirForce program from Broadcom.
-> > The OneDriver infrastucture concept offers drivers
-> > for Linux and VxWorks.
->
-> Yes, but nobody can get his hands on this. Broadcom doesn't reply on requests.
-
-I'm quite sure that Linksys, Melco etc have full access to this software.
-
+Ivan.

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262078AbRE3Gvq>; Wed, 30 May 2001 02:51:46 -0400
+	id <S261357AbRE3HZv>; Wed, 30 May 2001 03:25:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262638AbRE3Gvf>; Wed, 30 May 2001 02:51:35 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:52475 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262078AbRE3GvT>; Wed, 30 May 2001 02:51:19 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105300649.f4U6naMl021300@webber.adilger.int>
-Subject: Re: [CHECKER] 84 bugs in 2.4.4/2.4.4-ac8 where NULL pointers are deref'd
-In-Reply-To: <Pine.GSO.4.21.0105300134520.12645-100000@weyl.math.psu.edu>
- "from Alexander Viro at May 30, 2001 01:45:00 am"
+	id <S262633AbRE3HZl>; Wed, 30 May 2001 03:25:41 -0400
+Received: from pat.uio.no ([129.240.130.16]:39907 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261357AbRE3HZh>;
+	Wed, 30 May 2001 03:25:37 -0400
 To: Alexander Viro <viro@math.psu.edu>
-Date: Wed, 30 May 2001 00:49:35 -0600 (MDT)
-CC: Linux kernel development list <linux-kernel@vger.kernel.org>,
-        "Theodore Y. Ts'o" <tytso@mit.edu>, torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+Cc: Gergely Tamas <dice@mfa.kfki.hu>, linux-kernel@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: OOPS with 2.4.5 [kernel BUG at inode.c:486]
+In-Reply-To: <Pine.GSO.4.21.0105291327120.10843-100000@weyl.math.psu.edu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 30 May 2001 09:25:26 +0200
+In-Reply-To: Alexander Viro's message of "Tue, 29 May 2001 13:30:11 -0400 (EDT)"
+Message-ID: <shssnhn47tl.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro writes:
-> On Tue, 29 May 2001, Andreas Dilger wrote:
-> > For ext2 it is pretty much the same, except ext2_delete_entry() called
-> > ext2_check_dir_entry() with a NULL input (for some reason), but it could
-> > easily supply a valid input value.  All callers to ext2_delete_entry()
-> > dereference the dir parameter before calling ext2_delete_entry().  All
-> > other paths dereference dir before ext2_check_dir_entry() is called.
-> 
-> Wrong fix. It
-> 	a) doesn't close all potential problems (think what happens if you
-> run too close to the end of buffer)
+>>>>> " " == Alexander Viro <viro@math.psu.edu> writes:
 
-No, it doesn't fix all the problems of ext2.  It fixes only this one issue.
+     > On Tue, 29 May 2001, Gergely Tamas wrote:
+ 
+    >> Warning (compare_maps): mismatch on symbol partition_name ,
+    >> ksyms_base says c01c4020, System.map says c0154160.  Ignoring
+    >> ksyms_base entry kernel BUG at inode.c:486!
 
-> 	b) doesn't fix anything that could be triggered - ext2_delete_entry()
-> can happen only if you've already done lookup. I.e. no problems had been
-> found in that block back when we were finding the entry.
+     > [snip]
 
-That means there is no need to check dir in ext2_check_dir_entry(),
-is there?  If all callers to ext2_delete_entry() already verify the
-buffer in ext2_find_entry() (which they appear to do), then there is
-no point in calling ext2_check_dir_entry() at all.
+     > _Lovely_. NFS, apparently on revalidate path, doesn't care to
+     > hold on the unhashed inode until its pages are gone.
 
-> 	c) makes ugly code uglier.
+     > Trond?
 
-Did you even look at the patch?  I didn't ADD extra checks, I REMOVED the
-(useless) checking for dir == NULL in ext2_check_dir_entry().  How can
-that be "uglier"?
+My guess is that is a result of the 'magic nfs path' in iput. It
+appears to be calling clear_inode() without truncating the pages
+first.
 
-> 	d) real fix exists and got a lot of testing over that last 5 months.
+The reason we haven't seen this before is that we had 'force_delete'
+that would always set i_nlink = 0. Unfortunately force_delete is toxic
+to mmap(), as it will discard any dirty pages rather than flushing
+them to storage, so it was removed in the 2.4.5-pre series...
 
-Yes, I know all about it, I need it as part of the ext2 indexed directory
-code.  That doesn't mean your directory-in-pagecache will make it in to
-2.4, so may as well fix the minor "problem" that exists now (it is not a
-BUG, but a waste of a few cycles in a function that is called a LOT).
+Al: Is there any reason why the cases
 
-If your patch makes it into 2.4 then even better.  If not, then my fix is
-still better than leaving it as is, and it is "obviously correct" while
-your patch changes a LOT of code.
+  if (!inode->i_nlink)
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+and the 'magic nfs path' should be treated differently? Personally,
+I'd rather prefer to merge the 2.
+
+The unhashing of the inode is after all only done in NFS when we
+believe the inode to be stale and hence we want to throw it out of the
+cache ASAP (= same as setting i_nlink to zero but without races).
+
+Cheers,
+   Trond

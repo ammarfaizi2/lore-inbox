@@ -1,49 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265459AbTFSMDk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 08:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265522AbTFSMDk
+	id S265476AbTFSME7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 08:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265427AbTFSME7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 08:03:40 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18148 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265459AbTFSMDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 08:03:39 -0400
-Date: Thu, 19 Jun 2003 14:17:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, akpm@zip.com.au, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions
-Message-ID: <20030619121732.GQ29247@fs.tum.de>
-References: <20030613011906.8BAD92C23B@lists.samba.org>
+	Thu, 19 Jun 2003 08:04:59 -0400
+Received: from smtp3.libero.it ([193.70.192.127]:35503 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id S265476AbTFSME4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 08:04:56 -0400
+Subject: (Resent) [PATCH] 2.5.72 smb_proc_setattr_unix warnings
+From: Flameeyes <dgp85@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-tsMxapXKggmU7LKzKrml"
+Message-Id: <1056025258.940.6.camel@laurelin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030613011906.8BAD92C23B@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 19 Jun 2003 14:20:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 11:03:43AM +1000, Rusty Russell wrote:
-> Argh, bogus line pasted into Makefile turned up in patch.
-> 
-> This should be better...
->...
-> +# Needs gcc 3.3 or above to understand max-inline-insns-auto.
-> +INLINE_OPTS	:= $(shell $(CC) -o /non/existent/file -c --param max-inline-insns-auto=0 -xc /dev/null 2>&1 | grep /non/existent/file >/dev/null && echo -finline-functions --param max-inline-insns-auto=0)
->...
 
-You have to add a -Wno-unused-function or you'll get a warning for every
-eliminated function.
+--=-tsMxapXKggmU7LKzKrml
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-cu
-Adrian
+This patch fixes these warnings:
 
+  CC      fs/smbfs/proc.o
+fs/smbfs/proc.c: In function `smb_proc_setattr_unix':
+fs/smbfs/proc.c:3044: warning: integer constant is too large for "long"
+type
+fs/smbfs/proc.c:3045: warning: integer constant is too large for "long"
+type
+fs/smbfs/proc.c:3046: warning: integer constant is too large for "long"
+type
+fs/smbfs/proc.c:3047: warning: integer constant is too large for "long"
+type
+fs/smbfs/proc.c:3048: warning: integer constant is too large for "long"
+type
+
+it simply adds the ULL attr at the end of the constants in
+include/linux/smbno.h
 -- 
+Flameeyes <dgp85@users.sf.net>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--=-tsMxapXKggmU7LKzKrml
+Content-Disposition: attachment; filename=patch-smb.diff
+Content-Type: text/plain; name=patch-smb.diff; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+--- include/linux/smbno.h.orig	2003-06-17 13:11:22.000000000 +0200
++++ include/linux/smbno.h	2003-06-17 13:11:38.000000000 +0200
+@@ -347,8 +347,8 @@
+ #define SMB_MODE_NO_CHANGE		0xFFFFFFFF
+ #define SMB_UID_NO_CHANGE		0xFFFFFFFF
+ #define SMB_GID_NO_CHANGE		0xFFFFFFFF
+-#define SMB_TIME_NO_CHANGE		0xFFFFFFFFFFFFFFFF
+-#define SMB_SIZE_NO_CHANGE		0xFFFFFFFFFFFFFFFF
++#define SMB_TIME_NO_CHANGE		0xFFFFFFFFFFFFFFFFULL
++#define SMB_SIZE_NO_CHANGE		0xFFFFFFFFFFFFFFFFULL
+ 
+ /* UNIX filetype mappings. */
+ #define UNIX_TYPE_FILE		0
+
+--=-tsMxapXKggmU7LKzKrml--
+
 

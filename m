@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbTEHRyK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 13:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbTEHRyK
+	id S261962AbTEHSBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 14:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTEHSBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 13:54:10 -0400
-Received: from hypatia.llnl.gov ([134.9.11.73]:2688 "EHLO hypatia.llnl.gov")
-	by vger.kernel.org with ESMTP id S261971AbTEHRyI convert rfc822-to-8bit
+	Thu, 8 May 2003 14:01:48 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:31736 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S261962AbTEHSBr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 13:54:08 -0400
+	Thu, 8 May 2003 14:01:47 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Dave Peterson <dsp@llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] fixes for linked list bugs in block I/O code
-Date: Thu, 8 May 2003 11:06:38 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-References: <200305071622.36352.dsp@llnl.gov> <20030508062942.GB823@suse.de>
-In-Reply-To: <20030508062942.GB823@suse.de>
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Terje Malmedal <terje.malmedal@usit.uio.no>, hch@infradead.org
+Subject: Re: The disappearing sys_call_table export.
+Date: Thu, 8 May 2003 13:13:49 -0500
+X-Mailer: KMail [version 1.2]
+Cc: hch@infradead.org, alan@lxorguk.ukuu.org.uk, terje.eggestad@scali.com,
+       arjanv@redhat.com, linux-kernel@vger.kernel.org, D.A.Fedorov@inp.nsk.su
+References: <E19DnLH-0002As-00@aqualene.uio.no>
+In-Reply-To: <E19DnLH-0002As-00@aqualene.uio.no>
 MIME-Version: 1.0
+Message-Id: <03050813134901.09468@tabby>
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200305081106.38002.dsp@llnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 May 2003 11:29 pm, Jens Axboe wrote:
-> This is convoluted nonsense, bhtail->b_reqnext is NULL by definition. So
-> a simple
+On Thursday 08 May 2003 10:29, Terje Malmedal wrote:
+> [Christoph Hellwig]
 >
-> 	bh->b_reqnext = NULL;
+> >> The only problem I can see is that different modules overloading the
+> >> same function needs to be unloaded in the correct order. Is this the
+> >> only reason for removing it, or am I missing something?
+> >
+> > it's racy - and it doesn't work on half of the arches added over the
+> > last years.
 >
-> is much clearer.
+> Would you be so kind as to explain exactly what is racy? Just
+> asserting that it is does not help me understand anything.
 
-Ok, that's fine with me.  Setting it explicitly to NULL is also correct
-and perhaps a bit more clear.
+Look at this:
 
-> >                         req->bhtail->b_reqnext = bh;
-> >                         req->bhtail = bh;
-> >                         req->nr_sectors = req->hard_nr_sectors += count;
-> > @@ -1061,6 +1062,7 @@
-> >         req->waiting = NULL;
-> >         req->bh = bh;
-> >         req->bhtail = bh;
-> > +       bh->b_reqnext = NULL;
-> >         req->rq_dev = bh->b_rdev;
-> >         req->start_time = jiffies;
-> >         req_new_io(req, 0, count);
->
-> Bart already covered why 2.5 definitely does not need it. I dunno what
-> to say for 2.4, to me it looks like a BUG if you pass in a buffer_head
-> with uninitialized b_reqnext. Why should that member be any different?
+[1]int init_module(void)
+[2]{
+[3]  orig_fsync=sys_call_table[SYS_fsync];
+[4]  sys_call_table[SYS_fsync]=hacked_fsync;
+[5]  return 0;
+[6]}
 
-Ok, agreed that 2.5 does not need the patch.
-
-> In fact, from where did you see this buffer_head coming from? Who is
-> submitting IO on a not properly inited bh? To me, that sounds like not a
-> block layer bug but an fs bug.
-
-I would argue that __make_request() is where the insertion of the buffer_head
-into the request structure is performed, and setting the b_reqnext field of
-the buffer_head to its proper value is an integral part of performing the
-insertion.  Why not keep all of the insertion logic in one place rather than
-distribuing it throughout the code and requiring all callers of
-__make_request() to remember to initialize b_reqnext?  Localizing the
-insertion logic makes the code clearer, more compact, and easier to maintain.
-
--Dave
+Unless there is a LOCK on sys_call_table[SYS_fsync] another CPU could
+replace the pointer between lines 3 and 4. At that point line 4 would
+destroy the existing entry.. or destroy it when the original is restored,
+and would NOT be restoring the one insterted.

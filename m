@@ -1,36 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbTEFHiI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 03:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTEFHiI
+	id S262442AbTEFHvH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 03:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTEFHvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 03:38:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:56549 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262435AbTEFHiI (ORCPT
+	Tue, 6 May 2003 03:51:07 -0400
+Received: from [217.157.19.70] ([217.157.19.70]:525 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S262442AbTEFHvG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 03:38:08 -0400
-Date: Mon, 05 May 2003 23:43:14 -0700 (PDT)
-Message-Id: <20030505.234314.98873309.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] svc's possibly race with sigd
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305052253.h45MrUTj020679@locutus.cmf.nrl.navy.mil>
-References: <200305052253.h45MrUTj020679@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 6 May 2003 03:51:06 -0400
+Date: Tue, 6 May 2003 10:03:37 +0200 (CEST)
+From: Thomas Horsten <thomas@horsten.com>
+X-X-Sender: thomas@jehova.dsm.dk
+To: Adam Sulmicki <adam@cfar.umd.edu>
+cc: Halil Demirezen <nitrium@bilmuh.ege.edu.tr>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: about bios
+In-Reply-To: <20030505193733.T76699-100000@www.missl.cs.umd.edu>
+Message-ID: <Pine.LNX.4.40.0305060946450.8287-100000@jehova.dsm.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Mon, 5 May 2003 18:53:30 -0400
+On Mon, 5 May 2003, Adam Sulmicki wrote:
 
-   pretty sure the author wanted the wait queues in place before
-   talking to sigd which might cause a wakeup on the vcc in question.
-   this race is VERY unlikely, since going down to user space and back
-   is quite slow.
-   
-Applied, thanks chas.
+> 'was working'? The project is alive and well.
+
+Sorry, didn't mean it as "the project is now dead", just "been a while
+since I checked its status" :-)
+
+>[..]
+> By the way. Yes you can burn the linux kernel into flash (together with
+> linuxBIOS) and boot it this way. But given that many motherboards limit
+> your flash size to 256KiB you probably want to put the kernel on the
+> CompactFlash over ide nevertheless. Interestingly enough if not this size
+> limit we might have ended up using Linux Kernel as hardware initalizator
+> to some degree.
+
+A couple of years ago I was doing a Linux port to a MIPS based embedded
+system, and while we did set up the SDRAM controller, chip select timings
+etc. in the flash bootloader, most of these were settings overwritten
+again by the kernel (that way, a kernel would work with any version of the
+bootloader, and the bootloader would not have to be updated if something
+had to be changed or a timing improved for performance).
+
+This approach seems to me to make sense, and it would be interesting if
+the kernel would include direct support for various chipsets and
+(optional?) code to set them up from scratch (or almost, e.g. SDRAM
+working but not much else), that way a truly minimal BIOS stub could be
+used and the kernel could provide interfaces to tune the chipsets in
+various ways.
+
+That would probably mean the limit on kernel command line length would
+have to be dropped (if it hasn't already) to allow for things like
+"sis_enable_fdc=1"  (to get back to the original question), but it would
+certainly be flexible on the chipsets that were supported.
+
+// Thomas
+
+

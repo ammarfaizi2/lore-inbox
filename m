@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131690AbRBBA0r>; Thu, 1 Feb 2001 19:26:47 -0500
+	id <S129518AbRBBAd6>; Thu, 1 Feb 2001 19:33:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131817AbRBBA0h>; Thu, 1 Feb 2001 19:26:37 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26642 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131690AbRBBA0U>; Thu, 1 Feb 2001 19:26:20 -0500
-Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
-To: roel@grobbebol.xs4all.nl (Roeland Th. Jansen)
-Date: Fri, 2 Feb 2001 00:13:45 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010201231652.A2684@grobbebol.xs4all.nl> from "Roeland Th. Jansen" at Feb 01, 2001 11:16:52 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129566AbRBBAdt>; Thu, 1 Feb 2001 19:33:49 -0500
+Received: from mdmgrp3-223.accesstoledo.net ([207.43.108.223]:36878 "EHLO
+	rosswinds.net") by vger.kernel.org with ESMTP id <S129518AbRBBAda>;
+	Thu, 1 Feb 2001 19:33:30 -0500
+Date: Wed, 31 Jan 2001 19:32:03 -0500 (EST)
+From: "Michael B. Trausch" <fd0man@crosswinds.net>
+To: Wayne.Brown@altec.com
+cc: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>,
+        Alan Chandler <alan@chandlerfamily.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+In-Reply-To: <862569E6.007EDB83.00@smtpnotes.altec.com>
+Message-ID: <Pine.LNX.4.21.0101311930100.6351-100000@fd0man.accesstoledo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14OTrH-0005Px-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the used board BP6 (abit), apics enabled. non-overclocked. card is a
+On Thu, 1 Feb 2001 Wayne.Brown@altec.com wrote:
 > 
-> 00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-> RTL-8029(AS)
+> To confuse things even more, I have a "Hewlett-Packard 9114 Disc Drive," which
+> is really a 720K 3.5-inch diskette drive.
+> 
+> Wayne
+> 
 
-Try 2.4.1ac - that should fix it
+Hrm..  hehehe, well, it may be confusing, but I've accepted the public's
+unwillingness to use the real term.  I am pretty flexible when it comes to
+how people address things and just go with the flow.  If it's disc in
+Linux, let it just stay that way, 'cuz that's what I'll use.  Otherwise,
+it'll break when things start to use disk.
+
+	- Mike
+
+===========================================================================
+Michael B. Trausch                                    fd0man@crosswinds.net
+Avid Linux User since April, '96!                           AIM:  ML100Smkr
+
+              Contactable via IRC (DALNet) or AIM as ML100Smkr
+===========================================================================
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

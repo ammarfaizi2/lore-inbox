@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbRALD1j>; Thu, 11 Jan 2001 22:27:39 -0500
+	id <S131525AbRALD3J>; Thu, 11 Jan 2001 22:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRALD13>; Thu, 11 Jan 2001 22:27:29 -0500
-Received: from vitelus.com ([64.81.36.147]:61960 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S129675AbRALD1T>;
-	Thu, 11 Jan 2001 22:27:19 -0500
-Date: Thu, 11 Jan 2001 19:27:08 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: junio@siamese.dhis.twinsun.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Floating point broken between 2.4.0-ac4 and -ac5?
-Message-ID: <20010111192708.G32480@vitelus.com>
-In-Reply-To: <7vvgrmwuqv.fsf@siamese.dhis.twinsun.com>
+	id <S131551AbRALD27>; Thu, 11 Jan 2001 22:28:59 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:23050
+	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S131525AbRALD2o>; Thu, 11 Jan 2001 22:28:44 -0500
+Date: Fri, 12 Jan 2001 16:28:40 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: O_NONBLOCK, read(), select(), NFS, Ext2, etc.
+Message-ID: <20010112162840.A14811@metastasis.f00f.org>
+In-Reply-To: <200101120327.f0C3Rxc02512@513.holly-springs.nc.us>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Qz2CZ664xQdCRdPu"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <7vvgrmwuqv.fsf@siamese.dhis.twinsun.com>; from junio@siamese.dhis.twinsun.com on Wed, Jan 10, 2001 at 08:58:00PM -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101120327.f0C3Rxc02512@513.holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Thu, Jan 11, 2001 at 09:34:08PM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 11, 2001 at 09:34:08PM -0500, Michael Rothwell wrote:
 
---Qz2CZ664xQdCRdPu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+    The man pages for open, read and write say that if a file is opened
+    using the O_NONBLOCK flag, then read() and write() will always return
+    immediately and not block the calling process. 
 
-On Wed, Jan 10, 2001 at 08:58:00PM -0800, junio@siamese.dhis.twinsun.com wrote:
-> A Duron box running 2.4.0-ac5 (and -ac6) shows NaN in many
-> places (such as df output showing usage "nan%").  Right now I
-> reverted back to 2.4.0-ac4 which does not show the problem.
-> The kernel was compiled with CONFIG_MK7 and without
-> MATH_EMULATION, if that makes any difference.
+the man pages are wrong
 
-I just had exactly the same problem with ac6 and an Athlon. Many
-floating point numbers were replaced with nan. XFree86 broke.
 
---Qz2CZ664xQdCRdPu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6XnmMdtqQf66JWJkRApOGAKDK9KAc/ZD/IEozpkgPztC/8H23SgCg7pWL
-h6kfJ8BF3zdcVTM3iOiWsM8=
-=8mjv
------END PGP SIGNATURE-----
-
---Qz2CZ664xQdCRdPu--
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

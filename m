@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279580AbRJXTZX>; Wed, 24 Oct 2001 15:25:23 -0400
+	id <S279573AbRJXT0M>; Wed, 24 Oct 2001 15:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279577AbRJXTZM>; Wed, 24 Oct 2001 15:25:12 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:16602 "EHLO snfc21.pbi.net")
-	by vger.kernel.org with ESMTP id <S279573AbRJXTZC>;
-	Wed, 24 Oct 2001 15:25:02 -0400
-Date: Wed, 24 Oct 2001 12:25:36 -0700 (PDT)
-From: Chris Rankin <rankinc@pacbell.net>
-Subject: [PATCH] MODULE_LICENSE for loop device
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200110241925.f9OJPaOw001568@twopit.underworld>
-MIME-version: 1.0
-X-Mailer: ELM [version 2.5 PL6]
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
+	id <S279583AbRJXTZx>; Wed, 24 Oct 2001 15:25:53 -0400
+Received: from marvin.cdf.toronto.edu ([128.100.31.3]:53661 "HELO
+	marvin.cdf.toronto.edu") by vger.kernel.org with SMTP
+	id <S279573AbRJXTZr>; Wed, 24 Oct 2001 15:25:47 -0400
+Date: Wed, 24 Oct 2001 15:26:17 -0400 (EDT)
+From: <apark@cdf.toronto.edu>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Who is the current maintainer of aic7xxx ?
+In-Reply-To: <Pine.LNX.4.21.0110241600520.1138-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0110241525410.13921-100000@penguin.cdf>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 24 Oct 2001, Marcelo Tosatti wrote:
 
-Here's a totally trivial patch (against 2.4.13) to give the loop
-device a MODULE_LICENSE tag.
+>
+> Hi,
+>
+> Who is the current maintainer of aic7xxx ?
+>
+> I have a problem which is board (or chip) specific, but don't know who
+> should I talk with.
+>
+> There is nothing on MAINTAINERS...
 
-Cheers,
-Chris
+Justin Gibbs
+http://people.freebsd.org/~gibbs/linux/
 
---- drivers/block/loop.c.orig	Wed Oct 24 01:03:59 2001
-+++ drivers/block/loop.c	Wed Oct 24 12:23:34 2001
-@@ -951,6 +951,7 @@
-  */
- MODULE_PARM(max_loop, "i");
- MODULE_PARM_DESC(max_loop, "Maximum number of loop devices (1-255)");
-+MODULE_LICENSE("GPL");
- 
- int loop_register_transfer(struct loop_func_table *funcs)
- {
+Andrew Park
+
+________________________________________________________________________
+CDFlab Systems Administrator                       www.cdf.utoronto.ca |
+GnuPG Signature              www.cdf.utoronto.ca/~apark/public_key.txt |
+------------------------------------------------------------------------
+

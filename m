@@ -1,117 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbTIRMQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 08:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTIRMQ4
+	id S261224AbTIRMNV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 08:13:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTIRMNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 08:16:56 -0400
-Received: from mail.id.cbs.dk ([130.226.47.91]:34056 "EHLO www-v61.id.cbs.dk")
-	by vger.kernel.org with ESMTP id S261221AbTIRMQo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 08:16:44 -0400
-Date: Thu, 18 Sep 2003 14:16:38 +0200 (CEST)
-Message-Id: <20030918.141638.104060144.dh@id.cbs.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Cirrus Logic Crystal CS4281 PCI Audio
-From: Daniel Hardt <dh@id.cbs.dk>
-X-Mailer: Mew version 2.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	Thu, 18 Sep 2003 08:13:21 -0400
+Received: from users.linvision.com ([62.58.92.114]:40367 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id S261224AbTIRMNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 08:13:20 -0400
+Date: Thu, 18 Sep 2003 14:13:00 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       neilb@cse.unsw.edu.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-ID: <20030918141300.A16355@bitwizard.nl>
+References: <20030916102113.0f00d7e9.skraw@ithnet.com> <Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet> <20030916153658.3081af6c.skraw@ithnet.com> <1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk> <20030917084102.A19276@bitwizard.nl> <20030917102629.GL906@suse.de> <20030917191929.GC9125@openzaurus.ucw.cz> <20030918133903.A14355@bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030918133903.A14355@bitwizard.nl>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an IBM X21 thinkpad with a Cirrus Logic Crystal CS4281 PCI
-Audio sound chip.  Our system guy has not been able to get it to work
-under linux.  below is the lspci output.  any ideas would be much
-appreciated.  Please cc me.
+On Thu, Sep 18, 2003 at 01:39:03PM +0200, Rogier Wolff wrote:
+> As long as you tune it 
+> 	hdparm -i1 /dev/hdX
 
-thanks!
+ehmm make that
 
-dan
+ 	hdparm -u1 /dev/hdX
 
-00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
-	Flags: bus master, medium devsel, latency 64
-	Memory at f8000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: <available only to root>
-
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03) (prog-if 00 [Normal decode])
-	Flags: bus master, 66Mhz, medium devsel, latency 128
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-	I/O behind bridge: 00002000-00002fff
-	Memory behind bridge: f4100000-f5ffffff
-
-00:07.0 Bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
-	Flags: bus master, medium devsel, latency 0
-
-00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-	Flags: bus master, medium devsel, latency 64
-	I/O ports at 1800 [size=16]
-
-00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Flags: bus master, medium devsel, latency 64, IRQ 11
-	I/O ports at 1820 [size=32]
-
-00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 03)
-	Flags: medium devsel, IRQ 9
-
-00:08.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-	Subsystem: IBM: Unknown device 0185
-	Flags: bus master, medium devsel, latency 168, IRQ 11
-	Memory at 50000000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=02, subordinate=04, sec-latency=176
-	Memory window 0: 10000000-103ff000 (prefetchable)
-	Memory window 1: 10400000-107ff000
-	I/O window 0: 00004000-000040ff
-	I/O window 1: 00004400-000044ff
-	16-bit legacy interface ports at 0001
-
-00:08.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev 80)
-	Subsystem: IBM: Unknown device 0185
-	Flags: bus master, medium devsel, latency 168, IRQ 11
-	Memory at 50100000 (32-bit, non-prefetchable) [size=4K]
-	Bus: primary=00, secondary=05, subordinate=07, sec-latency=176
-	Memory window 0: 10800000-10bff000 (prefetchable)
-	Memory window 1: 10c00000-10fff000
-	I/O window 0: 00004800-000048ff
-	I/O window 1: 00004c00-00004cff
-	16-bit legacy interface ports at 0001
-
-00:0a.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 0c)
-	Subsystem: Intel Corp.: Unknown device 2205
-	Flags: bus master, medium devsel, latency 66, IRQ 11
-	Memory at f4010000 (32-bit, non-prefetchable) [size=4K]
-	I/O ports at 1840 [size=64]
-	Memory at f4020000 (32-bit, non-prefetchable) [size=128K]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: <available only to root>
-
-00:0a.1 Serial controller: Lucent Microelectronics: Unknown device 045c (rev 01) (prog-if 00 [8250])
-	Subsystem: Intel Corp.: Unknown device 2205
-	Flags: medium devsel, IRQ 11
-	I/O ports at 1810 [size=8]
-	Memory at f4011000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: <available only to root>
-
-00:0b.0 Multimedia audio controller: Cirrus Logic Crystal CS4281 PCI Audio (rev 01)
-	Subsystem: IBM: Unknown device 0183
-	Flags: medium devsel, IRQ 11
-	Memory at f4012000 (32-bit, non-prefetchable) [size=4K]
-	Memory at f4000000 (32-bit, non-prefetchable) [size=64K]
-	Capabilities: <available only to root>
-
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M AGP 2x (rev 64) (prog-if 00 [VGA])
-	Subsystem: IBM: Unknown device 0182
-	Flags: bus master, stepping, medium devsel, latency 66, IRQ 11
-	Memory at f5000000 (32-bit, non-prefetchable) [size=16M]
-	I/O ports at 2000 [size=256]
-	Memory at f4100000 (32-bit, non-prefetchable) [size=4K]
-	Expansion ROM at <unassigned> [disabled] [size=128K]
-	Capabilities: <available only to root>
-
-
-
-Daniel Hardt                            Phone:        +45 38 15 31 26
-Dept. of Computational Linguistics      Fax:          +45 38 15 38 20
-Copenhagen Business School              email:           dh@id.cbs.dk
-Denmark                                 web:        www.id.cbs.dk/~dh
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

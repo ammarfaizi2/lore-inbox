@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263871AbTJEUHi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 16:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263872AbTJEUHi
+	id S263851AbTJET77 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 15:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263848AbTJET63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 16:07:38 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:25748 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S263871AbTJEUHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 16:07:36 -0400
-From: David Woodhouse <dwmw2@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031005191344.GA963@elf.ucw.cz>
-References: <1065266733.16088.91.camel@imladris.demon.co.uk>
-	 <20031005161155.GA753@elf.ucw.cz>
-	 <20031005171916.B21478@flint.arm.linux.org.uk>
-	 <20031005191344.GA963@elf.ucw.cz>
-Message-Id: <1065384453.3157.149.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Sun, 05 Oct 2003 21:07:33 +0100
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-Subject: Re: JFFS2 swsusp / signal cleanup.
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
+	Sun, 5 Oct 2003 15:58:29 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:45742 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S263846AbTJET6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 15:58:16 -0400
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Organization: {M:U} IT Consulting
+Subject: Re: 2.6.0-test5 & test6 cd burning/scheduler/ide-scsi.c bug
+Date: Sat, 04 Oct 2003 17:19:41 +0200
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Message-Id: <pan.2003.10.04.15.19.41.905451@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+References: <3F7CCEB8.8040803@spe.midco.net> <Pine.LNX.4.53.0310022146120.2108@montezuma.fsmlabs.com>
+X-Pan-Internal-Attribution: Hi, Zwane Mwaikambo wrote:
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+X-Pan-Internal-Post-Server: smurf
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: recipient list not shown:;
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-10-05 at 21:13 +0200, Pavel Machek wrote:
-> Should I do recalc_sigpending() instead of flush_signals(current)?
+Hi, Zwane Mwaikambo wrote:
 
-Yes. You can do that unconditionally, too -- no need to do it depending
-on an argument from the caller.
+>>  This is my first bug submission, so please have patience with my noobness :)
+> 
+> The general consensus is that you should be using the direct ATAPI 
+> interface for cd-writing in 2.6.
+
+That doesn't change the fact that programs which worked perfectly well
+under 2.4.xx now hang, instead of either working perfectly ;-) or getting
+hit with an error, or at least a deprecation warning.
 
 -- 
-dwmw2
-
-
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+"To your left is the marina where several senior cabinet officials keep luxury
+yachts for weekend cruises on the Potomac.  Some of these ships are up to 100
+feet in length; the Presidential yacht is over 200 feet in length, and can
+remain submerged for up to 3 weeks."
+-- Garrison Keillor

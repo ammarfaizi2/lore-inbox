@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273267AbRINC4L>; Thu, 13 Sep 2001 22:56:11 -0400
+	id <S273268AbRINDCL>; Thu, 13 Sep 2001 23:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273268AbRINC4C>; Thu, 13 Sep 2001 22:56:02 -0400
-Received: from puma.inf.ufrgs.br ([143.54.11.5]:31251 "EHLO inf.ufrgs.br")
-	by vger.kernel.org with ESMTP id <S273267AbRINCzo>;
-	Thu, 13 Sep 2001 22:55:44 -0400
-Date: Thu, 13 Sep 2001 23:56:00 -0300 (EST)
-From: Roberto Jung Drebes <drebes@inf.ufrgs.br>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon bug stomping #2
-In-Reply-To: <19425218582.20010913153137@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.GSO.4.21.0109132350420.24762-100000@jacui>
+	id <S273269AbRINDCB>; Thu, 13 Sep 2001 23:02:01 -0400
+Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:52936 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S273268AbRINDBt>; Thu, 13 Sep 2001 23:01:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Robert Love <rml@tech9.net>
+Subject: Re: Feedback on preemptible kernel patch
+Date: Fri, 14 Sep 2001 04:47:32 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010914030157Z273268-760+12546@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Sep 2001, VDA wrote:
+Robert Love wrote:
 
-> Device 0 Offset 55 - Debug (RW)
-> 7-0 Reserved (do not program). default = 0
-> *** 3R BIOS: non-zero!?
-> *** YH BIOS: zero.
-> *** TODO: try to set to 0.
+> Hi Arjan,
+>
+> first, highmem is fixed and the original patch you have from me is good.
+> second, Daniel Phillips gave me some feedback into how to figure out the
+> VM error.  I am working on it, although just the VM potential
 
-I tryed sequentially to test the values given. It only worked when I set
-offset 0x55 to 0, and then stopped. I don't need to set any other value in
-other addresses. This is enough.
+Good to hear.
 
-It's weird when your system only works when changing a "do not
-program" value. :)
+> -- ReiserFS may be another problem.
 
---
-Roberto Jung Drebes <drebes@inf.ufrgs.br>
-Porto Alegre, RS - Brasil
-http://www.inf.ufrgs.br/~drebes/
+Can't wait for that.
+
+> third, you may be experiencing problems with a kernel optimized for
+> Athlon.  this may or may not be related to the current issues with an
+> Athlon-optimized kernel.  Basically, functions in arch/i386/lib/mmx.c
+> seem to need some locking to prevent preemption.  I have a basic patch
+> and we are working on a final one.
+
+Can you please send this stuff along to me?
+You know I own an Athlon (since yester Athlon II 1 GHz :-) and need some 
+input...
+
+Mobo is MSI MS-6167 Rev 1.0B (AMD Irongate C4, yes the very first one)
+
+Kernel with preempt patch and mmx/3dnow! optimization crash randomly.
+Never had that (without preempt) during the last two years.
+
+Thanks,
+	Dieter
 

@@ -1,74 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbTJAHj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 03:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbTJAHjZ
+	id S261968AbTJAHsB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 03:48:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJAHsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 03:39:25 -0400
-Received: from ns.suse.de ([195.135.220.2]:740 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261973AbTJAHjY (ORCPT
+	Wed, 1 Oct 2003 03:48:00 -0400
+Received: from users.linvision.com ([62.58.92.114]:38573 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S261956AbTJAHry (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 03:39:24 -0400
-Date: Wed, 1 Oct 2003 09:39:22 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata  patch
-Message-ID: <20031001073922.GL15853@wotan.suse.de>
-References: <7F740D512C7C1046AB53446D3720017304AFCF@scsmsx402.sc.intel.com.suse.lists.linux.kernel> <20031001053833.GB1131@mail.shareable.org.suse.lists.linux.kernel> <20030930224853.15073447.akpm@osdl.org.suse.lists.linux.kernel> <20031001061348.GE1131@mail.shareable.org.suse.lists.linux.kernel> <20030930233258.37ed9f7f.akpm@osdl.org.suse.lists.linux.kernel> <p73k77pzc69.fsf@oldwotan.suse.de> <20031001072011.GJ1131@mail.shareable.org>
+	Wed, 1 Oct 2003 03:47:54 -0400
+Date: Wed, 1 Oct 2003 09:47:52 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Chris Rankin <rankincj@yahoo.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: APIC error on SMP machine
+Message-ID: <20031001074752.GC30137@bitwizard.nl>
+References: <3F79F8BB.2080905@yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031001072011.GJ1131@mail.shareable.org>
+In-Reply-To: <3F79F8BB.2080905@yahoo.com>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 08:20:11AM +0100, Jamie Lokier wrote:
-> I think the mmap_sem problems are fixed by an appropriate "address >=
-> TASK_SIZE" check at the beginning do_page_fault, which should jump
-
-Assuming vsyscalls never contain prefetch. 
-
-> straight to bad_area_nosemaphore.  As there is already such a check,
-> there's no penalty for rearranging the logic there, and it will in
-> fact speed up kernel faults slightly by avoiding the mmap_sem and
-> find_vma() which are redundant for kernel faults.
-
-I guess that would work, agreed.
-
-I will fix it this way for x86-64.
-
+On Tue, Sep 30, 2003 at 10:42:19PM +0100, Chris Rankin wrote:
+> Linux-2.4.22-SMP, 1 GB RAM, devfs, gcc-3.2.3.
 > 
-> I have some ideas for speeding up __is_prefetch().  First, take the
-> get_segment_eip() stuff from my patch - that should speed up your
-> latest "more checking" slightly, because it replaces the access_ok()
-> checks with something slightly tighter.
-
-At least for x86-64 I just switched to checking the three possible
-segments explicitely.
-
-Imho that's the best way for 32bit too, non zero segment bases are
-just not worth caring about.
-
+> Hi,
 > 
-> Second, instead of masking and a switch statement, do test_bit on a
-> 256-bit vector.  (I admit I'm not quite sure how fast variable
-> test_bit is; this is assuming it is quite fast).  If it's zero, return
-> 0 from __is_prefetch().  If it's one, it's either a prefix byte to
-> skip or 0x0f, to check the next byte for a prefetch.  That'll probably
-> make the code smaller too, because the vector is only 32 bytes,
-> shorter than the logic in the switch().
+> Today, my dual PIII (Coppermine) refused to boot, and wrote a large number 
+> of these messages to the serial console instead:
+> 
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
+> APIC error on CPU1: 04(04)
 
-I had the same idea earlier, but discarded it because it would make
-the code much more ugly. It's better to just keep that stuff out of
-the fast path, not optimize it to the last cycle.
+> Can anyone tell me what these might mean, please? The kernel source implies 
+> that it's a "Send accept error", but this doesn't help me in an "Ah, I can 
+> fix that!" sense.
 
-Also I already have wasted too much time on this errata so I won't
-do further updates. Feel free to take up the ball.
+I rewrote that code to make it spit out those messages that you
+see. That however doesn't mean I know what I'm doing....
 
-> Fifth, the "if (regs->eip == addr)" check - is it helpful on 32-bit?
+The APIC chip has a bit register that indicates errors. The kernel,
+reads the register, stores it, and that should clear the error. Just to
+be sure, we read it again, and store the result. Then we print the two
+results. 
 
-It avoids one fault recursion for the kernel jumping to zero.
+In your case, the APIC seems to have a problem, and it doesn't go away
+when we read the register, as it should. 
 
--Andi
+On my "BP6" motherboard, I often see 04(08) errors: The error changes
+after I read it once.
+
+The code was printing the whole bitflag shebang before reading it again,
+allowing the system to generate another error in the meanwhile, and
+hanging the machine. To prevent this, I modified it to just print the
+raw bits, trusting that you'd be knowledgable enough to grep through the
+kernel sources to find the definitions of the bits. That proved true.
+And as expected, you (just like me) don't know what to do with the
+definition of that bit anyway. 
+
+On the BP6 it seems that the APIC bus is a bit noisy. So we get
+transmission errors on that bus, allowing for a variety of errors on the
+recieving end. In your case, the errors seem to end up happening faster 
+than the machine can handle :-(
+
+		Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

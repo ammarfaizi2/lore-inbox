@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289578AbSBEPC1>; Tue, 5 Feb 2002 10:02:27 -0500
+	id <S289573AbSBEPG0>; Tue, 5 Feb 2002 10:06:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289568AbSBEPCR>; Tue, 5 Feb 2002 10:02:17 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25094 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289564AbSBEPCH>;
-	Tue, 5 Feb 2002 10:02:07 -0500
-Date: Tue, 5 Feb 2002 15:42:34 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Momchil Velikov <velco@fadata.bg>
-Cc: Ralf Oehler <R.Oehler@GDAmbH.com>, Scsi <linux-scsi@vger.kernel.org>,
-        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
-        Jens Axboe <axboe@kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
-Message-ID: <20020205154234.B16105@suse.de>
-In-Reply-To: <XFMail.20020205153210.R.Oehler@GDAmbH.com> <20020205152434.A16105@suse.de> <871yg07zg4.fsf@fadata.bg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <871yg07zg4.fsf@fadata.bg>
+	id <S289577AbSBEPGQ>; Tue, 5 Feb 2002 10:06:16 -0500
+Received: from mustard.heime.net ([194.234.65.222]:37795 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S289573AbSBEPGF>; Tue, 5 Feb 2002 10:06:05 -0500
+Date: Tue, 5 Feb 2002 16:05:59 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: "Drew P. Vogel" <dvogel@intercarve.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: opening a bzImage?
+In-Reply-To: <Pine.LNX.4.33.0202050950030.20253-100000@northface.intercarve.net>
+Message-ID: <Pine.LNX.4.30.0202051605390.13494-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 05 2002, Momchil Velikov wrote:
-> >>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
-> 
-> Jens> On Tue, Feb 05 2002, Ralf Oehler wrote:
-> >> Hi, List
-> >> 
-> >> I think, I found a very simple solution for this annoying BUG().
-> 
-> Jens> You fail to understand that the BUG triggering indicates that their is a
-> Jens> BUG _somewhere_ -- the triggered BUG is not the bug itself, of course,
-> Jens> that would be stupid :-)
-> 
-> Erm, having a BUG() somewhere can be a bug by itself ;)
-> 
-> I think that's what he meant (regardless if he was right or not). 
+> I've never tried this, but could you do something like
+>
+> bunzip2 -c bzImage > zImage && ar -t zImage
 
-Of course it can, any statement can be a bug. That's hardly the point
-:-)
+Doesn't work
 
--- 
-Jens Axboe
+bzcat: dist/images/kernel-nfs is not a bzip2 file.
+
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUEVVYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUEVVU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUEVVYP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 17:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUEVVYP
+	id S261568AbUEVVU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 17:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUEVVU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 17:24:15 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:50818 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S261914AbUEVVYO (ORCPT
+	Sat, 22 May 2004 17:20:57 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:29338 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261568AbUEVVUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 17:24:14 -0400
-Date: Sat, 22 May 2004 23:24:10 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Exporting PCI ROMs via syfs
-Message-ID: <20040522212410.GA2641@ucw.cz>
-References: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
+	Sat, 22 May 2004 17:20:55 -0400
+Date: Sat, 22 May 2004 23:20:31 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Lorenzo Allegrucci <l_allegrucci@despammed.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
+Message-ID: <20040522212028.GA31188@suse.de>
+References: <200405222107.55505.l_allegrucci@despammed.com> <20040522122126.2940f8f4.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040521010510.84867.qmail@web14928.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040522122126.2940f8f4.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sat, May 22 2004, Andrew Morton wrote:
+> Lorenzo Allegrucci <l_allegrucci@despammed.com> wrote:
+> >
+> > 
+> > I get a 100% reproducible oops mounting an ext3 or reiserfs
+> > partition with -o barrier enabled.
+> > Hand written oops (for ext3):
+> 
+> That's a lot of hand-writing.  Thanks for doing that.  You can usually omit
+> the hex numbers in [brackets] when doing this.
+> 
+> The crash is here:
+> 
+> static inline void blkdev_dequeue_request(struct request *req)
+> {
+> 	BUG_ON(list_empty(&req->queuelist));
+> 
+> perhaps related to that I/O error sending the code through less-tested
+> paths.
 
-> Some problems:
-> Radeon cards need a work around sometimes to enable their ROM. But this can be
-> run once when the driver loads.
-> There is one card that can't access the ROM and function at the same time, I
-> believe Alan Cox know which one it is.
+Ouch indeed, I'll get that fixed up first thing in the morning.
 
-The PCI specs explicitly allow the cards to use a single address decoder for
-both the ROM address and one of the BARs and there really are cards which make
-use of this silliness.
-
-Probably the only reasonable way how to do that reliably is to make a copy of
-the ROM before the device is enabled.
-
-OTOH, it might be sensible to add a sysfs-based interface for reading the ROMs
-which would be available only to root and which would work only on cards
-without the shared decoders :-)
-
-				Have a nice fortnight
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-To avoid bugs in your room, just keep Windows closed.
+Jens Axboe
+

@@ -1,116 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbTJFQUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 12:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTJFQUF
+	id S262384AbTJFQRS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 12:17:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbTJFQRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 12:20:05 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:65154 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264015AbTJFQTl
+	Mon, 6 Oct 2003 12:17:17 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:19080 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262384AbTJFQRJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 12:19:41 -0400
-Date: Mon, 6 Oct 2003 12:22:04 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: John Bradford <john@grabjohn.com>
-cc: Mikael Pettersson <mikpe@csd.uu.se>, Dave Jones <davej@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: FDC motor left on
-In-Reply-To: <200310061606.h96G6qhp000963@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.53.0310061218040.9590@chaos>
-References: <Pine.LNX.4.53.0310031322430.499@chaos> <20031003235801.GA5183@redhat.com>
- <Pine.LNX.4.53.0310060834180.8593@chaos> <16257.26407.439415.325123@gargle.gargle.HOWL>
- <Pine.LNX.4.53.0310061059220.9165@chaos> <200310061606.h96G6qhp000963@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Oct 2003 12:17:09 -0400
+Date: Mon, 6 Oct 2003 09:16:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 1/6] sysfs-kobject.patch
+Message-ID: <20031006161639.GC4125@us.ibm.com>
+References: <20031006085915.GE4220@in.ibm.com> <20031006090003.GF4220@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006090003.GF4220@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux 2.6.0-test6-bk5 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Oct 2003, John Bradford wrote:
+On Mon, Oct 06, 2003 at 02:30:03PM +0530, Maneesh Soni wrote:
+> diff -puN include/linux/kobject.h~sysfs-kobject include/linux/kobject.h
+> --- linux-2.6.0-test6/include/linux/kobject.h~sysfs-kobject	2003-10-06 11:48:37.000000000 +0530
+> +++ linux-2.6.0-test6-maneesh/include/linux/kobject.h	2003-10-06 11:48:51.000000000 +0530
+> @@ -32,6 +32,12 @@ struct kobject {
+>  	struct kset		* kset;
+>  	struct kobj_type	* ktype;
+>  	struct dentry		* dentry;
+> + 	struct list_head	k_sibling;
+> + 	struct list_head	k_children;
+> +	struct list_head	attr;
+> +	struct list_head	attr_group;
+> +	struct rw_semaphore	k_rwsem;
+> +	char 			*k_symlink;
+>  };
 
-> > > > If you can end up with another floppy drive motor on under
-> > > > any condition when the kernel is given control, then you
-> > > > can simply reset both (or all) floppy motor control bits.
-> > >
-> > > This is not a problem to deal with in the kernel - what if there is
-> > > hardware other than a floppy controller at that address?
-> > >
-> >
-> > In the ix86 architecture (and it is in arch-specific code), there
-> > cannot be anything at this address except a floppy or nothing.
-> > In both cases, you are covered.
-> >
-> > I any embedded systems developer decides to put something besides
-> > a FDC at that address, it is up to them to fix the problems they
-> > create, not linux.
->
-> If no support for floppy drives is compiled in to the kernel, it's
-> reasonable to expect no floppy-related accesses to be done to those
-> ports.
->
-> > > The bootloader needs to ensure that the hardware is at least in a
-> > > sensible state when the kernel is entered.  Infact, unless the system
-> > > is being booted from floppy, why is the BIOS accessing the floppy at
-> > > all?
-> > >
-> >
-> > The BIOS accesses the floppy (if one exists) because of the
-> > boot order having been selected. Many who have computers,
-> > that are not accessible to others, have the BIOS set up so
-> > that the first thing to check for a boot-loader is the floppy,
-> > then the CD-ROM, then the hard disk. This lets them do their
-> > normal work without having to muck with the BIOS.
-> >
-> > It is not an error to configure a machine this way. It
-> > is an option. It is an error, however, to leave a floppy
-> > disk-drive motor ON forever.
->
-> OK, so the bootloader is at fault, not the BIOS.  If the BIOS is
-> configured to allow booting from floppy, but you decide to boot from
-> other media on any occasion, the first code loaded, I.E. the
-> bootloader, should turn off the floppy motor.
->
-> > > Re-configure the BIOS not to try to boot from the floppy, or to seek
-> > > the drive to see whether it is capable of 40 or 80 tracks.
-> > >
-> >
-> > The BIOS can be (correctly) set to any of many possible boot-
-> > options.
->
-> If the floppy motor ends up being on all the time, how is that a
-> correct configuration?
->
-> > > If that is not possible, (on a laptop with an obscure BIOS for
-> > > example), add a delay to the bootloader.  Assumng interupts are still
-> > > enabled, the BIOS will switch the floppy off after a few seconds.
-> > >
-> >
-> > An arbitrary delay is a very bad hack.
->
-> Yes, it is, the real solution is to fix the bootloader.  I was simply
-> providing a workaround.
->
-> > If you need something OFF,
-> > you turn it OFF. One should never work-around a primative like
-> > ON or OFF. The digital-output registers at the FDC's specified
-> > address is where this is done.
->
-> I consider it just as much of a hack to add floppy-related code to all
-> i386 kernels whether they are for floppy-less machines or not.
->
-> John.
->
+Ouch.  Like Al said, this is too bloated.  Remember, not all kobjects
+are registered for use in sysfs.  This makes the overhead for such
+usages pretty high :(
 
-Well we are in agreement that it must be turned OFF. The only
-question is where it should be done. Already the kernel fixes
-the video board (generic VGA) and other stuff that it may
-find wrong (PCI bus), etc. So, a simple read/write to a
-machine-compatible port might be the simplest accommodation.
+thanks,
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+greg k-h

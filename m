@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264287AbUD0TC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUD0TCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264287AbUD0TC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 15:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbUD0TCI
+	id S264286AbUD0TCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 15:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264287AbUD0TCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 15:02:08 -0400
-Received: from cyberhostplus.biz ([209.124.87.2]:61108 "EHLO
-	server.cyberhostplus.biz") by vger.kernel.org with ESMTP
-	id S264287AbUD0TBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 15:01:52 -0400
-From: "Steve Lee" <steve@tuxsoft.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Date: Tue, 27 Apr 2004 14:03:01 -0500
-Message-ID: <000001c42c8a$485cd950$8119fea9@pluto>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server.cyberhostplus.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - tuxsoft.com
+	Tue, 27 Apr 2004 15:02:15 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:5128 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264286AbUD0TBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 15:01:47 -0400
+Date: Tue, 27 Apr 2004 20:57:29 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Parag Nemade <cranium2003@yahoo.com>
+Cc: kernerl mail <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org,
+       netfilter <netfilter-devel@lists.netfilter.org>
+Subject: Re: HELP ipt_hook: happy cracking message
+Message-ID: <20040427185729.GA29913@alpha.home.local>
+References: <20040426151220.85059.qmail@web41403.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040426151220.85059.qmail@web41403.mail.yahoo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Instead of printing module taint messages to the screen, why couldn't
-they just
-be written to syslog?  Then it wouldn't matter if there were several
-taint
-messages.  For example, I know my nVidia driver taints the kernel, I
-don't need
-to see that message over and over again.
+On Mon, Apr 26, 2004 at 08:12:20AM -0700, Parag Nemade wrote:
+> hi,
+>         i modified kernel so that it will create
+> /proc/net/myproc file entry.
+> the function of this entry is to crate a 16 byte char
+> string from random no.s
+> i used net_srandom and net_random and sys_time for
+> that puspose. the problem is that i write program to
+> generate string after 120 seconds but it is changing
+> contents of myproc file every seconds. what can i do?
 
-Marc Boucher <marc () linuxant ! com> wrote:
+may be you're sleeping for 120 instead of 120*HZ, which
+means you're really sleeping 1.2s on x86.
 
-> Actually, we also have no desire nor purpose to prevent tainting. The
-purpose
-> of the workaround is to avoid repetitive warning messages generated
-when
-> multiple modules belonging to a single logical "driver"  are loaded
-(even when
-> a module is only probed but not used due to the hardware not being
-present).
-> Although the issue may sound trivial/harmless to people on the lkml,
-it was a
-> frequent cause of confusion for the average person.
+>  Also i am getting ipt_hook: happy cracking. message
+> again and again why?
 
+iptable_mangle.c comment reads 'root is playing with
+raw sockets' above this message. It means that you're
+sending too short IP packets (len < 20 bytes) or packets
+with the IHL field < 5. It's just a harmless message.
+
+Regards,
+Willy
 

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315282AbSGMSzf>; Sat, 13 Jul 2002 14:55:35 -0400
+	id <S315358AbSGMTQ2>; Sat, 13 Jul 2002 15:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315293AbSGMSzf>; Sat, 13 Jul 2002 14:55:35 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:46552 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S315282AbSGMSze>; Sat, 13 Jul 2002 14:55:34 -0400
-Date: Sat, 13 Jul 2002 14:57:23 -0400
-To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: oprofile results with lmbench
-Message-ID: <20020713185723.GA17787@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S315370AbSGMTQ1>; Sat, 13 Jul 2002 15:16:27 -0400
+Received: from h209-71-227-55.gtconnect.net ([209.71.227.55]:784 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S315358AbSGMTQ0>;
+	Sat, 13 Jul 2002 15:16:26 -0400
+Date: Sat, 13 Jul 2002 15:19:17 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
+In-Reply-To: <1026584920.13885.29.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207131517510.19986-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-oprofile gives access to cpu performance counters on x86.
+On 13 Jul 2002, Alan Cox wrote:
 
-I ran oprofile with the individual lmbench tests to get
-data from several of the counters.  This "hot kernel 
-function" and counter info may be useful.  A web page with the
-results from 5 of the performance counters for each
-lmbench test is at:
+> On Sat, 2002-07-13 at 17:21, Bill Davidsen wrote:
+> > In the absense of the proxy_arp flag, I would not expect that reply,
+> > the IP is not on that NIC. Before I "fix" that, is this intended
+> > behaviour for some reason? Will I break something if I add check logic?
+> > Is there something in /proc/sys/net/ipv4 I missed which will avoid this
+> > response?
+>
+> Your suspicion and the reality don't match. The RFC's leave the
+> situation unclear and some OS's do either. Newer 2.4 has arpfilter which
+> can be used to control what actually occurs
 
-http://home.earthlink.net/~rwhron/kernel/lmbench_oprofile.html
+Can we at least have matching defaults for ipv4 and ipv6 ??  Having ipv6
+behave the opposite just isn't intuitive.
 
-I'll add the rest of the counter data over the next few days.
-Comments/caveats on how to make the information more useful are
-welcome.
+	Gerhard
 
-The target kernel was 2.4.19rc1aa1 on an Athlon 1333.
 
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

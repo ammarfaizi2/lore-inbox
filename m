@@ -1,143 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131318AbRCWRst>; Fri, 23 Mar 2001 12:48:49 -0500
+	id <S131296AbRCWSCt>; Fri, 23 Mar 2001 13:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131296AbRCWRsk>; Fri, 23 Mar 2001 12:48:40 -0500
-Received: from 152.145.126.209.reverse.cari.net ([209.126.145.154]:17939 "EHLO
-	newportharbornet.com") by vger.kernel.org with ESMTP
-	id <S131318AbRCWRs3>; Fri, 23 Mar 2001 12:48:29 -0500
-Date: Fri, 23 Mar 2001 09:49:47 -0800 (PST)
-From: Bob Lorenzini <hwm@newportharbornet.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux Worm (fwd)
-Message-ID: <Pine.LNX.4.21.0103230947250.14872-100000@newportharbornet.com>
+	id <S129245AbRCWSCj>; Fri, 23 Mar 2001 13:02:39 -0500
+Received: from cp31483-a.dbsch1.nb.nl.home.com ([217.120.33.210]:1799 "EHLO
+	CP31483-A.dbsch1.nb.nl.home.com") by vger.kernel.org with ESMTP
+	id <S131296AbRCWSCX>; Fri, 23 Mar 2001 13:02:23 -0500
+Date: Fri, 23 Mar 2001 19:02:23 +0100 (CET)
+From: Erik Oomen <erik.oomen@home.nl>
+X-X-Sender: <oomen@CP31483-A.dbsch1.nb.nl.home.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: USB & Wacom problem after suspend.
+Message-ID: <Pine.LNX.4.33.0103231833340.1345-100000@CP31483-A.dbsch1.nb.nl.home.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm annoyed when persons post virus alerts to unrelated lists but this
-is a serious threat. If your offended flame away.
+Hi,
 
-Bob
+I am using an USB wacom intuos tablet on a dell laptop.  Whenever the
+laptop has been in standby mode the tablet does not work anymore.
 
+More detailed, I was in X and submitted an 'apm --suspend' command.  After
+the resume I have to switch to a console (Ctrl-Alt-F3 for example), pull
+the usb-plug out and put in back in and switch to X.  After that it will
+work fine.
 
-March 23, 2001 7:00 AM
+Here are the logs:
 
-Late last night, the SANS Institute (through its Global Incident
-Analysis Center) uncovered a dangerous new worm that appears to be
-spreading rapidly across the Internet.  It scans the Internet looking
-for Linux computers with a known vulnerability. It infects the
-vulnerable machines, steals the password file  (sending it to a
-China.com site), installs other hacking tools, and forces the newly
-infected machine to begin scanning the Internet looking for other
-victims.
+*** enterring apm --suspend
 
-Several experts from the security community worked through the night to
-decompose the worm's code and engineer a utility to help you discover
-if the Lion worm has affected your organization.
+Mar 23 17:13:46 news127 sudo:    oomen : TTY=pts/4 ; PWD=/home/oomen ;
+USER=root ; COMMAND=/usr/bin/apm --suspend
+Mar 23 17:13:46 news127 cardmgr[172]: executing: './network suspend eth0'
+Mar 23 17:13:46 news127 kernel: uhci.c: root-hub INT complete: port1: 183
+port2: 80 data: 2
+Mar 23 17:13:46 news127 kernel: hub.c: port 1 connection change
+Mar 23 17:13:46 news127 kernel: hub.c: port 1, portstatus 301, change 1,
+1.5 Mb/s
+Mar 23 17:13:46 news127 kernel: usb.c: USB disconnect on device 5
+Mar 23 17:13:46 news127 kernel: usb.c: kusbd: /sbin/hotplug remove 5
+Mar 23 17:13:46 news127 kernel: usb.c: kusbd policy returned 0xfffffffe
+Mar 23 17:13:46 news127 kernel: hub.c: port 1, portstatus 303, change 0,
+1.5 Mb/s
+Mar 23 17:13:46 news127 kernel: hub.c: USB new device connect on bus1/1,
+assigned device number 6
+Mar 23 17:13:48 news127 cardmgr[172]: executing: './serial suspend ttyS2'
+Mar 23 17:13:48 news127 apmd[405]: User Suspend
 
-Updates to this announcement will be posted at the SANS web site,
-http://www.sans.org
+*** Resume
 
+Mar 23 18:26:11 news127 kernel: uhci.c: uhci_result_control() failed with
+status 440000
+Mar 23 18:26:11 news127 kernel:   URB [c22b6ca0] urbp [c12f41e0]
+Mar 23 18:26:11 news127 kernel:     QH [c0e211e0]
+Mar 23 18:26:11 news127 kernel:       td 0: [c12f31e0]
+Mar 23 18:26:11 news127 kernel:       012f31a4 e0 LS Stalled CRC/Timeo
+Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d
+Mar 23 18:26:11 news127 kernel:       td 1: [c12f31a0]
+Mar 23 18:26:11 news127 kernel:       00000001 e3 LS IOC Active Length=0
+MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN)
+Mar 23 18:26:11 news127 kernel: usb.c: USB device not accepting new
+address=6 (error=-110)
+Mar 23 18:26:11 news127 kernel: uhci.c: root-hub INT complete: port1: 282
+port2: 80 data: 2
+Mar 23 18:26:12 news127 kernel: hub.c: port 1, portstatus 303, change 0,
+1.5 Mb/s
+Mar 23 18:26:12 news127 kernel: hub.c: USB new device connect on bus1/1,
+assigned device number 7
+Mar 23 18:26:12 news127 kernel: usb.c: kmalloc IF c081b3e0, numif 1
+Mar 23 18:26:12 news127 kernel: usb.c: skipped 1 class/vendor specific
+interface descriptors
+Mar 23 18:26:12 news127 kernel: usb.c: new device strings: Mfr=1,
+Product=2, SerialNumber=0
+Mar 23 18:26:12 news127 kernel: usb.c: USB device number 7 default
+language ID 0x409
+Mar 23 18:26:12 news127 cardmgr[172]: executing: './network resume eth0'
+Mar 23 18:26:12 news127 kernel: Manufacturer: WACOM
+Mar 23 18:26:12 news127 cardmgr[172]: executing: './serial resume ttyS2'
+Mar 23 18:26:12 news127 kernel: Product: ET-0405-UV1.1-1
+Mar 23 18:26:12 news127 kernel: event1: Event device for input0
+Mar 23 18:26:12 news127 kernel: input0: Wacom Graphire on usb1:7.0
+Mar 23 18:26:12 news127 kernel: usb.c: wacom driver claimed interface
+c081b3e0
+Mar 23 18:26:12 news127 kernel: usb.c: kusbd: /sbin/hotplug add 7
+Mar 23 18:26:12 news127 kernel: usb.c: kusbd policy returned 0xfffffffe
+Mar 23 18:26:13 news127 modprobe: modprobe: Can't locate module
+sound-slot-0
+Mar 23 18:26:13 news127 modprobe: modprobe: Can't locate module
+sound-service-0-6
+Mar 23 18:26:13 news127 kernel: eth0: lost link beat
+Mar 23 18:26:13 news127 kernel: eth0: autonegotiation restarted
+Mar 23 18:26:14 news127 kernel: eth0: remote fault detected
+Mar 23 18:26:16 news127 apmd[405]: Normal Resume after 01:12:28 (100%
+5:19) AC power
 
-DESCRIPTION
+*** In the console, pluggin it out and in again:
 
-The Lion worm is similar to the Ramen worm. However, this worm is
-significantly more dangerous and should be taken very seriously.  It
-infects Linux machines running the BIND DNS server.  It is known to
-infect bind version(s) 8.2, 8.2-P1, 8.2.1, 8.2.2-Px, and all
-8.2.3-betas. The specific vulnerability used by the worm to exploit
-machines is the TSIG vulnerability that was reported on January 29,
-2001.
-
-The Lion worm spreads via an application called "randb".  Randb scans
-random class B networks probing TCP port 53. Once it hits a system, it
-checks to see if it is vulnerable. If so, Lion exploits the system using
-an exploit called "name".  It then installs the t0rn rootkit.
-
-Once Lion has compromised a system, it:
-
-- Sends the contents of /etc/passwd, /etc/shadow, as well as some
-network settings to an address in the china.com domain.
-- Deletes /etc/hosts.deny, eliminating the host-based perimeter
-protection afforded by tcp wrappers.
-- Installs backdoor root shells on ports 60008/tcp and 33567/tcp (via
-inetd, see /etc/inetd.conf)
-- Installs a trojaned version of ssh that listens on 33568/tcp
-- Kills Syslogd , so the logging on the system can't be trusted
-- Installs a trojaned version of login
-- Looks for a hashed password in /etc/ttyhash
-- /usr/sbin/nscd (the optional Name Service Caching daemon) is
-overwritten with a trojaned version of ssh.
-
-The t0rn rootkit replaces several binaries on the system in order to
-stealth itself. Here are the binaries that it replaces:
-
-du, find, ifconfig, in.telnetd, in.fingerd, login, ls, mjy, netstat,
-ps, pstree, top
-
-- "Mjy" is a utility for cleaning out log entries, and is placed in /bin
-and /usr/man/man1/man1/lib/.lib/.
-- in.telnetd is also placed in these directories; its use is not known
-at this time.
-- A setuid shell is placed in /usr/man/man1/man1/lib/.lib/.x
-
-DETECTION AND REMOVAL
-
-We have developed a utility called Lionfind that will detect the Lion
-files on an infected system.  Simply download it, uncompress it, and
-run lionfind.  This utility will list which of the suspect files is on
-the system.
-
-At this time, Lionfind is not able to remove the virus from the system.
-If and when an updated version becomes available (and we expect to
-provide one), an announcement will be made at this site.
-
-Download Lionfind at http://www.sans.org/y2k/lionfind-0.1.tar.gz
-
-
-REFERENCES
-
-Further information can be found at:
-
-http://www.sans.org/current.htm
-http://www.cert.org/advisories/CA-2001-02.html, CERT Advisory CA-2001-02,
-Multiple Vulnerabilities in BIND
-http://www.kb.cert.org/vuls/id/196945 ISC BIND 8 contains buffer overflow
-in transaction signature (TSIG) handling code
-http://www.sans.org/y2k/t0rn.htm Information about the t0rn rootkit.
-The following vendor update pages may help you in fixing the original BIND
-vulnerability:
-
-Redhat Linux RHSA-2001:007-03 - Bind remote exploit
-http://www.redhat.com/support/errata/RHSA-2001-007.html
-Debian GNU/Linux DSA-026-1 BIND
-http://www.debian.org/security/2001/dsa-026
-SuSE Linux SuSE-SA:2001:03 - Bind 8 remote root compromise.
-http://www.suse.com/de/support/security/2001_003_bind8_ txt.txt
-Caldera Linux CSSA-2001-008.0 Bind buffer overflow
-http://www.caldera.com/support/security/advisories/CSSA-2001-008.0.txt
-http://www.caldera.com/support/security/advisories/CSSA-2001-008.1.txt
-
-This security advisory was prepared by Matt Fearnow of the SANS
-Institute and William Stearns of the Dartmouth Institute for Security
-Technology Studies.
-
-The Lionfind utility was written by William Stearns. William is an
-Open-Source developer, enthusiast, and advocate from Vermont, USA. His
-day job at the Institute for Security Technology Studies at Dartmouth
-College pays him to work on network security and Linux projects.
-
-Also contributing efforts go to Dave Dittrich from the University of
-Washington, and Greg Shipley of Neohapsis
-
-Matt Fearnow
-SANS GIAC Incident Handler
-
-If you have additional data on this worm or a critical quetsion  please
-email lionworm@sans.org
------------- Output from pgp ------------
-Signature by unknown keyid: 0xA1694E46
+Mar 23 18:28:33 news127 kernel: uhci.c: root-hub INT complete: port1: 8a
+port2: 80 data: 2
+Mar 23 18:28:33 news127 kernel: hub.c: port 1 connection change
+Mar 23 18:28:33 news127 kernel: hub.c: port 1, portstatus 100, change 3,
+12 Mb/s
+Mar 23 18:28:33 news127 kernel: usb.c: USB disconnect on device 8
+Mar 23 18:28:33 news127 kernel: usb.c: kusbd: /sbin/hotplug remove 8
+Mar 23 18:28:33 news127 kernel: usb.c: kusbd policy returned 0xfffffffe
+Mar 23 18:28:33 news127 kernel: uhci.c: root-hub INT complete: port1: 88
+port2: 80 data: 2
+Mar 23 18:28:33 news127 kernel: hub.c: port 1 enable change, status 100
+Mar 23 18:28:34 news127 kernel: uhci.c: root-hub INT complete: port1: 1a3
+port2: 80 data: 2
+Mar 23 18:28:34 news127 kernel: hub.c: port 1 connection change
+Mar 23 18:28:34 news127 kernel: hub.c: port 1, portstatus 301, change 1,
+1.5 Mb/s
+Mar 23 18:28:34 news127 kernel: hub.c: port 1, portstatus 303, change 0,
+1.5 Mb/s
+Mar 23 18:28:34 news127 kernel: hub.c: USB new device connect on bus1/1,
+assigned device number 9
+Mar 23 18:28:34 news127 kernel: usb.c: kmalloc IF c081b3c0, numif 1
+Mar 23 18:28:34 news127 kernel: usb.c: skipped 1 class/vendor specific
+interface descriptors
+Mar 23 18:28:34 news127 kernel: usb.c: new device strings: Mfr=1,
+Product=2, SerialNumber=0
+Mar 23 18:28:34 news127 kernel: usb.c: USB device number 9 default
+language ID 0x409
+Mar 23 18:28:34 news127 kernel: Manufacturer: WACOM
+Mar 23 18:28:34 news127 kernel: Product: ET-0405-UV1.1-1
+Mar 23 18:28:34 news127 kernel: event0: Event device for input0
+Mar 23 18:28:34 news127 kernel: input0: Wacom Graphire on usb1:9.0
+Mar 23 18:28:34 news127 kernel: usb.c: wacom driver claimed interface
+c081b3c0
+Mar 23 18:28:34 news127 kernel: usb.c: kusbd: /sbin/hotplug add 9
+Mar 23 18:28:34 news127 kernel: usb.c: kusbd policy returned 0xfffffffe
 
 

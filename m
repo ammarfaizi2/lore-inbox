@@ -1,33 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272265AbTGYTZE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 15:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272266AbTGYTZE
+	id S272266AbTGYTZ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 15:25:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272264AbTGYTZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 15:25:04 -0400
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:62342 "EHLO server")
-	by vger.kernel.org with ESMTP id S272265AbTGYTZC (ORCPT
+	Fri, 25 Jul 2003 15:25:28 -0400
+Received: from smtp.mailix.net ([216.148.213.132]:24946 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S272266AbTGYTZX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 15:25:02 -0400
-Message-ID: <01f001c352e4$9025e6d0$3400a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "Andrea Arcangeli" <andrea@suse.de>, "lkml" <linux-kernel@vger.kernel.org>,
-       "Marc Heckmann" <mh@nadir.org>
-References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva> <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva> <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307221358440.23424@freak.distro.conectiva>
-Subject: Re: 2.4.22-pre5 deadlock
-Date: Fri, 25 Jul 2003 12:40:11 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 25 Jul 2003 15:25:23 -0400
+Date: Fri, 25 Jul 2003 21:40:29 +0200
+From: Alex Riesen <fork0@users.sf.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] O6int for interactivity
+Message-ID: <20030725194029.GA1893@steel.home>
+Reply-To: Alex Riesen <fork0@users.sf.net>
+References: <20030718073842.GA5598@Synopsys.COM> <Pine.LNX.4.44.0307251628500.26172-300000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307251628500.26172-300000@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From talking with others, we are considering this a netfilter issue, is this
-correct??
+Terribly sorry for delay. I got a bit distracted by some elements of
+testing (dvd playing).
+
+Ingo Molnar, Fri, Jul 25, 2003 16:29:33 +0200:
+> > Still no good. xine drops frames by kernel's make -j2, xmms skips while
+> > bk pull (locally). Updates (after switching desktops in metacity) get
+> > delayed for seconds (mozilla window redraws with www.kernel.org on it,
+> > for example).
+> 
+> would you mind to give the attached sched-2.6.0-test1-G2 patch a go? (it's
+> ontop of vanilla 2.6.0-test1.) Do you still see audio skipping and/or
+> other bad scheduling artifacts?
+
+Started make -j2 (my machine is UP), xine-distractor and gvim.
+Moving gvim window over xine (even if paused) is jerky, but tolerable.
+No skips during playing. No at all. Redraws in MozillaFirebird are
+delayed (I get trails all over the firebird window), but again - no
+annoyingly long delays.
+
+I continue testing.
+
+> (if you prefer -mm2 then please first unapply the second attached patch
+> (Con's interactivity patchset) - they are mutually exclusive.)
+
+I used the G2 on 2.6-test1.
+
+
+-alex
 

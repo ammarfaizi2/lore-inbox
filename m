@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbTIDOiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265067AbTIDOhi
+	id S265113AbTIDOzh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265208AbTIDOzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:37:38 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:8190 "EHLO fed1mtao02.cox.net")
-	by vger.kernel.org with ESMTP id S265060AbTIDOgx (ORCPT
+	Thu, 4 Sep 2003 10:55:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2504 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265200AbTIDOzJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:36:53 -0400
-Date: Thu, 4 Sep 2003 07:36:50 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>, rmk@arm.linux.org.uk, hch@lst.de,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix ppc ioremap prototype
-Message-ID: <20030904073650.B22822@home.com>
-References: <20030903203231.GA8772@lst.de> <16214.34933.827653.37614@nanango.paulus.ozlabs.org> <20030904071334.GA14426@lst.de> <20030904083007.B2473@flint.arm.linux.org.uk> <16215.1054.262782.866063@nanango.paulus.ozlabs.org> <20030904023624.592f1601.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030904023624.592f1601.davem@redhat.com>; from davem@redhat.com on Thu, Sep 04, 2003 at 02:36:24AM -0700
+	Thu, 4 Sep 2003 10:55:09 -0400
+Date: Thu, 4 Sep 2003 07:52:31 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up power managment in 2.6
+In-Reply-To: <Pine.LNX.3.96.1030904000316.12166A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.33.0309040746590.940-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 02:36:24AM -0700, David S. Miller wrote:
-> On Thu, 4 Sep 2003 19:21:34 +1000 (EST)
-> Paul Mackerras <paulus@samba.org> wrote:
+
+> I'm not sure trying to suspect during boot is a good thing to do, either.
+> Maybe that should wait and be enabled at user option at the end of boot.
+> In any case, I think avoiding data damage is higher priority than
+> efficiency, elegance, modularity, etc.
 > 
-> > What I would prefer is if we passed a struct device pointer, a
-> > resource pointer and an offset to ioremap.  Then we could just have
-> > bus addresses in PCI device resources instead of having to translate
-> > them into physical addresses.
-> 
-> You only need a resource in order to do this.  Then you can
-> stick the upper bits, controller number, whatever in the unused
-> resource flag bits.
+> Beyond that I'll let you guys fight it out, I'm just worried that the new
+> pm is going to bite me even if I don't use suspend.
 
-Ok, now the other part of making PCI devices work is to support
-mmap.  In most cases, that means remap_page_range() is used which
-is stuck with an unsigned long physical address.  For example,
-should we really have a remap_resource_range() in FB drivers to
-handle mmap?  This could use arch-specific resource information
-to get a 36-bit physical address (PPC44x) and maybe get rid of
-some of the in-driver per-arch address munging.
+Your paranoia is understood, but completely unfounded. As Pavel said, we
+do not support such a feature. When/if we do, only the mechanism for
+detecting a low battery state and transitioning to a suspend sequence 
+would be in the kernel. The policy that stated what the watermark on the 
+battery charge was to do that would live in userspace, and set on boot 
+(long after the kernel was done booting). The default would obviously be 
+OFF until it was set by userspace. 
 
-My local tree has an ugly hack to remap_page_range() (and friends)
-so it uses a phys_addr_t and calls fixup_bigphys_addr() to allow
-use of unmodified PCI FB drivers.  I'd like to get this working
-without hacks. :)
+Patches to implement this would be greatly appreciated. 
 
--Matt
+
+
+	Pat
+

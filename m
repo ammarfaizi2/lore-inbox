@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130539AbRA0WKD>; Sat, 27 Jan 2001 17:10:03 -0500
+	id <S129786AbRA0WSz>; Sat, 27 Jan 2001 17:18:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRA0WJy>; Sat, 27 Jan 2001 17:09:54 -0500
-Received: from hibernia.clubi.ie ([212.17.32.129]:59528 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S130539AbRA0WJp>; Sat, 27 Jan 2001 17:09:45 -0500
-Date: Sat, 27 Jan 2001 22:13:08 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: routing between different subnets on same if.
-In-Reply-To: <94v7nc$28g$1@ncc1701.cistron.net>
-Message-ID: <Pine.LNX.4.31.0101272202060.2119-100000@fogarty.jakma.org>
+	id <S130340AbRA0WSp>; Sat, 27 Jan 2001 17:18:45 -0500
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:59100 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S129786AbRA0WSc>; Sat, 27 Jan 2001 17:18:32 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Gregory Maxwell" <greg@linuxpower.cx>,
+        "Jamie Lokier" <lk@tantalophile.demon.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: hotmail not dealing with ECN
+Date: Sat, 27 Jan 2001 14:18:31 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010127151428.H6821@xi.linuxpower.cx>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jan 2001, Miquel van Smoorenburg wrote:
 
-> Did you enable forwarding with echo 1 > /proc/sys/net/ipv4/ip_forward ?
->
+> Firewalling should be implemented on the hosts, perhaps with centralized
+> policy management. In such a situation, there would be no reason to filter
+> on funny IP options.
 
-yes. the machine already routes correctly between the 2 subnets and
-the internet which is on a seperate interface. i also disabled
-/proc/sys/net/ipv4/conf/all/send_redirects, to no avail.
+	That's madness. If you have to implement your firewalling on every host,
+what do you do when someone wants to run a new OS? Forbid it?
 
-the setup is so:
-
-eth1: public IP
-eth0: 192.168.0/24 and 192.168.3/24
-
-routing table has correct entries, the 2 private subnets are routed
-out thru dev eth0 with appropriate src. eventually i just installed a
-seperate NIC for 192.168.3/24 and it worked as i expected it to.
-
-however, i still need to know how to get linux 2.2 to do complete
-forwarding of packets between different logical subnets that share
-the same link.(i still have a couple more logical subnets that this
-machine has to route).
-
-So do i need a seperate NIC for each logical subnet? i'm sure i
-don't, but i don't see what i'm supposed to do with the 'ip' command?
-different scope or realm? or ... ??
-
-> Mike.
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-"Nuclear war can ruin your whole compile."
-		-- Karl Lehenbauer
+	DS
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

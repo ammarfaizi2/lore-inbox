@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbVBLD3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVBLD3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262388AbVBLD3O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 22:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbVBLD0m
+	id S262391AbVBLD3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 22:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVBLD1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 22:26:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:24490 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262384AbVBLD0C (ORCPT
+	Fri, 11 Feb 2005 22:27:13 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24746 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262386AbVBLD0C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 11 Feb 2005 22:26:02 -0500
-Date: Fri, 11 Feb 2005 19:25:42 -0800 (PST)
+Date: Fri, 11 Feb 2005 19:25:36 -0800 (PST)
 From: Ray Bryant <raybry@sgi.com>
 To: Hirokazu Takahashi <taka@valinux.co.jp>, Hugh DIckins <hugh@veritas.com>,
        Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
@@ -17,132 +17,154 @@ To: Hirokazu Takahashi <taka@valinux.co.jp>, Hugh DIckins <hugh@veritas.com>,
 Cc: Ray Bryant <raybry@sgi.com>, Ray Bryant <raybry@austin.rr.com>,
        linux-mm <linux-mm@kvack.org>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Message-Id: <20050212032542.18524.34091.43861@tomahawk.engr.sgi.com>
-In-Reply-To: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-Subject: [RFC 2.6.11-rc2-mm2 1/7] mm: manual page migration -- cleanup 1
+Message-Id: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+Subject: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes some remaining Memory HOTPLUG specific code
-from the page migration patch.  I have sent Dave Hansen the -R
-version of this patch so that this code can be added back 
-later at the start of the Memory HOTPLUG patches themselves.
+Overview
+--------
 
-In particular, this patchremoves VM_IMMOVABLE and MAP_IMMOVABLE.
+The purpose of this set of patches is to introduce (one part of) the
+necessary kernel infrastructure to support "manual page migration".
+That phrase is intended to describe a facility whereby some user program
+(most likely a batch scheduler) is given the responsibility of managing
+where jobs run on a large NUMA system.  If it turns out that a job needs
+to be run on a different set of nodes from where it is running now,
+then that user program would invoke this facility to move the job to
+the new set of nodes.
 
-Signed-off-by: Ray Bryant <raybry@sgi.com>
+We use the word "manual" here to indicate that the facility is invoked
+in a way that the kernel is told where to move things; we distinguish
+this approach from "automatic page migration" facilities which have been
+proposed in the past.  To us, "automatic page migration" implies using
+hardware counters to determine where pages should reside and having the
+O/S automatically move misplaced pages.  The utility of such facilities,
+for example, on IRIX has, been mixed, and we are not currently proposing
+such a facility for Linux.
 
-Index: linux-2.6.10-mm1-page-migration/kernel/fork.c
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/kernel/fork.c	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/kernel/fork.c	2005-01-10 09:14:03.000000000 -0800
-@@ -211,7 +211,7 @@ static inline int dup_mmap(struct mm_str
- 		if (IS_ERR(pol))
- 			goto fail_nomem_policy;
- 		vma_set_policy(tmp, pol);
--		tmp->vm_flags &= ~(VM_LOCKED|VM_IMMOVABLE);
-+		tmp->vm_flags &= ~(VM_LOCKED);
- 		tmp->vm_mm = mm;
- 		tmp->vm_next = NULL;
- 		anon_vma_link(tmp);
-Index: linux-2.6.10-mm1-page-migration/include/linux/mm.h
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/include/linux/mm.h	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/include/linux/mm.h	2005-01-10 09:14:04.000000000 -0800
-@@ -164,7 +164,6 @@ extern unsigned int kobjsize(const void 
- #define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
- #define VM_HUGETLB	0x00400000	/* Huge TLB Page VM */
- #define VM_NONLINEAR	0x00800000	/* Is non-linear (remap_file_pages) */
--#define VM_IMMOVABLE	0x01000000	/* Don't place in hot removable area */
- 
- #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
- #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
-Index: linux-2.6.10-mm1-page-migration/include/linux/mman.h
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/include/linux/mman.h	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/include/linux/mman.h	2005-01-10 10:05:54.000000000 -0800
-@@ -61,8 +61,7 @@ calc_vm_flag_bits(unsigned long flags)
- 	return _calc_vm_trans(flags, MAP_GROWSDOWN,  VM_GROWSDOWN ) |
- 	       _calc_vm_trans(flags, MAP_DENYWRITE,  VM_DENYWRITE ) |
- 	       _calc_vm_trans(flags, MAP_EXECUTABLE, VM_EXECUTABLE) |
--	       _calc_vm_trans(flags, MAP_LOCKED,     VM_LOCKED    ) |
--	       _calc_vm_trans(flags, MAP_IMMOVABLE,  VM_IMMOVABLE );
-+	       _calc_vm_trans(flags, MAP_LOCKED,     VM_LOCKED    );
- }
- 
- #endif /* _LINUX_MMAN_H */
-Index: linux-2.6.10-mm1-page-migration/arch/i386/kernel/sys_i386.c
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/arch/i386/kernel/sys_i386.c	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/arch/i386/kernel/sys_i386.c	2005-01-10 09:14:04.000000000 -0800
-@@ -70,7 +70,7 @@ asmlinkage long sys_mmap2(unsigned long 
- 	unsigned long prot, unsigned long flags,
- 	unsigned long fd, unsigned long pgoff)
- {
--	return do_mmap2(addr, len, prot, flags & ~MAP_IMMOVABLE, fd, pgoff);
-+	return do_mmap2(addr, len, prot, flags, fd, pgoff);
- }
- 
- /*
-@@ -101,7 +101,7 @@ asmlinkage int old_mmap(struct mmap_arg_
- 	if (a.offset & ~PAGE_MASK)
- 		goto out;
- 
--	err = do_mmap2(a.addr, a.len, a.prot, a.flags & ~MAP_IMMOVABLE,
-+	err = do_mmap2(a.addr, a.len, a.prot, a.flags,
- 	    a.fd, a.offset >> PAGE_SHIFT);
- out:
- 	return err;
-Index: linux-2.6.10-mm1-page-migration/include/asm-ppc64/mman.h
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/include/asm-ppc64/mman.h	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/include/asm-ppc64/mman.h	2005-01-10 09:14:04.000000000 -0800
-@@ -38,7 +38,6 @@
- 
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
--#define MAP_IMMOVABLE	0x20000
- 
- #define MADV_NORMAL	0x0		/* default page-in behavior */
- #define MADV_RANDOM	0x1		/* page-in minimum required */
-Index: linux-2.6.10-mm1-page-migration/include/asm-i386/mman.h
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/include/asm-i386/mman.h	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/include/asm-i386/mman.h	2005-01-10 09:14:04.000000000 -0800
-@@ -22,7 +22,6 @@
- #define MAP_NORESERVE	0x4000		/* don't check for reservations */
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
--#define MAP_IMMOVABLE	0x20000
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
-Index: linux-2.6.10-mm1-page-migration/fs/aio.c
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/fs/aio.c	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/fs/aio.c	2005-01-10 09:14:04.000000000 -0800
-@@ -134,7 +134,7 @@ static int aio_setup_ring(struct kioctx 
- 	down_write(&ctx->mm->mmap_sem);
- 	info->mmap_base = do_mmap(NULL, 0, info->mmap_size, 
- 				  PROT_READ|PROT_WRITE,
--				  MAP_ANON|MAP_PRIVATE|MAP_IMMOVABLE,
-+				  MAP_ANON|MAP_PRIVATE,
- 				  0);
- 	if (IS_ERR((void *)info->mmap_base)) {
- 		up_write(&ctx->mm->mmap_sem);
-Index: linux-2.6.10-mm1-page-migration/include/asm-ia64/mman.h
-===================================================================
---- linux-2.6.10-mm1-page-migration.orig/include/asm-ia64/mman.h	2005-01-10 08:46:51.000000000 -0800
-+++ linux-2.6.10-mm1-page-migration/include/asm-ia64/mman.h	2005-01-10 09:14:04.000000000 -0800
-@@ -30,7 +30,6 @@
- #define MAP_NORESERVE	0x04000		/* don't check for reservations */
- #define MAP_POPULATE	0x08000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
--#define MAP_IMMOVABLE	0x20000
- 
- #define MS_ASYNC	1		/* sync memory asynchronously */
- #define MS_INVALIDATE	2		/* invalidate the caches */
+The normal sequence of events would be as follows:  A job is running
+on, say nodes 5-8, and a higher priority job arrives and the only place
+it can be run, for whatever reason, is nodes 5-8.  Then the scheduler
+would suspend the processes of the existing job (by, for example sending
+them a SIGSTOP) and start the new job on those nodes.  At some point in
+the future, other nodes become available for use, and at this point the
+batch scheduler would invoke the manual page migration facility to move
+the processes of the suspended job from nodes 5-8 to the new set of nodes.
+
+Note that not all of the pages of all of the processes will need to (or
+should) be moved.  For example, pages of shared libraries are likely to be
+shared by many processes in the system; these pages should not be moved
+merely because a few processes using these libraries have been migrated.
+For the moment, we are going to defer the problem of determining which
+pages should be moved; a solution to this problem will be the subject
+of a subsequent patch set.
+
+So, for now let us assume that we have determined that a particular
+set of pages associated with a particular process need to be moved.
+The kernel interface that we are proposing is the following:
+
+page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
+
+Here va_start and va_end are assumed to be mapped by the same vma; these
+addresses are effectively ways that we can specify all (or part of)
+an address space map as given in /proc/pid/maps.  count is the number
+of entries in the old_nodes and new_nodes arrays.  The effect of this
+system call is to cause all pages in the page range specified that are
+found to be resident on old_nodes[i] to be moved to new_nodes[i].
+
+In addition to its use by batch schedulers, we also envision that
+this facility could be used by a program to re-arrange the allocation
+of its own pages on various nodes of the NUMA system, most likely
+to optimize performance of the application during different phases
+of its computation.
+
+Implementation Details
+----------------------
+
+This patch depends on the implementation of page migration from the
+Memory Hotplug Patch (see http://sr71.net/patches; this patch set is
+maintained by Dave Hansen of IBM and many other contributors).  Recently,
+I worked with Dave to rearrange the sequence of the hotplug patches so
+that the page migration patch could be applied by itself and then the
+rest of the Memory Hotplug patches could be applied on top of that patch.
+(In the following and in the descriptions of the other patches, we will
+refer to the page migration patch and to the Memory Hotplug patch itself
+-- by this we mean the patches available as, for example:
+
+patch-2.6.11-rc2-mm3-mhp1-pm.gz
+
+and the rest of the hotplug patches available in
+
+broken-out-2.6.11-rc2-mm2-mhp1.tar.gz
+
+The latter actually includes the page migration patch, but we will use
+the term Memory Hotplug patch to mean the patchset that starts with
+patch "A1.1-refactor-setup_memory-i386.patch" in the series file for the
+broken-out patches.  The page-migration patch consists of the patches
+before that, these patches have names ithat start with "AA-".)
+
+Given this powerful underlying framework, the implementation of manual page
+migration is relatively straightforward.  There are 7 patches supplied
+here, the first 5 of those are cleanup patches of various sorts for the
+page migration patch.
+
+Patches 6 and 7 of the series implement the system call described
+above.
+
+Limitations of the Current Patch
+--------------------------------
+
+This is, after all, an RFC and the current patch is only prototype code.
+It is being sent to the list in its current form to get some early
+comments back and to allow for careful validation of the approach
+that has been selected, before so much code has been written that the
+project has solidified and become difficult to be changed.  I welcome the
+opportunity for others to examine this patch and provide suggestions,
+point out possible improvements, help me to eliminate bugs, or to make
+suggestions about improved coding style or algorithms.  I will, however,
+be away from the office for the next week, so will likely not be able
+to respond until the week of Feb 21st.
+
+There are several things that this patch does not do, however, and
+we hope to resolve some of these issues in subsequent versions of the
+patchset:
+
+(1)  There is no security or authentication checking.  Any process
+     can migrate any pages of any other process.  This needs to
+     be addressed.
+
+(2)  We have not figured out yet what to do about the interaction
+     between page migration and Andi Kleen's memory policy infrastructure.
+     Presumably the memory policy data structures will have to be
+     updated either as part of the system call above or through
+     a new (or existing) system call.
+
+(3)  As previously mentioned, we have omitted a glaring detail --
+     how to determine what pages to migrate.  I have an algorithm
+     and code to solve this problem, but it is still a little
+     buggy and I wanted to get the ball rolling with what already
+     existed and seems to work reasonably well.
+
+(4)  It is likely that we will add a new operation to the vm_ops
+     structure -- the "page_migration" routine.  The reason for
+     this is to provide a way for each type of memory object to provide
+     a way that it's pages can be migrated.  We have not included
+     code for this in the current patch.
+
+(5)  There are still some small bugs relating to what happens to
+     non-present pages.  These issues should not hinder evaluation
+     or discussion of the overall approach, however.
+
+Finally, it is my goal to include the migration cache patch in 
+the final version of this code, however, at the moment there are
+some issues with this patch that are still being worked out, so
+it has not been included in this version of the patch.
+
+So, with all of the disclaimers and other details out of the
+way, we should go on, in subsequent notes, to discuss each of the
+7 patches.  Remember that only the last 2 are really significant;
+the others are mostly cleanup of warnings and the like.
 
 -- 
 Best Regards,

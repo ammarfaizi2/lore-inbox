@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUFEVr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUFEVsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUFEVr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 17:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUFEVr0
+	id S262062AbUFEVsS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 17:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUFEVsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 17:47:26 -0400
-Received: from cantor.suse.de ([195.135.220.2]:22237 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262050AbUFEVrY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 17:47:24 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: olh@suse.de, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] compat bug in sys_recvmsg, MSG_CMSG_COMPAT check
- missing
-References: <20040605204334.GA1134@suse.de>
-	<20040605140153.6c5945a0.davem@redhat.com>
-	<20040605140544.0de4034d.davem@redhat.com>
-	<jer7st7lam.fsf@sykes.suse.de>
-	<20040605143649.3fd6c22b.davem@redhat.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I'm dressing up in an ill-fitting IVY-LEAGUE SUIT!!  Too late...
-Date: Sat, 05 Jun 2004 23:47:22 +0200
-In-Reply-To: <20040605143649.3fd6c22b.davem@redhat.com> (David S. Miller's
- message of "Sat, 5 Jun 2004 14:36:49 -0700")
-Message-ID: <jen03h7k45.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 5 Jun 2004 17:48:18 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:19905 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262062AbUFEVsD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 17:48:03 -0400
+Subject: Re: clone() <-> getpid() bug in 2.6?
+From: Robert Love <rml@ximian.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
+       Russell Leighton <russ@elegant-software.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0406051405110.7010@ppc970.osdl.org>
+References: <40C1E6A9.3010307@elegant-software.com>
+	 <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+	 <20040605205547.GD20716@devserv.devel.redhat.com>
+	 <Pine.LNX.4.58.0406051405110.7010@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Sat, 05 Jun 2004 17:48:02 -0400
+Message-Id: <1086472082.7940.48.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.8 (1.5.8-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+On Sat, 2004-06-05 at 14:13 -0700, Linus Torvalds wrote:
 
-> On Sat, 05 Jun 2004 23:21:53 +0200
-> Andreas Schwab <schwab@suse.de> wrote:
->
->> "David S. Miller" <davem@redhat.com> writes:
->> 
->> > This means also that Olaf's patch is broken, when CONFIG_COMPAT is not
->> > set, MSG_CMSG_COMPAT is zero, thus ~MSG_CMSG_COMPAT is the unexpected
->> > value all 1's thus breaking the tests for unexpected flags completely.
->> 
->> ??? Where do you get ~MSG_CMSG_COMPAT from?
->
-> Olaf's patch, it said:
->
-> -	if (flags & ~(MSG_PEEK|MSG_DONTWAIT|MSG_TRUNC))
-> +	if (flags & ~(MSG_PEEK|MSG_DONTWAIT|MSG_TRUNC|MSG_CMSG_COMPAT))
+> Uli, if Arjan is right, then please fix this. It's a buggy and pointless 
+> optimization. Anybody who optimizes purely for benchmarks should be 
+> ashamed of themselves.
 
-Yes, and where is the problem?
+Eh, it definitely does, in nptl/sysdeps/unix/sysv/linux/getpid.c:
 
-Andreas.
+	pid_t result = THREAD_GETMEM (THREAD_SELF, pid);
+	if (__builtin_expect (result <= 0, 0))
+	  result = really_getpid (result);
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+A few places, including the fork code, fix it:
+
+	/* Adjust the PID field for the new process.  */
+	THREAD_SETMEM (self, pid, THREAD_GETMEM (self, tid));
+
+But not direct calls to clone(2).
+
+	Robert Love
+
+

@@ -1,161 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261333AbSJ3KId>; Wed, 30 Oct 2002 05:08:33 -0500
+	id <S261335AbSJ3KIe>; Wed, 30 Oct 2002 05:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261337AbSJ3KIc>; Wed, 30 Oct 2002 05:08:32 -0500
-Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:20999 "EHLO
-	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S261333AbSJ3KIa>; Wed, 30 Oct 2002 05:08:30 -0500
-Date: Wed, 30 Oct 2002 10:14:57 +0000
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dm update 2/3
-Message-ID: <20021030101457.GA10815@fib011235813.fsnet.co.uk>
-References: <20021029171920.GB1779@fib011235813.fsnet.co.uk> <Pine.GSO.4.21.0210291234160.9171-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210291234160.9171-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S261337AbSJ3KId>; Wed, 30 Oct 2002 05:08:33 -0500
+Received: from c-66-176-164-150.se.client2.attbi.com ([66.176.164.150]:62364
+	"EHLO schizo.psychosis.com") by vger.kernel.org with ESMTP
+	id <S261335AbSJ3KIb>; Wed, 30 Oct 2002 05:08:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Cinege <dcinege@psychosis.com>
+Reply-To: dcinege@psychosis.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+Date: Wed, 30 Oct 2002 05:14:57 -0500
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org
+References: <200210272017.56147.landley@trommello.org> <200210300455.20883.dcinege@psychosis.com> <3DBFAEEE.6090209@pobox.com>
+In-Reply-To: <3DBFAEEE.6090209@pobox.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210300514.57193.dcinege@psychosis.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 29, 2002 at 12:39:51PM -0500, Alexander Viro wrote:
-> Please, just do dm_disk(dm) and for now use its ->major/->first_minor.
+On Wednesday 30 October 2002 5:05, Jeff Garzik wrote:
+> Dave Cinege wrote:
+> >#2 My main bitch at jeff was he said if initramfs goes in
+> >initrd comes out. initrd shodul not come out.
+>
+> What part of "kernel's behavior is 100% unchanged" did you not understand?
 
+You said this where?
 
---- diff/drivers/md/dm-ioctl.c	2002-10-30 09:24:36.000000000 +0000
-+++ source/drivers/md/dm-ioctl.c	2002-10-30 09:34:51.000000000 +0000
-@@ -176,10 +176,11 @@
-  */
- static int register_with_devfs(struct hash_cell *hc)
- {
--	kdev_t dev = dm_kdev(hc->md);
-+	struct gendisk *disk = dm_disk(hc->md);
-+
- 	hc->devfs_entry =
- 	    devfs_register(_dev_dir, hc->name, DEVFS_FL_CURRENT_OWNER,
--			   major(dev), minor(dev),
-+			   disk->major, disk->first_minor,
- 			   S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP,
- 			   &dm_blk_dops, NULL);
- 
-@@ -447,23 +448,24 @@
- static int __info(struct mapped_device *md, struct dm_ioctl *param)
- {
- 	struct dm_table *table;
-+	struct gendisk *disk = dm_disk(md);
- 	struct block_device *bdev;
- 
- 	param->flags = DM_EXISTS_FLAG;
- 	if (dm_suspended(md))
- 		param->flags |= DM_SUSPEND_FLAG;
- 
--	param->dev = kdev_t_to_nr(dm_kdev(md));
-+	param->dev = MKDEV(disk->major, disk->first_minor);
- 	bdev = bdget(param->dev);
- 	if (!bdev)
- 		return -ENXIO;
- 
--	if (bdev_read_only(bdev))
--		param->flags |= DM_READONLY_FLAG;
--
- 	param->open_count = bdev->bd_openers;
- 	bdput(bdev);
- 
-+	if (disk->policy)
-+		param->flags |= DM_READONLY_FLAG;
-+
- 	table = dm_get_table(md);
- 	param->target_count = dm_table_get_num_targets(table);
- 	dm_table_put(table);
-@@ -558,6 +560,7 @@
- {
- 	int r;
- 	struct dm_table *t;
-+	struct gendisk *disk;
- 	struct mapped_device *md;
- 	int minor;
- 
-@@ -585,7 +588,8 @@
- 	}
- 	dm_table_put(t);	/* md will have grabbed its own reference */
- 
--	set_device_ro(dm_kdev(md), (param->flags & DM_READONLY_FLAG));
-+	disk = dm_disk(md);
-+	set_disk_ro(disk, (param->flags & DM_READONLY_FLAG));
- 	r = dm_hash_insert(param->name, *param->uuid ? param->uuid : NULL, md);
- 	dm_put(md);
- 
-@@ -845,6 +849,7 @@
- static int reload(struct dm_ioctl *param, struct dm_ioctl *user)
- {
- 	int r;
-+	struct gendisk *disk;
- 	struct mapped_device *md;
- 	struct dm_table *t;
- 
-@@ -871,7 +876,8 @@
- 		return r;
- 	}
- 
--	set_device_ro(dm_kdev(md), (param->flags & DM_READONLY_FLAG));
-+	disk = dm_disk(md);
-+	set_disk_ro(disk, (param->flags & DM_READONLY_FLAG));
- 	dm_put(md);
- 
- 	r = info(param, user);
---- diff/drivers/md/dm.h	2002-10-30 09:24:36.000000000 +0000
-+++ source/drivers/md/dm.h	2002-10-30 09:31:07.000000000 +0000
-@@ -77,7 +77,7 @@
- /*
-  * Info functions.
-  */
--kdev_t dm_kdev(struct mapped_device *md);
-+struct gendisk *dm_disk(struct mapped_device *md);
- int dm_suspended(struct mapped_device *md);
- 
- /*-----------------------------------------------------------------
---- diff/drivers/md/dm.c	2002-10-30 09:24:36.000000000 +0000
-+++ source/drivers/md/dm.c	2002-10-30 09:38:39.000000000 +0000
-@@ -41,8 +41,6 @@
- 
- struct mapped_device {
- 	struct rw_semaphore lock;
--
--	kdev_t kdev;
- 	atomic_t holders;
- 
- 	unsigned long flags;
-@@ -542,7 +540,6 @@
- 
- 	memset(md, 0, sizeof(*md));
- 	init_rwsem(&md->lock);
--	md->kdev = mk_kdev(_major, minor);
- 	atomic_set(&md->holders, 1);
- 
- 	md->queue.queuedata = md;
-@@ -749,15 +746,13 @@
- 	return 0;
- }
- 
--kdev_t dm_kdev(struct mapped_device *md)
-+/*
-+ * The gendisk is only valid as long as you have a reference
-+ * count on 'md'.
-+ */
-+struct gendisk *dm_disk(struct mapped_device *md)
- {
--	kdev_t dev;
--
--	down_read(&md->lock);
--	dev = md->kdev;
--	up_read(&md->lock);
--
--	return dev;
-+	return md->disk;
- }
- 
- struct dm_table *dm_get_table(struct mapped_device *md)
+> Stop spreading FUD.
+
+You DID Say:
+
+On Wednesday 30 October 2002 2:40, Jeff Garzik wrote:
+> untar - cpio is better.
+> initrd - 99% moved out of the kernel
+> do_mounts - moved out of the kernel completely
+> initramfs - should be ready for Linus in the next day or so.
+>
+> None of that junk -- and a whole lot more -- needs to be in the kernel
+> at all.
+
+Excuse me if I take this to mean something different then:
+"kernel's behavior is 100% unchanged"
+

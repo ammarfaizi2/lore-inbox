@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUFVXFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266079AbUFVXFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbUFVXFA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 19:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUFVXDS
+	id S266079AbUFVXFd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 19:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUFVXFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 19:03:18 -0400
-Received: from gate.crashing.org ([63.228.1.57]:56491 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265053AbUFVXB1 (ORCPT
+	Tue, 22 Jun 2004 19:05:24 -0400
+Received: from mail.njit.edu ([128.235.251.173]:49150 "EHLO mail-gw5.njit.edu")
+	by vger.kernel.org with ESMTP id S265088AbUFVXDy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 19:01:27 -0400
-Subject: Re: [PATCH] ppc32: Cleanups & warning fixes of traps.c
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040622223453.GB9342@smtp.west.cox.net>
-References: <1087931251.1861.8.camel@gaston>
-	 <20040622223453.GB9342@smtp.west.cox.net>
-Content-Type: text/plain
-Message-Id: <1087944876.1854.127.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 17:54:37 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jun 2004 19:03:54 -0400
+Date: Tue, 22 Jun 2004 19:03:22 -0400 (EDT)
+From: rahul b jain cs student <rbj2@oak.njit.edu>
+To: Jonathan Corbet <corbet@lwn.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sk_buff structure 
+In-Reply-To: <20040622212403.21346.qmail@lwn.net>
+Message-ID: <Pine.GSO.4.58.0406221855490.15759@chrome.njit.edu>
+References: <20040622212403.21346.qmail@lwn.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-22 at 17:34, Tom Rini wrote:
-> On Tue, Jun 22, 2004 at 02:07:32PM -0500, Benjamin Herrenschmidt wrote:
-> 
-> > Hi !
-> > 
-> > This patch cleans up arch/ppc/kernel/traps.c and vecemu.c to use the same
-> > formatting style for all functions,
-> 
-> Isn't that undoing what Lindent does?  Which is at least possibly why
-> it's done that way now..
+Thanks for the pointer. It was very helpful. Need to clarify a few more
+questions though.
 
-I don't know if that has anything to do with lindent. I used to format
-that way myself but changed my mind, and paulus seemed to do both, but I
-remember a recent discussion where Linus clearly explained his
-preference having the return type on the same line as the function name.
+1. Does this mean that all the headers reside in skb->data - skb->head or
+just the ethernet header ?
+2. Or is it that the TCP and IP headers are considered part of data in
+sk_buff and are stored in the skb->tail - skb->data section ?
 
-It's also more handy with grep.
+I ask the second questions because I saw
 
-Ben.
+skb->h.raw = skb->nh.raw = skb->data;
 
+in netif_receive_skb() (/net/core/dev.c) function. With this statement it
+would mean that there is no line of seperation between the two layers. Or
+am I missing something here ?
 
+Thanks,
+Rahul.
 
+On Tue, 22 Jun 2004, Jonathan Corbet wrote:
+
+> > In this structure there are pointers called headroom, data, tailroom and
+> > end. Does anyone know what these are used for. Or can anyone point me to a
+> > good explanation for these fields.
+>
+> There is a basic discussion in chapter 14 of Linux Device Drivers which
+> you can read online at http://www.xml.com/ldd/chapter/book/index.html.
+>
+> jon
+>
+> Jonathan Corbet
+> Executive editor, LWN.net
+> corbet@lwn.net
+>

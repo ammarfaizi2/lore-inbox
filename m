@@ -1,105 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267436AbUHXKno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267429AbUHXKv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267436AbUHXKno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267470AbUHXKno
+	id S267429AbUHXKv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267440AbUHXKvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:43:44 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:29866 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S267436AbUHXKn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:43:29 -0400
-Date: Tue, 24 Aug 2004 11:43:25 +0100
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] I2C: automatic VRM detection part1
-Message-ID: <20040824104325.GA28237@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408232328.i7NNSSkW027208@hera.kernel.org>
+	Tue, 24 Aug 2004 06:51:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46051 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267429AbUHXKvX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 06:51:23 -0400
+Date: Tue, 24 Aug 2004 06:18:59 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Karl Vogel <karl.vogel@seagha.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
+Message-ID: <20040824091859.GA6961@logos.cnet>
+References: <6DED3619289CD311BCEB00508B8E133601A68B13@nt-server2.antwerp.seagha.com> <20040824100342.GI2355@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408232328.i7NNSSkW027208@hera.kernel.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040824100342.GI2355@suse.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 11:38:57PM +0000, Linux Kernel wrote:
- 
- > diff -Nru a/drivers/i2c/i2c-sensor-vid.c b/drivers/i2c/i2c-sensor-vid.c
- > --- /dev/null	Wed Dec 31 16:00:00 196900
- > +++ b/drivers/i2c/i2c-sensor-vid.c	2004-08-23 16:28:37 -07:00
- > @@ -0,0 +1,99 @@
+On Tue, Aug 24, 2004 at 12:03:43PM +0200, Jens Axboe wrote:
+> On Mon, Aug 23 2004, Karl Vogel wrote:
+> > > > Jens, is this huge amount of bio/biovec's allocations 
+> > > expected with CFQ? Its really really bad.
+> > > 
+> > > Nope, it's not by design :-)
+> > > 
+> > > A test case would be nice, then I'll fix it as soon as possible. But
+> > > please retest with 2.6.8.1 marcelo, 2.6.8-rc4 is missing an important
+> > > fix to ll_rw_blk that can easily cause this. The first report is for
+> > > 2.6.8.1, so I'm more puzzled on that.
+> > 
+> > I tried with 2.6.8.1 and 2.6.8.1-mm4, both had the problem. If there 
+> > is anything extra I need to try/record, just shoot!
+> > 
+> > Original post with testcase + stats:
+> >   http://article.gmane.org/gmane.linux.kernel/228156
+> 
+> 2.6.8.1-mm4 clean does not reproduce the problem. Marcelo, your
+> 2.6.8-rc4 report is not valid due to the fixed problem related to that
+> in CFQ already. I'd still like for you to retest with 2.6.8.1.
+> 
+> So I'm trying 2.6.8.1 with voluntary preempt applied now, the bug could
+> be related to that.
 
-....
- 
- > +#ifdef CONFIG_X86
- > +
- > +static struct vrm_model vrm_models[] = {
- > +	{X86_VENDOR_AMD, 0x6, ANY, 90},		/* Athlon Duron etc */
+Jens,
 
-This is insufficient afaics. Mobile Athlon's/Durons will have
-a different VRM to the desktop parts.
+You are right, I've been unable to reproduce the problem I was seeing 
+(huge amount of bio/biovec's allocation causing major swapouts) with 
+2.6.8.1.
 
- > +	{X86_VENDOR_AMD, 0xF, 0x4, 90},		/* Athlon 64 */
+With this kernel, The 512MB system swaps around 50MB and recovers perfectly, 
+I can't see any odd behaviour with CFQ.
 
-possible the same here.
-
- > +	{X86_VENDOR_INTEL, 0x6, 0xB, 85},	/* 0xB Tualatin */
-
-again, mobile parts may match this.
-
- > +	{X86_VENDOR_INTEL, 0x6, ANY, 82},	/* any P6 */
-
-definitly here.
-
- > +	{X86_VENDOR_INTEL, 0x7, ANY, 0},	/* Itanium */
-
-huh? Under ifdef CONFIG_X86 ?
-
- > +	{X86_VENDOR_INTEL, 0x10,ANY, 0},	/* Itanium 2 */
-
-ditto.
-
-
- > +
- > +int i2c_which_vrm(void)
- > +{
- > +	struct cpuinfo_x86 *c = cpu_data;
- > +	u32 eax;
- > +	u8 eff_family, eff_model;
- > +	int vrm_ret;
- > +
- > +	if (c->x86 < 6) return 0;	/* any CPU with familly lower than 6
- > +				 	dont have VID and/or CPUID */
-
-1. CodingStyle dictates
-		if (c->x86 < 6)
-			return 0;
-2. Typo in 'familly'
- 
- > +	eax = cpuid_eax(1);
- > +	eff_family = ((eax & 0x00000F00)>>8);
- > +	eff_model  = ((eax & 0x000000F0)>>4);
- > +	if (eff_family == 0xF) {	/* use extended model & family */
- > +		eff_family += ((eax & 0x00F00000)>>20);
- > +		eff_model += ((eax & 0x000F0000)>>16)<<4;
- > +	}
-
-Is this guaranteed safe on all vendors ?
-
- > +/* and now something completely different for Non-x86 world*/
- > +#else
- > +int i2c_which_vrm(void)
- > +{
- > +	printk(KERN_INFO "i2c-sensor.o: Unknown VRM version of your CPU\n");
- > +	return 0;
- > +}
- > +#endif
-
-why build this at all on non-x86 if its useless ?
-
-
-		Dave
 

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264434AbTFPWMm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTFPWMm
+	id S264447AbTFPWPr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTFPWPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:12:42 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:31926 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264434AbTFPWMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:12:41 -0400
-Date: Mon, 16 Jun 2003 15:27:07 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ak@suse.de, janiceg@us.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, stekloff@us.ibm.com, girouard@us.ibm.com,
-       lkessler@us.ibm.com, kenistonj@us.ibm.com, jgarzik@pobox.com
+	Mon, 16 Jun 2003 18:15:47 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:1014 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264447AbTFPWPq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 18:15:46 -0400
 Subject: Re: patch for common networking error messages
-Message-Id: <20030616152707.58da808c.akpm@digeo.com>
-In-Reply-To: <20030616.135124.71580008.davem@redhat.com>
-References: <3EEE28DE.6040808@us.ibm.com>
-	<20030616.133841.35533284.davem@redhat.com>
-	<20030616205342.GH30400@wotan.suse.de>
-	<20030616.135124.71580008.davem@redhat.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jun 2003 22:26:34.0894 (UTC) FILETIME=[584032E0:01C33456]
+To: "David S. Miller" <davem@redhat.com>
+Cc: Daniel Stekloff <stekloff@us.ibm.com>, janiceg@us.ibm.com,
+       jgarzik@pobox.com, kenistonj@us.ibm.com,
+       Larry Kessler <lkessler@us.ibm.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, niv@us.ibm.com, <niv@us.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFF1F6B3DC.30C0E5DE-ON85256D47.007AEFAF@us.ibm.com>
+From: Janice Girouard <girouard@us.ibm.com>
+Date: Mon, 16 Jun 2003 17:29:15 -0500
+X-MIMETrack: Serialize by Router on D01ML063/01/M/IBM(Release 6.0.1 w/SPRs JHEG5JQ5CD, THTO5KLVS6, JHEG5HMLFK, JCHN5K5PG9|March
+ 27, 2003) at 06/16/2003 18:29:19
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
->    From: Andi Kleen <ak@suse.de>
->    Date: Mon, 16 Jun 2003 22:53:42 +0200
->    
->    Why? It will make supporting netconsole easier which has to be careful
->    to never recurse in the network driver.
-> 
-> printk can check this
 
-Actually it already does, to cover the case where an interrupt handler calls
-printk while process-context code is performing a printk.
+From: "David S. Miller" <davem@redhat.com>
+   Date : 06/16/2003 05:13 PM
 
-The nested printk will squirt the message into the log buffer and the
-"outer" code will display it.
+   egrep "promiscuous mode" net/core/dev.c | grep printk
+
+I noticed when I performed the grep, the printk shows:
+      printk(KERN_INFO "device %s %s promiscuous mode\n"
+
+For the sake of consistency and automatic error log analysis, it might be
+nice to standardize on a message closer to:
+      printk(KERN_INFO "%s: %s promiscuous mode\n"
+
+It's somewhat common, but not universal to start the error message with the
+device name followed by a colon.
+
+Janice
+
+
 

@@ -1,75 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129622AbQJ1ATf>; Fri, 27 Oct 2000 20:19:35 -0400
+	id <S129708AbQJ1A0I>; Fri, 27 Oct 2000 20:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129874AbQJ1ATZ>; Fri, 27 Oct 2000 20:19:25 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:28382 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S129622AbQJ1ATR>; Fri, 27 Oct 2000 20:19:17 -0400
-Date: Fri, 27 Oct 2000 17:24:56 -0700
-From: Dan Kegel <dank@alumni.caltech.edu>
-Subject: Re: kqueue microbenchmark results
-To: Terry Lambert <tlambert@primenet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jonathan Lemon <jlemon@flugsvamp.com>,
-        Gideon Glass <gid@cisco.com>, Simon Kirby <sim@stormix.com>,
-        chat@FreeBSD.ORG, linux-kernel@vger.kernel.org
-Reply-to: dank@alumni.caltech.edu
-Message-id: <39FA1CD8.6C6ABAEE@alumni.caltech.edu>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.14-5.0 i686)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-In-Reply-To: <200010272308.QAA29462@usr01.primenet.com>
+	id <S129874AbQJ1AZs>; Fri, 27 Oct 2000 20:25:48 -0400
+Received: from dnvrdslgw14poolD64.dnvr.uswest.net ([63.228.87.64]:63331 "EHLO
+	q.dyndns.org") by vger.kernel.org with ESMTP id <S129708AbQJ1AZk>;
+	Fri, 27 Oct 2000 20:25:40 -0400
+Date: Fri, 27 Oct 2000 18:25:45 -0600 (MDT)
+From: Benson Chow <blc@q.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: Tekram's TRM-1040S USCSI proc driver?
+Message-ID: <Pine.LNX.4.21.0010271822330.31743-100000@q.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terry Lambert wrote:
-> 
-> > > Which is precisely why you need to know where in the chain of events this
-> > > happened. Otherwise if I see
-> > >         'read on fd 5'
-> > >         'read on fd 5'
-> > > How do I know which read is for which fd in the multithreaded case
-> >
-> > That can't happen, can it?  Let's say the following happens:
-> >    close(5)
-> >    accept() = 5
-> >    call kevent() and rebind fd 5
-> > The 'close(5)' would remove the old fd 5 events.  Therefore,
-> > any fd 5 events you see returned from kevent are for the new fd 5.
-> 
-> Strictly speaking, it can happen in two cases:
-> 
-> 1)      single acceptor thread, multiple worker threads
-> 2)      multiple anonymous "work to do" threads
-> 
-> In both these cases, the incoming requests from a client are
-> given to any thread, rather than a particular thread.
-> 
-> In the first case, we can have (id:executer order:event):
-> 
-> 1:1:open 5
-> 2:2:read 5
-> 3:4:read 5
-> 2:3:close 5
-> 
-> If thread 2 processes the close event before thread 3 processes
-> the read event, then when thread 3 attempts procssing, it will
-> fail.
+Anyone know if Tekram's DC315/DC395 SCSI driver will be incorporated
+into the kernel distribution?  I think their driver is GPL, or was there
+some other reason it wasn't incorporated?
 
-You're not talking about kqueue() / kevent() here, are you?
-With that interface, thread 2 would not see a close event;
-instead, the other events for fd 5 would vanish from the queue.
-If you were indeed talking about kqueue() / kevent(), please flesh
-out the example a bit more, showing who calls kevent().
+Their source code is on their website...
 
-(A race that *can* happen is fd 5 could be closed by another
-thread after a 'read 5' event is pulled from the event queue and
-before it is processed, but that could happen with any
-readiness notification API at all.)
+Just wonderring... (unfortunately I had a DC315 for a day but had to give
+it up... it was the worst of the AHA2940A and DC390F that I already
+had...)
 
-- Dan
+-bc
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

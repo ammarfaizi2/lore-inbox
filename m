@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264588AbSIQT6l>; Tue, 17 Sep 2002 15:58:41 -0400
+	id <S264563AbSIQT71>; Tue, 17 Sep 2002 15:59:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264590AbSIQT6l>; Tue, 17 Sep 2002 15:58:41 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:8140 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S264588AbSIQT6j>; Tue, 17 Sep 2002 15:58:39 -0400
-Message-ID: <3D878A90.F5E4B8B0@us.ibm.com>
-Date: Tue, 17 Sep 2002 15:03:28 -0500
-From: Duc Vianney <dvianney@us.ibm.com>
-X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S264565AbSIQT71>; Tue, 17 Sep 2002 15:59:27 -0400
+Received: from 62-190-218-75.pdu.pipex.net ([62.190.218.75]:10251 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S264563AbSIQT7Y>; Tue, 17 Sep 2002 15:59:24 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209172012.g8HKCFrG004537@darkstar.example.net>
+Subject: Re: Problems accessing USB Mass Storage
+To: gen-lists@blueyonder.co.uk (Mark C)
+Date: Tue, 17 Sep 2002 21:12:14 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1032291993.1276.12.camel@stimpy.angelnet.internal> from "Mark C" at Sep 17, 2002 08:46:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Hyperthreading performance on 2.4.19 and 2.5.32
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following are data comparing the effects of hyperthreading (HT)on
-stock kernel 2.4.19 and 2.5.32.
-Hardware under test. The hardware is a Xeon 1-CPU MP, 1.6 gigahertz,
-and 2.5 GB RAM.
-Kernel under test. When testing under 2.4.19, the kernel was built
-as an SMP kernel, and was run on the hardware with HT enabled through
-the boot option 'noht'. When testing under 2.5.32, the kernel was
-built as an SMP kernel, and was run on the hardware with HT enabled
-through selecting ACPI in configuration.
-Benchmarks. For multithreaded benchmarks: chat, dbench and tbench.
-Summary of results. The results on Linux kernel 2.4.19 show HT might
-improve multithreaded application by as much as 30%. On kernel 2.5.32,
-HT may provide speed-up as high as 60%.
-Observations. There are two major differences between 2.4.19 and
-2.5.32 which could affect HT performance: O(1)scheduler and Ingo's
-shared runqueue patch for HT that went in 2.5.32. However, Ingo's HT
-patch is for handling load balancing, affinity, and task pickup. Those
-are problems that exist in systems with >= 2CPUs. Since I have only
-1-CPU in my test, I think the O(1) scheduler has had greater impact
-than the runqueue patch. On 2.5.32, the chat workload seems to benefit
-the most, followed by tbench and dbench.
-The data for each number of chat rooms run (e.g., 20) represents the
-geometric mean of five runs. Same method was also used for each number
-of clients run in dbench and tbench.
+> > This is a bit like what we (JE, David Brownell, and I) saw at
+> > the USB plugfest in 1999.  We had a camera device that we
+> > couldn't mount as a filesystem, but we could dd it.
+> > When we did that and studied the dd-ed file, we could see a
+> > FAT filesystem beginning after the first <N> blocks (but more than
+> > 25 sectors IIRC -- more like after 50-100 KB, or maybe even more).
+> 
+> Sorry to sound a bit bewildered, but would be the next best thing for me
+> to do on this?, 
+> I have also been advised by Jonathan Corbet 
+> to use dd to copy your card to disk with an offset of 25
 
-chat workload     2.4.19     2.5.32
-No. chat rooms   Speed-up   Speed-up
-     20            24%        51%
-     30            22%        41%
-     40            22%        60%
-     50            28%        39%
-Geometric Mean     24%        45%
+Have you tried reading from a different card?  The common opinion seems to be that the actual data starts some way in to the card, and as you get an input/output error when you try to access the card from the begining, it could be that there is a genuine media error, that is not showing up when you use drivers from another OS, that do not attempt to read those first few blocks, because they 'know' where the filesystem begins.
 
-dbench workload   2.4.19     2.5.32
-No.clients       Speed-up   Speed-up
-     20            29%        27%
-     30            29%         9%
-     60            12%         1%
-     90             9%         4%
-    120            16%        23%
-Geometric Mean     18%        12%
+Just an idea, anyway.
 
-tbench workload   2.4.19     2.5.32
-No.clients       Speed-up   Speed-up
-     20            31%        36%
-     30            30%        36%
-     60            26%        36%
-     90            22%        35%
-    120            27%        33%
-Geometric Mean     27%        35%
-
-Duc Vianney - dvianney@us.ibm.com
-
+John.

@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270875AbTHKCik (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 22:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270927AbTHKCij
+	id S270928AbTHKCj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 22:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270930AbTHKCj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 22:38:39 -0400
-Received: from waste.org ([209.173.204.2]:19644 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S270875AbTHKCi2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 22:38:28 -0400
-Date: Sun, 10 Aug 2003 21:38:18 -0500
-From: Matt Mackall <mpm@selenic.com>
+	Sun, 10 Aug 2003 22:39:57 -0400
+Received: from tandu.perlsupport.com ([66.220.6.226]:54657 "EHLO
+	tandu.perlsupport.com") by vger.kernel.org with ESMTP
+	id S270928AbTHKCjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 22:39:47 -0400
+Date: Sun, 10 Aug 2003 22:39:12 -0400
+From: Chip Salzenberg <chip@pobox.com>
 To: Jamie Lokier <jamie@shareable.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       jmorris@intercode.com.au
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030811023817.GD31810@waste.org>
-References: <20030809074459.GQ31810@waste.org> <20030809010418.3b01b2eb.davem@redhat.com> <20030809140542.GR31810@waste.org> <20030809103910.7e02037b.davem@redhat.com> <20030809194627.GV31810@waste.org> <20030809131715.17a5be2e.davem@redhat.com> <20030810081529.GX31810@waste.org> <20030811021512.GF10446@mail.jlokier.co.uk>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       davem@redhat.com
+Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
+Message-ID: <20030811023912.GJ24349@perlsupport.com>
+References: <1060488233.780.65.camel@cube> <20030810072945.GA14038@alpha.home.local> <20030811012337.GI24349@perlsupport.com> <20030811020957.GE10446@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030811021512.GF10446@mail.jlokier.co.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030811020957.GE10446@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 03:15:12AM +0100, Jamie Lokier wrote:
-> Matt Mackall wrote:
-> > > > Ok, can I export some more cryptoapi primitives?
+According to Jamie Lokier:
+> Chip Salzenberg wrote:
+> > According to Willy Tarreau:
+> > >   likely => __builtin_expect(!(x), 0)
+> > > unlikely => __builtin_expect((x), 0)
+> > 
+> > Well, I'm not sure about the polarity, but that unlikely() macro isn't
+> > good -- it the same old problem that first prompted my message, namely
+> > that it's nonportable when (x) has a pointer type.
 > 
-> Why so complicated?  Just move the "sha1_transform" function to its
-> own file in lib, and call it from both drivers/char/random.c and
-> crypto/sha1.c.
-> 
-> Problem solved.
+> It's portable as long as the compiler is GCC :)
 
-Because I can't eventually put random=sha384,aes and on the command line
-and get hardware acceleration.
+No; wrong; please pay attention.
 
+Both parameters of __builtin_expect() are long ints.  On an
+architecture where there's a pointer type larger than long[1],
+__builtin_expect() won't just warn, it'll *fail*.  Also, on an
+architecture where a conversion of a null pointer to long results in
+a non-zero value[2], it'll *fail*.  That makes it non-portable twice
+over.  Wouldn't you agree?
+
+Allow me to quote gcc's documentation:
+
+   Since you are limited to integral expressions for exp, you should use constructions such as
+
+        if (__builtin_expect (ptr != NULL, 1))
+          error ();
+
+   when testing pointer or floating-point values.
+
+Could you please believe the docs?
+
+[1] Yes, they exit.
+[2] I don't know if they exist, but they're allowed by ANSI C.
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+"I wanted to play hopscotch with the impenetrable mystery of existence,
+    but he stepped in a wormhole and had to go in early."  // MST3K

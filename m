@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUEQR1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUEQR1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUEQR1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 13:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbUEQR1O
+	id S261951AbUEQR1p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 13:27:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUEQR1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 13:27:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17088 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261937AbUEQRZ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 13:25:57 -0400
-Date: Mon, 17 May 2004 10:16:38 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: jpiszcz@lucidpixels.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
-Message-Id: <20040517101638.0b844763.rddunlap@osdl.org>
-In-Reply-To: <5D3C2276FD64424297729EB733ED1F7605FAE6AC@email1.mitretek.org>
-References: <5D3C2276FD64424297729EB733ED1F7605FAE6AC@email1.mitretek.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 17 May 2004 13:27:44 -0400
+Received: from stud4.tuwien.ac.at ([193.170.75.21]:34508 "EHLO
+	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S261932AbUEQRZy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 13:25:54 -0400
+Message-ID: <40A8F5A0.3010108@chello.at>
+Date: Mon, 17 May 2004 19:25:52 +0200
+From: Roland Lezuo <roland.lezuo@chello.at>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040505)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: usb_storage / sd_mod problems
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 May 2004 11:23:37 -0400 Piszcz, Justin Michael wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| Does creative still help maintain this module?
-| Is there an #include <string-something.h> missing in the module (WHEN
-| COMPILED W/SMP support, or?)
-| jpiszcz@slack91:/usr/src/linux/Documentation$ find .|grep -i emu101k
-| jpiszcz@slack91:/usr/src/linux/Documentation$ find .|grep -i emu101
-| jpiszcz@slack91:/usr/src/linux/Documentation$ grep emu101k -r *
-| grep: networking/netif-msg.txt: Permission denied
-| grep: scsi/ChangeLog.megaraid: Permission denied
-| jpiszcz@slack91:/usr/src/linux/Documentation$
-| 
-| (2.6.5 kernel)
+Hello,
 
-WorksForMe, 2.6.5 or 2.6.6.  What .config ?
+i have an traxdata usb stick (EZ drive) and encounter serious problems
+on various kernels (vanilla-2.6.6, gentoo-2.6.5-r2, fedora-core
+2.6.5-1.327)
 
+This is the fedora-core dmesg trace:
 
-| -----Original Message-----
-| From: linux-kernel-owner@vger.kernel.org
-| [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Justin Piszcz
-| Sent: Saturday, May 15, 2004 6:08 PM
-| To: linux-kernel@vger.kernel.org
-| Subject: Re: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
-| 
-| Let me remind all; this is with _SMP_ kernel only, with a regular kernel
-| it makes the module and loads it fine.
-| 
-| Anyone aware of this problem?
-| 
-| On Sat, 15 May 2004, Justin Piszcz wrote:
-| 
-| > Script started on Sat May 15 14:47:08 2004
-| > # modprobe emu10k1
-| > FATAL: Error inserting emu10k1
-| > (/lib/modules/2.6.5/kernel/sound/oss/emu10k1/emu10k1.ko): Unknown
-| symbol
-| > in module, or unknown parameter (see dmesg)
-| > root@war:~# dmesg | tail -n 1
-| >  emu10k1: Unknown symbol strcpy
-| >
-| >
-| -
+usb 1-3: new high speed USB device using address 2
+Initializing USB Mass Storage driver...
+scsi0 : SCSI emulation for USB Mass Storage devices
+~  Vendor: Generic   Model:                   Rev:
+~  Type:   Direct-Access                      ANSI SCSI revision: 02
+USB Mass Storage device found at 2
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+SCSI device sda: 251904 512-byte hdwr sectors (129 MB)
+sda: Write Protect is off
+sda: Mode Sense: 03 00 00 00
+^^^^
+delay of around 1 minute here
 
+scsi: Device offlined - not ready after error recovery: host 0 channel 0
+id 0 lun 0
+sda: asking for cache data failed
+sda: assuming drive cache: write through
+Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
 
---
-~Randy
+2.6.3-gentoo-r2 works, whereas gentoo-2.6.5-r2 on same motherboard fails
+(similar message) 2.6.6 hangs usb_storage forever, even reboot not possible.
+
+Please CC me personally
+
+Regards
+Roland Lezuo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAqPWg5qlVDPzJ7R4RAnidAJ9vh6Jxy+WV9LIltjrWEjNZ5JXpQACdF+rY
+PV7CMVi2qDkyKxR5O3KdeEw=
+=fWb3
+-----END PGP SIGNATURE-----

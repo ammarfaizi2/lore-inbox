@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268966AbTGUAEd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 20:04:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269010AbTGUAEd
+	id S269010AbTGUAKP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 20:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269016AbTGUAKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 20:04:33 -0400
-Received: from [200.104.148.52] ([200.104.148.52]:7040 "EHLO
-	sleipnir.valparaiso.cl") by vger.kernel.org with ESMTP
-	id S268966AbTGUAEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 20:04:32 -0400
-Message-Id: <200307210019.h6L0J2J02034@sleipnir.valparaiso.cl>
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Separate ACPI_SLEEP and SOFTWARE_SUSPEND options 
-In-reply-to: Your message of "Sun, 20 Jul 2003 20:40:23 +0200."
-             <20030720184023.GC269@elf.ucw.cz> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 20 Jul 2003 20:19:02 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 20 Jul 2003 20:10:15 -0400
+Received: from [134.126.12.40] ([134.126.12.40]:45841 "EHLO mpdir1.jmu.edu")
+	by vger.kernel.org with ESMTP id S269010AbTGUAKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 20:10:12 -0400
+Message-ID: <3F1B32E6.4020107@jmu.edu>
+Date: Sun, 20 Jul 2003 20:25:10 -0400
+From: "William M. Quarles" <quarlewm@jmu.edu>
+Organization: James Madison University
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: Re: Kernel 2.4 CPU Arch issues]
+References: <3F1B25C2.8010403@jmu.edu> <1058745605.6299.4.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1058745605.6299.4.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> said:
-
-[...]
-
-> > What happens on a machine which is sharing swap space between two
-> > operating systems?  Do we have a way to mark a swap partition which is
-> > used for suspend data as unusable?  Maybe we could change the
-> > partition type from 82 to something else.
+Alan Cox wrote:
+> On Llu, 2003-07-21 at 00:29, William M. Quarles wrote:
 > 
-> swsusp changes swap's signature, so swapon will fail.
+>>Well, you separated the Pentium and Pentium-MMX.  It's the exact same
+>>difference between Pentium Pro and Pentium-II: MMX technology.  That's
+>>the point.
+> 
+> 
+> This makes no difference to the kernel. Splitting PPro would only make
+> sense for one reason. The Pentium Pro needs store barriers on
+> spin_unlock and friends, the PII and later do not. However if this was
+> done you'd also want to check for PPro boots with a PII kernel and panic
+> which isn't currently done
+> 
 
-Yes, but AFAIU the way to use it with "other" OSes is to generate the swap
-space on boot, so this is irrelevant.
+Well, wouldn't changing the gcc -march option and/or adding -mcpu 
+options for the various processors in the Makefile make a difference, as 
+the patchfile suggests?
+
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+William M. Quarles
+
+quarlewm@jmu.edu
+wquarles@bucknell.edu
+walrus@bellsouth.net
+

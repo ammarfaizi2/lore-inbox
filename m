@@ -1,79 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266296AbTATQmZ>; Mon, 20 Jan 2003 11:42:25 -0500
+	id <S266224AbTATQix>; Mon, 20 Jan 2003 11:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266297AbTATQmZ>; Mon, 20 Jan 2003 11:42:25 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:57474 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S266296AbTATQmX>;
-	Mon, 20 Jan 2003 11:42:23 -0500
-Date: Mon, 20 Jan 2003 17:56:50 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthew Dobson <colpatch@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [patch] sched-2.5.59-A2
-In-Reply-To: <200301201307.55515.efocht@ess.nec.de>
-Message-ID: <Pine.LNX.4.44.0301201743230.11746-100000@localhost.localdomain>
+	id <S266228AbTATQix>; Mon, 20 Jan 2003 11:38:53 -0500
+Received: from vsmtp4.tin.it ([212.216.176.224]:54656 "EHLO smtp4.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S266224AbTATQiv>;
+	Mon, 20 Jan 2003 11:38:51 -0500
+Message-ID: <3E2C28AF.2050404@tin.it>
+Date: Mon, 20 Jan 2003 17:49:51 +0100
+From: AnonimoVeneziano <voloterreno@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: IO-APIC says: unexpected IO-APIC was found
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi , I use on a system composed by a MSI KT4 Ultra Motherboard (KT400 - 
+vt8235 Bios 1.3)  and an Athlon XP 2400+ the kernel 2.4.21-pre3-ac4 
+ with enabled UP-APIC and UP_IO_APIC.
 
-On Mon, 20 Jan 2003, Erich Focht wrote:
+When I start the system the log says:
 
-> Could you please explain your idea? As far as I understand, the SMP
-> balancer (pre-NUMA) tries a global rebalance at each call. Maybe you
-> mean something different...
+> 00000000
+> CPU: AMD Athlon(tm) XP 2400+ stepping 01
+> Enabling fast FPU save and restore... done.
+> Enabling unmasked SIMD FPU exception support... done.
+> Checking 'hlt' instruction... OK.
+> POSIX conformance testing by UNIFIX
+> enabled ExtINT on CPU#0
+> ESR value before enabling vector: 00000080
+> ESR value after enabling vector: 00000000
+> ENABLING IO-APIC IRQs
+> Setting 2 in the phys_id_present_map
+> ...changing IO-APIC physical APIC ID to 2 ... ok.
+> init IO_APIC IRQs
+>  IO-APIC (apicid-pin) 2-0, 2-10, 2-11, 2-17, 2-19, 2-20, 2-21, 2-22, 
+> 2-23 not connected.
+> ..TIMER: vector=0x31 pin1=2 pin2=0
+> number of MP IRQ sources: 17.
+> number of IO-APIC #2 registers: 24.
+> testing the IO APIC.......................
+>
+> IO APIC #2......
+> .... register #00: 02000000
+> .......    : physical APIC id: 02
+> .... register #01: 00178003
+> .......     : max redirection entries: 0017
+> .......     : PRQ implemented: 1
+> .......     : IO APIC version: 0003
+> An unexpected IO-APIC was found. If this kernel release is less than
+> three months old please report this to linux-smp@vger.kernel.org
+> .... IRQ redirection table:
+>  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+>  00 000 00  1    0    0   0   0    0    0    00
+>  01 001 01  0    0    0   0   0    1    1    39
+>  02 001 01  0    0    0   0   0    1    1    31
+>  03 001 01  0    0    0   0   0    1    1    41
+>  04 001 01  0    0    0   0   0    1    1    49
+>  05 001 01  0    0    0   0   0    1    1    51
+>  06 001 01  0    0    0   0   0    1    1    59
+>  07 001 01  0    0    0   0   0    1    1    61
+>  08 001 01  0    0    0   0   0    1    1    69
+>  09 001 01  0    0    0   0   0    1    1    71
+>  0a 000 00  1    0    0   0   0    0    0    00
+>  0b 000 00  1    0    0   0   0    0    0    00
+>  0c 001 01  0    0    0   0   0    1    1    79
+>  0d 001 01  0    0    0   0   0    1    1    81
+>  0e 001 01  0    0    0   0   0    1    1    89
+>  0f 001 01  0    0    0   0   0    1    1    91
+>  10 001 01  1    1    0   1   0    1    1    99
+>  11 000 00  1    0    0   0   0    0    0    00
+>  12 001 01  1    1    0   1   0    1    1    A1
+>  13 000 00  1    0    0   0   0    0    0    00
+>  14 000 00  1    0    0   0   0    0    0    00
+>  15 000 00  1    0    0   0   0    0    0    00
+>  16 000 00  1    0    0   0   0    0    0    00
+>  17 000 00  1    0    0   0   0    0    0    00
+> IRQ to pin mappings:
+> IRQ0 -> 0:2
+> IRQ1 -> 0:1
+> IRQ3 -> 0:3
+> IRQ4 -> 0:4
+> IRQ5 -> 0:5
+> IRQ6 -> 0:6
+> IRQ7 -> 0:7
+> IRQ8 -> 0:8
+> IRQ9 -> 0:9
+> IRQ12 -> 0:12
+> IRQ13 -> 0:13
+> IRQ14 -> 0:14
+> IRQ15 -> 0:15
+> IRQ16 -> 0:16
+> IRQ18 -> 0:18
+> .................................... done.
+> Using local APIC timer interrupts.
+> calibrating APIC timer ...
 
-yes, but eg. in the idle-rebalance case we are more agressive at moving
-tasks across SMP CPUs. We could perhaps do a similar ->nr_balanced logic
-to do this 'agressive' balancing even if not triggered from the
-CPU-will-be-idle path. Ie. _perhaps_ the SMP balancer could become a bit
-more agressive.
+Unexpected IO-APIC was found???
 
-ie. SMP is just the first level in the cache-hierarchy, NUMA is the second
-level. (lets hope we dont have to deal with a third caching level anytime
-soon - although that could as well happen once SMT CPUs start doing NUMA.)  
-There's no real reason to do balancing in a different way on each level -
-the weight might be different, but the core logic should be synced up.
-(one thing that is indeed different for the NUMA step is locality of
-uncached memory.)
+I've tried to compile the kernel without IO-APIC, with only UP-APIC, but 
+it during the start
+says:
 
-> > kernelbench is the kind of benchmark that is most sensitive to over-eager
-> > global balancing, and since the 2.5.59 ->nr_balanced logic produced the
-> > best results, it clearly shows it's not over-eager. hackbench is one that
-> > is quite sensitive to under-balancing. Ie. trying to maximize both will
-> > lead us to a good balance.
-> 
-> Yes! Actually the currently implemented nr_balanced logic is pretty
-> dumb: the counter reaches the cross-node balance threshold after a
-> certain number of calls to intra-node lb, no matter whether these were
-> successfull or not. I'd like to try incrementing the counter only on
-> unsuccessfull load balances, this would give a clear priority to
-> intra-node balancing and a clear and controllable delay for cross-node
-> balancing. A tiny patch for this (for 2.5.59) is attached. As the name
-> nr_balanced would be misleading for this kind of usage, I renamed it to
-> nr_lb_failed.
+spurious 8259A interrupt: IRQ7 ????????? What does it mean??
 
-indeed this approach makes much more sense than the simple ->nr_balanced
-counter. A similar approach makes sense on the SMP level as well: if the
-current 'busy' rebalancer fails to get a new task, we can try the current
-'idle' rebalancer. Ie. a CPU going idle would do the less intrusive
-rebalancing first.
+What is my problem with APIC??
 
-have you experimented with making the counter limit == 1 actually? Ie.  
-immediately trying to do a global balancing once the less intrusive
-balancing fails?
+Thanks
 
-	Ingo
+Bye
 
+Marcello
 
 

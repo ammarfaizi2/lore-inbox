@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270641AbTHEUZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 16:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270644AbTHEUZZ
+	id S270647AbTHEU13 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 16:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270659AbTHEU12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 16:25:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19847 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270641AbTHEUZY (ORCPT
+	Tue, 5 Aug 2003 16:27:28 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:5507 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S270647AbTHEU12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 16:25:24 -0400
-Date: Tue, 5 Aug 2003 13:25:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Andi Kleen <ak@colin2.muc.de>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@muc.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Export touch_nmi_watchdog
-In-Reply-To: <1060114808.5308.9.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.44.0308051324070.2587-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Aug 2003 16:27:28 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 5 Aug 2003 22:27:26 +0200 (MEST)
+Message-Id: <UTC200308052027.h75KRQI23589.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: [PATCH] fix error return get/set_native_max functions
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+By the way, is your tree visible somewhere?
 
-On 5 Aug 2003, Arjan van de Ven wrote:
-> 
-> having a more generic/portable "trigger_watchdog" function would be
-> better then, such that ALL watchdogs, and not just the NMI one can hook
-> into this
+I have a giant patch with quite a lot of improvements and
+minor bug fixes, all in the geometry / IDENTIFY area.
+Usually I diff against Linus' most recent version, but we
+already had one by Erik and two by me, and stuff overlaps,
+and I do not yet see any of this in Linus' tree.
+Usually I wait with sending the next until I see the previous
+patch applied, but when there are many fragments that process
+is excruciatingly slow. So, maybe I can come with a series of
+patches against your tree?
 
-Why are we working around broken drivers?
 
-I say:
- - either fix the driver
-or
- - disable the watchdog entirely.
-
-I don't see any point at all to touch_xxx_watchdog() from a driver.
-
-		Linus
 

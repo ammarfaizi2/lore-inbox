@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbTFBNXq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 09:23:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTFBNXq
+	id S262318AbTFBNXu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 09:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTFBNXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 09:23:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:43006 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262316AbTFBNXp (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Mon, 2 Jun 2003 09:23:45 -0400
-Date: Mon, 2 Jun 2003 15:37:05 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Gianni Tedesco <gianni@scaramanga.co.uk>,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Linus Torvalds <Torvalds@Transmeta.COM>, Andrew Morton <AKPM@Digeo.COM>
-Subject: Re: const from include/asm-i386/byteorder.h
-Message-ID: <20030602133705.GH29425@fs.tum.de>
-References: <16088.47088.814881.791196@laputa.namesys.com> <1054406992.4837.0.camel@sherbert> <20030531185709.GK8978@holomorphy.com> <16091.14923.815819.792026@laputa.namesys.com>
+	Mon, 2 Jun 2003 09:23:50 -0400
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:7585 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S262318AbTFBNXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 09:23:48 -0400
+Subject: Re: Strange load issues with 2.5.69/70 in both -mm and -bk trees.
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306020927420.2970-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0306020927420.2970-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054560974.1918.2.camel@iso-8590-lx.zeusinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16091.14923.815819.792026@laputa.namesys.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jun 2003 09:36:15 -0400
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-3.4, required 10,
+	AWL, EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, SPAM_PHRASE_00_01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 03:51:39PM +0400, Nikita Danilov wrote:
->...
-> --- 1.15/include/linux/compiler.h	Wed Apr  9 22:15:46 2003
-> +++ edited/include/linux/compiler.h	Mon Jun  2 14:44:18 2003
->...
-> +/* The attribute `const' is not implemented in GCC versions earlier than 2.5. */
-> +/* Basically this is just slightly more strict class than the `pure'
-> +   attribute */
-> +#if (__GNUC__ > 2) || (__GNUC__ == 2 && __GNUC_MINOR__ >= 5)
-> +#define __attribute_const __attribute__ ((__const__))
-> +#else
-> +#define __attribute_const
-> +#endif
->...
+On Mon, 2003-06-02 at 03:36, Ingo Molnar wrote:
+> On Sat, 31 May 2003, Andrew Morton wrote:
+> 
+> > >                               [...] Upon looking a little further it
+> > >  seemed that the kernel was dynamically boosting the priority of the
+> > >  process much higher than it probably should be, in the end, not leaving
+> > >  enough CPU for playing the sounds without skipping.
+> > 
+> > Yes, it seems that too many real-world applications are accidentally
+> > triggering this problem.
+> 
+> no, the problem is exactly the opposite. Here's the key observation:
+> 
+> > the problem seemed to be caused by the fact that the pluginserver (wine)  
+> > was using 100% of the CPU. I simply reniced this process to -10 and
+> > everything started working fine.
+> 
+> the kernel has detected this process to be a CPU-hog - and indeed the
+> traces and the above description all say that it really is a CPU hog.
+> 
+> by renicing it to -10 it gets super-attention from the scheduler, so it
+> can be a CPU hog _and_ create sound.
 
-gcc 2.95 is the oldest compiler supported in kernel 2.5, there's no need 
-to be compatible with older compilers.
+Sorry, this is my fault, I'm actually renicing the process to '10' not
+'-10' that's a typo.  I tested this again this morning to make sure. 
+I'm renicing this as a regular user, I don't think that a regular user
+is allowed to renice to a negative value.
 
-cu
-Adrian
+Later,
+Tom
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

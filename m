@@ -1,157 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131434AbQLRJWX>; Mon, 18 Dec 2000 04:22:23 -0500
+	id <S131429AbQLRJbp>; Mon, 18 Dec 2000 04:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131571AbQLRJWN>; Mon, 18 Dec 2000 04:22:13 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:1920 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S131434AbQLRJV7>;
-	Mon, 18 Dec 2000 04:21:59 -0500
-Message-ID: <3A3DD010.225F721C@pobox.com>
-Date: Mon, 18 Dec 2000 00:51:29 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: Mirai Consulting Group
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13-pre3 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Niels Kristian Bech Jensen <nkbj@image.dk>
-CC: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre3 woes
-In-Reply-To: <Pine.LNX.4.30.0012180702380.16423-100000@hafnium.nkbj.dk>
+	id <S131617AbQLRJbf>; Mon, 18 Dec 2000 04:31:35 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:43525 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131429AbQLRJbZ>; Mon, 18 Dec 2000 04:31:25 -0500
+Date: Mon, 18 Dec 2000 03:00:54 -0600
+To: Alex Buell <alex.buell@tahallah.clara.co.uk>
+Cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 ide-scsi & scsi generic modules
+Message-ID: <20001218030054.D3199@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.30.0012171937290.275-100000@tahallah.clara.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0012171937290.275-100000@tahallah.clara.co.uk>; from alex.buell@tahallah.clara.co.uk on Sun, Dec 17, 2000 at 07:41:03PM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Niels Kristian Bech Jensen wrote:
 
-> Does this patch fix your problem?
->
-> --- test13-pre3/drivers/char/Makefile   Mon Dec 18 01:21:31 2000
-> +++ linux/drivers/char/Makefile Mon Dec 18 06:58:06 2000
-> @@ -16,6 +16,8 @@
->
->  O_TARGET := char.o
->
-> +mod-subdirs := drm
-> +
->  obj-y   += tty_io.o n_tty.o tty_ioctl.o mem.o raw.o pty.o misc.o random.o
->
+[Alex Buell]
+> I can confirm that this is true for 2.2.x, with "hdx=ide-scsi". Once
+> I compiled both statically into the kernel, it works.
+> 
+> Perhaps somone can backport the fixes? It would be nice to change 2.2
+> so it can accept "hdx=scsi" for compatiblity with 2.4.
 
-Some progress anyway;
+I'm confused.  I just looked through the probing code and it appears
+that "hdx=ide-scsi" should work the same whether ide-scsi is compiled
+in or a module.
 
-The module now compiles and gets installed -
+If you want "hdx=scsi" to be a synonym for "hdx=ide-scsi", that is easy
+enough....
 
-Unfortunately, attempting to load it does not go well:
+Peter
 
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- remap_page_range
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- __wake_up
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- mtrr_add
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- __generic_copy_from_user
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- schedule
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- kmalloc
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- si_meminfo
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- create_proc_entry
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- inter_module_put
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- __get_free_pages
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- boot_cpu_data
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- inter_module_get
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- remove_wait_queue
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- high_memory
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- iounmap
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- free_pages
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- __ioremap
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- del_timer
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- interruptible_sleep_on
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- __pollwait
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- kfree
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- remove_proc_entry
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- pci_find_slot/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o:
-unresolved symbol
- kill_fasync
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- fasync_helper
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- add_wait_queue
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- do_mmap_pgoff
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- mem_map
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- sprintf
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- jiffies
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- printk
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- add_timer
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol
- __generic_copy_to_user
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: insmod
-/lib/modul
-es/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o failed
-/lib/modules/2.4.0-test13-pre3/kernel/drivers/char/drm/tdfx.o: insmod tdfx
-failed
-
-
-
-
-
+diff -urk~ 2.2.18/drivers/block/ide.c
+--- 2.2.18/drivers/block/ide.c~	Fri Nov  3 19:20:34 2000
++++ 2.2.18/drivers/block/ide.c	Mon Dec 18 02:57:45 2000
+@@ -2509,7 +2509,7 @@
+ 	if (s[0] == 'h' && s[1] == 'd' && s[2] >= 'a' && s[2] <= max_drive) {
+ 		const char *hd_words[] = {"none", "noprobe", "nowerr", "cdrom",
+ 				"serialize", "autotune", "noautotune",
+-				"slow", "swapdata", "bswap", NULL};
++				"slow", "swapdata", "bswap", "scsi", NULL};
+ 		unit = s[2] - 'a';
+ 		hw   = unit / MAX_DRIVES;
+ 		unit = unit % MAX_DRIVES;
+@@ -2549,6 +2549,9 @@
+ 			case -9: /* swapdata or bswap */
+ 			case -10:
+ 				drive->bswap = 1;
++				goto done;
++			case -11: /* "scsi" */
++				strcpy (drive->driver_req, "ide-scsi");
+ 				goto done;
+ 			case 3: /* cyl,head,sect */
+ 				drive->media	= ide_disk;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

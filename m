@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSGDVUa>; Thu, 4 Jul 2002 17:20:30 -0400
+	id <S314278AbSGDV1c>; Thu, 4 Jul 2002 17:27:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSGDVU3>; Thu, 4 Jul 2002 17:20:29 -0400
-Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:53896 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S314080AbSGDVU2>;
-	Thu, 4 Jul 2002 17:20:28 -0400
-Message-ID: <3D24BC95.3030006@candelatech.com>
-Date: Thu, 04 Jul 2002 14:22:29 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: How to make a kernel thread sleep for a short amount of time?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314284AbSGDV1b>; Thu, 4 Jul 2002 17:27:31 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38484 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S314278AbSGDV1b>; Thu, 4 Jul 2002 17:27:31 -0400
+Date: Thu, 4 Jul 2002 21:30:53 +0100
+From: Stephen Tweedie <sct@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Automatically mount or remount EXT3 partitions with EXT2 when alaptop is powered by a battery?
+Message-ID: <20020704213053.A28200@redhat.com>
+References: <1024948946.30229.19.camel@turbulence.megapathdsl.net> <3D18A273.284F8EDD@zip.com.au> <20020628215942.GA3679@pelks01.extern.uni-tuebingen.de> <20020702131314.B4711@redhat.com> <20020703030447.GC474@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020703030447.GC474@elf.ucw.cz>; from pavel@ucw.cz on Wed, Jul 03, 2002 at 05:04:48AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am re-working the net/core/pktgen code to be a kernel thread.
+Hi,
 
-It is basically working, but I am having trouble making the thread
-efficiently sleep for durations in the milisecond and micro-second range.
+On Wed, Jul 03, 2002 at 05:04:48AM +0200, Pavel Machek <pavel@ucw.cz> wrote:
 
-I have looked at the udelay and mdelay methods, but they busy
-wait.
+> > an fsync() on any file or directory on the filesystem will ensure that
+> > all old transactions have completed, and a sync() will ensure that any
+> > old transactions are at least on their way to disk.
+> 
+> Ugh, does that mean that if I 
+> 
+> "sync ; poweroff"
+> 
+> my data are not safe?
 
-I do not need absolute real-time precision, so if I ask the thread
-to sleep for 100 micro-seconds, it is not a big deal if it does
-not wake up for 5000us.  On average, it should be very close to 100us.
+Right --- sync only guarantees that the writes have started; you're
+not safe until the disk light is off.
 
-I believe the answer may be to use some sort of timer and have my
-thread sleep on this timer, but I cannot find any examples or
-documentation on how to do this on the web.
+The VFS kernel core syncs each filesystem sequentially during sync and
+bdflush.  If we do each one synchronously, we end up serialising IO
+and performance with multiple disks goes _way_ down.  However, you can
+choose synchronous completion of ext3_write_super() by giving modular
+ext3 the module option "do_sync_supers=1".
 
-If anyone can point me to some example code or documentation, I
-would appreciate it.
-
-Thanks,
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
-
+--Stephen

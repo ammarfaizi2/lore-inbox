@@ -1,122 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbUJWXl6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbUJWXxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbUJWXl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 19:41:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbUJWXl6
+	id S261282AbUJWXxs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUJWXxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 19:41:58 -0400
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:15496 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S261260AbUJWXlx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 19:41:53 -0400
-Subject: Re: 2.6.10-rc1 initramfs busted [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041023213611.A29087@flint.arm.linux.org.uk>
-References: <20041023133120.A28178@flint.arm.linux.org.uk>
-	 <1098535328.668.13.camel@nosferatu.lan>
-	 <20041023213611.A29087@flint.arm.linux.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uHMl8dBRP+fXv0v8sbx6"
-Date: Sun, 24 Oct 2004 01:41:35 +0200
-Message-Id: <1098574895.668.19.camel@nosferatu.lan>
+	Sat, 23 Oct 2004 19:53:48 -0400
+Received: from relay-am.club-internet.fr ([194.158.104.67]:63973 "EHLO
+	relay-am.club-internet.fr") by vger.kernel.org with ESMTP
+	id S261282AbUJWXxr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:53:47 -0400
+From: pinotj@club-internet.fr
+To: linux-kernel@vger.kernel.org
+Subject: Patches for 2.6.10-rc1
+Date: Sun, 24 Oct 2004 01:53:45 CEST
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Medianet/v2.0
+Message-Id: <mnet1.1098575625.23116.pinotj@club-internet.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-uHMl8dBRP+fXv0v8sbx6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Here is some interesting patches for the 2.6.10-rc1, including pwc/pwcx and the patched nVidia driver: 
 
-On Sat, 2004-10-23 at 21:36 +0100, Russell King wrote:
-> On Sat, Oct 23, 2004 at 02:42:08PM +0200, Martin Schlemmer [c] wrote:
-> > On Sat, 2004-10-23 at 13:31 +0100, Russell King wrote:
-> > > A build using O=3D does this:
-> > >=20
-> > >   HOSTCC  usr/gen_init_cpio
-> > >   GEN_INITRAMFS_LIST usr/initramfs_list
-> > > Using shipped usr/initramfs_list
-> > >   CPIO    usr/initramfs_data.cpio
-> > > ERROR: unable to open 'usr/initramfs_list': No such file or directory
-> > >=20
-> > > Usage:
-> > >         ./usr/gen_init_cpio <cpio_list>
-> > >=20
-> > > <cpio_list> is a file containing newline separated entries that
-> > > describe the files to be included in the initramfs archive:
-> > >=20
-> > > The source tree contains this in usr:
-> > >=20
-> > > -rw-r--r--  1 rmk rmk 1657 Oct 23 11:41 Makefile
-> > > -rw-r--r--  1 rmk rmk 8335 Oct 23 11:41 gen_init_cpio.c
-> > > -rw-r--r--  1 rmk rmk 1024 Aug  1  2003 initramfs_data.S
-> > > -rw-r--r--  1 rmk rmk  146 Oct 23 11:41 initramfs_list
-> > >=20
-> > > and the build tree usr contains:
-> > >=20
-> > > -rwxr-xr-x  1 rmk rmk 10834 Oct 23 13:29 gen_init_cpio
-> > > -rw-r--r--  1 rmk rmk     0 Oct 23 13:29 initramfs_data.cpio
-> > >=20
-> > > Running with V=3D1 shows:
-> > >=20
-> > > make -f /home/rmk/build/linux-v2.6-local/scripts/Makefile.build obj=
-=3Dusr
-> > >   echo Using shipped usr/initramfs_list
-> > > Using shipped usr/initramfs_list
-> > >   ./usr/gen_init_cpio usr/initramfs_list > usr/initramfs_data.cpio
-> > > ERROR: unable to open 'usr/initramfs_list': No such file or directory
-> > >=20
-> > > so it's referencing the wrong directory.
-> > >=20
-> >=20
-> > Yep.  Please see the
-> >=20
-> >  [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs i=
-mage updates
-> >=20
-> > thread for latest patch to fix this and other issues.  There are some
-> > other patches floating around that is slightly smaller, but I would
-> > appreciate testing and feedback.
->=20
-> There's this obvious error in the patch (missing 'i'):
->=20
-> +$(obj)/$(initramfs_list): FORCE
-> +	$(if $(nitramfs_list_state_uptodate),, \
->=20
+http://ngc891.blogdns.net/index.php?2004/10/23/21-kernel-2610-rc1 
 
-Ah, thanks!.  Should not matter though, as we do nothing with
-uptodate currently.
+I had to update pwc and the nVidia driver because of change between 2.6.9 and 2.6.10-rc1. Explanation about nVidia patch:
 
-> though I am wondering why this looks rather complicated.
->=20
-
-I guess I can drop the  uptodate $(if, as we only really need to check
-outofdate and missing, but I was not sure if anybody wanted to print or
-do something on uptodate ...
-
-Or is it not the nested $(if's you are referring to?
+http://ngc891.blogdns.net/index.php?2004/10/22/20-linux-269-bk6-breaks-nvidia-driver-again 
 
 
-thanks,
+Regards,
 
---=20
-Martin Schlemmer
-
-
---=-uHMl8dBRP+fXv0v8sbx6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBeuwvqburzKaJYLYRAgLqAJ9M/ds7cJXQJtbpjbom/+rwBTGbcQCfYWXi
-3sdaD7MeXnvMpgQv6riCgj8=
-=rxPD
------END PGP SIGNATURE-----
-
---=-uHMl8dBRP+fXv0v8sbx6--
+-- 
+Jerome Pinot
+http://ngc891.blogdns.net
+http://cercle-daejeon.homelinux.org/linux
 

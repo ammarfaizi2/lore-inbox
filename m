@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312644AbSDAVxs>; Mon, 1 Apr 2002 16:53:48 -0500
+	id <S312638AbSDAWYX>; Mon, 1 Apr 2002 17:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312634AbSDAVxi>; Mon, 1 Apr 2002 16:53:38 -0500
-Received: from ip68-2-134-16.ph.ph.cox.net ([68.2.134.16]:55459 "EHLO
-	abit.house") by vger.kernel.org with ESMTP id <S312643AbSDAVxX>;
-	Mon, 1 Apr 2002 16:53:23 -0500
-Date: Mon, 1 Apr 2002 14:59:49 -0500 (EST)
-From: James Fowler <santiago@cox.net>
-X-X-Sender: <santiago@abit.house>
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux Needs New Leadership
-Message-ID: <Pine.LNX.4.33L2.0204011458400.4223-100000@abit.house>
+	id <S312643AbSDAWYN>; Mon, 1 Apr 2002 17:24:13 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8708 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312638AbSDAWYC>; Mon, 1 Apr 2002 17:24:02 -0500
+Subject: Re: Oops in emu10k1 driver
+To: bloch@verdurin.com (Adam Huffman)
+Date: Mon, 1 Apr 2002 23:41:04 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020401215107.GA28180@asus.verdurin.priv> from "Adam Huffman" at Apr 01, 2002 10:51:08 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16sAU4-0000gd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I vote for:
-1) Theo de Raadt
-2) Alan Cox
-3) Matt Dillion
+> VMware died when I put an audio CD into my DVD drive.  I wouldn't have
+> mentioned it here but for the fact that there was an Oops and when
+> decoded it pointed to the emu10k1 driver:
+
+Yes but we don't know what vmware has been doing. Please try the same thing
+a few times without vmware running
+
+> kernel BUG at audio.c:1474!
+> invalid operand: 0000
 
 
--- 
-James Fowler
-jamesf@sequoia.net
-ICQ: 59959089
-
-"Thinking implies disagreement; and disagreement implies non-comformity; and non-comformity
-implies heresy; and heresy implies disloyality -- so obviously thinking must be stopped"
-[Call to Greatness, 1954] -- Adlai Stephenson
-
+This one does look like a real bug in the emu10k driver, rather than a
+vmware caused funny

@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129145AbQKXQMp>; Fri, 24 Nov 2000 11:12:45 -0500
+        id <S129231AbQKXQLZ>; Fri, 24 Nov 2000 11:11:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129325AbQKXQMZ>; Fri, 24 Nov 2000 11:12:25 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:41204 "EHLO
-        tantra.cygnus.co.uk") by vger.kernel.org with ESMTP
-        id <S129145AbQKXQMO>; Fri, 24 Nov 2000 11:12:14 -0500
-Date: Fri, 24 Nov 2000 15:41:10 +0000 (GMT)
-From: Bernd Schmidt <bernds@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Alexander Viro <viro@math.psu.edu>, Gregory Maxwell <greg@linuxpower.cx>,
-        Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: gcc 2.95.2 is buggy
-In-Reply-To: <20001124082324.A872@opus.bloom.county>
-Message-ID: <Pine.LNX.4.21.0011241540280.12759-100000@host117.cygnus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129325AbQKXQLQ>; Fri, 24 Nov 2000 11:11:16 -0500
+Received: from columba.EUR.3Com.COM ([161.71.169.13]:26063 "EHLO
+        columba.eur.3com.com") by vger.kernel.org with ESMTP
+        id <S129231AbQKXQK4>; Fri, 24 Nov 2000 11:10:56 -0500
+X-Lotus-FromDomain: 3COM
+From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+To: I+D <jbertran@cirsa.com>
+cc: "'rminnich@lanl.gov'" <rminnich@lanl.gov>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Message-ID: <802569A1.00542593.00@notesmta.eur.3com.com>
+Date: Fri, 24 Nov 2000 15:13:03 +0000
+Subject: Re: Booting AMD Elan520 without BIOS
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Tom Rini wrote:
 
-> Well, now that there is a testcase, has anyone sent this on to the relevant
-> gcc lists? (The CCs I saw haven't)
 
-Yes.  I've just sent a fix to gcc-patches.
+>    The last message I see is "Calibrating delay loop"
+>(I see this thaks to the Jtag debugger for Elan520 because
+>I haven't configured the VGA board yet).
 
-Bernd
+I've seen this on a board with a BIOS problem. I think it is caused because the
+Kernel is in a loop waiting for a timer interrupt to occur. If the interrupt
+never arrives it loops forever.
+
+     Jon
+
+
+
+
+PLANET PROJECT will connect millions of people worldwide through the combined
+technology of 3Com and the Internet. Find out more and register now at
+http://www.planetproject.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

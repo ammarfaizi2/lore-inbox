@@ -1,66 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310207AbSCPKBl>; Sat, 16 Mar 2002 05:01:41 -0500
+	id <S310212AbSCPKRR>; Sat, 16 Mar 2002 05:17:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310208AbSCPKB0>; Sat, 16 Mar 2002 05:01:26 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:31714 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S310207AbSCPKBP>; Sat, 16 Mar 2002 05:01:15 -0500
-Date: Sat, 16 Mar 2002 11:44:37 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>
-Subject: [PATCH] Natsemi Geode GXn PM support and extended MMX
-Message-ID: <Pine.LNX.4.44.0203161143160.28013-100000@netfinity.realnet.co.sz>
+	id <S310213AbSCPKRH>; Sat, 16 Mar 2002 05:17:07 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61118 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S310212AbSCPKQ7>;
+	Sat, 16 Mar 2002 05:16:59 -0500
+Date: Sat, 16 Mar 2002 05:16:57 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Re: 2.5.7-pre2 -- kernel.o(.data+0x300): undefined reference
+ to `sys_nfsservctl'
+In-Reply-To: <Pine.GSO.4.21.0203160317490.4093-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0203160515240.5891-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am _not_ obsessed with power management.
-I am _not_ obsessed with power management.
-I am _not_ obsessed with power management.
 
-Ok now that that's been cleared up, this patch enables suspend-on-hlt 
-(Geode GXn CPU power management) and enables the SUSP# pin on the CPU 
-which allows APM to function. Which brings me on to my next question, does 
-APM on Geode GXn work? The datasheet specifies that in order for the 
-processor to enter suspend mode (in response to SUSP# assertion) the first 
-criteria which must be met is that the USE_SUSP bit must be set (CCR2 bit 
-7). Part two of the patch simply enables extended MMX instructions for the 
-GXn.
 
-I'd be interested to hear of any problems with this.
+On Sat, 16 Mar 2002, Alexander Viro wrote:
 
-Cheers,
-	Zwane
+> On 16 Mar 2002, Miles Lane wrote:
+> 
+> > arch/i386/kernel/kernel.o: In function `sys_call_table':
+> > arch/i386/kernel/kernel.o(.data+0x300): undefined reference to
+> > `sys_nfsservctl'
+> 
+> Fix: add a weak alias sys_nfsservctl -> sys_ni_syscall in kernel/sys.c.
+> While we are at it, the same can be done with sys_quotactl() - I suspect
+> that fs/noqout.c can be killed.
 
-Diffed against 2.4.19-pre2-ac3
+It can.  Linus, what do you think about the following variant?
 
---- arch/i386/kernel/setup.c.orig	Sat Mar 16 09:45:46 2002
-+++ arch/i386/kernel/setup.c	Sat Mar 16 11:14:56 2002
-@@ -71,6 +71,9 @@
-  *  CacheSize bug workaround updates for AMD, Intel & VIA Cyrix.
-  *  Dave Jones <davej@suse.de>, September, October 2001.
-  *
-+ *  Added additional support for Natsemi/Cyrix Geode GXn CPUs,
-+ *  Enabled power management and extended MMX instructions.
-+ *  Zwane Mwaikambo <zwane@commfireservices.com>, March 2002.
+diff -urN C7-pre2/fs/Makefile C7-pre2-current/fs/Makefile
+--- C7-pre2/fs/Makefile	Fri Mar 15 22:22:35 2002
++++ C7-pre2-current/fs/Makefile	Sat Mar 16 04:24:26 2002
+@@ -16,12 +16,6 @@
+ 		dcache.o inode.o attr.o bad_inode.o file.o iobuf.o dnotify.o \
+ 		filesystems.o namespace.o seq_file.o xattr.o libfs.o
+ 
+-ifeq ($(CONFIG_QUOTA),y)
+-obj-y += dquot.o
+-else
+-obj-y += noquot.o
+-endif
+-
+ ifneq ($(CONFIG_NFSD),n)
+ ifneq ($(CONFIG_NFSD),)
+ obj-y += nfsctl.o
+@@ -84,6 +78,8 @@
+ obj-y				+= binfmt_script.o
+ 
+ obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
++
++obj-$(CONFIG_QUOTA) += dquot.o
+ 
+ # persistent filesystems
+ obj-y += $(join $(subdir-y),$(subdir-y:%=/%.o))
+diff -urN C7-pre2/fs/dquot.c C7-pre2-current/fs/dquot.c
+--- C7-pre2/fs/dquot.c	Tue Feb 19 22:33:03 2002
++++ C7-pre2-current/fs/dquot.c	Sat Mar 16 04:45:14 2002
+@@ -59,6 +59,7 @@
+ #include <linux/tty.h>
+ #include <linux/file.h>
+ #include <linux/slab.h>
++#include <linux/sysctl.h>
+ #include <linux/smp_lock.h>
+ #include <linux/init.h>
+ 
+@@ -1240,9 +1241,22 @@
+ 	return ret;
+ }
+ 
++static ctl_table fs_table[] = {
++	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
++	 0444, NULL, &proc_dointvec},
++	{},
++};
++
++static ctl_table dquot_table[] = {
++	{CTL_FS, "fs", NULL, 0, 0555, fs_table},
++	{},
++};
++
+ static int __init dquot_init(void)
+ {
+ 	int i;
++
++	register_sysctl_table(dquot_table, 0);
+ 
+ 	for (i = 0; i < NR_DQHASH; i++)
+ 		INIT_LIST_HEAD(dquot_hash + i);
+diff -urN C7-pre2/fs/noquot.c C7-pre2-current/fs/noquot.c
+--- C7-pre2/fs/noquot.c	Fri May 12 14:21:20 2000
++++ C7-pre2-current/fs/noquot.c	Sat Mar 16 04:18:29 2002
+@@ -2,14 +2,4 @@
+  *           compiled into the kernel.
   */
  
- /*
-@@ -1509,6 +1512,12 @@
+-#include <linux/kernel.h>
+-#include <linux/types.h>
+-#include <linux/errno.h>
+-
+ int nr_dquots, nr_free_dquots;
+-int max_dquots;
+-
+-asmlinkage long sys_quotactl(int cmd, const char *special, int id, caddr_t addr)
+-{
+-	return(-ENOSYS);
+-}
+diff -urN C7-pre2/include/linux/quota.h C7-pre2-current/include/linux/quota.h
+--- C7-pre2/include/linux/quota.h	Mon Jan 14 23:13:52 2002
++++ C7-pre2-current/include/linux/quota.h	Sat Mar 16 04:23:01 2002
+@@ -144,7 +144,6 @@
  
- 		/* GXm supports extended cpuid levels 'ala' AMD */
- 		if (c->cpuid_level == 2) {
-+			/* Enable Natsemi MMX extensions */
-+			setCx86(CX86_CCR7, getCx86(CX86_CCR7) | 1);
+ #ifdef __KERNEL__
+ 
+-extern int nr_dquots, nr_free_dquots;
+ extern int dquot_root_squash;
+ 
+ #define NR_DQHASH 43            /* Just an arbitrary number */
+diff -urN C7-pre2/kernel/sys.c C7-pre2-current/kernel/sys.c
+--- C7-pre2/kernel/sys.c	Fri Mar 15 22:22:40 2002
++++ C7-pre2-current/kernel/sys.c	Sat Mar 16 03:43:14 2002
+@@ -173,6 +173,11 @@
+ 	return -ENOSYS;
+ }
+ 
++/* "Conditional" syscalls */
 +
-+			/* Suspend on halt power saving and enable #SUSP pin */
-+			setCx86(CX86_CCR2, getCx86(CX86_CCR2) | 0x88);
++asmlinkage long sys_nfsservctl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
++asmlinkage long sys_quotactl(void) __attribute__ ((weak, alias ("sys_ni_syscall")));
 +
- 			get_model_name(c);  /* get CPU marketing name */
- 			/*
- 	 		 *	The 5510/5520 companion chips have a funky PIT
+ static int proc_sel(struct task_struct *p, int which, int who)
+ {
+ 	if(p->pid)
+diff -urN C7-pre2/kernel/sysctl.c C7-pre2-current/kernel/sysctl.c
+--- C7-pre2/kernel/sysctl.c	Tue Feb 19 22:33:08 2002
++++ C7-pre2-current/kernel/sysctl.c	Sat Mar 16 04:22:45 2002
+@@ -284,8 +284,6 @@
+ 	 0444, NULL, &proc_dointvec},
+ 	{FS_MAXFILE, "file-max", &files_stat.max_files, sizeof(int),
+ 	 0644, NULL, &proc_dointvec},
+-	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
+-	 0444, NULL, &proc_dointvec},
+ 	{FS_DENTRY, "dentry-state", &dentry_stat, 6*sizeof(int),
+ 	 0444, NULL, &proc_dointvec},
+ 	{FS_OVERFLOWUID, "overflowuid", &fs_overflowuid, sizeof(int), 0644, NULL,
 

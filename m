@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbTBCTFv>; Mon, 3 Feb 2003 14:05:51 -0500
+	id <S266987AbTBCTIY>; Mon, 3 Feb 2003 14:08:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266986AbTBCTFv>; Mon, 3 Feb 2003 14:05:51 -0500
-Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:18896 "EHLO
-	arashi.yi.org") by vger.kernel.org with ESMTP id <S266981AbTBCTFu>;
-	Mon, 3 Feb 2003 14:05:50 -0500
-Date: Mon, 3 Feb 2003 13:14:56 -0600
-From: Matt Reppert <arashi@arashi.yi.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU throttling??
-Message-Id: <20030203131456.34c04df8.arashi@arashi.yi.org>
-In-Reply-To: <200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
-References: <200302031713.h13HD2K8000181@darkstar.example.net>
-	<200302031857.h13IvHa0025735@turing-police.cc.vt.edu>
-Organization: Yomerashi
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S266986AbTBCTIY>; Mon, 3 Feb 2003 14:08:24 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:48316 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S266987AbTBCTIX>;
+	Mon, 3 Feb 2003 14:08:23 -0500
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15934.49235.619101.789799@harpo.it.uu.se>
+Date: Mon, 3 Feb 2003 20:17:39 +0100
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, jt@hpl.hp.com
+Subject: Re: two x86_64 fixes for 2.4.21-pre3
+In-Reply-To: <20030129162824.GA4773@wotan.suse.de>
+References: <15921.37163.139583.74988@harpo.it.uu.se>
+	<20030124193721.GA24876@wotan.suse.de>
+	<15926.60767.451098.218188@harpo.it.uu.se>
+	<20030128212753.GA29191@wotan.suse.de>
+	<15927.62893.336010.363817@harpo.it.uu.se>
+	<20030129162824.GA4773@wotan.suse.de>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 03 Feb 2003 13:57:17 -0500
-Valdis.Kletnieks@vt.edu wrote:
+Andi Kleen writes:
+ > > 1. One unknown ioctl is logged from RH8.0 init:
+ > > 
+ > > ioctl32(iwconfig:185): Unknown cmd fd(3) cmd(00008b01){00} arg(ffffda90) on socket:[389]
+ > 
+ > Probably harmless, but if you figure it out please send me a patch.
 
-> On Mon, 03 Feb 2003 17:13:02 GMT, John Bradford said:
-> 
-> > Incidently, Linux has always halted the processor, rather than spun in
-> > an idle loop, which saves power.
-> 
-> It's conceivable that a CPU halted at 1.2Gz takes less power than one
-> at 1.6Gz - anybody have any actual data on this?  Alternately phrased,
-> does CPU throttling save power over and above what the halt does?
+The ioctl is SIOCGIWNAME, which is used by iwconfig from the wireless-tools
+package to check if a given net dev is a wireless thing or not (called from
+ifup in RedHat as a type test on the net dev).
 
-Yes. I have a powerpc laptop that runs at 700 MHz. If I throttle the CPU clock
-speed down to 400 MHz and change nothing else the battery has noticeably longer
-life; since it's running slower, it takes less power when it's active (not
-halted).
+Unfortunately, include/linux/wireless.h has a big pile of ioctls and arg/res
+types that would need to be checked, so I'll defer this to Jean Tourrilhes (cc:d).
 
-Matt
+/Mikael

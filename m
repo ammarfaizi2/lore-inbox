@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbUEVUJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUEVUME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUEVUJg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 16:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEVUJg
+	id S261904AbUEVUME (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 16:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEVUME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 16:09:36 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:22278 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261897AbUEVUJf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 16:09:35 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] befs: nls fix
-Date: Sun, 23 May 2004 00:09:36 +0400
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>
+	Sat, 22 May 2004 16:12:04 -0400
+Received: from outbound.mailhop.org ([63.208.196.171]:50700 "EHLO
+	outbound.mailhop.org") by vger.kernel.org with ESMTP
+	id S261904AbUEVUMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 16:12:00 -0400
+Message-ID: <40AFB40B.1060003@gilfillan.org>
+Date: Sat, 22 May 2004 15:11:55 -0500
+From: Perry Gilfillan <perrye@gilfillan.org>
+Reply-To: perrye@gilfillan.org
+Organization: Duck Tape Anonymous
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: [V3TV] Now running on the 2.6.6 kernel !!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405230009.36637.rathamahata@php4.ru>
+X-Mail-Handler: MailHop Outbound by DynDNS.org
+X-Originating-IP: 68.12.215.56
+X-Report-Abuse-To: abuse@dyndns.org (see http://www.mailhop.org/outbound/abuse.html for abuse reporting information)
+X-MHO-User: perrygilfillan
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] befs: nls fix
+Hello,
 
-Fix nls support for character sets with character width large than 1.
+It's taken me six months, but I've got the V3TV driver running on the
+2.6 kernel
 
-===== fs/befs/linuxvfs.c 1.20 vs edited =====
---- 1.20/fs/befs/linuxvfs.c	Sat May 15 06:00:21 2004
-+++ edited/fs/befs/linuxvfs.c	Sat May 22 23:38:50 2004
-@@ -571,7 +571,7 @@
- 		}
- 
- 		/* convert from Unicode to nls */
--		unilen = nls->uni2char(uni, &result[o], 1);
-+		unilen = nls->uni2char(uni, &result[o], in_len - o);
- 		if (unilen < 0) {
- 			goto conv_err;
- 		}
+The radio device uses the V4L2 api, while the video device is still
+V4L1.  ( The radio presented a smaller problem set )
 
+Please visit the v3tv-v4l2 page linked below.
+
+Thanks,
+
+Perry
+-----
+Gilfillan Family: http://www.gilfillan.org/
+
+Projects:
+   V3TV:		http://www.gilfillan.org/v3tv/
+   VPX3224:	http://www.gilfillan.org/vpx3224/
+   V3TV-V4L2:	http://www.gilfillan.org/v3tv-v4l2/
+   snd-tvmixer:	http://www.gilfillan.org/ALSA/
+                 http://v3tv.sourceforge.net/
 
 

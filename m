@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264279AbRFLI5X>; Tue, 12 Jun 2001 04:57:23 -0400
+	id <S264282AbRFLJ1g>; Tue, 12 Jun 2001 05:27:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264280AbRFLI5D>; Tue, 12 Jun 2001 04:57:03 -0400
-Received: from [203.192.192.176] ([203.192.192.176]:47364 "EHLO
-	voodoo.pinkpoodles.com") by vger.kernel.org with ESMTP
-	id <S264279AbRFLI45>; Tue, 12 Jun 2001 04:56:57 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Hrishi <hrishi@mediaibc.com>
-Organization: mediaibc.com
-To: Boenisch Joerg <joerg.boenisch@siemens.at>, linux-kernel@vger.kernel.org
-Subject: Re: AVM A1 pcmcia, kernel 2.4.5-ac11 problem
-Date: Tue, 12 Jun 2001 14:48:59 +0530
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <D9F2B9CD7BD5D21196BC0800060D9ED604ED6344@vies186a.sie.siemens.at>
-In-Reply-To: <D9F2B9CD7BD5D21196BC0800060D9ED604ED6344@vies186a.sie.siemens.at>
-X-Dookie-is: myfavalbum
+	id <S264286AbRFLJ10>; Tue, 12 Jun 2001 05:27:26 -0400
+Received: from mx3.sac.fedex.com ([199.81.208.11]:46858 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S264282AbRFLJ1S>; Tue, 12 Jun 2001 05:27:18 -0400
+Date: Tue, 12 Jun 2001 17:25:46 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Chua <jchua@silk.corp.fedex.com>
+Subject: reiserfs problem on SMP
+Message-ID: <Pine.LNX.4.33.0106121714030.26519-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-Message-Id: <01061214485901.23960@voodoo>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Tuesday 12 June 2001 14:07, Boenisch Joerg wrote:
-> I hope not to be off topic! (In that case could you tell me where to ask?)
-me too :)
->
-<snip>
-> cardmgr[1070]: + modprobe: Can´t locate module avma1_cs
-> cardmgr[1070]: modprobe exited with status 255
-> cardmgr[1070]: module /lib/modules/2.4.5-ac11/pcmcia/avma1_cs.o not
-> available
-modprobe cannot find the file avma1_cs.o. it may not exist at all (check your 
-.config ), or the specified path (in /etc/modules.conf) may be wrong.
-if neither of these apply to your system, it may be a misconfiguration in 
-/etc/modules.conf or a hardware problem.
-i cannot help you with pcmcia however. never used it.
+Got the following journaling error on 2.4.5 SMP during shutdown ...
 
-cheers,
-Hrishi
+....
+
+Unmounting local file systems.
+journal_begin called without kernel lock held
+kernel BUG at journal.c:423!
+invalid operand: 0000
+CPU1:   1
+EIP:    0010:[<f8854140>]
+EFLAGS: 00010286
+eax: 0000001d   ebx: f0951f2c   ecx: 00000001   edx: 00000001
+esi: c3d26000   edi: f0951f2c   ebp: 0000000a   esp: f0951ec4
+ds: 0018    es: 0018  ss: 0018
+Process umount (pid: 265, stackpage=f0951000)
+
+...
+
+This bug only shows up on my SMP (2CPU) machine. It's been running fine on
+1CPU non-smp machines.
+
+
+Here's the difference for compiling ...
+
+boston:root:/u2/src/linux> diff .config /root/src2/.config-2.4.5
+54,55c54,55
+< # CONFIG_NOHIGHMEM is not set
+< CONFIG_HIGHMEM4G=y
+---
+> CONFIG_NOHIGHMEM=y
+> # CONFIG_HIGHMEM4G is not set
+57d56
+< CONFIG_HIGHMEM=y
+60,61c59,60
+< CONFIG_SMP=y
+< CONFIG_HAVE_DEC_LOCK=y
+---
+> # CONFIG_SMP is not set
+> # CONFIG_X86_UP_IOAPIC is not set
+68,69d66
+< CONFIG_X86_IO_APIC=y
+< CONFIG_X86_LOCAL_APIC=y
+
+
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+

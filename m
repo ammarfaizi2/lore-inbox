@@ -1,103 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbUC2Etx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 23:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbUC2Etx
+	id S262632AbUC2Eym (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 23:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUC2Eym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 23:49:53 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:39810 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262618AbUC2Etu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 23:49:50 -0500
-Subject: Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-From: Len Brown <len.brown@intel.com>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1080535754.16221.188.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 28 Mar 2004 23:49:15 -0500
+	Sun, 28 Mar 2004 23:54:42 -0500
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:10157 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262632AbUC2Eyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 23:54:40 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: lml@beonline.com.au
+Subject: Re: Kernel / Userspace Data Transfer   
+Date: Mon, 29 Mar 2004 14:57:10 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200403291457.10653.ross@datscreative.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-03-28 at 10:24, Arkadiusz Miskiewicz wrote:
+lml@beonline.com.au wrote: 
+ > I have a set of counters in a Kernel module that i want to export to a 
+ > userspace application. I originally decided to use a /proc entry and parse 
+ > the output whenever the userspace application needed this data, however, 
+ > i need more than the 4096 that is allowed in /proc and i'm not too keen 
+ > on parsing large chunks of text anyway. 
+ > 
+ > What i would like to do is copy these slabs of text from the kernel to my 
+ > userspace application (whenever the application requests it). I've seen the 
+ > 'copy_to_user' function and it looks usefull, but have no idea where to start 
+ > or how to use it :-/ 
+ > 
+ > Can someone provide and example or point me in the right direction? Or is there 
+ > a better place to ask this question? 
+ 
+Here is a good starter on-line reference
+http://www.faqs.org/docs/kernel/
+Relevant page
+http://www.faqs.org/docs/kernel/x848.html
+or as pdf
+http://www.tldp.org/LDP/lkmpg/lkmpg.pdf
 
-> ACPI uses cmpxchg so it's not possible to build it for i386 it seems.
->
-> +__acpi_release_global_lock (unsigned int *lock)
-> +{
-> +       unsigned int old, new, val;
-> +       do {
-> +               old = *lock;
-> +               new = old & ~0x3;
-> +               val = cmpxchg(lock, old, new);
-> +       } while (unlikely (val != old));
-> +       return old & 0x1;
-> +}
-> 
+There is also mbuff that maps shared memory between kernel and user space.
+It is pretty easy to use.
+http://sourceforge.net/projects/mbuff/
 
-> -o vmlinux
-> drivers/acpi/acpi.o(.text+0x4cf4): In function
-> `acpi_ev_global_lock_handler':
-> : undefined reference to `cmpxchg'
-> drivers/acpi/acpi.o(.text+0x4dc6): In function
-> `acpi_ev_acquire_global_lock':
-> : undefined reference to `cmpxchg'
-> drivers/acpi/acpi.o(.text+0x4e4b): In function
-> `acpi_ev_release_global_lock':
-> : undefined reference to `cmpxchg'
-
-ACPI unconditionally used cmpxchg before this change also -- from asm().
-The asm() was broken, so we replaced it with C,
-which invokes the cmpxchg macro, which isn't defined for
-an 80386 build.
-
-I guess it is a build bug that the assembler allowed us
-to invoke cmpxchg in an asm() for an 80386 build in earlier releases.
-
-I'm open to suggestions on the right way to fix this.
-
-1. recommend CONFIG_ACPI=n for 80386 build.
-
-2. force CONFIG_ACPI=n for 80386 build.
-
-3. invoke cmpxchg from acpi even for 80386 build.
-
-4. re-implement locks for the 80386 case.
-
-I guess it depends on why one would build
-for 808386 and CONFIG_ACPI=y.  Certainly
-there is no risk of 80386 hardware actually
-running the CMPXCHG in the ACPI code --
-80386 was EOL'd long before ACPI came out
-and 2.4.25 (and earlier) would have died on us.
-
-I don't like #1 b/c I don't want to get more
-e-mail like this;-)
-
-#2 wouldn't bother me.  But if somebody is
-building for i386 for the purpose for de-tuning
-the compiler and they really do want ACPI support,
-it would bother them.
-
-#3 would be the old behaviour, which also
-wouldn't bother me.  I guess we'd duplicate the
-macro inside the ACPI code so that others didn't
-use it by mistake.
-
-#4 would be an academic exercise, since the code
-would never actually execute on an 80386.
-
-suggestions?
-
-thanks,
--Len
-
-
+Regards
+Ross.

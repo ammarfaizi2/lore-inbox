@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288399AbSACXuA>; Thu, 3 Jan 2002 18:50:00 -0500
+	id <S288402AbSACXzU>; Thu, 3 Jan 2002 18:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288402AbSACXtu>; Thu, 3 Jan 2002 18:49:50 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:46599 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S288399AbSACXti>; Thu, 3 Jan 2002 18:49:38 -0500
-Date: Fri, 4 Jan 2002 00:48:59 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] smbfs fsx'ed
-In-Reply-To: <DE185415BB6@vcnet.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.33.0201040005090.28529-100000@cola.teststation.com>
+	id <S288403AbSACXzL>; Thu, 3 Jan 2002 18:55:11 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:21772 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S288402AbSACXzD>;
+	Thu, 3 Jan 2002 18:55:03 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15412.61172.824543.547728@argo.ozlabs.ibm.com>
+Date: Fri, 4 Jan 2002 10:53:24 +1100 (EST)
+To: Lars Brinkhoff <lars.spam@nocrew.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <854rm363x5.fsf@junk.nocrew.org>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3F8@IIS000>
+	<15412.14140.652362.747279@argo.ozlabs.ibm.com>
+	<854rm363x5.fsf@junk.nocrew.org>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Petr Vandrovec wrote:
+Lars Brinkhoff writes:
 
-> On  3 Jan 02 at 13:37, Linus Torvalds wrote:
-> > 
-> > (Not as horrible as the NCPFS thing that doesn't understand about the page
-> > cache at all, but still..)
+> > [Linux] won't get very far on a PDP-10, I can assure you. :)
 > 
-> Unfortunately it is not easy for me to add pagecache support
-> to ncpfs, as couple of ncpfs users uses ncpfs in shared environment
-> with database record locking, and if I'll now read full 4KB instead of
-> 128B record, it can clash with records locked by other clients.
+> Any particular reason why?
 
-Does the locks prevent you from even looking? You could read only the
-parts requested if the file has locks and fill the rest with 0. Only using
-the page cache if there are no locks. Not too pretty but ...
+For a start, there isn't an arch/pdp10 directory.  The kernel's
+approach to portability is to have code tailored to each architecture,
+and we don't have such code for a pdp10.
 
-I was thinking about writes when you wrote that.
+As to the question whether such code could be developed, it would
+depend a lot on how gcc did things.  I would expect an int * to be
+just an 18-bit address but a char * to be a byte pointer, i.e. a
+36-bit word with the byte offset and size in the top 18 bits and the
+word address in the lower 18 bits.  This would mean that casting
+char * pointers to unsigned long and vice-versa wouldn't give the kind
+of results we expect.  The kernel assumes in a lot of places that
+memory is byte-addressable and that casting a pointer to an unsigned
+long gives you the byte address of the first byte of the object that
+the pointer points to, and that it can do arithmetic on those byte
+addresses.
 
-A write of 128 bytes to a file cause a commit_write of 128 bytes, if I am
-reading generic_file_write correctly. So that should not cause it to write
-the full page and that would be ok for the locking case.
+Another difficulty would be in relation to the MMU.  IIRC, the KA10
+processor had a simple offset/limit memory management scheme, which
+would not be sufficient for linux, which requires support for paged
+virtual memory.  I have forgotten what the KI10 and KL10 processors
+did; I recall it was more complex but I don't think it amounted to
+paged virtual memory.
 
-You only read the 128 bytes the user has locked and requested, and then
-you only write those bytes. The userspace won't care about the parts of
-the page that is 0 and since the file is being shared you will have to
-re-read the data on the next syscall anyway.
-
-
-> I can for sure add `leases' like Novell Client for Windows does for
-> possibility of file caching, but I'm not sure whether size of code
-> needed for supporting this (and for supporting server driven
-> cache flushes) is worth of effort.
-
-smbfs needs these for cooperating clients to work. It can only cache data
-if it has a lease. If someone else is also accessing the file then each
-smb_file_read must re-read the page.
-
-shared mmaps and SMB oplocks doesn't seem to mix however. Hard to know
-when to invalidate a page ... what is caching and what is the "read"?
-
-
-> P.S.: And as NCP protocol is totally synchronous (even if it uses
-> TCP, I explicitly asked in Utah), only local file caching can increase
-> ncpfs performance, as there is no such thing like asynchronous file
-> read/write...
-
-SMB has no async read/write, but all requests are marked with an ID and it
-is allowed to have a certain number of simultaneous requests in transit.
-
-Even without multiple requests you could let ncpfs accept one read
-request, send that to the server and return without waiting for the reply.
-The readahead code may then queue up the next request for ncpfs, and ncpfs
-could process that while the previously read page is returned to the user.
-
-(Warning: I don't know if that is how it actually would work ...
- I am looking at "readpage:" of do_generic_file_read, mm/filemap.c)
-
-
-I am not saying that it would be worth the effort.
-
-/Urban
-
+Paul.

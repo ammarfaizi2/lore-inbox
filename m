@@ -1,111 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267156AbTAAFnR>; Wed, 1 Jan 2003 00:43:17 -0500
+	id <S267210AbTAAFq6>; Wed, 1 Jan 2003 00:46:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267163AbTAAFnR>; Wed, 1 Jan 2003 00:43:17 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:61001 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S267156AbTAAFnQ>;
-	Wed, 1 Jan 2003 00:43:16 -0500
-From: <Hell.Surfers@cwctv.net>
-To: davids@webmaster.com, linux-kernel@vger.kernel.org, rms@gnu.org
-Date: Wed, 1 Jan 2003 05:51:28 +0000
-Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041400288890"
-Message-ID: <0facf3248050113DTVMAIL7@smtp.cwctv.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-
---1041400288890
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-You must understand the GNU/LINUX community is being manipulated by NVidia.
-
-Dean. Three ways to kill yourself, and ive been drove in one...
-
-On 	Mon, 30 Dec 2002 22:55:35 -0800 	David Schwartz <davids@webmaster.com> wrote:
-
---1041400288890
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Tue, 31 Dec 2002 06:57:23 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267172AbSLaGrO>; Tue, 31 Dec 2002 01:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267171AbSLaGrO>; Tue, 31 Dec 2002 01:47:14 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:32465 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S267167AbSLaGrN> convert rfc822-to-8bit; Tue, 31 Dec 2002 01:47:13 -0500
-Received: from whenever ([206.171.168.130]) by shell.webmaster.com
-          (Post.Office MTA v3.5.3 release 223 ID# 0-12345L500S10000V35)
-          with SMTP id com; Mon, 30 Dec 2002 22:55:37 -0800
-From: David Schwartz <davids@webmaster.com>
-To: <Hell.Surfers@cwctv.net>, <linux-kernel@vger.kernel.org>,
-	   <rms@gnu.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Mon, 30 Dec 2002 22:55:35 -0800
-In-Reply-To: <085e72754031fc2DTVMAIL12@smtp.cwctv.net>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+	id <S267211AbTAAFq6>; Wed, 1 Jan 2003 00:46:58 -0500
+Received: from emory.viawest.net ([216.87.64.6]:33945 "EHLO emory.viawest.net")
+	by vger.kernel.org with ESMTP id <S267210AbTAAFq5>;
+	Wed, 1 Jan 2003 00:46:57 -0500
+Date: Tue, 31 Dec 2002 21:55:18 -0800
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: Hell.Surfers@cwctv.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20030101055518.GB8790@wizard.com>
+References: <0fa5e1042050113DTVMAIL7@smtp.cwctv.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20021231065537.AAA8309@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0fa5e1042050113DTVMAIL7@smtp.cwctv.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux/2.4.19 (i686)
+X-uptime: 21:35:07 up 26 days, 16:33,  2 users,  load average: 0.00, 0.00, 0.00
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
 
+On Wed, Jan 01, 2003 at 05:45:06AM +0000, Hell.Surfers@cwctv.net wrote:
+> It matters not whether it was gave or taken, GPL=GPL either way, I shall contact MR. Stallman, as and when I get some legal advice, I AM DEFENDING THE GPL, YOU ARE BULLYING, SUBVERTING AND TWISTING THE GPL. I am a staunch advocate of the FSF.
+> 
 
-On Tue, 31 Dec 2002 03:57:06 +0000, Hell.Surfers@cwctv.net wrote:
+        Good luck! Tell RMS he still owes me dinner, and be sure to bring a 
+video camera along with you! You just might win $10,000 for it, on America's 
+Funniest Home Videos! ;)
 
-	To respond first to your subject, GPL'd code is given to everyone to do what 
-they wish with, subject to certain very specific and narrow limitations.
-
->Why does the community continue to make pacts with a company that steals
->from its rivals, makes pacts with M$, and refuses to clearly GPL and open
->source its work on drivers,
-
-	What type of "pact" are you talking about?
-
->there is a clear difference between their use of
->GPL files, and what the GPL says they can do.
-
-	I presume you're talking about the inclusion of GPL'd header files into 
-non-GPL'd code that is then distributed without source code? IMO, if the 
-header file only includes things like structs and thin macros, that's 
-insufficient to consider the compilation a derived work.
-
-	You are welcome to argue for stronger and stronger copyright law enforcement 
-and narrower and narrower constructions of fair use and first sale doctrines. 
-However, IMO, it would be the stupidest possible thing the open source 
-community could ever do.
-
->You cannot expect embedded
->kernel developers to GPL, if you excuse Nvidia, its a vain hope to grab M$
->users, but in the long run it destroys the community.
-
-	I don't expect anyone to GPL unless they think they get more benefit from 
-GPLing than the potential harm done. People GPL code because they want to 
-'donate' it to improve the open source movement, community, and code base. 
-Attempting to arm twist such donations is worse than foolish. You think the 
-open source community should be a bunch of bullies? Convince people open 
-source is best, and avoid them if they don't agree.
-
-	DS
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041400288890--
-
+                                                        BL.
+-- 
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTJUSYc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 14:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTJUSYc
+	id S263263AbTJUSRb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 14:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTJUSRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 14:24:32 -0400
-Received: from smtp4.Stanford.EDU ([171.67.16.29]:32231 "EHLO
-	smtp4.Stanford.EDU") by vger.kernel.org with ESMTP id S263279AbTJUSYa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 14:24:30 -0400
-Message-ID: <3F9579D1.6050108@stanford.edu>
-Date: Tue, 21 Oct 2003 11:24:17 -0700
-From: Andy Lutomirski <luto@stanford.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b; MultiZilla v1.5.0.1) Gecko/20030827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Glasgow <glasgow@beer.net>, linux-kernel@vger.kernel.org
-Subject: Re: posix capabilities inheritance
-References: <fa.hehull9.10mmngt@ifi.uio.no>
-In-Reply-To: <fa.hehull9.10mmngt@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 21 Oct 2003 14:17:31 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:48289 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263263AbTJUSR3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 14:17:29 -0400
+Date: Tue, 21 Oct 2003 11:15:36 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ian <brooke@jump.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Panic with mounting CD in 2.6.0test8
+Message-Id: <20031021111536.50b0a6cc.rddunlap@osdl.org>
+In-Reply-To: <3F95227C.6080601@jump.net>
+References: <3F95227C.6080601@jump.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree with these problems, but I think the proper fix is complicated.  AFAICT, 
-POSIX capability evolution, as specified by whatever draft it was, is broken, so 
-the hacks in prepare_binprm (cap_bprm_set_security in 2.6) are needed to avoid 
-security problems.  Aside from the fact that non-inheritable-by-default makes 
-little sense (and requires root to get capabilities re-added from the file 
-_permitted_ set), POSIX cap evolution has some other problems:
+On Tue, 21 Oct 2003 07:11:40 -0500 Ian <brooke@jump.net> wrote:
 
-1. Can a process have capabilities in its inheritable set and not in its 
-permitted set?  POSIX allows such processes to be created (pI = pP = full, then 
-execute (fI = 0, fP = 0).  Nevertheless, its pP evolution rule assumes that this 
-never happens (pI capabilities can reappear).
+| -----BEGIN PGP SIGNED MESSAGE-----
+| Hash: SHA1
+| 
+| I'm getting a kernel panic in running 2.6.0test8 which I just compiled
+| today.
+| After chatting this up with #Kernelnewbies, erikm told me to post here.
+| 
+| http://www.gastronomicon.org/im003116.jpg
+| 
+| Attempt to mount a particular CD, which I'm thinking is just an ordinary
+| data CD.
+| It could be a VCD, but then I would suspect it would play on my DVD player.
+| Windows sees it as a data disk with one big AVI file on it.
+| Anyway, I was impressed by the magical symbol lookups in the crash dump,
+| but I really just want to mount my CD.
+| 
+| I am not subscribed to this list, so please CC me on any correspondence.
+| I will gladly help debug this.
 
-2. If a process has pE < pP (i.e. some caps disabled, e.g. uid=0, euid!=0), and 
-exec's fE=full, then its capabilities get re-enabled.  This seems like a pretty 
-serious breakage of userspace.
+So you can open/explore the CD in Windows?
 
-I have a possible fix to these issues at 
-<http://www.stanford.edu/~luto/linux-fscap/> -- CONFIG_FS_CAPS (in 
-cap-1-fscap.patch) changes the capability evolution rules slightly to make them 
-(IMHO) both safe and sensible, as well as removing the ugly hackage in 
-set_security.  This will allow your capabilities to persist through exec().  The 
-second patch (cap-2-ext3.patch) adds file capabilities to ext3.  Both are tested 
-on 2.6.0-test6, and they apply with fuzz and compile (but not tested yet) on 
--test8.  (These are different from my last attempt at this -- they are much 
-closer to POSIX semantics.)
+The call stack could have scrolled off of the top of the screen.
+If not, then cdrom_start_read() called cdrom_start_packet_command(),
+but there's not enough info to see what went haywire in
+cdrom_start_packet_command() or whether that latter function
+called cdrom_start_read_continuation() which then erred or if
+it called something which fumbled.  So if you can get more/better
+info (from kernel log or serial console etc.), that would be very
+helpful.
 
-Unfortunately, I think it's too late to include these in 2.6.0.
-
-Andy
-
+--
+~Randy

@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266343AbRGFJss>; Fri, 6 Jul 2001 05:48:48 -0400
+	id <S266347AbRGFKZw>; Fri, 6 Jul 2001 06:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266346AbRGFJsi>; Fri, 6 Jul 2001 05:48:38 -0400
-Received: from elin.scali.no ([195.139.250.10]:34833 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S266343AbRGFJsT>;
-	Fri, 6 Jul 2001 05:48:19 -0400
-Message-ID: <3B458888.75C50552@scali.no>
-Date: Fri, 06 Jul 2001 11:44:40 +0200
-From: Steffen Persvold <sp@scali.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@idb.hist.no>
-CC: Vasu Varma P V <pvvvarma@techmas.hcltech.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: DMA memory limitation?
-In-Reply-To: <3B4453E6.F4342781@techmas.hcltech.com> <3B457DE6.AFEE6696@idb.hist.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266356AbRGFKZm>; Fri, 6 Jul 2001 06:25:42 -0400
+Received: from main.braxis.co.uk ([213.77.40.29]:10515 "EHLO main.braxis.co.uk")
+	by vger.kernel.org with ESMTP id <S266347AbRGFKZb>;
+	Fri, 6 Jul 2001 06:25:31 -0400
+Date: Fri, 6 Jul 2001 12:25:20 +0200
+From: Krzysztof Rusocki <kszysiu@braxis.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] hgafb.c as module (unresolved symbol) 2.4.6+
+Message-ID: <20010706122520.A22693@main.braxis.co.uk>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> 
-> Vasu Varma P V wrote:
-> >
-> > Hi,
-> >
-> > Is there any limitation on DMA memory we can allocate using
-> > kmalloc(size, GFP_DMA)? I am not able to acquire more than
-> > 14MB of the mem using this on my PCI SMP box with 256MB ram.
-> > I think there is restriction on ISA boards of 16MB.
-> > Can we increase it ?
-> 
-> You can allocate a lot more memory for your pci activities.
-> No problem there.  Just drop the "GFP_DMA" and you'll get
-> up to 1G or so.
-> 
-> You shouldn't use GFP_DMA because PCI cards don't need that.
-> Only ISA cards needs GFP_DMA because they can't use more
-> than 16M.  So obviously GFP_DMA is limited to
-> 16M because it is really ISA_DMA.
-> 
-> PCI don't need such special tricks, so don't use GFP_DMA!
-> Your PCI cards is able to DMA into any memory, including
-> the non-GFP_DMA memory.
-> 
-> > but we have a macro in include/asm-i386/dma.h,
-> > MAX_DMA_ADDRESS  (PAGE_OFFSET+0x1000000).
-> >
-> > if i change it to a higher value, i am able to get more dma
-> > memory. Is there any way i can change this without compiling
-> > the kernel?
-> >
-> No matter what you do, DON'T change that.  Yeah, you'll get
-> a bigger GFP_DMA pool, but that'll break each and every
-> ISA card that tries to allocate GFP_DMA memory.  You
-> achieve exactly the same effect for your PCI card by ditching
-> the GFP_DMA parameter, but then you achieve it without breaking
-> ISA cards.
-> 
-A problem arises on 64 bit platforms (such as IA64) if your PCI card is only 32bit (can
-address the first 4G) and you don't wan't to use bounce buffers. If you use GFP_DMA on
-IA64 you are ensured that the memory you get is below 4G and not 16M as on i386, hence no
-bounce buffers are needed. On Alpha GFP_DMA is not limited at all (I think). Correct me if
-I'm wrong, but I really think there should be a general way of allocating memory that is
-32bit addressable (something like GFP_32BIT?) so you don't need a lot of #ifdef's in your
-code.
 
-Regards,
--- 
-  Steffen Persvold               Systems Engineer
-  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
-  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
-  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+Hi,
+
+As far as i noticed - since 2.4.6
+there should be defined
+
+#define INCLUDE_LINUX_LOGO_DATA
+
+instead of
+
+#define INCLUDE_LINUX_LOGOBW
+
+otherwise linux logos do not get included and unresolved symbol occures
+
+patch against 2.4.7-pre{1,2,3} attached, which afaik also applies for 2.4.6
+
+
+PS.
+in any case - please CC - not subscribed
+
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="hgafb.c.diff"
+
+--- linux/drivers/video/hgafb.c.orig	Thu Feb 22 22:09:04 2001
++++ linux/drivers/video/hgafb.c	Fri Jul  6 12:08:54 2001
+@@ -49,7 +49,7 @@
+ 
+ #ifdef MODULE
+ 
+-#define INCLUDE_LINUX_LOGOBW
++#define INCLUDE_LINUX_LOGO_DATA
+ #include <linux/linux_logo.h>
+ 
+ #endif /* MODULE */
+
+--XsQoSWH+UP9D9v3l--

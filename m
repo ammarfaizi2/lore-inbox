@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314136AbSEDPpx>; Sat, 4 May 2002 11:45:53 -0400
+	id <S314239AbSEDPs3>; Sat, 4 May 2002 11:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314239AbSEDPpw>; Sat, 4 May 2002 11:45:52 -0400
-Received: from relay1.pair.com ([209.68.1.20]:27411 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S314136AbSEDPpw>;
-	Sat, 4 May 2002 11:45:52 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CD402D2.E3A94CA2@kegel.com>
-Date: Sat, 04 May 2002 08:48:34 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S314281AbSEDPs2>; Sat, 4 May 2002 11:48:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:28122 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314239AbSEDPs1>; Sat, 4 May 2002 11:48:27 -0400
+Date: Sat, 4 May 2002 17:43:56 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Regina Kodato <reginak@cyclades.com>
+cc: linux-kernel@vger.kernel.org, <akpm@zip.com.au>,
+        <jgarzik@mandrakesoft.com>
+Subject: [2.5 patch] s|linux/malloc.h|linux/slab.h| in drivers/net/wan/pc300_tty.c
+Message-ID: <Pine.NEB.4.44.0205041738540.283-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: khttpd newbie problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having an oops with khttpd on an embedded 2.4.17 ppc405
-system, so I thought I'd try it out on my pc.  But I can't
-get khttpd to serve any requests.
+Hi Regina,
 
-I built khttpd into the kernel with vanilla 2.4.17smp on 
-Intel on Red Hat 7.2, then turned it on as follows:
+the patch below fixes the compilation of pc300_tty.c in 2.5.13 and
+2.5.13-dj2:
 
-echo /home/dank/stress > /proc/sys/net/khttpd/documentroot
-echo 80 > /proc/sys/net/khttpd/serverport
-echo 8000 > /proc/sys/net/khttpd/maxconnect
-echo 1 > /proc/sys/net/khttpd/start
+<--  snip  -->
 
-I also made sure there was an index.html in /home/dank/stress,
-turned off the firewall, did /etc/init.c/ipchains restart,
-and made sure netstat reported port 80 as listening.
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.5/linux-2.5.13/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=k6   -nostdinc -I
+/usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=pc300_tty  -c -o pc300_tty.o pc300_tty.c
+pc300_tty.c:52: linux/malloc.h: No such file or directory
+pc300_tty.c: In function `cpc_tty_rx_task':
+pc300_tty.c:738: warning: passing arg 2 of pointer to function discards
+qualifie
+rs from pointer target type
+make[4]: *** [pc300_tty.o] Error 1
+make[4]: Leaving directory
+`/home/bunk/linux/kernel-2.5/linux-2.5.13/drivers/net
+/wan'
 
-But... when I try to fetch http://localhost/index.html,
-it just sits there.  Likewise, when I telnet to port 80,
-even from a different machine, it just accepts bytes forever; 
-no matter what I type, it just echoes the bytes right back at me.
+<--  snip  -->
 
-If I do
-echo 1 > /proc/sys/net/khttpd/stop
-port 80 stops listening, and any open connections are closed.
+--- drivers/net/wan/pc300_tty.c.old	Sat May  4 17:34:14 2002
++++ drivers/net/wan/pc300_tty.c	Sat May  4 17:34:34 2002
+@@ -49,7 +49,7 @@
+ #include <linux/init.h>
+ #include <linux/netdevice.h>
+ #include <linux/spinlock.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ #include <linux/if.h>
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
 
-I must be doing something silly... surely khttpd works?
-Is it because I'm running SMP, perhaps?
-- Dan
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

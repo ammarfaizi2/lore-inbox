@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263148AbTCLLJL>; Wed, 12 Mar 2003 06:09:11 -0500
+	id <S263146AbTCLLQs>; Wed, 12 Mar 2003 06:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263151AbTCLLJL>; Wed, 12 Mar 2003 06:09:11 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:6837 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S263148AbTCLLJI>;
-	Wed, 12 Mar 2003 06:09:08 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.64-mm2->4 hangs on contest
-Date: Wed, 12 Mar 2003 22:19:49 +1100
-User-Agent: KMail/1.5
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-References: <5.2.0.9.2.20030312101646.00c8e238@pop.gmx.net> <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
-In-Reply-To: <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
+	id <S263147AbTCLLQs>; Wed, 12 Mar 2003 06:16:48 -0500
+Received: from ATuileries-102-2-1-196.abo.wanadoo.fr ([193.251.178.196]:3222
+	"EHLO mojito.idtect.net") by vger.kernel.org with ESMTP
+	id <S263146AbTCLLQr>; Wed, 12 Mar 2003 06:16:47 -0500
+Message-ID: <3E6F199E.5000001@ruault.com>
+Date: Wed, 12 Mar 2003 12:27:26 +0100
+From: Charles-Edouard Ruault <kernel@ruault.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: [kernel 2.4.21-pre5 : process stuck in D state
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303122219.49195.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003 21:37, Mike Galbraith wrote:
-> At 09:25 PM 3/12/2003 +1100, Con Kolivas wrote:
-> >On Wed, 12 Mar 2003 20:21, Mike Galbraith wrote:
-> > > I can't help myself... the attached is just too simple and works too
-> > > darn well.
-> > >
-> > > Somebody stop me! :)
-> >
-> >Sssssssssssmokin are ya Mike?
->
-> ;-)
->
-> >Is this in addition to your previous errr hack or instead of?
->
-> Instead of.  The buttugly patch destroyed interactivity.  This one cures
-> starvation, and interactivity is really nice.
+Hi All,
 
-Ok that fixes the "getting stuck in process load" but it still hangs on 
-contest. I'll just have to give mm5 a go and see if whatever problem that was 
-went away in the mean time.
+i've been running kernel 2.4.21-preX series for a while on my ASUS A7V8X 
+motherboard ( with an athlon XP 2400+ )  and i've noticed the following 
+annoying problem.
+Very often, mozilla ( 1.2.1 ) dies and is stuck in D state, waiting on a 
+semaphore, here's the output of ps :
 
-Con
+ps -elf | grep mozill
+000 S userX 2615  1462  0  69   0    -   972 wait4  00:50 ? 
+00:00:00 /bin/sh /usr/local/mozilla/run-mozilla.sh 
+/usr/local/mozilla/mozilla-bin
+000 D userX   2621  2615  0  69   0    - 13623 down   00:50 ? 
+00:00:02 /usr/local/mozilla/mozilla-bin
+
+Has anyone noticed the same behaviour ? Is this a well known problem ?
+Thanks for your help.
+Regards
+
+Charles-Edouard Ruault
+

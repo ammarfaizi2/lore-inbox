@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbTIOOQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbTIOOQ4
+	id S261400AbTIOOW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbTIOOW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:16:56 -0400
-Received: from trained-monkey.org ([209.217.122.11]:3597 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP id S261356AbTIOOQz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:16:55 -0400
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: qla1280 & __flush_cache_all
-References: <Pine.GSO.4.44.0309141410080.27187-100000@math.ut.ee>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 15 Sep 2003 10:16:52 -0400
-In-Reply-To: <Pine.GSO.4.44.0309141410080.27187-100000@math.ut.ee>
-Message-ID: <m33ceyi1bf.fsf@trained-monkey.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	Mon, 15 Sep 2003 10:22:58 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:671 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261400AbTIOOW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:22:56 -0400
+Message-ID: <3F65CB30.9040003@nortelnetworks.com>
+Date: Mon, 15 Sep 2003 10:22:40 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Harald Welte <laforge@gnumonks.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: firewalling PPPOE stream without terminating it
+References: <3F61D8E4.6020309@nortelnetworks.com> <20030915101826.GH777@obroa-skai.de.gnumonks.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Meelis" == Meelis Roos <mroos@linux.ee> writes:
+Harald Welte wrote:
 
-Meelis> So why is qla1280 in 2.6-current using __flush_cache_all?
+> So how is this question related to either 
+> 1) network development (netdev@oss.sgi.com)
+> 2) linux-kernel development (linux-kernel@vger.kernel.org)
+> 
+> I would like to ask you this question at an apropriate mailinglist
+> (netfilter@lists.netfilter.org, or the lartc mailinglist
 
-The driver is calling flush_cache_all() not __flush_cache_all(), the
-__ thing is an architecture specific issue.
+Sorry, my bad.
 
-Yes it's a lazy approach left over from the old codebase.
+Thread continued on other list as suggested.
 
-Cheers,
-Jes
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

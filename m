@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269105AbUJEOea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269038AbUJEOki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269105AbUJEOea (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269085AbUJEOeF
+	id S269038AbUJEOki (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 10:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269028AbUJEOki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:34:05 -0400
-Received: from mk-smarthost-6.mail.uk.tiscali.com ([212.74.114.44]:57105 "EHLO
-	mk-smarthost-6.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S269082AbUJEOd4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:33:56 -0400
-Date: Tue, 5 Oct 2004 02:45:19 -0700
-Message-ID: <4161787600008083@mk-cpfrontend-2.mail.uk.tiscali.com>
-From: "Rev. Water" <rev_water@handbag.com>
-Subject: Stock Business
-Reply-To: rev_water@yahoo.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 5 Oct 2004 10:40:38 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51329 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S269059AbUJEOkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 10:40:36 -0400
+Date: Tue, 5 Oct 2004 00:26:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swsusp: fix suspending with mysqld
+Message-ID: <20041004222647.GA4723@openzaurus.ucw.cz>
+References: <20041004122422.GA2601@elf.ucw.cz> <200410042109.58519.lkml@kcore.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410042109.58519.lkml@kcore.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+> > mysqld does signal calls in pretty tight loop, and swsusp is not able
+> > to stop processes in such case. This should fix it. Please apply,
+> 
+> I applied your patch to 2.6.9-rc3. Unfortunately, now the system doesn't suspend anymore, it comes back almost immediately:
+> 
 
-From: Rev. Water Ibe
-Financial Director
-NNPC.
-
-
-My name is Rev. Water Ibe working with NNPC who wants to invest in stock
-business and other relevant business as you may advice in your country.
-The fund will be delivered to you in your country, if you want to be part
-of this transaction, let me have your full delivery address, phone and fax
-numbers for details.
-
-The total amount is $15M and this is trust, you don't need to travel anywhere,
-am not asking for any money, the fund will be delivered to you in your country,
-all I need from you is trust and to treat this transaction with utmost
-confidentiality.
-
-If this proposal is acceptable by you, do not take undue advantage of the
-trust I have bestowed in you.
+And it did work before that patch? I fail to see how this patch could have
+broken anything.
+				Pavel
 
 
-Thanks and God bless.
-
-Rev. Water Ibe
-
-__________________________________________________________________
-Get Tiscali Broadband From £15:99
-http://www.tiscali.co.uk/products/broadbandhome/
-
-
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

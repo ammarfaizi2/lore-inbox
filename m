@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVAMKNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVAMKQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVAMKNd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 05:13:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVAMKNc
+	id S261553AbVAMKQp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 05:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVAMKQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 05:13:32 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:23493 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261514AbVAMKNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 05:13:21 -0500
-Subject: Re: [PATCH] Fix a bug in timer_suspend() on x86_64
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113100838.GA3525@elf.ucw.cz>
-References: <20050106002240.00ac4611.akpm@osdl.org>
-	 <200501130002.37311.rjw@sisk.pl>
-	 <1105572485.2941.1.camel@desktop.cunninghams>
-	 <200501130159.16818.rjw@sisk.pl>  <20050113100838.GA3525@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1105611296.7661.3.camel@desktop.cunninghams>
+	Thu, 13 Jan 2005 05:16:45 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:51983 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261553AbVAMKQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 05:16:30 -0500
+Date: Thu, 13 Jan 2005 11:05:42 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113100541.GA10829@alpha.home.local>
+References: <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org> <20050113072851.GN2995@waste.org> <20050113074234.GJ7048@alpha.home.local> <Pine.LNX.4.60.0501122359190.20576@dlang.diginsite.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 13 Jan 2005 21:14:56 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0501122359190.20576@dlang.diginsite.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 21:08, Pavel Machek wrote:
-> Hi!
+On Thu, Jan 13, 2005 at 12:02:01AM -0800, David Lang wrote:
+> >That's why some hardened distros ship with everything R/O (except var) 
+> >and
+> >/var non-exec.
 > 
-> > This patch is intended to fix a bug in timer_suspend() on x86_64 that causes 
-> > hard lockups on suspend with swsusp and provide some optimizations.  It is 
-> > based on the Nigel Cunningham's patches to to reduce delay in 
-> > arch/kernel/time.c.  The patch is against 2.6.10-mm3 and 2.6.11-rc1.  Please 
-> > consider for applying.
-> > 
-> > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> 
-> Acked-by: Pavel Machek.
+> this only works if you have no reason to mix the non-exec and R/O stuff 
+> in the same directory (there is some software that has paths for stuff 
+> hard coded that will not work without them being togeather)
 
-Acked-by: Nigel Cunningham
+Symlinks are the solution against this breakage. And if your software comes
+from the dos world where temporary files are stored in the same directory
+as the binaries (remember SET TEMP=C:\DOS ?) then you have no possibility at
+all, but the application design by itself should be frightening enough to keep
+away from it.
 
-(If that's worth anything :>)
+> also it gives you no ability to maintain the protection for normal users 
+> at the same time that an admin updates the system. Linus's proposal would 
+> let you five this cap to the normal users, but still let the admin manage 
+> the box normally.
 
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
+That's perfectly true. What I explained was not meant to be a universal
+solution, but an easy step forward.
 
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+Willy
 

@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267104AbUBFBMa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 20:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267106AbUBFBMa
+	id S267027AbUBFBJ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 20:09:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267101AbUBFBJ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 20:12:30 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:41450 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S267104AbUBFBMZ (ORCPT
+	Thu, 5 Feb 2004 20:09:26 -0500
+Received: from lgsx13.lg.ehu.es ([158.227.2.28]:63654 "EHLO lgsx13.lg.ehu.es")
+	by vger.kernel.org with ESMTP id S267027AbUBFBJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 20:12:25 -0500
-Date: Thu, 5 Feb 2004 08:47:02 +0800
-From: Hugang <hugang@soulinfo.com>
-To: ncunningham@users.sourceforge.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Subject: Re: Software Suspend 2.0 [for 2.6.2 resend]
-Message-Id: <20040205084702.0983e554@localhost>
-In-Reply-To: <1075458327.11414.2.camel@laptop-linux>
-References: <1075436665.2086.3.camel@laptop-linux>	<yw1xllnpiwgn.fsf@kth.se>
-	<1075458327.11414.2.camel@laptop-linux>
+	Thu, 5 Feb 2004 20:09:22 -0500
+Message-ID: <4022E954.3060300@wanadoo.es>
+Date: Fri, 06 Feb 2004 02:09:40 +0100
+From: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031206 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Craig Bradney <cbradney@zip.com.au>
+CC: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       david+challenge-response@blue-labs.org, linux-kernel@vger.kernel.org,
+       a.verweij@student.tudelft.nl
+Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
+References: <402298C7.5050405@wanadoo.es> <40229D2C.20701@blue-labs.org>	 <4022B55B.1090309@wanadoo.es>  <20040205154059.6649dd74.akpm@osdl.org>	 <1076026496.16107.23.camel@athlonxp.bradney.info>	 <4022DE3C.1080905@wanadoo.es> <4022E209.3040909@gmx.de>	 <4022E3C8.4020704@wanadoo.es>  <4022E69B.5070606@gmx.de> <1076029281.23586.36.camel@athlonxp.bradney.info>
+In-Reply-To: <1076029281.23586.36.camel@athlonxp.bradney.info>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Craig Bradney wrote:
 
-On Fri, 30 Jan 2004 23:25:28 +1300
-Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
+>On Fri, 2004-02-06 at 01:58, Prakash K. Cheemplavam wrote:
+>  
+>
+>>>There is a way to "activate" cpu Disconnect? or it gets enabled by 
+>>>simply applying it?
+>>>      
+>>>
+>>In newer Abit BIOSes there is an option, or you use athcool.
+>>
+>>
+>>    
+>>
+>>>Yes, I have a Abit motherboards, perhaps it's the problem with the bios.
+>>>      
+>>>
+>>I have an Abit NF7-S Rev2 with latest Bios.
+>>    
+>>
+Prakash, I have the same motherboard but not the latest bios (I think I 
+cannot overclock in the same way when I flashed the latest, so I 
+reverted one version). Perhaps I must upgrade and try.
 
-> Ah. I see. It's not out, but you want bleeding edge :>
+About the "option" you're talking about in the bios, are you talking 
+about CPU throttle?
 
-I don't known why LKML not accept my email, so resend.
-
-http://soulinfo.com/~hugang/swsusp2/
-
-I has been port swsusp2 specific patch to 2.6.2 and 2.6.2-mm1. 
-It base on rev6 for 2.6.1, plus my ppc update.
-
--- 
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
-
+>
+>As noted in my last post.. you dont NEED athcool OR Disconnect to get
+>stability.. 
+>
+>I've only ever run athcool to check the status.. and my BIOS doesnt have
+>disconnect.
+>
+>A7N8X Deluxe V2 BIOS 1007.. 11 days uptime here.. haven had a crash
+>since Ross released those patches ages ago.
+>  
+>
+Craig, I'm not talking about cpu disconnect because of the stability. I 
+have 100% stability here with the two patches mentioned before in this 
+thread. I was talking about my cpu showing temperatures between 53 and 
+64º, what I think is very high.

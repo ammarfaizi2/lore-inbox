@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVC2QbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVC2Qdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVC2QbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 11:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVC2QbJ
+	id S261203AbVC2Qdu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 11:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVC2Qdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 11:31:09 -0500
-Received: from mailwasher.lanl.gov ([192.65.95.54]:62040 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S261199AbVC2QbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 11:31:00 -0500
-Message-ID: <424982C0.5000708@mesatop.com>
-Date: Tue, 29 Mar 2005 09:30:56 -0700
-From: Steven Cole <elenstev@mesatop.com>
-User-Agent: Thunderbird 1.0 (Multics)
-X-Accept-Language: en-us, en
+	Tue, 29 Mar 2005 11:33:50 -0500
+Received: from az33egw02.freescale.net ([192.88.158.103]:50874 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261203AbVC2Qds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 11:33:48 -0500
+Date: Tue, 29 Mar 2005 10:33:25 -0600 (CST)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@blarg.somerset.sps.mot.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org,
+       Jason McMullan <jason.mcmullan@timesys.com>
+Subject: [PATCH] ppc32: Fix MPC8555 & MPC8555E device lists
+Message-ID: <Pine.LNX.4.61.0503291027540.15390@blarg.somerset.sps.mot.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.6.12-rc1-mm3 Fix ver_linux script for no udev utils.
-Content-Type: multipart/mixed;
- boundary="------------070907050505090807010102"
-X-PMX-Version: 4.7.0.111621
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070907050505090807010102
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Andrew,
 
-Without the attached patch, the ver_linux script gives
-the following if udev utils are not present.
+Removed the FCC3 device from the lists of devices on MPC8555 & MPC8555E 
+since it does not exist on these processors.
 
-./scripts/ver_linux: line 90: udevinfo: command not found
+Signed-off-by: Jason McMullan <jason.mcmullan@timesys.com>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-The patch causes ver_linux to be silent in the case of
-no udevinfo command.
+---
 
-Steven
-TSPA (Technical data or Software Publicly Available)
+diff -Nru a/arch/ppc/syslib/mpc85xx_sys.c b/arch/ppc/syslib/mpc85xx_sys.c
+--- a/arch/ppc/syslib/mpc85xx_sys.c	2005-03-29 10:26:41 -06:00
++++ b/arch/ppc/syslib/mpc85xx_sys.c	2005-03-29 10:26:41 -06:00
+@@ -88,7 +88,7 @@
+ 			MPC85xx_PERFMON, MPC85xx_DUART,
+ 			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
+ 			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3,
+-			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
++			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2,
+ 			MPC85xx_CPM_SMC1, MPC85xx_CPM_SMC2,
+ 			MPC85xx_CPM_USB,
+ 		},
+@@ -105,7 +105,7 @@
+ 			MPC85xx_PERFMON, MPC85xx_DUART, MPC85xx_SEC2,
+ 			MPC85xx_CPM_SPI, MPC85xx_CPM_I2C, MPC85xx_CPM_SCC1,
+ 			MPC85xx_CPM_SCC2, MPC85xx_CPM_SCC3,
+-			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2, MPC85xx_CPM_FCC3,
++			MPC85xx_CPM_FCC1, MPC85xx_CPM_FCC2,
+ 			MPC85xx_CPM_SMC1, MPC85xx_CPM_SMC2,
+ 			MPC85xx_CPM_USB,
+ 		},
 
 
-
-
-
---------------070907050505090807010102
-Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
- name="fix_ver_linux_for_no_udev.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix_ver_linux_for_no_udev.patch"
-
-Signed-off-by: Steven Cole <elenstev@mesatop.com>
-
---- linux-2.6.12-rc1-mm3/scripts/ver_linux.orig	2005-03-29 08:52:35.000000000 -0700
-+++ linux-2.6.12-rc1-mm3/scripts/ver_linux	2005-03-29 09:04:37.000000000 -0700
-@@ -87,7 +87,7 @@
- 
- expr --v 2>&1 | awk 'NR==1{print "Sh-utils              ", $NF}'
- 
--udevinfo -V | awk '{print "udev                  ", $3}'
-+udevinfo -V 2>&1 | grep version | awk '{print "udev                  ", $3}'
- 
- if [ -e /proc/modules ]; then
-     X=`cat /proc/modules | sed -e "s/ .*$//"`
-
---------------070907050505090807010102--

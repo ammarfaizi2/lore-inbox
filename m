@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268102AbRG2SsV>; Sun, 29 Jul 2001 14:48:21 -0400
+	id <S268110AbRG2TOd>; Sun, 29 Jul 2001 15:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268110AbRG2SsL>; Sun, 29 Jul 2001 14:48:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23818 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268102AbRG2Srv>; Sun, 29 Jul 2001 14:47:51 -0400
-Subject: Re: PROBLEM: Random (hard) lockups
-To: treacy@home.net (James A. Treacy)
-Date: Sun, 29 Jul 2001 19:49:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010729143401.A527@debian.org> from "James A. Treacy" at Jul 29, 2001 02:34:01 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268125AbRG2TOX>; Sun, 29 Jul 2001 15:14:23 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:28464 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S268110AbRG2TOO>; Sun, 29 Jul 2001 15:14:14 -0400
+Message-ID: <3B646077.9000202@blue-labs.org>
+Date: Sun, 29 Jul 2001 15:13:59 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010725
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: VFS: Busy inodes after unmount. Self-destruct in 5 seconds.  Have a nice day...
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15Qvct-0002Od-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> At random times this brand new machine locks up hard (so nothing to
-> report from Sys Rq). This happens with all recent 2.4.x kernels, 2.2.17
-> and 2.2.19. Some kernels seem to be worse than others as I can often work
-> 
-> As I'd like to make this my main machine, I am willing to put some
-> time into tracking down the problem, but need pointers on where to
-> begin.
+Ehhh....
 
-Given you see the same behaviour in very stable 2.2 kernels, I'd say begin
-at the hardware. 
+I unmounted a number of partitions with no userland errors...Maybe this 
+could be changed to indicate which partition it was?  The odd part is I 
+killed all processes on the suspect partition and umount returned busy 
+however lsof indicated no files open on that partition.  A third 
+invocation of umount got it to unmount.  This was a reiserfs partition 
+btw.  The ext2 partition is /boot and e2fsck on it didn't yield any errors.
+
+Kernel 2.4.7, ext2 and reiserfs partitions.
+
+David
+
+

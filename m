@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbTFOTlK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 15:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbTFOTlK
+	id S262827AbTFOTso (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 15:48:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbTFOTso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 15:41:10 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:61327 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262818AbTFOTlJ (ORCPT
+	Sun, 15 Jun 2003 15:48:44 -0400
+Received: from thor.itep.ru ([194.85.69.254]:11194 "EHLO thor.itep.ru")
+	by vger.kernel.org with ESMTP id S262827AbTFOTsm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 15:41:09 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: shemminger@osdl.org, greg@kroah.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] network hotplug via class_device/kobject
-References: <20030613164119.15209934.shemminger@osdl.org>
-	<20030615.005055.55726223.davem@redhat.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 15 Jun 2003 21:32:38 +0200
-In-Reply-To: <20030615.005055.55726223.davem@redhat.com>
-Message-ID: <m31xxvgmqx.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Sun, 15 Jun 2003 15:48:42 -0400
+Date: Mon, 16 Jun 2003 00:02:30 +0400
+From: Roman Kagan <Roman.Kagan@itep.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] use tty_driver.name as default .devfs_name
+Message-ID: <20030615200230.GA22240@panda.itep.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> writes:
+  Hi,
 
->    Paranoid about some driver doing something like:
->    	rtnl_lock(); register_netdevice(); unregister_netdevice();
-> rtnl_unlock() BOOM
-> 
-> These sorts of turds exist at least in two places:
-> 
-> 1) drivers/net/wan/comx.c
-> 2) drivers/net/wan/hdlc_fr.c
-> 
-> But it is pretty clear that these two drivers have been
-> tried by nobody in recent years.  They both call into
-> {un,}register_netdevice without the RTNL semaphore held.
+In 2.5.71 with devfs enabled my USB modem appears as /dev/<NULL>0
+instead of the usual /dev/usb/acm/0.  I tracked down this problem to be
+due to 
 
-Not sure about 1), but 2) calls (un)register_netdevice() with rtnl_lock,
-from ioctl.
--- 
-Krzysztof Halasa
-Network Administrator
+ChangeSet@1.1215.98.11  2003-06-06 08:54:35-07:00  akpm@digeo.com
+
+(originally "[PATCH] Fix tty devfs mess" from Christoph Hellwig
+<hch@lst.de>)
+
+where a new .devfs_name field was introduced in struct tty_driver.
+However, many drivers (including cdc-acm) haven't been updated to define
+it.  OTOH they seem to be quite happy using their .name for devfs as
+well.  This patch makes .name the default .devfs_name.  Since
+tty_{,un}register_device() appear to be the only users of .devfs_name,
+there should be no side effects.  WFM.  Please consider applying.
+
+  Roman.
+
+
+--- linux-2.5.71/drivers/char/tty_io.c~	2003-06-14 23:18:23.000000000 +0400
++++ linux-2.5.71/drivers/char/tty_io.c	2003-06-15 22:20:51.000000000 +0400
+@@ -2183,6 +2183,10 @@
+ 		return;
+ 	}
+ 
++	/* Use driver name for devfs as well */
++	if (!driver->devfs_name)
++		driver->devfs_name = driver->name;
++
+ 	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
+ 			"%s%d", driver->devfs_name, index + driver->name_base);
+ 

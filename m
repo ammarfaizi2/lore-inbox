@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVAGViU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVAGWWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVAGViU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVAGVgi
+	id S261643AbVAGWWS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVAGWTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:36:38 -0500
-Received: from mail.tyan.com ([66.122.195.4]:33037 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261625AbVAGVcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:32:51 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307291332@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, jamesclv@us.ibm.com, suresh.b.siddha@intel.com
-Subject: RE: 256 apic id for amd64
-Date: Fri, 7 Jan 2005 13:44:19 -0800 
+	Fri, 7 Jan 2005 17:19:03 -0500
+Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:52403 "EHLO
+	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261653AbVAGWRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:17:14 -0500
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] ALPS touchpad detection fix
+References: <m3wtuqxzue.fsf@telia.com>
+	<200501071928.32096.vda@port.imtp.ilyichevsk.odessa.ua>
+From: Peter Osterlund <petero2@telia.com>
+Date: 07 Jan 2005 23:17:03 +0100
+In-Reply-To: <200501071928.32096.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <m3zmzk28bk.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you consider to use c->x86_apicid to get phy_proc_id, that is initial
-apicid.?
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
 
-YH
+> On Thursday 06 January 2005 18:54, Peter Osterlund wrote:
+> > My ALPS touchpad is not recognized because the device gets confused by
+> > the Kensington ThinkingMouse probe.  It responds with "00 00 14"
+> > instead of the expected "00 00 64" to the "E6 report".
+> > 
+> > Resetting the device before attempting the ALPS probe fixes the
+> > problem.
+> > 
+...
+> >  /*
+> >   * Try ALPS TouchPad
+> >   */
+> > +	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+> >  	if (max_proto > PSMOUSE_IMEX && alps_detect(psmouse, set_properties) == 0) {
+> >  		if (!set_properties || alps_init(psmouse) == 0)
+> >  			return PSMOUSE_ALPS;
+> 
+> You do reset even if max_proto <= PSMOUSE_IMEX and therefore
+> alps_detect won't be called. Is it intended?
 
+Not really intended. (It shouldn't harm though because the
+mouse/touchpad is reset anyway before the IntelliMouse probe.)
 
-4407.29 BogoMIPS (lpj=2203648)
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 7 -> Node 3
-phy_proc_id[0] = 0
-phy_proc_id[1] = 0
-phy_proc_id[2] = 9
-phy_proc_id[3] = 9
-phy_proc_id[4] = 10
-phy_proc_id[5] = 10
-phy_proc_id[6] = 11
-phy_proc_id[7] = 11
-CPU: Physical Processor ID: 11
- stepping 00
-Total of 8 processors activated (35209.21 BogoMIPS).
+Here is an updated patch that only does the reset when alps_detect()
+is going to be called.
 
------Original Message-----
-From: Andi Kleen [mailto:ak@muc.de] 
-Sent: Friday, January 07, 2005 1:12 PM
-To: YhLu
-Cc: Matt Domsch; linux-kernel@vger.kernel.org; discuss@x86-64.org;
-jamesclv@us.ibm.com; suresh.b.siddha@intel.com
-Subject: Re: 256 apic id for amd64
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
-On Fri, Jan 07, 2005 at 01:14:24PM -0800, YhLu wrote:
-> After keep the bsp using 0, the jiffies works well. Werid?
+ linux-petero/drivers/input/mouse/psmouse-base.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
 
-Probably a bug somewhere.  But since BSP should be always 
-0 I'm not sure it is worth tracking down.
+diff -puN drivers/input/mouse/psmouse-base.c~alps-fix drivers/input/mouse/psmouse-base.c
+--- linux/drivers/input/mouse/psmouse-base.c~alps-fix	2005-01-06 22:43:28.000000000 +0100
++++ linux-petero/drivers/input/mouse/psmouse-base.c	2005-01-07 22:51:45.000000000 +0100
+@@ -451,14 +451,16 @@ static int psmouse_extensions(struct psm
+ /*
+  * Try ALPS TouchPad
+  */
+-	if (max_proto > PSMOUSE_IMEX && alps_detect(psmouse, set_properties) == 0) {
+-		if (!set_properties || alps_init(psmouse) == 0)
+-			return PSMOUSE_ALPS;
+-
++	if (max_proto > PSMOUSE_IMEX) {
++		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
++		if (alps_detect(psmouse, set_properties) == 0) {
++			if (!set_properties || alps_init(psmouse) == 0)
++				return PSMOUSE_ALPS;
+ /*
+  * Init failed, try basic relative protocols
+  */
+-		max_proto = PSMOUSE_IMEX;
++			max_proto = PSMOUSE_IMEX;
++		}
+ 	}
+ 
+ 	if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse, set_properties) == 0)
+_
 
--Andi
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131463AbRCSM3I>; Mon, 19 Mar 2001 07:29:08 -0500
+	id <S131396AbRCSM6b>; Mon, 19 Mar 2001 07:58:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131464AbRCSM26>; Mon, 19 Mar 2001 07:28:58 -0500
-Received: from [216.52.49.35] ([216.52.49.35]:44556 "HELO infbosvw.inf.com")
-	by vger.kernel.org with SMTP id <S131463AbRCSM2w>;
-	Mon, 19 Mar 2001 07:28:52 -0500
-Message-ID: <C7F2D7449C26D411A4B6009027989AC0040449C6@punmsg03.ad.infosys.com>
-From: harmandeep ahuja <harmandeep_ahuja@infy.com>
-To: linux-kernel@vger.kernel.org
-Subject: RIP broadcasting
-Date: Mon, 19 Mar 2001 17:44:58 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S131461AbRCSM6V>; Mon, 19 Mar 2001 07:58:21 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:17353 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131396AbRCSM6E>;
+	Mon, 19 Mar 2001 07:58:04 -0500
+Date: Mon, 19 Mar 2001 12:54:51 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process information?)
+Message-ID: <20010319125451.B952@redhat.com>
+In-Reply-To: <001701c0af8e$bd590ac0$5517fea9@local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <001701c0af8e$bd590ac0$5517fea9@local>; from manfred@colorfullife.com on Sun, Mar 18, 2001 at 10:34:38AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
-> I am using *sendto* function to send a RIP packet.
-> It is working fine when I send a packet to a particular destination ( like
-192.168.163.132 with subnet mask of 255.255.255.0 ) but when I am trying to
-send a broadcast packet ( i.e. setting the destination IP address to
-192.168.163.255 ) it is giving me an error message " Permission denied ".
-> Is there any way to set the permissions.
 
->Any pointers?
+On Sun, Mar 18, 2001 at 10:34:38AM +0100, Manfred Spraul wrote:
 
-  Thanx
- 
-  Regards
-  Harman Ahuja
-  Infosys Technologies Ltd. 
-   ___________________________ 
-& 92532800 Extn : 2299
-   Powered By Intellect Driven By Values
+> > The problem is that mmap_sem seems to be protecting the list
+> > of VMAs, so taking _only_ the page_table_lock could let a VMA
+> > change under us while a page fault is underway ...
+> 
+> No, that can't happen.
 
+It can.  Page faults often need to block, so they have to be able to
+drop the page_table_lock.  Holding the mmap_sem is all that keeps the
+vma intact until the IO is complete.
+
+Cheers,
+ Stephen

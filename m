@@ -1,66 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUIATxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUIATtk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUIATxy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 15:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUIATt7
+	id S267447AbUIATtk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 15:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUIATrq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:49:59 -0400
-Received: from psems1.agilysys.com ([199.33.129.48]:36109 "HELO
-	psems1.pios.com") by vger.kernel.org with SMTP id S267494AbUIATtM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:49:12 -0400
-Subject: Re: Kernel or Grub bug.
-From: "Wise, Jeremey" <jeremey.wise@agilysys.com>
-To: Oliver Hunt <oliverhunt@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4699bb7b04090109415f64fea1@mail.gmail.com>
-References: <1094008341.4704.32.camel@wizej.agilysys.com>
-	 <200408312358.08153.dsteven3@maine.rr.com>
-	 <1094041227.4635.7.camel@wizej.agilysys.com>
-	 <200409011135.36537.dsteven3@maine.rr.com>
-	 <1094055985.4635.44.camel@wizej.agilysys.com>
-	 <4699bb7b04090109415f64fea1@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 01 Sep 2004 15:46:43 -0400
-Message-Id: <1094068003.15795.26.camel@wizej.agilysys.com>
+	Wed, 1 Sep 2004 15:47:46 -0400
+Received: from nysv.org ([213.157.66.145]:44939 "EHLO nysv.org")
+	by vger.kernel.org with ESMTP id S267447AbUIATo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 15:44:56 -0400
+Date: Wed, 1 Sep 2004 22:44:45 +0300
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040901194445.GM26192@nysv.org>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
+From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 04:41 +1200, Oliver Hunt wrote:
-> If the reiserfs module is compiled as, well, a module, rather than
-> built in to the kernel you won't be able to boot.
-> 
-> To load modules kernel needs access to modules, but as these reside on
-> a reiserfs partition it needs to load the reiserfs module... hence it
-> isn't possible to do that.
-> 
-Thanks for your response but I guess I need a little clarification. I
-believe you meant one of the two options below:
+On Tue, Aug 31, 2004 at 01:05:40PM -0700, Linus Torvalds wrote:
+>
+>There's no point to having the kernel export information that is already 
+>inherent in the main stream.
 
-1) If I choose to compile the required file system modules "reiserfs"
-monolithicaly into my 2.8.1 kernel I can NOT also allow the kernel to
-see a module in initrd for reiserfs.ko? If this is what you mean .. my
-question is why would the kernel even care? The mount request would be
-called and the proper module (reiserfs) would be present to parse said
-request. Please correct
-2) If I choose to compile the kernel with reiserfs as a modules (ie not
-monolithicaly  in the kernel) then I will have issues as the kernel has
-to have the driver reiserfs to mount the root file system to be able to
-load /lib/modules/..../reiserfs.ko. If this is what you meant then
-again, I am a bit confused. I thought that was the whole point of the
-initrd image in that those modules (RAID, FC, USB, Network
-etc....)required to get the OS to the state that it has a / they must be
-compiled in the initrd which is called and referaned in grub or lilo.
-Again, please correct me if I am wrong.
+As said before, it can be bounced :)
 
+You have support for streams, someone could read the inherent information
+and write it to the stream. At the risk of these two streams being
+unsynced temporarily, requiring some syncer.
+
+>I've seen all these examples of exposing MP3 ID information as a "side 
+>stream", and that's TOTALLY POINTLESS! The information is already there, 
+
+No it's not pointless :)
+
+>it's in a standard format, and exporting it as a stream buys you 
+>absolutely nothing.
+
+There is no nice standard way of finding MP3s by the ID information.
+
+find music/ -name *mp3/..metas/id3/ | xargs grep -i "dream theater"
+
+or something. Which reveals the metadata to find. 
+The kernel doesn't have to parse the ID3 tags, that can be handled in 
+userspace by a daemon, updated based on mtimes or somesuch, yes?
+
+>Which means that normally we really don't _want_ named streams. In 99% of
+>all cases we can use equally good - and _much_ simpler - tool-based
+>solutions.
+
+Sure, when someone goes through every application from ls to nautilus
+and rams a tool-based patch down the app maintainer's throat and then
+we're still dependent on the filesystem layout, which is easier to break
+than the filesystem itself :)
+
+>Which means that the only _real_ technical issue for supporting named
+>streams really ends up being things like samba, which want named streams
+
+So they should be implemented for samba and other guys can come up with
+alternative means for using them ;)
 
 -- 
-Thanks,
+mjt
 
-Jeremey Wise
-jeremey.wise@agilysys.com
-
-All opinions or information expressed here are personal in nature and do
-not reflect the official position of Agilysys Inc.

@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269274AbTCBS3A>; Sun, 2 Mar 2003 13:29:00 -0500
+	id <S269268AbTCBSh2>; Sun, 2 Mar 2003 13:37:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269275AbTCBS3A>; Sun, 2 Mar 2003 13:29:00 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:14984 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S269274AbTCBS26>; Sun, 2 Mar 2003 13:28:58 -0500
-Message-ID: <3E624FD4.3020807@zytor.com>
-Date: Sun, 02 Mar 2003 10:39:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S269269AbTCBSh2>; Sun, 2 Mar 2003 13:37:28 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:45325 "HELO
+	mesatop.zianet.com") by vger.kernel.org with SMTP
+	id <S269268AbTCBSh1>; Sun, 2 Mar 2003 13:37:27 -0500
+Subject: Re: [PATCH] kernel source spellchecker
+From: Steven Cole <elenstev@mesatop.com>
+To: "Jared Daniel J. Smith" <linux@trios.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20030302165127Z269240-29902+1551@vger.kernel.org>
+References: <20030302165127Z269240-29902+1551@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 02 Mar 2003 11:46:33 -0700
+Message-Id: <1046630795.10138.495.camel@spc1.mesatop.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Sun, 2003-03-02 at 11:56, Jared Daniel J. Smith wrote:
+> Regarding these two cautious comments:
 > 
-> My counter-question is, why not improve an _existing_ open source SCM to 
-> read and write BitKeeper files?  Why do we need yet another brand new 
-> project?
+> ==========================================================================
+> I wouldn't go that far. Better give a list of speling mistakes (file/line)
+> and fix them by hand. It won't need to be done more than occasionally, so
+> the overhead is not too bad. --Dr. Horst H. von Brand 
 > 
+> It might also be worth adding a list of 'suspect' spellings -- which
+> require human intervention. Such items might include 'indices=indexes'
+> and 'erratum=errata' although you can't do it automatically because
+> sometimes the right-hand side is actually correct. --David Woodhouse
+> ==========================================================================
+> 
+> I fully agree.
+> 
+> I have tried to automatically spell-check long, complex texts for years,
+> with numerous algorithms; all of them fail for one reason or another,
+> and I find that the only proper way to do it is the tedious work by hand.
+> 
+> Even a single lost pun because of overenthusiastic spellchecking is
+> not worth the cleanup. I would prefer to see typos than lose a single
+> intentional 'misspelling'. It would be best if you posted all changes 
+> somewhere so that they could be verified manually.
 
-I don't disagree with that.  However, the question you posited was 
-"would one be useful", and I think the answer is unequivocally yes. 
-Furthermore, I don't agree with the "compatibility == bad" assumption I 
-read into your message.
+More agreement. In this case it's better to commit a sin of omission
+than one of commission.  In my recent cleanups, here are three cases
+which were left alone:
 
-> AFAICS, a BK clone would just further divide resources and mindshare.  I 
-> personally _want_ an open source SCM that is as good as, or better, than 
-> BitKeeper.  The open source world needs that, and BitKeeper needs the 
-> competition.  A BK clone may work with BitKeeper files, but I don't see 
-> it ever being as good as BK, because it will always be playing catch-up.
+./arch/sparc/kernel/head.S: * Sun people can't spell worth damn. "compatability" indeed.
+./drivers/net/myri_sbus.h:      u32     shakedown;              /* DarkkkkStarrr Crashesss...   */
+./drivers/scsi/FlashPoint.c:      return(0);  /*We WON! Yeeessss! */
 
-Yes.  Personally, I've spent quite a bit of time with OpenCM after a 
-suggestion from Ted T'so.  It's looking quite promising to me, although 
-I haven't yet used it to maintain a large project.
+> 
+> Consider the following:
+> 
+[snip]
+> 
+> Converted=Coverted
+> is it a pun on something 'hidden' or is it something transformed?
+> 
+./drivers/media/radio/radio-aimslab.c: * Coverted to new API by Alan Cox <Alan.Cox@linux.org>
+./drivers/media/radio/radio-gemtek.c: *    Coverted to new API by Alan Cox <Alan.Cox@linux.org>
+./drivers/media/radio/radio-rtrack2.c: * Coverted to new API by Alan Cox <Alan.Cox@linux.org>
 
-	-hpa
+Alan's humor can be subtle.  Better to ask him. AC added to cc list.
+I just hope he doesn't start to pun "yn Cymraeg"
+
+Steven
 
 

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277844AbRJIRKF>; Tue, 9 Oct 2001 13:10:05 -0400
+	id <S277849AbRJIRMZ>; Tue, 9 Oct 2001 13:12:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277848AbRJIRJz>; Tue, 9 Oct 2001 13:09:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:45069 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277844AbRJIRJq>;
-	Tue, 9 Oct 2001 13:09:46 -0400
-Date: Tue, 9 Oct 2001 14:10:00 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Till Immanuel Patzschke <tip@internetwork-ag.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] cannot fork w/ 1000s of procs (but still mem avail.)
-In-Reply-To: <3BC32117.52E68787@internetwork-ag.de>
-Message-ID: <Pine.LNX.4.33L.0110091408470.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277851AbRJIRMP>; Tue, 9 Oct 2001 13:12:15 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:16786 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S277849AbRJIRMJ>; Tue, 9 Oct 2001 13:12:09 -0400
+Date: Tue, 9 Oct 2001 11:11:50 -0600
+Message-Id: <200110091711.f99HBoe30168@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v195 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Till Immanuel Patzschke wrote:
+  Hi, all. Version 195 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-> hopefully a simple question to answer: I get "cannot fork" messages on
-> my machine running some 20000 processes and threads (1 master proc, 3
-> threads), where each (master) process opens a socket and does IP
-> traffic over it. Although there is plenty of memory left (4GB box, 2GB
-> used, 0 swap), I get "cannot fork - out of memory" when trying to
-> increase the number of procs. (If none of the procs does IP, I can
-> start more [of course?!].) Anything I can do to increase the number of
-> active processes using IP? Any kernel paramter, limit, sizing?
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-For efficiency reasons, the kernel and userspace have to share
-the same 4GB virtual address area. By default this area is split
-3:1, with 3GB virtual space available for user programs and 1GB
-for the kernel.
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-I suspect in your case it may be worth it to change the kernel
-to use 2GB of virtual address space for itself and only let
-userspace have 2GB...
+This is against 2.4.11-pre6. Highlights of this release:
 
-regards,
+- Fixed buffer underrun in <try_modload>
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+- Moved down_read() from <search_for_entry_in_dir> to <find_entry>
 
-http://www.surriel.com/		http://distro.conectiva.com/
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

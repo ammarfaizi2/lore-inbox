@@ -1,67 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130387AbQKUVuw>; Tue, 21 Nov 2000 16:50:52 -0500
+	id <S129667AbQKUVzm>; Tue, 21 Nov 2000 16:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131060AbQKUVul>; Tue, 21 Nov 2000 16:50:41 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:63412 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S130387AbQKUVua>; Tue, 21 Nov 2000 16:50:30 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: David Riley <oscar@the-rileys.net>
-Cc: linux-kernel@vger.kernel.org
-Date: Tue, 21 Nov 2000 14:04:34 -0800 (PST)
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <3A1AE442.E8C83873@the-rileys.net>
-Message-ID: <Pine.LNX.4.21.0011211400380.2031-100000@dlang.diginsite.com>
+	id <S129410AbQKUVzd>; Tue, 21 Nov 2000 16:55:33 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:15625 "EHLO
+	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
+	id <S129868AbQKUVzV>; Tue, 21 Nov 2000 16:55:21 -0500
+Date: Tue, 21 Nov 2000 22:25:29 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
+To: torvalds@transmeta.com
+cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix help info about OSB4 and VIA82CXXX IDE chipsets (test11)
+Message-ID: <Pine.LNX.4.21.0011211549080.5487-100000@tricky>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David, usually when it turns out that Linux finds hardware problems the
-underlying cause is that linux makes more effective use of the component,
-and as such something that was marginal under windows fails under linux as
-the correct timing is used.
 
-David Lang
+Hi
 
- On Tue, 21 Nov 2000, David Riley wrote:
+- OSB4 isn't marked (EXPERIMENTAL) in drivers/ide/Config.in so it
+  shouldn't be marked so in Configure.help.
+- PDC202XX driver also supports PDC20265.
+- new VIA82CXXX driver removed kernel command line option (FIFO
+  setting) and CONFIG_VIA82CXX_TUNING
 
-> Date: Tue, 21 Nov 2000 16:08:26 -0500
-> From: David Riley <oscar@the-rileys.net>
-> To: unlisted-recipients:  ;
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Defective Red Hat Distribution poorly represents Linux
-> 
-> Horst von Brand wrote:
-> > 
-> > So what? My former machine ran fine with Win95/WinNT. Linux wouldn't even
-> > end booting the kernel. Reason: P/100 was running at 120Mhz. Fixed that, no
-> > trouble for years. Not the only case of WinXX running (apparently?) fine
-> > on broken/misconfigured hardware I've seen, mind you.
-> 
-> This is something I've noticed as well...
-> 
-> Windoze is not the only OS to handle bad hardware better than Linux.  On
-> my Mac, I had a bad DIMM that worked fine on the MacOS side, but kept
-> causing random bus-type errors in Linux.  Same as when I accidentally
-> (long story) overclocked the bus on the CPU.  I think that more
-> tolerance for faulty hardware (more than just poorly programmed BIOS or
-> chipsets with known bugs) is something that might be worth looking into.
->  I'm sure it would solve problems like this (which I clearly identify as
-> a hardware problem, because the same thing happened with the bad DIMM,
-> the overclocked bus, and two different overclocked processors (AMD 5x86
-> and AMD K6-2 500) and went away when I remedied the offending problem). 
-> Additionally, overclockers (I myself am a reformed one) might appreciate
-> more tolerance for such things.
-> 
-> My two cents/pence/centavos/local tiny currency denomination,
-> 	David
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+--
+Bartlomiej Zolnierkiewicz
+<bkz@linux-ide.org>
+
+
+--- linux-240t11/drivers/ide/Configure.help	Sun Nov 19 00:22:49 2000
++++ linux/drivers/ide/Configure.help	Tue Nov 21 15:45:16 2000
+@@ -868,9 +868,9 @@
+   This is a driver for the OPTi 82C621 EIDE controller.
+   Please read the comments at the top of drivers/ide/opti621.c.
+ 
+-ServerWorks OSB4 chipset support (EXPERIMENTAL)
++ServerWorks OSB4 chipset support
+ CONFIG_BLK_DEV_OSB4
+-  This driver adds PIO/DMA support for the Serverworks OSB4 chipset
++  This driver adds PIO/(U)DMA support for the ServerWorks OSB4 chipset.
+ 
+ Intel PIIXn chipsets support
+ CONFIG_BLK_DEV_PIIX
+@@ -898,7 +898,7 @@
+ 
+   If unsure, say N.
+ 
+-PROMISE PDC20246/PDC20262/PDC20267 support
++PROMISE PDC20246/PDC20262/PDC20265/PDC20267 support
+ CONFIG_BLK_DEV_PDC202XX
+   Promise Ultra33 or PDC20246
+   Promise Ultra66 or PDC20262
+@@ -972,23 +972,15 @@
+ VIA82CXXX chipset support
+ CONFIG_BLK_DEV_VIA82CXXX
+   This allows you to to configure your chipset for a better use while
+-  running (U)DMA: it will allow you to enable efficiently the second
+-  channel dma usage, as it may not be set by BIOS. It allows you to
+-  pass a kernel command line at boot time in order to set fifo
+-  config. If no command line is provided, it will try to set fifo
++  running PIO/(U)DMA, it will allow you to enable efficiently the second
++  channel dma usage, as it may not be set by BIOS. It will try to set fifo
+   configuration at its best. It will allow you to get information from
+-  /proc/ide/via provided you enabled "proc" support.
++  /proc/ide/via provided you enabled "/proc file system" support.
+ 
+   Please read the comments at the top of drivers/ide/via82cxxx.c
+ 
+   If you say Y here, then say Y to "Use DMA by default when available"
+   as well.
+-
+-  If unsure, say N.
+-
+-VIA82CXXX Tuning support (WIP)
+-CONFIG_VIA82CXXX_TUNING
+-  Please read the comments at the top of drivers/ide/via82cxxx.c
+ 
+   If unsure, say N.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVAJJK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVAJJQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbVAJJK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 04:10:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVAJJK1
+	id S262163AbVAJJQS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 04:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbVAJJQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 04:10:27 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:35830 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S262162AbVAJJKY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 04:10:24 -0500
-Date: Mon, 10 Jan 2005 04:10:22 -0500
-From: Hikaru1@verizon.net
-To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: PROBLEM: ide-cd in 2.6.8-2.6.10 and 2.4.26-2.4.28 high cpu use with dma
-Message-ID: <20050110091022.GA20178@roll>
-References: <20050109105201.GB12497@roll> <20050109105418.GD12497@roll> <20050109123028.GA12753@roll> <20050109153212.GA28417@suse.de>
+	Mon, 10 Jan 2005 04:16:18 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:53719 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262163AbVAJJQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 04:16:15 -0500
+Date: Mon, 10 Jan 2005 10:15:59 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: tglx@linutronix.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-mm2] Fix preemption race [1/3] (Core)
+Message-ID: <20050110091559.GB25034@elte.hu>
+References: <20050110013508.1.patchmail@tglx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050109153212.GA28417@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [70.19.162.94] at Mon, 10 Jan 2005 03:10:23 -0600
+In-Reply-To: <20050110013508.1.patchmail@tglx>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 09, 2005 at 04:32:16PM +0100, Jens Axboe wrote:
-> The change isn't safe, it was made for a reason since some drives
-> timeout if the alignment/length isn't correct. It probably is a little
-> pessimistic right now, can you see if this just works for you?
 
-Owner of the system tested the patch, works perfectly on his system.
+* tglx@linutronix.de <tglx@linutronix.de> wrote:
 
-Thanks :)
+> The idle-thread-preemption-fix.patch introduced a race, which is not
+> critical, but might give us an extra turn through the scheduler. When
+> interrupts are reenabled in entry.c and an interrupt occures before we
+> reach the add_preempt_schedule() in preempt_schedule we get
+> rescheduled again in the return from interrupt path.
 
-Timothy C. McGrath
+i agree that there's a race. I solved this in the -RT patchset a couple
+of weeks ago, but in a different wasy. I introduced the
+preempt_schedule_irq() function and this solves the problem via keeping
+the whole IRQ-preemption path irqs-off. This has the advantage that if
+an IRQ signals preemption of a task and the kernel is immediately
+preemptable then we are able to hit that task atomically without
+re-enabling IRQs again. I'll split out this patch - can you see any
+problems with the preempt_schedule_irq() approach?
+
+	Ingo

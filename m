@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266114AbSLWCDo>; Sun, 22 Dec 2002 21:03:44 -0500
+	id <S265643AbSLWCCD>; Sun, 22 Dec 2002 21:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266308AbSLWCDo>; Sun, 22 Dec 2002 21:03:44 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:61151 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S266114AbSLWCDj>; Sun, 22 Dec 2002 21:03:39 -0500
-Date: Sun, 22 Dec 2002 18:10:04 -0800
-From: Joshua Kwan <joshk@mspencer.net>
-To: linux-kernel@vger.kernel.org
-Subject: Weird freezes on 2.4.20-ck2 (without preempt)
-Message-Id: <20021222181004.5bb18102.joshk@mspencer.net>
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.cPJg/X9n.vERi/"
+	id <S265787AbSLWCCC>; Sun, 22 Dec 2002 21:02:02 -0500
+Received: from dp.samba.org ([66.70.73.150]:64932 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265643AbSLWCCA>;
+	Sun, 22 Dec 2002 21:02:00 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: [drm:drm_init] *ERROR* Cannot initialize the agpgart module. 
+In-reply-to: Your message of "Sat, 21 Dec 2002 14:22:26 -0000."
+             <20021221142226.GA24941@suse.de> 
+Date: Mon, 23 Dec 2002 12:10:47 +1100
+Message-Id: <20021223021009.C6CC32C0E3@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.cPJg/X9n.vERi/
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In message <20021221142226.GA24941@suse.de> you write:
+> On Fri, Dec 20, 2002 at 06:29:18PM -0500, Ed Tomlinson wrote:
+>  > Dave, with the pull from this morning (8am EST), it almost works modular.
+>  > I get:
+>  > 
+>  > Dec 20 18:20:19 oscar upsd[636]: Communication established
+>  > Dec 20 18:20:47 oscar kernel: Linux agpgart interface v0.100 (c) Dave Jone
+s
+>  > Dec 20 18:20:47 oscar kernel: agpgart: Detected VIA MVP3 chipset
+>  > Dec 20 18:20:47 oscar kernel: agpgart: AGP aperture is 64M @ 0xe0000000
+>  > Dec 20 18:20:58 oscar kernel: [drm] Initialized mga 3.1.0 20021029 on mino
+r 0
+>  > Dec 20 18:20:58 oscar kernel: Module agpgart cannot be unloaded due to uns
+afe usage in drivers/char/ag
+>  > p/backend.c:58
+> 
+> This one is due to the way AGPGART does (or has done for the last 3
+> years) its module locking. It does a MOD_INC_USE_COUNT as soon as
+> someone calls the acquire routines.
 
-This could turn out to be OT, but here goes:
+Which is racy under SMP, and under preempt, which is why it's
+deprecated.
 
-I run a 2.4.20-ck2 kernel with low latency enabled but without
-preemptible support (my winmodem drivers don't support it.) It runs fine
-but intermittently it freezes, sometimes as often as every three hours
-or if i'm lucky it might remain up for about 6 hours.
+> (So you can't unload agpgart whilst you've a 3d using app (like X)
+> open).  This seems quite sensible, but these days you can't unload
+> agpgart.ko anyway because the chipset module (via-agp.ko in your
+> case) already has it 'in use', so I'm tempted to drop those bits.
 
-I tried a vanilla 2.4.20 kernel and it does not freeze at all. There is
-nothing in syslog that might show what is happening to the computer, no
-oops, no nothing. The hard drive runs in DMA mode.
+If this is true (it usually is), you can simply drop them.  There are
+other cases where the caller is not grabbing references, so
+MOD_INC_USE_COUNT is better than nothing (should the warning stay for
+2.6?  Good question).
 
-It froze even more often with 2.4.21-pre2.
-
-Could this be a hardware problem? I'm sure the board is not overheating
-(it is a laptop that is currently serving NAT.) This only started
-happening recently, and I'm not sure what the cause might be.
-
-Regards
--Josh
-
--- 
-Joshua Kwan
-joshk@mspencer.net
-pgp public key at http://joshk.mspencer.net/pubkey_gpg.asc
-
---=.cPJg/X9n.vERi/
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+BnB/6TRUxq22Mx4RAhiZAJ4vDnqcAXhrSqpxASDEu7XDuUJn5ACdGu8E
-yzrDOBw27S1VzJeyaAtRlWo=
-=lmSz
------END PGP SIGNATURE-----
-
---=.cPJg/X9n.vERi/--
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

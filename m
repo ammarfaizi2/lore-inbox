@@ -1,72 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUGWD1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267525AbUGWDnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267521AbUGWD1f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 23:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUGWD1f
+	id S267525AbUGWDnL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 23:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUGWDnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 23:27:35 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:55905 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267521AbUGWD12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 23:27:28 -0400
-Message-ID: <4100859C.9060409@yahoo.com.au>
-Date: Fri, 23 Jul 2004 13:27:24 +1000
+	Thu, 22 Jul 2004 23:43:11 -0400
+Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:28558 "HELO
+	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267525AbUGWDnJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 23:43:09 -0400
+Message-ID: <41008949.7010400@yahoo.com.au>
+Date: Fri, 23 Jul 2004 13:43:05 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Dimitri Sivanich <sivanich@sgi.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch for isolated scheduler domains
-References: <20040722164126.GB13189@sgi.com> <20040722175459.GA30059@elte.hu>
-In-Reply-To: <20040722175459.GA30059@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+CC: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [VM PATCH 2.6.8-rc1] Prevent excessive scanning of lower zone
+References: <20040723014052.69937.qmail@web12826.mail.yahoo.com> <20040722220701.7de4c31f.akpm@osdl.org>
+In-Reply-To: <20040722220701.7de4c31f.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Dimitri Sivanich <sivanich@sgi.com> wrote:
+Andrew Morton wrote:
+> Shantanu Goel <sgoel01@yahoo.com> wrote:
 > 
-> 
->>I'm interested in implementing something I'll call isolated sched
->>domains for single cpus (to minimize the latencies involved when doing
->>things like load balancing on certain select cpus) on IA64.
->>
->>Below I've included an initial patch to illustrate what I'd like to
->>do.  I know there's been mention of 'platform specific work' in the
->>area of sched domains. This patch only addresses IA64, but could be
->>made generic as well.  The code is derived directly from the current
->>default arch_init_sched_domains code.
-> 
-> 
-> it looks good to me - and i'd suggest to put it into sched.c. Every
-> architecture benefits from the ability to define isolated CPUs.
+>>I emailed this a few weeks back to the list but it
+>>seems to have gotten lost...
 > 
 
-Cool. Have you actually tried running it? With Ingo's correction, it
-should work fine but I don't think anyone has tested this.
+I think your total_reclaimed fix is correct. I sent the same one to Andrew
+a while ago, but I'm not sure if he picked it up.
 
-> One minor nit wrt. this line:
-> 
-> +               cpu_sd->flags &= ~(SD_BALANCE_NEWIDLE | SD_BALANCE_EXEC |
-> + SD_BALANCE_CLONE);  /* Probably redundant */
-> 
-> i'd suggest to set it to 0. You dont want WAKE_AFFINE nor WAKE_BALANCE
-> to move your tasks out of the isolated domain.
-> 
-> 
->>- Assuming boot time configuration is appropriate ('isolcpus=' in my example),
->>  is allowing boot time configuration of only completely isolated cpus
->>  focusing too narrowly on this one concept, or should a boot time
->>  configuration allow for a broader array of configurations, or would other
->>  types of sched domain configurations be addressed separately?
-> 
-> 
-> i'd prefer to go with this simple solution and wait for actual usage
-> patterns to materialize. If it becomes popular we can define a syscall
-> to configure the domain hierarchy (maybe even the parameters) runtime.
-> 
-
-Seconded.
+The sc->nr_to_reclaim fix I guess is alright but a bit ugly. Setting
+nr_to_reclaim it in try_to_free_pages and balance_pgdat is what I'm doing
+now, but that requires teaching balance_pgdat about the lower zone protection
+and takes a little more work.

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265169AbSJWTfd>; Wed, 23 Oct 2002 15:35:33 -0400
+	id <S265177AbSJWTkk>; Wed, 23 Oct 2002 15:40:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265170AbSJWTfd>; Wed, 23 Oct 2002 15:35:33 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:46830 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S265169AbSJWTfd>; Wed, 23 Oct 2002 15:35:33 -0400
-Message-Id: <5.1.0.14.2.20021023123707.09b5b168@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 23 Oct 2002 12:41:15 -0700
-To: jamal <hadi@cyberus.ca>, David Woodhouse <dwmw2@infradead.org>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: rtnetlink interface state monitoring problems. 
-Cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-In-Reply-To: <Pine.GSO.4.30.0210222055170.24323-100000@shell.cyberus.ca>
-References: <24818.1035226670@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S265178AbSJWTkj>; Wed, 23 Oct 2002 15:40:39 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48133 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265177AbSJWTki>; Wed, 23 Oct 2002 15:40:38 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: One for the Security Guru's
+Date: 23 Oct 2002 12:46:22 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ap6uae$4l8$1@cesium.transmeta.com>
+References: <ap6idh$1pj$1@forge.intermeta.de> <Pine.LNX.4.44.0210230954270.17668-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jamal,
-
->> But Bluetooth devices are not network devices, it seems. There exists no
->> current mechanism for notifying anyone of state changes. Should we invent a
->> new method of notification using netlink, or should Bluetooth interfaces in
->> fact be normal network devices just like IrDA devices are?
->>
+Followup to:  <Pine.LNX.4.44.0210230954270.17668-100000@dlang.diginsite.com>
+By author:    David Lang <david.lang@digitalinsight.com>
+In newsgroup: linux.dev.kernel
 >
->I think the only time you should go netdev is when it makes sense to run IP. 
-Totally agree.
+> yes someone who has root can get the effect of modules by patching
+> /dev/kmem directly so eliminating module support does not eliminate all
+> risk.
+> 
+> it does however eliminate the use of the rootkits that use kernel modules.
+> 
+> you need to decide if the advantages of useing modules are worth it for
+> your situation.
+> 
 
->Is there IP over bluttooth? 
-Yep. It's called BNEP (Bluetooth Network Encapsulation Protocol) which is bascially
-an Ethernet emulation. That thing is the netdev of course.
+One thing about all of this that matters is the following:
 
->Then you could take advantage of all the nice features provided by netdevices (other 
->than being IP devices;->).
->If not, it probably time for someone to write a generic notification
->scheme via netlink.
-Might be interesting.
+It's not about how secure your system is.
 
-Max
+It's about how smart/well equipped/patient the attacker needs to be
+*once they have already broken into your system*.
 
+I recently had one of my machines broken into, but the service in
+question was not running as root, and the attacker wasn't able to find
+any privilege-escalation bugs on my system.  I found a whole
+collection of attempted security violations in a directory in /tmp,
+and a daemon (called "bind" -- not "named") had been installed to get
+access to my system again.  Needless to say, I cleaned that stuff up,
+and also got a close look at the rootkit.
+
+Since my machine hadn't succumbed to the rootkit, it seems the
+attacker had simply moved on.  Most of these kinds of attacks are
+actually automated these days, unless you're a high-value site for
+them.
+
+The kernel module, and/or replacing common user tools like ps, are
+usually about trying to hide the existence of whatever
+intrusion-installed software there is.  It really helps more on
+"springboard" site than sites that are the genuine attack targets.
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288936AbSBZPt1>; Tue, 26 Feb 2002 10:49:27 -0500
+	id <S288953AbSBZQFd>; Tue, 26 Feb 2002 11:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289114AbSBZPtR>; Tue, 26 Feb 2002 10:49:17 -0500
-Received: from tolkor.sgi.com ([192.48.180.13]:43240 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S288936AbSBZPtI>;
-	Tue, 26 Feb 2002 10:49:08 -0500
-Subject: Re: linux-2.5.5-xfs-dj1 troubles (raid0_make_request bug)
-From: Steve Lord <lord@sgi.com>
-To: svetljo <galia@st-peter.stw.uni-erlangen.de>
-Cc: linux-xfs@oss.sgi.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Jens Axboe <axboe@suse.de>
-In-Reply-To: <3C7B6FDE.4090308@st-peter.stw.uni-erlangen.de>
-In-Reply-To: <3C7B6FDE.4090308@st-peter.stw.uni-erlangen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 26 Feb 2002 09:44:42 -0600
-Message-Id: <1014738282.5993.2.camel@jen.americas.sgi.com>
+	id <S290823AbSBZQFO>; Tue, 26 Feb 2002 11:05:14 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:48637
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S288953AbSBZQFL>; Tue, 26 Feb 2002 11:05:11 -0500
+Date: Tue, 26 Feb 2002 08:05:44 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+Message-ID: <20020226160544.GD4393@matchmail.com>
+Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <fa.n4lfl6v.h4chor@ifi.uio.no> <05cb01c1be1e$c490ba00$1a01a8c0@allyourbase> <20020225172048.GV20060@matchmail.com> <02022518330103.01161@grumpersII> <a5f7s4$2o1$1@cesium.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a5f7s4$2o1$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-02-26 at 05:22, svetljo wrote:
-> Hi
-> i'd like to ask you to CC me because i'm not subscribed to the lists
+On Mon, Feb 25, 2002 at 09:53:08PM -0800, H. Peter Anvin wrote:
+> Followup to:  <02022518330103.01161@grumpersII>
+> By author:    Tom Rauschenbach <tom@rauschenbach.mv.com>
+> In newsgroup: linux.dev.kernel
+> >
+> > On Monday 25 February 2002 12:20, Mike Fedyk wrote:
+> > > On Mon, Feb 25, 2002 at 12:06:29PM -0500, Dan Maas wrote:
+> > > > > but I don't want a Netware filesystem running on Linux, I
+> > > > > want a *native* Linux filesystem (i.e. ext3) that has the
+> > > > > ability to queue deleted files should I configure it to.
+> > > >
+> > > > Rather than implementing this in the filesystem itself, I'd first try
+> > > > writing a libc shim that overrides unlink(). You could copy files to
+> > > > safety, or do anything else you want, before they actually get deleted...
+> > >
+> > > Yep, more portable.
+> > 
+> > But it only works if everything get linked with the new library.
+> > 
 > 
-> i'm having some interesting troubles
-> i have lvm over soft RAID-0 with LV's formated with XFS and JFS
-> i can work with the JFS LV's,
->  but i can not with the XFS one's, i can not mount them ( no troubles 
-> with XFS normal partitions)
-> 
-> so
-> i'd like to ask is this problem with XFS or with raid or lvm
-> and is there a way to fix it
-> 
-> thanks for your help
-> 
-> here is what i found in dmesg
-> 
+> What's a lot worse is that the kernel cannot chose to garbage-collect
+> it.  One reason to put undelete in the kernel is that that files in
+> limbo can be reclaimed as the disk space is needed for other users,
+> and you don't risk getting ENOSPC due to the disk being full with
+> ghosts.
+>
 
-> 
-> XFS mounting filesystem lvm(58,2)
-> raid0_make_request bug: can't convert block across chunks or bigger than 
-> 16k 8323317 64
-> raid0_make_request bug: can't convert block across chunks or bigger than 
-> 16k 8323445 64
-> I/O error in filesystem ("lvm(58,2)") meta-data dev 0xc0223a02 block 
-> 0x601f7d
->        ("xlog_bread") error 5 buf count 131072
-> raid0_make_request bug: can't convert block across chunks or bigger than 
-> 16k 8324829 29
-> I/O error in filesystem ("lvm(58,2)") meta-data dev 0xc0223a02 block 
-> 0x602565
->        ("xlog_bread") error 5 buf count 30208
+True, and it could to tricks like listing space used for undelete as "free"
+in addition to dynamic garbage collection.
 
-XFS is sending a 64K request down to the driver, and raid0 is bouncing
-it as too large. Jens, I thought you said requests which were too large
-for underlying layers would get chopped up?
+Though, with a daemon checking the dirs often, or using Daniel's idea of a
+socket between unlink() in glibc and an undelete daemon could work quite
+similairly.
 
-Steve
+Also, there wouldn't be any interaction with filesystem internals, and
+userspace would probably work better with non-posix type filesystems (vfat,
+hfs, etc) too.
 
--- 
+IOW, there seems to be little gain to having an kernelspace solution.
 
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+Mike

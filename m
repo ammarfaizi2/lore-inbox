@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319346AbSH2U5A>; Thu, 29 Aug 2002 16:57:00 -0400
+	id <S319378AbSH2VEf>; Thu, 29 Aug 2002 17:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319352AbSH2U5A>; Thu, 29 Aug 2002 16:57:00 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:1806 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S319346AbSH2U46>; Thu, 29 Aug 2002 16:56:58 -0400
-Message-ID: <3D6E8B25.425263D5@zip.com.au>
-Date: Thu, 29 Aug 2002 13:59:17 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] low-latency zap_page_range()
-References: <3D6E844C.4E756D10@zip.com.au> <1030653602.939.2677.camel@phantasy>
+	id <S319380AbSH2VEe>; Thu, 29 Aug 2002 17:04:34 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:15502 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319378AbSH2VEd>;
+	Thu, 29 Aug 2002 17:04:33 -0400
+Date: Thu, 29 Aug 2002 23:08:41 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard freezes on SIS630 based Clevo notebooks
+Message-ID: <20020829230841.B4175@ucw.cz>
+References: <20020829190533.GA11223@informatik.uni-bremen.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020829190533.GA11223@informatik.uni-bremen.de>; from jmm@informatik.uni-bremen.de on Thu, Aug 29, 2002 at 09:05:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+On Thu, Aug 29, 2002 at 09:05:33PM +0200, Moritz Muehlenhoff wrote:
+
+> Hi,
+> I own a SIS630 based notebook from Baycom (model name "Worldbook II"), which
+> indeed is a rebrand from a Clevo/Kapok model (normal model name 2700C).
 > 
-> ...
-> unless we
-> wanted to unconditionally drop the locks and let preempt just do the
-> right thing and also reduce SMP lock contention in the SMP case.
+> I'm experiencing occasional, unreproducable keyboard lockups. No keyboard
+> input at all is accepted while the machine itself continues to work
+> properly (processes continue to write to stdout and I can login and 
+> continue to work through SSH). The freezes occur approx. at least once
+> a week and sometimes three times a day, so there's no real pattern behind
+> it.
+> 
+> A friend of mine owns the same model and the same problems occur; I also
+> found a website stating the same problems on it; so it's of general nature
+> and not specific to my hardware. I didn't find any information about these
+> freezes running Windows, so I guess it's Linux-kernel specific and not a sole
+> hardware issue.
+> 
+> The system freezed on all kinds of kernel, either 2.4 and 2.5, either
+> vanilla and heavily patched.
+> 
+> So, the big question: Which data would I need to collect on the next freeze
+> that would allow an experienced kernel hacker to track down the problem?
+> 
+> This nasty bug is the only thing in the way to a perfect Linux notebook,
+> everything else works just perfect.
 
-That's an interesting point.  page_table_lock is one of those locks
-which is occasionally held for ages, and frequently held for a short
-time.
+If it freezes with 2.5.32 (or better the latest BK tree), then #define
+I8042_DEBUG_DATA in drivers/input/serio/i8042.h and send me the log of
+the last i8042 data before the freeze. 
 
-I suspect that yes, voluntarily popping the lock during the long holdtimes
-will allow other CPUs to get on with stuff, and will provide efficiency
-increases.  (It's a pretty lame way of doing that though).
-
-But I don't recall seeing nasty page_table_lock spintimes on
-anyone's lockmeter reports, so...
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262396AbSJISdr>; Wed, 9 Oct 2002 14:33:47 -0400
+	id <S262292AbSJISZk>; Wed, 9 Oct 2002 14:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262399AbSJISdr>; Wed, 9 Oct 2002 14:33:47 -0400
-Received: from blueberrysolutions.com ([195.165.170.195]:7061 "EHLO
-	blueberrysolutions.com") by vger.kernel.org with ESMTP
-	id <S262396AbSJISdp>; Wed, 9 Oct 2002 14:33:45 -0400
-Date: Wed, 9 Oct 2002 21:39:18 +0300 (EEST)
-From: Tony Glader <Tony.Glader@blueberrysolutions.com>
-X-X-Sender: teg@blueberrysolutions.com
-To: Chris Wright <chris@wirex.com>
-cc: linux-kernel@vger.kernel.org
+	id <S262293AbSJISZk>; Wed, 9 Oct 2002 14:25:40 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:50427 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S262292AbSJISZf>; Wed, 9 Oct 2002 14:25:35 -0400
+Date: Wed, 9 Oct 2002 11:22:54 -0700
+From: Chris Wright <chris@wirex.com>
+To: Tony Glader <Tony.Glader@blueberrysolutions.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: capable()-function
-In-Reply-To: <20021009112254.A25393@figure1.int.wirex.com>
-Message-ID: <Pine.LNX.4.44.0210092135240.411-100000@blueberrysolutions.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021009112254.A25393@figure1.int.wirex.com>
+Mail-Followup-To: Tony Glader <Tony.Glader@blueberrysolutions.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210091046230.30467-100000@blueberrysolutions.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0210091046230.30467-100000@blueberrysolutions.com>; from Tony.Glader@blueberrysolutions.com on Wed, Oct 09, 2002 at 10:51:50AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, Chris Wright wrote:
+* Tony Glader (Tony.Glader@blueberrysolutions.com) wrote:
+> Hi!
+> 
+> I was investigating problems with PCMCIA and found that
+> capable(CAP_SYS_ADMIN) returns always false in my case. If I'm calling
+> capable(CAP_SYS_ADMIN) as root - shouldn't it return true? What could
+> cause this? I'm using RH 8.0 and src-rpm of 2.4.18-14 kernel.
 
-> > I was investigating problems with PCMCIA and found that
-> > capable(CAP_SYS_ADMIN) returns always false in my case. If I'm calling
-> Typically root has all effective capabilities (except CAP_SETPCAP).
-> You can check your effective capabilities in /proc/[pid]/status.
+Well, it will return true if you _have_ CAP_SYS_ADMIN capability.
+Typically root has all effective capabilities (except CAP_SETPCAP).
+You can check your effective capabilities in /proc/[pid]/status.
+I doubt your system can't get a process with CAP_SYS_ADMIN, you'd have
+trouble mounting filesystems, etc... 
 
-In this case capable() call has been made from a kernel module. I think a
-module doesn't have a PID? Should I check capabilites of program that does
-a ioctl() call that will cause module to do capable() checking?
-
-Process that does ioctl() call is owned by root and has following 
-capabilities:
-
-CapInh: 0000000000000000
-CapPrm: 00000000fffffeff
-CapEff: 00000000fffffeff
- 
-I think there are at least CAP_SYS_ADMIN capability.
-
+thanks,
+-chris
 -- 
-* Tony Glader 
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

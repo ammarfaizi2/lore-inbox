@@ -1,88 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319085AbSH2DVd>; Wed, 28 Aug 2002 23:21:33 -0400
+	id <S319087AbSH2Dpx>; Wed, 28 Aug 2002 23:45:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319087AbSH2DVd>; Wed, 28 Aug 2002 23:21:33 -0400
-Received: from crack.them.org ([65.125.64.184]:56836 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S319085AbSH2DVc>;
-	Wed, 28 Aug 2002 23:21:32 -0400
-Date: Wed, 28 Aug 2002 23:26:42 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: junkio@cox.net, linux-kernel@vger.kernel.org,
-       Keith Owens <kaos@ocs.com.au>
-Subject: Re: [TRIVIAL] strlen("literal string") -> (sizeof("literal string")-1)
-Message-ID: <20020829032642.GA9201@nevyn.them.org>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>, junkio@cox.net,
-	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-References: <200208282131.g7SLVVGx024191@siamese.dyndns.org> <20020828221716.2C1D12C0E8@lists.samba.org>
+	id <S319090AbSH2Dpx>; Wed, 28 Aug 2002 23:45:53 -0400
+Received: from holomorphy.com ([66.224.33.161]:39809 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S319087AbSH2Dpv>;
+	Wed, 28 Aug 2002 23:45:51 -0400
+Date: Wed, 28 Aug 2002 20:49:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] adjustments to dirty memory thresholds
+Message-ID: <20020829034957.GE878@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3D6C53ED.32044CAD@zip.com.au> <20020828200857.GB888@holomorphy.com> <3D6D3216.D472CBC3@zip.com.au> <20020828214243.GC888@holomorphy.com> <3D6D477C.F5116BA7@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020828221716.2C1D12C0E8@lists.samba.org>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <3D6D477C.F5116BA7@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 01:09:05PM +1000, Rusty Russell wrote:
-> In message <200208282131.g7SLVVGx024191@siamese.dyndns.org> you write:
-> > Here is a patch that does the same as what Keith Owens did in
-> > his patch recently.
-> > 
-> >     Message-ID: <fa.iks3ohv.1flge08@ifi.uio.no>
-> >     From: Keith Owens <kaos@ocs.com.au>
-> >     Subject: [patch] 2.4.19 Generate better code for nfs_sillyrename
-> >     Date: Wed, 28 Aug 2002 07:08:17 GMT
-> > 
-> >     Using strlen() generates an unnecessary inline function expansion plus
-> >     dynamic stack adjustment.  For constant strings, strlen() == sizeof()-1
-> >     and the object code is better.
-> 
-> Disagree.  If you really care make strlen use __builtin_constant_p().
-> Then authors don't have to sacrifice readability.
-> 
-> #define strlen(x) (__builtin_constant_p(x) ? sizeof(x)-1 : __strlen(x))
+William Lee Irwin III wrote:
+>> I've already written the patch to address it, though of course, I can
+>> post those traces along with the patch once it's rediffed. (It's trivial
+>> though -- just a fresh GFP flag and a check for it before calling
+>> out_of_memory(), setting it in mempool_alloc(), and ignoring it in
+>> slab.c.) It requires several rounds of "un-throttling" to reproduce
+>> the OOM's, the nature of which I've outlined elsewhere.
 
-Also disagree; besides, the evidence implies that Keith is wrong.  GCC
-2.95.3:
+On Wed, Aug 28, 2002 at 02:58:20PM -0700, Andrew Morton wrote:
+> That's a sane approach.  mempool_alloc() is designed for allocations
+> which "must" succeed if you wait long enough.
+> In fact it might make sense to only perform a single scan of the
+> LRU if __GFP_WLI is set, rather than the increasing priority thing.
+> But sigh.  Pointlessly scanning zillions of dirty pages and doing nothing
+> with them is dumb.  So much better to go for a FIFO snooze on a per-zone
+> waitqueue, be woken when some memory has been cleansed.  (That's effectively
+> what mempool does, but it's all private and different).
 
-drow@nevyn:~% cat strlen.c
-int foo() { return strlen ("baz"); }
-int bar() { return sizeof ("baz") - 1; }
-drow@nevyn:~% cat strlen.s
-        .file   "strlen.c"
-        .version        "01.01"
-gcc2_compiled.:
-.text
-        .align 4
-.globl foo
-        .type    foo,@function
-foo:
-        pushl %ebp
-        movl %esp,%ebp
-        movl $3,%eax
-        leave
-        ret
-.Lfe1:
-        .size    foo,.Lfe1-foo
-        .align 4
-.globl bar
-        .type    bar,@function
-bar:
-        pushl %ebp
-        movl %esp,%ebp
-        movl $3,%eax
-        leave
-        ret
-.Lfe2:
-        .size    bar,.Lfe2-bar
-        .ident  "GCC: (GNU) 2.95.4 20011002 (Debian prerelease)"
+Here's a stab in that direction, against 2.5.31. A trivially different
+patch was tested and verified to solve the problems in practice. A
+theoretical deadlock remains where a mempool allocator sleeps on general
+purpose memory and is not woken when the mempool is replenished.
 
-3.2 does the same thing.  With -fomit-frame-pointer the results are as
-expected, just a move and a return.
 
-If you include headers that define strlen, that's another problem.
+Cheers,
+Bill
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+
+diff -urN linux-2.5.31-virgin/include/linux/gfp.h linux-2.5.31-nokill/include/linux/gfp.h
+--- linux-2.5.31-virgin/include/linux/gfp.h	2002-08-10 18:41:24.000000000 -0700
++++ linux-2.5.31-nokill/include/linux/gfp.h	2002-08-28 02:22:55.000000000 -0700
+@@ -17,6 +17,7 @@
+ #define __GFP_IO	0x40	/* Can start low memory physical IO? */
+ #define __GFP_HIGHIO	0x80	/* Can start high mem physical IO? */
+ #define __GFP_FS	0x100	/* Can call down to low-level FS? */
++#define __GFP_NOKILL	0x200	/* Should not OOM kill */
+ 
+ #define GFP_NOHIGHIO	(             __GFP_WAIT | __GFP_IO)
+ #define GFP_NOIO	(             __GFP_WAIT)
+diff -urN linux-2.5.31-virgin/include/linux/slab.h linux-2.5.31-nokill/include/linux/slab.h
+--- linux-2.5.31-virgin/include/linux/slab.h	2002-08-10 18:41:28.000000000 -0700
++++ linux-2.5.31-nokill/include/linux/slab.h	2002-08-28 02:22:55.000000000 -0700
+@@ -24,7 +24,7 @@
+ #define	SLAB_NFS		GFP_NFS
+ #define	SLAB_DMA		GFP_DMA
+ 
+-#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_HIGHIO|__GFP_FS)
++#define SLAB_LEVEL_MASK		(__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_HIGHIO|__GFP_FS|__GFP_NOKILL)
+ #define	SLAB_NO_GROW		0x00001000UL	/* don't grow a cache */
+ 
+ /* flags to pass to kmem_cache_create().
+diff -urN linux-2.5.31-virgin/mm/mempool.c linux-2.5.31-nokill/mm/mempool.c
+--- linux-2.5.31-virgin/mm/mempool.c	2002-08-10 18:41:19.000000000 -0700
++++ linux-2.5.31-nokill/mm/mempool.c	2002-08-28 02:22:55.000000000 -0700
+@@ -186,7 +186,11 @@
+ 	unsigned long flags;
+ 	int curr_nr;
+ 	DECLARE_WAITQUEUE(wait, current);
+-	int gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
++	int gfp_nowait;
++
++	gfp_mask |= __GFP_NOKILL;
++
++	gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO | __GFP_NOKILL);
+ 
+ repeat_alloc:
+ 	element = pool->alloc(gfp_nowait, pool->pool_data);
+diff -urN linux-2.5.31-virgin/mm/vmscan.c linux-2.5.31-nokill/mm/vmscan.c
+--- linux-2.5.31-virgin/mm/vmscan.c	2002-08-10 18:41:21.000000000 -0700
++++ linux-2.5.31-nokill/mm/vmscan.c	2002-08-28 03:17:15.000000000 -0700
+@@ -401,23 +401,24 @@
+ 
+ int try_to_free_pages(zone_t *classzone, unsigned int gfp_mask, unsigned int order)
+ {
+-	int priority = DEF_PRIORITY;
+-	int nr_pages = SWAP_CLUSTER_MAX;
++	int priority, status, nr_pages = SWAP_CLUSTER_MAX;
+ 
+ 	KERNEL_STAT_INC(pageoutrun);
+ 
+-	do {
++	for (priority = DEF_PRIORITY; priority; --priority) {
+ 		nr_pages = shrink_caches(classzone, priority, gfp_mask, nr_pages);
+-		if (nr_pages <= 0)
+-			return 1;
+-	} while (--priority);
++		status = (nr_pages <= 0) ? 1 : 0;
++		if (status || (gfp_mask & __GFP_NOKILL))
++			goto out;
++	}
+ 
+ 	/*
+ 	 * Hmm.. Cache shrink failed - time to kill something?
+ 	 * Mhwahahhaha! This is the part I really like. Giggle.
+ 	 */
+ 	out_of_memory();
+-	return 0;
++out:
++	return status;
+ }
+ 
+ DECLARE_WAIT_QUEUE_HEAD(kswapd_wait);

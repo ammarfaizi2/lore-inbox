@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbTBBWWV>; Sun, 2 Feb 2003 17:22:21 -0500
+	id <S265700AbTBBWav>; Sun, 2 Feb 2003 17:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbTBBWWV>; Sun, 2 Feb 2003 17:22:21 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6404 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265675AbTBBWWU>;
-	Sun, 2 Feb 2003 17:22:20 -0500
-Date: Sun, 2 Feb 2003 23:30:09 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: Compactflash cards dying?
-Message-ID: <20030202223009.GA344@elf.ucw.cz>
+	id <S265708AbTBBWav>; Sun, 2 Feb 2003 17:30:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41476 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265700AbTBBWau>; Sun, 2 Feb 2003 17:30:50 -0500
+Date: Sun, 2 Feb 2003 22:40:18 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: b_adlakha@softhome.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what all has changed in ppp?
+Message-ID: <20030202224018.A5478@flint.arm.linux.org.uk>
+Mail-Followup-To: b_adlakha@softhome.net, linux-kernel@vger.kernel.org
+References: <courier.3E3D59B9.00006CAD@softhome.net> <20030202185836.B32007@flint.arm.linux.org.uk> <courier.3E3D86F1.00001BF0@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <courier.3E3D86F1.00001BF0@softhome.net>; from b_adlakha@softhome.net on Sun, Feb 02, 2003 at 02:00:33PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Feb 02, 2003 at 02:00:33PM -0700, b_adlakha@softhome.net wrote:
+> Oh yes, sorry I forgot, module tty_ldisk3 cannot be found, so ppp dies with 
+> exit status 1...
+> I didn't think ppp needs anything other than ppp_generic, the serial driver 
+> for ppp and the compression modules...
+> What is tty_ldisk3? could you help me on this? 
 
-I had compactflash from Apacer (256MB), and it started corrupting data
-in few months, eventually becoming useless and being given back for
-repair. They gave me another one and it is just starting to corrupt
-data.
+It's the ppp line discipline.  Add to /etc/modules.conf:
 
-First time I repartitioned it; now I only did mke2fs, and data
-corruption can be seen by something as simple as
+alias tty-ldisc-3 ppp_async
 
-cat /mnt/cf/mp3/* > /mnt/cf/delme; md5sum /mnt/cf/delme.
-
-[Fails 1 in 5 tries].
-
-Anyone seen something similar? Are there some known-good
-compactflash-es?
-
-								Pavel
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262679AbTKPKVI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 05:21:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTKPKVI
+	id S262655AbTKPKPk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 05:15:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTKPKPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 05:21:08 -0500
-Received: from evrtwa1-ar2-4-35-049-074.evrtwa1.dsl-verizon.net ([4.35.49.74]:35753
-	"EHLO grok.yi.org") by vger.kernel.org with ESMTP id S262679AbTKPKVG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 05:21:06 -0500
-Message-ID: <3FB74F87.1090100@candelatech.com>
-Date: Sun, 16 Nov 2003 02:20:55 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: azarah@nosferatu.za.org,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: Carrier detection for network interfaces
-References: <1068912989.5033.32.camel@nosferatu.lan> <3FB652BA.1010905@pobox.com>
-In-Reply-To: <3FB652BA.1010905@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 16 Nov 2003 05:15:40 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24595 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262655AbTKPKPj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 05:15:39 -0500
+Date: Sun, 16 Nov 2003 10:15:35 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Bootmem broke ARM
+Message-ID: <20031116101535.A592@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Martin Schlemmer wrote:
-> 
->> Is there any proper way to detect a carrier signal with network
->> interfaces ?  I have recently come across a problem where we tried
->> to do with with checking for 'RUNNING', which do not work for all
->> drivers, as well as mii-tool that fails in some cases.
-> 
-> 
-> 
-> What kernel version?
-> 
-> In 2.6 you have linkwatch.  In 2.4 and 2.6, you have ETHTOOL_GLINK, and 
-> mii-tool.
+Andrew & others,
 
-One thing to watch for, lots of drivers will not detect link
-if the interface itself is not configured to be running (UP).
-You can configure it up without an IP address of course...
+2.6 contains a change to init_bootmem_core() which now sorts the nodes
+according to their start pfn.  This change occurred in revision 1.20 of
+bootmem.c.  Unfortunately, this active sorting broke ARM discontig memory
+support.
 
-Ben
+With previous kernels, the nodes are added to the list in reverse order,
+so architecture code knew we had to add the highest PFN first and the
+lowest PFN node last.
+
+However, we now sort the nodes using node_start_pfn, which, at this point,
+will be uninitialised - the responsibility for initialising this field
+is with the generic code - in free_area_init_node() which occurs well
+after bootmem has been initialised.
+
+The result of this change is that we now add nodes to the tail of the
+pgdat list, which is the opposite way to 2.4.
+
+This causes problems for ARM because we need to use bootmem to initialise
+the kernels page tables, and we can only allocate these from node 0 - none
+of the other nodes are mapped into memory at this point.
+
+I, therefore, believe this change is bogus.  Can it be reverted please?
 
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

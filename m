@@ -1,97 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265985AbUFOWBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUFOWGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265985AbUFOWBX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 18:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbUFOWBX
+	id S265986AbUFOWGP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 18:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUFOWGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 18:01:23 -0400
-Received: from gw0.infiniconsys.com ([65.219.193.226]:41947 "EHLO
-	mail.infiniconsys.com") by vger.kernel.org with ESMTP
-	id S265985AbUFOWBU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 18:01:20 -0400
-From: "Fab Tillier" <ftillier@infiniconsys.com>
-To: "'Arthur Perry'" <kernel@linuxfarms.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: PCI bandwidth measurement methods
-Date: Tue, 15 Jun 2004 14:58:24 -0700
-Message-ID: <002201c45323$e2664350$655aa8c0@infiniconsys.com>
+	Tue, 15 Jun 2004 18:06:14 -0400
+Received: from hadar.amcc.com ([192.195.69.168]:47750 "EHLO hadar.amcc.com")
+	by vger.kernel.org with ESMTP id S265986AbUFOWGN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 18:06:13 -0400
+From: "Adam Radford" <aradford@amcc.com>
+To: Peter Maas <fedora@rooker.dyndns.org>, linux-kernel@vger.kernel.org
+Subject: RE: 3ware 9500S Drivers (mm kernel)
+Date: Tue, 15 Jun 2004 15:05:22 -0700
+Organization: AMCC
+X-Sent-Folder-Path: Sent Items
+X-Mailer: Oracle Connector for Outlook 9.0.4 51114 (9.0.6627)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-In-Reply-To: <Pine.LNX.4.58.0406151429200.30923@tiamat.perryconsulting.net>
-Importance: Normal
-X-OriginalArrivalTime: 15 Jun 2004 22:01:19.0823 (UTC) FILETIME=[49F975F0:01C45324]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <HZDEQB01.6HW@hadar.amcc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Arthur Perry [mailto:kernel@linuxfarms.com]
-> Sent: Tuesday, June 15, 2004 1:56 PM
-> 
-> Hello,
-> 
-> I have a question about methods of measuring PCI-X bandwidth.
-> I was wondering if anybody has any ideas.
-> What I am looking for is an "industry standard" method, if one exists.
-> At this point, such software does not exist in SPEC.
-> Different HBA cards such as Myricom and Mellanox (Myrinet and Infiniband
-> hosts) have utilitites to test your PCI bandwidth..
-> But what do you do when they come up with completely different numbers?
+Peter,
 
-There are many variables that will determine peak bandwidth for an I/O
-adapter.  The size of the I/O request as well as the number of I/O requests
-outstanding affect bandwidth.  The PCI commands used by the adapters to
-transfer the memory (burst length, etc) will change the amount of overhead
-for the different devices too.
+The 3ware management tools quit working when we removed the proc_name interface 
+during the re-write and created sysfs attributes.  We are modifying the 3ware
+management tools to use the sysfs interface for rescan's, etc.
 
-Unless mistaken, Myrinet PCI-X adapters operate at 2.5Gb full duplex per
-port, while the Mellanox 4x InfiniBand HCA operates at 10Gb full duplex per
-port.  From the HW characteristics, you should be able to get 4x the
-bandwidth out of the IB HCA (assuming linear scale-up and comparable HW
-operation), so that might explain your bandwidth discrepancy between the
-different HW.
+I am also working with Bruce Allen (smartmontools developer) to make the
+3w-9xxx driver work with smartmontools.  This shouldn't require any driver changes.
 
-Lastly, a PCI analyzer can be useful in seeing exactly what commands are
-used and how large a burst the different HW adapters are capable of, but
-that moves you out of pure SW benchmarking.
+-Adam
 
-> 
-> What I need is an unbiased, objective PCI-X bandwidth test.
-> It's all about performance in Linux actually... So I can't say "completely
-> objective"..
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Peter Maas
+Sent: Tuesday, June 15, 2004 2:05 PM
+To: linux-kernel@vger.kernel.org
+Subject: 3ware 9500S Drivers (mm kernel)
 
-You don't need a single test.  What you need is to control what each test
-does.  Same size I/O, same number of outstanding requests, etc.  If you have
-that, you should be able to compare.
 
-> 
-> I can write software that will do this, possibly by performing PCI
-> writes to scratch memory area on several different HBAs..
+I've been using the 3ware 9500 drivers in the mm kernel for a while now
+without any problems, this is on a dual opteron with a 9500S-12 controller
+with 6 disk formatted as a raid-5. Are these going to be included in the
+vanilla kernel soon?
 
-PCI writes to HBA attached memory may not use the same PCI commands as I/O
-DMA, and thus might lead to totally different results.
+My only complaints with the drivers are that smartctl doesnt work with them
+(fedora core 2), and the 3ware management tools from the 3ware cd wont work
+with the mm drivers (wont detect controller).
 
-> Or maybe adding a counter into the Linux PCI device driver to verify the
-> bandwidth claims that Mellanox and Myricom's tools report.
-> But before I re-invent the wheel, I was wondering if anybody knew of
-> anything that is already out there.
+Thanks
 
-Things like MPI benchmarks should do the trick, since only the underlying HW
-provider changes.  I'm assuming you can get MPI on top of Myrinet.
+Peter Maas
 
-> If I were to write something, a whole software validation process would
-> have to be performed on top of the actual work.
-> If anybody knows of something that already exists and has been in use, it
-> would be ideal.
-
-Give MPI benchmarks a try.
-
-Good luck,
-
-- Fab
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

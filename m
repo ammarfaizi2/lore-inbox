@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264281AbTEGVdA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 17:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbTEGVdA
+	id S264272AbTEGVcR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 17:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTEGVcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 17:33:00 -0400
-Received: from mail.hometree.net ([212.34.181.120]:49348 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S264281AbTEGVc5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 17:32:57 -0400
+	Wed, 7 May 2003 17:32:17 -0400
+Received: from pragmatix.bangor.ac.uk ([147.143.2.14]:22520 "EHLO
+	pragmatix.bangor.ac.uk") by vger.kernel.org with ESMTP
+	id S264272AbTEGVcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 17:32:15 -0400
+Message-ID: <3EB97E97.6000903@bangor.ac.uk>
+Date: Wed, 07 May 2003 22:45:59 +0100
+From: =?ISO-8859-15?Q?Christer_B=E4ckstr=F6m?= <chp802@bangor.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [PATCH] 2.5 ide 48-bit usage
-Date: Wed, 7 May 2003 21:45:31 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b9bupr$jkm$2@tangens.hometree.net>
-References: <20030507084920.GA823@suse.de> <Pine.LNX.4.44.0305070915470.2726-100000@home.transmeta.com> <20030507164613.GN823@suse.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1052343931 20118 212.34.181.4 (7 May 2003 21:45:31 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 7 May 2003 21:45:31 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+Subject: 2.4.21-rc1 freezes caused by rtc driver? 
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: nid sbam/not spam (goddefadwy/whitelisted),
+	SpamAssassin (sgor/score=-12.2, yn ofynnol/required 4.5, BAYES_01,
+	FROM_ENDS_IN_NUMS, USER_AGENT_MOZILLA_UA)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+The hangs/freezes that has been reported with 2.4.21-rc1 seems to be due 
+to the changes to the rtc driver. At least on my Athlon/Ali Aladdin IV 
+Laptop. I haven't backed out the changes to the drivers between 
+2.4.21-pre7 and rc1 yet, but I've had no further problems after I 
+disabled the rtc. (Or before 2.4.21-rc1). Cheers,
 
->I dunno what the purpose of that would be exactly, I guess to cater to
->some hardware odditites?
+/Chris
 
-Wild guess: You can use larger transfer sizes with the 48 bit
-interface, even when adressing the lower 28 bit space?
-
-This might be a win for applications that stream large contigous
-blocks from/to a HD (Video, Audio...)
-
-	Regards
-		Henning
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire

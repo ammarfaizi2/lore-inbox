@@ -1,84 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264962AbTLKSfT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 13:35:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTLKSfT
+	id S265113AbTLKShg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 13:37:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbTLKShg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 13:35:19 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:62864 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S264962AbTLKSfL
+	Thu, 11 Dec 2003 13:37:36 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:18140 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S265113AbTLKShc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 13:35:11 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Subject: Re: Increasing HZ (patch for HZ > 1000)
-Date: Thu, 11 Dec 2003 13:35:08 -0500
-User-Agent: KMail/1.5.1
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1071122742.5149.12.camel@idefix.homelinux.org> <200312111218.35254.gene.heskett@verizon.net> <1316960000.1071164020@[10.10.2.4]>
-In-Reply-To: <1316960000.1071164020@[10.10.2.4]>
+	Thu, 11 Dec 2003 13:37:32 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Robin Rosenberg" <roro.l@dewire.com>, "Larry McVoy" <lm@bitmover.com>,
+       "Kendall Bennett" <KendallB@scitechsoft.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Thu, 11 Dec 2003 10:37:22 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEKNIKAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312111335.08729.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.60.44] at Thu, 11 Dec 2003 12:35:10 -0600
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <200312111844.03839.roro.l@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 December 2003 12:33, Martin J. Bligh wrote:
->> Hardware indeed.  I'm a Certified Electronics Technician.  Have
->> someone check all those electrolyric caps in the on-board psu in
->> particular, using a device similar to a "Capacitor Wizard" which
->> measures not the capacity of the cap, but the caps Equivalent
->> Series Resistance (ESR) at 100 kilohertz or more.  Anything over
->> half an ohm should be replaced forthwith.  This assumes of course
->> that your tech in charge of hot solder has the tools to do it
->> correctly.  If not, find one who does have the tools.
->>
->> Many mobos in a period ranging from about 2.5 to 1.5 years ago
->> were built with caps that go defective prematurely due to a bad
->> batch of them from several far eastern cap makers who were fed a
->> bad recipe for the electrolyte in the caps, eg the Ethylene Glycol
->> wasn't near pure enough.
+
+> If EXPORT_GPL is changed as a means of protecting the copyright,
+> i..e. provide
+> source code access. then doesn't this "mechanism" fall under the
+> infamous DMCA,
+> i.e. you're not allowed to even think about circumventing it...
 >
->When you say "fed a bad recipe", didn't they actually steal it? Or
->is that just an urban legend?
->
->M.
+> -- robin
 
-Well, I *was* trying to be nice<vsg>.  I'd made the assumption that 
-the supplier was the one doing the stealing, and that they (the cap 
-makers as buyers of this cheaper than usual product) were not 100% 
-aware of the problems at the time.  Yes, I've read the story, and the 
-history of capacitor failures over the last 2 years does seem to lend 
-considerable credance to the story.  When you are a CET, doing 
-component level repairs for a living for the last 50 some years, some 
-things do get your attention, and poor life of capacitors has long 
-since become the single leading failure of things electronic, 
-recently by a factor measured in magnitudes over anything else, like 
-bad semiconductors.  Thats been the tend for the last 10 years in 
-fact.  Poor lubrication of things basicly mechanical like electrical 
-switches is now second on the list, with a lot of white space between 
-them.
+	This was already discussed to death.
 
-The windshield wiper speed switch in your car being a prime example of 
-that 2nd type of failure.  If it hasn't miss-behaved, it will.  Pull 
-the knob off the end of the stalk and remove the super sticky syrupy 
-grease there and replace it with lubriplate, end of problem, probably 
-forever.  Certainly for as long as you'll own it.  Your trivia fact 
-for the day :-)
+	If EXPORT_GPL were a copyright enforcement mechanism, it could not add any
+restrictions not already present in the GPL because the GPL prohibits
+additional restrictions. So either EXPORT_GPL is not a copyright enforcement
+mechanism (in which case the DMCA doesn't prohibit removing or circumventing
+it), or it only enforces technically restrictions that are already in effect
+legally. So this would only matter to someone who said, "I'm going to
+violate the GPL, what might happen?"
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+	Interestingly, even if it is a copyright enforcement mechanism and even if
+it only enforces the GPL's actual terms, anyone who wants to could still
+remove it. The inability to remove a copyright enforcement mechanism would
+be an "additional restriction" and so it couldn't be imposed on a GPL'd
+work. (IANAL, and you never know how courts would rule of course.)
+
+	DS
+
 

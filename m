@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVCOHQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVCOHTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVCOHQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 02:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVCOHQd
+	id S262317AbVCOHTa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 02:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVCOHTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 02:16:33 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:64430 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262316AbVCOHQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 02:16:32 -0500
-Subject: Re: [PATCH] reduce __deprecated spew
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050314224221.442570a8.akpm@osdl.org>
-References: <20050315063436.GN32638@waste.org>
-	 <20050314224221.442570a8.akpm@osdl.org>
+	Tue, 15 Mar 2005 02:19:30 -0500
+Received: from gate.crashing.org ([63.228.1.57]:8096 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262317AbVCOHTV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 02:19:21 -0500
+Subject: Re: bad pgd/pmd in latest BK on ia64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: tony.luck@intel.com, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, hugh@veritas.com
+In-Reply-To: <20050314153156.159d4bb3.davem@davemloft.net>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F031272AF@scsmsx401.amr.corp.intel.com>
+	 <20050314143442.2ab086c9.davem@davemloft.net>
+	 <20050314151142.716903cb.davem@davemloft.net>
+	 <20050314153156.159d4bb3.davem@davemloft.net>
 Content-Type: text/plain
-Date: Tue, 15 Mar 2005 08:16:24 +0100
-Message-Id: <1110870984.6290.32.camel@laptopd505.fenrus.org>
+Date: Tue, 15 Mar 2005 18:17:27 +1100
+Message-Id: <1110871047.29138.92.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-03-14 at 15:31 -0800, David S. Miller wrote:
+> On Mon, 14 Mar 2005 15:11:42 -0800
+> "David S. Miller" <davem@davemloft.net> wrote:
+> 
+> > I therefore suspect the pgwalk patches.
+> 
+> I just noticed something else while reviewing this stuff.
+> The PTRS_PER_PMD macros aren't used anymore, so my hacks
+> to get 32-bit process VM operations optimized on sparc64
+> aren't even being used any more, ho hum... :-)  There are
+> better ways to do this.
+> 
+> (For the interested, see {REAL_}PTRS_PER_PMD in
+>  include/asm-sparc64/pgtable.h)
+> 
+> Come to think of it, this may be related somehow to whatever
+> is causing the problems.
 
-> (The intermodule_register and pm_register stuff has been hanging around for
-> so long that one wonders if we need sterner stimuli, not lesser).
+That reminds me ... I still itend to toy with your old patches and add
+some more abstract walkers & bitmap stuffs. Just no time at the moment. 
 
-intermodule can just about go (one user left).. we could start by making
-the intermodule.c file only build when that one user is selected (that
-user is a corner case) to avoid others from accidentally starting to use
-it again ...
+The main thing I want to change from your approach is instead of calling
+a pte_work callback for every pte, call it for ranges of PTEs (that is
+PTE pages most of the time). The goal here is to avoid the overhead of
+the indirect function call (& additional stackframe junk etc...) on
+every single PTE.
+
+Ben.
+
 

@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264182AbTEOTkA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 15:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264204AbTEOTkA
+	id S264190AbTEOThY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 15:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbTEOThY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 15:40:00 -0400
-Received: from holomorphy.com ([66.224.33.161]:63952 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264182AbTEOTj6 (ORCPT
+	Thu, 15 May 2003 15:37:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:38666 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264190AbTEOThX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 15:39:58 -0400
-Date: Thu, 15 May 2003 12:51:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm5
-Message-ID: <20030515195157.GS8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030514012947.46b011ff.akpm@digeo.com>
+	Thu, 15 May 2003 15:37:23 -0400
+Date: Thu, 15 May 2003 21:50:13 +0200
+From: Andi Kleen <ak@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, Andi Kleen <ak@suse.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       keith maanthey <kmannth@us.ibm.com>
+Subject: Re: [PATCH] linux-2.5.69_subarch-fix_A0.patch
+Message-ID: <20030515195013.GA8724@Wotan.suse.de>
+References: <1052966228.9630.69.camel@w-jstultz2.beaverton.ibm.com> <20030515065120.GA3469@Wotan.suse.de> <1053019259.9630.91.camel@w-jstultz2.beaverton.ibm.com> <20030515172855.GA10831@Wotan.suse.de> <1053020763.9629.104.camel@w-jstultz2.beaverton.ibm.com> <20030515190006.GA30173@Wotan.suse.de> <20030515191919.GR8978@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030514012947.46b011ff.akpm@digeo.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030515191919.GR8978@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2003 at 01:29:47AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69-mm5/
-> 
-> Various fixes.  It should even compile on uniprocessor.
-> I dropped all the NFS client changes, which have been in -mm for ages.  A
-> number of fixes have been merged into Linus's tree and they need testing on
-> their own.
+> Okay, will fix.
 
+What do you want to fix? Really - an subarchitecture costs 1-2 K, 
+it's not worth any effort to make it more finegrained.
 
-put_page_testzero() does BUG_ON(page_count(page)) when its argument
-is p.
-
--- wli
-
-
-diff -prauN linux-2.5.69-bk9/include/linux/mm.h numaq-2.5.69-bk9-1/include/linux/mm.h
---- linux-2.5.69-bk9/include/linux/mm.h	2003-05-15 12:01:44.000000000 -0700
-+++ numaq-2.5.69-bk9-1/include/linux/mm.h	2003-05-15 12:26:34.000000000 -0700
-@@ -214,7 +214,7 @@ struct page {
-  */
- #define put_page_testzero(p)				\
- 	({						\
--		BUG_ON(page_count(page) == 0);		\
-+		BUG_ON(page_count(p) == 0);		\
- 		atomic_dec_and_test(&(p)->count);	\
- 	})
- 
+-Andi

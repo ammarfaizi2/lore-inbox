@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293094AbSCACxJ>; Thu, 28 Feb 2002 21:53:09 -0500
+	id <S293754AbSCAC50>; Thu, 28 Feb 2002 21:57:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293366AbSCACv0>; Thu, 28 Feb 2002 21:51:26 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26105
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S310309AbSCACqX>; Thu, 28 Feb 2002 21:46:23 -0500
-Date: Thu, 28 Feb 2002 18:47:10 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bluesmoke/MCE support optional
-Message-ID: <20020301024710.GF2711@matchmail.com>
-Mail-Followup-To: Paul Gortmaker <p_gortmaker@yahoo.com>,
-	marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C7E465A.4B3F4D9@yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C7E465A.4B3F4D9@yahoo.com>
-User-Agent: Mutt/1.3.27i
+	id <S310327AbSCACzR>; Thu, 28 Feb 2002 21:55:17 -0500
+Received: from mother.ludd.luth.se ([130.240.16.3]:32902 "EHLO
+	mother.ludd.luth.se") by vger.kernel.org with ESMTP
+	id <S310353AbSCACyF>; Thu, 28 Feb 2002 21:54:05 -0500
+Date: Fri, 1 Mar 2002 03:54:03 +0100 (MET)
+From: texas <texas@ludd.luth.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
+In-Reply-To: <E16gbnM-0001x7-00@the-village.bc.nu>
+Message-ID: <Pine.GSU.4.33.0203010351220.28715-100000@father.ludd.luth.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 28, 2002 at 10:01:46AM -0500, Paul Gortmaker wrote:
-> 
-> Meant to do this a while ago.  Could do it via adding "nosmoke.c"  :-)
-> (similar to fs/noquot.c) instead of #ifdef in bluesmoke.c, if somebody
-> had a strong preference one way or the other.
-> 
-> Patch is against 2.4.18, complete with Aunt Tillie(tm) help text, etc.
-> 
-> Paul.
-> 
-> 
-> --- Documentation/Configure.help~	Sat Feb  2 06:50:31 2002
-> +++ Documentation/Configure.help	Thu Feb 28 09:01:28 2002
-> @@ -17450,6 +17450,17 @@
->    The module is called shwdt.o. If you want to compile it as a module,
->    say M here and read Documentation/modules.txt.
->  	      
-> +Machine Check Exception
-> +CONFIG_X86_MCE
-> +  Machine Check Exception support allows the processor to notify the
-> +  kernel if it detects a problem (e.g. overheating, component failure).
-> +  The action the kernel takes depends on the severity of the problem, 
-> +  ranging from a warning message on the console, to halting the machine.
-> +  Your processor must be a Pentium or newer to support this - check the 
-> +  flags in /proc/cpuinfo for mce.  Note that some older Pentium systems
-> +  have a design flaw which leads to false MCE events - for these and
-> +  old non-MCE processors (386, 486), say N.  Otherwise say Y.
-> +
+Ok, my "change NIC driver" idea was a bad one (surprise) as the server
+locked up yet again.
 
-This should be tied to the processor type options...
+> Cold boot in the sense that reset buttons don't work or cold in the
+> sense ctrl-alt-del doesn't work.
+
+ctrl-alt-del doesn't work but holding in the "off" button for 4 seconds
+does work (turns off the machine) and I therefore assume that the reset
+button would work as well (no reset button installed on this machine
+unfortunately).
+
+> The bad pte one needs looking into.
+
+Is this something that could be the cause of the lockup problems?
+
+> I guess that box is always assuming PnP or ACPI setup in which case 2.2
+> will never work on it.
+
+Lo and behold, after following Mark Hahn's advice of adding "noapic" to
+lilo append, 2.2 is booting without any complaints! He actually suggested
+it for 2.4 and after having successfully testing it on 2.2, I'm now
+running 2.4 with noapic, hoping it will magically make my lockup
+problems go away just as it fixed 2.2.
+
+When 2.4 dies on me next time (after thinking "this will surely fix it!"
+after every potential fix and getting disappointed, I've stopped using
+"if"), I will try 2.2. The sad thing about that is that there's no
+Hyperthreading but if it's stable, it's most definitely worth the
+performance penalty.
+
+> After boot disable screen blanking with "setterm -blank 0"
+
+I'm using echo -e "\33[9;0]" > /dev/console to disable screen-blanking on
+all my servers. There's something about a monitor suddenly going blank
+that gets my heart pumping...
+
+Thanks,
+Johan
+
+

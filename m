@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129638AbRBOUUt>; Thu, 15 Feb 2001 15:20:49 -0500
+	id <S129066AbRBOU0k>; Thu, 15 Feb 2001 15:26:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129903AbRBOUU3>; Thu, 15 Feb 2001 15:20:29 -0500
-Received: from jalon.able.es ([212.97.163.2]:8586 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129703AbRBOUUT>;
-	Thu, 15 Feb 2001 15:20:19 -0500
-Date: Thu, 15 Feb 2001 21:20:07 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: "Justin T . Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx (and sym53c8xx) plans
-Message-ID: <20010215212007.A995@werewolf.able.es>
-In-Reply-To: <85F1402515F13F498EE9FBBC5E07594220AD85@TTGCS.teamtoolz.net> <200102151747.f1FHlDO64938@aslan.scsiguy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200102151747.f1FHlDO64938@aslan.scsiguy.com>; from gibbs@scsiguy.com on Thu, Feb 15, 2001 at 18:47:13 +0100
-X-Mailer: Balsa 1.1.1
+	id <S129107AbRBOU0a>; Thu, 15 Feb 2001 15:26:30 -0500
+Received: from pilsener.srv.ualberta.ca ([129.128.5.19]:64647 "EHLO
+	pilsener.srv.ualberta.ca") by vger.kernel.org with ESMTP
+	id <S129066AbRBOU0T>; Thu, 15 Feb 2001 15:26:19 -0500
+Date: Thu, 15 Feb 2001 13:26:17 -0700 (MST)
+From: Anthony Fok <foka@ualberta.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Kajtar Zsolt <soci@singular.sch.bme.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1ac13/14 problem
+In-Reply-To: <E14TUs4-0000la-00@the-village.bc.nu>
+Message-ID: <Pine.A41.4.10.10102151322330.19842-100000@gpu2.srv.ualberta.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 02.15 Justin T. Gibbs wrote:
-> >All of my boxes with that card are on 2.2.16. The rest are on 2.4.1, so I
-> >don't really have a need to test 2.2.18 as I would rather be on 2.4.x for
-> >all of my boxes.
+On Thu, 15 Feb 2001, Alan Cox wrote:
+> > Calibrating delay loop... 466.94 BogoMIPS
+> > Memory: 62836k/65536k available (712k kernel code, 2312k reserved, 188k
+> > data, 56k init, 0k highmem)
+> > Checking if this processor honours the WP bit even in supervisor mode...
+> > 
+> > Here it freezes forever... My cpu:
+> > 
+> > vendor_id	: CyrixInstead
 > 
-> Well, I'll try and generate patches against 2.2.16 soon.  I probably
-> need to support 2.2.14 too.  There are already so many versions to
-> keep track of, the sooner the driver becomes embedded, the better.
+> Ok I've been trying to fix the Cyrix/cpuid problems and it appears I
+> may have overdone it. I'll reread the code in detail.
 > 
+> Alan
 
-Please, I think it would be much more useful a patch against the latest
-2.2.19-pre (if that one for 2.2.18 does not work, I have not tried)
-and the latest 2.4.1-ac14, that is what people experiments with.
+Hello Alan,
 
-People who has still a 2.2.14 or 16 looks like does not worry too much
-about updating and building kernels, and it they go into the work, they
-can just go to 2.2.18, compatible with 16 and 14 and much more stable.
+For your information, 2.4.1-ac12 works great on my Cyrix 6x86 P166+, and
+it properly recognizes the CPU as i586 class.
 
-I think it is better to work for preX kernels than for eldely ones.
+I haven't tried 2.4.1-ac13 on that machine yet, but I did attempt to boot
+2.4.1-ac13 on an Winchip-C6 machine.  It froze at the same place, i.e.
+"Checking if this processor honours the WP bit even in supervisor
+mode...".  2.4.1-ac12 works quite nicely on this machine, although I still
+experience random crashes on this machine.  (Don't know if it is the
+kernel or hardware problem... I have been having troubles with this
+computer with just about any kernels since 2.2.17...)  One of these days,
+when I have time, I'll post the Oops or the Bug.
+
+Meanwhile, 2.4.x is rock solid on my Cyrix machine.  :-)
+
+Thanks,
+
+Anthony
 
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.1-ac14 #1 SMP Thu Feb 15 16:05:52 CET 2001 i686
+Anthony Fok Tung-Ling                Civil and Environmental Engineering
+foka@ualberta.ca, foka@debian.org    University of Alberta, Canada
+   Debian GNU/Linux Chinese Project -- http://www.debian.org/intl/zh/
+Come visit Our Lady of Victory Camp -- http://www.olvc.ab.ca/
 

@@ -1,58 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266609AbTA1Cmq>; Mon, 27 Jan 2003 21:42:46 -0500
+	id <S267129AbTA1Csz>; Mon, 27 Jan 2003 21:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267129AbTA1Cmq>; Mon, 27 Jan 2003 21:42:46 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14859
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266609AbTA1Cmp>; Mon, 27 Jan 2003 21:42:45 -0500
-Date: Mon, 27 Jan 2003 18:46:50 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ross Biro <rossb@google.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: [2.4.18+] IDE Race Condition
-In-Reply-To: <3E356DAA.6090108@google.com>
-Message-ID: <Pine.LNX.4.10.10301271846120.9272-100000@master.linux-ide.org>
+	id <S267319AbTA1Csz>; Mon, 27 Jan 2003 21:48:55 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:35485 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S267129AbTA1Csz>;
+	Mon, 27 Jan 2003 21:48:55 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200301280257.FAA27287@sex.inr.ac.ru>
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
+To: davem@redhat.com (David S. Miller)
+Date: Tue, 28 Jan 2003 05:57:55 +0300 (MSK)
+Cc: andersg@0x63.nu, lkernel2003@tuxers.net, linux-kernel@vger.kernel.org,
+       tobi@tobi.nu
+In-Reply-To: <20030127.143625.84825692.davem@redhat.com> from "David S. Miller" at Jan 27, 3 02:36:25 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Okay, how do you reproduce it to see the effects?
+> Alexey, this piece of code was buggy first time it was coded, and it
+> may still have some holes. :-)))
 
-On Mon, 27 Jan 2003, Ross Biro wrote:
+To my shame, I cannot say "no". It was written sort of too fast. :-)
 
-> The net effect of this race condition and the other one I spotted is 
-> that you may see some interesting messages in your log file and you can 
-> detect the race condition if you look for it hard enough.  I don't 
-> currently see any bad effects.
-> 
->     Ross
-> 
-> Ross Biro wrote:
-> 
-> >
-> > There is at least one more IDE race condition in 2.4.18 and 
-> > 2.4.21-pre3. Basically the interrupt for the controller being serviced 
-> > is left on while setting up the next command.  I'm not sure how much 
-> > trouble it can cause but it does lead to some interesting stack traces.
-> >
-> > The condition
-> > if (masked_irq && hwif->irq != masked_irq)
-> > in ide_do_request should be replaced with
-> > if (!masked_irq || hwif->irq != masked_irq)
-> > in two places.
-> >
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Did the reporters see packets with wrong checksum on wire or wrong tcp
+headers or something like that?
 
-Andre Hedrick
-LAD Storage Consulting Group
-
+Alexey

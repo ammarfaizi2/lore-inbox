@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132803AbRBEFVq>; Mon, 5 Feb 2001 00:21:46 -0500
+	id <S132853AbRBEF3z>; Mon, 5 Feb 2001 00:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132853AbRBEFV1>; Mon, 5 Feb 2001 00:21:27 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:46093 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S132803AbRBEFVU>;
-	Mon, 5 Feb 2001 00:21:20 -0500
-Date: Mon, 5 Feb 2001 00:21:19 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: Brian Wolfe <ahzz@terrabox.com>
-Cc: Hans Reiser <reiser@namesys.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        Jan Kasprzak <kas@informatics.muni.cz>
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-Message-ID: <20010205002119.A31043@xi.linuxpower.cx>
-In-Reply-To: <E14OoD8-0007GI-00@the-village.bc.nu> <3A7B2F7C.52AA6AFA@namesys.com> <20010204205013.D23921@ironsides.terrabox.com>
+	id <S132868AbRBEF3o>; Mon, 5 Feb 2001 00:29:44 -0500
+Received: from ftoomsh.progsoc.uts.edu.au ([138.25.6.1]:15108 "EHLO ftoomsh")
+	by vger.kernel.org with ESMTP id <S132853AbRBEF3b>;
+	Mon, 5 Feb 2001 00:29:31 -0500
+Date: Mon, 5 Feb 2001 16:29:03 +1100
+From: Matt <matt@progsoc.uts.edu.au>
+To: aron@zambeel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: system call sched_yield() doesn't work on Linux 2.2
+Message-ID: <20010205162903.A15507@ftoomsh.progsoc.uts.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <20010204205013.D23921@ironsides.terrabox.com>; from ahzz@terrabox.com on Sun, Feb 04, 2001 at 08:50:13PM -0600
+User-Agent: Mutt/1.2i
+X-OperatingSystem: Linux ftoomsh.progsoc.uts.edu.au 2.2.15-pre13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 04, 2001 at 08:50:13PM -0600, Brian Wolfe wrote:
-[snip]
-> 	From the debate raging here is what I gathered is acceptable....
-> 
-> make it blow up fataly and immediatly if it detects Red Hat + gcc 2.96-red_hat_broken(forgot version num)
-> make it provide a URL to get the patch to remove this safeguard if you really want this.
-> 
-> 	The fatal crash should be VERY carefull to only trigger on a redhat system with the broken compiler. And to satisfy your agument that people may need to be able to use it, provide a reverse patch to remove this safeguard in one easy cat file | patch.
+mohit,
+	to expect perfect alternation is not reasonable. the scheduler
+(or one of its subsidiary and/or supporting functions) decides what
+should run and what shouldn't. the linux scheduler did have problems
+in 2.2 (and still does in some places). however last i checked
+sched_yield() is at best a hint to the scheduler not a command. the
+man page even suggests this. it says that if the process (or thread)
+yields and if it is the highest priority task at the time it will be
+re-run. so you can not guarantee that it will not re-run. this i think
+was the point david was trying to make (albiet with some possibly
+misplaced "fervour").
 
-No. There are *many* other compilers out there which are much *more* broken
-then anything RedHat has recently shipped. Unfortunatly, there is no easy
-way to accuratly test for such bugs (because once they can be boiled down to
-a simple test they are very rapidly fixed, what's left is voodoo).
+	however i did notice one small change wrt to SCHED_YIELD
+semantics from 2.2.18 and 2.4.1-ac1 (one would assume that this change
+happened during the schedule() re-writes during 2.3.x).
+
+xref line 119 of kernel/sched.c in 2.2.18
+
+ and
+
+xref line 148 of kernel/sched.c in 2.4.1-ac1
+
+in this case you will see that in 2.2.18 a SCHED_YIELD process will
+get a "goodness" value of 0, however in 2.4.1-ac1 you will find that
+it gets a value of -1 (and hence a lower scheduling priority). i dont
+have a machine handy that is running 2.2.18 that i can patch and
+reboot, how ever you may wish to change the return value on line 119
+of kernel/sched.c in 2.2.18 to -1 and you may find that it might give
+the behaviour you are looking for. it may also cause other
+problems. caveat emptor and all that..
+
+	matt
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

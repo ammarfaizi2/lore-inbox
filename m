@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTHZTxL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 15:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbTHZTxL
+	id S262591AbTHZTz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 15:55:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTHZTz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 15:53:11 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:787
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261702AbTHZTxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 15:53:09 -0400
-Date: Tue, 26 Aug 2003 12:53:06 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Alex Zarochentsev <zam@namesys.com>, Steven Cole <elenstev@mesatop.com>,
-       reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: reiser4 snapshot for August 26th.
-Message-ID: <20030826195306.GB1258@matchmail.com>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Alex Zarochentsev <zam@namesys.com>,
-	Steven Cole <elenstev@mesatop.com>, reiserfs-dev@namesys.com,
-	reiserfs-list@namesys.com, LKML <linux-kernel@vger.kernel.org>
-References: <20030826102233.GA14647@namesys.com> <1061922037.1670.3.camel@spc9.esa.lanl.gov> <20030826182609.GO5448@backtop.namesys.com> <1061926566.1076.2.camel@teapot.felipe-alfaro.com> <20030826194321.GA25730@namesys.com>
+	Tue, 26 Aug 2003 15:55:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50631 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262591AbTHZTz4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 15:55:56 -0400
+Date: Tue, 26 Aug 2003 11:55:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: venkatesh.pallipadi@intel.com, vojtech@suse.cz, ak@suse.de,
+       haveblue@us.ibm.com, mikpe@csd.uu.se, jun.nakajima@intel.com,
+       suresh.b.siddha@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
+Message-Id: <20030826115553.7f8b3285.akpm@osdl.org>
+In-Reply-To: <20030826115129.509c4161.akpm@osdl.org>
+References: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F8@fmsmsx405.fm.intel.com>
+	<20030826115129.509c4161.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030826194321.GA25730@namesys.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2003 at 11:43:21PM +0400, Oleg Drokin wrote:
-> Hello!
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> I doubt if we really need the timer running that early, apart from for
+>  calibrate_delay().
 > 
-> On Tue, Aug 26, 2003 at 09:36:07PM +0200, Felipe Alfaro Solana wrote:
-> > > Disable "reiser4 system call" (CONFIG_REISER4_FS_SYSCALL) support, it is 
-> > > not ready.
-> > [...]
-> > arch/i386/kernel/built-in.o(.data+0x7c4): In function `sys_call_table':
-> > : undefined reference to `sys_reiser4'
-> > make[2]: *** [.tmp_vmlinux1] Error 1
-> > make[1]: *** [vmlinux] Error 2
-> > [...]
-> > CONFIG_REISER4_FS=m
-> 
-> Building as module is also not yet supported.
+>  You can probably move the time_init() and calibrate_delay() so they occur
+>  after mem_init().  A close review would be needed to see if that is likely
+>  to break anything.  If it is, then consider creating a new late_time_init()
+>  thing, and call that and calibrate_delay() after mem_init().
 > 
 
-To do:
+Actually, I think some platforms (ppc64) will explode if we do the
+local_irq_enable() prior to time_init().
 
-remove all options in build system that don't compile.
- o module
- o syscall
- o etc...
+So I suggest you look at the latter option:
+
+- change time_init() so that it doesn't actually touch the HPET hardware
+  in the HPET timer case.
+
+- add late_time_init() after mem_init().
+
+- then do calibrate_delay().
+
+Or whatever.  The bottom line is that init/main.c is fragile, but not
+inviolable ;)
+
+

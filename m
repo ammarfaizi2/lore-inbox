@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264942AbRHAISn>; Wed, 1 Aug 2001 04:18:43 -0400
+	id <S264797AbRHAIh2>; Wed, 1 Aug 2001 04:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbRHAISd>; Wed, 1 Aug 2001 04:18:33 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:34053 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S264447AbRHAIST>;
-	Wed, 1 Aug 2001 04:18:19 -0400
-From: Andrew Tridgell <tridge@valinux.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0108010232100.8866-100000@freak.distro.conectiva>
-	(message from Marcelo Tosatti on Wed, 1 Aug 2001 03:10:58 -0300 (BRT))
-Subject: Re: 2.4.8preX VM problems
-Reply-To: tridge@valinux.com
-In-Reply-To: <Pine.LNX.4.21.0108010232100.8866-100000@freak.distro.conectiva>
-Message-Id: <20010801081344.8A6C04603@lists.samba.org>
-Date: Wed,  1 Aug 2001 01:13:44 -0700 (PDT)
+	id <S264932AbRHAIhS>; Wed, 1 Aug 2001 04:37:18 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:36813 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S264797AbRHAIhC>; Wed, 1 Aug 2001 04:37:02 -0400
+Date: Wed, 1 Aug 2001 10:39:02 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Rick Hohensee <humbubba@smarty.smart.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: LANCE ethernet chip - ~24 drivers
+In-Reply-To: <200107311658.MAA03706@smarty.smart.net>
+Message-ID: <Pine.GSO.3.96.1010801102933.19537B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Marcelo,
+On Tue, 31 Jul 2001, Rick Hohensee wrote:
 
-I'm afraid that didn't help. I get:
+> One has to wonder. I was looking at 1.2.13 and there is mention of
+> splitting a driver, I forget which one, because there are two bits with
+> reversed sense in later versions of a card. 
 
-[root@skurk /root]# ./readfiles /dev/ddisk 
-362 MB    181.145 MB/sec
-695 MB    166.455 MB/sec
-811 MB    57.6077 MB/sec
-812 MB    0.439532 MB/sec
-813 MB    0.463901 MB/sec
-814 MB    0.416093 MB/sec
-815 MB    0.409958 MB/sec
-816 MB    0.410413 MB/sec
+ Hmm, forking a driver due to a two-bit difference is a nonsense IMHO. 
+Now you have two separate drivers with code updates happening in one of
+them only each time. 
 
-
-
-
-> Could you please try the patch below ? (against 2.4.8pre3)
-> 
-> --- linux.orig/mm/vmscan.c	Wed Aug  1 04:26:36 2001
-> +++ linux/mm/vmscan.c	Wed Aug  1 04:33:22 2001
-> @@ -593,13 +593,9 @@
->  			 * If we're freeing buffer cache pages, stop when
->  			 * we've got enough free memory.
->  			 */
-> -			if (freed_page) {
-> -				if (zone) {
-> -					if (!zone_free_shortage(zone))
-> -						break;
-> -				} else if (!free_shortage()) 
-> -					break;
-> -			}
-> +			if (freed_page && !total_free_shortage())
-> +				break;
-> +
->  			continue;
->  		} else if (page->mapping && !PageDirty(page)) {
->  			/*
-> 
-> 
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

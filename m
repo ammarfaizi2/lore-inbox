@@ -1,331 +1,561 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbTEOWTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 18:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTEOWTY
+	id S264267AbTEOW1F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 18:27:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTEOW1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 18:19:24 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:18150 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264261AbTEOWTS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 18:19:18 -0400
-Subject: Re: 2.5.69-mm5: pccard oops while booting: resolved
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
-       David Jones <davej@suse.de>
-In-Reply-To: <20030515144439.A31491@flint.arm.linux.org.uk>
-References: <1052964213.586.3.camel@teapot.felipe-alfaro.com>
-	 <20030514191735.6fe0998c.akpm@digeo.com>
-	 <1052998601.726.1.camel@teapot.felipe-alfaro.com>
-	 <20030515130019.B30619@flint.arm.linux.org.uk>
-	 <1053004615.586.2.camel@teapot.felipe-alfaro.com>
-	 <20030515144439.A31491@flint.arm.linux.org.uk>
-Content-Type: multipart/mixed; boundary="=-rDWmeAcWWZ/YgQeWHkfc"
-Message-Id: <1053037915.569.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 16 May 2003 00:31:55 +0200
+	Thu, 15 May 2003 18:27:05 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34021 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S264267AbTEOW0v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 18:26:51 -0400
+Date: Thu, 15 May 2003 15:39:36 -0700
+Message-Id: <200305152239.h4FMdaX12112@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Andi Kleen <ak@suse.de>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org
+Subject: [x86_64 PATCH] IA32 vsyscall DSO compatibility in IA32_EMULATION
+X-Zippy-Says: BRYLCREAM is CREAM O' WHEAT in another DIMENSION..
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Btw, 2.5 ia32 core dumping on x86-64 as is crashes without the patch I just
+posted to lkml.
 
---=-rDWmeAcWWZ/YgQeWHkfc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This patch is against 2.5.69 patched up to the 1.1117 cset.
 
-On Thu, 2003-05-15 at 15:44, Russell King wrote:
-> On Thu, May 15, 2003 at 03:16:55PM +0200, Felipe Alfaro Solana wrote:
-> > OK, attached to this message:
-> > 
-> > "dmesg" contains the kernel messages when booting up 2.5.69-mm5 at tun
-> > level 1 with the patch applied.
-> > 
-> > "config" contains options used to configure the kernel. Mostly, the
-> > cardbus stuff is built-in, so no modules were loaded when booting into
-> > single-user mode.
-> > 
-> > Hope this helps!
-> 
-> Indeed it does.  This patch should solve the problem.
-> 
-> --- orig/drivers/char/agp/intel-agp.c	Sun Apr 20 16:31:48 2003
-> +++ linux/drivers/char/agp/intel-agp.c	Thu May 15 14:41:45 2003
-> @@ -1635,7 +1635,7 @@
->  
->  MODULE_DEVICE_TABLE(pci, agp_intel_pci_table);
->  
-> -static struct __initdata pci_driver agp_intel_pci_driver = {
-> +static struct pci_driver agp_intel_pci_driver = {
->  	.name		= "agpgart-intel",
->  	.id_table	= agp_intel_pci_table,
->  	.probe		= agp_intel_probe,
-> 
+This brings the x86_64 kernel's IA32_EMULATION code up to date with the
+vsyscall DSO changes in the native i386 kernel.  The actual code in the
+vsyscall entry points is unchanged from what x86_64 has now (i.e. using
+"syscall"), and the unwind info for exception handling (and gdb) matches
+that code.  As in the original i386 patch, I have cleaned up some
+hard-coded address constants to use symbols culled from the vsyscall DSO.
 
-I've applied this patch, but "pccard" keeps oopsing. The test kernel is
-a 2.5.69-mm5 with the "i8259-shutdown.patch" reverted, plus the above
-patch and your previous "verbose" patch. Attached to this message is the
-new "dmesg" from this patched kernel.
+I've tested running 32-bit binaries using the vsyscall entry point on this
+kernel, and also produced a core dump from a 32-bit process and verified
+that it matches up with what native i386 core dumps now look like.
 
-As I told Andrew, reverting "make-KOBJ_NAME-match-BUS_ID_SIZE.patch"
-solves the oops.
+If you have any issues with this patch, please be sure to keep me addressed
+directly in all email, as I am not on the mailing list.
 
---=-rDWmeAcWWZ/YgQeWHkfc
-Content-Disposition: attachment; filename=dmesg
-Content-Type: application/octet-stream; name=dmesg
-Content-Transfer-Encoding: 8bit
 
-Linux version 2.5.69-mm5b (root@glass.felipe-alfaro.com) (gcc version 3.2.3 20030422 (Red Hat Linux 3.2.3-4)) #3 Fri May 16 00:25:57 CEST 2003
-Video mode to be used for restore is f00
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000000fff0000 (usable)
- BIOS-e820: 000000000fff0000 - 000000000fff8000 (ACPI data)
- BIOS-e820: 000000000fff8000 - 0000000010000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-255MB LOWMEM available.
-On node 0 totalpages: 65520
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 61424 pages, LIFO batch:14
-  HighMem zone: 0 pages, LIFO batch:1
-ACPI: RSDP (v000 NEC                        ) @ 0x000fb550
-ACPI: RSDT (v001    NEC ND000020 00000.00001) @ 0x0fff0000
-ACPI: FADT (v001    NEC ND000020 00000.00001) @ 0x0fff0030
-ACPI: BOOT (v001    NEC ND000020 00000.00001) @ 0x0fff00b0
-ACPI: DSDT (v001    NEC ND000020 00000.00001) @ 0x00000000
-ACPI: BIOS passes blacklist
-Building zonelist for node : 0
-Kernel command line: ro root=/dev/hda3 1
-Initializing CPU#0
-PID hash table entries: 1024 (order 10: 8192 bytes)
-Detected 697.080 MHz processor.
-Console: colour VGA+ 80x25
-Calibrating delay loop... 1376.25 BogoMIPS
-Memory: 256048k/262080k available (1739k kernel code, 5304k reserved, 682k data, 104k init, 0k highmem)
-Dentry cache hash table entries: 32768 (order: 5, 131072 bytes)
-Inode-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
--> /dev
--> /dev/console
--> /root
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 256K
-CPU:     After generic, caps: 0383f9ff 00000000 00000000 00000040
-CPU: Intel Pentium III (Coppermine) stepping 06
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v2.0 (20020519)
-PCI: PCI BIOS revision 2.10 entry at 0xfdb81, last bus=1
-PCI: Using configuration type 1
-BIO: pool of 256 setup, 14Kb (56 bytes/bio)
-biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-ACPI: Subsystem revision 20030418
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [NRTH] (00:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: PCI Interrupt Routing Table [\_SB_.NRTH._PRT]
-ACPI: Embedded Controller [EC0] (gpe 9)
-ACPI: Power Resource [PUSB] (off)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 10, disabled)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 5, disabled)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 5 7 10, disabled)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 9, disabled)
-block request queues:
- 4/128 requests per read queue
- 4/128 requests per write queue
- enter congestion at 15
- exit congestion at 17
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-drivers/usb/core/usb.c: registered new driver usbfs
-drivers/usb/core/usb.c: registered new driver hub
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 10
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 5
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 9
-PCI: Using ACPI for IRQ routing
-PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-Initializing RT netlink socket
-SBF: Simple Boot Flag extension found and enabled.
-SBF: Setting boot flags 0x1
-Enabling SEP on CPU 0
-Limiting direct PCI/PCI transfers.
-ACPI: AC Adapter [AC] (on-line)
-ACPI: Battery Slot [BAT0] (battery absent)
-ACPI: Power Button (CM) [PRB1]
-ACPI: Lid Switch [LID0]
-ACPI: Fan [FANC] (on)
-ACPI: Processor [CPU0] (supports C1)
-ACPI: Thermal Zone [THRM] (64 C)
-pty: 256 Unix98 ptys configured
-Real Time Clock Driver v1.11
-Linux agpgart interface v0.100 (c) Dave Jones
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-agpgart: Detected an Intel 440BX Chipset.
-agpgart: Maximum main memory to use for agp memory: 203M
-agpgart: AGP aperture is 256M @ 0xe0000000
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller at PCI slot 00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: HITACHI_DK23BA-20, ATA DISK drive
-anticipatory scheduling elevator
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: MATSHITADVD-ROM SR-8185, ATAPI CD/DVD-ROM drive
-anticipatory scheduling elevator
-ide1 at 0x170-0x177,0x376 on irq 15
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-hda: host protected area => 1
-hda: 39070080 sectors (20004 MB) w/2048KiB Cache, CHS=38760/16/63, UDMA(33)
- hda: hda1 hda2 hda3 hda4
-hdc: ATAPI 24X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-end_request: I/O error, dev hdc, sector 0
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-yenta 00:0c.0: Preassigned resource 3 busy, reconfiguring...
-Yenta IRQ list 08d8, PCI irq10
-Socket status: 30000068
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-yenta 00:0c.1: Preassigned resource 2 busy, reconfiguring...
-yenta 00:0c.1: Preassigned resource 3 busy, reconfiguring...
-Yenta IRQ list 08d8, PCI irq5
-Socket status: 30000006
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver v2.0
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-uhci-hcd 00:07.2: Intel Corp. 82371AB/EB/MB PIIX4 
-uhci-hcd 00:07.2: irq 9, io base 0000ef80
-Please use the 'usbfs' filetype instead, the 'usbdevfs' name is deprecated.
-uhci-hcd 00:07.2: new USB bus registered, assigned bus number 1
-hub 1-0:0: USB hub found
-hub 1-0:0: 2 ports detected
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-drivers/usb/core/usb.c: registered new driver hiddev
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-mice: PS/2 mouse device common for all mice
-input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Advanced Linux Sound Architecture Driver Version 0.9.2 (Thu Mar 20 13:31:57 2003 UTC).
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-ALSA device list:
-  #0: Yamaha DS-XG PCI (YMF754) at 0xd0851000, irq 5
-NET4: Linux TCP/IP 1.0 for NET4.0
-pci_bus_match: pci_drv = c03270a0 (0xc03270a0)
-pci_bus_match: pci_drv = c03293e0 (0xc03293e0)
-pci_bus_match: pci_drv = c032a440 (0xc032a440)
-pci_bus_match: pci_drv = c032b0c0 (0xc032b0c0)
-pci_bus_match: pci_drv = c032dee0 (0xc032dee0)
-pci_bus_match: pci_drv = cff47c68 (0xcff47c68)
-pci_bus_match: pci_drv = c02ddbf4 (0xc02ddbf4)
-Unable to handle kernel paging request at virtual address 25007367
- printing eip:
-c01924b9
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c01924b9>]    Not tainted VLI
-EFLAGS: 00010202
-EIP is at pci_bus_match+0x49/0xe0
-eax: 00000000   ebx: c02ddbf4   ecx: c02f2890   edx: 00000282
-esi: 25007367   edi: c13c1000   ebp: cff3944c   esp: cfde7ec0
-ds: 007b   es: 007b   ss: 0068
-Process pccardd (pid: 10, threadinfo=cfde6000 task=c1390060)
-Stack: c02ca16b c02ddbf4 c02ddc1c c13c104c ffffffed c01d056f c13c104c c02ddc1c 
-       c02ddc4c c13c104c c03208bc c01d060f c13c104c c02ddc1c c13c104c c0320860 
-       c13c1084 c01d07c4 c13c104c c02c3703 c0327180 c13c104c 00000000 c13c1084 
-Call Trace:
- [<c01d056f>] bus_match+0x2f/0x80
- [<c01d060f>] device_attach+0x4f/0x90
- [<c01d07c4>] bus_add_device+0x64/0xb0
- [<c01cf994>] device_add+0xd4/0x110
- [<c018eb4e>] pci_bus_add_devices+0xae/0xe0
- [<c02034bb>] cb_alloc+0xab/0xf0
- [<c02002f9>] socket_insert+0x69/0x80
- [<c01ff8aa>] get_socket_status+0x1a/0x20
- [<c020053d>] pccardd+0x13d/0x1f0
- [<c0115e80>] default_wake_function+0x0/0x20
- [<c0109272>] ret_from_fork+0x6/0x14
- [<c0115e80>] default_wake_function+0x0/0x20
- [<c0200400>] pccardd+0x0/0x1f0
- [<c010722d>] kernel_thread_helper+0x5/0x18
+Thanks,
+Roland
 
-Code: d6 6c 2c c0 e8 19 77 f8 ff 89 5c 24 04 c7 04 24 09 b4 2c c0 e8 59 ce f9 ff c7 04 24 6b a1 2c c0 e8 fd 76 f8 ff 31 c0 85 f6 74 2f <8b> 16 85 d2 74 79 90 83 fa ff 74 2b 0f b7 47 24 39 c2 74 23 83 
- <6>hub 1-0:0: debounce: port 1: delay 100ms stable 4 status 0x301
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 32768)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 104k freed
-hub 1-0:0: new USB device on port 1, assigned address 2
-input: USB HID v1.00 Mouse [Microsoft Microsoft IntelliMouse® Explorer] on usb-00:07.2-1
-hub 1-0:0: debounce: port 2: delay 100ms stable 4 status 0x101
-hub 1-0:0: new USB device on port 2, assigned address 3
-hub 1-2:0: USB hub found
-hub 1-2:0: 2 ports detected
-Adding 257032k swap on /dev/hda2.  Priority:-1 extents:1
-blk: queue c038d3dc, I/O limit 4095Mb (mask 0xffffffff)
-end_request: I/O error, dev hdc, sector 0
-end_request: I/O error, dev hdc, sector 0
-hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-hdc: drive_cmd: error=0x04Aborted Command 
 
---=-rDWmeAcWWZ/YgQeWHkfc--
 
+
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/Makefile	Sun May  4 16:53:08 2003
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/Makefile	Wed May 14 17:39:17 2003
+@@ -4,4 +4,32 @@
+ 
+ obj-$(CONFIG_IA32_EMULATION) := ia32entry.o sys_ia32.o ia32_ioctl.o \
+ 	ia32_signal.o tls32.o \
+-	ia32_binfmt.o fpu32.o ptrace32.o ipc32.o syscall32.o
++	ia32_binfmt.o fpu32.o ptrace32.o ipc32.o syscall32.o \
++	ia32_vsyscall.o
++
++
++# ia32_vsyscall.o contains the vsyscall DSO image as __initdata.
++# We must build the image before we can assemble it.
++$(obj)/ia32_vsyscall.o: $(obj)/vsyscall32.so
++extra-$(CONFIG_IA32_EMULATION) += vsyscall32.o vsyscall32.so
++
++# The DSO images are built using a special linker script.
++$(obj)/vsyscall32.so: $(src)/../../i386/kernel/vsyscall.lds \
++		      $(obj)/vsyscall32.o
++	$(IA32_CC) -nostdlib -shared -s -Wl,-soname=linux-vsyscall.so.1 \
++		   -o $@ -Wl,-T,$^
++
++$(obj)/vsyscall32.o: $(src)/vsyscall32.S
++	$(IA32_AS) -o $@ $<
++
++# We also create a special relocatable object that should mirror the symbol
++# table and layout of the linked DSO.  With ld -R we can then refer to
++# these symbols in the kernel code rather than hand-coded addresses.
++extra-$(CONFIG_IA32_EMULATION) += vsyscall32-syms.o vsyscall32-syms64.o
++$(obj)/built-in.o: $(obj)/vsyscall32-syms64.o
++$(obj)/built-in.o: ld_flags += -R $(obj)/vsyscall32-syms64.o
++$(obj)/vsyscall32-syms.o: $(src)/../../i386/kernel/vsyscall.lds \
++			  $(obj)/vsyscall32.o
++	$(IA32_CC) -nostdlib -r -o $@ -Wl,-T,$^
++$(obj)/vsyscall32-syms64.o: $(obj)/vsyscall32-syms.o
++	$(OBJCOPY) -O elf64-x86-64 $< $@
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/ia32_binfmt.c	Sun May  4 16:52:50 2003
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/ia32_binfmt.c	Wed May 14 01:22:45 2003
+@@ -25,9 +25,68 @@
+ 
+ #define ELF_NAME "elf/i386"
+ 
++
++/* This vsyscall magic should match what asm-i386/elf.h does.  */
++
+ #define AT_SYSINFO 32
++#define AT_SYSINFO_EHDR 33
++
++extern char *syscall32_page;	/* Defined in syscall32.c.  */
++extern void ia32_vsyscall;	/* Defined in vsyscall32.S.  */
++#define VSYSCALL_BASE	0xffffe000U
++#define VSYSCALL_EHDR	((const struct elfhdr *) syscall32_page)
++
++#define ARCH_DLINFO							\
++do {									\
++	u64 entry;							\
++	asm ("movabsq %1, %0" : "=r" (entry) : "i" (&ia32_vsyscall));	\
++	NEW_AUX_ENT(AT_SYSINFO,	(u32) entry);				\
++	NEW_AUX_ENT(AT_SYSINFO_EHDR, (u32) VSYSCALL_BASE);		\
++} while (0)
++
++
++/*
++ * These macros parameterize elf_core_dump in fs/binfmt_elf.c to write out
++ * extra segments containing the vsyscall DSO contents.  Dumping its
++ * contents makes post-mortem fully interpretable later without matching up
++ * the same kernel and hardware config to see what PC values meant.
++ * Dumping its extra ELF program headers includes all the other information
++ * a debugger needs to easily find how the vsyscall DSO was being used.
++ */
++#define ELF_CORE_EXTRA_PHDRS		(VSYSCALL_EHDR->e_phnum)
++#define ELF_CORE_WRITE_EXTRA_PHDRS					      \
++do {									      \
++	const struct elf_phdr *const vsyscall_phdrs =			      \
++		(const struct elf_phdr *) (syscall32_page		      \
++					   + VSYSCALL_EHDR->e_phoff);	      \
++	int i;								      \
++	Elf32_Off ofs = 0;						      \
++	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
++		struct elf_phdr phdr = vsyscall_phdrs[i];		      \
++		if (phdr.p_type == PT_LOAD) {				      \
++			ofs = phdr.p_offset = offset;			      \
++			offset += phdr.p_filesz;			      \
++		}							      \
++		else							      \
++			phdr.p_offset += ofs;				      \
++		phdr.p_paddr = 0; /* match other core phdrs */		      \
++		DUMP_WRITE(&phdr, sizeof(phdr));			      \
++	}								      \
++} while (0)
++#define ELF_CORE_WRITE_EXTRA_DATA					      \
++do {									      \
++	const struct elf_phdr *const vsyscall_phdrs =			      \
++		(const struct elf_phdr *) (syscall32_page		      \
++					   + VSYSCALL_EHDR->e_phoff);	      \
++	int i;								      \
++	for (i = 0; i < VSYSCALL_EHDR->e_phnum; ++i) {			      \
++		if (vsyscall_phdrs[i].p_type == PT_LOAD)		      \
++			DUMP_WRITE(vsyscall_phdrs[i].p_vaddr - VSYSCALL_BASE  \
++				   + syscall32_page,			      \
++				   vsyscall_phdrs[i].p_filesz);		      \
++	}								      \
++} while (0)
+ 
+-#define ARCH_DLINFO NEW_AUX_ENT(AT_SYSINFO, 0xffffe000)
+ 
+ struct file;
+ struct elf_phdr; 
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/ia32_signal.c	Sun May  4 16:53:42 2003
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/ia32_signal.c	Wed May 14 01:14:24 2003
+@@ -141,27 +141,7 @@ sys32_sigaltstack(const stack_ia32_t *us
+  * Do a signal return; undo the signal stack.
+  */
+ 
+-struct sigframe
+-{
+-	u32 pretcode;
+-	int sig;
+-	struct sigcontext_ia32 sc;
+-	struct _fpstate_ia32 fpstate;
+-	unsigned int extramask[_COMPAT_NSIG_WORDS-1];
+-	char retcode[8];
+-};
+-
+-struct rt_sigframe
+-{
+-	u32 pretcode;
+-	int sig;
+-	u32 pinfo;
+-	u32 puc;
+-	struct siginfo32 info;
+-	struct ucontext_ia32 uc;
+-	struct _fpstate_ia32 fpstate;
+-	char retcode[8];
+-};
++#include "sigframe.h"
+ 
+ static int
+ ia32_restore_sigcontext(struct pt_regs *regs, struct sigcontext_ia32 *sc, unsigned int *peax)
+@@ -392,6 +372,10 @@ get_sigframe(struct k_sigaction *ka, str
+ 	return (void *)((rsp - frame_size) & -8UL);
+ }
+ 
++/* These symbols are defined with the addresses in the vsyscall page.
++   See vsyscall32.S.  */
++extern void ia32_sigreturn, ia32_rt_sigreturn;
++
+ void ia32_setup_frame(int sig, struct k_sigaction *ka,
+ 			compat_sigset_t *set, struct pt_regs * regs)
+ {
+@@ -426,9 +410,14 @@ void ia32_setup_frame(int sig, struct k_
+ 	if (err)
+ 		goto give_sigsegv;
+ 
+-	/* Return stub is in 32bit vsyscall page */
+-	{ 
+-		void *restorer = syscall32_page + 32; 
++	/* Return stub is in 32bit vsyscall page.  We have its absolute
++	   32-bit address in a symbol.  We can't use a normal C reference
++	   because -mcmodel=kernel limits us to signed 32-bit relocs that
++	   can't handle the values near 2^32.  */
++	{
++		void *restorer;
++		asm ("movabsq %1, %0"
++		     : "=r" (restorer) : "i" (&ia32_sigreturn));
+ 		if (ka->sa.sa_flags & SA_RESTORER)
+ 			restorer = ka->sa.sa_restorer;       
+ 		err |= __put_user(ptr_to_u32(restorer), &frame->pretcode);
+@@ -519,9 +508,10 @@ void ia32_setup_rt_frame(int sig, struct
+ 	if (err)
+ 		goto give_sigsegv;
+ 
+-	
+ 	{ 
+-		void *restorer = syscall32_page + 32; 
++		void *restorer;
++		asm ("movabsq %1, %0"
++		     : "=r" (restorer) : "i" (&ia32_rt_sigreturn));
+ 		if (ka->sa.sa_flags & SA_RESTORER)
+ 			restorer = ka->sa.sa_restorer;       
+ 		err |= __put_user(ptr_to_u32(restorer), &frame->pretcode);
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/ia32_vsyscall.S	Wed Dec 31 16:00:00 1969
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/ia32_vsyscall.S	Tue May 13 23:22:27 2003
+@@ -0,0 +1,10 @@
++#include <linux/init.h>
++
++__INITDATA
++
++	.globl ia32_vsyscall_start, ia32_vsyscall_end
++ia32_vsyscall_start:
++	.incbin "arch/x86_64/ia32/vsyscall32.so"
++ia32_vsyscall_end:
++
++__FINIT
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/sigframe.h	Wed Dec 31 16:00:00 1969
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/sigframe.h	Tue May 13 23:31:02 2003
+@@ -0,0 +1,21 @@
++struct sigframe
++{
++	u32 pretcode;
++	int sig;
++	struct sigcontext_ia32 sc;
++	struct _fpstate_ia32 fpstate;
++	unsigned int extramask[_COMPAT_NSIG_WORDS-1];
++	char retcode[8];
++};
++
++struct rt_sigframe
++{
++	u32 pretcode;
++	int sig;
++	u32 pinfo;
++	u32 puc;
++	struct siginfo32 info;
++	struct ucontext_ia32 uc;
++	struct _fpstate_ia32 fpstate;
++	char retcode[8];
++};
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/syscall32.c	Sun May  4 16:53:32 2003
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/syscall32.c	Tue May 13 23:59:14 2003
+@@ -13,33 +13,11 @@
+ #include <asm/tlbflush.h>
+ #include <asm/ia32_unistd.h>
+ 
+-/* 32bit SYSCALL stub mapped into user space. */ 
+-asm("	.code32\n"
+-    "\nsyscall32:\n"
+-    "	pushl %ebp\n"
+-    "	movl  %ecx,%ebp\n"
+-    "	syscall\n"
+-    "	popl  %ebp\n"
+-    "	ret\n"
+-    "syscall32_end:\n"
+-
+-    /* signal trampolines */
+-
+-    "sig32_rt_tramp:\n"
+-    "	movl $"  __stringify(__NR_ia32_rt_sigreturn) ",%eax\n"
+-    "   syscall\n"
+-    "sig32_rt_tramp_end:\n"
+-
+-    "sig32_tramp:\n"
+-    "	popl %eax\n"
+-    "	movl $"  __stringify(__NR_ia32_sigreturn) ",%eax\n"
+-    "	syscall\n"
+-    "sig32_tramp_end:\n"
+-    "	.code64\n"); 
+-
+-extern unsigned char syscall32[], syscall32_end[];
+-extern unsigned char sig32_rt_tramp[], sig32_rt_tramp_end[];
+-extern unsigned char sig32_tramp[], sig32_tramp_end[];
++/*
++ * These symbols are defined by ia32_vsyscall.o to mark the bounds
++ * of the ELF DSO image included therein.
++ */
++extern const char ia32_vsyscall_start, ia32_vsyscall_end;
+ 
+ char *syscall32_page; 
+ 
+@@ -75,11 +53,8 @@ static int __init init_syscall32(void)
+ 	if (!syscall32_page) 
+ 		panic("Cannot allocate syscall32 page"); 
+ 	SetPageReserved(virt_to_page(syscall32_page));
+-	memcpy(syscall32_page, syscall32, syscall32_end - syscall32);
+-	memcpy(syscall32_page + 32, sig32_rt_tramp, 
+-	       sig32_rt_tramp_end - sig32_rt_tramp);
+-	memcpy(syscall32_page + 64, sig32_tramp, 
+-	       sig32_tramp_end - sig32_tramp);	
++	memcpy(syscall32_page, &ia32_vsyscall_start,
++	       &ia32_vsyscall_end - &ia32_vsyscall_start);
+ 	return 0;
+ } 
+ 	
+--- linux-2.5.69-1.1117/arch/x86_64/ia32/vsyscall32.S	Wed Dec 31 16:00:00 1969
++++ linux-2.5.69-1.1083/arch/x86_64/ia32/vsyscall32.S	Wed May 14 00:20:55 2003
+@@ -0,0 +1,205 @@
++/*
++ * Code for the 32-bit vsyscall page.
++ */
++
++#include <asm/ia32_unistd.h>
++#include <asm/offset.h>
++
++
++	.text
++	.globl __kernel_vsyscall
++	.type __kernel_vsyscall,@function
++__kernel_vsyscall:
++.LSTART_vsyscall:
++	pushl %ebp
++.Lpush_ebp:
++	movl %ecx,%ebp
++	syscall
++	popl %ebp
++.Lpop_ebp:
++	ret
++.LEND_vsyscall:
++	.size __kernel_vsyscall,.-.LSTART_vsyscall
++	.previous
++
++	.section .eh_frame,"a",@progbits
++.LSTARTFRAMEDLSI:
++	.long .LENDCIEDLSI-.LSTARTCIEDLSI
++.LSTARTCIEDLSI:
++	.long 0			/* CIE ID */
++	.byte 1			/* Version number */
++	.string "zR"		/* NUL-terminated augmentation string */
++	.uleb128 1		/* Code alignment factor */
++	.sleb128 -4		/* Data alignment factor */
++	.byte 8			/* Return address register column */
++	.uleb128 1		/* Augmentation value length */
++	.byte 0x1b		/* DW_EH_PE_pcrel|DW_EH_PE_sdata4. */
++	.byte 0x0c		/* DW_CFA_def_cfa */
++	.uleb128 4
++	.uleb128 4
++	.byte 0x88		/* DW_CFA_offset, column 0x8 */
++	.uleb128 1
++	.align 4
++.LENDCIEDLSI:
++	.long .LENDFDEDLSI-.LSTARTFDEDLSI /* Length FDE */
++.LSTARTFDEDLSI:
++	.long .LSTARTFDEDLSI-.LSTARTFRAMEDLSI /* CIE pointer */
++	.long .LSTART_vsyscall-.	/* PC-relative start address */
++	.long .LEND_vsyscall-.LSTART_vsyscall
++	.uleb128 0
++	/* What follows are the instructions for the table generation.
++	   We have to record all changes of the stack pointer.  */
++	.byte 0x04		/* DW_CFA_advance_loc4 */
++	.long .Lpush_ebp-.LSTART_vsyscall
++	.byte 0x0e		/* DW_CFA_def_cfa_offset */
++	.byte 0x08		/* RA at offset 8 now */
++	.byte 0x04		/* DW_CFA_advance_loc4 */
++	/* Finally the epilogue.  */
++	.byte 0x04		/* DW_CFA_advance_loc4 */
++	.long .Lpop_ebp-.Lpush_ebp
++	.byte 0x0e		/* DW_CFA_def_cfa_offset */
++	.byte 0x04		/* RA at offset 4 now */
++	.byte 0xc5		/* DW_CFA_restore %ebp */
++	.align 4
++.LENDFDEDLSI:
++	.previous
++
++
++/* XXX
++   Should these be named "_sigtramp" or something?
++*/
++
++	.text
++	.balign 32
++	.globl __kernel_sigreturn
++	.type __kernel_sigreturn,@function
++__kernel_sigreturn:
++.LSTART_sigreturn:
++	popl %eax		/* XXX does this mean it needs unwind info? */
++	movl $__NR_ia32_sigreturn, %eax
++	syscall
++.LEND_sigreturn:
++	.size __kernel_sigreturn,.-.LSTART_sigreturn
++
++	.balign 32
++	.globl __kernel_rt_sigreturn
++	.type __kernel_rt_sigreturn,@function
++__kernel_rt_sigreturn:
++.LSTART_rt_sigreturn:
++	movl $__NR_ia32_rt_sigreturn, %eax
++	syscall
++.LEND_rt_sigreturn:
++	.size __kernel_rt_sigreturn,.-.LSTART_rt_sigreturn
++	.previous
++
++	.section .eh_frame,"a",@progbits
++.LSTARTFRAMEDLSI1:
++	.long .LENDCIEDLSI1-.LSTARTCIEDLSI1
++.LSTARTCIEDLSI1:
++	.long 0			/* CIE ID */
++	.byte 1			/* Version number */
++	.string "zR"		/* NUL-terminated augmentation string */
++	.uleb128 1		/* Code alignment factor */
++	.sleb128 -4		/* Data alignment factor */
++	.byte 8			/* Return address register column */
++	.uleb128 1		/* Augmentation value length */
++	.byte 0x1b		/* DW_EH_PE_pcrel|DW_EH_PE_sdata4. */
++	.byte 0			/* DW_CFA_nop */
++	.align 4
++.LENDCIEDLSI1:
++	.long .LENDFDEDLSI1-.LSTARTFDEDLSI1 /* Length FDE */
++.LSTARTFDEDLSI1:
++	.long .LSTARTFDEDLSI1-.LSTARTFRAMEDLSI1 /* CIE pointer */
++	/* HACK: The dwarf2 unwind routines will subtract 1 from the
++	   return address to get an address in the middle of the
++	   presumed call instruction.  Since we didn't get here via
++	   a call, we need to include the nop before the real start
++	   to make up for it.  */
++	.long .LSTART_sigreturn-1-.	/* PC-relative start address */
++	.long .LEND_sigreturn-.LSTART_sigreturn+1
++	.uleb128 0			/* Augmentation */
++	/* What follows are the instructions for the table generation.
++	   We record the locations of each register saved.  This is
++	   complicated by the fact that the "CFA" is always assumed to
++	   be the value of the stack pointer in the caller.  This means
++	   that we must define the CFA of this body of code to be the
++	   saved value of the stack pointer in the sigcontext.  Which
++	   also means that there is no fixed relation to the other
++	   saved registers, which means that we must use DW_CFA_expression
++	   to compute their addresses.  It also means that when we
++	   adjust the stack with the popl, we have to do it all over again.  */
++
++#define do_cfa_expr(offset)						\
++	.byte 0x0f;			/* DW_CFA_def_cfa_expression */	\
++	.uleb128 1f-0f;			/*   length */			\
++0:	.byte 0x74;			/*     DW_OP_breg4 */		\
++	.sleb128 offset;		/*      offset */		\
++	.byte 0x06;			/*     DW_OP_deref */		\
++1:
++
++#define do_expr(regno, offset)						\
++	.byte 0x10;			/* DW_CFA_expression */		\
++	.uleb128 regno;			/*   regno */			\
++	.uleb128 1f-0f;			/*   length */			\
++0:	.byte 0x74;			/*     DW_OP_breg4 */		\
++	.sleb128 offset;		/*       offset */		\
++1:
++
++	do_cfa_expr(IA32_SIGCONTEXT_esp+4)
++	do_expr(0, IA32_SIGCONTEXT_eax+4)
++	do_expr(1, IA32_SIGCONTEXT_ecx+4)
++	do_expr(2, IA32_SIGCONTEXT_edx+4)
++	do_expr(3, IA32_SIGCONTEXT_ebx+4)
++	do_expr(5, IA32_SIGCONTEXT_ebp+4)
++	do_expr(6, IA32_SIGCONTEXT_esi+4)
++	do_expr(7, IA32_SIGCONTEXT_edi+4)
++	do_expr(8, IA32_SIGCONTEXT_eip+4)
++
++	.byte 0x42	/* DW_CFA_advance_loc 2 -- nop; popl eax. */
++
++	do_cfa_expr(IA32_SIGCONTEXT_esp)
++	do_expr(0, IA32_SIGCONTEXT_eax)
++	do_expr(1, IA32_SIGCONTEXT_ecx)
++	do_expr(2, IA32_SIGCONTEXT_edx)
++	do_expr(3, IA32_SIGCONTEXT_ebx)
++	do_expr(5, IA32_SIGCONTEXT_ebp)
++	do_expr(6, IA32_SIGCONTEXT_esi)
++	do_expr(7, IA32_SIGCONTEXT_edi)
++	do_expr(8, IA32_SIGCONTEXT_eip)
++
++	.align 4
++.LENDFDEDLSI1:
++
++	.long .LENDFDEDLSI2-.LSTARTFDEDLSI2 /* Length FDE */
++.LSTARTFDEDLSI2:
++	.long .LSTARTFDEDLSI2-.LSTARTFRAMEDLSI1 /* CIE pointer */
++	/* HACK: See above wrt unwind library assumptions.  */
++	.long .LSTART_rt_sigreturn-1-.	/* PC-relative start address */
++	.long .LEND_rt_sigreturn-.LSTART_rt_sigreturn+1
++	.uleb128 0			/* Augmentation */
++	/* What follows are the instructions for the table generation.
++	   We record the locations of each register saved.  This is
++	   slightly less complicated than the above, since we don't
++	   modify the stack pointer in the process.  */
++
++	do_cfa_expr(IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_esp)
++	do_expr(0, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_eax)
++	do_expr(1, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_ecx)
++	do_expr(2, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_edx)
++	do_expr(3, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_ebx)
++	do_expr(5, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_ebp)
++	do_expr(6, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_esi)
++	do_expr(7, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_edi)
++	do_expr(8, IA32_RT_SIGFRAME_sigcontext-4 + IA32_SIGCONTEXT_eip)
++
++	.align 4
++.LENDFDEDLSI2:
++	.previous
++
++	/* These names are made available to the kernel.  */
++	.globl ia32_vsyscall
++	ia32_vsyscall = __kernel_vsyscall
++	.globl ia32_sigreturn
++	ia32_sigreturn = __kernel_sigreturn
++	.globl ia32_rt_sigreturn
++	ia32_rt_sigreturn = __kernel_rt_sigreturn
+--- linux-2.5.69-1.1117/arch/x86_64/kernel/asm-offsets.c	Sun May  4 16:53:31 2003
++++ linux-2.5.69-1.1083/arch/x86_64/kernel/asm-offsets.c	Tue May 13 23:42:04 2003
+@@ -12,6 +12,8 @@
+ #include <asm/processor.h>
+ #include <asm/segment.h>
+ #include <asm/thread_info.h>
++#include <asm/ia32.h>
++#include "../ia32/sigframe.h"
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -43,5 +45,20 @@ int main(void)
+ 	ENTRY(irqstackptr);
+ 	BLANK();
+ #undef ENTRY
++
++	DEFINE(IA32_SIGCONTEXT_eax, offsetof (struct sigcontext_ia32, eax));
++	DEFINE(IA32_SIGCONTEXT_ebx, offsetof (struct sigcontext_ia32, ebx));
++	DEFINE(IA32_SIGCONTEXT_ecx, offsetof (struct sigcontext_ia32, ecx));
++	DEFINE(IA32_SIGCONTEXT_edx, offsetof (struct sigcontext_ia32, edx));
++	DEFINE(IA32_SIGCONTEXT_esi, offsetof (struct sigcontext_ia32, esi));
++	DEFINE(IA32_SIGCONTEXT_edi, offsetof (struct sigcontext_ia32, edi));
++	DEFINE(IA32_SIGCONTEXT_ebp, offsetof (struct sigcontext_ia32, ebp));
++	DEFINE(IA32_SIGCONTEXT_esp, offsetof (struct sigcontext_ia32, esp));
++	DEFINE(IA32_SIGCONTEXT_eip, offsetof (struct sigcontext_ia32, eip));
++	BLANK();
++
++	DEFINE(IA32_RT_SIGFRAME_sigcontext,
++	       offsetof (struct rt_sigframe, uc.uc_mcontext));
++
+ 	return 0;
+ }

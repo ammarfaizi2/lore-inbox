@@ -1,120 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264728AbTFAUxs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 16:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264729AbTFAUxs
+	id S264729AbTFAUy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 16:54:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTFAUy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 16:53:48 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:31361
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S264728AbTFAUxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 16:53:46 -0400
-Date: Sun, 1 Jun 2003 16:56:32 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Willy Tarreau <willy@w.ods.org>,
-       Daniel Podlejski <underley@underley.eu.org>,
-       "" <linux-kernel@vger.kernel.org>
-Subject: Re: AIC7xxx problem
-In-Reply-To: <2859720000.1054499680@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.50.0306011647431.19313-100000@montezuma.mastecende.com>
-References: <20030531165945.GA5561@witch.underley.eu.org>
- <20030601083656.GI21673@alpha.home.local> <2859720000.1054499680@aslan.scsiguy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Jun 2003 16:54:57 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:49104 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264729AbTFAUyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 16:54:51 -0400
+Date: Sun, 1 Jun 2003 23:08:08 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.21rc6-ac1: More IDE Makefile fixes
+Message-ID: <20030601210808.GF29425@fs.tum.de>
+References: <200305311153.h4VBrNi21640@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305311153.h4VBrNi21640@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jun 2003, Justin T. Gibbs wrote:
+The patch below does the following:
 
-> > Hmmm that makes quite a difference ! I didn't understand what happened between
-> > these two outputs. Also, did you try with Justin's latest version of the driver:
-> > 
-> 
-> My driver can't fix interrupt routing issues which is what Daniel's
-> problem turned out to be.  I'm really tempted to add an interrupt
-> test to the driver attach so that these kinds of problems are clearly
-> flagged and my driver doesn't continue to get blamed for interrupt
-> routing it can't control.
+drivers/Makefile:
+- always add ide to subdir-y, currently CONFIG_IDE=m doesn't work as 
+  expected since even in this case drivers under ide might be compiled
+  statically into the kernel...
 
-Which aspect of interrupt routing is broken so that we at least can have a 
-go at fixing it? I might be missing something here but it looks fine, 
-could you elaborate?
+drivers/ide/Makefile:
+- always go through the subdirs (currently CONFIG_BLK_DEV_IDE=m doesn't 
+  work, since drivers in the subdirectories might be compiled statically 
+  into the kernel)
+- let ide-proc.o depend on CONFIG_PROC_FS
 
-2.4.18
+I've tested the compilation with both an IDE that is as much as possible 
+modular and a completely statically IDE.
 
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ5 -> 0:5
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ10 -> 0:10
-IRQ11 -> 0:11
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 1:0
-IRQ17 -> 1:1
-IRQ18 -> 1:2
-IRQ19 -> 1:3
-IRQ20 -> 1:4
-IRQ21 -> 1:5
-IRQ22 -> 1:6
-IRQ23 -> 1:7
-IRQ28 -> 1:12
-IRQ29 -> 1:13
+I haven't tested CONFIG_IDE=n.
 
-          CPU0       CPU1       CPU2       
-  0:    3354580    4108947    4515468    IO-APIC-edge  timer
-  1:          2          0          0    IO-APIC-edge  keyboard
-  2:          0          0          0          XT-PIC  cascade
-  4:        434        467        729    IO-APIC-edge  serial
-  8:          1          0          0    IO-APIC-edge  rtc
- 19:      73764      78100      80631   IO-APIC-level  eth0
- 28:     301389     301350     302498   IO-APIC-level  aic7xxx
- 29:      79542      82186      83042   IO-APIC-level  aic7xxx
-NMI:   11978872   11978872   11978872 
-LOC:   11978887   11978722   11978731 
-ERR:          0
-MIS:          0
+I'm not sure whether my patch is 100% correct but the items explained 
+above seem to be problems that need to be resolved.
 
-2.5.70
+cu
+Adrian
 
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ5 -> 0:5
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ10 -> 0:10
-IRQ11 -> 0:11
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-IRQ16 -> 1:0
-IRQ17 -> 1:1
-IRQ18 -> 1:2
-IRQ19 -> 1:3
-IRQ20 -> 1:4
-IRQ21 -> 1:5
-IRQ22 -> 1:6
-IRQ23 -> 1:7
-IRQ28 -> 1:12
-IRQ29 -> 1:13
-
-<no /proc/interrupts because it never makes it to a single user prompt>
-
--- 
-function.linuxpower.ca
+--- linux-2.4.21-rc6-ac1-modular/drivers/Makefile.old	2003-06-01 16:11:02.000000000 +0200
++++ linux-2.4.21-rc6-ac1-modular/drivers/Makefile	2003-06-01 16:11:29.000000000 +0200
+@@ -10,7 +10,7 @@
+ 		message/i2o message/fusion scsi md ieee1394 pnp isdn atm \
+ 		fc4 net/hamradio i2c acpi bluetooth
+ 
+-subdir-y :=	parport char block net sound misc media cdrom hotplug
++subdir-y :=	parport char block net sound misc media cdrom hotplug ide
+ subdir-m :=	$(subdir-y)
+ 
+ 
+@@ -31,7 +31,6 @@
+ subdir-$(CONFIG_INPUT)		+= input
+ subdir-$(CONFIG_PHONE)		+= telephony
+ subdir-$(CONFIG_SGI)		+= sgi
+-subdir-$(CONFIG_IDE)		+= ide
+ subdir-$(CONFIG_SCSI)		+= scsi
+ subdir-$(CONFIG_I2O)		+= message/i2o
+ subdir-$(CONFIG_FUSION)		+= message/fusion
+--- linux-2.4.21-rc6-ac1-modular/drivers/ide/Makefile.old	2003-06-01 16:45:53.000000000 +0200
++++ linux-2.4.21-rc6-ac1-modular/drivers/ide/Makefile	2003-06-01 16:53:28.000000000 +0200
+@@ -11,24 +11,25 @@
+ 
+ export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o
+ 
+-all-subdirs	:= arm legacy pci ppc raid
+-mod-subdirs	:= arm legacy pci ppc raid
++subdir-y	:= arm legacy pci ppc raid
++subdir-m	:= arm legacy pci ppc raid
+ 
+ obj-y		:=
+ obj-m		:=
+ ide-obj-y	:=
+ 
+-subdir-$(CONFIG_BLK_DEV_IDE) += legacy ppc arm raid pci
+-
+ # First come modules that register themselves with the core
+ 
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
+-  obj-y		+= pci/idedriver-pci.o
+-endif
++obj-y		+= pci/idedriver-pci.o
+ 
+ # Core IDE code - must come before legacy
+ 
+-ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o
++ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o
++
++ifeq ($(CONFIG_PROC_FS),y)
++  ide-core-objs	+= ide-proc.o
++endif
++
+ ide-detect-objs	:= ide-probe.o ide-geometry.o
+ 
+ 
+@@ -48,15 +49,9 @@
+ 
+ obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
+ 
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
+-  obj-y		+= legacy/idedriver-legacy.o
+-  obj-y		+= ppc/idedriver-ppc.o
+-  obj-y		+= arm/idedriver-arm.o
+-else
+-  ifeq ($(CONFIG_BLK_DEV_HD_ONLY),y)
+-	obj-y	+= legacy/idedriver-legacy.o
+-  endif
+-endif
++obj-y		+= legacy/idedriver-legacy.o
++obj-y		+= ppc/idedriver-ppc.o
++obj-y		+= arm/idedriver-arm.o
+ 
+ obj-$(CONFIG_BLK_DEV_ISAPNP) 		+= ide-pnp.o
+ 
+@@ -67,10 +62,8 @@
+ 
+ obj-$(CONFIG_BLK_DEV_IDE) += ide-detect.o
+ 
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
+ # RAID must be last of all
+-  obj-y		+= raid/idedriver-raid.o
+-endif
++obj-y		+= raid/idedriver-raid.o
+ 
+ list-multi	:= ide-core.o ide-detect.o
+ O_TARGET := idedriver.o

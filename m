@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbQKDOTT>; Sat, 4 Nov 2000 09:19:19 -0500
+	id <S129063AbQKDOfy>; Sat, 4 Nov 2000 09:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbQKDOTK>; Sat, 4 Nov 2000 09:19:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47620 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129026AbQKDOTC>;
-	Sat, 4 Nov 2000 09:19:02 -0500
-Date: Sat, 4 Nov 2000 15:18:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Stanislav Brabec <utx@penguin.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ATAPI: audio CD stops playing (2.2.17 & 2.4.0-test?)
-Message-ID: <20001104151845.E12610@suse.de>
-In-Reply-To: <20001103235437.B5574@utx.cz>
+	id <S129062AbQKDOfe>; Sat, 4 Nov 2000 09:35:34 -0500
+Received: from green.nl.gxn.net ([62.100.30.36]:12505 "EHLO green.nl.gxn.net")
+	by vger.kernel.org with ESMTP id <S129041AbQKDOfY>;
+	Sat, 4 Nov 2000 09:35:24 -0500
+Message-Id: <m13s4Pi-000leyC@green.nl.gxn.net>
+Date: Sat, 4 Nov 2000 15:38:15 +0100
+From: Taco Witte <mail@tcwitte.myweb.nl>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: modular kernel
+X-mailer: FoxMail 2.1 [en]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001103235437.B5574@utx.cz>; from utx@penguin.cz on Fri, Nov 03, 2000 at 11:54:38PM +0100
-X-OS: Linux 2.4.0-test10 i686
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03 2000, Stanislav Brabec wrote:
-> Description:
-> On 2.4.0-pre9 and 2.4.0-pre10:
-> Playing of some audio CD's stops in nearly regular places. Also pressing
-> >> in CD software panel in nearly all cases ends by stop.
+Hello
 
-Known problem, patch not submitted yet.
+Some days ago, I read about the idea of a completely modular kernel.
+I think it's a very good idea, because it would make it easier to get more
+people work at the same moment, development would go faster. It would
+be possible to make groups for a certain part of the kernel (for example
+sound, or filesystems, or main) with own group pages with status info and
+todo's and own mailinglists (it would divide this enourmous flow of mail
+into smaller parts). It would decrease the download size. I believe it would
+make bug tracking easier as well. I'm sure I forgot to mention something..
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Regards,
+Taco Witte
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270637AbTGVKts (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 06:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270752AbTGVKts
+	id S270781AbTGVK5n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 06:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270782AbTGVK5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 06:49:48 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:6834 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S270637AbTGVKtp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 06:49:45 -0400
-Date: Tue, 22 Jul 2003 13:04:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Software suspend testing in 2.6.0-test1
-Message-ID: <20030722110428.GA170@elf.ucw.cz>
-References: <m2wueh2axz.fsf@telia.com> <20030717200039.GA227@elf.ucw.cz> <m2u19g9p2c.fsf@telia.com> <20030721125813.GA4775@zaurus.ucw.cz> <m21xwkvte8.fsf@telia.com> <20030721212828.GE436@elf.ucw.cz> <m2vftv4f5y.fsf@telia.com>
+	Tue, 22 Jul 2003 06:57:43 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:20213 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270781AbTGVK5m
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 06:57:42 -0400
+Subject: Re: VIA kt600 chipset supported in Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Asfand Yar Qazi <email@asfandyar.cjb.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F1CEAFB.2000607@asfandyar.cjb.net>
+References: <3F1CEAFB.2000607@asfandyar.cjb.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058872027.2751.2.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2vftv4f5y.fsf@telia.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Jul 2003 12:07:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > But why do you touch PF_FROZEN here? Refrigerator should do that.
-> > > > And wake_up_process should not be needed...
-> > > > If it is in refrigerator, it polls PF_FREEZE...
-> > > 
-> > > Note that the old code always called wake_up_process(), which is
-> > > necessary to make the process run one more iteration in refrigerator()
-> > > and relize that it is time to unfreeze.
-> > > 
-> > > The patch changes things so that wake_up_process() is NOT called if
-> > > the process is stopped at some other place than in refrigerator().
-> > > This ensures that processes that were stopped before we invoked swsusp
-> > > are still stopped after resume.
-> > 
-> > Yes, but you still print warning for them. I hopefully killed that.
-> ...
-> > +static inline int interesting_process(struct task_struct *p)
-> > +{
-> > +	if (p->flags & PF_IOTHREAD)
-> > +		return 0;
-> > +	if (p == current)
-> > +		return 0;
-> > +	if ((p->state == TASK_ZOMBIE) || (p->state == TASK_DEAD))
-> > +		return 0;
-> > +	if (p->state == TASK_STOPPED)
-> > +		return 0;
-> > +
-> > +
-> > +	return 1;
-> > +}
+On Maw, 2003-07-22 at 08:42, Asfand Yar Qazi wrote:
+> As subject really: I don't want any nVidia proprietry rubbish, just nice 
+> clean vanilla kernel configuring and running.
 > 
-> But this doesn't work. We can't skip stopped tasks in the
-> thaw_processes() function, because frozen tasks are also stopped
-> tasks. Therefore nothing will be woken up during resume.
-> 
-> It's probably best to just delete the printk("strange,...") line.
+> For both 2.4 and 2.6?
 
-Okay, you are right, I'll stick with your solution for now.
+What bits are on the KT600 - VIA 8237 south bridge I assume but what video ?
 
-I'd prefer to keep that "strange" line, so that we know if they are
-some problems.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

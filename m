@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUHEMeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266793AbUHEMhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbUHEMeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 08:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUHEMeY
+	id S266793AbUHEMhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 08:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUHEMej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 08:34:24 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5363 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267676AbUHEMaq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 08:30:46 -0400
-Date: Thu, 5 Aug 2004 14:30:04 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408051230.i75CU4RC004440@burner.fokus.fraunhofer.de>
-To: axboe@suse.de, kernel@wildsau.enemy.org
-Cc: linux-kernel@vger.kernel.org, schilling@fokus.fraunhofer.de
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Thu, 5 Aug 2004 08:34:39 -0400
+Received: from mato.luukku.com ([193.209.83.251]:220 "EHLO mato.luukku.com")
+	by vger.kernel.org with ESMTP id S267680AbUHEMcG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 08:32:06 -0400
+Message-ID: <411228E9.B361485F@users.sourceforge.net>
+Date: Thu, 05 Aug 2004 15:32:41 +0300
+From: Jari Ruusu <jariruusu@users.sourceforge.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: James Morris <jmorris@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Fruhwirth Clemens <clemens@endorphin.org>
+Subject: Re: Linux 2.6.8-rc3
+References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Morris wrote:
+> Can you assert licensing restrictions which override the original author's
+> (Brian Gladman)?  I don't know the answer, just asking.
 
->From: Jens Axboe <axboe@suse.de>
-
->> this is the reason why the patch forces the ata (atapi?) driver. no
->> SCSI driver or configuring of ide-scsi required.
-
->Maybe newer version broke then. Until very recently, cdrecord worked
->just fine as-is and used SG_IO access method when you used open by
->device name. Which was just the way we wanted it.
-
->If that doesn't work now, I suggest you take it up with Joerg. It's a
->problem with his program.
-
-It's a problem caused by the design in the Linux kernel and not a problem of
-libscg or cdrecord. 
-
-The point is that Linux constantly invents new ugly and unneeded things and
-after I found a workaround, people try to prevent the workaround from
-being usable. 
-
-In 1998, I did send a patch against the sg.c driver that introduced
-everything that is needed for Generic SCSI transport. I am still waiting 
-for even the needed features to appear........
-
-Jörg
+Brian Gladman is free to license his code any way he wants. But he needs my
+permission to re-licence my work and my optimizations.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD

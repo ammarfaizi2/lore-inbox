@@ -1,56 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbUJXS7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbUJXS76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbUJXS7U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 14:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbUJXS7U
+	id S261586AbUJXS76 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 14:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUJXS76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 14:59:20 -0400
-Received: from bender.bawue.de ([193.7.176.20]:38312 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S261584AbUJXS7Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 14:59:16 -0400
-Date: Sun, 24 Oct 2004 20:59:10 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-To: Christian Borntraeger <linux-kernel@borntraeger.net>,
-       Jan Knutar <jk-lkml@sci.fi>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Bug? Load avg 2.0 when idle.
-Message-ID: <20041024185910.GA13582@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Christian Borntraeger <linux-kernel@borntraeger.net>,
-	Jan Knutar <jk-lkml@sci.fi>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20041024182918.GA12532@sommrey.de> <200410242143.51025.jk-lkml@sci.fi> <20041024182918.GA12532@sommrey.de> <200410242045.04901.linux-kernel@borntraeger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Oct 2004 14:59:58 -0400
+Received: from pop-a065c32.pas.sa.earthlink.net ([207.217.121.247]:18078 "EHLO
+	pop-a065c32.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S261586AbUJXS7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 14:59:48 -0400
+From: Eric Bambach <eric@cisu.net>
+Reply-To: eric@cisu.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: Netlink Implementation.
+Date: Sun, 24 Oct 2004 13:59:55 -0500
+User-Agent: KMail/1.6.2
+References: <200410202017.08654.eric@cisu.net> <200410221751.30798.eric@cisu.net>
+In-Reply-To: <200410221751.30798.eric@cisu.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200410242143.51025.jk-lkml@sci.fi> <200410242045.04901.linux-kernel@borntraeger.net>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410241359.55369.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 08:45:04PM +0200, Christian Borntraeger wrote:
-> Joerg Sommrey wrote:
-> > there is a load average of 2.0+ even if the box is almost idle. (i.e.
-> > "top" shows just one running process: top itself.) Starting two
-> > cpu-intensive processes raises the load average to 4.0+.  How can I
-> > determine the source for the high load, or is this a bug?
-> > I'm running 2.6.9 on a dual-athlon box.
-> 
-> Besides other possibilities, a bug in the kernel could be the cause. 
-> Please check if any process (one or two) is in uninterruptible sleep. 
-> (using ps axl the state is D)
+LKML,
 
-On Sun, Oct 24, 2004 at 09:43:42PM +0300, Jan Knutar wrote:
-> 
-> Look for processes stuck in D state...
+	Here is my post from Linux-net. I am re-posting here because it's appropriate 
+and I have not met with a resolution on linux-net :(
 
-Thanks,
-there was something hanging in D state.  Strange enough: it was waiting
-for modules to be loaded.  After killing a hanging "modprobe" (S state),
-the D state processes vanished and load avg returned to normal values.
+Hello again code gurus :)
 
--jo
+	Yes another fight in my netlink saga. Thanks to all who have replied before 
+and I have learned alot from the rfc's and zebra/iproute and have contructed 
+a much more robust implementation. I have sent the kernel a message defined 
+as below. However I have not learned what exactly I should be expecting from 
+the kernel. That is, my message gets a reply from the kernel about eth0, 
+however on my machine i have eth0,1,2,ppp0 and I would like information about 
+them all. I have NLM_F_ROOT set on the packet as I was under the impression 
+that this would dump information about all the interfaces. I have also tried 
+incrementing   msg.info.ifi_index to 0,1,2,3 etc. No matter what these values 
+I always recieve this output form my program.
+#./nl_test_prog
+Found device: eth0 - 1
+Found address:             <--(Dont care about blank yet, main problem is only
+					    1 if shows. This is minor)
+Received end of msg.
 
--- 
--rw-r--r--  1 jo users 63 2004-10-24 19:38 /home/jo/.signature
+-Am I wrong to expect the kernel to send me data about all the interfaces? 
+-Am I calling this wrong?
+-What can I do to query all the interfaces?
+
+ I do loop through all the rta messages and I receive only 1 nlmsg packet from 
+the kernel when calling recvmsg(). I have also tried without OR'ing 
+NLM_F_MATCH. I have run it through a debugger and confirmed although there 
+are multiple RTA atributes in my netlink packet but they all refer to eth0.
+
+-Should I be expecting multiple packets (NLM_F_MULTI)?
+
+Here is my nl_packet construction.
+
+  msg.hdr.nlmsg_len = sizeof(msg);
+  msg.hdr.nlmsg_type = RTM_GETLINK;
+  msg.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_MATCH; 
+  msg.hdr.nlmsg_pid = getpid();
+  msg.hdr.nlmsg_seq = seq++; 
+  msg.info.ifi_family = AF_UNSPEC; //AF_UNSPEC for ipv4
+  msg.info.ifi_type = NETLINK_ROUTE;
+  msg.info.ifi_index = 0;
+  msg.info.ifi_change =  (0-1); 
+
+----------------Looping over the attributes later in code--------------
+/* Loop over the attributes in this message */
+    while(RTA_OK(rta, len))
+    {
+      switch(rta->rta_type)
+      {
+      case IFLA_IFNAME:
+        cout << "Found device: " << (char *)RTA_DATA(rta)<< " - " <<  
+info->ifi_index << endl;
+        break;
+      case IFLA_ADDRESS:
+        cout << "Found address: " << (char *)RTA_DATA(rta) << endl;
+        break;
+      }
+      rta = RTA_NEXT(rta, len);
+      /* We hit the next packet */
+    }// Packet Looping while()
+
+
+More info/code available upon request.
+
+Any help would be appreciated.
+
+----------------------------------------
+EB
+
+> All is fine except that I can reliably "oops" it simply by trying to read
+> from /proc/apm (e.g. cat /proc/apm).
+> oops output and ksymoops-2.3.4 output is attached.
+> Is there anything else I can contribute?
+
+The latitude and longtitude of the bios writers current position, and
+a ballistic missile.
+
+		--Alan Cox 2000-12-08 
+
+----------------------------------------

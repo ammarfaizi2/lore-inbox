@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318486AbSHENyq>; Mon, 5 Aug 2002 09:54:46 -0400
+	id <S318519AbSHEN5Z>; Mon, 5 Aug 2002 09:57:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318487AbSHENyq>; Mon, 5 Aug 2002 09:54:46 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:13573 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318486AbSHENyp>; Mon, 5 Aug 2002 09:54:45 -0400
-Date: Mon, 5 Aug 2002 10:57:53 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Rmap speedup
-In-Reply-To: <E17biDi-0000w7-00@starship>
-Message-ID: <Pine.LNX.4.44L.0208051056440.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318520AbSHEN5Z>; Mon, 5 Aug 2002 09:57:25 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:50954 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318519AbSHEN5W>;
+	Mon, 5 Aug 2002 09:57:22 -0400
+Date: Mon, 5 Aug 2002 06:56:31 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Hans Reiser <reiser@namesys.com>
+cc: Stephen Lord <lord@sgi.com>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BIG files & file systems
+In-Reply-To: <3D4E80BA.5040701@namesys.com>
+Message-ID: <Pine.LNX.4.33L2.0208050650240.6273-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, Daniel Phillips wrote:
+On Mon, 5 Aug 2002, Hans Reiser wrote:
 
-> > Despite the fact that the number of pte_chain references in
-> > page_add/remove_rmap now just averages two in that test.
->
-> It's weird that it only averages two.  It's a four way and your running
-> 10 in parallel, plus a process to watch for completion, right?
+| Stephen Lord wrote:
+| >
+| >>For a LinuxWorld presentation in August, I have asked each of the
+| >>4 journaling filesystems (ext3, reiserfs, JFS, and XFS) what their
+| >>filesystem/filesize limits are.  Here's what they have told me.
+| >>
+| >>                      ext3fs     reiserfs     JFS     XFS=
+| >>max filesize:         16 TB#      1 EB       4 PB$   8 TB%
+| >>max filesystem size:   2 TB      17.6 TB*    4 PB$   2 TB!
+| >>
+| >>Notes:
+| >>#: think sparse files
+| >>*: 4 KB blocks
+| >>$: 16 TB on 32-bit architectures
+| >>%: 4 KB pages
+| >>!: block device limit
+    =: all limits are kernel limits (probably true for JFS and reiser
+       also)
 
-I explained this one in the comment above the declaration of
-struct pte_chain ;)
+Albert, your graph shows that the triple-indirect limit is
+at 8 EB, right?
 
- * A singly linked list should be fine for most, if not all, workloads.
- * On fork-after-exec the mapping we'll be removing will still be near
- * the start of the list, on mixed application systems the short-lived
- * processes will have their mappings near the start of the list and
- * in systems with long-lived applications the relative overhead of
- * exit() will be lower since the applications are long-lived.
+| >Randy,
+| >
+| >If those are the numbers you are presenting then make it clear that
+| >for XFS those are the limits imposed by the the Linux kernel. The
+| >core of XFS itself can support files and filesystems of 9 Exabytes.
+| >I do not think all the filesystems are reporting their numbers in
+| >the same way.
+| >
+| >Steve
 
-cheers,
+Yes, that info was missing from this text-mode info, but it's
+already on the slide.  I will be sure to make it More obvious,
+and to make the numbers more consistent.
 
-Rik
+| You might also mention that I think the limits imposed by Linux are the
+| only meaningful ones, as we would change our limits as soon as Linux
+| did, and it was Linux that selected our limits for us.  We would have
+| changed already if Linux didn't make it pointless to change it on Intel.
+|  Reiser4 will have 64 bit blocknumbers that will be semi-pointless until
+| 64 bit CPUs are widely deployed, and I am simply guessing this will be
+| not very far into reiser4's lifecycle.  Really, the couple of #defines
+| that constitute these size limits, plus some surrounding code, are not
+| such a big thing to change (except that it constitutes a disk format
+| change).
+
+Right.  I'll make the point in general that Linux internals are the
+reasons for many of these limits.
+
+Thanks,
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+~Randy
 

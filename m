@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbRHKCEu>; Fri, 10 Aug 2001 22:04:50 -0400
+	id <S266067AbRHKCRl>; Fri, 10 Aug 2001 22:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266067AbRHKCEk>; Fri, 10 Aug 2001 22:04:40 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:59653 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S265402AbRHKCEf>; Fri, 10 Aug 2001 22:04:35 -0400
-Date: Sat, 11 Aug 2001 03:04:43 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
+	id <S266417AbRHKCRb>; Fri, 10 Aug 2001 22:17:31 -0400
+Received: from zero.tech9.net ([209.61.188.187]:35592 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S266067AbRHKCRR>;
+	Fri, 10 Aug 2001 22:17:17 -0400
+Subject: Re: [PATCH] 2.4.7-ac11: Updated emu10k1 driver
+From: Robert Love <rml@tech9.net>
 To: linux-kernel@vger.kernel.org
-Subject: complete_and_exit
-Message-ID: <20010811030442.A5238@compsoc.man.ac.uk>
+In-Reply-To: <997485043.692.23.camel@phantasy>
+In-Reply-To: <997485043.692.23.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 10 Aug 2001 22:18:20 -0400
+Message-Id: <997496304.898.82.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: 0898 Dave - Brack Dragon
-X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10 Aug 2001 19:10:29 -0400, Robert Love wrote:
+> This brings 2.4.7-ac11 to the OSS Creative Open Source driver v0.15
+> (specifically, a CVS dump from today, 20010810).  The previous version
+> was v0.7, dating _200008_.
 
-2.4.7-linus contains the completion code, but not complete_and_exit().
+A revision of the patch is available at
+http://www.tech9.net/rml/linux/patch-rml-2.4.7-ac11-emu10k1-2
+and
+http://www.tech9.net/rml/linux/patch-rml-2.4.7-emu10k1-2
+for 2.4.7-ac11 and 2.4.7, respectively.  note the new 2.4.7 patch -- it
+should apply cleanly to 2.4.7-pre series, too.
 
-2.4.7-ac contains complete_and_exit() as well, replacing up_and_exit().
+the previous patch included some portability wrappers that were unneeded
+in the mainline kernel.  the new patch is thus smaller and cleaner.
 
-Is complete_and_exit() going to be in 2.4.8 ? Trying to support before and
-after the change is really more of a pain than it could be right now, as
-you can't use LINUX_VERSION_CODE to detect ac kernels.
-
-thanks
-john
+the previous code should have no problem -- especially if used not as a
+module -- and compile to the same code.
 
 -- 
-"We're standing there pounding a dead parrot on the counter, and
- the management response is to frantically swap in new counters to
- see if that fixes the problem."
-	- Peter Gutmann
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

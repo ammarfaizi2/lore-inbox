@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTKEJMa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 04:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKEJMa
+	id S262765AbTKEJaS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 04:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbTKEJaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 04:12:30 -0500
-Received: from yate.wa.csiro.au ([130.116.131.40]:13837 "EHLO
-	yate.nexus.csiro.au") by vger.kernel.org with ESMTP id S262760AbTKEJM3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 04:12:29 -0500
-Subject: Re:RE: interrupts across  PCI bridge(s) not handled
-From: Frank Horowitz <frank.horowitz@csiro.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
+	Wed, 5 Nov 2003 04:30:18 -0500
+Received: from defout.telus.net ([199.185.220.240]:53401 "EHLO
+	priv-edtnes56.telusplanet.net") by vger.kernel.org with ESMTP
+	id S262765AbTKEJaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 04:30:15 -0500
+Subject: mouse problem on 2.6.0-test9-bk9
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Message-Id: <1068023546.13152.9.camel@bonzo.ned.dem.csiro.au>
+Organization: 
+Message-Id: <1068024630.15471.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 05 Nov 2003 17:12:26 +0800
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Nov 2003 02:30:31 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Nov 2003, Linux Torvalds wrote:
+I recently patched 2.6.0-test9 to 2.6.0-test9-bk9.  Hard disk cache read
+timings on /dev/hda went from 13 to 24 MB/sec, and on /dev/hdb from 24
+to 28 MB/sec.  The problem is that my mouse became slow.  It was very
+fast in 2.6.0-test9, but with bk9 it became very slow (4 edge-to-edge
+drags across the mouse pad to go across the screen).  "xset m 9 1"
+works, but I am at times unable to resize windows (the mouse is skipping
+over the edge of the window).  Option "Resolution" "250" in Section
+"InputDevice" of XF86Config and restarting the X server does not work
+either (nor does substituting for 250 : 15, 100, 500, 2000, 15000). 
+It's a minor thing, but it would be nice to change the mouse speed
+again.
 
-> On Mon, 3 Nov 2003, Charles Martin wrote:
-> >
-> > I enabled ACPI, and the interrupts are now assigned correctly,
-> > and in the range of 48-51:
-> 
-> Good. 
-> 
-> > I didn't realize that ACPI is related to interrupt management 
-> > as well as power control. Is there any downside to using ACPI?
-> 
-> The downside to ACPI is that it's a complex standard, and with
-> complexity 
-> comes the inevitable bugs. As you just found out, it does a lot more
-> than 
-> just power control (the "C" is for "Configuration").
-> 
-> On some machines the ACPI support is even more broken than other BIOS 
-> tables, but it's getting better.
-
-I infer from this discussion that the old (2.2.x-era) rule-of-thumb
-about disabling ACPI for SMP systems is now dangerous advice. True?
-(Even for a 2.4.x series kernel?) Any other "gotchas" with ACPI and SMP
-systems?
-
-Frank Horowitz
-
+Thanks in advance.
+-- 
+Bob Gill <gillb4@telusplanet.net>
 

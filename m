@@ -1,268 +1,272 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318205AbSHWFqe>; Fri, 23 Aug 2002 01:46:34 -0400
+	id <S318237AbSHWFss>; Fri, 23 Aug 2002 01:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318213AbSHWFqe>; Fri, 23 Aug 2002 01:46:34 -0400
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:6910 "EHLO
+	id <S318252AbSHWFss>; Fri, 23 Aug 2002 01:48:48 -0400
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:7678 "EHLO
 	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S318205AbSHWFq3>; Fri, 23 Aug 2002 01:46:29 -0400
+	id <S318237AbSHWFsm>; Fri, 23 Aug 2002 01:48:42 -0400
 From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15717.52510.31194.607129@wombat.chubb.wattle.id.au>
-Date: Fri, 23 Aug 2002 15:50:22 +1000
+Message-ID: <15717.52654.129024.480975@wombat.chubb.wattle.id.au>
+Date: Fri, 23 Aug 2002 15:52:46 +1000
 To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Large Block Device patch part 3 of 9
+cc: linux-kernel@vger.kernel.org
+Subject: Large Block device patch part 4 of 9
 X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
 Comments: Hyperbole mail buttons accepted, v04.18.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This part fixes the partitioning code to use sector_t not long.
-I've cc'd it to Al Viro as he's been working in this area.
+Hi,
+ this part fixes the loop, network block and ram devices to allow
+large block numbers.
+
+The only iffy part is that the interface to the transform functions
+changes depending on the kernel config (sector_t could be 32 or 64
+bits).
+
+Not sure -- it may be better always to use a 64-bit type --- what do
+you think?
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.510   -> 1.511  
-#	drivers/block/blkpg.c	1.39    -> 1.40   
-#	include/linux/genhd.h	1.13    -> 1.14   
-#	include/linux/blkdev.h	1.59    -> 1.60   
-#	  include/linux/fs.h	1.156   -> 1.157  
-#	fs/partitions/check.c	1.44    -> 1.45   
-#	fs/partitions/check.h	1.7     -> 1.8    
-#	fs/partitions/acorn.c	1.8     -> 1.9    
+#	           ChangeSet	1.511   -> 1.512  
+#	 drivers/block/nbd.c	1.33    -> 1.34   
+#	include/linux/loop.h	1.8     -> 1.9    
+#	drivers/block/loop.c	1.56    -> 1.57   
+#	  drivers/block/rd.c	1.45    -> 1.46   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/08/23	peterc@numbat.chubb.wattle.id.au	1.511
-# Allow partitions to be specified in terms of sector_t not long.
-# This allows 32-bit platforms with the right config options
-# to address enormous partitions.
+# 02/08/23	peterc@numbat.chubb.wattle.id.au	1.512
+# Fix loop, network block and ram device to allow larger block offsets.
 # --------------------------------------------
 #
-diff -Nru a/drivers/block/blkpg.c b/drivers/block/blkpg.c
---- a/drivers/block/blkpg.c	Fri Aug 23 14:17:46 2002
-+++ b/drivers/block/blkpg.c	Fri Aug 23 14:17:46 2002
-@@ -68,7 +68,7 @@
+diff -Nru a/drivers/block/loop.c b/drivers/block/loop.c
+--- a/drivers/block/loop.c	Fri Aug 23 14:46:35 2002
++++ b/drivers/block/loop.c	Fri Aug 23 14:46:35 2002
+@@ -83,14 +83,14 @@
+ 
+ static int max_loop = 8;
+ static struct loop_device *loop_dev;
+-static int *loop_sizes;
++static sector_t *loop_sizes;
+ static devfs_handle_t devfs_handle;      /*  For the directory */
+ 
+ /*
+  * Transfer functions
+  */
+ static int transfer_none(struct loop_device *lo, int cmd, char *raw_buf,
+-			 char *loop_buf, int size, int real_block)
++			 char *loop_buf, int size, sector_t real_block)
  {
- 	struct gendisk *g;
- 	long long ppstart, pplength;
--	long pstart, plength;
-+	sector_t pstart, plength;
- 	int i;
- 	kdev_t dev = to_kdev_t(bdev->bd_dev);
- 	struct hd_struct *part;
-@@ -78,8 +78,9 @@
- 	pplength = (p->length >> 9);
- 	pstart = ppstart;
- 	plength = pplength;
--	if (pstart != ppstart || plength != pplength
--	    || pstart < 0 || plength < 0)
-+ 	if (sizeof(pstart) != sizeof(ppstart) && 
-+		    (pstart != ppstart || plength != pplength
-+		    || pstart < 0 || plength < 0))
+ 	if (raw_buf != loop_buf) {
+ 		if (cmd == READ)
+@@ -103,7 +103,7 @@
+ }
+ 
+ static int transfer_xor(struct loop_device *lo, int cmd, char *raw_buf,
+-			char *loop_buf, int size, int real_block)
++			char *loop_buf, int size, sector_t real_block)
+ {
+ 	char	*in, *out, *key;
+ 	int	i, keysize;
+@@ -154,24 +154,31 @@
+ 	&xor_funcs  
+ };
+ 
+-#define MAX_DISK_SIZE 1024*1024*1024
+ 
+-static unsigned long
+-compute_loop_size(struct loop_device *lo, struct dentry * lo_dentry)
++static int figure_loop_size(struct loop_device *lo)
+ {
+-	loff_t size = lo_dentry->d_inode->i_mapping->host->i_size;
+-	return (size - lo->lo_offset) >> BLOCK_SIZE_BITS;
+-}
++	loff_t size = lo->lo_backing_file->f_dentry->d_inode->i_mapping->host->i_size;
++	sector_t x;
+ 
+-static void figure_loop_size(struct loop_device *lo)
+-{
+-	loop_sizes[lo->lo_number] = compute_loop_size(lo,
+-					lo->lo_backing_file->f_dentry);
+-					
++	/*
++	 * Unfortunately, if we want to do I/O on the device,
++	 * the number of 512-byte sectors has to fit into a sector_t.
++	 */
++	size = (size - lo->lo_offset) >> 9;
++	x = (sector_t)size;
++	if ((loff_t)x != size)
++		return -EFBIG;
++	/*
++	 * Convert sectors to blocks
++	 */
++	size >>= (BLOCK_SIZE_BITS - 9);
++
++	loop_sizes[lo->lo_number] = (sector_t)size;
++	return 0;					
+ }
+ 
+ static inline int lo_do_transfer(struct loop_device *lo, int cmd, char *rbuf,
+-				 char *lbuf, int size, int rblock)
++				 char *lbuf, int size, sector_t rblock)
+ {
+ 	if (!lo->transfer)
+ 		return 0;
+@@ -187,18 +194,18 @@
+ 	struct address_space_operations *aops = mapping->a_ops;
+ 	struct page *page;
+ 	char *kaddr, *data;
+-	unsigned long index;
++	pgoff_t index;
+ 	unsigned size, offset;
+ 	int len;
+ 	int ret = 0;
+ 
+ 	down(&mapping->host->i_sem);
+ 	index = pos >> PAGE_CACHE_SHIFT;
+-	offset = pos & (PAGE_CACHE_SIZE - 1);
++	offset = pos & ((pgoff_t)PAGE_CACHE_SIZE - 1);
+ 	data = kmap(bvec->bv_page) + bvec->bv_offset;
+ 	len = bvec->bv_len;
+ 	while (len > 0) {
+-		int IV = index * (PAGE_CACHE_SIZE/bsize) + offset/bsize;
++		sector_t IV = index * (PAGE_CACHE_SIZE/bsize) + offset/bsize;
+ 		int transfer_result;
+ 
+ 		size = PAGE_CACHE_SIZE - offset;
+@@ -704,7 +711,11 @@
+ 	lo->lo_backing_file = file;
+ 	lo->transfer = NULL;
+ 	lo->ioctl = NULL;
+-	figure_loop_size(lo);
++	if (figure_loop_size(lo)) {
++		error = -EFBIG;
++		fput(file);
++		goto out_putf;
++	}
+ 	lo->old_gfp_mask = inode->i_mapping->gfp_mask;
+ 	inode->i_mapping->gfp_mask = GFP_NOIO;
+ 
+@@ -800,6 +811,7 @@
+ 	struct loop_info info; 
+ 	int err;
+ 	unsigned int type;
++	loff_t offset;
+ 
+ 	if (lo->lo_encrypt_key_size && lo->lo_key_owner != current->uid && 
+ 	    !capable(CAP_SYS_ADMIN))
+@@ -815,13 +827,23 @@
  		return -EINVAL;
+ 	if (type == LO_CRYPT_XOR && info.lo_encrypt_key_size == 0)
+ 		return -EINVAL;
++
+ 	err = loop_release_xfer(lo);
+ 	if (!err) 
+ 		err = loop_init_xfer(lo, type, &info);
++
++	offset = lo->lo_offset;
++	if (offset != info.lo_offset) {
++		lo->lo_offset = info.lo_offset;
++		if (figure_loop_size(lo)){
++			err = -EFBIG;
++			lo->lo_offset = offset;
++		}
++	}
++
+ 	if (err)
+ 		return err;	
  
- 	/* find the drive major */
-diff -Nru a/fs/partitions/acorn.c b/fs/partitions/acorn.c
---- a/fs/partitions/acorn.c	Fri Aug 23 14:17:46 2002
-+++ b/fs/partitions/acorn.c	Fri Aug 23 14:17:46 2002
-@@ -17,10 +17,10 @@
+-	lo->lo_offset = info.lo_offset;
+ 	strncpy(lo->lo_name, info.lo_name, LO_NAME_SIZE);
  
- static struct adfs_discrecord *
- adfs_partition(struct parsed_partitions *state, char *name, char *data,
--	       unsigned long first_sector, int slot)
-+	       sector_t first_sector, int slot)
- {
- 	struct adfs_discrecord *dr;
--	unsigned int nr_sects;
-+	sector_t nr_sects;
+ 	lo->transfer = xfer_funcs[type]->transfer;
+@@ -834,7 +856,7 @@
+ 		       info.lo_encrypt_key_size);
+ 		lo->lo_key_owner = current->uid; 
+ 	}	
+-	figure_loop_size(lo);
++
+ 	return 0;
+ }
  
- 	if (adfs_checkbblk(data))
- 		return NULL;
-@@ -42,7 +42,7 @@
- #ifdef CONFIG_ACORN_PARTITION_RISCIX
- static int
- riscix_partition(struct parsed_partitions *state, struct block_device *bdev,
--		unsigned long first_sect, int slot, unsigned long nr_sects)
-+		sector_t first_sect, int slot, sector_t nr_sects)
- {
- 	Sector sect;
- 	struct riscix_record *rr;
-@@ -55,7 +55,7 @@
+@@ -1052,7 +1074,7 @@
+ 	if (!loop_dev)
+ 		return -ENOMEM;
  
+-	loop_sizes = kmalloc(max_loop * sizeof(int), GFP_KERNEL);
++	loop_sizes = kmalloc(max_loop * sizeof(loop_sizes[0]), GFP_KERNEL);
+ 	if (!loop_sizes)
+ 		goto out_mem;
  
- 	if (rr->magic == RISCIX_MAGIC) {
--		unsigned long size = nr_sects > 2 ? 2 : nr_sects;
-+		sector_t size = nr_sects > 2 ? 2 : nr_sects;
- 		int part;
+@@ -1061,7 +1083,7 @@
  
- 		printk(" <");
-@@ -83,11 +83,11 @@
+ 	for (i = 0; i < max_loop; i++) {
+ 		struct loop_device *lo = &loop_dev[i];
+-		memset(lo, 0, sizeof(struct loop_device));
++		memset(lo, 0, sizeof(*lo));
+ 		init_MUTEX(&lo->lo_ctl_mutex);
+ 		init_MUTEX_LOCKED(&lo->lo_sem);
+ 		init_MUTEX_LOCKED(&lo->lo_bh_mutex);
+@@ -1069,7 +1091,7 @@
+ 		spin_lock_init(&lo->lo_lock);
+ 	}
  
- static int
- linux_partition(struct parsed_partitions *state, struct block_device *bdev,
--		unsigned long first_sect, int slot, unsigned long nr_sects)
-+		sector_t first_sect, int slot, sector_t nr_sects)
- {
- 	Sector sect;
- 	struct linux_part *linuxp;
--	unsigned long size = nr_sects > 2 ? 2 : nr_sects;
-+	sector_t size = nr_sects > 2 ? 2 : nr_sects;
+-	memset(loop_sizes, 0, max_loop * sizeof(int));
++	memset(loop_sizes, 0, max_loop * sizeof(*loop_sizes));
+ 	blk_size[MAJOR_NR] = loop_sizes;
+ 	for (i = 0; i < max_loop; i++)
+ 		register_disk(NULL, mk_kdev(MAJOR_NR, i), 1, &lo_fops, 0);
+diff -Nru a/drivers/block/nbd.c b/drivers/block/nbd.c
+--- a/drivers/block/nbd.c	Fri Aug 23 14:46:35 2002
++++ b/drivers/block/nbd.c	Fri Aug 23 14:46:35 2002
+@@ -59,7 +59,7 @@
  
- 	printk(" [Linux]");
+ static int nbd_blksizes[MAX_NBD];
+ static int nbd_blksize_bits[MAX_NBD];
+-static int nbd_sizes[MAX_NBD];
++static sector_t nbd_sizes[MAX_NBD];
+ static u64 nbd_bytesizes[MAX_NBD];
  
-@@ -117,7 +117,7 @@
- static int
- adfspart_check_CUMANA(struct parsed_partitions *state, struct block_device *bdev)
- {
--	unsigned long first_sector = 0;
-+	sector_t first_sector = 0;
- 	unsigned int start_blk = 0;
- 	Sector sect;
- 	unsigned char *data;
-@@ -209,7 +209,8 @@
- static int
- adfspart_check_ADFS(struct parsed_partitions *state, struct block_device *bdev)
- {
--	unsigned long start_sect, nr_sects, sectscyl, heads;
-+	sector_t start_sect, nr_sects, sectscyl;
-+	unsigned heads;
- 	Sector sect;
- 	unsigned char *data;
- 	struct adfs_discrecord *dr;
-@@ -268,7 +269,7 @@
- #endif
- 
- #ifdef CONFIG_ACORN_PARTITION_ICS
--static int adfspart_check_ICSLinux(struct block_device *bdev, unsigned long block)
-+static int adfspart_check_ICSLinux(struct block_device *bdev, sector_t block)
- {
- 	Sector sect;
- 	unsigned char *data = read_dev_sector(bdev, block, &sect);
-@@ -306,7 +307,7 @@
- 	/*
- 	 * Try ICS style partitions - sector 0 contains partition info.
- 	 */
--	data = read_dev_sector(bdev, 0, &sect);
-+	data = read_dev_sector(bdev, (sector_t)0, &sect);
- 	if (!data)
- 	    	return -1;
- 
-@@ -374,7 +375,7 @@
- 	int slot = 1;
- 	int i;
- 
--	data = read_dev_sector(bdev, 0, &sect);
-+	data = read_dev_sector(bdev, (sector_t)0, &sect);
- 	if (!data)
- 		return -1;
- 
-diff -Nru a/fs/partitions/check.c b/fs/partitions/check.c
---- a/fs/partitions/check.c	Fri Aug 23 14:17:46 2002
-+++ b/fs/partitions/check.c	Fri Aug 23 14:17:46 2002
-@@ -415,14 +415,14 @@
+ static struct nbd_device nbd_dev[MAX_NBD];
+diff -Nru a/drivers/block/rd.c b/drivers/block/rd.c
+--- a/drivers/block/rd.c	Fri Aug 23 14:46:35 2002
++++ b/drivers/block/rd.c	Fri Aug 23 14:46:35 2002
+@@ -77,7 +77,7 @@
   */
  
- void register_disk(struct gendisk *gdev, kdev_t dev, unsigned minors,
--	struct block_device_operations *ops, long size)
-+	struct block_device_operations *ops, sector_t size)
- {
- 	if (!gdev)
- 		return;
- 	grok_partitions(dev, size);
- }
+ static unsigned long rd_length[NUM_RAMDISKS];	/* Size of RAM disks in bytes   */
+-static int rd_kbsize[NUM_RAMDISKS];	/* Size in blocks of 1024 bytes */
++static sector_t rd_kbsize[NUM_RAMDISKS];	/* Size in blocks of 1024 bytes */
+ static devfs_handle_t devfs_handle;
+ static struct block_device *rd_bdev[NUM_RAMDISKS];/* Protected device data */
  
--void grok_partitions(kdev_t dev, long size)
-+void grok_partitions(kdev_t dev, sector_t size)
- {
- 	struct block_device *bdev;
- 	struct gendisk *g = get_gendisk(dev);
-diff -Nru a/fs/partitions/check.h b/fs/partitions/check.h
---- a/fs/partitions/check.h	Fri Aug 23 14:17:46 2002
-+++ b/fs/partitions/check.h	Fri Aug 23 14:17:46 2002
-@@ -11,8 +11,8 @@
- struct parsed_partitions {
- 	char name[40];
- 	struct {
--		unsigned long from;
--		unsigned long size;
-+		sector_t from;
-+		sector_t size;
- 		int flags;
- 	} parts[MAX_PART];
- 	int next;
-@@ -20,7 +20,7 @@
- };
- 
- static inline void
--put_partition(struct parsed_partitions *p, int n, int from, int size)
-+put_partition(struct parsed_partitions *p, int n, sector_t from, sector_t size)
- {
- 	if (n < p->limit) {
- 		p->parts[n].from = from;
-diff -Nru a/include/linux/blkdev.h b/include/linux/blkdev.h
---- a/include/linux/blkdev.h	Fri Aug 23 14:17:46 2002
-+++ b/include/linux/blkdev.h	Fri Aug 23 14:17:46 2002
-@@ -37,7 +37,7 @@
- 	int errors;
- 	sector_t sector;
- 	unsigned long nr_sectors;
--	unsigned long hard_sector;	/* the hard_* are block layer
-+	sector_t hard_sector;		/* the hard_* are block layer
- 					 * internals, no driver should
- 					 * touch them
- 					 */
-@@ -281,10 +281,10 @@
- 
- extern struct sec_size * blk_sec[MAX_BLKDEV];
- extern struct blk_dev_struct blk_dev[MAX_BLKDEV];
--extern void grok_partitions(kdev_t dev, long size);
-+extern void grok_partitions(kdev_t dev, sector_t size);
- extern int wipe_partitions(kdev_t dev);
--extern void register_disk(struct gendisk *dev, kdev_t first, unsigned minors, struct block_device_operations *ops, long size);
- extern void check_partition(struct gendisk *disk, struct block_device *bdev);
-+extern void register_disk(struct gendisk *dev, kdev_t first, unsigned minors, struct block_device_operations *ops, sector_t size);
- extern void generic_make_request(struct bio *bio);
- extern inline request_queue_t *bdev_get_queue(struct block_device *bdev);
- extern void blk_put_request(struct request *);
-diff -Nru a/include/linux/fs.h b/include/linux/fs.h
---- a/include/linux/fs.h	Fri Aug 23 14:17:46 2002
-+++ b/include/linux/fs.h	Fri Aug 23 14:17:46 2002
-@@ -355,7 +355,7 @@
- 	int			bd_holders;
- 	struct block_device *	bd_contains;
- 	unsigned		bd_block_size;
--	unsigned long		bd_offset;
-+	sector_t		bd_offset;
- 	unsigned		bd_part_count;
- 	int			bd_invalidated;
- };
-diff -Nru a/include/linux/genhd.h b/include/linux/genhd.h
---- a/include/linux/genhd.h	Fri Aug 23 14:17:46 2002
-+++ b/include/linux/genhd.h	Fri Aug 23 14:17:46 2002
-@@ -59,8 +59,8 @@
- #  include <linux/devfs_fs_kernel.h>
- 
- struct hd_struct {
--	unsigned long start_sect;
--	unsigned long nr_sects;
-+	sector_t start_sect;
-+	sector_t nr_sects;
- 	devfs_handle_t de;              /* primary (master) devfs entry  */
- 	int number;                     /* stupid old code wastes space  */
- 	struct device hd_driverfs_dev;  /* support driverfs hiearchy     */
-@@ -90,7 +90,7 @@
- extern void add_gendisk(struct gendisk *gp);
- extern void del_gendisk(struct gendisk *gp);
- extern struct gendisk *get_gendisk(kdev_t dev);
--static inline unsigned long get_start_sect(struct block_device *bdev)
-+static inline sector_t get_start_sect(struct block_device *bdev)
- {
- 	return bdev->bd_offset;
- }
+diff -Nru a/include/linux/loop.h b/include/linux/loop.h
+--- a/include/linux/loop.h	Fri Aug 23 14:46:35 2002
++++ b/include/linux/loop.h	Fri Aug 23 14:46:35 2002
+@@ -33,7 +33,7 @@
+ 	int		lo_flags;
+ 	int		(*transfer)(struct loop_device *, int cmd,
+ 				    char *raw_buf, char *loop_buf, int size,
+-				    int real_block);
++				    sector_t real_block);
+ 	char		lo_name[LO_NAME_SIZE];
+ 	char		lo_encrypt_key[LO_KEY_SIZE];
+ 	__u32           lo_init[2];
+@@ -121,7 +121,7 @@
+ struct loop_func_table {
+ 	int number; 	/* filter type */ 
+ 	int (*transfer)(struct loop_device *lo, int cmd, char *raw_buf,
+-			char *loop_buf, int size, int real_block);
++			char *loop_buf, int size, sector_t real_block);
+ 	int (*init)(struct loop_device *, struct loop_info *); 
+ 	/* release is called from loop_unregister_transfer or clr_fd */
+ 	int (*release)(struct loop_device *); 

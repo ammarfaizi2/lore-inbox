@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318870AbSH1PcO>; Wed, 28 Aug 2002 11:32:14 -0400
+	id <S318873AbSH1PeP>; Wed, 28 Aug 2002 11:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318872AbSH1PcO>; Wed, 28 Aug 2002 11:32:14 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:16515 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318870AbSH1PcN>; Wed, 28 Aug 2002 11:32:13 -0400
-Date: Wed, 28 Aug 2002 11:37:50 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: yodaiken@fsmlabs.com, Mark Hounschell <markh@compro.net>,
-       "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: interrupt latency
-In-Reply-To: <1030548687.7190.33.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.95.1020828113422.15919A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318875AbSH1PeP>; Wed, 28 Aug 2002 11:34:15 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:30144 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318873AbSH1PeP>; Wed, 28 Aug 2002 11:34:15 -0400
+Subject: Re: LTP Nightly BK Test Failure
+From: Paul Larson <plars@austin.ibm.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, scott.feldman@intel.com
+In-Reply-To: <20020828081036.B28927@work.bitmover.com>
+References: <1030545604.2601.3.camel@plars.austin.ibm.com> 
+	<20020828081036.B28927@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Aug 2002 10:28:30 -0500
+Message-Id: <1030548511.2602.8.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Aug 2002, Alan Cox wrote:
+On Wed, 2002-08-28 at 10:10, Larry McVoy wrote:
+> On Wed, Aug 28, 2002 at 09:40:03AM -0500, Paul Larson wrote:
+> > This bk tree covered up to cset 1.523.1.3 and there were several e100
+> 
+> Because revisions in BK change if there is parallel development, it's
+> far more effective if you list a changeset as either
+...
+I didn't think about that, thanks for the tip.  I'll make sure to do it
+like that in future reports.  Of course if there's any confusion, the
+cset numbers I've been giving can be looked up on the linux-2.5 tree at
+bkbits since I test against an unmodified pull from that tree.
 
-> I would expect port 0x378 on any modern PC to be on the X-bus not on ISA
+Thanks,
+Paul Larson
 
-Correct. All that stuff is in the Super-I/O chip now-a-days as I
-previously stated. It's also called the GP bus (General Purpose).
-It doesn't have slots and their attendent capacity so it's a lot
-faster than ISA was.  
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVBGUyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVBGU5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVBGUyf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVBGUyf
+	id S261268AbVBGU5w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 15:57:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVBGU5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:54:35 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:36052 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261179AbVBGUy2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 15:54:28 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: EBDA Question
-Date: Mon, 7 Feb 2005 15:54:25 -0500
-Message-ID: <60807403EABEB443939A5A7AA8A7458BBD69C8@otce2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: EBDA Question
-Thread-Index: AcUNVeXQ7WMm9C5zTKWKO+LHEH4AwgAALUaA
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>, <linux-kernel@vger.kernel.org>,
-       <linux-scsi@vger.kernel.org>
+	Mon, 7 Feb 2005 15:57:52 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:30458 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261268AbVBGU5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 15:57:48 -0500
+Subject: Re: [PATCH] [SERIAL] add TP560 data/fax/modem support
+From: Bjorn Helgaas <bjorn-helgaas@comcast.net>
+Reply-To: bjorn.helgaas@hp.com
+To: linux-os@analogic.com
+Cc: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0502071508130.24378@chaos.analogic.com>
+References: <1107805182.8074.35.camel@piglet>
+	 <Pine.LNX.4.61.0502071508130.24378@chaos.analogic.com>
+Content-Type: text/plain
+Date: Mon, 07 Feb 2005 13:57:35 -0700
+Message-Id: <1107809856.8074.50.camel@piglet>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EBDA is safe to use during lilo and grub as part of a BIOS. As long as
-the EBDA is properly formed.
+On Mon, 2005-02-07 at 15:12 -0500, linux-os wrote:
+> I thought somebody promised to add a pci_route_irq(dev) or some
+> such so that the device didn't have to be enabled before
+> the IRQ was correct.
+>
+> I first reported this bad IRQ problem back in December of 2004.
+> Has the new function been added?
 
-However, it is considered 'bad behavior' to allocate much more than 4k
-of EBDA as we find others (not Linux) that depend on the 640K region of
-memory run out of this precious resource. Beware of several add-in
-BIOSii that each allocate EBDA; nest/size/relocate/offset properly.
+That's a completely different problem.  The point here is that
+the serial driver currently doesn't do anything with the TP560
+(no pci_enable_device(), no pci_route_irq(), no nothing).  Then
+when setserial comes along and force-feeds the driver with the
+IO and IRQ info, there's nothing at that point that does anything
+to enable the device or route its interrupt either.
 
-Sincerely -- Mark Salyzyn
+I did raise the idea of adding a pci_route_irq() interface, but
+to be honest, I was never convinced of its general usefulness.
+I haven't heard of any driver in the tree that requires it,
+so it's not clear that it would be accepted even if I (or you)
+wrote it.
 
------Original Message-----
-From: linux-scsi-owner@vger.kernel.org
-[mailto:linux-scsi-owner@vger.kernel.org] On Behalf Of Moore, Eric Dean
-Sent: Monday, February 07, 2005 2:45 PM
-To: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-Subject: EBDA Question
+I think you mentioned a specific PCI interface chip that was
+susceptible to the problem; is there a public reference that
+would help explicate the situation?
 
-EBDA - Extended Bios Data Area
-
-Does Linux and various boot loaders(lilo/grub/etc)
-having any restrictions on where and how big 
-memory allocated in EBDA is? Is this
-handled for 2.4/2.6 Kernels?
-
-Reason I ask is we are considering having
-BIOS(for a SCSI HBA Controller) allocating
-memory in EBDA for Firmware use. 
-We are concerned whether Linux would be writing
-over this region of memory during the handoff
-of BIOS to scsi lower layer driver loading.
-
-Eric Moore
-LSI Logic
--
-To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

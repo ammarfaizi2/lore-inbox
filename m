@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313087AbSEYAZH>; Fri, 24 May 2002 20:25:07 -0400
+	id <S313083AbSEYAWC>; Fri, 24 May 2002 20:22:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313113AbSEYAZG>; Fri, 24 May 2002 20:25:06 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:57037 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S313087AbSEYAZF>;
-	Fri, 24 May 2002 20:25:05 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 25 May 2002 02:24:22 +0200 (MEST)
-Message-Id: <UTC200205250024.g4P0OM005850.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com, viro@math.psu.edu
-Subject: Re: [RFC] change of ->bd_op->open() semantics
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+	id <S313087AbSEYAWB>; Fri, 24 May 2002 20:22:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38418 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313083AbSEYAWA>; Fri, 24 May 2002 20:22:00 -0400
+Subject: Re: [RFC] POSIX personality
+To: jw@pegasys.ws (jw schultz)
+Date: Sat, 25 May 2002 01:38:37 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds), davidsen@tmr.com (Bill Davidsen),
+        dmccr@us.ibm.com (Dave McCracken),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <20020524170207.C9600@pegasys.ws> from "jw schultz" at May 24, 2002 05:02:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BPZt-0007jK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al writes:
+> It seems to me that the biggest issue here is maintaining
+> POSIX behavior without having to modify application source
+> every time the flag set changes.
 
-    4) moving the call of partition-reading code into do_open() (for cases when
-    ->bd_contains is non-NULL), killing the "set block_device fields by hand"
-    mess in check_partitions()
+I don't think that is a big problem. Think about how it evolves over time
 
-Hmm. I probably misunderstand some things.
 
-There must be a data structure with the information that belongs
-to a disk, opened or not. The size, the sectorsize, the partitions, ...
-The structure that I made kdev_t point at.
+App calls pthread_foo   libpthreads/ngpt does all the work by emulation
 
-What are you working towards? There is a struct block_device.
-But it is not permanent. It is created when the device is opened
-and disappears when it is closed.
-So it doesnt help in replacing kdev_t - the permanent data must still
-be somewhere. There is a struct gendisk. That is better.
-It is not difficult to make sure that all devices that have array data
-also get a struct gendisk.
-Then there is struct request_queue. I see that it got hardsect_size,
-but it seems a less suitable place for general disk info.
+	Add CLONE_somefoo
 
-[So, let me repeat: Question: where do you plan to put permanent
-disk data?]
+App calls pthread_foo	libpthreads/ngpt does all the work by emulation
+			and doesnt set the flag
 
-Now about this partition-reading code. It requires a partitiontable type,
-just like mounting requires a filesystem type. Now mount() has a
-parameter that specifies the filesystem type. But open() does not
-have a parameter that specifies a partitiontable type.
-It seems to me that doing partitiontable reading in do_open()
-is a really bad idea.
+	New libpthreads
 
-Maybe you have a "do it only once" kludge in mind?
-To get something ugly, equivalent to the present situation?
+App calls pthread_foo	libpthreads/ngpt uses the kernel assists
 
-Andries
+
+
+
+The behaviour is good - it means that the new kernel/old library setup won't
+break the emulation gunge by suddenely providing precise semantics itself

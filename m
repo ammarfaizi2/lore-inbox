@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289896AbSAKJCN>; Fri, 11 Jan 2002 04:02:13 -0500
+	id <S289904AbSAKJVT>; Fri, 11 Jan 2002 04:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289904AbSAKJCE>; Fri, 11 Jan 2002 04:02:04 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:17868 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289896AbSAKJBw>; Fri, 11 Jan 2002 04:01:52 -0500
-Date: Fri, 11 Jan 2002 11:01:18 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: <bonganilinux@mweb.co.za>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Compilation error on 2.5.10 linux-2.5/drivers/ide/pdc4030.c
-Message-ID: <Pine.LNX.4.33.0201111052050.7634-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289905AbSAKJVJ>; Fri, 11 Jan 2002 04:21:09 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:10915
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289904AbSAKJU6>; Fri, 11 Jan 2002 04:20:58 -0500
+Date: Fri, 11 Jan 2002 04:05:33 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML2-2.1.2 is available
+Message-ID: <20020111040533.A10940@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->This fixes an error when compiling and removes a unused variable warning
->The following warning I'm not sure about though:
->
->pdc4030.c: In function `do_pdc4030_io':
->pdc4030.c:571: warning: control reaches end of non-void function
+The latest version is always available at <http://www.tuxedo.org/~esr/cml2/>.
 
-That warning is because the function returns an ide_startstop_t but there
-is no ending return statement. Looking at the code it is possible to
-reach that particular code path. Mind doing a quick patch?
+Release 2.1.2: Fri Jan 11 03:50:36 EST 2002
+	* Resync with 2.5.2-pre11.
+	* Properties introduced.  Symbols can now have associated class flags.
+	  to be used by configurator programs.
+	* Frozen symbols are no longer visible.
 
-ide_startstop_t do_pdc4030_io (ide_drive_t *drive, struct request *rq)
-{
-<snip>
-    default:
-                printk(KERN_ERR "pdc4030: command not READ or WRITE!
-Huh?\n");
-                ide_end_request(0, HWGROUP(drive));
-                break;
-        }
-	<=== [1]
-}
+Checkpoint release.  The compiler has just undergone major surgery, so this
+one may be a bit buggier than typical recently (though it passed all my
+standard tests).  I'm in the throes of introducing property-annotation 
+macinery for use by the autoconfigurator.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-[1] No return statement here but function is non-void (ie it should return
-something)
-
-
+The United States is in no way founded upon the Christian religion
+	-- George Washington & John Adams, in a diplomatic message to Malta.

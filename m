@@ -1,83 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130479AbRCDLN4>; Sun, 4 Mar 2001 06:13:56 -0500
+	id <S130481AbRCDLP0>; Sun, 4 Mar 2001 06:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130480AbRCDLNr>; Sun, 4 Mar 2001 06:13:47 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:3825 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130479AbRCDLNd>; Sun, 4 Mar 2001 06:13:33 -0500
-Message-ID: <3AA22364.9253CF49@uow.edu.au>
-Date: Sun, 04 Mar 2001 22:13:40 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
-X-Accept-Language: en
+	id <S130484AbRCDLPQ>; Sun, 4 Mar 2001 06:15:16 -0500
+Received: from www.wen-online.de ([212.223.88.39]:59146 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130481AbRCDLPE>;
+	Sun, 4 Mar 2001 06:15:04 -0500
+Date: Sun, 4 Mar 2001 12:14:31 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: David <david@blue-labs.org>
+cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [CFT] Re: 2.4 VM question
+In-Reply-To: <3AA0CA2E.70208@blue-labs.org>
+Message-ID: <Pine.LNX.4.33.0103041142410.1680-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] perform reboot notification in process context
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ctrl_alt_del() is called from hard interrupt context.
-It traverses the reboot_notifier_list.  Many of the
-callouts on that list are not designed to be called
-in this context.
+On Sat, 3 Mar 2001, David wrote:
 
-DAC960_Finalise()
-        Calls remove_proc_entry() within interrupt context.
-        remove_proc_entry uses spin_lock()s.
-	Can deadlock.
+> Is there a particular reason why 2.4 insists on stuffing as much as
+> possible into swap?
 
-drivers/char/sbc60xxwdt.c:sbc60xxwdt_unload()
-        Calls misc_deregister which calls down().
+Yes.. the VM is being tuned.  The latest changes result in overly
+agressive caching with some work loads.
 
-drivers/i2o/i2o_core.c
-        calls i2o_post_wait()
-        calls i2o_reset_controller()
+For people who are running into this, please edit mm/vmscan.c and
+change DEF_PRIORITY from 6 to 2.  This change helps the performance
+woes I see on my box quite a bit.  Report results to me (interested),
+and the cc list (those who can ACT on it;) unless they say otherwise.
 
-        Both of these schedule().  Crashes every time.
+	-Mike
 
-drivers/scsi/gdth.c
-        gdth_halt()
-        calls gdth_do_cmd
-                does down().
-
-
-This patch makes keventd do the callout.
-
-
---- linux-2.4.3-pre1/kernel/sys.c	Tue Oct 17 06:58:51 2000
-+++ linux-akpm/kernel/sys.c	Sun Mar  4 22:04:57 2001
-@@ -330,6 +330,12 @@
- 	return 0;
- }
- 
-+static void deferred_cad(void *dummy)
-+{
-+	notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
-+	machine_restart(NULL);
-+}
-+
- /*
-  * This function gets called by ctrl-alt-del - ie the keyboard interrupt.
-  * As it's called within an interrupt, it may NOT sync: the only choice
-@@ -337,10 +343,13 @@
-  */
- void ctrl_alt_del(void)
- {
--	if (C_A_D) {
--		notifier_call_chain(&reboot_notifier_list, SYS_RESTART, NULL);
--		machine_restart(NULL);
--	} else
-+	static struct tq_struct cad_tq = {
-+		routine: deferred_cad,
-+	};
-+
-+	if (C_A_D)
-+		schedule_task(&cad_tq);
-+	else
- 		kill_proc(1, SIGINT, 1);
- }

@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUADTD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 14:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbUADTD5
+	id S262360AbUADTBL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 14:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUADTBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 14:03:57 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:23736 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S263370AbUADTDz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 14:03:55 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Jamie Lokier <jamie@shareable.org>, Bill Davidsen <davidsen@tmr.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-Date: Sun, 4 Jan 2004 20:01:57 +0100
-User-Agent: KMail/1.5.4
-References: <3FE492EF.2090202@colorfullife.com> <20040103010909.GI1882@matchmail.com> <20040103212837.GA10139@mail.shareable.org>
-In-Reply-To: <20040103212837.GA10139@mail.shareable.org>
+	Sun, 4 Jan 2004 14:01:11 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:46864 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S262360AbUADTBI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 14:01:08 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kernel oops at boot time (repeatable each time, 2.6.0, 2.6.1rc1)
+Date: Sun, 4 Jan 2004 20:00:54 +0100
+User-Agent: KMail/1.5.94
+References: <200401041746.52826.arekm@pld-linux.org>
+In-Reply-To: <200401041746.52826.arekm@pld-linux.org>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200401042002.03684.ioe-lkml@rameria.de>
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200401042000.54155.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Saturday 03 January 2004 22:28, Jamie Lokier wrote:
-> Mike Fedyk wrote:
-> > On Fri, Jan 02, 2004 at 10:41:50PM +0000, Jamie Lokier wrote:
-> > > The best way is to maintain poll state in each "struct file".  The
-> > > order of complexity for the bitmap scan is still significant, but
-> > > ->poll calls are limited to the number of transitions which actually
-> > > happen.
-> >
-> > What's the drawback to this approach?
-> >
-> > Where is the poll state kept now?
+On Sunday 04 of January 2004 17:46, Arkadiusz Miskiewicz wrote:
+> The kernel 2.6.1rc1 oopses:
 >
-> The poll state is not maintained at all _between_ calls to poll/select
-> at the moment, so at least one fresh call to ->poll is required per
-> file descriptor.  That is something that can be changed.
+> Linux Plug and Play Support v0.97 (c) Adam Belay
+> PnPBIOS: Scanning system for PnP BIOS support...
+> PnPBIOS: Found PnP BIOS installation structure at 0xc00f3450
+> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x3a6a, dseg 0xf0000
+> general protection fault: 0000 [#1]
+> CPU:    0
+> EIP:    0098:[<00001013>]    Not tainted
+> EFLAGS: 00010097
+> EIP is at 0x1013
+> eax: 00002514   ebx: 000000a2   ecx: 00010000   edx: 00000001
+> esi: ded7086c   edi: 000100b2   ebp: deed0000   esp: deed1ec2
+> ds: 00b0   es: 00b0   ss: 0068
+> Process swapper (pid: 1, threadinfo=deed0000 task=dee5f900)
+> Stack: 00000514 25140e82 00000000 42af00b2 0000ad68 00010001 1f144240
+> 00b2ad71 1f140000 ad681ef0 00060001 3d290c0c 010c010c 007b3b84 00b0007b
+> 00a0c000 3b4000b0 00a83b06 1f640096 000bdeed 00010090 00a80000 00b00000
+> 00a00001 Call Trace:
+>
+> Code:  Bad EIP value.
+>  <0>Kernel panic: Attempted to kill init!
+>  <0>Rebooting in 10 seconds
 
-Yes, file->f_mode can be hijacked for this. Only 2 bits of it are used at the
-moment. More headache is clearing this state again, but this might not be
-necessary, since we can always return EAGAIN, if the cache is stale,
-right?
+pnpbios=off and kernel boots properly!
 
-> The impression I had was that the code is quite complicated and
-> invasive, and select/poll aren't considered worth optimising because
-> epoll is an overall better solution (which is true; optimising
-> select/poll would change the complexity of the slow part but not
-> reduce the complexity of the API part, while epoll does both).
-
-This is true. But old software continues to exist and for INN there is
-pretty much nothing else in this category available, I've been told by
-several admins. Nobody really likes it, but it is used and improved
-where necessary (epoll might be on the list already).
-
-Regards 
-
-Ingo Oeser
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/+GMqU56oYWuOrkARAlC5AJ4sX3OvARw0lE7n35tvr0NfeUkJGgCgmUt6
-PuPC9O9DMZt+bCNIiUa/viU=
-=d23f
------END PGP SIGNATURE-----
-
+-- 
+Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux

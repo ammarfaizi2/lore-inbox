@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270350AbTHLN4O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270352AbTHLNza
+	id S270416AbTHLOF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270426AbTHLOF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:55:30 -0400
-Received: from h80ad2614.async.vt.edu ([128.173.38.20]:40833 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S270350AbTHLNzW (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:55:22 -0400
-Message-Id: <200308121355.h7CDtAfZ007802@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Christian Reichert <c.reichert@resolution.de>
+	Tue, 12 Aug 2003 10:05:59 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:53440 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S270416AbTHLOF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 10:05:57 -0400
+Date: Tue, 12 Aug 2003 16:06:09 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: modprobe: QM_MODULES: Function not implemented ?? 
-In-Reply-To: Your message of "Tue, 12 Aug 2003 09:45:55 +0200."
-             <1060674355.3f389b33101b0@corporate.resolution.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0308112338150.1464-100000@localhost.localdomain>
-            <1060674355.3f389b33101b0@corporate.resolution.de>
+Subject: Re: 2.6.0-test3 cannot mount root fs
+Message-ID: <20030812140609.GB1926@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Andrey Borzenkov <arvidjaar@mail.ru>,
+	linux-kernel@vger.kernel.org
+References: <E19mZ6L-000Jrv-00.arvidjaar-mail-ru@f22.mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1644567556P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Aug 2003 09:55:10 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E19mZ6L-000Jrv-00.arvidjaar-mail-ru@f22.mail.ru>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1644567556P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <7790.1060696498.1@turing-police.cc.vt.edu>
+On Tue, Aug 12, 2003 at 05:22:13PM +0400, "Andrey Borzenkov"  wrote:
+> 
+> >>        cannot mount rootfs "NULL" or hdb1
+> >
+> > AFAIK, there is no such message in 2.6.0-test3 ...
+> 
+> there is
 
-On Tue, 12 Aug 2003 09:45:55 +0200, Christian Reichert said:
+please provide the file and line number, where
+linux-2.6.0-test3 contains the string "cannot mount rootfs".
+(or where this string is synthesized)
+I am not able to locate it ...
 
-> Search the archives, this has been explained too often ...
+> > if, on the other hand, the message looks like ...
+> >
+> > -----------
+> > VFS: Cannot open root device "hdb1" or unknown-block(0,0)
+> > Please append a correct "root=" boot option
+> > -----------
+> 
+> he does not pass it in append line. He is using root= option in lilo.
+> actually my lilo does pass "root=341" in this case while the above means lilo omits any root= command line option and relies on compiled-in ROOT_DEV
 
-Anybody for adding a temporary patch, to come out in 2.6.2 or so once the dust
-settles, that does something like this just before launching userspace:
+already suggested that, but he says, it doesn't
+work either ... 
 
-	printk("\n");
-	printk("Read http://www.codemonkey.org.uk/post-halloween-2.5.txt\n");
-#ifdef CONFIG_MODULES
-	printk("\n");
-	printk("In particular, if you haven't gotten module-init-tools, you're screwed\n");
-#endif
-	mdelay(5000);
+best,
+Herbert
 
-Just a thought... ;)
-
---==_Exmh_-1644567556P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/OPG+cC3lWbTT17ARAtJEAJwLktgPv0tGZ2oFQOHw42Y0g6UfOgCfUfPv
-wVy7gqDaQghGsapCdnOY2yw=
-=u2hd
------END PGP SIGNATURE-----
-
---==_Exmh_-1644567556P--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

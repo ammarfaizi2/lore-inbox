@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUEJMp6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264675AbUEJMxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbUEJMp6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 08:45:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbUEJMp5
+	id S264675AbUEJMxi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 08:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264681AbUEJMxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 08:45:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14794 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264677AbUEJMpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 08:45:49 -0400
-Date: Mon, 10 May 2004 14:45:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.6-mm1: a different CONFIG_STANDALONE approach
-Message-ID: <20040510124543.GI9028@fs.tum.de>
-References: <20040510024506.1a9023b6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040510024506.1a9023b6.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 10 May 2004 08:53:38 -0400
+Received: from a25.t1.student.liu.se ([130.236.221.25]:64235 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S264675AbUEJMxg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 08:53:36 -0400
+Message-ID: <409F7B4C.6070204@drzeus.cx>
+Date: Mon, 10 May 2004 14:53:32 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 1/4 MMC layer
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 02:45:06AM -0700, Andrew Morton wrote:
->...
-> All 391 patches:
->...
-> CONFIG_STANDALONE-default-to-n.patch
->   Make CONFIG_STANDALONE default to N
->...
+I'd be very happy to see MMC support getting into the vanilla kernel. 
+I'm about to purchase a HP NX7010 which has a currently unsupported 
+MMC/SD card reader. It is my intention to attempt to write a driver for 
+this reader (a Winbond w83l518d) and it'll make it easier with the MMC 
+routines already in the kernel.
+Memory cards are beginning to replace floppys so the sooner linux has 
+good support for them the better =)
 
-I'd prefer to solve this issue with the following patch, that makes it 
-still possible to select CONFIG_STANDALONE with EXPERIMENTAL=n:
+Are there any reason SD[IO] is left out? From what I can gather the 
+unencrypted parts of SD are in the open now. Am I missing something here?
 
+Rgds Pierre Ossman
 
---- init/Kconfig.old	2004-05-10 14:41:42.000000000 +0200
-+++ init/Kconfig	2004-05-10 14:42:08.000000000 +0200
-@@ -42,7 +42,7 @@
- 	  If unsure, say Y
- 
- config STANDALONE
--	bool "Select only drivers that don't need compile-time external firmware" if EXPERIMENTAL
-+	bool "Select only drivers that don't need compile-time external firmware"
- 	default y
- 	help
- 	  Select this option if you don't have magic firmware for drivers that
+PS. I'm not subscribed to the kernel list at the moment so please cc any 
+replies.
 
+> *From:* Russell King (/rmk+lkml_at_arm.linux.org.uk/)
+>
+>Date:	Sun, 2 May 2004 15:52:26 +0100
+>To: Linux Kernel List <linux-kernel@vger.kernel.org>
+>
+>  
+>
+> On Thu, Apr 29, 2004 at 01:48:24PM +0100, Russell King wrote:
+> /> This patch adds core support to the Linux kernel for driving MMC /
+> /> interfaces found on embedded devices, such as found in the Intel /
+> /> PXA and ARM MMCI primecell. This patch does _not_ add support /
+> /> for SD or SDIO cards. /
+>
+> As there haven't been any comments, can I assume that either people
+> don't care, or people are happy for this to appear in Linus' tree?
+>
+> (I actually suspect its out of peoples minds having been buried by
+> about 4 days of lkml.)
+>
+> Thanks. 8) 
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbULCWSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbULCWWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbULCWSg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbULCWSg
+	id S262416AbULCWWF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbULCWWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:18:36 -0500
-Received: from hera.kernel.org ([63.209.29.2]:7109 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262410AbULCWSX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:18:23 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [PATCH] Cyrix MII cpuid returns stale %ecx
-Date: Fri, 3 Dec 2004 22:18:12 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <coqon4$p9e$1@terminus.zytor.com>
-References: <Pine.LNX.4.61.0411302125350.1243@montezuma.fsmlabs.com> <20041203090843.GA25528@wotan.suse.de>
+	Fri, 3 Dec 2004 17:22:04 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:14480 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S262416AbULCWWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:22:01 -0500
+Date: Fri, 3 Dec 2004 23:21:45 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+Message-ID: <20041203222145.GQ32635@dualathlon.random>
+References: <1101938767.13353.62.camel@tglx.tec.linutronix.de> <20041202033619.GA32635@dualathlon.random> <1101985759.13353.102.camel@tglx.tec.linutronix.de> <1101995280.13353.124.camel@tglx.tec.linutronix.de> <20041202164725.GB32635@dualathlon.random> <20041202085518.58e0e8eb.akpm@osdl.org> <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <1102108206.13353.263.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1102112292 25903 127.0.0.1 (3 Dec 2004 22:18:12 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 3 Dec 2004 22:18:12 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102108206.13353.263.camel@tglx.tec.linutronix.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20041203090843.GA25528@wotan.suse.de>
-By author:    Andi Kleen <ak@suse.de>
-In newsgroup: linux.dev.kernel
->
-> On Tue, Nov 30, 2004 at 10:07:55PM -0700, Zwane Mwaikambo wrote:
-> > This patch is for the following bug, thanks to Ondrej Zary for 
-> > reporting, testing and submitting a patch.
-> > 
-> > http://bugzilla.kernel.org/show_bug.cgi?id=3767
-> > 
-> > It appears that the Cyrix MII won't touch %ecx at all resulting in stale 
-> > data being returned as extended attributes, so clear ecx before issuing 
-> > the cpuid. I have also made the capability print code display all the 
-> > capability words for easier debugging in future.
+On Fri, Dec 03, 2004 at 10:10:06PM +0100, Thomas Gleixner wrote:
+> On Fri, 2004-12-03 at 00:35 +0100, Andrea Arcangeli wrote:
+> > Fork eventually failing is very reasonable if you're executing a fork
+> > loop.
 > 
-> Can you please change cpuid() on x86-64 too?
-> 
-> I think it would be also better to not printk the capabilities
-> at all or only with a special kernel option. Normally they are
-> not needed, but they clutter up the boot  log.
-> 
+> Yes, it's reasonable, but the effect that any consequent command is
+> aborted then is not so reasonable.
 
-Since this is a bug fix for Cyrix MII, which isn't x86-64, it seems
-pointless to do it for x86-64.
+Did you use the 4k stacks on 2.6 btw?
 
-	-hpa
+> Use a forking server, connect a lot of clients and it is real life. :)
+
+;)
+
+> Yes, it was invoked
+
+Ok good.

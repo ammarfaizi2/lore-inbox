@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274584AbRITRm0>; Thu, 20 Sep 2001 13:42:26 -0400
+	id <S274579AbRITRrQ>; Thu, 20 Sep 2001 13:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274581AbRITRmQ>; Thu, 20 Sep 2001 13:42:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32780 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274580AbRITRmE>; Thu, 20 Sep 2001 13:42:04 -0400
-Subject: Re: drivers/char/sonypi.h broken
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Thu, 20 Sep 2001 18:46:45 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200109201418.f8KEIjG01625@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Sep 20, 2001 08:18:45 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274581AbRITRrG>; Thu, 20 Sep 2001 13:47:06 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:32181 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S274579AbRITRq5>;
+	Thu, 20 Sep 2001 13:46:57 -0400
+Message-ID: <3BAA2BA8.34873B27@candelatech.com>
+Date: Thu, 20 Sep 2001 10:47:20 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: pre12 fails to compile:  wakeup_bdflush issues
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15k7uP-0005im-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> in 12 hours. I think this just highlights the need for BitKeeper or
-> equivalent, where automated regression testing (even a simple "does it
-> compile and link?") is performed, and if the test fails, it gets
-> bounced and doesn't even get to Linus.
+I used the .config from RH's roswell beta.
 
-I do compile/link tests but not a million combinations of them. Its
-o(N!) remember..
+I get this error:
 
+sysrq.c:35: conflicting types for 'wakeup_bdflush'
+/root/linux/include/linux/fs.h:1347: previous declaration of 'wakeup_bdflush'
+
+One says it takes a void argument, the other  an int......
+
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278755AbRKVNMn>; Thu, 22 Nov 2001 08:12:43 -0500
+	id <S279035AbRKVNRd>; Thu, 22 Nov 2001 08:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279005AbRKVNMd>; Thu, 22 Nov 2001 08:12:33 -0500
-Received: from as2-1-8.va.g.bonet.se ([194.236.117.122]:52484 "EHLO
-	boris.prodako.se") by vger.kernel.org with ESMTP id <S278755AbRKVNMO>;
-	Thu, 22 Nov 2001 08:12:14 -0500
-Date: Thu, 22 Nov 2001 14:12:06 +0100 (CET)
-From: Tobias Ringstrom <tori@ringstrom.mine.nu>
-X-X-Sender: <tori@boris.prodako.se>
-To: Anders Linden <anli@perceptive.se>
+	id <S279190AbRKVNRX>; Thu, 22 Nov 2001 08:17:23 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:41993 "HELO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
+	id <S279035AbRKVNRT>; Thu, 22 Nov 2001 08:17:19 -0500
+Date: Thu, 22 Nov 2001 14:17:18 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Marcus Grando <marcus@big.univali.br>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Network card timeouts
-In-Reply-To: <71C83C8929F73A40BBD0C137232DD1972ED4@piff.i.perceptive.se>
-Message-ID: <Pine.LNX.4.33.0111221407510.13980-100000@boris.prodako.se>
+Subject: Re: Input/output error
+In-Reply-To: <5.1.0.14.1.20011122105002.00ab7678@mail.big.univali.br>
+Message-ID: <Pine.LNX.4.33.0111221415490.1518-100000@grignard.amagerkollegiet.dk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, Anders Linden wrote:
+On Thu, 22 Nov 2001, Marcus Grando wrote:
 
-> Occasion 2:
-> The later card, Davicom, is probably not a well-known card, but
-> nevertheless, it works like shit in Linux. I am using Redhat 7.1 and the
-> kernel 2.4.2-2. If I send more than 10M to such a card in an interval of
-> a second, it just quits working for 5 seconds. The card has no problems
-> at all in other, third party operating systems, like Windows.
-> 
-> Is it the newest kernels that has theese problems? The first occasion
-> was exactly after a kernel 2.4.3 has been released, and people I talked
-> to said that 2.4.2 and network cards were better friends.
-> 
-> Thanks for your attension
+> On try start syslog deamon occur this errrors "Input/output error" on many archives /var directory.
 
-Please try 2.4.14 and let me know if you still see this problem with the
-dmfe driver.
+Try to run fsck on the /var partition. Also you should check the disk 
+for bad blocks. What output do you get from the kernel ('dmesg', 
+/var/log/messages etc.)?
 
-/Tobias
+It could be a bad disk developing bad sectors.
+
+Rasmus
+
+-- 
+-- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
+DISCLAIMER: Microsoft, Windows, Windows 98, Bugs, Lacking features, IRQ
+conflicts, System crashes, Non-functional multitasking, the Y2K problem
+and the Blue Screen of Death are registered trademarks of
+Microsoft, Corp., Redmond, USA.
+--------------------------------- [ moffe at amagerkollegiet dot dk ] --
 

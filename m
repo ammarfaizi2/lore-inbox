@@ -1,88 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbUDTPhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbUDTPgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbUDTPhq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 11:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDTPhq
+	id S262864AbUDTPgc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 11:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbUDTPgc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 11:37:46 -0400
-Received: from legolas.restena.lu ([158.64.1.34]:45726 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S263148AbUDTPhA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 11:37:00 -0400
-Subject: Re: logitech mouseMan wheel doesn't work with 2.6.5
-From: Craig Bradney <cbradney@zip.com.au>
-To: rol@as2917.net
-Cc: "'Erik Steffl'" <steffl@bigfoot.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200404201522.i3KFMk120352@tag.witbe.net>
-References: <200404201522.i3KFMk120352@tag.witbe.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NNJ0mEq9vR3uajOZdiU7"
-Message-Id: <1082475417.6543.3.camel@amilo.bradney.info>
+	Tue, 20 Apr 2004 11:36:32 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:63396 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262864AbUDTPg3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 11:36:29 -0400
+Subject: [PATCH][SELINUX] Remove hardcoded policy assumption from
+	get_user_sids logic
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1082475370.7481.63.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 20 Apr 2004 17:36:57 +0200
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 20 Apr 2004 11:36:10 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch against 2.6.6-rc1-mm1 removes a hardcoded policy assumption
+from the get_user_sids logic in the SELinux module that was preventing
+it from returning contexts that had the same type as the caller even if
+the policy allowed such a transition.  The assumption is not valid for
+all policies, and can be handled via policy configuration and userspace
+rather than hardcoding it in the module logic.
 
---=-NNJ0mEq9vR3uajOZdiU7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+ security/selinux/ss/services.c |    2 --
+ 1 files changed, 2 deletions(-)
 
-I've got 4 PCs all with logitech cordless optical mice.. all work
-perfectly with Gentoo dev sources 2.6.5.. as well as 2.6.3, 2.6.1 etc
+diff -X /home/sds/dontdiff -ru linux-2.6.old/security/selinux/ss/services.c linux-2.6/security/selinux/ss/services.c
+--- linux-2.6.old/security/selinux/ss/services.c	2004-04-20 10:11:03.000000000 -0400
++++ linux-2.6/security/selinux/ss/services.c	2004-04-20 10:48:30.772189123 -0400
+@@ -1341,8 +1341,6 @@
+ 			if (!ebitmap_get_bit(&role->types, j))
+ 				continue;
+ 			usercon.type = j+1;
+-			if (usercon.type == fromcon->type)
+-				continue;
+ 			mls_for_user_ranges(user,usercon) {
+ 				rc = context_struct_compute_av(fromcon, &usercon,
+ 							       SECCLASS_PROCESS,
 
-Craig
 
-On Tue, 2004-04-20 at 17:22, Paul Rolland wrote:
-> Hello,
->=20
-> >    it looks that after update to 2.6.5 kernel (debian source=20
-> > package but=20
-> > I guess it would be the same with stock 2.6.5) the mouse=20
-> > wheel and side=20
-> > button on Logitech Cordless MouseMan Wheel mouse do not work.
-> I've got a new mouse with a wheel, and I've got the same problem,
-> though I can't tell if it was working before...
->=20
-> > Here's the most basic/simple situation/symptoms:
-> >=20
-> >    I stop X, read bytes from /dev/psaux (c program, using open and=20
-> > read). for each mouse action there are few bytes read, usually number=20
-> Could you provide me with the program so that I can test too ?
->=20
-> >    BTW X windows is confused in the same way (I guess because that's=20
-> > what it gets from kernel driver - using xev I found that it=20
-> > thinks the=20
-> > sidebutton is button 2 and that turning the wheel is not an=20
-> > event at all).
-> Got the same : wheel is no-op :-(
->=20
-> I guess I should try a stock 2.4.x kernel to see if it working or
-> not...
->=20
-> Regards,
-> Paul
->=20
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
-n
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
-
---=-NNJ0mEq9vR3uajOZdiU7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAhUOZi+pIEYrr7mQRAp6nAJ9N7Ucq+lrT3yyTtVdVBpk7hyAwHgCfYlpH
-PzNdC1Q8r7FXmrOz/R8CXiE=
-=ceyM
------END PGP SIGNATURE-----
-
---=-NNJ0mEq9vR3uajOZdiU7--
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

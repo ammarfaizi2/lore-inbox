@@ -1,57 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317347AbSGIJoZ>; Tue, 9 Jul 2002 05:44:25 -0400
+	id <S311710AbSGIJyI>; Tue, 9 Jul 2002 05:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317345AbSGIJoX>; Tue, 9 Jul 2002 05:44:23 -0400
-Received: from gw-fxb-in.genebee.msu.ru ([195.208.219.253]:24838 "EHLO
-	libro.genebee.msu.su") by vger.kernel.org with ESMTP
-	id <S317347AbSGIJoP>; Tue, 9 Jul 2002 05:44:15 -0400
-Date: Tue, 9 Jul 2002 13:47:41 +0400 (MSD)
-From: Tim Alexeevsky <realtim@mail.ru>
-X-X-Sender: <tim@zhuchka>
-Reply-To: <realtim@mail.ru>
-To: Alex Riesen <Alexander.Riesen@synopsys.com>
-cc: Tim Alexeevsky <realtim@mail.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: File accessing.
-In-Reply-To: <20020709064825.GA32293@riesen-pc.gr05.synopsys.com>
-Message-ID: <Pine.LNX.4.33.0207091326550.390-100000@zhuchka>
+	id <S312254AbSGIJyH>; Tue, 9 Jul 2002 05:54:07 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9999 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311710AbSGIJyG>; Tue, 9 Jul 2002 05:54:06 -0400
+Subject: Re: list of compiled in support
+To: MMARTINEZ@intranet.reeusda.gov (Martinez, Michael - CSREES/ISTM)
+Date: Tue, 9 Jul 2002 11:20:22 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <630DA58AD01AD311B13A00C00D00E9BC05D2020A@CSREESSERVER> from "Martinez, Michael - CSREES/ISTM" at Jul 08, 2002 04:48:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17Rs6Y-0004Zh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> How does one tell if a kernel has compiled in support for ipx?
 
-Today Alex Riesen wrote:
-
-AR>On Sun, Jul 07, 2002 at 02:40:26AM +0400, Tim Alexeevsky wrote:
-AR>...
-AR>>  Using strace I tracked this problem down to requesting
-AR>>  open("jffs2/gc.c", O_READONLY|O_LARGEFILE)
-AR>>  Now
-AR>>    ls jffs2
-AR>>   also gives me a kernel panic. It's on reiserfs.
-AR>>
-AR>
-AR>i'd suggest you start your next day/night with reiserfsck --fix-fixable.
-   Sure :)
-
-AR>And you'll have to upgrade your reiserfsprogs up to 3.x.1b.
-   Ok.
-
-   But if this is the reason for this subproblem, there are some others
-and they all seem to appear simultaneously. They all are the problems with
-accessing files. And as long as I got the first problem I will have a
-lots of them on different filesystems until I reboot the system (AFAIK).
-   Maybe the reason is some damage in global filesystem handling. (Is that
-VFS?)
-
-Bye,
-Thanx a lot,
-
-                                                         Tim
-
-,-----------------------------------------------------------------------------.
-|                      Windows: XT emulator for an AT.                        |
-`-----------------------------------------------------------------------------'
-
+Open an AF_IPX socket

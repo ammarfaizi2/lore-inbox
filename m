@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVDCU0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVDCUlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVDCU0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 16:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbVDCU0A
+	id S261409AbVDCUlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 16:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVDCUlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 16:26:00 -0400
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:53686 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S261899AbVDCUZj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 16:25:39 -0400
-Subject: Re: Use of C99 int types
-From: Kenneth Johansson <ken@kenjo.org>
-To: Renate Meijer <kleuske@xs4all.nl>
-Cc: Dag Arne Osvik <da@osvik.no>, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <524d7fda64be6a3ab66a192027807f57@xs4all.nl>
-References: <424FD9BB.7040100@osvik.no>
-	 <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no>
-	 <524d7fda64be6a3ab66a192027807f57@xs4all.nl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-P4cZdj95vahrIYu5LVd+"
-Date: Sun, 03 Apr 2005 22:25:33 +0200
-Message-Id: <1112559934.5268.9.camel@tiger>
+	Sun, 3 Apr 2005 16:41:06 -0400
+Received: from rgminet02.oracle.com ([148.87.122.31]:37831 "EHLO
+	rgminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S261409AbVDCUlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 16:41:01 -0400
+Date: Sun, 3 Apr 2005 13:40:45 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [PATCH] configfs, a filesystem for userspace-driven kernel object configuration
+Message-ID: <20050403204045.GI31163@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	Greg KH <greg@kroah.com>,
+	Patrick Mochel <mochel@digitalimplant.org>
+References: <20050403195728.GH31163@ca-server1.us.oracle.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050403195728.GH31163@ca-server1.us.oracle.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.8i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 03, 2005 at 12:57:28PM -0700, Joel Becker wrote:
+> 	I humbly submit configfs.  With configfs, a configfs
+> ...
+> 	Patch is against 2.6.12-rc1-bk3.
 
---=-P4cZdj95vahrIYu5LVd+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+	Updated for bk5 and the new backing_dev capabilites mask:
 
-On Sun, 2005-04-03 at 21:23 +0200, Renate Meijer wrote:
-> On Apr 3, 2005, at 2:30 PM, Dag Arne Osvik wrote:
->=20
-> > Stephen Rothwell wrote:
-> >
-> >> On Sun, 03 Apr 2005 13:55:39 +0200 Dag Arne Osvik <da@osvik.no> wrote:
-> >>
-> >>> I've been working on a new DES implementation for Linux, and ran into
-> >>> the problem of how to get access to C99 types like uint_fast32_t for
-> >>> internal (not interface) use.  In my tests, key setup on Athlon 64=20
-> >>> slows
-> >>> down by 40% when using u32 instead of uint_fast32_t.
-> >>>
-> >>
-> >> If you look in stdint.h you may find that uint_fast32_t is actually
-> >> 64 bits on Athlon 64 ... so does it help if you use u64?
-> >>
-> >>
-> >
-> > Yes, but wouldn't it be much better to avoid code like the following,=20
-> > which may also be wrong (in terms of speed)?
-> >
-> > #ifdef CONFIG_64BIT  // or maybe CONFIG_X86_64?
-> >  #define fast_u32 u64
-> > #else
-> >  #define fast_u32 u32
-> > #endif
->=20
-> Isn't it better to use a general integer type, reflecting the cpu's=20
-> native register-size and let the compiler sort it out? Restrict all=20
-> uses of explicit width types to where it's *really* needed, that is, in=20
+http://oss.oracle.com/~jlbec/files/configfs/2.6.12-rc1-bk5/configfs-2.6.12-rc1-bk5-1.patch
 
-But is this not exactly what Dag Arne Osvik was trying to do ??=20
-uint_fast32_t means that we want at least 32 bits but it's OK with more
-if that happens to be faster on this particular architecture.  The
-problem was that the C99 standard types are not defined anywhere in the
-kernel headers so they can not be used.
+Joel
 
-Perhaps they should be added to asm/types.h ?
+-- 
 
+"Against stupidity the Gods themselves contend in vain."
+	- Freidrich von Schiller
 
-
-
---=-P4cZdj95vahrIYu5LVd+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCUFE9mDGOmJIy9x8RAqUxAJ42ty6fOKWPdQWPT+Es37McM1yQNQCfQgxo
-tOXYSiA8eEiB+hPBoDmf4x8=
-=fE5c
------END PGP SIGNATURE-----
-
---=-P4cZdj95vahrIYu5LVd+--
-
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

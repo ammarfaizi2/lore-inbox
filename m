@@ -1,67 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266458AbUG0Q3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUG0QbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266458AbUG0Q3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 12:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUG0Q2E
+	id S266481AbUG0QbW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 12:31:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266466AbUG0QaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 12:28:04 -0400
-Received: from [144.51.25.10] ([144.51.25.10]:21447 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S266458AbUG0QX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 12:23:59 -0400
-Subject: [patch][selinux] Fix clearing of new personality bit on security
-	transitions
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1090945303.2448.161.camel@moss-spartans.epoch.ncsc.mil>
+	Tue, 27 Jul 2004 12:30:25 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:36273 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266208AbUG0Q1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 12:27:40 -0400
+Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+From: Jon Oberheide <jon@oberheide.org>
+To: Joel Soete <soete.joel@tiscali.be>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Daniel Jacobowitz <dan@debian.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <40FB87C400003E92@ocpmta3.freegates.net>
+References: <40FB87C400003E92@ocpmta3.freegates.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MJT3SPwA1t537xsdwKyQ"
+Date: Tue, 27 Jul 2004 12:31:24 -0400
+Message-Id: <1090945884.30149.1.camel@dionysus>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 27 Jul 2004 12:21:43 -0400
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 1.5.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.8-rc2-bk6 moves the clearing of the new
-personality bit from selinux_bprm_apply_creds (called from
-compute_creds) to selinux_bprm_set_security (called from
-prepare_binprm).  This ensures that the bit is cleared at the same point
-in exec processing as for setuid/setgid binaries, prior to setting up
-the new image.  Please apply.
 
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
+--=-MJT3SPwA1t537xsdwKyQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- security/selinux/hooks.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+On Tue, 2004-07-27 at 17:59 +0200, Joel Soete wrote:
+> Marcelo,
+>=20
+> Thanks first for your attention.
+> Sorry also for delaying this works but I was a bit busy elsewhere.
+>=20
+> > -- Original Message --
+> > Date: Tue, 27 Jul 2004 09:54:32 -0300
+> > From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+> > To: Joel Soete <soete.joel@tiscali.be>
+> > Cc: Daniel Jacobowitz <dan@debian.org>,
+> > 	Vojtech Pavlik <vojtech@suse.cz>,
+> > 	Linux Kernel <linux-kernel@vger.kernel.org>
+> > Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+> >=20
+> >=20
+> > On Mon, Jul 05, 2004 at 01:59:21PM +0200, Joel Soete wrote:
+> > > Hello Daniel,
+> > >=20
+> > > > > So just use
+> > > > >
+> > > > > 	buffer++;
+> > > > >
+> > > > > here, and the intent is then clear.
+>=20
+> > > >
+> > > > Except C does not actually allow incrementing a void pointer, since
+> > > > void does not have a size.
+> > > That make better sense to me because aifair a void * was foreseen to
+> pass
+> > > any kind of type * as actual parameter?
+> > > (So as far as I understand, the aritthm pointer sould be dynamic for
+> the
+> > > best 'natural' behaviour?)
+> > >=20
+> > > >   You can't do arithmetic on one either.  GNU
+> > > > C allows this as an extension.
+> > > >
+> > > > It's actually this, IIRC:
+> > > >   buffer =3D ((char *) buffer) + 1;
+> >=20
+> > Joel,=20
+> >=20
+> > It seems the current code is working perfectly, generating correct
+> > asm code.=20
+> >=20
+> > Could you come up with a good enough reason to do this cleanup (as far
+> as
+> >=20
+> > I am concerned) in 2.4.x series?
+> >=20
+> My first attention was to cleanup some warning of type "use of cast expre=
+ssion
+> as lvalue is deprecated"
+> with gcc-3.3.4. But afaik, right now, there are just few warning which di=
+dn't
+> break the asm code.
 
---- linux-2.6.7/security/selinux/hooks.c.orig	2004-07-27 11:42:12.347833384 -0400
-+++ linux-2.6.7/security/selinux/hooks.c	2004-07-27 11:43:12.748651064 -0400
-@@ -1685,6 +1685,9 @@ static int selinux_bprm_set_security(str
- 		if (rc)
- 			return rc;
- 
-+		/* Clear any possibly unsafe personality bits on exec: */
-+		current->personality &= ~PER_CLEAR_ON_SETID;
-+
- 		/* Set the security field to the new SID. */
- 		bsec->sid = newsid;
- 	}
-@@ -1895,9 +1898,6 @@ static void selinux_bprm_apply_creds(str
- 			task_unlock(current);
- 		}
- 
--		/* Clear any possibly unsafe personality bits on exec: */
--		current->personality &= ~PER_CLEAR_ON_SETID;
--
- 		/* Close files for which the new task SID is not authorized. */
- 		flush_unauthorized_files(current->files);
- 
+FYI, lvalue casts are treated as errors in gcc 3.5.
 
- 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Regards,
+Jon Oberheide
+
+--=20
+Jon Oberheide <jon@oberheide.org>
+GnuPG Key: 1024D/F47C17FE
+Fingerprint: B716 DA66 8173 6EDD 28F6  F184 5842 1C89 F47C 17FE
+
+--=-MJT3SPwA1t537xsdwKyQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBBoNcWEIcifR8F/4RAmS9AJkB04xCUrVGYUQ/yiuUWweaSbOXKQCg2PAS
+isWFkfIwCBoubBTINZhr3Fc=
+=0+Qc
+-----END PGP SIGNATURE-----
+
+--=-MJT3SPwA1t537xsdwKyQ--
 

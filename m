@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278369AbRJMTXr>; Sat, 13 Oct 2001 15:23:47 -0400
+	id <S278373AbRJMT2J>; Sat, 13 Oct 2001 15:28:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278374AbRJMTXh>; Sat, 13 Oct 2001 15:23:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16141 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278373AbRJMTXZ>; Sat, 13 Oct 2001 15:23:25 -0400
-Date: Sat, 13 Oct 2001 12:23:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>
+	id <S278374AbRJMT17>; Sat, 13 Oct 2001 15:27:59 -0400
+Received: from cc1095243-a.thrp1.fl.home.com ([24.37.231.148]:11 "EHLO
+	Artifact") by vger.kernel.org with ESMTP id <S278373AbRJMT1q>;
+	Sat, 13 Oct 2001 15:27:46 -0400
+Message-ID: <02ca01c1541d$391c5f30$c800000a@Artifact>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011013141709.L249@localhost> <Pine.LNX.4.33L.0110131526500.2847-100000@imladris.rielhome.conectiva> <20011013144220.P249@localhost> <20011013145341.R249@localhost>
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+Date: Sat, 13 Oct 2001 15:28:23 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message -----
+From: "Patrick McFarland" <unknown@panax.com>
+To: "Rik van Riel" <riel@conectiva.com.br>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Saturday, October 13, 2001 2:53 PM
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
 
-On Sat, 13 Oct 2001, Jamie Lokier wrote:
+>Also, I'd like to say about the documentation...
 >
-> In fact it was proposed here on this list years ago, and I think you
-> argued against it (TLB flush costs).  The costs and kernel
-> infrastructure have changed and maybe the idea could be revisited now.
+><quote>
+>Currently, these files are in /proc/sys/vm:
+>- bdflush
+>- buffermem
+>- freepages
+>- kswapd
+>- overcommit_memory
+>- page-cluster
+>- pagecache
+>- pagetable_cache
+></quote>
+>
+>but a simple ls of /proc/sys/vm reports:
+>bdflush  kswapd  overcommit_memory  page-cluster  pagetable_cache
+>
+>Shouldnt the documentation be updated, seeing for the fact it was written
+in the 2.2.10 days?
 
-It's still not entirely unlikely that doing VM mappings is simply more
-expensive than just doing a memcpy. The TLB invalidate is only part of the
-issue - you also have the page table walk, the VM lock, and the fact that
-PAGE_COPY itself ends up being overhead.
+I must be confused.. What kernel are you running?
+This is on 2.4.8-ac9:
+[root@aeon /root]# ls /proc/sys/vm
+bdflush    freepages  max_map_count  min-readahead      pagecache
+pagetable_cache
+buffermem  kswapd     max-readahead  overcommit_memory  page-cluster
 
-Which is why the PAGE_COPY kind of read() optimization is _probably_ only
-worth it if the user asks for it directly (or automatically only for large
-reads together with single-threaded applications).
 
-The explicit flag is probably a good idea also because of usage patterns
-(PAGE_COPY is a slowdown _if_ the file is actually written to or even
-mapped shared).
-
-		Linus
 

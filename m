@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129477AbQK1BN6>; Mon, 27 Nov 2000 20:13:58 -0500
+        id <S129563AbQK1BTW>; Mon, 27 Nov 2000 20:19:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129575AbQK1BNt>; Mon, 27 Nov 2000 20:13:49 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:2733 "EHLO hera.cwi.nl")
-        by vger.kernel.org with ESMTP id <S129477AbQK1BNm>;
-        Mon, 27 Nov 2000 20:13:42 -0500
-Date: Tue, 28 Nov 2000 01:43:40 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Jörg Schütter 
-        <joerg_schuetter@heraeus-infosystems.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.0-test11: _isofs_bmap: block < 0
-Message-ID: <20001128014340.A9220@veritas.com>
-In-Reply-To: <20001127210912.A1051@mars.linux.priv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001127210912.A1051@mars.linux.priv>; from joerg_schuetter@heraeus-infosystems.com on Mon, Nov 27, 2000 at 09:09:12PM +0100
+        id <S129725AbQK1BTL>; Mon, 27 Nov 2000 20:19:11 -0500
+Received: from [203.126.247.144] ([203.126.247.144]:44179 "EHLO
+        esngs144.nortelnetworks.com") by vger.kernel.org with ESMTP
+        id <S129563AbQK1BTB>; Mon, 27 Nov 2000 20:19:01 -0500
+Message-ID: <3A2300A9.42D40D68@asiapacificm01.nt.com>
+Date: Tue, 28 Nov 2000 00:47:37 +0000
+From: "Andrew Morton" <morton@nortelnetworks.com>
+Organization: Nortel Networks, Wollongong Australia
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.0-test11-ac4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org, andrewm@uow.edu.au
+Subject: Re: OOps in exec_usermodehelper
+In-Reply-To: <E0CA73F3362@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <morton@asiapacificm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 09:09:12PM +0100, Jörg Schütter wrote:
+Petr Vandrovec wrote:
+> 
+> Hi,
+>   I have one small problem with 2.4.0-test11 and exec_usermodehelper.
+> When vmware modules shutdown (specifically vmnet-netifup), kernel tries
+> to load some module through call_usermodehelper, but unfortunately
+> from task which has current->files == NULL.
+> 
+>   So it prints message:
+> 
+> waitpid(19457) failed, -512
+> 
+>   and then it oopses in
+> 
+> for (i = 0; i < current->files->max_fds; i++) {
+>   if (current->files->fd[i]) close(i);
+> }
+> 
+> (In log, there is first waitpid, and then oopses from current->files == NULL,
+> which I do not quite understand).
+> 
+> Should I look into this more deeply, or is correct fix just add
+> 
+> if (current->files) {
+>   for (i = 0; ..... ) ...
+> }
+> 
+> into exec_usermodehelper?
 
-> after upgrading from test9 to test11, skipping test 10, I get 
-> the messages "_isofs_bmap: block < 0", "_isofs_bmap: block < ..."
-> which also means I can't read the cd.
+No.  Then it just blows up somewhere else.
 
-A FAQ. Remove the two lines
-
--       if (filp->f_pos >= inode->i_size)
--               return 0;
-
-from fs/isofs/dir.c around line 118.
-
-Andries
+The root cause here is that we're starting a kernel thread
+from within a half-exitted parent.  I'll be coding a fix 
+later today.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,80 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271729AbTGRHLK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 03:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271730AbTGRHLK
+	id S271727AbTGRHIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 03:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271729AbTGRHIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 03:11:10 -0400
-Received: from outbound02.telus.net ([199.185.220.221]:36040 "EHLO
-	priv-edtnes04.telusplanet.net") by vger.kernel.org with ESMTP
-	id S271729AbTGRHLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 03:11:06 -0400
-Subject: Update to Firewire not happy in 2.6-test1
-From: Bob Gill <gillb4@telusplanet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1058513239.6436.11.camel@localhost.localdomain>
+	Fri, 18 Jul 2003 03:08:41 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45706
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S271727AbTGRHIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 03:08:39 -0400
+Date: Fri, 18 Jul 2003 09:23:31 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22pre6aa2
+Message-ID: <20030718072331.GC3928@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 18 Jul 2003 01:27:19 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is just an update to Ben Collins and others who are working on
-Firewire in 2.6-test1.  Firewire is still not a happy camper (I will be
-looking for patches as they are submitted so as to provide hopefully
-useful feedback.  In case it wasn't obvious, my firewire card is driven
-by:
-00:0d.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host
-Controller (rev 43)
-and the controllers on my external firewire drive bays are driven by
-Oxford Semi '900 chips.
-The following is a nasty message I got after booting:
+URL:
 
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.22pre6aa2.gz
 
-Red Hat Linux release 9 (Shrike)
-Kernel 2.6.0-test1 on an i686
-                                                                                                         
-localhost login: root
-Password: Slab corruption: start=d552d8c0, expend=d552d937,
-problemat=d552d900
-Last user: [<f891d1fd>](free_hpsb_packet+0x2c/0x33 [ieee1394])
-Data: ****************************************************************6A
-******************************************************A5
-Next: 71 F0 2C .FD D1 91 F8 71 F0 2C .....................
-slab error in check_poison_obj(): cache `hpsb_packet': object was
-modified after freeing
-Call Trace:
- [<c014e5b1>] check_poison_obj+0x16c/0x1ac
- [<c014e77d>] slab_destroy+0x18c/0x194
- [<c0152532>] cache_reap+0x2d6/0x45c
- [<c01515ef>] reap_timer_fnc+0x0/0x29
- [<c01515fa>] reap_timer_fnc+0xb/0x29
- [<c012df3b>] update_wall_time+0xf/0x3a
- [<c012e26c>] run_timer_softirq+0x18b/0x429
- [<c01127e7>] timer_interrupt+0x17f/0x3be
- [<c0129051>] do_softirq+0xa1/0xa3
- [<c010cc2f>] do_IRQ+0x256/0x3a4
- [<c0124dc7>] profile_hook+0x2f/0x4d
- [<c0107269>] default_idle+0x0/0x2c
- [<c0107269>] default_idle+0x0/0x2c
- [<c010ab70>] common_interrupt+0x18/0x20
- [<c0107269>] default_idle+0x0/0x2c
- [<c0107269>] default_idle+0x0/0x2c
- [<c0107290>] default_idle+0x27/0x2c
- [<c0107301>] cpu_idle+0x31/0x3a
- [<c0105000>] rest_init+0x0/0xf5
- [<c0398725>] start_kernel+0x1b8/0x210
- [<c039843f>] unknown_bootoption+0x0/0xfa
+changelog diff between 2.4.22pre6aa1 and 2.4.22pre6aa2:
 
-This e-mail is meant to be useful.  If you need more information, please
-do not hesitate to ask.
+Only in 2.4.22pre6aa1: 00_extraversion-26
+Only in 2.4.22pre6aa2: 00_extraversion-27
+Only in 2.4.22pre6aa1: 9900_aio-21-ppc-1
+Only in 2.4.22pre6aa2: 9903_aio-22-ppc-1
+Only in 2.4.22pre6aa1: 9999_sched_yield_scale-5
+Only in 2.4.22pre6aa2: 9999_sched_yield_scale-6
 
-Thanks, 
+	Rediffed.
 
-Bob
--- 
-Bob Gill <gillb4@telusplanet.net>
+Only in 2.4.22pre6aa1: 05_vm_23_per-cpu-pages-2
+Only in 2.4.22pre6aa2: 05_vm_23_per-cpu-pages-3
 
+	Minor cleanup.
+
+Only in 2.4.22pre6aa1: 9900_aio-21.gz
+Only in 2.4.22pre6aa2: 9900_aio-22.gz
+
+	Add KM_SOFTIRQ0/1 so crypto can compile.
+
+Only in 2.4.22pre6aa2: 9902_aio-poll-1
+
+	Added the AIO polling functionality. NOTE: the ABI
+	is IOCB_CMD_POLL = 5. IMHO rather than moving poll
+	into aio, aio should be moved on top of epoll. using poll should always
+	be avoided, but apps already uses aio poll, so at least
+	for the short term it'll be useful. the better approch I suggested is
+	to hook the iocb somehow into an epoll fd. that epoll
+	feature is missing right now AFIK, but it shouldn't be hard to add and
+	it will give persistence to the polling too. The efficient point to
+	sleep is epoll, not io_getevents/poll (io_getevents is optimal only
+	for waiting for I/O [be it storage or network or pipe I/O of course]).
+
+Only in 2.4.22pre6aa1: 9999900_desktop-2
+Only in 2.4.22pre6aa2: 9999900_desktop-3
+
+	Convert max-timeslice/min-timeslice to usecs units
+	(the day we'll be interested to schedule more frequently than 1 time
+	per usec, I guess we'll be very happy to break this interface with
+	userspace ;).
+
+Only in 2.4.22pre6aa1: 9999900_ecc-20020904-1.gz
+Only in 2.4.22pre6aa2: 9999900_ecc-20020904-2.gz
+
+	Merged more recent updates from Chip.
+
+Andrea

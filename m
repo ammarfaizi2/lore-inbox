@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132935AbRDKTDf>; Wed, 11 Apr 2001 15:03:35 -0400
+	id <S132940AbRDKTFg>; Wed, 11 Apr 2001 15:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132933AbRDKTDZ>; Wed, 11 Apr 2001 15:03:25 -0400
-Received: from mgw-x4.nokia.com ([131.228.20.27]:34991 "EHLO mgw-x4.nokia.com")
-	by vger.kernel.org with ESMTP id <S132935AbRDKTDJ>;
-	Wed, 11 Apr 2001 15:03:09 -0400
-Message-ID: <2D6CADE9B0C6D411A27500508BB3CBD063CF32@eseis15nok>
-From: Imran.Patel@nokia.com
-To: ak@suse.de, Imran.Patel@nokia.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: RE: skb allocation problems (More Brain damage!)
-Date: Wed, 11 Apr 2001 22:02:46 +0300
+	id <S132950AbRDKTFT>; Wed, 11 Apr 2001 15:05:19 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:1043 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S132940AbRDKTEN>;
+	Wed, 11 Apr 2001 15:04:13 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200104111904.XAA10804@ms2.inr.ac.ru>
+Subject: Re: Bug report: tcp staled when send-q != 0, timers == 0.
+To: berd@elf.ihep.su (Eugene B. Berdnikov)
+Date: Wed, 11 Apr 2001 23:04:04 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com
+In-Reply-To: <20010411223536.A19364@elf.ihep.su> from "Eugene B. Berdnikov" at Apr 11, 1 10:35:36 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2652.78)
-Content-Type: text/plain;
-	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What you can try is to turn on slab debugging. Set the  FORCED_DEBUG
-> define in mm/slab.c to one and recompile. Does it change any pattern
-> when you dump the data in the skbs or pings? 
-> If yes someone is playing with already freed packets.
+Hello!
 
-I think the dump that i got suggests something more strange than that. This
-is what i can make of the dump:
+>  In my experiments linux simply sets mss=mtu-40 at the start of ethernet
+>  connections. I do not know why, but belive it's ok. How the version of
+>  kernel and configuration options can affect mss later?
 
-this is the ip header (with src addr: 192.168.102.22 and dest addr:
-192.168.10.29)
-45 0 0 80 0 0 40 0 ff 1 2d f8 c0 a8 66 16 c0 a8 66 1d 
+You can figure out this yourself. In fact you measured this.
 
-this is the icmp header (echo reply)
-0 0 e4 48 11 d 0 0 
+With mss=1460 the problem does not exist.
 
-the regular ping data follows
-14 5d d4 3a 63 1 a 0 8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c
-1d
-1e 1f 20 21 22 23 
+The problem begins f.e. when mss is less and packet arrives on ethernet.
+It eats the same 1.5k of memory, but carries only ~mss bytes of tcp payload.
+See? We do not know this forward, advertise large window, have not enough
+rcvbuf to get it filled and cannot do anything but dropping new packets.
 
-Now, it is expecting 24, 25, 26,.....but the outer ip & icmp header and data
-(as above) follows again....
-45 0 0 80 0 0 40 0 ff 1 2d f8 c0 a8 66 16 c0 a8 66 1d 0 0
-0 0 11 d 0 0 14 5d d4 3a 63 1 a 0 8 9 a b c d e f 10 11 12 13 14 15 16 17 18
-19 1a 1b 1c 1d 1e 1f 20 21 22 23
+ppp is more difficult. Actually, I do not know exactly how it works now.
+At least, ppp in 2.4 trims skb if it has too much of unused space.
 
-it is very hard to imagine the scenario which can lead to this...
-I will try your suggestion..
-
-> And what NIC are you using btw?
-as i said earlier, Intel Ethernet Pro 100...
-
-imran
-
+Alexey

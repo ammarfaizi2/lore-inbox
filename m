@@ -1,49 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUIFC7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUIFDAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264213AbUIFC7N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 22:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUIFC7N
+	id S267409AbUIFDAy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 23:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267406AbUIFC7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 22:59:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36587 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264213AbUIFC7I (ORCPT
+	Sun, 5 Sep 2004 22:59:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:41707 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264531AbUIFC7L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 22:59:08 -0400
-Date: Sun, 5 Sep 2004 11:00:32 -0400
+	Sun, 5 Sep 2004 22:59:11 -0400
+Date: Sun, 5 Sep 2004 10:02:00 +0200
 From: Greg KH <greg@kroah.com>
-To: John Lenz <lenz@cs.wisc.edu>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Backlight and LCD module patches [2]
-Message-ID: <20040905150032.GF12701@kroah.com>
-References: <20040617223517.59a56c7e.zap@homelink.ru> <20040725215917.GA7279@hydra.mshome.net> <20040813232739.GB5063@kroah.com> <1093056693l.30570l.0l@hydra>
+Subject: Re: devfs -> udev transition: vcsN are not created
+Message-ID: <20040905080200.GC10292@kroah.com>
+References: <200408251517.31608.vda@port.imtp.ilyichevsk.odessa.ua> <200408271248.59746.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093056693l.30570l.0l@hydra>
+In-Reply-To: <200408271248.59746.vda@port.imtp.ilyichevsk.odessa.ua>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 21, 2004 at 02:51:33AM +0000, John Lenz wrote:
+On Fri, Aug 27, 2004 at 12:48:59PM +0300, Denis Vlasenko wrote:
+> Hi Greg,
 > 
-> Here.  A few notes on the implementation.  I have a global lock protecting
-> all match operations because otherwise we get a dining philosophers problem.
-> (Say the same class is in two class_match structures, class1 in the first 
-> one and class2 in the second...)
+> On Wednesday 25 August 2004 15:17, Denis Vlasenko wrote:
+> > I am migrating my 2.6 systems from devfs to udev.
+> > Versions:
+> >
+> > # uname -a
+> > Linux firebird 2.6.7-bk20 #6 Mon Jul 12 01:23:31 EEST 2004 i686 unknown
+> > # ls -d udev* hotplug*
+> > hotplug-2004_04_01  udev-030
+> >
+> > In early boot, when root fs is readonly yet, I start udev this way:
+> >
+> > mount -t ramfs none /dev
+> > env - udevd & sleep 1
+> > udevstart
+> >
+> > and then continue as normal. Things mostly work.
+> > However, I noticed that vcsN device nodes are missing
+> > (I tried to start Midnight Commander and it failed).
+> > This can be due to the fact that I start agettys very
+> > late in boot sequence, and thus all ttyN's were not
+> > open at the time of udevstart, only first one was (tty1).
+> >
+> > I logged in and did:
+> >
+> > # ls -l /udev >before
+> > # strace -o us.log udevstart
+> > # ls -l /udev >after
+> > # diff -u before after >diff
+> >
+> > This worked, vcsN's appeared:
+> [snip]
+> 
+> As you suggested, I tried 2.6.9-rc1-mm1. Sorry. It does not work.
+> 
+> My hotplug is instrumented a bit
+> to log invocations to syslog. I did 'cat >/dev/tty13':
+> 
+> hotplug[1196]: cmd: /sbin/hotplug vc
+> hotplug[1196]: env: DEVPATH=/class/vc/vcs13 PATH=/sbin:/bin:/usr/sbin:/usr/bin
+> ACTION=add PWD=/ SHLVL=1 HOME=/ SEQNUM=232 _=/sbin/env
+> hotplug[1198]: cmd: /sbin/hotplug vc
+> hotplug[1198]: env: DEVPATH=/class/vc/vcsa13 PATH=/sbin:/bin:/usr/sbin:/usr/bin
+> ACTION=add PWD=/ SHLVL=1 HOME=/ SEQNUM=233 _=/sbin/env
+> hotplug[1198]: run: /etc/hotplug.d/default/default.hotplug vc
+> hotplug[1196]: run: /etc/hotplug.d/default/default.hotplug vc
+> hotplug[1196]: run: /etc/hotplug.d/default/udev.hotplug vc
+> hotplug[1198]: run: /etc/hotplug.d/default/udev.hotplug vc
+> 
+> 	/dev/vcs[a]13 did NOT appear.
+> 	I waited ~15 secs and ^C'ed cat:
 
-You also have some duplicated code in one function, which implies that
-you didn't test this patch (it's in the updated patch you sent me too) :)
+Hm, this works for me.
 
-> The bigger question of how should we be linking these together in the first 
-> place?
-
-I thought you only wanted the ability to actually find the different
-class devices.  Then the code would take it from there.  Not this
-complex driver core linking logic that you implemented.
-
-> Instead of using this class_match stuff, we could use class_interface.
-
-Exactly.  Why don't you all use that instead?
+What does /sys/class/vc/ contain?  Any "vcs" files there?  If not,
+that's the issue.
 
 thanks,
 

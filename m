@@ -1,77 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292817AbSCOP3Z>; Fri, 15 Mar 2002 10:29:25 -0500
+	id <S292836AbSCOQCb>; Fri, 15 Mar 2002 11:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292836AbSCOP3P>; Fri, 15 Mar 2002 10:29:15 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:27544 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292817AbSCOP26>; Fri, 15 Mar 2002 10:28:58 -0500
+	id <S292837AbSCOQCW>; Fri, 15 Mar 2002 11:02:22 -0500
+Received: from ns1.advfn.com ([212.161.99.144]:53264 "EHLO mail.advfn.com")
+	by vger.kernel.org with ESMTP id <S292836AbSCOQCK>;
+	Fri, 15 Mar 2002 11:02:10 -0500
+Message-Id: <200203151602.g2FG27s10703@mail.advfn.com>
 Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Martin Wirth <martin.wirth@dlr.de>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-Date: Fri, 15 Mar 2002 10:29:40 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        babt@us.ibm.com
-In-Reply-To: <E16lmBj-0003v4-00@wagner.rustcorp.com.au> <3C91B3A1.7030709@dlr.de>
-In-Reply-To: <3C91B3A1.7030709@dlr.de>
+From: Tim Kay <timk@advfn.com>
+Reply-To: timk@advfn.com
+Organization: Advfn.com
+To: dmarkh@cfl.rr.com
+Subject: Re: Advanced Programmable Interrupt Controller (APIC)?
+Date: Fri, 15 Mar 2002 16:03:46 +0000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C91DC2D.BBEF50F6@cfl.rr.com>
+In-Reply-To: <3C91DC2D.BBEF50F6@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020315152845.483B73FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 March 2002 03:41 am, Martin Wirth wrote:
-> Rusty Russell wrote:
-> >Discussions with Ulrich have reaffirmed my opinion that pthreads are
-> >crap.  Hence I'm not all that tempted to warp the (nice, clean,
-> >usable) futex code too far to meet pthreads' wierd needs.
->
-> Crap or not, there are tons of software based on pthreads and at least
-> the NGPT team says that Linus
-> agreed to implement for necessary kernel-infrastructure for a full, fast
-> pthread implementation.
->
-> Now, if you want to implement mutexes and condition variables with the
-> attribute PTHREAD_PROCESS_SHARED then you need some functionality like the
-> futexes. Or NGPT will add his own syscalls to handle these things, which is
-> simply unnecessary double functionality.
->
-> >However, it's not too hard to implement condition variables using an
-> >unavailable mutex, if we go for "full" semaphores: ie. not just
-> >mutexes.  It requires a bit more of a stretch for kernel atomic ops...
->
-> A full semaphore is nice, but not a full replacement for a waitqueue (or
-> a pthread condition variable brr..).
-> For the semaphore you always have to assure that the ups and downs are
-> balanced, what is not the case
-> for the condition variable.
->
-> Martin
->
+Mark,
+	we have a similar problem using PowerEdge 2450s 1550s and 6400s, all our 
+machines are running with noapic in the lilo config which sounds like it 
+isn't an option for you. I'd be interested where you heard about Dell 
+stuffing up the setup of the APIC chip because we may be able to take this up 
+with them. I've had no reply from the list for the message below (maybe it 
+would be better posted to Kernel Traffic SMP but that's a very quiet list). 
+Anyway maybe the BSD diagnostics will help you investigate this.
 
-Folks, its not that simple as "use futex for PTHREAD_PROCESS_SHARED".
-First, you must realize that conceptually, the N kernel threads utilized in a 
-M:N thread model like NGPT are virtual processors. Hence you can't simply
-wait in the kernel as you would block your v-proc. Hence the current
-futex interface of up and down kernel calls in not sufficient.
+--------------------enc---------------
+Hello,
+just a quickie, our Dell Poweredge boxes - Serverworks motherboard - are 
+continually pumping out IO-APIC errors as I've reported here before, we have 
+three of the same boxes running FreeBSD (limitless file descriptors per 
+process - sorry, we need it!) and I've just noticed that dmesg on these says 
+that:
 
-What is required is an asynchronous mechanism that lets a v-proc 
-leave a notification object <nobj> in the kernel that get's enqueued just 
-like every other waiting task. <nobj> ::= <v-proc, struct *futex>
-When the futex is signaled and <nobj> is woken up, a scheduling event is send 
-to the <v-proc> or its task or its process (this has to be thought through).
-This can be done through a signal or through an shared event queue or a 
-combination of such. 
+IO APIC - APIC_IO: Testing 8254 interrupt delivery
+APIC_IO: Broken MP table detected: 8254 is not connected to IOAPIC #0 intpin 
+2 
+APIC_IO: routing 8254 via 8259 and IOAPIC #0 intpin 0 
 
-Under no circumstances can you block the <v-proc> == task on a futex !!!
+Does this help anyone diagnose the error??
 
-I talked with Bill Abt of the NGPT team about it and he conceptually agrees 
-with this approach, but since the regular interface is still not hammered out 
-and stable, no point going after more sophisticated stuff yet.
+/-------------------enc------------------
+
+
+
+On Friday 15 Mar 2002 11:34, Mark Hounschell wrote:
+> We have a number of DELL boxes in house. The most recent a 6400 (quad p4
+> box). Also a couple of dual boxes. They all lock up intermittantly when
+> APIC is enabled. There seems to be no solid way of reproducing the hangs
+> they just hang randomly. With APIC disabled they do not.
+> The app that we have to run on these boxes requires that APIC is enabled
+> for irq affinity. It is a soft real-time app that cannot tollerate the
+> jitter. It will run but interrupt latency is unexceptable without the irq
+> affinity set. I've read on many lists that if you have random lockups that
+> you should disableapic. I've also got a number of NON-DELL boxes that don't
+> exibit this lockup. Now I've also heard that DELL does not properly setup
+> the APIC chip in
+> the bios because MS os's don't use it. Have no idea if this is true or not.
+> We are using vanilla kernels (2.4.16) with some process affinity patches
+> applied. I've also noticed that on the quad boxes (6400) that irqs 0,1,2
+> cannot be directed to or from a particular processor. This is also a
+> problem with our app. Mostly it's the lockups that occur with APIC enabled
+> that is our roadblock for using these nice DELL boxes for our app. Can
+> anyone shed some light on this.
+>
+> Thanks in advance
+> and regards
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+----------------
+Tim Kay
+systems administrator
+Advfn.com Plc - http://www.advfn.com/
+timk@advfn.com
+Tel: 020 7070 0941
+Fax: 020 7070 0959

@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131157AbREAIbE>; Tue, 1 May 2001 04:31:04 -0400
+	id <S131191AbREAIrI>; Tue, 1 May 2001 04:47:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131191AbREAIap>; Tue, 1 May 2001 04:30:45 -0400
-Received: from duba04h04-0.dplanet.ch ([212.35.36.38]:20229 "EHLO
-	duba04h04-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S131157AbREAIah>; Tue, 1 May 2001 04:30:37 -0400
-Message-ID: <3AEE80A3.EB0ACEB1@dplanet.ch>
-Date: Tue, 01 May 2001 11:23:47 +0200
-From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Peter Samuelson <peter@cadcamlab.org>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, 
- aka ...]
-In-Reply-To: <20010427193501.A9805@thyrsus.com> <15084.12152.956561.490805@gargle.gargle.HOWL> <20010429183526.B32748@thyrsus.com> <15085.37569.205459.898540@gargle.gargle.HOWL> <20010430133932.B28849@thyrsus.com> <20010430141623.A15821@cadcamlab.org> <20010430152536.A29699@thyrsus.com>
+	id <S136596AbREAIrA>; Tue, 1 May 2001 04:47:00 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:40064 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S131191AbREAIqn>; Tue, 1 May 2001 04:46:43 -0400
+Date: Tue, 1 May 2001 10:46:41 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+Message-ID: <20010501104641.C3305@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <CDF99E351003D311A8B0009027457F140810E286@ausxmrr501.us.dell.com> <200104242159.f3OLxoB07000@vindaloo.ras.ucalgary.ca> <p05100313b70bb73ce962@[207.213.214.37]> <200104270431.f3R4V4630593@vindaloo.ras.ucalgary.ca> <p05100303b70eadd613b0@[207.213.214.37]> <200105010127.f411RDP03013@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200105010127.f411RDP03013@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Mon, Apr 30, 2001 at 07:27:13PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> 
-> Peter Samuelson <peter@cadcamlab.org>:
-> > [esr]
-> > > Besides, right now the configurator has a simple invariant.  It will
-> > > only accept consistent configurations
-> >
-> > So you are saying that the old 'vi .config; make oldconfig' trick is
-> > officially unsupported?  That's too bad, it was quite handy.
-> 
-> Depends on how you define `unsupported'.  Make oldconfig will tell you
-> exactly and unambiguously what was wrong with the configuration.  I think
-> if you're hard-core enough to vi your config, you're hard-core enough to
-> interpret and act on
-> 
->     This configuration violates the following constraints:
->     (X86 and SMP==y) implies RTC!=n
-> 
-> without needing some wussy GUI holding your hand :-).
+On Mon, Apr 30, 2001 at 07:27:13PM -0600, Richard Gooch wrote:
+> Then, vendors provide their own PCI fixups, which turn /dev/bus/pci0
 
-I think that a fundamental requirment is that 'make oldconfig' should
-validate any configurations (also the wrong conf).
-(If you correct your rules, our old .config can be invalid on a new
-kernel, and we don't want regualary edit our .config).
+What about /dev/bus/pci/0 or /dev/bus/pci/pci0 instead?
 
-My proposal is instaed of complain about configuration violatation,
-you just wrote the possible correct configuration and prompt user to
-select the correct configuration.
-In the case you cite, e.g. oldconfig shoud prompt:
-  1) SMP=n
-  2) RTC=m
-  3) RTC=y
-(assuming the ARCH is invariant).
+That way we could hook roots of busses (which are "." nodes, like
+if they where mounted independently) better into /dev/bus.
 
-To simplify your life you can require only tty (or ev. also menu mode)
-for
-there question. User normally use oldconfig in tty mode for simplicity
-(there
-are normally only few questions, thus is simple to have the question
-already
-in order, without to perse nearly empy menus).
+And even implement the thing as a mount point later, if we go the way
+Al Viro suggested and have independent "device filesystems"
+for the subsystems themselves.
 
-	giacomo
+Just an idea...
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265444AbSJSBRN>; Fri, 18 Oct 2002 21:17:13 -0400
+	id <S265446AbSJSBTO>; Fri, 18 Oct 2002 21:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265445AbSJSBRN>; Fri, 18 Oct 2002 21:17:13 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:41164 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265444AbSJSBRM>;
-	Fri, 18 Oct 2002 21:17:12 -0400
-Date: Fri, 18 Oct 2002 18:15:32 -0700 (PDT)
-Message-Id: <20021018.181532.45064096.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Sevaral MLD Fixes
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021018.125223.130322644.yoshfuji@linux-ipv6.org>
-References: <20021018.125223.130322644.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265447AbSJSBTO>; Fri, 18 Oct 2002 21:19:14 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:30480 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265446AbSJSBTN>; Fri, 18 Oct 2002 21:19:13 -0400
+Date: Sat, 19 Oct 2002 03:25:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Srihari Vijayaraghavan <harisri@bigpond.com>
+Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+Subject: Re: 2.4.20pre11aa1
+Message-ID: <20021019012516.GB23930@dualathlon.random>
+References: <20021018145204.GG23930@dualathlon.random> <29723.1034955246@ocs3.intra.ocs.com.au> <20021018160031.GI23930@dualathlon.random> <200210191121.20062.harisri@bigpond.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210191121.20062.harisri@bigpond.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-   Date: Fri, 18 Oct 2002 12:52:23 +0900 (JST)
+On Sat, Oct 19, 2002 at 11:21:19AM +1000, Srihari Vijayaraghavan wrote:
+> I may be wrong but considering in my case the kernel is crashing whether 
+> agpgart/radeon are compiled as modules or built-in, I suspect that this issue 
+> is larger than just modules sub-system.
 
-I am going to apply this patch, but please be more careful
-in the future.  You submitted two patches which modify
-the same hunk of comment to two different values, guarenteeing
-that if I just run 'patch' this one will not apply without rejects.
+agreed. the oops in modprobe sounds more like a coincidence now.
 
-   @@ -18,6 +18,9 @@
-    /* Changes:
-     *
-     *	yoshfuji	: fix format of router-alert option
-   + *	YOSHIFUJI Hideaki @USAGI:
-   + *		- Ignore Queries for invalid addresses.
-   + *		- MLD for link-local addresses.
-     */
-    
-    #define __NO_VERSION__
+> Anyway I will start applying the patches from 00* on-wards from your tree to 
+> see if I can reliably prove where the problem is.
 
-Next time, please make patch relative to previous one and
-tell me "this patch depends upon MLD source address selection
-patch being applied first".
+that will help a lot, thanks!
 
-This way we can avoid this problem.
+Andrea

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277826AbRJWPzZ>; Tue, 23 Oct 2001 11:55:25 -0400
+	id <S277829AbRJWP5f>; Tue, 23 Oct 2001 11:57:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277825AbRJWPzF>; Tue, 23 Oct 2001 11:55:05 -0400
-Received: from AMontpellier-201-1-4-3.abo.wanadoo.fr ([217.128.205.3]:2322
-	"EHLO awak") by vger.kernel.org with ESMTP id <S277826AbRJWPzC>;
-	Tue, 23 Oct 2001 11:55:02 -0400
-Subject: 2.4.12-ac5: IDE-SCSI kernel panic
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.22.19.14 (Preview Release)
-Date: 23 Oct 2001 17:49:35 +0200
-Message-Id: <1003852178.9892.51.camel@nomade>
-Mime-Version: 1.0
+	id <S277825AbRJWP5S>; Tue, 23 Oct 2001 11:57:18 -0400
+Received: from butterblume.comunit.net ([192.76.134.57]:5129 "EHLO
+	butterblume.comunit.net") by vger.kernel.org with ESMTP
+	id <S277829AbRJWP43>; Tue, 23 Oct 2001 11:56:29 -0400
+Date: Tue, 23 Oct 2001 17:57:02 +0200 (CEST)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: <haegar@space.comunit.de>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+cc: Dale Amon <amon@vnl.com>, <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: ALERT!!!! Attempt to outlaw open source Operating systems
+In-Reply-To: <Pine.LNX.4.33.0110231615550.1054-100000@tahallah.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0110231755420.23361-100000@space.comunit.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on a CD with a read error, using IDE-SCSI, there has always been lots of
-problems (at least for me).
-After tons of errors in the logs (medium error/unrecovered error), I
-tried to kill-9 the process reading the mounted CD (xine) without
-success (one thread stuck in lock_page, the other <defunct>). I then
-tried to reboot, but even before init started kill-TERM processes, I got
-this (hand-copied from screen):
+On Tue, 23 Oct 2001, Alex Buell wrote:
 
-scsi0: ERROR on channel 0, id 1, lun 0, CDB: Request Sense 00 00 00 40 00
-Info fld=0x437ea, Current sd0b:00: sense key Medium Error
-Additional sense indicates Unrecovered read error
- I/O error: dev 0b:00, sector 1105832
-Incorrect segment count at 0xc01e4342nr_segments is 3f
-counted segments is 19
-Flags 0 0
-Segment 0xd92e86c0, blocks 4, addr 0x1f983fff
-Segment 0xd92e8660, blocks 4, addr 0x1f9847ff
-[I'm not copying them all, around 25 of them]
-Kernel panic: Ththththaats all folks. Too dangerous to continue.
+> On Tue, 23 Oct 2001, Dale Amon wrote:
+>
+> > http://www.newsforge.com/article.pl?sid=01/10/19/154624
+>
+> Nothing there. Try again.
 
+I think the URL he wanted to transmit is
 
-	Xav
+http://www.newsforge.com/article.pl?sid=01/10/19/1546246&mode=thread
+
+"SSSCA gets a hearing Oct. 25 -- can it be stopped?"
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
 

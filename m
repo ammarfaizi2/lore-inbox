@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264987AbSJWNbZ>; Wed, 23 Oct 2002 09:31:25 -0400
+	id <S264980AbSJWN1T>; Wed, 23 Oct 2002 09:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264988AbSJWNbZ>; Wed, 23 Oct 2002 09:31:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40453 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264987AbSJWNbY>;
-	Wed, 23 Oct 2002 09:31:24 -0400
-Date: Wed, 23 Oct 2002 14:37:34 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Wilcox <willy@debian.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mingo@redhat.com
-Subject: Re: [PATCH] use 1ULL instead of 1UL in kernel/signal.c
-Message-ID: <20021023143734.N27461@parcelfarce.linux.theplanet.co.uk>
-References: <20021022222719.H27461@parcelfarce.linux.theplanet.co.uk> <1035323879.329.185.camel@irongate.swansea.linux.org.uk> <20021022224853.I27461@parcelfarce.linux.theplanet.co.uk> <1035328632.329.187.camel@irongate.swansea.linux.org.uk> <20021023141712.M27461@parcelfarce.linux.theplanet.co.uk> <1035380911.3968.56.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1035380911.3968.56.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Oct 23, 2002 at 02:48:31PM +0100
+	id <S264981AbSJWN1T>; Wed, 23 Oct 2002 09:27:19 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:61078 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S264980AbSJWN1R> convert rfc822-to-8bit;
+	Wed, 23 Oct 2002 09:27:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: bert hubert <ahu@ds9a.nl>
+Subject: Re: [RESEND] tuning linux for high network performance?
+Date: Wed, 23 Oct 2002 15:41:02 +0200
+User-Agent: KMail/1.4.1
+Cc: netdev@oss.sgi.com, Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200210231218.18733.roy@karlsbakk.net> <200210231306.18422.roy@karlsbakk.net> <20021023130101.GA646@outpost.ds9a.nl>
+In-Reply-To: <20021023130101.GA646@outpost.ds9a.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210231541.02883.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 02:48:31PM +0100, Alan Cox wrote:
-> On Wed, 2002-10-23 at 14:17, Matthew Wilcox wrote:
-> > +#if SIGRTMIN > 32
-> > +#define M(sig) (1ULL << (sig))
-> > +#else
-> >  #define M(sig) (1UL << (sig))
-> > +#endif
-> 
-> Not >= ??
+> '50 clients *each* streaming at ~4.4MBps', better make that clear,
+> otherwise something is *very* broken. Also mention that you have an e1000
+> card which does not do outgoing checksumming.
 
-No, definitely not >=.  Realtime signals are tested for separately, and
-SIGRTMIN is the number of the lowest RT signal, not the number of the
-highest non-realtime signal.  Take a look in include/asm-i386/signal.h:
+just to clearify
 
-#define SIGSYS          31
-#define SIGUNUSED       31
+s/MBps/Mbps/
+s/bps/bits per second/
 
-/* These should not be considered constants from userland.  */
-#define SIGRTMIN        32
-#define SIGRTMAX        (_NSIG-1)
+> You'd think that a kernel would be able to do 250megabits of TCP checksums
+> though.
+>
+> > ...adding the whole profile output - sorted by the first column this
+> > time...
+> >
+> > 905182 total                                      0.4741
+> > 121426 csum_partial_copy_generic                474.3203
+> >  93633 default_idle                             1800.6346
+> >  74665 do_wp_page                               111.1086
+>
+> Perhaps the 'copy' also entails grabbing the page from disk, leading to
+> inflated csum_partial_copy_generic stats?
 
+I really don't know. Just to clearify a little more - the server app uses 
+O_DIRECT to read the data before tossing it to the socket.
+
+> Where are you serving from?
+
+What do you mean?
+
+roy
 -- 
-Revolutions do not require corporate support.
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

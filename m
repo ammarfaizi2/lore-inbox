@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262995AbTIRH2n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 03:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbTIRH2m
+	id S263005AbTIRHnp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 03:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbTIRHnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 03:28:42 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:12232
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262995AbTIRH2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 03:28:41 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: linux-kernel@vger.kernel.org
-Subject: Make modules_install doesn't create /lib/modules/$version
-Date: Thu, 18 Sep 2003 03:21:40 -0400
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Sep 2003 03:43:45 -0400
+Received: from gprs145-63.eurotel.cz ([160.218.145.63]:28288 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263005AbTIRHno (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 03:43:44 -0400
+Date: Thu, 18 Sep 2003 09:43:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: richard.brunner@amd.com
+Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-ID: <20030918074331.GA386@elf.ucw.cz>
+References: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309180321.40307.rob@landley.net>
+In-Reply-To: <99F2150714F93F448942F9A9F112634C0638B1DE@txexmtae.amd.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've installed -test3, -test4, and now -test5, and each time make 
-modules_install died with the following error:
+Hi!
 
-Kernel: arch/i386/boot/bzImage is ready
-sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage System.map ""
-/lib/modules/2.6.0-test5 is not a directory.
-mkinitrd failed
-make[1]: *** [install] Error 1
-make: *** [install] Error 2
+> I think Alan brought up a very good point. Even if you
+> use a generic kernel that avoids prefetch use on Athlon
+> (which I am opposed to), it doesn't solve the problem
+> of user space programs detecting that the ISA supports
+> prefetch and using prefetch instructions and hitting the
+> errata on Athlon.
+> 
+> The user space problem worries me more, because the expectation
+> is that if CPUID says the program can use perfetch, it could
+> and should regardless of what the kernel decided to do here.
 
-I had to create the directory in question by hand, and then run it again, at 
-which point it worked.
+User programs should not rely on cpuid; they should read /proc/cpuinfo
+exactly because this kind of errata.
 
-Am I the only person this is happening for?  (Bog standard Red Hat 9 system 
-otherwise.  With Rusty's modutils...)
-
-Rob
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

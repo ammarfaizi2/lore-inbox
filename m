@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263270AbTKCVgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 16:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTKCVgW
+	id S263400AbTKCVv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 16:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTKCVv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 16:36:22 -0500
-Received: from dp.samba.org ([66.70.73.150]:16829 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263270AbTKCVgW (ORCPT
+	Mon, 3 Nov 2003 16:51:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50649 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263400AbTKCVvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 16:36:22 -0500
-Date: Tue, 4 Nov 2003 08:32:53 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: 2.6.0-test9-mjb1
-Message-ID: <20031103213253.GB13057@krispykreme>
-References: <14860000.1067544022@flay> <3FA171DD.5060406@pobox.com> <1067548047.1028.19.camel@nighthawk> <3FA17FEC.2080203@pobox.com> <1067549370.2657.38.camel@nighthawk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1067549370.2657.38.camel@nighthawk>
-User-Agent: Mutt/1.5.4i
+	Mon, 3 Nov 2003 16:51:55 -0500
+Date: Mon, 3 Nov 2003 13:51:52 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Charles Martin <martinc@ucar.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: interrupts across  PCI bridge(s) not handled
+In-Reply-To: <000001c3a249$2f9f30a0$c3507580@atdsputnik>
+Message-ID: <Pine.LNX.4.44.0311031344180.20373-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Whoops.  I just went looking in the breakout directory and didn't see it
-> in there.  I wonder where it was hidden.  
+
+On Mon, 3 Nov 2003, Charles Martin wrote:
 > 
-> Anton, did this come from you?  Did it stop some warnings or something?
+> I do notice that bus #6, which is the backplane extender,
+> has an APIC id of 0, but an APIC #0 was not enumerated. All other
+> buses get assigned to the identified APICs of 8, 9 and 10. 
 
-I think it came from Scott. At one stage ppc64 had 64bit IO BARs, we
-have since switched to 32bit BARs but I kept the patch. As Jeff points
-out, the old behaviour is a bug.
+Yes. However, I have this suspicion that that is just more confusion by 
+the BIOS tables. 
 
-Anton
+The reason APIC #0 wasn't enumerated is that it doesn't seem to exist in 
+the MP tables. So not only does the PIRQ table not contain any information 
+about that bus, but the MP tables are very silent about it too.
+
+I dunno.. Maybe I'm reading this wrong, but it really looks like your BIOS 
+tables are just pretty broken. 
+
+It would really be interesting to hear whether using ACPI enumeration 
+fixes it or at least whether the symptoms are different. Especially with 
+newer hardware, the BIOS people have only ever tested their tables with 
+Windows, and ACPI will have overridden any MPtable information, so..
+
+		Linus
+

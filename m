@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLHAxp>; Thu, 7 Dec 2000 19:53:45 -0500
+	id <S129507AbQLHAzz>; Thu, 7 Dec 2000 19:55:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbQLHAxf>; Thu, 7 Dec 2000 19:53:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13321 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129314AbQLHAx0>; Thu, 7 Dec 2000 19:53:26 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: kernel BUG at buffer.c:827 in test12-pre6 and 7
-Date: 7 Dec 2000 16:22:39 -0800
-Organization: Transmeta Corporation
-Message-ID: <90p9kf$5p3$1@penguin.transmeta.com>
-In-Reply-To: <3A30125D.5F71110D@cheek.com>
+	id <S130110AbQLHAzq>; Thu, 7 Dec 2000 19:55:46 -0500
+Received: from mailgate.ics.forth.gr ([139.91.1.2]:35063 "EHLO
+	ext1.ics.forth.gr") by vger.kernel.org with ESMTP
+	id <S129507AbQLHAzk>; Thu, 7 Dec 2000 19:55:40 -0500
+Posted-Date: Fri, 8 Dec 2000 02:17:54 +0200 (EET)
+Organization: 
+Date: Fri, 8 Dec 2000 02:17:54 +0200 (EET)
+From: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
+To: Christopher Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsecond accuracy
+In-Reply-To: <3A2FC0C6.3F11057B@nortelnetworks.com>
+Message-ID: <Pine.GSO.4.10.10012080213140.9184-100000@sappho.ics.forth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A30125D.5F71110D@cheek.com>,
-Joseph Cheek  <joseph@cheek.com> wrote:
->copying files off a loopback-mounted vfat filesystem exposes this bug.
->test11 worked fine.
 
-It's not a new bug - it's an old bug that apparently is uncovered by a
-new stricter test.
+On Thu, 7 Dec 2000, Christopher Friesen wrote:
 
-Apparently loopback unlocks an already unlocked page - which has always
-been a serious offense, but has never been detected before.
+> Kotsovinos Vangelis wrote:
+> > 
+> > Is there any way to measure (with microsecond accuracy) the time of a
+> > program execution (without using Machine Specific Registers) ?
+> > I've already tried getrusage(), times() and clock() but they all have
+> > 10 millisecond accuracy, even though they claim to have microsecond
+> > acuracy.
+> > The only thing that seems to work is to use one of the tools that measure
+> > performanc through accessing the machine specific registers. They give you
+> > the ability to measure the clock cycles used, but their accuracy is also
+> > very low from what I have seen up to now.
+> 
+> Can you not just use something like gettimeofday()?  Do two consecutive calls to
+> find the execution time of the instruction itself, and then do two calls on
+> either side of the program execution.  Subtract the instruction execution time
+> from the delta, and that should give a pretty good idea of execution time.
 
-test12-pre6+ detects it, and thus the BUG().
+Well, it is a pretty complex program that I want to measure, with more
+than one modules that run one after another... they sleep and use signals
+to wake each other up, they use semaphores etc. What I want to measure is
+the time the program is running (not waiting for other processes or
+waiting for a signal etc). 
+Also, there are other processes running on the
+system (for example, my program needs about 50 seconds of real time to
+execute and I estimate the time it is "running" to be about 5000-10000
+microseconds)...
 
-Your stack trace isn't symbolic (see Documentation/oops-tracing.txt), so
-it's impossible to debug, but it's already interesting information to
-see that it seems to be either loopback of vfat.
+Thanks anyway,
 
-Can you test some more? In particular, I'd love to hear if this happens
-with vfat even without loopback, or with loopback even without vfat
-(make an ext2 filesystem or similar instead). That woul dnarrow down the
-bug further.
+Vangelis
 
-		Thanks,
-				Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

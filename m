@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbUDLVoO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 17:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263136AbUDLVoO
+	id S263124AbUDLVmz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 17:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDLVmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 17:44:14 -0400
-Received: from ptb-relay01.plus.net ([212.159.14.212]:28172 "EHLO
-	ptb-relay01.plus.net") by vger.kernel.org with ESMTP
-	id S263019AbUDLVoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 17:44:10 -0400
-Message-ID: <407B0E42.9060509@mauve.plus.com>
-Date: Mon, 12 Apr 2004 22:46:42 +0100
-From: Ian Stirling <ian.stirling@mauve.plus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Where did the USB generic scanner driver go? 2.6.5
-References: <407AC3A1.8090503@mauve.plus.com> <c5ejt0$802$1@fritz38552.news.dfncis.de>
-In-Reply-To: <c5ejt0$802$1@fritz38552.news.dfncis.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Apr 2004 17:42:55 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50822 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263124AbUDLVmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 17:42:53 -0400
+Date: Mon, 12 Apr 2004 14:42:32 -0700
+From: Greg KH <greg@kroah.com>
+To: Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems adding sysfs support to dvb subsystem
+Message-ID: <20040412214232.GA23692@kroah.com>
+References: <407AFD5B.8010502@convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <407AFD5B.8010502@convergence.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wolfgang Fritz wrote:
-> Ian Stirling wrote:
+On Mon, Apr 12, 2004 at 10:34:35PM +0200, Michael Hunold wrote:
 > 
->>I can't seem to find where this has moved.
->>Has it been obsoleted, or removed for some reason?
->>Many thanks.
->>Ian Stirling.
->>-
+> What I'd like to have is something like this, so I can add attributes to 
+> the frontend for example:
+> /sys/class/dvb/adapter0/frontend0/
 > 
+> I wasn't able to find a driver that provides this simple "hierarchical" 
+> order, so I did some experiments with little luck.
 > 
-> This driver has been removed from the 2.6 kernel. You have to use libusb
-> instead. I found the link below helpful:
+> Creating this hierarchical order manually (like for "devfs") didn't 
+> work, I get
+> > find: /sys/class/dvb/adapter0/frontend0: No such file or directory
+> errors upon access:
 > 
-> http://khk.net/sane/libusb.html
-> 
-> Make sure you have a recent sane package installed.
-> 
+> > sprintf((void*)&dvbdev->class_device.class_id, "adapter%d/%s%d", 
+> adap->num, dnames[type], id);
+> > class_device_register(&dvbdev->class_device);
 
-I've upgraded to the latest sane (the prereleases)
+No, you can't create subdirectories directly by just adding a '/' to the
+name of the class device, sorry.  You will have to create a kobject for
+the directory, and create the attributes in that kobject, like
+networking did.
 
-My scanner does not work, the backend manpage saying nothing about libusb,
-suggesting it may not have been tested with it.
+Yeah, it's a bit of a pain, but creating subdirectories in an easy
+manner is on the TODO list for the driver core for 2.7.
 
-If the scanner module was deprecated, wouldn't some notice on the config
-entry have been a good idea?
+If you want to get up and running quickly, which would not require you
+to fix up any lifetime rules for your dvb drivers, you could implement
+the class_simple interface, like a lot of other driver subsystems
+currently are doing, and then in 2.7 convert over to a proper driver
+model conversion.  I say this as I am only guessing as to what your
+lifetime rules are for your dvb devices and drivers...
+
+Hope this helps,
+
+greg k-h

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290200AbSA3Qzk>; Wed, 30 Jan 2002 11:55:40 -0500
+	id <S290211AbSA3Q7i>; Wed, 30 Jan 2002 11:59:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290078AbSA3QyL>; Wed, 30 Jan 2002 11:54:11 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:55496 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S290175AbSA3Qxp>;
-	Wed, 30 Jan 2002 11:53:45 -0500
-Date: Wed, 30 Jan 2002 19:51:19 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Larry McVoy <lm@bitmover.com>, Tom Rini <trini@kernel.crashing.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <Pine.LNX.4.33L.0201301445430.11594-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0201301949190.11581-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290102AbSA3Q6i>; Wed, 30 Jan 2002 11:58:38 -0500
+Received: from ns.suse.de ([213.95.15.193]:25862 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290185AbSA3QzZ>;
+	Wed, 30 Jan 2002 11:55:25 -0500
+Date: Wed, 30 Jan 2002 17:55:23 +0100
+From: Dave Jones <davej@suse.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: Sebastian Dr?ge <sebastian.droege@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Current Reiserfs Update / 2.5.2-dj7 Oops
+Message-ID: <20020130175523.M24012@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Oleg Drokin <green@namesys.com>,
+	Sebastian Dr?ge <sebastian.droege@gmx.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020130151420.40e81aef.sebastian.droege@gmx.de> <20020130173715.B2179@namesys.com> <20020130163951.13daca94.sebastian.droege@gmx.de> <20020130190905.A820@namesys.com> <20020130174011.L24012@suse.de> <20020130194408.A2153@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020130194408.A2153@namesys.com>; from green@namesys.com on Wed, Jan 30, 2002 at 07:44:08PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 30, 2002 at 07:44:08PM +0300, Oleg Drokin wrote:
 
-On Wed, 30 Jan 2002, Rik van Riel wrote:
+ > You do not play with a hdparm in your boot scripts, do you?
+ > I do (will retry without this now).
+ > How about others?
 
-> On Wed, 30 Jan 2002, Ingo Molnar wrote:
->
-> > could this be made: 'as long as they do not touch the same lines of
-> > code, taking 3 lines of context into account'? (ie. unified diff
-> > definition of 'collisions' context.)
->
-> That would be _wonderful_ and fix the last bitkeeper problem I'm
-> having once in a while.
+ No, my testboxes autoconfigure with the right settings.
 
-perhaps there should also be some sort of authority needed to allow such
-'violation' of current BK rules: while the patches to conflict in terms of
-source code file, we can override it and tell it that they really dont
-conflict.
-
-	Ingo
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131057AbQLUNCG>; Thu, 21 Dec 2000 08:02:06 -0500
+	id <S131039AbQLUNCp>; Thu, 21 Dec 2000 08:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131042AbQLUNB4>; Thu, 21 Dec 2000 08:01:56 -0500
-Received: from whiterose.net ([199.245.105.145]:8800 "EHLO whiterose.net")
-	by vger.kernel.org with ESMTP id <S131039AbQLUNBn>;
-	Thu, 21 Dec 2000 08:01:43 -0500
-Date: Thu, 21 Dec 2000 07:31:18 -0500 (EST)
-From: M Sweger <mikesw@whiterose.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.2.19pre1 oops on cpuid (fwd)
-Message-ID: <Pine.LNX.4.21.0012210731030.27401-100000@whiterose.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131042AbQLUNCf>; Thu, 21 Dec 2000 08:02:35 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:9220 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S131039AbQLUNCQ>;
+	Thu, 21 Dec 2000 08:02:16 -0500
+Message-ID: <20001221132800.A1398@bug.ucw.cz>
+Date: Thu, 21 Dec 2000 13:28:00 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Igmar Palsenberg <maillist@chello.nl>, Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kapm-idled : is this a bug?
+In-Reply-To: <20001220101142.A6234@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0012211158170.12934-100000@server.serve.me.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.21.0012211158170.12934-100000@server.serve.me.nl>; from Igmar Palsenberg on Thu, Dec 21, 2000 at 12:00:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> > > What's the problem with using PID 0 as the idle task ? That's 'standard'
+> > > with OS'ses that display the idle task.
+> > 
+> > Linux has already another thread with pid 0, called "swapper" which is
+> > in fact idle. kidle-apmd is different beast.
+> 
+> Agree that it is different. But it confuses people to have two
+> idle-tasks. I suggest that we throw it one big pile, unless having a
+> separate apm idle task has a purpose. 
 
----------- Forwarded message ----------
-Date: Wed, 20 Dec 2000 15:56:38 -0500 (EST)
-From: Alan Cox <alan@redhat.com>
-To: M Sweger <mikesw@whiterose.net>
-Cc: alan@redhat.com
-Subject: Re: linux 2.2.19pre1 oops on cpuid (fwd)
-
-> How would I activate the usb-serial in such a way as to activate the
-> /dev/usb/tts/{0,1} instead of /dev/ttyUSB0. The /dev/ttyUSB) shows
-> up correctly now in /proc, but I'd like to test and see the other one.
-
-Thats for 2.4 and devfs. Probably works on 2.2 + devfs patch
-
->    I have linux 2.2.19pre1 and have compiled the cpuid as a module. The
-> kernel will oops if the cpuid module isn't loaded and one does
-> /cat/dev/cpu/0/cpuid or /cat/dev/cpu/1/cpuid.
-
-Yeah. That one should get squashed for pre4
-
->      Question: When the cpuid module is loaded and I do a
-> cat/dev/cpu/0/cpuid it gives me a code "C" forover. What does this code
-> mean. I'm stil new to what it will be used for. Moreover, is there
-> a  list of all the possible code values it may take on for intel
-> processors vs. other processor types?
-
-Its a binary not ascii file for the cpuid() instruction results off each 
-CPU. See the intel cpu docs on the cpuid instruction and go from there
-
+You can't do that. Doing it this way is _way_ better for system
+stability, because kidle-apmd sometimes dies due to APM
+bug. kidle-apmd dying is recoverable error; swapper dieing is as fatal
+as it can be.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

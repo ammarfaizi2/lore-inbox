@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUAHAW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 19:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUAHAW7
+	id S262674AbUAHAZL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 19:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUAHAXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 19:22:59 -0500
-Received: from dp.samba.org ([66.70.73.150]:63872 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262566AbUAHAW5 (ORCPT
+	Wed, 7 Jan 2004 19:23:49 -0500
+Received: from dp.samba.org ([66.70.73.150]:8321 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262540AbUAHAXA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 19:22:57 -0500
+	Wed, 7 Jan 2004 19:23:00 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Patrick Mochel <mochel@osdl.org>
-Subject: Re: s3 sleep: Kill obsolete debugging code 
-In-reply-to: Your message of "Fri, 02 Jan 2004 23:46:44 BST."
-             <20040102224644.GA466@elf.ucw.cz> 
-Date: Thu, 08 Jan 2004 10:51:21 +1100
-Message-Id: <20040108002254.E50AB2C2BB@lists.samba.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL PATCH] correct kgdb.txt Documentation link (against 2.6.1-rc1-mm2) 
+In-reply-to: Your message of "Tue, 06 Jan 2004 02:03:53 BST."
+             <Pine.LNX.4.56.0401060156570.7407@jju_lnx.backbone.dif.dk> 
+Date: Thu, 08 Jan 2004 11:14:21 +1100
+Message-Id: <20040108002257.7BA572C4F9@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040102224644.GA466@elf.ucw.cz> you write:
-> Hi!
+In message <Pine.LNX.4.56.0401060156570.7407@jju_lnx.backbone.dif.dk> you write
+:
 > 
-> wakeup.S includes some rather nasty, and unneccessary debugging
-> code. (It used to try to flush caches/tlbs; now its totally
-> useless). Please apply,
-> 							Pavel
+> The help text for "config KGDB" in arch/i386/Kconfig refers to
+> Documentation/i386/kgdb.txt - the actual location is
+> Documentation/i386/kgdb/kgdb.txt - patch below to fix that.
 
-Removing asm not really trivial unless the author sent it...
+-mm only patch.  Please send to Andrew Morton.
 
-Sorry,
+Cheers,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

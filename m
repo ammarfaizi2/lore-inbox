@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUFFMO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUFFMQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUFFMO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 08:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbUFFMOY
+	id S263370AbUFFMQK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 08:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbUFFMQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 08:14:24 -0400
-Received: from holomorphy.com ([207.189.100.168]:38833 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263429AbUFFMNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 08:13:41 -0400
-Date: Sun, 6 Jun 2004 05:13:27 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, mikpe@csd.uu.se,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040606121327.GT21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, Rusty Russell <rusty@rustcorp.com.au>,
-	mikpe@csd.uu.se, linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com> <20040604113252.GA21007@holomorphy.com> <20040604092316.3ab91e36.pj@sgi.com> <20040604162853.GB21007@holomorphy.com> <20040604104756.472fd542.pj@sgi.com> <20040604181233.GF21007@holomorphy.com> <1086487651.11454.19.camel@bach> <20040606051657.3c9b44d3.pj@sgi.com>
+	Sun, 6 Jun 2004 08:16:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5071 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263370AbUFFMPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 08:15:54 -0400
+Date: Sun, 6 Jun 2004 14:15:46 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Eric BEGOT <eric_begot@yahoo.fr>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.27-pre5
+Message-ID: <20040606121545.GB5830@fs.tum.de>
+References: <20040603022432.GA6039@logos.cnet> <40C08A0D.9010003@yahoo.fr> <20040604225247.GH7744@fs.tum.de> <40C19EDE.10405@yahoo.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040606051657.3c9b44d3.pj@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <40C19EDE.10405@yahoo.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty wrote:
->> Yes, NR_CPUS needs to get to userspace somehow sanely if we want to fix
->> this in general.
+> >On Fri, Jun 04, 2004 at 04:41:17PM +0200, Eric BEGOT wrote:
+> > 
+> >
+> >>when compiling linux-2.4.27-pre5 under a x86 architecture, I've a lot of 
+> >>warnings :
+> >>
+> >>In file included from 
+> >>/usr/src/devel//usr/src/devel/include/linux/modules/i386_ksyms.ver:127:1: 
+> >>warning: "__ver_atomic_dec_and_lock" redefined
+> >>In file included from /usr/src/devel/include/linux/modversions.h:70,
+> >>              from <command line>:8:
+> >>/usr/src/devel/include/linux/modules/dec_and_lock.ver:1:1: warning: this 
+> >>is the location of the previous definition
+> >>
+> >>__ver_atomic_dec_and_lock is declared two times. Maybe it lacks a #ifdef 
+> >>somewhere in the modversions.h no ?
+> >>The compilation doesn't fail bu it's not very nice :)
 
-On Sun, Jun 06, 2004 at 05:16:57AM -0700, Paul Jackson wrote:
-> Are you saying that NR_CPUS is needed, or just the number of longs in a
-> cpumask (sizeof (cpumask_t), essentially)?
-> I can see where the size is needed, in order to make the system calls to
-> set and get masks of arbitrary size.  Since these sizes are a multiple
-> of sizeof(long), at a minimum this means user code needs to know the
-> number of longs in a mask.  Though the number of bytes, as in
-> sizeof(cpumask_t), rather than of longs, is perhaps a less surprising
-> interface.
-> I can't see where the user code cares whether NR_CPUS is 47 or 48?
-> Am I missing something?
-> I am a firm believer in passing the minimum essential information across
-> major boundaries.  Passing too much creates maintaince problems, and
-> encourages misuse of information, resulting in bogus user code.
 
-You've been told, and several times already. The current example is
-userspace needing to know when to stop trying to online cpus.
+I can't reproduce your problem with your .config .
 
--- wli
+Did you do something like patching the kernel or changing the SMP option
+without running "make oldconfig" afterwards?
+
+What are the values of __ver_atomic_dec_and_lock at the two places
+mentiones in the warnings?
+
+Does a
+  cp .config /tmp
+  make mrproper
+  mv /tmp/.config
+  make oldconfig
+  make bzImage
+fix this problem?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

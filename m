@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317657AbSFRWwZ>; Tue, 18 Jun 2002 18:52:25 -0400
+	id <S317658AbSFRW4b>; Tue, 18 Jun 2002 18:56:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317658AbSFRWwY>; Tue, 18 Jun 2002 18:52:24 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:772 "EHLO
-	whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S317657AbSFRWwX>; Tue, 18 Jun 2002 18:52:23 -0400
-X-All-Your-Base: Are Belong To Us!!!
-X-Envelope-Recipient: davids@webmaster.com
-X-Envelope-Sender: stevie@qrpff.net
-Message-Id: <5.1.0.14.2.20020618184424.00ab6418@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 18 Jun 2002 18:45:55 -0400
-To: David Schwartz <davids@webmaster.com>, <rml@tech9.net>,
-       Chris Friesen <cfriesen@nortelnetworks.com>
-From: Stevie O <stevie@qrpff.net>
+	id <S317660AbSFRW4a>; Tue, 18 Jun 2002 18:56:30 -0400
+Received: from pc132.utati.net ([216.143.22.132]:52865 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S317658AbSFRW43>; Tue, 18 Jun 2002 18:56:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: David Schwartz <davids@webmaster.com>, <mgix@mgix.com>,
+       <root@chaos.analogic.com>, Chris Friesen <cfriesen@nortelnetworks.com>
 Subject: Re: Question about sched_yield()
-Cc: <mgix@mgix.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020618180040.AAA21856@shell.webmaster.com@whenever>
-References: <1024420400.3090.202.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 18 Jun 2002 12:58:09 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+References: <20020618191114.AAA27826@shell.webmaster.com@whenever>
+In-Reply-To: <20020618191114.AAA27826@shell.webmaster.com@whenever>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020618223028.DC8CA7D9@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:00 AM 6/18/2002 -0700, David Schwartz wrote:
->This is the same error repeated again. Since you realize that an endless 
->loop on sched_yield is *not* equivalent to blocking, why do you then say "in 
->fact doing useful work"? By what form of ESP is the kernel supposed to 
->determine that the sched_yield task is not 'doing useful work' and the other 
->task is?
+On Tuesday 18 June 2002 03:11 pm, David Schwartz wrote:
 
-By this form of ESP: sched_yield() means "I have nothing better to do right now, give my time to someone who does".  If a thread is doing useful work, why would it call sched_yield() ?!?
+> 	I'm sorry, but you are being entirely unreasonable. The kernel has no way
+> to know which processes are doing something useful and which ones are just
+> wasting CPU.
 
+So the fact one of them is calling sched_yield (repeatedly) and the other one 
+isn't doesn't count as just a little BIT of a hint?
 
---
-Stevie-O
+> 	What sched_yield is good for is if you encounter a situation where you
+> need/want some resource and another thread/process has it. You call
+> sched_yield once, and maybe when you run again, the other thread/process
+> will have released it.
 
-Real programmers use COPY CON PROGRAM.EXE
+Not if it was a higher-priority task that has already exhausted its time 
+slice...
 
+> You can also use it as the spin function in
+> spinlocks.
+
+In user space?
+
+Rob

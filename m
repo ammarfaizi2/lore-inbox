@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbSJOQNZ>; Tue, 15 Oct 2002 12:13:25 -0400
+	id <S263249AbSJOQHW>; Tue, 15 Oct 2002 12:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264676AbSJOQNZ>; Tue, 15 Oct 2002 12:13:25 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:33648 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S264675AbSJOQNY>; Tue, 15 Oct 2002 12:13:24 -0400
-Date: Tue, 15 Oct 2002 18:19:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christian Guggenberger 
-	<christian.guggenberger@physik.uni-regensburg.de>
-Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre10-aa1: unresolved symbol in xfs.o
-Message-ID: <20021015161908.GC2546@dualathlon.random>
-References: <20021015172558.A3154@pc9391.uni-regensburg.de>
+	id <S263302AbSJOQHW>; Tue, 15 Oct 2002 12:07:22 -0400
+Received: from f31.pav1.hotmail.com ([64.4.31.31]:49675 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263249AbSJOQHU>;
+	Tue, 15 Oct 2002 12:07:20 -0400
+X-Originating-IP: [63.229.167.10]
+From: "Anthony Martinez" <i_am_pi_@hotmail.com>
+To: jbradford@dial.pipex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD PCNet adapter
+Date: Tue, 15 Oct 2002 10:13:10 -0600
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021015172558.A3154@pc9391.uni-regensburg.de>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; format=flowed
+Message-ID: <F31nZS08i7M4BAyxJMX000029d5@hotmail.com>
+X-OriginalArrivalTime: 15 Oct 2002 16:13:10.0617 (UTC) FILETIME=[C177D490:01C27465]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 05:25:58PM +0200, Christian Guggenberger wrote:
-> Hi Andrea,
-> 
-> I'm trying to compile 2.4.20-pre10aa1 with xfs enabled as module.
-> make modules_install ends up in:
-> 
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.4.20-pre10aa1/kernel/fs/xfs/xfs.o
-> depmod: 	do_generic_file_write
-> 
-> what to do?
 
-I logged it so it will be fixed. You can link it into the kernel in the
-meantime (select Y instead of M). For some reason bleeding edge gcc from
-CVS generates a flood of symbol errors when I run depmod before
-rebooting, so I don't easily notice these missing exports anymore (I
-should run depmod post reboot to notice them). thanks,
 
-Andrea
+
+>From: jbradford@dial.pipex.com
+>To: i_am_pi_@hotmail.com (Anthony Martinez)
+>Subject: Re: AMD PCNet adapter
+>Date: Tue, 15 Oct 2002 16:58:28 +0100 (BST)
+>
+> > Hello
+> > Are there modem drivers available for an AMD PCNet adapter, chip 
+>AM79C978XC,
+> > or is this even the right place to ask?
+> >
+> > This card has both ethernet and modem ports, and works with the windoze
+> > drivers.
+> >
+> > I saw some discussion about an AM79C973 in the archives, but that was an
+> > ethernet card.
+>
+>What _is_ a PCNet adaptor???
+
+This card has modem and ethernet ports. Since we're not going to be 
+connecting this box via ethernet, i need modem drivers for the thing (either 
+that or a real modem that works, but you can't help with that :))
+
+>
+>AM79C978 is an Ethernet chipset as far as I know, and it is supported
+>by Linux, via the pcnet32.c driver.
+>
+>John.
+Pi
+
+PS: I found some drivers sitting around on AMD's webpage, i'll compile them 
+when I get home, or take a modem that's sitting around here.
+
+
+
+_________________________________________________________________
+Join the world’s largest e-mail service with MSN Hotmail. 
+http://www.hotmail.com
+

@@ -1,34 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265173AbTF3Png (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 11:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265170AbTF3Png
+	id S265105AbTF3PnH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 11:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbTF3PnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 11:43:36 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:52872 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265163AbTF3Pne
+	Mon, 30 Jun 2003 11:43:06 -0400
+Received: from repton.netsplit.com ([62.49.129.38]:29453 "EHLO
+	repton.netsplit.com") by vger.kernel.org with ESMTP id S265105AbTF3PnD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 11:43:34 -0400
-Date: Mon, 30 Jun 2003 16:57:53 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: David Schwartz <davids@webmaster.com>
-Cc: root@mauve.demon.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Dell vs. GPL
-Message-ID: <20030630155753.GA31114@mail.jlokier.co.uk>
-References: <200306300902.KAA18655@mauve.demon.co.uk> <MDEHLPKNGKAHNMBLJOLKIEIDEAAA.davids@webmaster.com>
+	Mon, 30 Jun 2003 11:43:03 -0400
+Subject: Messages from usenet@mailgate.netsplit.com
+From: Scott James Remnant <scott@netsplit.com>
+Reply-To: scott@netsplit.com
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Dig9II1RYpmM0Mb1zAig"
+Message-Id: <1056988637.20165.8.camel@elite>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEIDEAAA.davids@webmaster.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 30 Jun 2003 16:57:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
-> 	Do I really want to be forced to download the linux kernel source just to
-> download a boot disk image?
 
-You don't have to download the source.  You are entitled to download
-it _if you want to_.
+--=-Dig9II1RYpmM0Mb1zAig
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- Jamie
+Apologies for the earlier empty messages from the above address.
+
+For some reason in the middle of the night the news server decided to
+stop feeding articles through the gateway, and instead started
+generating empty messages back to the list.
+
+I've taken the news gateway offline until I can figure out why it
+doesn't seem to want to write articles out to its feeds properly.
+
+Scott
+--=20
+Who has a nice slice of humble pie to eat.
+
+--=-Dig9II1RYpmM0Mb1zAig
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/AF3dIexP3IStZ2wRAj/NAJ0YkLyoQa7QH11QZHtisMJDqC+ujQCgmILN
+jw1iwAY09T29qyL988XDw4A=
+=Mmki
+-----END PGP SIGNATURE-----
+
+--=-Dig9II1RYpmM0Mb1zAig--
+

@@ -1,111 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311288AbSCLQow>; Tue, 12 Mar 2002 11:44:52 -0500
+	id <S289484AbSCLQqV>; Tue, 12 Mar 2002 11:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311285AbSCLQoX>; Tue, 12 Mar 2002 11:44:23 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:29917 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S289484AbSCLQoG>;
-	Tue, 12 Mar 2002 11:44:06 -0500
-Date: Tue, 12 Mar 2002 17:41:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre3aa1
-Message-ID: <20020312174156.D1703@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S311285AbSCLQoz>; Tue, 12 Mar 2002 11:44:55 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:59914 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S289484AbSCLQo2>; Tue, 12 Mar 2002 11:44:28 -0500
+Message-ID: <3C8E3025.4070409@evision-ventures.com>
+Date: Tue, 12 Mar 2002 17:43:17 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <E16kYXz-0001z3-00@the-village.bc.nu> <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com> <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E28A1.1070902@evision-ventures.com> <20020312172134.A5026@ucw.cz> <3C8E2C2C.2080202@evision-ventures.com> <20020312173301.C5026@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+Vojtech Pavlik wrote:
+> On Tue, Mar 12, 2002 at 05:26:20PM +0100, Martin Dalecki wrote:
+> 
+>>Vojtech Pavlik wrote:
+>>
+>>
+>>
+>>>Well, as much as I'd like to use safe pre-computed register values for
+>>>the chips, that ain't possible - even when we assumed the system bus
+>>>(PCI, VLB, whatever) was always 33 MHz, still the drives have various
+>>>ideas about what DMA and PIO modes should look like, see the tDMA and
+>>>tPIO entries in hdparm -t.  
+>>>
+>>Yes yes yes of course some of the drivers are confused. And I don't
+>>argue that precomputation is adequate right now. It just wasn't for
+>>the CMD640 those times... I only wanted to reffer to history and
+>>why my timings where different then the computed.
+>>
+> 
+> We may want to compare your original timings to what ide-timing.[ch]
+> will compute ...
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre3aa1.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre3aa1/
+Unfortunately there is no chance. I have abondony this board quite
+happy a long time ago... It was an 486 and I don't keep old
+shread around. Sorry I just don't have it at hand anylonger.
 
-vm-31 (no differences with vm-30 except it applies cleanly to pre3 :)
-can be download from here:
 
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.19pre3/vm-31
-
-Only in 2.4.19pre3aa1: 00_alpha-page_address-1
-Only in 2.4.19pre3aa1: 00_alpha-page_zone-1
-
-	Fixup some alpha MM compilation problem.
-
-Only in 2.4.19pre2aa2: 00_amd-viper-7441-guessed-1
-Only in 2.4.19pre2aa2: 00_flush_icache_range-3
-
-	Obsoleted by mainline.
-
-Only in 2.4.19pre2aa2: 00_block-highmem-all-18b-6.gz
-Only in 2.4.19pre3aa1: 00_block-highmem-all-18b-7.gz
-
-	Fixed some MM bit.
-
-Only in 2.4.19pre2aa2: 00_dnotify-fl_owner-1
-Only in 2.4.19pre3aa1: 00_dnotify-fl_owner-2
-
-	New better fix from Stephen Rothwell.
-
-Only in 2.4.19pre3aa1: 00_really-write-inode-1
-
-	Make sure to flush the latest inode updates
-	to disk before returning from sync_one().
-	Fix from Benjamin LaHaise.
-
-Only in 2.4.19pre2aa2: 00_rwsem-fair-27
-Only in 2.4.19pre2aa2: 00_rwsem-fair-27-recursive-8
-Only in 2.4.19pre3aa1: 00_rwsem-fair-28
-Only in 2.4.19pre3aa1: 00_rwsem-fair-28-recursive-8
-Only in 2.4.19pre2aa2: 00_silent-stack-overflow-15
-Only in 2.4.19pre3aa1: 00_silent-stack-overflow-16
-Only in 2.4.19pre2aa2: 10_numa-sched-15
-Only in 2.4.19pre3aa1: 10_numa-sched-16
-Only in 2.4.19pre2aa2: 10_vm-30
-Only in 2.4.19pre3aa1: 10_vm-31
-Only in 2.4.19pre2aa2: 20_pte-highmem-15
-Only in 2.4.19pre3aa1: 20_pte-highmem-17
-Only in 2.4.19pre2aa2: 30_dyn-sched-4
-Only in 2.4.19pre3aa1: 30_dyn-sched-5
-Only in 2.4.19pre3aa1: 50_uml-patch-2.4.18-2-2.gz
-Only in 2.4.19pre2aa2: 50_uml-patch-2.4.18-2.gz
-Only in 2.4.19pre2aa2: 70_xfs-5.gz
-Only in 2.4.19pre3aa1: 70_xfs-6.gz
-
-	Rediffed.
-
-Only in 2.4.19pre3aa1: 00_sr-scatter-pad-1
-
-	Fix oops in the 1k emulation. Fix from Jens.
-
-Only in 2.4.19pre3aa1: 10_reiserfs-o_direct-1
-Only in 2.4.19pre2aa2: 20_reiser-o_direct-2
-
-	Mostly obsoleted, but direct_IO API change
-	needed by nfs remains.
-
-Only in 2.4.19pre2aa2: 51_uml-ac-to-aa-6
-Only in 2.4.19pre3aa1: 51_uml-ac-to-aa-7
-Only in 2.4.19pre2aa2: 52_uml-pgtable_cache_init-1
-Only in 2.4.19pre3aa1: 55_uml-page_address-1
-Only in 2.4.19pre3aa1: 56_uml-pte-highmem-1
-Only in 2.4.19pre3aa1: 57_uml-dyn_sched-1
-
-	Fixedup uml to work well with various recent
-	changes.
-
-Only in 2.4.19pre3aa1: 72_xfs-fixes-1
-
-	Recent xfs fixes from Eric Sandeen and Andi Kleen.
-
-Only in 2.4.19pre3aa1: 80_x86_64-common-code-1
-Only in 2.4.19pre3aa1: 81_x86_64-arch-1.gz
-Only in 2.4.19pre3aa1: 82_x86-64-compile-aa-1
-Only in 2.4.19pre3aa1: 82_x86-64-pte-highmem-1
-
-	x86-64 port. From SuSE Labs.
-
-Andrea

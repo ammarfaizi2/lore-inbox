@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286390AbRLJVPK>; Mon, 10 Dec 2001 16:15:10 -0500
+	id <S284691AbRLJVXA>; Mon, 10 Dec 2001 16:23:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286396AbRLJVPA>; Mon, 10 Dec 2001 16:15:00 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:48831 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S286390AbRLJVOv>;
-	Mon, 10 Dec 2001 16:14:51 -0500
-Message-ID: <3C1525C7.1030408@candelatech.com>
-Date: Mon, 10 Dec 2001 14:14:47 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S284704AbRLJVWl>; Mon, 10 Dec 2001 16:22:41 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:51329 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S284691AbRLJVWh>;
+	Mon, 10 Dec 2001 16:22:37 -0500
+Date: Mon, 10 Dec 2001 18:01:03 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
+In-Reply-To: <Pine.LNX.4.33.0112101546260.1647-100000@marabou.research.att.com>
+Message-ID: <Pine.LNX.4.21.0112101800380.25397-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: min-write-size for a UDP socket to be POLLOUT cannot be set. (proposed fixes)
-In-Reply-To: <Pine.LNX.3.95.1011210153555.742A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The second hunk of the your patch is already on my tree.
 
-Richard B. Johnson wrote:
+On Mon, 10 Dec 2001, Pavel Roskin wrote:
 
-> On Mon, 10 Dec 2001, Ben Greear wrote:
-
->>I have 4M queue size.  I have 4M-2k bytes already in the
->>queue (2k free).  I have a 4k UDP buffer to write.  I call
->>select and it says the socket is writable.  However, in this
->>case I cannot actually write to the socket because I have only
->>2 of the 4k that I need...  Now, I can detect the failure to send
->>and re-transmit, but that basically gets me into a tight loop because
->>select keeps saying I can write, and I keep trying.  The tight loop
->>is doubly bad because the machine is already highly stressed or it's
->>buffers would never be so full....
->>
->>I want select to only say I can write when I'm at XX (say, 64k) bytes of
->>free buffer-queue space...
->>
->>Ben
->>
->>
+> Hello, Alan and all!
 > 
-> If you have a 4M queue size, it appears as though you are trying to
-> use UDP where TCP should have been used. Normally, what you call the
-> queue size, is set to contain you largest packet you will ever want to
-> send. With this in mind, you don't even know if a fragmented packet
-> can be routed if it's more than 64k in length so you would never try
-> to send something larger than that under UDP.
-
-
-Assume that I actually want to do what I said I did! :)
-
-I never try to send
-a packet bigger than 64k, the protocol doesn't handle it.  But, I may try
-to send 100000 60k UDP packets in very fast succession...which could fill up my
-send queue.
-
-
-
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+> File drivers/scsi/fdomain.h declares a data structure FDOMAIN_16X0 using
+> an undeclared function fdomain_16x0_release() in Linux 2.4.17-pre7.
+> 
+> This is not a problem for the kernel itself, but it breaks compilation of
+> pcmcia-cs-3.1.30 because the later uses structure FDOMAIN_16X0.
+> 
+> The fix is trivial - declare fdomain_16x0_release() the same way as other
+> non-static functions from fdomain.c.
+> 
+> Another partly related problem is a warning in fdomain.c:
+> 
+> fdomain.c: In function `fdomain_16x0_release':
+> fdomain.c:2045: warning: control reaches end of non-void function
+> 
+> I wonder if the patches that introduce warnings should be allowed in the 
+> stable branch?  Anyway, comparing with other SCSI drivers I see that 0 
+> should be returned and scsi_unregister(shpnt) should be called before 
+> that.
+> 
+> Here's the patch.  The part for fdomain.h is 100% safe and should be
+> applied ASAP.  The part for fdomain.c should be safe too but I'll
+> appreciate if somebody tests it on a real Future Domain controller.
+> 
+> ------------------------------
+> --- linux.orig/drivers/scsi/fdomain.c
+> +++ linux/drivers/scsi/fdomain.c
+> @@ -2042,6 +2042,8 @@ int fdomain_16x0_release(struct Scsi_Hos
+>  	if (shpnt->io_port && shpnt->n_io_port)
+>  		release_region(shpnt->io_port, shpnt->n_io_port);
+>  
+> +	scsi_unregister(shpnt);
+> +	return 0;
+>  }
+>  
+>  MODULE_LICENSE("GPL");
+> --- linux.orig/drivers/scsi/fdomain.h
+> +++ linux/drivers/scsi/fdomain.h
+> @@ -34,6 +34,7 @@
+>  int        fdomain_16x0_biosparam( Disk *, kdev_t, int * );
+>  int        fdomain_16x0_proc_info( char *buffer, char **start, off_t offset,
+>  				   int length, int hostno, int inout );
+> +int        fdomain_16x0_release(struct Scsi_Host *shpnt);
+>  
+>  #define FDOMAIN_16X0 { proc_info:      fdomain_16x0_proc_info,           \
+>  		       detect:         fdomain_16x0_detect,              \
+> ------------------------------
+> 
+> -- 
+> Regards,
+> Pavel Roskin
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTKOFBg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 00:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbTKOFBg
+	id S261539AbTKOFTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 00:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTKOFTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 00:01:36 -0500
-Received: from ozlabs.org ([203.10.76.45]:21150 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261464AbTKOFBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 00:01:35 -0500
+	Sat, 15 Nov 2003 00:19:09 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:18914 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261539AbTKOFTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 00:19:04 -0500
+Message-ID: <3FB5B74E.5080707@marcush.de>
+Date: Sat, 15 Nov 2003 06:19:10 +0100
+From: Marcus Hartig <marcus@marcush.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031021
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test9 /-mm3 SATA siimage - bad disk performance
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16309.46013.862161.879144@cargo.ozlabs.ibm.com>
-Date: Sat, 15 Nov 2003 16:03:57 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC32: cancel syscall restart on signal delivery
-In-Reply-To: <Pine.LNX.4.44.0311141906160.9014-100000@home.osdl.org>
-References: <16309.38562.950351.137425@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.44.0311141906160.9014-100000@home.osdl.org>
-X-Mailer: VM 7.17 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+Hello all,
 
-> Why? Check out get_signal_to_deliver(). And grok the absolute horridness.
+with the Fedora 1 kernel 2.4.22-1.2115.nptl I get with hdparm -t
+(Timing buffered disk reads) 34 MB/sec. Its very slow for this drive.
 
-Yes, that is pretty special, isn't it. :)
+With 2.6.0-test9 and -mm3 I get around "62 MB in 3.05 = 20,31". Wow"
+Back to ~1998?
 
-> The rule is: the restart_block is _only_ meaningful if you return 
-> -ERESTART_BLOCK. So at any other time it contains stale data.
-> 
-> > Am I missing something?  Perhaps we should reset restart_block.fn in
-> > sys_{,rt_}sigreturn, or possibly in sys_restart_syscall.
-> 
-> You're missing that the only thing that ever looks at restart_block is the 
-> code that is inside the signal handling of ERESTART_BLOCK.
+UDMA6 is always on. The Abit NF7-S V2 nForce2 board with an siimage 
+3112a (rev2) raid controller, new BIOS.
 
-... and sys_restart_syscall().  If your statement was true, why was it
-so important to reset restart_block.fn when we deliver a signal?
+Also with the Seagate SATA V ST380023AS I get heavy crashes with 
+max_kb_per_request when I set it to 128 (all kernel). With 15kb its fine 
+and stable, but so slow.
 
-Seems to me that we can get into a situation where we are in a signal
-handler, and the interrupted state has (1) eip/nip pointing at a
-system call instruction and (2) the syscall number register (eax/r0)
-containing __NR_restart_syscall.  Now, if we get into this state we
-will initially have restart_block.fn == do_no_restart_syscall.  But
-that can get changed by the signal handler.
+The Seagate technical support means in an email to me, that there are no 
+problems with the SATA seagate drives, its only the driver ... Nice. Is 
+that really so? And why get other users with new Maxtor or Western 
+Digital SATA drives (in the same class) much better performance?
 
-Now, when we resume that context we will call sys_restart_syscall
-which will call restart_block.fn.  Which won't necessarily still point
-to do_no_restart_syscall.  So I still think we have a problem.
+Thanks for all the good work,
 
-Paul.
+Marcus
+
+-- 
+from the "Old Europe"
+

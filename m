@@ -1,90 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263434AbRFSB1k>; Mon, 18 Jun 2001 21:27:40 -0400
+	id <S262674AbRFSCr1>; Mon, 18 Jun 2001 22:47:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263432AbRFSB1V>; Mon, 18 Jun 2001 21:27:21 -0400
-Received: from mo.optusnet.com.au ([203.10.68.101]:12181 "EHLO
-	mo.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S263093AbRFSB1T>; Mon, 18 Jun 2001 21:27:19 -0400
-To: "Delio Brignoli" <nordkyn@tin.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: i810 audio problem
-In-Reply-To: <20010618141715.A534@argo.tin.it>
-From: Michael <public@dgmo.org>
-Date: 19 Jun 2001 11:27:08 +1000
-In-Reply-To: "Delio Brignoli"'s message of "Mon, 18 Jun 2001 14:17:15 +0200"
-Message-ID: <m1wv6945ub.fsf@mo.optusnet.com.au>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S263437AbRFSCrR>; Mon, 18 Jun 2001 22:47:17 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:14856 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S262674AbRFSCrA>; Mon, 18 Jun 2001 22:47:00 -0400
+Date: Mon, 18 Jun 2001 19:46:58 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Jan Hudec <bulb@ucw.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Client receives TCP packets but does not ACK
+In-Reply-To: <a05101001b75435c7291d@[192.168.239.105]>
+Message-ID: <Pine.LNX.4.33.0106181922230.5361-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Delio Brignoli" <nordkyn@tin.it> writes:
-> Switching from 2.4.2 to 2.4.5 breaks i810_audio on my intel MX440 based notebook:
-> 
-> After some (in fact a few) seconds of playback it gets stuck until the app closes and reopens /dev/dsp. (I do NOT use esd)
-[..] 
-> It goes on until I kill the app, then it says:
-> 
-> Jun 18 13:59:42 argo kernel: i810_audio: drain_dac, dma timeout?
-> 
-> Any idea(s), suggestions ...
+On Tue, 19 Jun 2001, Jonathan Morton wrote:
 
-What a co-incidence. I just hit this problem a few days ago.
+> >  > >  > Btw: can the aplication somehow ask the tcp/ip stack what was
+> >>  >actualy acked?
+> >>  >>  (ie. how many bytes were acked).
+> >>  >
+> >>  >no, but it's not necessarily a useful number anyhow -- because it's
+> >>  >possible that the remote end ACKd bytes but the ACK never arrives.  so you
+> >>  >can get into a situation where the remote application has the entire
+> >>  >message but the local application doesn't know.  the only way to solve
+> >>  >this is above the TCP layer.  (message duplicate elimination using an
+> >>  >unique id.)
+> >>
+> >>  No, because if the ACK doesn't reach the sending machine, the sender
+> >>  will retry the data until it does get an ACK.
+> >
+> >if the network goes down in between, the sender may never get the ACK.
+> >the sender will see a timeout eventually.  the receiver may already be
+> >done with the connection and closed it and never see the error.  if it
+> >were a protocol such as SMTP then the sender would retry later, and the
+> >result would be a duplicate message.  (which you can eliminate above the
+> >TCP layer using unique ids.)
+>
+> But, if the sender does not attempt to close the socket until the ACK
+> returns, then the receiver will see an unfinished connection and
+> (hopefully) realise that the message is unsafe and not attempt to
+> send it.
 
-The problem here is that:
-1.	the dma buffer drains to zero.
-2.	interrupt handler set LVI to CIV.
-3.	app write more than a buffer size of data to dma buffer.
-4.	LVI is un-changed!
+suppose the network goes away and doesn't come back.  the ACK never gets
+through.
 
-There's a kludgey work-around I used, (never use more than
-31 segments of the DMA buffer). (I.e. never use the last
-dmabuf->fragsize of the dma buffer). This cures the hang
-but it isn't an optimal solutions.
+> With SMTP, the last piece of data is a QUIT anyway, which occurs
+> after the end-of-message marker - once the QUIT is sent and/or
+> received, both ends know that the connection is finished with and
+> will close the socket independently of each other.  If the network
+> disappears before the QUIT comes along, the receiver should be
+> discarding messages and the sender retrying later.
 
---- i810_audio.c.old	Tue Jun 19 11:22:56 2001
-+++ i810_audio.c	Tue Jun 19 11:24:02 2001
-@@ -1194,6 +1194,10 @@
-		cnt = dmabuf->dmasize - swptr;
-		if(cnt > (dmabuf->dmasize - dmabuf->count))
-			cnt = dmabuf->dmasize - dmabuf->count;
-+	
-+		if (cnt >= dmabuf->fragsize && (dmabuf->count + cnt) >= dmabuf->dmasize)
-+			cnt -= dmabuf->fragsize; 
-+	
-		spin_unlock_irqrestore(&state->card->lock, flags);
+QUIT is the last step of a session which can include multiple messages. a
+single message begins with the "MAIL FROM:<foo>" and ends with the . that
+terminates the DATA section.  after that the smtp server sends back the
+"250 OK".  the smtp client is now free to sit on the connection "forever",
+possibly beginning another "MAIL FROM:<foo>".  (i.e. connection caching in
+sendmail.)
 
-		if (cnt > count)
+but in the meanwhile, the smtp server has moved the message into its next
+phase of delivery as soon as it sends back the "250 OK", which could
+include having forwarded it off the box, or to a mailing list, etc.
 
+so in this example where you want to consider network failure is after the
+smtp client has sent the trailing "." closing the DATA section, and that
+data has been received by the smtp server.  then the network fails before
+the ACK (and "250 OK") returns to the smtp client.
 
-A better fix _may_ be to set CIV to LVI instead of the other way
-around. (This assumes CIV is writeable). No testing at all;
-may not be a fix. 
+in this case the client has no choice but to resend later.  (both sides
+should get an error eventually assuming the implementors don't suck,
+unlike in some other protocols such as HTTP/0.9 and HTTP/1.0 where the
+protocol itself is flawed.)  the result is probably a message duplicate.
 
-Something like:
+so what you were asking about was, what if the smtp server in this case
+could find out that the "250 OK" was never ACKd.  in that case just move
+the network failure a little later in the series of events... and also
+consider cases where the TCP stack ACKs but the application never gets to
+read() the data (system failures).
 
-diff -u i810_audio.c.old i810_audio.c
---- i810_audio.c.old	Tue Jun 19 11:22:56 2001
-+++ i810_audio.c	Tue Jun 19 11:26:14 2001
-@@ -807,11 +807,11 @@
-	 * means no data on read, handle appropriately
-	 */
-	if(!rec && dmabuf->count == 0) {
--		outb(inb(port+OFF_CIV),port+OFF_LVI);
-+		outb(inb(port+OFF_LVI),port+OFF_CIV);
-		return;
-	}
-	if(rec && dmabuf->count == dmabuf->dmasize) {
--		outb(inb(port+OFF_CIV),port+OFF_LVI);
-+		outb(inb(port+OFF_LVI),port+OFF_CIV);
-		return;
-	}
-	/* swptr - 1 is the tail of our transfer */
+basically these transactional semantics have to occur above TCP/IP itself.
+this is where QUIT comes in.  and to some extent, message-IDs for
+duplicate elimination.  (in HTTP/1.1 the introduction of chunked transfer
+encoding to handle variable length dynamic responses in the face of
+network failures... but folks building web forms still need to put
+unique-ids into the forms to handle the duplicate message problem.)
 
-but with testing and a glance at the docs. :)
+i guess knowing the number of ACK'd bytes might be a useful debugging aid,
+but i'd fear it being misused by app writers.
 
-
-Michael.
-
-
+-dean
 

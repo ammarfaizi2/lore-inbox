@@ -1,73 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUGQUHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUGQUlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUGQUHO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 16:07:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUGQUHO
+	id S261682AbUGQUlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 16:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUGQUlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 16:07:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12534 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261474AbUGQUHM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 16:07:12 -0400
-Date: Sat, 17 Jul 2004 22:07:04 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Krzysztof Rusocki <kszysiu@iceberg.elsat.net.pl>, cltien@cmedia.com.tw,
-       linux-kernel@vger.kernel.org
-Subject: [2.4 patch] cmpci oops on rmmod + fix
-Message-ID: <20040717200704.GD14733@fs.tum.de>
+	Sat, 17 Jul 2004 16:41:07 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:4482 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261682AbUGQUlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 16:41:05 -0400
+Date: Sat, 17 Jul 2004 22:41:04 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: audio cd writing causes massive swap and crash
+Message-ID: <20040717204104.GA561@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Ed Sweetman <safemode@comcast.net>, linux-kernel@vger.kernel.org
+References: <40F9854D.2000408@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <40F9854D.2000408@comcast.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a patch originally sent against 2.6 by
-Krzysztof Rusocki <kszysiu@iceberg.elsat.net.pl> (and already included 
-in 2.6.8-rc1).
+On Sat, Jul 17, 2004 at 04:00:13PM -0400, Ed Sweetman wrote:
+> Both with 2.6.7-rc3 and 2.6.8-rc1-mm1 I get the same behavior when 
+> writing an audio cd on my plextor px-712a.  DMA is enabled and normal 
+> data cds write as expected, but audio cds will cause (at any speed) the 
+> box to start using insane amounts of swap (>150MB) and eventually cause 
+> the box to crash before finishing the cd.  CPU usage during the write is 
 
-His explanation of the patch was:
+Can you run vmstat 1 during the burn and show us the output?
 
-<--  snip  -->
+Thanks.
 
-The cmpci driver included in Linux 2.6.7 causes an oops on rmmod,
-I believe cm_remove should be marked __devexit rather than __devinit.
-
-<--  snip  -->
-
-
-This is an obvious bug, and below is my backport of his fix to 2.4 .
-While I was editing struct cm_driver, I've also converted it to C99 
-initializers (as already done in 2.6).
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.4.27-rc3-full/drivers/sound/cmpci.c.old	2004-07-17 21:56:28.000000000 +0200
-+++ linux-2.4.27-rc3-full/drivers/sound/cmpci.c	2004-07-17 21:57:22.000000000 +0200
-@@ -3595,7 +3595,7 @@
- MODULE_DESCRIPTION("CM8x38 Audio Driver");
- MODULE_LICENSE("GPL");
- 
--static void __devinit cm_remove(struct pci_dev *dev)
-+static void __devexit cm_remove(struct pci_dev *dev)
- {
- 	struct cm_state *s = pci_get_drvdata(dev);
- 
-@@ -3643,10 +3643,10 @@
- MODULE_DEVICE_TABLE(pci, id_table);
- 
- static struct pci_driver cm_driver = {
--       name: "cmpci",
--       id_table: id_table,
--       probe: cm_probe,
--       remove: cm_remove
-+	.name		= "cmpci",
-+	.id_table	= id_table,
-+	.probe		= cm_probe,
-+	.remove		= __devexit_p(cm_remove)
- };
-  
- static int __init init_cmpci(void)
-
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,61 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276627AbRJUTNg>; Sun, 21 Oct 2001 15:13:36 -0400
+	id <S276622AbRJUTNE>; Sun, 21 Oct 2001 15:13:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276628AbRJUTNZ>; Sun, 21 Oct 2001 15:13:25 -0400
-Received: from gusi.leathercollection.ph ([202.163.192.10]:57219 "EHLO
-	gusi.leathercollection.ph") by vger.kernel.org with ESMTP
-	id <S276627AbRJUTNI>; Sun, 21 Oct 2001 15:13:08 -0400
-Date: Mon, 22 Oct 2001 03:13:38 +0800 (PHT)
-From: Federico Sevilla III <jijo@leathercollection.ph>
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: ext2 vs. ext3?
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBEEKODPAA.znmeb@aracnet.com>
-Message-ID: <Pine.LNX.4.40.0110220306280.21933-100000@gusi.leathercollection.ph>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276627AbRJUTMp>; Sun, 21 Oct 2001 15:12:45 -0400
+Received: from quechua.inka.de ([212.227.14.2]:18190 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S276622AbRJUTMo>;
+	Sun, 21 Oct 2001 15:12:44 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+In-Reply-To: <20011021093728.A17786@vega.digitel2002.hu>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
+Message-Id: <E15vO29-0008ED-00@calista.inka.de>
+Date: Sun, 21 Oct 2001 21:13:17 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Oct 2001 at 11:52, M. Edward Borasky wrote:
-> Can I get a management-level (features and benefits, traderoffs, etc.)
-> guide to the differences between the ext2 and ext3 filesystems? I just
-> loaded Red Hat 7.1.94 aka 7.2 beta aka Roswell on my system and it
-> offered me the choice, with no guidance as to the tradeoffs.
+In article <20011021093728.A17786@vega.digitel2002.hu> you wrote:
+> I've never understood why people want X, StarOffice (OpenOffice) etc to be
+> moved into kernel space :)
 
-I don't know if this is the kind of "management-level" information you're
-looking for, but the main website of the ext3 project (as listed by
-Freshmeat) is <http://beta.redhat.com/index.cgi?action=ext3>. Good
-information in the overview section which comes after all the download
-links.
+Well, it is not a question of moving X or Office into Kernel Space. But
+current development clearly shows, that some things like Video Card Access
+need Kernel Support. IMHO the Amount of GDI related Functions in NT Kernel
+are too much, but X11 is not exactly the Windowing System you can consider
+well suited for Desktop and Game Use.
 
-Basically ext3 builds on ext2 to add journalling support, which means
-significantly less (almost nil) fsck time in the eventuality of an unclean
-powerdown.
-
-There are other journalling filesystems for Linux right now aside from
-ext3: ReiserFS by Hans Reiser's Namesys <http://www.namesys.com/>, SGI's
-XFS <http://oss.sgi.com/projects/xfs/>, and IBM's JFS
-<http://oss.lotus.com/jfs/>.
-
-However only ext3 provides a smooth upgrade/downgrade path from ext2 which
-is the default on most Linux systems. All the rest require you to backup
-your data, redo your filesystem, then restore your data. Also, only
-ReiserFS in the mainstream Linus kernel tree. Ext3 is added in the Alan
-Cox tree. XFS and JFS are yet to be merged. Maybe in 2.5 (the next
-development tree), and hopefully 2.6 as a stable. But that's yet to be
-seen of course, as they haven't started.
-
-For now XFS and JFS provide patches to allow you to get working kernel
-support for them. I personally use XFS and have found that it is very
-stable, as have a lot of other fellow XFS users. I'm not saying it's the
-absolute best. But I'm saying it's great, and is fairly stable. :)
-
- --> Jijo
-
---
-Federico Sevilla III  :: jijo@leathercollection.ph
-Network Administrator :: The Leather Collection, Inc.
-GnuPG Key: <http://jijo.leathercollection.ph/jijo.gpg>
-
+Greetings
+Bernd

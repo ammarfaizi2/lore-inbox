@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbULaOR0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbULaOYK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbULaOR0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 09:17:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbULaOR0
+	id S262061AbULaOYK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 09:24:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbULaOYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 09:17:26 -0500
-Received: from mail.convergence.de ([212.227.36.84]:31109 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S262056AbULaORX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 09:17:23 -0500
-Date: Fri, 31 Dec 2004 15:16:48 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bernhard Rosenkraenzer <bero@arklinux.org>,
-       Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: Current saa7134 driver breaks KNC One Tv-Station DVR (card=24)
-Message-ID: <20041231141648.GA16046@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Bernhard Rosenkraenzer <bero@arklinux.org>,
-	Gerd Knorr <kraxel@bytesex.org>
-References: <20041231020814.GA15220@linuxtv.org> <1104481787.2791.1.camel@localhost.localdomain>
+	Fri, 31 Dec 2004 09:24:10 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:16354 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262061AbULaOYG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 09:24:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ar/VwqcdnQIucfXnnSgg/wTWOHlSZxmLlAm/dWPSATR08N9imWHB6GAvg73UtMIQSjyOod7tAmt1e/itVa8QetJD5ngBKRJ1qvWyQeXoc+Dzbm5Qoem9QeokHuywn1U4Js229UC94m3uWgjShUP8mKxOBLsIOqG5jVdfcr4EcVA=
+Message-ID: <2cd57c90041231062438c2cab9@mail.gmail.com>
+Date: Fri, 31 Dec 2004 22:24:06 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] /proc/sys/kernel/bootloader_type
+Cc: Andrew Morton <akpm@osdl.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org, SYSLINUX@zytor.com
+In-Reply-To: <1104487954.5402.20.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104481787.2791.1.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41D34E3A.3090708@zytor.com>
+	 <20041231013443.313a3320.akpm@osdl.org>
+	 <1104487954.5402.20.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 31, 2004 at 07:29:47PM +1100, Rusty Russell wrote:
-> On Fri, 2004-12-31 at 03:08 +0100, Johannes Stezenbach wrote:
-> > I've reported this before:
-> > http://lkml.org/lkml/2004/11/17/275
-> > 
-> > The patch that Rusty posted doesn't seem to have it made into
-> > module-init-tools-3.1. Bummer :-(
+On Fri, 31 Dec 2004 11:12:34 +0100, Arjan van de Ven
+<arjan@infradead.org> wrote:
+> On Fri, 2004-12-31 at 01:34 -0800, Andrew Morton wrote:
+> > "H. Peter Anvin" <hpa@zytor.com> wrote:
+> > >
+> > > This patch exports to userspace the boot loader ID which has been
+> > >  exported by (b)zImage boot loaders since boot protocol version 2.
+> >
+> > Why does userspace need to know this?
 > 
-> Because it was a dumb idea, as your reply showed.  You can't load any
-> dependent modules because this module is not initialized yet (what if
-> you loaded a module that depended on you, then failed your
-> initialization?).  Gerd has the real fix, IIRC.
+> so that update tools that update kernels from vendors know which
+> bootloader file they need to update; eg right now those tools do all
+> kinds of hairy heuristics to find out if it's grub or lilo or .. that
+> installed the kernel. Those heuristics are fragile in the presence of
+> more than one bootloader (which isn't that uncommon in OS upgrade
+> situations).
+> 
 
-Yeah, but IMHO it would be better if modprobe would bail out
-with an error instead of just hanging. For me hotplug
-loads the drivers at boot time and it's a bad good thing if
-the whole boot process hangs.
+This boot loader ID doesn't help much for system upgrade. The running
+kernel may boot from removable drive.
 
-Johannes
+
+-- 
+Coywolf Qi Hunt
+Homepage http://sosdg.org/~coywolf/

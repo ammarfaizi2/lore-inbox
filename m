@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVCFXtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVCFXth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVCFXtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 18:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVCFXsl
+	id S261573AbVCFXth (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 18:49:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVCFXrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 18:48:41 -0500
-Received: from coderock.org ([193.77.147.115]:176 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261574AbVCFWhL (ORCPT
+	Sun, 6 Mar 2005 18:47:17 -0500
+Received: from coderock.org ([193.77.147.115]:4784 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261581AbVCFWiE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:37:11 -0500
-Subject: [patch 11/14] message/mptbase: replace schedule_timeout() with ssleep()
+	Sun, 6 Mar 2005 17:38:04 -0500
+Subject: [patch 1/8] isdn_bsdcomp.c - vfree() checking cleanups
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
+       domen@coderock.org, jlamanna@gmail.com
 From: domen@coderock.org
-Date: Sun, 06 Mar 2005 23:36:50 +0100
-Message-Id: <20050306223650.7D5C01F1F0@trashy.coderock.org>
+Date: Sun, 06 Mar 2005 23:37:59 +0100
+Message-Id: <20050306223800.1BBDC1EC90@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Use ssleep() instead of schedule_timeout() to guarantee
-the task delays as expected. The original code does use TASK_INTERRUPTIBLE, but
-does not check for signals or early return from schedule_timeout() so ssleep()
-seems more appropriate.
+isdn_bsdcomp.c vfree() checking cleanups.
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off by: James Lamanna <jlamanna@gmail.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/message/fusion/mptbase.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+ kj-domen/drivers/isdn/i4l/isdn_bsdcomp.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
-diff -puN drivers/message/fusion/mptbase.c~ssleep-drivers_message_fusion_mptbase drivers/message/fusion/mptbase.c
---- kj/drivers/message/fusion/mptbase.c~ssleep-drivers_message_fusion_mptbase	2005-03-05 16:11:15.000000000 +0100
-+++ kj-domen/drivers/message/fusion/mptbase.c	2005-03-05 16:11:15.000000000 +0100
-@@ -3137,8 +3137,7 @@ mpt_diag_reset(MPT_ADAPTER *ioc, int ign
+diff -puN drivers/isdn/i4l/isdn_bsdcomp.c~vfree-drivers_isdn_i4l_isdn_bsdcomp drivers/isdn/i4l/isdn_bsdcomp.c
+--- kj/drivers/isdn/i4l/isdn_bsdcomp.c~vfree-drivers_isdn_i4l_isdn_bsdcomp	2005-03-05 16:10:31.000000000 +0100
++++ kj-domen/drivers/isdn/i4l/isdn_bsdcomp.c	2005-03-05 16:10:31.000000000 +0100
+@@ -283,18 +283,14 @@ static void bsd_free (void *state)
+ 		/*
+ 		 * Release the dictionary
+ 		 */
+-		if (db->dict) {
+-			vfree (db->dict);
+-			db->dict = NULL;
+-		}
++		vfree (db->dict);
++		db->dict = NULL;
  
- 				/* wait 1 sec */
- 				if (sleepFlag == CAN_SLEEP) {
--					set_current_state(TASK_INTERRUPTIBLE);
--					schedule_timeout(1000 * HZ / 1000);
-+					ssleep(1);
- 				} else {
- 					mdelay (1000);
- 				}
+ 		/*
+ 		 * Release the string buffer
+ 		 */
+-		if (db->lens) {
+-			vfree (db->lens);
+-			db->lens = NULL;
+-		}
++		vfree (db->lens);
++		db->lens = NULL;
+ 
+ 		/*
+ 		 * Finally release the structure itself.
 _

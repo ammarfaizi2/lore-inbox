@@ -1,86 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbVAPTpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVAPTsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262595AbVAPTpE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 14:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVAPTpD
+	id S262602AbVAPTsi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 14:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVAPTps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 14:45:03 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:21910 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262595AbVAPToU
+	Sun, 16 Jan 2005 14:45:48 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:44713 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262593AbVAPTnt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 14:44:20 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
+	Sun, 16 Jan 2005 14:43:49 -0500
+Message-ID: <41EAC3FD.1070001@drzeus.cx>
+Date: Sun, 16 Jan 2005 20:43:57 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ian Molton <spyro@f2s.com>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Richard Purdie <rpurdie@rpsys.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MMC Driver RFC
+References: <021901c4f8eb$1e9cc4d0$0f01a8c0@max> <20050112214345.D17131@flint.arm.linux.org.uk> <023c01c4f8f3$1d497030$0f01a8c0@max> <20050112221753.F17131@flint.arm.linux.org.uk> <41E5B177.4060307@f2s.com> <41E7AF11.6030005@drzeus.cx> <41E7DD5E.5070901@f2s.com> <41EA5C8D.8070407@drzeus.cx> <41EA69F0.5060500@f2s.com>
+In-Reply-To: <41EA69F0.5060500@f2s.com>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16874.52969.835525.775553@tut.ibm.com>
-Date: Sun, 16 Jan 2005 14:30:33 -0600
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Karim Yaghmour <karim@opersys.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Andi Kleen <ak@muc.de>, Nikita Danilov <nikita@clusterfs.com>,
-       linux-kernel@vger.kernel.org, Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: 2.6.11-rc1-mm1
-In-Reply-To: <20050116161437.GA26144@infradead.org>
-References: <20050114002352.5a038710.akpm@osdl.org>
-	<m1zmzcpfca.fsf@muc.de>
-	<m17jmg2tm8.fsf@clusterfs.com>
-	<20050114103836.GA71397@muc.de>
-	<41E7A7A6.3060502@opersys.com>
-	<Pine.LNX.4.61.0501141626310.6118@scrub.home>
-	<41E8358A.4030908@opersys.com>
-	<20050116161437.GA26144@infradead.org>
-X-Mailer: VM 7.18 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig writes:
- > On Fri, Jan 14, 2005 at 04:11:38PM -0500, Karim Yaghmour wrote:
- > > 	Where does this appear in relayfs and what rights do
- > > 	user-space apps have over it (rwx).
- > 
- > Why would you want anything but read access?
+Ian Molton wrote:
 
-This would allow an application to write trace events of its own to a
-trace stream for instance.  Also, I added a user-requested 'feature'
-whereby write()s on a relayfs channel would be sent to a callback that
-could be used to interpret 'out-of-band' commands sent from the
-userspace application.  And if lockless logging were being used, this
-could provide a cheaper way for applications to write to the trace
-buffer than having to do it via syscall.
+>>> The toshiba controller appears to want to be told when an ACMD is 
+>>> issued, compared to a normal CMD.
+>>
+>> Seems very strange since there's no change in what goes over the wire.
+>
+> I think the controller (for some odd reason) keeps some extra internal 
+> state.
 
- > 
- > > bufsize, nbufs:
- > > 	Usually things have to be subdivided in sub-buffers to make
- > > 	both writing and reading simple. LTT uses this to allow,
- > > 	among other things, random trace access.
- > 
- > I think random access is overkill.  Keeping the code simple is more
- > important and user-space can post-process it.
- > 
- > > resize_min, resize_max:
- > > 	Allow for dynamic resizing of buffer.
- > 
- > Auto-resizing sounds like a really bad idea.
+Have you tried using it without telling the controller that it's an ACMD 
+being sent?
 
-It also doesn't seem to be really useful to anyone, so we should
-probably remove it.
-
-Tom
-
- > 
- > > init_buf, init_buf_size:
- > > 	Is there an initial buffer containing some data that should
- > > 	be used to initialize the channel's content. If you're doing
- > > 	init-time tracing, for example, you need to have a pre-allocated
- > > 	static buffer that is copied to relayfs once relayfs is mounted.
- > 
- > And why can't you do this from that code?  It just needs an initcall-like
- > thing that runs after mounting of relayfs.
- > 
-
--- 
-Regards,
-
-Tom Zanussi <zanussi@us.ibm.com>
-IBM Linux Technology Center/RAS
-
+Rgds
+Pierre

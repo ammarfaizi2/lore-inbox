@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbTIYEXa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 00:23:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTIYEXa
+	id S261690AbTIYErG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 00:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbTIYErG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 00:23:30 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:31903 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261684AbTIYEX3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 00:23:29 -0400
-Date: Thu, 25 Sep 2003 00:23:26 -0400
-From: Yaroslav Halchenko <yoh@onerussian.com>
-To: Milton Miller <miltonm@bga.com>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: USB problem. 'irq 9: nobody cared!'
-Message-ID: <20030925042326.GA6751@washoe.rutgers.edu>
-Mail-Followup-To: Milton Miller <miltonm@bga.com>,
-	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <200309242257.h8OMvR5d090443@sullivan.realtime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309242257.h8OMvR5d090443@sullivan.realtime.net>
-User-Agent: Mutt/1.5.4i
+	Thu, 25 Sep 2003 00:47:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:724 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261690AbTIYErE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 00:47:04 -0400
+Date: Wed, 24 Sep 2003 21:47:01 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rfc: test whether a device has a partition table
+In-Reply-To: <20030924235041.GA21416@win.tue.nl>
+Message-ID: <Pine.LNX.4.44.0309242137090.1729-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nop - it didn't help  :-(
 
-http://onerussian.com/Linux/bug.USB2/dmesg
+On Thu, 25 Sep 2003, Andries Brouwer wrote:
+> 
+> My post implicitly suggested the minimal thing to do.
+> It will not be enough - heuristics are never enough -
+> but it probably helps in most cases.
 
-which else usefull information I can provide?
---Yarik
+I don't mind the 0x00/0x80 "boot flag" checks - those look fairly obvious
+and look reasonably safe to add to the partitioning code.
 
-On Wed, Sep 24, 2003 at 05:57:27PM -0500, Milton Miller wrote:
-> 
-> Yaroslav Halchenko wrote:
-> > Greg KH wrote:
-> > > Did you try David Brownell's patch for this issue?
-> > Can you please point which one exactly? I've tried to locate patch you
-> > meant but it is too much of USB staff is happening now seems to me.
-> 
-> 
-> I'm guessing this one: Re: irq 11: nobody cared! is back
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=106399942523614&w=2
-> 
-> 
-> milton
-                                  .-.
-=------------------------------   /v\  ----------------------------=
-Keep in touch                    // \\     (yoh@|www.)onerussian.com
-Yaroslav Halchenko              /(   )\               ICQ#: 60653192
-                   Linux User    ^^-^^    [175555]
+There are other checks that can be done - verifying that the start/end
+sector values are at all sensible. We do _some_ of that, but only for
+partitions 3 and 4, for example. We could do more - like checking the
+actual sector numbers (but I think some formatters leave them as zero).
+
+Which actually makes me really nervous - it implies that we've probably 
+seen partitions 1&2 contain garbage there, and the problem is that if 
+you'r etoo careful in checking, you will make a system unusable.
+
+This is why it is so much nicer to be overly permissive ratehr than being 
+a stickler for having all the values right.
+
+And your random byte checks for power-of-2 make no sense. What are they
+based on?
+
+		Linus
+

@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286468AbSAXJ51>; Thu, 24 Jan 2002 04:57:27 -0500
+	id <S286521AbSAXJ7R>; Thu, 24 Jan 2002 04:59:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286521AbSAXJ5S>; Thu, 24 Jan 2002 04:57:18 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:34779 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S286468AbSAXJ5J>; Thu, 24 Jan 2002 04:57:09 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: VM: Where do we stand?
-Date: Thu, 24 Jan 2002 09:57:07 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <a2olpj$ed0$1@forge.intermeta.de>
-In-Reply-To: <000901c1a3f0$d2e44ba0$022a17ac@simplex>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1011866227 21011 212.34.181.4 (24 Jan 2002 09:57:07 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 24 Jan 2002 09:57:07 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S286750AbSAXJ7L>; Thu, 24 Jan 2002 04:59:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:38566 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286521AbSAXJ66>;
+	Thu, 24 Jan 2002 04:58:58 -0500
+Date: Thu, 24 Jan 2002 12:56:09 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rene Rebe <rene.rebe@gmx.net>
+Cc: zdenek <zdenek@smetana.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Missing changelog to Ingo's J5 scheduler?
+In-Reply-To: <20020124.105517.730550260.rene.rebe@gmx.net>
+Message-ID: <Pine.LNX.4.33.0201241255240.7900-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Duraid Madina" <duraid@fl.net.au> writes:
 
->I'm sure at least some of you will immediately recognize these words:
+On Thu, 24 Jan 2002, Rene Rebe wrote:
 
-This paper is _two_ years old. What is this? Linux 2.4pre? 2.2?
+> Yes. -J5 is even better here. With -J4 moving windows arround or doing
+> other GUI intensive stuff was interactive for a short time (1-2
+> seconds?) - and then the programm lost all interactivity (with some
+> unniced gcc in the background ...). With -J5 all applications keep
+> smoth even with two rebuilds (unniced) of a distribution running!
 
-(<199901140720.XAA22609@apollo.backplane.com> for the googlelites).
+could you also compare -J5 to -J2? [use the 2.4 patch, or vanilla
+2.5.3-pre4 which has J2.]
 
-	Regards
-		Henning
+	Ingo
 
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

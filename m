@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSJDQO2>; Fri, 4 Oct 2002 12:14:28 -0400
+	id <S262750AbSJDR12>; Fri, 4 Oct 2002 13:27:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262313AbSJDQO1>; Fri, 4 Oct 2002 12:14:27 -0400
-Received: from gw.openss7.com ([142.179.199.224]:22032 "EHLO gw.openss7.com")
-	by vger.kernel.org with ESMTP id <S262312AbSJDQO0>;
-	Fri, 4 Oct 2002 12:14:26 -0400
-Date: Fri, 4 Oct 2002 10:19:59 -0600
-From: "Brian F. G. Bidulock" <bidulock@openss7.org>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: export of sys_call_table
-Message-ID: <20021004101959.N18191@openss7.org>
-Reply-To: bidulock@openss7.org
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20021003153943.E22418@openss7.org> <20021004145845.A30064@infradead.org> <20021004091517.H18191@openss7.org> <20021004162818.A2670@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021004162818.A2670@infradead.org>; from hch@infradead.org on Fri, Oct 04, 2002 at 04:28:19PM +0100
-Organization: http://www.openss7.org/
-Dsn-Notification-To: <bidulock@openss7.org>
+	id <S262776AbSJDR12>; Fri, 4 Oct 2002 13:27:28 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:39887 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262750AbSJDR10>;
+	Fri, 4 Oct 2002 13:27:26 -0400
+Importance: Normal
+Sensitivity: 
+Subject: 
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OFDC2DE653.1C7A65EB-ON87256C48.005D6575@boulder.ibm.com>
+From: "Steven French" <sfrench@us.ibm.com>
+Date: Fri, 4 Oct 2002 12:32:22 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/04/2002 11:32:53 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph,
+>On Oct 04, 2002  16:35 +0100, David Howells wrote:
+>
+> > NFSv4 does indeed require the full kerberos encryption stuff in the
+> > kernel. The RFC specifies that krb5 support is a minimum requirement
+> > will expect to have that in 2.6 (or 3.0 or whatever it's called these
+> > days...)
+>
+> Might this be something I can make use of for my AFS filesystem too?
 
-On Fri, 04 Oct 2002, Christoph Hellwig wrote:
-> > 
-> > iBCS is right there in arch/sparc64/solaris/socksys.c, timod.c, systbl.S
-> 
-> No that's not iBCS.  Even if some code is derivaed it's ceratainly something
-> different.
+>We will also need kerberos for Lustre when we start implementing
+>security.  We will be using the GSSAPI for security, so basically
+>the same as what AFS is using.
+>
+>Cheers, Andreas
 
-If you consider 99% some...
+The CIFS VFS (http://cifs.bkbits.net/linux-2.5) can get by with
+just the kerberos service ticket encapsulation routines (negTokenInit,
+negTokenTarg ala SPNEGO/GSSAPI) in kernel, and I have made a start
+coding the cifs version of that since it will be a big benefit when
+mounted to Samba 3.0 and this is almost required for decent Windows
+2000 and .Net server security interoperability.  It would be useful
+to come up with a generalized way to request new & refresh
+expired service tickets - perhaps from a pam/nss daemon something
+like what the current version of the Winbind daemon does now. In the
+interim, raw (i.e. non-SPNEGO encapsulated) NTLMSSP (or NTLM ala older
+clients) is used in the CIFS VFS.  Having a common call to get
+at the kerberos tickets for a particular uid would be very helpful,
+otherwise each remote filesystem might eventually code a different
+IPC to a different user space mount or pam/nss helper
+(e.g. Winbind for CIFS) to aquire a kerberos ticket that is opaque to
+the particular filesystem.
 
---brian
 
--- 
-Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
-bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
-http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
-                        ¦ Therefore  all  progress  depends on the ¦
-                        ¦ unreasonable man. -- George Bernard Shaw ¦
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
+
+

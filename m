@@ -1,74 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262553AbTCRSYF>; Tue, 18 Mar 2003 13:24:05 -0500
+	id <S262508AbTCRSUI>; Tue, 18 Mar 2003 13:20:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262554AbTCRSYF>; Tue, 18 Mar 2003 13:24:05 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:4829 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262553AbTCRSYB>;
-	Tue, 18 Mar 2003 13:24:01 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200303181834.VAA04953@sex.inr.ac.ru>
-Subject: Re: 2.4 delayed acks don't work, fixed
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Tue, 18 Mar 2003 21:34:50 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, ak@suse.de
-In-Reply-To: <20030317082553.GA1324@dualathlon.random> from "Andrea Arcangeli" at Mar 17, 3 09:25:53 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S262516AbTCRSUI>; Tue, 18 Mar 2003 13:20:08 -0500
+Received: from vbws78.voicebs.com ([66.238.160.78]:17171 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S262508AbTCRSUB>; Tue, 18 Mar 2003 13:20:01 -0500
+Message-ID: <3E7765DE.10609@didntduck.org>
+Date: Tue, 18 Mar 2003 13:30:54 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kevin Pedretti <ktpedre@sandia.gov>, linux-kernel@vger.kernel.org
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
+ due to wrmsr (performance)
+References: <Pine.LNX.4.44.0303180809190.11381-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303180809190.11381-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Linus Torvalds wrote:
+> On Tue, 18 Mar 2003, Kevin Pedretti wrote:
+> 
+>>    I wasn't aware of what you state below but it makes sense.  What I 
+>>haven't been able to figure out, and nobody seems to know, is why the 
+>>rodata section of an executable is placed in the text section and is not 
+>>page aligned.  This seems to be a mixing of code and data on the same 
+>>page.  Maybe it doesn't matter since it is read only?
+> 
+> 
+> It's a bad idea to share even read-only data, but the impact of read-only 
+> data is much less that read-write. In particular, you should avoid sharing 
+> _any_ code and data in the same physical L1 cache-line, since that will be 
+> a big problem for any CPU with exclusion between the I$ and D$.
+> 
+> HOWEVER, modern x86 CPU's tend to have the I$ be part of the cache 
+> coherency protocol, so instead of having exclusion they allow sharing as 
+> long as the D$ isn't actually dirty. In that case it's fine to share 
+> read-only data and code, although the cache utilization goes down if you 
+> do a lot of it.
+> 
+> Anyway, as long as they are in separate cache-lines, you should be ok even 
+> on something with cache exclusion.
+> 
+> When it comes to actually _writing_ to the data, at least on the P4 you
+> don't want to have read-write data anywhere _near_ the I$ (somebody
+> reported half-page granularity). This is true on crusoe too, btw (at a
+> 128-byte granularity).
+> 
+> Anyway, I think gcc should make sure that even the ro-data section is at
+> least cacheline-aligned so that it stays away from cachelines used for I$.  
+> That makes sense even on CPU's that don't have exclusion, since it
+> actually gives slightly better L1 cache utilization.
+> 
+> You can run this (stupid) test-program to try. On my P4 I get
+> 
+> 	empty overhead=320 cycles
+> 	load overhead=0 cycles
+> 	I$ load overhead=0 cycles
+> 	I$ load overhead=0 cycles
+> 	I$ store overhead=264 cycles
+> 
+> and on my PIII I get
+> 
+> 	empty overhead=74 cycles
+> 	load overhead=8 cycles
+> 	I$ load overhead=8 cycles
+> 	I$ load overhead=8 cycles
+> 	I$ store overhead=103 cycles
+> 
+> and (just for fun) on an old crusoe I get
+> 
+> 	empty overhead=67 cycles
+> 	load overhead=-9 cycles
+> 	I$ load overhead=-14 cycles
+> 	I$ load overhead=-14 cycles
+> 	I$ store overhead=12 cycles
+> 
+> where that "negative overhead" just shows that we do some strnge things to
+> scheduling, and the loop actually ends up faster if it has a load in it
+> than without the load..
+> 
+> But you can see that storing to code is a really bad idea. Especially on a 
+> P4, where the overhead for a store was 264 cycles! (You can also see the 
+> cost of doing just the empty synchronization and rdtsc - 320 cycles for a 
+> rdtsc and two locked memory accesses on a P4).
+> 
+> I don't have access to an old Pentium - I think that was the one that had 
+> the strict exclusion between the L1 I$ and D$, and then you should see the 
+> I$ load overhead go up.
+> 
+> 			Linus
 
-> Apparently linux only waits 0.2 at max,
+Here's a few more data points:
 
-This is not true, the maximum is 0.5 in your case.
-
-
-> 1) the delayed ack timer destroy the ato value resetting it to the min
->    value (40msec) and the quickack mode is activated (pingpong = 0)
-
-This is not true, delack timer inflates ato. pingpong=0 is not quickack
-mode, it means that the session is unidirectional stream, which
-is correct in your case.
-
-
-> 2) the pingpong is never re-activated,
-
-It MUST NOT. It is activated on transactional sessions only.
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 8
+model name      : AMD-K6(tm) 3D processor
+stepping        : 12
+cpu MHz         : 451.037
+empty overhead=105 cycles
+load overhead=-2 cycles
+I$ load overhead=30 cycles
+I$ load overhead=90 cycles
+I$ store overhead=95 cycles
 
 
-> 3) the ato averaging logic during the packet reception will not inflate
->    the ato if "m > ato" which is obviously the case after a delack timer
->    triggered and in turn after the ato is been deflated to its min value
-
-When m > ato, the sample is invalid, apparently it is triggered by
-a random delay at sender. When real ato increases, increase
-is made in delack timer, not through estimator.
-
-
-
-> 4) the logic that bounds the delayed ack to the srtt >> 3 looks also
->    risky, using the rto looks much safer to me there, to be sure
->    those delacks aren't going to trigger too early
-
-It is necessary to provide more or less sane behaviour on interactive
-session when ato > 100msec. Clamping by rto just does not make any sense.
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 3
+model name      : Pentium II (Klamath)
+stepping        : 3
+cpu MHz         : 265.913
+empty overhead=73 cycles
+load overhead=10 cycles
+I$ load overhead=10 cycles
+I$ load overhead=10 cycles
+I$ store overhead=2 cycles
 
 
-> 5) I suspect the current delack algorithm can wait more than 2 packets,
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1409.946
+empty overhead=11 cycles
+load overhead=5 cycles
+I$ load overhead=5 cycles
+I$ load overhead=5 cycles
+I$ store overhead=826 cycles
 
-Yes, when window is not opening, it is not required. Delack is send
-when window is advanced.
+The Athlon XP shows really bad behavior when you store to the text area.
 
+--
+				Brian Gerst
 
-Shortly, I still do not understand what kind of pathalogy happens in your
-case (particularly, difference in adevrtised window before and after
-applying your patch is confusing _a_ _lot_, I really would like
-to look at larger tcpdump, covering beggining of the sssion),
-but all the 5 items are surely wrong.
-
-Unnumbered 6th one may be right, the heuristic with expansion twice
-have no explanation, I think it can be relaxed even more.
-
-Alexey

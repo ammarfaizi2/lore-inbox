@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263596AbTLOOSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 09:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTLOOSR
+	id S263638AbTLOOcY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 09:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTLOOcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 09:18:17 -0500
-Received: from ANancy-107-1-3-152.w80-15.abo.wanadoo.fr ([80.15.34.152]:31673
-	"EHLO joebar.freealter.fr") by vger.kernel.org with ESMTP
-	id S263596AbTLOOSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 09:18:16 -0500
-Date: Mon, 15 Dec 2003 15:17:46 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Simple partition not detected with 2.6
-Message-ID: <20031215141746.GA27006@joebar.freealter.fr>
+	Mon, 15 Dec 2003 09:32:24 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:2936 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263638AbTLOOcW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 09:32:22 -0500
+Date: Mon, 15 Dec 2003 15:31:41 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: arjanv@redhat.com, Gabriel Paubert <paubert@iram.es>,
+       linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
+Subject: Re: PCI Express support for 2.4 kernel
+Message-ID: <20031215143141.GB23381@devserv.devel.redhat.com>
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es> <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Ludovic Drolez <ludovic.drolez@linbox.com>
+In-Reply-To: <3FDDBDFE.5020707@intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Dec 15, 2003 at 03:58:22PM +0200, Vladimir Kondratiev wrote:
+> Got it.
+> Should I understand it this way: for system with >=1Gb RAM, I will be 
+> unable to ioremap 256Mb region?
+> It looks confusing. On my test system (don't ask details, I am not 
+> alowed to share this info), I see
+> video controller with 256Mb BAR. Does it mean this controller will not 
+> work as well?
 
-I have one computer which has two partitions per disk.
-This partition is seen by a 2.4.xx kernel (knoppix) but
-not by a 2.6.0t7 kernel.
+Video memory is generally not ioremap'd by the kernel (it may be mapped into
+XFree's address space though)
 
-When booting the knoppix, dmesg says:
+> I thought about remapping only pages that have actual PCI devices behind,
+> but this is problematic: access to config goes not always through 
+> pci_exp_read_config_xxx and alike, raw access with bus/dev/fn numbers 
+> used as well. And in 2.6, correct me if I wrong, raw access using 
+> bus/dev/fn numbers goes to be the only way. Per-device access replaced 
+> with per-bus, at least.
 
-hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
-hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
-ide-cd: passing drive hde to ide-scsi emulation.
-Partition check:
-hda: [PTBL] [9729/255/63] hda1 hda2
-hdc: [PTBL] [9729/255/63] hdc1 hdc2
-
-
-But the 2.6.0t7 does not see the partition table. 
-Other disks are properly recognized, so it seems to
-be a problem with [PTBL] and 2.6 ...
-
-Any clues ?
-
--- 
-Ludovic DROLEZ                              Linbox / Free&ALter Soft
-152 rue de Grigy - Technopole Metz 2000                   57070 METZ
-tel : 03 87 75 55 21                            fax : 03 87 75 19 26
+I would suspect you want to store the ioremap cookie for the config space in
+the pci device struct; longer term that struct maybe needs to grow a few
+function pointers to access config space too... 

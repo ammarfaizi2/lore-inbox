@@ -1,105 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266433AbSLTWy7>; Fri, 20 Dec 2002 17:54:59 -0500
+	id <S266200AbSLTXGJ>; Fri, 20 Dec 2002 18:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266435AbSLTWy7>; Fri, 20 Dec 2002 17:54:59 -0500
-Received: from mail.scram.de ([195.226.127.117]:31682 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S266433AbSLTWy4>;
-	Fri, 20 Dec 2002 17:54:56 -0500
-Date: Fri, 20 Dec 2002 23:54:43 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: Hannes Reinecke <mail@hannes-reinecke.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.52: compilation fixes for alpha
-In-Reply-To: <3E032D25.6050900@hannes-reinecke.de>
-Message-ID: <Pine.LNX.4.44.0212202311290.13197-100000@gfrw1044.bocc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266307AbSLTXGJ>; Fri, 20 Dec 2002 18:06:09 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:33714 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266200AbSLTXGH>;
+	Fri, 20 Dec 2002 18:06:07 -0500
+Subject: linux-2.5.52-dcl1
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1040426052.1078.96.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 20 Dec 2002 15:14:12 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Hannes,
+This is an update to the OSDL CGL/DCL  development conduit.  It is in
+two pieces:  a common subset for CGL and DCL, and a separate patch for
+DCL-only stuff.  The generic patches are for enhancements that are yet
+to make the mainline kernel but are requested by both Carrier Grade
+Linux (CGL) and Data Center Linux (DCL).
 
-On Fri, 20 Dec 2002, Hannes Reinecke wrote:
+The DCL-only patch applies after the first one (OSDL patch) and has
+enhancements that are applicable mostly to NUMA systems used in 
+data center systems.
 
-> Shit. I forgot that one (I knew there was something missing).
-> Try the attached patch instead; it's identical to the previous one, I
-> just appended the patch for arch/alpha/mm/extable.c
->
-> Let me know whether it works.
+The latest release is available in downloadable patches from
+        http://sourceforge.net/projects/osdldcl
 
-That one compiled OK, now.
+or public BitKeeper repositories
+        Common code:            bk://bk.osdl.org/linux-2.5-osdl
+        Common code + CGL:      bk://bk.osdl.org/linux-2.5-cgl
+        Common code + DCL:      bk://bk.osdl.org/linux-2.5-dcl
 
-> Note: Module loading is still likely to be buggered, since it
-> appearantly relies on newer modutils (I'm a bit out of touch with
-> current events). But at least it compiles and runs, even with modules
-> enabled. I see what I can dig out re. modules.
+The kernel compiles and runs on an SMP system.  It passes the basic
+tests but has not been extensively stress-tested yet.
 
-I currently have module-init-tools 0.9.4 installed, but module loading
-complains about an invalid relocation type 6. Using objdump on a module
-shows that the module is not linked as a dynamic object file (objdump -R
-complains), but still contains static relocation entries (objdump -r is
-not empty). On the other hand the arch/alpha/kernel/module.c code looks
-almost the same as the 2.5.50 code + rth patch which required dynamic
-objects for modules. So either there still is a problem with the Makefiles
-or module.c fails to handle all required relocation types for the Alpha
-platform.
+Note: module loading has changed in latest versions of 2.5 and
+a new version of module utilities is required.  Available at:
+        http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
 
-I have a working 2.5.50 with module-init-tools 0.9.1 + rth patches with
-modules working and here objdump -R shows dynamic relocation entries for
-the modules and objdump -r is empty.
+OSDL common:
+* linux-2.5.52-osdl1
+. More updates to LKCD                  (me)
+. Update kprobes to use notifiers       (me)
+. Megaraid 2 SCSI driver		      (Matt Domsch, Atul Mukker)
 
-modprobe tmsisa
 
-module tmsisa: Unknown relocation: 6
+DCL-specific:  
+* patch-2.5.52-osdl1-dcl1
+. NUMA scheduler update		     (Eric Focht)
+. MD driver fixes                    (Joe Thornber)
+. Scheduler tunables                 (Robert Love)
+. RCU stats                          (Dipankar Sarma)
+. Flock fix for SAPDB                (Matthew Wilcox)
 
-objdump -R /lib/modules/2.5.52bk4/kernel/drivers/net/tokenring/tmsisa.ko
 
-/lib/modules/2.5.52bk4/kernel/drivers/net/tokenring/tmsisa.ko:     file
-format elf64-alpha
+Previous releases
+-----------------
+* linux-2.5.51-osdl1
+. Update to LKCD kernel hooks           (me)
 
-objdump: /lib/modules/2.5.52bk4/kernel/drivers/net/tokenring/tmsisa.ko:
-not a dynamic object
-objdump: /lib/modules/2.5.52bk4/kernel/drivers/net/tokenring/tmsisa.ko:
-Invalid operation
+* linux-2.5.47-osdl2
+. More fixes to the megaraid driver     (Matt Domsch, Mark Haverkamp)
+. Fix to LKCD block device setup        (me)
+. Default ACPI to off for SMP systems   (me)
+. Fix I/O errors on loop driver         (Hugh Dickins)
 
-objdump -r /lib/modules/2.5.52bk4/kernel/drivers/net/tokenring/tmsisa.ko
+* linux-2.5.47-osdl1
+. Linux Trace Toolkit (LTT)          (Karim Yaghmour)
+. Linux Kernel Crash Dumps           (Matt Robinson, LKCD team)
+.   Network crash dumps              (Mohammed Abbas)
+. Kprobes                            (Rusty Russell)
+. Kernel Config storage              (Khalid Aziz, Randy Dunlap)
+. DAC960 driver fixes                (Dave Olien)
 
-/lib/modules/2.5.52bk4/kernel/drivers/net/tokenring/tmsisa.ko:     file
-format elf64-alpha
 
-RELOCATION RECORDS FOR [.text]:
-OFFSET           TYPE              VALUE
-0000000000000000 GPDISP            .text+0x0000000000000004
-000000000000000c ELF_LITERAL       alpha_mv
-...
-000000000000089c LITUSE            .init.text+0x0000000000000003
-000000000000089c HINT              printk
-00000000000008a0 GPDISP            .init.text+0x0000000000000004
-...
+* patch-2.5.51-osdl1-dcl1
+. NUMA scheduler                     (Eric Focht, Michael Hohnbaum)
 
-GPDISP seems the one the kernel complains about...
 
-#define R_ALPHA_GPDISP          6       /* Add displacement to GP */
+Getting Involved
+----------------
+If interested in development of DCL, please subscribe to the mailing
+list at http://lists.osdl.org/mailman/listinfo/dcl_discussion .
 
-objdump -R /lib/modules/2.5.50/kernel/tmsisa.klm
+This kernel has been built and run on a small set of machines, SMP
+and UP.  Testers are encouraged to exercise the features.  If a
+problem is found, please compare the result with a standard 2.5.51
+kernel.  Please report any problems or successes to the mailing list.
 
-/lib/modules/2.5.50/kernel/tmsisa.klm:     file format elf64-alpha
+Developers are encouraged to send any enhancements or bug fix
+patches.  Patches should be tested by using the OSDL Scalable Test
+Platform (STP) and Patch Lifecycle Manager (PLM) facilities.
 
-DYNAMIC RELOCATION RECORDS
-OFFSET           TYPE              VALUE
-0000000000012330 RELATIVE          *ABS*+0x0000000000000fe0
-0000000000012338 RELATIVE          *ABS*+0x0000000000000ec0
-...
-0000000000012290 GLOB_DAT          __this_module
-00000000000122d0 GLOB_DAT          tms380tr_interrupt
-00000000000122e8 GLOB_DAT          ioport_resource
-00000000000122f0 GLOB_DAT          alpha_mv
-0000000000012288 JMP_SLOT          free_irq
-0000000000012298 JMP_SLOT          unregister_trdev
-...
+Project information:
+        http://www.osdl.org/projects/cgl/
+        http://cglinux.sourceforge.net/
+        http://sourceforge.net/projects/cglinux/
+DCL:
+        http://www.osdl.org/projects/dcl/
+        http://osdldcl.sourceforge.net
+        http://sourceforge.net/projects/osdldcl
 
-Thanks,
---jochen
+
+
 

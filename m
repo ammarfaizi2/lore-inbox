@@ -1,263 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281754AbRKZXIH>; Mon, 26 Nov 2001 18:08:07 -0500
+	id <S282628AbRKZXL0>; Mon, 26 Nov 2001 18:11:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282623AbRKZXH6>; Mon, 26 Nov 2001 18:07:58 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:52230 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S281754AbRKZXHo>; Mon, 26 Nov 2001 18:07:44 -0500
-Date: Mon, 26 Nov 2001 17:07:40 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>
-Cc: "'linux-mm@kvack.org'" <linux-mm@kvack.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: kupdated high load with heavy disk I/O
-Message-ID: <20011126170740.A1382@asooo.flowerfire.com>
-In-Reply-To: <35F52ABC3317D511A55300D0B73EB8056FCC50@cinshrexc01.shermfin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <35F52ABC3317D511A55300D0B73EB8056FCC50@cinshrexc01.shermfin.com>; from ARechenberg@shermanfinancialgroup.com on Mon, Nov 26, 2001 at 10:08:27AM -0500
+	id <S282633AbRKZXLR>; Mon, 26 Nov 2001 18:11:17 -0500
+Received: from vti01.vertis.nl ([145.66.4.26]:11780 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S282628AbRKZXLJ>;
+	Mon, 26 Nov 2001 18:11:09 -0500
+Date: Tue, 27 Nov 2001 00:10:27 +0100
+From: Rolf Fokkens <fokkensr@linux06.vertis.nl>
+Message-Id: <200111262310.AAA02873@linux06.vertis.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.4.15 iptables/REDIRECT kernel oops
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, the extra swapping is more visible via kswapd in top, but as it was
-explained to me (and time has confirmed in my experience) it's not the
-performance hit that it may seem to be, and typically the opposite.
-Linus posted an explanation for my similar question as part of the "[VM]
-2.4.14/15-pre4 too "swap-happy"?" LKML thread.
+Hi!
 
-Great to hear it solved your problem as well.
--- 
-Ken.
-brownfld@irridia.com
+This is a repost of a previous message, with some new info: the oops is related
+to iptables/REDIRECT:
 
-On Mon, Nov 26, 2001 at 10:08:27AM -0500, Rechenberg, Andrew wrote:
-| Ken,
-| 
-| The 2.4.15pre7 kernel seems to have fixed my issue with kupdated and 4GB
-| RAM.  We did some testing over the weekend and the box was still interactive
-| with a load of 7+.  There still seems to be a lot of swapping going on
-| though.  I've read from previous threads that 2.4 uses swap more readily
-| than 2.2 did, but should it use 10% of my swap and have almost 8MB
-| SwapCached?
-| 
-| Here are some numbers for example:
-| 
-| [root@mybox ~]# cat /proc/meminfo
-|         total:    used:    free:  shared: buffers:  cached:
-| Mem:  4092899328 4082126848 10772480        0 12406784 3672317952
-| Swap: 542826496 57561088 485265408
-| MemTotal:      3996972 kB
-| MemFree:         10520 kB
-| MemShared:           0 kB
-| Buffers:         12116 kB
-| Cached:        3578108 kB
-| SwapCached:       8140 kB
-| Active:        2964668 kB
-| Inactive:       877168 kB
-| HighTotal:     3145720 kB
-| HighFree:         2084 kB
-| LowTotal:       851252 kB
-| LowFree:          8436 kB
-| SwapTotal:      530104 kB
-| SwapFree:       473892 kB
-| [root@mybox ~]# free
-|              total       used       free     shared    buffers     cached
-| Mem:       3996972    3986640      10332          0      12156    3577900
-| -/+ buffers/cache:     396584    3600388
-| Swap:       530104      56340     473764
-| 
-| 
-| The above question is more for my personal knowledge, but I would like to
-| know.
-| 
-| Thanks again for your help.
-| 
-| Regards,
-| Andy.
-| 
-| 
-| 
-| -----Original Message-----
-| From: Ken Brownfield [mailto:brownfld@irridia.com]
-| Sent: Wednesday, November 21, 2001 12:07 PM
-| To: Rechenberg, Andrew
-| Subject: Re: kupdated high load with heavy disk I/O
-| 
-| 
-| Yeah, the kswapd/kupdated issue was patched in -pre7:
-| 
-| 	 - me: modified Andrea VM page allocator tuning
-| 
-| -pre8 came out after I mailed you. ;-)  So unless it's mentioned it
-| should stay in the kernel.
-| 
-| Of course, it's important to give it a try soon if you can, just to make
-| sure that it _does_ solve your specific problem.  Especially before the
-| kernel is handed off to Marcelo.
-| 
-| Thx,
-| -- 
-| Ken.
-| 
-| 
-| On Wed, Nov 21, 2001 at 11:09:17AM -0500, Rechenberg, Andrew wrote:
-| | Ken,
-| | 
-| | Thanks for the reply.  I would assume then that any future 15-pre kernel
-| | would have the same fix?  I ask because pre8 is now the current 15-pre.
-| | 
-| | Thanks,
-| | Andy.
-| | 
-| | -----Original Message-----
-| | From: Ken Brownfield [mailto:brownfld@irridia.com]
-| | Sent: Tuesday, November 20, 2001 6:09 PM
-| | To: Rechenberg, Andrew
-| | Subject: Re: kupdated high load with heavy disk I/O
-| | 
-| | 
-| | Be sure to tru 2.4.15-pre7 which should fix your problem.
-| | -- 
-| | Ken.
-| | brownfld@irridia.com
-| | 
-| | On Tue, Nov 20, 2001 at 05:58:44PM -0500, Rechenberg, Andrew wrote:
-| | | I have to find time to down the box because it's production, but as soon
-| | as
-| | | I do I'll post the numbers here.
-| | | 
-| | | Thanks for your help.	
-| | | 
-| | | Regards,
-| | | Andy.
-| | | 
-| | | 
-| | | > Could you please guys try to reproduce the problem with kernel
-| profiling
-| | | > turned on and send us the output of readprofile? 
-| | | 
-| | | > This way we can know which function is using more CPU time, thus we
-| can
-| | | > identify the problem. 
-| | | 
-| | | 
-| | | On Wed, 14 Nov 2001, John McCutchan wrote:
-| | | 
-| | | > Hi,
-| | | > 
-| | | > I also have the exact same behaviour when running mkisofs. During the 
-| | | > creation of the ISO the interactive feel is sluggish and after mkisofs
-| | | > is complete the box is sluggish and appears to lock up. During
-| | | > this sluggish period there is alot of disk activity. This is under
-| | | > 2.4.14
-| | | > 
-| | | > John
-| | | > On Wed, Nov 14, 2001 at 06:01:23PM -0500, Rechenberg, Andrew wrote:
-| | | > > Hello,
-| | | > > 
-| | | > > I have read some previous threads about kupdated consuming 99% of
-| CPU
-| | | under
-| | | > > intense disk I/O in kernel 2.4.x on the archives of linux-kernel
-| | (April
-| | | > > 2001), and some issues about I/O problems on linux-mm, but have yet
-| to
-| | | find
-| | | > > any suggestions or fixes.  I am currently experiencing the same
-| issue
-| | | and
-| | | > > was wondering if anyone has any thoughts or suggestions on the
-| issue.
-| | I
-| | | am
-| | | > > not subscribed to the list so would you please CC: me directly on
-| any
-| | | > > responses?  I can also check out the archives at theaimsgroup.com if
-| a
-| | | CC:
-| | | > > would not be appropriate.  Thank you.
-| | | > > 
-| | | > > The issue that I am having is that when there is a heavy amount a
-| disk
-| | | I/O,
-| | | > > the box becomes slightly unresponsive and kupdated is using 99.9% in
-| | | 'top.'
-| | | > > Sometimes the box appears to totally lock up.  If one waits several
-| | | seconds
-| | | > > to a couple of minutes the system appears to 'unlock' and runs
-| | | sluggishly
-| | | > > for a while.  This cycle will repeat itself until the I/O subsides.
-| | The
-| | | > > memory usage goes up to the full capacity of the box and then about
-| | 10MB
-| | | of
-| | | > > swap is used while this problem is occurring.  Memory and swap does
-| | not
-| | | get
-| | | > > relinquished afer the incident.
-| | | > > 
-| | | > > The issue appears in kernel 2.4.14 compiled directly from source
-| from
-| | | > > kernel.org with no patches.  These problems manifest themselves with
-| | | only
-| | | > > one user doing heavy disk I/O.  The normal user load on the box can
-| | run
-| | | > > between 350-450 users so this behavior would be unacceptable because
-| | the
-| | | > > application that is being run is interactive.  With 450 users, and
-| the
-| | | same
-| | | > > process running on a 2.2.20 kernel the performance of the box is
-| | great,
-| | | with
-| | | > > only a very slightly noticeable slow down.
-| | | > > 
-| | | > > I am running the Informix database UniVerse version 9.6.2.4 on a 4
-| | | processor
-| | | > > 700MHz Xeon Dell PowerEdge 6400.  The disk subsystem is controlled
-| by
-| | a
-| | | PERC
-| | | > > 2/DC RAID card with 128MB on-board cache (megaraid driver compiled
-| | | directly
-| | | > > in to the kernel).  Data array is on 5 36GB 10K Ultra160 disks in a
-| | | RAID5
-| | | > > configuration.  The box has 4GB RAM, but is only using 2GB due to
-| the
-| | | move
-| | | > > back to the 2.2 kernel.  The only kernel paramters that have been
-| | | modified
-| | | > > are in /proc/sys/kernel/sem.  All filesystems are ext2.
-| | | > > 
-| | | > > If you need any more detailed info, please let me know.  Any help on
-| | | this
-| | | > > problem would be immensely appreciated.  Thank you in advance.
-| | | > > 
-| | | > > Regards,
-| | | > > Andrew Rechenberg
-| | | > > Network Team, Sherman Financial Group
-| | | > > arechenberg@shermanfinancialgroup.com
-| | | > > 
-| | | > > --
-| | | > > To unsubscribe, send a message with 'unsubscribe linux-mm' in
-| | | > > the body to majordomo@kvack.org.  For more info on Linux MM,
-| | | > > see: http://www.linux-mm.org/
-| | | > > 
-| | | > --
-| | | > To unsubscribe, send a message with 'unsubscribe linux-mm' in
-| | | > the body to majordomo@kvack.org.  For more info on Linux MM,
-| | | > see: http://www.linux-mm.org/
-| | | > 
-| | | 
-| | | --
-| | | To unsubscribe, send a message with 'unsubscribe linux-mm' in
-| | | the body to majordomo@kvack.org.  For more info on Linux MM,
-| | | see: http://www.linux-mm.org/
-| | | -
-| | | To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-| in
-| | | the body of a message to majordomo@vger.kernel.org
-| | | More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| | | Please read the FAQ at  http://www.tux.org/lkml/
+iptables -t nat -I PREROUTING -p tcp --dst 145.66.1.1 \
+               --dport 1080 -j REDIRECT --to 80 > /dev/null 2>&1
+iptables -t nat -I OUTPUT     -p tcp --dst 145.66.1.1 \
+               --dport 1080 -j REDIRECT --to 80 > /dev/null 2>&1
+
+This redirects connects to the machine itself (145.66.1.1) port 1080 to port
+80, which is where apache listens. Connecting to http://145.66.1.1:1080/ seems
+to result in the reported oops, as reported before. It's very reproducable
+here, on several machines. So enjoy!
+
+* Both with standard iptables and iptables-1.2.4 have this problem.
+* Based on a previous response I upgraded ksymoops. Didn't change the output
+* Using the PREROUTING chain results in the oops. The OUTPUT chain just freezes
+  the system.
+* It's reproducable here, so try for yourself.
+* I think it's a bug
+
+Rolf
+
+[fokkensr@iasdev fokkensr]$ ksymoops -k ksyms-2.4.15-pre8 -o /lib/modules/2.4.15-pre8-fks/ -m /boot/System.map-2.4.15-pre8-fks oops-2.4.15-pre8.txt
+
+ksymoops 0.7c on i686 2.4.8-clk.  Options used
+     -V (default)
+     -k ksyms-2.4.15-pre8 (specified)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.15-pre8-fks/ (specified)
+     -m /boot/System.map-2.4.15-pre8-fks (specified)
+
+Error (expand_objects): cannot stat(/lib/cpqarray.o) for cpqarray
+ksymoops: No such file or directory
+Error (expand_objects): cannot stat(/lib/aic7xxx.o) for aic7xxx
+ksymoops: No such file or directory
+/usr/bin/find: /lib/modules/2.4.15-pre8-fks/build/include/sound/isapnp.h: No such file or directory
+Error (pclose_local): find_objects pclose failed 0x100
+Warning (compare_ksyms_lsmod): module e1000 is in lsmod but not in ksyms, probably no symbols exported
+Error (compare_ksyms_lsmod): module nfsd is in ksyms but not in lsmod
+Error (compare_ksyms_lsmod): module lockd is in ksyms but not in lsmod
+Error (compare_ksyms_lsmod): module sunrpc is in ksyms but not in lsmod
+Warning (map_ksym_to_module): cannot match loaded module cpqarray to a unique module object.  Trace may not be reliable.
+Oops:   0000
+CPU:    0
+EIP:    0010:[<c02000c5>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 000005dc ebx: edbea7e8 ecx: edca8800 edx: 00000000
+esi: ee91c0ac edi: 00000000 ebp: ec6147a4 esp: f0d4bd84
+ds: 0010 es: 0018 ss: 0018
+Stack: 00000001 f0d4a000 00000003 00000000 edca8800 c01f043d edbea7e8 ec2468ac
+       ed63c6d4 f77f0084 ee2468c0 f0d4bdc4 c034fed8 c01fef56 00000002 00000003
+       edbea7e8 00000000 edca8800 c0200024 00000045 ec63c6d4 f77f0084 ee2468c0
+Call Trace: <c01f043d> <c01fef56> <c0200024> <c01163cc> <c0215589>
+            <c020f648> <c020fc02> <c0130521> <c02106df> <c0205a2b> <c0222edc>
+            <c0222f16> <c01e056d> <c0222edc> <c01e078b> <c014329e> <c01076a3>
+Code: 8a 87 4c 03 00 00 3c 02 74 0a 3c 01 75 0b f6 45 20 04 75 05
+
+>>EIP; c02000c5 <ip_queue_xmit2+a1/22c>   <=====
+Trace; c01f043d <nf_hook_slow+19d/21c>
+Trace; c01fef56 <ip_queue_xmit+28e/300>
+Trace; c0200024 <ip_queue_xmit2+0/22c>
+Trace; c01163cc <schedule+500/8d0>
+Trace; c0215589 <tcp_v4_send_check+6d/ac>
+Trace; c020f648 <tcp_cwnd_restart+18/a4>
+Trace; c020fc02 <tcp_transmit_skb+52e/5ec>
+Trace; c0130521 <__lock_page+91/9c>
+Trace; c02106df <tcp_write_xmit+18f/2dc>
+Trace; c0205a2b <tcp_sendmsg+fd7/1370>
+Trace; c0222edc <inet_sendmsg+0/40>
+Trace; c0222f16 <inet_sendmsg+3a/40>
+Trace; c01e056d <sock_sendmsg+81/a4>
+Trace; c0222edc <inet_sendmsg+0/40>
+Trace; c01e078b <sock_write+a3/ac>
+Trace; c014329e <sys_write+8e/c4>
+Trace; c01076a3 <system_call+2f/34>
+
+Code;  c02000c5 <ip_queue_xmit2+a1/22c>
+00000000 <_EIP>:
+Code;  c02000c5 <ip_queue_xmit2+a1/22c>   <=====
+   0:   8a 87 4c 03 00 00         mov    0x34c(%edi),%al   <=====
+Code;  c02000cb <ip_queue_xmit2+a7/22c>
+   6:   3c 02                     cmp    $0x2,%al
+Code;  c02000cd <ip_queue_xmit2+a9/22c>
+   8:   74 0a                     je     14 <_EIP+0x14> c02000d9 <ip_queue_xmit2+b5/22c>
+Code;  c02000cf <ip_queue_xmit2+ab/22c>
+   a:   3c 01                     cmp    $0x1,%al
+Code;  c02000d1 <ip_queue_xmit2+ad/22c>
+   c:   75 0b                     jne    19 <_EIP+0x19> c02000de <ip_queue_xmit2+ba/22c>
+Code;  c02000d3 <ip_queue_xmit2+af/22c>
+   e:   f6 45 20 04               testb  $0x4,0x20(%ebp)
+Code;  c02000d7 <ip_queue_xmit2+b3/22c>
+  12:   75 05                     jne    19 <_EIP+0x19> c02000de <ip_queue_xmit2+ba/22c>
+
+
+2 warnings and 6 errors issued.  Results may not be reliable.
+
+[fokkensr@iasdev fokkensr]$ rpm -q -i kernel-2.4.15-pre8-freeswan-1.91-1fks-7redhat
+Name        : kernel-2.4.15-pre8-freeswan-1.91  Relocations: (not relocateable)
+Version     : 1fks                              Vendor: (none)
+Release     : 7redhat                       Build Date: Wed 21 Nov 2001 02:39:43 PM CET
+Install date: Wed 21 Nov 2001 03:07:58 PM CET      Build Host: iasdev
+Group       : System Environment/Kernel     Source RPM: kernel-2.4.15-pre8-freeswan-1.91-1fks-7redhat.src.rpm
+Size        : 26095803                         License: GPL
+URL         : http://www.kernel.org/
+Summary     : A kernel with FreeS/WAN included
+Description :
+Linux kernel 2.4.15-pre8
+* FreeS/WAN 1.91
+* X.509 Certificate Support 0.8.5
+* 3Dfx module
+* Alsa 0.5.12
+* QLogic Fibre Channel Driver for QLA2x00 4.25
+* VLAN packet size support for 3c59x NICs
+* HZ is 2048 instead of 100
+* iptables 1.2.4
+* lm_sensors 2.6.1
+* Intel e1000 3.1.23
+and more in the future.
+

@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbUB0UGi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 15:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbUB0UGi
+	id S263009AbUB0UHv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 15:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263010AbUB0UHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 15:06:38 -0500
-Received: from ida.rowland.org ([192.131.102.52]:6404 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S263008AbUB0UGd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 15:06:33 -0500
-Date: Fri, 27 Feb 2004 15:06:32 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Question about (or bug in?) the kobject implementation
-In-Reply-To: <20040227194855.GB10864@kroah.com>
-Message-ID: <Pine.LNX.4.44L0.0402271457530.1225-100000@ida.rowland.org>
+	Fri, 27 Feb 2004 15:07:51 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4282 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263009AbUB0UHa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 15:07:30 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: Errors on 2th ide channel of promise ultra100 tx2
+Date: Fri, 27 Feb 2004 21:14:23 +0100
+User-Agent: KMail/1.5.3
+Cc: John Bradford <john@grabjohn.com>, Erik van Engelen <Info@vanE.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <403F2178.70806@vanE.nl> <Pine.LNX.4.58L.0402271629430.19209@logos.cnet> <1077908499.29713.19.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1077908499.29713.19.camel@dhcp23.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402272114.23108.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004, Greg KH wrote:
+On Friday 27 of February 2004 20:01, Alan Cox wrote:
+> On Gwe, 2004-02-27 at 19:30, Marcelo Tosatti wrote:
+> > > > Haven't got a clue about these "status=0x51" and "error=0x04".
+> > > > Anyone?
+> > >
+> > > Basically, the errors mean what they say - the drive is in an error
+> > > state, (received an unrecognised command), but is ready for further
+> > > operation.
+> >
+> > Received an unrecognised command from the kernel? What can cause that?
+>
+> Our early setup/probing code in 2.4.x at least may send stuff that very
+> very old disks don't understand. Its arguably a bug in the ident parsing
+> but it shouldnt ever be harmful
 
-> On Wed, Feb 25, 2004 at 10:05:37AM -0500, Alan Stern wrote:
-> > Is it supposed to be legal to repeatedly call kobject_add() and 
-> > kobject_del() for the same kobject?  That is, is
-> > 
-> > 	kobject_add(&kobj);
-> > 	...
-> > 	kobject_del(&kobj);
-> > 	...
-> > 	kobject_add(&kobj);
-> > 	...
-> > 	kobject_del(&kobj);
-> > 
-> > supposed to work?
-> 
-> No.
-> 
-> > The API doesn't forbid it, and there's no apparent reason why it
-> > should be illegal.
-> 
-> We prevent race conditions in kobject_put() by saying "Don't do that!"
-> :)
-> 
-> Seriously, once kobject_del() is called, you can't safely call
-> kobject_get() anymore on that object.
+ide-disk.c sends WIN_READ_NATIVE_MAX_{EXT} without checking
+if HPA feature set is supported, this is fixed in 2.6.x for a long time.
 
-Are you worried about the possibility of the refcount dropping to 0 and 
-the cleanup starting but then kobject_get() increasing the refcount again?
-Or is there some other problem?
+We need 2.4<->2.6 IDE sync monkey... a really smart one...
 
-> If you can think of a way we can implement this in the code to prevent
-> people from doing this, please send a patch.  We've been getting by
-> without such a "safeguard" so far...
-
-Maybe I could if I knew more clearly the exact issue in question.
-
-> > Why would anyone want to do this, you ask?  Well the USB subsystem does it 
-> > already.  Each USB device can have several configurations, only one of 
-> > which is active at any time.  Corresponding to each configuration is a set 
-> > of struct devices, and they (together with their embedded kobjects) are 
-> > allocated and initialized when the USB device is first detected.  The 
-> > struct devices are add()'ed and del()'ed as configurations are activated 
-> > and deactivated, leading to just the sort of call sequence shown above.
-> 
-> Then we need to fix this.
-
-As it happens, I have a patch to do that. :-)  I'll send it in a separate 
-message.
-
-Alan Stern
+Cheers,
+Bartlomiej
 

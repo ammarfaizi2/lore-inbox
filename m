@@ -1,98 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264194AbUD0Qpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264197AbUD0Qs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264194AbUD0Qpx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 12:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbUD0Qpx
+	id S264197AbUD0Qs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 12:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264199AbUD0Qs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 12:45:53 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:11461 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264194AbUD0Qpu (ORCPT
+	Tue, 27 Apr 2004 12:48:58 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:64659 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264197AbUD0Qry (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 12:45:50 -0400
-Date: Tue, 27 Apr 2004 18:42:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Steve French <smfltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-cifs-client@lists.samba.org,
-       jra@samba.org
-Subject: Re: [PATCH COW] sys_copyfile
-Message-ID: <20040427164220.GB2176@wohnheim.fh-wedel.de>
-References: <1083081505.12804.65.camel@stevef95.austin.ibm.com>
+	Tue, 27 Apr 2004 12:47:54 -0400
+Subject: Re: sched_domains and Stream benchmark
+From: Darren Hart <dvhltc@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@muc.de>
+In-Reply-To: <20040427023327.GB11321@colin2.muc.de>
+References: <1N7xQ-7fh-29@gated-at.bofh.it>
+	 <m3r7uitr1r.fsf@averell.firstfloor.org> <1083018633.3070.8.camel@farah>
+	 <20040427023327.GB11321@colin2.muc.de>
+Content-Type: text/plain
+Message-Id: <1083084439.2733.34.camel@farah>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1083081505.12804.65.camel@stevef95.austin.ibm.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 27 Apr 2004 09:47:19 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 April 2004 10:58:25 -0500, Steve French wrote:
+On Mon, 2004-04-26 at 19:33, Andi Kleen wrote:
+> > I noticed your binary ran with N=2000000 which is only sufficient for a
+> > 2 proc 1 MB cache opteron box according to the documentation on the
 > 
-> > With warm cache, copyfile() is about 10% faster
+> It does not seem to make any difference. 
+
+I was under the impression you didn't change the N value (array size)
+and ran the benchmark with someone else's precompiled binaries (the ones
+you sent me).  Did you have two binaries with different array sizes
+compiled in, or did I miss some way of configuring that?  The
+documentation was admittedly sparse.
+
+> > stream faq.  I also noticed wide variation in results (25% or so) when
+> > running with 4 threads on a 4 proc opteron on linux-2.6.5-mm5.  Can you
+> > provide me with the specs of the system you ran your tests on?
 > 
-> Over the network it would be a lot more than that.
+> Yes, mm5 is still broken because it has the "tuned to numasaurus" numa
+> scheduler. Run it on a standard (non mm*) kernel or with Ingo's early 
+> load balance patch.
 
-True, if network traffic is saved as well.
+I ran it on 2.6.5, 2.6.5-mm5, and 2.6.5-mm5-flat-domains trying to
+reproduce the results you found (including the poor performance of
+virgin and mm) so that I can have some context while analyzing the
+sched_domains topology on x86_64 and its effects on performance.  So
+that I can see where the differences lie in our tests, could you please
+provide some of the specs of the system you ran on, such as number of
+procs, cache size, and amount of RAM.
 
-> in do_copyfile all I would need would be an op that looks a bit like 
-> rename (the cifs vfs part of the changes, to fs/cifs/cifssmb.c mostly,
-> would be trivial) e.g.:
-> 
->  int do_copyfile(struct nameidata *old_nd, struct nameidata *new_nd,
->                  struct dentry *new_dentry, umode_t mode)
-> {
-> -	int ret;
-> +       int ret = 0;
-> 
->         if (!old_nd->dentry->d_inode)
->                 return -ENOENT;
->         if (!S_ISREG(old_nd->dentry->d_inode->i_mode))
->                 return -EINVAL;
->         /* FIXME: replace with proper permission check */
->         if (new_dentry->d_inode)
->                 return -EEXIST;
-> 
-> +	if(old_nd->dentry->d_inode->i_op->copy) {
-> +		ret = old_dir->i_op->copy(old_nd->dentry, 
-> +			mode, new_dentry);
-> +	}
+Thanks,
 
-Shouldn't it be rather
+--Darren
 
-	if (old_nd->dentry->d_inode->i_op->copy)
-		return old_nd->dentry->d_inode->i_op->copy(old_nd->dentry,
-				mode, new_dentry);
-
-or something similar?  The copy() effectively replaces the complete
-create/sendfile/possibly-unlink series.
-
-> 
-> 	if(!ret)
-> 		return ret;
-> 	else
-> 		ret = vfs_create(new_nd->dentry->d_inode,
-> 			 new_dentry, mode, new_nd);
-> 	if (ret)
->                 return ret;
-> 
-> 	ret = copy_data(old_nd->dentry, old_nd->mnt, new_dentry,
-> 		new_nd->mnt);
-> 
->         if (ret) {
->                 int error = vfs_unlink(new_nd->dentry->d_inode,
-> 			new_dentry);
->                 BUG_ON(error);
->                /* FIXME: not sure if there are return value we 
-> 			should not BUG()
-> 	               * on */
->         }
->         return ret;
-> }
-> 	
-
-Jörn
-
--- 
-The grand essentials of happiness are: something to do, something to
-love, and something to hope for.
--- Allan K. Chalmers

@@ -1,69 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264675AbUDVVUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264683AbUDVV0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264675AbUDVVUt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 17:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264686AbUDVVUt
+	id S264683AbUDVV0U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 17:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264684AbUDVV0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 17:20:49 -0400
-Received: from desnol.ru ([217.150.58.74]:7907 "EHLO desnol.ru")
-	by vger.kernel.org with ESMTP id S264675AbUDVVUr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 17:20:47 -0400
-Date: Fri, 23 Apr 2004 01:21:15 +0400
-From: Agri <agri@desnol.ru>
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: fork do not copy /proc/<PID>/cmdline permissions
-Message-Id: <20040423012115.36fa0fe8@agri-home>
-In-Reply-To: <Pine.LNX.4.53.0404221628300.940@chaos>
-References: <20040422215322.19475d98@agri-home>
-	<Pine.LNX.4.53.0404221628300.940@chaos>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Apr 2004 17:26:20 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:35666 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264683AbUDVV0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 17:26:19 -0400
+Date: Thu, 22 Apr 2004 22:26:09 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Bill Davidsen <davidsen@tmr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Benchmarking objrmap under memory pressure
+In-Reply-To: <408822F1.80409@tmr.com>
+Message-ID: <Pine.LNX.4.44.0404222221060.23593-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Apr 2004 16:36:28 -0400 (EDT)
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+On Thu, 22 Apr 2004, Bill Davidsen wrote:
+> 
+> I don't disagree on that, but it seems that KDE developers have put some 
+> serious effort into making the software well-behaved, and unless there 
+> is some measurable benefit from the code which negates the benefits of 
+> that effort, it seems desirable to appreciate code code by letting it work.
 
-> On Thu, 22 Apr 2004, Agri wrote:
-> 
-> > I expected from fork to make a rather complete copy of a process,
-> > but it does not copy /proc/<PID>/cmdline access permissions.
-> > Therefore, the only way (at least i know) to hide all args of
-> > processes is to start every program within shell script:
-> > bash -c 'chmod /proc/$$/cmdline; exec userprogramm ...'
-> >
-> > Tested on 2.6.5.
-> >
-> > Agri
-> 
-> Huh? /proc/$PID/cmdline doesn't exist until after a task is
-> created. 
-So setting all /proc/$PID/* file parameters should be a part of task creation.
+2.6.6-rc2-mm1 does now have a "cmd: mremap moved N cows" kernel warning
+of this inefficiency.  Please let us know if you see it in your log/dmesg,
+when running KDE or whatever.  One sighting of 49 cows in xterm so far.
 
-> What you did was create a task, change whatever
-> is in proc, then exec (which doesn't change the PID).
-I know that. It solved my problem, but didn't fix the bug.
-Any fork of a process reveals all its args.
-Everybody have a right to be paranoid to hide everything, don't u think? :-)
-Huh... Including number of processes. :-)
-
-> 
-> How would you expect fork() to know that you wanted to
-> do this? The permissions in /proc are file permissions.
-> They have nothing to do with a task.
-> 
-> Also, any task can read its own command-line without using
-> /proc at all.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
->             Note 96.31% of all statistics are fiction.
-> 
-> 
-> 
+Thanks,
+Hugh
 

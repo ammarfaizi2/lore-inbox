@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUHVQSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267701AbUHVQ05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267578AbUHVQSM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 12:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267701AbUHVQSM
+	id S267701AbUHVQ05 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 12:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268015AbUHVQ05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 12:18:12 -0400
-Received: from relay.pair.com ([209.68.1.20]:64785 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S267578AbUHVQSL (ORCPT
+	Sun, 22 Aug 2004 12:26:57 -0400
+Received: from mylinuxtime.de ([217.160.170.124]:49371 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S267701AbUHVQ0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 12:18:11 -0400
-X-pair-Authenticated: 66.190.51.173
-Message-ID: <4128C742.6090402@cybsft.com>
-Date: Sun, 22 Aug 2004 11:18:10 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
+	Sun, 22 Aug 2004 12:26:55 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: v2.6.8.1 breaks tspc
+Date: Sun, 22 Aug 2004 18:26:35 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+References: <200408212303.05143.mail@earthworm.de> <200408221506.07883.mail@earthworm.de> <200408221743.22561.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408221743.22561.vda@port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
-References: <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu> <20040821140501.GA4189@elte.hu>
-In-Reply-To: <20040821140501.GA4189@elte.hu>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1111785.RsWhZC3J7t";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408221826.41842.mail@earthworm.de>
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.6; VDF 6.27.0.23
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
- > i've uploaded the -P7 patch:
- >
- >   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P7
- >
+--nextPart1111785.RsWhZC3J7t
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Is this one for real, or another false positive? A ~4119 usec latency in
-the scheduler?
+On Sunday 22 August 2004 16:43, Denis Vlasenko wrote:
+> [...]
+> Looks like window scaling is not understood or incorrectly
+> handled by Linux or by remote box. I am no expert on this,
+> thus CCing LKML and netfilter list.
+>
+> Please try whether it works whan you do
+> "echo 0 > /proc/sys/net/ipv4/tcp_window_scaling"
 
-http://www.cybsft.com/testresults/2.6.8.1-P7/2.6.8.1-P7-5.txt
+That helps. Thanks so far.
 
-kr
+> [...]
+=2D-=20
+Christian
+
+--nextPart1111785.RsWhZC3J7t
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBKMlBlZfG2c8gdSURAplNAJ0Uet0q3sIPv29ghpDRtqCBHSvhBgCg44s9
+tgYgiXDFCgnE86IWddPVuHA=
+=KJLl
+-----END PGP SIGNATURE-----
+
+--nextPart1111785.RsWhZC3J7t--

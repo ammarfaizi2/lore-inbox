@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBHQ2c>; Thu, 8 Feb 2001 11:28:32 -0500
+	id <S129130AbRBHQgo>; Thu, 8 Feb 2001 11:36:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbRBHQ2W>; Thu, 8 Feb 2001 11:28:22 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:18170 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129055AbRBHQ2J>; Thu, 8 Feb 2001 11:28:09 -0500
-Date: Thu, 8 Feb 2001 14:27:27 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: osamu <ogawaosm@bs.mmk.fst.pb.nttdata.co.jp>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: someone knows a good sendmail mailing list ?
-In-Reply-To: <20010208094957.6478.OGAWAOSM@bs.mmk.fst.pb.nttdata.co.jp>
-Message-ID: <Pine.LNX.4.21.0102081426350.2378-100000@duckman.distro.conectiva>
+	id <S129116AbRBHQgY>; Thu, 8 Feb 2001 11:36:24 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:18449 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129130AbRBHQgR>; Thu, 8 Feb 2001 11:36:17 -0500
+Date: Thu, 8 Feb 2001 12:44:22 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
+        Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.3.96.1010208165626.9964C-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.21.0102081244080.25475-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, osamu wrote:
-
-> someone knows a good sendmail mailing list ? active like this one ?
-
-I doubt it, if only because sendmail wouldn't be able to
-handle the load.
 
 
-(yeah, I know it's off-topic; but I couldn't resist this one)
+On Thu, 8 Feb 2001, Mikulas Patocka wrote:
 
-cheers,
+> > > The problem is that aio_read and aio_write are pretty useless for ftp or
+> > > http server. You need aio_open.
+> > 
+> > Could you explain this? 
+> 
+> If the server is sending many small files, disk spends huge amount time
+> walking directory tree and seeking to inodes. Maybe opening the file is
+> even slower than reading it - read is usually sequential but open needs to
+> seek at few areas of disk.
+> 
+> And if you have one-threaded server using open, close, aio_read and
+> aio_write, you actually block the whole server while it is opening a
+> single file. This is not how async io is supposed to work.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Ok but this is not the point of the discussion. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

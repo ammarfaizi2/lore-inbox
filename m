@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273846AbRIRFG6>; Tue, 18 Sep 2001 01:06:58 -0400
+	id <S273848AbRIRFJj>; Tue, 18 Sep 2001 01:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273847AbRIRFGs>; Tue, 18 Sep 2001 01:06:48 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:17967 "EHLO
+	id <S273849AbRIRFJ3>; Tue, 18 Sep 2001 01:09:29 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:20784 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273846AbRIRFGe>; Tue, 18 Sep 2001 01:06:34 -0400
-Date: Tue, 18 Sep 2001 07:06:54 +0200
+	id <S273848AbRIRFJY>; Tue, 18 Sep 2001 01:09:24 -0400
+Date: Tue, 18 Sep 2001 07:09:43 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010918070654.Y698@athlon.random>
-In-Reply-To: <20010918065423.W698@athlon.random> <Pine.LNX.4.21.0109180031210.7152-100000@freak.distro.conectiva>
+Message-ID: <20010918070943.A698@athlon.random>
+In-Reply-To: <20010918063910.U698@athlon.random> <E15jD3c-0000Ga-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0109180031210.7152-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, Sep 18, 2001 at 12:33:15AM -0300
+In-Reply-To: <E15jD3c-0000Ga-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Sep 18, 2001 at 06:04:28AM +0100
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 12:33:15AM -0300, Marcelo Tosatti wrote:
-> 
-> On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
-> 
-> > On Mon, Sep 17, 2001 at 11:53:10PM -0300, Marcelo Tosatti wrote:
-> > > Don't you agree that your code can introduce new stability bugs ?
-> > 
-> > not anything that can corrupt randomly your hd.
-> 
-> Sure, the old code did not corrupt hd's randomly, did it?
-> 
-> Let me redo the question: Don't you think the old stinky and slow code was
-> reasonably stable ? :) 
+On Tue, Sep 18, 2001 at 06:04:28AM +0100, Alan Cox wrote:
+> The O_DIRECT stuff is very clean - its definitely a feature that should
+> have gone into 2.5 first and then back, but its one that really doesn't
+> bother me too much. blkdev in page cache needs some locking thinking but
+> looks ok.
 
-As said in the other email, just check 2.4 l-k reports of this week,
-last week etc.., I've lots of private reports too. While for everybody
-2.2.19 is working fine.
+agreed.
 
 Andrea

@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318033AbSIJTTu>; Tue, 10 Sep 2002 15:19:50 -0400
+	id <S318045AbSIJT20>; Tue, 10 Sep 2002 15:28:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318035AbSIJTTu>; Tue, 10 Sep 2002 15:19:50 -0400
-Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:10881 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S318033AbSIJTTt>; Tue, 10 Sep 2002 15:19:49 -0400
-Date: Tue, 10 Sep 2002 14:23:47 -0500
-From: Shawn <core@enodev.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Shawn <core@enodev.com>, Andi Kleen <ak@suse.de>,
-       Thunder from the hill <thunder@lightweight.ods.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-Message-ID: <20020910142347.A5000@q.mn.rr.com>
-References: <p73wupuq34l.fsf@oldwotan.suse.de> <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel> <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel> <p73wupuq34l.fsf@oldwotan.suse.de> <20020909162050.B4781@q.mn.rr.com> <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>
+	id <S318058AbSIJT20>; Tue, 10 Sep 2002 15:28:26 -0400
+Received: from waste.org ([209.173.204.2]:43228 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318045AbSIJT2Z>;
+	Tue, 10 Sep 2002 15:28:25 -0400
+Date: Tue, 10 Sep 2002 14:32:28 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
+       david-b@pacbell.net, mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
+Message-ID: <20020910193228.GL31597@waste.org>
+References: <20020910.111627.00809211.davem@redhat.com> <Pine.LNX.4.44.0209101132320.3280-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>; from efault@gmx.de on Tue, Sep 10, 2002 at 07:15:08PM +0200
+In-Reply-To: <Pine.LNX.4.44.0209101132320.3280-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure what this is intended to communicate.
-
-The question was specifically regarding filesystem support, so I'll
-assume you meant to point out that XFS does not always work like it
-should.
-
-Then, am I incorrect that since almost all of XFS that's left to merge
-is XFS code and not changes to the kernel at large?
-
-If this is correct, could I then make the assumption that merging XFS
-would be minimally impactful for those kernel user who do not enable it?
-
-Linus incorporated reiserfs long before it "always functioned as it is
-supposed to", so I find myself wondering where your point was.
-
-(see below) and "^^^^^^^^^^^^^" don't fully cover your thoughts I'm
-afraid.
-
-On 09/10, Mike Galbraith said something like:
-> At 04:20 PM 9/9/2002 -0500, Shawn wrote:
-> >XFS needs a sponser. Who amung Linus's circle of trust cares to comment
-> >or re-evaluate?
-> >
-> >If no one, I guess it's a moot point.
+On Tue, Sep 10, 2002 at 11:40:27AM -0700, Linus Torvalds wrote:
 > 
-> (see below)
+> On Tue, 10 Sep 2002, David S. Miller wrote:
+> >    
+> >    IMO we should have ASSERT() and OHSHIT(),
+> > 
+> > I fully support the addition of an OHSHIT() macro.
 > 
-> >On 09/09, Andi Kleen said something like:
-> > > Thunder from the hill <thunder@lightweight.ods.org> writes:
-> > >
-> > > > Hi,
-> > > >
-> > > > On Mon, 9 Sep 2002, khromy wrote:
-> > > > > What's up with XFS in linux-2.5? I've seen some patches sent to the 
-> > list
-> > > > > but I havn't seen any replies from linus.. What needs to be done to
-> > > > > finally merge it?
-> > > >
-> > > > It has been stated quite regularly that XFS
-> > > > a) doesn't always work like it should yet
-> > >
-> > > That's quite bogus. While not being perfect XFS just works fine for lots
-> > > of people in production and performs very well for a lot of tasks.
-> > >
-> > > > b) involves some changes which Linus doesn't like in particular, for
-> > > >    pretty good reasons.
-> > >
-> > > I think that's FUD too. That last patch had 6 lines or so of changes
-> > > to generic code, everything else was already merged.
+> Oh, please no. We'd end up with endless asserts in the networking layer, 
+> just because David would find it amusing. 
 > 
->                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> I can just see it now - code bloat hell.
 > 
->          -Mike
+> And no, I still don't like ASSERT().
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---
-Shawn Leas
-core@enodev.com
+> I think the approach should clearly spell what the trouble level is:
+> 
+> 	DEBUG(x != y, "x=%d, y=%d\n", x, y);
+> 
+> 	WARN(x != y, "crap happens: x=%d y=%d\n", x, y);
+> 
+> 	FATAL(x != y, "Aiee: x=%d y=%d\n", x, y);
+> 
+> where the DEBUG one gets compiled out normally (or has some nice per-file
+> way of being enabled/disabled - a perfect world would expose the on/off in
+> devicefs as a per-file entity when kernel debugging is on), WARN continues
+> but writes a message (and normally does _not_ get compiled out), and FATAL
+> is like our current BUG_ON().
 
-I got food poisoning today.  I don't know when I'll use it.
-						-- Stephen Wright
+Which still leaves the question, does it really make sense for
+FATAL/BUG to forcibly kill the machine? If the bug is truly fatal,
+presumably the machine kills itself in short order anyway, otherwise
+we might have a shot at recording the situation. A more useful
+distinction might be in terms of risk of damaging filesystems (or perhaps
+hardware) if we continue, something like BROKEN/DANGEROUSLY_BROKEN.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

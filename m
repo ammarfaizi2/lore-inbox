@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261319AbTCZSWd>; Wed, 26 Mar 2003 13:22:33 -0500
+	id <S261784AbTCZSYy>; Wed, 26 Mar 2003 13:24:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261407AbTCZSWd>; Wed, 26 Mar 2003 13:22:33 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:42501 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261319AbTCZSWc>; Wed, 26 Mar 2003 13:22:32 -0500
-Date: Wed, 26 Mar 2003 18:33:40 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Thomas Molina <tmolina@cox.net>
-cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: fbcon sleeping function call from illegal context
-In-Reply-To: <Pine.LNX.4.44.0303261049490.1347-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303261811350.18664-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261835AbTCZSYy>; Wed, 26 Mar 2003 13:24:54 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53765 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261784AbTCZSYx>;
+	Wed, 26 Mar 2003 13:24:53 -0500
+Date: Wed, 26 Mar 2003 10:35:14 -0800
+From: Greg KH <greg@kroah.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: torvalds@transmeta.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB changes for 2.5.66
+Message-ID: <20030326183514.GD24689@kroah.com>
+References: <20030326005417.GA19868@kroah.com> <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 26, 2003 at 01:17:56PM -0500, Bill Davidsen wrote:
+> On Tue, 25 Mar 2003, Greg KH wrote:
+> 
+> > Hi,
+> > 
+> > Here are some small USB changes.  Basically all little cleanups and
+> > bugfixes, nothing major.
+> > 
+> > Please pull from:  bk://linuxusb.bkbits.net/linus-2.5
+> 
+> Another "bk-only" patch. Guess I'd better look at the free (as in license,
+> not cost) clone again.
 
-> Running with the patch as posted by Mr. Simmons I didn't get any further 
-> instances of the sleeping function call from illegal context messages I 
-> reported before, until screenblanking went into effect.  I then got the 
-> following:
+Not true at all (as I've stated many times in the past...)
 
-Oh no!!! I just look at the console timer blanking code. It calls alot of 
-stuff. Not only does this mean we are limited in using kmalloc if we need 
-it but also using a semaphore to sync up the fb_pixmap stuff. At present 
-we use a spinlock. I tried it with a semphore but it kept hosing my 
-system. Now I know why. 
+The USB patches that I send to Linus through BK are all sent to the
+linux-usb-devel mailing list as followups to this message.
 
-What should be done is the console blank timer be passed onto 
-console_callback.
+They are also placed at kernel.org in:
+	/pub/linux/kernel/people/gregkh/usb/2.5/*.2.5.66*
 
-P.S
-     I reversed some of the cursor changes. It uses static buffers again 
-until we have these issues solved. The code works as long as you don't use 
-more than one framebuffer device but it is rock solid like before for a 
-single framebuffer device. I will have a patch ready in the hour.
+So no, I always provide patches, I just don't flood lkml with USB
+specific ones.
 
+thanks,
 
-
+greg k-h

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263295AbSJCNuO>; Thu, 3 Oct 2002 09:50:14 -0400
+	id <S263292AbSJCNtQ>; Thu, 3 Oct 2002 09:49:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263296AbSJCNuN>; Thu, 3 Oct 2002 09:50:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31240 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263295AbSJCNuM>; Thu, 3 Oct 2002 09:50:12 -0400
-Date: Thu, 3 Oct 2002 14:55:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: DevilKin <devilkin-lkml@blindguardian.org>
-Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Bodge up serial support in 2.5.40
-Message-ID: <20021003145518.G2304@flint.arm.linux.org.uk>
-References: <200210021636.g92GaWEp000312@darkstar.example.net> <200210021837.39020.devilkin-lkml@blindguardian.org>
+	id <S263295AbSJCNtQ>; Thu, 3 Oct 2002 09:49:16 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:28656 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263292AbSJCNtP>; Thu, 3 Oct 2002 09:49:15 -0400
+Subject: Re: [rfc] [patch] kernel hooks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Grundy <vamsi_krishna@in.ibm.com>,
+       Mikael Pettersson <mikpe@csd.uu.se>, suparna <bsuparna@in.ibm.com>,
+       vamsi@linux.ibm.com
+In-Reply-To: <OFAC358F0A.6BBBEF7D-ON80256C47.004A301E@portsmouth.uk.ibm.com>
+References: <OFAC358F0A.6BBBEF7D-ON80256C47.004A301E@portsmouth.uk.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Oct 2002 15:00:52 +0100
+Message-Id: <1033653652.28022.20.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210021837.39020.devilkin-lkml@blindguardian.org>; from devilkin-lkml@blindguardian.org on Wed, Oct 02, 2002 at 06:37:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02, 2002 at 06:37:38PM +0200, DevilKin wrote:
-> On Wednesday 02 October 2002 18:36, jbradford@dial.pipex.com wrote:
-> > Standard 8250/16550 UART support is broken in 2.5.40, and I needed it, so
-> > following a bit of advice from Russell King, I've prepared this patch.
-> >
+On Thu, 2002-10-03 at 14:32, Richard J Moore wrote:
 > 
-> Actually, they work fine in 2.5.40. Well, my serial mouse works fine. So i 
-> guess the serial port must work fine too.
+> > You must also ensure that the code you are modifying isnt on an IRQ path
+> > (if it is you must do spin locks and then be very careful about cross
+> > cpu tlb deadlocks). Finally you have no choice but to ensure you never
+> > use it on the NMI path
+> 
+> Why do we need a spinlock? We change one byte, we are not concered about
+> when exactly that takes effect, only that there are always valid
+> instructions in the pipeline.
 
-Its certain compilation options that mess it up atm.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Because you are programming for real silicon not for the imaginary
+perfect processor. Read the x86 errata
 

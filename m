@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUIAMtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266357AbUIAMuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266233AbUIAMtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 08:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUIAMtJ
+	id S266357AbUIAMuG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 08:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUIAMuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 08:49:09 -0400
-Received: from [170.210.239.2] ([170.210.239.2]:59116 "EHLO
-	gtwing.efn.uncor.edu") by vger.kernel.org with ESMTP
-	id S266233AbUIAMtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 08:49:05 -0400
-Message-ID: <4135C57C.9080604@efn.uncor.edu>
-Date: Wed, 01 Sep 2004 09:50:04 -0300
-From: =?ISO-8859-1?Q?Mart=EDn_Chikilian?= <slack@efn.uncor.edu>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Weird problem when compiling kernel
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 08:50:06 -0400
+Received: from ozlabs.org ([203.10.76.45]:4327 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266357AbUIAMtz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 08:49:55 -0400
+Date: Wed, 1 Sep 2004 22:48:10 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc64] Enable DEBUG_SPINLOCK_SLEEP
+Message-ID: <20040901124810.GP26072@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello linux-kernel:
-I'm running Linux Slackware 10.0, kernel 2.6.7. I compiled such kernel 
-when using Slackware 9.1, and after i *upgraded* to 10.0 and tried to 
-compile 2.6.8.1, i noticed that i couldn't do that. When i wanted to 
-modify my 2.6.7 configuration and tried to compile it again, i noticed 
-that i couldn't do it either.
-I tried with all flavors off gcc, binutils, etc
-So, there is my prob.
-Error is:
-*rm -rf .tmp_versions
-mkdir -p .tmp_versions
-make -f scripts/Makefile.build obj=scripts/basic
-make -f scripts/Makefile.build obj=scripts
-make -f scripts/Makefile.build obj=arch/i386/kernel 
-arch/i386/kernel/asm-offsets.s
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-make -f scripts/Makefile.build obj=init
-make -f scripts/Makefile.build obj=usr
-   ld -m elf_i386  -r -o usr/built-in.o
-ld: no input files
-scripts/Makefile.build:229: *** [usr/built-in.o] Error 1
-Makefile:600: *** [usr] Error 2
---
-When make V=1.
-.config is in http://jumper.bounceme.net:81/slackatefn/.config
 
-gcc version: 3.4.1, make: 3.80, binutils: 2.15.90.0.3
-I would appreciate any help/suggestion/hint.
-Cya,
-Martin
-*
+Hi,
+
+DEBUG_SPINLOCK_SLEEP is useful on ppc64, so allow it to be selected.
+
+Anton
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+===== lib/Kconfig.debug 1.1 vs edited =====
+--- 1.1/lib/Kconfig.debug	Mon Aug 16 05:45:42 2004
++++ edited/lib/Kconfig.debug	Wed Aug 25 14:05:26 2004
+@@ -47,7 +47,7 @@
+ 
+ config DEBUG_SPINLOCK_SLEEP
+ 	bool "Sleep-inside-spinlock checking"
+-	depends on DEBUG_KERNEL && (X86 || IA64 || MIPS || PPC32 || ARCH_S390 || SPARC32 || SPARC64)
++	depends on DEBUG_KERNEL && (X86 || IA64 || MIPS || PPC32 || PPC64 || ARCH_S390 || SPARC32 || SPARC64)
+ 	help
+ 	  If you say Y here, various routines which may sleep will become very
+ 	  noisy if they are called with a spinlock held.

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263750AbUELVOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUELVUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263750AbUELVOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 17:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbUELVNh
+	id S263763AbUELVUo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 17:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbUELVSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 17:13:37 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:38530 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S263750AbUELVMs (ORCPT
+	Wed, 12 May 2004 17:18:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10196 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263798AbUELVOY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 17:12:48 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 12 May 2004 23:11:24 +0200
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6-BK] x86_64 has buggy ffs() implementation
-Message-ID: <20040512211124.GA6005@iram.es>
-References: <1084369416.16624.53.camel@imp.csi.cam.ac.uk> <c7u1js$1h2$1@terminus.zytor.com>
+	Wed, 12 May 2004 17:14:24 -0400
+Date: Wed, 12 May 2004 14:07:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Valdis.Kletnieks@vt.edu, davidel@xmailserver.org, jgarzik@pobox.com,
+       greg@kroah.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+Message-Id: <20040512140729.476ace9e.akpm@osdl.org>
+In-Reply-To: <20040512205028.GA18806@elte.hu>
+References: <20040512020700.6f6aa61f.akpm@osdl.org>
+	<20040512181903.GG13421@kroah.com>
+	<40A26FFA.4030701@pobox.com>
+	<20040512193349.GA14936@elte.hu>
+	<200405121947.i4CJlJm5029666@turing-police.cc.vt.edu>
+	<Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com>
+	<200405122007.i4CK7GPQ020444@turing-police.cc.vt.edu>
+	<20040512202807.GA16849@elte.hu>
+	<20040512203500.GA17999@elte.hu>
+	<20040512205028.GA18806@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c7u1js$1h2$1@terminus.zytor.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 08:31:56PM +0000, H. Peter Anvin wrote:
-> Followup to:  <1084369416.16624.53.camel@imp.csi.cam.ac.uk>
-> By author:    Anton Altaparmakov <aia21@cam.ac.uk>
-> In newsgroup: linux.dev.kernel
-> >
-> > Hi Andi, Andrew, Linus,
-> > 
-> > x86_64 has incorrect include/asm-x86_64/bitops.h::ffs() implementation. 
-> > It uses "g" instead of "rm" in the insline assembled bsfl instruction. 
-> > (This was spotted by Yuri Per.)
-> > 
-> > bsfl does not accept constant values but only memory ones.  On i386 the
-> > correct "rm" is used.
-> > 
-> > This causes NTFS build to fail as gcc optimizes a variable into a
-> > constant and ffs() then fails to assemble.
-> > 
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> yet another patch - this time it's: complete, covers irda, accelerates
+>  HZ=100, unifies the slightly differing namespaces and compiles/boots as
+>  well.
 > 
-> Of course, this is a good reason to do a __builtin_constant_p()
-> wrapper that gcc can optimize:
+> ...
 > 
-> static __inline__ __attribute_const__ int ffs(int x)
-> {  
-> 	if ( __builtin_constant_p(x) ) {
-> 		unsigned int y = (unsigned int)x;
-> 		if ( y >= 0x80000000 )
-> 			return 32;
-> 		else if ( y >= 0x40000000 )
-> 			return 31;
-> 		else if /* ... you get the idea ... */
+> [hz-cleanup-2.6.6-A2  text/plain (2657 bytes)]
 
-Either I'm asleep or you are emulating bsrl, not bsfl. It
-should rather be:
+This doesn't have the little round up which some implementations had, so
+someone who tries to sleep for 9 millisscondes on a 100HZ box may end up in
+a busywait.  Looks risky.
 
-	if ( y & 0x00000001) return 1;
-	if ( y & 0x00000002) return 2;
-	if ( y & 0x00000004) return 3;
-	...
-	if ( y & 0x80000000) return 32;
-	return 0;
+The SCTP version looks like it'll generate awful code, so let's not use
+that.
 
-No need for the else clauses either because of the return.
-But maybe even __builtin_ffs(y) would work in this case.
-
-	Gabriel

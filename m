@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272345AbRHXX7G>; Fri, 24 Aug 2001 19:59:06 -0400
+	id <S272347AbRHXX70>; Fri, 24 Aug 2001 19:59:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272347AbRHXX65>; Fri, 24 Aug 2001 19:58:57 -0400
-Received: from web10908.mail.yahoo.com ([216.136.131.44]:33296 "HELO
-	web10908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272345AbRHXX6m>; Fri, 24 Aug 2001 19:58:42 -0400
-Message-ID: <20010824235858.59972.qmail@web10908.mail.yahoo.com>
-Date: Fri, 24 Aug 2001 16:58:58 -0700 (PDT)
+	id <S272348AbRHXX7R>; Fri, 24 Aug 2001 19:59:17 -0400
+Received: from web10902.mail.yahoo.com ([216.136.131.38]:49414 "HELO
+	web10902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S272347AbRHXX7L>; Fri, 24 Aug 2001 19:59:11 -0400
+Message-ID: <20010824235927.65425.qmail@web10902.mail.yahoo.com>
+Date: Fri, 24 Aug 2001 16:59:27 -0700 (PDT)
 From: Brad Chapman <kakadu_croc@yahoo.com>
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
 To: Ben LaHaise <bcrl@redhat.com>
@@ -48,7 +48,7 @@ several ways to wire this up:
 	  (this may be too complex and is probably :P)
 
 	- make min()/max() inline functions, cast things to void, and use memcmp()
-	  (this might almost be reasonable, but is probably also :P)
+	  (this sounds reasonable, but is probably also :P)
 
 	- stay with the old-style macros (:P, :P, :P)
 

@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265181AbUEVDgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265178AbUEVDkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265181AbUEVDgT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 23:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUEVDgS
+	id S265178AbUEVDkP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 23:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUEVDkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 23:36:18 -0400
-Received: from mx.style.net ([209.246.126.82]:53721 "EHLO style.net")
-	by vger.kernel.org with ESMTP id S265181AbUEVDfs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 23:35:48 -0400
-From: "Spinka, Kristofer" <kspinka@style.net>
-To: <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Unserializing ioctl() system calls
-Date: Fri, 21 May 2004 20:35:55 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcQ/qAmFRornc78qSgyUYI0X2xBvZAABXR/w
-In-Reply-To: <20040522025400.GU17014@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <auto-000001650065@style.net>
+	Fri, 21 May 2004 23:40:15 -0400
+Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:59909 "EHLO
+	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
+	id S265178AbUEVDkL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 23:40:11 -0400
+Date: Fri, 21 May 2004 23:40:03 -0400
+To: Andreas Amann <amann@physik.tu-berlin.de>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6 breaks kmail (nfs related?)
+Message-ID: <20040522034003.GA6415@fieldses.org>
+References: <200405131411.52336.amann@physik.tu-berlin.de> <200405171331.35688.amann@physik.tu-berlin.de> <1084809309.3669.17.camel@lade.trondhjem.org> <200405211727.14917.amann@physik.tu-berlin.de> <1085157602.3666.70.camel@lade.trondhjem.org> <20040521230545.GA787@bill.physik.tu-berlin.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040521230545.GA787@bill.physik.tu-berlin.de>
+User-Agent: Mutt/1.5.6i
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It doesn't necessarily have to be a flag on a driver, just an example.
-
-I was more interested in a transitional interface to wean current
-modules/code off of any BKL expectations during an ioctl.
-
-Why should the kernel take out the BKL for the module during an ioctl?  Does
-the kernel know how long this request might take?
-
-  /kristofer
-
------Original Message-----
-From: viro@www.linux.org.uk [mailto:viro@www.linux.org.uk] On Behalf Of
-viro@parcelfarce.linux.theplanet.co.uk
-Sent: Friday, May 21, 2004 7:54 PM
-To: Spinka, Kristofer
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unserializing ioctl() system calls
-
-On Fri, May 21, 2004 at 10:46:45PM -0400, Spinka, Kristofer wrote:
-> I noticed that even in the 2.6.6 code, callers to ioctl 
-> system call (sys_ioctl in fs/ioctl.c) are serialized with 
-> {lock,unlock}_kernel().
+On Sat, May 22, 2004 at 01:05:45AM +0200, Andreas Amann wrote:
+> On Fri, May 21, 2004 at 12:40:02PM -0400, Trond Myklebust wrote:
+> > 
+> > Hmm... It looks to me as if you are exporting that filesystem with the
+> > "subtree_check" option enabled. Could you try to set "no_subtree_check"?
 > 
-> I realize that many kernel modules, and POSIX for that 
-> matter, may not be ready to make this more concurrent.
-> 
-> I propose adding a flag to indicate that the underlying 
-> module would like to support its own concurrency 
-> management, and thus we avoid grabbing the BKL around the 
-> f_op->ioctl call.
-> 
-> The default behavior would adhere to existing standards, 
-> and if the flag is present (in the underlying module), we 
-> let the module (or modules) handle it.
-> 
-> Reasonable?
+> Thanks for that one, with "no_subtree_check" the problem disappears!
+> What is the disadvantage of this option?
 
-No.  Flags on drivers are never a good idea.  What's more, if somebody
-wants that shit parallelized they can always drop BKL upon entry and
-reacquire on exit from their ->ioctl().
+With "no_subtree_check" the server will not attempt to verify that a
+given filehandle points to a file that is beneath an exported directory;
+thus an attacker can guess filehandles of files not beneath any exported
+directory and use those guessed filehandles to acces files you didn't
+mean to export.
 
+Even with "no_subtree_check", the server can still recognize which
+filesystem a filehandle belongs to; so you're only in trouble if you
+have files you don't want exported on the same partition as files you do
+want exported.
+
+See "man exports" for more.
+
+--Bruce Fields

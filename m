@@ -1,87 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270501AbTGXGZx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 02:25:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271101AbTGXGZx
+	id S271112AbTGXG4x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 02:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271113AbTGXG4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 02:25:53 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:18160 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S270501AbTGXGZj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 02:25:39 -0400
-content-class: urn:content-classes:message
+	Thu, 24 Jul 2003 02:56:52 -0400
+Received: from soft.uni-linz.ac.at ([140.78.95.99]:26623 "EHLO
+	zeus.soft.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id S271112AbTGXG4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 02:56:52 -0400
+Message-ID: <3F1F86A9.8010909@gibraltar.at>
+Date: Thu, 24 Jul 2003 09:11:37 +0200
+From: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: de-at, de-de, en-gb, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [IPSEC] proposal for PMTU handling in IPSec for IPv4
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Date: Thu, 24 Jul 2003 14:40:43 +0800
-Message-ID: <3AA03342E913FA4BA6D8BD0732BFC74B020F44BB@pdsmsx402.pd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [IPSEC] proposal for PMTU handling in IPSec for IPv4
-Thread-Index: AcNQV8psKtgUJeh8TGql03EiJzCAjgBUIEsQ
-From: "Zhao, Forrest" <forrest.zhao@intel.com>
-To: <kuznet@ms2.inr.ac.ru>
-Cc: "David S. Miller" <davem@redhat.com>,
-       "linux-net" <linux-net@vger.kernel.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 Jul 2003 06:40:43.0554 (UTC) FILETIME=[81837020:01C351AE]
+To: Jason Baron <jbaron@redhat.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>,
+       vda@port.imtp.ilyichevsk.odessa.ua,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root seems to be broken in 2.4.21-ac4 and 2.4.22-pre7
+References: <Pine.LNX.4.44.0307232136370.8637-100000@dhcp64-178.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0307232136370.8637-100000@dhcp64-178.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Alexey
+Jason Baron wrote:
+> right. so the semantics of how file tables are shared has changed a bit. I
+> would think that for at least 'init', it'd be nice to preserve the
+> original behavior, for situations such as you described. Something like
+> the following would probably work, although i havent' tried the test
+> script.
+> 
+> --- linux/kernel/fork.c.orig  2003-07-23 21:34:59.000000000 -0400
+> +++ linux/kernel/fork.c       2003-07-23 21:35:45.000000000 -0400
+> @@ -558,7 +558,7 @@ int unshare_files(void)
+>  
+>         /* This can race but the race causes us to copy when we don't
+>            need to and drop the copy */
+> -       if(atomic_read(&files->count) == 1)
+> +       if(atomic_read(&files->count) == 1 || (current->pid == 1))
+>         {
+>                 atomic_inc(&files->count);
+>                 return 0;
 
-Thanks for your reply!
+Thanks for the hint ! I will try that in the evening. Any chance that 
+this will be in 2.4.22 final ?
 
-> 3 Every time the source output the data packet, it should check each
-SA
-> associated with the specific secure policy. If it find any one
-> xfrm_state has the meaningful pmtu value, then it should calculate the
-> resulting PMTU and send  <<ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED>>
-message
-> to the real source in the secure policy selector. This checking point
-> should be in function: dst_output();.
-
-I am not so sure about this.
-
-First (and a bit different) thing: pmtus of SAs should be taken into
-account when we calculate dst->pmtu. So, each pmtu event should cause
-recalculation of dst->pmtu on the bundle. It is necessary, when
-tunnel is used for locally generated packets, we should prepare
-good frames which will not fail while being transformed.
-
-I think I must have overlooked something, but I can't figure out why it
-is necessary to recalculate dst->pmtu on the bundle when each pmtu event
-occurs. What's the special aspects related with dealing with locally
-tunneled packets? Thank you very much for your detailed explanation.
-
-The second thing is painful. We have to send icmp for original packet
-as it entered our host. So, pmtu checks at each trnasformations is
-not so easy. There are two variants: one was suggested by Dave,
-namely, we store required 8 octets of original skb somewhere in skb head
-and proceed like you proposed, checking that transformed skb still fits
-to pmtu. The second variant is just to check against precaluclated
-dst->pmtu on the entry to dst_output() before doing transformations.
-Logically it is cleaner, it is simpler and faster, but it will result
-in underestimation of mtu for esp due to alignment paddings and for
-IPCOMP it will be totally unfair.
-
-Actually, it was the point where Dave, James and me stopped.
-Dave's variant looks more promising.
-
-I agree with you and vote for Dave's variant! I omitted the alignment
-padding issues previously.
-
-Then since Dave's variant is a good solution for handling PMTU in IPsec
-for IPv4, do you think it's appropriate if I write some patches for it
-now? Is there any other tricky issue to be resolved for handling PMTU in
-IPsec for IPv4 until now?
+best regards,
+Rene
 
 
 
-
-Thanks,
-Forrest

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTFDFJj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 01:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262856AbTFDFJj
+	id S262856AbTFDFKz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 01:10:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTFDFKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 01:09:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30421 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262855AbTFDFJh (ORCPT
+	Wed, 4 Jun 2003 01:10:55 -0400
+Received: from [204.94.215.101] ([204.94.215.101]:31166 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262856AbTFDFKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 01:09:37 -0400
-Date: Tue, 03 Jun 2003 22:18:27 -0700 (PDT)
-Message-Id: <20030603.221827.38683645.davem@redhat.com>
-To: herbert@gondor.apana.org.au
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: esp name conflict with drivers/char/esp.c
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030603114050.GA32065@gondor.apana.org.au>
-References: <20030603114050.GA32065@gondor.apana.org.au>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 4 Jun 2003 01:10:53 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Chuck Harding <charding@llnl.gov>
+Cc: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: Subject: Unresolved symbols from 'make modules_install' 
+In-reply-to: Your message of "Tue, 03 Jun 2003 10:27:05 MST."
+             <Pine.LNX.4.55.0306031017070.9083@ghostwheel.llnl.gov> 
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 04 Jun 2003 15:24:01 +1000
+Message-ID: <1982.1054704241@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Herbert Xu <herbert@gondor.apana.org.au>
-   Date: Tue, 3 Jun 2003 21:40:50 +1000
-   
-   So one of them's got to be renamed.  Do you have a preference as to
-   which way to go?
+On Tue, 3 Jun 2003 10:27:05 -0700 (PDT), 
+Chuck Harding <charding@llnl.gov> wrote:
+>with no errors, when I run the 'make modules_install' I get a bunch
+>of occurrances of unresolved symbol errors from 'depmod -ae -F System.map 2.x.x'
+>most of which are for what appear to be core functions that the
+>modules would need (output is attached
 
-I've renamed {esp,ah}.c to {esp4,ah4}.c, plus necessary Makefile
-changes, in my tree(s).
+You did not include any output from make modules_install.
 
-Thanks.
+>as is my .config
+
+.config is from a 2.5 kernel, not 2.4.
+

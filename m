@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265693AbUBKTbD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 14:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbUBKTbC
+	id S265719AbUBKTl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 14:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265728AbUBKTl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 14:31:02 -0500
-Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:34043 "EHLO
-	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S265693AbUBKTay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 14:30:54 -0500
-Message-ID: <402A82EB.6010405@earthlink.net>
-Date: Wed, 11 Feb 2004 14:30:51 -0500
-From: Stephen Clark <stephen.clark@earthlink.net>
-Reply-To: sclark46@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: spontaneous reboots 2.6
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Feb 2004 14:41:28 -0500
+Received: from hera.kernel.org ([63.209.29.2]:51615 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265719AbUBKTlW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 14:41:22 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: printk and long long
+Date: Wed, 11 Feb 2004 19:41:15 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0e0gr$mcv$1@terminus.zytor.com>
+References: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.44.0402111655170.17933-100000@gaia.cela.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1076528475 22944 63.209.29.3 (11 Feb 2004 19:41:15 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Wed, 11 Feb 2004 19:41:15 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gentle people,
+Followup to:  <Pine.LNX.4.44.0402111655170.17933-100000@gaia.cela.pl>
+By author:    Maciej Zenczykowski <maze@cela.pl>
+In newsgroup: linux.dev.kernel
+>
+> On Wed, 11 Feb 2004, vda wrote:
+> 
+> > The character L specifying that a following e, E, f, g, or G
+> > conversion corresponds to a long double argument, or a following
+> > d, i, o, u, x, or X conversion corresponds to a long long argument.
+> > Note that long long is not specified in ANSI C and therefore
+> > not portable to all architectures.
+> 
+> [ personally I'd say screw the un-portable architectures ;) ]
+> Long long is here to stay.
 
-Since 2.6.2-rc1 on Jan 26 thru 2.6.2-mm1 I have had 5 occasions where my 
-system rebooted, nothing shows up in the system log. I had been using 
-2.4.20 without ever having had this happen.
+long long is C99, so it's *definitely* here to say.  The conversion specifier
+is "ll" not "L", however.
 
-Anybody have any ideas or additional information I can provide?
+> Besides if a linux architecture utilises long long in the kernel and 
+> doesn't support it in printf via %lld then it's horked.
+> printf/libc should be fixed instead.
+> Maybe that's the problem - the libc support fragment in the kernel tree is 
+> not up to date on that architecture - maybe the fixes should applied there 
+> instead - instead of trying to work around the problem, fix the cause.
 
-Hardware:
-00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo 
-KT266/A/333 AGP]
-00:08.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
-Capture (rev 02)
-00:08.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
-(rev 02)
-00:09.0 Ethernet controller: Linksys Network Everywhere Fast Ethernet 
-10/100 model NC100 (rev 11)
-00:0a.0 Ethernet controller: Linksys Network Everywhere Fast Ethernet 
-10/100 model NC100 (rev 11)
-00:0b.0 SCSI storage controller: BusLogic BT-946C (BA80C30) [MultiMaster 
-10] (rev 08)
-00:0d.0 Unknown mass storage controller: Promise Technology, Inc. 20265 
-(rev 02)
-00:0e.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
-Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. USB (rev 1b)
-00:11.3 USB Controller: VIA Technologies, Inc. USB (rev 1b)
-00:11.4 USB Controller: VIA Technologies, Inc. USB (rev 1b)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] 
-(rev 70)
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF/SG AGP
+Indeed.  Feel free to steal the code from klibc :)
 
+	-hpa
+-- 
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

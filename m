@@ -1,47 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRGWWzN>; Mon, 23 Jul 2001 18:55:13 -0400
+	id <S264244AbRGWXDn>; Mon, 23 Jul 2001 19:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264345AbRGWWzD>; Mon, 23 Jul 2001 18:55:03 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:47119 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264329AbRGWWy5>; Mon, 23 Jul 2001 18:54:57 -0400
-Date: Mon, 23 Jul 2001 15:53:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-In-Reply-To: <3B5C8C96.FE53F5BA@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.33.0107231552000.7916-100000@penguin.transmeta.com>
+	id <S264345AbRGWXDe>; Mon, 23 Jul 2001 19:03:34 -0400
+Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:39625 "EHLO
+	bassia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S264244AbRGWXDT>; Mon, 23 Jul 2001 19:03:19 -0400
+Message-ID: <3B5CADD7.7C7C8337@wanadoo.fr>
+Date: Tue, 24 Jul 2001 01:05:59 +0200
+From: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
+Organization: CoolSite
+X-Mailer: Mozilla 4.74 [fr] (X11; U; Linux 2.4.4-sb i686)
+X-Accept-Language: French, fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+        linux-fsdev@vger.kernel.org, martizab@libertsurf.fr,
+        rusty@rustcorp.com.au
+Subject: Re: Yet another linux filesytem: with version control
+In-Reply-To: <Pine.LNX.4.33L.0107231925040.20326-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Rik van Riel a écrit :
+> 
+> On Tue, 24 Jul 2001, Jerome de Vivie wrote:
+> > Rik van Riel a écrit :
+> > > On Mon, 23 Jul 2001, Larry McVoy wrote:
+> > >
+> > > > b) Filesystem support for SCM is really a flawed approach.
+> > >
+> > > Agreed.  I mean, how can you cleanly group changesets and
+> > > versions with a filesystem level "transparent" SCM ?
+> >
+> > With label !
+> >
+> > In my initial post, i have explain that labels are used to
+> > identify individual files AND are also uses to select for
+> > each files of a set, one version (= select a configuration).
+> > It works !
+> 
+> Hmmmm, so it's not completely transparent. Good.
 
-On Mon, 23 Jul 2001, Chris Friesen wrote:
->
-> If I understand correctly, xtime is updated asynchronously.  If it isn't, then
-> ignore this message totally.  However, if it is, then *not* specifying it as
-> volatile could easily cause problems in technically correct but poorly written
-> code.
+You only set a global variable to select on which configuration
+you want to work. You can't do it simplier Rik: everything else 
+is transparent: read, write, ... !
 
-Yes.
+> 
+> Now if you want to make this kernel-accessible, why
+> not make a userland NFS daemon which uses something
+> like bitkeeper or PRCS as its backend ?
+> 
+> The system would then look like this:
+> 
+>  _____    _______    _____    _____
+> |     |  |       |  |     |  |     |
+> | SCM |--| UNFSD |--| NET |--| NFS |
+> |_____|  |_______|  |_____|  |_____|
 
-Adding "volatile" often helps poorly written code.
+Your architecture is too complex for me.
 
-In fact, the one AND ONLY reason to add volatile to data structures is in
-fact poorly written code.
+> 
+> And there, you have a transparent SCM filesystem
+> that works over the network ... without ever having
+> to modify the kernel or implement SCM.
+> 
 
-Now, think about that for a minute, and maybe you'll understand why I
-don't want more volatiles in the kernel.
 
-		Linus
+I can't do it outside the kernel. There is one important 
+feature i have mention: I would like to mix file from the 
+"base" filesystem and files which are managed under 
+configuration. Why is this feature really important ? 
+Because in the product, there are two kind of files:
+-source (leaf on the dependency tree)
+-and generated files.
+As you know in SCM, generated files are not identify by version 
+number, but by a configuration (a set with one version for each 
+dependencies). So, there is no need to manage all objects of a 
+partition under version control.
 
-PS. This has come up before. The old pre-Alan networking code had
-"volatile" on just about every single network data structure. Every damn
-single one of them was a bug. Without exception.
 
+j.
+
+-- 
+Jerome de Vivie 	jerome . de - vivie @ wanadoo . fr

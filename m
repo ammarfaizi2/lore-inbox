@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbTDNU41 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbTDNU41 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:56:27 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:4105 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263769AbTDNU40 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:56:26 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: 2.5 'what to expect' document.
-Date: Mon, 14 Apr 2003 23:08:03 +0200
-User-Agent: KMail/1.5
-References: <20030414193138.GA24870@suse.de>
-In-Reply-To: <20030414193138.GA24870@suse.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S263787AbTDNU5k (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbTDNU5k (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:57:40 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:963 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S263787AbTDNU5i (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:57:38 -0400
+Date: Mon, 14 Apr 2003 22:08:59 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUGed to death
+Message-ID: <20030414210856.GA10688@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@digeo.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <80690000.1050351598@flay> <20030414210006.GA7831@suse.de> <92940000.1050353740@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304142308.03553.fsdeveloper@yahoo.de>
+In-Reply-To: <92940000.1050353740@flay>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 April 2003 21:31, Dave Jones wrote:
-> Extra tainting.
-> ~~~~~~~~~~~~~~~
-> Running certain AMD processors in SMP boxes is out of spec, and will taint
-> the kernel with the 'S' flag.  Running 2 Athlon XPs for example may seem to
-> work fine, but may also introduce difficult to pin down bugs.
-> In time it's likely this tainting will be extended to cover other out of
-> spec cases.
+On Mon, Apr 14, 2003 at 01:55:40PM -0700, Martin J. Bligh wrote:
 
-Will it be implemented in future to taint the kernel if CPU is overclocked?
+ > True - however I should have included some more info ... Andrew worked
+ > out that some of the hottest ones lead to a null ptr dereference
+ > immediately afterwards anyways, so they're actually pointless.
 
--- 
-Regards Michael Buesch.
-http://www.8ung.at/tuxsoft
+Erk, that doesn't sound good. Example ?
 
-$ cat /dev/zero > /dev/null
-/dev/null: That's *not* funny! :(
+		Dave
 

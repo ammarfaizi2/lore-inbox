@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284927AbRLZUv0>; Wed, 26 Dec 2001 15:51:26 -0500
+	id <S284945AbRLZUzq>; Wed, 26 Dec 2001 15:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284924AbRLZUvR>; Wed, 26 Dec 2001 15:51:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61452 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284899AbRLZUu7>; Wed, 26 Dec 2001 15:50:59 -0500
-Subject: Re: Unusual Stacksize Question
-To: calin@ajvar.org (Calin A. Culianu)
-Date: Wed, 26 Dec 2001 21:01:17 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0112261534370.21850-100000@rtlab.med.cornell.edu> from "Calin A. Culianu" at Dec 26, 2001 03:46:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284944AbRLZUzh>; Wed, 26 Dec 2001 15:55:37 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56586 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284924AbRLZUzR>; Wed, 26 Dec 2001 15:55:17 -0500
+Date: Wed, 26 Dec 2001 17:40:57 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17: Dell Laptop extra buttons patch (fwd)
+In-Reply-To: <20011226135338.B782@lynx.no>
+Message-ID: <Pine.LNX.4.21.0112261740420.9973-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JLAs-00035Q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> coredump.  I used setrlimit() to set the stacksize limit to infinity.  No
-> more core dumps.  But guess what?  Like half the time I now get a kernel
-> panic screen dump and the system immediately hangs...  I should think that
-> really, as long as you have enough memory, both real and imagined (I made
-> that term up too), nothing too bad can happen beyond a coredump maybe.
 
-Core dumps if you have it too large I can believe. A kernel panic is
-somewhat more worrying, but some bugs in exec validation did get fixed.
-If you can make the 7.1 errata kernel oops as well I'm very interested
-indeed.
+
+On Wed, 26 Dec 2001, Andreas Dilger wrote:
+
+> On Dec 26, 2001  17:11 -0200, Marcelo Tosatti wrote:
+> > Could someone with Dell laptops test this for me ?
+> 
+> I don't have a Dell laptop, but AFAIK in the past patches like this have
+> been rejected by Andries Brouwer (I think) because it is possible to do
+> this from user space with key mapping tools like setkeycodes, xkeycaps,
+> or xmodmap.
+
+Yes, right. Alan just told me the same.
+
+Thanks
 

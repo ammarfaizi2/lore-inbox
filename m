@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTDLPci (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 11:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263320AbTDLPci (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 11:32:38 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34987
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263319AbTDLPch (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 11:32:37 -0400
-Subject: Re: [ANNOUNCE] udev 0.1 release
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Dake <sdake@mvista.com>
-Cc: Greg KH <greg@kroah.com>, "Kevin P. Fleming" <kpfleming@cox.net>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       message-bus-list@redhat.com
-In-Reply-To: <3E9741FD.4080007@mvista.com>
-References: <20030411172011.GA1821@kroah.com>
-	 <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
-	 <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net>
-	 <3E9725C5.3090503@mvista.com> <20030411204329.GT1821@kroah.com>
-	 <3E9741FD.4080007@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050158747.16011.42.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 Apr 2003 15:45:48 +0100
+	id S263320AbTDLPrj (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 11:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263321AbTDLPrj (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 11:47:39 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:39814
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S263320AbTDLPri (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 11:47:38 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix cond_syscall macro on Alpha
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 12 Apr 2003 18:00:22 +0200
+Message-ID: <yw1x1y07wvs9.fsf@zaphod.guide>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-04-11 at 23:30, Steven Dake wrote:
-> There is no "spec" that states this is a requirement, however, telecom 
-> customers require the elapsed time from the time they request the disk 
-> to be used, to the disk being usable by the operating system to be 20 msec.
 
-That will be amusing. It takes 30 seconds for an IDE disk to go from
-poweroff to online.  If its decided to have a quick powersaving nap
-it'll take you longer than that too
+This patch fixes the cond_syscall macro that was broken in 2.5.67.
+The patch is against vanilla 2.5.67.
+
+--- include/asm-alpha/unistd.h~	Mon Apr  7 19:31:08 2003
++++ include/asm-alpha/unistd.h	Sat Apr 12 17:55:03 2003
+@@ -612,6 +612,6 @@
+  * What we want is __attribute__((weak,alias("sys_ni_syscall"))),
+  * but it doesn't work on all toolchains, so we just do it by hand
+  */
+-#define cond_syscall(x) asmlinkage long x(void) __attribute__((weak,alias("sys_ni_syscall")));
++#define cond_syscall(x) asm("\t.weak\t" #x "\n" #x " = sys_ni_syscall");
+ 
+ #endif /* _ALPHA_UNISTD_H */
 
 
+-- 
+Måns Rullgård
+mru@users.sf.net

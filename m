@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbUCCWyU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 17:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUCCWyU
+	id S261221AbUCCW4y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 17:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUCCW4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 17:54:20 -0500
-Received: from gprs40-129.eurotel.cz ([160.218.40.129]:32306 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261220AbUCCWyS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 17:54:18 -0500
-Date: Wed, 3 Mar 2004 23:54:05 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@redhat.com>,
-       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
-       paul.devriendt@amd.com
-Subject: Re: powernow-k8-acpi driver
-Message-ID: <20040303225405.GF222@elf.ucw.cz>
-References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com>
+	Wed, 3 Mar 2004 17:56:53 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:25085 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261221AbUCCW4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 17:56:52 -0500
+Subject: Re: [Kgdb-bugreport] [KGDB PATCH][1/7] Add / use
+	kernel/Kconfig.kgdb
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: George Anzinger <george@mvista.com>
+Cc: amitkale@emsyssoft.com, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1078354486.1824.363.camel@new.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303224841.GB16874@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 03 Mar 2004 17:54:46 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->  > We could make that functionality depend on CONFIG_ACPI, and allow
->  > runtime selection only if its defined... But those two drivers are
->  > pretty different just now and acpi-dependend chunk is pretty big. (It
->  > does funny stuff like polling for AC plug removal if we are in
->  > high-power state  and battery would not handle that. Old driver simply
->  > refused to use high-power states on such machines.)
+> Meanwhile, I would like to make a change to the gdb "info thread"
+> command to do a better job of displaying the threads.  Here is what
+> I am proposing:
 > 
-> you're aware of Dominik/Bruno's work on the 'acpilib'[1] stuff in this
-> area right ? We'll need that anyway for Powernow-k7 and maybe longhaul too
-> and its senseless duplicating this code.
+> Gdb would work as it does now if the following set is not done.
+> 
+> A new "set thread_level" command that would take the "bt" level to use
+> on the thread display.
+> A new "set thread_limits command that would take two expressions that
+> would reduce to two memory addresses.
 
-That [1] looks like promise of url, but I don't see that url.
+Hi George,
 
-> One thing is bugging me though. Whats wrong with the ACPI P-state cpufreq
-> driver ? Does that not work these days ? It's been a long time since I
-> even looked at it.
+I already did a bit of work in this space.  You might give my 
+gdb-thread-skip-frame.patch a try.  
 
-No idea.
-								Pavel
+You can find it archived here:
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/gdb/gdb-6.0/gdb-thread-skip-frame.patch
+
+Jim Houston
+

@@ -1,61 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289307AbSBNBal>; Wed, 13 Feb 2002 20:30:41 -0500
+	id <S289313AbSBNBev>; Wed, 13 Feb 2002 20:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289313AbSBNBaW>; Wed, 13 Feb 2002 20:30:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17156 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289307AbSBNBaI>;
-	Wed, 13 Feb 2002 20:30:08 -0500
-Message-ID: <3C6B12E4.E3BC9881@zip.com.au>
-Date: Wed, 13 Feb 2002 17:29:08 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9-ac2 i686)
-X-Accept-Language: en
+	id <S289317AbSBNBem>; Wed, 13 Feb 2002 20:34:42 -0500
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:37106 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S289313AbSBNBec>; Wed, 13 Feb 2002 20:34:32 -0500
+Message-ID: <3C6B1328.3060506@drugphish.ch>
+Date: Thu, 14 Feb 2002 02:30:16 +0100
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020126
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sys_sync livelock fix
-In-Reply-To: <Pine.LNX.3.96.1020213170030.12448F-100000@gatekeeper.tmr.com> <E16bA59-0002Qa-00@starship.berlin> <3C6B0A70.D11DFC2A@zip.com.au>,
-		<3C6B0A70.D11DFC2A@zip.com.au> <E16bAgV-0002R2-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Improved ksymoops output
+In-Reply-To: <200202130805.g1D85st16817@Port.imtp.ilyichevsk.odessa.ua> <3C6A3C26.4050908@drugphish.ch> <200202131223.g1DCN5t17824@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+Hi,
+
+[reduced cc list, since I don't think the rest of the guys are 
+interested in non-kernel related things]
+
+> As already pointed out, format is horrendous, but prettier format
+> requires much more serious hacking in ksymoops sources instead of my
+> quick and very dirty tricks.
+
+Yep, I see. After rethinking about this I have to agree with Russell. 
+And I mean you still can't educate people to read FAQ's and manuals. 
+Even with your output people that have no knowledge about this output 
+will the things you mentioned as rationale. If one sees your inital oops 
+where the hell does he get the information about calling your scripts 
+without reading some document you must be providing. Well, and if he 
+needs to read your docu he can as well read oops-tracing.txt. This is my 
+little world, YMMV.
+
+>>o run faster (5%) ;)
+>>o should never have problems when one day there will be a lot of *.c
+>>   files. In your approach LIST could someday not hold all entries
+>>   anymore.
+>>
 > 
-> On February 14, 2002 01:53 am, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > >
-> > > What's the theory behind writing the data both before and after the commit?
-> >
-> > see fsync_dev().  It starts I/O against existing dirty data, then
-> > does various fs-level syncy things which can produce more dirty
-> > data - this is where ext3 runs its commit, via brilliant reverse
-> > engineering of its calling context :-(.
+>>o simplifies the bash 'regexp' to snip away the '.c' and print the rest
+>>
 > 
-> OK, so it sounds like cleaning that up with an ext3-specific super->sync would
-> be cleaner for what it's worth, and save a little cpu.
+> Hmm... is it faster than original?
 
-Oh, having a filesystem sync entry point is much more than
-a little cleanup.  It's quite important.  In current kernels
-the same code path is used for both sync() and for periodic
-kupdate writeback.  It's not possible for the filesystem
-to know which context it's being called in, and we do want
-different behaviour.
+I would say so, "b=${a%.*}" is always faster and legible than
+                 "l=$((${#a}-2)); b=${a:0:$l}"
+in the way it is used in your script.
 
-We want the sys_sync() path to wait on writeout, but it's
-silly to make the kupdate path do that.
+Maybe not easily measurable but it seems obvious to me and is easier to 
+read and overall time reported less time used for the whole script to 
+run. ;)
 
+And the second tiny cleanup regarding regexp was to use "${a:2}" instead 
+of "${a:2:9999}". It should be an improvement too, if I remember the 
+bash source correctly. But this is senseless nitpicking. The real speed 
+improvement you get by avoiding the "LIST=`find -name '*.c' | xargs`".
 
-> > It then again starts I/O against new dirty data then waits on it again.  And
-> > then again.  There's quite a lot of overkill there.  But that's OK, as long
-> > as it terminates sometime.
+>>I'm propably going to rewrite the python script in bash too, since I
+>>don't run python on my distro (and I do not intend to use 2.5.x anytime
+>>soon).
+>>
 > 
-> /me doesn't comment
+> Care to show the result to me?
 
-That's odd.
+Well, if there is a real interest from other parties, I will definitely 
+spend some time to do it. OTOH, bash's regexp handling isn't as strong 
+as python's AFAICS so it might be a pain in the ass to do it but this is 
+getting off-topic.
 
--
+Best regards,
+Roberto Nibali, ratz
 
-:)

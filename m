@@ -1,71 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277047AbRJQSlD>; Wed, 17 Oct 2001 14:41:03 -0400
+	id <S277034AbRJQSkx>; Wed, 17 Oct 2001 14:40:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277046AbRJQSkz>; Wed, 17 Oct 2001 14:40:55 -0400
-Received: from postfix2-2.free.fr ([213.228.0.140]:25774 "HELO
-	postfix2-2.free.fr") by vger.kernel.org with SMTP
-	id <S277047AbRJQSkm> convert rfc822-to-8bit; Wed, 17 Oct 2001 14:40:42 -0400
-Date: Wed, 17 Oct 2001 20:35:30 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Tim Hockin <thockin@sun.com>
-Cc: <groudier@club-internet.fr>, <alan@redhat.com>, <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] resubmitting sym53c8xx patches
-In-Reply-To: <3BCCE721.8A72910E@sun.com>
-Message-ID: <20011017201539.E1402-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S277046AbRJQSkg>; Wed, 17 Oct 2001 14:40:36 -0400
+Received: from kaa.perlsupport.com ([205.245.149.25]:16905 "EHLO
+	kaa.perlsupport.com") by vger.kernel.org with ESMTP
+	id <S277047AbRJQSkV>; Wed, 17 Oct 2001 14:40:21 -0400
+Date: Wed, 17 Oct 2001 11:40:46 -0700
+From: Chip Salzenberg <chip@pobox.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.13pre3: loop uses wrong type for blk_size[]
+Message-ID: <20011017114046.A3880@perlsupport.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ZPt4rx8FFjLCG7dd"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, 16 Oct 2001, Tim Hockin wrote:
+In 2.4.13pre3, the loop device was changed to use an array of unsigned
+long for its entry in blk_size[].  This is broken, because blk_size[]
+is of type 'int * []'.  A patch is attached which fixes this problem
+while still retaining the presumably intended behavior of working
+properly with large devices.
+-- 
+Chip Salzenberg               - a.k.a. -              <chip@pobox.com>
+ "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
 
-> All,
->
-> I've submitted this patch a few times, and had it OKed each time, but it
-> hasn't made it in.
->
-> it does:
-> * cleanup timer handling
-> * spin lock host list
-> * adds a reboot handler
-> * remove __init from a function called from a non __init (needed for reboot
-> handler)
->
->
-> Please apply this for the next 2.4.x.
-
-As long as the kernel does not look trustable to me, I avoid to send
-driver changes that are not absolutely needed. Doing so just makes user
-suspect the driver for any breakage that occurs after driver changes and
-this wastes my time for no valuable reasons.
-
-About your proposal, it has not been NOKed, but it is not the way I would
-have implemented it. By the way, I already have cleaned up the module
-timer killing ins sym-2.1.15 driver (easily back-portable to sym53c8xx).
-You may look at it (ftp.tux.org) if you are interested in knowing how I
-would like it to have been done. For example, there are a couple of some
-_smart_ #if that allows to preserve kernel 2.2 compatibility with the same
-source. People who donnot like cpp should switch to Java in my opinion.
-Compiling lot of stuff like inlines that will not in fact be used is false
-cosmetic in my opinion.
-
-The reboot handler stuff is useless in my opinion and OTOH last time I
-looked in the kernel code related to reboot handler stuff it looks to me
-very incomplete. Useless stuff implies additionnal bugs that could have
-been avoided.
-
-I am not opposed to your patch and will not complain if it is applied to
-kernel 2.4. I just haven't time for submitting another patch quickly nor
-have time for following any breakage due to its new interactions with the
-kernel.
-
-Regards,
-  Gérard.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=pre3-loop-blksize-int-fix
 
 
+Index: linux/drivers/block/loop.c
+--- linux/drivers/block/loop.c.old	Tue Oct 16 23:28:20 2001
++++ linux/drivers/block/loop.c	Wed Oct 17 01:09:07 2001
+@@ -78,5 +78,5 @@
+ static int max_loop = 8;
+ static struct loop_device *loop_dev;
+-static unsigned long *loop_sizes;
++static int *loop_sizes;
+ static int *loop_blksizes;
+ static devfs_handle_t devfs_handle;      /*  For the directory */
+@@ -152,5 +152,5 @@
+ #define MAX_DISK_SIZE 1024*1024*1024
+ 
+-static unsigned long compute_loop_size(struct loop_device *lo, struct dentry * lo_dentry, kdev_t lodev)
++static int compute_loop_size(struct loop_device *lo, struct dentry * lo_dentry, kdev_t lodev)
+ {
+ 	if (S_ISREG(lo_dentry->d_inode->i_mode))
+@@ -877,5 +877,5 @@
+ 			break;
+ 		}
+-		err = put_user(loop_sizes[lo->lo_number] << 1, (unsigned long *) arg);
++		err = put_user((unsigned long)loop_sizes[lo->lo_number] << 1, (unsigned long *) arg);
+ 		break;
+ 	case BLKGETSIZE64:
+@@ -1019,5 +1019,5 @@
+ 		return -ENOMEM;
+ 
+-	loop_sizes = kmalloc(max_loop * sizeof(unsigned long), GFP_KERNEL);
++	loop_sizes = kmalloc(max_loop * sizeof(int), GFP_KERNEL);
+ 	if (!loop_sizes)
+ 		goto out_sizes;
+@@ -1039,5 +1039,5 @@
+ 	}
+ 
+-	memset(loop_sizes, 0, max_loop * sizeof(unsigned long));
++	memset(loop_sizes, 0, max_loop * sizeof(int));
+ 	memset(loop_blksizes, 0, max_loop * sizeof(int));
+ 	blk_size[MAJOR_NR] = loop_sizes;
+
+--ZPt4rx8FFjLCG7dd--

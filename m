@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281719AbRLLSC1>; Wed, 12 Dec 2001 13:02:27 -0500
+	id <S281780AbRLLSTL>; Wed, 12 Dec 2001 13:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281748AbRLLSCS>; Wed, 12 Dec 2001 13:02:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22543 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281735AbRLLSCJ>; Wed, 12 Dec 2001 13:02:09 -0500
-Subject: Re: Repost: ASUS APM Problem (ASUS L8400L & ASUS P2B-F)
-To: fridtjof@fbunet.de (Fridtjof Busse)
-Date: Wed, 12 Dec 2001 18:11:38 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20011212174754.5A2DA73D5E@merlin.fbunet.de> from "Fridtjof Busse" at Dec 12, 2001 06:47:54 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281762AbRLLSTB>; Wed, 12 Dec 2001 13:19:01 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:18960 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S281780AbRLLSSx>; Wed, 12 Dec 2001 13:18:53 -0500
+Date: Wed, 12 Dec 2001 19:18:48 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+X-X-Sender: <puw@cola.teststation.com>
+To: Petr Titera <P.Titera@century.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 4GB file size limit on SMBFS
+In-Reply-To: <3C175A07.6000505@century.cz>
+Message-ID: <Pine.LNX.4.33.0112121900510.4034-100000@cola.teststation.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16EDr0-0001vc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wednesday, 12. December 2001 16:59, Alan Cox wrote:
-> > > $ cat /proc/apm
-> > > 1.14 1.2 0x03 0x01 0xff 0x80 -1% -1 ?
-> > >                              ^^^^^^^^
-> >
-> > -1 is "unknown"
-> 
-> Is there any way to get this working?
+On Wed, 12 Dec 2001, Petr Titera wrote:
 
-It is working. The BIOS doesn't support that information.
+> Hello,
+> 
+> 	I tested patches from Urban Wildmark to give SMBFS LFS support and found, 
+> that limit on file size has only moved from 2GB to 4GB. Is this expected 
+> behaviour?
+
+I have never tested it vs a NT server with more than 3G of disc, but it's
+a 64bit offset so it should be a bit more ... I'll try and dig up a
+machine with more space to test with.
+
+It is possible that the readX/writeX SMB is used incorrectly and that
+while it does make the low 32 bits be unsigned the top 32 bits are set to
+0.
+
+But I have tested it with >4G files on samba servers and that seemed to
+work. You did patch smbmount too?
+
+/Urban
+

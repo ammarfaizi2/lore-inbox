@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267472AbUHJPjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267250AbUHJPkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267472AbUHJPjk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 11:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUHJPhD
+	id S267250AbUHJPkf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 11:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHJPkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 11:37:03 -0400
-Received: from jabberwock.ucw.cz ([81.31.5.130]:53473 "EHLO jabberwock.ucw.cz")
-	by vger.kernel.org with ESMTP id S267488AbUHJPg1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 11:36:27 -0400
-Date: Tue, 10 Aug 2004 17:36:10 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: dwmw2@infradead.org, James.Bottomley@steeleye.com,
-       alan@lxorguk.ukuu.org.uk, axboe@suse.de, eric@lammerts.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040810153610.GA19005@kam.mff.cuni.cz>
-References: <200408101515.i7AFFwGs014308@burner.fokus.fraunhofer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408101515.i7AFFwGs014308@burner.fokus.fraunhofer.de>
-User-Agent: Mutt/1.3.28i
+	Tue, 10 Aug 2004 11:40:35 -0400
+Received: from mail.appliedminds.com ([65.104.119.58]:48857 "EHLO
+	appliedminds.com") by vger.kernel.org with ESMTP id S267250AbUHJPkO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 11:40:14 -0400
+Message-ID: <4118EBEA.10809@appliedminds.com>
+Date: Tue, 10 Aug 2004 08:38:18 -0700
+From: James Lamanna <jamesl@appliedminds.com>
+User-Agent: Mozilla Thunderbird 0.6+ (X11/20040421)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sascha Wilde <wilde@sha-bang.de>
+CC: "David N. Welton" <davidw@eidetix.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+References: <auto-000000462036@appliedminds.com> <411735BD.3000303@eidetix.com> <20040810093734.GA1089@kenny.sha-bang.local>
+In-Reply-To: <20040810093734.GA1089@kenny.sha-bang.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Sascha Wilde wrote:
+> On Mon, Aug 09, 2004 at 10:28:45AM +0200, David N. Welton wrote:
+> 
 
-> As the people who did create the bastardized version of cdrecord
-> you are using did not make clear where the official defaults file
-> for cdrecord is located, they did violate the license of cdrecord.
+> 
+> Big question:  how was the initialisation of the PS/2 ports managed in
+> 2.4.x?  Ther seems to be no similar code to i8042.c in it[0], and all I
+> have found till now is a bunch ob obscure jump-rables in
+> arch/i386/kernel/setup.c ...
 
-What part of the license exactly?
+Look at drivers/char/pc_keyb.c
+That's where the 2.4.x initialization takes place it seems.
+It's pretty generic, but it looks like some of the commands are similar 
+in initialize_kbd() - constants are in include/linux/pc_keyb.h
 
-Also, if they modified the location of the file (which is reasonable
-if the default location doesn't conform to they filesystem layout),
-they should make clear where the _new_ location is, mentioning the
-original one is completely irrelevant.
+Pretty much all PC hardware has a i8042-like controller, so I think that 
+file is the generic PC keyboard startup for i8042-like devices.
 
-				Have a nice fortnight
+Looks like 2.6.x abstracted this a little farther through the serio 
+layer, so at initialization, the system tries to assign a particular 
+driver to the serio ports it finds (there are drivers for AT, i8042 (and 
+variants), etc..)
+
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"One single semicolon. A perfect drop of perliness. The rest is padding." -- S. Manandhar
+James Lamanna

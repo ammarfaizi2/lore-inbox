@@ -1,83 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129724AbQLDV57>; Mon, 4 Dec 2000 16:57:59 -0500
+	id <S129765AbQLDV6t>; Mon, 4 Dec 2000 16:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129765AbQLDV5t>; Mon, 4 Dec 2000 16:57:49 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:39942 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S129724AbQLDV5n>; Mon, 4 Dec 2000 16:57:43 -0500
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-Date: Mon, 4 Dec 2000 14:27:10 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
+	id <S130003AbQLDV6j>; Mon, 4 Dec 2000 16:58:39 -0500
+Received: from tellus.thn.htu.se ([193.10.192.40]:55056 "EHLO thn.htu.se")
+	by vger.kernel.org with ESMTP id <S129765AbQLDV61>;
+	Mon, 4 Dec 2000 16:58:27 -0500
+Date: Mon, 4 Dec 2000 22:27:05 +0100 (CET)
+From: Richard Torkar <ds98rito@thn.htu.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: HPT366 + SMP = slight corruption in 2.3.99 - 2.4.0-11
+In-Reply-To: <Pine.LNX.4.30.0012041249020.22668-100000@anime.net>
+Message-ID: <Pine.LNX.4.30.0012042223520.1412-100000@toor.thn.htu.se>
 MIME-Version: 1.0
-Message-Id: <00120414271000.01254@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I have the cs46xx driver compiled either as a module or into
-the kernel, then 2.4.0-test12-pre4 locks up when KDE 2.0
-is started.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The problem with dummy.o in 2.4.0-test12-pre4 allowed me
-to find the possible source of this lock-up which I have been
-seeing recently (since test11-ac2) while starting up KDE 2.0.
+Dan Hollis wrote:
 
-This morning, I tried out 2.4.0-test12-pre4, and KDE 2.0
-started up (and there was much rejoicing). Of course, I
-saw the error when I tried to make modules, but I thought
-could live without sound for one bootup.
+> On Tue, 5 Dec 2000, Gerard Sharp wrote:
+> > Gnea wrote:
+> > > >  [1.] One line summary of the problem:
+> > > >  Intermittent corruption of 4 bytes in SMP kernels using HPT366
+> > > [snip]
+> > > Have you tried updating the bios on the bp6? This solved a LOT of
+> > > problems for me, and afaik, ru is the latest...
+> > RU seems the latest. Flashed bios as per your nicely detailed
+> > instructions.
+> > No improvement in condition, alas.
+>
+> HPT366 on BP6 is just broken. Corruption and lockups happen under
+> microsoft-windoze as well.
+>
 
-Then I applied Mohammad A. Haque's small patch to
-linux/include/linux/module.h, recompiled , and the system
-froze again at the same spot ("Loading the panel")
-while starting up KDE 2.0.
+Not my experience Dan.
 
-I found that if I said N for the cs46xx sound driver, then I
-get a 2.4.0-test12-pre4 kernel that will run KDE 2.0,
-sans sound :(.
+I've used my BP6 + HPT366 for a while now and I haven't had on lockup.
+No corruption either.
 
-I can run GNOME with 2.4.0-test12-pre4 with
-cs46xx compiled as a module or compiled into the kernel, 
-and everything works just fine.
+Presently I use 2.4.0-test11-p4 and I have been following the 2.3.* kernel
+since the day I got the BP6.
 
-Here is some additional information from /var/log/messages:
-2.4.0-test10 works OK with KDE 2.0 and sound.
+I have two Celeron 500 which are *not* o/c.
+I have seti@home running on this box 24/7.
+I use the latest BIOS.
 
-For 2.4.0-test12-pre4:
+I guess I'm lucky *grin*
 
-Crystal 4280/461x + AC97 Audio, version 0.14, 13:39:25 Dec  4 2000
-cs461x: Card found at 0xf8ffe000 and 0xf8e00000, IRQ 18
-cs461x: Unknown card (FFFFFFFF:FFFFFFFF) at 0xf8ffe000/0xf8e00000, IRQ 18
-ac97_codec: AC97 Audio codec, id: 0x4352:0x5914 (Unknown)
 
-For 2.4.0-test10:
 
-Crystal 4280/461x + AC97 Audio, version 0.09, 15:31:37 Nov  1 2000
-cs461x: Card found at 0xf8ffe000 and 0xf8e00000, IRQ 18
-cs461x: Unknown card (1028:0096) at 0xf8ffe000/0xf8e00000, IRQ 18
-ac97_codec: AC97 Audio codec, id: 0x4352:0x5914 (Unknown)
+/Richard
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The hardware is a DELL 420 dual P-III.
-The base linux distro is Linux-Mandrake 7.2.
-Filesystems are ReiserFS, running reiserfs-3.6.19 for test12
-and reiserfs-3.6.18 for test10.
+iD8DBQE6LAwsUSLExYo23RsRAtY+AKCOuqpfcSa73zzpHQfddSY/7JG8IACffPRe
+UzfNUJ7t3y2jdsS4jmS4Ggg=
+=FdqO
+-----END PGP SIGNATURE-----
 
-Note: The ReiserFS folks looked at this, but could
-not reproduce this on another smp machine. That
-was before I noticed the connection with cs46xx.
 
-When I say the system freezes, I mean it completely locks up, and
-ALT-SYSRQ-<whatevercommand> does not do a thing.  The magic
-key combo gives the expected result before freezup.
-
-Thanks in advance for any help,
-
-Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

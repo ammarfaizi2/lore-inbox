@@ -1,45 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317270AbSGCXWn>; Wed, 3 Jul 2002 19:22:43 -0400
+	id <S317271AbSGCX2q>; Wed, 3 Jul 2002 19:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317271AbSGCXWm>; Wed, 3 Jul 2002 19:22:42 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:29957 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317270AbSGCXWm>;
-	Wed, 3 Jul 2002 19:22:42 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit 
-In-reply-to: Your message of "Wed, 03 Jul 2002 20:46:24 +0200."
-             <200207032046.24730.oliver@neukum.name> 
-Mime-Version: 1.0
+	id <S317276AbSGCX2p>; Wed, 3 Jul 2002 19:28:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54286 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317271AbSGCX2p>;
+	Wed, 3 Jul 2002 19:28:45 -0400
+Subject: Re: Cyrix IRQ routing is wrong?
+To: proski@gnu.org (Pavel Roskin)
+Date: Thu, 4 Jul 2002 00:31:16 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, dhinds@sonic.net (David Hinds)
+In-Reply-To: <Pine.LNX.4.44.0207011814070.18831-100000@marabou.research.att.com> from "Pavel Roskin" at Jul 01, 2002 07:50:14 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Jul 2002 09:25:02 +1000
-Message-ID: <9003.1025738702@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17Ptae-0002Ir-00@www.linux.org.uk>
+From: Alan Cox <alan@www.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jul 2002 20:46:24 +0200, 
-Oliver Neukum <oliver@neukum.name> wrote:
->Am Mittwoch, 3. Juli 2002 19:07 schrieb Hugh Dickins:
->> On Wed, 3 Jul 2002, Adam J. Richter wrote:
->> > On Wed, 03 Jul 2002 22:27:33 +1000, Keith Owens wrote:
->> > >It does not.  There is no code to adjust any tables after discarding
->> > >kernel __init sections.  We rely on the fact that the discarded
->> > > kernel area is not reused for executable text.
->> >
->> > =09Come to think of it, if the core kernel's .text.init pages could
->> > later be vmalloc'ed for module .text section, then I think you may
->> > have found a potential kernel bug.
->>
->> No: the virtual address (which is what matters) would be different:
->> core kernel's .text.init is not in vmalloc virtual address range.
->
->Does that mean that kmalloc cannot be used to load modules?
->At least for small modules it would save TLB entries.
+> The existing code uses the upper nibble in the same byte for lower pirq,
+> but it seems that we should start with the lower nibble for EM-350A.
 
-That is correct.  It is not safe to use kmalloc() storage for
-executable code.  At least not until every architecture has been
-changed to adjust their tables after freeing part of the kernel.
-
+On all my boards its upper first and the current code works while the 
+patch you have hangs the box

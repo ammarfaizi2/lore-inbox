@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273371AbRI0Pl0>; Thu, 27 Sep 2001 11:41:26 -0400
+	id <S273429AbRI0Psg>; Thu, 27 Sep 2001 11:48:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273376AbRI0PlR>; Thu, 27 Sep 2001 11:41:17 -0400
-Received: from dict.and.org ([63.113.167.10]:3493 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id <S273371AbRI0PlF>;
-	Thu, 27 Sep 2001 11:41:05 -0400
-To: Andreas Schwab <schwab@suse.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
-In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel>
-	<E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel>
-	<9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
-	<oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
-	<jeelp4rbtf.fsf@sykes.suse.de>
-	<20010918143827.A16003@gruyere.muc.suse.de>
-	<nn3d59qzho.fsf@code.and.org> <jezo7gu78f.fsf@sykes.suse.de>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 27 Sep 2001 11:41:22 -0400
-In-Reply-To: <jezo7gu78f.fsf@sykes.suse.de>
-Message-ID: <nnvgi4prod.fsf@code.and.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
+	id <S273424AbRI0Ps0>; Thu, 27 Sep 2001 11:48:26 -0400
+Received: from web13307.mail.yahoo.com ([216.136.175.43]:3859 "HELO
+	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S273414AbRI0PsQ>; Thu, 27 Sep 2001 11:48:16 -0400
+Message-ID: <20010927154840.74967.qmail@web13307.mail.yahoo.com>
+Date: Thu, 27 Sep 2001 08:48:40 -0700 (PDT)
+From: Carl Spalletta <cspalletta@nectarsystems.com>
+Subject: Re: max arguments for exec
+To: vkire@pixar.com
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab <schwab@suse.de> writes:
 
-> James Antill <james@and.org> writes:
-> 
-> |>  unlikely() also needs to be...
-> |> 
-> |> #define unlikely(x)  __builtin_expect(!(x), 1) 
-> |> 
-> |> ...or...
-> |> 
-> |> #define unlikely(x)  __builtin_expect(!!(x), 0) 
-> 
-> This is not needed, since only 0 is the likely value and !! does not
-> change that.
+On Wed, 26 Sep 2001, Kiril Vidimce wrote:
+ 
+> Yeah, I know, but we would like to avoid building a
+custom kernel. If
+> we do end up going this route, I wonder if there is
+a limit for
+> MAX_ARG_PAGES. Any idea? I think 128 pages (512K)
+would be sufficient
+> for our needs.
 
- Yes it is, given the code...
+kiril, 
 
-struct blah *ptr = NULL;
+I am guessing that you want to avoid a custom kernel
+in order that your programs shall be portable.
 
-if (unlikely(ptr))
+So, I am having a hard time understanding why putting
+the command line args into a file instead of on the
+command line, in a way similar to grep and many other
+programs:
+ 
+"fgrep -F patternfile"
 
-...you'll get a warning from gcc because you are implicitly converting
-from a pointer to a long.
+would not answer the case.
 
--- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null
+Is there any absolute need to have so many args passed
+to exec from the command line?
+
+
+__________________________________________________
+Do You Yahoo!?
+Listen to your Yahoo! Mail messages from any phone.
+http://phone.yahoo.com

@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbUKQSPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbUKQSKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbUKQSPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUKQSLb
+	id S261653AbUKQSKd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 13:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbUKQSIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 13:11:31 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:26598 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262478AbUKQSJF
+	Wed, 17 Nov 2004 13:08:09 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:39582 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262434AbUKQSFc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 13:09:05 -0500
-Date: Wed, 17 Nov 2004 09:52:17 -0800
-From: Greg KH <greg@kroah.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041117175216.GC28285@kroah.com>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
+	Wed, 17 Nov 2004 13:05:32 -0500
+Subject: [patch] inotify: vfs_permission was replaced
+From: Robert Love <rml@novell.com>
+To: ttb@tentacle.dhs.org
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+Content-Type: text/plain
+Date: Wed, 17 Nov 2004 13:02:40 -0500
+Message-Id: <1100714560.6280.7.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 04:42:36PM +0100, Miklos Szeredi wrote:
-> > No.  Actually, put it in sysfs, and then udev will create your /dev node
-> > for you automatically.  And in sysfs you can put your other stuff
-> > (version, etc.) which is the proper place for it.
-> 
-> Next question: _where_ to put other stuff?  In /proc this has a
-> logical place for filesystems: /proc/fs/fsname/other_stuff.  But
-> there's no filesystem section in sysfs.
-> 
-> So?
+John,
 
-Feel free to create /sys/fs/ for you to put your stuff in.
+In 2.6.10-rc, vfs_permission() was replaced by generic_permission(),
+which also has a slightly changed behavior and argument list.
 
-thanks,
+	Robert Love
 
-greg k-h
+
+vfs_permission was replaced by generic_permission in 2.6.10-rc.
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ inotify.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -u linux/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux/drivers/char/inotify.c	2004-11-15 15:28:34.951248696 -0500
++++ linux/drivers/char/inotify.c	2004-11-16 14:42:11.929575168 -0500
+@@ -163,7 +151,7 @@
+ 	inode = nd.dentry->d_inode;
+ 
+ 	/* you can only watch an inode if you have read permissions on it */
+-	error = vfs_permission(inode, MAY_READ);
++	error = generic_permission(inode, MAY_READ, NULL);
+ 	if (error) {
+ 		inode = ERR_PTR(error);
+ 		goto release_and_out;
+
+

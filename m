@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132664AbRDOOU0>; Sun, 15 Apr 2001 10:20:26 -0400
+	id <S132668AbRDOOU0>; Sun, 15 Apr 2001 10:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132670AbRDOOUQ>; Sun, 15 Apr 2001 10:20:16 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:11677 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S132664AbRDOOUE>; Sun, 15 Apr 2001 10:20:04 -0400
-Date: Sun, 15 Apr 2001 07:20:51 -0700 (PDT)
-From: James Simmons <jsimmons@linux-fbdev.org>
-X-X-Sender: <jsimmons@linux.local>
-To: <antonpoon@hongkong.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How can I add a function to the kernel initialization
-Message-ID: <Pine.LNX.4.31.0104150718240.984-100000@linux.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132664AbRDOOUR>; Sun, 15 Apr 2001 10:20:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:62729 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132668AbRDOOUI>;
+	Sun, 15 Apr 2001 10:20:08 -0400
+Date: Sun, 15 Apr 2001 16:20:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: cacook@freedom.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Writing to Pana DVD-RAM
+Message-ID: <20010415162001.E1982@suse.de>
+In-Reply-To: <20010414213259Z132548-682+222@vger.kernel.org> <3AD8CC04.EA5022C1@coplanar.net> <20010415135500Z132658-682+339@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010415135500Z132658-682+339@vger.kernel.org>; from cacook@freedom.net on Sun, Apr 15, 2001 at 07:53:22AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 15 2001, cacook@freedom.net wrote:
+> DOH!  You're right.
+> 
+> I can now write to it, but only get one chance.  Copy a file to
+> DVDRAM, read, print, etc, but when I try to rm or mv, segfault.
+> Foreverafter the DVDRAM is 'busy'.  Cannot umount.  Must reboot then
+> umount.  Remount, get another write, but on subsequent write,
+> segfault.
 
-Is this a HD44780 LCD? Geert wrote a console driver sometime ago for this.
-He had a driver for it. If he still doesn't I have a copy of the code.
+Please decode that oops and send it along, see REPORTING-BUGS
 
-MS: (n) 1. A debilitating and surprisingly widespread affliction that
-renders the sufferer barely able to perform the simplest task. 2. A disease.
-
-James Simmons  [jsimmons@linux-fbdev.org]               ____/|
-fbdev/console/gfx developer                             \ o.O|
-http://www.linux-fbdev.org                               =(_)=
-http://linuxgfx.sourceforge.net                            U
-http://linuxconsole.sourceforge.net
+-- 
+Jens Axboe
 

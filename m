@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314126AbSD0Nxq>; Sat, 27 Apr 2002 09:53:46 -0400
+	id <S314144AbSD0OPt>; Sat, 27 Apr 2002 10:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314144AbSD0Nxn>; Sat, 27 Apr 2002 09:53:43 -0400
-Received: from ns.suse.de ([213.95.15.193]:35602 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314195AbSD0Nwf>;
-	Sat, 27 Apr 2002 09:52:35 -0400
-Date: Sat, 27 Apr 2002 15:52:30 +0200
-From: Dave Jones <davej@suse.de>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.5.x-dj and SCSI error handling.
-Message-ID: <20020427155230.J14743@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020427131025.F14743@suse.de> <Pine.LNX.4.44.0204270947250.5500-100000@filesrv1.baby-dragons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314207AbSD0OPs>; Sat, 27 Apr 2002 10:15:48 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:62444 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S314144AbSD0OPr>;
+	Sat, 27 Apr 2002 10:15:47 -0400
+Date: Sat, 27 Apr 2002 16:15:35 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200204271415.QAA12579@harpo.it.uu.se>
+To: dalecki@evision-ventures.com
+Subject: Re: PDC20265 / 2.5.10 / Alpha (Miata) - unexpected interrupt flood
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 09:48:37AM -0400, Mr. James W. Laferriere wrote:
- > 	Hello Dave ,  Might be nice to also mention the drivers that were
- > 	being complained about .  So there respective mantainers can
- > 	benifit from your email .  Tia ,  JimL
+On Fri, 26 Apr 2002 13:08:07 +0200, Martin Dalecki wrote:
+>> ide: unexpected interrupt 1 44
+>Yes. This message has been added. It's harmless.
+>It will happen if the interrupt in question is shared
+>among different devices for example.
 
-noted. I'll do a full compile later today and post back the list of
-drivers broken due to this issue. The only one everyone seems to be
-complaining about is ide-scsi, but there are definitly others.
+The condition may be harmless, but flooding the kernel log with
+these messages most certainly is not. I've experienced that
+myself, when testing 2.5.8 on a machine with a PDC20267.
+The message needs to go away.
 
-    Dave. 
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+/Mikael

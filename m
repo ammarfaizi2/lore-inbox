@@ -1,58 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRD1VWA>; Sat, 28 Apr 2001 17:22:00 -0400
+	id <S135647AbRD1VWl>; Sat, 28 Apr 2001 17:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131588AbRD1VVu>; Sat, 28 Apr 2001 17:21:50 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:38884 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S131205AbRD1VVc>;
-	Sat, 28 Apr 2001 17:21:32 -0400
-Date: Sat, 28 Apr 2001 14:21:29 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: 2.2.19 locks up on SMP
-Message-ID: <Pine.LNX.4.33.0104281402090.2487-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S133022AbRD1VWc>; Sat, 28 Apr 2001 17:22:32 -0400
+Received: from www.linux.org.uk ([195.92.249.252]:4107 "EHLO www.linux.org.uk")
+	by vger.kernel.org with ESMTP id <S131588AbRD1VWS>;
+	Sat, 28 Apr 2001 17:22:18 -0400
+Date: Sat, 28 Apr 2001 22:21:45 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPv4 NAT doesn't compile in 2.4.4
+Message-ID: <20010428222145.I21792@flint.arm.linux.org.uk>
+Mail-Followup-To: Russell King <rmk@flint.arm.linux.org.uk>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010428172554.H21792@flint.arm.linux.org.uk> <15083.12585.159124.505983@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15083.12585.159124.505983@pizda.ninka.net>; from davem@redhat.com on Sat, Apr 28, 2001 at 02:07:53PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Sat, Apr 28, 2001 at 02:07:53PM -0700, David S. Miller wrote:
+> Why would ip_nat_cleanup() be removed by the linker?
 
-Over the last week I've tried to upgrade a 4-CPU Xeon box to 2.2.19, but 
-the it keeps locking up whenever the disks are stresses a bit, e.g. when 
-updatedb is running. I get the following messages on the console:
+Because we explicitly tell the linker to drop all code marked as
+__exit:
 
-wait_on_bh, CPU 1:
-irq:  1 [1 0]
-bh:   1 [1 0]
-<[8010af71]>
+#define __exit          __attribute__ ((unused, __section__(".text.exit")))
 
-over and over again, until somebody pushes the reset button.  8010af71 is 
-somewhere in the middle of synchronize_bh().
 
-The hardware configuration is: 4 Xeon/500MHz, 1GB RAM, 3 SCSI disks
-attached to a symbios controller, 2 eepro100 interfaces. The kernel is
-compiled with support for SMP and 2GB of RAM (hence the kernel address
-starting with 8 instead of c).  It was compiled from a pristine source
-tree, no patches were applied.
+>From x86 vmlinux.lds:
 
-I had more problems with 2.2.19 and another SMP box, which was also 
-locking up under stress. I'm not sure if it had the same messages on the 
-console, since it's headless, but it was running the same 2.2.19 kernel as 
-the previous one and was locking up in a very similar fashion. The 
-hardware in that box is 2 P-III/750MHz, 512MB RAM, 1 IDE disk on a PIIX 
-controller, and an unused aic7xxx SCSI controller with no SCSI devices 
-attached to it.
+  /* Sections to be discarded */
+  /DISCARD/ : {
+        *(.text.exit)
+        *(.data.exit)
+        *(.exitcall.exit)
+        }
 
-Both boxes are rock-solid when running 2.2.18-SMP.
+>  All the "unused"
+> attribute should do is shut up gcc if the thing is marked static yet
+> not called.  The GCC manual even states "... means that the function
+> is meant to be possibly unused.  GNU CC will not produce a warning
+> for this function."  It makes no mention of any effect on the actual
+> code output, or that the linker will delete it.
 
-Any ideas? Has anybody else reported this with 2.2.19?
+I quote from the ld info pages:
 
-Thanks,
-Ion
+   The special output section name `/DISCARD/' may be used to discard
+input sections.  Any input sections which are assigned to an output
+section named `/DISCARD/' are not included in the output file.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+> It doesn't remove the function on any platform I could test this on.
+
+Try x86.
+
+> If the linker removed it, why did it give a relocation truncation
+> error instead of a missing symbol error?  And more importantly, what
+> specifically was the reason that the linker removed the function on
+> ARM, what made this happen?
+
+Architecture independent linker behaviour.
+
+> Please explain this in detail so we don't have to guess as I have
+> seen no other report of this.
+
+The reason it shows up on ARM is because the relocation is not 32-bit
+long, and therefore the relocation it is trying to encode generates
+an error.
+
+(I'm presuming that it was allocating the symbol an address of zero,
+but I haven't checked this since trying to call a non-present section
+seems a bit stupid to start with).
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

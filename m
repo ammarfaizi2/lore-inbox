@@ -1,76 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318748AbSICKdv>; Tue, 3 Sep 2002 06:33:51 -0400
+	id <S318750AbSICKuc>; Tue, 3 Sep 2002 06:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318750AbSICKdv>; Tue, 3 Sep 2002 06:33:51 -0400
-Received: from ns.commfireservices.com ([216.6.9.162]:10758 "HELO
-	hemi.commfireservices.com") by vger.kernel.org with SMTP
-	id <S318748AbSICKdu>; Tue, 3 Sep 2002 06:33:50 -0400
-From: zwane@commfireservices.com
-Subject: [PATCH][2.5.33] oops on futexfs mount
-To: rusty@rustcorp.com.au
-Cc: linux-kernel@vger.kernel.org
-X-Originating-IP: 196.28.7.236
-X-Mailer: Webmin 0.910
+	id <S318751AbSICKuc>; Tue, 3 Sep 2002 06:50:32 -0400
+Received: from WARSL402PIP7.highway.telekom.at ([195.3.96.94]:32280 "EHLO
+	SSP1NO65.highway.telekom.at") by vger.kernel.org with ESMTP
+	id <S318750AbSICKub>; Tue, 3 Sep 2002 06:50:31 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Oops after X-Server shutdown
+Message-ID: <1031050498.3d7495028d2e6@webmail.jet2web.at>
+Date: Tue, 03 Sep 2002 12:54:58 +0200 (DFT)
+From: Thomas Koller <kt@aon.at>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="bound1031049454"
-Message-Id: <20020903103734.4412BBC51@hemi.commfireservices.com>
-Date: Tue,  3 Sep 2002 06:37:34 -0400 (EDT)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 193.154.25.249
+X-Forwarded-For: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+hi,
 
---bound1031049454
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+shutting down the x-server with dri support on a i830M graficcard lets the 
+kernel produce an oops and left the screen black.
 
-Hi Rusty,
-	I know it's in the don't do that category ;)
-
-Index: linux-2.5.33/kernel/futex.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.33/kernel/futex.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 futex.c
---- linux-2.5.33/kernel/futex.c	31 Aug 2002 22:32:06 -0000	1.1.1.1
-+++ linux-2.5.33/kernel/futex.c	3 Sep 2002 08:51:31 -0000
-@@ -359,6 +359,7 @@
- static struct file_system_type futex_fs_type = {
- 	.name		= "futexfs",
- 	.get_sb		= futexfs_get_sb,
-+	.kill_sb	= kill_anon_super,
- };
- 
- static int __init init(void)
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-00000000
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: cf729240   ebx: cf729200   ecx: 00000001   edx: 00000000
-esi: c552e000   edi: c0441d20   ebp: c54f3000   esp: c552fee8
-ds: 0068   es: 0068   ss: 0068
-Stack: c0155088 cf729200 cf7edcf8 cf7edcf8 c016b538 cf7edcf8 ffffffea c17df194
-       cf7edcf8 c016cac8 cf729200 cd66b824 42029c74 00000000 00001000 c54e8000
-       00000000 c552ff50 c016ccfb c552ff50 c54e8000 00000000 00000000 c54f3000
-Call Trace: [<c0155088>] [<c016b538>] [<c016cac8>] [<c016ccfb>] [<c0140068>]
-   [<c016cb2c>] [<c016d362>] [<c0107bdf>]
-Code:  Bad EIP value.
-
->>EIP; 00000000 Before first symbol
-Trace; c0155088 <deactivate_super+98/140>
-Trace; c016b538 <__mntput+18/30>
-Trace; c016cac8 <do_add_mount+128/140>
-Trace; c016ccfb <do_mount+17b/1a0>
-Trace; c0140068 <s_show+198/2c0>
-Trace; c016cb2c <copy_mount_options+4c/a0>
-Trace; c016d362 <sys_mount+e2/180>
-Trace; c0107bdf <syscall_call+7/b>
+Aug 31 18:16:45 mobile kernel:  printing eip:
+Aug 31 18:16:45 mobile kernel: c0124e20
+Aug 31 18:16:45 mobile kernel: Oops: 0000
+Aug 31 18:16:45 mobile kernel: CPU:    0
+Aug 31 18:16:45 mobile kernel: EIP:    0010:[unlock_page+4/100]    Not 
+tainted
+Aug 31 18:16:45 mobile kernel: EIP:    0010:[<c0124e20>]    Not tainted
+Aug 31 18:16:45 mobile kernel: EFLAGS: 00013246
+Aug 31 18:16:45 mobile kernel: eax: 01000000   ebx: 01000000   ecx: 
+c1510ba8   edx: 00000000
+Aug 31 18:16:45 mobile kernel: esi: dd789000   edi: dea37800   ebp: 
+00000000   esp: de5d3ee4
+Aug 31 18:16:45 mobile kernel: ds: 0018   es: 0018   ss: 0018
+Aug 31 18:16:45 mobile kernel: Process X (pid: 4077, stackpage=de5d3000)
+Aug 31 18:16:45 mobile kernel: Stack: c1510ba8 dd789000 e0934d9f c1510ba8 
+de6a88c0 dda3e000 e0934def dea37800
+Aug 31 18:16:45 mobile kernel:        dd789000 de5d3f34 bffff924 de5d3f78 
+e09353da dea37800 00000040 dea37800
+Aug 31 18:16:45 mobile kernel:        df65ed60 40446440 00000000 dea37800 
+00000002 00000000 00000000 00000000
+Aug 31 18:16:45 mobile kernel: Call Trace:    
+[hid:__insmod_hid_S.bss_L96+672703/77201149] [hid:__insmod_hid_S.bss_L96+67
+Aug 31 18:16:45 mobile kernel: Call Trace:    [<e0934d9f>] [<e0934def>] 
+[<e09353da>] [<e0930de2>] [<c013cf87>]
+Aug 31 18:16:45 mobile kernel:   [system_call+51/56]
+Aug 31 18:16:45 mobile kernel:   [<c010857b>]
+Aug 31 18:16:45 mobile kernel:
+Aug 31 18:16:45 mobile kernel: Code: 0f b6 43 1b 8b 14 85 1c c5 31 c0 69 c3 
+01 00 37 9e 8b 8a 98
 
 
---bound1031049454--
+without dri support there are no problems with i830M graficcards.
+
+Kernel:     	    	2.4.19
+KernelPatches: 
+
+DRI Modules http://www.xfree86.org/~alanh/linux-drm-4.2.0-
+kernelsource.tar.gz
+
+ACPI-Patches (acpi.sourceforge.net) acpi-20020821-2.4.19
+
+X-Server: Xfree86 4.2.0
+
+Hardware: TravelMate 621LV
+
+Is there a chance to get Xfree 4.2.0 working with DRI on that hardware? 
+maybe this is a bug in the kernel.
+
+best regards
+thomas
+
+
+-------------------------------------------
+Versendet durch AonWebmail (www.jet2mail.at)

@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262712AbSKYS0w>; Mon, 25 Nov 2002 13:26:52 -0500
+	id <S262664AbSKYSXi>; Mon, 25 Nov 2002 13:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSKYS0w>; Mon, 25 Nov 2002 13:26:52 -0500
-Received: from matrix.roma2.infn.it ([141.108.255.2]:57021 "EHLO
-	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
-	id <S262712AbSKYS0v>; Mon, 25 Nov 2002 13:26:51 -0500
-From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
-Organization: INFN
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: e7500 and IRQ assignment
-Date: Mon, 25 Nov 2002 19:34:47 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <233C89823A37714D95B1A891DE3BCE5202AB1994@xch-a.win.zambeel.com> <200211251618.28510.gabrielli@roma2.infn.it> <Pine.LNX.4.50.0211251038280.1462-100000@montezuma.mastecende.com>
-In-Reply-To: <Pine.LNX.4.50.0211251038280.1462-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200211251934.47959.gabrielli@roma2.infn.it>
+	id <S262780AbSKYSXi>; Mon, 25 Nov 2002 13:23:38 -0500
+Received: from sullivan.realtime.net ([205.238.132.76]:51473 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id <S262664AbSKYSXh>; Mon, 25 Nov 2002 13:23:37 -0500
+Date: Mon, 25 Nov 2002 12:30:46 -0600 (CST)
+Message-Id: <200211251830.gAPIUkZ90395@sullivan.realtime.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+From: Milton Miller <miltonm@bga.com>
+Subject: Re: [PATCH] make 2.5.49 mount root again for devfs users
+In-Reply-To: <3DE21B96.8BA15D27@aitel.hist.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16:41, lunedì 25 novembre 2002, Zwane Mwaikambo wrote:
-> On Mon, 25 Nov 2002, Emiliano Gabrielli wrote:
-> > number of MP IRQ sources: 20.
-> > number of IO-APIC #2 registers: 24.
-> > number of IO-APIC #3 registers: 24.
-> > number of IO-APIC #4 registers: 24.
-> > number of IO-APIC #5 registers: 24.
-> > number of IO-APIC #6 registers: 24.
-> > testing the IO APIC.......................
->
-> Out of curiosity, does this box really have 5 IOAPICs?
->
-> 	Zwane
+What you did was bypass devfs, and cause create_dev to mknod a file
+with the device number of your root instead of creating a symlink
+to the normal devfs node.
 
-no of course, but something seems to be buggy...
+Is your booter translating the device name into a number?  You can
+check this by looking at the printed comand line in the dmesg, or
+by cat /proc/cmdline .
 
-..  nothing changed ;((
+If you see root=0304 then your booter is translating the device number
+and therefore find_in_devfs is failing (possibly because of the previously
+metioned patch to read_dir).
 
-I have patched last 2.4.20-rc3 with Ingo patch (irqsharing.patch) or/and 
-apic_route-2.4.18.patch ... patch applies with no problems but no change...
+I notice that there are lots of hardcoded maxdepth of 64 characters for
+the devfs path, but yours seems to be 39 and therefore should be ok.
 
-I have downloaded the prepatched kernel from www.aslab.com (linux-2.4.19-1)
-(they affirm their servers use 7500) and even in this case no change 
-appened...
-
-I have HT enabled in the BIOS; SMP and IO-APIC are compiled in the kernel...
-
-but I still receive some buggy messages in dmesg (see attachement), btw my 
-full custom device has IRQ routed to 0 (see my lspci)
-
-If anybody as some IDEA ... I will happy ;P
-
-best regards,
-
--- 
-Emiliano Gabrielli
-
-dip. di Fisica
-2° Università di Roma "Tor Vergata"
-
+milton

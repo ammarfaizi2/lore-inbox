@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262453AbTCRO5S>; Tue, 18 Mar 2003 09:57:18 -0500
+	id <S262460AbTCRO6Q>; Tue, 18 Mar 2003 09:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262457AbTCRO5R>; Tue, 18 Mar 2003 09:57:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60420 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id <S262453AbTCRO5J>;
-	Tue, 18 Mar 2003 09:57:09 -0500
-Date: Tue, 18 Mar 2003 09:08:00 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Demand paging - Kernel
-Message-Id: <20030318090800.57118796.reynolds@redhat.com>
-In-Reply-To: <200303172159.h2HLxsQY025585@pincoya.inf.utfsm.cl>
-References: <20030317083547.51a4004f.reynolds@redhat.com>
-	<200303172159.h2HLxsQY025585@pincoya.inf.utfsm.cl>
-Organization: Red Hat GLS
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss
- of all files and data!
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262461AbTCRO6Q>; Tue, 18 Mar 2003 09:58:16 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:42882 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262460AbTCRO5z>;
+	Tue, 18 Mar 2003 09:57:55 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm1
+References: <20030318031104.13fb34cc.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 18 Mar 2003 16:08:51 +0100
+In-Reply-To: <20030318031104.13fb34cc.akpm@digeo.com>
+Message-ID: <87adfs4sqk.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uttered Horst von Brand <vonbrand@inf.utfsm.cl>, spoke thus:
+Andrew Morton <akpm@digeo.com> writes:
+>
+> [SNIP]
+>
 
-> Tommy Reynolds <reynolds@redhat.com> said:
-> > Uttered "Breno" <brenosp@brasilsec.com.br>, spoke thus:
-> > > There is a possibility  to do demand paging in kernel space address ?
-> > No.  The entire kernel, and all  of its data structures, are resident in
-> > memory  all of  the time.
-> The cost of doing it right in a monolitic kernel would probably outweigh
-> the gains manyfold, and require massive redesign for Linux. In microkernels
-> it is a lot easier to do (but their performance sucks baby elephants
-> through straws, so they are moot :-)
+I tried to get find what made 2.5.64-mm1 special that made my Radeon
+card work, and had no luck in boiling down the differences more than
+generally waving in the general direction "seems to be the PCI
+updates". Nothing, up to and including 2.5.64-mm8, worked, but now
+2.5.65-mm1 works like a charm and I'm on it now. I'll let you know if
+it breaks again (or other breakage I find) :)
 
-Dr. von Brand,
-
-Thanks for  following up on  this.  You are  right, of course:  with the
-source code and  enough patience anything could be  crafted.  I answered
-in the sense of "is this currently implemented", and it's not ;-)
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

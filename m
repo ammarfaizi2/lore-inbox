@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbUCHWfV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 17:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUCHWfV
+	id S261380AbUCHWiv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 17:38:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbUCHWiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 17:35:21 -0500
-Received: from gprs40-150.eurotel.cz ([160.218.40.150]:31554 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261361AbUCHWfM (ORCPT
+	Mon, 8 Mar 2004 17:38:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57222 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261380AbUCHWit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 17:35:12 -0500
-Date: Mon, 8 Mar 2004 23:35:00 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Steve Longerbeam <stevel@mvista.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: new special filesystem for consideration in 2.6/2.7
-Message-ID: <20040308223500.GA835@elf.ucw.cz>
-References: <40462AA1.7010807@mvista.com> <20040305220950.GA5352@openzaurus.ucw.cz> <404CB3F0.2020701@mvista.com>
+	Mon, 8 Mar 2004 17:38:49 -0500
+Date: Mon, 8 Mar 2004 14:40:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: cliff white <cliffw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent Reaim results
+Message-Id: <20040308144050.1fe5976a.akpm@osdl.org>
+In-Reply-To: <20040308083433.67485899.cliffw@osdl.org>
+References: <20040308083433.67485899.cliffw@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <404CB3F0.2020701@mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>(PRAMFS). It was originally developed for three major consumer
-> >>electronics companies for use in their smart cell phones
-> >>and other consumer devices.
-> >>
-> >>An intro to PRAMFS along with a technical specification
-> >>is at the SourceForge project web page at
-> >>http://pramfs.sourceforge.net/. A patch for 2.6.3 has
-> >>been released at the SF project site.
-> >
-> >Well, I'd certainly love to see some usable linux cell phones. 
-> >(Well, one such beast in my pocket would probably be enough :-)
-> >(Is there a way to make linux cell phone without second
-> >cpu just for GSM stack?)
-> >
+cliff white <cliffw@osdl.org> wrote:
+>
 > 
-> one of the chips used in their cell phones is the TI OMAP1510.
-> It has an embedded TMS320c55 DSP as well as an ARM 925.
+> Test results from the OSDL reaim test. 
+> The -mm kernels now appear to be scaling a bit nice.
+> I dunno why, but the 8-ways like -mm2 :)
 
-Hmm, but GSM stack needs to be realtime, and it probably will not be
-GPL compatible (?). It is just pure curiosity, but I wonder how that
-one is being solved...
+I think your'e playing with my mind.
 
-Well...
+> The is the 'database' load, a mixture of IO and CPU activity.
 
-Probably GSM stack can be binary-only kernel module?
+What about file server load?
 
-								Pavel
+> 4-CPU  ( all AS )
+> linux-2.6.3		5313.36		0.0
+> 2.6.4-rc1		5218.87		-1.78
+> 2.6.4-rc1-mm2		5391.00 	1.46
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I spent a boring evening with the file server load on 4-way x86 with six
+disks.  If I squinted at it hard enough I was able to discern a 1% slowdown
+due to O_DIRECT-vs-buffered-fix.patch, but it was pretty thin.
+
+I didn't test the database load.

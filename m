@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136513AbREAESu>; Tue, 1 May 2001 00:18:50 -0400
+	id <S136568AbREAEqM>; Tue, 1 May 2001 00:46:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136565AbREAESj>; Tue, 1 May 2001 00:18:39 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:16551 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S136513AbREAESa>; Tue, 1 May 2001 00:18:30 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 30 Apr 2001 21:18:10 -0700
-Message-Id: <200105010418.VAA10295@adam.yggdrasil.com>
-To: riel@conectiva.com.br
-Subject: Re: 2.4.4 sluggish under fork load
-Cc: linux-kernel@vger.kernel.org
+	id <S136569AbREAEqD>; Tue, 1 May 2001 00:46:03 -0400
+Received: from pc-62-30-76-3-az.blueyonder.co.uk ([62.30.76.3]:3844 "EHLO
+	mnemosyne.j-harris.dircon.co.uk") by vger.kernel.org with ESMTP
+	id <S136568AbREAEpw>; Tue, 1 May 2001 00:45:52 -0400
+Date: Tue, 1 May 2001 05:46:02 +0100 (GMT Daylight Time)
+From: Jamie Harris <jamie.harris@uwe.ac.uk>
+To: <linux-kernel@vger.kernel.org>, Bristol LUG <bristol@lists.lug.org.uk>,
+        <linux-admin@vger.kernel.org>
+Subject: Kernel NULL pointer, over my head...
+Message-ID: <Pine.WNT.4.33.0105010538140.-1864577-100000@proteus.j-harris.dircon.co.uk>
+X-X-Sender: j-harris@mercury.uwe.ac.uk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The fact that 2.4.4 gives the whole timeslice to the child
->is just bogus to begin with.
+Morning all,
 
-        I only did that because I could not find another way
-to make the child run first that worked in practice.  I tried
-other things before that.  Since Peter Osterlund's SCHED_YIELD
-thing works, we no longer have to give all of the CPU to the
-child.  The scheduler time slices are currently enormous, so as
-long as the child gets even one clock tick before the parent runs,
-it should reach the exec() if that is its plan.  1 tick = 10ms = 10
-million cycles on a 1GHz CPU, which should be enough time to encrypt
-my /boot/vmlinux in twofish if it's in RAM.
+Sorry for the big cross post but I don't have the first clue about where
+to send this one.  I get this from my stock 2.2.18 kernel in
+/var/log/syslog:
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+May  1 05:27:36 mnemosyne kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+May  1 05:27:36 mnemosyne kernel: current->tss.cr3 = 00362000, %cr3 =
+00362000
+May  1 05:27:36 mnemosyne kernel: *pde = 00000000
+May  1 05:29:36 mnemosyne kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+May  1 05:29:36 mnemosyne kernel: current->tss.cr3 = 036dc000, %cr3 =
+036dc000
+May  1 05:29:36 mnemosyne kernel: *pde = 00000000
+May  1 05:30:28 mnemosyne kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+May  1 05:30:28 mnemosyne kernel: current->tss.cr3 = 00ca7000, %cr3 =
+00ca7000
+May  1 05:30:28 mnemosyne kernel: *pde = 00000000
+
+
+This time it seemed to be caused by running tar on a file, but I've
+noticed a similar error in the past but they've never made anything fall
+over.  The tar process appeared to die but then again so did the telnet
+session so I don't know in what order they went down.  I tried 3 times
+just to check it wasn't a fluke...  What other details would be useful??
+
+Cheers Jamie...
+
+PS I'm not on the linux-kernel list so please post to me directly...
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ ***    Slowly and surely the UNIX crept up on the Nintendo user...    ***
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GCS/ED d-(++) s:+ a- C+++>++++$ U+++>$ P++++ L+++>+++++ E+(---) W++ N o?
+K? w(++++) O- M V? PS PE? Y PGP- t+ 5 X- R- tv- b++ DI++ D+++ G e++ h*
+r++>+++ y+++
+------END GEEK CODE BLOCK------
+

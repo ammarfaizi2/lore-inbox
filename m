@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUJPT1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUJPTcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUJPT1n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 15:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUJPT1n
+	id S268805AbUJPTcq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 15:32:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268803AbUJPTcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 15:27:43 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:22193 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266648AbUJPT1T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 15:27:19 -0400
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
-From: Robert Love <rml@novell.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Adam Heath <doogie@debian.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041016192402.GA10445@elte.hu>
-References: <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu>
-	 <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
-	 <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
-	 <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
-	 <20041016153344.GA16766@elte.hu>
-	 <Pine.LNX.4.58.0410161353530.1219@gradall.private.brainfood.com>
-	 <20041016192402.GA10445@elte.hu>
-Content-Type: text/plain
-Date: Sat, 16 Oct 2004 15:27:40 -0400
-Message-Id: <1097954860.5497.35.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
+	Sat, 16 Oct 2004 15:32:46 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:38852 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266683AbUJPT3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 15:29:43 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: swsusp: 8-order allocation failure on demand (update)
+Date: Sat, 16 Oct 2004 21:31:19 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, ncunningham@linuxmail.org,
+       pascal.schmidt@email.de, Pavel Machek <pavel@suse.cz>,
+       Stefan Seyfried <seife@suse.de>
+References: <2HO0C-4xh-29@gated-at.bofh.it> <200410142354.25665.rjw@sisk.pl> <20041016164347.GA2636@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20041016164347.GA2636@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410162131.19761.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-16 at 21:24 +0200, Ingo Molnar wrote:
+On Saturday 16 of October 2004 18:43, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > > > > Ok... And I guess it is nearly impossible to trigger this on 
+> > > > > > > > demand, right?
+> > > > > > 
+> > > > > > I think it is possible.  Seemingly, on my box it's only a question 
+> > > > > > of the number of apps started.  I think I can work out a method
+> > > > > > to trigger it 90% of the time or so.  Please let me know if it's
+> > > > > > worthy of doing. 
+> > > > > 
+> > > > > Yes, it would certainly help with testing...
+> > > 
+> > > Well, I can do that, it seems, 100% of the time.
+> > > 
+> > > The method is to do "init 5" (my default runlevel is 3, because vts
+> > > become unreadable after I start X), log into KDE (as a non-root),
+> > > start some X apps at random (eg. I run gkrellm, kmail, konqueror,
+> > > Mozilla FireFox 32-bit w/ Flash plugin, and konsole with "su -") and
+> > > run updatedb (as root, of course). 
+> > 
+> > To be precise, the method always leads to a failure, but it seems to
+> > be either 8-order or 9-order page allocation failure.
+> 
+> Okay, you could probably pre-allocate 512K block during bootup, then
+> just use that instead of allocating new one during suspend.
+> 
+> Unfortunately that's rather ugly. You'd ~32 bytes per 4K page, that's
+> almost 1% overhead, not nice. Better solution (but more work) is to
+> switch to link-lists or integrate swsusp2.
 
-> i changed my mind because lowercase it looks pretty ugly in uname,
-> appended to the already lowercase -mm string. Why does Debian need to
-> have it in lowercase anyway? It doesnt seem to make much sense.
+Well, I wonder if the page allocation failures are a swsusp problem, really.  
+I've just tried it the other way around and ran updatedb _first_, then 
+started X+KDE (no additional apps) and tried to suspend from under it.  Guess 
+what: a 9-order page allocation failure, here you go.
 
-It becomes part of the package version, and the package versions are
-lowercase.  But I agree, it doesn't make much sense.
+It seems to me that updatedb leaves a mess in memory, which IMO should not 
+happen or at least the kernel should be able to clean it, but apparently it 
+is not.  I'd be grateful if someone could explain to me why that is so, 
+please.
 
--RT does look better.
+Greets,
+RJW
 
-	Robert Love
-
-
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261601AbSJQA7f>; Wed, 16 Oct 2002 20:59:35 -0400
+	id <S261605AbSJQBCG>; Wed, 16 Oct 2002 21:02:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261605AbSJQA7f>; Wed, 16 Oct 2002 20:59:35 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48566 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261601AbSJQA7e>;
-	Wed, 16 Oct 2002 20:59:34 -0400
-Date: Wed, 16 Oct 2002 17:58:09 -0700 (PDT)
-Message-Id: <20021016.175809.28811497.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one
- record per call
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021017010135.GR7541@conectiva.com.br>
-References: <20021017010135.GR7541@conectiva.com.br>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261607AbSJQBCG>; Wed, 16 Oct 2002 21:02:06 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:60902 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S261605AbSJQBCF>; Wed, 16 Oct 2002 21:02:05 -0400
+Date: Wed, 16 Oct 2002 18:07:55 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
+Message-ID: <20021017010754.GW22117@nic1-pc.us.oracle.com>
+References: <20021014135100.GD28283@suse.de> <20021017005109.GV22117@nic1-pc.us.oracle.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021017005109.GV22117@nic1-pc.us.oracle.com>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Wed, 16 Oct 2002 22:01:36 -0300
+On Wed, Oct 16, 2002 at 05:51:10PM -0700, Joel Becker wrote:
+> On Mon, Oct 14, 2002 at 03:51:00PM +0200, Jens Axboe wrote:
+> > @@ -943,7 +1015,6 @@
+> >  	 */
+> >  	bh = blk_queue_bounce(q, rw, bh);
 
-   	Please pull from:
-   
-   master.kernel.org:/home/acme/BK/net-2.5
-   
-Pulled, thanks.
+	Thinking about this, I went to add it into submit_bh_list()
+where we already iterate the bhs.  However, this would require some
+reordering and would require teaching create_bounce() about linked I/Os.
+Any better ideas?
 
-Now to help Al create a sane mechanism for carrying private state
-around between start/stop :-)
+Joel
 
+-- 
+
+Life's Little Instruction Book #43
+
+	"Never give up on somebody.  Miracles happen every day."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

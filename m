@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVBGRBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVBGRO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVBGRBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 12:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVBGRBZ
+	id S261198AbVBGRO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 12:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVBGRO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 12:01:25 -0500
-Received: from alog0147.analogic.com ([208.224.220.162]:8320 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261197AbVBGRA7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 12:00:59 -0500
-Date: Mon, 7 Feb 2005 12:00:40 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Charles-Edouard Ruault <ce@idtect.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IO port conflict between timer & watchdog on PCISA-C800EV board
- ?
-In-Reply-To: <420797DE.6030904@osdl.org>
-Message-ID: <Pine.LNX.4.61.0502071157520.22576@chaos.analogic.com>
-References: <420734DC.4020900@idtect.com> <420797DE.6030904@osdl.org>
+	Mon, 7 Feb 2005 12:14:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:27270 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261198AbVBGROT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 12:14:19 -0500
+Message-ID: <42079D8E.7020909@osdl.org>
+Date: Mon, 07 Feb 2005 08:55:42 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Chris Friesen <cfriesen@nortel.com>
+CC: Lee Revell <rlrevell@joe-job.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Pavel Roskin <proski@gnu.org>, Joseph Pingenot <trelane@digitasaru.net>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: Please open sysfs symbols to proprietary modules
+References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>	 <20050203000917.GA12204@digitasaru.net>	 <Pine.LNX.4.62.0502021950040.19812@localhost.localdomain>	 <692795D1-758E-11D9-9D77-000393ACC76E@mac.com> <1107674683.3532.26.camel@krustophenia.net> <420791D7.3020408@nortel.com>
+In-Reply-To: <420791D7.3020408@nortel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Feb 2005, Randy.Dunlap wrote:
+Chris Friesen wrote:
+> Lee Revell wrote:
+> 
+>> On Wed, 2005-02-02 at 21:50 -0500, Kyle Moffett wrote:
+>>
+>>> It's not like somebody will have
+>>> some innate commercial advantage over you because they have your
+>>> driver source code.
+>>
+>>
+>>
+>> For a hardware vendor that's not a very compelling argument.  Especially
+>> compared to what their IP lawyers are telling them.
+>>
+>> Got anything to back it up?
+> 
+> 
+> I have a friend who works for a company that does reverse-engineering of 
+> ICs.  Companies hire them to figure out how their competitor's chips 
+> work.  This is the real threat to hardware manufacturers, not publishing 
+> the chip specs.
+> 
+> Having driver code gives you the interface to the device.  That can be 
+> reverse-engineered from watching bus traces or disassembling binary 
+> drivers (which is how many linux drivers were originally written). 
+> Companies have these kinds of resources.
+> 
+> If you look at the big chip manufacturers (TI, Maxim, Analog Devices, 
+> etc.) they publish specs on everything.  It would be nice if others did 
+> the same.
 
-> Charles-Edouard Ruault wrote:
->> Hi All,
->> 
->> i wrote a driver for the watchdog timer provided by a small form factor 
->> board from IEI ( the PCISA-C800EV : 
->> http://www.iei.com.tw/en/product_IPC.asp?model=PCISA-C800 ).
->> This board has a Via Apollo PLE133 ( VT8601A and VT82C686B ) chipset.
->> The watchdog uses two registers at addresses 0x43 and 0x443, therefore my 
->> driver tries to get bot addresses for its own use calling
->> request_region(0x43, 1, "watchdog" ) and request_region(0x443, 1, 
->> "watchdog").
->> The first call to request 0x43 fails because the address has already been 
->> allocated to the timer ( /proc/ioports shows 0040-005f : timer ).
->> 
->> So my questions are :
->> - Why is the generic timer using this address ? isn't it reserving a too 
->> wide portion of IO ports ? Should it be modified for this board ?
->> -  If there's a good reason for the timer to request this address, is 
->> there a clean way to share it with the timer ?
->
-> Missing kernel version.... must be "not the current/latest",
-> so early 2.6 or more likely 2.4 (just guessing)?
->
-> /proc/ioports timer assignments have now been split up like this:
-> 0040-0043 : timer0
-> 0050-0053 : timer1
->
-> However, port 0x43 is still assigned to timer0, so your request_region
-> call will still fail.  What system board timer resource assignments
-> should be used for that VIA chipset?  If the chipset timer only needs
-> 0x40-0x42, e.g., leaving 0x43 available, then it would be possible
-> to do some kind of workaround (maybe not real clean, but possible).
->
-> -- 
-> ~Randy
+One of the arguments that I have heard is fairly old and debatable as
+well.  This was the subject of a panel discussion at LWE in 2000 or
+2001, chaired by journalist Nicholas Petreley.  The panel was composed
+of vendors from (mostly) audio devices IIRC, but I'm not sure.
 
-The driver can still R/W registers that it hasn't allocated.
-There is no hardware trap preventing this. I suggest that,
-as a temporary work-around, just don't allocate the low
-port, but attempt to use it. I think the watchdog probably
-just looks for read at that address.
+The bottom line summary was agreement that open-source drivers usually
+expose how generation A of a device works, while the company is off
+building generation B, and designing generation C.  So if another
+company wants to clone generation A and be left in the dust when
+their product is ready, let them.  They will usually lose.
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-- 
+~Randy

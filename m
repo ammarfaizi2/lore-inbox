@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263122AbVCEG0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVCEG0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263122AbVCEG0D (ORCPT <rfc822;willy@w.ods.org>);
+	id S262226AbVCEG0D (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 5 Mar 2005 01:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVCEGVZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbVCEGTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 01:21:25 -0500
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:61592 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S263182AbVCEGQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 01:16:24 -0500
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: Linux 2.6.11.1
-Date: Sat, 5 Mar 2005 01:16:10 -0500
-User-Agent: KMail/1.7.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 5 Mar 2005 01:19:02 -0500
+Received: from fire.osdl.org ([65.172.181.4]:22156 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263000AbVCEGKk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 01:10:40 -0500
+Date: Fri, 4 Mar 2005 21:54:35 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: linux-sound@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+Cc: torvalds <torvalds@osdl.org>, akpm <akpm@osdl.org>
+Subject: [PATCH] oss/es1370: fix initdata section references
+Message-Id: <20050304215435.7e18b830.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503050116.10577.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds great, I can be a QA resource for what machines I have. 
 
-How do people get involved in QAing these releases? 
+oss/es1370: fix initdata section reference:
 
-What other help?
+Error: ./sound/oss/es1370.o .text refers to 00000000000042bd R_X86_64_32S      .init.data+0x0000000000000024
+Error: ./sound/oss/es1370.o .text refers to 00000000000042c5 R_X86_64_32S      .init.data+0x0000000000000020
 
-Shawn.
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-> List:       linux-kernel
-> Subject:    Linux 2.6.11.1
-> From:       Greg KH <greg () kroah ! com>
-> Date:       2005-03-04 17:53:02
-> Message-ID: <20050304175302.GA29289 () kroah ! com>
-> [Download message RAW]
-> 
-> For those of you who haven't waded through the huge "RFD: Kernel release
-> numbering" thread on lkml to realize that we are now going to start
-> putting out 2.6.x.y releases, here's the summary:
-> 
->         A few of us $suckers will be trying to maintain a 2.6.x.y set of
->         releases that happen after 2.6.x is released.  It will contain
->         only a set of bugfixes and security fixes that meet a strict set
->         of guidelines, as defined by Linus at:
->                 http://article.gmane.org/gmane.linux.kernel/283396
-> 
-> Chris Wright and I are going to start working on doing this work, we
-> will have a <SOME_ALIAS>@kernel.org to post these types of bug fixes to,
-> and a set of people we bounce the patches off of to test for "smells
-> good" validation.  We will also have a bk-commits type mailing list for
-> those who want to watch the patches flow in, and a bk tree from which
-> changsets can be pulled from.
-> 
-> Chris and I will be hashing all of the details out next Tuesday, and
-> hopefully all the infrastructure will be in place soon.  When that
-> happens, we will post the full details on how all of this is going to
-> work.  In the meantime, feel free to CC: me and Chris on patches that
-> everyone thinks should go into the 2.6.11.y releases.
-> 
-> But right now, Chris is on a plane, and we don't have the email alias
-> set up, or the proper permissions set up on kernel.org to push changes
-> into the v2.6 directory, but we have a few bugs that are needing to be
-> fixed in the 2.6.11 release.  And since our mantra is, "release early
-> and often", here's the first release.
+diffstat:=
+ sound/oss/es1370.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -Naurp ./sound/oss/es1370.c~oss_es1370_sections ./sound/oss/es1370.c
+--- ./sound/oss/es1370.c~oss_es1370_sections	2005-03-01 23:38:33.000000000 -0800
++++ ./sound/oss/es1370.c	2005-03-04 21:17:17.000000000 -0800
+@@ -2540,7 +2540,7 @@ MODULE_LICENSE("GPL");
+ static struct initvol {
+ 	int mixch;
+ 	int vol;
+-} initvol[] __initdata = {
++} initvol[] __devinitdata = {
+ 	{ SOUND_MIXER_WRITE_VOLUME, 0x4040 },
+ 	{ SOUND_MIXER_WRITE_PCM, 0x4040 },
+ 	{ SOUND_MIXER_WRITE_SYNTH, 0x4040 },
+
+
+---

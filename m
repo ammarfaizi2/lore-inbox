@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264504AbTLVTdf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 14:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbTLVTdf
+	id S261190AbTLVTiX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 14:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263751AbTLVTiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 14:33:35 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:44751 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264504AbTLVTdd convert rfc822-to-8bit (ORCPT
+	Mon, 22 Dec 2003 14:38:23 -0500
+Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:44726
+	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S261190AbTLVTiW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 14:33:33 -0500
-Content-Class: urn:content-classes:message
+	Mon, 22 Dec 2003 14:38:22 -0500
+Message-ID: <3FE702A2.2090701@rogers.com>
+Date: Mon, 22 Dec 2003 14:41:38 +0000
+From: pZa1x <pZa1x@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
-Date: Mon, 22 Dec 2003 11:33:08 -0800
-Message-ID: <C6F5CF431189FA4CBAEC9E7DD5441E0102229BE5@orsmsx402.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
-Thread-Index: AcPIuTdfOgApSb5uSlqAUycWRyUoTAACfo9A
-From: "Feldman, Scott" <scott.feldman@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>, "Shawn Starr" <spstarr@sh0n.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Dec 2003 19:33:08.0560 (UTC) FILETIME=[6DAA6500:01C3C8C2]
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0 release + ALSA + suspend = not work
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.157.208.226] using ID <dw2price@rogers.com> at Mon, 22 Dec 2003 14:37:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> New is a bit non-specific :)  What driver version?
+ALSA stops producing sound after any time I suspend my Thinkpad T20 
+notebook. I am using 2.6.0 release and the snd-cs46xx driver.
 
-It's got to be the e100-2.3.x driver in 2.6.0.
- 
-> If you remove all occurences of "__devinit", does the oops go away?
+I have to log out of Gnome and remove the sound card module and re 
+modprobe it then restart Gnome to get sound back.
 
-That's the problem.  __devinit's where there shouldn't be __devinit's.
+No problems with 2.4.20 with OSS drivers.
 
-So e100-3.0.x is pending in -exp queue for 2.6.1; do we fix 2.6.0?
-
--scott

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278042AbRKMS3A>; Tue, 13 Nov 2001 13:29:00 -0500
+	id <S278081AbRKMSek>; Tue, 13 Nov 2001 13:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278098AbRKMS2u>; Tue, 13 Nov 2001 13:28:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30737 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278042AbRKMS2i>; Tue, 13 Nov 2001 13:28:38 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: fdutils.
-Date: 13 Nov 2001 10:28:03 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9sronj$pna$1@cesium.transmeta.com>
-In-Reply-To: <E04CF3F88ACBD5119EFE00508BBB21216C828E@exch-01.noida.hcltech.com>
+	id <S278103AbRKMSeb>; Tue, 13 Nov 2001 13:34:31 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:17682 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278085AbRKMSeU>; Tue, 13 Nov 2001 13:34:20 -0500
+Date: Tue, 13 Nov 2001 16:33:53 -0200 (BRST)
+From: Rik van Riel <riel@marcelothewonderpenguin.com>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: <root@gollum.uci.agh.edu.pl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Compilation crashed
+In-Reply-To: <200111131930.fADJU5o07216@gollum.uci.agh.edu.pl>
+Message-ID: <Pine.LNX.4.33L.0111131632560.20809-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E04CF3F88ACBD5119EFE00508BBB21216C828E@exch-01.noida.hcltech.com>
-By author:    Rajiv Malik <rmalik@noida.hcltech.com>
-In newsgroup: linux.dev.kernel
->
-> hi again, 
-> still no answer to my previous query.i think nobuddy knows the answer.
-> nehowwe we will solve it other way.
-> 
-> does linux floppy driver support super drives (LS-120/LS-240)
-> 
+On Tue, 13 Nov 2001 root@gollum.uci.agh.edu.pl wrote:
 
-Not the traditional floppy driver, but rather the ide-floppy driver
-(which is a different driver.)
+> 1.Compilation crash
 
-Thankfully, the LS-120/LS-240 hardware is actually sane.
-Unfortunately the zip drive probably kept it from displacing legacy
-floppies, at least in the short term.
+> drivers/block/block.o: In function `lo_send':
+> drivers/block/block.o(.text+0x8baf): undefined reference to `deactivate_page'
+> drivers/block/block.o(.text+0x8bf9): undefined reference to `deactivate_page'
+> make: *** [vmlinux] Error 1
 
-	-hpa
+The function deactivate_page was removed from kernel 2.4.14,
+you can edit drivers/block/loop.c and remove the two lines
+which call deactivate_page(page) ...
+
+After that, things work.
+
+regards,
+
+Rik
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

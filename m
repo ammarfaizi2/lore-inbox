@@ -1,57 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbTJNCXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 22:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTJNCXJ
+	id S262168AbTJNCh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 22:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTJNCh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 22:23:09 -0400
-Received: from smtp13.eresmas.com ([62.81.235.113]:12521 "EHLO
-	smtp13.eresmas.com") by vger.kernel.org with ESMTP id S262161AbTJNCXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 22:23:06 -0400
-Message-ID: <3F8B5DDB.2050302@wanadoo.es>
-Date: Tue, 14 Oct 2003 04:22:19 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
+	Mon, 13 Oct 2003 22:37:28 -0400
+Received: from adsl-67-67-9-206.dsl.okcyok.swbell.net ([67.67.9.206]:30911
+	"HELO homer.d-oh.org") by vger.kernel.org with SMTP id S262168AbTJNChZ
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Mon, 13 Oct 2003 22:37:25 -0400
+From: "Alex Adriaanse" <alex_a@caltech.edu>
+To: "Hans Reiser" <reiser@namesys.com>
+Cc: "jw schultz" <jw@pegasys.ws>,
+       "Linux Kernel Mailing List" <Linux-Kernel@Vger.Kernel.ORG>,
+       <vs@namesys.com>
+Subject: RE: ReiserFS patch for updating ctimes of renamed files
+Date: Mon, 13 Oct 2003 21:37:24 -0500
+Message-ID: <JIEIIHMANOCFHDAAHBHOMEMEDAAA.alex_a@caltech.edu>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][TRIVIAL] triple question marks in ppa.c
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <3F8A6646.3070206@namesys.com>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel espetou:
+Hans,
 
-> Don't ask me why???  Triple question marks are a C trigraph in ansi C.
-                       ^^^^^^^^^^^^^^^^^^^^^
+Yes, I agree with J.W.  However, I also think that Andrew has a good point
+in that the behavior across Linux filesystems (ReiserFS, ext2, ext3, minix,
+etc.) should be consistent.  Either they should all update ctime during
+renames, or none of them should.
 
-[1]'ISO/IEC 9899:1999  Programming languages  --  C' says in §5.2.1.1 that
-C trigraph sequences are:
+Anyway, I'll try to work with the GNU tar maintainer to get this problem in
+tar fixed.  It'll probably be a lot harder to fix in tar than to have
+ReiserFS update ctimes since it'll require major changes in
+the --listed-incremental snapshot files.  However, if you don't think it's a
+good idea to make these changes to ReiserFS then we'll just work on fixing
+up tar.
 
-??=     #         ??)     ]         ??!     |
-??(     [         ??'     ^         ??>     }
-??/     \         ??<     {         ??-     ~
+Thanks,
 
-"No  other  trigraph  sequences exist", I didn't look [2] 'Corrigendum 1,
-ISO/IEC 9899:1999/Cor 1:2001', but I think that they were not modified.
+Alex
 
-And inside of comments there are not trigraph substitutions, at least
-in theory §6.4.9.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Hans Reiser
+Sent: Monday, October 13, 2003 3:46 AM
+To: Alex Adriaanse
+Cc: jw schultz; Linux Kernel Mailing List; vs@namesys.com
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
 
-I only found a few in 2.4.22-bk30, aka 2.4.23-pre7:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106565695609164&w=2
 
-thanks to fix them ;-)
+Alex, are you convinced by jw?  (I think I am.)  Would you be willing to
+submit a patch for tar instead?
 
-[1]
-  http://www.cl.cam.ac.uk/~mgk25/volatile/ISO-C-FDIS.1999-04.txt
-  http://www.cl.cam.ac.uk/~mgk25/volatile/ISO-C-FDIS.1999-04.pdf
-[2]
-  http://www.iso.org/iso/en/CatalogueDetailPage.CatalogueDetail?CSNUMBER=35952
--- 
-Software is like sex, it's better when it's bug free.
+Hans
+
+jw schultz wrote:
+
+>On Mon, Oct 13, 2003 at 09:49:20AM +0400, Hans Reiser wrote:
+>
+>
+> In theory it is cleaner and purer to do it the way we did. In practice,
+>
+>>Alex's problem seems like a real one, and I don't know how hard it is to
+>>change tar to do the right thing.  We'll discuss it in a small seminar
+>>today.
+>>
+>>
+>
+>Updating ctime does seem messy and a bit irrelevant for the
+>atomic rename.  You are modifying the directories not the
+>fricken file. This isn't DOS!  But it would seem he does
+>indeed have an issue although i'm not sure what.  I've never
+>used the listed-incremental option of tar and since the
+>manpage is incomplete <rant deleted> i don't know what it
+>actually does.  However, i have found the use of ctime to be
+>terribly unreliable for file management and given what the
+>standards have to say on the issue it sounds like tar is
+>being abused or has a bug.
+>
+>
+>
+>
+
+
+--
+Hans
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

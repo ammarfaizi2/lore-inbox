@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbSLID4x>; Sun, 8 Dec 2002 22:56:53 -0500
+	id <S262648AbSLIEPN>; Sun, 8 Dec 2002 23:15:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262648AbSLID4x>; Sun, 8 Dec 2002 22:56:53 -0500
-Received: from gw.softway.com.au ([203.31.96.1]:35340 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id <S262500AbSLID4w>;
-	Sun, 8 Dec 2002 22:56:52 -0500
-Date: Mon, 9 Dec 2002 15:04:26 +1100
-From: Kingsley Cheung <kingsley@aurema.com>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [TRIVIAL PATCH 2.4.20] madvise_willneed makes bad limit comparison
-Message-ID: <20021209150426.D12270@aurema.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262730AbSLIEPN>; Sun, 8 Dec 2002 23:15:13 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:20105 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262648AbSLIEPM>;
+	Sun, 8 Dec 2002 23:15:12 -0500
+Date: Sun, 8 Dec 2002 21:59:27 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Richard Henderson <rth@twiddle.net>, Willy Tarreau <willy@w.ods.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>,
+       <jgarzik@pobox.com>
+Subject: Re: /proc/pci deprecation?
+In-Reply-To: <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0212082154480.913-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-'madvise_willneed' makes an incorrect rss limit comparison.  It
-directly compares rlim[RLIMIT_RSS].rlim_cur to rss. The former is in
-bytes, whereas the latter is in pages.  The fix for this is trivial.
+> > It just reports what's in the PCI_INTERRUPT_LINE register.
+> 
+> That's wrong, then.
 
-[As an aside, one question is whether this limit check is needed at
-all.  Most rss limit enforcement implementations that I've seen are
-'soft', whereas this would give the limit 'hard' semantics.  Do we
-really want 'hard' limit semantics?]
+Actually, it doesn't. IIUC, it gets it from /proc/bus/pci/devices. That 
+info is formatted in drivers/pci/proc.c::show_device().
 
+> > At least on Alpha, we wrote into this register during pci
+> > configuration, so the value matches what's in /proc/interrupts.
+> > I guess I always assumed we did the same on x86, but I've
+> > never checked.
+> 
+> It _shouldn't_ be done. The PCI_INTERRUPT_LINE register is just a byte,
+> which isn't even _enough_ to identify the irq "for real" on many
+> architectures. It's also a totally different namespace at least on x86
+> machines: the PCI_INTERRUPT_LINE register should contain the "legacy
+> interrupt", while the remapped interrupt will depend on whether the
+> io-apic is enabled or not.
+> 
+> Writing it back is actively _bad_, since it will make it very hard to
+> re-boot the machine without the BIOS re-enumarating the PCI bus and
+> filling it in again (ie it would definitely screw up using things like
+> kexec() on PC's, if the kernel we boot _from_ is an APIC kernel, but the
+> kernel we boot _into_ is not).
 
-diff -urN linux-2.4.20/mm/filemap.c linux-2.4.20patched/mm/filemap.c
---- linux-2.4.20/mm/filemap.c   Mon Dec  9 14:19:13 2002
-+++ linux-2.4.20patched/mm/filemap.c    Mon Dec  9 14:36:08 2002
-@@ -2471,10 +2471,12 @@
- 
-        /* Make sure this doesn't exceed the process's max rss. */
-        error = -EIO;
--       rlim_rss = current->rlim ?  current->rlim[RLIMIT_RSS].rlim_cur :
--                               LONG_MAX; /* default: see resource.h */
--       if ((vma->vm_mm->rss + (end - start)) > rlim_rss)
--               return error;
-+       rlim_rss = current->rlim[RLIMIT_RSS].rlim_cur;
-+       if (rlim_rss != RLIM_INFINITY) {
-+               rlim_rss >>= PAGE_SHIFT;
-+               if ((vma->vm_mm->rss + (end - start)) > rlim_rss)
-+                       return error;
-+       }
- 
-        /* round to cluster boundaries if this isn't a "random" area. */
-        if (!VM_RandomReadHint(vma)) {
+I couldn't find any place that ia32 writes the PCI_INTERRUPT_LINE register 
+during boot. And, manually reading in various places (before, during, and 
+after enabling a device) always returned the same info. 
 
+> So the rule should be:
+>  - the PCI config space is _not_ the same as "pci->irq"
+>  - we should _never_ update the PCI_INTERRUPT_LINE register, because it
+>    destroys boot loader information (the same way we need to not overwrite
+>    BIOS extended areas and ACPI areas etc in order to be able to reboot
+>    cleanly)
+>  - we need _some_ way of getting the "kernel irq line" from /sys or /proc.
+> 
+> Sounds like /proc/pci still does something for us. Or is the info
+> available in /proc/bus/pci/devices?
 
---
-		Kingsley
+AFAICT, lspci is getting it from /proc/bus/pci/devices. I'm getting the 
+source now to sift through and verify. Alternatively, the data is also 
+available in the 'irq' file in each PCI device's sysfs directory. 
+
+	-pat
+

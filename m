@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUHIGcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUHIGeG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUHIGcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 02:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHIGcQ
+	id S266161AbUHIGeG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 02:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHIGeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 02:32:16 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:55012 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S266166AbUHIGcO (ORCPT
+	Mon, 9 Aug 2004 02:34:06 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1678 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266161AbUHIGeA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 02:32:14 -0400
-Date: Mon, 9 Aug 2004 08:32:12 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Morris <jmorris@redhat.com>, David Howells <dhowells@redhat.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjanv@redhat.com,
-       dwmw2@infradead.org, greg@kroah.com, Chris Wright <chrisw@osdl.org>,
-       sfrench@samba.org, mike@halcrow.us,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] implement in-kernel keys & keyring management
-Message-ID: <20040809063212.GA16123@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linus Torvalds <torvalds@osdl.org>,
-	James Morris <jmorris@redhat.com>,
-	David Howells <dhowells@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, arjanv@redhat.com, dwmw2@infradead.org,
-	greg@kroah.com, Chris Wright <chrisw@osdl.org>, sfrench@samba.org,
-	mike@halcrow.us, Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Kyle Moffett <mrmacman_g4@mac.com>
-References: <Xine.LNX.4.44.0408082041010.1123-100000@dhcp83-76.boston.redhat.com> <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
+	Mon, 9 Aug 2004 02:34:00 -0400
+Date: Mon, 9 Aug 2004 08:33:24 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Stefan Meyknecht <sm0407@nurfuerspam.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
+Message-ID: <20040809063323.GB10418@suse.de>
+References: <200408061833.30751.sm0407@nurfuerspam.de> <20040806220654.5e857bed.akpm@osdl.org> <20040807083835.GA24860@suse.de> <200408071412.17411.sm0407@nurfuerspam.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408082114230.1832@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <200408071412.17411.sm0407@nurfuerspam.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 09:27:15PM -0700, Linus Torvalds wrote:
+On Sat, Aug 07 2004, Stefan Meyknecht wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> > drive. If you could look into why that isn't set for your mo device
+> > and send a patch for that, it would be much better.
+> 
+> Assuming mo devices can do random writing, how about this patch:
+> 
+> --- linux/drivers/cdrom/cdrom.c.orig	2004-08-07 14:02:28.958908544 +0200
+> +++ linux/drivers/cdrom/cdrom.c	2004-08-07 13:58:29.306167698 +0200
+> @@ -833,8 +833,11 @@ static int cdrom_open_write(struct cdrom
+>  	if (!cdrom_is_mrw(cdi, &mrw_write))
+>  		mrw = 1;
+>  
+> -	(void) cdrom_is_random_writable(cdi, &ram_write);
+> -
+> +	if (CDROM_CAN(CDC_MO_DRIVE))
+> +		ram_write = 1;
+> +	else
+> +		(void) cdrom_is_random_writable(cdi, &ram_write);
+> +	
+>  	if (mrw)
+>  		cdi->mask &= ~CDC_MRW;
+>  	else
+> @@ -855,7 +858,7 @@ static int cdrom_open_write(struct cdrom
+>  	else if (CDROM_CAN(CDC_DVD_RAM))
+>  		ret = cdrom_dvdram_open_write(cdi);
+>   	else if (CDROM_CAN(CDC_RAM) &&
+> - 		 !CDROM_CAN(CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_MRW))
+> + 		 !CDROM_CAN(CDC_CD_R|CDC_CD_RW|CDC_DVD|CDC_DVD_R|CDC_MRW|CDC_MO_DRIVE))
+>   		ret = cdrom_ram_open_write(cdi);
+>  	else if (CDROM_CAN(CDC_MO_DRIVE))
+>  		ret = mo_open_write(cdi);
 
-> Yes. However, I don't see that the kernel really would ask for new keys 
-> very often.  Any normal operation is that you have the key already.
-
-Key might not be there though, leading to many repeated requests. Three
-points:
-
-1) A netlink binary "server" looks a hell of a lot like a nameserver, and
-those are a roaring success in terms of stability and performance. When
-considering nameservers other than bind, I'd also add security and leanness
-to that list.
-
-2) One can also send text over datagrams (think SIP)
-
-3) Debugging netlink communications is actually not that hard as other
-processes can listen in on netlink communications given certain settings,
-think 'netlinkdump'. Especially easy when doing ASCII over netlink!
-
-Bert.
+Patch looks fine (last hunk is a little code, but that's not your
+fault). Thanks!
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Jens Axboe
+

@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263499AbTHXM7n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 08:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263514AbTHXM6a
+	id S263514AbTHXM7o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 08:59:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTHXM6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 08:58:30 -0400
-Received: from amsfep11-int.chello.nl ([213.46.243.20]:63264 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id S263455AbTHXM6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 08:58:20 -0400
+	Sun, 24 Aug 2003 08:58:33 -0400
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:39187 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263495AbTHXM6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 08:58:21 -0400
 Date: Sun, 24 Aug 2003 14:58:51 +0200
-Message-Id: <200308241258.h7OCwpRh000979@callisto.of.borg>
+Message-Id: <200308241258.h7OCwphp000985@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Atari floppy
+Subject: [PATCH] M68k switch_to
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atari floppy: Add missing includes and remove some unnecessary includes
+M68k: Set last in switch_to(), fix asm constraints (from Andreas Schwab)
 
---- linux-2.6.0-test2/drivers/block/ataflop.c	Tue Jul 29 18:18:44 2003
-+++ linux-m68k-2.6.0-test2/drivers/block/ataflop.c	Wed Jul 30 22:49:57 2003
-@@ -63,35 +63,16 @@
+--- linux-2.6.0-test3/include/asm-m68k/system.h	Tue Mar 25 10:07:22 2003
++++ linux-m68k-2.6.0-test3/include/asm-m68k/system.h	Tue Aug 12 12:48:28 2003
+@@ -36,9 +36,12 @@
+ #define switch_to(prev,next,last) do { \
+   register void *_prev __asm__ ("a0") = (prev); \
+   register void *_next __asm__ ("a1") = (next); \
++  register void *_last __asm__ ("d1"); \
+   __asm__ __volatile__("jbsr resume" \
+-		       : : "a" (_prev), "a" (_next) \
+-		       : "d0", "d1", "d2", "d3", "d4", "d5", "a0", "a1"); \
++		       : "=a" (_prev), "=a" (_next), "=d" (_last) \
++		       : "0" (_prev), "1" (_next) \
++		       : "d0", "d2", "d3", "d4", "d5"); \
++  (last) = _last; \
+ } while (0)
  
- #include <linux/module.h>
- 
--#include <linux/sched.h>
--#include <linux/string.h>
--#include <linux/fs.h>
--#include <linux/fcntl.h>
--#include <linux/kernel.h>
--#include <linux/timer.h>
- #include <linux/fd.h>
--#include <linux/errno.h>
--#include <linux/types.h>
- #include <linux/delay.h>
--#include <linux/mm.h>
--#include <linux/slab.h>
- #include <linux/init.h>
--#include <linux/buffer_head.h>		/* for invalidate_buffers() */
--
--#include <asm/setup.h>
--#include <asm/system.h>
--#include <asm/bitops.h>
--#include <asm/irq.h>
--#include <asm/pgtable.h>
--#include <asm/uaccess.h>
-+#include <linux/blkdev.h>
- 
- #include <asm/atafd.h>
- #include <asm/atafdreg.h>
--#include <asm/atarihw.h>
- #include <asm/atariints.h>
- #include <asm/atari_stdma.h>
- #include <asm/atari_stram.h>
--#include <linux/blkpg.h>
- 
- #define	FD_MAX_UNITS 2
  
 
 Gr{oetje,eeting}s,

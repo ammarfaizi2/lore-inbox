@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265541AbSK1OT3>; Thu, 28 Nov 2002 09:19:29 -0500
+	id <S265603AbSK1Oxm>; Thu, 28 Nov 2002 09:53:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265543AbSK1OT3>; Thu, 28 Nov 2002 09:19:29 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:15848 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265541AbSK1OT2>;
-	Thu, 28 Nov 2002 09:19:28 -0500
-Date: Thu, 28 Nov 2002 14:24:37 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Margit Schubert-While <margitsw@t-online.de>
+	id <S265608AbSK1Oxl>; Thu, 28 Nov 2002 09:53:41 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:11685 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S265603AbSK1OxD>;
+	Thu, 28 Nov 2002 09:53:03 -0500
+Date: Thu, 28 Nov 2002 17:14:23 -0500
+From: Christoph Hellwig <hch@sgi.com>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19/20, 2.5 missing P4 ifdef ?
-Message-ID: <20021128142437.GA23664@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Margit Schubert-While <margitsw@t-online.de>,
+Subject: [PATCH] remove unused variable in arch/i386/kernel/cpu/cyrix.c
+Message-ID: <20021128171423.C6592@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, torvalds@transmeta.com,
 	linux-kernel@vger.kernel.org
-References: <4.3.2.7.2.20021128151157.00b522c0@pop.t-online.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4.3.2.7.2.20021128151157.00b522c0@pop.t-online.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 03:17:53PM +0100, Margit Schubert-While wrote:
- > Just noticed this in "include/asm-i386/processor.h" :
- > 
- > --- snip ---
- > /* Prefetch instructions for Pentium III and AMD Athlon */
- > #ifdef  CONFIG_MPENTIUMIII
- > #define ARCH_HAS_PREFETCH
- > extern inline void prefetch(const void *x)
- > {
- >         __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
- > }
- > #elif CONFIG_X86_USE_3DNOW
- > --- end snip ---
- > 
- > The P4 has SSE and prefetch or no ?
 
-It does. You seem to have found a bug.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--- 1.6/arch/i386/kernel/cpu/cyrix.c	Fri Nov 15 03:02:21 2002
++++ edited/arch/i386/kernel/cpu/cyrix.c	Thu Nov 28 14:22:16 2002
+@@ -170,7 +170,7 @@
+ {
+ 	unsigned long flags;
+ 	u8 ccr3, ccr4;
+-	unsigned long cr0;
++
+ 	local_irq_save(flags);
+ 	
+ 	ccr3 = getCx86(CX86_CCR3);

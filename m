@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277530AbRJ3TAC>; Tue, 30 Oct 2001 14:00:02 -0500
+	id <S277533AbRJ3TIE>; Tue, 30 Oct 2001 14:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277533AbRJ3S7p>; Tue, 30 Oct 2001 13:59:45 -0500
-Received: from chaos.psimation.co.za ([160.124.112.123]:5650 "EHLO
-	chaos.psimation.co.za") by vger.kernel.org with ESMTP
-	id <S277530AbRJ3S7f>; Tue, 30 Oct 2001 13:59:35 -0500
-Message-ID: <3BDEF62B.5050600@mweb.co.za>
-Date: Tue, 30 Oct 2001 20:49:15 +0200
-From: "P.Agenbag" <internet@mweb.co.za>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: ext3 and reiserfs / patches
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277559AbRJ3THz>; Tue, 30 Oct 2001 14:07:55 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:53402 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S277533AbRJ3THj>;
+	Tue, 30 Oct 2001 14:07:39 -0500
+Date: Tue, 30 Oct 2001 11:08:06 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH][RFC] Proposal For A More Scalable Scheduler ...
+Message-ID: <20011030110806.D1097@w-mikek2.des.beaverton.ibm.com>
+In-Reply-To: <20011030112937.A16154@watson.ibm.com> <Pine.LNX.4.40.0110301043040.1495-100000@blue1.dev.mcafeelabs.com> <20011030115257.A16187@watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011030115257.A16187@watson.ibm.com>; from frankeh@watson.ibm.com on Tue, Oct 30, 2001 at 11:52:57AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm, very stupid question...
-Firstly, thanks to all the responses helping me to get the 
-(EXPERIMENTAL) out of the way...
-Now, is reiserfs the same as ext3? if not, what's the diff/best?
+On Tue, Oct 30, 2001 at 11:52:57AM -0500, Hubertus Franke wrote:
+> * Davide Libenzi <davidel@xmailserver.org> [20011030 13;50]:"
+> > On Tue, 30 Oct 2001, Hubertus Franke wrote:
+> > 
+> > > There is however another problem that you haven't addressed yet, which
+> > > is realtime. As far as I can tell, the realtime semantics require a
+> > > strict ordering with respect to each other and their priorities.
+> > > General approach can be either to limit all RT processes to a single CPU
+> > > or, as we have done, declare a global RT runqueue.
+> > 
+> > Real time processes, when wakeup up fall calling reschedule_idle() that
+> > will either find the CPU idle or will be reschedule due a favorable
+> > preemption_goodness().
+> > One of balancing scheme I'm using tries to distribute RT tasks evenly on
+> > CPUs.
+> > 
+> 
+> I think that would be a problem. My understanding is that if two RT process
+> are globally runnable, then one must run the one with higher priority.
+> Am I missing something here ?
 
-Also, concerning the patches
+It is not just the relative priorities of the realtime tasks, but
+also the scheduling policy.  SCHED_FIFO (and to some extent SCHED_RR)
+implies an ordering within the runqueue for tasks of the same priority.
+This is difficult to achieve with multiple runqueues.  Most scheduler
+implementations I am aware of, do something like what you suggested
+above.
 
-I only once attempted to patch a kernel and it came out a beeeeeg 
-messup. I'm not very sure about the procedure, I always untar my new 
-kernel in /opt and then rename the linux folder to the version number ( 
-sometimes have 4 or 5 kernels, so need to distinguish...)
-Lets say I have a  /opt/247 kernel source , how exactly would I patch it 
-and with which of the patches? Do you patch the 247 kernel with the 247 
-patch, or do you patch it with a higher version, and if so, how many 
-"steps" can you go higher?
-
-Sorry for the ignorance, but hey, atleast i'm willing to learn!
-Thanks
-
+-- 
+Mike

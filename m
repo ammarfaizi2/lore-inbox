@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263706AbUDGPOF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 11:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUDGPOF
+	id S263694AbUDGPRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 11:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbUDGPRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 11:14:05 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:29056 "EHLO
+	Wed, 7 Apr 2004 11:17:37 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:31616 "EHLO
 	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263706AbUDGPOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 11:14:03 -0400
-Date: Wed, 7 Apr 2004 16:17:38 +0100
+	id S263694AbUDGPRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 11:17:36 -0400
+Date: Wed, 7 Apr 2004 16:21:24 +0100
 From: John Bradford <john@grabjohn.com>
-Message-Id: <200404071517.i37FHcl9000322@81-2-122-30.bradfords.org.uk>
+Message-Id: <200404071521.i37FLOUi000349@81-2-122-30.bradfords.org.uk>
 To: Lars Marowsky-Bree <lmb@suse.de>,
        LKML Mailinglist <linux-kernel@vger.kernel.org>
 In-Reply-To: <20040407150516.GC23517@marowsky-bree.de>
@@ -27,11 +27,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > core LISP machine written in >i386 assembly, then we need to port the
 > rest of the kernel to run as LISP bytecode on top of that in ring1 (in
 > particular the security policies).
-> 
-> Of course, important privileged user-space such as glibc should be
-> ported to this highly efficient non-recursive LISP machine too for
-> efficiency and run on ring 2 for speed and security.
 
-Errr, no, I don't think so :-).
+..or just pass init=/bin/emacs to your bootloader :-).
 
 John.

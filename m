@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265267AbUGGSHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265266AbUGGSJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265267AbUGGSHP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 14:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUGGSHP
+	id S265266AbUGGSJS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 14:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbUGGSJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 14:07:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15822 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265263AbUGGSHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 14:07:12 -0400
-Date: Wed, 7 Jul 2004 11:06:53 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bert hubert <ahu@ds9a.nl>, jamie@shareable.org, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix tcp_default_win_scale.
-Message-Id: <20040707110653.7c49bef1@dell_ss3.pdx.osdl.net>
-In-Reply-To: <20040706154907.422a6b73.davem@redhat.com>
-References: <20040629222751.392f0a82.davem@redhat.com>
-	<20040630152750.2d01ca51@dell_ss3.pdx.osdl.net>
-	<20040630153049.3ca25b76.davem@redhat.com>
-	<20040701133738.301b9e46@dell_ss3.pdx.osdl.net>
-	<20040701140406.62dfbc2a.davem@redhat.com>
-	<20040702013225.GA24707@conectiva.com.br>
-	<20040706093503.GA8147@outpost.ds9a.nl>
-	<20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net>
-	<20040706194034.GA11021@mail.shareable.org>
-	<20040706131235.10b5afa8.davem@redhat.com>
-	<20040706224453.GA6694@outpost.ds9a.nl>
-	<20040706154907.422a6b73.davem@redhat.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 Jul 2004 14:09:17 -0400
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:62344 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265266AbUGGSJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 14:09:16 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.7-mm6
+Date: Wed, 7 Jul 2004 12:15:52 -0500
+User-Agent: KMail/1.6.2
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+References: <20040705023120.34f7772b.akpm@osdl.org> <200407070015.39507.dtor_core@ameritech.net> <20040707163103.GA1368@ucw.cz>
+In-Reply-To: <20040707163103.GA1368@ucw.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407071215.53350.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do not argue with that the correct thing to do is to use window scaling
-and find/fix the poor sop's stuck behind busted networks.
+On Wednesday 07 July 2004 11:31 am, Vojtech Pavlik wrote:
+> On Wed, Jul 07, 2004 at 12:15:37AM -0500, Dmitry Torokhov wrote:
+> > The only suspicious thing that I see is that sunzilog tries to register its
+> > serio ports with spinlock held and interrupts off. I wonder if that is what
+> > causing a deadlock. Could you please try applying this patch on top of the
+> > changes to the drivers/Makefile that I sent earlier.
+> 
+> Shall I add this to my BK then?
+> 
 
-But: isn't it better to have just one sysctl parameter set (tcp_rmem)
-and set the window scale as needed rather than increasing the already
-bewildering array of dials and knobs?  I can't see why it would be advantageous
-to set a window scale of 7 if the largest possible window ever offered
-is limited to a smaller value? 
+I was planning on pushing some updates to you later tonight, but if you want
+you can just apply that patch. The change to Makefile is also needed.
+
+-- 
+Dmitry

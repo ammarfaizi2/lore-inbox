@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266094AbSKFUwl>; Wed, 6 Nov 2002 15:52:41 -0500
+	id <S266089AbSKFVAg>; Wed, 6 Nov 2002 16:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266095AbSKFUwk>; Wed, 6 Nov 2002 15:52:40 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:18843 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266094AbSKFUwk>; Wed, 6 Nov 2002 15:52:40 -0500
-Subject: Re: [Evms-announce] EVMS announcement
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <aqbv2d$tvd$1@cesium.transmeta.com>
-References: <02110516191004.07074@boiler>
-	<20021106001607.GJ27832@marowsky-bree.de>
-	<1036590957.9803.24.camel@irongate.swansea.linux.org.uk> 
-	<aqbv2d$tvd$1@cesium.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 21:21:58 +0000
-Message-Id: <1036617718.9781.73.camel@irongate.swansea.linux.org.uk>
+	id <S266095AbSKFVAg>; Wed, 6 Nov 2002 16:00:36 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46589 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266089AbSKFVAf>; Wed, 6 Nov 2002 16:00:35 -0500
+Date: Wed, 6 Nov 2002 22:07:07 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Marc A. Volovic" <marc@bard.org.il>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       Pannaga Bhushan <bhushan@multitech.co.in>, linux-kernel@vger.kernel.org
+Subject: Re: A hole in kernel space!
+Message-ID: <20021106210707.GD19580@fs.tum.de>
+References: <20021106134935.GA24234@glamis.bard.org.il> <Pine.LNX.3.95.1021106085810.3962A-100000@chaos.analogic.com> <20021106160934.GA25325@glamis.bard.org.il>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106160934.GA25325@glamis.bard.org.il>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 20:46, H. Peter Anvin wrote:
-> I presume that means device mapper is capable of using checksum
-> offloading and controller-based block duplication?  If so, that's
-> pretty damned nice.  Good work :)
+On Wed, Nov 06, 2002 at 06:09:34PM +0200, Marc A. Volovic wrote:
+> 
+> I do not alloc/dealloc every time ;-). I allocate at boot and do not
+> bother deallocating at all. The module just uses that allocated memory
+> and maps it into the filesystem namespace.
+>...
 
-ataraid is just driving dumb ide controllers in the way bios raid does
+Read pages 221-223 in
+
+   Alessandro Rubini and Jonathan Corbet.  Linux device drivers.
+   O'Reilly, second edition, 2001.  Online version:
+   http://www.xml.com/ldd/chapter/book/index.html
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

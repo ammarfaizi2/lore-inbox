@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263331AbTCNNm1>; Fri, 14 Mar 2003 08:42:27 -0500
+	id <S263329AbTCNNmC>; Fri, 14 Mar 2003 08:42:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263332AbTCNNm1>; Fri, 14 Mar 2003 08:42:27 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:20294 "EHLO
-	dhcp64-226.boston.redhat.com") by vger.kernel.org with ESMTP
-	id <S263331AbTCNNmZ>; Fri, 14 Mar 2003 08:42:25 -0500
-Date: Fri, 14 Mar 2003 08:53:09 -0500 (EST)
-From: Rik van Riel <riel@surriel.com>
-X-X-Sender: riel@dhcp64-226.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre5aa1
-In-Reply-To: <20030314090825.GB1375@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0303140852220.27094-100000@dhcp64-226.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263330AbTCNNmC>; Fri, 14 Mar 2003 08:42:02 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30418
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263329AbTCNNmB>; Fri, 14 Mar 2003 08:42:01 -0500
+Subject: Re: pcmcia-ide hang with 2.4.21-pre
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Dreher <dreher@math.tu-freiberg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <200303132358.15629.dreher@math.tu-freiberg.de>
+References: <200303132358.15629.dreher@math.tu-freiberg.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047654024.29544.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Mar 2003 15:00:24 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Mar 2003, Andrea Arcangeli wrote:
-
-> Only in 2.4.21pre4aa3: 9900_aio-17.gz
-> Only in 2.4.21pre5aa1: 9900_aio-18.gz
+On Thu, 2003-03-13 at 22:58, Michael Dreher wrote:
+> Hello all,
 > 
-> 	Cleaned up the whole asm/kmap_types.h mess, moved
-> 	kmap_types.h into linux/, this must be visible
-> 	for aio and it has to be the same for all archs so it doesn't belong to
-> 	asm/.
+> I get a hang as soon as I insert a pcmcia-cd-rom drive into my 
+> vaio picturebook (ALi/Transmeta). 
+> The box is just dead, after some seconds. 100% reproducible.
+> No sysrq works, nothing in the logs. 
+> 
+> external pcmcia-cs from David Hinds, version 3.2.4 (February 26)
+> 2.4.20 is OK
+> 2.4.21-pre1 and later hang.
 
-Maybe I'm dense, maybe it's early on a friday morning, maybe
-even both ... but I don't understand why architectures without
-highmem should have kmap_types.h
+Which kernel pcmcia code are you using ? The supplied kernel code
+or the Dave Hinds extras. (Both of course use the pcmcia user space)
 

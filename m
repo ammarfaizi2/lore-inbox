@@ -1,99 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267542AbRGXOSi>; Tue, 24 Jul 2001 10:18:38 -0400
+	id <S267543AbRGXOX3>; Tue, 24 Jul 2001 10:23:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267543AbRGXOS2>; Tue, 24 Jul 2001 10:18:28 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:20365 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S267542AbRGXOSR>;
-	Tue, 24 Jul 2001 10:18:17 -0400
-Date: Tue, 24 Jul 2001 15:15:05 +0100 (IST)
-From: Paul Jakma <paulj@alphyra.ie>
-To: Michael Poole <poole@troilus.org>
-cc: Dominik Kubla <kubla@sciobyte.de>, Paul Jakma <paul@clubi.ie>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Arp problem
-In-Reply-To: <87k80y8qsz.fsf@cj46222-a.reston1.va.home.com>
-Message-ID: <Pine.LNX.4.33.0107241453110.14727-100000@rossi.itg.ie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267545AbRGXOXU>; Tue, 24 Jul 2001 10:23:20 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:50359 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S267543AbRGXOXH>; Tue, 24 Jul 2001 10:23:07 -0400
+Message-Id: <5.1.0.14.2.20010724151125.00a6a880@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 24 Jul 2001 15:21:29 +0100
+To: alad@hss.hns.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: /boot partition creation
+Cc: linux-kernel@vger.kernel.org, rshekhar@hss.hns.com
+In-Reply-To: <65256A93.004BE747.00@sandesh.hss.hns.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 24 Jul 2001, Michael Poole wrote:
+At 13:37 24/07/01, alad@hss.hns.com wrote:
+>     I am trying to install redhat 7.1 on my m/c that already has an 8.5gb 
+> win NT partition.
+>During partition configuration, I cannot create /boot as it says that "/boot
+>cannot be created after 8.5G"
+>I know the reason.. but don't know the remedy
 
->
-> This may be a stupid question, but does
->   cat 0 > /proc/sys/net/ipv4/conf/eth0/send_redirects
-> help the problem any (for the proper value of "eth0")?  A college
-> roommate of mine once had the same problem, and clearing
-> send_redirects for the interface fixed it for him.
->
+Please note that this is not really a kernel topic... so this is the wrong 
+list to ask... But anyway, I will try to give you a suggestion:
 
-i'll have to try this sometime... but i'm a bit doubtful.
+Try to install without making a separate /boot partition and leave yourself 
+some space for that. Then use the created boot floppy to get into your 
+linux install after finishing the installation if the normal boot process 
+doesn't work.
 
-when i originally was looking at this (long time ago), i did consider
-disabling redirects, but decided against because:
+Then edit /etc/lilo.conf adding the lba32 parameter to the file. Then rerun 
+lilo and it should be able to boot fine from HD, the 8.5GB limit no longer 
+should matter. - This should work unless you have some old bios...
 
-- i presumed that this would not affect network behaviour in any way
-bar suppressing redirects
+You can then just manually create a partition, mount it somewhere, copy 
+everything from /boot to it (cp -ar) then unmount it, rm -rf /boot, setup 
+/etc/fstab to the new partition mount as /boot and type mount /boot. It 
+should be all done. Then just rerun lilo and reboot to check it is all 
+fine. It should be. - Just make sure that creating the /boot partition 
+doesn't rename your other linux partitions and if it does, you need to 
+update /etc/fstab accordingly before you reboot...
 
-- i actually do need redirects :)
+HTH,
 
-you see.....
-
-i actually have /multiple/ linux boxes, each acting with a physically
-independent subnet behind them, each box acting as router for that
-subnet. one linux box is the internet router/firewall/proxy/etc.. it
-is also the default gateway for the windows machines and the other
-linux routers.
+Anton
 
 
-eg, something like:
-
-			(internet)
-			   |
-			linux1
-                         |  |
-             (192.168.0/24) (192.168.3)
------------------------------------------------------------------
-  |          |                        | | | | | | | | | | | |
- (192.168.0/24)
-linux2	   linux3       	    (windows hosts: 192.168.3/24)
- |           |
-192.168.x/y  192.168.a/b
-
-so i need redirects in order for the linux boxes to properly route
-between themselves (they are all on the same logical subnet). however,
-i need the linux box to fully route between 192.168.0/24 and
-192.168.3/24 because the windows boxen are incapable of following
-redirects to hosts where dst net != own net. (not an unreasonable
-thing to do actually).
-
-eventually i had to put an extra NIC into linux1 to get it to route
-between 192.168.8.3.
-
-(ironically though... linux1 knows fine well that the the 2 seperate
-NICs are on the same wire - it will send replies to both nets from
-either NIC! so why could it not have done routing between the subnets
-when they were on the same NIC? it knew then too that it was the same
-wire!)
-
-eventually of course i'll throw the windows machines onto a
-/physically/ distinct network. however, still a PITA that linux will
-not route between subnets that are bound to the same link - and i'd
-love to know if it is possible to make linux do it. (i would have
-thought that would be the default behaviour).
-
-also: suggestions were made to try ipchains... however ipchains was
-already setup on the 'linux1' box with -j ACCEPT set for forwarding
-where src/dst == 192.168/16. (what more can be done??).
-
-so that isn't the answer, AFAICT.
-
-> -- Michael Poole
-
-regards,
-
---paulj
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

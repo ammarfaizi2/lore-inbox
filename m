@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129160AbRBHP5f>; Thu, 8 Feb 2001 10:57:35 -0500
+	id <S129130AbRBHQJW>; Thu, 8 Feb 2001 11:09:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129297AbRBHP50>; Thu, 8 Feb 2001 10:57:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:34830 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129160AbRBHP5Q>;
-	Thu, 8 Feb 2001 10:57:16 -0500
-Date: Thu, 8 Feb 2001 16:55:29 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Pavel Machek <pavel@suse.cz>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010208165529.E3262@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0102081000450.25219-100000@freak.distro.conectiva> <Pine.LNX.3.96.1010208164448.9024C-100000@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S129112AbRBHQJD>; Thu, 8 Feb 2001 11:09:03 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:34308
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129063AbRBHQIy>; Thu, 8 Feb 2001 11:08:54 -0500
+Date: Thu, 8 Feb 2001 08:08:33 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Adam Lackorzynski <al10@inf.tu-dresden.de>
+cc: "Zink, Dan" <Dan.Zink@COMPAQ.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'mj@suse.cz'" <mj@suse.cz>
+Subject: Re: [Patch] ServerWorks peer bus fix for 2.4.x
+In-Reply-To: <20010208125402.A11395@inf.tu-dresden.de>
+Message-ID: <Pine.LNX.4.10.10102080806540.1415-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1010208164448.9024C-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Thu, Feb 08, 2001 at 04:46:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 08 2001, Mikulas Patocka wrote:
-> > Even async IO (ie aio_read/aio_write) should block on the request queue if
-> > its full in Linus mind.
+On Thu, 8 Feb 2001, Adam Lackorzynski wrote:
+
+> On Thu Feb 08, 2001 at 03:06:27 -0800, Andre Hedrick wrote:
+> > Have you got a hack for 2.2.18/19x ??
 > 
-> This is not problem (you can create queue big enough to handle the load).
+> I do not have problems with 2.2.x Kernels here. They see all the PCI
+> devices just fine.
 
-Well in theory, but in practice this isn't a very good idea. At some
-point throwing yet more requests in there doesn't make a whole lot
-of sense. You are basically _always_ going to be able to empty the request
-list by dirtying lots of data.
+But it will not register the device
 
--- 
-Jens Axboe
+  Bus  0, device  15, function  2:
+    USB Controller: Unknown vendor OSB4 USB (rev 4).
+      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable. Latency=32.  Max Lat=80.
+      Non-prefetchable 32 bit memory at 0xfe9fc000 [0xfe9fc000].
+  Bus  1, device   2, function  0:
+    RAID storage controller: CMD 649 (rev 1).
+      Medium devsel.  Fast back-to-back capable.  IRQ 27.  Master Capable. Latency=64.  Min Gnt=2.Max Lat=4.
+      I/O at 0xefe0 [0xefe1].
+      I/O at 0xefac [0xefad].
+      I/O at 0xefa0 [0xefa1].
+      I/O at 0xefa8 [0xefa9].
+      I/O at 0xef90 [0xef91].
+
+The interrupts are invalid.
+It wants 10 and it is yeilding 27.
+This is the first time it has ever done this with my code.
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

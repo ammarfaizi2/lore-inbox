@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262041AbSIYSDN>; Wed, 25 Sep 2002 14:03:13 -0400
+	id <S262045AbSIYSIm>; Wed, 25 Sep 2002 14:08:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262042AbSIYSDN>; Wed, 25 Sep 2002 14:03:13 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:6058 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S262041AbSIYSDM>; Wed, 25 Sep 2002 14:03:12 -0400
-Date: Wed, 25 Sep 2002 14:08:17 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: What/Where are the latest aic7xxx ? (was:aic7xxx support foraic7902)
-In-Reply-To: <1338716224.1032976056@aslan.btc.adaptec.com>
-Message-ID: <Pine.LNX.4.44.0209251402060.14461-100000@filesrv1.baby-dragons.com>
+	id <S262046AbSIYSIm>; Wed, 25 Sep 2002 14:08:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60429 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262045AbSIYSIl>; Wed, 25 Sep 2002 14:08:41 -0400
+Date: Wed, 25 Sep 2002 11:16:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
+In-Reply-To: <Pine.LNX.4.44.0209251051190.6169-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0209251113530.1817-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello Justin ,
-	What is the latest version # of the aic7xxx driver ?
-	Where is the latest version of the aic7xxx driver ?
-	I've been to:
-		http://people.freebsd.org/~gibbs/linux/
-	and it shows 6.2.5 .  My kernel 2.4.19 says 6.2.6 .
-	An email from you to the list mentions you rolling a 6.2.7 quite
-	sometime ago .  Help !-} .  Tia ,  JimL
+On Wed, 25 Sep 2002, Ingo Molnar wrote:
+>
+> EIP is at sys_gettimeofday [kernel] 0x84
+> Call Trace: [<c0112a40>] do_page_fault [kernel] 0x0
+> [<c0107973>] syscall_call [kernel] 0x7
 
-On Wed, 25 Sep 2002, Justin T. Gibbs wrote:
-> > Justin,
-> > I've seen a special U320 driver aic79xx v1.10, but I suppose that the new
-> > U320 controllers will be folded into a new version of your aic7xxx driver
-> > (?).
-> Nope.  The U320 chips will never be supported in the aic7xxx driver due
-> to their very different architecture.  aic79xx v1.1.0 (or 1.1.1 which
-> includes the port to the 2.5.X kernels) is what you want.
-> > If so, I'd like to know which version of the aic7xxx driver will
-> > include support of the new aic7902 controller, and which kernel version
-> > will be targeted to have that folded in.
-> Which kernel version it will be folded into is beyond my control.  The
-> code has been sent to both Marcelo and Linus.
-> --
-> Justin
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+At a minimum, fix this to:
+
+ - not print out that stupid "kernel" thing. Of _course_ it is the kernel. 
+   Modules can put their module name to clarify, but the core kernel 
+   certainly doesn't "clarify" anything by putting "kernel" there.
+
+ - print out offset/length like the user-space ksymoops does. Without the 
+   offset the thing is useless, since you still need the real address to 
+   actually look up which instruction faulted.
+
+		Linus
 

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbUJ0FvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbUJ0Fv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbUJ0FvB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 01:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbUJ0FvA
+	id S261658AbUJ0Fv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 01:51:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUJ0Fv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 01:51:00 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:58229 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261655AbUJ0Fug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 01:50:36 -0400
-Message-ID: <417F3720.40307@yahoo.com.au>
-Date: Wed, 27 Oct 2004 15:50:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@novell.com>
-CC: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: lowmem_reserve (replaces protection)
-References: <20041027044445.GV14325@dualathlon.random> <Pine.LNX.4.44.0410270049250.21548-100000@chimarrao.boston.redhat.com> <20041027050527.GW14325@dualathlon.random>
-In-Reply-To: <20041027050527.GW14325@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 01:51:27 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:1664 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S261658AbUJ0FvD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 01:51:03 -0400
+Date: Wed, 27 Oct 2004 07:51:01 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Kim Holviala <kim@holviala.com>
+Subject: Re: [PATCH] mousedev: Fix scrollwheel thingy on IBM ScrollPoint mice
+Message-ID: <20041027055059.GB1211@ucw.cz>
+References: <417E0EA8.7000704@holviala.com> <20041026171157.21c7a15a.akpm@osdl.org> <200410261933.50544.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410261933.50544.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Wed, Oct 27, 2004 at 12:51:11AM -0400, Rik van Riel wrote:
+On Tue, Oct 26, 2004 at 07:33:50PM -0500, Dmitry Torokhov wrote:
+
+> > > This patch limits the scroll wheel movements to be either +1 or -1 on
+> > > the event -> emulated PS/2 level. I chose to implement it there because
+> > > mousedev emulates Microsoft mice but the real ones almoust never return
+> > > a bigger value than 1 (or -1).
+> > > ...
+> > > +#ifdef CONFIG_INPUT_MOUSEDEV_WHEELFIX
+> > > +				if (value) { value = (value < 0 ? -1 : 1); }
+> > > +#endif /* CONFIG_INPUT_MOUSEDEV_WHEELFIX */
+> > 
+> > This is really not a thing which we can put behind compile-time config.
+> > 
+> > Can we come up with a fix which works correctly on all hardware?  If not,
+> > this workaround will need to be enabled by some sort of runtime detection.
+> > 
 > 
->>On Wed, 27 Oct 2004, Andrea Arcangeli wrote:
->>
->>
->>>what we'll happen is that we'll blindly free a few pages from each zone,
->>>but then we'll be allowed to allocate the highmem pages, and not the
->>>normal/dma pages. So after allocating the highmem pages we invoke kswapd
->>>again and it frees again some highmem/normal/dma pages but we keep only
->>>using the highmem ones.  So for a while we may be rolling over only the
->>>highmem lru and ignoring all freed pages from the normal/dma zones.
->>
+> Unless someone (Vojtech?) has an objection I think we should always have
+> this workaround activated - after all mousedev provides legacy emulation
+> mostly for XFree/XOrg benefit anyway. Clients accessing data through evdev
+> will see the full picture regardless.
+ 
+We can have a workaround for XOrg, but not one like this. This will make
+fast scrolling unreliable. I have standard Microsoft-compatible mice
+which do report more than one scroll tick per report, if you scroll the
+wheel fast enough, and this throws away the extra ticks.
 
-That's what I mean when I say it can overscan the lower zones.
-You don't want to change the stop condition here though because
-obviously the highmem zone still has work to do - you just want
-to stop scanning the lower zones.
+We would have to split the value into multiple events which would each
+report a 1 or -1.
 
-I don't think it is a big problem though.
-
-I do have a patch to make it use the lower zone protection watermarks
-explicitly, but it is sitting on top of other stuff which I'm going
-to try to get merged first...
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

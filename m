@@ -1,30 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144235AbRA1W3l>; Sun, 28 Jan 2001 17:29:41 -0500
+	id <S144399AbRA1Wal>; Sun, 28 Jan 2001 17:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144272AbRA1W3c>; Sun, 28 Jan 2001 17:29:32 -0500
-Received: from dsl-64-193-199-233.telocity.com ([64.193.199.233]:52491 "EHLO
-	bugs.home.shadowstar.net") by vger.kernel.org with ESMTP
-	id <S144235AbRA1W31>; Sun, 28 Jan 2001 17:29:27 -0500
-Message-Id: <5.0.2.1.2.20010128172921.01f735c0@bugs.home.shadowstar.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Sun, 28 Jan 2001 17:29:45 -0500
+	id <S144398AbRA1Wab>; Sun, 28 Jan 2001 17:30:31 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:61198 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S144272AbRA1WaP>;
+	Sun, 28 Jan 2001 17:30:15 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-From: Alec Smith <alec@shadowstar.net>
-Subject: Moving from kernel 2.2 to 2.4
+Cc: "Sergey Kubushin" <ksi@cyberbills.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Peter Kaczuba <pepe@pool.informatik.rwth-aachen.de>, tytso@mit.edu
+Subject: Ram disk problems in 2.4.0ac12 
+In-Reply-To: Your message of "Fri, 26 Jan 2001 17:46:12 -0800."
+             <Pine.LNX.4.31ksi3.0101261742080.598-100000@nomad.cyberbills.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 29 Jan 2001 09:29:56 +1100
+Message-ID: <9495.980720996@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand a large portion of the kernel 2.4 networking code was updated 
-and/or completely replaced. Under 2.2 I have ipchains configured to do 
-basic masquerading for my local LAN. Is there a straightforward guide which 
-describes how to do masquerading and firewalling with 2.4 after moving up 
-from 2.2?
+On Fri, 26 Jan 2001 17:46:12 -0800 (PST), 
+"Sergey Kubushin" <ksi@cyberbills.com> wrote:
+>Modules still don't load:
+>
+>=== Cut ===
+>ide-mod.o: Can't handle sections of type 32131
+>ide-probe-mod.o: Can't handle sections of type 256950710
+>ide-disk.o: Can't handle sections of type 688840897
+>ext2.o: Can't handle sections of type 69429248
+>=== Cut ===
 
-Thanks,
-Alec
+modutils has been ruled out as the cause of this problem.  The objects
+are valid but when they are loaded they come up as corrupt.  Modules
+work fine for me on 2.4.0-ac12, when they are loaded from disk.  Both
+people reporting this bug are using initrd so the obvious culprit is
+the ram disk code.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

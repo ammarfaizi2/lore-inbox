@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264477AbTLZE6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 23:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTLZE6y
+	id S264487AbTLZFKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 00:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTLZFKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 23:58:54 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:14598 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264477AbTLZE6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 23:58:54 -0500
-Date: Fri, 26 Dec 2003 03:09:24 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: john moser <bluefoxicy@linux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Help: slab allocator and TLB
-Message-ID: <20031226050923.GH14954@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	john moser <bluefoxicy@linux.net>, linux-kernel@vger.kernel.org
-References: <20031226045103.42D163963@sitemail.everyone.net>
+	Fri, 26 Dec 2003 00:10:09 -0500
+Received: from [64.65.177.98] ([64.65.177.98]:11766 "EHLO mail.pacrimopen.com")
+	by vger.kernel.org with ESMTP id S264487AbTLZFKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 00:10:03 -0500
+Subject: Re: 2.6.0 problems
+From: Joshua Schmidlkofer <kernel@pacrimopen.com>
+To: dan@eglifamily.dnsalias.net
+Cc: Eric <eric@cisu.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0312260106510.1888-100000@eglifamily.dnsalias.net>
+References: <Pine.LNX.4.44.0312260106510.1888-100000@eglifamily.dnsalias.net>
+Content-Type: text/plain
+Message-Id: <1072415388.27022.214.camel@menion.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031226045103.42D163963@sitemail.everyone.net>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 25 Dec 2003 21:09:48 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Dec 25, 2003 at 08:51:02PM -0800, john moser escreveu:
+On Thu, 2003-12-25 at 17:07, dan@eglifamily.dnsalias.net wrote:
+> On Thu, 25 Dec 2003, Eric wrote:
+> 
+> > On Thursday 25 December 2003 02:57 pm, dan@eglifamily.dnsalias.net wrote:
+> > > I grabbed the 2.6.0 code yesterday. But when I tried to compile a
+> > > modular kernel, I got a *LOT* of unresolved symbols in the modules. I'm
+> > > attaching the stderr output from depmod's run of make modules_install.
+> > 	I had this problem with a RH9 install. Instead of modutils, upgrade the the 
+> > latest module-init-tools from ftp://kernel.org.
+> > 	The problem is that most of the module loading code has been moved from 
+> > userspace to kernel code to make module loading more portable. Be sure to 
+> > follow the upgrade instructions carefully. If done correctly it will keep 
+> > your old modutils in case you load a 2.4.x kernel and will default to the new 
+> > module-init-tools for 2.6.x kernels.
+> 
+> I'll try that, thanks!
+> 
+> Any ideas on the blank screen issue?
+> 
+> --- Dan
 
-> If I could impliment the hooks at just the right places, then pages in RAM
-> could be compressed (ram increase at CPU cost) or encrypted (security against
-> ram sniffing at CPU cost)
 
-Perhaps you should look at these links?
+I took module-init-tools out of Redhat Severn beta, and I upgraded init
+scripts, ethtool, and module-init-tools at the same time, it worked vary
+nicely.
 
-http://lwn.net/Articles/37815/ "Looking forward to 2.7: compressed caching?"
-http://linuxcompressed.sourceforge.net/
-http://advogato.org/person/rcastro/
+-- 
+VB programmers ask why no one takes them seriously, 
+it's somewhat akin to a McDonalds manager asking employees 
+why they don't take their 'career' seriously.
 
-?
-
-- Arnaldo

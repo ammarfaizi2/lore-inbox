@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbUCFWnt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 17:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbUCFWns
+	id S261728AbUCFXdw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 18:33:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUCFXdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 17:43:48 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:55046 "HELO
+	Sat, 6 Mar 2004 18:33:52 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:57862 "HELO
 	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261629AbUCFWnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 17:43:47 -0500
+	id S261728AbUCFXdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 18:33:50 -0500
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: garski@poczta.onet.pl, linux-kernel@vger.kernel.org
-Subject: Re: Data corruption during read on VIA vt8235
-Date: Sun, 7 Mar 2004 00:38:08 +0200
+To: Lawrence Walton <lawrence@the-penguin.otak.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: server migration
+Date: Sun, 7 Mar 2004 01:33:07 +0200
 User-Agent: KMail/1.5.4
-References: <4048EB33.7030900@poczta.onet.pl>
-In-Reply-To: <4048EB33.7030900@poczta.onet.pl>
+References: <20040305181322.GA32114@the-penguin.otak.com>
+In-Reply-To: <20040305181322.GA32114@the-penguin.otak.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403070038.08472.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200403070133.07784.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 05 March 2004 23:03, Marcin Garski wrote:
-> [Please CC me on replies, I am not subscribed to the list, thanks]
-> Hi,
+On Friday 05 March 2004 20:13, Lawrence Walton wrote:
+> Hi all!
 >
-> I've Soltek SL-75FRV mainboard (VIA KT400 and vt8235 chipsets).
-> Also i've two IDE disk both runing on UDMA(100) (DMA enabled).
-> I'm using 2.4.22 kernel from Fedora Core 1 + patch for XFS suppport.
->
-> Several checking md5 sum of big file (650MB) give different results
-> (e.g: first, second and third* *file check give good md5 sum, but fourth
-> check give bad sum).
-> Also if i copy big file through network (ethernet), file have bits
-> difference, the same
-> thing happen during file copy (also big file) betwen two disks.
-> Usually there are from 1 to 3 differneces in file, each difference is
-> one bit  (e.g good file - 4B, bad file - 4A).
+> I tried about four months ago to migrate a busy server to 2.6.0-test9,
+> and failed miserably. Lightly loaded it worked well but as the number
+> of users increased, the number of processes in uninterruptible sleep
+> increased to the hundreds and then the server fell on it's face. I never
+> found out exactly why or what processes where hanging if I guessed it
+> would be openldap.
 
-If md5sum fails, those too will fail.
+Why do you guess? Determine what processes are stuck.
 
-> That is not a memory problem because memtest86 shows no errors.
+> I'd like to take another shot at it with 2.6.3, I'd also like to get
+> some hints on how better to debug the problem; remember it is a live
+> server with live users, I can't spend much time before rebooting back to
+> a 2.4 kernel and yes 2.4.25 runs fine.
 >
-> I found some old message:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0111.0/0914.html
-> where author had similar problem to mine.
+> Things that are non-standard
 >
-> Could you give me some hints how to more deeply diagnose this problem.
+> Lots of open files, it's not unusual to have 50000 open files.
+> ext3 is mounted noatime,data=writeback on /home and /var
+> Total processes are usually around 300 to 350.
+>
+> Main applications are:
+>
+> imap, exim and openldap running on Debian.
+>
+> Questions, comments, flames are welcome.
 
-Does it happen with UDMA66? UDMA33? etc
-Kernel .config?
+Compile with stack pointers, capture SysRq-T, post stack traces
+of D processes to lkml.
 --
 vda
+
 

@@ -1,69 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276751AbRJUUXw>; Sun, 21 Oct 2001 16:23:52 -0400
+	id <S276135AbRJUUtI>; Sun, 21 Oct 2001 16:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276750AbRJUUXn>; Sun, 21 Oct 2001 16:23:43 -0400
-Received: from [199.247.156.30] ([199.247.156.30]:26014 "HELO
-	whitehorse.blackwire.com") by vger.kernel.org with SMTP
-	id <S276745AbRJUUXb>; Sun, 21 Oct 2001 16:23:31 -0400
-From: pjordan@whitehorse.blackwire.com
-Date: Sun, 21 Oct 2001 11:08:56 -0700
-To: linux-kernel@vger.kernel.org
-Cc: Peter Jordan <pjordan@whitehorse.blackwire.com>
-Subject: arp-reply, src & dest HW addr. same. Breaks netboot.
-Message-ID: <20011021110856.A14724@panama>
+	id <S275675AbRJUUs6>; Sun, 21 Oct 2001 16:48:58 -0400
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:57351 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S276118AbRJUUsr>; Sun, 21 Oct 2001 16:48:47 -0400
+Date: Sun, 21 Oct 2001 22:49:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Kelledin Tane <feralgod@home.com>
+Cc: Volker Dierks <vd@mwi-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: VIA 686b Bug - once again :(
+Message-ID: <20011021224918.A30664@suse.cz>
+In-Reply-To: <200110211326.PAA01192@mail.mwi-online.de> <3BD2DCFB.C00E93B6@home.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BD2DCFB.C00E93B6@home.com>; from feralgod@home.com on Sun, Oct 21, 2001 at 09:34:35AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I am working with a powermac G4 (65 of 'em to be exact),
-and I am learning in gory detail how they netboot or don't.
+On Sun, Oct 21, 2001 at 09:34:35AM -0500, Kelledin Tane wrote:
 
-When I tell the powermac's Open Firmware to
-boot from boot-device enet:0,bootme,
+> > So my questions is:
+> > I'm going to buy a 3ware 6410(B)
+> > IDE raid controller .. can I suspect
+> > a failure safe system (in aspect to
+> > the 686b problems) when all discs
+> > are connected to the 3ware
+> > controller?
+> 
+> I would certainly expect so.  I have a Gigabyte GA-7DX with the infamous VIA
+> 686B southbridge...and an SBLive! Value...and I have no IDE devices at all
+> (complete SCSI).  I have never encountered data corruption.
 
-and I want to specify the router address using
-default-gateway-ip=192.168.2.1
+Corruption *has* been reported on some scsi-only 686b systems, though. 
 
-I am seeing that any time I point this to a linux box, whether it be i386
-or powerpc or 2.4.10 or 2.2.19 that the arp-reply packet
-looks corrupted to me.
+> Just out of curiosity...is this IBM drive a 75GXP model?  What does IBM's
+> Drive Fitness Test tell you about it?  I ask because the 75GXP is IMHO a
+> flawed product line.
 
-Here is an example:
+Well, I have a 30GB drive from the 75GXP family. It works just fine so far.
 
-
-20:23:42.750602 0:30:65:a8:72:16 ff:ff:ff:ff:ff:ff 0806 64: arp who-has 192.168.2.1 tell 0.0.0.0
-                         0001 0800 0604 0001 0030 65a8 7216 0000
-                         0000 0000 0000 0000 c0a8 0201 5555 5555
-                         5555 5555 5555 5555 5555 5555 5555 3254
-                         ff8b
-20:23:42.750641 0:30:65:a6:fa:14 0:30:65:a8:72:16 0806 42: arp reply 192.168.2.1 is-at 0:30:65:a6:fa:14 (0:30:65:a6:fa:14)
-                         0001 0800 0604 0002 0030 65a6 fa14 c0a8
-                         0201 0030 65a6 fa14 c0a8 0201
-
-
-
-Note how in the reply, the linux box at 192.168.2.1 sets
-the mac address for the source and destination fields to be the same.
-
-I think for this reason the Open Firmware sends five arp who-has packets
-and then gives up with the error message "can't get GATEWAY HW address."
-
-What I don't understand is how that packet gets to the OF in the first place.
-The header description of tcpdump -e output looks right, but the contents
-of the arp packet is wrong.  I guess that is 802.2 or 3 or whatever ??
-
-
-Anyway, when I point it to a sun box, the arp reply comes out properly
-with the src and dest set as they should be, and the Open Firmware,
-immediately sends out its DHCP request.
-
-
-I think this is linux kernel related.
-
-Peter
-ps. please CC anyt reply to me
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,264 +1,208 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262676AbSJJAOl>; Wed, 9 Oct 2002 20:14:41 -0400
+	id <S262361AbSJJAOA>; Wed, 9 Oct 2002 20:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbSJJAOl>; Wed, 9 Oct 2002 20:14:41 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:3787 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262676AbSJJAOY>;
-	Wed, 9 Oct 2002 20:14:24 -0400
-Subject: [PATCH] linux-2.5.41_timer-changes_A4 (3/3 - integration)
+	id <S262403AbSJJAOA>; Wed, 9 Oct 2002 20:14:00 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:41429 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262361AbSJJANn>;
+	Wed, 9 Oct 2002 20:13:43 -0400
+Subject: [PATCH] linux-2.5.41_timer-changes_A4 (2/3 - bulk move)
 From: john stultz <johnstul@us.ibm.com>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Dave Jones <davej@suse.de>, george anzinger <george@mvista.com>,
        lkml <linux-kernel@vger.kernel.org>, greg kh <greg@kroah.com>,
        Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <1034208761.7591.1360.camel@cog>
-References: <1034208695.21965.1356.camel@cog> 
-	<1034208761.7591.1360.camel@cog>
+In-Reply-To: <1034208695.21965.1356.camel@cog>
+References: <1034208695.21965.1356.camel@cog>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 09 Oct 2002 17:13:38 -0700
-Message-Id: <1034208819.21964.1364.camel@cog>
+Date: 09 Oct 2002 17:12:41 -0700
+Message-Id: <1034208761.7591.1360.camel@cog>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus, All,
+        
+        This is part 2 of 3 of my timer-change patch. Part 2 is just a
+bulk move of code out of time.c and into timer_pit.c and timer_tsc.c. No
+code is changed, only moved. 
 
-        This is the final part 3 of 3 of my timer-change patch. Part 3
-integrates the moved code (from part 2) into the new infrastructure
-(from part 1). 
+        Please note, this code will not compile without the final third
+part of this patch collection. This was done for readability alone. 
 
-Please apply,
+Please apply, along with part 3.
 
 thanks
 -john
 
-diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
---- a/arch/i386/Makefile	Wed Oct  9 17:08:33 2002
-+++ b/arch/i386/Makefile	Wed Oct  9 17:08:33 2002
-@@ -53,7 +53,7 @@
- 
- libs-y 					+= arch/i386/lib/
- core-y					+= arch/i386/kernel/ arch/i386/mm/ \
--					   arch/i386/$(MACHINE)/
-+					   arch/i386/$(MACHINE)/ arch/i386/kernel/timers/
- drivers-$(CONFIG_MATH_EMULATION)	+= arch/i386/math-emu/
- drivers-$(CONFIG_PCI)			+= arch/i386/pci/
- 
 diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Wed Oct  9 17:08:33 2002
-+++ b/arch/i386/kernel/time.c	Wed Oct  9 17:08:33 2002
-@@ -53,6 +53,7 @@
- #include <asm/mpspec.h>
- #include <asm/uaccess.h>
- #include <asm/processor.h>
-+#include <asm/timer.h>
+--- a/arch/i386/kernel/time.c	Wed Oct  9 17:06:55 2002
++++ b/arch/i386/kernel/time.c	Wed Oct  9 17:06:55 2002
+@@ -73,51 +73,11 @@
  
- #include <linux/mc146818rtc.h>
- #include <linux/timex.h>
-@@ -78,18 +79,10 @@
+ unsigned long cpu_khz;	/* Detected as we calibrate the TSC */
+ 
+-/* Number of usecs that the last interrupt was delayed */
+-static int delay_at_last_interrupt;
+-
+-static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
+-
+-/* Cached *multiplier* to convert TSC counts to microseconds.
+- * (see the equation below).
+- * Equal to 2^32 * (1 / (clocks per usec) ).
+- * Initialized in time_init.
+- */
+-unsigned long fast_gettimeoffset_quotient;
+-
+ extern rwlock_t xtime_lock;
+ extern unsigned long wall_jiffies;
  
  spinlock_t rtc_lock = SPIN_LOCK_UNLOCKED;
  
+-static inline unsigned long do_fast_gettimeoffset(void)
+-{
+-	register unsigned long eax, edx;
 -
--#define TICK_SIZE (tick_nsec / 1000)
+-	/* Read the Time Stamp Counter */
 -
- spinlock_t i8253_lock = SPIN_LOCK_UNLOCKED;
+-	rdtsc(eax,edx);
+-
+-	/* .. relative to previous jiffy (32 bits is enough) */
+-	eax -= last_tsc_low;	/* tsc_low delta */
+-
+-	/*
+-         * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient
+-         *             = (tsc_low delta) * (usecs_per_clock)
+-         *             = (tsc_low delta) * (usecs_per_jiffy / clocks_per_jiffy)
+-	 *
+-	 * Using a mull instead of a divl saves up to 31 clock cycles
+-	 * in the critical path.
+-         */
+-
+-	__asm__("mull %2"
+-		:"=a" (eax), "=d" (edx)
+-		:"rm" (fast_gettimeoffset_quotient),
+-		 "0" (eax));
+-
+-	/* our adjusted time offset in microseconds */
+-	return delay_at_last_interrupt + edx;
+-}
+ 
+ #define TICK_SIZE (tick_nsec / 1000)
+ 
+@@ -125,104 +85,6 @@
  EXPORT_SYMBOL(i8253_lock);
  
--#ifndef CONFIG_X86_TSC
--#else
+ #ifndef CONFIG_X86_TSC
 -
--#define do_gettimeoffset()	do_fast_gettimeoffset()
+-/* This function must be called with interrupts disabled 
+- * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
+- * 
+- * However, the pc-audio speaker driver changes the divisor so that
+- * it gets interrupted rather more often - it loads 64 into the
+- * counter rather than 11932! This has an adverse impact on
+- * do_gettimeoffset() -- it stops working! What is also not
+- * good is that the interval that our timer function gets called
+- * is no longer 10.0002 ms, but 9.9767 ms. To get around this
+- * would require using a different timing source. Maybe someone
+- * could use the RTC - I know that this can interrupt at frequencies
+- * ranging from 8192Hz to 2Hz. If I had the energy, I'd somehow fix
+- * it so that at startup, the timer code in sched.c would select
+- * using either the RTC or the 8253 timer. The decision would be
+- * based on whether there was any other device around that needed
+- * to trample on the 8253. I'd set up the RTC to interrupt at 1024 Hz,
+- * and then do some jiggery to have a version of do_timer that 
+- * advanced the clock by 1/1024 s. Every time that reached over 1/100
+- * of a second, then do all the old code. If the time was kept correct
+- * then do_gettimeoffset could just return 0 - there is no low order
+- * divider that can be accessed.
+- *
+- * Ideally, you would be able to use the RTC for the speaker driver,
+- * but it appears that the speaker driver really needs interrupt more
+- * often than every 120 us or so.
+- *
+- * Anyway, this needs more thought....		pjsg (1993-08-28)
+- * 
+- * If you are really that interested, you should be reading
+- * comp.protocols.time.ntp!
+- */
 -
--#endif
-+struct timer_opts* timer;
+-static unsigned long do_slow_gettimeoffset(void)
+-{
+-	int count;
+-
+-	static int count_p = LATCH;    /* for the first call after boot */
+-	static unsigned long jiffies_p = 0;
+-
+-	/*
+-	 * cache volatile jiffies temporarily; we have IRQs turned off. 
+-	 */
+-	unsigned long jiffies_t;
+-
+-	/* gets recalled with irq locally disabled */
+-	spin_lock(&i8253_lock);
+-	/* timer count may underflow right here */
+-	outb_p(0x00, 0x43);	/* latch the count ASAP */
+-
+-	count = inb_p(0x40);	/* read the latched count */
+-
+-	/*
+-	 * We do this guaranteed double memory access instead of a _p 
+-	 * postfix in the previous port access. Wheee, hackady hack
+-	 */
+- 	jiffies_t = jiffies;
+-
+-	count |= inb_p(0x40) << 8;
+-	
+-        /* VIA686a test code... reset the latch if count > max + 1 */
+-        if (count > LATCH) {
+-                outb_p(0x34, 0x43);
+-                outb_p(LATCH & 0xff, 0x40);
+-                outb(LATCH >> 8, 0x40);
+-                count = LATCH - 1;
+-        }
+-	
+-	spin_unlock(&i8253_lock);
+-
+-	/*
+-	 * avoiding timer inconsistencies (they are rare, but they happen)...
+-	 * there are two kinds of problems that must be avoided here:
+-	 *  1. the timer counter underflows
+-	 *  2. hardware problem with the timer, not giving us continuous time,
+-	 *     the counter does small "jumps" upwards on some Pentium systems,
+-	 *     (see c't 95/10 page 335 for Neptun bug.)
+-	 */
+-
+-
+-	if( jiffies_t == jiffies_p ) {
+-		if( count > count_p ) {
+-			/* the nutcase */
+-			count = do_timer_overflow(count);
+-		}
+-	} else
+-		jiffies_p = jiffies_t;
+-
+-	count_p = count;
+-
+-	count = ((LATCH-1) - count) * TICK_SIZE;
+-	count = (count + LATCH/2) / LATCH;
+-
+-	return count;
+-}
+-
+-static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
+-
+ #else
  
- /*
-  * This version of gettimeofday has microsecond resolution
-@@ -101,7 +94,7 @@
- 	unsigned long usec, sec;
- 
- 	read_lock_irqsave(&xtime_lock, flags);
--	usec = do_gettimeoffset();
-+	usec = timer->get_offset();
- 	{
- 		unsigned long lost = jiffies - wall_jiffies;
- 		if (lost)
-@@ -129,7 +122,7 @@
- 	 * wall time.  Discover what correction gettimeofday() would have
- 	 * made, and then undo it!
- 	 */
--	tv->tv_usec -= do_gettimeoffset();
-+	tv->tv_usec -= timer->get_offset();
- 	tv->tv_usec -= (jiffies - wall_jiffies) * (1000000 / HZ);
- 
- 	while (tv->tv_usec < 0) {
-@@ -295,7 +288,7 @@
+ #define do_gettimeoffset()	do_fast_gettimeoffset()
+@@ -433,34 +295,7 @@
  	 */
  	write_lock(&xtime_lock);
  
--	
-+	timer->mark_offset();
-  
- 	do_timer_interrupt(irq, NULL, regs);
- 
-@@ -345,6 +338,7 @@
- 	return mktime(year, mon, day, hour, min, sec);
- }
- 
-+/* XXX this driverfs stuff should probably go elsewhere later -john */
- static struct sys_device device_i8253 = {
- 	.name		= "rtc",
- 	.id		= 0,
-@@ -368,5 +362,6 @@
- 	xtime.tv_nsec = 0;
- 
-
-+	timer = select_timer();
- 	time_init_hook();
- }
-diff -Nru a/arch/i386/kernel/timers/Makefile b/arch/i386/kernel/timers/Makefile
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/kernel/timers/Makefile	Wed Oct  9 17:08:33 2002
-@@ -0,0 +1,10 @@
-+#
-+# Makefile for x86 timers
-+#
-+
-+obj-y := timer.o
-+
-+obj-y += timer_tsc.o
-+obj-y += timer_pit.o
-+
-+include $(TOPDIR)/Rules.make
-diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
---- a/arch/i386/kernel/timers/timer.c	Wed Oct  9 17:08:33 2002
-+++ b/arch/i386/kernel/timers/timer.c	Wed Oct  9 17:08:33 2002
-@@ -2,11 +2,17 @@
- #include <asm/timer.h>
- 
- /* list of externed timers */
--/* eg: extern struct timer_opts timer_XXX*/;
-+#ifndef CONFIG_X86_TSC
-+extern struct timer_opts timer_pit;
-+#endif
-+extern struct timer_opts timer_tsc;
- 
- /* list of timers, ordered by preference */
- struct timer_opts* timers[] = {
--	/* eg: &timer_XXX */
-+	&timer_tsc
-+#ifndef CONFIG_X86_TSC
-+	,&timer_pit
-+#endif
- };
- 
- #define NR_TIMERS (sizeof(timers)/sizeof(timers[0]))
-diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
---- a/arch/i386/kernel/timers/timer_pit.c	Wed Oct  9 17:08:33 2002
-+++ b/arch/i386/kernel/timers/timer_pit.c	Wed Oct  9 17:08:33 2002
-@@ -1,3 +1,28 @@
-+/*
-+ * This code largely moved from arch/i386/kernel/time.c.
-+ * See comments there for proper credits.
-+ */
-+
-+#include <linux/spinlock.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <asm/timer.h>
-+#include <asm/io.h>
-+
-+extern spinlock_t i8259A_lock;
-+extern spinlock_t i8253_lock;
-+#include "do_timer.h"
-+
-+static int init_pit(void)
-+{
-+	return 1;
-+}
-+
-+static void mark_offset_pit(void)
-+{
-+	/* nothing needed */
-+}
-+
- 
- /* This function must be called with interrupts disabled 
-  * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
-@@ -31,7 +56,7 @@
-  * comp.protocols.time.ntp!
-  */
- 
--static unsigned long do_slow_gettimeoffset(void)
-+static unsigned long get_offset_pit(void)
- {
- 	int count;
- 
-@@ -94,4 +119,10 @@
- 	return count;
- }
- 
--static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
-+
-+/* tsc timer_opts struct */
-+struct timer_opts timer_pit = {
-+	init: init_pit, 
-+	mark_offset: mark_offset_pit, 
-+	get_offset: get_offset_pit
-+};
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Wed Oct  9 17:08:33 2002
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Oct  9 17:08:33 2002
-@@ -1,3 +1,19 @@
-+/*
-+ * This code largely moved from arch/i386/kernel/time.c.
-+ * See comments there for proper credits.
-+ */
-+
-+#include <linux/spinlock.h>
-+#include <linux/init.h>
-+#include <linux/timex.h>
-+
-+#include <asm/timer.h>
-+#include <asm/io.h>
-+
-+extern int x86_udelay_tsc;
-+extern spinlock_t i8253_lock;
-+
-+static int use_tsc;
- /* Number of usecs that the last interrupt was delayed */
- static int delay_at_last_interrupt;
- 
-@@ -10,7 +26,7 @@
-  */
- unsigned long fast_gettimeoffset_quotient;
- 
--static inline unsigned long do_fast_gettimeoffset(void)
-+static unsigned long get_offset_tsc(void)
- {
- 	register unsigned long eax, edx;
- 
-@@ -39,36 +55,35 @@
- 	return delay_at_last_interrupt + edx;
- }
- 
-+static void mark_offset_tsc(void)
-+{
-+	int count;
-+	/*
-+	 * It is important that these two operations happen almost at
-+	 * the same time. We do the RDTSC stuff first, since it's
-+	 * faster. To avoid any inconsistencies, we need interrupts
-+	 * disabled locally.
-+	 */
- 
--
--if (use_tsc)
+-	if (use_tsc)
 -	{
 -		/*
 -		 * It is important that these two operations happen almost at
@@ -271,63 +215,168 @@ diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_
 -		 * Interrupts are just disabled locally since the timer irq
 -		 * has the SA_INTERRUPT flag set. -arca
 -		 */
-+	/*
-+	 * Interrupts are just disabled locally since the timer irq
-+	 * has the SA_INTERRUPT flag set. -arca
-+	 */
  	
 -		/* read Pentium cycle counter */
-+	/* read Pentium cycle counter */
- 
+-
 -		rdtscl(last_tsc_low);
-+	rdtscl(last_tsc_low);
- 
+-
 -		spin_lock(&i8253_lock);
 -		outb_p(0x00, 0x43);     /* latch the count ASAP */
-+	spin_lock(&i8253_lock);
-+	outb_p(0x00, 0x43);     /* latch the count ASAP */
- 
+-
 -		count = inb_p(0x40);    /* read the latched count */
 -		count |= inb(0x40) << 8;
 -		spin_unlock(&i8253_lock);
-+	count = inb_p(0x40);    /* read the latched count */
-+	count |= inb(0x40) << 8;
-+	spin_unlock(&i8253_lock);
- 
+-
 -		count = ((LATCH-1) - count) * TICK_SIZE;
 -		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
 -	}
-+	count = ((LATCH-1) - count) * TICK_SIZE;
-+	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
-+}
+  
+ 	do_timer_interrupt(irq, NULL, regs);
  
-
- /* ------ Calibrate the TSC ------- 
-@@ -83,7 +98,6 @@
- #define CALIBRATE_LATCH	(5 * LATCH)
- #define CALIBRATE_TIME	(5 * 1000020/HZ)
- 
--#ifdef CONFIG_X86_TSC
- static unsigned long __init calibrate_tsc(void)
- {
-        /* Set the Gate high, disable speaker */
-@@ -148,7 +162,6 @@
- bad_ctc:
- 	return 0;
+@@ -510,85 +345,6 @@
+ 	return mktime(year, mon, day, hour, min, sec);
  }
--#endif /* CONFIG_X86_TSC */
  
-
- #ifdef CONFIG_CPU_FREQ
-@@ -196,26 +209,22 @@
- #endif
- 
-
+-/* ------ Calibrate the TSC ------- 
+- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
+- * Too much 64-bit arithmetic here to do this cleanly in C, and for
+- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
+- * output busy loop as low as possible. We avoid reading the CTC registers
+- * directly because of the awkward 8-bit access mechanism of the 82C54
+- * device.
+- */
 -
+-#define CALIBRATE_LATCH	(5 * LATCH)
+-#define CALIBRATE_TIME	(5 * 1000020/HZ)
+-
+-#ifdef CONFIG_X86_TSC
+-static unsigned long __init calibrate_tsc(void)
+-{
+-       /* Set the Gate high, disable speaker */
+-	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
+-
+-	/*
+-	 * Now let's take care of CTC channel 2
+-	 *
+-	 * Set the Gate high, program CTC channel 2 for mode 0,
+-	 * (interrupt on terminal count mode), binary count,
+-	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
+-	 */
+-	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
+-	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
+-	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
+-
+-	{
+-		unsigned long startlow, starthigh;
+-		unsigned long endlow, endhigh;
+-		unsigned long count;
+-
+-		rdtsc(startlow,starthigh);
+-		count = 0;
+-		do {
+-			count++;
+-		} while ((inb(0x61) & 0x20) == 0);
+-		rdtsc(endlow,endhigh);
+-
+-		last_tsc_low = endlow;
+-
+-		/* Error: ECTCNEVERSET */
+-		if (count <= 1)
+-			goto bad_ctc;
+-
+-		/* 64-bit subtract - gcc just messes up with long longs */
+-		__asm__("subl %2,%0\n\t"
+-			"sbbl %3,%1"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"g" (startlow), "g" (starthigh),
+-			 "0" (endlow), "1" (endhigh));
+-
+-		/* Error: ECPUTOOFAST */
+-		if (endhigh)
+-			goto bad_ctc;
+-
+-		/* Error: ECPUTOOSLOW */
+-		if (endlow <= CALIBRATE_TIME)
+-			goto bad_ctc;
+-
+-		__asm__("divl %2"
+-			:"=a" (endlow), "=d" (endhigh)
+-			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
+-
+-		return endlow;
+-	}
+-
+-	/*
+-	 * The CTC wasn't reliable: we got a hit on the very first read,
+-	 * or the CPU was so fast/slow that the quotient wouldn't fit in
+-	 * 32 bits..
+-	 */
+-bad_ctc:
+-	return 0;
+-}
+-#endif /* CONFIG_X86_TSC */
+-
+ static struct sys_device device_i8253 = {
+ 	.name		= "rtc",
+ 	.id		= 0,
+@@ -605,119 +361,12 @@
+ device_initcall(time_init_device);
+ 
+
+-#ifdef CONFIG_CPU_FREQ
+-
+-static int
+-time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
+-		       void *data)
+-{
+-	struct cpufreq_freqs *freq = data;
+-	unsigned int i;
+-
+-	if (!cpu_has_tsc)
+-		return 0;
+-
+-	switch (val) {
+-	case CPUFREQ_PRECHANGE:
+-		if ((freq->old < freq->new) &&
+-		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
+-			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
+-		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
+-		}
+-		for (i=0; i<NR_CPUS; i++)
+-			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
+-				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
+-		break;
+-
+-	case CPUFREQ_POSTCHANGE:
+-		if ((freq->new < freq->old) &&
+-		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
+-			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
+-		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
+-		}
+-		for (i=0; i<NR_CPUS; i++)
+-			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
+-				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
+-		break;
+-	}
+-
+-	return 0;
+-}
+-
+-static struct notifier_block time_cpufreq_notifier_block = {
+-	notifier_call:	time_cpufreq_notifier
+-};
+-#endif
+-
+-
+ void __init time_init(void)
+ {
 -#ifdef CONFIG_X86_TSC
 -	extern int x86_udelay_tsc;
 -#endif
--
+ 	
+ 	xtime.tv_sec = get_cmos_time();
+ 	xtime.tv_nsec = 0;
+ 
 -/*
 - * If we have APM enabled or the CPU clock speed is variable
 - * (CPU stops clock on HLT or slows clock to save power)
@@ -343,63 +392,418 @@ diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_
 - * smart.  See arch/i386/kernel/apm.c.
 - */
 -#ifdef CONFIG_X86_TSC
-+static int init_tsc(void)
-+{
-+	/*
-+	 * If we have APM enabled or the CPU clock speed is variable
-+	 * (CPU stops clock on HLT or slows clock to save power)
-+	 * then the TSC timestamps may diverge by up to 1 jiffy from
-+	 * 'real time' but nothing will break.
-+	 * The most frequent case is that the CPU is "woken" from a halt
-+	 * state by the timer interrupt itself, so we get 0 error. In the
-+	 * rare cases where a driver would "wake" the CPU and request a
-+	 * timestamp, the maximum error is < 1 jiffy. But timestamps are
-+	 * still perfectly ordered.
-+	 * Note that the TSC counter will be reset if APM suspends
-+	 * to disk; this won't break the kernel, though, 'cuz we're
-+	 * smart.  See arch/i386/kernel/apm.c.
-+	 */
-  	/*
-  	 *	Firstly we have to do a CPU check for chips with
-  	 * 	a potentially buggy TSC. At this point we haven't run
-@@ -239,9 +248,6 @@
- 			 *	and just enable this for the next intel chips ?
- 			 */
- 			x86_udelay_tsc = 1;
+- 	/*
+- 	 *	Firstly we have to do a CPU check for chips with
+- 	 * 	a potentially buggy TSC. At this point we haven't run
+- 	 *	the ident/bugs checks so we must run this hook as it
+- 	 *	may turn off the TSC flag.
+- 	 *
+- 	 *	NOTE: this doesnt yet handle SMP 486 machines where only
+- 	 *	some CPU's have a TSC. Thats never worked and nobody has
+- 	 *	moaned if you have the only one in the world - you fix it!
+- 	 */
+- 
+- 	dodgy_tsc();
+- 	
+-	if (cpu_has_tsc) {
+-		unsigned long tsc_quotient = calibrate_tsc();
+-		if (tsc_quotient) {
+-			fast_gettimeoffset_quotient = tsc_quotient;
+-			use_tsc = 1;
+-			/*
+-			 *	We could be more selective here I suspect
+-			 *	and just enable this for the next intel chips ?
+-			 */
+-			x86_udelay_tsc = 1;
 -#ifndef do_gettimeoffset
 -			do_gettimeoffset = do_fast_gettimeoffset;
 -#endif
- 
- 			/* report CPU clock rate in Hz.
- 			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
-@@ -257,6 +263,17 @@
- #ifdef CONFIG_CPU_FREQ
- 			cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
- #endif
-+			return 1;
- 		}
- 	}
+-
+-			/* report CPU clock rate in Hz.
+-			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
+-			 * clock/second. Our precision is about 100 ppm.
+-			 */
+-			{	unsigned long eax=0, edx=1000;
+-				__asm__("divl %2"
+-		       		:"=a" (cpu_khz), "=d" (edx)
+-        	       		:"r" (tsc_quotient),
+-	                	"0" (eax), "1" (edx));
+-				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
+-			}
+-#ifdef CONFIG_CPU_FREQ
+-			cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
+-#endif
+-		}
+-	}
 -#endif /* CONFIG_X86_TSC */
+ 
+ 	time_init_hook();
+ }
+diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/arch/i386/kernel/timers/timer_pit.c	Wed Oct  9 17:06:55 2002
+@@ -0,0 +1,97 @@
++
++/* This function must be called with interrupts disabled 
++ * It was inspired by Steve McCanne's microtime-i386 for BSD.  -- jrs
++ * 
++ * However, the pc-audio speaker driver changes the divisor so that
++ * it gets interrupted rather more often - it loads 64 into the
++ * counter rather than 11932! This has an adverse impact on
++ * do_gettimeoffset() -- it stops working! What is also not
++ * good is that the interval that our timer function gets called
++ * is no longer 10.0002 ms, but 9.9767 ms. To get around this
++ * would require using a different timing source. Maybe someone
++ * could use the RTC - I know that this can interrupt at frequencies
++ * ranging from 8192Hz to 2Hz. If I had the energy, I'd somehow fix
++ * it so that at startup, the timer code in sched.c would select
++ * using either the RTC or the 8253 timer. The decision would be
++ * based on whether there was any other device around that needed
++ * to trample on the 8253. I'd set up the RTC to interrupt at 1024 Hz,
++ * and then do some jiggery to have a version of do_timer that 
++ * advanced the clock by 1/1024 s. Every time that reached over 1/100
++ * of a second, then do all the old code. If the time was kept correct
++ * then do_gettimeoffset could just return 0 - there is no low order
++ * divider that can be accessed.
++ *
++ * Ideally, you would be able to use the RTC for the speaker driver,
++ * but it appears that the speaker driver really needs interrupt more
++ * often than every 120 us or so.
++ *
++ * Anyway, this needs more thought....		pjsg (1993-08-28)
++ * 
++ * If you are really that interested, you should be reading
++ * comp.protocols.time.ntp!
++ */
++
++static unsigned long do_slow_gettimeoffset(void)
++{
++	int count;
++
++	static int count_p = LATCH;    /* for the first call after boot */
++	static unsigned long jiffies_p = 0;
++
++	/*
++	 * cache volatile jiffies temporarily; we have IRQs turned off. 
++	 */
++	unsigned long jiffies_t;
++
++	/* gets recalled with irq locally disabled */
++	spin_lock(&i8253_lock);
++	/* timer count may underflow right here */
++	outb_p(0x00, 0x43);	/* latch the count ASAP */
++
++	count = inb_p(0x40);	/* read the latched count */
++
++	/*
++	 * We do this guaranteed double memory access instead of a _p 
++	 * postfix in the previous port access. Wheee, hackady hack
++	 */
++ 	jiffies_t = jiffies;
++
++	count |= inb_p(0x40) << 8;
++	
++        /* VIA686a test code... reset the latch if count > max + 1 */
++        if (count > LATCH) {
++                outb_p(0x34, 0x43);
++                outb_p(LATCH & 0xff, 0x40);
++                outb(LATCH >> 8, 0x40);
++                count = LATCH - 1;
++        }
++	
++	spin_unlock(&i8253_lock);
++
++	/*
++	 * avoiding timer inconsistencies (they are rare, but they happen)...
++	 * there are two kinds of problems that must be avoided here:
++	 *  1. the timer counter underflows
++	 *  2. hardware problem with the timer, not giving us continuous time,
++	 *     the counter does small "jumps" upwards on some Pentium systems,
++	 *     (see c't 95/10 page 335 for Neptun bug.)
++	 */
++
++
++	if( jiffies_t == jiffies_p ) {
++		if( count > count_p ) {
++			/* the nutcase */
++			count = do_timer_overflow(count);
++		}
++	} else
++		jiffies_p = jiffies_t;
++
++	count_p = count;
++
++	count = ((LATCH-1) - count) * TICK_SIZE;
++	count = (count + LATCH/2) / LATCH;
++
++	return count;
++}
++
++static unsigned long (*do_gettimeoffset)(void) = do_slow_gettimeoffset;
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Oct  9 17:06:55 2002
+@@ -0,0 +1,262 @@
++/* Number of usecs that the last interrupt was delayed */
++static int delay_at_last_interrupt;
++
++static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
++
++/* Cached *multiplier* to convert TSC counts to microseconds.
++ * (see the equation below).
++ * Equal to 2^32 * (1 / (clocks per usec) ).
++ * Initialized in time_init.
++ */
++unsigned long fast_gettimeoffset_quotient;
++
++static inline unsigned long do_fast_gettimeoffset(void)
++{
++	register unsigned long eax, edx;
++
++	/* Read the Time Stamp Counter */
++
++	rdtsc(eax,edx);
++
++	/* .. relative to previous jiffy (32 bits is enough) */
++	eax -= last_tsc_low;	/* tsc_low delta */
++
++	/*
++         * Time offset = (tsc_low delta) * fast_gettimeoffset_quotient
++         *             = (tsc_low delta) * (usecs_per_clock)
++         *             = (tsc_low delta) * (usecs_per_jiffy / clocks_per_jiffy)
++	 *
++	 * Using a mull instead of a divl saves up to 31 clock cycles
++	 * in the critical path.
++         */
++
++	__asm__("mull %2"
++		:"=a" (eax), "=d" (edx)
++		:"rm" (fast_gettimeoffset_quotient),
++		 "0" (eax));
++
++	/* our adjusted time offset in microseconds */
++	return delay_at_last_interrupt + edx;
++}
++
++
++
++if (use_tsc)
++	{
++		/*
++		 * It is important that these two operations happen almost at
++		 * the same time. We do the RDTSC stuff first, since it's
++		 * faster. To avoid any inconsistencies, we need interrupts
++		 * disabled locally.
++		 */
++
++		/*
++		 * Interrupts are just disabled locally since the timer irq
++		 * has the SA_INTERRUPT flag set. -arca
++		 */
++	
++		/* read Pentium cycle counter */
++
++		rdtscl(last_tsc_low);
++
++		spin_lock(&i8253_lock);
++		outb_p(0x00, 0x43);     /* latch the count ASAP */
++
++		count = inb_p(0x40);    /* read the latched count */
++		count |= inb(0x40) << 8;
++		spin_unlock(&i8253_lock);
++
++		count = ((LATCH-1) - count) * TICK_SIZE;
++		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
++	}
++
++
++/* ------ Calibrate the TSC ------- 
++ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
++ * Too much 64-bit arithmetic here to do this cleanly in C, and for
++ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
++ * output busy loop as low as possible. We avoid reading the CTC registers
++ * directly because of the awkward 8-bit access mechanism of the 82C54
++ * device.
++ */
++
++#define CALIBRATE_LATCH	(5 * LATCH)
++#define CALIBRATE_TIME	(5 * 1000020/HZ)
++
++#ifdef CONFIG_X86_TSC
++static unsigned long __init calibrate_tsc(void)
++{
++       /* Set the Gate high, disable speaker */
++	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
++
++	/*
++	 * Now let's take care of CTC channel 2
++	 *
++	 * Set the Gate high, program CTC channel 2 for mode 0,
++	 * (interrupt on terminal count mode), binary count,
++	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
++	 */
++	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
++	outb(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
++	outb(CALIBRATE_LATCH >> 8, 0x42);	/* MSB of count */
++
++	{
++		unsigned long startlow, starthigh;
++		unsigned long endlow, endhigh;
++		unsigned long count;
++
++		rdtsc(startlow,starthigh);
++		count = 0;
++		do {
++			count++;
++		} while ((inb(0x61) & 0x20) == 0);
++		rdtsc(endlow,endhigh);
++
++		last_tsc_low = endlow;
++
++		/* Error: ECTCNEVERSET */
++		if (count <= 1)
++			goto bad_ctc;
++
++		/* 64-bit subtract - gcc just messes up with long longs */
++		__asm__("subl %2,%0\n\t"
++			"sbbl %3,%1"
++			:"=a" (endlow), "=d" (endhigh)
++			:"g" (startlow), "g" (starthigh),
++			 "0" (endlow), "1" (endhigh));
++
++		/* Error: ECPUTOOFAST */
++		if (endhigh)
++			goto bad_ctc;
++
++		/* Error: ECPUTOOSLOW */
++		if (endlow <= CALIBRATE_TIME)
++			goto bad_ctc;
++
++		__asm__("divl %2"
++			:"=a" (endlow), "=d" (endhigh)
++			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
++
++		return endlow;
++	}
++
++	/*
++	 * The CTC wasn't reliable: we got a hit on the very first read,
++	 * or the CPU was so fast/slow that the quotient wouldn't fit in
++	 * 32 bits..
++	 */
++bad_ctc:
++	return 0;
++}
++#endif /* CONFIG_X86_TSC */
++
++
++#ifdef CONFIG_CPU_FREQ
++
++static int
++time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
++		       void *data)
++{
++	struct cpufreq_freqs *freq = data;
++	unsigned int i;
++
++	if (!cpu_has_tsc)
++		return 0;
++
++	switch (val) {
++	case CPUFREQ_PRECHANGE:
++		if ((freq->old < freq->new) &&
++		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
++			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
++		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
++		}
++		for (i=0; i<NR_CPUS; i++)
++			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
++				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
++		break;
++
++	case CPUFREQ_POSTCHANGE:
++		if ((freq->new < freq->old) &&
++		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
++			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
++		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
++		}
++		for (i=0; i<NR_CPUS; i++)
++			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
++				cpu_data[i].loops_per_jiffy = cpufreq_scale(cpu_data[i].loops_per_jiffy, freq->old, freq->new);
++		break;
++	}
++
 +	return 0;
 +}
 +
-+/************************************************************/
-+
-+/* tsc timer_opts struct */
-+struct timer_opts timer_tsc = {
-+	init: init_tsc, 
-+	mark_offset: mark_offset_tsc, 
-+	get_offset: get_offset_tsc
++static struct notifier_block time_cpufreq_notifier_block = {
++	notifier_call:	time_cpufreq_notifier
 +};
-diff -Nru a/include/asm-i386/timer.h b/include/asm-i386/timer.h
---- a/include/asm-i386/timer.h	Wed Oct  9 17:08:33 2002
-+++ b/include/asm-i386/timer.h	Wed Oct  9 17:08:33 2002
-@@ -9,6 +9,6 @@
- 	/* called by gettimeofday. returns # ms since the last timer interrupt */
- 	unsigned long (*get_offset)(void);
- };
--
-+#define TICK_SIZE (tick_nsec / 1000)
- struct timer_opts* select_timer(void);
- #endif
++#endif
++
++
++
++#ifdef CONFIG_X86_TSC
++	extern int x86_udelay_tsc;
++#endif
++
++/*
++ * If we have APM enabled or the CPU clock speed is variable
++ * (CPU stops clock on HLT or slows clock to save power)
++ * then the TSC timestamps may diverge by up to 1 jiffy from
++ * 'real time' but nothing will break.
++ * The most frequent case is that the CPU is "woken" from a halt
++ * state by the timer interrupt itself, so we get 0 error. In the
++ * rare cases where a driver would "wake" the CPU and request a
++ * timestamp, the maximum error is < 1 jiffy. But timestamps are
++ * still perfectly ordered.
++ * Note that the TSC counter will be reset if APM suspends
++ * to disk; this won't break the kernel, though, 'cuz we're
++ * smart.  See arch/i386/kernel/apm.c.
++ */
++#ifdef CONFIG_X86_TSC
++ 	/*
++ 	 *	Firstly we have to do a CPU check for chips with
++ 	 * 	a potentially buggy TSC. At this point we haven't run
++ 	 *	the ident/bugs checks so we must run this hook as it
++ 	 *	may turn off the TSC flag.
++ 	 *
++ 	 *	NOTE: this doesnt yet handle SMP 486 machines where only
++ 	 *	some CPU's have a TSC. Thats never worked and nobody has
++ 	 *	moaned if you have the only one in the world - you fix it!
++ 	 */
++ 
++ 	dodgy_tsc();
++ 	
++	if (cpu_has_tsc) {
++		unsigned long tsc_quotient = calibrate_tsc();
++		if (tsc_quotient) {
++			fast_gettimeoffset_quotient = tsc_quotient;
++			use_tsc = 1;
++			/*
++			 *	We could be more selective here I suspect
++			 *	and just enable this for the next intel chips ?
++			 */
++			x86_udelay_tsc = 1;
++#ifndef do_gettimeoffset
++			do_gettimeoffset = do_fast_gettimeoffset;
++#endif
++
++			/* report CPU clock rate in Hz.
++			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =
++			 * clock/second. Our precision is about 100 ppm.
++			 */
++			{	unsigned long eax=0, edx=1000;
++				__asm__("divl %2"
++		       		:"=a" (cpu_khz), "=d" (edx)
++        	       		:"r" (tsc_quotient),
++	                	"0" (eax), "1" (edx));
++				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
++			}
++#ifdef CONFIG_CPU_FREQ
++			cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
++#endif
++		}
++	}
++#endif /* CONFIG_X86_TSC */
 

@@ -1,51 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbUKPXYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbUKPX1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262097AbUKPXYP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 18:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUKPXWC
+	id S261903AbUKPX1C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 18:27:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbUKPX0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 18:22:02 -0500
-Received: from mx1.uidaho.edu ([129.101.155.248]:33158 "EHLO mx1.uidaho.edu")
-	by vger.kernel.org with ESMTP id S261910AbUKPXUt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:20:49 -0500
-Date: Tue, 16 Nov 2004 15:20:42 -0800 (PST)
-From: Thomas DuBuisson <dubu0874@uidaho.edu>
-Subject: XFRM / DF Flag / Fragmentation Needed
-X-X-Sender: dubu0874@hurricane.csrv.uidaho.edu
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.GSO.4.56.0411161447340.7679@hurricane.csrv.uidaho.edu>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-X-SpamDetails: rule=notspam policy= score=0 mlx=0 adultscore=0 adjust=0 engine=2.5.0-04111100 definitions=2.5.0-04111100
-X-SpamScore: 0
+	Tue, 16 Nov 2004 18:26:10 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:13952 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S261897AbUKPXJH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 18:09:07 -0500
+From: james4765@verizon.net
+To: linux-kernel@vger.kernel.org, iss_storagedev@hp.com
+Cc: james4765@verizon.net
+Message-Id: <20041116230906.20486.13119.93895@localhost.localdomain>
+In-Reply-To: <20041116230851.20486.59528.47474@localhost.localdomain>
+References: <20041116230851.20486.59528.47474@localhost.localdomain>
+Subject: [PATCH] cpqarray: Correct mailing list address in source code
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [209.158.220.243] at Tue, 16 Nov 2004 17:09:07 -0600
+Date: Tue, 16 Nov 2004 17:09:07 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this sounds like the same Black Hole topic you have heard before
-but I couldn't find a case like mine online so please hear me out.
+Correct mailing list address in cpqarray source code.
 
-I am having a problem when I am tunneling packets (in this case
-large scp packets) through an IPsec tunnel and I am getting ICMP
-'Fragmentation Needed' after this point in time the application (cvs
-update) stalls.  The setup is effectively A<--2 ipsec tunnels-->B<-->C
-After A establishes an SSH connection with C and tries to transfer the
-patches the size of a packet from A destined for C is quickly reaches 1500
-while the MTU
-to A is ~1400.  At this point A sends an ICMP 'Fragmentation Needed'
-packet to its self (see xfrm_output.c xfrm4_tunnel_check_size(...)).  It
-seems this packet is never acted on - it just disappears into the
-loopback interface.  The proper mtu trial/error process never takes
-place.
+diffstat output:
 
-Hasily formed theory:
-Could xfrm, seeing an IP(actually, esp) packet, expects the app to handle
-it(returning EMSGSIZE) while SSH, using TCP, expects the kernel to handle
-it?
+ cpqarray.c  |    2 +-
+ cpqarray.h  |    2 +-
+ ida_cmd.h   |    2 +-
+ ida_ioctl.h |    2 +-
+ smart1,2.h  |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-If not, can something throw me a suggestion or a link?
+Signed-off-by: James Nelson <james4765@gmail.com>
 
-Please CC me as I am not on this list.
-
-Thanks for any replies, if you want any more information feel free to ask.
-Tom
+diff -urN --exclude='*~' linux-2.6.10-rc2-original/drivers/block/cpqarray.c linux-2.6.10-rc2/drivers/block/cpqarray.c
+--- linux-2.6.10-rc2-original/drivers/block/cpqarray.c	2004-11-15 21:38:15.707432667 -0500
++++ linux-2.6.10-rc2/drivers/block/cpqarray.c	2004-11-16 17:26:45.127423447 -0500
+@@ -16,7 +16,7 @@
+  *    along with this program; if not, write to the Free Software
+  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *    Questions/Comments/Bugfixes to Cpqarray-discuss@lists.sourceforge.net
++ *    Questions/Comments/Bugfixes to iss_storagedev@hp.com
+  *
+  */
+ #include <linux/config.h>	/* CONFIG_PROC_FS */
+diff -urN --exclude='*~' linux-2.6.10-rc2-original/drivers/block/cpqarray.h linux-2.6.10-rc2/drivers/block/cpqarray.h
+--- linux-2.6.10-rc2-original/drivers/block/cpqarray.h	2004-10-18 17:54:37.000000000 -0400
++++ linux-2.6.10-rc2/drivers/block/cpqarray.h	2004-11-16 17:26:24.440216288 -0500
+@@ -16,7 +16,7 @@
+  *    along with this program; if not, write to the Free Software
+  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *    Questions/Comments/Bugfixes to arrays@compaq.com
++ *    Questions/Comments/Bugfixes to iss_storagedev@hp.com
+  *
+  *    If you want to make changes, improve or add functionality to this
+  *    driver, you'll probably need the Compaq Array Controller Interface
+diff -urN --exclude='*~' linux-2.6.10-rc2-original/drivers/block/ida_cmd.h linux-2.6.10-rc2/drivers/block/ida_cmd.h
+--- linux-2.6.10-rc2-original/drivers/block/ida_cmd.h	2004-10-18 17:53:45.000000000 -0400
++++ linux-2.6.10-rc2/drivers/block/ida_cmd.h	2004-11-16 17:26:12.178871611 -0500
+@@ -16,7 +16,7 @@
+  *    along with this program; if not, write to the Free Software
+  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *    Questions/Comments/Bugfixes to arrays@compaq.com
++ *    Questions/Comments/Bugfixes to iss_storagedev@hp.com
+  *
+  */
+ #ifndef ARRAYCMD_H
+diff -urN --exclude='*~' linux-2.6.10-rc2-original/drivers/block/ida_ioctl.h linux-2.6.10-rc2/drivers/block/ida_ioctl.h
+--- linux-2.6.10-rc2-original/drivers/block/ida_ioctl.h	2004-10-18 17:54:08.000000000 -0400
++++ linux-2.6.10-rc2/drivers/block/ida_ioctl.h	2004-11-16 17:25:57.796813237 -0500
+@@ -16,7 +16,7 @@
+  *    along with this program; if not, write to the Free Software
+  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *    Questions/Comments/Bugfixes to arrays@compaq.com
++ *    Questions/Comments/Bugfixes to iss_storagedev@hp.com
+  *
+  */
+ #ifndef IDA_IOCTL_H
+diff -urN --exclude='*~' linux-2.6.10-rc2-original/drivers/block/smart1,2.h linux-2.6.10-rc2/drivers/block/smart1,2.h
+--- linux-2.6.10-rc2-original/drivers/block/smart1,2.h	2004-10-18 17:54:37.000000000 -0400
++++ linux-2.6.10-rc2/drivers/block/smart1,2.h	2004-11-16 17:25:48.198109094 -0500
+@@ -16,7 +16,7 @@
+  *    along with this program; if not, write to the Free Software
+  *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- *    Questions/Comments/Bugfixes to arrays@compaq.com
++ *    Questions/Comments/Bugfixes to iss_storagedev@hp.com
+  *
+  *    If you want to make changes, improve or add functionality to this
+  *    driver, you'll probably need the Compaq Array Controller Interface

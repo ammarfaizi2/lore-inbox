@@ -1,43 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261350AbSIPLMN>; Mon, 16 Sep 2002 07:12:13 -0400
+	id <S261379AbSIPLMg>; Mon, 16 Sep 2002 07:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261351AbSIPLMN>; Mon, 16 Sep 2002 07:12:13 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:7559 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261350AbSIPLML>;
-	Mon, 16 Sep 2002 07:12:11 -0400
-Date: Mon, 16 Sep 2002 13:23:59 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Daniel Jacobowitz <drow@false.org>
-Subject: Re: [PATCH] Fix for ptrace breakage
-In-Reply-To: <87it16kxtp.fsf@devron.myhome.or.jp>
-Message-ID: <Pine.LNX.4.44.0209161322260.28163-100000@localhost.localdomain>
+	id <S261355AbSIPLMg>; Mon, 16 Sep 2002 07:12:36 -0400
+Received: from b114225.adsl.hansenet.de ([62.109.114.225]:3076 "EHLO
+	smaug.lan.local") by vger.kernel.org with ESMTP id <S261351AbSIPLMR>;
+	Mon, 16 Sep 2002 07:12:17 -0400
+Message-ID: <XFMail.20020916131706.f.hinzmann@hamburg.de>
+X-Mailer: XFMail 1.5.2 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.10.10209141539550.6925-100000@master.linux-ide.org>
+Date: Mon, 16 Sep 2002 13:17:06 +0200 (CEST)
+From: Florian Hinzmann <f.hinzmann@hamburg.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Subject: Re: DMA problems w/ PIIX3 IDE, 2.4.20-pre4-ac2
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+       Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> This patch fixes the following,
->
->    - race condition of ptrace flag
->    - sent odd signal to the tracer
->    - broken before behavior
+On 14-Sep-2002 Andre Hedrick wrote:
 
-(looks good to me). I'm wondering about the following:
+> Yep I had that problem too and fixed it.
+> Please try a newer pre5-acX
 
--	while (!list_empty(&current->children))
--		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
--	while (!list_empty(&current->ptrace_children))
--		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,ptrace_list), current, 1);
-+	while ((p = eldest_child(current)) != NULL)
-+		zap_thread(p, current);
- 	BUG_ON(!list_empty(&current->children));
+Problem is still there with 2.4.20-pre5-ac6:
 
-is it guaranteed that at this point current->ptrace_children is empty?
+kernel: hdd: dma_timer_expiry: dma status == 0x60
+kernel: hdd: timeout waiting for DMA
+kernel: hdd: timeout waiting for DMA
+kernel: hdd: (__ide_dma_test_irq) called while not waiting
+kernel: hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+kernel: 
+kernel: hdd: drive not ready for command
+kernel: blk: queue c02e50e0, I/O limit 4095Mb (mask 0xffffffff)
 
-	Ingo
 
+No high load (wether cpu or disk io) is needed for this to happen.
+
+
+In my initial mail I said the machine is running stable with DMA turned off.
+This is not true for latest 2.4.20pre5 kernels. When I start one or two bigger 
+file copy operations it usually takes less than one minute and I get errors 
+like these (running 2.4.20-pre5-ac6 for this output):
+
+kernel: hdb: status timeout: status=0xd0 { Busy }
+kernel: 
+kernel: hdb: no DRQ after issuing WRITE
+kernel: ide0: reset: success
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: ide0: reset: success
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: ide0: reset: success
+kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+kernel: hdb: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=97567071, high=5, lo
+kernel: end_request: I/O error, dev 03:41 (hdb), sector 97567008
+
+
+2.4.20-pre5-ac6 does not work for me with or without DMA. Using 2.4.19 that
+machine is running stable with DMA turned off. Would it be interesting to hear
+wich 2.4.20-preX-acY kernel was first to break pio mode at my machine?
+
+
+  Regards
+      Florian
+
+
+
+--
+  Florian Hinzmann                         private: f.hinzmann@hamburg.de
+                                            Debian: fh@debian.org
+PGP Key / ID: 1024D/B4071A65
+Fingerprint : F9AB 00C1 3E3A 8125 DD3F  DF1C DF79 A374 B407 1A65

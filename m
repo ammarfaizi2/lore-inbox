@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbTKFPXM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 10:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263642AbTKFPXM
+	id S263661AbTKFPbe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 10:31:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTKFPbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 10:23:12 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:56747 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S263636AbTKFPXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 10:23:11 -0500
-Date: Thu, 06 Nov 2003 07:21:23 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: agl@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [RFC] Smarter stack traces using the frame pointer
-Message-ID: <48670000.1068132081@[10.10.2.4]>
-In-Reply-To: <20031106225101.33e15a48.sfr@canb.auug.org.au>
-References: <1067984031.544.23.camel@agtpad><20031105132138.59326dd4.sfr@canb.auug.org.au><119200000.1068062194@flay> <20031106225101.33e15a48.sfr@canb.auug.org.au>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 6 Nov 2003 10:31:34 -0500
+Received: from pingviini.net ([194.29.194.26]:22796 "HELO hinku.pingviini.net")
+	by vger.kernel.org with SMTP id S263661AbTKFPb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 10:31:28 -0500
+Date: Thu, 6 Nov 2003 17:31:24 +0200
+From: Niklas Vainio <niklas.vainio@iki.fi>
+To: linux-kernel@vger.kernel.org
+Cc: Mikael Pettersson <mikpe@csd.uu.se>
+Subject: Re: [RFC][PATCH][2.6] CONFIG_HZ for x86
+Message-ID: <20031106153124.GB31084@vinku.pingviini.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <NsuO.64F.21@gated-at.bofh.it>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> What's the difference between the two patches, apart from the size?
->> Better error handling / functionality somehow? 
-> 
-> I think mine handles more cases, but is much more of a hack ...
+Mikael Pettersson:
+>This patch adds a CONFIG_HZ option to x86, allowing the kernel-
+>internal HZ to be reduced from 1000 to 512 or 100. This solves
+>lost timer interrupt problems on really old machines like my 486.
+>According to Alan Cox, HZ==1000 is also harmful on some laptops
+>(presumably due to long SMI windows), so this patch should be
+>useful for those too.
 
-I don't care if it's a hack, as long as it works ;-) Could you elaborate
-on the other cases it handles?
+I'm not sure if I had the same problem, but my system clock wasn't
+staying in time. This patch solved the problem. This is a Pentium III
+desktop machine so it looks like other machines are affected too.
 
-Thanks,
-
-M.
-
+    - Nikke

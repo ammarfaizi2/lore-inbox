@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264881AbSKEP6S>; Tue, 5 Nov 2002 10:58:18 -0500
+	id <S264876AbSKEPzz>; Tue, 5 Nov 2002 10:55:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264882AbSKEP6S>; Tue, 5 Nov 2002 10:58:18 -0500
-Received: from [202.88.171.30] ([202.88.171.30]:7074 "EHLO dikhow.hathway.com")
-	by vger.kernel.org with ESMTP id <S264881AbSKEP6R>;
-	Tue, 5 Nov 2002 10:58:17 -0500
-Date: Tue, 5 Nov 2002 21:30:46 +0530
-From: Dipankar Sarma <dipankar@gamebox.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] kmalloc_percpu
-Message-ID: <20021105213046.B10886@dikhow>
-Reply-To: dipankar@gamebox.net
-References: <20021031213640.D2298@in.ibm.com> <20021101193354.54367ba4.rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021101193354.54367ba4.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Fri, Nov 01, 2002 at 07:33:54PM +1100
+	id <S264881AbSKEPzz>; Tue, 5 Nov 2002 10:55:55 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:64136 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264876AbSKEPzy>; Tue, 5 Nov 2002 10:55:54 -0500
+Date: Tue, 5 Nov 2002 10:02:26 -0600 (CST)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: "David S. Miller" <davem@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.46
+In-Reply-To: <1036477834.31982.0.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.4.44.0211050958470.20254-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 07:33:54PM +1100, Rusty Russell wrote:
-> On Thu, 31 Oct 2002 21:36:40 +0530
-> Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
-> 
-> > Here's  kmalloc_percpu interfaces ported (...mostly rediffed) to 
-> > 2.5.45.  (One last try for 2.6).
-> 
-> IMHO this is a "when we need it" patch.  Baby steps...
+On 4 Nov 2002, David S. Miller wrote:
 
-Agreed. It could be useful if we want to use per-CPU statistics
-for things like disk I/O (now in struct gendisk).
-
+> On Mon, 2002-11-04 at 18:37, Kai Germaschewski wrote:
+> > On Mon, 4 Nov 2002, george anzinger wrote:
+> > 
+> > > I think we need a newer objcopy :(
+> > 
+> > Alternatively, use this patch. (It's not really needed to force people to 
+> > upgrade binutils when ld can do the job, as it e.g. does in 
+> > arch/i386/boot/compressed/Makefile already).
 > 
-> > +#define this_cpu_ptr(ptr) per_cpu_ptr(ptr, smp_processor_id())
-> 
-> Probably want a get_cpu_ptr() & put_cpu_ptr() using get_cpu() and put_cpu()
-> (and this would become __get_cpu_ptr()).
-> 
-> And probably move them all to linux/percpu.h.
+> Does not work for me at all on sparc64, it complains that *.gz has an
+> unknown file format.
 
-Yes, it needs to sync up with its static twin ;-)
+I suppose that's because sparc64 doesn't properly define LDFLAGS_BLOB (nor 
+did it define ARCHBLOBFLAGS, which is replaced by the former now). Look 
+at arch/i386/Makefile::LDFLAGS_BLOB and adapt accordingly ;)
 
-Thanks
-Dipankar
+> Why not just hexdump the thing into an array of char foo.c file,
+> then compile that.
+
+Well, I wouldn't think there's any toolchain which doesn't support the 
+current way when given the right flags, so that looks faster and cleaner 
+to me.
+
+--Kai
+
+

@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSIGOjO>; Sat, 7 Sep 2002 10:39:14 -0400
+	id <S315374AbSIGOu5>; Sat, 7 Sep 2002 10:50:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318246AbSIGOjO>; Sat, 7 Sep 2002 10:39:14 -0400
-Received: from science.horizon.com ([192.35.100.1]:7241 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP
-	id <S316768AbSIGOjN>; Sat, 7 Sep 2002 10:39:13 -0400
-Date: 7 Sep 2002 14:43:48 -0000
-Message-ID: <20020907144348.28130.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: One more bio for for floppy users in 2.5.33..
+	id <S315779AbSIGOu5>; Sat, 7 Sep 2002 10:50:57 -0400
+Received: from 62-190-217-229.pdu.pipex.net ([62.190.217.229]:14856 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S315374AbSIGOu4>; Sat, 7 Sep 2002 10:50:56 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200209071502.g87F2dCQ001040@darkstar.example.net>
+Subject: Re: ide drive dying?
+To: degger@fhm.edu (Daniel Egger)
+Date: Sat, 7 Sep 2002 16:02:39 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1031406606.12089.109.camel@sonja.de.interearth.com> from "Daniel Egger" at Sep 07, 2002 03:50:06 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, Linus Torvalds wrote:
-> Note that the delay for motor on/off is _much_ larger than the actual 
-> delay for seeking.
+> > Besides, you *do* backup, don't you?
 > 
-> The seek itself is on the order of a few ms, with the head settle time 
-> being in the tens (possibly even a few hundred) ms per track. So assuming 
-> you end up reading 4 tracks or so due to readahead, that's still in the 
-> range of about one second.
+> I do but besides that there is still data loss involved and my time is
+> expensive and limited, so I'd rather go for a hasslefree solution than
+> to poke around in mud with a stick in the hope it might clear up.
+
+Fair enough, if you don't have the time to devote to it, it's best to replace the drive.
+
+I assumed from the size of this thread, which has nothing to do with the kernel anymore, that we were trying to find out what was to blame.
+
+If this is going to become a flamewar, please remove the cc: to the kernel list, as I doubt that it interests them.
+
+> > (Or do what Linus suggested a while ago, and upload your stuff to an
+> > ftp site that is mirrored worldwide.)
 > 
-> In contrast, the motor on/off time is something like 5 seconds if I
-> remember correctly. Of course, you can certainly eject the floppy while
-> the motor is still running, but I'd suggest against it.
+> Very practicable advise.
 
-You're forgetting the transfer rate.  A 1440K floppy has 160
-tracks (80 cylinders * 2 heads), or 9K per track.
+Whatever - it was a joke.
 
-It spins at 300 RPM, so it takes at least 200 ms to read that track.
-45K/sec.
+The reason I brought up backups, was because even if you have a RAID array, of high quality drives, with non-sequential serial numbers, on hot-pluggable interfaces, with known good firmware, you can still get silent data corruption.
 
-A 64K read spans 7.11 tracks, which will take 1422 ms to read.
-Add 100 ms for initial rotational latency, and assume that subsequent
-tracks are optimally arranged for continuous reads.
+Fact - *NO* SLED, or RAID array, can ever be guaranteed never to silently flip a bit.
 
-That's 1.5 secods just to transfer the data.
+> > I don't see the point of returning a disk that turns out not to be
+> > faulty after the firmware upgrade,
+> 
+> The point is that until you know whether it really was the firmware,
+> you've spend so much time that it is much easier to return the drive.
 
-*Then* you can add all of the seek and motor spin-up/down times
-mentioned above.
+And the chances are you will get another drive of the same model, back from IBM.  How does that help?
 
-(Of course, if the floppy *isn't* formatted optimally, add an
-extra 100 ms per seek, or 700 ms total, of rotatinal latency.)
+I already pointed out that there are two known issues here with these drive - firmware bugs, and media defects.
+
+So far, all we can say is that the firmware problem is now fixed.  On a replacement drive, you can't even say that.
+
+The 'media errors' could have been caused entirely by the buggy firmware.
+
+> > even if it qualifies for a warranty replacement, (which it shouldn't do)
+> 
+> A faulty drive is a faulty drive and thus qualifies for a
+> free replacement (at least in Germany). Nobody here can force
+> you to try several costly things which might solve the problem;
+> it is rather the manufacturers duty to fix it on their cost.
+
+No, but you've upgraded the firmware, right?  If that has fixed the problem, then it is not a faulty drive.  If it is not a faulty drive, then what is the point in sending it back?  If it is not a faulty drive, IBM would be justified in sending it right back to you at your expense.  Oh, and it might get damaged in transit.
+
+> > because you might be exchanging a good disk for a bad disk.
+> 
+> Very doubtful considering past experience. Also it's not very
+> probable (though it has happened) to receive a disk which is
+> more broken than broken.=20
+
+No, I would say it is very possible that you could receive a disk with the old firmware on it.  So, you'll just plug in your 'new' disk, and in a few months, bad sectors will start appearing.
+
+John.

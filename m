@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267488AbTGHQcy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 12:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267490AbTGHQcy
+	id S267449AbTGHQeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 12:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbTGHQeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 12:32:54 -0400
-Received: from dub.inr.ac.ru ([193.233.7.105]:23479 "HELO dub.inr.ac.ru")
-	by vger.kernel.org with SMTP id S267488AbTGHQcw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 12:32:52 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200307081647.UAA13391@dub.inr.ac.ru>
-Subject: Re: tc stack overflow
-To: linux-kernel@vger.kernel.org
-Date: Tue, 8 Jul 2003 20:47:19 +0400 (MSD)
-Cc: creatix@hipac.org
-In-Reply-To: <200307081640.UAA28623@th.inr.ac.ru> from "A.N.Kuznetsov" at  =?ISO-8859-1?Q?=20=E9?=
-	=?ISO-8859-1?Q?=C0=CC?= 08, 2003 08:40:05 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Tue, 8 Jul 2003 12:34:44 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:49892 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S267449AbTGHQei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 12:34:38 -0400
+Date: Tue, 8 Jul 2003 18:51:25 +0200
+From: Vincent Touquet <vincent.touquet@pandora.be>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Vincent Touquet <vincent.touquet@pandora.be>, linux-kernel@vger.kernel.org,
+       andre@linux-ide.org
+Subject: Re: [Bug report] System lockups on Tyan S2469 and lots of io [smp boot time problems too :(]
+Message-ID: <20030708165125.GL14044@ns.mine.dnsalias.org>
+Reply-To: vincent.touquet@pandora.be
+References: <20030706210243.GA25645@lea.ulyssis.org> <20030708161406.GJ14044@ns.mine.dnsalias.org> <20030708184132.A25510@ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030708184132.A25510@ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Jul 08, 2003 at 06:41:32PM +0200, Vojtech Pavlik wrote:
+>Most likely caused by the slave devices confusing the BIOS cable
+>detection. The amd74xx driver can only use what the BIOS tells it. You
+>can use 'ide0=ata66' to override the cable detection.
 
-> # tc qdisc add dev eth0 root handle 1: prio \
->    for i in `seq 500` ; do tc qdisc add dev eth0 \
->        parent $i:1 handle `expr $i + 1`: prio ; done ; \
->    ping 1.2.3.4
-> 
-> [replace eth0 by a device of your choice]
+Thanks, that should solve it.
 
-... or replace too complicated script with cp /dev/zero /dev/mem. :-)
+Any idea on what could cause the lockups of my system ?
+Some output of vmstat near the hangs, and also stack traces can be found
+in this thread: http://marc.theaimsgroup.com/?t=105752570500001&r=1&w=2
 
+best regards,
 
-> So, what do you think about the issue? Do you care?
-
-I do not. Yes, it is real design mistake, recursion is always evil.
-Maybe, it will be remade some day. But until that day it does not matter.
-
-Alexey
+Vincent

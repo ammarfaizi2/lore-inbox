@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289224AbSAIHpX>; Wed, 9 Jan 2002 02:45:23 -0500
+	id <S289233AbSAIH5z>; Wed, 9 Jan 2002 02:57:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289227AbSAIHpN>; Wed, 9 Jan 2002 02:45:13 -0500
-Received: from dsl-213-023-043-044.arcor-ip.net ([213.23.43.44]:51468 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289224AbSAIHoz>;
-	Wed, 9 Jan 2002 02:44:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-        Luigi Genoni <kernel@Expansa.sns.it>
-Subject: Re: Preemtive kernel (Was: Re: [2.4.17/18pre] VM and swap - it's really unusable)
-Date: Wed, 9 Jan 2002 08:48:41 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, Anton Blanchard <anton@samba.org>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>
-In-Reply-To: <Pine.LNX.4.33.0201082351020.1185-100000@Expansa.sns.it> <E16OCCE-0000CJ-00@starship.berlin> <200201090728.g097SPo11772@mailf.telia.com>
-In-Reply-To: <200201090728.g097SPo11772@mailf.telia.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ODTW-0000Cz-00@starship.berlin>
+	id <S289229AbSAIH5q>; Wed, 9 Jan 2002 02:57:46 -0500
+Received: from firewall.synchrotron.fr ([193.49.43.1]:10972 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S288546AbSAIH5h>;
+	Wed, 9 Jan 2002 02:57:37 -0500
+Date: Wed, 9 Jan 2002 08:57:15 +0100
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: boot messeage
+Message-ID: <20020109085715.A6702@pcmaftoul.esrf.fr>
+In-Reply-To: <20020109064104.15170.qmail@web15003.mail.bjs.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <20020109064104.15170.qmail@web15003.mail.bjs.yahoo.com>; from hanhbkernel@yahoo.com.cn on Wed, Jan 09, 2002 at 02:41:04PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 9, 2002 08:25 am, Roger Larsson wrote:
-> (the subject has been wrong for some time now...)
-> 
-> On Wednesday den 9 January 2002 07.26, Daniel Phillips wrote:
-> > On January 9, 2002 12:02 am, Luigi Genoni wrote:
-> > > On Tue, 8 Jan 2002, Daniel Phillips wrote:
-> > > > On January 8, 2002 04:29 pm, Andrea Arcangeli wrote:
-> > > > > but I just wanted to make clear that the
-> > > > > idea that is floating around that preemptive kernel is all goodness
-> > > > > is very far from reality, you get very low mean latency but at a
-> > > > > price.
-> > > >
-> > > > A price lots of people are willing to pay
-> > >
-> > > Probably sometimes they are not making a good business.
-> >
-> > Perhaps.  But they are happy customers and their music sounds better.
-> >
-> > Note: the dominating cost of -preempt is not Robert's patch, but the fact
-> > that you need to have CONFIG_SMP enabled, even for uniprocessor, turning
-> > all those stub macros into real spinlocks.  For a dual processor you have
-> > to have this anyway and it just isn't an issue.
-> 
-> Well you don't - the first versions used the SMP spinlocks macros but
-> replaced them with own code. (basically an INC on entry and a DEC and test
-> when leaving)
-> 
-> Think about what happens on a UP
-> There are two cases
->  - the processor is in the critical section, it can not be preempted = no
->    other process can take the CPU away from it.
->  - the processor is not in a critical section, no process can be executing
->    inside it = can never be busy.
-> => no real spinlocks needed on a UP
+On Wed, Jan 09, 2002 at 02:41:04PM +0800, hanhbkernel wrote:
+> When booting Linux, the kernel messages are shown on
+> screen. 
+> I don't like to show these messages, so  "Support for
+> console on virtual terminal" and "Support for console
+> on serial port" are not chose when compiling kernel.
+> But using the new kernel, computer can't boot. If one
+> of "Support for console on virtual terminal" and
+> "Support for console on serial port" is chose,
+> Computer can be booted. If I don¡¯t like the booting
+> messages shown through terminal or HyperTerminal on
+> screen. Would you like to tell me how could I do?
 
-Right, thanks, it was immediately obvious when you pointed out that the 
-macros are just used to find the bounds of the critical regions.  So the cost 
-of -preempt is somewhat less than I had imagined.
-
---
-Daniel
+Use the "Support for console on virtual terminal and output the stuff to
+a non used seria port : 
+append to lilo something like this: append="console=/dev/tty4"
+        Sam

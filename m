@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261876AbTCTUuC>; Thu, 20 Mar 2003 15:50:02 -0500
+	id <S261981AbTCTUwM>; Thu, 20 Mar 2003 15:52:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbTCTUuC>; Thu, 20 Mar 2003 15:50:02 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:46854 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261876AbTCTUuB>; Thu, 20 Mar 2003 15:50:01 -0500
-Date: Thu, 20 Mar 2003 22:00:48 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: akpm@digeo.com, <Joel.Becker@oracle.com>,
-       <andrey@eccentric.mae.cornell.edu>, <linux-kernel@vger.kernel.org>,
-       <torvalds@transmeta.com>
-Subject: Re: major/minor split
-In-Reply-To: <UTC200303192140.h2JLeF924104.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0303202146100.12110-100000@serv>
-References: <UTC200303192140.h2JLeF924104.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261982AbTCTUwM>; Thu, 20 Mar 2003 15:52:12 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:50134 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S261981AbTCTUwL>;
+	Thu, 20 Mar 2003 15:52:11 -0500
+Date: Thu, 20 Mar 2003 16:03:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Release of 2.4.21
+Message-ID: <20030320210305.GH8256@gtf.org>
+References: <20030320200019$6ddc@gated-at.bofh.it> <20030320203015$4839@gated-at.bofh.it> <8765qdg46i.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8765qdg46i.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Mar 20, 2003 at 09:43:01PM +0100, Florian Weimer wrote:
+> Releasing an official 2.4.21 with some fixes (and no new features) is
+> just a PR issue.  I've already seen people comparing the alleged IIS
+> bug (or this new IE hole) and the ptrace() bug...
 
-On Wed, 19 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+Comparing, how?  There is no comparison.
 
-> (I hope the purpose of distinguishing arithmetic types dev_t
-> and kdev_t is clear. The latter is simple e.g. 13+19.
-> mk_kdev, major, minor are simple macros. Kernel use is fast,
-> no conditional involved.
-> The former must be backwards compatible, so MKDEV, MAJOR, MINOR
-> are somewhat complicated macros; for example MAJOR asks: does it fit
-> in 16 bits? then MAJOR is the first 8; otherwise MAJOR is
-> the first DEV_MAJOR_BITS. Used only when converting from userspace.)
+The ptrace bug is only one of several local root holes.  IIS would imply
+a remote vulnerability, something _far_ more serious.
 
-There is a point I'd like to get clear: where should the 16bit<->32bit 
-dev_t conversion happen?
-I think any software that cares about this should be safe by now. That 
-leaves us with on-disk and on-wire formats and IMO only at these places a 
-conversion should happen.
-The other problem is how can software create nodes for a specific device?
+This specific ptrace hole is closed, yay.  Now what about the other
+10,001 that still exist?  People are blowing this ptrace bug WAY
+out of proportion.   The only reason why it demands a modicum of
+vendor responsibility is that a-holes are making easy-to-use exploits
+available for the script kiddies.
 
-bye, Roman
+In my more cynical moods, I wish bugtraq'ers would start posting
+exploits to all the races in GNU coreutils (cp/mv/rm/...).  Assuming
+such actions would (finally) lead to bug fixes.... maybe then I will
+start taking local root holes a bit more seriously.  I will no more
+than hint about this in public, but will respond privately with details
+(if I know you).
+
+	Jeff
+
+
 

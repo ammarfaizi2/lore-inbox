@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbVAPWbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVAPWbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbVAPWbP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 17:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVAPW1n
+	id S262633AbVAPWbf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 17:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVAPWbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 17:27:43 -0500
-Received: from verein.lst.de ([213.95.11.210]:9196 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262631AbVAPW1B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 17:27:01 -0500
-Date: Sun, 16 Jan 2005 23:26:58 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Thomas Viehmann <tv@beamnet.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: permissions of /proc/tty/driver
-Message-ID: <20050116222658.GA22364@lst.de>
-References: <41E80535.1060309@beamnet.de> <20050116120436.GA13906@lst.de> <1105908524.12196.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Jan 2005 17:31:34 -0500
+Received: from [195.110.122.101] ([195.110.122.101]:34275 "EHLO
+	cadalboia.ferrara.linux.it") by vger.kernel.org with ESMTP
+	id S262647AbVAPW2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 17:28:06 -0500
+From: Simone Piunno <pioppo@ferrara.linux.it>
+To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
+Date: Sun, 16 Jan 2005 23:32:10 +0100
+User-Agent: KMail/1.7.2
+Cc: "Greg KH" <greg@kroah.com>, "Jonas Munsin" <jmunsin@iki.fi>, djg@pdp8.net
+References: <g7Idbr9m.1105713630.9207120.khali@localhost> <200501151654.46412.pioppo@ferrara.linux.it> <20050115175545.743a39f9.khali@linux-fr.org>
+In-Reply-To: <20050115175545.743a39f9.khali@linux-fr.org>
+X-Key-URL: http://members.ferrara.linux.it/pioppo/mykey.asc
+X-Key-FP: 9C15F0D3E3093593AC952C92A0CD52B4860314FC
+X-Key-ID: 860314FC/C09E842C
+X-Message: GnuPG/PGP5 are welcome
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1105908524.12196.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Message-Id: <200501162332.14324.pioppo@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 09:11:03PM +0000, Alan Cox wrote:
-> On Sul, 2005-01-16 at 12:04, Christoph Hellwig wrote:
-> > > (where /proc/tty/driver/serial is mentioned as leaking sensitive 
-> > > information), to me the contents of usbserial look innocent enough.
-> > > Do you have any hints on what might be a good solution?
-> > 
-> > The permissions on the directory look indeed too strict to me.  It might
-> > be better to just use strict permissions on /proc/tty/driver/serial
-> > indeed.
-> 
-> The file containts transmit and receive byte counts, which means you can
-> both measure intercharacter delay and character count. Thats a big help
-> to password guessers
 
-I know.  But that doesn't explain why we don't keep strict permissions
-only on that file but on the directory.
+Hi,
 
+While we're at it, the fan speed sensor reports an absurd speed when the fan 
+is driven with very low but non-zero pwm values.  For example, driving it 
+with pwm=2 I get speeds over 50K rpms, while of course the fan is stopped 
+(almost?).  This could be just an hardware sensitivity problem in the sensor 
+chip, or a false measure triggered by fan vibration, but maybe you know 
+better.
+
+/Simone
+
+-- 
+http://thisurlenablesemailtogetthroughoverzealousspamfilters.org

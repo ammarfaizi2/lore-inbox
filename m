@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263195AbTCLOow>; Wed, 12 Mar 2003 09:44:52 -0500
+	id <S263201AbTCLOqc>; Wed, 12 Mar 2003 09:46:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263199AbTCLOov>; Wed, 12 Mar 2003 09:44:51 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29891
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263195AbTCLOou>; Wed, 12 Mar 2003 09:44:50 -0500
-Subject: Re: 2.5.64: i2c-proc kills machine at boot
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: =?unknown-8bit?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Deepak Saxena <deepak@plexity.net>
-In-Reply-To: <20030312125631.GA27966@wohnheim.fh-wedel.de>
-References: <20030311104721.GA401@elf.ucw.cz>
-	 <20030312125631.GA27966@wohnheim.fh-wedel.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047484999.22696.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Mar 2003 16:03:19 +0000
+	id <S263202AbTCLOqc>; Wed, 12 Mar 2003 09:46:32 -0500
+Received: from mail.gmx.net ([213.165.64.20]:19020 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263201AbTCLOqa> convert rfc822-to-8bit;
+	Wed, 12 Mar 2003 09:46:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [2.4.19] How to get the path name of a struct dentry
+Date: Wed, 12 Mar 2003 15:51:49 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200303121033.08560.torsten.foertsch@gmx.net> <200303121432.51329.torsten.foertsch@gmx.net> <20030312135954.A11564@infradead.org>
+In-Reply-To: <20030312135954.A11564@infradead.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303121551.53736.torsten.foertsch@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 12:56, =?unknown-8bit?Q?J=F6rn?= Engel wrote:
-> On Tue, 11 March 2003 11:47:22 +0100, Pavel Machek wrote:
-> > 
-> > If I turn #ifdef DEBUG in i2c_register_entry() into #if 1, it prints 
-> > 
-> > i2c-proc.o: NULL pointer when trying to install fill_inode fix!\n
-> > 
-> > but boots.
-> 
-> That file need a lot of work anyway. On the shitlist of top stack
-> users, it holds ranks 3 and 9-11. Impressive.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-His problem is i2c not i2o. Also the i2o proc stuff while ugly isnt a
-deep call nest or in irq context so not a big problem. It does want
-fixing but thats a seperate matter
+On Wednesday 12 March 2003 14:59, Christoph Hellwig wrote:
+> >
+> >   ns=current->namespace;
+> > /*   get_namespace( ns ); */
+>
+> you want to keep this.
 
-> It also isn't listed in the current MAINTAINERS file. Is i2o currently
-> unmaintained?
+I commented it because I compile my code as a module and the inlined function 
+put_namespace() calls umount_tree() that is not exported. So I have to copy 
+it to my modules code.
 
-Its kind of mine. Maintained is an overly strong word for it however, but I 
-do take patches 8)
 
+>
+> >   rootmnt=mntget( ns->root );
+> > /*   put_namespace( ns ); */
+>
+> do the put once you're completly done with it
+>
+> >   root = dget(rootmnt->mnt_root);
+> >
+> >   spin_lock(&dcache_lock);
+> >   res = __d_path(dentry, vfsmnt, root, rootmnt, buf, buflen);
+> >   spin_unlock(&dcache_lock);
+> >
+> >   dput(root);
+> >   mntput(rootmnt);
+
+You mean put_namespace(ns) should go here?
+
+> >   return res;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+b0mJwicyCTir8T4RAnXHAJ9d3NVrT32iH3ct5ZZLCj3ZjU25vwCglvw5
+A+nWzvgKOvjKc46J4jwmAPc=
+=Hyot
+-----END PGP SIGNATURE-----

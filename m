@@ -1,91 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVAPFek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVAPFec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVAPFek (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 00:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVAPFek
+	id S262431AbVAPFec (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 00:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVAPFec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 00:34:40 -0500
-Received: from fire.osdl.org ([65.172.181.4]:40884 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262432AbVAPFeb (ORCPT
+	Sun, 16 Jan 2005 00:34:32 -0500
+Received: from news.suse.de ([195.135.220.2]:49057 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262431AbVAPFe3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 00:34:31 -0500
-Message-ID: <41E9FB30.9060200@osdl.org>
-Date: Sat, 15 Jan 2005 21:27:12 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: [PATCH] i386: init_intel_cacheinfo() can be __init
-Content-Type: multipart/mixed;
- boundary="------------000602070402020406050204"
+	Sun, 16 Jan 2005 00:34:29 -0500
+Date: Sun, 16 Jan 2005 06:34:24 +0100
+From: Andi Kleen <ak@suse.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       manpreet@fabric7.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       discuss@x86-64.org
+Subject: Re: [PATCH] i386/x86-64: Fix timer SMP bootup race
+Message-ID: <20050116053424.GB2489@wotan.suse.de>
+References: <20050115040951.GC13525@wotan.suse.de> <1105765760.12263.12.camel@localhost.localdomain> <20050115052311.GC22863@wotan.suse.de> <1105774495.12263.21.camel@localhost.localdomain> <20050115075946.GA28981@wotan.suse.de> <1105849247.5711.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105849247.5711.4.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000602070402020406050204
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Jan 16, 2005 at 03:20:47PM +1100, Rusty Russell wrote:
+> On Sat, 2005-01-15 at 08:59 +0100, Andi Kleen wrote: 
+> > I think my patch is better. It at least keeps all the 
+> > baggage out of the normal run paths. Doing this check at each timer interrupt
+> > doesn't make much sense.
+> 
+> It doesn't penalize the architectures which do the right thing already.
+> If this weren't i386 we were talking about...
+> 
+> But adding a bizarro "pre-prepare" notifier verged on nonsensical 8(.  I
+
+I don't see the big issue. Preparse is just not as early as you thought.
 
 
-Correct .text references to .init.data; init_intel_cacheinfo()
-can be __init.
+> prefer an explicit "init_timers_early()" call as a workaround; I'll code
+> that up and test tomorrow, when I'm back in the office with an SMP box
+> to test.
+> 
+> I'm also not clear on why we need to enable interrupts around
+> calibrate_delay() on secondary processors, but I'll try that too and
+> find out 8)
 
-These are references to:
-static struct _cache_table cache_table[] __initdata = ...;
+Because you cannot calibrate the timer without a timer tick.
 
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 
-0000008f R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 
-0000009e R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 
-000000a8 R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 
-00000108 R_386_32          .init.data
+Even if you changed that it wouldn't help because the race can
+as well happen in the idle loop on the secondaries.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
-  arch/i386/kernel/cpu/intel_cacheinfo.c |    2 +-
-  1 files changed, 1 insertion(+), 1 deletion(-)
----
-
---------------000602070402020406050204
-Content-Type: text/x-patch;
- name="intel_cache_sections.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="intel_cache_sections.patch"
-
-
-Correct .text references to .init.data; init_intel_cacheinfo()
-can be __init.
-
-These are references to:
-static struct _cache_table cache_table[] __initdata = ...;
-
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 0000008f R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 0000009e R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 000000a8 R_386_32          .init.data
-Error: ./arch/i386/kernel/cpu/intel_cacheinfo.o .text refers to 00000108 R_386_32          .init.data
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- arch/i386/kernel/cpu/intel_cacheinfo.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -Naurp ./arch/i386/kernel/cpu/intel_cacheinfo.c~intel_cache_sections ./arch/i386/kernel/cpu/intel_cacheinfo.c
---- ./arch/i386/kernel/cpu/intel_cacheinfo.c~intel_cache_sections	2004-12-24 13:35:23.000000000 -0800
-+++ ./arch/i386/kernel/cpu/intel_cacheinfo.c	2005-01-07 14:51:03.000000000 -0800
-@@ -58,7 +58,7 @@ static struct _cache_table cache_table[]
- 	{ 0x00, 0, 0}
- };
- 
--unsigned int init_intel_cacheinfo(struct cpuinfo_x86 *c)
-+unsigned int __init init_intel_cacheinfo(struct cpuinfo_x86 *c)
- {
- 	unsigned int trace = 0, l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
- 
-
---------------000602070402020406050204--
+-Andi

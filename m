@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUAVCWN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 21:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUAVCWN
+	id S264311AbUAVCRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 21:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUAVCRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 21:22:13 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:40894 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S266167AbUAVCWK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 21:22:10 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Thu, 22 Jan 2004 13:22:04 +1100
+	Wed, 21 Jan 2004 21:17:37 -0500
+Received: from saturn.opentools.org ([66.250.40.202]:24043 "EHLO
+	www.princetongames.org") by vger.kernel.org with ESMTP
+	id S264311AbUAVCRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 21:17:36 -0500
+Date: Wed, 21 Jan 2004 21:17:26 -0500 (EST)
+From: Aaron Mulder <ammulder@alumni.princeton.edu>
+X-X-Sender: ammulder@www.princetongames.org
+To: linux-kernel@vger.kernel.org
+Subject: Strange pauses in 2.6.2-rc1 / AMD64
+Message-ID: <Pine.LNX.4.44.0401212107010.24057-100000@www.princetongames.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16399.13260.882442.103487@notabene.cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH - 2.6.2-pre] Make naming of parititions in sysfs match /proc/partitions.
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	I tried out 2.6.2-rc1 today, and saw some very strange behavior
+with Java.  I run a 30s build process (Java/Ant), and it would basically
+stop in the middle.  If I run a "top" next to it (this was all in X),
+during the pauses, the CPUs would go down to nearly 100% idle, and all the
+Java processes disappeared from the top of the list.  If I moved my mouse
+at all, the Java build would wake up for a bit, then stop again 10 or 15
+seconds later.  The build would easily take several minutes if I didn't
+move my mouse much (or hang indefinitely if I didn't move my mouse at
+all).  If I consistently jiggled my mouse through the entire build, the
+performance was approximately what I would expect (35-40s).
 
+	I tried the same thing under my normal kernel (SuSE
+2.4.21-178-smp) and the build ran continuously with no pauses (35s).
 
-In fs/partitions/check.c  there are two pieces of code that add a 
-partition number to a block-device name:
+	The pauses on 2.6.2-rc1 occured with both 32-bit (Sun) and 64-bit
+(Blackdown) Java implementations.
 
-  - the 'disk_name' function 
-  - a snprintf in add_partitions.
+	I can't explain it, but if there's any pertinent info I can
+provide, I'll be happy to.
 
-'disk_name' inserts a 'p' before the partition number if the device
-name ends with a digit.  The snprintf in add_partitions doesn't.
+Thanks,
+	Aaron
 
-This patch rectifies this anomily so that names in sysfs can be
-parsed more reliably.
+2x Opteron 248, Tyan Thunder K8W, 4GB RAM, SuSE 9.0 for AMD64
 
-
- ----------- Diffstat output ------------
- ./fs/partitions/check.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-diff ./fs/partitions/check.c~current~ ./fs/partitions/check.c
---- ./fs/partitions/check.c~current~	2004-01-22 08:57:32.000000000 +1100
-+++ ./fs/partitions/check.c	2004-01-22 08:58:37.000000000 +1100
-@@ -315,7 +315,10 @@ void add_partition(struct gendisk *disk,
- 			S_IFBLK|S_IRUSR|S_IWUSR,
- 			"%s/part%d", disk->devfs_name, part);
- 
--	snprintf(p->kobj.name,KOBJ_NAME_LEN,"%s%d",disk->kobj.name,part);
-+	if (isdigit(disk->kobj.name[strlen(disk->kobj.name)-1]))
-+		snprintf(p->kobj.name,KOBJ_NAME_LEN,"%sp%d",disk->kobj.name,part);
-+	else
-+		snprintf(p->kobj.name,KOBJ_NAME_LEN,"%s%d",disk->kobj.name,part);
- 	p->kobj.parent = &disk->kobj;
- 	p->kobj.ktype = &ktype_part;
- 	kobject_register(&p->kobj);

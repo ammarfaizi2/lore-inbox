@@ -1,93 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVDEIiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVDEIhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVDEIiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 04:38:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVDEIiq
+	id S261644AbVDEIhz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 04:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVDEIhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 04:38:46 -0400
-Received: from tornado.reub.net ([60.234.136.108]:51089 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S261626AbVDEIel (ORCPT
+	Tue, 5 Apr 2005 04:37:55 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:32586 "EHLO smtp3.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261664AbVDEIfi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 04:34:41 -0400
-Message-ID: <42524D83.1080104@reub.net>
-Date: Tue, 05 Apr 2005 20:34:11 +1200
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050404)
-MIME-Version: 1.0
-Newsgroups: fa.linux.kernel
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1
-References: <fa.gcqu6i7.1o6qrhn@ifi.uio.no>
-In-Reply-To: <fa.gcqu6i7.1o6qrhn@ifi.uio.no>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 04:35:38 -0400
+X-ME-UUID: 20050405083537587.8F2931C00C43@mwinf0304.wanadoo.fr
+Date: Tue, 5 Apr 2005 10:32:17 +0200
+To: Ian Campbell <ijc@hellion.org.uk>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, "Theodore Ts'o" <tytso@mit.edu>,
+       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050405083217.GA22724@pegasos>
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1112689164.3086.100.camel@icampbell-debian>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Apr 05, 2005 at 09:19:24AM +0100, Ian Campbell wrote:
+> On Mon, 2005-04-04 at 23:19 +0200, Sven Luther wrote:
+> 
+> > I am only saying that the tg3.c and other file are under the GPL, and
+> > that the firmware included in it is *NOT* intented to be under the
+> > GPL, so why not say it explicitly ? 
+> 
+> I don't think anyone here has disagreed. What almost everyone has said
+> however is "so go and do it" -- go do the research, contact the
+> copyright holders directly and get the permission to make patches, then
+> post them here.
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/
-> 
-> - x86 NMI handling seems to be bust in 2.6.12-rc2.  Try using
->   `nmi_watchdog=0' if you experience weird crashes.
-> 
-> - The possible kernel-timer related hangs might possibly be fixed.  We
->   haven't heard yet.
-> 
-> - Nobody said anything about the PM resume and DRI behaviour in
->   2.6.12-rc1-mm4.  So it's all perfect now?
-> 
-> - Various fixes and updates.  Nothing earth-shattering.
-> 
-> 
-> 
-> Changes since 2.6.12-rc1-mm4:
-> 
-> 
->  bk-acpi.patch
->  bk-agpgart.patch
->  bk-cifs.patch
->  bk-cpufreq.patch
->  bk-cryptodev.patch
->  bk-driver-core.patch
->  bk-drm.patch
->  bk-drm-via.patch
->  bk-ia64.patch
->  bk-audit.patch
->  bk-input.patch
->  bk-jfs.patch
->  bk-kbuild.patch
->  bk-mtd.patch
->  bk-netdev.patch
->  bk-nfs.patch
->  bk-ntfs.patch
->  bk-scsi.patch
->  bk-watchdog.patch
-> 
->  Latest versions of subsystem trees
+Ok. I have some doubts about doing the work, and it then being rejected and
+i did the work first, which is why i asked. It seemed a reasonable thing to
+ask, and my analysis of the problem was sound, so why didn't i get a, yeah, go
+ahead, instead of this rejection ?
 
-Hrm. Something changed between the last -mm release which compiled 
-through, and this one..
+> There is really no point in discussing it here, just get on and do it.
 
-  CHK     include/linux/compile.h
-   CHK     usr/initramfs_list
-   GEN     .version
-   CHK     include/linux/compile.h
-   UPD     include/linux/compile.h
-   CC      init/version.o
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o(.init.text+0x1823): In function `setup_arch':
-: undefined reference to `acpi_boot_table_init'
-arch/i386/kernel/built-in.o(.init.text+0x1828): In function `setup_arch':
-: undefined reference to `acpi_boot_init'
-make: *** [.tmp_vmlinux1] Error 1
-[root@tornado linux-2.6]#
+As i said, some may know things about relationship, or lack thereof, with the
+copyright holder, i believe that the people who added those firmware blobs are
+all reading this here, and it is from them that i wanted feedback, but it
+failed to produce that effect.
 
-Backing out bk-acpi.patch works around it..
+/me will investigate bk and how to get the information on who signed those
+changes off and commited them :)
 
-reuben
+Friendly,
 
+Sven Luther
 

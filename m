@@ -1,41 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUETRxB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265170AbUETSQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265175AbUETRxB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 13:53:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUETRxB
+	id S265170AbUETSQV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 14:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUETSQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 13:53:01 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:15640 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265175AbUETRxA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 13:53:00 -0400
-Date: Thu, 20 May 2004 20:04:55 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Davidlohr Bueso A <dbueso@linuxchile.cl>, linux-kernel@vger.kernel.org
-Subject: Re: bk repository
-Message-ID: <20040520180455.GA2261@mars.ravnborg.org>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Davidlohr Bueso A <dbueso@linuxchile.cl>,
-	linux-kernel@vger.kernel.org
-References: <1085025662.1032.10.camel@offworld> <20040520073951.GA2210@mars.ravnborg.org> <20040520152543.GB10634@work.bitmover.com>
+	Thu, 20 May 2004 14:16:20 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:53685 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S265170AbUETSQS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 14:16:18 -0400
+Date: Thu, 20 May 2004 20:16:17 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Subject: No forces rebuild while changing GCC?
+Message-ID: <20040520181617.GE1912@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Sam Ravnborg <sam@ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YP2B4AbOrhUAD2Gr"
 Content-Disposition: inline
-In-Reply-To: <20040520152543.GB10634@work.bitmover.com>
-User-Agent: Mutt/1.4.1i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 20, 2004 at 08:25:43AM -0700, Larry McVoy wrote:
-> > 
-> > To my knowledge there is no possibility to symlink two repositories, so
-> > both names could live in parrallel for a while??
-> 
-> Sure there is and it's done.
 
-Thanks!
-Can you make it visible at http://linux.bkbits.net - or I just have to be
-patient until a new page is generated?
+--YP2B4AbOrhUAD2Gr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	Sam
+Hi!
+
+I'm currently playing with patches for gcc HEAD to build a vax-linux
+cross-compiler. For testing it, I first want to build parts of the
+kernel with my HEAD toolchain, Ctrl-C, and continue/finish building with
+my old compiler (2.95.2).
+
+I do changing gcc by putting one or the other gcc into $PATH. However,
+whenever I change GCC, kbuild decides to rebuild everything.
+
+I tried to not overwrite compile.h (my commenting out the mv command in
+scripts/mkcompile_h), but that didn't help either. I even tried
+recompiling my HEAD gcc with exactly the same version string that my old
+gcc had, but that didn't work either:(
+
+How can I force to keep my old .o files?
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--YP2B4AbOrhUAD2Gr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFArPXxHb1edYOZ4bsRAsNBAJwKOIXeLp9FQbsGb5hyMSDJGlLAQgCgklmm
+uiZlQ8MaOCZLMRpI3QOsrWA=
+=IQix
+-----END PGP SIGNATURE-----
+
+--YP2B4AbOrhUAD2Gr--

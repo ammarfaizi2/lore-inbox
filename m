@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbTIOOvc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbTIOOvc
+	id S261460AbTIOPKE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 11:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbTIOPKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:51:32 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:33772 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261432AbTIOOva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:51:30 -0400
-Date: Mon, 15 Sep 2003 07:50:32 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: erlid@dtek.chalmers.se
-Subject: [Bug 1232] New: Wont build without DMA support enabled
-Message-ID: <1506940000.1063637432@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 15 Sep 2003 11:10:04 -0400
+Received: from pat.uio.no ([129.240.130.16]:18584 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261460AbTIOPKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 11:10:01 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16229.54852.834931.495479@charged.uio.no>
+Date: Mon, 15 Sep 2003 11:09:56 -0400
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
+In-Reply-To: <20030915093110.GD2268@gamma.logic.tuwien.ac.at>
+References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
+	<shs3cezap0u.fsf@charged.uio.no>
+	<20030915093110.GD2268@gamma.logic.tuwien.ac.at>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1232
+>>>>> " " == Norbert Preining <preining@logic.at> writes:
 
-           Summary: Wont build without DMA support enabled
-    Kernel Version: 2.6.0-test5
-            Status: NEW
-          Severity: normal
-             Owner: bzolnier@elka.pw.edu.pl
-         Submitter: perlid@dtek.chalmers.se
+     > Hmmm, that sounds very strange, since I used the same gcc for
+     > the previous kernels (pre3 and before), too!?
 
+If it's gcc-3.3.2-0pre3 (the current most recent gcc in sid) then I
+spent most of Saturday compiling various kernels (including a 2.4.22
+that used to work). Every kernel I compiled with that particular
+revision showed the ide-scsi irq timeout bug on bootup. Furthermore,
+/dev/hdc was unreadable...
 
-Distribution: Debian testing
-Hardware Environment:
-ASUS P4C800 Deluxe, i875 chipset
-2.80 GHz P4 CPU
-hda: quantum fireball lct08
-hdc: plextor cd-writer
-hde: Seagate Barracuda V S-ATA, 120GB (ST3120023AS)
-Software Environment:
-glibc 2.3.1
-gcc 3.3 (but kernel compiled with gcc 2.95
-Problem Description:
-I'm unable to compile the kernel if I dont select generic PCI bus-master DMA
-support, BLK_DEV_IDEDMA_PCI. If that's not selected, on the line after
-  LD      .tmp_vmlinux1
-I get this error message:
-drivers/built-in.o(.text+0x1f52d): In function `init_dma_generic':
-: undefined reference to `ide_setup_dma'
-drivers/built-in.o(.text+0x2b5a5): In function `ide_hwif_setup_dma':
-: undefined reference to `ide_setup_dma'
-make: *** [.tmp_vmlinux1] Error 1
+Dropping back to gcc-3.2 and the same kernel, same config,
+same... works fine (including 2.4.23-pre4).
 
-Steps to reproduce:
-configure the kernel without BLK_DEV_IDEDMA_PCI and execute make
+Now it may indeed be that the problem is a missing 'barrier()' or
+something like that in the ide code, but I haven't got the time to try
+to track it down...
 
-
+Cheers,
+  Trond

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131980AbRC1QPc>; Wed, 28 Mar 2001 11:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131981AbRC1QPW>; Wed, 28 Mar 2001 11:15:22 -0500
-Received: from mail1.upco.es ([130.206.70.227]:35906 "EHLO mail1.upco.es") by vger.kernel.org with ESMTP id <S131976AbRC1QPL>; Wed, 28 Mar 2001 11:15:11 -0500
-Date: Wed, 28 Mar 2001 18:14:24 +0200
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Disturbing news..
-Message-ID: <20010328181424.A15231@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>, linux-kernel@vger.kernel.org
-References: <20010328163244.D11584@pern.dea.icai.upco.es> <Pine.GSO.4.21.0103280954140.26500-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132032AbRC1RBm>; Wed, 28 Mar 2001 12:01:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132034AbRC1RBc>; Wed, 28 Mar 2001 12:01:32 -0500
+Received: from gopostal.digi.com ([204.221.110.15]:61959 "EHLO gopostal.digi.com") by vger.kernel.org with ESMTP id <S132032AbRC1RBU>; Wed, 28 Mar 2001 12:01:20 -0500
+From: Jeff Randall <randall@bif.digi.com>
+Message-Id: <200103281659.KAA29060@bif.digi.com>
+Subject: Re: Larger dev_t
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Wed, 28 Mar 2001 10:59:09 -0600 (CST)
+Cc: hpa@transmeta.com (H. Peter Anvin), alan@lxorguk.ukuu.org.uk (Alan Cox), torvalds@transmeta.com (Linus Torvalds), Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, tytso@MIT.EDU
+In-Reply-To: <20010327234308.B5411@flint.arm.linux.org.uk> from "Russell King" at Mar 27, 2001 11:43:08 PM
+Reply-To: Jeff_Randall@digi.com
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0103280954140.26500-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Mar 28, 2001 at 09:57:47AM -0500
-X-Edited-With-Muttmode: muttmail.sl - 2000-11-20 - RGtti 2001-01-29
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 28, 2001 at 09:57:47AM -0500, Alexander Viro wrote:
+Russell King wrote:
+> I for one would like to see a major number for all 'serial ports' whether
+> they be embedded ARM serial ports _or_ standard 16550 ports, but at the
+> moment its not easily acheivable without introducing more mess.
 > 
-> On Wed, 28 Mar 2001, Romano Giannetti wrote:
-> 
-> > Now the binary can do much less harm than before, or am I missing something?
-> > It have no access to real user data, but can use the system library and
-> > services without changing anything in the system. 
-> 
-> You mean, like mailbombing the living hell out of somebody? Or playing
-> interesting games with sending signals all over the place...
+> Ted indicated to me a while ago (just after I wrote serial_core.c for
+> yet-another-type-of-ARM-serial-port) his visions of the direction serial
+> stuff should take in 2.5; this is obviously one of the things that I'm
+> keen to discuss and solve in 2.5.
 
-Yes, I was sure there were doors left, but --- it has no access to the
-bookmark list of user, and can kill just user processes... that was what I
-meant with "less harm" (never say never, I know...). 
+A change to a 12:20 major:minor dev_t would be a great help for the various
+serial drivers that I write and help maintain.  We currently as a company
+maintain 4 different serial device drivers for linux and all of them
+currently use between 4 and 10 majors in order to have enough raw minors
+available to identify the maximum port count supported.  We had to do the
+same think on SunOS (which also has 8:8) in order to support reasonable port
+counts there.  I'd absoultely love the ability to get back on a single major
+per driver.
 
-           Romano 
+I'd like to see all of the serial drivers shipped in the kernel tree be
+configured by default to use the same major.. but I wouldn't want to have
+external drivers forced onto that major as well.
 
 -- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 411 132
+Jeff Randall - Jeff_Randall@digi.com  "A paranoid person is never alone,
+                                       he knows he's always the center
+                                       of attention..."

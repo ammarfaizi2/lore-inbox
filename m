@@ -1,231 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283723AbRL1Ak5>; Thu, 27 Dec 2001 19:40:57 -0500
+	id <S283714AbRL1AkH>; Thu, 27 Dec 2001 19:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283757AbRL1Akz>; Thu, 27 Dec 2001 19:40:55 -0500
-Received: from nfs1.infosys.tuwien.ac.at ([128.131.172.16]:21225 "EHLO
-	infosys.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S283723AbRL1Akg>; Thu, 27 Dec 2001 19:40:36 -0500
-Date: Fri, 28 Dec 2001 01:35:22 +0100
-From: Thomas Gschwind <tom@infosys.tuwien.ac.at>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-Subject: [patch] SiS7012 audio driver
-Message-ID: <20011228013522.A10716@infosys.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+	id <S283723AbRL1Aj5>; Thu, 27 Dec 2001 19:39:57 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:49359
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283714AbRL1Ajo>; Thu, 27 Dec 2001 19:39:44 -0500
+Date: Thu, 27 Dec 2001 19:24:34 -0500
+Message-Id: <200112280024.fBS0OYH26337@snark.thyrsus.com>
+From: "Eric S. Raymond" <esr@snark.thyrsus.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: State of the new config & build system
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus (and Marcelo): I understand that right at the moment you have
+higher priorities than merging in the new build system.  Keith Owens
+and I agree with those priorities, so please consider the following to
+be information rather than pressure for action.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Keith's kbuild-2.5 and my CML2 both appear to be shaking down quite
+nicely.
 
-Hello *!
+In the last eight weeks the level of beta testing we're getting from
+lkml regulars has risen dramatically, as has the amount of work being
+put in on the codebases by people other than Keith and myself (just
+last night I checked in an entire new X-based front end contributed by
+a hacker from Korea).  
 
-I have added support for the SiS7012 audio driver to the i810 audio
-driver.  Playback works perfectly fine for me on an ECS K7S5A
-mainboard.  In some situations, recording causes my system to crash
-but I am still working on it.
+Despite the increased attention, the criticality level of incoming bug
+reports has held steady or decreased, to the point that we're
+basically both just doing normal maintainance and polishing the chrome
+now.  I haven't seen a really serious bug in CML2 since I resumed
+active work on it in early November, and Keith's stuff is stable
+enough that he's now adding features like kernel-image type selection
+that were obviously way down his to-do list.
 
-BTW, does anybody have a datasheet?  Currently, this driver is based
-on the fact that OSS uses the same driver for the i810 and SiS7012
-chipsets and some experimentations.
+Just as importantly, the kernel development community now seems to be
+actively preparing for the build-system cutover, as opposed to just
+passively waiting for it.  Some are doing their cutover in *advance*
+of the main tree; the kinds of kbuild bug reports I see on the list
+indicate that Keith's kbuild is already in production use, and in the
+last week I've gotten requests from SGI's XFS group and the ELKS
+project for help with switching to CML2.
 
-If you have questions, recommendations, etc. please mail me directly I
-am not regularly reading the kernel mailing list.
+In sum, we're ready now -- but that's been true since at latest early
+November.  What's new in the last couple weeks is that the developer
+community appears to be coming up to speed on our technology
+effectively enough to be ready as well.
 
-Thomas
+We can help plan and execute the cutover any time you're ready.
 -- 
-Thomas Gschwind                      Email: tom@infosys.tuwien.ac.at
-Technische Universit‰t Wien
-Argentinierstraﬂe 8/E1841            Tel: +43 (1) 58801 ext. 18412
-A-1040 Wien, Austria, Europe         Fax: +43 (1) 58801 ext. 18491
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sis7012.patch"
-
---- i810_audio.c.orig	Fri Dec 28 01:41:26 2001
-+++ i810_audio.c	Fri Dec 28 01:40:13 2001
-@@ -2,6 +2,9 @@
-  *	Intel i810 and friends ICH driver for Linux
-  *	Alan Cox <alan@redhat.com>
-  *
-+ *      SiS7012 code by
-+ *      Thomas Gschwind <tom@infosys.tuwien.ac.at>
-+ *
-  *  Built from:
-  *	Low level code:  Zach Brown (original nonworking i810 OSS driver)
-  *			 Jaroslav Kysela <perex@suse.cz> (working ALSA driver)
-@@ -102,6 +105,9 @@
- #ifndef PCI_DEVICE_ID_INTEL_440MX
- #define PCI_DEVICE_ID_INTEL_440MX	0x7195
- #endif
-+#ifndef PCI_DEVICE_ID_SI_7012
-+#define PCI_DEVICE_ID_SI_7012	0x7012
-+#endif
- 
- static int ftsodell=0;
- static int strict_clocking=0;
-@@ -197,7 +203,7 @@
- #define INT_MASK (INT_SEC|INT_PRI|INT_MC|INT_PO|INT_PI|INT_MO|INT_NI|INT_GPI)
- 
- 
--#define DRIVER_VERSION "0.04"
-+#define DRIVER_VERSION "0.05"
- 
- /* magic numbers to protect our data structures */
- #define I810_CARD_MAGIC		0x5072696E /* "Prin" */
-@@ -220,7 +226,8 @@
- 	ICH82901AB,
- 	INTEL440MX,
- 	INTELICH2,
--	INTELICH3
-+	INTELICH3,
-+	SI7012
- };
- 
- static char * card_names[] = {
-@@ -228,7 +235,8 @@
- 	"Intel ICH 82901AB",
- 	"Intel 440MX",
- 	"Intel ICH2",
--	"Intel ICH3"
-+	"Intel ICH3",
-+	"SiS 7012"
- };
- 
- static struct pci_device_id i810_pci_tbl [] __initdata = {
-@@ -242,6 +250,8 @@
- 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH2},
- 	{PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH3,
- 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, INTELICH3},
-+	{PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_7012,
-+	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, SI7012},
- 	{0,}
- };
- 
-@@ -666,22 +676,31 @@
- static inline unsigned i810_get_dma_addr(struct i810_state *state, int rec)
- {
- 	struct dmabuf *dmabuf = &state->dmabuf;
-+	struct i810_card *card = state->card;
- 	unsigned int civ, offset;
--	struct i810_channel *c;
-+	int port;
- 	
- 	if (!dmabuf->enable)
- 		return 0;
-+
-+	port = card->iobase;
- 	if (rec)
--		c = dmabuf->read_channel;
-+		port += dmabuf->read_channel->port;
- 	else
--		c = dmabuf->write_channel;
-+		port += dmabuf->write_channel->port;
- 	do {
--		civ = inb(state->card->iobase+c->port+OFF_CIV);
--		offset = (civ + 1) * dmabuf->fragsize -
--			      2 * inw(state->card->iobase+c->port+OFF_PICB);
-+		civ = inb(port+OFF_CIV);
-+		
-+		/* picb and sr are swapped on SiS7012 */
-+		if (card->pci_id == PCI_DEVICE_ID_SI_7012)
-+			offset = (civ + 1) * dmabuf->fragsize -
-+				inw(port+OFF_SR);
-+		else
-+			offset = (civ + 1) * dmabuf->fragsize -
-+				2 * inw(port+OFF_PICB);
- 		/* CIV changed before we read PICB (very seldom) ?
- 		 * then PICB was rubbish, so try again */
--	} while (civ != inb(state->card->iobase+c->port+OFF_CIV));
-+	} while (civ != inb(port+OFF_CIV));
- 		 
- 	return offset;
- }
-@@ -758,7 +777,10 @@
- 	// wait for the card to acknowledge shutdown
- 	while( inb(card->iobase + PO_CR) != 0 ) ;
- 	// now clear any latent interrupt bits (like the halt bit)
--	outb( inb(card->iobase + PO_SR), card->iobase + PO_SR );
-+	if (card->pci_id == PCI_DEVICE_ID_SI_7012)
-+		outb( inb(card->iobase + PO_PICB), card->iobase + PO_PICB );
-+	else
-+		outb( inb(card->iobase + PO_SR), card->iobase + PO_SR );
- 	outl( inl(card->iobase + GLOB_STA) & INT_PO, card->iobase + GLOB_STA);
- }
- 
-@@ -922,6 +944,8 @@
- 			sg->busaddr=virt_to_bus(dmabuf->rawbuf+dmabuf->fragsize*i);
- 			// the card will always be doing 16bit stereo
- 			sg->control=dmabuf->fragsamples;
-+			if (state->card->pci_id == PCI_DEVICE_ID_SI_7012)
-+				sg->control *= 2;
- 			sg->control|=CON_BUFPAD;
- 			// set us up to get IOC interrupts as often as needed to
- 			// satisfy numfrag requirements, no more
-@@ -961,9 +985,10 @@
- static void __i810_update_lvi(struct i810_state *state, int rec)
- {
- 	struct dmabuf *dmabuf = &state->dmabuf;
--	int x, port;
-+	struct i810_card *card = state->card;
-+	int x, y, port;
- 	
--	port = state->card->iobase;
-+	port = card->iobase;
- 	if(rec)
- 		port += dmabuf->read_channel->port;
- 	else
-@@ -993,6 +1018,18 @@
- 	/* swptr - 1 is the tail of our transfer */
- 	x = (dmabuf->dmasize + dmabuf->swptr - 1) % dmabuf->dmasize;
- 	x /= dmabuf->fragsize;
-+	
-+	/* We must not set the LVI to the same value as CIV if the 
-+	 * ring buffer is full.  Unlike the i810 chipset, the SiS7012
-+	 * chipset immediately assumes that the buffer is empty and
-+	 * stops playing.
-+	 */
-+	if (!rec && card->pci_id == PCI_DEVICE_ID_SI_7012) {
-+		y = (dmabuf->dmasize + dmabuf->hwptr) % dmabuf->dmasize;
-+		y /= dmabuf->fragsize;
-+		if (x == y) --x;
-+	}
-+
- 	outb(x&31, port+OFF_LVI);
- }
- 
-@@ -1152,7 +1189,10 @@
- 		
- 		port+=c->port;
- 		
--		status = inw(port + OFF_SR);
-+		if (card->pci_id == PCI_DEVICE_ID_SI_7012)
-+			status = inw(port + OFF_PICB);
-+		else
-+			status = inw(port + OFF_SR);
- #ifdef DEBUG_INTERRUPTS
- 		printk("NUM %d PORT %X IRQ ( ST%d ", c->num, c->port, status);
- #endif
-@@ -1188,7 +1228,10 @@
- #endif
- 			}
- 		}
--		outw(status & DMA_INT_MASK, port + OFF_SR);
-+		if (card->pci_id == PCI_DEVICE_ID_SI_7012)
-+			outw(status & DMA_INT_MASK, port + OFF_PICB);
-+		else
-+			outw(status & DMA_INT_MASK, port + OFF_SR);
- 	}
- #ifdef DEBUG_INTERRUPTS
- 	printk(")\n");
-
---BXVAT5kNtrzKuDFl--
+When all government ...in little as in great things... shall be drawn to
+Washington as the center of all power; it will render powerless the checks
+provided of one government on another, and will become as venal and oppressive
+as the government from which we separated."	-- Thomas Jefferson, 1821

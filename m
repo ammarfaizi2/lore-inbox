@@ -1,70 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280748AbRKSWHA>; Mon, 19 Nov 2001 17:07:00 -0500
+	id <S280738AbRKSWUE>; Mon, 19 Nov 2001 17:20:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280750AbRKSWGw>; Mon, 19 Nov 2001 17:06:52 -0500
-Received: from shed.alex.org.uk ([195.224.53.219]:40148 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S280748AbRKSWGn>;
-	Mon, 19 Nov 2001 17:06:43 -0500
-Date: Mon, 19 Nov 2001 22:06:38 -0000
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Devlinks.  Code.  (Dcache abuse?)
-Message-ID: <1925755060.1006207598@[195.224.237.69]>
-In-Reply-To: <E165w5m-0007mR-00@the-village.bc.nu>
-In-Reply-To: <E165w5m-0007mR-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S280750AbRKSWT5>; Mon, 19 Nov 2001 17:19:57 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:64984 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S280738AbRKSWTn>;
+	Mon, 19 Nov 2001 17:19:43 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 19 Nov 2001 22:19:41 GMT
+Message-Id: <UTC200111192219.WAA17887.aeb@cwi.nl>
+To: adam@yggdrasil.com, andre@linux-ide.org
+Subject: Re: Notes on ATA/133 patch (ide.2.4.14.11062001.patch)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Sat, Nov 17, 2001 at 04:59:21AM -0800, Adam J. Richter wrote:
 
->> Which trademark law are you violating by having that in a directory
->> name path, which you are not also violating by having it in the
->> kernel source, make config, name of the module and its printk()
->> on load, etc. etc.
->
-> You can change all the other names with almost zero impact
+> I do not yet understand the purpose of ide_xlate_1024
+> to understand whether it really is specific to the
+> MSDOS style of partition labeling.
 
-Ah - OK; dname/dt didn't occur to me, but still this is
-a consequence of a violation, not the violation itself; what
-aspect of trademark law is a problem?
+Yes, it is.
 
-There are a few other examples of this. /proc/cpuinfo has
+When DOS had a 528 MB limit various kludges were developed
+to make larger disks available. BIOS-kludges went under the
+name of "translation". Kludges that avoided the BIOS went
+under the name "Disk Manager". Linux has some detailed knowledge
+about these kludges, enough to enable Linux to successfully
+share a disk with a DOS using translation and/or Disk Manager.
 
-shed[amb].121$ cat /proc/cpuinfo
-...
-vendor_id       : GenuineIntel
-...
-model name      : Pentium III (Coppermine)
+All of this stuff is totally obsolete today.
+I think ide_xlate_1024 and family can be ripped out of 2.5
+and nobody will notice, especially since it will be a long
+time before 2.6.
 
-That's 2, if not 3 trademarks without acknowledgement that
-might be searched for by userspace programs.
-
-The solution is presumably that lanana doesn't accept /registered/
-trademarks without a GPL compatible license from the trademark
-holder. I don't believe you would have too much of a problem
-with unregistered trademarks.
-
-In any case, most trademark law has some concept of 'fair use'.
-See the difficulty many trademark holders have in suing
-registrants of [trademark]sucks.[registrysuffix]. I think
-the use in terms of supporting hardware is pretty
-fair. Cloning competing OS functionality is closer to
-the wind I admit.
-
-(Only tangentially relevant but for amusement value and a
- beautifully argued case read
-  http://arbiter.wipo.int/domains/decisions/html/2001/d2001-0918.html
- enjoyment almost guaranteed
-)
-
---
-Alex Bligh
+Andries

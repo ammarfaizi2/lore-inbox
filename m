@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268164AbUGWXFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268158AbUGWXNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268164AbUGWXFq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 19:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268166AbUGWXFq
+	id S268158AbUGWXNk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 19:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268169AbUGWXNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 19:05:46 -0400
-Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:26010 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S268164AbUGWXFo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 19:05:44 -0400
-Message-ID: <32791.66.11.168.47.1090623872.squirrel@www.zytor.com>
-In-Reply-To: <20040723214055.GR19329@fs.tum.de>
-References: <40FFD760.8060504@unix.eng.ua.edu>
-    <cdpee5$otu$1@gatekeeper.tmr.com> <cdr5i3$568$1@terminus.zytor.com>
-    <20040723214055.GR19329@fs.tum.de>
-Date: Fri, 23 Jul 2004 16:04:32 -0700 (PDT)
-Subject: Re: A users thoughts on the new dev. model
-From: hpa@zytor.com
-To: "Adrian Bunk" <bunk@fs.tum.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
+	Fri, 23 Jul 2004 19:13:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:17103 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268158AbUGWXNi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 19:13:38 -0400
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hlist_for_each_safe cleanup
+References: <20040723140527.7e3c119a@dell_ss3.pdx.osdl.net>
+	<jeoem65shc.fsf@sykes.suse.de>
+	<20040723155614.2a63dc71@dell_ss3.pdx.osdl.net>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Now I'm being INVOLUNTARILY shuffled closer to the CLAM DIP
+ with the BROKEN PLASTIC FORKS in it!!
+Date: Sat, 24 Jul 2004 01:13:37 +0200
+In-Reply-To: <20040723155614.2a63dc71@dell_ss3.pdx.osdl.net> (Stephen
+ Hemminger's message of "Fri, 23 Jul 2004 15:56:14 -0700")
+Message-ID: <jek6wu5nby.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> One problem from a user's point of view is that removal of obsolete code
-> that works sufficiently for some users.
->
-> Andrew said explicitely in a mail to linux-kernel that he'd consider
-> removing devfs "mid-2005" - and it didn't sound as if this would only be
-> a -mm "feature".
->
-> Even if 2.7 is started this doesn't has to imply that it has to be
-> flooded with big changes - a short 2.7 with relativley few invasive
-> changes might also be an option.
->
+Stephen Hemminger <shemminger@osdl.org> writes:
 
-There is no difference from a user's point of view between a "short 2.7"
-and "a close -mm tree."  Either way devfs is on death row, because it's
-buggy and unmaintained.  Any piece of code, *especially* one as invasive
-as devfs, which is buggy and unmaintained is a hassle to for *all* kernel
-development, and have to be extricated at some point.
+> What's your problem with the gcc extensions, the kernel uses them all over the place,
+> planning on starting a conversion?
 
-	-hpa
+Why use an extension when an equivalent standard construct exists that is
+no less readable?
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261292AbSLMECK>; Thu, 12 Dec 2002 23:02:10 -0500
+	id <S261295AbSLMEPZ>; Thu, 12 Dec 2002 23:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSLMECK>; Thu, 12 Dec 2002 23:02:10 -0500
-Received: from packet.digeo.com ([12.110.80.53]:57490 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261292AbSLMECJ>;
-	Thu, 12 Dec 2002 23:02:09 -0500
-Message-ID: <3DF95D90.DEE68C66@digeo.com>
-Date: Thu, 12 Dec 2002 20:09:52 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.51] Failure to mount ext3 root when ext2 compiled in
-References: <20021213035016.339092C24F@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S261310AbSLMEPZ>; Thu, 12 Dec 2002 23:15:25 -0500
+Received: from h80ad2650.async.vt.edu ([128.173.38.80]:13440 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S261295AbSLMEPY>; Thu, 12 Dec 2002 23:15:24 -0500
+Message-Id: <200212130422.gBD4Mswo002082@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Greg KH <greg@kroah.com>
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions) 
+In-Reply-To: Your message of "Thu, 12 Dec 2002 16:43:30 PST."
+             <20021213004330.GG23509@kroah.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200212122247.gBCMlHgY011021@turing-police.cc.vt.edu>
+            <20021213004330.GG23509@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_2108947304P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Dec 2002 04:09:52.0658 (UTC) FILETIME=[7CA40F20:01C2A25D]
+Date: Thu, 12 Dec 2002 23:22:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> 
-> Just noticed this (usually ext2 is compiled as a module, but was
-> testing a patch with CONFIG_MODULES=n).  Reverted to plain 2.5.51, and
-> it's still there:
-> 
->         VFS: Cannot open root device "301" or 03:01
->         Please append a correct "root=" boot option
->         Kernel panic: VFS: Unable to mount root fs on 03:01
-> 
-> Now, I have an ext3 root, but when CONFIG_EXT3_FS=y and
-> CONFIG_EXT2_FS=y, I get this failure.  Turning off CONFIG_EXT2_FS
-> "fixes" it.
-> 
+--==_Exmh_2108947304P
+Content-Type: text/plain; charset=us-ascii
 
-In the past year I've booted about 1,000,000,000 kernels with
-CONFIG_EXT2_FS=y and CONFIG_EXT3_FS=y.  Across that period, 
-maybe five or ten times I have seen this problem.
+On Thu, 12 Dec 2002 16:43:30 PST, Greg KH said:
+> On Thu, Dec 12, 2002 at 05:47:17PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > > PCI: Device 02:00.0 not available because of resource collisions
+> > > PCI: Device 02:00.1 not available because of resource collisions
+> > 
+> > Been there. Done that. Does the attached patch help? It did for me.
+> 
+> Fixes the problem for me :)
 
-As soon as I get down to debug it it goes away.  I once traced it
-as far as seeing ext3_fill_super() return failure, then I lost it.
+Glad to hear it.  I'm pretty sure I merely backed out a broken change, but
+two decades have left me for a healthy respect for "Mel the Real Programmer"
+stories ;)
 
-Rebuilding the kernel, even if you "didn't change anything" makes
-it go away.
+/Valdis
 
-I assume that in your case a `make clean' will not fix it.   You
-lucky duck.   Can you stick a printk right at the end of
-ext3_fill_super()?
+--==_Exmh_2108947304P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE9+WCdcC3lWbTT17ARAhIOAJ90gACjLH9htrQ1LhbhyoM5BNOORwCgt5jh
+kvwtl+JGsrrPNkhTN0UqbC4=
+=P3YV
+-----END PGP SIGNATURE-----
+
+--==_Exmh_2108947304P--

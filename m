@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUG0V1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266630AbUG0V34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUG0V1y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 17:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266630AbUG0V1y
+	id S266630AbUG0V34 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 17:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUG0V3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 17:27:54 -0400
-Received: from posti5.jyu.fi ([130.234.4.34]:4265 "EHLO posti5.jyu.fi")
-	by vger.kernel.org with ESMTP id S266615AbUG0V1w (ORCPT
+	Tue, 27 Jul 2004 17:29:55 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:13252 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266630AbUG0V3u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 17:27:52 -0400
-Date: Wed, 28 Jul 2004 00:27:26 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-cc: Francois Romieu <romieu@fr.zoreil.com>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <16646.47585.814327.628319@robur.slu.se>
-Message-ID: <Pine.LNX.4.44.0407272348590.13195-100000@silmu.st.jyu.fi>
+	Tue, 27 Jul 2004 17:29:50 -0400
+Date: Tue, 27 Jul 2004 23:29:43 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
+In-Reply-To: <20040727104737.0de2da5b.rddunlap@osdl.org>
+Message-ID: <Pine.GSO.4.58.0407272328500.19529@waterleaf.sonytel.be>
+References: <20040723231158.068d4685.rddunlap@osdl.org>
+ <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
+ <20040727104737.0de2da5b.rddunlap@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Checked: by miltrassassin
-	at posti5.jyu.fi; Wed, 28 Jul 2004 00:27:29 +0300
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004, Robert Olsson wrote:
+On Tue, 27 Jul 2004, Randy.Dunlap wrote:
+> On Tue, 27 Jul 2004 14:55:39 +0200 (MEST) Geert Uytterhoeven wrote:
+> | On Fri, 23 Jul 2004, Randy.Dunlap wrote:
+> | > . localizes the following symbols in lib/Kconfig.debug:
+> | >     DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
+> | >     DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
+> | >     DEBUG_INFO
+> |
+> | Which architecture does _not_ use DEBUG_KERNEL or DEBUG_SLAB? The list is quite
+> | long... Aren't these generic?
+>
+> Looks like all of them use DEBUG_KERNEL.
+>
+> DEBUG_SLAB is not available in cris, h8300, m68knommu, sh, sh64,
+> or v850 AFAICT.  Yes/no ?
 
->  > Yeah, when the ksoftirqd is taking all the cpu it will be like that, but 
->  > when the kernel is behaving normally the starving diff is between 0->1sec.
->  Well ksoftirqd makes your kernel load just visible which is good and 
->  ksofirqd gets accounted for this when softirq's get deferred to it.
->  It may look like goes from 0 to 100% but thats probably not the case.
->  The problem is we can starve userland at high loads. As said we were
->  trying some way to cure this I may have some old patch if you like to try.
+Probably someone just forgot to add them. DEBUG_SLAB is used in
+arch-independent code only. So I guess it doesn't harm to allow DEBUG_SLAB for
+all archs.
 
-Ok, as I said before I'm willing to test your patches. 
+Gr{oetje,eeting}s,
 
-It would be nice that one could use the full capacity of his/her computer.
-This is not a big problem for everyday use for a workstation but prevents 
-2.6-series to be used in production-enviroments in the servers.
-But hey.. we need to do some work and maybe we will resolve this. =)
+						Geert
 
 --
-Pasi Sjöholm
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132704AbRDCXW6>; Tue, 3 Apr 2001 19:22:58 -0400
+	id <S132715AbRDCXaI>; Tue, 3 Apr 2001 19:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132715AbRDCXWs>; Tue, 3 Apr 2001 19:22:48 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:41968
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S132704AbRDCXWj>; Tue, 3 Apr 2001 19:22:39 -0400
-Date: Tue, 3 Apr 2001 16:18:01 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.3 and SysRq over serial console
-Message-ID: <20010403161801.A7656@opus.bloom.county>
-In-Reply-To: <20010331163808.A9740@opus.bloom.county> <20010403210744.A22460@flint.arm.linux.org.uk>
+	id <S132716AbRDCX36>; Tue, 3 Apr 2001 19:29:58 -0400
+Received: from monza.monza.org ([209.102.105.34]:62469 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S132715AbRDCX3p>;
+	Tue, 3 Apr 2001 19:29:45 -0400
+Date: Tue, 3 Apr 2001 16:28:10 -0700
+From: Tim Wright <timw@splhi.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
+        torvalds@transmeta.com, hpa@transmeta.com,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+Message-ID: <20010403162810.B770@kochanski>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andries.Brouwer@cwi.nl,
+	torvalds@transmeta.com, hpa@transmeta.com,
+	linux-kernel@vger.kernel.org, tytso@MIT.EDU
+In-Reply-To: <20010403120911.B4561@nightmaster.csn.tu-chemnitz.de> <E14kPZz-0007tk-00@the-village.bc.nu> <20010403142024.Z8155@nightmaster.csn.tu-chemnitz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010403210744.A22460@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Tue, Apr 03, 2001 at 09:07:44PM +0100
+In-Reply-To: <20010403142024.Z8155@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Tue, Apr 03, 2001 at 02:20:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 09:07:44PM +0100, Russell King wrote:
-> On Sat, Mar 31, 2001 at 04:38:08PM -0700, Tom Rini wrote:
-> > Hello all.  Without the attached patch, SysRq doesn't work over a serial
-> > console here.  Has anyone else seen this problem?
+On Tue, Apr 03, 2001 at 02:20:24PM +0200, Ingo Oeser wrote:
+> On Tue, Apr 03, 2001 at 01:06:33PM +0100, Alan Cox wrote:
+> > Device numbers/names have to be constant in order to detect
+> > disk layout changes across boots.
 > 
-> It is handled at the serial port driver level, not the tty level.  You need
-> to turn on CONFIG_SERIAL_CONSOLE and CONFIG_MAGIC_SYSRQ, and issue a break
-> followed by the relevent character within 5 seconds on the serial TTY being
-> used as the kernel console.
+> Names stay constant, but why the NUMBERS? The names should stay
+> constant and represent the actual layout on each busses (say:
+> sane hierachic enumeration) of course.
+> 
 
-After talking with the person who originally did the patch, yeah, that does
-make sense (and the serial driver we're using needs to be fixed).  Thanks.
+This ignores the issue that in some cases you cannot give a physical location.
+Take the case of fibre-channel connected disks, potentially using multi-path
+I/O. There is no "actual layout" since you don't have a fixed physical path.
+At that point you have to have a more sophisticated naming scheme than the
+physical location of the disk, since physical location loses its meaning.
+
+You absolutely must avoid device name slippage. Whether this involves major
+and minor numbers is pretty much orthogonal. Major and minor numbers provided
+a nice and simple way for the kernel to map a device open into a driver and an
+argument to said driver. There are obviously other (more complex ways) of
+achieving the same thing. An obvious answer for hard disks is some form of
+labelling. Equally obviously, this does not solve the problem of e.g.
+fibre-channel connected tape drives.
+
+Regards,
+
+Tim
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

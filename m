@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVCXV5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVCXV7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVCXV5g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 16:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVCXV5g
+	id S261720AbVCXV7V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 16:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVCXV7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 16:57:36 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:36758 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261625AbVCXV5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 16:57:34 -0500
-Message-Id: <200503242156.j2OLung08187@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Oleg Nesterov'" <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Christoph Lameter" <christoph@lameter.com>,
-       "Andrew Morton" <akpm@osdl.org>
-Subject: RE: [PATCH 0/5] timers: description
-Date: Thu, 24 Mar 2005 13:56:49 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUuF8zyfnQnWiW7TWOFdI1wfRtqHgCn9F/Q
-In-Reply-To: <423ED7E4.2A1F0970@tv-sign.ru>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Thu, 24 Mar 2005 16:59:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:55172 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261725AbVCXV7F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 16:59:05 -0500
+Date: Thu, 24 Mar 2005 13:58:51 -0800
+From: cliff white <cliffw@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: drm bugs hopefully fixed but there might still be one..
+Message-ID: <20050324135851.388d1b4e@es175>
+In-Reply-To: <Pine.LNX.4.58.0503241015190.7647@skynet>
+References: <Pine.LNX.4.58.0503241015190.7647@skynet>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote on Monday, March 21, 2005 6:19 AM
-> These patches are updated version of 'del_timer_sync: proof of concept'
-> 2 patches.
+On Thu, 24 Mar 2005 10:33:02 +0000 (GMT)
+Dave Airlie <airlied@linux.ie> wrote:
 
-Looks good performance wise.  Took a quick micro benchmark measurement on
-a 16-node numa box (32-way). Results are pretty nice (to the expectation).
+> 
+> Hi Andrew, Dave,
+> 
+> I've put a couple of patches into my drm-2.6 tree that hopefully fix up
+> the multi-bridge on i915 and the XFree86 4.3 issue.. Andrew can you drop
+> the two patches in your tree.. the one from Brice and the one I attached
+> to the bug? you'll get conflicts anyway I'm sure. I had to modify Brices
+> one as it didn't look safe to me in all cases..
+> 
+> I think their might be one left, but I think it only seems to be on
+> non-intel AGP system, as in my system works fine for a combination of
+> cards and X releases ... anyone with a VIA chipset and Radeon graphics
+> card or r128 card.. testing the next -mm would help me a lot..
 
-Time to execute del_timer_sync, averaged over 10,000 call:
-Vanilla 2.6.11	19,313 ns
-2.6.12-rc1-mm1	    81 ns
-del_singleshot_timer_sync 74ns
-
-Took another measurement on a 4-way smp box:
-Vanilla 2.6.11	648 ns
-2.6.12-rc1-mm1	 55 ns
-del_singleshot	 41 ns
-
-And Andrew always asks what are the impact on real-world bench, we did
-not see performance regression on db transaction processing benchmark
-with these set of timer patches versus using del_singleshot_timer_sync.
-(del_singleshot_timer_sync is slightly faster, though 14 ns difference
-falls well into noise range)
-
-Note: I've only stress tested deleting an un-expired timer.
+Okay, i have a iBook G4, with radeon, with 2.6.12-rc1-mm2, i'm getting the following OOPS
+on boot. I'm hand-copying this stuff, please let me know if you need any more info, .config, etc
+------------[drm] Initalized drm 1.0.0 20040925
+floating point used in kernel (task=effc1770, pc=c03bd040)
+Oops: kernel access of nad area, sig:11 [#1]
+PREEMPT
+NIP: C03BD040 LR: C01, cliffw80540 SP:
+...
+TASK = effc1770[1] 'swapper' THREAD: effc2000
 
 
+LRL [c0180540] drm_agp_init+0x48/0xdc
+Call trace:
+ [c017e74c] drm_fill_in_dev+0xdc/0x180
+ [c017eb44] drm_get_dev+0x78
+ [c...] radeon_init
+ [c...] do_initcalls
+ [c..] init
+ [c..] kernel_thread
+---------------
+cliffw
+
+> 
+> Dave.
+> 
+> -- 
+> David Airlie, Software Engineer
+> http://www.skynet.ie/~airlied / airlied at skynet.ie
+> Linux kernel - DRI, VAX / pam_smb / ILUG
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+-- 
+"Ive always gone through periods where I bolt upright at four in the morning; 
+now at least theres a reason." -Michael Feldman

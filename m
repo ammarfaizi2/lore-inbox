@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262752AbUDAH3d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 02:29:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbUDAH3d
+	id S262441AbUDAH3s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 02:29:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbUDAH3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 02:29:33 -0500
-Received: from mail.kroah.org ([65.200.24.183]:43473 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262752AbUDAH1A (ORCPT
+	Thu, 1 Apr 2004 02:29:48 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:28115 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262441AbUDAH3p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 02:27:00 -0500
-Date: Wed, 31 Mar 2004 23:15:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, torvalds@osdl.org,
-       david-b@pacbell.net, viro@math.psu.edu,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
-Message-ID: <20040401071509.GB13028@kroah.com>
-References: <20040331092631.GA21484@in.ibm.com> <Pine.LNX.4.44L0.0403311001440.1752-100000@ida.rowland.org> <20040401051740.GA1291@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040401051740.GA1291@in.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 1 Apr 2004 02:29:45 -0500
+Date: Wed, 31 Mar 2004 23:29:17 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: "David S. Miller" <davem@redhat.com>
+cc: Sridhar Samudrala <sri@us.ibm.com>, petero2@telia.com,
+       marcelo.tosatti@cyclades.com, vladislav.yasevich@hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.26-rc1 - SCTP 'make xconfig' issue
+In-Reply-To: <20040331230555.5c635e40.davem@redhat.com>
+Message-ID: <Pine.LNX.4.58.0403312328390.9119@localhost.localdomain>
+References: <20040328042608.GA17969@logos.cnet> <m2r7vcss6a.fsf@p4.localdomain>
+ <Pine.LNX.4.58.0403311418470.7023@localhost.localdomain>
+ <20040331230555.5c635e40.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 10:47:40AM +0530, Maneesh Soni wrote:
-> I am out of any more ideas except something like making sysfs single threaded 
-> or requesting people to try my sysfs backing store patch set. It does not
-> suffer from the negative dentries problem as it does not create any negative
-> dentries. I have to re-diff the patch set again to take recent changes into
-> account.
+On Wed, 31 Mar 2004, David S. Miller wrote:
 
-Hm, well that is the best reason so far that I have heard to accept your
-patch set.
+> On Wed, 31 Mar 2004 16:47:04 -0800 (PST)
+> Sridhar Samudrala <sri@us.ibm.com> wrote:
+>
+> > He came up with the following patch that works around this issue with
+> > tkparse.  Could you please verify if this works for you?
+>
+> It seems to fix the problem, should I apply this Sridhar?
 
-So let's revisit this after Al audits the patches, ok?
+Sure. As Peter also has validated, it can be applied.
 
-thanks,
-
-greg k-h
+Thanks
+Sridhar

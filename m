@@ -1,112 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUFDGe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265637AbUFDGkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264373AbUFDGe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 02:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265637AbUFDGe1
+	id S265637AbUFDGkH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 02:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbUFDGkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 02:34:27 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:41526 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264373AbUFDGeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 02:34:24 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address +
-    more?)
-X-Attribution: anupam
-References: <E1BW7gZ-00066c-00@mail.kbs.net.au>
-From: Anupam Kapoor <anupam.kapoor@veritas.com>
-Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEX29feBVUXQw8AoGxf5 
-    9/v49/q2g23f2Nfx7/H7+v1tv7dGAAACQklEQVR4nGWSQW/UMBCFfUnZ3vBG+EyNWJ93LbX3aiLh
-    21LFhR6zRQauvqS9FSS2/QEG5H/LG3uzKTCKnGS+eW/GicXTgxBiUda/o4KF+I88zU9Rm4e54Pjw
-    vbXWKiNm0Hg2i5xHfJnNGr8VYm8PsWk8vx/jdgL2tfd+zp8c8/bC+6aYND0K3szA3pMvbj5120X7
-    DLxMftvApc/55xUnZJCTV2nC4NratQwIKVu7SV2xopzTe9TLsNOrMEi76ciRF81NzvmagQq7As6J
-    a0XjsF4WBccg2/NMyAmPha7QQio4VcDBgOiDXWNgudMMNgdA5KlroZDrEIDbiwr65Ih+t0ifyzDw
-    Rl8dALlEJ7cQhEFhJtl+5XwCIHL7W54JQKl1e59Tok74vqe8GiYA5SnGJBJ93/UAqgI5SNVTmqyq
-    Qg+7lQIt+wNwObl9BeoMYFmcqADa1x78vSroPHbeeboqgH2CXBJb5XJ4+vRNKjUUDZrflH0I/rvu
-    l+TgYeXO1Z0LzyfrsuQDr2/zAeCoNPROTqHyM4ABjk7Lv0B23DYw+VTS+FZVkc4mq/Jt8Y8AHOgC
-    CstnRxoe1iVWUBKPkRUtny59B4Grio+jNkPxwY/U+q7HweJD/UKPcTz20EabG0pb8fQYzTjGCaio
-    tTanyYtoIvLjKlSzJdJw/tEISBnoUOMz3kY96gfBFQbXAXAZhxblFkezmoApCYBYKyrYaVZwl3+A
-    iRWMUWBhXwzJAtSW5gC1FwoLwI3LZ6CjjjDDTZdZxvEPCh8u8qEw0iIAAAAASUVORK5CYII=
-Date: Fri, 04 Jun 2004 11:56:37 +0530
-In-Reply-To: <E1BW7gZ-00066c-00@mail.kbs.net.au> 
-    (pods@dodo.com.au's message of "Fri, 4 Jun 2004 11:26:13 +0530")
-Message-ID: <87fz9b96ua.fsf@seldon.vxindia.veritas.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Fri, 4 Jun 2004 02:40:07 -0400
+Received: from postoffice9.mail.cornell.edu ([132.236.56.39]:24997 "EHLO
+	postoffice9.mail.cornell.edu") by vger.kernel.org with ESMTP
+	id S265637AbUFDGkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 02:40:00 -0400
+Message-ID: <40C0193F.2030200@cornell.edu>
+Date: Fri, 04 Jun 2004 00:39:59 -0600
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040519)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Nathan Scott <nathans@sgi.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
+Subject: Re: xfs corruption or not
+References: <40BFDB13.7000901@cornell.edu> <20040604052953.GE13756@frodo>
+In-Reply-To: <20040604052953.GE13756@frodo>
+X-Enigmail-Version: 0.84.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.5.0.90627, Antispam-Core: 4.0.4.92622, Antispam-Data: 2004.6.3.102573
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-looks like you are using nvidia ?
 
-anupam
+> Do you know if the kernel was low on memory at the time?  (any
+> signs of allocation failures in your system log?)
+> 
+> This looks like a memory allocation failure which hasn't been
+> gracefully handled (or approriately retried) in XFS - there's
+> a few patches being worked on to improve this, but they aren't
+> ready to be merged in just yet.
 
-"Pods" <pods@dodo.com.au> writes:
+Well, now that you mention it, there's another trace right in front of 
+the oops. Don't know why I missed it - probably thought it was the same 
+thing. It says allocation failure. I am running FC2 with 128MB SDRAM.
 
->    Hi, sorry for the not very descriptive subject.
->
->    I have a problem with linux 2.6.5, it crashes, a lot. Some times it
->    spews
->    out oops at me, sometimes i dotn know if it oopsed or not because the
->    machine doesnt respond.
->
->    I can reproduce this by several means, including playing a dvd,
->    compiling
->    firefox, mplayer or thunderbird and i can be doing something not quite
->    a
->    hard on the system such as browsing the web or chatting... It'll find
->    some
->    way to piss me off.
->
->    Now, i have supplied several oops, each on containing the full output
->    of
->    dmesg via the kernel logging daemon. I have also supplied my hardware
->    specs
->    (mobo + lspci -vvv) and out put of ver_linux?... All these files can
->    be
->    found @ [1]http://users.quickfox.org/~pods/linux-issues/.
->
->    I didnt want to post them here because each oops IIRC is different.
->    Just to
->    let you know if have tried several way in which to correct this.
->
->    * several different kernels ( 2.4.18-bf24, 2.4.26, 2.6.5 )
->    ** with ide shareirq
->    ** noapic
->    ** + apic
->    ** noacpi
->    ** + acpi
->    ** lots of other differences
->
->    * Recently i had turned to bios and have disabled many things
->    including apic
->    (just incase you where wondering, bios had mps @ 1.4)
->
->    If you would rather me add the very large amoung of oops to this
->    email, tell
->    me and i'll do so. Thanks in advance.
->
->    P.S Im not subscribed to the list, i may consider it depending on the
->    amount
->    of feedback i get and how involved i need to be, but for now i'd
->    rather if
->    people could CC me their response. Thank you
->    again.
->
->    ________________________________________________
->
->    Message sent using
->    Dodo Internet Webmail Server
->
->    -
->    To unsubscribe from this list: send the line "unsubscribe
->    linux-kernel" in
->    the body of a message to majordomo@vger.kernel.org
->    More majordomo info at  [2]http://vger.kernel.org/majordomo-info.html
->    Please read the FAQ at  [3]http://www.tux.org/lkml/
->
-> References
->
->    1. http://users.quickfox.org/~pods/linux-issues/
->    2. http://vger.kernel.org/majordomo-info.html
->    3. http://www.tux.org/lkml/
+thunderbird-bin: page allocation failure. order:5, mode:0x50
+[<0212d155>] __alloc_pages+0x29a/0x2b4
+[<0212d187>] __get_free_pages+0x18/0x24
+[<0212f6ec>] kmem_getpages+0x15/0x98
+[<0212ff3c>] cache_grow+0x7b/0x18e
+[<02130184>] cache_alloc_refill+0x135/0x164
+[<02130562>] __kmalloc+0x64/0x76
+[<0a8e7e0a>] xfs_iext_realloc+0x1c8/0x23b [xfs]
+[<0a8c4883>] xfs_bmap_insert_exlist+0x23/0xae [xfs]
+[<0a8c1cc7>] xfs_bmap_add_extent_hole_delay+0x42f/0x485 [xfs]
+[<0218fcd9>] __delay+0x9/0xa
+[<021f9ec8>] dma_timer_expiry+0x0/0x63
+[<0a8bf6e8>] xfs_bmap_add_extent+0x13b/0x38e [xfs]
+[<0a8c66d9>] xfs_bmapi+0x946/0x104d [xfs]
+[<0a8f997b>] xfs_trans_read_buf+0x44/0x2d9 [xfs]
+[<0a8cbe79>] xfs_bmbt_get_state+0xa/0x18 [xfs]
+[<0a8c4ef4>] xfs_bmap_search_extents+0x3d/0x43 [xfs]
+[<0a8c60a7>] xfs_bmapi+0x314/0x104d [xfs]
+[<0a8ea9fe>] xfs_iomap_write_delay+0x54a/0x5b6 [xfs]
+[<0212c0a1>] mempool_alloc+0x5d/0xf6
+[<0a8e9f4c>] xfs_iomap+0x23b/0x3eb [xfs] Jun  3 19:57:11 cobra kernel: 
+[<0a8e9ff4>] xfs_iomap+0x2e3/0x3eb [xfs]
+[<0a90910c>] xfs_bmap+0x1a/0x1e [xfs]
+[<0a9036f3>] linvfs_get_block_core+0x83/0x234 [xfs]
+[<021e25f6>] cfq_next_request+0x21/0x37
+[<02140f8b>] __wait_on_buffer+0x7d/0x85 Jun  3 19:57:11 cobra kernel: 
+[<0a9038b7>] linvfs_get_block+0x13/0x17 [xfs]
+[<021425a7>] __block_prepare_write+0x146/0x3a5
+[<02142e47>] block_prepare_write+0x16/0x22
+[<0a9038a4>] linvfs_get_block+0x0/0x17 [xfs]
+[<0212b79d>] generic_file_aio_write_nolock+0x57e/0x84e
+[<0a9038a4>] linvfs_get_block+0x0/0x17 [xfs]
+[<0a8e91d1>] xfs_ichgtime+0xee/0xf6 [xfs] Jun  3 19:57:11 cobra kernel: 
+  [<0a908e2a>] xfs_write+0x3e5/0x675 [xfs]
+[<0a9058cf>] linvfs_write+0xa6/0xbc [xfs]
+[<021400cb>] do_sync_write+0x68/0x9d
+[<02146f77>] sys_stat64+0x1e/0x23
+[<021401b8>] vfs_write+0xb8/0xe4
+[<02140252>] sys_write+0x2c/0x42

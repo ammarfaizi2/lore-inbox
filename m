@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130112AbRBFTdg>; Tue, 6 Feb 2001 14:33:36 -0500
+	id <S130113AbRBFTdP>; Tue, 6 Feb 2001 14:33:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129840AbRBFTd0>; Tue, 6 Feb 2001 14:33:26 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:31498 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130112AbRBFTdP>;
-	Tue, 6 Feb 2001 14:33:15 -0500
-Date: Tue, 6 Feb 2001 20:32:35 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
+	id <S129840AbRBFTdF>; Tue, 6 Feb 2001 14:33:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26897 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130112AbRBFTc4>;
+	Tue, 6 Feb 2001 14:32:56 -0500
+Date: Tue, 6 Feb 2001 20:32:19 +0100
+From: Jens Axboe <axboe@suse.de>
 To: Ben LaHaise <bcrl@redhat.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+Cc: Ingo Molnar <mingo@elte.hu>, "Stephen C. Tweedie" <sct@redhat.com>,
         Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
-        <kiobuf-io-devel@lists.sourceforge.net>,
-        Ingo Molnar <mingo@redhat.com>
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
 Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.30.0102061402200.15204-100000@today.toronto.redhat.com>
-Message-ID: <Pine.LNX.4.30.0102062024040.8157-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010206203219.A2975@suse.de>
+In-Reply-To: <Pine.LNX.4.30.0102061955380.7919-100000@elte.hu> <Pine.LNX.4.30.0102061402200.15204-100000@today.toronto.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0102061402200.15204-100000@today.toronto.redhat.com>; from bcrl@redhat.com on Tue, Feb 06, 2001 at 02:11:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 6 Feb 2001, Ben LaHaise wrote:
-
+On Tue, Feb 06 2001, Ben LaHaise wrote:
 > > > 	- make asynchronous io possible in the block layer.  This is
 > > > 	  impossible with the current ll_rw_block scheme and io request
 > > > 	  plugging.
 > >
 > > why is it impossible?
->
-> s/impossible/unpleasant/. ll_rw_blk blocks; it should be possible to
-> have a non blocking variant that does all of the setup in the caller's
-> context. [...]
+> 
+> s/impossible/unpleasant/.  ll_rw_blk blocks; it should be possible to have
+> a non blocking variant that does all of the setup in the caller's context.
+> Yes, I know that we can do it with a kernel thread, but that isn't as
+> clean and it significantly penalises small ios (hint: databases issue
+> *lots* of small random ios and a good chunk of large ios).
 
-sorry, but exactly what code are you comparing this to? The aio code you
-sent a few days ago does not do this either. (And you did not answer my
-questions regarding this issue.) What i saw is some scheme that at a point
-relies on keventd (a kernel thread) to do the blocking stuff. [or, unless
-i have misread the code, does the ->bmap() synchronously.]
+So make a non-blocking variant, not a big deal. Users of async I/O
+know how to deal with resource limits anyway.
 
-indeed an asynchron ll_rw_block() is possible and desirable (and not hard
-at all - all structures are interrupt-safe already, opposed to the kiovec
-code), but this is only half of the story. What is the big issue for me is
-an async ->bmap(). And we wont access ext2fs data structures from IRQ
-handlers anytime soon - so true async IO right now is damn near
-impossible. No matter what the IO-submission interface is: kiobufs/kiovecs
-or bhs/requests.
-
-	Ingo
+-- 
+Jens Axboe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

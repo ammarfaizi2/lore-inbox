@@ -1,127 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUFGOUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264659AbUFGOTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUFGOUS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 10:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUFGOUS
+	id S264659AbUFGOTK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 10:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbUFGOTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 10:20:18 -0400
-Received: from [141.156.69.115] ([141.156.69.115]:39562 "EHLO
-	mail.infosciences.com") by vger.kernel.org with ESMTP
-	id S264693AbUFGOTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 10:19:35 -0400
-Message-ID: <40C47972.8090703@infosciences.com>
-Date: Mon, 07 Jun 2004 10:19:30 -0400
-From: nardelli <jnardelli@infosciences.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Ian Abbott <abbotti@mev.co.uk>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Memory leak in visor.c and ftdi_sio.c
-References: <40C08E6D.8080606@infosciences.com> <c9q8a6$hga$1@sea.gmane.org> <20040605001832.GA28502@kroah.com>
-In-Reply-To: <20040605001832.GA28502@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 10:19:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59664 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264659AbUFGOSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 10:18:14 -0400
+Date: Mon, 7 Jun 2004 15:18:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       viro@parcelfarce.linux.theplanet.co.uk, perex@suse.cz,
+       torvalds@osdl.org
+Subject: Re: [RFC] ASLA design, depth of code review and lack thereof
+Message-ID: <20040607151806.C28526@flint.arm.linux.org.uk>
+Mail-Followup-To: Takashi Iwai <tiwai@suse.de>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+	viro@parcelfarce.linux.theplanet.co.uk, perex@suse.cz,
+	torvalds@osdl.org
+References: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk> <40C107D2.9030301@pobox.com> <s5hekor4i2c.wl@alsa2.suse.de> <40C471FC.3000802@pobox.com> <s5h7juj4gio.wl@alsa2.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <s5h7juj4gio.wl@alsa2.suse.de>; from tiwai@suse.de on Mon, Jun 07, 2004 at 03:57:51PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Fri, Jun 04, 2004 at 05:34:41PM +0100, Ian Abbott wrote:
+On Mon, Jun 07, 2004 at 03:57:51PM +0200, Takashi Iwai wrote:
+> They're nice but they don't provide "cast checking", no?
+> The main purpose of the magic_* stuffs in ALSA is to check the cast of
+> the void pointer back to the original data type, which the compiler
+> can't check.
 > 
->>On 04/06/2004 15:59, nardelli wrote:
->>
->>A related problem with the current implementation is that is easy to 
->>run out of memory by running something similar to this:
->>
->> # cat /dev/zero > /dev/ttyUSB0
->>
->>That affects both the ftdi_sio and visor drivers.
-> 
-> 
-> Care to try out the following (build test only) patch to the visor
-> driver to see if it prevents this from happening?  I don't have a
-> working visor right now to test it out myself :(
-> 
-> Oops, ignore the fact that we never free the structure on disconnect, I
-> see that now...
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> 
-> ===== drivers/usb/serial/visor.c 1.114 vs edited =====
-> --- 1.114/drivers/usb/serial/visor.c	Fri Jun  4 07:13:10 2004
-> +++ edited/drivers/usb/serial/visor.c	Fri Jun  4 17:12:53 2004
+> Maybe we can implement only this "magic" check separetly and get rid
+> of allocation checks, but I'm not sure whether it's worthy to do
+> that.
 
-...
+I must ask the question: why is ALSA such a special case that it
+needs this level of "magic" checking, when the rest of the kernel
+has happily used void pointers to carry driver specific data around
+for the last 10 years without serious incident or any major debugging
+problems?
 
-Just curious - is there something special about 42?  Grepping wasn't
-very useful, as numbers like this are scattered all over the place.
+As long as objects are cleanly defined, and it is obvious what these
+private driver specific pointers are for, then this "magic" become
+unnecessary.  Take a look at the driver model for instance.
 
-> +/* number of outstanding urbs to prevent userspace DoS from happening */
-> +#define URB_UPPER_LIMIT	42
+For instance, dev_set_drvdata() and dev_get_drvdata() provide access
+to a clearly defined void pointer for drivers to use.  It is clear
+that a device driver uses it to place its private data structure
+there, and it is the only code which should be accessing that.
 
-...
-
->  
->  static int visor_write (struct usb_serial_port *port, int from_user, const unsigned char *buf, int count)
->  {
-> +	struct visor_private *priv = usb_get_serial_port_data(port);
->  	struct usb_serial *serial = port->serial;
->  	struct urb *urb;
->  	unsigned char *buffer;
-> +	unsigned long flags;
->  	int status;
->  
->  	dbg("%s - port %d", __FUNCTION__, port->number);
->  
-> +	spin_lock_irqsave(&priv->lock, flags);
-> +	if (priv->outstanding_urbs > URB_UPPER_LIMIT) {
-> +		spin_unlock_irqrestore(&priv->lock, flags);
-> +		dev_dbg(&port->dev, "write limit hit\n");
-> +		return 0;
-> +	}
-> +	++priv->outstanding_urbs;
-> +	spin_unlock_irqrestore(&priv->lock, flags);
-> +
->  	buffer = kmalloc (count, GFP_ATOMIC);
->  	if (!buffer) {
->  		dev_err(&port->dev, "out of memory\n");
-> @@ -520,7 +545,10 @@
->  		count = status;
->  		kfree (buffer);
->  	} else {
-> -		bytes_out += count;
-> +		spin_lock_irqsave(&priv->lock, flags);
-> +		++priv->outstanding_urbs;
-> +		priv->bytes_out += count;
-> +		spin_unlock_irqrestore(&priv->lock, flags);
->  	}
->  
->  	/* we are done with this urb, so let the host driver
-
-
-Removing the first of two priv->outstanding_urbs increments in
-visor_write (I assume that was your intention) produced very nice
-results ;-)
-
-1) When being flooded, after the initial bunch of URBs were sent,
-only 1 per second was sent, and it appeared that all of them were
-being freed.
-2) Even after the flood, the driver survived, and backups were
-possible after the device was reconnected.
-
-
-I'm fairly ignorant of most of the lower level usb infrastructure
-(hcd, hub, ehci, etc), so I'm not sure what the root cause (ignoring
-the patch above) of the completion handler not being called might be.
-I would suspect overflow of some callback list, but that's just a
-guess.  Do you have any ideas on what this might be, and could this
-be a problem in other devices?
-
+I guess though that the problem area for ALSA is the way the snd_pcm_t
+private_data member magically appears in the snd_pcm_substream_t
+private_data member behind the drivers back, so it's unclear who
+actually owns the data in the private_data members.
 
 -- 
-Joe Nardelli
-jnardelli@infosciences.com
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

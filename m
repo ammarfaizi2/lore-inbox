@@ -1,93 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293367AbSCECBm>; Mon, 4 Mar 2002 21:01:42 -0500
+	id <S293385AbSCECAv>; Mon, 4 Mar 2002 21:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293330AbSCECBN>; Mon, 4 Mar 2002 21:01:13 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:13453 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293299AbSCECAk>; Mon, 4 Mar 2002 21:00:40 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Gerrit Huizenga <gh@us.ibm.com>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: 2.4.19pre1aa1 
-In-Reply-To: Your message of Tue, 05 Mar 2002 01:19:07 +0100.
-             <20020305011907.V20606@dualathlon.random> 
-Date: Mon, 04 Mar 2002 18:00:28 -0800
-Message-Id: <E16i4Fg-00014S-00@w-gerrit2>
+	id <S293367AbSCECAg>; Mon, 4 Mar 2002 21:00:36 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:38410 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S293299AbSCEB6r>;
+	Mon, 4 Mar 2002 20:58:47 -0500
+Date: Mon, 4 Mar 2002 17:51:14 -0800
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] removal of mp_bus_id_to_node array in 2.5.6-pre2
+Message-ID: <20020305015114.GC6139@kroah.com>
+In-Reply-To: <20020305010910.GA6139@kroah.com> <256650000.1015292871@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <256650000.1015292871@flay>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 04 Feb 2002 22:57:29 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 04, 2002 at 05:47:51PM -0800, Martin J. Bligh wrote:
+> Please don't remove this! This was preparatory work I did to enable
+> me to use PCI buses on nodes > 0 on NUMA-Q. The rest of the code
+> isn't in 2.5 yet (hence you can't see where it's used ;-) ) but the patches
+> to use it are now in 2.4, and I will submit them to 2.5 very shortly ....
+> (guess I'd better hurry up ;-) )
 
-In message <20020305011907.V20606@dualathlon.random>, > : Andrea Arcangeli writ
-es:
-> On Mon, Mar 04, 2002 at 03:09:51PM -0800, Gerrit Huizenga wrote:
-> > 
-> > In message <20020304232544.P20606@dualathlon.random>, > : Andrea Arcangeli writ
-> > es:
-> > > it's better to make sure to use all available ram in all nodes instead
-> > > of doing migrations when the local node is low on mem. But this again
-> > > depends on the kind of numa system, I'm considering the new numas, not
-> > > the old ones with the huge penality on the remote memory.
-> > 
-> > Andrea, don't forget that the "old" NUMAs will soon be the "new" NUMAs
-> > again.  The internal bus and clock speeds are still quite likely to
-> > increase faster than the speeds of most interconnects.  And even quite
-> 
-> For various reasons I think we'll never go back to "old" NUMA in the
-> long run.
- 
-Do those reasons involve new advances in physics?  How close can you
-put, say, 4 CPUs?  How physically close together can you put, say
-64 CPUs?  How fast can you arbitrate sharing/cache coherency on an
-interconnect?  How fast does, say, Intel, increase the clock rate of
-a processor?  How fast does the bus rate for the same chip increase?
-How fast does the interconnect speed increase?  How fast is the L1
-cache?  L2?  L3?  L4?
+Ah, that makes sense.  Please don't apply this patch then.
 
-Basically, the trend seems to be hierarcies of latency and bandwidth,
-and the more loads arbitrating in a given level of the hierarchy, the
-longer the greater the latency.  In part, the physics and the cost
-of technologies seem to force a hierarchical approach.
+The reason I'm looking at this code is because I now have access to a
+i386 box that needs an increased value for MAX_MP_BUSSES to boot
+properly.  This is because of the PCI hotplug functionality that this
+box has for it's extra PCI busses.
 
-I'm not sure why you think Physics won't dictate a return to the
-previous differences in latency, especially since several vendors
-are already working in that space...
+I'm trying to update James Cleverdon's patch that dynamically determined
+the proper value for MAX_MP_BUSSES at init to the latest kernel, but
+I'll stick with 2.4 for now until you get the NUMA PCI patch into 2.5.
 
-> > a few "big SMP" machines today are really somewhat NUMA-like with a
-> > 2 to 1 - remote to local memory latency (e.g. the Corollary interconnect
-> > used on a lot of >4-way IA32 boxes is not as fast as the two local
-> > busses).
-> 
-> there's a reason for that.
-> 
-> > So, desiging for the "new" NUMAs is fine if your code goes into
-> > production this year.  But if it is going into production in two to
-> > three years, you might want to be thinking about some greater memory
-> > latency ratios for the upcoming hardware configurations...
-> 
-> Disagree, but don't take me wrong, I'm not really suggesting to design
-> for new numa only. I think linux should support both equally well, so
-> some heuristic like in the scheduler will be mostly the same, but they
-> will need different heuristics in some other place. For example the
-> "less frequently used ram migration instead of taking advantage of free
-> memory in the other nodes first" should fall in the old numa category.
+thanks,
 
-This is where I think some of the topology representation work will
-help (lse and the sourceforge large system foundry).  Various systems
-will have various types of hierarchies in memory access, latency and
-bandwidth.  I agree that heurestics may need to be tuned per arch type,
-but look well at the history of hardware development and be aware that
-a past trend has been that local and remote bus speeds and memory access
-latencies have tended to stair step - with local busses stepping up much
-more quickly and interconnect stepping up much more slowly.  And with
-some architectures using three and four levels of hierarchy, the differences
-between local and really, really remote will typically increase over a
-five year (or so) window.
-
-gerrit
+greg k-h

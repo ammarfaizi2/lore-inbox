@@ -1,16 +1,14 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263256AbSKJDKq>; Sat, 9 Nov 2002 22:10:46 -0500
+	id <S263270AbSKJDTs>; Sat, 9 Nov 2002 22:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbSKJDKq>; Sat, 9 Nov 2002 22:10:46 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8457 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263270AbSKJDKp>; Sat, 9 Nov 2002 22:10:45 -0500
-Date: Sat, 9 Nov 2002 19:17:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
+	id <S263276AbSKJDTs>; Sat, 9 Nov 2002 22:19:48 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27720 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S263270AbSKJDTr>; Sat, 9 Nov 2002 22:19:47 -0500
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
        Suparna Bhattacharya <suparna@in.ibm.com>,
        Jeff Garzik <jgarzik@pobox.com>,
        "Matt D. Robinson" <yakker@aparity.com>,
@@ -19,55 +17,52 @@ cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Mike Galbraith <efault@gmx.de>,
        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
 Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <m1of8ycihs.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0211091510060.1571-100000@home.transmeta.com>
+	<m1of8ycihs.fsf@frodo.biederman.org>
+	<1036894347.22173.6.camel@irongate.swansea.linux.org.uk>
+	<m1k7jmcgo5.fsf@frodo.biederman.org>
+	<20021110000346.B31205@almesberger.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Nov 2002 20:23:50 -0700
+In-Reply-To: <20021110000346.B31205@almesberger.net>
+Message-ID: <m13cqacdkp.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Werner Almesberger <wa@almesberger.net> writes:
 
-On 9 Nov 2002, Eric W. Biederman wrote:
+> Eric W. Biederman wrote:
+> > So my gut impression at least says an interface that ignores where
+> > the image wants to live just adds complexity in other places,
 > 
-> And despite my utter puzzlement on why you want the syscall cut in two.
+> Linus' alloc_kernel_pages function would actually be able to handle
+> this, provided that the "validity callback" checks if the allocated
+> page happens to be in one of the destination areas.
+> 
+> I'm not so sure if this implementation is really that much more
+> compact than your current conflict resolution, though. Also, it may
+> be hairy in scenarios where you actually expect to fill more than
+> 50% of system memory. (But your concerns about a 128MB limit scare
+> me, too. I realize that people have taken initrds to extremes I
+> never quite imagined, but that still looks a little excessive :-)
 
-I'm amazed about your puzzlement, since everybody else seem to get my 
-arguments, but as long as you play along I don't much care.
+I have not heard of more than about 90MB.  One of the things I would
+not be surprised to see in the next couple of years as memory gets
+cheaper is diskless systems that don't even bother doing NFS root and
+just put everything in an initrd.  But that is not the main concern.
 
-I will explain once more why it needs to be cut into two, even if you're 
-apparently willing to do it even without understanding:
+Since there are more polite ways of allocating memory already
+implemented.  Sucking up a 16MB hunk of some ones  vmalloc space is
+quite rude.  Currently the limit is pretty much 50% of system memory
+or 1GB whichever is less because the code must be loaded into user
+space first, and I don't touch high memory.  Although I guess if it
+was mmaped read only the limit may be higher. 
 
-When you reboot, you often cannot load the image.
+I don't expect to come to close to using all of system memory
+except on limited memory systems.  But it is always nice to be
+polite.
 
-	This is _trivially_ true for panics or things like 
-
-	 - I don't understand why you do not want to accept this. Even if 
-	   your code doesn't even _handle_ panics, it's so obvious that 
-	   this is true that I don't understand why you want a limitation
-	   in your particular current implementation to be a fundamental
-	   flaw of the whole idea.
-
-	But it is _also_ true for any standard setup where you don't have
-	a special "init" that knows about loading the kernel, and where to
-	load it from.
-
-	 - Do you want to rewrite every "init" setup out there, adding 
-	   some way to tell init where to load the kernel from?
-
-	   Or do you want to just split the thing in two, so that you can 
-	   load the kernel _before_ you ask init to shut down, and just 
-	   happily use bog-standard tools that everybody is already 
-	   familiar with..
-
-The two-part loader can clearly handle both cases. And if _you_ don't want
-a two-part loader, you can do exactly what you do now by just doing two 
-system calls. 
-
-As to vmalloc - I don't actually much care how the first and second parts
-are implemented. I suggested a vmalloc()-like approach just because your
-patch looks unnecessarily complicated to me. But while I am convinced that 
-the two-phase loading/exec is absolutely the way to do it, the actual 
-low-level implementation is just a detail.
-
-			Linus
-
+Eric

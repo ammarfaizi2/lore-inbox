@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTDUSJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTDUSJ5
+	id S261839AbTDUSQc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:16:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTDUSQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:09:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15294 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261824AbTDUSJ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:09:56 -0400
-Date: Mon, 21 Apr 2003 19:21:58 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "David S. Miller" <davem@redhat.com>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new system call mknod64
-Message-ID: <20030421182158.GM10374@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.44.0304211354280.12110-100000@serv> <Pine.LNX.4.44.0304211056210.3101-100000@home.transmeta.com> <20030421191013.A9655@infradead.org>
+	Mon, 21 Apr 2003 14:16:31 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:31077 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261839AbTDUSQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:16:30 -0400
+Date: Mon, 21 Apr 2003 11:28:58 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: nr_threads locking
+Message-Id: <20030421112858.35e2d7b5.akpm@digeo.com>
+In-Reply-To: <3EA3F153.3000106@colorfullife.com>
+References: <3EA3F153.3000106@colorfullife.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030421191013.A9655@infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Apr 2003 18:28:28.0893 (UTC) FILETIME=[CDFF70D0:01C30833]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 07:10:13PM +0100, Christoph Hellwig wrote:
-> On Mon, Apr 21, 2003 at 11:01:21AM -0700, Linus Torvalds wrote:
-> > Oh, the split has huge meaning inside the kernel. We split the number 
-> > every time we open the device, and use that split to look up the result.
+Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+> Hi Andrew,
 > 
-> Not anymore for blockdevices.  And now that Al's back not anymore soon
-> for charater devices, too :)
+> According to the comments, nr_threads is protected by lock_kernel, but 
+> do_fork() runs without the bkl for ages.
+> Would it be possible to use your percpu_counters for nr_threads? It 
+> seems to be used only to guard against fork bombs and for i_nlink of /proc.
+> 
 
-Oh, we certainly _do_ split - simply because there are ranges that
-belong to same driver (or driver and object).
+It would be possible, yes.
 
-	However, the split boundary is not uniform - it depends on
-driver/object/whatnot.  IMO it's a moot point by now, anyway - most
-of the kernel couldn't care less about device numbers.
+But thread creation is a "rare" event compared to pagefaults and syscalls. 
+An atomic_t will be OK there.

@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbUCERsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 12:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbUCERsz
+	id S262667AbUCERyy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 12:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbUCERyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 12:48:55 -0500
-Received: from ns.suse.de ([195.135.220.2]:36054 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262187AbUCERsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 12:48:53 -0500
-To: Timothy Miller <miller@techsource.com>
+	Fri, 5 Mar 2004 12:54:54 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:23814 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262664AbUCERyv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 12:54:51 -0500
+Message-Id: <200403051754.i25Hsjg7015052@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 'simulator' and wave-form analysis tool?
-References: <4048B36E.8000605@techsource.com>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Mar 2004 18:48:52 +0100
-In-Reply-To: <4048B36E.8000605@techsource.com.suse.lists.linux.kernel>
-Message-ID: <p7365dj422j.fsf@brahms.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: 2.6.4-rc1-mm[12] - dm_any_congested issues 
+In-Reply-To: Your message of "Tue, 02 Mar 2004 20:15:36 PST."
+             <20040302201536.52c4e467.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040302201536.52c4e467.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1521482988P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 05 Mar 2004 12:54:45 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller <miller@techsource.com> writes:
+--==_Exmh_-1521482988P
+Content-Type: text/plain; charset=us-ascii
 
-> Would it be a productive use of my time to work on this?
+On Tue, 02 Mar 2004 20:15:36 PST, Andrew Morton <akpm@osdl.org>  said:
 
-Not sure what you mean with waveform tool in this context, but
-simulator logs can be indeed very useful to track down kernel bugs. I
-used this excessively in the early days of the x86-64 port first with
-the SimNow and later with the commercial Virtutech Simics
-simulator. They both can generate a log file with all instructions and
-all memory accesses. We wrote some post processing tools that added
-the kernel symbols to that.  While processing these files (which can
-quickly become several GB) was quite a stress test for less and the VM
-it was often very useful. I can also only recommend XFS for such
-uses, it seems to be by far the best file system for such workloads.
+(Added in -rc1-mm1 which I didn't try, problem noticed in -rc2-mm2)
 
-For example to find out who previously changed something in memory you
-just need to search backwards for the same physical address.  The real
-work usually was just to get a small enough "window" into the problem
-to keep the log log files manageable. With logging the simulator runs
-extremly slow and fills up disks quite quickly. I don't think it's
-useful for complicated problems like races that take longer to trigger
-(for longer running tests full logging is not practical), only for
-something small and tricky that is relatively easy to repeat.
+> queue-congestion-dm-implementation.patch
+>   Implement queue congestion callout for device mapper
 
-Writing a post processing tool that adds the symbols is not that complicated,
-you can probably do it easily with any simulator log file. While it
-would be possible to write a frontend to look for memory addresses
-and automate other tasks just grep and less already work reasonably well.
-With the amount of data involved you would probably want to do most
-analysis as "batch" jobs.
+This is causing the following trace every second or 2 on my laptop:
 
--Andi
+Mar  4 17:47:26 turing-police kernel: Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+Mar  4 17:47:26 turing-police kernel: in_atomic():1, irqs_disabled():0
+Mar  4 17:47:27 turing-police kernel: Call Trace:
+Mar  4 17:47:27 turing-police kernel:  [__might_sleep+159/168] __might_sleep+0x9f/0xa8
+Mar  4 17:47:27 turing-police kernel:  [dm_any_congested+19/67] dm_any_congested+0x13/0x43
+Mar  4 17:47:27 turing-police kernel:  [sync_sb_inodes+212/592] sync_sb_inodes+0xd4/0x250
+Mar  4 17:47:27 turing-police kernel:  [writeback_inodes+87/155] writeback_inodes+0x57/0x9b
+Mar  4 17:47:27 turing-police kernel:  [wb_kupdate+197/311] wb_kupdate+0xc5/0x137
+Mar  4 17:47:27 turing-police kernel:  [__pdflush+278/441] __pdflush+0x116/0x1b9
+Mar  4 17:47:27 turing-police kernel:  [pdflush+15/17] pdflush+0xf/0x11
+Mar  4 17:47:27 turing-police kernel:  [wb_kupdate+0/311] wb_kupdate+0x0/0x137
+Mar  4 17:47:27 turing-police kernel:  [kthread+106/147] kthread+0x6a/0x93
+Mar  4 17:47:27 turing-police kernel:  [pdflush+0/17] pdflush+0x0/0x11
+Mar  4 17:47:27 turing-police kernel:  [kthread+0/147] kthread+0x0/0x93
+Mar  4 17:47:27 turing-police kernel:  [kernel_thread_helper+5/11] kernel_thread_helper+0x5/0xb
+
+Of course backing it out makes the messages go away, since dm_any_congested()
+was added by that patch.  This patch just not ready for prime time, or am I (as usual)
+managing to trip over some silly corner case due to odd configuration?
+
+--==_Exmh_-1521482988P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFASL7kcC3lWbTT17ARAisPAKCHdwywvjZyMFJGc+TWxtNMyQJ37ACg2DEi
+u2BLaEpDMd9e3hqpyh3kpYQ=
+=RuYb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1521482988P--

@@ -1,77 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267491AbTGHR3x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 13:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbTGHR3x
+	id S265073AbTGHRo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 13:44:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbTGHRo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 13:29:53 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:267 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267491AbTGHR3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 13:29:49 -0400
-Date: Tue, 8 Jul 2003 18:44:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Gerald Britton <gbritton@alum.mit.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, emperor@EmperorLinux.com,
-       LKML <linux-kernel@vger.kernel.org>,
-       EmperorLinux Research <research@EmperorLinux.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Linux and IBM : "unauthorized" mini-PCI : Cisco mpi350 _way_ sub-optimal
-Message-ID: <20030708184421.A13083@flint.arm.linux.org.uk>
-Mail-Followup-To: Gerald Britton <gbritton@alum.mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, emperor@EmperorLinux.com,
-	LKML <linux-kernel@vger.kernel.org>,
-	EmperorLinux Research <research@EmperorLinux.com>,
-	Theodore Ts'o <tytso@mit.edu>
-References: <1054658974.2382.4279.camel@tori> <20030610233519.GA2054@think> <200307071412.00625.durey@EmperorLinux.com> <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk> <20030708112016.A10882@light-brigade.mit.edu> <1057678950.4358.53.camel@dhcp22.swansea.linux.org.uk> <20030708132417.B10882@light-brigade.mit.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 8 Jul 2003 13:44:58 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:60681 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S265073AbTGHRoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 13:44:55 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.74 - BUG in kfree during sys_close from netstat
+Date: Tue, 8 Jul 2003 21:59:50 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030708132417.B10882@light-brigade.mit.edu>; from gbritton@alum.mit.edu on Tue, Jul 08, 2003 at 01:24:17PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200307082155.49404.arvidjaar@mail.ru>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 01:24:17PM -0400, Gerald Britton wrote:
-> On Tue, Jul 08, 2003 at 04:42:30PM +0100, Alan Cox wrote:
-> > Interesting. I wonder why our fixup would have failed - its not something
-> > I've seen but we should fixup cardbus resource blocks (2.4 isnt smart
-> > enough to handle multidevice cardbus but Rmk has 2.5 code that is), but
-> > for the normal case it ought to have worked.
+Mandrake 9.1, kernel 2.5.74. Started kmail, started kppp, connected, attempted 
+to send or receive - nothing happened. Run netstat -an - and got
 
-The x86 pci setup stuff is something I'm not completely certain about
-since it is handled in a different way from the "normal" (from my point
-of view at least) PCI code.
+------------[ cut here ]------------
+kernel BUG at mm/slab.c:1537!
+invalid operand: 0000 [#2]
+CPU:    0
+EIP:    0060:[<c014c530>]    Tainted: P
+EFLAGS: 00010002
+EIP is at kfree+0x2e0/0x2f0
+eax: 0000002c   ebx: 00040000   ecx: cf1fe670   edx: 00000001
+esi: c02b9ee0   edi: 00000100   ebp: c6443f34   esp: c6443f14
+ds: 007b   es: 007b   ss: 0068
+Process netstat (pid: 10138, threadinfo=c6442000 task=c2e2ad40)
+Stack: c6443f28 c02752fe cdcc0908 00000001 00000206 cdcc0908 c34438d4 c245537c
+       c6443f4c c01881b8 00000100 c34438d4 c34438d4 cffdf8e4 c6443f70 c0165089
+       c245537c c34438d4 c245537c c996fa98 c34438d4 c69ee724 00000000 c6443f98
+Call Trace:
+ [<c02752fe>] raw_seq_start+0x4e/0x60
+ [<c01881b8>] seq_release_private+0x18/0x32
+ [<c0165089>] __fput+0x129/0x130
+ [<c0163703>] filp_close+0xc3/0x110
+ [<c01637e2>] sys_close+0x92/0x120
+ [<c010b527>] syscall_call+0x7/0xb
 
-However, I do have some outstanding patches which clean up the init and
-resource stuff but unfortunately break it on x86.  For everything to
-work as expected, I'd like x86 and whatever other architectures either
-handle this in the core pci code, or the architecture specific code.
-I see this as a quirk of x86 platforms.
+Code: 0f 0b 01 06 d1 93 2b c0 e9 44 fd ff ff 8d 76 00 55 89 e5 57
 
-(Architectures which do a full setup of the bus in the kernel set the
-cardbus bridge up as part of their normal setup.)
+this happened more than once; previous stack (I do not know actually what 
+triggered it - I did not run netstat for sure) looked like:
 
-> Is it smart enough to handle a case like this:
-> 
-> [device resource 00-01]
-> [bridge resource 01-04]
->    [device resource 01-02]
->    [cardbus bridge no resources]
->    [cardbus bridge no resources]
->    [device resource 02-04]
-> [bridge resoruce 04-06]
->    [device resource 04-06]
-> [device resource 06-07]
+PPP BSD Compression module registered
+PPP Deflate Compression module registered
+kfree_debugcheck: out of range ptr 100h.
+------------[ cut here ]------------
+kernel BUG at mm/slab.c:1537!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c014c530>]    Tainted: P
+EFLAGS: 00010002
+EIP is at kfree+0x2e0/0x2f0
+eax: 0000002c   ebx: 00040000   ecx: cf1fe670   edx: 00000001
+esi: c02b9ee0   edi: 00000100   ebp: c7789f34   esp: c7789f14
+ds: 007b   es: 007b   ss: 0068
+Process netstat (pid: 8509, threadinfo=c7788000 task=c2c4d2f0)
+Stack: c7789f28 c02752fe c32d1dc8 00000001 00000206 c32d1dc8 c462c414 c245537c
+       c7789f4c c01881b8 00000100 c462c414 c462c414 cffdf8e4 c7789f70 c0165089
+       c245537c c462c414 c245537c c996fa98 c462c414 c2c3b8d4 00000000 c7789f98
+Call Trace:
+ [<c02752fe>] raw_seq_start+0x4e/0x60
+ [<c01881b8>] seq_release_private+0x18/0x32
+ [<c0165089>] __fput+0x129/0x130
+ [<c0163703>] filp_close+0xc3/0x110
+ [<c01637e2>] sys_close+0x92/0x120
+ [<c010b527>] syscall_call+0x7/0xb
 
-Definitely not yet, since x86 has a policy of not reallocating anything
-at all.  I suspect getting it to handle it will open a huge live mine
-field, full of SMI ports. 8(
+Code: 0f 0b 01 06 d1 93 2b c0 e9 44 fd ff ff 8d 76 00 55 89 e5 57
+ <3>kfree_debugcheck: out of range ptr 100h.
 
-Any x86 PCI gurus got any ideas?
+Just tried and when connection is done while kmail is not started it works. I 
+am not sure what kmail does - except that it actually is the only application 
+to actively use IP here most of the time.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+-andrey

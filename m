@@ -1,79 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316709AbSEQV6n>; Fri, 17 May 2002 17:58:43 -0400
+	id <S316699AbSEQV6d>; Fri, 17 May 2002 17:58:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316718AbSEQV6n>; Fri, 17 May 2002 17:58:43 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:41732
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S316709AbSEQV6l>; Fri, 17 May 2002 17:58:41 -0400
-X-All-Your-Base: Are Belong To Us!!!
-X-Envelope-Recipient: Athanasius@miggy.org.uk
-X-Envelope-Sender: stevie@qrpff.net
-Message-Id: <5.1.0.14.2.20020517174702.02292d20@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 17 May 2002 17:52:35 -0400
-To: Athanasius <Athanasius@miggy.org.uk>, lkml <linux-kernel@vger.kernel.org>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: Just an offer
-In-Reply-To: <20020517163024.GB17483@miggy.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S316709AbSEQV6c>; Fri, 17 May 2002 17:58:32 -0400
+Received: from mail.gmx.net ([213.165.64.20]:12691 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316699AbSEQV6b>;
+	Fri, 17 May 2002 17:58:31 -0400
+From: "Kosta Porotchkin" <kporotchkin@gmx.net>
+To: "Linux Kernel mailing List \(E-mail\)" <linux-kernel@vger.kernel.org>
+Subject: Intel NIC driver and SIOCGMIIPHY? (Warning! maybe stupid question!)
+Date: Fri, 17 May 2002 16:48:44 -0600
+Message-ID: <000101c1fdf6$7c92c460$a396a8c0@compaq12xl510a>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:30 PM 5/17/2002 +0100, Athanasius wrote:
+Hi,
 
->   It strikes me that this is also in part a LILO 'problem'.  We could
->use some way to tell LILO to only boot a given image _once_ as the
->default, and thence reboot to the normal default.  Combine this with any
->of the methods for remote reboot (hardware watchdog, other machine wired
->to reset, whatever) and you can easily recover from a futzed new kernel.
->   I'm sure LILO can find room for a single byte 'flag' for such things
->and an extra per-config option in /etc/lilo.conf.
+I am trying to access Intel NIC (10/100) internal data using ioctl () with
+SIOCGMIIPHY and SIOCDEVPRIVATE command parameters (the kernel is 2.4.18 with
+some patches). The SIOCGMIIPHY does not passed to the driver, while the
+SIOCDEVPRIVATE  does. Why?
+In the original Intel driver (e100) there is no case for SIOCDEVPRIVATE in
+e100_ioctl(), so this access method is not working. The eepro100 driver has
+the same case for both these commands (in speedo_ioctl()), so it works. Is
+this problem caused by kernel itself?
+What is interesting, that the Intel Gigabit NIC Linux driver (e1000) does
+not allow access to internal registers at all.
 
-Erm, this *IS* possible.
-
-excerpt from `man lilo`:
----
-       /sbin/lilo -R - set default command line for next reboot
-
--R command line
-   This option sets the default command for the boot loader the next time it executes. The boot loader will then
-   erase  this  line: this is a once-only command. It is typically used in reboot scripts, just before 
-    calling  shutdown -r'.
+Thanks
+Kosta
 
 ---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.361 / Virus Database: 199 - Release Date: 5/7/2002
 
-/etc/lilo.conf:
-
-image = /vmlinuz-stable
-        label = Stable_Kernel
-        root = /dev/hda1
-        read-only
-
-image = /vmlinuz-test
-        label = Test_Kernel
-        root = /dev/hda1
-        read-only
-
----
-
-test_kernel.sh:
-
-#!/bin/sh
-
-lilo -R 'default=Test_Kernel' && reboot
-
----------------------
-
-Normally, LILO will boot the first image listed (in this case, the Stable_Kernel) by default.
-However, running 'test_kernel.sh' will -- for one time only -- make the default kernel be the Test_Kernel.
-
-The only thing left is to make the kernel (or, if something goes wrong there, userspace) reboot if something isn't working okay.
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
 

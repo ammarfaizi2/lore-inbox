@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266010AbSL3W7j>; Mon, 30 Dec 2002 17:59:39 -0500
+	id <S267059AbSL3XBc>; Mon, 30 Dec 2002 18:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266959AbSL3W7i>; Mon, 30 Dec 2002 17:59:38 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:38160 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id <S266010AbSL3W7h>;
-	Mon, 30 Dec 2002 17:59:37 -0500
-Date: Tue, 31 Dec 2002 00:07:56 +0100
-From: romieu@fr.zoreil.com
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.53 : net/atm/lec.c
-Message-ID: <20021231000756.A17128@electric-eye.fr.zoreil.com>
-References: <Pine.LNX.4.44.0212282007210.952-100000@linux-dev>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0212282007210.952-100000@linux-dev>; from fdavis@si.rr.com on Sat, Dec 28, 2002 at 08:17:19PM -0500
-X-Organisation: Marie's fan club - III
+	id <S267052AbSL3XBc>; Mon, 30 Dec 2002 18:01:32 -0500
+Received: from mailproxy1.netcologne.de ([194.8.194.222]:36743 "EHLO
+	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
+	id <S267059AbSL3XBa> convert rfc822-to-8bit; Mon, 30 Dec 2002 18:01:30 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
+Reply-To: joergprante@netcologne.de
+To: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: [PATCHSET] 2.4.21-pre2-jp15
+Date: Tue, 31 Dec 2002 00:08:27 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, jp-kernel@infolinux.de
+References: <4.3.2.7.2.20021230213831.00b5b250@pop.t-online.de>
+In-Reply-To: <4.3.2.7.2.20021230213831.00b5b250@pop.t-online.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212310008.27029.joergprante@netcologne.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+Hi Margit,
 
-Frank Davis <fdavis@si.rr.com> :
-[locking in net/atm/lec.c]
+> 	No, the defines in sched.h are surrounded by #idef CONFIG_PREEMPT
+> 	before #ifdef CONFIG_PREEMPT_LOG and therefore don't bite.
 
-net/atm/lec.c::lec_arp_destroy()
--> spin_lock_irqsave(&lec_lock, flags);         
--> lec_arp_remove(priv->lec_arp_tables, entry);  
-   -> spin_lock_irqsave(&lec_lock, flags); 
-      -> good bye Charlie !
+The surrounding is correct. You can't get into an error because the 
+configuration claims
 
-Both lec_arp_check_expire() (timer function) and lec_arp_destroy() are
-walking the lec_arp_table from the 'lec_priv' they were attached to and if
-the intent of lec_arp_{lock/unlock} is to protect the timer function
-lec_arp_check_expire() by virtue of refcounting, it seems slightly racy.
-If you are wondering who the callers of lec_arp_remove() are:
-lec_arp_remove
-<- lec_atm_send
-   <- lecdev_ops.send = lec_atm_send
-<- lec_arp_destroy
-   <- lec_atm_close
-      <- lecdev_ops.close = lec_atm_close
-<- lec_arp_check_expire
-   <- priv->lec_arp_timer.function = lec_arp_check_expire;
-<- lec_addr_delete
-   <- lec_atm_send
-<- lec_vcc_close
-   <- lec_push
-      <- vcc->push = lec_push;
-<- lec_arp_check_empties
-   <- lec_push
+   dep_bool '  Preemption logging' CONFIG_PREEMPT_LOG $CONFIG_PREEMPT
 
-Removing the lock from lec_arp_remove() and asking callers to do themselves
-the locking (liek lec_arp_destroy) doesn't seem too unsane.
+so I guess your configuration is bad.
 
-Btw, del_timer_sync() in lec_arp_destroy() shouldn't hurt imho.
+> scx200.c:117: parse error before
+> "this_object_must_be_defined_as_export_objs_in_the_Makefile"
 
---
-Ueimor
+Here is a fix:
+
+http://infolinux.de/jp15/077_scx200-export-fix
+
+> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+> pcmcia if [ -r System.map ]; then /sbin/depmod -ae -F System.map 
+> 2.4.21mw0; fi depmod: *** Unresolved symbols in
+> /lib/modules/2.4.21mw0/kernel/drivers/net/wan/comx.o
+> depmod:         proc_get_inode
+
+>From the documentation:
+"You must say Y to "/proc file system support" (CONFIG_PROC_FS) to
+use this driver."
+
+If you managed to build procfs as a module, which is unusual, try this fix:
+
+http://infolinux.de/jp15/078_proc-inode-export
+
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.21mw0/kernel/net/irda/irda.o depmod:        
+> irlmp_lap_tx_queue_full
+
+This is a bug introduced by 2.4.21-pre2.
+
+Here is a fix:
+
+http://infolinux.de/jp15/079_irttp-fix
+
+Jörg

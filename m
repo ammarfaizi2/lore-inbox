@@ -1,115 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVCPVPs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVCPVQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262800AbVCPVPs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 16:15:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVCPVPs
+	id S262803AbVCPVQE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 16:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVCPVQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 16:15:48 -0500
-Received: from mail.dif.dk ([193.138.115.101]:11493 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262800AbVCPVP3 (ORCPT
+	Wed, 16 Mar 2005 16:16:03 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3504 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262803AbVCPVPx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 16:15:29 -0500
-Date: Wed, 16 Mar 2005 22:16:59 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Eberhard Moenkeberg <emoenke@gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] small fixes for example programs in Documentation/cdrom/sbpcd
-Message-ID: <Pine.LNX.4.62.0503162210250.2558@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Mar 2005 16:15:53 -0500
+Date: Wed, 16 Mar 2005 13:15:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: rostedt@goodmis.org
+Cc: mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
+Message-Id: <20050316131521.48b1354e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
+References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+	<Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
+	<20050315120053.GA4686@elte.hu>
+	<Pine.LNX.4.58.0503150746110.6456@localhost.localdomain>
+	<20050315133540.GB4686@elte.hu>
+	<Pine.LNX.4.58.0503151150170.6456@localhost.localdomain>
+	<20050316085029.GA11414@elte.hu>
+	<20050316011510.2a3bdfdb.akpm@osdl.org>
+	<20050316095155.GA15080@elte.hu>
+	<20050316020408.434cc620.akpm@osdl.org>
+	<20050316101906.GA17328@elte.hu>
+	<20050316024022.6d5c4706.akpm@osdl.org>
+	<Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
+	<20050316031909.08e6cab7.akpm@osdl.org>
+	<Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
+	<Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
+	<Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> /*
+>   * Try to acquire jbd_lock_bh_state() against the buffer, when j_list_lock
+>  is
+>   * held.  For ranking reasons we must trylock.  If we lose, schedule away
+>  and
+>   * return 0.  j_list_lock is dropped in this case.
+>   */
+>  static int inverted_lock(journal_t *journal, struct buffer_head *bh)
+>  {
+>  	if (!jbd_trylock_bh_state(bh)) {
+>  		spin_unlock(&journal->j_list_lock);
+>  		schedule();
+>  		return 0;
+>  	}
+>  	return 1;
+>  }
+> 
 
-Example programs in documentation files are great, but they are even 
-better when they compile :)
+That's very lame code, that.  The old "I don't know what the heck to do now
+so I'll schedule" trick.  Sorry.
 
-The second one, the "cdtester" utility, is still not completely happy, but 
-at least the patch fixes up most of the warnings and errors when trying to 
-build it. The first app is perfectly happy here after this patch.
+>  I guess one way to solve this is to add a wait queue here (before
+>  schedule()), and have the one holding the lock to wake up all on the
+>  waitqueue when they release it.
 
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -u linux-2.6.11-mm4-orig/Documentation/cdrom/sbpcd linux-2.6.11-mm4/Documentation/cdrom/sbpcd
---- linux-2.6.11-mm4-orig/Documentation/cdrom/sbpcd	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.11-mm4/Documentation/cdrom/sbpcd	2005-03-16 22:11:18.000000000 +0100
-@@ -419,6 +419,7 @@
-  */
- #include <stdio.h>
- #include <sys/ioctl.h>
-+#include <sys/types.h>
- #include <linux/cdrom.h>
- 
- static struct cdrom_tochdr hdr;
-@@ -429,7 +430,7 @@
- static int i, j, limit, track, err;
- static char filename[32];
- 
--main(int argc, char *argv[])
-+int main(int argc, char *argv[])
- {
- /*
-  * open /dev/cdrom
-@@ -516,6 +517,7 @@
- 	}
-       arg.addr.lba++;
-     }
-+    return 0;
- }
- /*===================== end program ========================================*/
- 
-@@ -564,15 +566,16 @@
- #include <stdio.h>
- #include <malloc.h>
- #include <sys/ioctl.h>
-+#include <sys/types.h>
- #include <linux/cdrom.h>
- 
- #ifdef AZT_PRIVATE_IOCTLS
- #include <linux/../../drivers/cdrom/aztcd.h>
--#endif AZT_PRIVATE_IOCTLS
-+#endif /* AZT_PRIVATE_IOCTLS */
- #ifdef SBP_PRIVATE_IOCTLS
- #include <linux/../../drivers/cdrom/sbpcd.h>
- #include <linux/fs.h>
--#endif SBP_PRIVATE_IOCTLS
-+#endif /* SBP_PRIVATE_IOCTLS */
- 
- struct cdrom_tochdr hdr;
- struct cdrom_tochdr tocHdr;
-@@ -590,7 +593,7 @@
- 	struct cdrom_msf msf;
- 	unsigned char buf[CD_FRAMESIZE_RAW];
- } azt;
--#endif AZT_PRIVATE_IOCTLS
-+#endif /* AZT_PRIVATE_IOCTLS */
- int i, i1, i2, i3, j, k;
- unsigned char sequence=0;
- unsigned char command[80];
-@@ -738,7 +741,7 @@
- 	} 
- } 
- 
--main(int argc, char *argv[])
-+int main(int argc, char *argv[])
- {
- 	printf("\nTesting tool for a CDROM driver's audio functions V0.1\n");
- 	printf("(C) 1995 Eberhard Moenkeberg <emoenke@gwdg.de>\n");
-@@ -1046,12 +1049,13 @@
- 			rc=ioctl(drive,CDROMAUDIOBUFSIZ,j);
- 			printf("%d frames granted.\n",rc);
- 			break;
--#endif SBP_PRIVATE_IOCTLS
-+#endif /* SBP_PRIVATE_IOCTLS */
- 		default:
- 			printf("unknown command: \"%s\".\n",command);
- 			break;
- 		}
- 	}
-+	return 0;
- }
- /*==========================================================================*/
- 
-
-
+yup.  A patch against mainline would be appropriate, please.

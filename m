@@ -1,85 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267336AbTGHN4F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 09:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267348AbTGHNyo
+	id S267341AbTGHN4E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 09:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267336AbTGHNyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 09:54:44 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:41697 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S267347AbTGHNxp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 09:53:45 -0400
-Date: Tue, 8 Jul 2003 16:08:15 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Make synaptics support optional
-Message-ID: <20030708160815.B22428@ucw.cz>
-References: <20030708104551.GA209@elf.ucw.cz>
+	Tue, 8 Jul 2003 09:54:51 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57515
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S267341AbTGHNxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 09:53:06 -0400
+Subject: Re: Linksys gpl code [OT]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Hall <matt@ecsc.co.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1057663858.3959.41.camel@miyazaki>
+References: <1057663858.3959.41.camel@miyazaki>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057673100.4358.23.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030708104551.GA209@elf.ucw.cz>; from pavel@ucw.cz on Tue, Jul 08, 2003 at 12:45:51PM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Jul 2003 15:05:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 12:45:51PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> Synaptics support breaks mouse for me (HP omnibook xe3).
+On Maw, 2003-07-08 at 12:30, Matthew Hall wrote:
+> Hi lkml,
+> 	I don't know if anyone's noticed, but Linksys have opened up and
+> released their code.
 
-Read the kernel config help entry. If you mean external mouse, then
-that's in the works.
+BTW - Qlogic have also tidied up their fibre channel stuff that was
+using Linux. Customers can now order the sources at nominal cost, and
+the documentation now includes a clear offer.
 
-> I guess it should have its own config option, and perhaps it should be
-> marked experimental...
+They are also at great pains to state that if you modify your fc switch
+they are absolutely not supporting it any more 8)
 
-Probably yes.
-
-> What about this patch?
-
-Seems OK.
-
-> 								Pavel
-> 
-> --- /usr/src/tmp/linux/drivers/input/mouse/Kconfig	2003-06-24 12:27:47.000000000 +0200
-> +++ /usr/src/linux/drivers/input/mouse/Kconfig	2003-07-08 12:33:47.000000000 +0200
-> @@ -30,6 +30,12 @@
->  	  The module will be called psmouse. If you want to compile it as a
->  	  module, say M here and read <file:Documentation/modules.txt>.
->  
-> +config MOUSE_SYNAPTICS
-> +	tristate "Synaptics touchpad support"
-> +	depends on INPUT_MOUSE && MOUSE_PS2
-> +	help
-> +	  Say Y if you want your touchpad not to work any more.
-> +
->  config MOUSE_SERIAL
->  	tristate "Serial mouse"
->  	depends on INPUT && INPUT_MOUSE && SERIO
-> @@ -134,4 +140,3 @@
->  	  inserted in and removed from the running kernel whenever you want).
->  	  The module will be called logibm.o. If you want to compile it as a
->  	  module, say M here and read <file.:Documentation/modules.txt>.
-> -
-> --- /usr/src/tmp/linux/drivers/input/mouse/synaptics.c	2003-06-24 12:27:47.000000000 +0200
-> +++ /usr/src/linux/drivers/input/mouse/synaptics.c	2003-07-08 12:32:36.000000000 +0200
-> @@ -213,6 +213,9 @@
->  {
->  	struct synaptics_data *priv;
->  
-> +#ifndef CONFIG_MOUSE_SYNAPTICS
-> +	return -1;
-> +#endif;
->  	psmouse->private = priv = kmalloc(sizeof(struct synaptics_data), GFP_KERNEL);
->  	if (!priv)
->  		return -1;
-> 
-> -- 
-> When do you have a heart between your knees?
-> [Johanka's followup: and *two* hearts?]
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

@@ -1,61 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbRESX5d>; Sat, 19 May 2001 19:57:33 -0400
+	id <S262009AbRETAHC>; Sat, 19 May 2001 20:07:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262004AbRESX5X>; Sat, 19 May 2001 19:57:23 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:61112 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261996AbRESX5J>;
-	Sat, 19 May 2001 19:57:09 -0400
-Date: Sat, 19 May 2001 19:57:07 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Pavel Machek <pavel@suse.cz>, James Simmons <jsimmons@transvirtual.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device
- Number Registrants]
-In-Reply-To: <Pine.LNX.4.21.0105191231020.14472-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105191943300.7162-100000@weyl.math.psu.edu>
+	id <S262012AbRETAGw>; Sat, 19 May 2001 20:06:52 -0400
+Received: from pop.gmx.net ([194.221.183.20]:15018 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262009AbRETAGo>;
+	Sat, 19 May 2001 20:06:44 -0400
+Message-ID: <3B07074B.A6964617@gmx.de>
+Date: Sun, 20 May 2001 01:52:43 +0200
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD 
+ w/info-PATCH]device arguments from lookup)
+In-Reply-To: <Pine.GSO.4.21.0105190940310.5339-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+nitpicking: a system call without side effects would be pretty useless.
 
+Alexander Viro wrote:
+> A lot of stuff relies on the fact that close(open(foo, O_RDONLY)) is a
+> no-op. Breaking that assumption is a Bad Thing(tm).
 
-On Sat, 19 May 2001, Linus Torvalds wrote:
+That assumption is totally bogus.  Even for regular files you have side
+effects (atime); for anything else they're unpredictable.
 
-> 
-> On Sat, 19 May 2001, Pavel Machek wrote:
-> > 
-> > Well, if we did something like modify(int fd, char *how), you could do
-> > 
-> > modify(0, "nonblock,9600") 
-> 
-> What you're really proposing is to make ioctl's be ASCII strings.
-> 
-> Which is not necessarily a bad idea, and I think plan9 did something
-> similar (or rather, if I remember correctly, plan9 has control streams
-> that were ASCII. Or am I confused?).
-
-You are not. Control streams in question look like normal files. Normally
-driver exports a tree with several data files (e.g. fd0, fd1, fd2, fd3)
-and several control files (e.g. fd0ctl, fd1ctl, fd2ctl, fd3ctl). write()
-to the latter passes commands. No extra syscalls needed.
-
-Notice that sometimes it's not ASCII - depends on the nature of stuff you
-are passing. Things like setting font, etc. need to pass bitmaps, so some
-parts of the stuff you write end up as binary. Which is perfectly sane.
-
-> And a "stream of bytes" is in a very real sense the simplest structure,
-> and is the unix way (and the plan9 way is to avoid binary streams, and use
-> ASCII text instead when possible, whihc probably also makes sense).
-
-s/possible/makes sense/. For commands ASCII is OK, but for cases when you
-pass binary data as a part of command (not just "something large", but
-something that really happens to be a bitmap, etc.) you write it as binary
-data.
-
+Ciao, ET.

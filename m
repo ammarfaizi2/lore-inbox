@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUJNUXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUJNUXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267232AbUJNUXP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267189AbUJNSrp
+	id S267189AbUJNUXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 16:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUJNSrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:47:45 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47775 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267195AbUJNSMD (ORCPT
+	Thu, 14 Oct 2004 14:47:51 -0400
+Received: from main.gmane.org ([80.91.229.2]:14753 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267232AbUJNSMs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:12:03 -0400
-Date: Thu, 14 Oct 2004 20:04:27 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Martin K. Petersen" <mkp@wildopensource.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
-       tony.luck@intel.com
-Subject: Re: [PATCH] General purpose zeroed page slab
-Message-ID: <20041014180427.GA7973@wotan.suse.de>
-References: <yq1oej5s0po.fsf@wilson.mkp.net>
+	Thu, 14 Oct 2004 14:12:48 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ian Pilcher <i.pilcher@comcast.net>
+Subject: Re: ATA/133 Problems with multiple cards
+Date: Thu, 14 Oct 2004 13:12:42 -0500
+Message-ID: <ckmfiq$rc7$1@sea.gmane.org>
+References: <Pine.LNX.4.44.0410141710390.1681-100000@beast.stev.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq1oej5s0po.fsf@wilson.mkp.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: c-24-0-215-208.client.comcast.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+In-Reply-To: <Pine.LNX.4.44.0410141710390.1681-100000@beast.stev.org>
+Cc: linux-ide@vger.kernel.org, kernelnewbies@nl.linux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 12:50:43PM -0400, Martin K. Petersen wrote:
+James Stevenson wrote:
 > 
-> A while back Bill Irwin converted the page table code on ppc64 to use
-> a zeroed page slab.  I recently did the same on ia64 and got a
-> significant performance improvement in terms of fault time (4 usec ->
-> 700 nsec).
+> i seem to have run into an annoying problem with a machine which has
+> 3 promise ata/133 card the PDC20269 type.
 > 
-> This cache needs to be initialized fairly early on and so far we've
-> called it from pgtable_cache_init() on both archs.  However, Tony Luck
-> thought it might be useful to have a general purpose slab cache with
-> zeroed pages.  And other architectures might decide to use it for
-> their page tables too.
-> 
-> Consequently here's a patch that puts this functionality in slab.c.
-> 
-> Signed-off-by: Martin K. Petersen <mkp@wildopensource.com>
-> 
-> -- 
-> Martin K. Petersen	Wild Open Source, Inc.
-> mkp@wildopensource.com	http://www.wildopensource.com/
-> 
-> diff -urN -X /usr/people/mkp/bin/dontdiff linux-pristine/include/linux/slab.h zero-slab/include/linux/slab.h
-> --- linux-pristine/include/linux/slab.h	2004-10-11 14:57:20.000000000 -0700
-> +++ zero-slab/include/linux/slab.h	2004-10-13 17:49:29.000000000 -0700
-> @@ -115,6 +115,7 @@
->  extern kmem_cache_t	*signal_cachep;
->  extern kmem_cache_t	*sighand_cachep;
->  extern kmem_cache_t	*bio_cachep;
-> +extern kmem_cache_t	*zero_page_cachep;
->  
->  extern atomic_t slab_reclaim_pages;
->  
-> diff -urN -X /usr/people/mkp/bin/dontdiff linux-pristine/mm/slab.c zero-slab/mm/slab.c
-> --- linux-pristine/mm/slab.c	2004-10-11 14:57:20.000000000 -0700
-> +++ zero-slab/mm/slab.c	2004-10-13 17:49:57.000000000 -0700
-> @@ -716,6 +716,13 @@
->  
->  static struct notifier_block cpucache_notifier = { &cpuup_callback, NULL, 0 };
->  
-> +kmem_cache_t *zero_page_cachep;
-> +
-> +static void zero_page_ctor(void *pte, kmem_cache_t *cache, unsigned long flags)
-> +{
-> +	memset(pte, 0, PAGE_SIZE);
-> +}
 
-The means every user has to memset it to zero before free.
-Add a comment for that at least.
+....
 
-Also that's pretty dumb. How about keeping track how much of the
-page got non zeroed (e.g. by using a few free words in struct page
-for a coarse grained dirty bitmap)
+> 
+> Does anyone have an explenation of why this can happen ?
+> 
 
-Then you could memset on free only the parts that got actually
-changed, and never waste cache lines for anything else.
+Promise cards don't support more than two per machine.  If you can get a
+third card to work in PIO mode, consider it an added (but unsupported)
+bonus.
 
--Andi
+-- 
+========================================================================
+Ian Pilcher                                        i.pilcher@comcast.net
+========================================================================
 

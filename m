@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269297AbUHZSee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269236AbUHZSbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269297AbUHZSee (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 14:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269279AbUHZSeM
+	id S269236AbUHZSbx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUHZSaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:34:12 -0400
-Received: from mail.shareable.org ([81.29.64.88]:51142 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269328AbUHZSXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:23:48 -0400
-Date: Thu, 26 Aug 2004 19:20:42 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826182042.GU5733@mail.shareable.org>
-References: <20040826194010.548e4a4c.diegocg@teleline.es> <Pine.LNX.4.44.0408261358370.27909-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408261358370.27909-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Aug 2004 14:30:10 -0400
+Received: from mx1.nersc.gov ([128.55.6.21]:10672 "EHLO mx1.nersc.gov")
+	by vger.kernel.org with ESMTP id S269292AbUHZSZe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:25:34 -0400
+Message-ID: <412E2B0D.2010906@lbl.gov>
+Date: Thu, 26 Aug 2004 11:25:17 -0700
+From: Thomas Davis <tadavis@lbl.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <20040826142812.GA4092@middle.of.nowhere>
+In-Reply-To: <20040826142812.GA4092@middle.of.nowhere>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> > /bin could be separated (like linus said) but cat /bin/.compound could
-> > do it. This is the /etc/passwd Hans' example, I think:
+Jurriaan wrote:
+> From: Con Kolivas <kernel@kolivas.org>
+> Date: Thu, Aug 26, 2004 at 09:07:39PM +1000
 > 
-> Arghhhh.  I wrote it down to ridicule the idea and now people
-> are taking it seriously ;(
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/
+>>>
+>>>- nicksched is still here.  There has been very little feedback, except 
+>>>that
+>>> it seems to slow some workloads on NUMA.
+>>
+>>The only feedback on nickshed was that it hurt NUMA 
+>>somewhat, SMT interactivity was broken (an easy enough oversight)
 > 
-> It should be obvious enough that anything depending on the
-> kernel parsing file contents will lead to problems.
+> 
+> I take it that was why changing consoles between mutt and slrn would
+> include a pause of several seconds on a system with a single,
+> hyperthreaded cpu?
+> 
 
-This is one case where the kernel _isn't_ parsing file contents,
-but I agree it's ridiculous :)
+More than likely.  I had found it's worse with X running (see ioperm vs. iopl thread)
 
--- Jamie
+> Is that fixed in 2.6.9-rc1-mm1?
+> 
+
+Good question, and how about the ioperm/iopl bit map problem?
+thomas

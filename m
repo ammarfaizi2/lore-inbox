@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287545AbSA1XSX>; Mon, 28 Jan 2002 18:18:23 -0500
+	id <S287563AbSA1XVX>; Mon, 28 Jan 2002 18:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287657AbSA1XSN>; Mon, 28 Jan 2002 18:18:13 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:1796 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S287616AbSA1XR7>; Mon, 28 Jan 2002 18:17:59 -0500
-Date: Mon, 28 Jan 2002 18:17:54 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200201282317.g0SNHs326065@devserv.devel.redhat.com>
-To: wpeter@us.ibm.com, linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@suse.de>
-Subject: Re: Encountered a Null Pointer Problem on the SCSI Layer
-In-Reply-To: <mailman.1012257244.13523.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1012257244.13523.linux-kernel2news@redhat.com>
+	id <S287616AbSA1XVN>; Mon, 28 Jan 2002 18:21:13 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:24837 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S287563AbSA1XVC>; Mon, 28 Jan 2002 18:21:02 -0500
+Date: Mon, 28 Jan 2002 15:20:41 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: davej@suse.de
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fbdev accel wrapper.
+Message-ID: <Pine.LNX.4.10.10201281516290.14010-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux/drivers/scsi/sd.c     Fri Jan 25 14:01:07 2002
-> +++ linux-2.4.17-diskio/drivers/scsi/sd.c       Fri Jan 25 13:57:01 2002
-> @@ -279,7 +279,7 @@
->         target = DEVICE_NR(dev);
-> 
->         dpnt = &rscsi_disks[target];
-> -       if (!dpnt)
-> +       if (!dpnt->device)
->                 return NULL;    /* No such device */
->         return &dpnt->device->request_queue;
->  }
 
-> Wai Yee Peter Wong
-
-There's one more of theese
-
---- linux-2.4.18-pre1/drivers/scsi/sd.c	Fri Nov  9 14:05:06 2001
-+++ linux-2.4.18-pre1-p3/drivers/scsi/sd.c	Mon Jan 28 14:46:11 2002
-@@ -302,7 +302,7 @@
+Hi!
  
- 	dpnt = &rscsi_disks[dev];
- 	if (devm >= (sd_template.dev_max << 4) ||
--	    !dpnt ||
-+	    !dpnt->device ||
- 	    !dpnt->device->online ||
-  	    block + SCpnt->request.nr_sectors > sd[devm].nr_sects) {
- 		SCSI_LOG_HLQUEUE(2, printk("Finishing %ld sectors\n", SCpnt->request.nr_sectors));
+  This patch provides a wrapper to use a graphics card's accel engine.
+This is a needed step to remove the mess with fbcon-cfb* etc. No driver
+has been changed. Just the wrapper has been provided. Geert with your
+blessing I like to see it applied to the DJ tree.
 
--- Pete
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
+

@@ -1,22 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262877AbUC2Nhj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 08:37:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUC2Ngu
+	id S262886AbUC2MQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbUC2MQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 08:36:50 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:48570 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262877AbUC2MRG (ORCPT
+	Mon, 29 Mar 2004 07:16:23 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:56246 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262844AbUC2MNz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:17:06 -0500
-Date: Mon, 29 Mar 2004 04:16:24 -0800
+	Mon, 29 Mar 2004 07:13:55 -0500
+Date: Mon, 29 Mar 2004 04:13:15 -0800
 From: Paul Jackson <pj@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: mbligh@aracnet.com, akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com,
        colpatch@us.ibm.com
-Subject: [PATCH] mask ADT:  clarify kernel/sched.c set_cpus_allowed cpumask
-  [21/22]
-Message-Id: <20040329041624.6a8c49c0.pj@sgi.com>
+Subject: [PATCH] mask ADT: simplify a couple cpumask uses [8/22]
+Message-Id: <20040329041315.765d4dd2.pj@sgi.com>
 Organization: SGI
 X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -25,38 +24,71 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_21_of_22 - Cpumask code clarification in kernel/sched.c
-	Clarify and slightly optimize set_cpus_allowed() cpumask check
+Patch_8_of_22 - Simplify a couple of cpumask checks using cpus_subset
+	Simplify a couple of code fragements using cpus_subset.
 
-diffstat Patch_21_of_22:
- sched.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+diffstat Patch_8_of_22:
+ i386/kernel/smp.c   |    5 +----
+ x86_64/kernel/smp.c |    4 +---
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.1727  -> 1.1728 
-#	      kernel/sched.c	1.248   -> 1.249  
+#	           ChangeSet	1.1713  -> 1.1714 
+#	arch/i386/kernel/smp.c	1.35    -> 1.36   
+#	arch/x86_64/kernel/smp.c	1.19    -> 1.20   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 04/03/29	pj@sgi.com	1.1728
-# Clarify and slightly optimize set_cpus_allowed() cpumask check.
+# 04/03/28	pj@sgi.com	1.1714
+# Simplify two cpumask calculations using new cpus_subset() operator.
 # --------------------------------------------
 #
-diff -Nru a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	Mon Mar 29 01:04:08 2004
-+++ b/kernel/sched.c	Mon Mar 29 01:04:08 2004
-@@ -2708,7 +2708,7 @@
- 	runqueue_t *rq;
+diff -Nru a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
+--- a/arch/i386/kernel/smp.c	Mon Mar 29 01:03:40 2004
++++ b/arch/i386/kernel/smp.c	Mon Mar 29 01:03:40 2004
+@@ -345,7 +345,6 @@
+ static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+ 						unsigned long va)
+ {
+-	cpumask_t tmp;
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+ 	 *
+@@ -354,9 +353,7 @@
+ 	 * - mask must exist :)
+ 	 */
+ 	BUG_ON(cpus_empty(cpumask));
+-
+-	cpus_and(tmp, cpumask, cpu_online_map);
+-	BUG_ON(!cpus_equal(cpumask, tmp));
++	BUG_ON(!cpus_subset(cpumask, cpu_online_map));
+ 	BUG_ON(cpu_isset(smp_processor_id(), cpumask));
+ 	BUG_ON(!mm);
  
- 	rq = task_rq_lock(p, &flags);
--	if (any_online_cpu(new_mask) == NR_CPUS) {
-+	if (!cpus_intersects(new_mask, cpu_online_map)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
+diff -Nru a/arch/x86_64/kernel/smp.c b/arch/x86_64/kernel/smp.c
+--- a/arch/x86_64/kernel/smp.c	Mon Mar 29 01:03:40 2004
++++ b/arch/x86_64/kernel/smp.c	Mon Mar 29 01:03:40 2004
+@@ -234,7 +234,6 @@
+ static void flush_tlb_others(cpumask_t cpumask, struct mm_struct *mm,
+ 						unsigned long va)
+ {
+-	cpumask_t tmp;
+ 	/*
+ 	 * A couple of (to be removed) sanity checks:
+ 	 *
+@@ -243,8 +242,7 @@
+ 	 * - mask must exist :)
+ 	 */
+ 	BUG_ON(cpus_empty(cpumask));
+-	cpus_and(tmp, cpumask, cpu_online_map);
+-	BUG_ON(!cpus_equal(tmp, cpumask));
++	BUG_ON(!cpus_subset(cpumask, cpu_online_map));
+ 	BUG_ON(cpu_isset(smp_processor_id(), cpumask));
+ 	if (!mm)
+ 		BUG();
 
 
 -- 

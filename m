@@ -1,41 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbULTQVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbULTQ2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbULTQVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 11:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbULTQVb
+	id S261563AbULTQ2M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 11:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbULTQ2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 11:21:31 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:34797 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261561AbULTQVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 11:21:25 -0500
-Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ben Collins <bcollins@debian.org>
-Cc: Arne Caspari <arnem@informatik.uni-bremen.de>,
-       Adrian Bunk <bunk@stusta.de>, linux1394-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041220143901.GD457@phunnypharm.org>
-References: <20041220015320.GO21288@stusta.de>
-	 <41C694E0.8010609@informatik.uni-bremen.de>
-	 <20041220143901.GD457@phunnypharm.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1103555716.29968.27.camel@localhost.localdomain>
+	Mon, 20 Dec 2004 11:28:12 -0500
+Received: from main.gmane.org ([80.91.229.2]:23462 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261563AbULTQ2G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 11:28:06 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: [PATCH] ETH_P_AOE (was Re: [PATCH] ATA over Ethernet driver for
+ 2.6.10-rc3-bk11)
+Date: Mon, 20 Dec 2004 11:21:05 -0500
+Message-ID: <87k6rd7xfy.fsf@coraid.com>
+References: <87k6rhc4uk.fsf@coraid.com>
+	<1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 20 Dec 2004 15:15:18 +0000
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:oFCKUtowUOesj4aGh2sQ9cc81Yo=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-12-20 at 14:39, Ben Collins wrote:
-> How about adding those exports into an config option ifdef that says
-> "Export extra IEEE-1394 symbols" and in the help explains that the symbols
-> may be needed for some third party modules. Give video-2-1394 as an
-> example.
+--=-=-=
 
-You might as well remove the ifdef if you do that since vendors will
-have to guess what the right answer is an will probably uniformly say
-"Y". At that point its basically a non-option. Far better to submit the
-driver
+Scott Feldman <sfeldma@pobox.com> writes:
+
+> On Fri, 2004-12-17 at 07:38, Ed L Cashin wrote:
+>
+>> +       ETH_P_AOE = 0x88a2,
+>
+> include/linux/if_ether.h already defines this as ETH_P_EDP2=0x88A2; use
+> that.
+
+Ah, that's old.  It's not just "EtherDrive protocol" but the ATA over
+Ethernet protocol.
+
+Here's a patch for 2.6.10-rc3-bk11 that goes on top of the aoe patch
+in this thread.
+
+
+--=-=-=
+Content-Disposition: inline; filename=diff
+
+diff -urNp linux-2.6.10-rc3-bk11-aoe/drivers/block/aoe/aoe.h linux-2.6.10-rc3-bk11-aoe-2/drivers/block/aoe/aoe.h
+--- linux-2.6.10-rc3-bk11-aoe/drivers/block/aoe/aoe.h	2004-12-20 11:15:04.000000000 -0500
++++ linux-2.6.10-rc3-bk11-aoe-2/drivers/block/aoe/aoe.h	2004-12-20 11:16:23.000000000 -0500
+@@ -26,7 +26,6 @@ enum {
+ 	AOECCMD_FSET,
+ 
+ 	AOE_HVER = 0x10,
+-	ETH_P_AOE = 0x88a2,
+ };
+ 
+ struct aoe_hdr {
+diff -urNp linux-2.6.10-rc3-bk11-aoe/include/linux/if_ether.h linux-2.6.10-rc3-bk11-aoe-2/include/linux/if_ether.h
+--- linux-2.6.10-rc3-bk11-aoe/include/linux/if_ether.h	2004-12-20 10:51:20.000000000 -0500
++++ linux-2.6.10-rc3-bk11-aoe-2/include/linux/if_ether.h	2004-12-20 11:16:55.000000000 -0500
+@@ -69,7 +69,7 @@
+ #define ETH_P_ATMFATE	0x8884		/* Frame-based ATM Transport
+ 					 * over Ethernet
+ 					 */
+-#define ETH_P_EDP2	0x88A2		/* Coraid EDP2			*/
++#define ETH_P_AOE	0x88A2		/* ATA over Ethernet		*/
+ 
+ /*
+  *	Non DIX types. Won't clash for 1500 types.
+
+--=-=-=
+
+
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
+
+--=-=-=--
 

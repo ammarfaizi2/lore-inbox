@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270383AbTHLOBI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270384AbTHLOBI
+	id S270367AbTHLN67 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270370AbTHLN67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:01:08 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:56838 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270383AbTHLOBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:01:05 -0400
+	Tue, 12 Aug 2003 09:58:59 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:918
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S270367AbTHLN6x convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 09:58:53 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=),
+       linux-kernel@vger.kernel.org
 Subject: Re: [PATCH]O15int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
+Date: Wed, 13 Aug 2003 00:04:32 +1000
+User-Agent: KMail/1.5.3
+References: <200308122226.11557.kernel@kolivas.org> <yw1xekzr9hn9.fsf@users.sourceforge.net>
 In-Reply-To: <yw1xekzr9hn9.fsf@users.sourceforge.net>
-References: <200308122226.11557.kernel@kolivas.org>
-	 <yw1xekzr9hn9.fsf@users.sourceforge.net>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1060696858.748.7.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 12 Aug 2003 16:00:58 +0200
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200308130004.32589.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-12 at 14:36, Måns Rullgård wrote:
+On Tue, 12 Aug 2003 22:36, Måns Rullgård wrote:
 > Con Kolivas <kernel@kolivas.org> writes:
-> 
 > > Patch against 2.6.0-test3-mm1:
-> 
+>
 > I'd appreciate patches against the previous version, in this case
 > O14.1, as well as the full patch.  Would this require much work?
 
-2.6.0-test3-mm1 does already have O14.1, so you can apply O15 on top of
-what you have. Also, look at http://kernel.kolivas.org/2.5. There you
-will find patches against vanilla 2.6.
+2.6.0-test3-mm1 already contains O14.1
+
+Other split patches can be found here:
+
+http://kernel.kolivas.org/2.5
+
+The split patches for >O14 on test3 vanilla do not work at the moment I'm 
+afraid. It is much easier to maintain the patches against the one tree.
+
+Con
 

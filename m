@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274734AbRIUB00>; Thu, 20 Sep 2001 21:26:26 -0400
+	id <S273127AbRIUBmO>; Thu, 20 Sep 2001 21:42:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274735AbRIUB0R>; Thu, 20 Sep 2001 21:26:17 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28688 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274734AbRIUB0H>; Thu, 20 Sep 2001 21:26:07 -0400
-Subject: Re: Problem: PnP BIOS driver reports outdated information
-To: jdthoodREMOVETHIS@yahoo.co.uk (Thomas Hood)
-Date: Fri, 21 Sep 2001 02:31:26 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BAA946F.2D2900AC@yahoo.co.uk> from "Thomas Hood" at Sep 20, 2001 09:14:23 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S274732AbRIUBmD>; Thu, 20 Sep 2001 21:42:03 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:28147
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S273127AbRIUBl7>; Thu, 20 Sep 2001 21:41:59 -0400
+Date: Thu, 20 Sep 2001 18:42:15 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Preemptive kernel and vm management in 2.4.9
+Message-ID: <20010920184215.A8738@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.A41.4.33.0109201717570.102458-100000@dante09.u.washington.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kFA6-0006qM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.A41.4.33.0109201717570.102458-100000@dante09.u.washington.edu>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How about this: pnpbios functions that scan the device list
-> optionally (depending on a flag of some sort, set according to
-> whether or not one has an evil BIOS) cause the list to be rebuilt
+On Thu, Sep 20, 2001 at 05:19:46PM -0700, Samuel T Ting wrote:
+> Hello all,
+> 
+> Lately, I have been hearing a lot about preemptive kernels on the list.
+> I have just started looking into kernel internals, so could somebody
+> explain what kernel preemption is?
+> 
+> Also, how does virtual memory management in 2.4.9 work?
+> 
 
-We can use DMI to figure out if the BIOS is likely to be problematic
-A DMI match on Intel or Vaio should cut out most BIOSes that either explode
-on boot or have the weird corrupting case.
+You should read the threads about preemption for the last couple months.
 
-> I would offer a patch, but I don't know how the aforementioned
-> flag should be implemented.
+Also, www.kernelnewbies.org and linux-mm.org are great.
 
-Use the existing vaio flag that is used by the vaio drivers currently -
-"is_sony_vaio_laptop"
+You should seriously think of reading archives and/or a web search before
+asking general questions like that.
+
+Mike

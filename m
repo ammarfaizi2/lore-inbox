@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268141AbTAKVOa>; Sat, 11 Jan 2003 16:14:30 -0500
+	id <S268143AbTAKVTZ>; Sat, 11 Jan 2003 16:19:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268143AbTAKVOa>; Sat, 11 Jan 2003 16:14:30 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9747 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S268141AbTAKVO3>; Sat, 11 Jan 2003 16:14:29 -0500
-Date: Sat, 11 Jan 2003 13:20:58 -0800 (PST)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Brian Jackson <brian@mdrx.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: More on Linux and iSCSI [info, not flame :)]
-In-Reply-To: <20030111.sx2.96571900@duallie.mdrx.com>
-Message-ID: <Pine.LNX.4.10.10301111217150.11839-100000@master.linux-ide.org>
+	id <S268144AbTAKVTZ>; Sat, 11 Jan 2003 16:19:25 -0500
+Received: from tomts25-srv.bellnexxia.net ([209.226.175.188]:64463 "EHLO
+	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S268143AbTAKVTY>; Sat, 11 Jan 2003 16:19:24 -0500
+Date: Sat, 11 Jan 2003 16:28:20 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: proposed changes for CDCEther module?
+Message-ID: <Pine.LNX.4.44.0301111625260.15841-100000@dell>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jan 2003, Brian Jackson wrote:
 
-> Guys, There is another one that is at least decent and up to date, GPL'ed, etc. I'll
-> be the first to admit it needs some work, but they dok have a target and an
-> initiator. It's worth a look.
-> 
-> http://www.iol.unh.edu/consortiums/iscsi/
-> 
-> --Brian Jackson
+  a while back, i pointed out that, in trying to use the
+usbnet.o module to communicate with my zaurus, the CDCEther
+module was getting in the way, and someone (mercifully)
+pointed out that i could blacklist that module in 
+/etc/hotplug/blacklist.
 
-Do remember you need CHAP and SRP authentications.
-Do remember you need full ACL's
-Do remember you need all corner cases.
-Do remember you need Sync-n-Steering.
-Do remember you need to support the entire spec.
-Do remember all optionals are manditory.
+  i also *think* i remember someone saying that that was
+going to be "fixed" in some way with a subsequent release
+of the kernel.  can anyone refresh my memory as to what
+that fix might have involved?  was this issue with CDCEther
+considered a "bug" that needed fixing?  or am i misremembering?
 
-I forgot the rest of the list, but this plus more are the min.
-requirements.
+  thanks.
 
-Cheers,
-
-
-Andre Hedrick, CTO & Founder 
-iSCSI Software Solutions Provider
-http://www.PyXTechnologies.com/
-
+rday
 

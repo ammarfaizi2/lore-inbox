@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282178AbRLGPnw>; Fri, 7 Dec 2001 10:43:52 -0500
+	id <S282492AbRLGPrC>; Fri, 7 Dec 2001 10:47:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282644AbRLGPnc>; Fri, 7 Dec 2001 10:43:32 -0500
-Received: from scully-a0.index.hu ([217.20.130.10]:12549 "HELO dap.index")
-	by vger.kernel.org with SMTP id <S282178AbRLGPnV>;
-	Fri, 7 Dec 2001 10:43:21 -0500
-Subject: IDE hotswap still broken in 2.4.17pre2...
-From: Pallai Roland <dap@omnis.hu>
+	id <S282664AbRLGPqw>; Fri, 7 Dec 2001 10:46:52 -0500
+Received: from sushi.toad.net ([162.33.130.105]:5033 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S282492AbRLGPqn>;
+	Fri, 7 Dec 2001 10:46:43 -0500
+Subject: Re: devfs unable to handle permission: 2.4.17-pre[4,5] /
+From: Thomas Hood <jdthood@mail.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111051847030.719-100000@dap.index>
-In-Reply-To: <Pine.LNX.4.33.0111051847030.719-100000@dap.index>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1007590378.24135.2.camel@dap>
-Mime-Version: 1.0
 X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 16:43:18 +0100
+Date: 07 Dec 2001 10:47:37 -0500
+Message-Id: <1007740060.2031.2.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some devfs permission problems may have arisen because of the
+fact that devfs now notifies devfsd of the creation of
+directories.  Many people have devfsd configured to set
+permissions to all devices matching a certain regular
+expression --- e.g., all devices with "sound" in their
+pathname.  The problem is that the "sound" directory itself
+matches this regular expression, and so will have its perm
+bits set exactly like the device files' perm bits---e.g.,
+with the eXamine bit cleared.  The solution is to edit the
+devfsd config so that it excludes the directory.  E.g.,
+instead of:
+    REGISTER sound PERMISSIONS root.audio 0664
+(which worked before but won't any more) do:
+    REGISTER ^sound/.* PERMISSIONS root.audio 0664
+or something similar.
 
- It's a reproducable bug, same problem reported by
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0111.0/0965.html and
-http://www2.real-time.com/pipermail/linux-kernel/2001-November/051937.html. Does it works for anyone?
+Roman Zippel wrote:
+> Option 3:
+> Turn a user generated entry into a kernel generated
+> one and return 0. Prepopulating devfs was a valid
+> option so far, you cannot simply change this during
+> a stable kernel release.
 
-
-On Mon, 2001-11-05 at 20:09, PALLAI Roland wrote:
->  When I try to add a new IDE disk to the channel 1 with the command
-> "hdparm -R 0x170 0 0 /dev/hda", I've got a kernel oops (and freeze)..
-> It's works fine _once_, if there wasn't any detected disk on channel
-> before.
-> 
-> my config:
->  kernel 2.4.9 - 2.4.14pre7 (I've tried many of them)
->  PIIX and VIA motherboards (shows same error)
-
+As Richard has pointed out, devfs is still marked
+"experimental", so it's not unreasonable to make changes
+if they are improvements.
 
 --
-  DaP
+Thomas Hood
+
+
+
 

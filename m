@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287932AbSAHGA6>; Tue, 8 Jan 2002 01:00:58 -0500
+	id <S287899AbSAHFwI>; Tue, 8 Jan 2002 00:52:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287933AbSAHGAt>; Tue, 8 Jan 2002 01:00:49 -0500
-Received: from ns2.auctionwatch.com ([64.14.24.2]:35083 "EHLO
-	whitestar.auctionwatch.com") by vger.kernel.org with ESMTP
-	id <S287932AbSAHGAh>; Tue, 8 Jan 2002 01:00:37 -0500
-Date: Mon, 7 Jan 2002 22:00:33 -0800
-From: Petro <petro@auctionwatch.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: andihartmann@freenet.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020108060033.GD8277@auctionwatch.com>
-In-Reply-To: <20020107202927.GC1227@auctionwatch.com> <200201080143.CAA19970@webserver.ithnet.com> <20020108031001.GA7019@auctionwatch.com>
+	id <S287915AbSAHFv7>; Tue, 8 Jan 2002 00:51:59 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:20379 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S287899AbSAHFvk>; Tue, 8 Jan 2002 00:51:40 -0500
+Date: Tue, 8 Jan 2002 00:51:25 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [orphan patch] 2.5.2-pre9 Assign syscall numbers for testing
+Message-ID: <20020108005125.D7376@redhat.com>
+In-Reply-To: <4052.1010458221@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020108031001.GA7019@auctionwatch.com>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4052.1010458221@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jan 08, 2002 at 01:50:21PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 07:10:01PM -0800, Petro wrote:
-> > can pick it up. 
-> 
->     Out of ignorance and laziness, where is it again that I can get this
->     kernel? 
+On Tue, Jan 08, 2002 at 01:50:21PM +1100, Keith Owens wrote:
+> I have sent this patch to Linus twice and got no reply.  I don't have
+> time to maintain it, this is now an orphan patch.  If anybody wants it,
+> they can have it.
 
-    Let me rephrase that. 
+Do NOT apply this patch, it breaks forward compatibility assumptions.
 
-    Out of ignorance and laziness, exactly which patch is it that I
-    need, and where can I find it? 
-
--- 
-Share and Enjoy. 
+		-ben

@@ -1,63 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbTEGFGF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 01:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTEGFGF
+	id S262860AbTEGFGw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 01:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTEGFGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 01:06:05 -0400
-Received: from [195.95.38.160] ([195.95.38.160]:13042 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id S262124AbTEGFGE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 01:06:04 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: Matthew Harrell 
-	<mharrell-dated-1052696888.67fff1@bittwiddlers.com>,
-       Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-Subject: Re: [FIXED 2.5.69] Re: [2.5.67 - 2.5.68] Hangs on pcmcia yenta_socket initialisation
-Date: Wed, 7 May 2003 07:19:10 +0200
-User-Agent: KMail/1.5.1
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-References: <200304230747.27579.devilkin-lkml@blindguardian.org> <200305051051.09629.devilkin-lkml@blindguardian.org> <20030506234804.GA22226@bittwiddlers.com>
-In-Reply-To: <20030506234804.GA22226@bittwiddlers.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
+	Wed, 7 May 2003 01:06:51 -0400
+Received: from holomorphy.com ([66.224.33.161]:9357 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262860AbTEGFGo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 01:06:44 -0400
+Date: Tue, 6 May 2003 22:19:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@digeo.com>,
+       dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] kmalloc_percpu
+Message-ID: <20030507051901.GY8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Paul Mackerras <paulus@samba.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Andrew Morton <akpm@digeo.com>, dipankar@in.ibm.com,
+	linux-kernel@vger.kernel.org,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+References: <20030506014745.02508f0d.akpm@digeo.com> <20030507023126.12F702C019@lists.samba.org> <20030507024135.GW8978@holomorphy.com> <16056.34210.319959.255815@argo.ozlabs.ibm.com> <20030507042250.GX8978@holomorphy.com> <16056.37397.694764.303333@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305070719.15765.devilkin-lkml@blindguardian.org>
+In-Reply-To: <16056.37397.694764.303333@argo.ozlabs.ibm.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+William Lee Irwin III writes:
+>> Same address mapped differently on different cpus is what I thought
+>> you meant. It does make sense, and besides, it only really matters
+>> when the thing is being switched in, so I think it's not such a big
+>> deal. e.g. mark per-thread mm context with the cpu it was prepped for,
+>> if they don't match at load-time then reset the kernel pmd's pgd entry
+>> in the per-thread pgd at the top level. x86 blows away the TLB at the
 
-On Wednesday 07 May 2003 01:48, Matthew Harrell wrote:
-> Was this one you reported - I didn't see this one.
+On Wed, May 07, 2003 at 02:56:53PM +1000, Paul Mackerras wrote:
+> Having to have a pgdir per thread would be a bit sucky, wouldn't it?
 
-It was the fact that when I booted my system with my 3com cardbus NIC inserted 
-in the slot it would oops, giving me a non-working pcmcia/cardbus system.
+Not as bad as it initially sounds; on non-PAE i386, it's 4KB and would
+hurt. On PAE i386, it's 32B and can be shoehorned, say, in thread_info.
+Then the rest is just a per-cpu kernel pmd and properly handling vmalloc
+faults (which are already handled properly for non-PAE vmallocspace).
+There might be other reasons to do it, like reducing the virtualspace
+overhead of the atomic kmap area, but it's not really time yet.
 
-Booting without the card worked fine, and inserting the card afterwards also 
-worked great.
 
-thread is here:
+On Wed, May 07, 2003 at 02:56:53PM +1000, Paul Mackerras wrote:
+> On PPCs with the hash-table based MMU, if we wanted to do different
+> mappings of the same address on different CPUs, we would have to have
+> a separate hash table for each CPU, which would chew up a lot of
+> memory.  On PPC64 machines with logical partitioning, I don't think
+> the hypervisor would let you have a separate hash table for each CPU.
+> On the flip side, PPC can afford a register to point to a per-cpu data
+> area more easily than x86 can.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105107713129722&w=2
+Well, presumably it'd have to be abstracted so the mechanism isn't
+exposed to core code if ever done. The arch code insulation appears to
+be there to keep one going, though not necessarily accessors. Probably
+the only reason to seriously think about it is that the arithmetic
+shows up as a disincentive on the register-starved FPOS's I'm stuck on.
 
->
-> I still get a hang on any 2.5.50+ kernel when I load yenta and have ACPI
-> turned on.  It locks solid about three seconds after loading the module
->
 
-Ah. I don't use ACPI, because well... it caused me more pain than it helped me 
-in the past, in both OS' on my system (being Linux and win2k)
+William Lee Irwin III writes:
+>> The vmallocspace bit is easier, though the virtualspace reservation
+>> could get uncomfortably large depending on how much is crammed in there.
+>> That can go node-local also. I guess it has some runtime arithmetic
+>> overhead vs. the per-cpu TLB entries in exchange for less complex code.
 
-Jan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+On Wed, May 07, 2003 at 02:56:53PM +1000, Paul Mackerras wrote:
+> I was thinking of something like 64kB per cpu times 32 cpus = 2MB.
+> Anyway, 32-bit machines with > 8 cpus are a pretty rare corner case.
+> On 64-bit machines we have enough virtual space to give each cpu
+> gigabytes of per-cpu data if we want to.
 
-iD8DBQE+uJdQpuyeqyCEh60RAv/oAKCAUsots5uqvrL0O3dsrBGVXJ9icwCfQS/c
-H6BRfG+uFkYWWsFQL8SJsSs=
-=cGpw
------END PGP SIGNATURE-----
+2MB vmallocspace is doable; it'd need to be bigger or per-something
+besides cpus to hurt.
 
+
+-- wli

@@ -1,109 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267263AbUI0T2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267180AbUI0TcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267263AbUI0T2f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 15:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUI0T2f
+	id S267180AbUI0TcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 15:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267298AbUI0TcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 15:28:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1480 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267263AbUI0T2T (ORCPT
+	Mon, 27 Sep 2004 15:32:16 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:14482 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S267180AbUI0TcN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 15:28:19 -0400
-Date: Mon, 27 Sep 2004 12:26:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Pratt <slpratt@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH/RFC] Simplified Readahead
-Message-Id: <20040927122606.78feb424.akpm@osdl.org>
-In-Reply-To: <4158342B.4020505@austin.ibm.com>
-References: <4152F46D.1060200@austin.ibm.com>
-	<20040923194216.1f2b7b05.akpm@osdl.org>
-	<41543FE2.5040807@austin.ibm.com>
-	<20040924150523.4853465b.akpm@osdl.org>
-	<4154A2F7.1050909@austin.ibm.com>
-	<20040924160147.27dbc589.akpm@osdl.org>
-	<4158342B.4020505@austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 27 Sep 2004 15:32:13 -0400
+Date: Mon, 27 Sep 2004 21:31:32 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: micah milano <micaho@gmail.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Andries Brouwer <andries.brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 Serial ATA Maxtor 6Y120M0 incorrect geometry detected
+Message-ID: <20040927193130.GC1398@apps.cwi.nl>
+References: <70fda320409251214129bba57@mail.gmail.com> <70fda3204092514037c6dc039@mail.gmail.com> <58cb370e04092515157e9b72ef@mail.gmail.com> <20040926102937.GA27269@apps.cwi.nl> <58cb370e04092603596138133a@mail.gmail.com> <70fda32040927085019a5cd91@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <70fda32040927085019a5cd91@mail.gmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Pratt <slpratt@austin.ibm.com> wrote:
->
-> >yup.  POSIX_FADV_WILLNEED should just populate pagecache and should launch
->  >asynchronous I/O.
->  >
-> 
->  Well then this could cause problems (other than congestion) on both the 
->  current and new code since both will effectivly see 2 reads, the second 
->  of which may appear to be a seek backwards thus confusing the code 
->  slightly.  Would it be best to just special case the POSIX_FADV_WILLNEED 
->  and issue the I/O required (via do_page_cache_readahead) without 
->  updating any of the window or current page offset  information ?
+On Mon, Sep 27, 2004 at 10:50:23AM -0500, micah milano wrote:
+> I agree that parted reports an error, however I think there is
+> something else going on. When I run fdisk there is a different CHS
+> reported for each disk, even though they are the same geometry.
 
-That's what we do at present.  do_page_cache_readahead() and
-force_page_cache_readahead() are low-level functions which do not affect
-file->ra_state.
+A disk does not have a geometry, so two disks, even when identical
+cannot be said to have the same geometry.
 
-Except whoops.  POSIX_FADV_WILLNEED is using force_page_cache_readahead(),
-which bypasses the congested check.  Wonder how that happened.
+A geometry is a phantom, invented, depending on many parameters,
+and one of them is the interface used. So, the same disk may get
+different geometries on hdb and hdc.
 
-<digs out the changeset>
+See the FAQ http://www.win.tue.nl/~aeb/linux/Large-Disk-14.html#ss14.2
+"14.2 Nonproblem: Identical disks have different geometry?"
 
-ChangeSet 1.1046.589.14 2003/08/01 10:02:32 akpm@osdl.org
-  [PATCH] rework readahead for congested queues
-  
-  Since Jens changed the block layer to fail readahead if the queue has no
-  requests free, a few changes suggest themselves.
-  
-  - It's a bit silly to go and alocate a bunch of pages, build BIOs for them,
-    submit the IO only to have it fail, forcing us to free the pages again.
-  
-    So the patch changes do_page_cache_readahead() to peek at the queue's
-    read_congested state.  If the queue is read-congested we abandon the entire
-    readahead up-front without doing all that work.
-  
-  - If the queue is not read-congested, we go ahead and do the readahead,
-    after having set PF_READAHEAD.
-  
-    The backing_dev_info's read-congested threshold cuts in when 7/8ths of
-    the queue's requests are in flight, so it is probable that the readahead
-    abandonment code in __make_request will now almost never trigger.
-  
-  - The above changes make do_page_cache_readahead() "unreliable", in that it
-    may do nothing at all.
-  
-    However there are some system calls:
-  
-  	- fadvise(POSIX_FADV_WILLNEED)
-  	- madvise(MADV_WILLNEED)
-  	- sys_readahead()
-  
-    In which the user has an expectation that the kernel will actually
-    perform the IO.
-  
-    So the patch creates a new "force_page_cache_readahead()" which will
-    perform the IO regardless of the queue's congestion state.
-  
-    Arguably, this is the wrong thing to do: even though the application
-    requested readahead it could be that the kernel _should_ abandon the user's
-    request because the disk is so busy.
-  
-    I don't know.  But for now, let's keep the above syscalls behaviour
-    unchanged.  It is trivial to switch back to do_page_cache_readahead()
-    later.
+> I can't partition the second disk to have the same partition sizes as
+> the other disk because of this. I only mentioned parted because I was
+> trying every partitioner there is.
 
+Most existing partitioners allow you to specify your favourite
+geometry.
 
-So there we have it.  The reason why normal readahead skips congested
-queues is because the block layer will drop the I/O on the floor *anyway*
-because it also skips congested queues for readahead I/O requests.
+> I was hoping someone might have a solution for how I can
+> partition this second identical disk so it has identical partition
+> sizing as the first so I can put software RAID mirroring on them. From
+> what it sounds like you guys are saying (IANALKH) dmesg is reporting
+> the wrong CHS, and parted has a fix for its error, but is there
+> something I can do to get the partition sizing right?
 
-And fadvise() was switched to force_page_cache_readahead() because that was
-the old behaviour.
+No, it is entirely different. CHS is completely arbitrary and fake.
+At least, as long as your disk is Linux only.
+As soon as you use Windows on the same disk, you must be careful
+to invent the same numbers that the BIOS will invent.
 
-But PF_READAHEAD isn't there any more, and BIO_RW_AHEAD and BIO_RW_BLOCK
-are not used anywhere, so we broke that.  Jens, do you remember what
-happened there?
+So, you think of some numbers - your birthday or so - and specify
+the same numbers to fdisk while partitioning both disks.
+Common numbers are S=63 and H=255. Don't specify C if you can avoid it.
 
+Andries

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280786AbRKGNXu>; Wed, 7 Nov 2001 08:23:50 -0500
+	id <S280790AbRKGNgv>; Wed, 7 Nov 2001 08:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280787AbRKGNXk>; Wed, 7 Nov 2001 08:23:40 -0500
-Received: from corp.tivoli.com ([216.140.178.60]:38631 "EHLO corp.tivoli.com")
-	by vger.kernel.org with ESMTP id <S280786AbRKGNXY>;
-	Wed, 7 Nov 2001 08:23:24 -0500
-Message-ID: <3BE98A19.9020604@tiscalinet.it>
-Date: Wed, 7 Nov 2001 14:23:05 -0500
-From: "D'Angelo Salvatore" <dangelo.sasaman@tiscalinet.it>
+	id <S280789AbRKGNgl>; Wed, 7 Nov 2001 08:36:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64018 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280787AbRKGNgY>; Wed, 7 Nov 2001 08:36:24 -0500
+Subject: Re: Using %cr2 to reference "current"
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 7 Nov 2001 13:38:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <3BE93E77.6E4E3C95@evision-ventures.com> from "Martin Dalecki" at Nov 07, 2001 03:00:23 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VMware 2.x patches for kernels 2.4.9+ available for download
-In-Reply-To: <5.1.0.14.2.20011107113155.0269aaa0@pop.cus.cam.ac.uk>
-X-MIMETrack: Itemize by SMTP Server on RomeMTA/Tivoli Systems(Release 5.0.8 |June 18, 2001) at
- 11/07/2001 02:23:12 PM,
-	MIME-CD by Notes Server on RomeMTA/Tivoli Systems(Release 5.0.8 |June 18, 2001) at
- 11/07/2001 02:23:13 PM,
-	MIME-CD complete at 11/07/2001 02:23:13 PM,
-	Serialize by Router on RomeMTA/Tivoli Systems(Release 5.0.8 |June 18, 2001) at
- 11/07/2001 02:23:21 PM
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E161SuY-000498-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> With the following options enabled we get:
+> -freg-struct-return -mrtd -mregparm=3
+> 
+>    text    data     bss     dec     hex filename
+> 1302372  260804  288080 1851256  1c3f78 vmlinux
+> 
+> Quite significant difference if you ask me!!!
 
-Thanks a lot.
+30K is nice have but still a scratch on the surface compared with 500K 8)
 
-It work fine also on my 2.4.10 kernel (on T21 Thinkpad).
+> in a saving of about 2.3% in code size. This may not sound grat in
+> relative
+> numbers, but for a compiler designer this would already sound hilarious
+> and in
+> absolute numbers it's: 29760 bytes. Not withstanding the speed
+> improvement...
 
-Anton Altaparmakov wrote:
-
-> Due to popular demand for my patches to the VMware 2.x modules which
-> make the modules compile on kernels 2.4.9+, I have made them available
-> for download on the web:
->
-> http://www-stu.christs.cam.ac.uk/~aia21/vmware/vmware2.stm
->
-> The above web page also contains a short howto on how to install the
-> patched modules...
->
-> Best regards,
->
->         Anton
->
->
-
-
-
+The obvious question is - have you tried running the kernel built like that
+with any asm fixups needed ?

@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275711AbRI0AEH>; Wed, 26 Sep 2001 20:04:07 -0400
+	id <S275707AbRI0AI5>; Wed, 26 Sep 2001 20:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275713AbRI0AD6>; Wed, 26 Sep 2001 20:03:58 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:38132 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S275711AbRI0ADv>; Wed, 26 Sep 2001 20:03:51 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 26 Sep 2001 18:03:37 -0600
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] invalidate buffers on blkdev_put
-Message-ID: <20010926180337.F1140@turbolinux.com>
-Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20010925231124.0309ac70@pop.cus.cam.ac.uk> <5.1.0.14.2.20010926212916.022c3e00@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
+	id <S275715AbRI0AIr>; Wed, 26 Sep 2001 20:08:47 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:28676
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S275707AbRI0AIa>; Wed, 26 Sep 2001 20:08:30 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200109262349.f8QNnju14536@www.hockin.org>
+Subject: Re: Question: Etherenet Link Detection
+To: rddunlap@osdlab.org (Randy.Dunlap)
+Date: Wed, 26 Sep 2001 16:49:44 -0700 (PDT)
+Cc: mdharm-kernel@one-eyed-alien.net (Matthew Dharm),
+        peter@zaphod.nu (Peter Sandstrom), robert@tux.cs.ou.edu (Robert Cantu),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3BB26983.29B37F4E@osdlab.org> from "Randy.Dunlap" at Sep 26, 2001 04:49:23 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20010926212916.022c3e00@pop.cus.cam.ac.uk>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 26, 2001  23:42 +0100, Anton Altaparmakov wrote:
-> I wrote a quick benchmark program + script (appended at bottom of this 
-> mail) and did 50 million iterations of either the do/while function or the 
-> ffs() equivalent (including the BUG() check for power of 2) and it turns 
-> out that on all CPUs tested (Pentium 133S, Pentium III 800, Alpha EV56 
-> 533(or so), Athlon 1.33GHz 266FSB) the do/while loop is marginally faster 
-> for sizes of 256 and 512 (except P3/800 where the ffs is faster even for 
-> these smaller sizes) but is increasingly slower for increasing sizes. For 
-> large sizes the do/while loop becomes significantly slower than the ffs() 
-> approach, which of course is irrelevant at the moment with the block size 
-> limitation...
+> It's traditionally been defined as MII information, but that's
+> awfully slow, so some Ethernet controllers make it available
+> in a quicker manner.
+> 
+> ethtool might do this (http://sourceforge.net/projects/gkernel/);
+> I don't know for sure.
 
-How does this comapre with:
-
-switch(blocksize) {
-case  512: bits =  9; break;
-case 1024: bits = 10; break;
-case 2048: bits = 11; break;
-case 4096: bits = 12; break;
-case 8192: bits = 13; break;
-default: BUG();
-}
-
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+The only interface to this is through MII, unless we want to add an ETHTOOL
+style ioctl to get the link status.  This means, however, that every driver
+that wants to report this needs to support at least a subset of ethtool
+ioctls, which VERY FEW do.
 

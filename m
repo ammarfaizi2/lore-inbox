@@ -1,74 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTIMHl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 03:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTIMHl1
+	id S262074AbTIMIXl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 04:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbTIMIXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 03:41:27 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:26303 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262070AbTIMHl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 03:41:26 -0400
-Message-ID: <3F62CA41.3040900@sbcglobal.net>
-Date: Sat, 13 Sep 2003 02:41:53 -0500
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Sat, 13 Sep 2003 04:23:41 -0400
+Received: from smtp1.att.ne.jp ([165.76.15.137]:23545 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262074AbTIMIXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 04:23:39 -0400
+Message-ID: <1aba01c379d0$4d061ab0$2dee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.6.0-test5: serio config broken?
+Date: Sat, 13 Sep 2003 17:22:16 +0900
 MIME-Version: 1.0
-To: Stuart Longland <stuartl@longlandclan.hopto.org>
-CC: iain d broadfoot <ibroadfo@cis.strath.ac.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: getting a working CD-drive in 2.6
-References: <20030912093837.GC2921@iain-vaio-fx405> <3F627C13.6020608@longlandclan.hopto.org> <3F628811.1010209@sbcglobal.net> <1063436241.3f62bfd163b32@www.longlandclan.hopto.org>
-In-Reply-To: <1063436241.3f62bfd163b32@www.longlandclan.hopto.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Although I can't keep up with the mailing list, I saw this from Adrian Bunk:
+> On Thu, Sep 11, 2003 at 04:04:48PM -0700, Tom Rini wrote:
+> >
+> > Okay.  The following Kconfig illustrates what I claim to be a bug.
+> > config A
+> > bool "This is A"
+> > select B
+> > config B
+> > bool "This is B"
+> > # Or, depends C=y
+> > depends C
+> > config C
+> > bool "This is C"
+> >
+> > Running oldconfig will give:
+> > This is A (A) [N/y] (NEW) y
+> > This is C (C) [N/y] (NEW) n
+> > And in .config:
+> > CONFIG_A=y
+> > CONFIG_B=y
+> > # CONFIG_C is not set
 
+This is a problem.  Proposed solution follows later.
 
-Stuart Longland wrote:
+> > I claim that this should in fact be:
+> > CONFIG_A=y
+> > CONFIG_B=y
+> > CONFIG_C=y
 
->Quoting Wes Janzen <superchkn@sbcglobal.net>:
->
->  
->
->>Hi,
->>
->>Actually with 2.6, you no longer need ide-scsi.  You'll need to upgrade 
->>your cdrecord tools and probably your burning GUI, if you use one....
->>
->>    
->>
->
->Ahh okay, I wasn't aware of that.  We use a SCSI burner anyways, but most of my...
->
->  
->
-And here's an even better reason to avoid ide-scsi in 2.6 (Jens sent 
-this to the list, but I don't see it...):
+Even for this simple case, there are other possibilities.  When we add human
+logic to the specified sequence of events then we can say that your
+interpretation is most likely what the user wanted, but in ordinary logic
+there are other possibilities such as n, n, n.  Proposed solution follows.
 
->Jens Axboe wrote:
->
->
->  
->That's because it _is_ faster. It contains no silly memory allocations
->for the buffer and data copying in the kernel, the data is mapped from
->the user buffer and DMA'ed directly from there. It also uses DMA where
->ide-scsi wont.
->
->People generally report that they have no problems burning at full speed
->(52) on even really old machines where ide-scsi maxed out long before.
->
->  
->
-Certainly that is true.  The system was nearly unresponsive at 16X (on 
-2.4.18 SuSE) with my K6-2 400, but I can set it up to 32X now and I have 
-no problems.  My recorder never hits 32X with my media though, maxes out 
-at around 20X but I can browse the web while burning with absolutely no 
-fear of my buffer running dry (probably helps that it's a 8MB buffer but 
-cdrecord still never reports it being low).  That's a big change from 2.4.
+> The problem is that select ignores dependencies.
+> Unfortunately, your proposal wouldn't work easily, consider e.g.
+> config A
+> bool "This is A"
+> select B
+> config B
+> bool
+> depends C || D
+> config C
+> bool "This is C"
+> depends D=n
+> config D
+> bool "This is D"
+> Do you want C or D to be selected?
 
--Wes Janzen-
+If neither is selected, then the problem is essentially the same as the one
+which Mr. Rini pointed out.  And again there are other possible
+possibilities such as n, n, n, n.
+
+Solution:  Surely plain "make" could start by checking dependencies.  Or
+maybe "make dep" could be reincarnated.  If there is any inconsistency, then
+the Makefile could issue an error and refuse to start compiling.
+
+This has the added benefit that if the human has some reason to edit the
+.config file by hand instead of using a make [...]config command, plain
+"make" will have a chance of catching editing errors.
+
+This doesn't automate a solution as thoroughly as either of you were hoping
+for; it honestly admits that it can't read the human's mind  :-)
 

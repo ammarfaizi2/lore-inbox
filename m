@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286424AbRLTW3i>; Thu, 20 Dec 2001 17:29:38 -0500
+	id <S286434AbRLTWfi>; Thu, 20 Dec 2001 17:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286422AbRLTW33>; Thu, 20 Dec 2001 17:29:29 -0500
-Received: from moremagic.merlins.org ([204.80.101.251]:14222 "EHLO
-	mail2.merlins.org") by vger.kernel.org with ESMTP
-	id <S286421AbRLTW3T>; Thu, 20 Dec 2001 17:29:19 -0500
-Date: Thu, 20 Dec 2001 14:29:17 -0800
-From: Marc MERLIN <marc_ln@merlins.org>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP stall between 2.4.14-patched and Win XP ?
-Message-ID: <20011220142917.A8914@merlins.org>
-In-Reply-To: <20011220130530.Q16402@merlins.org>
+	id <S286430AbRLTWea>; Thu, 20 Dec 2001 17:34:30 -0500
+Received: from bexfield.research.canon.com.au ([203.12.172.125]:42171 "HELO
+	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S286423AbRLTWeU>;
+	Thu, 20 Dec 2001 17:34:20 -0500
+Date: Fri, 21 Dec 2001 09:30:27 +1100
+From: Cameron Simpson <cs@zip.com.au>
+To: Robert Love <rml@tech9.net>
+Cc: mingo@elte.hu, Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
+        billh@tierra.ucsd.edu, linux-kernel@vger.kernel.org,
+        linux-aio@kvack.org
+Subject: Re: aio
+Message-ID: <20011221093027.A24398@zapff.research.canon.com.au>
+Reply-To: cs@zip.com.au
+In-Reply-To: <Pine.LNX.4.33.0112201101580.2464-100000@localhost.localdomain> <1008872459.2777.10.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20011220130530.Q16402@merlins.org>; from marc_ln@merlins.org on Thu, Dec 20, 2001 at 01:05:30PM -0800
-X-Sysadmin: BOFH
-X-URL: http://marc.merlins.org/
-X-Operating-System: Proudly running Linux 2.4.14-lvm1.0.1rc4-ext3-0.9.15-grsec-1.8.8-servers11/Debian woody
-X-Mailer: Some Outlooks can't quote properly without this header
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1008872459.2777.10.camel@phantasy>; from rml@tech9.net on Thu, Dec 20, 2001 at 01:20:55PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 20, 2001 at 01:05:30PM -0800, Marc MERLIN wrote:
-> The XP  machine connects to  the linux box, packets  go back and  forth, and
-> when the linux machine starts pushing a  lot of data back, XP lowers the TCP
-> window until the connection stalls.
+On Thu, Dec 20, 2001 at 01:20:55PM -0500, Robert Love <rml@tech9.net> wrote:
+| On Thu, 2001-12-20 at 05:18, Ingo Molnar wrote:
+| > there are two possibilities i can think of:
+| > 1) lets get Ben's patch in but do *not* export the syscalls, yet.
+| 
+| This is an excellent way to give aio the testing and exposure Linus
+| wants without getting into the commitment / syscall mess.
+| Stick aio in the kernel, play with it via Tux, etc.  The really
+| interested can add temporary syscalls.  aio (which I like, btw) will get
+| testing and in time, once proven, we can add the syscalls.
+| Comments?
 
-I should have added more details here.
-I know  this looks like a  classic issue of  the client app not  reading its
-data (netscape mail polling mail over imap in this case).
-It's just that the same exact app  was working fine on the same mail folders
-on  non XP  machines, and the same netscape had no issues polling mail from
-other servers,  so I started suspecting  something on the TCP  layer between
-the two OSes
+Only that it would be hard for user space people to try it - does Ben's
+patch (with hypothetical syscalls) present the POSIX async interfaces out
+of the box? If not, testing with in-kernel things is sufficient. But
+if it does then it becomes more reasonable to transiently define some
+syscall numbers (high up, in some defined as "testing and like shifting
+sands" range) so user space can test the interface.
 
-Mika  Liljeberg sent  me a  mail confirming  that it  really looks  like the
-client app  not reading its data. Of  course, I can strace  the imap server,
-but I don't know how to do that with netscape on XP :-)
-
-Either way, although I can't confirm  it for now, I'll assume that something
-weird is  happening with the app,  and that it's indeed  responsible for the
-stall.
-
-Sorry for the noise.
-Marc
+Thought: is there a meta-syscall in the kernel API for calling other syscalls?
+You could have such a beast taking negative numbers for experimental calls...
 -- 
-Microsoft is to operating systems & security ....
-                                      .... what McDonalds is to gourmet cooking
-  
-Home page: http://marc.merlins.org/   |   Finger marc_f@merlins.org for PGP key
+Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
+
+Sometimes the only solution is to find a new problem.

@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263029AbTCTWjK>; Thu, 20 Mar 2003 17:39:10 -0500
+	id <S262705AbTCTWp0>; Thu, 20 Mar 2003 17:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263011AbTCTWiS>; Thu, 20 Mar 2003 17:38:18 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:48901 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262722AbTCTWgq>;
-	Thu, 20 Mar 2003 17:36:46 -0500
-Date: Thu, 20 Mar 2003 14:47:58 -0800
-From: Greg KH <greg@kroah.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Larger dev_t and major/minor split
-Message-ID: <20030320224757.GC5156@kroah.com>
-References: <b5dckh$lv1$1@cesium.transmeta.com>
+	id <S262673AbTCTWoT>; Thu, 20 Mar 2003 17:44:19 -0500
+Received: from packet.digeo.com ([12.110.80.53]:8368 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262663AbTCTWnp>;
+	Thu, 20 Mar 2003 17:43:45 -0500
+Date: Thu, 20 Mar 2003 16:59:41 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: green@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: reiserfs oops [2.5.65]
+Message-Id: <20030320165941.0d19d09d.akpm@digeo.com>
+In-Reply-To: <20030320132409.GA19042@suse.de>
+References: <20030319141048.GA19361@suse.de>
+	<20030320112559.A12732@namesys.com>
+	<20030320132409.GA19042@suse.de>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b5dckh$lv1$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Mar 2003 22:54:24.0959 (UTC) FILETIME=[A755E4F0:01C2EF33]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 01:42:41PM -0800, H. Peter Anvin wrote:
+Dave Jones <davej@codemonkey.org.uk> wrote:
+>
+> There's lots of "slab error in cache_alloc_debugcheck_after()"
+> warnings. cache reiser_inode_cache memory after object was overwritten
 > 
-> a) We use a 32+32 bit split for dev_t.  Major zero, minor < 65536
->    would be reserved for compatibility with the old 16-bit dev_t; it
->    still leaves the zero value the "no device" entry.  We could still
->    use major 0, minor >= 65536 as anonymous devices, or we could
->    switch using major 255 which has been reserved for expansion for
->    the past eight years.
+> Some call traces.
+>  check_poison_obj <- kmem_cache_alloc <- reierfs_alloc_inode <-
+>  reiserfs_alloc_inode <- alloc_inode <- get_new_inode <-
+>  reiserfs_init_locked <- reiserfs_find_actor <- reiserfs_iget <-
+>  reiserfs_find_actor <- reiserfs_init_locked_inode <- reiserfs_lookup <-
+>  real_lookup <- do_lookup <- link_path_walk <- kmem_cache_alloc <-
+>  __user_walk <- vfs_lstat <- sys_lstat64 <- syscall_call
+> 
+> Slab corruption: start=c70c7044, expend=c70c7213 problemat=c70c7044
+> Last user: [<c0280dcb>](reiserfs_alloc_inode+0x1b/0x30)
+> Data: (lots of hex)
 
-Well, it seems that this is the most reasonable split, able to handle
-everyone for a long time.  I can live with it, if only to keep people
-from Oracle quiet :)
+Alas, the "(lots of hex)" is important - it lets us determine which member of
+struct reiserfs_inode was actually altered.
 
-thanks,
+> I'll give that box a run of memtest to rule out memory corruption
+> problems. I'll also hook up a serial terminal tonight to catch tomorrow
+> nights 'activity' in full 8-)
 
-greg k-h
+Good, thanks.
+
+It would be nice if we had a more robust way of capturing all this info,
+especially the oops-while-running-X lossage.  Dump-to-floppy or something.

@@ -1,142 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264383AbTLKWuG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 17:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbTLKWuF
+	id S264392AbTLKWvi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 17:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTLKWvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 17:50:05 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7948 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264383AbTLKWt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 17:49:57 -0500
-Date: Thu, 11 Dec 2003 14:42:25 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Rob Landley <rob@landley.net>
-cc: hzhong@cisco.com, "'Larry McVoy'" <lm@bitmover.com>,
-       "'Linus Torvalds'" <torvalds@osdl.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       "'Kendall Bennett'" <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <200312111559.57215.rob@landley.net>
-Message-ID: <Pine.LNX.4.10.10312111438410.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Dec 2003 17:51:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35039 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264392AbTLKWvX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 17:51:23 -0500
+Date: Thu, 11 Dec 2003 14:43:12 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Dan Creswell <dan@dcrdev.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: E7505 has only 2 APIC's but Linux says 3
+Message-Id: <20031211144312.5662904f.rddunlap@osdl.org>
+In-Reply-To: <3FD5C2FD.4080609@dcrdev.demon.co.uk>
+References: <3FD5C2FD.4080609@dcrdev.demon.co.uk>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 09 Dec 2003 12:41:33 +0000 Dan Creswell <dan@dcrdev.demon.co.uk> wrote:
 
-Rob,
+| Hi,
+| 
+| According to Intel's spec. for the E7505 chipset, there are only two 
+| APICs mapped at 0xFEC00000 and 0xFEC80000.
+| 
+| On boot, however, both kernel's 2.4 and 2.6 report three APIC's (see 
+| dmesg snippet below).  That third memory address (oxFEC80100) looks odd 
+| to me.
+| 
+| Could the MPTable be incorrect thus leading Linux astray or could it be 
+| a kernel problem?
+| 
+| Could my system's APIC's end up being mis-configured/mis-used as a result?
 
-> The fact you personally were off in a corner talking about little green men
-> from mars is remarkably irrelevant to what I wrote to Hua Zhong (who I'm
-> fairly certain is not you.  His english is better.)
+Is your system expierie^W having problems that you think might be
+attributable to interrupt routing?
 
-Gee, I love the insults.  I seriously doubt you have ever paid a lawyer
-to even have the knowledge to allow you to pump out the bovine piles you
-are spraying in the air.
+I don't see a problem.  The 82801xx chipset has 1 IO APIC and
+the P64H2 controller has 2 more IO APICs, with configurable addreses
+like you listed.
 
-Correct, I am not a lawyer, and you admit you are not one.
 
-I have paid lawyers for advice and some damn good ones.
 
-Can you say the same?
+| Output from dmesg:
+| 
+| Intel MultiProcessor Specification v1.4
+|     Virtual Wire compatibility mode.
+| OEM ID:   Product ID: PLACER CRB   APIC at: 0xFEE00000
+| I/O APIC #2 Version 32 at 0xFEC00000.
+| I/O APIC #3 Version 32 at 0xFEC80000.
+| I/O APIC #4 Version 32 at 0xFEC80100.
+| Enabling APIC mode:  Flat.  Using 3 I/O APICs
+| 
+| Output from lspci:
+| 
+| 00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB PCI Bridge (rev 82) 
+| (prog-if 00 [Normal decode])
+|         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+| ParErr+ Stepping- SERR+ FastB2B-
+|         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+| <TAbort- <MAbort- >SERR- <PERR-
+|         Latency: 0
+|         Bus: primary=00, secondary=05, subordinate=05, sec-latency=32
+|         I/O behind bridge: 00003000-00003fff
+|         Memory behind bridge: da200000-da2fffff
+|         Prefetchable memory behind bridge: fff00000-000fffff
+|         BridgeCtl: Parity+ SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+|  
+| 00:1f.0 ISA bridge: Intel Corp. 82801DB LPC Interface Controller (rev 02)
+|         Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
+| ParErr+ Stepping- SERR+ FastB2B-
+|         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+| <TAbort- <MAbort- >SERR- <PERR-
+|         Latency: 0
+|  
+| 02:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 04) (prog-if 20 
+| [IO(X)-APIC])
+|         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+| ParErr+ Stepping- SERR+ FastB2B-
+|         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
+| <TAbort- <MAbort- >SERR- <PERR-
+|         Latency: 0
+|         Region 0: Memory at da000000 (32-bit, non-prefetchable) [size=4K]
+|         Capabilities: [50] PCI-X non-bridge device.
+|                 Command: DPERE- ERO- RBC=0 OST=0
+|                 Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
+| DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
 
-Cheers,
+| 02:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 04) 
+| (prog-if 00 [Normal decode])
+|         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+| ParErr+ Stepping- SERR+ FastB2B-
+|         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
+| <TAbort- <MAbort- >SERR- <PERR-
+|         Latency: 248, cache line size 20
+|         Bus: primary=02, secondary=03, subordinate=03, sec-latency=64
+|         I/O behind bridge: 00002000-00002fff
+|         Memory behind bridge: da100000-da1fffff
+|         Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+|         BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+|         Capabilities: [50] PCI-X non-bridge device.
+|                 Command: DPERE+ ERO+ RBC=0 OST=0
+|                 Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
+| DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
 
-Andre Hedrick
-LAD Storage Consulting Group
+| 02:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 04) (prog-if 20 
+| [IO(X)-APIC])
+|         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+| ParErr+ Stepping- SERR+ FastB2B-
+|         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
+| <TAbort- <MAbort- >SERR- <PERR-
+|         Latency: 0
+|         Region 0: Memory at da001000 (32-bit, non-prefetchable) [size=4K]
+|         Capabilities: [50] PCI-X non-bridge device.
+|                 Command: DPERE- ERO- RBC=0 OST=0
+|                 Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
+| DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
 
-On Thu, 11 Dec 2003, Rob Landley wrote:
+| 02:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 04) 
+| (prog-if 00 [Normal decode])
+|         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+| ParErr+ Stepping- SERR+ FastB2B-
+|         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 
+| <TAbort- <MAbort- >SERR- <PERR-
+|         Latency: 248, cache line size 20
+|         Bus: primary=02, secondary=04, subordinate=04, sec-latency=64
+|         I/O behind bridge: 0000f000-00000fff
+|         Memory behind bridge: fff00000-000fffff
+|         Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+|         BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B-
+|         Capabilities: [50] PCI-X non-bridge device.
+|                 Command: DPERE+ ERO+ RBC=0 OST=4
+|                 Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
+| DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
 
-> On Thursday 11 December 2003 15:20, Andre Hedrick wrote:
-> > Rob,
-> >
-> > Help me out?  Who is cloning what ?
-> >
-> > I am talking about original works, to talking about talking somebody's
-> > stuff out of the kernel, hacking it up and distributing the work as an
-> > original (that is clearly a derived work).
-> >
-> > So your arguement is bogus, try again.
-> 
-> If you'd read the message, you might have noticed that I was talking about why 
-> web browser plugins may be considered to be different from kernel modules.
-> 
-> The fact you personally were off in a corner talking about little green men 
-> from mars is remarkably irrelevant to what I wrote to Hua Zhong (who I'm 
-> fairly certain is not you.  His english is better.)
-> 
-> I have no intention of "trying again" because I wasn't talking to you in the 
-> first place.  (I don't find what you have to say on IP issues particularly 
-> interesting, and don't read the ones that aren't cc'd to me...)  Neither of 
-> us are lawyers.  The difference is that I know it.
-> 
-> Rob
-> 
-> > Cheers,
-> >
-> > Andre Hedrick
-> > LAD Storage Consulting Group
-> >
-> > On Thu, 11 Dec 2003, Rob Landley wrote:
-> > > On Thursday 11 December 2003 02:11, Hua Zhong wrote:
-> > > > > For one thing, the plugin was made by someone without access
-> > > > > to Netscape or IE's source code, using a documented interface
-> > > > > that contained sufficient information to do the job without access
-> > > > > to that source code.
-> > > > >
-> > > > > Yes, it matters.
-> > > >
-> > > > _What_ matters?
-> > > >
-> > > > Open source? (if you write a plugin for an opensource
-> > > > kernel/application, you are not plugin anymore and you are derived
-> > > > work.) I am sure you don't mean it.
-> > > >
-> > > > Documented interface? Hey, there are sources which are the best
-> > > > documentation. :-)
-> > >
-> > > If you write software by referring to documentation, the barrier for it
-> > > being a derivative work is higher than if you write it by looking at
-> > > another implementation.
-> > >
-> > > > Seriously, even if I accept that there is never an intent to support a
-> > > > stable ABI for kernel modules, some vendor can easily claim that "we
-> > > > support a stable ABI, so write kernel modules for the kernel we
-> > > > distribute".
-> > > >
-> > > > Anything can prevent that? I cannot see GPL disallow it.
-> > > >
-> > > > So OK, Linus and other kernel developers never intended to provide a
-> > > > stable ABI, but someone else could. The original author's intent is
-> > > > never relevant anymore. This is the goodness of opensource, isn't it?
-> > >
-> > > Once upon a time, Compaq did a clean-room clone of IBM's BIOS.  Group 1
-> > > studied the original bios and wrote up a spec, and group 2 wrote a new
-> > > bios from that spec, and group 1 never spoke to group 2, and all of this
-> > > was extensively documented so that when IBM sued them they proved in
-> > > court that their BIOS wasn't derived from IBM's.  (Of course compaq used
-> > > vigin programmers fresh out of college who'd never seen a PC before,
-> > > which was a lot easier to do in 1983...)
-> > >
-> > > I didn't make this up.  This was a really big deal 20 years ago.  It
-> > > happened, and it mattered, and people cared that they created a fresh
-> > > implementation without seeing the original code, entirely from a written
-> > > specification that was not a derivative work of the first implementation,
-> > > so no matter how similar the second implementation was (hand-coded
-> > > assembly performing the same functions on the same processor in the same
-> > > amount of space), it could not be considered a derivative work.
-> > >
-> > > This was a strong enough defense to beat IBM's lawyers, who were trying
-> > > to claim that Compaq's new BIOS WAS a derivative work...
-> > >
-> > > Rob
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
+--
+~Randy
+MOTD:  Always include version info.

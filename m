@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130216AbRBZOeN>; Mon, 26 Feb 2001 09:34:13 -0500
+	id <S130297AbRBZOep>; Mon, 26 Feb 2001 09:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130223AbRBZOch>; Mon, 26 Feb 2001 09:32:37 -0500
+	id <S130375AbRBZObO>; Mon, 26 Feb 2001 09:31:14 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130262AbRBZO3o> convert rfc822-to-8bit;
-	Mon, 26 Feb 2001 09:29:44 -0500
-From: Holger.Smolinski@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Guest section DW <dwguest@win.tue.nl>, aeb@cwi.nl, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Message-ID: <C12569FF.003D0F79.00@d12mta07.de.ibm.com>
-Date: Mon, 26 Feb 2001 11:15:56 +0100
-Subject: [PATCH] partitions/ibm.c
-Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+	by vger.kernel.org with ESMTP id <S130381AbRBZOak>;
+	Mon, 26 Feb 2001 09:30:40 -0500
+Message-ID: <20010226092240.23713.qmail@lindy.softhome.net>
+To: linux-kernel@vger.kernel.org
+cc: roger@kea.grace.cri.nz
+Subject: tcp stalls with 2.4 (but not 2.2)
+Date: Mon, 26 Feb 2001 02:22:40 -0700
+From: Brian Grossman <brian@SoftHome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I'm seeing stalls sending packets to some clients.  I see this problem
+under 2.4 (2.4.1 and 2.4.1ac17) but not under 2.2.17.
 
-Andries, others,
-Thanks for hacking through the code of fs/partitions/ibm.c.
-Your patch does not work at all because you are relying on the
-data in the part component of the hd structure, which does not
-hold the geometry data of the disk but the data of the partitions
-on that disk. Besides that, exactly these data are to be set up
-by the code in fs/partitions/ibm.c.
-The geometry data is stored in the device driver. As in oposition
-to the partition schemes the device drivercan be a loadable
-module, fs/partitions.c should not at all directly call or use symbols
-from the device driver.
-My preferred solution would be having partition schemes as
-loadable modules, too. Maybe I'll find some time to post the
-approriate patch on this list soon...
+My theory is there is an ICMP black hole between my server and some of its
+clients.  Is there a tool to pinpoint that black hole if it exists?
 
-Regards,
-     Holger Smolinski
+Can anyone suggest another cause or a direction for investigation?
 
-IBM Germany
-Linux/390 Kernel Development
-Schönaicher Str.220, D-71032 Böblingen
+Why does this affect 2.4 but not 2.2?
 
->Reading patch-2.4.2 I met a strange amount of crap in
->partitions/ibm.c. It is as if the author does not know
->where the kernel keeps the starting offset of a partition,
->and simulates a HDIO_GETGEO ioctl from user space.
->I think the following patch does the same and removes a lot
->of cruft. (Warning: (i) untested, uncompiled; (ii) pasted
->from another window - tabs will have become spaces.)
+The characteristics I've discovered so far:
 
->Andries
+        From strace of the server process, each write to the network is
+        preceeded by a select on the output fd.  The select waits for a
+        long time, after which the write succeeds.
 
+        The packets are received by the client a couple minutes after my
+        server sends them.
 
+        The clients I have tested with are win98 and winNT.
+
+        The router for both 2.4 and 2.2 servers is running 2.2.18 with
+        ipvs (ipvs-1.0.2-2.2.18).
+
+        That router does not block any ICMP.
+
+        The behavior occurs on the 2.4 machine whether the packets are
+        routed directly or are mangled by ipvs.
+
+        I've tried the same machine with both 2.4 and 2.2, as well as
+        another machine with just 2.2.  2.2 works.  2.4 doesn't.
+
+        Both of my servers and the router I mentioned have two tulip
+        network cards.
+
+        The clients I've tested with are behind a modem through earthlink.
+        Another I suspect to have same problem is behind a modem
+	through Juno.
+
+        I've tried adjusting both /proc/sys/net/ipv4/route/min_adv_mss and
+        /proc/sys/net/ipv4/route/min_pmtu downward.  Do these require an
+        ifconfig down/up to take effect?
+
+Thanks for any help anyone can supply.
+
+Brian

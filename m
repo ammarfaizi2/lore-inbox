@@ -1,585 +1,239 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261523AbSLMHa3>; Fri, 13 Dec 2002 02:30:29 -0500
+	id <S261333AbSLMHxB>; Fri, 13 Dec 2002 02:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbSLMHa3>; Fri, 13 Dec 2002 02:30:29 -0500
-Received: from wiprom2mx2.wipro.com ([203.197.164.42]:21669 "EHLO
-	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S261523AbSLMHaV>; Fri, 13 Dec 2002 02:30:21 -0500
-From: "Sowmya Adiga" <sowmya.adiga@wipro.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] AIM benchmark result for kernel 2.5.51 with mm2 patch .
-Date: Fri, 13 Dec 2002 13:07:54 +0530
-Organization: Wipro Technologies
-Message-ID: <001c01c2a27a$8cac7f20$6009720a@wipro.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-X-OriginalArrivalTime: 13 Dec 2002 07:37:55.0277 (UTC) FILETIME=[8CDC8FD0:01C2A27A]
+	id <S261492AbSLMHxB>; Fri, 13 Dec 2002 02:53:01 -0500
+Received: from h-64-105-35-2.SNVACAID.covad.net ([64.105.35.2]:22217 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261333AbSLMHw6>; Fri, 13 Dec 2002 02:52:58 -0500
+Date: Thu, 12 Dec 2002 23:59:34 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: Jeff Chua <jchua@fedex.com>, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: 2.5.51 ide module problem
+Message-ID: <20021212235934.A770@baldur.yggdrasil.com>
+References: <200212110650.WAA13780@adam.yggdrasil.com> <Pine.LNX.4.50.0212111501310.30173-100000@boston.corp.fedex.com> <20021211004104.A362@baldur.yggdrasil.com> <Pine.LNX.4.50.0212111711180.4632-200000@boston.corp.fedex.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.50.0212111711180.4632-200000@boston.corp.fedex.com>; from jchua@fedex.com on Wed, Dec 11, 2002 at 05:29:03PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
- Here are the AIM benchmark result for kernel 2.5.51 with mm2 patch. 
-
- kernel 2.5.51 with mm2 patch performed better in following tests,when
-compared with kernel 2.5.51mm1 patch:-
- 1)File Creations and Closes/second 2) System Memory Allocations/second
-3) Task Creations/second 4)  Shared Memory Operations/second
- 5)  TCP/IPMessages/second 6) Pipe Messages/second.7)  Program
-Loads/second.on the other side kernel 2.5.51mm2 could not do better in
- Dynamic Memory Operations/second  when compared to kernel 2.5.51mm1
-patch.
-
- kernel 2.5.51mm2 patch performed better in following tests,when
-compared with kernel 2.5.51 :-
-1) Program Loads/second 2)Task Creations/second 3) File Creations and
-Closes/second 4)  Pipe Messages/second 
-At the same time 2.5.51mm2 patch had a drop in following performance
-when compared with kernel 2.5.51:- 
-1)  System Memory Allocations/second 2)  Dynamic Memory
-Operations/second 3)  UDP/IP DataGrams/second 4)  FIFO Messages/second 
-
-------------------------------------------------------------------------
----------------------------------------------------
-AIM Independent Resource Benchmark - Suite IX v1.1, January 22, 1996
-Copyright (c) 1996 - 2001 Caldera International, Inc.
-All Rights Reserved
-
-Machine's name                                                    :
-access1
-Machine's configuration
-:PIII/868MHZ/128MB
-Number of seconds to run each test [2 to 1000]    : 60
-Path to disk files                                                   :
-/tmp
-------------------------------------------------------------------------
-------------------------------------
-    Test   Test                             Elapsed
-Iteration           Iteration                        Operation 
- Number Name                        Time (sec)          Count
-Rate (loops/sec)           Rate (ops/sec)
-------------------------------------------------------------------------
-------------------------------------
-     1 add_double                           Thousand Double Precision
-Additions/second
-         linux-2.5.51                        60.02                 716
-11.92936                     214728.42
-         linux-2.5.51[mm1]              60.02                 716
-11.92936                     214728.42
-         linux-2.5.51[mm2]              60.01                 716
-11.93134                     214764.21
-
-
-      2 add_float                               Thousand Single
-Precision Additions/second
-        linux-2.5.51                         60.05                 1075
-17.90175                     214820.98 
-        linux-2.5.51[mm1]               60.00                 1074
-17.90000                     214800.00
-        linux-2.5.51[mm2]               60.05                 1075
-17.90175                     214820.98 
-
-     3 add_long                               Thousand Long Integer
-Additions/second
-        linux-2.5.51                         60.01                 1768
-29.46176                     1767705.38
-        linux-2.5.51[mm1]               60.01                 1768
-29.46176                     1767705.38
-        linux-2.5.51[mm2]               60.01                 1768
-29.46176                     1767705.38
-
-      4 add_int                                Thousand Integer
-Additions/second
-         linux-2.5.51                         60.02                1768
-29.45685                     1767410.86
-         linux-2.5.51[mm1]               60.01                1768
-29.46176                     1767705.38 
-         linux-2.5.51[mm2]               60.01                1768
-29.46176                     1767705.38
-
-      5 add_short                             Thousand Short Integer
-Additions/second
-         linux-2.5.51                         60.00                4419
-73.65000                      1767600.00   
-         linux-2.5.51[mm1]               60.01                4419
-73.63773                      1767305.45
-         linux-2.5.51[mm2]               60.00                4419
-73.65000                      1767600.00
-
-     6 creat-clo                                File Creations and
-Closes/second
-         linux-2.5.51                          60.02               2157
-35.93802                      35938.02 
-         linux-2.5.51[mm1]                60.02               2142
-35.68810                      35688.10
-         linux-2.5.51[mm2]                60.02               2176
-36.25458                      36254.58
-
-     7 page_test                               System Allocations &
-Pages/second 
-         linux-2.5.51                          60.00              8822
-147.03333                    249956.67 
-         linux-2.5.51[mm1]                60.01              8546
-142.40960                    242096.32
-         linux-2.5.51[mm2]                60.00              8606
-143.43333                    243836.67
-
-     8 brk_test                                  System Memory
-Allocations/second
-         linux-2.5.51                           60.01             3404
-56.72388                     964305.95 
-         linux-2.5.51[mm1]                 60.01             3236
-53.92435                     916713.88
-         linux-2.5.51[mm2]                 60.01             3327
-55.44076                     942492.92
-
-     9 jmp_test                                 Non-local gotos/second
-         linux-2.5.51                           60.00            318154
-5302.56667                  5302566.67
-         linux-2.5.51[mm1]                 60.00            318197
-5303.28333                  5303283.33 
-         linux-2.5.51[mm2]                 60.00            318115
-5301.91667                  5301916.67
-
-    10 signal_test                             Signal Traps/second
-         linux-2.5.51                           60.00             9573
-159.55000                    159550.00
-         linux-2.5.51[mm1]                 60.01             9517
-158.59023                    158590.23
-         linux-2.5.51[mm2]                 60.00             9529
-158.81667                    158816.67 
-
-    11 exec_test                              Program Loads/second
-         linux-2.5.51                           60.03              2054
-34.21623                      171.08
-         linux-2.5.51[mm1]                 60.00              2082
-34.70000                      173.50
-         linux-2.5.51[mm2]                 60.01              2101
-35.01083                      175.05
-
-    12 fork_test                               Task Creations/second
-         linux-2.5.51                           60.04               1016
-16.92205                      1692.21
-         linux-2.5.51[mm1]                 60.03               1022
-17.02482                      1702.48 
-         linux-2.5.51[mm2]                 60.01               1099
-18.31361                      1831.36 
-
-    13 link_test                                Link/Unlink Pairs/second
-         linux-2.5.51                           60.01               9963
-166.02233                    10459.41 
-         linux-2.5.51[mm1]                 60.00               9857
-164.28333                    10349.85
-         linux-2.5.51[mm2]                 60.00               9929
-165.48333                    10425.45 
-
-    14 disk_rr                                 Random Disk Reads
-(K)/second
-         linux-2.5.51                           60.00               496
-8.26667                       42325.33
-         linux-2.5.51[mm1]                 60.06               501
-8.34166                       42709.29
-         linux-2.5.51[mm2]                 60.06               489
-8.14186                       41686.31
-
-    15 disk_rw                                Random Disk Writes
-(K)/second
-         linux-2.5.51                           60.12               394
-6.55356                       33554.22
-         linux-2.5.51[mm1]                 60.17               387
-6.43178                       32930.70
-         linux-2.5.51[mm2]                 60.07               387
-6.44248                       32985.52 
-
-    16 disk_rd                                Sequential Disk Reads
-(K)/second
-         linux-2.5.51                           60.02               2813
-46.86771                      239962.68 
-         linux-2.5.51[mm1]                 60.01               2795
-46.57557                      238466.92
-         linux-2.5.51[mm2]                 60.01               2822
-47.02550                      240770.54
-
-    17 disk_wrt                              Sequential Disk Writes
-(K)/second
-         linux-2.5.51                           60.07               646
-10.75412                      55061.10
-         linux-2.5.51[mm1]                 60.07               644
-10.72083                      54890.63
-         linux-2.5.51[mm2]                 60.06               633
-10.53946                      53962.04
-
-    18 disk_cp                              Disk Copies (K)/second
-         linux-2.5.51                           60.10               509
-8.46922                        43362.40
-         linux-2.5.51[mm1]                 60.06               501
-8.34166                        42709.29 
-         linux-2.5.51[mm2]                 60.00               499
-8.31667                        42581.33
-
-    19 sync_disk_rw                     Sync Random Disk Writes
-(K)/second
-         linux-2.5.51                          60.91                1
-0.01642                        42.03
-         linux-2.5.51[mm1]                60.11                1
-0.01664                        42.59
-         linux-2.5.51[mm2]                60.21                1
-0.01661                        42.52
-
-    20 sync_disk_wrt                    Sync Sequential Disk Writes
-(K)/second
-         linux-2.5.51                          76.81                 2
-0.02604                        66.66 
-         linux-2.5.51[mm1]                76.42                 2
-0.02617                        67.00 
-         linux-2.5.51[mm2]                76.85                 2
-0.02602                        66.62
-
-    21 sync_disk_cp                     Sync Disk Copies (K)/second
-         linux-2.5.51                          77.63                 2
-0.02576                        65.95
-         linux-2.5.51[mm1]                77.86                 2
-0.02569                        65.76
-         linux-2.5.51[mm2]                77.57                 2
-0.02578                        66.00
-
-    22 disk_src                             Directory Searches/second
-        linux-2.5.51                          60.00
-10811          180.18333                     13513.75
-        linux-2.5.51[mm1]                60.01                 10741
-178.98684                     13424.01
-        linux-2.5.51[mm2]                60.01                 10715
-178.55357                     13391.52
-
-    23 div_double                        Thousand Double Precision
-Divides/second
-        linux-2.5.51                          60.01                 1322
-22.02966                      66088.99 
-        linux-2.5.51[mm1]                60.01                 1322
-22.02966                      66088.99
-        linux-2.5.51[mm2]                60.01                 1322
-22.02966                      66088.99
-
-    24 div_float                            Thousand Single Precision
-Divides/second
-        linux-2.5.51                          60.00                 1322
-22.03333                     66100.00
-        linux-2.5.51[mm1]                60.00                 1322
-22.03333                     66100.00
-        linux-2.5.51[mm2]                60.00                 1322
-22.03333                     66100.00
-
-    25 div_long                            Thousand Long Integer
-Divides/second
-        linux-2.5.51                          60.03
-1592            26.52007                    23868.07
-        linux-2.5.51[mm1]                60.03                  1592
-26.52007                    23868.07
-        linux-2.5.51[mm2]                60.04                  1592
-26.51566                    23864.09
-
-    26 div_int                               Thousand Integer
-Divides/second
-        linux-2.5.51                          60.03
-1592            26.52007                   23868.07 
-        linux-2.5.51[mm1]                60.03                   1592
-26.52007                   23868.07 
-        linux-2.5.51[mm2]                60.01                   1591
-26.51225                   23861.02
-
-    27 div_short                          Thousand Short Integer
-Divides/second
-        linux-2.5.51                        60.01
-1591             26.51225                  23861.02 
-        linux-2.5.51[mm1]              60.03                     1592
-26.52007                  23868.07 
-        linux-2.5.51[mm2]              60.03                     1592
-26.52007                  23868.07 
-
-    28 fun_cal                             Function Calls (no
-arguments)/second 
-         linux-2.5.51                       60.01
-4362            72.68789                  37216197.30
-         linux-2.5.51[mm1]             60.01                     4362
-72.68789                  37216197.30
-         linux-2.5.51[mm2]             60.01                     4362
-72.68789                  37216197.30
-
-    29 fun_cal1                           Function Calls (1
-argument)/second
-         linux-2.5.51                       60.00
-10231          170.51667                 87304533.33
-         linux-2.5.51[mm1]             60.00                    10230
-170.50000                 87296000.00
-         linux-2.5.51[mm2]             60.00                    10231
-170.51667                 87304533.33
-
-    30 fun_cal2                           Function Calls (2
-arguments)/second
-         linux-2.5.51                       60.00
-7971            132.85000                 68019200.00
-         linux-2.5.51[mm1]             60.00                    7968
-132.80000                 67993600.00
-         linux-2.5.51[mm2]             60.00                    7970
-132.83333                 68010666.67
-
-    31 fun_cal15                          Function Calls (15
-arguments)/second
-         linux-2.5.51                       60.03
-2455            40.89622                   20938863.90 
-         linux-2.5.51[mm1]             60.03                    2455
-40.89622                   20938863.90
-         linux-2.5.51[mm2]             60.03                    2455
-40.89622                   20938863.90 
-
-    32 sieve                                 Integer Sieves/second
-         linux-2.5.51                       60.47                    41
-0.67802                    3.39
-         linux-2.5.51[mm1]             60.49                    41
-0.67780                    3.39
-         linux-2.5.51[mm2]             60.46                    41
-0.67813                    3.39
-
-    33 mul_double                      Thousand Double Precision
-Multiplies/second
-         linux-2.5.51                       60.01                    833
-13.88102                  166572.24
-         linux-2.5.51[mm1]             60.05                    838
-13.95504                  167460.45
-         linux-2.5.51[mm2]             60.07                    837
-13.93374                  167204.93
-
-    34 mul_float                         Thousand Single Precision
-Multiplies/second
-         linux-2.5.51                       60.03                    836
-13.92637                  167116.44
-         linux-2.5.51[mm1]             60.02                    835
-13.91203                  166944.35
-         linux-2.5.51[mm2]             60.05                    837
-13.93838                  167260.62
-
-    35 mul_long                         Thousand Long Integer
-Multiplies/second
-         linux-2.5.51                       60.00
-75687          1261.45000             302748.00
-         linux-2.5.51[mm1]             60.00                   75693
-1261.55000             302772.00 
-         linux-2.5.51[mm2]             60.00                   75675
-1261.25000             302700.00
-
-    36 mul_int                           Thousand Integer
-Multiplies/second
-          linux-2.5.51                      60.00
-76015           1266.91667            304060.00 
-          linux-2.5.51[mm1]            60.00                   76013
-1266.88333            304052.00
-          linux-2.5.51[mm2]            60.00                   75978
-1266.30000            303912.00
-
-    37 mul_short                        Thousand Short Integer
-Multiplies/second
-          linux-2.5.51                      60.00
-60527           1008.78333            302635.00
-          linux-2.5.51[mm1]            60.00                   60564
-1009.40000            302820.00
-          linux-2.5.51[mm2]            60.00                   60624
-1010.40000            303120.00 
-
-    38 num_rtns_1                    Numeric Functions/second
-          linux-2.5.51                      60.00
-32603           543.38333              54338.33
-          linux-2.5.51[mm1]            60.00                   32602
-543.36667              54336.67
-          linux-2.5.51[mm2]            60.00                   32587
-543.11667              54311.67
-
-    39 new_raph                      Zeros Found/second
-         linux-2.5.51                       60.00
-79903           1331.71667             266343.33
-         linux-2.5.51[mm1]             60.00                   79905
-1331.75000             266350.00
-         linux-2.5.51[mm2]             60.00                   79890
-1331.50000             266300.00
-
-    40 trig_rtns                         Trigonometric Functions/second
-          linux-2.5.51                      60.01                   2160
-35.99400                359940.01
-          linux-2.5.51[mm1]            60.02                   2168
-36.12129                361212.93
-          linux-2.5.51[mm2]            60.01                   2168
-36.12731                361273.12
-
-    41 matrix_rtns                     Point Transformations/second
-          linux-2.5.51                      60.00
-349540          5825.66667            582566.67 
-          linux-2.5.51[mm1]            60.00                  349593
-5826.55000            582655.00
-          linux-2.5.51[mm2]            60.00                  349515
-5825.25000            582525.00
-
-    42 array_rtns                      Linear Systems Solved/second
-         linux-2.5.51                       60.00                   959
-15.98333               319.67
-         linux-2.5.51[mm1]             60.05                   960
-15.98668               319.73 
-         linux-2.5.51[mm2]             60.03                   959
-15.97535               319.51 
-
-    43 string_rtns                     String Manipulations/second
-         linux-2.5.51                       60.01                   851
-14.18097               1418.10 
-         linux-2.5.51[mm1]             60.06                   852
-14.18581               1418.58
-         linux-2.5.51[mm2]             60.06                   852
-14.18581               1418.58
-
-    44 mem_rtns_1                 Dynamic Memory Operations/second
-          linux-2.5.51                      60.00                   1640
-27.33333              820000.00 
-          linux-2.5.51[mm1]            60.02                   1910
-31.82273              954681.77
-          linux-2.5.51[mm2]            60.04                   1530
-25.48301              764490.34
-
-    45 mem_rtns_2                 Block Memory Operations/second
-         linux-2.5.51                       60.00
-131025           2183.75000          218375.00 
-         linux-2.5.51[mm1]             60.00                   131053
-2184.21667          218421.67
-         linux-2.5.51[mm2]             60.00                   131034
-2183.90000          218390.00 
-
-    46 sort_rtns_1                  Sort Operations/second
-          linux-2.5.51                      60.02                   2425
-40.40320              404.03
-          linux-2.5.51[mm1]            60.02                   2425
-40.40320              404.03 
-          linux-2.5.51[mm2]            60.01                   2424
-40.39327              403.93 
-
-     47 misc_rtns_1                 Auxiliary Loops/second
-           linux-2.5.51                     60.00
-32379             539.65000             5396.50 
-           linux-2.5.51[mm1]           60.00                   31628
-527.13333             5271.33 
-           linux-2.5.51[mm2]           60.00                   31911
-531.85000             5318.50 
-
-    48 dir_rtns_1                    Directory Operations/second
-           linux-2.5.51                    60.00
-13181             219.68333             2196833.33 
-           linux-2.5.51[mm1]          60.00                    12621
-210.35000             2103500.00
-           linux-2.5.51[mm2]          60.00                    13128
-218.80000             2188000.00 
-
-    49 shell_rtns_1                Shell Scripts/second
-           linux-2.5.51                    60.02                    2472
-41.18627              41.19
-           linux-2.5.51[mm1]          60.01                    2479
-41.30978              41.31
-           linux-2.5.51[mm2]          60.00                    2470
-41.16667              41.17 
-
-    50 shell_rtns_2                 Shell Scripts/second
-            linux-2.5.51                   60.00                    2479
-41.31667              41.32
-            linux-2.5.51[mm1]         60.01                    2478
-41.29312              41.29 
-            linux-2.5.51[mm2]         60.02                    2480
-41.31956              41.32
-
-    51 shell_rtns_3                   Shell Scripts/second
-            linux-2.5.51                   60.01                    2479
-41.30978              41.31 
-            linux-2.5.51[mm1]         60.02                    2480
-41.31956              41.32 
-            linux-2.5.51[mm2]         60.00                    2478
-41.30000              41.30
-
-    52 series_1                        Series Evaluations/second
-           linux-2.5.51                    60.00
-1464266          24404.43333        2440443.33           
-           linux-2.5.51[mm1]          60.00                   1464388
-24406.46667        2440646.67
-           linux-2.5.51[mm2]          60.00                   1464074
-24401.23333        2440123.33 
-
-    53 shared_memory            Shared Memory Operations/second
-           linux-2.5.51                    60.00
-168202            2803.36667          280336.67
-           linux-2.5.51[mm1]          60.00                   157980
-2633.00000          263300.00
-           linux-2.5.51[mm2]          60.00                   166154
-2769.23333          276923.33 
-
-    54 tcp_test                        TCP/IPMessages/second
-          linux-2.5.51                     60.01                   11200
-186.63556            16797.20
-          linux-2.5.51[mm1]           60.00                   10780
-179.66667            16170.00
-          linux-2.5.51[mm2]           60.00                   10927
-182.11667            16390.50
-
-    55 udp_test                      UDP/IP DataGrams/second
-          linux-2.5.51                     60.00                   49319
-821.98333            82198.33 
-          linux-2.5.51[mm1]           60.00                   47033
-783.88333            78388.33
-          linux-2.5.51[mm2]           60.00                   46617
-776.95000            77695.00
-
-    56 fifo_test                        FIFO Messages/second 
-          linux-2.5.51                     60.00                   92331
-1538.85000          153885.00
-          linux-2.5.51[mm1]           60.00                   88371
-1472.85000          147285.00 
-          linux-2.5.51[mm2]           60.00                   89477
-1491.28333          149128.33 
-
-    57 stream_pipe                 Stream Pipe Messages/second
-           linux-2.5.51                   60.00                    70959
-1182.65000         118265.00
-           linux-2.5.51[mm1]         60.00                    70192
-1169.86667         116986.67
-           linux-2.5.51[mm2]         60.00                    70782
-1179.70000         117970.00 
-
-    58 dgram_pipe                  DataGram Pipe Messages/second
-           linux-2.5.51                   60.00                    69617
-1160.28333         116028.33
-           linux-2.5.51[mm1]         60.00                    68397
-1139.95000         113995.00
-           linux-2.5.51[mm2]         60.00                    70214
-1170.23333         117023.33
-
-    59 pipe_cpy                      Pipe Messages/second
-            linux-2.5.51                  60.00                   248370
-4139.50000         413950.00
-            linux-2.5.51[mm1]        60.00                   236957
-3949.28333         394928.33
-            linux-2.5.51[mm2]        60.00                   253724
-4228.73333         422873.33 
-
-     60 ram_copy                   Memory to Memory Copy/second
-            linux-2.5.51                  60.00                  1496002
-24933.36667       623832834.00 
-            linux-2.5.51[mm1]        60.00                  1495745
-24929.08333       623725665.00
-            linux-2.5.51[mm2]        60.00                  1495977
-24932.95000       623822409.00
-------------------------------------------------------------------------
-------------------------------------
-
-
-Regards
-Sowmya Adiga
-
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, Dec 11, 2002 at 05:29:03PM +0800, Jeff Chua wrote:
+> On Wed, 11 Dec 2002, Adam J. Richter wrote:
+> > Here is a quick diff of my drivers/ide subdirectory versus stock 2.5.51.
+> 
+> +++ linux/drivers/ide/pci/cmd640.c      2002-11-27 18:24:00.000000000
+> -int cmd640_vlb = 0;
+> 
+> These lines must "stay" in cmd640.c, else it won't compile.
+> 
+> "depmod -a" works now, but encounter a new problem when I tried to load
+> ide ...
+> 
+> # modprobe ide-mod
+> FATAL: Error inserting ide_mod (/lib/modules/2.5.51/kernel/ide-mod.ko):
+> Unknown symbol in module
+> ide_mod: Unknown symbol pci_enable_device_bars
+
+	Jeff: Sorry, I forgot to include diffs for include/linux/ide.h
+and drivers/pci/pci.c.  Here is a corrected patch.  I am running the
+code on that machine on which I'm composing this email, and I have
+also verified that cmd640.c compiled without complaint (well,
+actually, I've modified the patch slightly to eliminate some unrelated
+diffs).
+
+	Alan: If you want, please feel free to merge this change.
+Alternatively, if you're stepping away from 2.5 while waiting for
+modules to stabilize, I'd appreciate knowing what you'd prefer be done
+with incoming IDE patches (submit them to Andre and Jens, just wait,
+something else?).  For what it's worth, 2.5.51 +
+init-module-tools-0.9.3 is the first kernel-based module loader
+configuration which works enough so that I'm able to work on other
+things.  For the past few releases, I had been restoring user level
+module loading.  There still are a lot of quirks with the kernel based
+module loading, but you might find it sufficient to get things done.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ide.diff"
+
+--- linux-2.5.51/include/linux/ide.h	2002-12-09 18:45:54.000000000 -0800
++++ linux/include/linux/ide.h	2002-11-27 18:24:04.000000000 -0800
+@@ -1742,8 +1742,12 @@
+ extern void ide_toggle_bounce(ide_drive_t *drive, int on);
+ extern int ide_set_xfer_rate(ide_drive_t *drive, u8 rate);
+ 
++/* ide.c */
++extern int ide_probe_init(void);
++extern void ide_probe_cleanup(void);
++extern int cmd640_vlb;
+ extern spinlock_t ide_lock;
+ 
+ #define local_irq_set(flags)	do { local_save_flags((flags)); local_irq_enable(); } while (0)
+--- linux-2.5.51/drivers/pci/pci.c	2002-12-09 18:45:52.000000000 -0800
++++ linux/drivers/pci/pci.c	2002-12-09 19:03:18.000000000 -0800
+@@ -736,6 +736,7 @@
+ EXPORT_SYMBOL(isa_bridge);
+ #endif
+ 
++EXPORT_SYMBOL(pci_enable_device_bars);
+ EXPORT_SYMBOL(pci_enable_device);
+ EXPORT_SYMBOL(pci_disable_device);
+ EXPORT_SYMBOL(pci_max_busnr);
+diff -r -u linux-2.5.51/drivers/ide/Kconfig linux/drivers/ide/Kconfig
+--- linux-2.5.51/drivers/ide/Kconfig	2002-12-09 18:45:56.000000000 -0800
++++ linux/drivers/ide/Kconfig	2002-11-27 18:23:46.000000000 -0800
+@@ -199,7 +199,7 @@
+ 	depends on BLK_DEV_IDE
+ 
+ config BLK_DEV_CMD640
+-	bool "CMD640 chipset bugfix/support"
++	tristate "CMD640 chipset bugfix/support"
+ 	depends on BLK_DEV_IDE && X86
+ 	---help---
+ 	  The CMD-Technologies CMD640 IDE chip is used on many common 486 and
+@@ -247,7 +247,7 @@
+ 	default BLK_DEV_IDEDMA_PMAC if ALL_PPC && BLK_DEV_IDEDMA_PMAC
+ 
+ config BLK_DEV_GENERIC
+-	bool "Generic PCI IDE Chipset Support"
++	tristate "Generic PCI IDE Chipset Support"
+ 	depends on PCI && BLK_DEV_IDEPCI
+ 
+ config IDEPCI_SHARE_IRQ
+diff -r -u linux-2.5.51/drivers/ide/Makefile linux/drivers/ide/Makefile
+--- linux-2.5.51/drivers/ide/Makefile	2002-12-09 18:45:59.000000000 -0800
++++ linux/drivers/ide/Makefile	2002-11-29 12:01:33.000000000 -0800
+@@ -14,21 +14,22 @@
+ 
+ # Core IDE code - must come before legacy
+ 
+-obj-$(CONFIG_BLK_DEV_IDE)		+= ide-io.o ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o
++obj-$(CONFIG_BLK_DEV_IDE)		+= ide-mod.o
++ide-mod-objs				+= ide-io.o ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o
+ obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
+ obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
+ obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
+ obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
+ 
+-obj-$(CONFIG_BLK_DEV_IDEPCI)		+= setup-pci.o
+-obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
+-obj-$(CONFIG_BLK_DEV_IDE_TCQ)		+= ide-tcq.o
+-obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
+-
+-ifeq ($(CONFIG_BLK_DEV_IDE),y)
+-obj-$(CONFIG_PROC_FS)			+= ide-proc.o
+-endif
++obj-ide-$(CONFIG_BLK_DEV_IDEPCI)	+= setup-pci.o
++obj-ide-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
++obj-ide-$(CONFIG_BLK_DEV_IDE_TCQ)	+= ide-tcq.o
++obj-ide-$(CONFIG_BLK_DEV_ISAPNP)	+= ide-pnp.o
++obj-ide-$(CONFIG_PROC_FS)		+= ide-proc.o
++
++ide-mod-objs				+= $(obj-ide-y)
++obj-m					+= $(obj-ide-m)
+ 
+ obj-$(CONFIG_BLK_DEV_IDE)		+= legacy/ ppc/ arm/
+ 
+diff -r -u linux-2.5.51/drivers/ide/ide.c linux/drivers/ide/ide.c
+--- linux-2.5.51/drivers/ide/ide.c	2002-12-09 18:45:52.000000000 -0800
++++ linux/drivers/ide/ide.c	2002-12-09 19:03:20.000000000 -0800
+@@ -2375,7 +2375,7 @@
+ 	ide_init_builtin_drivers();
+ 	initializing = 0;
+ 
+-	return 0;
++	return ide_probe_init();
+ }
+ 
+ #ifdef MODULE
+diff -r -u linux-2.5.51/drivers/ide/pci/cmd640.c linux/drivers/ide/pci/cmd640.c
+--- linux-2.5.51/drivers/ide/pci/cmd640.c	2002-12-09 18:46:22.000000000 -0800
++++ linux/drivers/ide/pci/cmd640.c	2002-11-27 18:24:00.000000000 -0800
+@@ -102,6 +102,7 @@
+ #define CMD640_PREFETCH_MASKS 1
+ 
+ #include <linux/config.h>
++#include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/delay.h>
+@@ -118,11 +119,6 @@
+ #include "ide_modes.h"
+ 
+ /*
+- * This flag is set in ide.c by the parameter:  ide0=cmd640_vlb
+- */
+-int cmd640_vlb = 0;
+-
+-/*
+  * CMD640 specific registers definition.
+  */
+ 
+@@ -723,7 +719,7 @@
+ /*
+  * Probe for a cmd640 chipset, and initialize it if found.  Called from ide.c
+  */
+-int __init ide_probe_for_cmd640x (void)
++static int ide_probe_for_cmd640x (void)
+ {
+ #ifdef CONFIG_BLK_DEV_CMD640_ENHANCED
+ 	int second_port_toggled = 0;
+@@ -883,4 +879,4 @@
+ #endif
+ 	return 1;
+ }
+-
++module_init(ide_probe_for_cmd640x);
+--- linux-2.5.51/drivers/ide/ide-probe.c	2002-12-09 18:46:10.000000000 -0800
++++ linux/drivers/ide/ide-probe.c	2002-12-12 23:50:58.000000000 -0800
+@@ -831,7 +831,8 @@
+ 	ide_toggle_bounce(drive, 1);
+ 
+ #ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+-	HWIF(drive)->ide_dma_queued_on(drive);
++	if (HWIF(drive)->ide_dma_queued_on)
++		HWIF(drive)->ide_dma_queued_on(drive);
+ #endif
+ }
+ 
+@@ -1221,10 +1222,9 @@
+ 	return 0;
+ }
+ 
+-#ifdef MODULE
+ extern int (*ide_xlate_1024_hook)(struct block_device *, int, int, const char *);
+ 
+-int init_module (void)
++int ide_probe_init (void)
+ {
+ 	unsigned int index;
+ 	
+@@ -1236,10 +1236,9 @@
+ 	return 0;
+ }
+ 
+-void cleanup_module (void)
++void ide_probe_cleanup (void)
+ {
+ 	ide_probe = NULL;
+ 	ide_xlate_1024_hook = 0;
+ }
+ MODULE_LICENSE("GPL");
+-#endif /* MODULE */
+
+--ew6BAiZeqk4r7MaW--

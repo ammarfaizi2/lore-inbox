@@ -1,298 +1,2222 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbSLPWpK>; Mon, 16 Dec 2002 17:45:10 -0500
+	id <S262201AbSLPWrl>; Mon, 16 Dec 2002 17:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSLPWpJ>; Mon, 16 Dec 2002 17:45:09 -0500
-Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:55197 "HELO
-	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261908AbSLPWpG>; Mon, 16 Dec 2002 17:45:06 -0500
-Message-ID: <20021216225257.5871.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S262040AbSLPWrl>; Mon, 16 Dec 2002 17:47:41 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:5616 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262201AbSLPWq7>;
+	Mon, 16 Dec 2002 17:46:59 -0500
+Subject: [PATCH][RESEND] linux-2.5.52_subarch-cleanup_A3
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       James.Bottomley@HansenPartnership.com
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040079046.12538.6.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 16 Dec 2002 14:50:47 -0800
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com
-Date: Tue, 17 Dec 2002 06:52:57 +0800
-Subject: [Benchmark] AIM9 results
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-hw is an Omnibook 6000 (laptop)
-fs is Reiserfs
+Linus, James, all
+        Just a resend of my subarch cleanup patch (rediffed against bk
+current), which splits up the subarch .h and .c files. Also I've made it
+so the .h files not found in the platform subarch dir fall back to the
+default subarch dir. This makes it easier to add new subarches with
+minimal file duplication. 
 
-format:
-2.4.19
-2.5.51
-2.5.52
+The patch is largeish due to the number of file moves, however bk should
+pick these up as renames on import.
 
-add_double 10030 23.9282       430707.88 Thousand Double Precision Additions/second
-add_double 10030 23.7288       427118.64 Thousand Double Precision Additions/second
-add_double 10030 23.7288       427118.64 Thousand Double Precision Additions/second
+Please apply.
 
-add_float 10000 35.9       430800.00 Thousand Single Precision Additions/second
-add_float 10010 35.5644       426773.23 Thousand Single Precision Additions/second
-add_float 10010 35.5644       426773.23 Thousand Single Precision Additions/second
+Thanks
+-john
 
-add_long 10010 22.1778      1330669.33 Thousand Long Integer Additions/second
-add_long 10020 21.9561      1317365.27 Thousand Long Integer Additions/second
-add_long 10020 21.9561      1317365.27 Thousand Long Integer Additions/second
+diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
+--- a/arch/i386/Makefile	Mon Dec 16 14:34:13 2002
++++ b/arch/i386/Makefile	Mon Dec 16 14:34:13 2002
+@@ -46,25 +46,31 @@
+ 
+ CFLAGS += $(cflags-y)
+ 
+-ifdef CONFIG_VISWS
+-MACHINE	:= mach-visws
+-else
+-MACHINE	:= mach-generic
+-endif
++#default subarch .c files
++mcore-y  := mach-default
++
++#VISWS subarch support
++mflags-$(CONFIG_VISWS) := -Iinclude/asm-i386/mach-visws
++mcore-$(CONFIG_VISWS)  := mach-visws
++
++#add other subarch support here
++
++#default subarch .h files
++mflags-y += -Iinclude/asm-i386/mach-default
+ 
+ HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
+ 
+ libs-y 					+= arch/i386/lib/
+ core-y					+= arch/i386/kernel/ \
+ 					   arch/i386/mm/ \
+-					   arch/i386/$(MACHINE)/
++					   arch/i386/$(mcore-y)/
+ drivers-$(CONFIG_MATH_EMULATION)	+= arch/i386/math-emu/
+ drivers-$(CONFIG_PCI)			+= arch/i386/pci/
+ # FIXME: is drivers- right ?
+ drivers-$(CONFIG_OPROFILE)		+= arch/i386/oprofile/
+ 
+-CFLAGS += -Iarch/i386/$(MACHINE)
+-AFLAGS += -Iarch/i386/$(MACHINE)
++CFLAGS += $(mflags-y)
++AFLAGS += $(mflags-y)
+ 
+ makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/i386/boot $(1)
+ 
+diff -Nru a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c
+--- a/arch/i386/kernel/apic.c	Mon Dec 16 14:34:13 2002
++++ b/arch/i386/kernel/apic.c	Mon Dec 16 14:34:13 2002
+@@ -31,7 +31,8 @@
+ #include <asm/pgalloc.h>
+ #include <asm/desc.h>
+ #include <asm/arch_hooks.h>
+-#include "mach_apic.h"
++
++#include <mach_apic.h>
+ 
+ void __init apic_intr_init(void)
+ {
+diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+--- a/arch/i386/kernel/io_apic.c	Mon Dec 16 14:34:13 2002
++++ b/arch/i386/kernel/io_apic.c	Mon Dec 16 14:34:13 2002
+@@ -35,7 +35,8 @@
+ #include <asm/io.h>
+ #include <asm/smp.h>
+ #include <asm/desc.h>
+-#include "mach_apic.h"
++
++#include <mach_apic.h>
+ 
+ #undef APIC_LOCKUP_DEBUG
+ 
+diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
+--- a/arch/i386/kernel/mpparse.c	Mon Dec 16 14:34:13 2002
++++ b/arch/i386/kernel/mpparse.c	Mon Dec 16 14:34:13 2002
+@@ -30,7 +30,8 @@
+ #include <asm/mpspec.h>
+ #include <asm/pgalloc.h>
+ #include <asm/io_apic.h>
+-#include "mach_apic.h"
++
++#include <mach_apic.h>
+ 
+ /* Have we found an MP table */
+ int smp_found_config;
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Mon Dec 16 14:34:13 2002
++++ b/arch/i386/kernel/smpboot.c	Mon Dec 16 14:34:13 2002
+@@ -51,7 +51,8 @@
+ #include <asm/desc.h>
+ #include <asm/arch_hooks.h>
+ #include "smpboot_hooks.h"
+-#include "mach_apic.h"
++
++#include <mach_apic.h>
+ 
+ /* Set if we find a B stepping CPU */
+ static int __initdata smp_b_stepping;
+diff -Nru a/arch/i386/mach-default/Makefile b/arch/i386/mach-default/Makefile
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/arch/i386/mach-default/Makefile	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,7 @@
++#
++# Makefile for the linux kernel.
++#
++
++EXTRA_CFLAGS	+= -I../kernel
++
++obj-y				:= setup.o topology.o
+diff -Nru a/arch/i386/mach-default/setup.c b/arch/i386/mach-default/setup.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/arch/i386/mach-default/setup.c	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,104 @@
++/*
++ *	Machine specific setup for generic
++ */
++
++#include <linux/config.h>
++#include <linux/smp.h>
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <asm/arch_hooks.h>
++
++/**
++ * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
++ *
++ * Description:
++ *	Perform any necessary interrupt initialisation prior to setting up
++ *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
++ *	interrupts should be initialised here if the machine emulates a PC
++ *	in any way.
++ **/
++void __init pre_intr_init_hook(void)
++{
++	init_ISA_irqs();
++}
++
++/*
++ * IRQ2 is cascade interrupt to second interrupt controller
++ */
++static struct irqaction irq2 = { no_action, 0, 0, "cascade", NULL, NULL};
++
++/**
++ * intr_init_hook - post gate setup interrupt initialisation
++ *
++ * Description:
++ *	Fill in any interrupts that may have been left out by the general
++ *	init_IRQ() routine.  interrupts having to do with the machine rather
++ *	than the devices on the I/O bus (like APIC interrupts in intel MP
++ *	systems) are started here.
++ **/
++void __init intr_init_hook(void)
++{
++#ifdef CONFIG_X86_LOCAL_APIC
++	apic_intr_init();
++#endif
++
++	setup_irq(2, &irq2);
++}
++
++/**
++ * pre_setup_arch_hook - hook called prior to any setup_arch() execution
++ *
++ * Description:
++ *	generally used to activate any machine specific identification
++ *	routines that may be needed before setup_arch() runs.  On VISWS
++ *	this is used to get the board revision and type.
++ **/
++void __init pre_setup_arch_hook(void)
++{
++}
++
++/**
++ * trap_init_hook - initialise system specific traps
++ *
++ * Description:
++ *	Called as the final act of trap_init().  Used in VISWS to initialise
++ *	the various board specific APIC traps.
++ **/
++void __init trap_init_hook(void)
++{
++}
++
++static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
++
++/**
++ * time_init_hook - do any specific initialisations for the system timer.
++ *
++ * Description:
++ *	Must plug the system timer interrupt source at HZ into the IRQ listed
++ *	in irq_vectors.h:TIMER_IRQ
++ **/
++void __init time_init_hook(void)
++{
++	setup_irq(0, &irq0);
++}
++
++#ifdef CONFIG_MCA
++/**
++ * mca_nmi_hook - hook into MCA specific NMI chain
++ *
++ * Description:
++ *	The MCA (Microchannel Arcitecture) has an NMI chain for NMI sources
++ *	along the MCA bus.  Use this to hook into that chain if you will need
++ *	it.
++ **/
++void __init mca_nmi_hook(void)
++{
++	/* If I recall correctly, there's a whole bunch of other things that
++	 * we can do to check for NMI problems, but that's all I know about
++	 * at the moment.
++	 */
++
++	printk("NMI generated from unknown source!\n");
++}
++#endif
+diff -Nru a/arch/i386/mach-default/topology.c b/arch/i386/mach-default/topology.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/arch/i386/mach-default/topology.c	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,68 @@
++/*
++ * arch/i386/mach-generic/topology.c - Populate driverfs with topology information
++ *
++ * Written by: Matthew Dobson, IBM Corporation
++ * Original Code: Paul Dorwin, IBM Corporation, Patrick Mochel, OSDL
++ *
++ * Copyright (C) 2002, IBM Corp.
++ *
++ * All rights reserved.          
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ * Send feedback to <colpatch@us.ibm.com>
++ */
++#include <linux/init.h>
++#include <linux/smp.h>
++#include <asm/cpu.h>
++
++struct i386_cpu cpu_devices[NR_CPUS];
++
++#ifdef CONFIG_NUMA
++#include <linux/mmzone.h>
++#include <asm/node.h>
++#include <asm/memblk.h>
++
++struct i386_node node_devices[MAX_NUMNODES];
++struct i386_memblk memblk_devices[MAX_NR_MEMBLKS];
++
++static int __init topology_init(void)
++{
++	int i;
++
++	for (i = 0; i < num_online_nodes(); i++)
++		arch_register_node(i);
++	for (i = 0; i < NR_CPUS; i++)
++		if (cpu_possible(i)) arch_register_cpu(i);
++	for (i = 0; i < num_online_memblks(); i++)
++		arch_register_memblk(i);
++	return 0;
++}
++
++#else /* !CONFIG_NUMA */
++
++static int __init topology_init(void)
++{
++	int i;
++
++	for (i = 0; i < NR_CPUS; i++)
++		if (cpu_possible(i)) arch_register_cpu(i);
++	return 0;
++}
++
++#endif /* CONFIG_NUMA */
++
++subsys_initcall(topology_init);
+diff -Nru a/arch/i386/mach-generic/Makefile b/arch/i386/mach-generic/Makefile
+--- a/arch/i386/mach-generic/Makefile	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,7 +0,0 @@
+-#
+-# Makefile for the linux kernel.
+-#
+-
+-EXTRA_CFLAGS	+= -I../kernel
+-
+-obj-y				:= setup.o topology.o
+diff -Nru a/arch/i386/mach-generic/do_timer.h b/arch/i386/mach-generic/do_timer.h
+--- a/arch/i386/mach-generic/do_timer.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,82 +0,0 @@
+-/* defines for inline arch setup functions */
+-
+-#include <asm/apic.h>
+-
+-/**
+- * do_timer_interrupt_hook - hook into timer tick
+- * @regs:	standard registers from interrupt
+- *
+- * Description:
+- *	This hook is called immediately after the timer interrupt is ack'd.
+- *	It's primary purpose is to allow architectures that don't possess
+- *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
+- *	timer interrupt as a means of triggering reschedules etc.
+- **/
+-
+-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
+-{
+-	do_timer(regs);
+-/*
+- * In the SMP case we use the local APIC timer interrupt to do the
+- * profiling, except when we simulate SMP mode on a uniprocessor
+- * system, in that case we have to call the local interrupt handler.
+- */
+-#ifndef CONFIG_X86_LOCAL_APIC
+-	x86_do_profile(regs);
+-#else
+-	if (!using_apic_timer)
+-		smp_local_timer_interrupt(regs);
+-#endif
+-}
+-
+-
+-/* you can safely undefine this if you don't have the Neptune chipset */
+-
+-#define BUGGY_NEPTUN_TIMER
+-
+-/**
+- * do_timer_overflow - process a detected timer overflow condition
+- * @count:	hardware timer interrupt count on overflow
+- *
+- * Description:
+- *	This call is invoked when the jiffies count has not incremented but
+- *	the hardware timer interrupt has.  It means that a timer tick interrupt
+- *	came along while the previous one was pending, thus a tick was missed
+- **/
+-static inline int do_timer_overflow(int count)
+-{
+-	int i;
+-
+-	spin_lock(&i8259A_lock);
+-	/*
+-	 * This is tricky when I/O APICs are used;
+-	 * see do_timer_interrupt().
+-	 */
+-	i = inb(0x20);
+-	spin_unlock(&i8259A_lock);
+-	
+-	/* assumption about timer being IRQ0 */
+-	if (i & 0x01) {
+-		/*
+-		 * We cannot detect lost timer interrupts ... 
+-		 * well, that's why we call them lost, don't we? :)
+-		 * [hmm, on the Pentium and Alpha we can ... sort of]
+-		 */
+-		count -= LATCH;
+-	} else {
+-#ifdef BUGGY_NEPTUN_TIMER
+-		/*
+-		 * for the Neptun bug we know that the 'latch'
+-		 * command doesnt latch the high and low value
+-		 * of the counter atomically. Thus we have to 
+-		 * substract 256 from the counter 
+-		 * ... funny, isnt it? :)
+-		 */
+-		
+-		count -= 256;
+-#else
+-		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
+-#endif
+-	}
+-	return count;
+-}
+diff -Nru a/arch/i386/mach-generic/entry_arch.h b/arch/i386/mach-generic/entry_arch.h
+--- a/arch/i386/mach-generic/entry_arch.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,34 +0,0 @@
+-/*
+- * This file is designed to contain the BUILD_INTERRUPT specifications for
+- * all of the extra named interrupt vectors used by the architecture.
+- * Usually this is the Inter Process Interrupts (IPIs)
+- */
+-
+-/*
+- * The following vectors are part of the Linux architecture, there
+- * is no hardware IRQ pin equivalent for them, they are triggered
+- * through the ICC by us (IPIs)
+- */
+-#ifdef CONFIG_X86_SMP
+-BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
+-BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
+-BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
+-#endif
+-
+-/*
+- * every pentium local APIC has two 'local interrupts', with a
+- * soft-definable vector attached to both interrupts, one of
+- * which is a timer interrupt, the other one is error counter
+- * overflow. Linux uses the local APIC timer interrupt to get
+- * a much simpler SMP time architecture:
+- */
+-#ifdef CONFIG_X86_LOCAL_APIC
+-BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
+-BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
+-BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
+-
+-#ifdef CONFIG_X86_MCE_P4THERMAL
+-BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
+-#endif
+-
+-#endif
+diff -Nru a/arch/i386/mach-generic/irq_vectors.h b/arch/i386/mach-generic/irq_vectors.h
+--- a/arch/i386/mach-generic/irq_vectors.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,85 +0,0 @@
+-/*
+- * This file should contain #defines for all of the interrupt vector
+- * numbers used by this architecture.
+- *
+- * In addition, there are some standard defines:
+- *
+- *	FIRST_EXTERNAL_VECTOR:
+- *		The first free place for external interrupts
+- *
+- *	SYSCALL_VECTOR:
+- *		The IRQ vector a syscall makes the user to kernel transition
+- *		under.
+- *
+- *	TIMER_IRQ:
+- *		The IRQ number the timer interrupt comes in at.
+- *
+- *	NR_IRQS:
+- *		The total number of interrupt vectors (including all the
+- *		architecture specific interrupts) needed.
+- *
+- */			
+-#ifndef _ASM_IRQ_VECTORS_H
+-#define _ASM_IRQ_VECTORS_H
+-
+-/*
+- * IDT vectors usable for external interrupt sources start
+- * at 0x20:
+- */
+-#define FIRST_EXTERNAL_VECTOR	0x20
+-
+-#define SYSCALL_VECTOR		0x80
+-
+-/*
+- * Vectors 0x20-0x2f are used for ISA interrupts.
+- */
+-
+-/*
+- * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
+- *
+- *  some of the following vectors are 'rare', they are merged
+- *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
+- *  TLB, reschedule and local APIC vectors are performance-critical.
+- *
+- *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
+- */
+-#define SPURIOUS_APIC_VECTOR	0xff
+-#define ERROR_APIC_VECTOR	0xfe
+-#define INVALIDATE_TLB_VECTOR	0xfd
+-#define RESCHEDULE_VECTOR	0xfc
+-#define CALL_FUNCTION_VECTOR	0xfb
+-
+-#define THERMAL_APIC_VECTOR	0xf0
+-/*
+- * Local APIC timer IRQ vector is on a different priority level,
+- * to work around the 'lost local interrupt if more than 2 IRQ
+- * sources per level' errata.
+- */
+-#define LOCAL_TIMER_VECTOR	0xef
+-
+-/*
+- * First APIC vector available to drivers: (vectors 0x30-0xee)
+- * we start at 0x31 to spread out vectors evenly between priority
+- * levels. (0x80 is the syscall vector)
+- */
+-#define FIRST_DEVICE_VECTOR	0x31
+-#define FIRST_SYSTEM_VECTOR	0xef
+-
+-#define TIMER_IRQ 0
+-
+-/*
+- * 16 8259A IRQ's, 208 potential APIC interrupt sources.
+- * Right now the APIC is mostly only used for SMP.
+- * 256 vectors is an architectural limit. (we can have
+- * more than 256 devices theoretically, but they will
+- * have to use shared interrupts)
+- * Since vectors 0x00-0x1f are used/reserved for the CPU,
+- * the usable vector space is 0x20-0xff (224 vectors)
+- */
+-#ifdef CONFIG_X86_IO_APIC
+-#define NR_IRQS 224
+-#else
+-#define NR_IRQS 16
+-#endif
+-
+-#endif /* _ASM_IRQ_VECTORS_H */
+diff -Nru a/arch/i386/mach-generic/mach_apic.h b/arch/i386/mach-generic/mach_apic.h
+--- a/arch/i386/mach-generic/mach_apic.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,46 +0,0 @@
+-#ifndef __ASM_MACH_APIC_H
+-#define __ASM_MACH_APIC_H
+-
+-static inline unsigned long calculate_ldr(unsigned long old)
+-{
+-	unsigned long id;
+-
+-	id = 1UL << smp_processor_id();
+-	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
+-}
+-
+-#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
+-
+-#ifdef CONFIG_SMP
+- #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
+-#else
+- #define TARGET_CPUS 0x01
+-#endif
+-
+-#define APIC_BROADCAST_ID      0x0F
+-#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
+-
+-static inline void summit_check(char *oem, char *productid) 
+-{
+-}
+-
+-static inline void clustered_apic_check(void)
+-{
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
+-		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
+-}
+-
+-static inline int cpu_present_to_apicid(int mps_cpu)
+-{
+-	if (clustered_apic_mode)
+-		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
+-	else
+-		return mps_cpu;
+-}
+-
+-static inline unsigned long apicid_to_cpu_present(int apicid)
+-{
+-	return (1ul << apicid);
+-}
+-
+-#endif /* __ASM_MACH_APIC_H */
+diff -Nru a/arch/i386/mach-generic/setup.c b/arch/i386/mach-generic/setup.c
+--- a/arch/i386/mach-generic/setup.c	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,104 +0,0 @@
+-/*
+- *	Machine specific setup for generic
+- */
+-
+-#include <linux/config.h>
+-#include <linux/smp.h>
+-#include <linux/init.h>
+-#include <linux/irq.h>
+-#include <linux/interrupt.h>
+-#include <asm/arch_hooks.h>
+-
+-/**
+- * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
+- *
+- * Description:
+- *	Perform any necessary interrupt initialisation prior to setting up
+- *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
+- *	interrupts should be initialised here if the machine emulates a PC
+- *	in any way.
+- **/
+-void __init pre_intr_init_hook(void)
+-{
+-	init_ISA_irqs();
+-}
+-
+-/*
+- * IRQ2 is cascade interrupt to second interrupt controller
+- */
+-static struct irqaction irq2 = { no_action, 0, 0, "cascade", NULL, NULL};
+-
+-/**
+- * intr_init_hook - post gate setup interrupt initialisation
+- *
+- * Description:
+- *	Fill in any interrupts that may have been left out by the general
+- *	init_IRQ() routine.  interrupts having to do with the machine rather
+- *	than the devices on the I/O bus (like APIC interrupts in intel MP
+- *	systems) are started here.
+- **/
+-void __init intr_init_hook(void)
+-{
+-#ifdef CONFIG_X86_LOCAL_APIC
+-	apic_intr_init();
+-#endif
+-
+-	setup_irq(2, &irq2);
+-}
+-
+-/**
+- * pre_setup_arch_hook - hook called prior to any setup_arch() execution
+- *
+- * Description:
+- *	generally used to activate any machine specific identification
+- *	routines that may be needed before setup_arch() runs.  On VISWS
+- *	this is used to get the board revision and type.
+- **/
+-void __init pre_setup_arch_hook(void)
+-{
+-}
+-
+-/**
+- * trap_init_hook - initialise system specific traps
+- *
+- * Description:
+- *	Called as the final act of trap_init().  Used in VISWS to initialise
+- *	the various board specific APIC traps.
+- **/
+-void __init trap_init_hook(void)
+-{
+-}
+-
+-static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
+-
+-/**
+- * time_init_hook - do any specific initialisations for the system timer.
+- *
+- * Description:
+- *	Must plug the system timer interrupt source at HZ into the IRQ listed
+- *	in irq_vectors.h:TIMER_IRQ
+- **/
+-void __init time_init_hook(void)
+-{
+-	setup_irq(0, &irq0);
+-}
+-
+-#ifdef CONFIG_MCA
+-/**
+- * mca_nmi_hook - hook into MCA specific NMI chain
+- *
+- * Description:
+- *	The MCA (Microchannel Arcitecture) has an NMI chain for NMI sources
+- *	along the MCA bus.  Use this to hook into that chain if you will need
+- *	it.
+- **/
+-void __init mca_nmi_hook(void)
+-{
+-	/* If I recall correctly, there's a whole bunch of other things that
+-	 * we can do to check for NMI problems, but that's all I know about
+-	 * at the moment.
+-	 */
+-
+-	printk("NMI generated from unknown source!\n");
+-}
+-#endif
+diff -Nru a/arch/i386/mach-generic/setup_arch_post.h b/arch/i386/mach-generic/setup_arch_post.h
+--- a/arch/i386/mach-generic/setup_arch_post.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,40 +0,0 @@
+-/**
+- * machine_specific_memory_setup - Hook for machine specific memory setup.
+- *
+- * Description:
+- *	This is included late in kernel/setup.c so that it can make
+- *	use of all of the static functions.
+- **/
+-
+-static inline char * __init machine_specific_memory_setup(void)
+-{
+-	char *who;
+-
+-
+-	who = "BIOS-e820";
+-
+-	/*
+-	 * Try to copy the BIOS-supplied E820-map.
+-	 *
+-	 * Otherwise fake a memory map; one section from 0k->640k,
+-	 * the next section from 1mb->appropriate_mem_k
+-	 */
+-	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
+-	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
+-		unsigned long mem_size;
+-
+-		/* compare results from other methods and take the greater */
+-		if (ALT_MEM_K < EXT_MEM_K) {
+-			mem_size = EXT_MEM_K;
+-			who = "BIOS-88";
+-		} else {
+-			mem_size = ALT_MEM_K;
+-			who = "BIOS-e801";
+-		}
+-
+-		e820.nr_map = 0;
+-		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
+-  	}
+-	return who;
+-}
+diff -Nru a/arch/i386/mach-generic/setup_arch_pre.h b/arch/i386/mach-generic/setup_arch_pre.h
+--- a/arch/i386/mach-generic/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,5 +0,0 @@
+-/* Hook to call BIOS initialisation function */
+-
+-/* no action for generic */
+-
+-#define ARCH_SETUP
+diff -Nru a/arch/i386/mach-generic/smpboot_hooks.h b/arch/i386/mach-generic/smpboot_hooks.h
+--- a/arch/i386/mach-generic/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,33 +0,0 @@
+-/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
+- * which needs to alter them. */
+-
+-static inline void smpboot_clear_io_apic_irqs(void)
+-{
+-	io_apic_irqs = 0;
+-}
+-
+-static inline void smpboot_setup_warm_reset_vector(void)
+-{
+-	/*
+-	 * Install writable page 0 entry to set BIOS data area.
+-	 */
+-	local_flush_tlb();
+-
+-	/*
+-	 * Paranoid:  Set warm reset code and vector here back
+-	 * to default values.
+-	 */
+-	CMOS_WRITE(0, 0xf);
+-
+-	*((volatile long *) phys_to_virt(0x467)) = 0;
+-}
+-
+-static inline void smpboot_setup_io_apic(void)
+-{
+-	/*
+-	 * Here we can be sure that there is an IO-APIC in the system. Let's
+-	 * go and set it up:
+-	 */
+-	if (!skip_ioapic_setup && nr_ioapics)
+-		setup_IO_APIC();
+-}
+diff -Nru a/arch/i386/mach-generic/topology.c b/arch/i386/mach-generic/topology.c
+--- a/arch/i386/mach-generic/topology.c	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,68 +0,0 @@
+-/*
+- * arch/i386/mach-generic/topology.c - Populate driverfs with topology information
+- *
+- * Written by: Matthew Dobson, IBM Corporation
+- * Original Code: Paul Dorwin, IBM Corporation, Patrick Mochel, OSDL
+- *
+- * Copyright (C) 2002, IBM Corp.
+- *
+- * All rights reserved.          
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+- * NON INFRINGEMENT.  See the GNU General Public License for more
+- * details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- *
+- * Send feedback to <colpatch@us.ibm.com>
+- */
+-#include <linux/init.h>
+-#include <linux/smp.h>
+-#include <asm/cpu.h>
+-
+-struct i386_cpu cpu_devices[NR_CPUS];
+-
+-#ifdef CONFIG_NUMA
+-#include <linux/mmzone.h>
+-#include <asm/node.h>
+-#include <asm/memblk.h>
+-
+-struct i386_node node_devices[MAX_NUMNODES];
+-struct i386_memblk memblk_devices[MAX_NR_MEMBLKS];
+-
+-static int __init topology_init(void)
+-{
+-	int i;
+-
+-	for (i = 0; i < num_online_nodes(); i++)
+-		arch_register_node(i);
+-	for (i = 0; i < NR_CPUS; i++)
+-		if (cpu_possible(i)) arch_register_cpu(i);
+-	for (i = 0; i < num_online_memblks(); i++)
+-		arch_register_memblk(i);
+-	return 0;
+-}
+-
+-#else /* !CONFIG_NUMA */
+-
+-static int __init topology_init(void)
+-{
+-	int i;
+-
+-	for (i = 0; i < NR_CPUS; i++)
+-		if (cpu_possible(i)) arch_register_cpu(i);
+-	return 0;
+-}
+-
+-#endif /* CONFIG_NUMA */
+-
+-subsys_initcall(topology_init);
+diff -Nru a/arch/i386/mach-summit/mach_apic.h b/arch/i386/mach-summit/mach_apic.h
+--- a/arch/i386/mach-summit/mach_apic.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,57 +0,0 @@
+-#ifndef __ASM_MACH_APIC_H
+-#define __ASM_MACH_APIC_H
+-
+-extern int x86_summit;
+-
+-#define XAPIC_DEST_CPUS_MASK    0x0Fu
+-#define XAPIC_DEST_CLUSTER_MASK 0xF0u
+-
+-#define xapic_phys_to_log_apicid(phys_apic) ( (1ul << ((phys_apic) & 0x3)) |\
+-		((phys_apic) & XAPIC_DEST_CLUSTER_MASK) )
+-
+-static inline unsigned long calculate_ldr(unsigned long old)
+-{
+-	unsigned long id;
+-
+-	if (x86_summit)
+-		id = xapic_phys_to_log_apicid(hard_smp_processor_id());
+-	else
+-		id = 1UL << smp_processor_id();
+-	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
+-}
+-
+-#define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
+-#define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
+-
+-#define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
+-#define check_apicid_used(bitmap, apicid) (0)
+-
+-static inline void summit_check(char *oem, char *productid)
+-{
+-	if (!strncmp(oem, "IBM ENSW", 8) && !strncmp(str, "VIGIL SMP", 9))
+-		x86_summit = 1;
+-}
+-
+-static inline void clustered_apic_check(void)
+-{
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
+-		(x86_summit ? "Summit" : "Flat"), nr_ioapics);
+-}
+-
+-static inline int cpu_present_to_apicid(int mps_cpu)
+-{
+-	if (x86_summit)
+-		return (int) raw_phys_apicid[mps_cpu];
+-	else
+-		return mps_cpu;
+-}
+-
+-static inline unsigned long apicid_to_phys_cpu_present(int apicid)
+-{
+-	if (x86_summit)
+-		return (1ul << (((apicid >> 4) << 2) | (apicid & 0x3)));
+-	else
+-		return (1ul << apicid);
+-}
+-
+-#endif /* __ASM_MACH_APIC_H */
+diff -Nru a/arch/i386/mach-visws/do_timer.h b/arch/i386/mach-visws/do_timer.h
+--- a/arch/i386/mach-visws/do_timer.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,49 +0,0 @@
+-/* defines for inline arch setup functions */
+-
+-#include <asm/fixmap.h>
+-#include <asm/cobalt.h>
+-
+-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
+-{
+-	/* Clear the interrupt */
+-	co_cpu_write(CO_CPU_STAT,co_cpu_read(CO_CPU_STAT) & ~CO_STAT_TIMEINTR);
+-
+-	do_timer(regs);
+-/*
+- * In the SMP case we use the local APIC timer interrupt to do the
+- * profiling, except when we simulate SMP mode on a uniprocessor
+- * system, in that case we have to call the local interrupt handler.
+- */
+-#ifndef CONFIG_X86_LOCAL_APIC
+-	x86_do_profile(regs);
+-#else
+-	if (!using_apic_timer)
+-		smp_local_timer_interrupt(regs);
+-#endif
+-}
+-
+-static inline int do_timer_overflow(int count)
+-{
+-	int i;
+-
+-	spin_lock(&i8259A_lock);
+-	/*
+-	 * This is tricky when I/O APICs are used;
+-	 * see do_timer_interrupt().
+-	 */
+-	i = inb(0x20);
+-	spin_unlock(&i8259A_lock);
+-	
+-	/* assumption about timer being IRQ0 */
+-	if (i & 0x01) {
+-		/*
+-		 * We cannot detect lost timer interrupts ... 
+-		 * well, that's why we call them lost, don't we? :)
+-		 * [hmm, on the Pentium and Alpha we can ... sort of]
+-		 */
+-		count -= LATCH;
+-	} else {
+-		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
+-	}
+-	return count;
+-}
+diff -Nru a/arch/i386/mach-visws/entry_arch.h b/arch/i386/mach-visws/entry_arch.h
+--- a/arch/i386/mach-visws/entry_arch.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,23 +0,0 @@
+-/*
+- * The following vectors are part of the Linux architecture, there
+- * is no hardware IRQ pin equivalent for them, they are triggered
+- * through the ICC by us (IPIs)
+- */
+-#ifdef CONFIG_X86_SMP
+-BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
+-BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
+-BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
+-#endif
+-
+-/*
+- * every pentium local APIC has two 'local interrupts', with a
+- * soft-definable vector attached to both interrupts, one of
+- * which is a timer interrupt, the other one is error counter
+- * overflow. Linux uses the local APIC timer interrupt to get
+- * a much simpler SMP time architecture:
+- */
+-#ifdef CONFIG_X86_LOCAL_APIC
+-BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
+-BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
+-BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
+-#endif
+diff -Nru a/arch/i386/mach-visws/irq_vectors.h b/arch/i386/mach-visws/irq_vectors.h
+--- a/arch/i386/mach-visws/irq_vectors.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,64 +0,0 @@
+-#ifndef _ASM_IRQ_VECTORS_H
+-#define _ASM_IRQ_VECTORS_H
+-
+-/*
+- * IDT vectors usable for external interrupt sources start
+- * at 0x20:
+- */
+-#define FIRST_EXTERNAL_VECTOR	0x20
+-
+-#define SYSCALL_VECTOR		0x80
+-
+-/*
+- * Vectors 0x20-0x2f are used for ISA interrupts.
+- */
+-
+-/*
+- * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
+- *
+- *  some of the following vectors are 'rare', they are merged
+- *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
+- *  TLB, reschedule and local APIC vectors are performance-critical.
+- *
+- *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
+- */
+-#define SPURIOUS_APIC_VECTOR	0xff
+-#define ERROR_APIC_VECTOR	0xfe
+-#define INVALIDATE_TLB_VECTOR	0xfd
+-#define RESCHEDULE_VECTOR	0xfc
+-#define CALL_FUNCTION_VECTOR	0xfb
+-
+-#define THERMAL_APIC_VECTOR	0xf0
+-/*
+- * Local APIC timer IRQ vector is on a different priority level,
+- * to work around the 'lost local interrupt if more than 2 IRQ
+- * sources per level' errata.
+- */
+-#define LOCAL_TIMER_VECTOR	0xef
+-
+-/*
+- * First APIC vector available to drivers: (vectors 0x30-0xee)
+- * we start at 0x31 to spread out vectors evenly between priority
+- * levels. (0x80 is the syscall vector)
+- */
+-#define FIRST_DEVICE_VECTOR	0x31
+-#define FIRST_SYSTEM_VECTOR	0xef
+-
+-#define TIMER_IRQ 0
+-
+-/*
+- * 16 8259A IRQ's, 208 potential APIC interrupt sources.
+- * Right now the APIC is mostly only used for SMP.
+- * 256 vectors is an architectural limit. (we can have
+- * more than 256 devices theoretically, but they will
+- * have to use shared interrupts)
+- * Since vectors 0x00-0x1f are used/reserved for the CPU,
+- * the usable vector space is 0x20-0xff (224 vectors)
+- */
+-#ifdef CONFIG_X86_IO_APIC
+-#define NR_IRQS 224
+-#else
+-#define NR_IRQS 16
+-#endif
+-
+-#endif /* _ASM_IRQ_VECTORS_H */
+diff -Nru a/arch/i386/mach-visws/setup_arch_post.h b/arch/i386/mach-visws/setup_arch_post.h
+--- a/arch/i386/mach-visws/setup_arch_post.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,37 +0,0 @@
+-/* Hook for machine specific memory setup.
+- *
+- * This is included late in kernel/setup.c so that it can make use of all of
+- * the static functions. */
+-
+-static inline char * __init machine_specific_memory_setup(void)
+-{
+-	char *who;
+-
+-
+-	who = "BIOS-e820";
+-
+-	/*
+-	 * Try to copy the BIOS-supplied E820-map.
+-	 *
+-	 * Otherwise fake a memory map; one section from 0k->640k,
+-	 * the next section from 1mb->appropriate_mem_k
+-	 */
+-	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
+-	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
+-		unsigned long mem_size;
+-
+-		/* compare results from other methods and take the greater */
+-		if (ALT_MEM_K < EXT_MEM_K) {
+-			mem_size = EXT_MEM_K;
+-			who = "BIOS-88";
+-		} else {
+-			mem_size = ALT_MEM_K;
+-			who = "BIOS-e801";
+-		}
+-
+-		e820.nr_map = 0;
+-		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
+-  	}
+-	return who;
+-}
+diff -Nru a/arch/i386/mach-visws/setup_arch_pre.h b/arch/i386/mach-visws/setup_arch_pre.h
+--- a/arch/i386/mach-visws/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,5 +0,0 @@
+-/* Hook to call BIOS initialisation function */
+-
+-/* no action for visws */
+-
+-#define ARCH_SETUP
+diff -Nru a/arch/i386/mach-visws/smpboot_hooks.h b/arch/i386/mach-visws/smpboot_hooks.h
+--- a/arch/i386/mach-visws/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,13 +0,0 @@
+-/* for visws do nothing for any of these */
+-
+-static inline void smpboot_clear_io_apic_irqs(void)
+-{
+-}
+-
+-static inline void smpboot_setup_warm_reset_vector(void)
+-{
+-}
+-
+-static inline void smpboot_setup_io_apic(void)
+-{
+-}
+diff -Nru a/arch/i386/mach-voyager/do_timer.h b/arch/i386/mach-voyager/do_timer.h
+--- a/arch/i386/mach-voyager/do_timer.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,22 +0,0 @@
+-/* defines for inline arch setup functions */
+-#include <asm/voyager.h>
+-
+-static inline void do_timer_interrupt_hook(struct pt_regs *regs)
+-{
+-	do_timer(regs);
+-
+-	voyager_timer_interrupt(regs);
+-}
+-
+-static inline int do_timer_overflow(int count)
+-{
+-	/* can't read the ISR, just assume 1 tick
+-	   overflow */
+-	if(count > LATCH || count < 0) {
+-		printk(KERN_ERR "VOYAGER PROBLEM: count is %d, latch is %d\n", count, LATCH);
+-		count = LATCH;
+-	}
+-	count -= LATCH;
+-
+-	return count;
+-}
+diff -Nru a/arch/i386/mach-voyager/entry_arch.h b/arch/i386/mach-voyager/entry_arch.h
+--- a/arch/i386/mach-voyager/entry_arch.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,26 +0,0 @@
+-/* -*- mode: c; c-basic-offset: 8 -*- */
+-
+-/* Copyright (C) 2002
+- *
+- * Author: James.Bottomley@HansenPartnership.com
+- *
+- * linux/arch/i386/voyager/entry_arch.h
+- *
+- * This file builds the VIC and QIC CPI gates
+- */
+-
+-/* initialise the voyager interrupt gates 
+- *
+- * This uses the macros in irq.h to set up assembly jump gates.  The
+- * calls are then redirected to the same routine with smp_ prefixed */
+-BUILD_INTERRUPT(vic_sys_interrupt, VIC_SYS_INT)
+-BUILD_INTERRUPT(vic_cmn_interrupt, VIC_CMN_INT)
+-BUILD_INTERRUPT(vic_cpi_interrupt, VIC_CPI_LEVEL0);
+-
+-/* do all the QIC interrupts */
+-BUILD_INTERRUPT(qic_timer_interrupt, QIC_TIMER_CPI);
+-BUILD_INTERRUPT(qic_invalidate_interrupt, QIC_INVALIDATE_CPI);
+-BUILD_INTERRUPT(qic_reschedule_interrupt, QIC_RESCHEDULE_CPI);
+-BUILD_INTERRUPT(qic_enable_irq_interrupt, QIC_ENABLE_IRQ_CPI);
+-BUILD_INTERRUPT(qic_call_function_interrupt, QIC_CALL_FUNCTION_CPI);
+-
+diff -Nru a/arch/i386/mach-voyager/irq_vectors.h b/arch/i386/mach-voyager/irq_vectors.h
+--- a/arch/i386/mach-voyager/irq_vectors.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,71 +0,0 @@
+-/* -*- mode: c; c-basic-offset: 8 -*- */
+-
+-/* Copyright (C) 2002
+- *
+- * Author: James.Bottomley@HansenPartnership.com
+- *
+- * linux/arch/i386/voyager/irq_vectors.h
+- *
+- * This file provides definitions for the VIC and QIC CPIs
+- */
+-
+-#ifndef _ASM_IRQ_VECTORS_H
+-#define _ASM_IRQ_VECTORS_H
+-
+-/*
+- * IDT vectors usable for external interrupt sources start
+- * at 0x20:
+- */
+-#define FIRST_EXTERNAL_VECTOR	0x20
+-
+-#define SYSCALL_VECTOR		0x80
+-
+-/*
+- * Vectors 0x20-0x2f are used for ISA interrupts.
+- */
+-
+-/* These define the CPIs we use in linux */
+-#define VIC_CPI_LEVEL0			0
+-#define VIC_CPI_LEVEL1			1
+-/* now the fake CPIs */
+-#define VIC_TIMER_CPI			2
+-#define VIC_INVALIDATE_CPI		3
+-#define VIC_RESCHEDULE_CPI		4
+-#define VIC_ENABLE_IRQ_CPI		5
+-#define VIC_CALL_FUNCTION_CPI		6
+-
+-/* Now the QIC CPIs:  Since we don't need the two initial levels,
+- * these are 2 less than the VIC CPIs */
+-#define QIC_CPI_OFFSET			1
+-#define QIC_TIMER_CPI			(VIC_TIMER_CPI - QIC_CPI_OFFSET)
+-#define QIC_INVALIDATE_CPI		(VIC_INVALIDATE_CPI - QIC_CPI_OFFSET)
+-#define QIC_RESCHEDULE_CPI		(VIC_RESCHEDULE_CPI - QIC_CPI_OFFSET)
+-#define QIC_ENABLE_IRQ_CPI		(VIC_ENABLE_IRQ_CPI - QIC_CPI_OFFSET)
+-#define QIC_CALL_FUNCTION_CPI		(VIC_CALL_FUNCTION_CPI - QIC_CPI_OFFSET)
+-
+-#define VIC_START_FAKE_CPI		VIC_TIMER_CPI
+-#define VIC_END_FAKE_CPI		VIC_CALL_FUNCTION_CPI
+-
+-/* this is the SYS_INT CPI. */
+-#define VIC_SYS_INT			8
+-#define VIC_CMN_INT			15
+-
+-/* This is the boot CPI for alternate processors.  It gets overwritten
+- * by the above once the system has activated all available processors */
+-#define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
+-#define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
+-
+-#define NR_IRQS 224
+-
+-#ifndef __ASSEMBLY__
+-extern asmlinkage void vic_cpi_interrupt(void);
+-extern asmlinkage void vic_sys_interrupt(void);
+-extern asmlinkage void vic_cmn_interrupt(void);
+-extern asmlinkage void qic_timer_interrupt(void);
+-extern asmlinkage void qic_invalidate_interrupt(void);
+-extern asmlinkage void qic_reschedule_interrupt(void);
+-extern asmlinkage void qic_enable_irq_interrupt(void);
+-extern asmlinkage void qic_call_function_interrupt(void);
+-#endif /* !__ASSEMBLY__ */
+-
+-#endif /* _ASM_IRQ_VECTORS_H */
+diff -Nru a/arch/i386/mach-voyager/setup_arch_post.h b/arch/i386/mach-voyager/setup_arch_post.h
+--- a/arch/i386/mach-voyager/setup_arch_post.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,73 +0,0 @@
+-/* Hook for machine specific memory setup.
+- *
+- * This is included late in kernel/setup.c so that it can make use of all of
+- * the static functions. */
+-
+-static inline char * __init machine_specific_memory_setup(void)
+-{
+-	char *who;
+-
+-	who = "NOT VOYAGER";
+-
+-	if(voyager_level == 5) {
+-		__u32 addr, length;
+-		int i;
+-
+-		who = "Voyager-SUS";
+-
+-		e820.nr_map = 0;
+-		for(i=0; voyager_memory_detect(i, &addr, &length); i++) {
+-			add_memory_region(addr, length, E820_RAM);
+-		}
+-		return who;
+-	} else if(voyager_level == 4) {
+-		__u32 tom;
+-		__u16 catbase = inb(VOYAGER_SSPB_RELOCATION_PORT)<<8;
+-		/* select the DINO config space */
+-		outb(VOYAGER_DINO, VOYAGER_CAT_CONFIG_PORT);
+-		/* Read DINO top of memory register */
+-		tom = ((inb(catbase + 0x4) & 0xf0) << 16)
+-			+ ((inb(catbase + 0x5) & 0x7f) << 24);
+-
+-		if(inb(catbase) != VOYAGER_DINO) {
+-			printk(KERN_ERR "Voyager: Failed to get DINO for L4, setting tom to EXT_MEM_K\n");
+-			tom = (EXT_MEM_K)<<10;
+-		}
+-		who = "Voyager-TOM";
+-		add_memory_region(0, 0x9f000, E820_RAM);
+-		/* map from 1M to top of memory */
+-		add_memory_region(1*1024*1024, tom - 1*1024*1024, E820_RAM);
+-		/* FIXME: Should check the ASICs to see if I need to
+-		 * take out the 8M window.  Just do it at the moment
+-		 * */
+-		add_memory_region(8*1024*1024, 8*1024*1024, E820_RESERVED);
+-		return who;
+-	}
+-
+-	who = "BIOS-e820";
+-
+-	/*
+-	 * Try to copy the BIOS-supplied E820-map.
+-	 *
+-	 * Otherwise fake a memory map; one section from 0k->640k,
+-	 * the next section from 1mb->appropriate_mem_k
+-	 */
+-	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
+-	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
+-		unsigned long mem_size;
+-
+-		/* compare results from other methods and take the greater */
+-		if (ALT_MEM_K < EXT_MEM_K) {
+-			mem_size = EXT_MEM_K;
+-			who = "BIOS-88";
+-		} else {
+-			mem_size = ALT_MEM_K;
+-			who = "BIOS-e801";
+-		}
+-
+-		e820.nr_map = 0;
+-		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
+-		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
+-  	}
+-	return who;
+-}
+diff -Nru a/arch/i386/mach-voyager/setup_arch_pre.h b/arch/i386/mach-voyager/setup_arch_pre.h
+--- a/arch/i386/mach-voyager/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,10 +0,0 @@
+-#include <asm/voyager.h>
+-#define VOYAGER_BIOS_INFO ((struct voyager_bios_info *)(PARAM+0x40))
+-
+-/* Hook to call BIOS initialisation function */
+-
+-/* for voyager, pass the voyager BIOS/SUS info area to the detection 
+- * routines */
+-
+-#define ARCH_SETUP	voyager_detect(VOYAGER_BIOS_INFO);
+-
+diff -Nru a/include/asm-i386/mach-default/do_timer.h b/include/asm-i386/mach-default/do_timer.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/do_timer.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,82 @@
++/* defines for inline arch setup functions */
++
++#include <asm/apic.h>
++
++/**
++ * do_timer_interrupt_hook - hook into timer tick
++ * @regs:	standard registers from interrupt
++ *
++ * Description:
++ *	This hook is called immediately after the timer interrupt is ack'd.
++ *	It's primary purpose is to allow architectures that don't possess
++ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
++ *	timer interrupt as a means of triggering reschedules etc.
++ **/
++
++static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++{
++	do_timer(regs);
++/*
++ * In the SMP case we use the local APIC timer interrupt to do the
++ * profiling, except when we simulate SMP mode on a uniprocessor
++ * system, in that case we have to call the local interrupt handler.
++ */
++#ifndef CONFIG_X86_LOCAL_APIC
++	x86_do_profile(regs);
++#else
++	if (!using_apic_timer)
++		smp_local_timer_interrupt(regs);
++#endif
++}
++
++
++/* you can safely undefine this if you don't have the Neptune chipset */
++
++#define BUGGY_NEPTUN_TIMER
++
++/**
++ * do_timer_overflow - process a detected timer overflow condition
++ * @count:	hardware timer interrupt count on overflow
++ *
++ * Description:
++ *	This call is invoked when the jiffies count has not incremented but
++ *	the hardware timer interrupt has.  It means that a timer tick interrupt
++ *	came along while the previous one was pending, thus a tick was missed
++ **/
++static inline int do_timer_overflow(int count)
++{
++	int i;
++
++	spin_lock(&i8259A_lock);
++	/*
++	 * This is tricky when I/O APICs are used;
++	 * see do_timer_interrupt().
++	 */
++	i = inb(0x20);
++	spin_unlock(&i8259A_lock);
++	
++	/* assumption about timer being IRQ0 */
++	if (i & 0x01) {
++		/*
++		 * We cannot detect lost timer interrupts ... 
++		 * well, that's why we call them lost, don't we? :)
++		 * [hmm, on the Pentium and Alpha we can ... sort of]
++		 */
++		count -= LATCH;
++	} else {
++#ifdef BUGGY_NEPTUN_TIMER
++		/*
++		 * for the Neptun bug we know that the 'latch'
++		 * command doesnt latch the high and low value
++		 * of the counter atomically. Thus we have to 
++		 * substract 256 from the counter 
++		 * ... funny, isnt it? :)
++		 */
++		
++		count -= 256;
++#else
++		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
++#endif
++	}
++	return count;
++}
+diff -Nru a/include/asm-i386/mach-default/entry_arch.h b/include/asm-i386/mach-default/entry_arch.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/entry_arch.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,34 @@
++/*
++ * This file is designed to contain the BUILD_INTERRUPT specifications for
++ * all of the extra named interrupt vectors used by the architecture.
++ * Usually this is the Inter Process Interrupts (IPIs)
++ */
++
++/*
++ * The following vectors are part of the Linux architecture, there
++ * is no hardware IRQ pin equivalent for them, they are triggered
++ * through the ICC by us (IPIs)
++ */
++#ifdef CONFIG_X86_SMP
++BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
++BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
++BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
++#endif
++
++/*
++ * every pentium local APIC has two 'local interrupts', with a
++ * soft-definable vector attached to both interrupts, one of
++ * which is a timer interrupt, the other one is error counter
++ * overflow. Linux uses the local APIC timer interrupt to get
++ * a much simpler SMP time architecture:
++ */
++#ifdef CONFIG_X86_LOCAL_APIC
++BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
++BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
++BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
++
++#ifdef CONFIG_X86_MCE_P4THERMAL
++BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
++#endif
++
++#endif
+diff -Nru a/include/asm-i386/mach-default/irq_vectors.h b/include/asm-i386/mach-default/irq_vectors.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/irq_vectors.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,85 @@
++/*
++ * This file should contain #defines for all of the interrupt vector
++ * numbers used by this architecture.
++ *
++ * In addition, there are some standard defines:
++ *
++ *	FIRST_EXTERNAL_VECTOR:
++ *		The first free place for external interrupts
++ *
++ *	SYSCALL_VECTOR:
++ *		The IRQ vector a syscall makes the user to kernel transition
++ *		under.
++ *
++ *	TIMER_IRQ:
++ *		The IRQ number the timer interrupt comes in at.
++ *
++ *	NR_IRQS:
++ *		The total number of interrupt vectors (including all the
++ *		architecture specific interrupts) needed.
++ *
++ */			
++#ifndef _ASM_IRQ_VECTORS_H
++#define _ASM_IRQ_VECTORS_H
++
++/*
++ * IDT vectors usable for external interrupt sources start
++ * at 0x20:
++ */
++#define FIRST_EXTERNAL_VECTOR	0x20
++
++#define SYSCALL_VECTOR		0x80
++
++/*
++ * Vectors 0x20-0x2f are used for ISA interrupts.
++ */
++
++/*
++ * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
++ *
++ *  some of the following vectors are 'rare', they are merged
++ *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
++ *  TLB, reschedule and local APIC vectors are performance-critical.
++ *
++ *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
++ */
++#define SPURIOUS_APIC_VECTOR	0xff
++#define ERROR_APIC_VECTOR	0xfe
++#define INVALIDATE_TLB_VECTOR	0xfd
++#define RESCHEDULE_VECTOR	0xfc
++#define CALL_FUNCTION_VECTOR	0xfb
++
++#define THERMAL_APIC_VECTOR	0xf0
++/*
++ * Local APIC timer IRQ vector is on a different priority level,
++ * to work around the 'lost local interrupt if more than 2 IRQ
++ * sources per level' errata.
++ */
++#define LOCAL_TIMER_VECTOR	0xef
++
++/*
++ * First APIC vector available to drivers: (vectors 0x30-0xee)
++ * we start at 0x31 to spread out vectors evenly between priority
++ * levels. (0x80 is the syscall vector)
++ */
++#define FIRST_DEVICE_VECTOR	0x31
++#define FIRST_SYSTEM_VECTOR	0xef
++
++#define TIMER_IRQ 0
++
++/*
++ * 16 8259A IRQ's, 208 potential APIC interrupt sources.
++ * Right now the APIC is mostly only used for SMP.
++ * 256 vectors is an architectural limit. (we can have
++ * more than 256 devices theoretically, but they will
++ * have to use shared interrupts)
++ * Since vectors 0x00-0x1f are used/reserved for the CPU,
++ * the usable vector space is 0x20-0xff (224 vectors)
++ */
++#ifdef CONFIG_X86_IO_APIC
++#define NR_IRQS 224
++#else
++#define NR_IRQS 16
++#endif
++
++#endif /* _ASM_IRQ_VECTORS_H */
+diff -Nru a/include/asm-i386/mach-default/mach_apic.h b/include/asm-i386/mach-default/mach_apic.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/mach_apic.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,46 @@
++#ifndef __ASM_MACH_APIC_H
++#define __ASM_MACH_APIC_H
++
++static inline unsigned long calculate_ldr(unsigned long old)
++{
++	unsigned long id;
++
++	id = 1UL << smp_processor_id();
++	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
++}
++
++#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
++
++#ifdef CONFIG_SMP
++ #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
++#else
++ #define TARGET_CPUS 0x01
++#endif
++
++#define APIC_BROADCAST_ID      0x0F
++#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
++
++static inline void summit_check(char *oem, char *productid) 
++{
++}
++
++static inline void clustered_apic_check(void)
++{
++	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
++		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
++}
++
++static inline int cpu_present_to_apicid(int mps_cpu)
++{
++	if (clustered_apic_mode)
++		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
++	else
++		return mps_cpu;
++}
++
++static inline unsigned long apicid_to_cpu_present(int apicid)
++{
++	return (1ul << apicid);
++}
++
++#endif /* __ASM_MACH_APIC_H */
+diff -Nru a/include/asm-i386/mach-default/setup_arch_post.h b/include/asm-i386/mach-default/setup_arch_post.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/setup_arch_post.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,40 @@
++/**
++ * machine_specific_memory_setup - Hook for machine specific memory setup.
++ *
++ * Description:
++ *	This is included late in kernel/setup.c so that it can make
++ *	use of all of the static functions.
++ **/
++
++static inline char * __init machine_specific_memory_setup(void)
++{
++	char *who;
++
++
++	who = "BIOS-e820";
++
++	/*
++	 * Try to copy the BIOS-supplied E820-map.
++	 *
++	 * Otherwise fake a memory map; one section from 0k->640k,
++	 * the next section from 1mb->appropriate_mem_k
++	 */
++	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
++	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
++		unsigned long mem_size;
++
++		/* compare results from other methods and take the greater */
++		if (ALT_MEM_K < EXT_MEM_K) {
++			mem_size = EXT_MEM_K;
++			who = "BIOS-88";
++		} else {
++			mem_size = ALT_MEM_K;
++			who = "BIOS-e801";
++		}
++
++		e820.nr_map = 0;
++		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
++		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
++  	}
++	return who;
++}
+diff -Nru a/include/asm-i386/mach-default/setup_arch_pre.h b/include/asm-i386/mach-default/setup_arch_pre.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,5 @@
++/* Hook to call BIOS initialisation function */
++
++/* no action for generic */
++
++#define ARCH_SETUP
+diff -Nru a/include/asm-i386/mach-default/smpboot_hooks.h b/include/asm-i386/mach-default/smpboot_hooks.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-default/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,33 @@
++/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
++ * which needs to alter them. */
++
++static inline void smpboot_clear_io_apic_irqs(void)
++{
++	io_apic_irqs = 0;
++}
++
++static inline void smpboot_setup_warm_reset_vector(void)
++{
++	/*
++	 * Install writable page 0 entry to set BIOS data area.
++	 */
++	local_flush_tlb();
++
++	/*
++	 * Paranoid:  Set warm reset code and vector here back
++	 * to default values.
++	 */
++	CMOS_WRITE(0, 0xf);
++
++	*((volatile long *) phys_to_virt(0x467)) = 0;
++}
++
++static inline void smpboot_setup_io_apic(void)
++{
++	/*
++	 * Here we can be sure that there is an IO-APIC in the system. Let's
++	 * go and set it up:
++	 */
++	if (!skip_ioapic_setup && nr_ioapics)
++		setup_IO_APIC();
++}
+diff -Nru a/include/asm-i386/mach-summit/mach_apic.h b/include/asm-i386/mach-summit/mach_apic.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-summit/mach_apic.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,57 @@
++#ifndef __ASM_MACH_APIC_H
++#define __ASM_MACH_APIC_H
++
++extern int x86_summit;
++
++#define XAPIC_DEST_CPUS_MASK    0x0Fu
++#define XAPIC_DEST_CLUSTER_MASK 0xF0u
++
++#define xapic_phys_to_log_apicid(phys_apic) ( (1ul << ((phys_apic) & 0x3)) |\
++		((phys_apic) & XAPIC_DEST_CLUSTER_MASK) )
++
++static inline unsigned long calculate_ldr(unsigned long old)
++{
++	unsigned long id;
++
++	if (x86_summit)
++		id = xapic_phys_to_log_apicid(hard_smp_processor_id());
++	else
++		id = 1UL << smp_processor_id();
++	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
++}
++
++#define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
++#define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
++
++#define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
++#define check_apicid_used(bitmap, apicid) (0)
++
++static inline void summit_check(char *oem, char *productid)
++{
++	if (!strncmp(oem, "IBM ENSW", 8) && !strncmp(str, "VIGIL SMP", 9))
++		x86_summit = 1;
++}
++
++static inline void clustered_apic_check(void)
++{
++	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
++		(x86_summit ? "Summit" : "Flat"), nr_ioapics);
++}
++
++static inline int cpu_present_to_apicid(int mps_cpu)
++{
++	if (x86_summit)
++		return (int) raw_phys_apicid[mps_cpu];
++	else
++		return mps_cpu;
++}
++
++static inline unsigned long apicid_to_phys_cpu_present(int apicid)
++{
++	if (x86_summit)
++		return (1ul << (((apicid >> 4) << 2) | (apicid & 0x3)));
++	else
++		return (1ul << apicid);
++}
++
++#endif /* __ASM_MACH_APIC_H */
+diff -Nru a/include/asm-i386/mach-visws/do_timer.h b/include/asm-i386/mach-visws/do_timer.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-visws/do_timer.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,49 @@
++/* defines for inline arch setup functions */
++
++#include <asm/fixmap.h>
++#include <asm/cobalt.h>
++
++static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++{
++	/* Clear the interrupt */
++	co_cpu_write(CO_CPU_STAT,co_cpu_read(CO_CPU_STAT) & ~CO_STAT_TIMEINTR);
++
++	do_timer(regs);
++/*
++ * In the SMP case we use the local APIC timer interrupt to do the
++ * profiling, except when we simulate SMP mode on a uniprocessor
++ * system, in that case we have to call the local interrupt handler.
++ */
++#ifndef CONFIG_X86_LOCAL_APIC
++	x86_do_profile(regs);
++#else
++	if (!using_apic_timer)
++		smp_local_timer_interrupt(regs);
++#endif
++}
++
++static inline int do_timer_overflow(int count)
++{
++	int i;
++
++	spin_lock(&i8259A_lock);
++	/*
++	 * This is tricky when I/O APICs are used;
++	 * see do_timer_interrupt().
++	 */
++	i = inb(0x20);
++	spin_unlock(&i8259A_lock);
++	
++	/* assumption about timer being IRQ0 */
++	if (i & 0x01) {
++		/*
++		 * We cannot detect lost timer interrupts ... 
++		 * well, that's why we call them lost, don't we? :)
++		 * [hmm, on the Pentium and Alpha we can ... sort of]
++		 */
++		count -= LATCH;
++	} else {
++		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
++	}
++	return count;
++}
+diff -Nru a/include/asm-i386/mach-visws/entry_arch.h b/include/asm-i386/mach-visws/entry_arch.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-visws/entry_arch.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,23 @@
++/*
++ * The following vectors are part of the Linux architecture, there
++ * is no hardware IRQ pin equivalent for them, they are triggered
++ * through the ICC by us (IPIs)
++ */
++#ifdef CONFIG_X86_SMP
++BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
++BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
++BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
++#endif
++
++/*
++ * every pentium local APIC has two 'local interrupts', with a
++ * soft-definable vector attached to both interrupts, one of
++ * which is a timer interrupt, the other one is error counter
++ * overflow. Linux uses the local APIC timer interrupt to get
++ * a much simpler SMP time architecture:
++ */
++#ifdef CONFIG_X86_LOCAL_APIC
++BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
++BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
++BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
++#endif
+diff -Nru a/include/asm-i386/mach-visws/irq_vectors.h b/include/asm-i386/mach-visws/irq_vectors.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-visws/irq_vectors.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,64 @@
++#ifndef _ASM_IRQ_VECTORS_H
++#define _ASM_IRQ_VECTORS_H
++
++/*
++ * IDT vectors usable for external interrupt sources start
++ * at 0x20:
++ */
++#define FIRST_EXTERNAL_VECTOR	0x20
++
++#define SYSCALL_VECTOR		0x80
++
++/*
++ * Vectors 0x20-0x2f are used for ISA interrupts.
++ */
++
++/*
++ * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
++ *
++ *  some of the following vectors are 'rare', they are merged
++ *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
++ *  TLB, reschedule and local APIC vectors are performance-critical.
++ *
++ *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
++ */
++#define SPURIOUS_APIC_VECTOR	0xff
++#define ERROR_APIC_VECTOR	0xfe
++#define INVALIDATE_TLB_VECTOR	0xfd
++#define RESCHEDULE_VECTOR	0xfc
++#define CALL_FUNCTION_VECTOR	0xfb
++
++#define THERMAL_APIC_VECTOR	0xf0
++/*
++ * Local APIC timer IRQ vector is on a different priority level,
++ * to work around the 'lost local interrupt if more than 2 IRQ
++ * sources per level' errata.
++ */
++#define LOCAL_TIMER_VECTOR	0xef
++
++/*
++ * First APIC vector available to drivers: (vectors 0x30-0xee)
++ * we start at 0x31 to spread out vectors evenly between priority
++ * levels. (0x80 is the syscall vector)
++ */
++#define FIRST_DEVICE_VECTOR	0x31
++#define FIRST_SYSTEM_VECTOR	0xef
++
++#define TIMER_IRQ 0
++
++/*
++ * 16 8259A IRQ's, 208 potential APIC interrupt sources.
++ * Right now the APIC is mostly only used for SMP.
++ * 256 vectors is an architectural limit. (we can have
++ * more than 256 devices theoretically, but they will
++ * have to use shared interrupts)
++ * Since vectors 0x00-0x1f are used/reserved for the CPU,
++ * the usable vector space is 0x20-0xff (224 vectors)
++ */
++#ifdef CONFIG_X86_IO_APIC
++#define NR_IRQS 224
++#else
++#define NR_IRQS 16
++#endif
++
++#endif /* _ASM_IRQ_VECTORS_H */
+diff -Nru a/include/asm-i386/mach-visws/setup_arch_post.h b/include/asm-i386/mach-visws/setup_arch_post.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-visws/setup_arch_post.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,37 @@
++/* Hook for machine specific memory setup.
++ *
++ * This is included late in kernel/setup.c so that it can make use of all of
++ * the static functions. */
++
++static inline char * __init machine_specific_memory_setup(void)
++{
++	char *who;
++
++
++	who = "BIOS-e820";
++
++	/*
++	 * Try to copy the BIOS-supplied E820-map.
++	 *
++	 * Otherwise fake a memory map; one section from 0k->640k,
++	 * the next section from 1mb->appropriate_mem_k
++	 */
++	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
++	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
++		unsigned long mem_size;
++
++		/* compare results from other methods and take the greater */
++		if (ALT_MEM_K < EXT_MEM_K) {
++			mem_size = EXT_MEM_K;
++			who = "BIOS-88";
++		} else {
++			mem_size = ALT_MEM_K;
++			who = "BIOS-e801";
++		}
++
++		e820.nr_map = 0;
++		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
++		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
++  	}
++	return who;
++}
+diff -Nru a/include/asm-i386/mach-visws/setup_arch_pre.h b/include/asm-i386/mach-visws/setup_arch_pre.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-visws/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,5 @@
++/* Hook to call BIOS initialisation function */
++
++/* no action for visws */
++
++#define ARCH_SETUP
+diff -Nru a/include/asm-i386/mach-visws/smpboot_hooks.h b/include/asm-i386/mach-visws/smpboot_hooks.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-visws/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,13 @@
++/* for visws do nothing for any of these */
++
++static inline void smpboot_clear_io_apic_irqs(void)
++{
++}
++
++static inline void smpboot_setup_warm_reset_vector(void)
++{
++}
++
++static inline void smpboot_setup_io_apic(void)
++{
++}
+diff -Nru a/include/asm-i386/mach-voyager/do_timer.h b/include/asm-i386/mach-voyager/do_timer.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-voyager/do_timer.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,22 @@
++/* defines for inline arch setup functions */
++#include <asm/voyager.h>
++
++static inline void do_timer_interrupt_hook(struct pt_regs *regs)
++{
++	do_timer(regs);
++
++	voyager_timer_interrupt(regs);
++}
++
++static inline int do_timer_overflow(int count)
++{
++	/* can't read the ISR, just assume 1 tick
++	   overflow */
++	if(count > LATCH || count < 0) {
++		printk(KERN_ERR "VOYAGER PROBLEM: count is %d, latch is %d\n", count, LATCH);
++		count = LATCH;
++	}
++	count -= LATCH;
++
++	return count;
++}
+diff -Nru a/include/asm-i386/mach-voyager/entry_arch.h b/include/asm-i386/mach-voyager/entry_arch.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-voyager/entry_arch.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,26 @@
++/* -*- mode: c; c-basic-offset: 8 -*- */
++
++/* Copyright (C) 2002
++ *
++ * Author: James.Bottomley@HansenPartnership.com
++ *
++ * linux/arch/i386/voyager/entry_arch.h
++ *
++ * This file builds the VIC and QIC CPI gates
++ */
++
++/* initialise the voyager interrupt gates 
++ *
++ * This uses the macros in irq.h to set up assembly jump gates.  The
++ * calls are then redirected to the same routine with smp_ prefixed */
++BUILD_INTERRUPT(vic_sys_interrupt, VIC_SYS_INT)
++BUILD_INTERRUPT(vic_cmn_interrupt, VIC_CMN_INT)
++BUILD_INTERRUPT(vic_cpi_interrupt, VIC_CPI_LEVEL0);
++
++/* do all the QIC interrupts */
++BUILD_INTERRUPT(qic_timer_interrupt, QIC_TIMER_CPI);
++BUILD_INTERRUPT(qic_invalidate_interrupt, QIC_INVALIDATE_CPI);
++BUILD_INTERRUPT(qic_reschedule_interrupt, QIC_RESCHEDULE_CPI);
++BUILD_INTERRUPT(qic_enable_irq_interrupt, QIC_ENABLE_IRQ_CPI);
++BUILD_INTERRUPT(qic_call_function_interrupt, QIC_CALL_FUNCTION_CPI);
++
+diff -Nru a/include/asm-i386/mach-voyager/irq_vectors.h b/include/asm-i386/mach-voyager/irq_vectors.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-voyager/irq_vectors.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,71 @@
++/* -*- mode: c; c-basic-offset: 8 -*- */
++
++/* Copyright (C) 2002
++ *
++ * Author: James.Bottomley@HansenPartnership.com
++ *
++ * linux/arch/i386/voyager/irq_vectors.h
++ *
++ * This file provides definitions for the VIC and QIC CPIs
++ */
++
++#ifndef _ASM_IRQ_VECTORS_H
++#define _ASM_IRQ_VECTORS_H
++
++/*
++ * IDT vectors usable for external interrupt sources start
++ * at 0x20:
++ */
++#define FIRST_EXTERNAL_VECTOR	0x20
++
++#define SYSCALL_VECTOR		0x80
++
++/*
++ * Vectors 0x20-0x2f are used for ISA interrupts.
++ */
++
++/* These define the CPIs we use in linux */
++#define VIC_CPI_LEVEL0			0
++#define VIC_CPI_LEVEL1			1
++/* now the fake CPIs */
++#define VIC_TIMER_CPI			2
++#define VIC_INVALIDATE_CPI		3
++#define VIC_RESCHEDULE_CPI		4
++#define VIC_ENABLE_IRQ_CPI		5
++#define VIC_CALL_FUNCTION_CPI		6
++
++/* Now the QIC CPIs:  Since we don't need the two initial levels,
++ * these are 2 less than the VIC CPIs */
++#define QIC_CPI_OFFSET			1
++#define QIC_TIMER_CPI			(VIC_TIMER_CPI - QIC_CPI_OFFSET)
++#define QIC_INVALIDATE_CPI		(VIC_INVALIDATE_CPI - QIC_CPI_OFFSET)
++#define QIC_RESCHEDULE_CPI		(VIC_RESCHEDULE_CPI - QIC_CPI_OFFSET)
++#define QIC_ENABLE_IRQ_CPI		(VIC_ENABLE_IRQ_CPI - QIC_CPI_OFFSET)
++#define QIC_CALL_FUNCTION_CPI		(VIC_CALL_FUNCTION_CPI - QIC_CPI_OFFSET)
++
++#define VIC_START_FAKE_CPI		VIC_TIMER_CPI
++#define VIC_END_FAKE_CPI		VIC_CALL_FUNCTION_CPI
++
++/* this is the SYS_INT CPI. */
++#define VIC_SYS_INT			8
++#define VIC_CMN_INT			15
++
++/* This is the boot CPI for alternate processors.  It gets overwritten
++ * by the above once the system has activated all available processors */
++#define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
++#define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
++
++#define NR_IRQS 224
++
++#ifndef __ASSEMBLY__
++extern asmlinkage void vic_cpi_interrupt(void);
++extern asmlinkage void vic_sys_interrupt(void);
++extern asmlinkage void vic_cmn_interrupt(void);
++extern asmlinkage void qic_timer_interrupt(void);
++extern asmlinkage void qic_invalidate_interrupt(void);
++extern asmlinkage void qic_reschedule_interrupt(void);
++extern asmlinkage void qic_enable_irq_interrupt(void);
++extern asmlinkage void qic_call_function_interrupt(void);
++#endif /* !__ASSEMBLY__ */
++
++#endif /* _ASM_IRQ_VECTORS_H */
+diff -Nru a/include/asm-i386/mach-voyager/setup_arch_post.h b/include/asm-i386/mach-voyager/setup_arch_post.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-voyager/setup_arch_post.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,73 @@
++/* Hook for machine specific memory setup.
++ *
++ * This is included late in kernel/setup.c so that it can make use of all of
++ * the static functions. */
++
++static inline char * __init machine_specific_memory_setup(void)
++{
++	char *who;
++
++	who = "NOT VOYAGER";
++
++	if(voyager_level == 5) {
++		__u32 addr, length;
++		int i;
++
++		who = "Voyager-SUS";
++
++		e820.nr_map = 0;
++		for(i=0; voyager_memory_detect(i, &addr, &length); i++) {
++			add_memory_region(addr, length, E820_RAM);
++		}
++		return who;
++	} else if(voyager_level == 4) {
++		__u32 tom;
++		__u16 catbase = inb(VOYAGER_SSPB_RELOCATION_PORT)<<8;
++		/* select the DINO config space */
++		outb(VOYAGER_DINO, VOYAGER_CAT_CONFIG_PORT);
++		/* Read DINO top of memory register */
++		tom = ((inb(catbase + 0x4) & 0xf0) << 16)
++			+ ((inb(catbase + 0x5) & 0x7f) << 24);
++
++		if(inb(catbase) != VOYAGER_DINO) {
++			printk(KERN_ERR "Voyager: Failed to get DINO for L4, setting tom to EXT_MEM_K\n");
++			tom = (EXT_MEM_K)<<10;
++		}
++		who = "Voyager-TOM";
++		add_memory_region(0, 0x9f000, E820_RAM);
++		/* map from 1M to top of memory */
++		add_memory_region(1*1024*1024, tom - 1*1024*1024, E820_RAM);
++		/* FIXME: Should check the ASICs to see if I need to
++		 * take out the 8M window.  Just do it at the moment
++		 * */
++		add_memory_region(8*1024*1024, 8*1024*1024, E820_RESERVED);
++		return who;
++	}
++
++	who = "BIOS-e820";
++
++	/*
++	 * Try to copy the BIOS-supplied E820-map.
++	 *
++	 * Otherwise fake a memory map; one section from 0k->640k,
++	 * the next section from 1mb->appropriate_mem_k
++	 */
++	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
++	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
++		unsigned long mem_size;
++
++		/* compare results from other methods and take the greater */
++		if (ALT_MEM_K < EXT_MEM_K) {
++			mem_size = EXT_MEM_K;
++			who = "BIOS-88";
++		} else {
++			mem_size = ALT_MEM_K;
++			who = "BIOS-e801";
++		}
++
++		e820.nr_map = 0;
++		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
++		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
++  	}
++	return who;
++}
+diff -Nru a/include/asm-i386/mach-voyager/setup_arch_pre.h b/include/asm-i386/mach-voyager/setup_arch_pre.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/asm-i386/mach-voyager/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
+@@ -0,0 +1,10 @@
++#include <asm/voyager.h>
++#define VOYAGER_BIOS_INFO ((struct voyager_bios_info *)(PARAM+0x40))
++
++/* Hook to call BIOS initialisation function */
++
++/* for voyager, pass the voyager BIOS/SUS info area to the detection 
++ * routines */
++
++#define ARCH_SETUP	voyager_detect(VOYAGER_BIOS_INFO);
++
 
-add_int 10020 22.0559      1323353.29 Thousand Integer Additions/second
-add_int 10020 21.8563      1311377.25 Thousand Integer Additions/second
-add_int 10020 21.8563      1311377.25 Thousand Integer Additions/second
-
-add_short 10000 55.4      1329600.00 Thousand Short Integer Additions/second
-add_short 10000 54.9      1317600.00 Thousand Short Integer Additions/second
-add_short 10000 54.9      1317600.00 Thousand Short Integer Additions/second
-
-creat-clo 10040 19.4223        19422.31 File Creations and Closes/second
-creat-clo 10010 87.2128        87212.79 File Creations and Closes/second
-creat-clo 10000 75.3        75300.00 File Creations and Closes/second
-^^^Here 2.5.* is _a lot_ faster than 2.4.19 but 2.5.52 is slower then 2.5.51
-
-page_test 10000 123.9       210630.00 System Allocations & Pages/second
-page_test 10000 105.7       179690.00 System Allocations & Pages/second
-page_test 10010 105.095       178661.34 System Allocations & Pages/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-brk_test 10010 48.951       832167.83 System Memory Allocations/second
-brk_test 10020 44.6108       758383.23 System Memory Allocations/second
-brk_test 10010 43.8561       745554.45 System Memory Allocations/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-jmp_test 10000 4313.7      4313700.00 Non-local gotos/second
-jmp_test 10000 4273.2      4273200.00 Non-local gotos/second
-jmp_test 10000 4273.1      4273100.00 Non-local gotos/second
-
-signal_test 10000 166.1       166100.00 Signal Traps/second
-signal_test 10000 157.4       157400.00 Signal Traps/second
-signal_test 10000 159.6       159600.00 Signal Traps/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-exec_test 10000 13.8           69.00 Program Loads/second
-exec_test 10020 12.9741           64.87 Program Loads/second
-exec_test 10030 12.9611           64.81 Program Loads/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-fork_test 10000 44.8         4480.00 Task Creations/second
-fork_test 10020 23.9521         2395.21 Task Creations/second
-fork_test 10020 29.0419         2904.19 Task Creations/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-link_test 10000 155.3         9783.90 Link/Unlink Pairs/second
-link_test 10000 147.7         9305.10 Link/Unlink Pairs/second
-link_test 10010 140.959         8880.42 Link/Unlink Pairs/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-disk_rr 10050 6.96517        35661.69 Random Disk Reads (K)/second
-disk_rr 10110 7.51731        38488.63 Random Disk Reads (K)/second
-disk_rr 10050 7.46269        38208.96 Random Disk Reads (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-disk_rw 10060 5.666        29009.94 Random Disk Writes (K)/second
-disk_rw 10000 6.8        34816.00 Random Disk Writes (K)/second
-disk_rw 10090 6.73935        34505.45 Random Disk Writes (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-disk_rd 10010 38.1618       195388.61 Sequential Disk Reads (K)/second
-disk_rd 10020 38.024       194682.63 Sequential Disk Reads (K)/second
-disk_rd 10010 38.0619       194877.12 Sequential Disk Reads (K)/second
-
-disk_wrt 10100 8.51485        43596.04 Sequential Disk Writes (K)/second
-disk_wrt 10070 9.43396        48301.89 Sequential Disk Writes (K)/second
-disk_wrt 10080 9.3254        47746.03 Sequential Disk Writes (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-disk_cp 10120 7.31225        37438.74 Disk Copies (K)/second
-disk_cp 10010 7.69231        39384.62 Disk Copies (K)/second
-disk_cp 10090 7.63132        39072.35 Disk Copies (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-sync_disk_rw 16020 0.062422          159.80 Sync Random Disk Writes (K)/second
-sync_disk_rw 18790 0.0532198          136.24 Sync Random Disk Writes (K)/second
-sync_disk_rw 14570 0.0686342          175.70 Sync Random Disk Writes (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-sync_disk_wrt 11220 0.0891266          228.16 Sync Sequential Disk Writes (K)/second
-sync_disk_wrt 10150 0.0985222          252.22 Sync Sequential Disk Writes (K)/second
-sync_disk_wrt 10130 0.0987167          252.71 Sync Sequential Disk Writes (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-sync_disk_cp 10870 0.0919963          235.51 Sync Disk Copies (K)/second
-sync_disk_cp 19580 0.102145          261.49 Sync Disk Copies (K)/second
-sync_disk_cp 10050 0.0995025          254.73 Sync Disk Copies (K)/second
-^^^^ 2.5.5* is faster then 2.4.19
-
-disk_src 10000 118.2         8865.00 Directory Searches/second
-disk_src 10010 110.889         8316.68 Directory Searches/second
-disk_src 10010 123.477         9260.74 Directory Searches/second
-^^^^ 2.5.5* is faster then 2.4.19 and 2.5.52 is faster then 2.5.51
-
-div_double 10000 24.4        73200.00 Thousand Double Precision Divides/second
-div_double 10020 24.1517        72455.09 Thousand Double Precision Divides/second
-div_double 10010 24.1758        72527.47 Thousand Double Precision Divides/second
-
-div_float 10010 24.3756        73126.87 Thousand Single Precision Divides/second
-div_float 10010 24.1758        72527.47 Thousand Single Precision Divides/second
-div_float 10010 24.1758        72527.47 Thousand Single Precision Divides/second
-
-div_long 10020 19.9601        17964.07 Thousand Long Integer Divides/second
-div_long 10020 19.7605        17784.43 Thousand Long Integer Divides/second
-div_long 10010 19.7802        17802.20 Thousand Long Integer Divides/second
-
-div_int 10020 19.9601        17964.07 Thousand Integer Divides/second
-div_int 10010 19.7802        17802.20 Thousand Integer Divides/second
-div_int 10020 19.7605        17784.43 Thousand Integer Divides/second
-
-div_short 10030 19.9402        17946.16 Thousand Short Integer Divides/second
-div_short 10020 19.7605        17784.43 Thousand Short Integer Divides/second
-div_short 10010 19.7802        17802.20 Thousand Short Integer Divides/second
-
-fun_cal 10000 62.5     32000000.00 Function Calls (no arguments)/second
-fun_cal 10000 61.9     31692800.00 Function Calls (no arguments)/second
-fun_cal 10000 61.9     31692800.00 Function Calls (no arguments)/second
-
-fun_cal1 10000 170.4     87244800.00 Function Calls (1 argument)/second
-fun_cal1 10010 168.831     86441558.44 Function Calls (1 argument)/second
-fun_cal1 10010 168.831     86441558.44 Function Calls (1 argument)/second
-
-fun_cal2 10000 112.5     57600000.00 Function Calls (2 arguments)/second
-fun_cal2 10000 111.5     57088000.00 Function Calls (2 arguments)/second
-fun_cal2 10010 111.389     57030969.03 Function Calls (2 arguments)/second
-
-fun_cal15 10010 34.0659     17441758.24 Function Calls (15 arguments)/second
-fun_cal15 10010 33.7662     17288311.69 Function Calls (15 arguments)/second
-fun_cal15 10010 33.7662     17288311.69 Function Calls (15 arguments)/second
-
-sieve 10450 0.861244            4.31 Integer Sieves/second
-sieve 10600 0.849057            4.25 Integer Sieves/second
-sieve 10600 0.849057            4.25 Integer Sieves/second
-
-mul_double 10020 21.5569       258682.63 Thousand Double Precision Multiplies/second
-mul_double 10020 21.3573       256287.43 Thousand Double Precision Multiplies/second
-mul_double 10030 21.336       256031.90 Thousand Double Precision Multiplies/second
-
-mul_float 10030 21.5354       258424.73 Thousand Single Precision Multiplies/second
-mul_float 10030 21.336       256031.90 Thousand Single Precision Multiplies/second
-mul_float 10020 21.3573       256287.43 Thousand Single Precision Multiplies/second
-
-mul_long 10000 947.7       227448.00 Thousand Long Integer Multiplies/second
-mul_long 10000 939.6       225504.00 Thousand Long Integer Multiplies/second
-mul_long 10000 939.8       225552.00 Thousand Long Integer Multiplies/second
-
-mul_int 10000 951.9       228456.00 Thousand Integer Multiplies/second
-mul_int 10000 943.2       226368.00 Thousand Integer Multiplies/second
-mul_int 10000 943.3       226392.00 Thousand Integer Multiplies/second
-
-mul_short 10000 759.1       227730.00 Thousand Short Integer Multiplies/second
-mul_short 10000 753.4       226020.00 Thousand Short Integer Multiplies/second
-mul_short 10000 753.4       226020.00 Thousand Short Integer Multiplies/second
-
-num_rtns_1 10000 467.2        46720.00 Numeric Functions/second
-num_rtns_1 10000 463.8        46380.00 Numeric Functions/second
-num_rtns_1 10000 463.9        46390.00 Numeric Functions/second
-
-trig_rtns 10010 28.6713       286713.29 Trigonometric Functions/second
-trig_rtns 10020 28.3433       283433.13 Trigonometric Functions/second
-trig_rtns 10000 28.4       284000.00 Trigonometric Functions/second
-
-matrix_rtns 10000 5964.3       596430.00 Point Transformations/second
-matrix_rtns 10000 5906.8       590680.00 Point Transformations/second
-matrix_rtns 10000 5906.6       590660.00 Point Transformations/second
-
-array_rtns 10010 13.6863          273.73 Linear Systems Solved/second
-array_rtns 10010 13.2867          265.73 Linear Systems Solved/second
-array_rtns 10050 13.5323          270.65 Linear Systems Solved/second
-
-string_rtns 10060 9.04573          904.57 String Manipulations/second
-string_rtns 10050 8.95522          895.52 String Manipulations/second
-string_rtns 10060 8.94632          894.63 String Manipulations/second
-
-mem_rtns_1 10000 27.7       831000.00 Dynamic Memory Operations/second
-mem_rtns_1 10010 24.975       749250.75 Dynamic Memory Operations/second
-mem_rtns_1 10030 24.327       729810.57 Dynamic Memory Operations/second
-
-mem_rtns_2 10000 1632.5       163250.00 Block Memory Operations/second
-mem_rtns_2 10000 1631.8       163180.00 Block Memory Operations/second
-mem_rtns_2 10000 1618       161800.00 Block Memory Operations/second
-
-sort_rtns_1 10020 33.6327          336.33 Sort Operations/second
-sort_rtns_1 10010 33.0669          330.67 Sort Operations/second
-sort_rtns_1 10000 33.1          331.00 Sort Operations/second
-
-misc_rtns_1 10000 782.2         7822.00 Auxiliary Loops/second
-misc_rtns_1 10000 738         7380.00 Auxiliary Loops/second
-misc_rtns_1 10000 732.1         7321.00 Auxiliary Loops/second
-
-dir_rtns_1 10000 85.8       858000.00 Directory Operations/second
-dir_rtns_1 10000 96.9       969000.00 Directory Operations/second
-dir_rtns_1 10000 96.9       969000.00 Directory Operations/second
-
-shell_rtns_1 10020 25.9481           25.95 Shell Scripts/second
-shell_rtns_1 10030 24.1276           24.13 Shell Scripts/second
-shell_rtns_1 10030 23.9282           23.93 Shell Scripts/second
-
-shell_rtns_2 10010 26.0739           26.07 Shell Scripts/second
-shell_rtns_2 10000 24.1           24.10 Shell Scripts/second
-shell_rtns_2 10030 24.0279           24.03 Shell Scripts/second
-
-shell_rtns_3 10010 26.0739           26.07 Shell Scripts/second
-shell_rtns_3 10000 24.1           24.10 Shell Scripts/second
-shell_rtns_3 10030 24.0279           24.03 Shell Scripts/second
-
-series_1 10000 31924.9      3192490.00 Series Evaluations/second
-series_1 10000 31651.5      3165150.00 Series Evaluations/second
-series_1 10000 31649.9      3164990.00 Series Evaluations/second
-
-shared_memory 10000 2227.4       222740.00 Shared Memory Operations/second
-shared_memory 10000 1987.5       198750.00 Shared Memory Operations/second
-shared_memory 10000 1994.7       199470.00 Shared Memory Operations/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-tcp_test 10000 661.7        59553.00 TCP/IP Messages/second
-tcp_test 10000 558.7        50283.00 TCP/IP Messages/second
-tcp_test 10000 541.8        48762.00 TCP/IP Messages/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-udp_test 10000 1182.7       118270.00 UDP/IP DataGrams/second
-udp_test 10000 972.3        97230.00 UDP/IP DataGrams/second
-udp_test 10000 988.1        98810.00 UDP/IP DataGrams/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-fifo_test 10000 1207       120700.00 FIFO Messages/second
-fifo_test 10000 1052.3       105230.00 FIFO Messages/second
-fifo_test 10000 1083.1       108310.00 FIFO Messages/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-stream_pipe 10000 2418.6       241860.00 Stream Pipe Messages/second
-stream_pipe 10000 2281.5       228150.00 Stream Pipe Messages/second
-stream_pipe 10000 2258.8       225880.00 Stream Pipe Messages/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-dgram_pipe 10000 2357.8       235780.00 DataGram Pipe Messages/second
-dgram_pipe 10000 2112.2       211220.00 DataGram Pipe Messages/second
-dgram_pipe 10000 2039.6       203960.00 DataGram Pipe Messages/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-pipe_cpy 10000 3918       391800.00 Pipe Messages/second
-pipe_cpy 10000 3139       313900.00 Pipe Messages/second
-pipe_cpy 10000 3139.3       313930.00 Pipe Messages/second
-^^^^ 2.5.5* is still slower then 2.4.19
-
-ram_copy 10000 19338.7    483854274.00 Memory to Memory Copy/second
-ram_copy 10000 19160.9    479405718.00 Memory to Memory Copy/second
-ram_copy 10000 19155    479258100.00 Memory to Memory Copy/second
 
 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with POP3/IMAP access for only US$19.95/yr
-
-Powered by Outblaze

@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288946AbSBMTGz>; Wed, 13 Feb 2002 14:06:55 -0500
+	id <S288685AbSBMTMR>; Wed, 13 Feb 2002 14:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSBMTGp>; Wed, 13 Feb 2002 14:06:45 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:51721 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288946AbSBMTGe>;
-	Wed, 13 Feb 2002 14:06:34 -0500
-Date: Wed, 13 Feb 2002 11:02:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Nils Faerber <nils@kernelconcepts.de>
+	id <S288677AbSBMTMF>; Wed, 13 Feb 2002 14:12:05 -0500
+Received: from gateway2.ensim.com ([65.164.64.250]:44295 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S288685AbSBMTMB>; Wed, 13 Feb 2002 14:12:01 -0500
+X-mailer: xrn 8.03-beta-26
+From: Paul Menage <pmenage@ensim.com>
+Subject: Re: [patch] printk and dma_addr_t
+To: Andrew Morton <akpm@zip.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17[16] USB problem
-Message-ID: <20020213190238.GB23933@kroah.com>
-In-Reply-To: <20020213191651.5c3dfd5e.nils@kernelconcepts.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020213191651.5c3dfd5e.nils@kernelconcepts.de>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 16 Jan 2002 16:42:54 -0800
+X-Newsgroups: 
+In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D2172BC@nasdaq.ms.ensim.com>
+Message-Id: <E16b4or-0004dg-00@pmenage-dt.ensim.com>
+Date: Wed, 13 Feb 2002 11:11:53 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 07:16:51PM +0100, Nils Faerber wrote:
-> Hi all!
-> I recently see a strange USB problem which I find in 2.4.17 and 2.4.16 and
-> maybe even earlier.
-> What happens is that a special device attached via a USB HUB is not
-> detected anymore, specifically usb.c claims that it cannot set the new
-> address.
-> The strange thing is:
-> - It worked with that device (Brainboxes Bluetooth USB dongle) with
-> earlier kernels.
+In article <0C01A29FBAE24448A792F5C68F5EA47D2172BC@nasdaq.ms.ensim.com>,
+you write:
+>+#ifdef __KERNEL__
+>+char *form_dma_addr_t(char *buf, dma_addr_t a);
+>+#endif
+>+
 
-This device is flawed.  I have had _lots_ of reports of this problem
-with these devices.  Talk to Brainbox and ask if their devices have
-passed the USB certification tests (odds are it hasn't :)
+How about an typedef for da_buf_t (or similar) so that drivers don't
+have to worry about the size of the buffer? And that would also let you
+reduce the stack footprint on systems where dma_addr_t is only 32 bits,
+although that's probably not going to produce a noticeable benefit.
 
-thanks,
-
-greg k-h
+Paul

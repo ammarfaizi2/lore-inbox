@@ -1,115 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318275AbSIOW3O>; Sun, 15 Sep 2002 18:29:14 -0400
+	id <S318278AbSIOWba>; Sun, 15 Sep 2002 18:31:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318277AbSIOW3O>; Sun, 15 Sep 2002 18:29:14 -0400
-Received: from web13201.mail.yahoo.com ([216.136.174.186]:65106 "HELO
-	web13201.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318275AbSIOW3L>; Sun, 15 Sep 2002 18:29:11 -0400
-Message-ID: <20020915223408.51335.qmail@web13201.mail.yahoo.com>
-Date: Sun, 15 Sep 2002 15:34:08 -0700 (PDT)
-From: Srinivas Chavva <chavvasrini@yahoo.com>
-Subject: Re: Configuring kernel
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3D83A943.3010200@davehollis.com>
+	id <S318282AbSIOWba>; Sun, 15 Sep 2002 18:31:30 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:33721 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S318278AbSIOWb0>; Sun, 15 Sep 2002 18:31:26 -0400
+Date: Sun, 15 Sep 2002 18:36:12 -0400 (EDT)
+From: Albert Cranford <ac9410@attbi.com>
+X-X-Sender: ac9410@home1
+Reply-To: Albert Cranford <ac9410@attbi.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [patch 2/9]Four new i2c drivers and __init/__exit cleanup to i2c
+Message-ID: <Pine.LNX.4.44.0209151834280.7637-200000@home1>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-939033609-1032129372=:7637"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I tried to execute the command "make xconfig" I
-got the following output
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-rm -f include/asm
-(cd include; ln -sf asm -i386 asm)
-make -C scripts knconfig.tk
-make: *** scripts: No such file or directory. Stop.
-make: *** [xconfig] Error 2
+--0-939033609-1032129372=:7637
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-When I executed the command 'rpm -q ncurses
-ncurses-devel'  I got the following output
+Hello Linus,
+New I2C drivers that have been adjusted after Russell King comments of August.
+o i2c-algo-8xx.c
+o i2c-pport.c
+o i2c-adap-ibm_ocp.c
+o i2c-pcf-epp.c
+o Add new drivers to Config.in and Makefile.
+o Add new drivers to i2c-core for initialization.
+o Remove EXPORT_NO_SYMBOLS statement from i2c-dev, i2c-elektor and i2c-frodo.
+o Cleanup init_module and cleanup_module adding __init and __exit to most drivers.
+o Adjust i2c-elektor with cli/sti replacement.
+-- 
+ac9410@attbi.com
 
-ncurses-5.2-8
-ncurses-devel-5.2-8
+--0-939033609-1032129372=:7637
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=47-i2c-3b-patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0209151836120.7637@home1>
+Content-Description: 
+Content-Disposition: attachment; filename=47-i2c-3b-patch
 
-Could you please help me to fix the error. 
-Thanking You.
-Regards,
-Srinivas Chavva
-
-David T Hollis wrote:
-
->>I seem to remember either the early RH 7.x series or
-6.x series did not 
->>necessarily install ncurses by default, thus make
-menuconfig did not 
->>run.  If you did a very slim install, you may not
-have the right 
->>libraries to do what you need.  Do an 'rpm -q
-ncurses ncurses-devel' 
->>and 
->>see what you get.  If either is not found, make
-menuconfig will not 
->>run.
-
-Adam Jaskiewicz wrote:
-
->>I downloaded the sofware and opened it in the
-/usr/src
->>directory. I did the following
->>1. unzipped the tar file
->>2. mv linux linux-2.4.16
->>3 ln -s linux-2.4.16 linux
->>4. changed to linux directory and issued the command
->>make mproper.
->>Then when I issued the command make xconfig I was
->>getting errors. I got similar errors when I tried to
->>use the following commands make menuconfig, make
->>config.
->>    
->>
->
->What errors did you get? We need to know what the
-errors are to help 
-you.
->
->  
->
->>When I used the command uname -i I still was getting
->>the kernel version as 2.4.2.
->>I do not know why this error is coming.
->>    
->>
->
->This is not an error. If you did not install a new
-kernel and reboot 
-your 
->computer with the new kernel, uname will still have
-the same kernel 
-version. 
->Once you have properly configured, compiled and
-installed the kernel 
-and its 
->modules, you reboot the computer to apply the new
-kernel. Then uname 
-will 
->give you the new version.
->
->  
->
-
-
-
--
-To unsubscribe from this list: send the line
-"unsubscribe linux-kernel" 
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at 
-http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! News - Today's headlines
-http://news.yahoo.com
+LS0tIC9kZXYvbnVsbAkxOTk0LTA3LTE3IDE5OjQ2OjE4LjAwMDAwMDAwMCAt
+MDQwMA0KKysrIGxpbnV4LTIuNS4zNC9kcml2ZXJzL2kyYy9pMmMtcHBvcnQu
+YwkyMDAxLTEwLTEzIDE0OjA5OjAxLjAwMDAwMDAwMCAtMDQwMA0KQEAgLTAs
+MCArMSwyNTIgQEANCisvKiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+ICovDQorLyogaTJjLXBwb3J0LmMgaTJjLWh3IGFjY2VzcyAgZm9yIHByaW1p
+dGl2ZSBpMmMgcGFyLiBwb3J0IGFkYXB0ZXIJICAgICAqLw0KKy8qIC0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8NCisvKiAgIENvcHlyaWdodCAo
+QykgMjAwMSAgICBEYW5pZWwgU21vbGlrDQorDQorICAgIFRoaXMgcHJvZ3Jh
+bSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBh
+bmQvb3IgbW9kaWZ5DQorICAgIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUg
+R05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5DQor
+ICAgIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJz
+aW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9yDQorICAgIChhdCB5b3VyIG9wdGlv
+bikgYW55IGxhdGVyIHZlcnNpb24uDQorDQorICAgIFRoaXMgcHJvZ3JhbSBp
+cyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNl
+ZnVsLA0KKyAgICBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7IHdpdGhvdXQg
+ZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZg0KKyAgICBNRVJDSEFOVEFC
+SUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuICBT
+ZWUgdGhlDQorICAgIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBt
+b3JlIGRldGFpbHMuDQorDQorICAgIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZl
+ZCBhIGNvcHkgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlDQor
+ICAgIGFsb25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRv
+IHRoZSBGcmVlIFNvZnR3YXJlDQorICAgIEZvdW5kYXRpb24sIEluYy4sIDY3
+NSBNYXNzIEF2ZSwgQ2FtYnJpZGdlLCBNQSAwMjEzOSwgVVNBLgkJICAgICAq
+Lw0KKy8qIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8NCisNCisv
+Kg0KKwlTZWUgZG9jL2kyYy1wcG9ydCBmb3IgaW5zdHJ1Y3Rpb25zIG9uIHdp
+cmluZyB0byB0aGUNCisJcGFyYWxsZWwgcG9ydCBjb25uZWN0b3IuDQorDQor
+CUN1dCAmIHBhc3RlIDotKSAgYmFzZWQgb24gVmVsbGVtYW4gSzkwMDAgZHJp
+dmVyIGJ5IFNpbW9uIEcuIFZvZ2wNCisqLw0KKw0KKw0KKyNpbmNsdWRlIDxs
+aW51eC9rZXJuZWwuaD4NCisjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+DQor
+I2luY2x1ZGUgPGxpbnV4L2RlbGF5Lmg+DQorI2luY2x1ZGUgPGxpbnV4L3Ns
+YWIuaD4NCisjaW5jbHVkZSA8bGludXgvdmVyc2lvbi5oPg0KKyNpbmNsdWRl
+IDxsaW51eC9pbml0Lmg+DQorI2luY2x1ZGUgPGFzbS91YWNjZXNzLmg+DQor
+I2luY2x1ZGUgPGxpbnV4L2lvcG9ydC5oPg0KKyNpbmNsdWRlIDxhc20vaW8u
+aD4NCisjaW5jbHVkZSA8bGludXgvZXJybm8uaD4NCisjaW5jbHVkZSA8bGlu
+dXgvaTJjLmg+DQorI2luY2x1ZGUgPGxpbnV4L2kyYy1hbGdvLWJpdC5oPg0K
+Kw0KKyNpZmRlZiBNT0RVTEVfTElDRU5TRQ0KK01PRFVMRV9MSUNFTlNFKCJH
+UEwiKTsNCisjZW5kaWYNCisNCisjZGVmaW5lIERFRkFVTFRfQkFTRSAweDM3
+OA0KK3N0YXRpYyBpbnQgYmFzZT0wOw0KK3N0YXRpYyB1bnNpZ25lZCBjaGFy
+IFBvcnREYXRhID0gMDsNCisNCisvKiAtLS0tLSBnbG9iYWwgZGVmaW5lcyAt
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LQkqLw0KKyNkZWZpbmUgREVCKHgpCQkvKiBzaG91bGQgYmUgcmVhc29uYWJs
+ZSBvcGVuLCBjbG9zZSAmYy4gCSovDQorI2RlZmluZSBERUIyKHgpIAkvKiBs
+b3cgbGV2ZWwgZGVidWdnaW5nIC0gdmVyeSBzbG93IAkJKi8NCisjZGVmaW5l
+IERFQkUoeCkJeAkvKiBlcnJvciBtZXNzYWdlcyAJCQkJKi8NCisjZGVmaW5l
+IERFQklOSVQoeCkgeAkvKiBkZXRlY3Rpb24gc3RhdHVzIG1lc3NhZ2VzCQkJ
+Ki8NCisNCisvKiAtLS0gQ29udmVuaWVuY2UgZGVmaW5lcyBmb3IgdGhlIHBh
+cmFsbGVsIHBvcnQ6CQkJKi8NCisjZGVmaW5lIEJBU0UJKHVuc2lnbmVkIGlu
+dCkoZGF0YSkNCisjZGVmaW5lIERBVEEJQkFTRQkJCS8qIENlbnRyb25pY3Mg
+ZGF0YSBwb3J0CQkqLw0KKyNkZWZpbmUgU1RBVAkoQkFTRSsxKQkJLyogQ2Vu
+dHJvbmljcyBzdGF0dXMgcG9ydAkqLw0KKyNkZWZpbmUgQ1RSTAkoQkFTRSsy
+KQkJLyogQ2VudHJvbmljcyBjb250cm9sIHBvcnQJKi8NCisNCisvKiB3ZSB3
+aWxsIHVzZSBTREEgIC0gQXV0byBMaW5lZmVlZCgxNCkgICBiaXQgMSAgUE9V
+VCAgICovDQorLyogd2Ugd2lsbCB1c2UgU0NMIC0gSW5pdGlhbGl6ZSBwcmlu
+dGVyKDE2KSAgICBCVVNZIGJpdCAyKi8NCisNCisjZGVmaW5lICBTRVRfU0NM
+ICAgIHwgMHgwNA0KKyNkZWZpbmUgIENMUl9TQ0wgICAgJiAweEZCDQorDQor
+DQorDQorDQorI2RlZmluZSAgU0VUX1NEQSAgICAmIDB4MDQNCisjZGVmaW5l
+ICBDTFJfU0RBICAgIHwgMHgwMg0KKw0KKw0KKy8qIC0tLS0tIGxvY2FsIGZ1
+bmN0aW9ucyAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tCSovDQorDQorDQorc3RhdGljIHZvaWQgYml0X3Bwb3J0X3Nl
+dHNjbCh2b2lkICpkYXRhLCBpbnQgc3RhdGUpDQorew0KKwlpZiAoc3RhdGUp
+IHsNCisJCS8vaGlnaA0KKwkJUG9ydERhdGEgPSBQb3J0RGF0YSBTRVRfU0NM
+Ow0KKwl9IGVsc2Ugew0KKwkJLy9sb3cNCisJCVBvcnREYXRhID0gUG9ydERh
+dGEgQ0xSX1NDTDsgDQorCX0NCisJb3V0YihQb3J0RGF0YSwgQ1RSTCk7DQor
+fQ0KKw0KK3N0YXRpYyB2b2lkIGJpdF9wcG9ydF9zZXRzZGEodm9pZCAqZGF0
+YSwgaW50IHN0YXRlKQ0KK3sNCisJaWYgKHN0YXRlKSB7DQorCQkNCisJCVBv
+cnREYXRhID0gUG9ydERhdGEgU0VUX1NEQTsNCisJfSBlbHNlIHsNCisNCisJ
+CVBvcnREYXRhID0gUG9ydERhdGEgQ0xSX1NEQTsNCisJfQ0KKwlvdXRiKFBv
+cnREYXRhLCBDVFJMKTsNCit9IA0KKw0KK3N0YXRpYyBpbnQgYml0X3Bwb3J0
+X2dldHNjbCh2b2lkICpkYXRhKQ0KK3sNCisNCisJcmV0dXJuICggNCA9PSAo
+IChpbmJfcChDVFJMKSkgJiAweDA0ICkgKTsNCit9DQorDQorc3RhdGljIGlu
+dCBiaXRfcHBvcnRfZ2V0c2RhKHZvaWQgKmRhdGEpDQorew0KKwlyZXR1cm4g
+KCAwID09ICggKGluYl9wKENUUkwpKSAmIDB4MDIgKSApOw0KK30NCisNCitz
+dGF0aWMgaW50IGJpdF9wcG9ydF9pbml0KHZvaWQpDQorew0KKwkvL3JlbGVh
+c2VfcmVnaW9uKCAoYmFzZSsyKSAsMSk7DQorDQorCWlmIChjaGVja19yZWdp
+b24oKGJhc2UrMiksMSkgPCAwICkgew0KKwkJcmV0dXJuIC1FTk9ERVY7CQ0K
+Kwl9IGVsc2Ugew0KKw0KKwkJLyogdGVzdCBmb3IgUFBPUlQgYWRhcC4gCSov
+DQorCQ0KKw0KKwkJUG9ydERhdGE9aW5iKGJhc2UrMik7DQorCQlQb3J0RGF0
+YT0gKFBvcnREYXRhIFNFVF9TREEpIFNFVF9TQ0w7DQorCQlvdXRiKFBvcnRE
+YXRhLGJhc2UrMik7CQkJCQ0KKw0KKwkJaWYgKCEoaW5iKGJhc2UrMikgfCAw
+eDA2KSkgewkvKiBTREEgYW5kIFNDTCB3aWxsIGJlIGhpZ2gJKi8NCisJCQlE
+RUJJTklUKHByaW50aygiaTJjLXBwb3J0Lm86IFNEQSBhbmQgU0NMIHdhcyBs
+b3cuXG4iKSk7DQorCQkJcmV0dXJuIC1FTk9ERVY7DQorCQl9IGVsc2Ugew0K
+KwkJDQorCQkJLypTQ0wgaGlnaCBhbmQgU0RBIGxvdyovDQorCQkJUG9ydERh
+dGEgPSBQb3J0RGF0YSBTRVRfU0NMIENMUl9TREE7DQorCQkJb3V0YihQb3J0
+RGF0YSxiYXNlKzIpOwkNCisJCQl1ZGVsYXkoNDAwKTsNCisJCQlpZiAoICEo
+aW5iKGJhc2UrMikgfCAweDQpICkgew0KKwkJCQkvL291dGIoMHgwNCxiYXNl
+KzIpOw0KKwkJCQlERUJJTklUKHByaW50aygiaTJjLXBvcnQubzogU0RBIHdh
+cyBoaWdoLlxuIikpOw0KKwkJCQlyZXR1cm4gLUVOT0RFVjsNCisJCQl9DQor
+CQl9DQorCQlyZXF1ZXN0X3JlZ2lvbigoYmFzZSsyKSwxLA0KKwkJCSJpMmMg
+KFBQT1JUIGFkYXB0ZXIpIik7DQorCQliaXRfcHBvcnRfc2V0c2RhKCh2b2lk
+KiliYXNlLDEpOw0KKwkJYml0X3Bwb3J0X3NldHNjbCgodm9pZCopYmFzZSwx
+KTsNCisJfQ0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHZvaWQgX19l
+eGl0IGJpdF9wcG9ydF9leGl0KHZvaWQpDQorew0KKwlyZWxlYXNlX3JlZ2lv
+bigoYmFzZSsyKSwxKTsNCit9DQorDQorc3RhdGljIGludCBiaXRfcHBvcnRf
+cmVnKHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQpDQorew0KKwlyZXR1cm4g
+MDsNCit9DQorDQorc3RhdGljIGludCBiaXRfcHBvcnRfdW5yZWcoc3RydWN0
+IGkyY19jbGllbnQgKmNsaWVudCkNCit7DQorCXJlbGVhc2VfcmVnaW9uKChi
+YXNlKzIpLDEpOw0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RhdGljIHZvaWQg
+Yml0X3Bwb3J0X2luY191c2Uoc3RydWN0IGkyY19hZGFwdGVyICphZGFwKQ0K
+K3sNCisjaWZkZWYgTU9EVUxFDQorCU1PRF9JTkNfVVNFX0NPVU5UOw0KKyNl
+bmRpZg0KK30NCisNCitzdGF0aWMgdm9pZCBiaXRfcHBvcnRfZGVjX3VzZShz
+dHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApDQorew0KKyNpZmRlZiBNT0RVTEUN
+CisJTU9EX0RFQ19VU0VfQ09VTlQ7DQorI2VuZGlmDQorfQ0KKw0KKy8qIC0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KKyAqIEVuY2Fwc3VsYXRlIHRo
+ZSBhYm92ZSBmdW5jdGlvbnMgaW4gdGhlIGNvcnJlY3Qgb3BlcmF0aW9ucyBz
+dHJ1Y3R1cmUuDQorICogVGhpcyBpcyBvbmx5IGRvbmUgd2hlbiBtb3JlIHRo
+YW4gb25lIGhhcmR3YXJlIGFkYXB0ZXIgaXMgc3VwcG9ydGVkLg0KKyAqLw0K
+K3N0YXRpYyBzdHJ1Y3QgaTJjX2FsZ29fYml0X2RhdGEgYml0X3Bwb3J0X2Rh
+dGEgPSB7DQorCU5VTEwsDQorCWJpdF9wcG9ydF9zZXRzZGEsDQorCWJpdF9w
+cG9ydF9zZXRzY2wsDQorCWJpdF9wcG9ydF9nZXRzZGEsDQorCWJpdF9wcG9y
+dF9nZXRzY2wsDQorCS8vTlVMTCwNCisJNDAsIDgwLCAxMDAsCQkvKgl3YWl0
+cywgdGltZW91dCAqLw0KK307DQorDQorc3RhdGljIHN0cnVjdCBpMmNfYWRh
+cHRlciBiaXRfcHBvcnRfb3BzID0gew0KKwkiUHJpbWl0aXZlIFBhcmFsbGVs
+IHBvcnQgYWRhcHRvciIsDQorCUkyQ19IV19CX1BQT1JULA0KKwlOVUxMLA0K
+KwkmYml0X3Bwb3J0X2RhdGEsDQorCWJpdF9wcG9ydF9pbmNfdXNlLA0KKwli
+aXRfcHBvcnRfZGVjX3VzZSwNCisJYml0X3Bwb3J0X3JlZywNCisJYml0X3Bw
+b3J0X3VucmVnLAkNCit9Ow0KKw0KK2ludCBfX2luaXQgaTJjX2JpdHBwb3J0
+X2luaXQodm9pZCkNCit7DQorCXByaW50aygiaTJjLXBwb3J0Lm86IGkyYyBQ
+cmltaXRpdmUgcGFyYWxsZWwgcG9ydCBhZGFwdGVyIG1vZHVsZSB2ZXJzaW9u
+ICVzICglcylcbiIsIEkyQ19WRVJTSU9OLCBJMkNfREFURSk7DQorDQorCWlm
+IChiYXNlPT0wKSB7DQorCQkvKiBwcm9iZSBzb21lIHZhbHVlcyAqLw0KKwkJ
+YmFzZT1ERUZBVUxUX0JBU0U7DQorCQliaXRfcHBvcnRfZGF0YS5kYXRhPSh2
+b2lkKilERUZBVUxUX0JBU0U7DQorCQlpZiAoYml0X3Bwb3J0X2luaXQoKT09
+MCkgew0KKwkJCWlmKGkyY19iaXRfYWRkX2J1cygmYml0X3Bwb3J0X29wcykg
+PCAwKQ0KKwkJCQlyZXR1cm4gLUVOT0RFVjsNCisJCX0gZWxzZSB7DQorCQkJ
+cmV0dXJuIC1FTk9ERVY7DQorCQl9DQorCX0gZWxzZSB7DQorCQliaXRfcHBv
+cnRfZGF0YS5kYXRhPSh2b2lkKiliYXNlOw0KKwkJaWYgKGJpdF9wcG9ydF9p
+bml0KCk9PTApIHsNCisJCQlpZihpMmNfYml0X2FkZF9idXMoJmJpdF9wcG9y
+dF9vcHMpIDwgMCkNCisJCQkJcmV0dXJuIC1FTk9ERVY7DQorCQl9IGVsc2Ug
+ew0KKwkJCXJldHVybiAtRU5PREVWOw0KKwkJfQ0KKwl9DQorCXByaW50aygi
+aTJjLXBwb3J0Lm86IGZvdW5kIGRldmljZSBhdCAlI3guXG4iLGJhc2UpOw0K
+KwlyZXR1cm4gMDsNCit9DQorDQorDQorI2lmZGVmIE1PRFVMRQ0KK01PRFVM
+RV9BVVRIT1IoIkRhbmllbCBTbW9saWsgPG1hcnZpbkBzaXRvdXIuY3o+Iik7
+DQorTU9EVUxFX0RFU0NSSVBUSU9OKCJJMkMtQnVzIGFkYXB0ZXIgcm91dGlu
+ZXMgZm9yIFByaW1pdGl2ZSBwYXJhbGxlbCBwb3J0IGFkYXB0ZXIiKQ0KKzsN
+CisNCitNT0RVTEVfUEFSTShiYXNlLCAiaSIpOw0KKw0KK2ludCBpbml0X21v
+ZHVsZSh2b2lkKQ0KK3sNCisJcmV0dXJuIGkyY19iaXRwcG9ydF9pbml0KCk7
+DQorfQ0KKw0KK3ZvaWQgY2xlYW51cF9tb2R1bGUodm9pZCkNCit7DQorCWky
+Y19iaXRfZGVsX2J1cygmYml0X3Bwb3J0X29wcyk7DQorCWJpdF9wcG9ydF9l
+eGl0KCk7DQorfQ0KKw0KKyNlbmRpZg0K
+--0-939033609-1032129372=:7637--

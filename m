@@ -1,76 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265580AbUABOAl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 09:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265579AbUABOAk
+	id S265590AbUABO1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 09:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUABO1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 09:00:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:48771 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265580AbUABN7Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 08:59:24 -0500
-Date: Fri, 2 Jan 2004 14:59:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 on a CD-RW
-Message-ID: <20040102135921.GB20572@suse.de>
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com> <20040101162427.4c6c020b.akpm@osdl.org> <m2llorkuhn.fsf@telia.com> <1073034412.4429.1.camel@laptop.fenrus.com> <m2k74a8vyr.fsf@telia.com> <20040102105915.GO5523@suse.de> <m2brpm8sc2.fsf@telia.com> <20040102121904.GQ5523@suse.de> <m2vfnu79n8.fsf@telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m2vfnu79n8.fsf@telia.com>
+	Fri, 2 Jan 2004 09:27:13 -0500
+Received: from mx13.sac.fedex.com ([199.81.197.53]:3597 "EHLO
+	mx13.sac.fedex.com") by vger.kernel.org with ESMTP id S265590AbUABO1K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 09:27:10 -0500
+Date: Fri, 2 Jan 2004 22:25:33 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: jchua@silk.corp.fedex.com
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GetASF failed on DVD authentication
+In-Reply-To: <20040102103949.GL5523@suse.de>
+Message-ID: <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com>
+References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com>
+ <20040102103949.GL5523@suse.de>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/02/2004
+ 10:27:06 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/02/2004
+ 10:27:08 PM,
+	Serialize complete at 01/02/2004 10:27:08 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02 2004, Peter Osterlund wrote:
-> Jens Axboe <axboe@suse.de> writes:
-> 
-> > I just looked but could not find anything about it, there's been some
-> > talk on this list. But it doesn't look like it ever got documented in
-> > text writing. That needs to be fixed for sure, thanks for the patch. It
-> > probably wants documenting in fs/bio.c:bio_add_page() too.
-> 
-> OK, here is an updated patch.
-> 
-> Improved documentation for blk_queue_merge_bvec() and bio_add_page().
-> 
-> 
->  linux-petero/drivers/block/ll_rw_blk.c |    8 +++++---
->  linux-petero/fs/bio.c                  |    4 +++-
->  2 files changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff -puN drivers/block/ll_rw_blk.c~block-api-doc drivers/block/ll_rw_blk.c
-> --- linux/drivers/block/ll_rw_blk.c~block-api-doc	2004-01-02 13:54:38.000000000 +0100
-> +++ linux-petero/drivers/block/ll_rw_blk.c	2004-01-02 13:55:50.000000000 +0100
-> @@ -173,9 +173,11 @@ EXPORT_SYMBOL(blk_queue_prep_rq);
->   * are dynamic, and thus we have to query the queue whether it is ok to
->   * add a new bio_vec to a bio at a given offset or not. If the block device
->   * has such limitations, it needs to register a merge_bvec_fn to control
-> - * the size of bio's sent to it. Per default now merge_bvec_fn is defined for
-> - * a queue, and only the fixed limits are honored.
-> - *
-> + * the size of bio's sent to it. Note that a block device *must* allow a
-> + * single page to be added to an empty bio. The block device driver may want
-> + * to use the bio_split() function to deal with these bio's. Per default
-> + * no merge_bvec_fn is defined for a queue, and only the fixed limits are
-> + * honored.
->   */
->  void blk_queue_merge_bvec(request_queue_t *q, merge_bvec_fn *mbfn)
->  {
-> diff -puN fs/bio.c~block-api-doc fs/bio.c
-> --- linux/fs/bio.c~block-api-doc	2004-01-02 14:00:13.000000000 +0100
-> +++ linux-petero/fs/bio.c	2004-01-02 14:37:41.000000000 +0100
-> @@ -290,7 +290,9 @@ int bio_get_nr_vecs(struct block_device 
->   *
->   *	Attempt to add a page to the bio_vec maplist. This can fail for a
->   *	number of reasons, such as the bio being full or target block
-> - *	device limitations.
-> + *	device limitations. The target block device must not disallow bio's
 
-That may not be unparsable, but I'll remove the double negative :).
-Otherwise comitted, thanks.
+On Fri, 2 Jan 2004, Jens Axboe wrote:
 
--- 
-Jens Axboe
+> > GetASF failed
+> > N/A, invalidating: Function not implemented
+> > N/A, invalidating: Function not implemented
+> > N/A, invalidating: Function not implemented
+> > Request AGID [1]...     Request AGID [2]...     Request AGID [3]...
+> > Cannot get AGID
+
+
+> > This error happens only on USB DVD drive using /dev/scd0 ...
+
+USB drive is a Pioneer DVR-SK11B-J. It's reported as ...
+
+scsi0 : SCSI emulation for USB Mass Storage devices
+  Vendor: PIONEER   Model: DVD-RW  DVR-K11   Rev: 1.00
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+
+I've tried at least 2 other USB drives (Plextor PX-208U, and Sony CRX85U),
+and both of these drives also exhibit the same problem.
+
+
+> > Linux version is 2.4.24-pre3.
+
+
+> I can't say what goes wrong from the info above. Do you get any kernel
+> messages?
+
+No kernels oops. Just those "GetASF failed" messages above.
+
+Detailed dmesg as follows ...
+
+Yenta ISA IRQ mask 0x0638, PCI irq 11
+Socket status: 30000820
+Yenta ISA IRQ mask 0x0638, PCI irq 11
+Socket status: 30000006
+cs: cb_alloc(bus 2): vendor 0x1033, device 0x0035
+PCI: Enabling device 02:00.0 (0000 -> 0002)
+PCI: Enabling device 02:00.1 (0000 -> 0002)
+PCI: Enabling device 02:00.2 (0000 -> 0002)
+cs: IO port probe 0x0100-0x03ff: excluding 0x170-0x177 0x370-0x37f
+cs: IO port probe 0x0a20-0x0a27: clean.
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
+ehci_hcd 02:00.2: PCI device 1033:00e0
+ehci_hcd 02:00.2: irq 11, pci mem f969b000
+usb.c: new USB bus registered, assigned bus number 1
+ehci_hcd 02:00.2: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-19/2.4
+hub.c: USB hub found
+hub.c: 3 ports detected
+hub.c: new USB device 02:00.2-1, assigned address 2
+scsi0 : SCSI emulation for USB Mass Storage devices
+  Vendor: PIONEER   Model: DVD-RW  DVR-K11   Rev: 1.00
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+sr0: scsi-1 drive
+Uniform CD-ROM driver Revision: 3.12
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+
+
+Thanks,
+Jeff
 

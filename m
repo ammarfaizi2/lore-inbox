@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312212AbSCRGfL>; Mon, 18 Mar 2002 01:35:11 -0500
+	id <S312216AbSCRGnx>; Mon, 18 Mar 2002 01:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312213AbSCRGfC>; Mon, 18 Mar 2002 01:35:02 -0500
-Received: from rj.sgi.com ([204.94.215.100]:46566 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S312212AbSCRGep>;
-	Mon, 18 Mar 2002 01:34:45 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jason Li <jli@extremenetworks.com>
+	id <S312215AbSCRGnm>; Mon, 18 Mar 2002 01:43:42 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28688 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S312213AbSCRGnZ>; Mon, 18 Mar 2002 01:43:25 -0500
+Message-Id: <200203180639.g2I6dVq27119@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Felix Braun <Felix.Braun@mail.McGill.ca>, rgooch@atnf.csiro.au
+Subject: Re: devfs mounted twice in linux 2.4.19-pre3
+Date: Mon, 18 Mar 2002 08:39:02 -0200
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: EXPORT_SYMBOL doesn't work 
-In-Reply-To: Your message of "Sun, 17 Mar 2002 22:25:16 -0800."
-             <3C95884C.DCD11F6F@extremenetworks.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 18 Mar 2002 17:34:35 +1100
-Message-ID: <2643.1016433275@kao2.melbourne.sgi.com>
+In-Reply-To: <20020317121954.390bc242.Felix.Braun@mail.McGill.ca>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002 22:25:16 -0800, 
-Jason Li <jli@extremenetworks.com> wrote:
->int (*fdbIoSwitchHook)(
->                           unsigned long arg0,
->                           unsigned long arg1,
->                           unsigned long arg2)=NULL;
->EXPORT_SYMBOL(fdbIoSwitchHook);
->gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
->-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
->-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
->-march=i686    -c -o br_ioctl.o br_ioctl.c
->br_ioctl.c:26: warning: type defaults to `int' in declaration of
->`EXPORT_SYMBOL'
+On 17 March 2002 09:19, Felix Braun wrote:
+> Hi Richard,
+>
+> I just noticed that devfs is listed twice in /proc/mounts in linux
+> 2.4.19-pre3, which confuses my shutdown script. Under 2.4.19-pre my
+> /proc/mounts looks like this:
+>
+> devfs /dev devfs rw 0 0
+> /dev/ide/host0/bus0/target0/lun0/part5 / reiserfs rw 0 0
+> none /dev devfs rw 0 0
+> /proc /proc proc rw 0 0
+> /dev/discs/disc0/part1 /dos vfat rw 0 0
+> /dev/discs/disc0/part9 /opt reiserfs rw,noatime 0 0
+> none /dev/pts devpts rw 0 0
+> /dev/discs/disc0/part7 /usr reiserfs rw 0 0
+> none /dev/shm tmpfs rw 0 0
+>
+> whereas under 2.4.18 the first line didn't show up. Is that a
+> misconfiguration on my part?
 
-#include <linux/module.h>
+Maybe you mount devfs manually after kernel did the same?
+devfs /dev devfs rw 0 0 - most probably mounted by initscripts
+none /dev devfs rw 0 0 - by kernel
 
-Also add br_ioctl.o to export-objs in Makefile.
-
+Look into /var/log/messages for:
+kernel: VFS: Mounted root (nfs filesystem).
+kernel: Mounted devfs on /dev   <============ do yo have this?
+--
+vda

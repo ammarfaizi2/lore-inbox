@@ -1,96 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281456AbRKFEg4>; Mon, 5 Nov 2001 23:36:56 -0500
+	id <S281457AbRKFErR>; Mon, 5 Nov 2001 23:47:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281457AbRKFEgq>; Mon, 5 Nov 2001 23:36:46 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:17685 "EHLO
-	c0mailgw08.prontomail.com") by vger.kernel.org with ESMTP
-	id <S281456AbRKFEgg>; Mon, 5 Nov 2001 23:36:36 -0500
-Message-ID: <3BE768C4.D6F5E9E3@starband.net>
-Date: Mon, 05 Nov 2001 23:36:20 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+	id <S278041AbRKFErH>; Mon, 5 Nov 2001 23:47:07 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:16002 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S281457AbRKFEq4>;
+	Mon, 5 Nov 2001 23:46:56 -0500
+Message-ID: <3BE76B25.F670E250@pobox.com>
+Date: Mon, 05 Nov 2001 20:46:29 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.14 fails to link.
+To: mingo@elte.hu
+CC: Tux mailing list <tux-list@redhat.com>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Thomas Lussnig <tlussnig@bewegungsmelder.de>,
+        linux-kernel@vger.kernel.org,
+        khttpd mailing list <khttpd-users@zgp.org>
+Subject: Re: [khttpd-users] khttpd vs tux
+In-Reply-To: <Pine.LNX.4.33.0111051013230.2914-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[1]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/mm'
-make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 " -C  arch/i386/lib
-make[1]: Entering directory `/usr/src/linux-2.4.14/arch/i386/lib'
-make all_targets
-make[2]: Entering directory `/usr/src/linux-2.4.14/arch/i386/lib'
-make[2]: Nothing to be done for `all_targets'.
-make[2]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
-make[1]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
-init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o
-drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
-drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
+Ingo,
 
-drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-        net/network.o \
-        /usr/src/linux-2.4.14/arch/i386/lib/lib.a
-/usr/src/linux-2.4.14/lib/lib.a
-/usr/src/linux-2.4.14/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0x855f): undefined reference to
-`deactivate_page'
-drivers/block/block.o(.text+0x85c4): undefined reference to
-`deactivate_page'
-make: *** [vmlinux] Error 1
-[root@war linux]#
+Thanks for commenting on this -
 
-System Info:
+Ingo Molnar wrote:
 
-System Hardware:
-    CPU Type: Pentium III
-   CPU Speed: 868.665 MHz
-         Ram: 1005 MB
-        Swap: 2000 MB
+> On Sat, 3 Nov 2001, J Sloan wrote:
+>
+> > Nobody scales better 1-4 CPUs, as indicated
+> > by specweb99 - at 8 CPUs linux is OK, but not
+> > as dominating....
+>
+> This is a common misinterpretation of the TUX SPECweb99 numbers.
+> Performance and scalability are two distinct things.
 
-System Software:
-Distribution: Red Hat Linux release 7.2 (Enigma)
-    autoconf: 2.52
-     autogen: 5.2.11
-    automake: 1.5
-    binutils: 2.11.2
-      esound: 0.2.23
-         gcc: 2.95.3
-     gettext: 0.10.40
-       glibc: 2.2.4
-        glib: 1.2.10
-  gnome-libs: 1.2.13
-         gtk: 1.2.10
-       imlib: 1.9.11
-     kdelibs: 2.2.1
-      kernel: 2.4.13
-     libtool: 1.4.2
-     openssl: 0.9.6b
-       orbit: 0.5.8
-   orbit-idl: 0.6.8
-        perl: 5.6.1
-          qt: 3.0.0
-         rpm: 4.0.3
-         sdl: 1.2.2
-     xfree86: 4.1.0
-        xml2: 2.4.8
-         xml: 1.8.16
+Absolutely correct, I spoke sloppily.
+I should have said, "nobody performs better...".
 
+But the scalability certainly _appears_
+to be better than average -
 
+> TUX maxes out 2-way and 4-way systems as well, while IIS does not appear
+> to do a good job there. So we can say that it's proven that IIS does not
+> scale well. I can still not say whether Linux+TUX scales well, i can only
+> say that it's too fast for the given hardware :-)
+
+indeed...
+
+> why does it look like as if TUX scaled well on 1, 2, 4 CPUs? Because
+> hardware designers are sizing up systems with more CPUs, so the true
+> limits of the hardware show a similar scalability graph as the scalability
+> graph would be of a scalable webserver.
+
+Excellent point, thanks for making the distinction.
+
+Thanks as well for the other excellent insights,
+it was informative to hear what you had to say.
+
+cu
+
+jjs
 

@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286678AbRLVEwI>; Fri, 21 Dec 2001 23:52:08 -0500
+	id <S286674AbRLVEpS>; Fri, 21 Dec 2001 23:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286677AbRLVEv6>; Fri, 21 Dec 2001 23:51:58 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:2572 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S286675AbRLVEvx>;
-	Fri, 21 Dec 2001 23:51:53 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200112220451.fBM4pf1301592@saturn.cs.uml.edu>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-To: mharrold@cas.org (Mike Harrold)
-Date: Fri, 21 Dec 2001 23:51:41 -0500 (EST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mharrold@cas.org (Mike Harrold),
-        nknight@pocketinet.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200112211750.MAA06283@mah21awu.cas.org> from "Mike Harrold" at Dec 21, 2001 12:50:55 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S286673AbRLVEo7>; Fri, 21 Dec 2001 23:44:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19462 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286671AbRLVEou>; Fri, 21 Dec 2001 23:44:50 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Date: 21 Dec 2001 20:44:37 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a0133l$2ln$1@cesium.transmeta.com>
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <by> <postmaster@bluewin.ch)> <200112220214.fBM2EsSr022402@svr3.applink.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Harrold writes:
+Followup to:  <200112220214.fBM2EsSr022402@svr3.applink.net>
+By author:    Timothy Covell <timothy.covell@ashavan.org>
+In newsgroup: linux.dev.kernel
+> 
+> So, the English units were more attuned to nature.  The only thing
+> natural about base ten is that the majority of us have 10 fingers and
+> 10 toes.
+> 
 
->>> Yeah, no shit? The first time I buy 512MB of RAM and get 512000 KB
->>> (aka 512000000 bytes) I am gonna be *PISSED*
->>
->> Have a work with your hard disk manufacturer then
->
-> That isn't quite so important. My kernel isn't likely to f*ck up when
-> a 40GB HD = 40,000,000,000. I'm sure it will die quite painfully with
-> RAM chips that are not powers of 2.
+And all of us count that way.  Oh yes, the English unit is *so*
+attuned to nature... this is why we have different measures for dry
+volume, wet volume... avoirdupois versus troy weight... oh yes, energy
+is measures in BTUs and power in horsepower... what is the conversion
+factor between them (it has the dimension of time?)
 
-You'd be buying 537 MB of RAM, not 512 MB of RAM. I expect that
-we will see this soon, since a binary GB has a 7% error.
-(For kB the error was only 2.4%, which didn't matter so much.)
+> Finally, Farhenheit units are smaller so that they make more convenient
+> divisions: Eg.
 
-I would be selling RAM this way. It's stupid to do otherwise.
-Consumers will prefer the bigger numbers.
+Bullsh*t.  They seem more natural to you because you're more used to
+them.  Anyone who hasn't grown up on the system think that Fahrenheit
+is the ultimate in lunacy.
 
-Prefixes need to align with our number system. Unfortunately we
-don't use something sane like hex. We use decimal, which is as
-bad as base-9 or base-14. Oh well. Historical reasons you know,
-and computers aren't bit-wise addressable either. We live with
-this brokenness and can't afford to fix it all. So we might as
-well use a notation, the base-10 prefixes, that is consistent
-with our cummy number system.
-
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

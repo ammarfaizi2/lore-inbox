@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263782AbUDQKpG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 06:45:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUDQKpG
+	id S263799AbUDQKtV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 06:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbUDQKtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 06:45:06 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52495 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263782AbUDQKpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 06:45:00 -0400
-Date: Sat, 17 Apr 2004 11:44:55 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
-Cc: linux-kernel@vger.kernel.org, Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: [2.6.5] Oversized FB logos
-Message-ID: <20040417114455.B14786@flint.arm.linux.org.uk>
-Mail-Followup-To: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>,
-	linux-kernel@vger.kernel.org, Joshua Kwan <joshk@triplehelix.org>
-References: <pan.2004.04.17.03.07.22.362894@triplehelix.org> <200404171126.09188.koke_lkml@amedias.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200404171126.09188.koke_lkml@amedias.org>; from koke_lkml@amedias.org on Sat, Apr 17, 2004 at 11:26:09AM +0200
+	Sat, 17 Apr 2004 06:49:21 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:16614 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263799AbUDQKtU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 06:49:20 -0400
+Message-ID: <40810BA4.50803@colorfullife.com>
+Date: Sat, 17 Apr 2004 12:49:08 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alex Riesen <fork0@users.sourceforge.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: POSIX message queues, libmqueue: mq_open, mq_unlink
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 11:26:09AM +0200, Jorge Bernal (Koke) wrote:
-> what about passing CONSOLE=/dev/tty2 or CONSOLE=/dev/null at boot loader 
-> command line?? I saw that once in something like bootsplash or lpp but I'm 
-> not sure if this will work well.
+Alex wrote:
 
-Even better - use quiet on the kernel command line.  This sets the
-console level to 4, which means only error, critical, alert and
-emergency messages will appear on the console.
+>Ok. It's just that every provider of the _kernel_ interface to user
+>space has now to take care of being posix-compliant. Write the code for
+>checks, iow. That is not the case for "open", for instance.
+>And besides, with the patch applied the kernel is also posix compliant,
+>isn't it?
+>
+No. E.g. mq_notify(,&{.sigev_notify=SIGEV_THREAD) cannot be implemented 
+in kernel space. And sys_mq_getsetattr isn't posix compliant either - 
+the user space library must implement mq_getattr and mq_setattr on top 
+of the kernel API.
+The kernel API was designed to be simple and flexible. Perhaps we want 
+to extend the kernel implementation in the future, and then a leading 
+slash could be used to indicate that we are using the new features.
 
-This means that, should something go wrong, grandma can "bug out"
-and phone you, and read the error message to you.
+--
+    Manfred
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

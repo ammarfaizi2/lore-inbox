@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbUJYUNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbUJYUKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbUJYUNX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 16:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbUJYUKw
+	id S261237AbUJYUKf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 16:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbUJYUJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 16:10:52 -0400
-Received: from mail.inter-page.com ([12.5.23.93]:13316 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S261238AbUJYUKR
+	Mon, 25 Oct 2004 16:09:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51936 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261308AbUJYUEX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 16:10:17 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "'Andrea Arcangeli'" <andrea@novell.com>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: ZONE_PADDING wastes 4 bytes of the new cacheline
-Date: Mon, 25 Oct 2004 13:09:52 -0700
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAOViRpFgF0UCdvb8Z2X2gRwEAAAAA@casabyte.com>
+	Mon, 25 Oct 2004 16:04:23 -0400
+Message-ID: <417D5C31.8000806@pobox.com>
+Date: Mon, 25 Oct 2004 16:04:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Andrea Arcangeli <andrea@novell.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Joe Perches <joe@perches.com>,
+       Larry McVoy <lm@work.bitmover.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+References: <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org> <20041023161253.GA17537@work.bitmover.com> <4d8e3fd304102403241e5a69a5@mail.gmail.com> <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com> <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random> <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random> <Pine.LNX.4.58.0410250812300.3016@ppc970.osdl.org> <20041025154318.GA14325@dualathlon.random>
+In-Reply-To: <20041025154318.GA14325@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <20041025124443.GV14325@dualathlon.random>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As another "americanisim", "loaner" is something that is, or is to be, loaned out for
-a time.
+Andrea Arcangeli wrote:
+> On Mon, Oct 25, 2004 at 08:14:25AM -0700, Linus Torvalds wrote:
+> 
+>>Your point is pointless. No such distributed revision control system 
+>>exists. And without BK, the people who have worked on them wouldn't 
+> 
+> 
+> arch exists and it's exactly as distributed as BK.
 
-Usage:
 
-"Where didyou get the fancy car?"
-"It's a loaner, the dealer is fixing my hunk-of-junk."
+It doesn't scale or merge as well as BK though.
 
-I'd bet the comment is a spelling error, not that I have any real opinion... 8-)
+I've told Larry that, if both BK and <open source tool> were completely 
+equal in terms of function, I'd use the open source tool.  Neither arch 
+(scalability) nor subversion (scalability + stability) are there yet.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org]
-On Behalf Of Andrea Arcangeli
- I don't understand what loner means.
-online dict returns:
-
-loner
-     n : a person who avoids the company or assistance of others
-
+	Jeff
 
 

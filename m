@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263165AbUC2WcX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 17:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbUC2WcK
+	id S263169AbUC2Wfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 17:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbUC2WfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 17:32:10 -0500
-Received: from smtp11.wxs.nl ([195.121.6.8]:24490 "EHLO smtp11.wxs.nl")
-	by vger.kernel.org with ESMTP id S263199AbUC2Wb7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 17:31:59 -0500
-Date: Tue, 30 Mar 2004 00:19:40 +0200
-From: Arvind Autar <Autar022@planet.nl>
-Subject: Re: nicksched v30
-In-reply-to: <4063EAF7.8090405@gmx.de>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Jason Cox <jpcox@iastate.edu>
-Message-id: <1080598780.5933.8.camel@debian>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.5
-Content-type: multipart/signed; boundary="=-LpKnBOA+2wkphsKGO76q";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <4048204E.8000807@cyberone.com.au> <4063EAF7.8090405@gmx.de>
+	Mon, 29 Mar 2004 17:35:04 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21146
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263162AbUC2WdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 17:33:08 -0500
+Date: Tue, 30 Mar 2004 00:33:07 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: [andrea@suse.de: Re: 2.6.5-rc2-aa vma merging]
+Message-ID: <20040329223307.GH3808@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+though it was a private email.
 
---=-LpKnBOA+2wkphsKGO76q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+----- Forwarded message from Andrea Arcangeli <andrea@suse.de> -----
 
-On Fri, 2004-03-26 at 09:33, Prakash K. Cheemplavam wrote:
-> could do be so nice and do a rediff against current mm kernel? As this=20
+Date: Tue, 30 Mar 2004 00:32:30 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: 2.6.5-rc2-aa vma merging
 
-I have done a rediff of it:
-http://www.liquidweb.nl/~arvind/patches/v30.tgz.
+On Mon, Mar 29, 2004 at 08:44:25PM +0100, Hugh Dickins wrote:
+> Andrea,
+> 
+> Again I beg you to attend to vma merging in your anon_vma tree.
+> Still you have #if VMA_MERGING_FIXUP throughout mm/mprotect.c
+> (and much less seriously in mremap.c), and that's just masking
+> the real problem: that when you do enable vma merging there, your
+> anon_vmas will get in the way of merging in significant cases.
+> 
+> Try the example below, on mainline and on anonmm and on anon_vma,
+> even when you've done the VMA_MERGING_FIXUP: you're limited by the
+> MAX_MAP_COUNT of vmas, one per page.  Now, I know there's a move
+> afoot to have /proc/sys/vm/max_map_count tunable, but I don't
+> think that's the right answer for you ;)
+> 
+> If I remember rightly, Linus tried to do away with a lot of the
+> vma merging about three years ago, but some had to be reinstated.
 
-The integrity isn't as good as the npiggin's one probably.=20
+it was me to reistantiate it. And it wasn't for mprotect. Infact it was
+me adding it to mprotect and mremap too, it has never been there before
+(the day I did mprotect and mremap I got bored at some point and that's
+why we never had it for mlock yet).
 
-Arvind.
+> So I assume that what's there is needed, and the example below
+> does looks plausible enough: add page, fill it, protect it, ...
 
---=20
-Arvind Autar | GnuPG-Key ID: 336E5788
-Key fingerprint =3D FAB8 B3E5 0059 880A 00B8  C859 350E BBDC 336E 5788
+this will work perfect, absolutely perfect. You didn't read my code well
+enough.
 
---=-LpKnBOA+2wkphsKGO76q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+You still can write an exploit for it, but it will not be a real life
+one.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAaKD8NQ673DNuV4gRAm1+AKDrj0SfJRjDfNL9LNHZ/mLzPbhYMgCfU3y3
-XU0nV9dwmeyuQwFjdSq5q2w=
-=/Ovv
------END PGP SIGNATURE-----
-
---=-LpKnBOA+2wkphsKGO76q--
-
+----- End forwarded message -----

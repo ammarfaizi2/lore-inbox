@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315457AbSFCTzu>; Mon, 3 Jun 2002 15:55:50 -0400
+	id <S315458AbSFCT67>; Mon, 3 Jun 2002 15:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315459AbSFCTzt>; Mon, 3 Jun 2002 15:55:49 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8454 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315457AbSFCTzs>; Mon, 3 Jun 2002 15:55:48 -0400
-Date: Mon, 3 Jun 2002 12:55:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Mason <mason@suse.com>
-cc: Andrew Morton <akpm@zip.com.au>, Alexander Viro <aviro@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] iput() cleanup (was Re: [patch 12/16] fix race between
- writeback and unlink)
-In-Reply-To: <1023133764.22608.1867.camel@tiny>
-Message-ID: <Pine.LNX.4.33.0206031252270.11914-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315459AbSFCT66>; Mon, 3 Jun 2002 15:58:58 -0400
+Received: from mx1.afara.com ([63.113.218.20]:35413 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S315458AbSFCT65>;
+	Mon, 3 Jun 2002 15:58:57 -0400
+Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, release 3.0 is
+	available
+From: Thomas Duffy <tduffy@directvinternet.com>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Kbuild Devel <kbuild-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0206031330070.3833-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jun 2002 12:58:35 -0700
+Message-Id: <1023134315.25501.13.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 03 Jun 2002 19:58:52.0926 (UTC) FILETIME=[15F5B1E0:01C20B39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-06-03 at 12:31, Thunder from the hill wrote:
 
-On 3 Jun 2002, Chris Mason wrote:
-> 
-> I'm talking a very limited set of operations followed by calling the
-> generic functions.  I might not do it at all if I can't get them safe
-> when called under the spin lock.
+> Did you apply the sparc64 patch? Yet it's there.
 
-Ok, that should be reasonably "portable" (ie it won't break horribly and
-silently in the future when something changes in inode-land). Just doing a
-few ops (knowing you're under the inode lock) and then calling
-"generic_drop_inode()" should be fine.
+yes.
 
-[ Except right now only the "generic_delete_inode()" thing is exported, so
-  you'd need to export the other generic stuff, but that was kind of my
-  plan anyway, I just don't wan tto do it until there is some real need. ]
+this is failing in the db code, my guess.
 
-		Linus
+> You might even try the upcoming -ct1
+
+ok, I will give it a go, but I think this is a problem in core-15
+(kbuild v3.0)
+
+-tduffy
 

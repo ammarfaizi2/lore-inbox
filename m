@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267696AbUJGR2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267656AbUJGRcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267696AbUJGR2A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJGR1V
+	id S267656AbUJGRcN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267396AbUJGRMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:27:21 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:17339 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267696AbUJGRXQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 13:23:16 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
-Date: Thu, 7 Oct 2004 10:22:48 -0700
-User-Agent: KMail/1.7
-Cc: "Patrick Gefre" <pfg@sgi.com>, "Grant Grundler" <iod00d@hp.com>,
-       "Colin Ngam" <cngam@sgi.com>, "Matthew Wilcox" <matthew@wil.cx>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 13:12:06 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7187 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S267497AbUJGQ7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 12:59:23 -0400
+Date: Thu, 7 Oct 2004 18:58:49 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.9-rc3-mm3: `risc_code_addr01' multiple definition
+Message-ID: <20041007165849.GA4493@stusta.de>
+References: <20041007015139.6f5b833b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410071022.48569.jbarnes@engr.sgi.com>
+In-Reply-To: <20041007015139.6f5b833b.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, October 7, 2004 10:06 am, Luck, Tony wrote:
-> >Yeah, sorry, I shouldn't have said cleanup, fixup is better.
-> >Anyway, they
-> >need to be separate since they'll be going into the tree via
-> >Andrew not Tony.
->
-> A couple of days back I said that I'm ok pushing these drivers.
-> Although they don't have "arch/ia64" or "include/asm-ia64"
-> prefixes, they are only used by ia64.  I'm even ok with the
-> qla1280.c change as the final version is only touching code
-> inside #ifdef CONFIG_IA64_{GENERIC|SN2) ... but I would like
-> to see a sign-off from the de-facto maintainer Christoph for
-> this file.
+On Thu, Oct 07, 2004 at 01:51:39AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.9-rc3-mm2:
+>...
+>  bk-scsi.patch
+>...
 
-Ok great, that'll help keep things in good shape.
+This causes the following compile error:
 
-> However ... there's a thread on LKML wailing about huge changes
-> going into "-rc" releases.  Since there still seems to be
-> a lively discussion about the the right way to do the pci_root
-> bits of this patch, I'm very inclined to save this till *after*
-> Linus release 2.6.9-final.  If there's a _mostly_ clean patch
-> presented to me before 2.6.10-rc1 shows up, I'll push that and
-> allow for some follow-on tidy-up patches to clean up.
 
-Sounds good, thanks Tony.
+<--  snip  -->
 
-Jesse
+...
+  LD      drivers/scsi/built-in.o
+drivers/scsi/qla1280.o(.data+0xe65c): multiple definition of `risc_code_addr01'
+drivers/scsi/qlogicfc.o(.data+0x0): first defined here
+make[2]: *** [drivers/scsi/built-in.o] Error 1
+
+<--  snip  -->
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

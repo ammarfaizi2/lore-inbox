@@ -1,52 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263463AbTJQNTX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 09:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTJQNTX
+	id S263467AbTJQNpY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 09:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTJQNpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 09:19:23 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:43712 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S263463AbTJQNTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 09:19:21 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: Transparent compression in the FS
-Date: Fri, 17 Oct 2003 15:16:06 +0200
-User-Agent: KMail/1.5.4
-Cc: val@nmt.edu, linux-kernel@vger.kernel.org
-References: <1066163449.4286.4.camel@Borogove> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com>
-In-Reply-To: <20031016172930.GA5653@work.bitmover.com>
+	Fri, 17 Oct 2003 09:45:24 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:64896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263467AbTJQNpW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 09:45:22 -0400
+Date: Fri, 17 Oct 2003 09:47:00 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Matt Mackall <mpm@selenic.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RLE (was Re: Transparent compression in the FS)
+In-Reply-To: <20031016230302.GV5725@waste.org>
+Message-ID: <Pine.LNX.4.53.0310170853420.2962@chaos>
+References: <20031016230302.GV5725@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310171516.06990.ioe-lkml@rameria.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 October 2003 19:29, Larry McVoy wrote:
-> On Wed, Oct 15, 2003 at 11:13:27AM -0400, Jeff Garzik wrote:
-> > Josh and others should take a look at Plan9's venti file storage method
-> > -- archival storage is a series of unordered blocks, all of which are
-> > indexed by the sha1 hash of their contents.  This magically coalesces
-> > all duplicate blocks by its very nature, including the loooooong runs of
-> > zeroes that you'll find in many filesystems.  I bet savings on "all
-> > bytes in this block are zero" are worth a bunch right there.
+On Thu, 16 Oct 2003, Matt Mackall wrote:
+
+> On Wed, Oct 15, 2003 at 01:19:09PM -0400, Richard B. Johnson wrote:
 >
-> The only problem with this is that you can get false positives.  Val Hensen
-> recently wrote a paper about this.  It's really unlikely that you get false
-> positives but it can happen and it has happened in the field.
+> > JMODEM was done in 1989 as stated. RLE was invented my ME in 1967
+> > and was first used for a digital telemetry link between the Haystack
+> > research facility in Groton, Mass. and MIT's main campus. I was a
+> > technician there during my senior year at Northeastern. Whether or
+> > not it was patented by others is immaterial.
+>
+> S.W. Golomb. Run-length encoding. IEEE Trans. on Information Theory,
+> 12(3), July 1966.
+>
+> I'm sure there are earlier instances, but this is one that is commonly
+> cited. I expect we can find coding theory stuff back to the at least
+> the mid-40s with the formalization of regular expression theory and
+> Kleene closures.
+>
+> --
+> Matt Mackall : http://www.selenic.com : Linux development and consulting
+>
 
-Which is solvable by expanding your index with an enumerator for identical keys
-but different content and have an overflow table exactly for this.
+Well did you actually read it or just did a keyword search? The
+theory he cited definitely has its roots back with Claude Shannon
+(AT&T). Dr. Golomb is Professor Emeritus at University of Southern
+California. He's a well known mathematician and the developer of
+many math games and puzzles.
 
-Handling hash table overflow is normal for hashing (even for
-crypto-hashes). Why did they forget that? That's 2nd semester CS!
+There is a big difference between theory and "reducing to practice".
+Further, RLE has become many things. When I first proposed sending
+the large bunch of zeros that comprised most of the data, as some kind
+of special symbol, I was laughed at because the idea was absurd. My
+supervisor, who was a "moon-bounce" researcher, matter-of-factly
+said; "There are no special symbols. They are all used.". My
+reply was that they are not all equally probable. If we could
+find a symbol (byte, in this communications link), that was very
+unlikely, I could encode that symbol as a 3-byte symbol that
+would be unlikely to ever have to happen.
 
-Regards
+My supervisor asked somebody else about this at the MIT campus.
+The next week-end, (I worked on weekends, being a full-time
+student at Northeastern) my supervisor was very, very, excited
+about doing this and asked me to do the project.
 
-Ingo Oeser
+This did not use CPUs. Only mainframe computers existed in those
+days. Intel hadn't yet made their "traffic-light-controller" that
+would become the first production CPU. So, using a "proto-board"
+and a bunch of gates and registers, I made a 16-byte serial
+FIFO with a hardware replacement scheme to do RLE compression
+and expansion. Some MIT researchers (students) did a sort/merge
+on previous data using their time-share IBM mainframe and found
+that the least-likely code was 0xbb (bee-bee-hex). The method
+became known  as the bee-bee method and was used even 20 years
+later in disk-drives where 0xbb was still used as the token, even
+though it was most certainly not optimal for disk-drive data.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

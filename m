@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136442AbREGRVi>; Mon, 7 May 2001 13:21:38 -0400
+	id <S136411AbREGR2U>; Mon, 7 May 2001 13:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136437AbREGRV2>; Mon, 7 May 2001 13:21:28 -0400
-Received: from a1a90191.sympatico.bconnected.net ([209.53.18.14]:13696 "EHLO
-	a1a90191.sympatico.bconnected.net") by vger.kernel.org with ESMTP
-	id <S136407AbREGRVN>; Mon, 7 May 2001 13:21:13 -0400
-Date: Mon, 7 May 2001 10:20:53 -0700
-From: Shane Wegner <shane@cm.nu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, jerdfelt@valinux.com
-Subject: Re: 2.2.20pre1: Problems with SMP
-Message-ID: <20010507102053.A2276@cm.nu>
-In-Reply-To: <20010506175050.A1968@cm.nu> <E14wiNn-0003JF-00@the-village.bc.nu>
+	id <S136426AbREGR2K>; Mon, 7 May 2001 13:28:10 -0400
+Received: from t2.redhat.com ([199.183.24.243]:46586 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S136411AbREGR2D>; Mon, 7 May 2001 13:28:03 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta.com> 
+In-Reply-To: <Pine.LNX.4.21.0105071003330.12733-100000@penguin.transmeta.com> 
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brian Gerst <bgerst@didntduck.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 page fault handler not interrupt safe 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14wiNn-0003JF-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 07, 2001 at 11:36:49AM +0100
-Organization: Continuum Systems, Vancouver, Canada
+Date: Mon, 07 May 2001 18:27:35 +0100
+Message-ID: <12402.989256455@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 07, 2001 at 11:36:49AM +0100, Alan Cox wrote:
-> > Just booted up 2.2.20pre1 and am getting some funny
-> > results.  The system boots but is very slow.  Every few
-> > seconds I get:
-> > Stuck on TLB IPI wait (CPU#0)
-> > 
-> > Booting vanilla 2.2.19 works fine.  The machine is an
-> > Intel Pentium III 850MHZ on an Abit VP6 board.  If any
-> > further information is needed, let me know.
-> 
-> Can you back out the change to io_apic.c and tell me if that fixes it. If so
-> let Johannes Erdfelt and I know.
 
-That does indeed correct the problem.  2.2.20pre1 now works
-as expected.
+torvalds@transmeta.com said:
+>  If anybody has such a beast, please try this kernel patch _and_
+> running the F0 0F bug-producing program (search for it on the 'net -
+> it must be out there somewhere) to verify that the code still
+> correctly handles that case. 
 
-Shane
+Something along the lines of:
 
--- 
-Shane Wegner: shane@cm.nu
-              http://www.cm.nu/~shane/
-PGP:          1024D/FFE3035D
-              A0ED DAC4 77EC D674 5487
-              5B5C 4F89 9A4E FFE3 035D
+echo "unsigned long main=0xf00fc7c8;" > f00fbug.c ; make f00fbug
+
+--
+dwmw2
+
+

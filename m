@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263101AbTCSQms>; Wed, 19 Mar 2003 11:42:48 -0500
+	id <S263063AbTCSQu4>; Wed, 19 Mar 2003 11:50:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263100AbTCSQms>; Wed, 19 Mar 2003 11:42:48 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19589
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263093AbTCSQmS>; Wed, 19 Mar 2003 11:42:18 -0500
-Subject: Re: problem with pcmcia, pci and hard disk
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mauro Chiarugi <maurochiarugi@tiscali.it>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030319174705.37994a18.maurochiarugi@tiscali.it>
-References: <20030319173523.745fb4a9.maurochiarugi@tiscali.it>
-	 <20030319174705.37994a18.maurochiarugi@tiscali.it>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048097045.30751.64.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 19 Mar 2003 18:04:06 +0000
+	id <S263084AbTCSQu4>; Wed, 19 Mar 2003 11:50:56 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:27271 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S263083AbTCSQux>; Wed, 19 Mar 2003 11:50:53 -0500
+Date: Wed, 19 Mar 2003 12:03:52 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Ed Vance <EdV@macrolink.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.20 modem control
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33DEE@EXCHANGE>
+Message-ID: <Pine.LNX.4.53.0303191202450.31905@chaos>
+References: <11E89240C407D311958800A0C9ACF7D1A33DEE@EXCHANGE>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-19 at 16:47, Mauro Chiarugi wrote:
-> I forgot to explain why in the subject i've written hard disk too..
-> When, at the boot, every 27 times, it check the file system, some times
-> (or every time, i don't sure..) it fails... :-( I use ext3.
+On Wed, 19 Mar 2003, Ed Vance wrote:
+[SNIPPED...]
 
-It should never be failing, on 2.4.18 or 2.5.x with ext3. You should
-get log playbacks on a crash and maybe an fsck every 27 if you set the
-checking to run that way.
+> >
+> Hi Richard,
+>
+> The following patch to serial.c in 2.4.20 is a brute-force addition
+> of a hang-up delay of 0.5 sec just before close returns to the user,
+> if the hupcl flag is set. Please try this to determine if there are
+> any other issues with the remote login. If it works, I'll write a
+> better patch that does not duplicate other delays, etc.
+>
+> Cheers,
+> Ed
 
-My first guess is you have something corrupting data - bad memory, bad
-disk, overclocking or of course a software bug that you happen to hit
-and nobody else seems to.
+Okay. I will test this after about 4:00 PM when I can shut down
+that machine. Thanks.
 
-What drivers are you running
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

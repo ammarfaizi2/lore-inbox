@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288557AbSADJMc>; Fri, 4 Jan 2002 04:12:32 -0500
+	id <S288555AbSADJJm>; Fri, 4 Jan 2002 04:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288561AbSADJLv>; Fri, 4 Jan 2002 04:11:51 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:9157 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S288557AbSADJKn>;
-	Fri, 4 Jan 2002 04:10:43 -0500
-Date: Fri, 4 Jan 2002 10:09:46 +0100 (MET)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: Who uses hdx=bswap or hdx=swapdata?
-In-Reply-To: <E16MGPf-0001I3-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0201041009000.12102-100000@vervain.sonytel.be>
+	id <S288559AbSADJJa>; Fri, 4 Jan 2002 04:09:30 -0500
+Received: from mail.s.netic.de ([212.9.160.11]:15123 "EHLO mail.netic.de")
+	by vger.kernel.org with ESMTP id <S288557AbSADJJP>;
+	Fri, 4 Jan 2002 04:09:15 -0500
+To: dewar@gnat.com
+Cc: Dautrevaux@microprocess.com, paulus@samba.org,
+        Franz.Sirl-kernel@lauterbach.com, benh@kernel.crashing.org,
+        gcc@gcc.gnu.org, jtv@xs4all.nl, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.linuxppc.org, minyard@acm.org, rth@redhat.com,
+        trini@kernel.crashing.org, velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <20020103132837.71EFBF3257@nile.gnat.com>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Fri, 04 Jan 2002 09:38:35 +0100
+In-Reply-To: <20020103132837.71EFBF3257@nile.gnat.com> (dewar@gnat.com's
+ message of "Thu,  3 Jan 2002 08:28:37 -0500 (EST)")
+Message-ID: <87wuyy33zo.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Alan Cox wrote:
-> > Is the hdx=bswap or hdx=swapdata option actually in use?
-> > When is it needed?
-> 
-> Certain M68K machines
-> 
-> > The current implementation can cause data corruptions on SMP with PIO 
-> > transfers:
-> > 
-> > Is it possible to remove the option entirely, or should it be fixed?
-> 
-> Show me an SMP Atari ST 8)
+dewar@gnat.com writes:
 
-IIRC it's used to access non-Atari IDE disks on Atari (which has a byte-swapped
-IDE interface) and vice-versa.
+> <<No, in fact the kernel isn't written in ANSI C. :)
+> If nothing else, the fact that it uses a lot of gcc-specific
+> extensions rules that out.  And it assumes that you can freely cast
+> pointers to unsigned longs and back again.  I'm sure others can add to
+> this list.
+>>>
+>
+> Most certainly this list should exist in precise defined form. 
 
-So yes, you can use it on SMP machines, to access disks that were used before
-on Atari.
+C99 includes a list of additional guarantees made by many C
+implementations (in an informative index).  I think we really should
+check this list (and the list of implementation-defined behavior) and
+document the choices made by GCC.  In fact, this documentation is
+required by the standard.
 
-Gr{oetje,eeting}s,
+> It is this kind of informality that is asking for trouble.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+We have seen much trouble in this area before, but I doubt we can
+avoid all of them by proper documentation.  Quite a few people seem to
+write some C code, check that it works, look at the generated machine
+code, and if it seems to be correct, the C code is considered to be
+correct.

@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbULEDjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbULEDwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbULEDjb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 22:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbULEDjb
+	id S261245AbULEDwD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 22:52:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbULEDwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 22:39:31 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:16484 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261243AbULEDja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 22:39:30 -0500
-Message-ID: <41B282F0.3020704@triplehelix.org>
-Date: Sat, 04 Dec 2004 19:39:28 -0800
-From: Joshua Kwan <joshk@triplehelix.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Sat, 4 Dec 2004 22:52:03 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11179 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261245AbULEDwB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 22:52:01 -0500
+Date: Sat, 4 Dec 2004 19:51:43 -0800
+Message-Id: <200412050351.iB53phqK025663@magilla.sf.frob.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Josefsson <gandalf@wlug.westbo.se>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: [PATCH] Fix ALSA resume
-References: <1102195391.1560.65.camel@tux.rsn.bth.se> <20041204172855.350100d0.akpm@osdl.org>
-In-Reply-To: <20041204172855.350100d0.akpm@osdl.org>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Paul Mackerras <paulus@samba.org>
+X-Fcc: ~/Mail/linus
+Cc: Robert Love <rml@novell.com>, Linus Torvalds <torvalds@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
+       libc-alpha@sources.redhat.com
+Subject: Re: Proposal for a userspace "architecture portability" library
+In-Reply-To: Paul Mackerras's message of  Sunday, 5 December 2004 12:47:05 +1100 <16818.26777.209451.685576@cargo.ozlabs.ibm.com>
+X-Windows: simplicity made complex.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> But Joshua crosses his heart and swears that the pci_disable_device() is
-> also needed for a successful swsusp resume.
+> I don't think glibc exports any atomic operations.
 
-I never said I had any problems with resuming.
+That is true.  But it does have implementations in bits/atomic.h for many
+processors, and that is under the LGPL.
 
-That said, I tried removing the pci_disable_device call and things seem
-to still work. So I guess it can be left out?
+> As for the semaphores and spinlocks, clearly you can use the pthread_*
+> functions, but hopefully the kernel versions are a bit lighter-weight.
 
--- 
-Joshua Kwan
+The pthread_spin_* functions are not inlines, but are otherwise minimal.

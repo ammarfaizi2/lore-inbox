@@ -1,130 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261334AbSIPKvs>; Mon, 16 Sep 2002 06:51:48 -0400
+	id <S261342AbSIPKwS>; Mon, 16 Sep 2002 06:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261342AbSIPKvs>; Mon, 16 Sep 2002 06:51:48 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:48652 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261334AbSIPKvq>; Mon, 16 Sep 2002 06:51:46 -0400
+	id <S261346AbSIPKwR>; Mon, 16 Sep 2002 06:52:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:13957 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261342AbSIPKwO>;
+	Mon, 16 Sep 2002 06:52:14 -0400
+Date: Mon, 16 Sep 2002 13:03:22 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix for ptrace breakage
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 16 Sep 2002 19:56:02 +0900
-Message-ID: <87it16kxtp.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Subject: [patch] thread-exec-fix-2.5.35-A5, BK-curr
+Message-ID: <Pine.LNX.4.44.0209161256140.27517-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This patch fixes the following,
+the attached patch (against BK-curr) fixes a number of sys_execve()  
+problems:
 
-    - race condition of ptrace flag
-    - sent odd signal to the tracer
-    - broken before behavior
+ - ptrace of thread groups over exec works again.
 
-And some cleanup.
+ - if the exec() is done in a non-leader thread then we must inherit the
+   parent links properly - otherwise the shell will see an early
+   child-exit notification.
 
-Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+ - if the exec()-ing thread is detached then make it use SIGCHLD like the
+   leader thread.
 
---- linux-2.5.35/kernel/exit.c~	2002-09-16 17:41:59.000000000 +0900
-+++ linux-2.5.35/kernel/exit.c	2002-09-16 17:28:01.000000000 +0900
-@@ -221,7 +221,6 @@ void reparent_to_init(void)
- 	/* Set the exit signal to SIGCHLD so we signal init on exit */
- 	current->exit_signal = SIGCHLD;
+ - wait for the leader thread to become TASK_ZOMBIE properly -
+   wait_task_inactive() alone was not enough. This should be a rare
+   codepath.
+
+now sys_execve() from thread groups works as expected in every combination
+i could test: standalone, from the leader thread, from one of the child
+threads, ptraced, non-ptraced, SMP and UP.
+
+	Ingo
+
+--- linux/fs/exec.c.orig	Mon Sep 16 11:11:34 2002
++++ linux/fs/exec.c	Mon Sep 16 12:53:00 2002
+@@ -41,6 +41,7 @@
+ #include <linux/module.h>
+ #include <linux/namei.h>
+ #include <linux/proc_fs.h>
++#include <linux/ptrace.h>
  
--	current->ptrace = 0;
- 	if ((current->policy == SCHED_NORMAL) && (task_nice(current) < 0))
- 		set_user_nice(current, 0);
- 	/* cpus_allowed? */
-@@ -464,50 +463,35 @@ static inline void forget_original_paren
- 	}
- 	list_for_each(_p, &father->ptrace_children) {
- 		p = list_entry(_p,struct task_struct,ptrace_list);
-+		list_del_init(&p->ptrace_list);
- 		reparent_thread(p, reaper, child_reaper);
-+		if (p->parent != p->real_parent)
-+			list_add(&p->ptrace_list, &p->real_parent->ptrace_children);
- 	}
- }
- 
--static inline void zap_thread(task_t *p, task_t *father, int traced)
-+static inline void zap_thread(task_t *p, task_t *father)
- {
--	/* If someone else is tracing this thread, preserve the ptrace links.  */
--	if (unlikely(traced)) {
--		task_t *trace_task = p->parent;
--		int ptrace_flag = p->ptrace;
--		BUG_ON (ptrace_flag == 0);
--
--		__ptrace_unlink(p);
--		p->ptrace = ptrace_flag;
--		__ptrace_link(p, trace_task);
--	} else {
--		/*
--		 * Otherwise, if we were tracing this thread, untrace it.
--		 * If we were only tracing the thread (i.e. not its real
--		 * parent), stop here.
--		 */
--		ptrace_unlink (p);
--		if (p->parent != father) {
--			BUG_ON(p->parent != p->real_parent);
--			return;
--		}
--		list_del_init(&p->sibling);
--		p->parent = p->real_parent;
--		list_add_tail(&p->sibling, &p->parent->children);
--	}
-+	ptrace_unlink(p);
- 
-+	remove_parent(p);
-+	p->parent = p->real_parent;
-+	add_parent(p, p->parent);
- 	if (p->state == TASK_ZOMBIE && p->exit_signal != -1)
- 		do_notify_parent(p, p->exit_signal);
-+
- 	/*
- 	 * process group orphan check
- 	 * Case ii: Our child is in a different pgrp
- 	 * than we are, and it was the only connection
- 	 * outside, so the child pgrp is now orphaned.
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -577,11 +578,17 @@
+ 	 * and to assume its PID:
  	 */
--	if ((p->pgrp != current->pgrp) &&
--	    (p->session == current->session)) {
-+	if ((p->pgrp != father->pgrp) &&
-+	    (p->session == father->session)) {
- 		int pgrp = p->pgrp;
+ 	if (current->pid != current->tgid) {
+-		struct task_struct *leader = current->group_leader;
++		struct task_struct *leader = current->group_leader, *parent;
+ 		struct dentry *proc_dentry1, *proc_dentry2;
+-		unsigned long state;
++		unsigned long state, ptrace;
  
--		if (__will_become_orphaned_pgrp(pgrp, 0) && __has_stopped_jobs(pgrp)) {
-+		if (__will_become_orphaned_pgrp(pgrp, 0) &&
-+		    __has_stopped_jobs(pgrp)) {
- 			__kill_pg_info(SIGHUP, (void *)1, pgrp);
- 			__kill_pg_info(SIGCONT, (void *)1, pgrp);
- 		}
-@@ -520,7 +504,7 @@ static inline void zap_thread(task_t *p,
-  */
- static void exit_notify(void)
- {
--	struct task_struct *t;
-+	struct task_struct *t, *p;
+-		wait_task_inactive(leader);
++		/*
++		 * Wait for the thread group leader to be a zombie.
++		 * It should already be zombie at this point, most
++		 * of the time.
++		 */
++		while (leader->state != TASK_ZOMBIE)
++			yield();
  
- 	write_lock_irq(&tasklist_lock);
+ 		write_lock_irq(&tasklist_lock);
+ 		proc_dentry1 = clean_proc_dentry(current);
+@@ -597,10 +604,33 @@
+ 		 * two threads with a switched PID, and release
+ 		 * the former thread group leader:
+ 		 */
++		ptrace = leader->ptrace;
++		parent = leader->parent;
++
++		ptrace_unlink(leader);
++		ptrace_unlink(current);
+ 		unhash_pid(current);
+ 		unhash_pid(leader);
++		remove_parent(current);
++		remove_parent(leader);
++		/*
++		 * Split up the last two remaining members of the
++		 * thread group:
++		 */
++		list_del_init(&leader->thread_group);
++
+ 		leader->pid = leader->tgid = current->pid;
+ 		current->pid = current->tgid;
++		current->parent = current->real_parent = leader->real_parent;
++		leader->parent = leader->real_parent = child_reaper;
++		current->exit_signal = SIGCHLD;
++
++		add_parent(current, current->parent);
++		add_parent(leader, leader->parent);
++		if (ptrace) {
++			current->ptrace = ptrace;
++			__ptrace_link(current, parent);
++		}
+ 		hash_pid(current);
+ 		hash_pid(leader);
+ 		
+@@ -608,8 +638,9 @@
+ 		state = leader->state;
+ 		write_unlock_irq(&tasklist_lock);
  
-@@ -580,10 +564,8 @@ static void exit_notify(void)
- 	if (current->exit_signal != -1)
- 		do_notify_parent(current, current->exit_signal);
+-		if (state == TASK_ZOMBIE)
+-			release_task(leader);
++		if (state != TASK_ZOMBIE)
++			BUG();
++		release_task(leader);
  
--	while (!list_empty(&current->children))
--		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
--	while (!list_empty(&current->ptrace_children))
--		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,ptrace_list), current, 1);
-+	while ((p = eldest_child(current)) != NULL)
-+		zap_thread(p, current);
- 	BUG_ON(!list_empty(&current->children));
- 
- 	current->state = TASK_ZOMBIE;
+ 		put_proc_dentry(proc_dentry1);
+ 		put_proc_dentry(proc_dentry2);
+
+

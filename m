@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264453AbSIVSIv>; Sun, 22 Sep 2002 14:08:51 -0400
+	id <S264454AbSIVSZg>; Sun, 22 Sep 2002 14:25:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264454AbSIVSIv>; Sun, 22 Sep 2002 14:08:51 -0400
-Received: from p508E9036.dip.t-dialin.net ([80.142.144.54]:9170 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S264453AbSIVSIu>; Sun, 22 Sep 2002 14:08:50 -0400
-From: Martin Loschwitz <madkiss@madkiss.org>
-Date: Sun, 22 Sep 2002 20:13:59 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.38-ml2
-Message-ID: <20020922181358.GA16388@minerva.local.lan>
+	id <S264455AbSIVSZg>; Sun, 22 Sep 2002 14:25:36 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:16144
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S264454AbSIVSZg>; Sun, 22 Sep 2002 14:25:36 -0400
+Subject: Re: 2.5.38 scheduling oops? at boot
+From: Robert Love <rml@tech9.net>
+To: scott781@attbi.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209220749280.918-200000@localhost.localdomain>
+References: <Pine.LNX.4.44.0209220749280.918-200000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 22 Sep 2002 14:30:45 -0400
+Message-Id: <1032719445.10108.988.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2002-09-22 at 09:04, Scott M. Hoffman wrote:
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>   I booted into 2.5.38 on a dual amd duron system using profile=2 on 
+> command line, and the system seemed a bit sluggish just to get bash to 
+> complete a filename in /proc.  I found the attached oops after these  
+> messages:
+> 	Starting migration thread for cpu 1
+> 	bad: Scheduling while atomic!
+> ...
+> Trace; c01186ed <schedule+3d/430>
+> Trace; c0118d9c <wait_for_completion+9c/100>
+> Trace; c0118b30 <default_wake_function+0/40>
+> Trace; c0118b30 <default_wake_function+0/40>
+> Trace; c011a2c5 <set_cpus_allowed+145/170>
+> Trace; c011a33e <migration_thread+4e/340>
+> Trace; c011a2f0 <migration_thread+0/340>
+> Trace; c0106f0d <kernel_thread_helper+5/18>
+> Trace; c01186ed <schedule+3d/430>
+> Trace; c0118d9c <wait_for_completion+9c/100>
+> Trace; c0118b30 <default_wake_function+0/40>
+> Trace; c0118b30 <default_wake_function+0/40>
+> Trace; c011a2c5 <set_cpus_allowed+145/170>
+> Trace; c012274f <ksoftirqd+4f/f0>
+> Trace; c0122700 <ksoftirqd+0/f0>
+> Trace; c0106f0d <kernel_thread_helper+5/18>
 
-Ok, this version is fixed.
+This particular occurrence is known; thanks.  The startup of the
+migration_threads calls set_cpus_allowed(), and set_cpus_allowed()
+sleeps while disabling preemption.
 
-Summary of changes from v2.5.38-ml1 to v2.5.38-ml2
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+It will not hurt anything, but it needs to be fixed.  Before that, I
+need to find out why set_cpus_allowed() dies without the
+preempt_disable() in there.
 
-o [PATCH] fix UP_APIC linkage problem in 2.5.3[78] (Mikael Pettersson <mikp=
-e@csd.uu.se>)
+	Robert Love
 
-Linux 2.5.38-ml2 is available at http://www.madkiss.org/kernel/2.5.38/
-
---=20
-  .''`.   Name: Martin Loschwitz
- : :'  :  E-Mail: madkiss@madkiss.org
- `. `'`   www: http://www.madkiss.org/=20
-   `-     Use Debian GNU/Linux - http://www.debian.org   =20
-
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9jghmHPo+jNcUXjARAkRCAJ48+2zxK2u/eDh4l//MCbszceytBACfdsWX
-lcqsp5PkIZ306I7QRWj+RUk=
-=qDdi
------END PGP SIGNATURE-----
-
---45Z9DzgjV8m4Oswq--

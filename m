@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280588AbSAPRWG>; Wed, 16 Jan 2002 12:22:06 -0500
+	id <S284138AbSAPRWG>; Wed, 16 Jan 2002 12:22:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283244AbSAPRWB>; Wed, 16 Jan 2002 12:22:01 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:35857 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S284264AbSAPRVW>;
-	Wed, 16 Jan 2002 12:21:22 -0500
-Date: Wed, 16 Jan 2002 09:17:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Kim Yong Il <nalabi@formail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 ] Can't usb-storage
-Message-ID: <20020116171744.GB1064@kroah.com>
-In-Reply-To: <20020116102248.A29240@formail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020116102248.A29240@formail.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 19 Dec 2001 15:13:32 -0800
+	id <S280588AbSAPRV7>; Wed, 16 Jan 2002 12:21:59 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:6411 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S284138AbSAPRUg>; Wed, 16 Jan 2002 12:20:36 -0500
+Date: Wed, 16 Jan 2002 12:20:17 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Hans-Christian Armingeon <linux.johnny@gmx.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: KDE hang with 2.4.18-pre3-ac2
+In-Reply-To: <16QsTK-0yvhtAC@fmrl10.sul.t-online.com>
+Message-ID: <Pine.LNX.3.96.1020116121752.28369J-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 10:22:48AM +0900, Kim Yong Il wrote:
-> I can use  usb-storage in 2.4.16, 
-> 
-> But can't use in 2.4.17
+On Wed, 16 Jan 2002, Hans-Christian Armingeon wrote:
 
-Ah, descriptive bug reports, that are so easy to figure out what is going on :)
+> I've got the same problems with SuSE7.3 and kde2.2.2.
+> With kernel 2.4.17, the X locks up, when I push the power button, the box tries to shut doen [I can hear a beep], but nothing else happens. After two or three sysrq keys specally sigterm to all processes, the system locks hard [reset cycle needed].
+> I am trying 2.4.18-pre4 now.
 
-Please read REPORTING-BUGS in the kernel tree and also the steps to
-report a USB bug on the linux-usb.org web page.
+Totally other problem. When my KDE won't launch tasks from the bar, it
+will still work just fine otherwise, shutdown cleanly, etc. System is not
+in any way hung, just that clicking the browser or terminal button doesn't
+start a process, and if I bring up a menu from the bar, and try to start
+something like moon phase, it also doesn't start.
 
-thanks,
+I think the kernel told KDE something it didn't want to hear, so to speak.
 
-greg k-h
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

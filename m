@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278614AbRJSTQh>; Fri, 19 Oct 2001 15:16:37 -0400
+	id <S278620AbRJSTZH>; Fri, 19 Oct 2001 15:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278616AbRJSTQ2>; Fri, 19 Oct 2001 15:16:28 -0400
-Received: from internet.sk ([192.108.130.91]:47114 "EHLO internet.eunet.sk")
-	by vger.kernel.org with ESMTP id <S278615AbRJSTQQ>;
-	Fri, 19 Oct 2001 15:16:16 -0400
-From: "Stanislav Meduna" <stano@meduna.org>
-To: "Dan Siemon" <dan@coverfire.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: USB stability - possibly printer related
-Date: Fri, 19 Oct 2001 21:16:46 +0200
-Message-ID: <AHEMIKPKMHEEJBKHLIGHEEFGCAAA.stano@meduna.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <1003518067.16964.22.camel@cr156960-a>
+	id <S278622AbRJSTY6>; Fri, 19 Oct 2001 15:24:58 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:44796 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S278620AbRJSTYr>; Fri, 19 Oct 2001 15:24:47 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 19 Oct 2001 13:25:13 -0600
+To: Mike Castle <dalgoda@ix.netcom.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: e2fsck, LVM and 4096-char block problems
+Message-ID: <20011019132513.F402@turbolinux.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011019115937.A10588@thune.mrc-home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011019115937.A10588@thune.mrc-home.com>
+User-Agent: Mutt/1.3.22i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Oct 19, 2001  11:59 -0700, Mike Castle wrote:
+> Using Linus' 2.4.10, unpatched.  (Perhaps I need to patch the LVM stuff ;-)
 
-> I have not had time to risk killing my system again but
-> it appears to be either related to postscript printing
-> or the lm_sensors modules. Do you by chance use lm_sensors?
+Very bad combination.  Don't use 2.4.10, don't use stock Linus LVM.
 
-No, I don't.
+> resize2fs tells me to run fsck.  Hmmmm... I just did.
 
-> I am pretty sure I can make it happen again but I don't have
-> the time to reinstall my system right now...
+Fsck may not work on 2.4.10.
 
-I can experiment, provided that only the mounted partitions
-can be hosed this way. But if this is some memory corruption,
-maybe anything could go wrong...
+> Oct 19 11:45:41 thune kernel: ll_rw_block: device 3a:00: only 4096-char
+> blocks implemented (1024)
 
-> > - I got a corruption of the files that were surely _not_
-> >   opened for writing.
-> 
-> Here too. Many system libs were corrupted. When fsck tried
-> to repair the file system it spewed all kinds of errors
-> about libs.
+Known problem fixed in more recent LVM.
 
-Kernel gurus: it seems this is a common symptom. Could someone
-give some explanation/speculation, what mechanismus can lead
-to this kind of corruption (not necessarily related to USB)?
-
-Regards
--- 
-                                   Stano
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

@@ -1,72 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267429AbTB1CbJ>; Thu, 27 Feb 2003 21:31:09 -0500
+	id <S267425AbTB1C3v>; Thu, 27 Feb 2003 21:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTB1CbJ>; Thu, 27 Feb 2003 21:31:09 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:58507 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id <S267429AbTB1CbH>;
-	Thu, 27 Feb 2003 21:31:07 -0500
-Date: Fri, 28 Feb 2003 02:41:14 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: linux-mm@kvack.org, <linux-kernel@vger.kernel.org>
-Subject: VM Documentation Release Day
-Message-ID: <Pine.LNX.4.44.0302280156450.14671-100000@skynet>
+	id <S267427AbTB1C3v>; Thu, 27 Feb 2003 21:29:51 -0500
+Received: from d174.dhcp212-198-223.noos.fr ([212.198.223.174]:35003 "EHLO
+	picsou.chatons") by vger.kernel.org with ESMTP id <S267425AbTB1C3u>;
+	Thu, 27 Feb 2003 21:29:50 -0500
+Message-ID: <3E5ECC05.6000209@ens.fr>
+Date: Fri, 28 Feb 2003 03:40:05 +0100
+From: David Monniaux <David.Monniaux@ens.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: fr, fr-FR, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Asus P4S8X - SiS 7012 audio with C-Media 9739 codec
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a beginning of the end release of the VM documentation against
-2.4.20 as it contains information on pretty much all of the VM. A lot of
-the older chapters have been cleaned up in terms of language, font usage
-and presentation and a few new chapters are new. Please excuse if the
-swapping chapter is a bit rough, I wanted to get this done by the weekend
-so I can head away offline and not have to worry about it.
+Hi,
 
-The whole documentation is broken up into two major sets of documents.
-understand.foo is the main document describing how the VM works and
-code.foo is a fairly detailed code commentary to guide through the sticky
-parts. It can be found in PDF(preferred format), HTML or plain text at
+I have a SiS 648-based motherboard (Asus P4S8X) with a SiS 7012 AC'97 
+audio coupled with a C-Media 9739 codec (id 0x434D4961).
 
-Understand the VM
-PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/understand.pdf
-HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/
-Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/understand.txt
+For some reason, mixer settings under Linux work in a binary fashion: 
+either mute, or full volume, but no gradation.
 
-Code Commentary
-PDF:  http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/code.pdf
-HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/code
-Text: http://www.csn.ul.ie/~mel/projects/vm/guide/text/code.txt
+I've fixed ac97_codec.c so that it detects the codec, but then I'm 
+stuck. I got the 9739 technical documentation from C-Media's site, but 
+it does not help much - it seems that the values put in the registers 
+are all right.
 
-This is a huge milestone for me (I'm actually quite proud of myself!) It
-has come a *long* way since I wrote
-http://marc.theaimsgroup.com/?l=linux-mm&m=99907898511387&w=2 which was
-around when I first untarred the source with a view to seriously reading
-it :-) (The larger project never really got as far as I thought, I
-drastically underestimated how long this would take and it was large
-enough project as it was)
+I suspect some bypass mechanism or some bit that turns analog mixing 
+off, but I don't see anything in the documentation about it.
 
-At this stage, I'm nearing the end of the documentation work for the
-2.4.20 VM. If I write anything for 2.5, it'll be in the shape of addendums
-where I describe the differences rather than going through all this again.
-All that I have left really is to polish it (especially the later chapters
-like swap management) and fill in some gaps (particularly filling out the
-page cache management a bit more). I'm now hoping people will read through
-it, tell me where and if I've made technical errors, suggestions for
-improvements or tell me where I've missed on topics that really should
-have been covered.
+Would somebody with the same motherboard care to do some experiments? 
+Playing a sample with xmms, one can set volume to "mute", any other 
+value gives a constant volume.
 
-When the final polish is done, the whole document, LaTeX source and all
-will be uploaded to somewhere more accessible than my webpage. At this
-stage, presuming people do not start pointing out horrible mistakes I've
-made, I'm hoping that the final version is not too far away. Suggestions,
-comments and feedback are welcome.
+It's also impossible to record anything - the recording is blank.
 
- --
-Mel Gorman
-MSc Student, University of Limerick
-http://www.csn.ul.ie/~mel
-
-
+Regards,
+D. Monniaux
 

@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265583AbTFRWnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 18:43:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbTFRWlC
+	id S265586AbTFRWqz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 18:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265584AbTFRWoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 18:41:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52745 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S265593AbTFRWkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 18:40:46 -0400
-Date: Wed, 18 Jun 2003 15:54:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Eli Carter <eli.carter@inet.com>
-cc: Linus Torvalds <torvalds@osdl.org>, John Levon <levon@movementarian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] OProfile: IO-APIC fixup
-In-Reply-To: <3EF0E92F.2070206@inet.com>
-Message-ID: <Pine.LNX.4.44.0306181550530.2543-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Jun 2003 18:44:00 -0400
+Received: from mail.ccur.com ([208.248.32.212]:45580 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S265592AbTFRWnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 18:43:22 -0400
+Date: Wed, 18 Jun 2003 18:57:10 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: george anzinger <george@mvista.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: O(1) scheduler seems to lock up on sched_FIFO and sched_RR tasks
+Message-ID: <20030618225710.GA20631@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <3EF0979C.8060603@mvista.com> <20030618193053.GA15576@tsunami.ccur.com> <3EF0E7AC.60007@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF0E7AC.60007@mvista.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 18 Jun 2003, Eli Carter wrote:
+> >Hi George,
+> > When I boost the priority of each of the per-cpu 'events/%d' daemon to
+> >96, the problem goes away.
 > 
-> I can hear it now... "OPT-IN! Woohoo!"
+> Seems like your saying that the events workqueues are involved in the 
+> scheduler in some ugly way.  Certainly not what your average rt 
+> programmer would expect :(  What is going on here?
 
-Hey, nobody reads emails without spam filtering these days, do they? I get 
-300 spams a day, and I don't even notice any more.
 
-		Linus
+My guess is that tty/ptty driver character processing is done by the
+event daemons.  In which case your high priority bash is running but the
+characters it puts out (if any) cannot be seen nor are the characters
+you type in passed to bash, until the mid-priority process exits and
+lets the event daemon run.
 
+I view this as a kind of priority inversion.  The only solution is for
+RT users to learn what each daemon does and hand-boost the priority of
+each to the RT priority appropriate to their mix of RT applications.
+
+Joe

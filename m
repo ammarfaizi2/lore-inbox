@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVCIWFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVCIWFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVCIWFt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 17:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVCIWFh
+	id S261552AbVCIWFu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 17:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCIWFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 17:05:37 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6792 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261951AbVCIWDn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:03:43 -0500
-Date: Wed, 9 Mar 2005 22:03:35 +0000
-From: "'Christoph Hellwig'" <hch@infradead.org>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Subject: Re: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod ule  for LSI Logic's SAS based MegaRAID controllers
-Message-ID: <20050309220335.GA9350@infradead.org>
-Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
-	"Bagalkote, Sreenivas" <sreenib@lsil.com>,
-	'Arjan van de Ven' <arjan@infradead.org>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-	'James Bottomley' <James.Bottomley@SteelEye.com>,
-	"'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-	Andrew Morton <akpm@osdl.org>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CC1C@exa-atlanta>
+	Wed, 9 Mar 2005 17:05:13 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:53131 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262144AbVCIWBd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:01:33 -0500
+Subject: Re: [PATCH] Support for GEODE CPUs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050309173344.GD17865@csclub.uwaterloo.ca>
+References: <200503081935.j28JZ433020124@hera.kernel.org>
+	 <1110387668.28860.205.camel@localhost.localdomain>
+	 <20050309173344.GD17865@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1110405563.3072.250.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC1C@exa-atlanta>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Mar 2005 21:59:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 09:43:47AM -0500, Bagalkote, Sreenivas wrote:
-> During the module load time, I allocate 32 bit or 64 bit SGLs based on
-> whether I can receive 64 bit DMA addresses or not. If size of dma_addr_t
-> is 4, then I allocate only 32 bit SGLs. During the run time, I prepare 
-> 32/64 bit SGLs based on this variable. And since this is compile time
-> system-wide property, I kept it as driver global.
+On Mer, 2005-03-09 at 17:33, Lennart Sorensen wrote:
+> Now if the Geode GX1 in fact runs faster optimized for 486 rather than
+> 586 (I have been running one as 586tsc since it had mmx and tsc in its
+> feature list), then I think I will be recompiling my kernel to see if I
+> can't make this 266MHz GX1 run almost as fast as a 400MHz PXA255 (arm).
+> Right now it has somewhat lower ethernet bandwidth than the arm.
 
-Even for kernels with a 64bit dma_addr_t you can get 32bit dma addresses
-only.  As a start check whether the pci_set_dma_mask for the 64bit mask
-failed - in that case you can always use 32bit SGLs.
+If you build 486 it will still use the TSC because it is available (The
+PIT is buggy but the kernel knows about that anyway and handles it). 
+
+There are a few Geode tricks to know for performance
+
+- Turn off the video
+- If you can't turn it off use solid areas of colour to speed the system
+up (The hardware uses RLE encoding to reduce ram fetch bandwidth)
+- Remember the cache is only 16K (12K when running X11 as 4K is borrowed
+for the blitter)
+- The onboard audio is a software SB emulation on older GX. It burns
+CPU.
+
+Also avoid touching various legacy registers as much as possible, many
+cause BIOS traps in SMM emulation code. The list I have is NDA but you
+can use rdtsc/inb or outb/rdtsc to work out which 8)
+
+Alan
+

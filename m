@@ -1,44 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbULQTwC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbULQTxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbULQTwC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 14:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbULQTwC
+	id S262152AbULQTxc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbULQTxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 14:52:02 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49586 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262134AbULQTv7 (ORCPT
+	Fri, 17 Dec 2004 14:53:32 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60830 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262146AbULQTws (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 14:51:59 -0500
-Date: Fri, 17 Dec 2004 14:52:43 -0500 (EST)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Horms <horms@verge.net.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: tty/ldisc fix in 2.4
-In-Reply-To: <Pine.LNX.4.44.0412161002520.28739-100000@dhcp83-105.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0412171451270.8435-100000@dhcp83-105.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Dec 2004 14:52:48 -0500
+Date: Fri, 17 Dec 2004 11:52:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: linux-kernel@vger.kernel.org, vrajesh@umich.edu
+Subject: Re: [PATCH 0/3] prio_tree generalization
+Message-Id: <20041217115225.4b3aef9c.akpm@osdl.org>
+In-Reply-To: <20041217153602.D31842@almesberger.net>
+References: <20041217153602.D31842@almesberger.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 16 Dec 2004, Jason Baron wrote:
-
-> the latest one was the last one posted to this list plus Sergey's fixes.  
-> However, i think it was still missing some driver cleanups. I'll post an
-> updated patch here.
+Werner Almesberger <werner@almesberger.net> wrote:
+>
+> This patch set for 2.6.10-rc3-bk10 (*) generalizes the prio_tree
+>  code such that other subsystems than just VMA can use it.
 > 
+>  (*) I'm not sure which tree is the most useful base for this.
+>      Should I use 2.6.10-rc3-mm* instead of -bk* ? (Or is it
+>      already too late for 2.6.10 anyway ?)
 
-updated patch at: http://people.redhat.com/~jbaron/tty/2.4-tty-V8.patch.  
-This patch adds 'tty_wakeup' and 'tty_ldisc_flush' calls to additional
-drivers. It also includes the two patches that Sergey previous posted. 
-
-thanks,
-
--Jason
-  
-
-
+Yes, 2.6.10 is in locked-down-try-to-get-the-bugs-out mode.  I'll queue
+these up for post-2.6.10.

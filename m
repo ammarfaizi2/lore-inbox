@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131307AbRDCM0K>; Tue, 3 Apr 2001 08:26:10 -0400
+	id <S131353AbRDCM2U>; Tue, 3 Apr 2001 08:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131654AbRDCM0B>; Tue, 3 Apr 2001 08:26:01 -0400
-Received: from www.teaparty.net ([216.235.253.180]:17421 "EHLO
-	www.teaparty.net") by vger.kernel.org with ESMTP id <S131307AbRDCMZ4>;
-	Tue, 3 Apr 2001 08:25:56 -0400
-Date: Tue, 3 Apr 2001 13:25:15 +0100 (BST)
-From: Vivek Dasmohapatra <vivek@etla.org>
-To: linux-kernel@vger.kernel.org
-Subject: SMP aic7xxx 2.4.3 boot panic: Aiee, killing interrupt handler
-Message-ID: <Pine.LNX.4.10.10104031314440.18250-100000@www.teaparty.net>
+	id <S131654AbRDCM2N>; Tue, 3 Apr 2001 08:28:13 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20485 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131657AbRDCM1v>; Tue, 3 Apr 2001 08:27:51 -0400
+Subject: Re: /proc/config idea
+To: dlang@diginsite.com (David Lang)
+Date: Tue, 3 Apr 2001 13:27:26 +0100 (BST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), jerj@coplanar.net (Jeremy Jackson),
+        ian@cs.umbc.edu (Ian Soboroff), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0104021951450.30568-100000@dlang.diginsite.com> from "David Lang" at Apr 02, 2001 07:52:49 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kPuE-0007xK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> a module for 2.4.3 will work for any 2.4.3 kernel that supports modules
+> at all (except for the SMP vs UP issue) so it's not the same thing as
+> trying to figure out which if the 2.4.3 kernels matches what you are
+> running.
 
-Has anyone else had this or a similar problem? I tried to upgrade to 2.4.3
-from 2.2.18 recently, but I invariably got a kernel panic on boot - I ran
-the oops through ksymoops, and it seemed to indicate that the problem
-occurred while in the aic7xxx driver [although I may, of course, be
-misinterpreting the ouput hideously]
-
-I'm, going to try the old aic7xxx driver tonight, to see if that works any
-better.
-
-[I posted the oops a couple of days ago, and I don't want to spam the
- list with it again, but if anyome is interested in the output, I'd be
- happy to send it, pluys any extra details required... ]
-
--- 
-"They're unfriendly, which is fortunate, really.  They'd be difficult
-to like."
-                -- Avon
+Nope. The 2.4 kernel ABI depends upon a mixture of config options including the
+cpu type, as well as the compiler version being used. The API is intended to
+be constant throughout 2.4 (but isnt yet totally solid due to bug fixing
+activity). We don't care about the ABI because we are source code based
 

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbVCDAxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVCDBaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262836AbVCDAxd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbVCDAtf
+	id S262841AbVCDBaA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 20:30:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVCDB0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:49:35 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:36825 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262724AbVCDAqE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:46:04 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: CaT <cat@zip.com.au>
-Cc: Greg KH <greg@kroah.com>, Chris Friesen <cfriesen@nortel.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050304001930.GF30616@zip.com.au>
-References: <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
-	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
-	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
-	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	 <42274171.3030702@nortel.com> <20050303165940.GA11144@kroah.com>
-	 <1109893901.21780.68.camel@localhost.localdomain>
-	 <20050304001930.GF30616@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1109897041.21781.75.camel@localhost.localdomain>
+	Thu, 3 Mar 2005 20:26:40 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3554 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262872AbVCDBWX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 20:22:23 -0500
+Date: Thu, 3 Mar 2005 17:22:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: roland@topspin.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][26/26] IB: MAD cancel callbacks
+ fromthread
+Message-Id: <20050303172212.27da9009.akpm@osdl.org>
+In-Reply-To: <20050303170752.7bc42e86.akpm@osdl.org>
+References: <ORSMSX401FRaqbC8wSA0000000e@orsmsx401.amr.corp.intel.com>
+	<52fyzcnsup.fsf@topspin.com>
+	<20050303170109.72e8a3f2.akpm@osdl.org>
+	<20050303170752.7bc42e86.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 04 Mar 2005 00:44:04 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-03-04 at 00:19, CaT wrote:
-> Working IDE locking? Does this mean if I have 2 promise cards, a HD
-> on each card and I copy from one to the other it wont all blow up in my
-> face?
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Roland Dreier <roland@topspin.com> wrote:
+> > >
+> > >     >> don't add casts to a void pointer, that's silly.
+> > > 
+> > > How should we handle this nit?  Should I post a new version of this
+> > > patch or an incremental diff that fixes it up?
+> > > 
+> > 
+> > I'll fix it up.
+> 
+> Actually, seeing as 15/26 has vanished into the ether and there have been
+> quite a few comments, please resend everything.
 
-Depends on your PCI bus and also if the are on the same IRQ. In the same
-IRQ case you may find 2.6.11 is a bit saner as Bartlomiej may have
-sorted one of the IRQ masking problems now.
-
+I seem to have forgotten how to operate this computer thingy.  I have all
+26 patches.

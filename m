@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262018AbTEZRyO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTEZRyO
+	id S261923AbTEZR6H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbTEZR6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:54:14 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17355
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262018AbTEZRyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:54:13 -0400
-Subject: Re: Linux 2.4.21-rc3 - ipmi unresolved
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <28098.1053849441@ocs3.intra.ocs.com.au>
-References: <28098.1053849441@ocs3.intra.ocs.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053968924.16695.12.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 26 May 2003 13:58:07 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:22975 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261923AbTEZR6G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:58:06 -0400
+Date: Mon, 26 May 2003 20:11:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+Message-ID: <20030526181117.GK845@suse.de>
+References: <3ED1B261.8030708@pobox.com> <Pine.LNX.4.44.0305260956590.11328-100000@home.transmeta.com> <20030526172405.GJ845@suse.de> <3ED255FE.10609@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 May 2003 18:08:45 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ED255FE.10609@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-05-25 at 08:57, Keith Owens wrote:
-> I would go so far as to say that no XXX_notifier_list should be
-> exported, that includes notifier_chain_register() itself.  If a module
-> needs to be notified then it should have glue code in the main kernel
-> that does try_inc_mod_count() on the module before calling any module
-> functions.
+On Mon, May 26 2003, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >On Mon, May 26 2003, Linus Torvalds wrote:
+> >
+> >>>What does the block layer need, that it doesn't have now?
+> >>
+> >>Exactly. I'd _love_ for people to really think about this.
+> >
+> >
+> >In discussion with Jeff, it seems most of what he wants is already
+> >there. He just doesn't know it yet :-)
+> 
+> 
+> Another important point is time.
+> 
+> I continue to agree that a native block driver is the best direction.
+> 
+> But with 2.6.0 looming, I think it's best to evolve my ATA driver to be 
+> a native block driver from a scsi one.   Not start out as a native 
+> driver.  That's significant pre-2.6 churn.
 
-That would be mindbogglingly ugly. Unfortunately Rusty has still only
-half solved the module problem because modules are refcounted as an
-"entity" not the module info and the module code/data split into two.
+I don't think that makes any sense. If you really do find missing
+functionality that are candidates to be generic block property, we can
+add them.
 
-Ie I can't unload a module that has module object references because we
-have no way to seperate "I'm talking about module xyz" and "I'm jumping
-into module xyz". That IMHO is what is causing much of the remaining
-mess.
+> Or, it lives out-of-tree until 2.7 and people with SATA hardware have to 
+> go out-of-tree for their driver for months and months, until the working 
+> driver is deemed sufficiently native :)  In the meantime, distros 
+> wanting working SATA will just ship the SCSI driver as-is.  :(
 
-Were they split then I could safely take a module object reference in
-the notifiers and have
+I don't know why you are even worrying about this yet, time will decide
+what happens. As it stands right now, I still consider your driver to be
+something to play with, not something that should go into the kernel
+anytime soon.
 
-	try_inc_mod_count()
+Maybe in 6 months time it has evolved to be something really great, we
+add it then. Right now you are still in the design stages in some areas.
 
-do the right thing passed a module handle to a module that is unloaded
-but has object references left.
+
+-- 
+Jens Axboe
 

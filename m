@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266041AbRGCWCd>; Tue, 3 Jul 2001 18:02:33 -0400
+	id <S266034AbRGCWIx>; Tue, 3 Jul 2001 18:08:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266036AbRGCWCN>; Tue, 3 Jul 2001 18:02:13 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:11232 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S266034AbRGCWCM>; Tue, 3 Jul 2001 18:02:12 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDF30@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'arjan@fenrus.demon.nl'" <arjan@fenrus.demon.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: ACPI fundamental locking problems
-Date: Tue, 3 Jul 2001 15:01:41 -0700 
+	id <S266036AbRGCWIn>; Tue, 3 Jul 2001 18:08:43 -0400
+Received: from mercury.ultramaster.com ([208.222.81.163]:12928 "EHLO
+	mercury.ultramaster.com") by vger.kernel.org with ESMTP
+	id <S266034AbRGCWIe>; Tue, 3 Jul 2001 18:08:34 -0400
+Message-ID: <3B424300.9D804101@dm.ultramaster.com>
+Date: Tue, 03 Jul 2001 18:11:12 -0400
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: SCHED_FIFO task blocks magic sysrq
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: arjan@fenrus.demon.nl [mailto:arjan@fenrus.demon.nl]
-> > BTW of course ACPI can be turned off via make menuconfig.
-> 
-> Can you point me to the name of the option? I can't find it on my IA64
+It seems like the sysrq code can get starved by a SCHED_FIFO task.  I
+learned this by having an accidentally runaway SCHED_FIFO task which
+locked up my system.  No SAK, no sync, no unmount, no reboot.  Big Red
+Button.
 
-ACPI is required for IA64 to boot, so you can't disable it AFAIK. Sorry, I
-should have included that caveat in my previous message.
+David
 
--- Andy
-
+-- 
+David Mansfield                                           (718) 963-2020
+david@ultramaster.com
+Ultramaster Group, LLC                               www.ultramaster.com

@@ -1,165 +1,230 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbTABQXD>; Thu, 2 Jan 2003 11:23:03 -0500
+	id <S263291AbTABQZv>; Thu, 2 Jan 2003 11:25:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbTABQXC>; Thu, 2 Jan 2003 11:23:02 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:49401 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262395AbTABQWy>;
-	Thu, 2 Jan 2003 11:22:54 -0500
-Message-ID: <3E14691A.A1132D3C@mvista.com>
-Date: Thu, 02 Jan 2003 08:30:18 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S264724AbTABQZv>; Thu, 2 Jan 2003 11:25:51 -0500
+Received: from nammta01.sugar-land.nam.slb.com ([163.188.150.130]:39356 "EHLO
+	mail.slb.com") by vger.kernel.org with ESMTP id <S263291AbTABQZo>;
+	Thu, 2 Jan 2003 11:25:44 -0500
+Date: Thu, 02 Jan 2003 16:31:35 +0000
+From: Loic Jaquemet <jaquemet@fiifo.u-psud.fr>
+Subject: PATCH 2.5.54 I2C drivers/media update..
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3E146967.E8DC4941@fiifo.u-psud.fr>
+Organization: WesternGeco
+MIME-version: 1.0
+X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.6 sun4u)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
 X-Accept-Language: en
-MIME-Version: 1.0
-To: arun4linux <arun4linux@indiatimes.com>
-CC: John K Luebs <jkluebs@luebsphoto.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: switching to interrupt contex when no interrupts
-References: <200301021221.RAA22029@WS0005.indiatimes.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arun4linux wrote:
-> 
-> Hello,
-> 
-> I used
-> 
-> asm volatile ("int 41");
 
-That should be: asm volatile ("int $41");
-> 
-> in my code.
-> My card's irq number is 9.
-> I get the error message.
-> 
-> Error: suffix or operabds invalid for 'in'
-> 
-> This is the case, if I change the 41 to 0x29 or 29h.
-> 
-> Where can I get some documentation on using asm?
+struct i2c_driver has changed .
 
-I use the info file that comes with gcc.  In emacs it is
-^Hi, then search for gcc.  There is also an info program for
-browsing the info stuff, but I don't use it so don't know
-much about it.
+## CUT
 
--g
-> 
-> Warm Regards
-> Arun
-> 
-> "george anzinger" wrote:
-> 
-> george anzinger wrote:
-> >
-> > arun4linux wrote:
-> > >
-> > > Hello,
-> > >
-> > > <> > interrupt handler.
-> > > >>Yes. But my requirement is to force my code to run in interrupt context.
-> > >
-> > > <> >
-> > > You will get a better answer from the list if you describe what you are trying to do (in concrete terms), not how you think you might do it.
-> > >
-> > > >>My requirement is to simulate a PCI based controller and its behaviour in software. I knew the different type of interrupts and the timings my device produces.
-> > >
-> > > I need to simulate this PCI device, its interrupts in sequence and I have to process them in my driver software.
-> > >
-> > > Hope this make sense now.
-> > >
-> > > Anyway, my requrirement is to simulate the interrupts and process them in the interrupt context.
-> > >
-> > > It would be helpful, if anyone could help me how to do it.
-> > > My idea is to use task queues and bottom halves for this. But I'd like to get clarified on simulating interrupts (rasing the process/task context to interrupt context) and its consequences.
-> > >
-> > Why simulate the interrupts when you can just program them?
-> > On the x86 machine the "int x" instruction generates an
-> > interrupt to irq "x"+32. You do need to be in kernel land
-> > to do this, but then I assume that is not a problem.
-> 
-> Uh, make that "x"-32, i.e. "int 34" give irq 2.
-> 
-> -g
-> >
-> > -g
-> >
-> > >
-> > > Thanks & Warm Regards
-> > > Arun
-> > >
-> > > "John K Luebs" wrote:
-> > >
-> > > On Sat, Nov 23, 2002 at 07:37:33AM +0530, arun4linux wrote:
-> > > > Hello,
-> > > >
-> > > > I'd like to force my kernel module to run at interrupt context at some specific points/time and then come back from interrrupt contex after executing that particular portion of code..
-> > >
-> > > You seem to be over complexifying what interrupt context is. It is
-> > > simply a generic term for a context that executes on account of an
-> > > architecture interrupt. One is forced to run in interrupt context in an
-> > > interrupt handler.
-> > >
-> > > You "run" in interrupt context by calling request_irq attached to the
-> > > interrupt line that you are interested in installing a handler for.
-> > >
-> > > >
-> > > > Is it possible?
-> > >
-> > > Possibility is undefined here because what you said makes no sense.
-> > >
-> > > You will get a better answer from the list if you describe what you are
-> > > trying to do (in concrete terms), not how you think you might do it.
-> > >
-> > > Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-> > >
-> > > Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at http://www.tux.org/lkml/
-> >
-> > --
-> > George Anzinger george@mvista.com
-> > High-res-timers:
-> > http://sourceforge.net/projects/high-res-timers/
-> > Preemption patch:
-> > http://www.kernel.org/pub/linux/kernel/people/rml
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at http://www.tux.org/lkml/
-> 
-> --
-> George Anzinger george@mvista.com
-> High-res-timers:
-> http://sourceforge.net/projects/high-res-timers/
-> Preemption patch:
-> http://www.kernel.org/pub/linux/kernel/people/rml
-> 
-> Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-> 
->  Buy the best in Movies at http://www.videos.indiatimes.com
-> 
-> Now bid just 7 Days in Advance and get Huge Discounts on Indian Airlines Flights. So log on to http://indianairlines.indiatimes.com and Bid Now!
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff -ruN linux-2.5.54/drivers/media/video/bt819.c
+linux-2.5.54.new/drivers/media/video/bt819.c
+--- linux-2.5.54/drivers/media/video/bt819.c    2003-01-02
+04:21:08.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/bt819.c        2003-01-02
+17:08:28.000000000 +0100
+@@ -448,6 +448,7 @@
+ /*
+-----------------------------------------------------------------------
+*/
+ 
+ static struct i2c_driver i2c_driver_bt819 = {
++       THIS_MODULE,
+        "bt819",                /* name */
+        I2C_DRIVERID_BT819,     /* ID */
+        I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/bt856.c
+linux-2.5.54.new/drivers/media/video/bt856.c
+--- linux-2.5.54/drivers/media/video/bt856.c    2003-01-02
+04:20:52.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/bt856.c        2003-01-02
+17:07:08.000000000 +0100
+@@ -299,6 +299,7 @@
+ /*
+-----------------------------------------------------------------------
+*/
+ 
+ static struct i2c_driver i2c_driver_bt856 = {
++       THIS_MODULE,
+        "bt856",                /* name */
+        I2C_DRIVERID_BT856,     /* ID */
+        I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/msp3400.c
+linux-2.5.54.new/drivers/media/video/msp3400.c
+--- linux-2.5.54/drivers/media/video/msp3400.c  2003-01-02
+04:22:21.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/msp3400.c      2003-01-02
+17:14:44.000000000 +0100
+@@ -1213,6 +1213,7 @@
+ static int msp_command(struct i2c_client *client, unsigned int cmd,
+void *arg);
+ 
+ static struct i2c_driver driver = {
++       .owner          = THIS_MODULE,
+        .name           = "i2cmsp3400driver",
+        .id             = I2C_DRIVERID_MSP3400,
+        .flags          = I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/saa5249.c
+linux-2.5.54.new/drivers/media/video/saa5249.c
+--- linux-2.5.54/drivers/media/video/saa5249.c  2003-01-02
+04:22:41.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/saa5249.c      2003-01-02
+17:15:20.000000000 +0100
+@@ -254,6 +254,7 @@
+ 
+ static struct i2c_driver i2c_driver_videotext = 
+ {
++       THIS_MODULE,
+        IF_NAME,                /* name */
+        I2C_DRIVERID_SAA5249, /* in i2c.h */
+        I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/saa7110.c
+linux-2.5.54.new/drivers/media/video/saa7110.c
+--- linux-2.5.54/drivers/media/video/saa7110.c  2003-01-02
+04:20:49.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/saa7110.c      2003-01-02
+17:06:16.000000000 +0100
+@@ -381,6 +381,7 @@
+ 
+ static struct i2c_driver i2c_driver_saa7110 =
+ {
++       THIS_MODULE,
+        IF_NAME,                        /* name */
+        I2C_DRIVERID_SAA7110,   /* in i2c.h */
+        I2C_DF_NOTIFY,  /* Addr range */
+diff -ruN linux-2.5.54/drivers/media/video/saa7111.c
+linux-2.5.54.new/drivers/media/video/saa7111.c
+--- linux-2.5.54/drivers/media/video/saa7111.c  2003-01-02
+04:21:50.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/saa7111.c      2003-01-02
+17:13:31.000000000 +0100
+@@ -398,6 +398,7 @@
+ /*
+-----------------------------------------------------------------------
+*/
+ 
+ static struct i2c_driver i2c_driver_saa7111 = {
++       .owner          = THIS_MODULE,
+        .name           = "saa7111",             /* name */
+        .id             = I2C_DRIVERID_SAA7111A, /* ID */
+        .flags          = I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/saa7185.c
+linux-2.5.54.new/drivers/media/video/saa7185.c
+--- linux-2.5.54/drivers/media/video/saa7185.c  2003-01-02
+04:21:01.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/saa7185.c      2003-01-02
+17:08:00.000000000 +0100
+@@ -355,6 +355,7 @@
+ /*
+-----------------------------------------------------------------------
+*/
+ 
+ static struct i2c_driver i2c_driver_saa7185 = {
++       .owner          = THIS_MODULE,
+        .name           = "saa7185",             /* name */
+        .id             = I2C_DRIVERID_SAA7185B, /* ID */
+        .flags          = I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/tda7432.c
+linux-2.5.54.new/drivers/media/video/tda7432.c
+--- linux-2.5.54/drivers/media/video/tda7432.c  2003-01-02
+04:22:35.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/tda7432.c      2003-01-02
+17:02:22.000000000 +0100
+@@ -500,6 +500,7 @@
+ 
+ 
+ static struct i2c_driver driver = {
++       THIS_MODULE,
+         "i2c tda7432 driver",
+        I2C_DRIVERID_TDA7432,
+         I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/tda9875.c
+linux-2.5.54.new/drivers/media/video/tda9875.c
+--- linux-2.5.54/drivers/media/video/tda9875.c  2003-01-02
+04:21:51.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/tda9875.c      2003-01-02
+17:05:19.000000000 +0100
+@@ -397,6 +397,7 @@
+ 
+ 
+ static struct i2c_driver driver = {
++       THIS_MODULE,
+         "i2c tda9875 driver",
+         I2C_DRIVERID_TDA9875, /* Get new one for TDA9875 */
+         I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/tuner-3036.c
+linux-2.5.54.new/drivers/media/video/tuner-3036.c
+--- linux-2.5.54/drivers/media/video/tuner-3036.c       2003-01-02
+04:21:50.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/tuner-3036.c   2003-01-02
+17:14:03.000000000 +0100
+@@ -185,6 +185,7 @@
+ static struct i2c_driver 
+ i2c_driver_tuner = 
+ {
++       THIS_MODULE,
+        "sab3036",              /* name       */
+        I2C_DRIVERID_SAB3036,   /* ID         */
+         I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/tuner.c
+linux-2.5.54.new/drivers/media/video/tuner.c
+--- linux-2.5.54/drivers/media/video/tuner.c    2003-01-02
+04:22:54.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/tuner.c        2003-01-02
+17:15:54.000000000 +0100
+@@ -975,6 +975,7 @@
+ /*
+-----------------------------------------------------------------------
+*/
+ 
+ static struct i2c_driver driver = {
++       .owner          = THIS_MODULE,
+        .name           = "i2cTVtunerdriver",
+        .id             = I2C_DRIVERID_TUNER,
+        .flags          = I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/tvaudio.c
+linux-2.5.54.new/drivers/media/video/tvaudio.c
+--- linux-2.5.54/drivers/media/video/tvaudio.c  2003-01-02
+04:21:40.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/tvaudio.c      2003-01-02
+17:12:24.000000000 +0100
+@@ -1544,6 +1544,7 @@
+ 
+ 
+ static struct i2c_driver driver = {
++       .owner          = THIS_MODULE,
+        .name           = "generic i2c audio driver",
+        .id             = I2C_DRIVERID_TVAUDIO,
+        .flags          = I2C_DF_NOTIFY,
+diff -ruN linux-2.5.54/drivers/media/video/tvmixer.c
+linux-2.5.54.new/drivers/media/video/tvmixer.c
+--- linux-2.5.54/drivers/media/video/tvmixer.c  2003-01-02
+04:23:04.000000000 +0100
++++ linux-2.5.54.new/drivers/media/video/tvmixer.c      2003-01-02
+17:16:18.000000000 +0100
+@@ -217,6 +217,7 @@
+ 
+ 
+ static struct i2c_driver driver = {
++       .owner          = THIS_MODULE,
+        .name           = "tv card mixer driver",
+        .id             = I2C_DRIVERID_TVMIXER,
+        .flags          = I2C_DF_DUMMY,
+
+
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
++----------------------------------------------+
+|Jaquemet Loic                                 |
+|Eleve ingenieur en informatique FIIFO, ORSAY  |
++----------------------------------------------+
+http://sourceforge.net/projects/ffss/
+#wirelessfr @ irc.freenode.net

@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUBVRwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 12:52:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbUBVRwV
+	id S261713AbUBVRvn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 12:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbUBVRvn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 12:52:21 -0500
-Received: from pop.gmx.net ([213.165.64.20]:42163 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261712AbUBVRwS (ORCPT
+	Sun, 22 Feb 2004 12:51:43 -0500
+Received: from bay8-f58.bay8.hotmail.com ([64.4.27.58]:5643 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S261713AbUBVRvk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 12:52:18 -0500
-X-Authenticated: #4512188
-Message-ID: <4038EC4B.6030309@gmx.de>
-Date: Sun, 22 Feb 2004 18:52:11 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Badness in pci_find_subsys
-References: <200402221846.15010.robin.rosenberg.lists@dewire.com>
-In-Reply-To: <200402221846.15010.robin.rosenberg.lists@dewire.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Feb 2004 12:51:40 -0500
+X-Originating-IP: [217.185.85.165]
+X-Originating-Email: [redzic_fadil@hotmail.com]
+From: "redzic fadil" <redzic_fadil@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 22 Feb 2004 18:51:39 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <BAY8-F58uoHWh7qdDZ700010d93@hotmail.com>
+X-OriginalArrivalTime: 22 Feb 2004 17:51:40.0063 (UTC) FILETIME=[863FFAF0:01C3F96C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Rosenberg wrote:
-> There is a regular error (2.6.1,2.6.2) that locks up my X although I don't know if it has anything to
-> do with X per se other than that after every lockup i find an error in syslog.
-> 
-> Feb 22 18:23:25 h6n2fls33o811 kernel: Badness in pci_find_subsys at drivers/pci/search.c:167
-> Feb 22 18:23:25 h6n2fls33o811 kernel: Call Trace:
-> Feb 22 18:23:25 h6n2fls33o811 kernel:  [pci_find_subsys+215/224] pci_find_subsys+0xd7/0xe0
->
-[snip]
+hello
 
-It is Nvidia binary driver doing some crap.
 
-Prakash
+I hope I don't disturb,
+
+
+I have tried to compile the hello.c module under kernel 2.6.3.
+And I'd like to insert the hello.o module in the kernel.
+But this doesn't work with kernel 2.6.3 .
+
+I have compiled this module with kernel 2.4.* and it is well.
+
+Also I cannot include the header file module.h, because I get error 
+messages.
+
+my module:
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/init.h>
+
+
+int initial_module (void)
+{
+	printk("\ninitial module\n");
+	return (0);
+}
+
+void delete_module (void)
+{
+	printk("\ndelete module\n");
+}
+
+module_init(initial_module);
+module_exit(delete_module);
+
+
+my Makefile:
+CC=gcc
+CFLAGS=-isystem /lib/modules/`uname -r`/build/include -O2 -D__KERNEL__ 
+-DMODULE
+all: hello.o
+
+If you have any idea please send an E-Mail:  redzic_fadil@hotmail.com
+
+thanks
+
+_________________________________________________________________
+Die ultimative Fan-Seite für den MSN Messenger http://www.ilovemessenger.de 
+Emoticons und Hintergründe kostenlos downloaden!
 

@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbTKRN4p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 08:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTKRNyH
+	id S262838AbTKRNso (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 08:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbTKRNms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 08:54:07 -0500
-Received: from [193.41.178.97] ([193.41.178.97]:7032 "EHLO secemail")
-	by vger.kernel.org with ESMTP id S262603AbTKRNwM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 08:52:12 -0500
+	Tue, 18 Nov 2003 08:42:48 -0500
+Received: from ns.suse.de ([195.135.220.2]:1746 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262747AbTKRNmU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 08:42:20 -0500
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86  Architecture
+References: <JB3R.23s.23@gated-at.bofh.it.suse.lists.linux.kernel>
+	<JWKQ.7nS.15@gated-at.bofh.it.suse.lists.linux.kernel>
+	<LhtX.bs.15@gated-at.bofh.it.suse.lists.linux.kernel>
+	<LhtX.bs.13@gated-at.bofh.it.suse.lists.linux.kernel>
+	<m3k76qsf8i.fsf@averell.firstfloor.org.suse.lists.linux.kernel>
+	<Pine.LNX.4.53.0310271603580.21953@montezuma.fsmlabs.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 27 Oct 2003 22:15:06 +0100
+In-Reply-To: <Pine.LNX.4.53.0310271603580.21953@montezuma.fsmlabs.com.suse.lists.linux.kernel>
+Message-ID: <p73brs29ycl.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: 2.6.0-test9-mm3 and enanched IDE mode on p4c800 deluxe 
-Date: Tue, 18 Nov 2003 14:52:31 +0100
-Message-ID: <9E8BE1B970A998468D92381A112AA3EA0140E9@srvrm001.roma.seceti.it>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.0-test9-mm3 and enanched IDE mode on p4c800 deluxe 
-Thread-Index: AcOt2zX48AGg33M0RUeG40Q2YTI5Jw==
-From: "Catani, Antonio" <Antonio.Catani@seceti.it>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Nov 2003 13:52:36.0671 (UTC) FILETIME=[39440CF0:01C3ADDB]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo <zwane@arm.linux.org.uk> writes:
 
-Hi list, i can non know if my request is in topic or not.
-I have p4c800 deluxe from asus, and works fine with mm3 patch, but I'v
-notice a little beat strange thing in bios of this mobo there is a
-option for setting ide interface in enanched mode, so if I set on the
-kernel start and in dmesg I see ICH-5 100% native mode but after mount
-root I get many of disabled irq 169 and the system hangs so to reset
-hardware.
+> On Mon, 27 Oct 2003, Andi Kleen wrote:
+> 
+> > The wmb() change is not needed, unless you have an oostore CPU
+> > (x86 has ordered writes by default). It probably does not hurt
+> > neither though (I do it the same way on x86-64), but also doesn't 
+> > change anything.
+> 
+> The original intent was to fix an SMP P5 system, it oopses otherwise under 
+> load.
 
-In compatible mode the system works fine, but I see in dmesg ICH-5 not
-100% native mode, will probe irq later, someone can explain me the
-difference about two behavior?
+That doesn't make any sense. P5 doesn't support SFENCE.
 
-Many thanks
-
-
-
-=== Start-of Internet E-mail Confidentiality Footer ===
-
-L'uso non autorizzato di questo messaggio o dei suoi allegati e' vietato e potrebbe costituire reato.
-Se ha ricevuto per errore questo messaggio, La preghiamo di informarci e di distruggerlo immediatamente coi suoi allegati.
-Le dichiarazioni contenute in questo messaggio o nei suoi allegati non impegnano SECETI S.p.A. nei confronti del destinatario o di terzi.
-SECETI S.p.A. non si assume alcuna responsabilita' per eventuali intercettazioni, modifiche o danneggiamenti del presente messaggio.
-Any unauthorized use of this e-mail or any of its attachments is prohibited and could constitute an offence.
-If you are not the intended addressee please advise immediately the sender and destroy the message and its attachments.
-The contents of this message shall be understood as neither given nor endorsed by SECETI S.p.A.
-SECETI S.p.A. does not accept liability for corruption, interception or amendment, if any, or the consequences thereof.
+-Andi

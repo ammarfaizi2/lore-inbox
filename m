@@ -1,51 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261647AbSJJSET>; Thu, 10 Oct 2002 14:04:19 -0400
+	id <S261861AbSJJSG2>; Thu, 10 Oct 2002 14:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261823AbSJJSET>; Thu, 10 Oct 2002 14:04:19 -0400
-Received: from pyxis.eclipse.net.uk ([212.104.129.226]:15635 "HELO
-	pyxis.eclipse.net.uk") by vger.kernel.org with SMTP
-	id <S261647AbSJJSER> convert rfc822-to-8bit; Thu, 10 Oct 2002 14:04:17 -0400
-From: morgad <morgad@eclipse.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.41 compiling
-Date: Thu, 10 Oct 2002 19:08:40 +0100
-Organization: the great unwashed
-Reply-To: morgad@eclipse.co.uk
-Message-ID: <0ufbqu825c05tlu97unvmlcmq1ujbvsnjp@4ax.com>
-X-Mailer: Forte Agent 1.92/32.572
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id <S261911AbSJJSG1>; Thu, 10 Oct 2002 14:06:27 -0400
+Received: from Gen0.myinjesus.com ([65.171.164.50]:9477 "EHLO
+	Gen2.MyInJesus.com") by vger.kernel.org with ESMTP
+	id <S261861AbSJJSG0>; Thu, 10 Oct 2002 14:06:26 -0400
+Subject: Welcome to Keciro Homeschool Free Lending Library
+Date: Thu, 10 Oct 2002 14:12:09 -0400
+X-IJC-TO: linux-kernel@vger.kernel.org
+To: <linux-kernel@vger.kernel.org>
+From: "Keciro Homeschool Free Lending Library" <keciro@wcnet.net>
+Reply-To: "Keciro Homeschool Free Lending Library" <keciro@wcnet.net>
+Content-Type: text/plain
+Message-ID: <GEN2agv3SuY2PVUlT3X00002151@Gen2.MyInJesus.com>
+X-OriginalArrivalTime: 10 Oct 2002 18:12:09.0616 (UTC) FILETIME=[8C93E100:01C27088]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I am currently running 2.4.19 successfully on
-my K7 based Debian 3.0 box.
-
-I thought I would try to test the new 2.5 series
-kernels, however having tried 2.5.40, 2.5.40-ac5,
-2.5.41 and 2.5.41-ac2 I am unable to compile any of them !
-
-they all fail in the drivers/video area.
-
-I got my config file by copying the working
-2.4.19 one over and running 'make oldconfig'
-
-(is there an better way of migrating configs
-between kernel series ?)
-
-I have put my current config at
-
-http://www.eclipse.co.uk/morgd/linux  
-
-could someone please check it and tell me how I have
-broken things ?
-
-(video card is radeon 7500)
-
-best regards
-dave morgan
-
+Welcome to the Kecirohomeschool group at In Jesus.com!  Thanks so much
+for subscribing.  You will receive updates as new items are added to
+the Lending Library or to the site.

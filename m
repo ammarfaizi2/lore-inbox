@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267546AbTAXF5g>; Fri, 24 Jan 2003 00:57:36 -0500
+	id <S267550AbTAXGBw>; Fri, 24 Jan 2003 01:01:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267547AbTAXF5g>; Fri, 24 Jan 2003 00:57:36 -0500
-Received: from otter.mbay.net ([206.55.237.2]:48902 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S267546AbTAXF5f> convert rfc822-to-8bit;
-	Fri, 24 Jan 2003 00:57:35 -0500
-From: John Alvord <jalvo@mbay.net>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Anoop J." <cs99001@nitc.ac.in>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: your mail
-Date: Thu, 23 Jan 2003 22:06:24 -0800
-Message-ID: <csl13vsmj20pfasoh5v4mmv5mv3chqm53m@4ax.com>
-References: <40475.210.212.228.78.1043384883.webmail@mail.nitc.ac.in> <Pine.LNX.4.44.0301232104440.10187-100000@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.44.0301232104440.10187-100000@dlang.diginsite.com>
-X-Mailer: Forte Agent 1.92/32.570
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id <S267553AbTAXGBw>; Fri, 24 Jan 2003 01:01:52 -0500
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:58286
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S267550AbTAXGBv>; Fri, 24 Jan 2003 01:01:51 -0500
+Subject: Re: Using O(1) scheduler with 600 processes.
+From: GrandMasterLee <masterlee@digitalroadkill.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Austin Gonyou <austin@coremetrics.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <310350000.1043367864@titus>
+References: <1043367029.28748.130.camel@UberGeek>
+	 <310350000.1043367864@titus>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Digitalroadkill.net
+Message-Id: <1043388556.12894.23.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 24 Jan 2003 00:09:27 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The big challenge in Linux is that several serious attempts to add
-page coloring have foundered on the shoals of "no benefit found". It
-may be that the typical hardware Linux runs on just doesn't experience
-the problem very much.
+On Thu, 2003-01-23 at 18:24, Martin J. Bligh wrote:
+> > I've heard some say that O(1) sched can only really help on systems with
+> > lots and lots of processes.
+> > 
+> > But my systems run about 600 processes max, but are P4 Xeons with HT,
+> > and we kick off several hundred processes sometimes. (sleeping to
+> > running then back) based on things happening in the system. 
+> > 
+> > I am possibly going to forgo putting O(1)sched in production *right now*
+> > until I've got my patch solid. But I got to thinking, do I need it at
+> > all on a Oracle VLDB?
+> > 
+> > I think yes, but I wanted to get some opinions/facts before making that
+> > choice to go without O(1) sched.
+> 
+> How many *processors*? Real ones.
+> 
+> M.
+> 
 
-john
-
-
-On Thu, 23 Jan 2003 21:11:10 -0800 (PST), David Lang
-<david.lang@digitalinsight.com> wrote:
-
->The idea of page coloring is based on the fact that common implementations
->of caching can't put any page in memory in any line in the cache (such an
->implementation is possible, but is more expensive to do so is not commonly
->done)
->
->With this implementation it means that if your program happens to use
->memory that cannot be mapped to half of the cache lines then effectivly
->the CPU cache is half it's rated size for your program. the next time your
->program runs it may get a more favorable memory allocation and be able to
->use all of the cache and therefor run faster.
->
->Page coloring is an attampt to take this into account when allocating
->memory to programs so that every program gets to use all of the cache.
->
->David Lang
->
->
-> On Fri, 24 Jan 2003, Anoop J. wrote:
->
->> Date: Fri, 24 Jan 2003 10:38:03 +0530 (IST)
->> From: Anoop J. <cs99001@nitc.ac.in>
->> To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
->>
->>
->> How does page coloring work. Iwant its mechanism not the implementation.
->> I went through some pages of W.L.Lynch's paper on cache and VM. Still not
->> able to grasp it .
->>
->>
->> Thanks in advance
->>
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+Quad P4 Xeon. Dell 6650

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271415AbTGXJTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 05:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271416AbTGXJTw
+	id S271423AbTGXJ0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 05:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271424AbTGXJ0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 05:19:52 -0400
-Received: from ANancy-107-1-22-138.w81-49.abo.wanadoo.fr ([81.49.204.138]:53512
-	"EHLO xiii.freealter.fr") by vger.kernel.org with ESMTP
-	id S271415AbTGXJTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 05:19:38 -0400
-Message-ID: <3F1FA7D6.5030305@freealter.com>
-Date: Thu, 24 Jul 2003 11:33:10 +0200
-From: Ludovic Drolez <ludovic.drolez@freealter.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: fr, en-us, en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: keep the linux logo displayed
-References: <Pine.LNX.4.44.0307211749400.6905-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0307211749400.6905-100000@phoenix.infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 05:26:24 -0400
+Received: from aneto.able.es ([212.97.163.22]:8649 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S271423AbTGXJ0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 05:26:23 -0400
+Date: Thu, 24 Jul 2003 11:41:29 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: passing my own compiler options into linux kernel compiling
+Message-ID: <20030724094129.GC8172@werewolf.able.es>
+References: <200307240916.17530.cijoml@volny.cz> <20030724100111.343d84cd.martin.zwickel@technotrend.de> <200307241050.25094.cijoml@volny.cz> <20030724095505.A28118@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030724095505.A28118@infradead.org>; from hch@infradead.org on Thu, Jul 24, 2003 at 10:55:05 +0200
+X-Mailer: Balsa 2.0.12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
-> 	You can write a userland app to do this. There are esc sequence 
-> that change vc_top. You could even alter minigetty if you want.
 
-Many thanks for the esc sequence hint !
-But it seems there's something broken with it: if I send 'esc[10;20r'
-- the scrolling region is now between lines 10 and 20
-- but, the cursor is moved to 0,0 instead of line 10
-- and the linux logo does not appear...
+On 07.24, Christoph Hellwig wrote:
+> On Thu, Jul 24, 2003 at 10:50:25AM +0200, Michal Semler wrote:
+> > Hi,
+> > 
+> > -O4 is a feature - for example MPlayer (www.mplayerhq.hu) using it.
+> 
+> Maybe you and the mplayer folks want to take a look at gcc's "handling"
+> of -O4..
+> 
 
-Bug or feature ??
+BTW, is there any way to get from gcc the options it uses when you
+put -ON in the options ?
+(It's not I don't trust documentation, just want to double check ;))
 
 -- 
-Ludovic DROLEZ                                       Free&ALter Soft
-152, rue de Grigy - Technopole Metz 2000                  57070 METZ
-tel : 03 87 75 55 21                            fax : 03 87 75 19 26
-
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre7-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))

@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313091AbSDDCpc>; Wed, 3 Apr 2002 21:45:32 -0500
+	id <S313096AbSDDC5N>; Wed, 3 Apr 2002 21:57:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313093AbSDDCpN>; Wed, 3 Apr 2002 21:45:13 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:772 "EHLO
+	id <S313098AbSDDC5D>; Wed, 3 Apr 2002 21:57:03 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1540 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313091AbSDDCpH>; Wed, 3 Apr 2002 21:45:07 -0500
-Date: Wed, 3 Apr 2002 21:42:49 -0500 (EST)
+	id <S313096AbSDDC4u>; Wed, 3 Apr 2002 21:56:50 -0500
+Date: Wed, 3 Apr 2002 21:54:30 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-cc: linux-kernel@vger.kernel.org
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: Jauder Ho <jauderho@carumba.com>,
+        Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Ext2 vs. ext3 recovery after crash
-In-Reply-To: <20020403145248.EBBD7B7802@dungeon.inka.de>
-Message-ID: <Pine.LNX.3.96.1020403213214.185B-100000@gatekeeper.tmr.com>
+In-Reply-To: <20020403102550.GT4735@turbolinux.com>
+Message-ID: <Pine.LNX.3.96.1020403214341.185C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Andreas Jellinghaus wrote:
+On Wed, 3 Apr 2002, Andreas Dilger wrote:
 
-> >I have a laptop (Dell Inspiron C600) which, like most Dell laptops,
-> >crashes every time I log out of X.
-> 
-> There is an Inspirion C600?
-> i have a litutude c600, and it works fine.
 
-Man, good to see I'm not the only one who can't type ;-)
+> Well, 'mount' output is useless w.r.t. the root filesystem, because it is
+> simply copied from /etc/fstab.  You need to check /proc/mounts to see if
+> it is _ever_ being mounted as ext3 (lots of people have this problem,
+> especially if they use initrds and ext3 as a module).
 
-Yeah, the other laptop is an Inspiron I guess, I was googling for Dell and
-Linux problems and had a brain fart. That said, yes, I have a "Latitude
-C600" here, and when I exit X via logout it almost always hangs, the
-screen turns pink, and I need to power cycle.
+  The problem is that the initial mount is changing. I was at one point
+making ext3 a module, and building initrd files with the ext3 modules and
+fstab in the initrd. Didn't seem the way to go so I put ext3 in the
+kernel, and that (usually) works. So I'm not making that particular error.
 
-Given that yours doesn't do that, did you use:
-- a custom XF86 config
-- XFree from someone other than Redhat
-- some custom config of X
-- anything else you did?
-
-Obviously I would rather not have the system hang all the time, better
-even than having it boot fast ;-)
-
-I've been running *very* recent kernels, mainly because the RH didn't work
-any better. If you have a better install I'd like to hear it, although the
-issues which pushed me to NSLG and 19-pre2 or news kernels are hard to
-ignore.
-
-Then again, several people have told me that they had multiple Dell
-laptops and only some of them did this. Can you say "quality control" or
-"running production changes?"
-
-Thanks much for anything you can suggest, but in the meantime I will be
-saving some dmesg output from ext2 and ext3 boots.
+  Thanks for the ideas, I'm going to collect dmesg output and post so
+someone can tell me I missed something obvious. Unless someone has a way
+to so it from crashing, in which case I'll duck the problem for the
+moment.
 
 -- 
 bill davidsen <davidsen@tmr.com>

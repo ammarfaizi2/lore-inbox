@@ -1,243 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271305AbUJVMkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271292AbUJVMnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271305AbUJVMkO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 08:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271279AbUJVMd0
+	id S271292AbUJVMnK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 08:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271291AbUJVMl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 08:33:26 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:11440 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S271267AbUJVMZe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 08:25:34 -0400
-Date: Fri, 22 Oct 2004 14:25:23 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 2/6] s390: core changes.
-Message-ID: <20041022122523.GC3720@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 22 Oct 2004 08:41:59 -0400
+Received: from mx7.bluewin.ch ([195.186.1.211]:50856 "EHLO mx7.bluewin.ch")
+	by vger.kernel.org with ESMTP id S271293AbUJVMgm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 08:36:42 -0400
+Message-ID: <4178FED3.4090509@lenherr.name>
+Date: Fri, 22 Oct 2004 14:36:35 +0200
+From: Thomas Lenherr <thomas@lenherr.name>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [AGAIN] Problem: File-corruption when reading from a network-filesystem
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig0DFDC8D9384111E52FDC835F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 2/6] s390: core changes.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig0DFDC8D9384111E52FDC835F
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+[See http://bugzilla.kernel.org/show_bug.cgi?id=3608 ]
 
-s390 core changes:
- - Load pid to cr4 on context switch.
- - Correct and check buffer length of cpcmd. Fix cpcmd inline assembly.
- - Add missing cc clobber to do_softirq insline assembly.
- - Regenerate default configuration.
+Hi,
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+I've got some files (9 x ~200mB) on a server with nfs and smb installed
+and built the md5sums of these files on the server itself. Then I
+mounted the nfs on my workstation and let it check the md5sums of these
+files: something about 7/9 did not match. Then i just started md5sum
+again and let it check again the same files, the result: all md5sums
+matched! (And I saw on my network monitor there was almost load on the
+network as the files were still cached locally so it had only to check
+if they changed) (fyi: I got 2gB ram).
+Then I made the same again with smbfs: i mounted the shares on my
+workstation, ran md5sum and got something like 3/9 unmatched files, ran
+it again and everything matched (again: the second time i got almost no
+transfer).
+Then I tested the local filesystem (so i copied files from local to
+local and so on) and everything was fine.
+In my next test i copied 4 files from the nfs on my local drive and let
+them check (3/4 did not match) and repeating this check had always the
+same result: always the same 3 files did not match and always the same
+file did match, so it seems, they really were saved that way. Then I
+deleted these local files, started cp again (this time it did not
+transfer much => cache) and made the check again: all files were ok!
+(same with smb)
 
-diffstat:
- arch/s390/defconfig            |   13 +++++++++++--
- arch/s390/kernel/asm-offsets.c |    2 ++
- arch/s390/kernel/cpcmd.c       |   23 ++++++++++++-----------
- arch/s390/kernel/entry.S       |    1 +
- arch/s390/kernel/entry64.S     |    1 +
- arch/s390/kernel/irq.c         |    2 +-
- 6 files changed, 28 insertions(+), 14 deletions(-)
+BTW: I checked the server with an other workstation and everything went
+fine, so the server seems to be ok.
 
-diff -urN linux-2.6/arch/s390/defconfig linux-2.6-patched/arch/s390/defconfig
---- linux-2.6/arch/s390/defconfig	2004-10-22 13:51:34.000000000 +0200
-+++ linux-2.6-patched/arch/s390/defconfig	2004-10-22 13:51:43.000000000 +0200
-@@ -1,7 +1,7 @@
- #
- # Automatically generated make config: don't edit
--# Linux kernel version: 2.6.9-rc3
--# Fri Oct  8 19:17:35 2004
-+# Linux kernel version: 2.6.9
-+# Fri Oct 22 13:50:22 2004
- #
- CONFIG_MMU=y
- CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-@@ -26,6 +26,7 @@
- # CONFIG_AUDIT is not set
- CONFIG_LOG_BUF_SHIFT=17
- CONFIG_HOTPLUG=y
-+CONFIG_KOBJECT_UEVENT=y
- CONFIG_IKCONFIG=y
- CONFIG_IKCONFIG_PROC=y
- # CONFIG_EMBEDDED is not set
-@@ -49,6 +50,7 @@
- # CONFIG_MODULE_UNLOAD is not set
- CONFIG_OBSOLETE_MODPARM=y
- # CONFIG_MODVERSIONS is not set
-+# CONFIG_MODULE_SRCVERSION_ALL is not set
- CONFIG_KMOD=y
- 
- #
-@@ -144,6 +146,7 @@
- # SCSI low-level drivers
- #
- # CONFIG_SCSI_SATA is not set
-+# CONFIG_SCSI_QLOGIC_1280_1040 is not set
- # CONFIG_SCSI_DEBUG is not set
- CONFIG_ZFCP=y
- CONFIG_CCW=y
-@@ -157,7 +160,9 @@
- CONFIG_BLK_DEV_RAM=y
- CONFIG_BLK_DEV_RAM_SIZE=4096
- CONFIG_BLK_DEV_INITRD=y
-+CONFIG_INITRAMFS_SOURCE=""
- # CONFIG_LBD is not set
-+# CONFIG_CDROM_PKTCDVD is not set
- 
- #
- # S/390 block device drivers
-@@ -224,6 +229,7 @@
- CONFIG_S390_TAPE_34XX=m
- # CONFIG_VMLOGRDR is not set
- # CONFIG_MONREADER is not set
-+# CONFIG_DCSS_SHM is not set
- 
- #
- # Cryptographic devices
-@@ -427,6 +433,7 @@
- # CONFIG_DEVFS_FS is not set
- # CONFIG_DEVPTS_FS_XATTR is not set
- CONFIG_TMPFS=y
-+# CONFIG_TMPFS_XATTR is not set
- # CONFIG_HUGETLB_PAGE is not set
- CONFIG_RAMFS=y
- 
-@@ -506,6 +513,7 @@
- #
- CONFIG_DEBUG_KERNEL=y
- CONFIG_MAGIC_SYSRQ=y
-+# CONFIG_SCHEDSTATS is not set
- # CONFIG_DEBUG_SLAB is not set
- # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
- # CONFIG_DEBUG_INFO is not set
-@@ -513,6 +521,7 @@
- #
- # Security options
- #
-+# CONFIG_KEYS is not set
- # CONFIG_SECURITY is not set
- 
- #
-diff -urN linux-2.6/arch/s390/kernel/asm-offsets.c linux-2.6-patched/arch/s390/kernel/asm-offsets.c
---- linux-2.6/arch/s390/kernel/asm-offsets.c	2004-10-18 23:53:44.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/asm-offsets.c	2004-10-22 13:51:43.000000000 +0200
-@@ -22,6 +22,8 @@
- 	DEFINE(__THREAD_mm_segment,
- 	       offsetof(struct task_struct, thread.mm_segment),);
- 	BLANK();
-+	DEFINE(__TASK_pid, offsetof(struct task_struct, pid),);
-+	BLANK();
- 	DEFINE(__PER_atmid, offsetof(per_struct, lowcore.words.perc_atmid),);
- 	DEFINE(__PER_address, offsetof(per_struct, lowcore.words.address),);
- 	DEFINE(__PER_access_id, offsetof(per_struct, lowcore.words.access_id),);
-diff -urN linux-2.6/arch/s390/kernel/cpcmd.c linux-2.6-patched/arch/s390/kernel/cpcmd.c
---- linux-2.6/arch/s390/kernel/cpcmd.c	2004-10-18 23:54:07.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/cpcmd.c	2004-10-22 13:51:43.000000000 +0200
-@@ -15,7 +15,7 @@
- #include <asm/system.h>
- 
- static spinlock_t cpcmd_lock = SPIN_LOCK_UNLOCKED;
--static char cpcmd_buf[128];
-+static char cpcmd_buf[240];
- 
- void cpcmd(char *cmd, char *response, int rlen)
- {
-@@ -24,22 +24,23 @@
-         int cmdlen;
- 
- 	spin_lock_irqsave(&cpcmd_lock, flags);
--        cmdlen = strlen(cmd);
--        strcpy(cpcmd_buf, cmd);
--        ASCEBC(cpcmd_buf, cmdlen);
-+	cmdlen = strlen(cmd);
-+	BUG_ON(cmdlen>240);
-+	strcpy(cpcmd_buf, cmd);
-+	ASCEBC(cpcmd_buf, cmdlen);
- 
--        if (response != NULL && rlen > 0) {
-+	if (response != NULL && rlen > 0) {
- #ifndef CONFIG_ARCH_S390X
-                 asm volatile ("LRA   2,0(%0)\n\t"
-                               "LR    4,%1\n\t"
-                               "O     4,%4\n\t"
-                               "LRA   3,0(%2)\n\t"
-                               "LR    5,%3\n\t"
--                              ".long 0x83240008 # Diagnose 83\n\t"
-+                              ".long 0x83240008 # Diagnose X'08'\n\t"
-                               : /* no output */
-                               : "a" (cpcmd_buf), "d" (cmdlen),
-                                 "a" (response), "d" (rlen), "m" (mask)
--                              : "2", "3", "4", "5" );
-+                              : "cc", "2", "3", "4", "5" );
- #else /* CONFIG_ARCH_S390X */
-                 asm volatile ("   lrag  2,0(%0)\n"
-                               "   lgr   4,%1\n"
-@@ -47,19 +48,19 @@
-                               "   lrag  3,0(%2)\n"
-                               "   lgr   5,%3\n"
-                               "   sam31\n"
--                              "   .long 0x83240008 # Diagnose 83\n"
-+                              "   .long 0x83240008 # Diagnose X'08'\n"
-                               "   sam64"
-                               : /* no output */
-                               : "a" (cpcmd_buf), "d" (cmdlen),
-                                 "a" (response), "d" (rlen), "m" (mask)
--                              : "2", "3", "4", "5" );
-+                              : "cc", "2", "3", "4", "5" );
- #endif /* CONFIG_ARCH_S390X */
-                 EBCASC(response, rlen);
-         } else {
- #ifndef CONFIG_ARCH_S390X
-                 asm volatile ("LRA   2,0(%0)\n\t"
-                               "LR    3,%1\n\t"
--                              ".long 0x83230008 # Diagnose 83\n\t"
-+                              ".long 0x83230008 # Diagnose X'08'\n\t"
-                               : /* no output */
-                               : "a" (cpcmd_buf), "d" (cmdlen)
-                               : "2", "3"  );
-@@ -67,7 +68,7 @@
-                 asm volatile ("   lrag  2,0(%0)\n"
-                               "   lgr   3,%1\n"
-                               "   sam31\n"
--                              "   .long 0x83230008 # Diagnose 83\n"
-+                              "   .long 0x83230008 # Diagnose X'08'\n"
-                               "   sam64"
-                               : /* no output */
-                               : "a" (cpcmd_buf), "d" (cmdlen)
-diff -urN linux-2.6/arch/s390/kernel/entry64.S linux-2.6-patched/arch/s390/kernel/entry64.S
---- linux-2.6/arch/s390/kernel/entry64.S	2004-10-18 23:53:37.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry64.S	2004-10-22 13:51:43.000000000 +0200
-@@ -141,6 +141,7 @@
- 	lg	%r15,__THREAD_ksp(%r3)	# load kernel stack from next->tss.ksp
-         lmg     %r6,%r15,__SF_GPRS(%r15)# load __switch_to registers of next task
- 	stg	%r3,__LC_CURRENT	# __LC_CURRENT = current task struct
-+	lctl	%c4,%c4,__TASK_pid(%r3) # load pid to control reg. 4
- 	lg	%r3,__THREAD_info(%r3)  # load thread_info from task struct
- 	stg	%r3,__LC_THREAD_INFO
- 	aghi	%r3,STACK_SIZE
-diff -urN linux-2.6/arch/s390/kernel/entry.S linux-2.6-patched/arch/s390/kernel/entry.S
---- linux-2.6/arch/s390/kernel/entry.S	2004-10-18 23:53:37.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/entry.S	2004-10-22 13:51:43.000000000 +0200
-@@ -144,6 +144,7 @@
- 	l	%r15,__THREAD_ksp(%r3)	# load kernel stack from next->tss.ksp
- 	lm	%r6,%r15,__SF_GPRS(%r15)# load __switch_to registers of next task
- 	st	%r3,__LC_CURRENT	# __LC_CURRENT = current task struct
-+	lctl	%c4,%c4,__TASK_pid(%r3) # load pid to control reg. 4
- 	l	%r3,__THREAD_info(%r3)  # load thread_info from task struct
- 	st	%r3,__LC_THREAD_INFO
- 	ahi	%r3,STACK_SIZE
-diff -urN linux-2.6/arch/s390/kernel/irq.c linux-2.6-patched/arch/s390/kernel/irq.c
---- linux-2.6/arch/s390/kernel/irq.c	2004-10-18 23:54:32.000000000 +0200
-+++ linux-2.6-patched/arch/s390/kernel/irq.c	2004-10-22 13:51:43.000000000 +0200
-@@ -86,7 +86,7 @@
- 				     "   la    15,0(%1)\n"
- 				     : : "a" (new), "a" (old),
- 				         "a" (__do_softirq)
--				     : "0", "1", "2", "3", "4", "5",
-+				     : "0", "1", "2", "3", "4", "5", "14",
- 				       "cc", "memory" );
- 		} else
- 			/* We are already on the async stack. */
+BTW2: When I do not mount the smbfs, but rather use smbclient to get the
+files they were always ok.
+
+So it seems the files are transferred and cached correct on the client,
+but it's somehow badly read if it's not already cached...
+
+Here some infos about my systems:
+workstation:
+- kernel vanilla 2.6.9 (on a gentoo-system) (not tainted)
+- motherboard: asus pc-dl deluxe (bios version 1007)
+- dual xeon 3.06ghz
+- 2gb non-ecc ram (made a memtest)
+- nfsv3 (tried as modul and built-in)
+
+server:
+- kernel vanilla 2.6.8.1 (on a gentoo-system) (did not update because it
+seems, the error is on the workstation)
+- pII 400mhz
+- 320mB non-ecc ram
+- nfsv3 (built-in)
+- smb 3.0.2a
+
+
+I hope this is enough information... else just tell me what you need to
+know....
+
+One last thing: I tried the whole thing from a knoppix 3.4 (kernel
+2.6.?) once from my workstation and once again from a third pc (beneath
+the server and my workstation):
+same result: everything went fine from the third pc, but with the same
+knoppix on my workstation i got the results with the caching: when i
+accessed the files the second time everything was fine...
+So I _think_ it must be some kind of a hardware-dependent kernel-bug of
+the 2.6 :(
+
+anyway, TIA
+
+Thomas Lenherr
+
+
+--------------enig0DFDC8D9384111E52FDC835F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBeP7X3E1pPHX30VoRAlvFAJ489IEhVZ19BudIaHSAuMh6qWJEsQCeNy9s
+VeMUwarkSOS8rGbxQfH9VqE=
+=29hi
+-----END PGP SIGNATURE-----
+
+--------------enig0DFDC8D9384111E52FDC835F--

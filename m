@@ -1,73 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319576AbSIHIFy>; Sun, 8 Sep 2002 04:05:54 -0400
+	id <S319579AbSIHI2P>; Sun, 8 Sep 2002 04:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319578AbSIHIFy>; Sun, 8 Sep 2002 04:05:54 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:54217 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S319576AbSIHIFx>;
-	Sun, 8 Sep 2002 04:05:53 -0400
-Date: Sun, 8 Sep 2002 10:15:39 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Zwane Mwaikambo <zwane@mwaikambo.name>
-Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-In-Reply-To: <Pine.LNX.4.44.0209080952410.16565-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209080957410.17502-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319583AbSIHI2P>; Sun, 8 Sep 2002 04:28:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42644 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319579AbSIHI2P>;
+	Sun, 8 Sep 2002 04:28:15 -0400
+Date: Sun, 08 Sep 2002 01:25:26 -0700 (PDT)
+Message-Id: <20020908.012526.48196975.davem@redhat.com>
+To: wli@holomorphy.com
+Cc: akpm@digeo.com, ciarrocchi@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: Re: LMbench2.0 results
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020908082821.GK888@holomorphy.com>
+References: <3D7B0177.6A35FE9B@digeo.com>
+	<20020908.003700.07120871.davem@redhat.com>
+	<20020908082821.GK888@holomorphy.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: William Lee Irwin III <wli@holomorphy.com>
+   Date: Sun, 8 Sep 2002 01:28:21 -0700
+   
+   But if this were truly the issue, the allocation and deallocation
+   overhead for pagetables should show up as additional pressure
+   against zone->lock.
 
-> [...] But your patch is very tempting nevertheless, it removes much of
-> the disadvantage of sharing interrupt lines. Most of the handlers on the
-> chain are supposed to be completely independent.
+The big gain is not only that allocation/free is cheap, also
+page table entries tend to hit in cpu cache for even freshly
+allocated page tables.
 
-one big issue are level triggered interrupts - your approach makes no
-sense in the way we disable/ack the IRQ line currently:
-
-	disable IRQ line
-	ack APIC
-	-> call handler
-	    while (work_left) {
-		ack interrupt on the card            [*]
-		[... full processing ...]
-	    }
-
-if we didnt disable the IRQ line then an additional interrupt would be
-triggered when [*] is done.
-
-it could perhaps be handled the following way:
-
-	disable IRQ line
-	ack APIC
-	-> call handler
-	    while (work_left) {
-		ack interrupt on the card            [*]
-		enable IRQ line			     [**]
-		[... full processing ...]
-	    }
-
-so after [**] is done we could accept new interrupts, and the amount of
-time we keep the irq line disabled should be small. Obviously this means
-driver level changes.
-
-
-an additional nit even for edge-triggered interrupts: synchronize_irq()  
-needs to be aware of the new bit on SMP, now that IRQ_PENDING is not
-showing the true 'pending' state anymore. But it's doable. Basically
-IRQ_PENDING would be gone completely, and replaced by a more complex set
-of bits in the action struct. In the normal unshared case it should be
-almost as efficient as the IRQ_PENDING bit.
-
-in fact i'd suggest to also add a desc->pending counter in addition to the
-per-action flag, to make it cheaper to determine whether there are any
-pending handlers on the chain.
-
-also some other code needs to be updated as well to be aware of the
-changed pending-semantics: enable_irq() and probe_irq_on().
-
-	Ingo
+I think that is the bit that would show up in the mmap lmbench
+test.
 

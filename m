@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263616AbUFDJDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264368AbUFDJKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbUFDJDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 05:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUFDJDK
+	id S264368AbUFDJKp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 05:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUFDJKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 05:03:10 -0400
-Received: from vhost-13-248.vhosts.internet1.de ([62.146.13.248]:19666 "EHLO
-	spotnic.de") by vger.kernel.org with ESMTP id S263616AbUFDJDD (ORCPT
+	Fri, 4 Jun 2004 05:10:44 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:2353 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263740AbUFDJKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 05:03:03 -0400
-In-Reply-To: <200406041000.41147.cijoml@volny.cz>
-References: <200406041000.41147.cijoml@volny.cz>
-Mime-Version: 1.0 (Apple Message framework v618)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-2-658394093"
-Message-Id: <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com>
+	Fri, 4 Jun 2004 05:10:43 -0400
+Date: Fri, 4 Jun 2004 02:14:50 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040604021450.2894c6a9.pj@sgi.com>
+In-Reply-To: <20040604081906.GR21007@holomorphy.com>
+References: <20040603094339.03ddfd42.pj@sgi.com>
+	<20040603101010.4b15734a.pj@sgi.com>
+	<20040604081906.GR21007@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Daniel Egger <de@axiros.com>
-Subject: Re: jff2 filesystem in vanilla
-Date: Fri, 4 Jun 2004 11:02:56 +0200
-To: cijoml@volny.cz
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
+On Thu, Jun 03, 2004 at 10:10:10AM -0700, Paul Jackson wrote:
+> > +static inline void __cpu_set(int cpu, volatile cpumask_t *dstp)
+> > ...
+> Hungarian notation?
 
---Apple-Mail-2-658394093
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+You mean the 'p' for pointer?  Well, loosely speaking, I guess you could
+call it that.  Why do you ask?
 
-On 04.06.2004, at 10:00, Michal Semler wrote:
+Well ... I am not being straight forward.  I likely know why you ask.  I
+find an occassional 'p' in a variable name to be helpful.  For example,
+in this case, I am flipping between referring to the same datum by
+reference and by value - so it is useful to reflect that distinction in
+the variable names - it's _the_ key distinction.  If you wish to state a
+case to the contrary, you're welcome to do so.
 
-> I use my flash disk only in linux environment. So I would like use 
-> jffs2
-> filesystem on it. Is it possible ? It works like a charm on my 
-> linux-enabled
-> iPAQ.
-> I have 2.4.26 and 2.6.6 kernel vanillas running on i386 architectures.
+> #ifdef'ing it anyway?
 
-> Any patch exits ? And is including of this filesystem expected?
+In certain cases, yes.  I had a version of these particular macros that
+used inline logic instead, but this looked easier to read to my eye.  If
+I spoke out against ifdef's carte blanche at some point (which likely I
+did) then I was being incautious in my speaking.  The question is more
+how best to make the code readable, maintainable, robust, fast and small.
 
-JFFS2 is included in the standard kernels IIRC, however I'd recommend
-using the CVS version from the official repository as there are huge
-improvements in there.
+> This is an improvement?
 
-To use it on a non-MTD[1] device you will need an emulation layer,
-the pseudo Block-MTD device. And you will need some additional partition
-using ext2/ext3/reiserfs/FAT containing the kernel for your Grub/LILO
-bootloader.
+... see Keith's reply ...
 
-[1] Memory technology devices, e.g. flash chips soldered on some board
-     with direct access
+Thank-you for your review comments.
 
-Servus,
-       Daniel
-
---Apple-Mail-2-658394093
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iQEVAwUBQMA6wDBkNMiD99JrAQL4DQf+IGxAzjsiFsEbxYAIMSN/dAMyCfo+7VAU
-1hlem/NkQYbZjOad1NTeTGbJS1qIgKvHzgk3Bk12LpQCTn+LOqkxv78Kv26kSPcn
-hCrkhEk9P80gO3pAm86wcuqtwGLoS2vAhy7DlfMYgbEdDnxvvFRnObn06GhFZqEZ
-k8Qz9RauuZV0GGjspUGi8ZHzUSkEiSv4WYVhnw1mfjd36O1Cl4rGdo7zR3FJTK5+
-5PTKEe7HobDQhjA8FdWlCyFaqf39ZsA5uJn25PnCo2i0pxXyysbu69BZUA6R1OzA
-Vbvd+MK5cSNgjI3hy6ItLtyFg+BZlzqmdp2yJSe7SIjzzyD+l1mWgg==
-=at+B
------END PGP SIGNATURE-----
-
---Apple-Mail-2-658394093--
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

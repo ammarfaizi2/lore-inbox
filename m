@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbSKTPrX>; Wed, 20 Nov 2002 10:47:23 -0500
+	id <S261371AbSKTPng>; Wed, 20 Nov 2002 10:43:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261411AbSKTPrX>; Wed, 20 Nov 2002 10:47:23 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61574 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261409AbSKTPrW>;
-	Wed, 20 Nov 2002 10:47:22 -0500
-Date: Wed, 20 Nov 2002 15:52:24 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Andrew Grover <andrew.grover@intel.com>
-Subject: Re: Fix S3 resume when kernel is big
-Message-ID: <20021120155223.GA5678@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-	Andrew Grover <andrew.grover@intel.com>
-References: <20021120151136.GA862@elf.ucw.cz> <20021120153833.GA4344@suse.de> <1037809055.3702.43.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037809055.3702.43.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S261375AbSKTPng>; Wed, 20 Nov 2002 10:43:36 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:28902 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S261371AbSKTPnc>;
+	Wed, 20 Nov 2002 10:43:32 -0500
+Message-ID: <F2DBA543B89AD51184B600508B68D4000FDD858E@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Arjan van de Ven <arjanv@redhat.com>, Hugh Dickins <hugh@veritas.com>
+Cc: Steffen Persvold <sp@scali.com>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: [BUG?] Xeon with HyperThreading and linux-2.4.20-rc2
+Date: Wed, 20 Nov 2002 07:50:34 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 04:17:35PM +0000, Alan Cox wrote:
- > On Wed, 2002-11-20 at 15:38, Dave Jones wrote:
- > > On Wed, Nov 20, 2002 at 04:11:37PM +0100, Pavel Machek wrote:
- > >  > -	acpi_create_identity_pmd();
- > >  > +	if (!cpu_has_pse) {
- > >  > +		printk(KERN_ERR "You have S3 capable machine without pse? Wow!");
- > >  > +		return 1;
- > >  > +	}
- > > 
- > > Mobile K6 family never had PSE iirc, and also VIA Cyrix 3's are being
- > > dropped into various laptops.
- > 
- > Plenty of desktop machines have S3 
+As Hugh pointed out, the MPS table should report the physical processors
+only even if HT is enabled. The major reason is to support legacy OSes that
+don't support HT well. If the BIOS has an option for you to enable/disable
+HT, then please use it. 
 
-Indeed, that too. So the above assertion seems bogus.
+Jun
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+> -----Original Message-----
+> From: Arjan van de Ven [mailto:arjanv@redhat.com]
+> Sent: Wednesday, November 20, 2002 5:04 AM
+> To: Hugh Dickins
+> Cc: Steffen Persvold; Jun Nakajima; Arjan van de Ven; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [BUG?] Xeon with HyperThreading and linux-2.4.20-rc2
+> 
+> On Wed, Nov 20, 2002 at 12:53:04PM +0000, Hugh Dickins wrote:
+> >
+> > I know too little to comment definitively, but it's my understanding
+> > that a dual HT machine should only show 2 processors in its MP table,
+> > their siblings only appearing through analysis of the ACPI tables.
+> >
+> > Whether it's that your MP table has been wrongly set up, or that
+> > you've really been given 4 processors when you only asked for 2
+> > (sue your supplier!), I cannot say.  I've copied Jun at Intel
+> > and Arjan at RedHat, and hope they can shed more light on this.
+> 
+> Linux has zero problem with a sane MP table that lists all
+> CPU's. Intel normally seems to recommend against it (maybe N3.51 doesn't
+> like it or so) but it's all fair as far as I'm concerned.
+> The bios is supposed to offer you a choice
+> to disable hyperthreading, use that ;)
+> 
+> Greetings,
+>    Arjan van de Ven
+> 
+> 
+> --
+> But when you distribute the same sections as part of a whole which is a
+> work
+> based on the Program, the distribution of the whole must be on the terms
+> of
+> this License, whose permissions for other licensees extend to the entire
+> whole,
+> and thus to each and every part regardless of who wrote it. [sect.2 GPL]

@@ -1,58 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273293AbRIWFAi>; Sun, 23 Sep 2001 01:00:38 -0400
+	id <S272838AbRIWFRy>; Sun, 23 Sep 2001 01:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273289AbRIWFA3>; Sun, 23 Sep 2001 01:00:29 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:60881 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S273281AbRIWFAP>;
-	Sun, 23 Sep 2001 01:00:15 -0400
-Message-ID: <3BAD6C78.8034024E@candelatech.com>
-Date: Sat, 22 Sep 2001 22:00:40 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: pre14 won't link: put_gendisk
-Content-Type: text/plain; charset=us-ascii
+	id <S273282AbRIWFRo>; Sun, 23 Sep 2001 01:17:44 -0400
+Received: from hall.mail.mindspring.net ([207.69.200.60]:26649 "EHLO
+	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272838AbRIWFRd>; Sun, 23 Sep 2001 01:17:33 -0400
+Subject: Re: [PATCH][RFC] preemptive kernel: ptrace fix
+From: Robert Love <rml@ufl.edu>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1001217135.1390.19.camel@phantasy>
+In-Reply-To: <1001217135.1390.19.camel@phantasy>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Evolution-Format: text/plain
+X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
+Date: 23 Sep 2001 01:18:08 -0400
+Message-Id: <1001222290.864.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone got a patch for this?
+On Sat, 2001-09-22 at 23:52, Robert Love wrote:
+> However, doing an `strace strace whatever' (ie, stracing strace), it
+> still enters a stopped state about 20% of the time (before the patch, it
+> locked almost 100%).  I can't figure out why.  Comments?
 
-Also, it seems that more kernels have *not* compiled lately
-than have compiled.  I know people are working really hard, but
-it does seem like we could at least keep compile problems out
-of the pre-patches and 'stable' releases...
+I fixed it.  I am not overly sure why it fixes it, but the following
+patch (on top of the previous) fixes all the ptrace problems I can find.
 
-I'm using the i686.config file from RH's 2.4.7-2 beta kernel source rpm.
+In auditing the code, I fixed another problem which I will explain...
 
-Thanks,
-Ben
+I'll put out a final patch in a bit...
 
 
-ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o memcpy.o strstr.o iodebug.o
-make[2]: Leaving directory `/home/greear/kernel/2.4/linux/arch/i386/lib'
-make[1]: Leaving directory `/home/greear/kernel/2.4/linux/arch/i386/lib'
-ld -m elf_i386 -T /home/greear/kernel/2.4/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o drivers/net/fc/fc.o
-drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.o drivers/net/wan/wan.o drivers/atm/atm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o
-drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o drivers/pnp/pnp.o drivers/video/video.o drivers/md/mddev.o \
-        net/network.o \
-        /home/greear/kernel/2.4/linux/arch/i386/lib/lib.a /home/greear/kernel/2.4/linux/lib/lib.a /home/greear/kernel/2.4/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/ide/idedriver.o: In function `probedisk':
-drivers/ide/idedriver.o(.text.init+0x436c): undefined reference to `put_gendisk'
-drivers/ide/idedriver.o(.text.init+0x475c): undefined reference to `put_gendisk'
-make: *** [vmlinux] Error 1
+diff -urN linux-2.4.9-ac14-preempt/arch/i386/kernel/signal.c linux/arch/i386/kernel/signal.c
+--- linux-2.4.9-ac14-preempt/arch/i386/kernel/signal.c	Sat Sep 22 23:20:41 2001
++++ linux/arch/i386/kernel/signal.c	Sun Sep 23 00:51:15 2001
+@@ -611,9 +611,11 @@
+ 		if ((current->ptrace & PT_PTRACED) && signr != SIGKILL) {
+ 			/* Let the debugger run.  */
+ 			current->exit_code = signr;
++			ctx_sw_off();
+ 			current->state = TASK_STOPPED;
+ 			notify_parent(current, SIGCHLD);
+ 			schedule();
++			ctx_sw_on();
+ 
+ 			/* We're back.  Did the debugger cancel the sig?  */
+ 			if (!(signr = current->exit_code))
+@@ -667,11 +669,13 @@
+ 				/* FALLTHRU */
+ 
+ 			case SIGSTOP:
++				ctx_sw_off();
+ 				current->state = TASK_STOPPED;
+ 				current->exit_code = signr;
+ 				if (!(current->p_pptr->sig->action[SIGCHLD-1].sa.sa_flags & SA_NOCLDSTOP))
+ 					notify_parent(current, SIGCHLD);
+ 				schedule();
++				ctx_sw_on();
+ 				continue;
+ 
+ 			case SIGQUIT: case SIGILL: case SIGTRAP:
 
 
 -- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
+

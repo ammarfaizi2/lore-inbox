@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbTKQVSW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 16:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbTKQVSW
+	id S261868AbTKQVbR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 16:31:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTKQVbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 16:18:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60625 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261660AbTKQVSU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 16:18:20 -0500
-Date: Mon, 17 Nov 2003 16:18:11 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: sds@epoch.ncsc.mil, <aviro@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <russell@coker.com.au>
-Subject: Re: [PATCH][RFC] Remove CLONE_FILES from init kernel thread creation
-In-Reply-To: <20031117124954.6fa4e366.akpm@osdl.org>
-Message-ID: <Xine.LNX.4.44.0311171616410.3201-100000@thoron.boston.redhat.com>
+	Mon, 17 Nov 2003 16:31:17 -0500
+Received: from mx5.Informatik.Uni-Tuebingen.De ([134.2.12.32]:903 "EHLO
+	mx5.informatik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id S261868AbTKQVbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 16:31:14 -0500
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: alpha@steudten.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-alpha@vger.kernel.org
+Subject: Re: BUG: Kernel Panic: kernel-2.6.0-test9-bk21  for alpha in scsi context ll_rw_blk.c
+References: <3FB92938.8040906@steudten.com>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 17 Nov 2003 22:31:09 +0100
+In-Reply-To: <3FB92938.8040906@steudten.com>
+Message-ID: <87r806d6n6.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (cabbage)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Nov 2003, Andrew Morton wrote:
+Thomas Steudten <alpha@steudten.com> writes:
 
-> No, I can't think of a reason why we'd need CLONE_FILES in there.  I'll
-> toss it in and see what breaks.
+> -> 0xfffffc0000476cb8 <__make_request+152>:        lds     $f31,0(t2)
 
-Ok, also, for reference, Russell Coker discovered the issue and this fix
-was suggested by Stephen Smalley.
+The kernel is stupid, this is a prefetch, it should be totally ignored
+if it is faulty. This is already handled for userspace accesses
+IIRC... (I wonder why the PALcode doesn't already do that. Oh well.)
 
-> I wonder why call_usermodehelper() uses CLONE_FILES...
-
-Because it's faster?
-
-
-- James
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+	Falk

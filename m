@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbUJ0Ro2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbUJ0Rrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262526AbUJ0Ro2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbUJ0Ro0
+	id S262566AbUJ0Rrz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbUJ0RpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:44:26 -0400
-Received: from mail3.utc.com ([192.249.46.192]:992 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S262526AbUJ0Rne (ORCPT
+	Wed, 27 Oct 2004 13:45:14 -0400
+Received: from mail3.utc.com ([192.249.46.192]:26589 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S262518AbUJ0Rk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 13:43:34 -0400
-Message-ID: <417FDE34.6020704@cybsft.com>
-Date: Wed, 27 Oct 2004 12:43:16 -0500
+	Wed, 27 Oct 2004 13:40:28 -0400
+Message-ID: <417FDD73.5000206@cybsft.com>
+Date: Wed, 27 Oct 2004 12:40:03 -0500
 From: "K.R. Foley" <kr@cybsft.com>
 Organization: Cybersoft Solutions, Inc.
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
@@ -56,6 +56,7 @@ Lee Revell wrote:
 > smaller and only touches rtc.c.
 > 
 
-OH! And thanks. :)
+You've also eliminated the stack trace altogether then, right? Not that 
+I really need it. :-)
 
 kr

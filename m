@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbUDASei (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 13:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUDASei
+	id S263034AbUDAShx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 13:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUDAShx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 13:34:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33696 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263037AbUDASec (ORCPT
+	Thu, 1 Apr 2004 13:37:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61347 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263034AbUDAShv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 13:34:32 -0500
-Date: Thu, 1 Apr 2004 10:34:25 -0800
+	Thu, 1 Apr 2004 13:37:51 -0500
+Date: Thu, 1 Apr 2004 10:37:18 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: andrea@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-Id: <20040401103425.03ba8aff.akpm@osdl.org>
-In-Reply-To: <20040401171625.GE791@holomorphy.com>
-References: <20040401135920.GF18585@dualathlon.random>
-	<20040401164825.GD791@holomorphy.com>
-	<20040401165952.GM18585@dualathlon.random>
-	<20040401171625.GE791@holomorphy.com>
+To: Flavio Bruno Leitner <fbl@conectiva.com.br>
+Cc: dwcraig@qualcomm.com, list@noduck.net, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at kernel/timer.c:370!
+Message-Id: <20040401103718.5a599055.akpm@osdl.org>
+In-Reply-To: <20040401172401.GD2132@conectiva.com.br>
+References: <0320111483D8B84AAAB437215BBDA526847F70@NAEX01.na.qualcomm.com>
+	<20040401142458.GB2132@conectiva.com.br>
+	<20040401172401.GD2132@conectiva.com.br>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,37 +26,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
+Flavio Bruno Leitner <fbl@conectiva.com.br> wrote:
 >
-> On Thu, Apr 01, 2004 at 08:48:25AM -0800, William Lee Irwin III wrote:
-> >> Something like this would have the minor advantage of zero core impact.
-> >> Testbooted only. vs. 2.6.5-rc3-mm4
-> 
-> On Thu, Apr 01, 2004 at 06:59:52PM +0200, Andrea Arcangeli wrote:
-> > I certainly like this too (despite it's more complicated but it might
-> > avoid us to have to add further sysctl in the future), Andrew what do
-> > you prefer to merge? I don't mind either ways.
+> cascade: c03b3128 != c03b28c0           
+>  kernel/timer.c:296: spin_lock(kernel/timer.c:c03b28c0) already locked by kernel/timer.c/401
+>  handler=c03b3120 (0xc03b3120)                                                              
+>  Call Trace:                  
+>   [<c01347ef>] cascade+0x7f/0xb0
+>   [<c0135025>] run_timer_softirq+0x315/0x3f0
+>   [<c012fa35>] do_softirq+0xa5/0xb0         
+>   [<c010caea>] do_IRQ+0x21a/0x360  
+>   [<c012b5bf>] profile_hook+0x1f/0x23
+>   [<c010a934>] common_interrupt+0x18/0x20
+>   [<c0107066>] default_idle+0x26/0x40    
+>   [<c01070f4>] cpu_idle+0x34/0x40    
+>   [<c0434829>] start_kernel+0x189/0x1e0
+>   [<c0434540>] unknown_bootoption+0x0/0x120
 
-What is the Oracle requirement in detail?
+Is the machine SMP?
 
-If it's for access to hugetlbfs then there are the uid= and gid= mount
-options.
+What was the machine doing at the time?
 
-If it's for access to SHM_HUGETLB then there was some discussion about
-extending the uid= thing to shm, but nothing happened.  This could be
-resurrected.
+Can you have a look in System.map, see if you can work out what's at
+0xc03b3120?
 
-If it's just generally for the ability to mlock lots of memory then
-RLIMIT_MEMLOCK would be preferable.  I don't see why we'd need the sysctl
-when `ulimit -m' is available?  (Where is that patch btw?)
-
-> There are a couple of off-by-ones in there I've got fixes for below.
-
-Using the security framework is neat.  There are currently large spinlock
-contention problems in avc_has_perm_noaudit() which I suspect will make
-SELinux problematic in some server environments.  But I trust it is
-possible to disable SELinux in config while using Bill's security module?
-
-
-I guess we could live with sysctl which simply nukes CAP_IPC_LOCK, but it
-has to be the when-all-else-failed option, yes?

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbTE1GSk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 02:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbTE1GSj
+	id S264523AbTE1GaT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 02:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264552AbTE1GaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 02:18:39 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:33424 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264549AbTE1GSe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 02:18:34 -0400
-Date: Wed, 28 May 2003 08:31:44 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Milton Miller <miltonm@bga.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] copy the tag_map
-Message-ID: <20030528063144.GK845@suse.de>
-References: <200305280629.h4S6TLUY027859@sullivan.realtime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305280629.h4S6TLUY027859@sullivan.realtime.net>
+	Wed, 28 May 2003 02:30:18 -0400
+Received: from sullivan.realtime.net ([205.238.132.76]:64013 "EHLO
+	sullivan.realtime.net") by vger.kernel.org with ESMTP
+	id S264523AbTE1GaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 02:30:18 -0400
+Date: Wed, 28 May 2003 01:43:27 -0500 (CDT)
+Message-Id: <200305280643.h4S6hRQF028038@sullivan.realtime.net>
+From: Milton Miller <miltonm@bga.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: [PATCH] fix oops on resume from apm bios initiated suspend
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28 2003, Milton Miller wrote:
-> 
-> Hi Jens
-> 
-> saw this on checkin ...
-> 
-> milton
-> 
-> ===== drivers/block/ll_rw_blk.c 1.171 vs edited =====
-> --- 1.171/drivers/block/ll_rw_blk.c	Tue May 27 15:21:00 2003
-> +++ edited/drivers/block/ll_rw_blk.c	Wed May 28 00:43:33 2003
-> @@ -553,7 +553,7 @@
->  
->  	memcpy(bqt->tag_index, tag_index, max_depth * sizeof(struct request *));
->  	bits = max_depth / BLK_TAGS_PER_LONG;
-> -	memcpy(bqt->tag_map, bqt->tag_map, bits * sizeof(unsigned long));
-> +	memcpy(bqt->tag_map, tag_map, bits * sizeof(unsigned long));
 
-Ah thanks, yes obvious typo there! I'll send your fix on.
+Hi Pavel.
 
--- 
-Jens Axboe
+Didn't know if you caught this one, but it fixes it for me and others
+who responded on the list.  
 
+mm is NULL for kernel threads without their own context.  active_mm is
+maintained the one we lazly switch from.
+
+Without this patch, apm bios initiated suspend events (eg panel close) 
+cause an oops on resume in the LDT restore, killing kapmd, which causes
+further events to not be polled.
+
+milton
+
+===== arch/i386/kernel/suspend.c 1.16 vs edited =====
+--- 1.16/arch/i386/kernel/suspend.c	Sat May 17 16:09:37 2003
++++ edited/arch/i386/kernel/suspend.c	Sat May 24 05:00:02 2003
+@@ -114,7 +114,7 @@
+         cpu_gdt_table[cpu][GDT_ENTRY_TSS].b &= 0xfffffdff;
+ 
+ 	load_TR_desc();				/* This does ltr */
+-	load_LDT(&current->mm->context);	/* This does lldt */
++	load_LDT(&current->active_mm->context);	/* This does lldt */
+ 
+ 	/*
+ 	 * Now maybe reload the debug registers

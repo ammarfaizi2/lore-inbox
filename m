@@ -1,37 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313179AbSDJObX>; Wed, 10 Apr 2002 10:31:23 -0400
+	id <S312449AbSDJOcT>; Wed, 10 Apr 2002 10:32:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313176AbSDJObW>; Wed, 10 Apr 2002 10:31:22 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:19424 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S313175AbSDJObV>; Wed, 10 Apr 2002 10:31:21 -0400
-Date: Wed, 10 Apr 2002 07:31:39 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: zxj@water.pku.edu.cn, linux-kernel@vger.kernel.org
-Subject: Re: how to balance interrupts between 2 CPUs?
-Message-ID: <2065456499.1018423898@[10.10.2.3]>
-In-Reply-To: <b5926afe75.afe75b5926@water.pku.edu.cn>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S313182AbSDJOcR>; Wed, 10 Apr 2002 10:32:17 -0400
+Received: from [62.245.135.174] ([62.245.135.174]:51110 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S313176AbSDJOcM>;
+	Wed, 10 Apr 2002 10:32:12 -0400
+Message-ID: <3CB44CE5.1EEAB8B5@TeraPort.de>
+Date: Wed, 10 Apr 2002 16:32:05 +0200
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Reply-To: m.knoblauch@TeraPort.de
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: jjasen1@umbc.edu
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Tyan S2462 reboot problems
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 04/10/2002 04:32:04 PM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 04/10/2002 04:32:11 PM,
+	Serialize complete at 04/10/2002 04:32:11 PM
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     The kernel's SMP option is enable, but the CPU1 is always idle.
->     How to balance the interrpupts between two CPUs?
->     If you are convenient, please give me some advice quickly.
+> Re: Tyan S2462 reboot problems
+> 
+> From: John Jasen (jjasen1@umbc.edu)
+> Date: Tue Apr 09 2002 - 15:20:17 EST
+> 
+> 
+> > No, I doubt this has anything to do with Linux. I have a S2460 (which his
+> > corrected post says he has), which does not power down under linux, and
 
-The P4 apics do not automatically balance interrupts between CPUs.
-You need to do it explicitly - there are several ways floating
-around to do this - try the APIC routing patch on this website:
+ No correction from me :-) For me it is still s2462 (aka Thuder K7).
 
-http://sourceforge.net/projects/lse
+> > *never* warm boots cleanly. It does power down under windows, so I assume
+> > ACPI powerdown works and APM does not. I have gone under the assumption that
+> > a BIOS upgrade will fix this, but that involves putting a floppy into the box,
+> > so I haven't done it yet. The warm boot problems consist of either a hang
+> > after POST (but before bootloader, OS irrelevent), or really bad video
 
-and let us know if this works ...
+ That sounds like it.
 
-M.
+> > corruption. I don't know if it boot with the video corruption, I've never let
+> > it try.
+> 
+> I did update to the new BIOS for the 246x (I can never keep them straight
+> either), and that did help some with the halt and reboot problems I was
+> having.
+> 
+John,
 
+ do you recall from which to which version of the BIOS your upgrade
+went? The upgrade procedure for the s2462 implies a W98 boot floppy
+(never ever seen one of those :-) and it also strongly reccommends
+flashing the CMOS memory. As this involves playing with jumpers on the
+MB and I have 9 of them screwed into a rack, I hesitate to go that
+path.... As I wrote the MBs are at 2.09 and the newest version from Tyan
+is 2.10, with a not very interesting list of fixes/enhancements.
+
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

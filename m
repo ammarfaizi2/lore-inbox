@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbUCXAlg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 19:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbUCXAlg
+	id S262943AbUCXAqC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 19:46:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbUCXAqB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 19:41:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43732 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262945AbUCXAlc (ORCPT
+	Tue, 23 Mar 2004 19:46:01 -0500
+Received: from gate.crashing.org ([63.228.1.57]:25216 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262943AbUCXAp6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 19:41:32 -0500
-Date: Tue, 23 Mar 2004 19:41:10 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
+	Tue, 23 Mar 2004 19:45:58 -0500
+Subject: [PATCH] Cosmetic fix of BMAC boot messages
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Andrew Morton <akpm@osdl.org>
-cc: Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Non-Exec stack patches
-In-Reply-To: <20040323164104.11d79f32.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0403231940200.25882@devserv.devel.redhat.com>
-References: <20040323231256.GP4677@tpkurt.garloff.de> <20040323154937.1f0dc500.akpm@osdl.org>
- <20040324002149.GT4677@tpkurt.garloff.de> <20040323164104.11d79f32.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Content-Type: text/plain
+Message-Id: <1080088212.23716.169.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 24 Mar 2004 11:30:15 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-On Tue, 23 Mar 2004, Andrew Morton wrote:
+This patch fixes display of the boot messages on the BMAC
+driver (pmac only). It used to be messed up in 2.6
 
-> Now, what should the kernel do if the executable requests
-> EXSTACK_DISABLE_X but the kernel cannot do that?  Is it not a bit
-> misleading/dangerous to permit the executable to run anyway?
+Please, apply,
 
-it's not really a problem. We already ignore the !X bit on x86.
 
-	Ingo
+===== drivers/net/bmac.c 1.31 vs edited =====
+--- 1.31/drivers/net/bmac.c	Tue Mar 23 12:47:11 2004
++++ edited/drivers/net/bmac.c	Wed Mar 24 10:05:20 2004
+@@ -1312,10 +1312,8 @@
+ 	bmwrite(dev, INTDISABLE, DisableAll);
+ 
+ 	rev = addr[0] == 0 && addr[1] == 0xA0;
+-	for (j = 0; j < 6; ++j) {
++	for (j = 0; j < 6; ++j)
+ 		dev->dev_addr[j] = rev? bitrev(addr[j]): addr[j];
+-		printk("%c%.2x", (j? ':': ' '), dev->dev_addr[j]);
+-	}
+ 
+ 	/* Enable chip without interrupts for now */
+ 	bmac_enable_and_reset_chip(dev);
+@@ -1380,6 +1378,8 @@
+ 	}
+ 
+ 	printk(KERN_INFO "%s: BMAC%s at", dev->name, (is_bmac_plus? "+": ""));
++	for (j = 0; j < 6; ++j)
++		printk("%c%.2x", (j? ':': ' '), dev->dev_addr[j]);
+ 	XXDEBUG((", base_addr=%#0lx", dev->base_addr));
+ 	printk("\n");
+ 	
+
+

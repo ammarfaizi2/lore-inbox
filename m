@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263473AbTDVU3S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 16:29:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263489AbTDVU3R
+	id S263490AbTDVUat (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 16:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbTDVUat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 16:29:17 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:23425 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263473AbTDVU3Q (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 16:29:16 -0400
-Message-Id: <200304222041.h3MKfILq027562@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can one build 2.5.68 with allyesconfig? 
-In-Reply-To: Your message of "Tue, 22 Apr 2003 16:49:03 EDT."
-             <3EA5AABF.4090303@techsource.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <3EA5AABF.4090303@techsource.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1523968674P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 22 Apr 2003 16:30:49 -0400
+Received: from [66.78.41.84] ([66.78.41.84]:36264 "EHLO cell01.cell01.com")
+	by vger.kernel.org with ESMTP id S263490AbTDVUar (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 16:30:47 -0400
+From: Eric Northup <digitale@digitaleric.net>
+Reply-To: digitale@digitaleric.net
+To: Manfred Spraul <manfred@colorfullife.com>, mailing-lists@digitaleric.net
+Subject: Re: 2.5.68 IDE Oops at boot [working now]
+Date: Tue, 22 Apr 2003 16:37:30 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <3EA286D5.30706@colorfullife.com> <200304201348.34229.lkml@digitaleric.net> <3EA2E86A.7010606@colorfullife.com>
+In-Reply-To: <3EA2E86A.7010606@colorfullife.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 22 Apr 2003 16:41:18 -0400
+Content-Disposition: inline
+Message-Id: <200304221637.30278.digitale@digitaleric.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cell01.cell01.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - digitaleric.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1523968674P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 22 Apr 2003 16:49:03 EDT, Timothy Miller <miller@techsource.com>  said:
-> Is anyone else able to build 2.5.68 with allyesconfig?
-> 
-> I'm using RH7.2, so the first thing I did was edit the main Makefile to 
-> replace gcc with "gcc3" (3.0.4).  Maybe the compiler is STILL my 
+On Sunday 20 April 2003 02:35 pm, Manfred Spraul wrote:
+> Eric Northup wrote:
+> >init_irq called for hwif ide0.
+> >hdc: MAXTOR 6L080L4, ATA DISK drive
 >
+> init_irq called, but does nothing.
+>
+> >init_irq called for hwif ide2.
+> >blk_init_queue: c04c99d4 initialized.
+>
+> This is what's supposed to happen: init_irq initialized the queues.
+>
+> Two bugs:
+> - why doesn't init_irq initialize the queues for the siimage controller?
+> I found a difference between 2.5.67 and 68: init_irq always returns 0,
+> even on error. It should return 1 on error. (It wasn't difficult to
+> find, I introduced it :-(
+> - The error handling is bad. Probably drive->present should be forced to
+> 0, if the queues could not be initialized.
+>
+> Could you try the attached patch? It fixes the return code and adds some
+> additional printks.
+>
+> --
+>     Manfred
 
-1) I think the 3.0.4 compiler had some issues - 3.2.2 may be a better idea.
+This fixes it, thank you very much!  I am currently running 2.5.68 with your 
+IDE patch.  One annoyance is that the order of IDE channels is different 
+between 2.4.20 and 2.5.68 - the Silicon Image SATA controller is detected 
+first on 2.5 but not on 2.4.  I've just put a simple script to swap 
+/etc/fstab at boot based on the running kernel, but the device swap is not 
+very user-friendly.  Other than that, I've got no complaints - the system is 
+running quite well!
 
-2) allyesconfig is probably NOT able to build an actual kernel that will
-work - in particular, there are a number of pairs/sets of drivers that are
-mutually exclusive for a given device. And as you noticed, allyesconfig
-will try to build stuff that's known to be b0rken.
-
-3) Even if it works, it will be a huge kernel with lots of stuff you almost
-certainly don't need (got an ISDN card? I didn't think so ;).  You would more
-likely want to customize the kernel for what you need, or at least consider
-using 'allmodconfig' so you can insmod the parts you need and skip the rest.
-
---==_Exmh_1523968674P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+pajucC3lWbTT17ARAnuYAJ98vB5Fg365ST0jiqInnBz7F56WqwCg/Zd5
-nVxx10oNodlyuxzM3XPcb24=
-=QHHR
------END PGP SIGNATURE-----
-
---==_Exmh_1523968674P--
+--Eric Northup

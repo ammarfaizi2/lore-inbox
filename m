@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317374AbSGIS4V>; Tue, 9 Jul 2002 14:56:21 -0400
+	id <S317376AbSGITKn>; Tue, 9 Jul 2002 15:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317376AbSGIS4U>; Tue, 9 Jul 2002 14:56:20 -0400
-Received: from 209-166-240-202.cust.walrus.com.240.166.209.in-addr.arpa ([209.166.240.202]:7373
-	"EHLO ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id <S317374AbSGIS4T>; Tue, 9 Jul 2002 14:56:19 -0400
-Date: Tue, 9 Jul 2002 14:58:53 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net,
+	id <S317378AbSGITKm>; Tue, 9 Jul 2002 15:10:42 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:10373 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317376AbSGITKl>; Tue, 9 Jul 2002 15:10:41 -0400
+Date: Tue, 9 Jul 2002 15:13:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: [NFS] Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-Message-ID: <20020709145853.A108@ti20>
-References: <E17RyHb-0005Fa-00@the-village.bc.nu> <Pine.LNX.3.95.1020709130055.377A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.3.95.1020709130055.377A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Jul 09, 2002 at 01:22:29PM -0400
+Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
+In-Reply-To: <E17S0OD-0005UY-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.95.1020709150615.14559A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 01:22:29PM -0400, Richard B. Johnson wrote:
-> Really? Then what is the meaning of fsync() on a read-only file-
-> descriptor? You can't update the information you can't change.
+On Tue, 9 Jul 2002, Alan Cox wrote:
 
-Eh?  I do an fchmod() on a readonly descriptor, then I call fsync()
-on that descriptor.  The inode gets sync'd to disk (with updated mode
-and c_time).  So no, I don't need a writable descriptor to call fsync().
-The only question is *what* gets sync'd when I call fsync() on an O_RDONLY
-file-descriptor.
+> > Really? Then what is the meaning of fsync() on a read-only file-
+> > descriptor? You can't update the information you can't change.
+> 
+> fsync ensures the data for that inode/file content is on stable storage - note
+> _the_ _data_ not only random things written by this specific file handle.
+> 
 
-SUSv3 (http://www.opengroup.org/onlinepubs/007908799/xsh/fsync.html)
-says "The fsync() function forces all currently queued I/O
-operations associated with the file indicated by file descriptor fildes
-to the synchronised I/O completion state."
+That is what it's supposed to do with files. The attached code clearly
+shows that it doesn't work with directories. The fsync() instantly
+returns, even though there is buffered data still to be written.
 
-It appears from this wording that the file-descriptor is *merely* a
-handle referring to the inode, and that *all* outstanding I/O on the
-inode [within the "system"] is performed. In other words, if I had
-several different file handles referring to the same inode (but
-different kernel "struct file" objects), all inode data and meta-data
-updates prior to the fsync() call would be synchronized.  It doesn't
-say that explicitly, but given the usual visibility rules regarding
-writes, etc., that is the "natural" interpretation. [Caveat: mmap()]
-To state it succinctly: if other (data or meta-data) writes are visible to 
-the process doing the fsync(), they need to be sync'd too.
 
-In the case of directories, there is no file handle "doing the writing" --
-the kernel does that, so absent the ability to call fsync() on a readonly
-handle to a directory, i.e. fsync(dirfd(dir)), there is no convenient way to sync
-the directory contents.  Calling fsync() on every file in a directory
-does not necessitate syncing the directory!
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#define NR_WRITES 0x1000
+int main()
+{
+    char foo[0x10000];
 
-Regards,
+    int dirfd, outfd;
+    int flags, i;
+    outfd = open("/foo", O_WRONLY|O_TRUNC|O_CREAT, 0644);
 
-   Bill Rugolsky
+
+    dirfd = open("/", O_RDONLY, 0);
+    flags = fcntl(dirfd, F_GETFL);
+    flags &= ~O_RDONLY;
+    flags |= O_RDWR;
+    fcntl(dirfd, F_SETFL, flags);
+    fprintf(stderr, "Write %d bytes\n", sizeof(foo) * NR_WRITES);
+    for(i=0; i< NR_WRITES; i++)
+        write(outfd, foo, sizeof(foo));
+    fprintf(stderr, "Write complete\n");
+    fprintf(stderr, "Sync the directory\n");
+    fsync(dirfd);
+    fprintf(stderr, "Done, returns immediately!\n");
+    close(outfd);
+    fprintf(stderr, "Now execute sync and see if your disk is active!\n");
+//    unlink("/foo");
+}
+
+
+Again, to assure that file-data is written to storage, one must
+execute fsync on files, not directories. The dummy return of 0,
+that Linux provides is a database bug waiting to happen.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

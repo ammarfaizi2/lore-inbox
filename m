@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266297AbUGAVrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266300AbUGAVuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266297AbUGAVrv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 17:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266300AbUGAVrv
+	id S266300AbUGAVuW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 17:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUGAVuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 17:47:51 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:40068 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266297AbUGAVrt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 17:47:49 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 1 Jul 2004 14:47:45 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       mingo@redhat.com, cagney@redhat.com, Daniel Jacobowitz <drow@false.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
-In-Reply-To: <200407012024.i61KOp3J021841@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0407011435420.20246@bigblue.dev.mdolabs.com>
-References: <200407012024.i61KOp3J021841@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jul 2004 17:50:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23529 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266300AbUGAVuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 17:50:15 -0400
+Date: Thu, 1 Jul 2004 23:50:08 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: support@moxa.com.tw
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove unused variable in mxser.c
+Message-ID: <20040701215008.GB28324@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Jul 2004, Roland McGrath wrote:
+I got the following warning in 2.6.7-mm5:
 
-> > Here I meant that if you set SINGLESTEP|SYSGOOD, the patch will give you 
-> > SIGTRAP|0x80, while if you set only SINGLESTEP the patch will give you 
-> > SIGTRAP. Enforcing the SINGLESTEP|SYSGOOD is invalid or only gives SIGTRAP 
-> > should be no more that three lines of code out of the fast path.
-> 
-> There is no "set SINGLESTEP|SYSGOOD".  PTRACE_SINGLESTEP is a one-time
-> operation.  PTRACE_O_TRACESYSGOOD is a persistent flag you set when you
-> intend to at some point use the PTRACE_SYSCALL operation.
+<--  snip  -->
 
-Allrighty ...
+...
+  CC [M]  drivers/char/mxser.o
+drivers/char/mxser.c: In function `mxser_module_init':
+drivers/char/mxser.c:617: warning: unused variable `index'
+...
 
-Andrew, per Roland suggestion, can you please add the patch below to the 
-bits you already have in -mm?
+<--  snip  -->
+
+Since the variable is in fact unused, the following patch simply removes 
+it:
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm5-modular/drivers/char/mxser.c.old	2004-07-01 23:44:59.000000000 +0200
++++ linux-2.6.7-mm5-modular/drivers/char/mxser.c	2004-07-01 23:46:45.000000000 +0200
+@@ -614,7 +614,6 @@
+ 	{
+ 		struct pci_dev *pdev = NULL;
+ 		int n = (sizeof(mxser_pcibrds) / sizeof(mxser_pcibrds[0])) - 1;
+-		int index = 0;
+ 		for (b = 0; b < n; b++) {
+ 			while ((pdev = pci_find_device(mxser_pcibrds[b].vendor, mxser_pcibrds[b].device, pdev)))
+ 			{
 
 
-Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
+cu
+Adrian
 
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-- Davide
-
-
-
---- a/arch/i386/kernel/ptrace.c	2004-07-01 14:30:38.000000000 -0700
-+++ b/arch/i386/kernel/ptrace.c	2004-07-01 14:32:44.000000000 -0700
-@@ -546,8 +546,8 @@
- 		return;
- 	/* the 0x80 provides a way for the tracing parent to distinguish
- 	   between a syscall stop and SIGTRAP delivery */
--	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
--				 ? 0x80 : 0));
-+	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD) &&
-+				 !test_thread_flag(TIF_SINGLESTEP) ? 0x80 : 0));
- 
- 	/*
- 	 * this isn't the same as continuing with a signal, but it will do

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTBFAwx>; Wed, 5 Feb 2003 19:52:53 -0500
+	id <S261518AbTBFBC0>; Wed, 5 Feb 2003 20:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261518AbTBFAwx>; Wed, 5 Feb 2003 19:52:53 -0500
-Received: from dial-ctb0170.webone.com.au ([210.9.241.70]:16902 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id <S261427AbTBFAww>;
-	Wed, 5 Feb 2003 19:52:52 -0500
-Message-ID: <3E41B423.2080309@cyberone.com.au>
-Date: Thu, 06 Feb 2003 12:02:27 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S261523AbTBFBC0>; Wed, 5 Feb 2003 20:02:26 -0500
+Received: from [64.8.50.187] ([64.8.50.187]:60603 "EHLO mta5.adelphia.net")
+	by vger.kernel.org with ESMTP id <S261518AbTBFBC0>;
+	Wed, 5 Feb 2003 20:02:26 -0500
+Message-ID: <01c601c2cd7c$be4002a0$6a01a8c0@wa1hco>
+From: "jeff millar" <wa1hco@adelphia.net>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net> <20030205171613.GB14909@nevyn.them.org> <87adhafx0d.fsf@topo.binary-only.priv> <20030205175428.A23701@infradead.org>
+Subject: Re: Monta Vista software license terms
+Date: Wed, 5 Feb 2003 20:11:55 -0500
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.59-mm8 with contest
-References: <200302052221.55663.conman@kolivas.net> <3E417624.2762A635@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+So...could some kind soul with the source simply post it somewhere?
+MontaVista doesn't have to provide it on their site.  But they can't prevent
+anyone with a copy from posting it. I've got some hardware from an old
+project running hardhat linux and would like to upgrade.
 
->Con Kolivas wrote:
+They used to post it and it helped. I had a "frank exchange of views" with
+the MontaVista marketing folks about their change in policy a while back.
+
+Some questions about posting the source, though...
+    1. Can MontaVista add separate terms to their purchase agreement that
+forbid/discourage/impede publishing the source?
+    2. What if MV mixes GPL and proprietary code in the directories to make
+it difficult to post the GPL portion?
+
+jeff
+
+> >     dj> I'm told that the preview kits do include kernel source,
+> >     dj> although I haven't checked for myself in a couple of months.
+> >
+> So that you got the binaries now could you check where their written offer
+> is and post it to lkml?  Afterwards anyone on this list could ask them
+> for their source (and at least I want to).
 >
->>..
->>
->>This seems to be creeping up to the same as 2.5.59
->>...
->>and this seems to be taking significantly longer
->>...
->>And this load which normally changes little has significantly different
->>results.
->>
->>
->
->There were no I/O scheduler changes between -mm7 and -mm8.  I
->demand a recount!
->
-It would suggest process scheduler changes are making the
-difference.
+> Btw, what do people think of a regular list where anyone who got such
+> an offer can post it so anyone else can get source aswell?
 

@@ -1,51 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290228AbSA3RNs>; Wed, 30 Jan 2002 12:13:48 -0500
+	id <S290103AbSA3RM4>; Wed, 30 Jan 2002 12:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290119AbSA3RM7>; Wed, 30 Jan 2002 12:12:59 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16902 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S290115AbSA3RMo>;
-	Wed, 30 Jan 2002 12:12:44 -0500
-Date: Wed, 30 Jan 2002 09:11:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>, mingo@elte.hu,
-        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130171126.GA26583@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0201300110420.1542-100000@penguin.transmeta.com> <E16VrdT-0006t7-00@the-village.bc.nu> <20020130051855.E11267@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020130051855.E11267@havoc.gtf.org>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 02 Jan 2002 14:38:16 -0800
+	id <S290203AbSA3RMo>; Wed, 30 Jan 2002 12:12:44 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:52883 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290231AbSA3RMV>;
+	Wed, 30 Jan 2002 12:12:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: grumph@pakistanmail.com, linux-kernel@vger.kernel.org
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Date: Wed, 30 Jan 2002 18:17:16 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: torvalds@transmeta.com, hpa@zytor.com
+In-Reply-To: <3c580adc.3d7c.0@pakistanmail.com>
+In-Reply-To: <3c580adc.3d7c.0@pakistanmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VyMG-0000G7-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 05:18:55AM -0500, Jeff Garzik wrote:
-> On Wed, Jan 30, 2002 at 10:06:35AM +0000, Alan Cox wrote:
-> > The other related question is device driver implementation stuff (not interfaces
-> > and abstractions). You don't seem to check that much anyway, or have any taste
-> > in device drivers 8) so should that be part of the small fixing job ?
+On January 30, 2002 06:09 pm, grumph@pakistanmail.com wrote:
+> I did some thinking just before this thread surfaced.
 > 
-> I've often dreamt of an overall "drivers maintainer" or perhaps just an
-> unmaintained-drivers maintainer:  a person with taste who could give
-> driver patches a glance, when noone else does.
-> (and no I'm not volunteering :))
+> What can a patchbot be trusted to do properly?  (see below)
+> ---------------------------------------------------
+> Linus got his style of working and he's got no intention whatsoever to
+> change that. So what is needed is a bot that works according to Linus' 
+> taste, but goes behind his back when it comes to informing the poor 
+> patch submitters....
+> 
+> As always, simplicity rules. 
+> 
+> None of this relies on a bot handling actual patching of code in the
+> tree. A live, human (most of you, I assume) being will have to review
+> and manually apply the patch.
+> 
+> None of this requires Linus to change his habits, he could still apply
+> any patches sent to torvalds@transmeta. Trusted people could still send
+> Linus patches directly.
+> 
+> But the newbies and untrusted guys without an established relationship to
+> a trusted kernel developer get a little help to keep their patch updated. 
+> 
+> It is not going to help on bad person chemistry or bad code. But it
+> could weed out the obvious non-starters and help people get it right,
+> without bothering busy kernel developers.
+> 
+> 
+> What can a patchbot be trusted to do properly?
+> ---------------------------------------------------
+> - receive mail sent to: patch-2.5-linus@kernel or patch-2.4-marcelo@kernel
+>  (you get the idea; version and tree)
+> - patch-id assignment for tracking of patches accepted by bot
+> - sender authentication/confirmation, as for mailing list subscriptions
+> - verify that patch 
+> 	- applies to latest tree
+> 	- isn't oversized (by some definition)
+> 	- is correctly formatted
+> 	- contains a rationale (in some predefined format)
+> - route patch to correct maintainer(s), based on the files it touches
+> 	(may require some initial work)
+> - inform sender that patch was forwarded to <maintainer>
+> - inform sender that patch was automatically rejected because it:
+> 	- does not apply to latest tree
+> 	- is too big/touches too many files
+> 	- does not compile (hardware reqs.? OSD labs?)
+> 	- does not contain aforementioned rationale
+> 	- isn't formatted according to CodingStyle (Does current code?)
+> - inform sender that patch did not end up in next snap of tree, 
+> 	possibly because of:
+> 	- conflict with other patch
+> 	- a human didn't like the taste of it (-EBADTASTE)
+> 	- maintainer has not reviewed the patch yet
+> 	(use the above assigned patch-id to detect if patch was applied)
+> - ask sender to rediff, review and resubmit patch 
+>   The bot could do this by itself. But it isn't linus-style.
+>   The sender should maintain his own patch.
+> - inform the sender how to kill a patch-id from being processed	
+> - automatically kill patch-ids from being processed if sender does not 
+>   respond within <time>
+> - killfile abusers (needs policy)
+> - publish patches on kernel.org and linux-kernel as they come in.
+> ----------------------------------------------------------
 
-I have had that same dream too, Jeff :)
-Especially after spelunking through the SCSI drivers, and being amazed
-that only one of them uses the, now two year old, pci_register_driver()
-interface (which means that only that driver works properly in PCI
-hotplug systems.)
+Yes, you have the idea most precisely.  You left out:
 
-Having someone with "taste" to run driver patches by first would have
-been a great help when I started out writing them.  I've been trying to
-provide that resource for the new USB drivers.
+  - post the patch to the respective mailing list (the one the patch
+    was sent to)
 
-greg k-h
+> Will Linus immediately killfile mail sent from this bot?
+
+I don't think so, unless the bot is really poorly designed.  This is *not* 
+going to be a spambot.  When the time comes, i.e., when the bot is designed 
+in detail, or better, function, we'll ask him, ok?  Or, if he so much as 
+scowls in this direction, work stops right now ;-)
+
+> Will hpa host it at kernel.org?
+
+Again, once we know what the details of the bot are we'll ask him, i.e., how 
+heavy a resource user it's expected to be, if he even thinks the idea is 
+sound, etc.  Right now he could only answer in general terms, so the thing to 
+do is produce something concrete, not theoretical.
+
+> Will someone write the code if it gets thumbs up from linus/hpa?
+
+Somewhat unexpectedly, three coders responded to my call for volunteers:
+   
+   Kalle Kivimaa <killer@iki.fi>
+   Rasmus Andersen <rasmus@jaquet.dk>
+   Giacomo Catenazzi <cate@debian.org>
+
+I must say, I've been impressed with the insight of all three.  Would you be 
+a fourth?  A mailing list has been set up (by Giacomo):
+
+   http://killeri.net/cgi-bin/alias/ezmlm-cgi
+
+> Is it going to make a difference?
+
+Yes, I think it is.  At the very least it will give Linux users a place to go 
+and troll for interesting patches, sort of like Freshmeat.  I'm expecting a 
+considerably more from it though.  Look no further than your own list above 
+to see what it can do.  Which, by the way, bears a remarkable resemblance to 
+the list we just hashed out a few minutes ago.
+
+-- 
+Daniel

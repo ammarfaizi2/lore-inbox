@@ -1,82 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130076AbQLTRO0>; Wed, 20 Dec 2000 12:14:26 -0500
+	id <S130747AbQLTRPR>; Wed, 20 Dec 2000 12:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130536AbQLTROQ>; Wed, 20 Dec 2000 12:14:16 -0500
-Received: from avalon.student.liu.se ([130.236.230.76]:34472 "EHLO
-	mail.student.liu.se") by vger.kernel.org with ESMTP
-	id <S130076AbQLTROC>; Wed, 20 Dec 2000 12:14:02 -0500
-Message-ID: <3A40E1B1.88008025@student.liu.se>
-Date: Wed, 20 Dec 2000 17:43:29 +0100
-From: Robert Högberg <robho956@student.liu.se>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S130694AbQLTRPI>; Wed, 20 Dec 2000 12:15:08 -0500
+Received: from mail.SerNet.DE ([193.159.217.66]:63241 "EHLO mail.SerNet.DE")
+	by vger.kernel.org with ESMTP id <S130453AbQLTRPC>;
+	Wed, 20 Dec 2000 12:15:02 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Extreme IDE slowdown with 2.2.18
+Path: not-for-mail
+From: Cord Seele <Seele@emlix.com>
+Newsgroups: lists.linux.kernel,lists.linux.netdev
+Subject: getsockopt() with IP_PKTINFO not working?
+Date: Wed, 20 Dec 2000 17:44:34 +0100
+Organization: emlix GmbH
+Message-ID: <3A40E1F2.2C8E0127@emlix.com>
+NNTP-Posting-Host: seele.sernet.de
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Trace: server1.GoeNet.DE 977330675 15317 193.159.216.42 (20 Dec 2000 16:44:35 GMT)
+X-Complaints-To: news@news.SerNet.DE
+NNTP-Posting-Date: 20 Dec 2000 16:44:35 GMT
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I am trying to get the destination address of an incoming udp packet
+with getsockopt().
+According to the man pages flag IP_PKTINFO should do that. But it
+doesn't work:
 
-I'm having problems with the performance of my harddrives after I
-upgraded my kernel from 2.2.17 to 2.2.18.
-The performancedrop is noticable on every IDE drive.
+        struct in_pktinfo pktinfo;
+        socklen_t optlen;
+        struct in_addr local_addr;
 
-Here are some numbers to show what I mean:
+        optlen=(socklen_t)sizeof(pktinfo);   
+        syslog (LOG_ERR, "ERR %d",           
+          getsockopt(fd, SOL_IP, IP_PKTINFO, &pktinfo, &optlen));
+        syslog (LOG_ERR, "LENGTH %d %d", (int)optlen, sizeof(pktinfo));
+        local_addr=pktinfo.ipi_addr;                                   
+        syslog (LOG_ERR,"ADDR %s",inet_ntoa(local_addr));
 
-2.2.17:
-/dev/hdc:
- Timing buffered disk reads:  64 MB in  4.32 seconds =14.81 MB/sec
+results in /var/log/messages:
 
-2.2.18:
-/dev/hdc:
- Timing buffered disk reads:  64 MB in 10.49 seconds = 6.10 MB/sec
+Dec 19 19:27:49 coda tftpd[20081]: ERR 0
+Dec 19 19:27:49 coda tftpd[20081]: LENGTH 4 12
+Dec 19 19:27:49 coda tftpd[20081]: ADDR 232.252.255.191
 
-These are hdparm -t outputs and the performance drop is pretty noticable
-:-/
+While getsockopt() returns no error, the resulting length is too short
+and the addr is
+definitely invalid. I would expect either getsockopt() to return -1, it
+this is not
+implemented or return at least 12 valid bytes.
+(I am running a 2.2.16 kernel with glibc 2.1.3.)
 
-I also copied a 600Mb file from my HDD to /dev/null and the results
-were:
+I even tried the 'hard way' using recvmsg() but the resulting
+msg_controllen == 0. 
 
-2.2.17: 1 minute 9 seconds
-2.2.18: 1 minute 38 seconds
 
-My system consists of:
-FIC VA-503+ motherboard with the MVP3 chipset
-K6-2 500MHz
-128Mb SDRAM
-3 IDE disks (see below)
-Slackware 7.0
+Background:
+If a machine has more than one address in a single network, i.e.
 
-dmesg output for the IDE system (no differences between .17 and .18):
+	eth0   192.168.0.10
+	eth0:1 192.168.0.20
 
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xe400-0xe407, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xe408-0xe40f, BIOS settings: hdc:DMA, hdd:DMA
-hda: QUANTUM FIREBALL ST6.4A, ATA DISK drive
-hdb: QUANTUM FIREBALL SE4.3A, ATA DISK drive
-hdc: IBM-DJNA-352030, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: QUANTUM FIREBALL ST6.4A, 6149MB w/81kB Cache, CHS=784/255/63
-hdb: QUANTUM FIREBALL SE4.3A, 4110MB w/80kB Cache, CHS=524/255/63
-hdc: IBM-DJNA-352030, 19470MB w/1966kB Cache, CHS=39560/16/63
+a call to bind() normally assigns the primary ip address (.10) to the
+socket.
+If the server was addressed on his second address (.20) the request is
+not answered
+and fails. I have this problem with tftpd.
+Or is there a better way to get the destination address of an incoming
+udp packet?
 
-When I performed the tests I used similiar .17 and .18 kernels with a
-minimum components included. No network, SCSI, sound and such things.
-.config files can be supplied if needed.
+Thanks for any help.
 
-Does anyone know what could be wrong? Have I forgot something? Is this a
-known problem with the 2.2.18 kernel?
+	Cord Seele
 
-Thanks in advance!
-
-Robert
-
+PS: Please CC me since I am not an the list.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

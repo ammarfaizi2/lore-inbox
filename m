@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbTJTKqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 06:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTJTKqa
+	id S262543AbTJTLKL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 07:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTJTLKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 06:46:30 -0400
-Received: from [193.41.178.98] ([193.41.178.98]:4045 "HELO secemail")
-	by vger.kernel.org with SMTP id S262522AbTJTKq3 convert rfc822-to-8bit
+	Mon, 20 Oct 2003 07:10:11 -0400
+Received: from gw-nl6.philips.com ([212.153.235.103]:44963 "EHLO
+	gw-nl6.philips.com") by vger.kernel.org with ESMTP id S262543AbTJTLKH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 06:46:29 -0400
+	Mon, 20 Oct 2003 07:10:07 -0400
+Message-ID: <3F93C2FB.6030602@basmevissen.nl>
+Date: Mon, 20 Oct 2003 13:11:55 +0200
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4.1) Gecko/20030906
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Re:[2.6.0-test3,6,7] IDE 'enhanced mode' problems
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-Date: Mon, 20 Oct 2003 12:46:44 +0200
-Message-ID: <9E8BE1B970A998468D92381A112AA3EA0140DE@srvrm001.roma.seceti.it>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re:[2.6.0-test3,6,7] IDE 'enhanced mode' problems
-Thread-Index: AcOW93QV8pwDyj6nSK+ggg6wlwR9jg==
-From: "Catani, Antonio" <Antonio.Catani@seceti.it>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Oct 2003 10:46:45.0109 (UTC) FILETIME=[746FFA50:01C396F7]
+To: Saravanan Subbiah <saravanan_subbiah@sbcglobal.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ICH5 - CMI9739A - AC'97 sound driver support
+References: <1066413060.13867.24.camel@dude.saravan.dns2go.com>
+In-Reply-To: <1066413060.13867.24.camel@dude.saravan.dns2go.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Saravanan Subbiah wrote:
 
-Hi, i have the similar problem with 2.6.0-test7-bk9 asua p4c800 deluxe
-without any sata disk,if apply libata patch durig boot I see intel ich5
-right detected, but if enable enanched mode in ide interface, the system
-say me disabling irq18 and see many trouble with ide interface, without
-data corruption, but the system is unusable.
+> I am trying to make sound work in my motherboard with CMI9739A chipset.
+> 
+> The driver from c-media works but freezes my SMP (HT) kernel.
+> 
+> So I tried the i810_audio driver in 2.4.22-ac4 kernel. This driver works
+> but I cannot change the volume. It always outputs at high volume
+> irrespective what level I set.
+> 
+> I even tried alsa driver snd-intel8x0 and got the same result. no volume
+> control support.'
+> 
 
-If disable enanched mode, the system it's ok.
-Another ints, from 2.6.0-test6-mm4 with libata to the last snapshot
-2.6.0-test7-mk9 I'v notice a downgrade of ide performance not so much
-but there is.
+Did you try the alsa-mixer utility too? That one seems to give you 
+control of all mixers available.
 
-I hope this help you 
+Bas.
+
+
+

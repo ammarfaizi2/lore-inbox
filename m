@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265767AbSLWBjA>; Sun, 22 Dec 2002 20:39:00 -0500
+	id <S265568AbSLWBt0>; Sun, 22 Dec 2002 20:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSLWBjA>; Sun, 22 Dec 2002 20:39:00 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:4480 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S265767AbSLWBjA> convert rfc822-to-8bit; Sun, 22 Dec 2002 20:39:00 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [BENCHMARK] scheduler tunables with contest - starvation_limit
-Date: Mon, 23 Dec 2002 12:48:34 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200212201048.52690.conman@kolivas.net> <1040605610.2127.3.camel@icbm>
-In-Reply-To: <1040605610.2127.3.camel@icbm>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212231248.41958.conman@kolivas.net>
+	id <S265628AbSLWBt0>; Sun, 22 Dec 2002 20:49:26 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:39813 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S265568AbSLWBtZ>;
+	Sun, 22 Dec 2002 20:49:25 -0500
+Date: Mon, 23 Dec 2002 02:57:23 +0100
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, joe user <joe_user35@hotmail.com>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Subject: [PATCH] /proc/net/tcp + ipv6 hang
+Message-ID: <20021223015723.GA17439@gagarin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *18QHqN-0004bp-00*8qNXLywSUiA* (0x63.nu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
+
+this patch fixes an infinite loop when reading /proc/net/tcp and having
+daemons listening on ipv6.
+
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+
+===================================================================
 
 
->On Thu, 2002-12-19 at 18:48, Con Kolivas wrote:
->> osdl, contest, tunable - starvation limit on 2.5.52-mm1
->
->Con, curiously, what is this OSDL hardware like?
->
->One thing I always liked about your Contest runs were you did them on
->your home machine, which was presumably fairly run-of-the-mill so we
->could keep an eye on the low-end desktop machines.
+ChangeSet@1.913, 2002-12-23 02:49:19+01:00, andersg@0x63.nu
+  Fix infinite loop when reading /proc/net/tcp with ipv6-sockets.
 
-Forgot to mention I've been doing the scheduler tunables in smp mode just so 
-it wouldnt take me too long to get results. I have no doubt the signal to 
-noise ratio is greater in the uniprocessor results though.
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+ tcp_ipv4.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-iD8DBQE+BmtyF6dfvkL3i1gRAq6wAJ9M1DlPK8JL5RaEbaOOcA6z+KhmZwCcDn+W
-MUDPF6uqNGyQ8FRtWyr07B4=
-=6oDv
------END PGP SIGNATURE-----
+
+diff -Nru a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+--- a/net/ipv4/tcp_ipv4.c	Mon Dec 23 02:55:45 2002
++++ b/net/ipv4/tcp_ipv4.c	Mon Dec 23 02:55:45 2002
+@@ -2236,6 +2236,7 @@
+ 			goto get_req;
+ 		}
+ 		read_unlock_bh(&tp->syn_wait_lock);
++		sk = sk->next;
+ 	}
+ 	if (++st->bucket < TCP_LHTABLE_SIZE) {
+ 		sk = tcp_listening_hash[st->bucket];
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.913
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch1524
+M'XL(`"%M!CX``]54WVO;,!!^MOZ*@SZ6V#I+=FP/EVS=3S98R.CS4.1+;)Q(
+MP5:3#/S'3\E"6]*6LK*7G?1PTIU.G^[[T`7<]-05@3(5=?V27<!GV[LBX/M4
+MA.;6KV?6^G54VS5%IZRHI<[0*IJWT7QE=\QG3973-6Q]M`@P%'<[[M>&BF#V
+MX=/-M[<SQLH2KFMEEO2#')0E<[;;JE753Y2K5]:$KE.F7Y-3H;;KX2YUB#F/
+M_4AP+'B2#IAR.1XT5HA*(E4\EEDJV0G>Y`3^[#S&WD0L,!D2@7G"W@.&.0K@
+M<81Q%!^<0N8%YI<<"\[AK!Q<(HPX>P?_%O0UT_"QV4-C%HUI','*V@WL:C+0
+MD:H:LX1HTUD=&7*1TS[4N!J:S38=]5:WY/J0?87$%Y-L>M]=-OI+8XPKSJY>
+M>-T!A+];'I#\/#BA?OC./,D&*64Z'GRGY\FBRN8YZ92+Q7DWGZWD:1(<I2=F
+M2)&/\2B:)Y)?EL^KL3*EUS31UI!VS?98+)QWSR/&6!X0QWQ(\BS%H[!$]DA7
+MXC_4U1\*OL.HVQVGU\GT*39>(;<OGN@,D`5!WT()?3NZ,K1W;^Z_$UV3;OO;
+1=4D9*2FJ!?L-758XOZ\$````
+`
+end

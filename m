@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269290AbRGaN3b>; Tue, 31 Jul 2001 09:29:31 -0400
+	id <S269295AbRGaNmc>; Tue, 31 Jul 2001 09:42:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269291AbRGaN3V>; Tue, 31 Jul 2001 09:29:21 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:62090 "HELO
-	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S269290AbRGaN3L>; Tue, 31 Jul 2001 09:29:11 -0400
-Message-ID: <3B66B2AF.43D1197E@nortelnetworks.com>
-Date: Tue, 31 Jul 2001 09:29:19 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S269292AbRGaNmZ>; Tue, 31 Jul 2001 09:42:25 -0400
+Received: from fm4.freemail.hu ([194.38.105.14]:25862 "HELO fm4.freemail.hu")
+	by vger.kernel.org with SMTP id <S269296AbRGaNmL>;
+	Tue, 31 Jul 2001 09:42:11 -0400
+Date: Tue, 31 Jul 2001 15:42:04 +0200 (CEST)
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+Subject: used-once really works?
+To: linux-kernel@vger.kernel.org
+Message-ID: <freemail.20010631154204.52946@fm5.freemail.hu>
+X-Originating-IP: [212.40.102.60]
+X-HTTP-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.8-pre3 i686; en-US; rv:0.9.1) Gecko/20010620
 MIME-Version: 1.0
-To: subhash.sutrave@oracle.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about gettimeofday
-In-Reply-To: <3B65F3A2.DC5F7E37@oracle.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Subhash S wrote:
-> 
-> Hi All,
-> 
-> In my application I use gettimeofday very frequently, as it is system
-> call on linux it is expensive, where as on Solaris it is not so. Could
-> you please tell me how solaris is implemented the function gettimeofday.
+Hi!
 
-While I can't tell you how Solaris implemented it, I can say that in general if
-you want very frequent timing access you're probably better off using inline
-assembly to get at some processor-specific timer.  On a 400Mhz G4, the
-difference was about a microsecond for gettimeofday() vs about 25 nanoseconds
-for the assembly code.
+I freshly compiled 2.4.8-pre3 and I thought
+I give it a try.
+
+The machine is a dual P3 with 384MB memory and one
+15 GB IDE disk, distro is RedHat 6.2 with official
+upgrades and e2fsprogs-1.22 and GNOME-1.4.
+
+In X, I had mozilla, and 3 gnome-terminals running.
+In one terminal, I run 'top', in one other
+'dd if=/dev/hda of=/dev/null bs=4096'.
+
+'top' showed that the system buffer cache filled up
+and soon the machine started swapping. It seemed to swap
+out mozilla and parts of the X server. Otherwise the
+system remained responsive.
+
+I tried other more experimental patches, too:
+o_direct-10 and blkdev-pagecache-5. There was a one-liner
+reject in mm/vmscan.c after applying blkdev-pagecache-5.
+
+I fixed this and booted this new kernel, I tried the same.
+This time the page cache started to fill up but
+no swapping occured. Hm...
+
+During 'dd' starting new (I mean: not yet in the page cache)
+programs were slow as hell. Starting them second time was
+fast as expected. I tried glade with a large project file,
+loading it / looking into directories was slow at first,
+was fast second time. Since ext2 directories are in the
+page cache, this is perfectly understandable.
+
+So it seems that the used-once patch works.
+The only comments is that I didn't expect it
+to start swapping with the stock pre3.
+I supposed it frees the "used-once" pages more quickly.
+Anyway I am not a VM expert and don't flame me about
+my non relevant comments. 2.4.8 seems promising :-)
+
+Regards,
+Zoltan Boszormenyi <zboszor@mail.externet.hu>
 
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

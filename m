@@ -1,80 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261335AbSI3Vl1>; Mon, 30 Sep 2002 17:41:27 -0400
+	id <S261342AbSI3VmX>; Mon, 30 Sep 2002 17:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261342AbSI3Vl1>; Mon, 30 Sep 2002 17:41:27 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47097 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261335AbSI3Vl0>;
-	Mon, 30 Sep 2002 17:41:26 -0400
-Message-ID: <3D98C60B.9C1EA90B@mvista.com>
-Date: Mon, 30 Sep 2002 14:45:47 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S261344AbSI3VmX>; Mon, 30 Sep 2002 17:42:23 -0400
+Received: from dsl092-148-080.wdc1.dsl.speakeasy.net ([66.92.148.80]:25289
+	"EHLO tyan.doghouse.com") by vger.kernel.org with ESMTP
+	id <S261342AbSI3VmV>; Mon, 30 Sep 2002 17:42:21 -0400
+Date: Mon, 30 Sep 2002 17:47:45 -0400 (EDT)
+From: Maxwell Spangler <maxwax@speakeasy.net>
+X-X-Sender: <maxwell@tyan.doghouse.com>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: AMD 768 erratum 10 (solved: AMD 760MPX DMA lockup)
+In-Reply-To: <20020927084601.C25704@fi.muni.cz>
+Message-ID: <Pine.LNX.4.33.0209301746350.10704-100000@tyan.doghouse.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] smptimers, old BH removal, tq-cleanup, 2.5.39
-References: <Pine.LNX.4.44.0209291927400.15706-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> the attached patch is the smptimers patch plus the removal of old BHs and
-> a rewrite of task-queue handling.
-> 
-~snip
-> 
-> scalable timers: i've further improved the patch ported to 2.5 by wli and
-> Dipankar. There is only one pending issue i can see, the question of
-> whether to migrate timers in mod_timer() or not. I'm quite convinced that
-> they should be migrated, but i might be wrong. It's a 10 lines change to
-> switch between migrating and non-migrating timers, we can do performance
-> tests later on. The current, more complex migration code is pretty fast
-> and has been stable under extremely high networking loads in the past 2
-> years, so we can immediately switch to the simpler variant if someone
-> proves it improves performance. (I'd say if non-migrating timers improve
-> Apache performance on one of the bigger NUMA boxes then the point is
-> proven, no further though will be needed.)
 
-As the APIC timers are currently set up they are
-undisciplined WRT the PIT which is still used to drive the
-clock.  This means that, since this patch drives the
-"run_timer_list" code from the APIC timers, the actual delay
-in timer servicing from the requested time will vary with
-a.) the cpu (since each cpu is set up to have its timer
-expire at a different time within the 1/HZ tick) and b.)
-over time as the PIT and the APIC clocks drift.  This may be
-acceptable with 1/HZ timer resolution (however I don't
-really think it is), but it is in no way acceptable WRT high
-resolution timers.
+Does this mouse have to be actively used...
 
-The solution I would suggest is to disciplined the APIC
-clocks.  They _should_ be set up to interrupt as soon after
-a PIT interrupt as possible and they should all do so at the
-same time if we are to avoid timer (not time, actual time
-keeping is not in question here) glitches when moving from
-one cpu to another.  Further, checks for drift need to be in
-place to "pull" the APIC timer into sync when it drifts.
+Could one plug a cheap ps/2 mouse into that port and yet continue to use a USB 
+mouse if X is configured to use it?
 
-I had similar problems in the high-res-timers keeping the
-PIT synched with the TSC or the pm timer.  It is do able.
+What is actually happening that causes the ps/2 mouse to cure this or any 
+other problem of this nature?
+
+Curious.
+
+On Fri, 27 Sep 2002, Jan Kasprzak wrote:
+
+> Manfred Spraul wrote:
+> : The errata is not PS/2 mouse specific:
+> : it says that the io apic doesn't implement masking interrupts correctly.
 > 
-~snip
+> 	Yes, but it says that problem has not been observed when running
+> with PS/2 mouse. Which is exactly what I observe on my system.
+> : 
+> : Linux uses masking aggressively - disable_irq() is implemented by 
+> : masking the interrupt in the io apic. I'm surprised that this doesn't 
+> : cause frequent problems.
 > 
->         Ingo
+> 	The errata does not say that the interrupt masking in the IO-APIC
+> does not work in all situations. I read it as the lock-up (caused by
+> nonfunctional IRQ masking) sometimes occurs, nobody knows when,
+> and it has been observed on some Netware boxes w/o the PS/2 mouse.
+> Maybe even AMD does not know exactly what is going on there.
+> 
+> : Regarding Jan's problem: I'm not sure if his problems are related to 
+> : this errata. It says that using a PS/2 mouse instead of a serial mouse 
+> : with Novell Netward avoids the hang during shutdown, probably because 
+> : then netware doesn't mask the irq.
+> 
+> 	Yes, it may be a faulty board as well, but I think it is
+> too close to this AMD errata.
+> 
+> -Yenya
+> 
+> -- 
+> | Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+> | GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+> | http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> |----------- If you want the holes in your knowledge showing up -----------|
+> |----------- try teaching someone.                  -- Alan Cox -----------|
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+-- ----------------------------------------------------------------------------
+Maxwell Spangler                                                
+Program Writer                                              
+Greenbelt, Maryland, U.S.A.                         
+Washington D.C. Metropolitan Area 
+

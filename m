@@ -1,89 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286732AbRLVIvS>; Sat, 22 Dec 2001 03:51:18 -0500
+	id <S286734AbRLVJDb>; Sat, 22 Dec 2001 04:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286731AbRLVIvJ>; Sat, 22 Dec 2001 03:51:09 -0500
-Received: from rj.sgi.com ([204.94.215.100]:64435 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S285047AbRLVIuy>;
-	Sat, 22 Dec 2001 03:50:54 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Announce: kdb v2.0 is available for kernel 2.4.17
-Date: Sat, 22 Dec 2001 19:50:37 +1100
-Message-ID: <7539.1009011037@kao2.melbourne.sgi.com>
+	id <S286735AbRLVJDV>; Sat, 22 Dec 2001 04:03:21 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:26281 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286734AbRLVJDL>;
+	Sat, 22 Dec 2001 04:03:11 -0500
+Date: Sat, 22 Dec 2001 12:00:37 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Ashok Raj <ashokr2@attbi.com>
+Cc: <linux-kernel@vger.kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: softirq question...
+In-Reply-To: <PPENJLMFIMGBGDDHEPBBEEJFCAAA.ashokr2@attbi.com>
+Message-ID: <Pine.LNX.4.33.0112221101340.3285-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+On Fri, 21 Dec 2001, Ashok Raj wrote:
 
-ftp://oss.sgi.com/projects/kdb/download/v2.0/
+> 1. Why does softirqd run at very low priority? is there a reason why
+> this was choosen to run that low priority? since the tasklets that do
+> deferred processing require quicker attention to avoid latency issues
+> right? Iam sure you folks had a good reason, iam trying to evaluate
+> why.
 
-  kdb-v2.0-2.4.17-common-1.bz2
-  kdb-v2.0-2.4.17-i386-1.bz2
+the reason is that by design, softirqd should only run when softirq load
+is so high that IRQ contexts are not able to handle it all.
 
-Starting with kdb v2.0 there is a common patch against each kernel which
-contains all the architecture independent code plus separate architecture
-dependent patches.  Apply the common patch for your kernel plus at least
-one architecture dependent patch, the architecture patches activate kdb.
+The current softirq code is quite bad for high-IRQ-rate device performance
+because it has a wide window to 'miss' pending softirqs that got activated
+while softirqs were running, and those pending softirqs will only be
+processed in the next IRQ tick, or whenever we happen to schedule to
+softirqd. I've demonstrated this problem numerous times (and others have
+as well), it's easy to trigger. It does not take any high load to trigger
+this situation, it just needs two successive fast IRQs from a fast device,
+where the second one hits the softirq handler.
 
-The naming convention for kdb patches is :-
+I provided two separate solutions for the softirq performance problems:
 
-vx.y    The version of kdb.  x.y is updated as new features are added to kdb.
-- -v.p.s  The kernel version that the patch applies to.  's' may include -pre,
-        -rc or whatever numbering system the kernel keepers have thought up this
-        week.
-- -common The common kdb code.  Everybody needs this.
-- -i386   Architecture dependent code for i386.
-- -ia64   Architecture dependent code for ia64, etc.
-- -n      If there are multiple kdb patches against the same kernel version then
-        the last number is incremented.
+   1) to loop a few times so that the number of schedules towards softirqd
+      decreases dramatically in RL situations. This solution is very
+      simple - and while it's not a 'complete' solution, it's a practical
+      solution.
 
-To build kdb for your kernel, apply the common kdb patch which is less
-than or equal to the kernel v.p.s, taking the highest value of '-n'
-if there is more than one.  Apply the relevant arch dependent patch
-with the same value of 'vx.y-v.p.s-', taking the highest value of '-n'
-if there is more than one.
+   2) to loop until done in the softirq code, and limit hardirq load
+      automatically at the hardirq level - this can be done pretty
+      cheaply. In the future, limit irq load via a variant of explicit
+      device-throttling, worked on by some people, 'NAPI'. NAPI is
+      designed for networking-only use, so other subsystems might still
+      rely on hardirq-level throttling.
 
-For example, to use kdb v2.0 for i386 on kernel 2.4.17, apply
-  kdb-v2.0-2.4.17-common-1
-  kdb-v2.0-2.4.17-i386-1
-in that order.
+(both solutions were posted as working patches.)
 
+People have reported 10-20% performance drop for certain gigabit cards due
+to the non-processing of softirqs & softirqd. But it's not only about
+performance, it's also the latency of IRQ processing, even with
+highest-priority softirqd, the latency to get softirqs done can be
+significantly delayed by process-context activities.
 
-This release is functionally equivalent to kdb v1.9-2.4.16, the only
-change is the reorganisation.  I have a backlog of kdb changes which
-were on hold until the patches had been split, it was getting too messy
-trying to maintain at least six versions of the common kdb code and
-keep them in sync.  I hope to clear the backlog soon.
+softirqd is a (valid) attempt to solve the latency problem created by the
+broken design of softirqs, which design inherited some of the breakage of
+the original BHs, and which breakage results from a hard problem: the
+desire to avoid softirq-related overloads and lockups. Softirqd is fixing
+the symptom, and it obviously hurts performance - we should not push IRQ
+load to process context as easily as we do today.
 
-Ethan Solomita (ethan@cs.columbia.edu) has done a port of kdb to
-sparc64 against 2.4.13.  I will upgrade that to 2.4.17 and issue
-kdb-v2.0-2.4.17-sparc64-1.bz2 "soon".  kdb for ia64 has to wait until
-the 2.4.17-ia64 kernel patch is issued.
+Increasing the priority of softirqd does not help the performance problems
+either - the fundamental problem is that process contexts are simply not
+suited for IRQ-type processing. (Even with its current priority, usually
+softirqd does not use up as much timeslices as it has available, and thus
+it gets the highest dynamic priority.)
 
-Changelog extract.
+Right now, if you care about performance, you are best off if you avoid
+both softirqs and tasklets, and do as much processing in the hardirq
+context as possible.
 
-2001-12-22 Keith Owens  <kaos@sgi.com>
+Waiting for the networking folks to fix this obvious problem is also a
+solution, but i'm not betting on it, in fact they have trouble admitting
+that there is a problem to begin with (check out the archives). This is
+usually not a good start to get things fixed. Paradoxically, the same
+people are calling the kettle black (both patch variants i offered), while
+my kettle actually helps performance and avoids lockups, while their
+kettle (the current mess of softirq code) hurts performance so obviously,
+and in fact it does not even solve the "slow i486 router locks up under
+100mbit load" problem.
 
-        * Upgrade to 2.4.17.
-        * Clean up ifdef CONFIG_KDB.
-        * Add ifdef CONFIG_KDB around include kdb.h.
-        * Delete dummy kdb.h files for unsupported architectures.
-        * Delete arch i386 and ia64 specific files.  This changelog now
-          applies to kdb common code only.
-        * Release as kdb v2.0-2.4.17-common-1.
+so you might have noticed from the tone of my email that i'm not happy
+about the current state of the Linux softirq (and tasklet) subsystem :-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE8JElbi4UHNye0ZOoRArPiAKCYlVUzS3EYrE5XC8sn3Xz8L9mBeQCeLHGn
-Wdx2YfBSiLgCmg6nlUPr+8A=
-=BFtm
------END PGP SIGNATURE-----
+	Ingo
 

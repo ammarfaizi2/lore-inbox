@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277109AbRJHTrg>; Mon, 8 Oct 2001 15:47:36 -0400
+	id <S277099AbRJHTwO>; Mon, 8 Oct 2001 15:52:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277106AbRJHTrO>; Mon, 8 Oct 2001 15:47:14 -0400
-Received: from peace.netnation.com ([204.174.223.2]:56080 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S277099AbRJHTrI>; Mon, 8 Oct 2001 15:47:08 -0400
-Date: Mon, 8 Oct 2001 12:47:38 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Johannes Erdfelt <johannes@erdfelt.com>
-Cc: Greg KH <greg@kroah.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.11-pre5
-Message-ID: <20011008124738.J8703@netnation.com>
-In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com> <20011007153433.G14479@sventech.com> <20011007124038.A22923@netnation.com> <20011007161903.H14479@sventech.com> <20011008120223.G8703@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20011008120223.G8703@netnation.com>; from sim@netnation.com on Mon, Oct 08, 2001 at 12:02:23PM -0700
+	id <S277106AbRJHTwF>; Mon, 8 Oct 2001 15:52:05 -0400
+Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:387 "EHLO
+	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S277099AbRJHTv7>;
+	Mon, 8 Oct 2001 15:51:59 -0400
+Message-ID: <3BC2039C.2020402@stesmi.com>
+Date: Mon, 08 Oct 2001 21:50:52 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: landley@trommello.org
+CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: sis630/celeron perf sucks?
+In-Reply-To: <20011006130647.B26223@work.bitmover.com> <01100618241801.05593@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08, 2001 at 12:02:23PM -0700, Simon Kirby wrote:
+Hi,
 
-> On Sun, Oct 07, 2001 at 04:19:03PM -0400, Johannes Erdfelt wrote:
-> 
-> > Ahh, could you replace this line:
-> > 
-> >         pci_write_config_word(uhci->dev, USBLEGSUP, 0);
-> > 
-> > with this:
-> > 
-> >         pci_write_config_word(uhci->dev, USBLEGSUP, USBLEGSUP_DEFAULT);
-> > 
-> > and try again?
-> 
-> Yes, this fixed it.  Thanks.
+> All the celerons I know about have a 66 mhz front side bus speed.  (Actually 
+> there was a notebook version with a 100mhz fsb, but no desktop ones I know 
+> of.)  It's a totally artificial limitation to get you to buy a real Pentium 
+> III.  Intel crippling its low-end to avoid hurting the high end.  (They let 
+> AMD do that for them. :)
 
-However, now the downloading from my digital camera (Kodak DC290) is
-abysmally slow...about a magnitude slower.  usb-uhci instead goes at
-the same speed as before.
+Actually the latest celerons are 100MHz FSB.
 
-Simon-
+// Stefan
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+

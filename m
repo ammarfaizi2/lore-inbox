@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSLJPlt>; Tue, 10 Dec 2002 10:41:49 -0500
+	id <S262326AbSLJPx1>; Tue, 10 Dec 2002 10:53:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbSLJPlt>; Tue, 10 Dec 2002 10:41:49 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:53699 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S262324AbSLJPls>; Tue, 10 Dec 2002 10:41:48 -0500
-Message-ID: <2105495.1039535073217.JavaMail.nobody@web55.us.oracle.com>
-Date: Tue, 10 Dec 2002 07:44:33 -0800 (PST)
-From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-To: rusty@rustcorp.com.au
-Subject: module-init-tools 0.9.3 -- "missing" issue
-Cc: linux-kernel@vger.kernel.org
+	id <S262414AbSLJPx1>; Tue, 10 Dec 2002 10:53:27 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:6866 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S262326AbSLJPx0>; Tue, 10 Dec 2002 10:53:26 -0500
+Date: Tue, 10 Dec 2002 17:01:11 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: James Morris <jmorris@intercode.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2 networking, NET_BH latency
+Message-ID: <20021210160111.GD23479@laguna.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	James Morris <jmorris@intercode.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021210155632.GC23479@laguna.alcove-fr> <Mutt.LNX.4.44.0212110257180.1749-100000@blackbird.intercode.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+Content-Disposition: inline
+In-Reply-To: <Mutt.LNX.4.44.0212110257180.1749-100000@blackbird.intercode.com.au>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As per the README...
+On Wed, Dec 11, 2002 at 02:57:32AM +1100, James Morris wrote:
 
-[asuardi@dolphin module-init-tools-0.9.3]$ aclocal
-[asuardi@dolphin module-init-tools-0.9.3]$ automake --add-missing --copy
-Makefile.am: installing `./depcomp'
-[asuardi@dolphin module-init-tools-0.9.3]$ autoconf
-[asuardi@dolphin module-init-tools-0.9.3]$ ./configure --prefix=/
-checking build system type... i686-pc-linux-gnu
-checking host system type... i686-pc-linux-gnu
-checking target system type... i686-pc-linux-gnu
-checking for a BSD-compatible install... /usr/bin/install -c
-checking whether build environment is sane... yes
-/download/kernel/v2.5/module-init-tools-0.9.3/missing: Unknown `--run' option
-Try `/download/kernel/v2.5/module-init-tools-0.9.3/missing --help' for more information
-configure: WARNING: `missing' script is too old or missing
-checking for gawk... gawk
-checking whether make sets ${MAKE}... yes
-checking for gcc... gcc
-checking for C compiler default output... a.out
-checking whether the C compiler works... yes
-checking whether we are cross compiling... no
-checking for suffix of executables...
-checking for suffix of object files... o
-checking whether we are using the GNU C compiler... yes
-checking whether gcc accepts -g... yes
-checking for style of include used by make... GNU
-checking dependency style of gcc... gcc3
-configure: creating ./config.status
-config.status: creating Makefile
-config.status: executing depfiles commands
+> On Tue, 10 Dec 2002, Stelian Pop wrote:
+> 
+> > > Can you reproduce the problem with a vanilla 2.2.23 kernel?
+> > 
+> > I didn't try yet, but it is on my list.
+> > 
+> > Should I interpret your message as some changes between 2.2.18 and 2.2.23
+> > could be responsible for that behaviour or you are just shooting in the
+> > dark ? :-)
+> > 
+> 
+> No.
 
-So - it complains about 'missing' not knowing the --run option. Indeed:
+I take it as 'no, this was not a shot in the dark' then... 
 
-[asuardi@dolphin module-init-tools-0.9.3]$ ./missing --help
-./missing [OPTION]... PROGRAM [ARGUMENT]...
+Could you please explain a bit more the problem ? Maybe point me to
+some networking changes in particular ? (in my particular case, it
+may be simpler to just try a specific patch instead of going directly
+to 2.2.23...).
 
-Handle `PROGRAM [ARGUMENT]...' for when PROGRAM is missing, or return an
-error status if there is no known handling for PROGRAM.
+Thanks,
 
-Options:
-  -h, --help      display this help and exit
-  -v, --version   output version information and exit
-
-Supported PROGRAM values:
-  aclocal      touch file `aclocal.m4'
-  autoconf     touch file `configure'
-  autoheader   touch file `config.h.in'
-  automake     touch all `Makefile.in' files
-  bison        create `y.tab.[ch]', if possible, from existing .[ch]
-  flex         create `lex.yy.c', if possible, from existing .c
-  lex          create `lex.yy.c', if possible, from existing .c
-  makeinfo     touch the output file
-  yacc         create `y.tab.[ch]', if possible, from existing .[ch]
-[asuardi@dolphin module-init-tools-0.9.3]$
-
-
-Unfortunately I'm a newbie in the new module-init-tools && little time to
- dig deeper, so take this as a very simple report. Thanks,
-
---alessandro
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

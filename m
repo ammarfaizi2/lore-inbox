@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbSJKMFL>; Fri, 11 Oct 2002 08:05:11 -0400
+	id <S262372AbSJKM2u>; Fri, 11 Oct 2002 08:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262427AbSJKMFL>; Fri, 11 Oct 2002 08:05:11 -0400
-Received: from [203.124.139.208] ([203.124.139.208]:14282 "EHLO
-	pcsbom.patni.com") by vger.kernel.org with ESMTP id <S262425AbSJKMFL>;
-	Fri, 11 Oct 2002 08:05:11 -0400
-Reply-To: <chandrasekhar.nagaraj@patni.com>
-From: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Porting upper layer SCSI driver from Solaris to Linux
-Date: Fri, 11 Oct 2002 17:39:31 +0530
-Message-ID: <000001c2711f$0e40fc60$bf60a8c0@pcp13402>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S262405AbSJKM2u>; Fri, 11 Oct 2002 08:28:50 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.130]:17345 "EHLO
+	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S262372AbSJKM2u>; Fri, 11 Oct 2002 08:28:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: usbfs race while mounting/umounting
+From: Wolfram Gloger <wg@malloc.de>
+X-URL: http://www.malloc.de/
+In-Reply-To: <E17zvS7-00041g-00@mrvdomng.kundenserver.de>
+Message-Id: <E17zz00-0001BI-00@mrvdomng.kundenserver.de>
+Date: Fri, 11 Oct 2002 14:34:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oliver Neukum made me look more closely and I think the
+usb_bus_list_lock needs to stay, appended is a corrected patch for
+2.4.x.
 
-We are porting an upper layer device driver of SCSI (sd ) from Solaris to
-Linux.
+Regards,
+Wolfram.
 
-We want to develop an upper layer (for a block device) which can interact
-with the middle generic layer(scsi_mod).What are the list of API's exposed
-by the middle layer and where can I get a documentation of these i.e how
-does the upper layer interact with the middle layer?
-Also what methods do the upper layer needs to expose to the user
-application?
-
-Thanks nad Regards
-Chandrasekhar
+--- drivers/usb/inode.c.orig	Sat Aug  3 02:39:45 2002
++++ drivers/usb/inode.c	Fri Oct 11 14:33:34 2002
+@@ -628,6 +628,7 @@
+         s->s_root = d_alloc_root(root_inode);
+         if (!s->s_root)
+                 goto out_no_root;
++	lock_kernel();
+ 	list_add_tail(&s->u.usbdevfs_sb.slist, &superlist);
+ 	for (i = 0; i < NRSPECIAL; i++) {
+ 		if (!(inode = iget(s, IROOT+1+i)))
+@@ -646,6 +647,7 @@
+ 		recurse_new_dev_inode(bus->root_hub, s);
+ 	}
+ 	up (&usb_bus_list_lock);
++	unlock_kernel();
+         return s;
+ 
+  out_no_root:
 

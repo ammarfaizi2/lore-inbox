@@ -1,120 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129449AbQKDCKA>; Fri, 3 Nov 2000 21:10:00 -0500
+	id <S129332AbQKDCdj>; Fri, 3 Nov 2000 21:33:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129617AbQKDCJv>; Fri, 3 Nov 2000 21:09:51 -0500
-Received: from 24.68.3.210.on.wave.home.com ([24.68.3.210]:28151 "EHLO
-	phlegmish.com") by vger.kernel.org with ESMTP id <S129449AbQKDCJ0>;
-	Fri, 3 Nov 2000 21:09:26 -0500
-From: David Won <phlegm@home.com>
-Date: Fri, 3 Nov 2000 21:04:51 -0500
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: What's causing my kernel Oops
+	id <S129164AbQKDCd3>; Fri, 3 Nov 2000 21:33:29 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:8875 "EHLO
+	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S129033AbQKDCdN>; Fri, 3 Nov 2000 21:33:13 -0500
+Message-ID: <3A03753F.548324A9@linux.com>
+Date: Fri, 03 Nov 2000 18:32:31 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00110321045100.00754@phlegmish.com>
-Content-Transfer-Encoding: 7BIT
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: tytso@mit.edu, linux-kernel@vger.kernel.org, jeremy@goop.org,
+        "David S. Miller" <davem@redhat.com>, rgooch@atnf.csiro.au,
+        sct@redhat.com
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org> <3A033A45.D8F6E952@mandrakesoft.com>
+Content-Type: multipart/mixed;
+ boundary="------------82B6A66CE5CCFE5F82E2A0EB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I posted a few of my oops here last week and received a few helpfull replys. 
-I have modified my logging so my ksymoops should be more readable. It looksed 
-to me that it was mostly esd and emu10k1 that were causing my greif. I have 
-since tried recompiling esound from srs and grabbing the latest SB live 
-drivers. I also tried it as a module and in the kernel. I'm running the atest 
-kernel and patch, RH 7 and compiled using kgcc. 
-One further question. Do I compile the modules with kgcc as well? I get the 
-Oops either way but was curious none the less.
-Thanks for any help.
+This is a multi-part message in MIME format.
+--------------82B6A66CE5CCFE5F82E2A0EB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Nov  1 14:09:33 phlegmish kernel: Unable to handle kernel paging request at 
-virtual address 20c337ad
-Nov  1 14:09:33 phlegmish kernel: c0143ab6
-Nov  1 14:09:33 phlegmish kernel: *pde = 00000000
-Nov  1 14:09:33 phlegmish kernel: Oops: 0002
-Nov  1 14:09:33 phlegmish kernel: CPU:    0
-Nov  1 14:09:33 phlegmish kernel: EIP:    0010:[<c0143ab6>]
-Nov  1 14:09:33 phlegmish kernel: EFLAGS: 00010206
-Nov  1 14:09:33 phlegmish kernel: eax: c3377cd9   ebx: c78253a0   ecx: 
-c78253a0   edx: 20c3377d
-Nov  1 14:09:33 phlegmish kernel: esi: 00000000   edi: c58c9fa4   ebp: 
-00001000   esp: c58c9f5c
-Nov  1 14:09:33 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-Nov  1 14:09:33 phlegmish kernel: Process ps (pid: 1570, stackpage=c58c9000)
-Nov  1 14:09:33 phlegmish kernel: Stack: c78253a0 c01443c4 c78253a0 c58c9f78 
-c58c9f7c 00000000 c78253a0 00000000 
-Nov  1 14:09:33 phlegmish kernel:        00000000 c0134b73 c76536a0 40030f20 
-00001000 c78253a0 c58c8000 bffff6f8 
-Nov  1 14:09:33 phlegmish kernel:        40030f20 bffff790 c76536a0 c7f3c2a0 
-00000007 c012d0a7 c3544bc0 00000008 
-Nov  1 14:09:33 phlegmish kernel: Call Trace: [<c01443c4>] [<c0134b73>] 
-[<c012d0a7>] [<c010a407>] [<c010002b>] 
-Nov  1 14:09:33 phlegmish kernel: Code: ff 42 30 8b 44 24 10 89 10 8b 81 f8 
-00 00 00 8b 58 08 85 db 
+Jeff Garzik wrote:
 
->>EIP; c0143ab6 <proc_fd_link+16/68>   <=====
+> >      * 2.4.0-test8 pcmcia is unusable in fall forms (kernel, mixed, or
+> >        dhinds code) (David Ford)
+>
+> "fall forms"?
+>
+> David clearly has problems w/ pcmcia, but it is not at all as broken as
+> he makes it out to be:  all my cardbus laptops boot and work.
+>
+>
+> >      * PCMCIA/Cardbus hangs (Basically unusable - Hinds pcmcia code is
+> >        reliable)
+>
+> Again "whatever".  The CardBus code is definitely usable.  It is not
+> mature, but saying it is "basically unusable" is wildly inaccurate.
 
-Trace; c01443c4 <proc_pid_readlink+38/9c>
-Trace; c0134b73 <sys_readlink+7b/94>
-Trace; c012d0a7 <sys_close+43/54>
-Trace; c010a407 <system_call+33/38>
-Trace; c010002b <startup_32+2b/13a>
-Code;  c0143ab6 <proc_fd_link+16/68>
-00000000 <_EIP>:
-Code;  c0143ab6 <proc_fd_link+16/68>   <=====
-   0:   ff 42 30                  incl   0x30(%edx)   <=====
-Code;  c0143ab9 <proc_fd_link+19/68>
-   3:   8b 44 24 10               mov    0x10(%esp,1),%eax
-Code;  c0143abd <proc_fd_link+1d/68>
-   7:   89 10                     mov    %edx,(%eax)
-Code;  c0143abf <proc_fd_link+1f/68>
-   9:   8b 81 f8 00 00 00         mov    0xf8(%ecx),%eax
-Code;  c0143ac5 <proc_fd_link+25/68>
-   f:   8b 58 08                  mov    0x8(%eax),%ebx
-Code;  c0143ac8 <proc_fd_link+28/68>
-  12:   85 db                     test   %ebx,%ebx
+The qualifiers I reported are not included above so don't take it to mean
+wide ranging.
 
-Nov  1 14:09:40 phlegmish kernel: Unable to handle kernel paging request at 
-virtual address d9d9ffcf
-Nov  1 14:09:40 phlegmish kernel: c012d006
-Nov  1 14:09:40 phlegmish kernel: *pde = 00000000
-Nov  1 14:09:40 phlegmish kernel: Oops: 0000
-Nov  1 14:09:40 phlegmish kernel: CPU:    0
-Nov  1 14:09:40 phlegmish kernel: EIP:    0010:[<c012d006>]
-Nov  1 14:09:40 phlegmish kernel: EFLAGS: 00210286
-Nov  1 14:09:40 phlegmish kernel: eax: d9d9ffbb   ebx: d9d9ffbb   ecx: 
-d9d9ffbb   edx: 00000400
-Nov  1 14:09:41 phlegmish kernel: esi: 00000000   edi: c32acc40   ebp: 
-00000001   esp: c007bee8
-Nov  1 14:09:41 phlegmish kernel: ds: 0018   es: 0018   ss: 0018
-Nov  1 14:09:41 phlegmish kernel: Process bash (pid: 1395, stackpage=c007b000)
-Nov  1 14:09:41 phlegmish kernel: Stack: 00000007 00000000 c0118c0a d9d9ffbb 
-c32acc40 c31903e0 c007a000 00000001 
-Nov  1 14:09:41 phlegmish kernel:        c007bf40 c011920a c32acc40 00000001 
-c007a000 00000001 c010a29c 00000001 
-Nov  1 14:09:41 phlegmish kernel:        c007a000 00000000 00000001 bffff6d0 
-c007bfc4 c007a550 00000001 00000000 
-Nov  1 14:09:41 phlegmish kernel: Call Trace: [<c0118c0a>] [<d9d9ffbb>] 
-[<c011920a>] [<c010a29c>] [<c885d100>] [<ffff0000>] [<c0109881>] 
-Nov  1 14:09:41 phlegmish kernel:        [<c010994e>] [<c010a450>] 
-Nov  1 14:09:41 phlegmish kernel: Code: 8b 43 14 85 c0 75 13 68 82 4f 22 c0 
-e8 b5 9c fe ff 31 c0 83 
+I reported pcmcia in all forms was broken for test8 on -my hardware-.
 
->>EIP; c012d006 <filp_close+6/64>   <=====
+Other kernels such as test10-prex that I'm on now are workable with dhinds
+pcmcia.  I sent you all the requested information you asked for in several
+forms.  The kernel's idea of the the sockets just doesn't work...again, on
+-my hardware-.
 
-Trace; c0118c0a <put_files_struct+42/b0>
-Trace; d9d9ffbb <END_OF_CODE+1152f207/???
-Trace; c011920a <do_exit+c2/1fc>
-Trace; c010a29c <do_signal+1f0/270>
-Trace; c885d100 <[bttv].bss.end+2001/14f61>
-Trace; ffff0000 <END_OF_CODE+3777f24c/???
-Trace; c0109881 <restore_sigcontext+111/134>
-Trace; c010994e <sys_sigreturn+aa/d4>
-Trace; c010a450 <signal_return+14/18>
-Code;  c012d006 <filp_close+6/64>
-00000000 <_EIP>:
-Code;  c012d006 <filp_close+6
+It doesn't matter what voodoo you practice, all of the kernels in the last
+year have been unable to drive -my hardware- in any sort of stable fashion.
+Recent kernels just can't figure out IRQs for the sockets.
+
+David's package works in all situations except for the combined ne2k/modem
+that I reported earlier and the ray_cs in similar fashion.
+
+For the second report, when the kernel did figure out IRQs for the sockets,
+plugging in a card sometimes killed all software interrupts.  I.e. hardware
+responded such as caps, screen blank/active etc, but no mouse or key events
+made it past the kernel.  Unplugging a card or putting it in socket 0
+normally caused a plethura of unending OOPSes or another hang on the
+insertion.
+
+Ted, please put my qualifier back in, "On this NEC Versa LX laptop", I don't
+want my reports taken out of context. :)
+
+-d
+
+
+--
+"The difference between 'involvement' and 'commitment' is like an
+eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+'committed'."
+
+
+
+--------------82B6A66CE5CCFE5F82E2A0EB
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+org:<img src="http://www.kalifornia.com/images/paradise.jpg">
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;-12480
+fn:David Ford
+end:vcard
+
+--------------82B6A66CE5CCFE5F82E2A0EB--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

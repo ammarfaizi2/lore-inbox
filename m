@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUH0Uy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267656AbUH0Uy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267405AbUH0Uy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 16:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266756AbUH0UxA
+	id S267656AbUH0Uy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 16:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUH0UxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 16:53:00 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:17079 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S267649AbUH0UsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 16:48:08 -0400
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-From: David Woodhouse <dwmw2@infradead.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-       Kenneth Lavrsen <kenneth@lavrsen.dk>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040827183524.GA2427@ucw.cz>
-References: <6.1.2.0.2.20040827171755.01c1f328@inet.uni2.dk>
-	 <1093628062.15313.11.camel@gonzales>
-	 <1093630163.5695.3.camel@localhost.localdomain>
-	 <20040827183524.GA2427@ucw.cz>
-Content-Type: text/plain
-Message-Id: <1093639676.3777.1786.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 27 Aug 2004 21:47:56 +0100
+	Fri, 27 Aug 2004 16:53:22 -0400
+Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:52731 "EHLO
+	mailrelay01.tugraz.at") by vger.kernel.org with ESMTP
+	id S267659AbUH0Uu3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 16:50:29 -0400
+From: Christian Mayrhuber <christian.mayrhuber@gmx.net>
+To: reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Date: Fri, 27 Aug 2004 22:56:07 +0200
+User-Agent: KMail/1.7
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0408271010300.10272-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0408271010300.10272-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408272256.07619.christian.mayrhuber@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-27 at 20:35 +0200, Vojtech Pavlik wrote:
-> It doesn't seem to be Philips's fault at the moment, I've read somewhere
-> (probably a list archive linked from slashdot) that Nemosoft's NDA has
-> ended a year ago and that he was now free to release the source to the
-> binary only part ... that'd of course fix the whole problem.
+On Friday 27 August 2004 16:12, Rik van Riel wrote:
 
-Good. Then I'm sure I'll receive the documents I requested in my email
-to Philips.
+> Because not everybody uses tar.  Quite a few people use a
+> network backup system, while others use duplicity, RPM uses
+> cpio internally and big companies tend to use proprietary
+> network backup suites.
+Big backup systems support scripts that can be run prior to
+backup and post restore. You aready have to use star to
+do a metadata backup the acl's/ea into some tgz, which
+can be unpacked after restore.
+
+> Breaking people's setup is something to worry about.
+Yeah, maybe. But as usual on UN*X  like systems most admins
+are able to come up with a quick shell/perl script to solve their
+particular problem.
 
 -- 
-dwmw2
-
-
+lg, Chris

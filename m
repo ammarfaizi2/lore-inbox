@@ -1,81 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275292AbTHSBV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 21:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275283AbTHSBV2
+	id S275284AbTHSBPy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 21:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275298AbTHSBPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 21:21:28 -0400
-Received: from GEWI.kfunigraz.ac.at ([143.50.30.10]:776 "EHLO
-	gewi.kfunigraz.ac.at") by vger.kernel.org with ESMTP
-	id S275294AbTHSBV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 21:21:26 -0400
-Date: Tue, 19 Aug 2003 03:20:31 +0200 (CEST)
-From: Erich Stamberger <eberger@gewi.kfunigraz.ac.at>
-To: "Brown, Len" <len.brown@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: ASUS PR-DLSW: ACPI Bugs
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC6E@hdsmsx402.hd.intel.com>
-Message-ID: <Pine.LNX.4.53.0308190256540.31897@gewi.kfunigraz.ac.at>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC6E@hdsmsx402.hd.intel.com>
+	Mon, 18 Aug 2003 21:15:53 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:12277 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S275284AbTHSBPv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 21:15:51 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
+Date: Mon, 18 Aug 2003 21:15:47 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FC78@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
+Thread-Index: AcNl3iKY+5v7Tof2ToGndsU6XE+i+QAEDM8g
+From: "Brown, Len" <len.brown@intel.com>
+To: "Stian Jordet" <liste@jordet.nu>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 19 Aug 2003 01:15:49.0221 (UTC) FILETIME=[6CB9C950:01C365EF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+CONFIG_ACPI_HT is mostly just an alias for CONFIG_ACPI_BOOT -- the early
+boot part of ACPI without the run-time events included in the full ACPI
+implementation.  Unless I screwed up the config dependencies, it should
+be impossible to enable the full CONFIG_ACPI without including
+CONFIG_ACPI_HT.
 
-many thanks for your interest.
+When full CONFIG_ACPI is used, the cmdline "acpi=ht" can be used to
+revert to just the CONFIG_ACPI_HT behaviour.
 
-On Mon, 18 Aug 2003, Brown, Len wrote:
+The help built into config should explain this clearly, let me know if
+it doesn't.
 
-> See that you've got the latest BIOS -- Asus's web page advertises 1008:
-> http://www.asus.com/support/download/item.aspx?ModelName=PR-DLSW
+Thanks,
+-Len
 
-That is what I already have (ASUS PR-DLSW ACPI BIOS Revision 1008).
+Ps. The "noapic" flag is actually broken in the baseline kernel in some
+cases (ACPI enabled), a fix will come with the next batch...
 
->
-> If acpi=off is still required to boot, then file a bug at
-> http://bugzilla.kernel.org category=Power Management; Component=ACPI;
-> Owner=len.brown@intel.com
->
-> Then I'll ask you:
-> 1. can you try the latest 2.6 kernel -- it has slightly newer ACPI code.
-> 2. can you attach the output of acpidmp:
-> http://developer.intel.com/technology/iapc/acpi/downloads/pmtools-200107
-> 30.tar.gz
-> 3. can you attch the output of dmidecode:
-> http://www.nongnu.org/dmidecode/
-
-Tried kernel 2.6.0-test3-bk6. Still needs acpi=ht or acpi=off to boot,
-so I filed a bug report and placed all the files you requested on
-      http://gewi.kfunigraz.ac.at/~eberger/pr-dlsw/
-
-If you need more info, please let me know.
-
-Best regards
-Erich
-
-
-> > -----Original Message-----
-> > From: Erich Stamberger [mailto:eberger@gewi.kfunigraz.ac.at]
-> > Sent: Saturday, August 16, 2003 7:57 PM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: ASUS PR-DLSW: ACPI Bugs
-> >
-> >
-> > Hello,
-> >
-> > 2.6.0-test3 with ACPI enabled fails to boot on ASUS PR-DLSW: Cannot
-> > open root device .. Obviously the SCSI controllers (LSI 1010-66)
-> > are not detected (complete dmesg from serial console below).
-> >
-> > When setting pci=noacpi the machine hangs in an endless loop
-> > trying to initialise the SCSI bus.
-> >
-> > With acpi=off or CONFIG_ACPI_HT_ONLY the machine
-> > boots (lspci -vvx below).
-> >
-> > Any information / pointers will be appreciated.
-> >
-> > Best regards
-> > Erich
+> -----Original Message-----
+> From: Stian Jordet [mailto:liste@jordet.nu] 
+> Sent: Monday, August 18, 2003 7:12 PM
+> To: Brown, Len
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: [SOLVED] RE: 2.6.0-test3 latest bk hangs when 
+> enabling IO-APIC
+> 
+> 
+> tir, 19.08.2003 kl. 01.06 skrev Stian Jordet:
+> > man, 18.08.2003 kl. 22.06 skrev Stian Jordet:
+> > > man, 18.08.2003 kl. 21.23 skrev Stian Jordet:
+> > > > man, 18.08.2003 kl. 19.53 skrev Brown, Len: 
+> > > > > Try booting with pci=noacpi, and if that doesn't work acpi=off
+> > > > > If either of those work, then file in bugzilla with 
+> component=ACPI and
+> > > > > assign it to len.brown@intel.com
+> > > > 
+> > > > It works when booting with noapic, but not with 
+> acpi=off nor pci=noapic.
+> > > > Does that mean I can't blame you for it?
+> > > 
+> > > Just to confuse myself (and whoever reading my mails). 
+> When I disabled
+> > > the second onboard ide-port, the kernel booted, but usb 
+> didn't work.
+> > > Absolutely no problem what so ever with -test3.
+> > 
+> > I had to enable CONFIG_ACPI_HT=y. But you must have screwed 
+> something
+> > up, since my P3's really, really don't have any Hyper 
+> Threading :) ACPI
+> > was already enabled, and from the help texts, there shouldn't be any
+> > difference with ACPI_HT then. Nevermind, I'm happy :)
+> 
+> Sorry for spamming, but when I think of it, I don't think acpi is
+> enabled at all without the CONFIG_ACPI_HT. Because my 
+> computer actually
+> uses to hang when enabling io-apic without acpi support enabled (in
+> other words, my pc is useless without acpi enabled).
+> 
+> Once again, sorry for flooding.
+> 
+> Best regards,
+> Stian
+> 
+> 

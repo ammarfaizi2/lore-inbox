@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271905AbRIMR4F>; Thu, 13 Sep 2001 13:56:05 -0400
+	id <S271940AbRIMSK2>; Thu, 13 Sep 2001 14:10:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271948AbRIMRzz>; Thu, 13 Sep 2001 13:55:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:26891 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271905AbRIMRzm>;
-	Thu, 13 Sep 2001 13:55:42 -0400
-Date: Thu, 13 Sep 2001 14:55:59 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "avi sefati" <sefatiavi@hotmail.com>
+	id <S271941AbRIMSKS>; Thu, 13 Sep 2001 14:10:18 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:18441 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S271940AbRIMSKH>; Thu, 13 Sep 2001 14:10:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: User Space Emulation of Devices
+Date: Thu, 13 Sep 2001 20:13:13 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E15hIaN-0005Ta-00@the-village.bc.nu>
+In-Reply-To: <E15hIaN-0005Ta-00@the-village.bc.nu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Removing printk  <msg level> from printouts
-Message-ID: <20010913145559.C8509@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"avi sefati" <sefatiavi@hotmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <F203W57VqQD9MXzlmOh00010c0b@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <F203W57VqQD9MXzlmOh00010c0b@hotmail.com>; from sefatiavi@hotmail.com on Thu, Sep 13, 2001 at 05:48:20PM +0000
-X-Url: http://advogato.org/person/acme
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <15hawC-0o9m5oC@fmrl05.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Sep 13, 2001 at 05:48:20PM +0000, avi sefati escreveu:
-> When I use printk, the print level gets printed with the message
-> e.g. if I use KERN_DEBUG then I get a <7> printed with every message.
- 
-> How do I stop this number from appearing in the printout?
+On Thursday 13 September 2001 00:34, Alan Cox wrote:
+> Didnt someone announce a kernel mode corba daemon a while back ?
 
-including an ending '\n' in the previous printk message maybe?
+korbit.sourceforge.net
 
-- Arnaldo
+bye...
+

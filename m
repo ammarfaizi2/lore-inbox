@@ -1,61 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271696AbTGXPrR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271698AbTGXPrR
+	id S271700AbTGXPvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271701AbTGXPvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:47:17 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:15808 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S271696AbTGXPrQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:47:16 -0400
-Date: Thu, 24 Jul 2003 09:01:46 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Diego Calleja Garc?a <diegocg@teleline.es>,
-       Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: SCO offers UnixWare licenses for Linux
-Message-ID: <20030724160146.GF12647@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Larry McVoy <lm@bitmover.com>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Diego Calleja Garc?a <diegocg@teleline.es>,
-	Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1058807414.513.4.camel@sunshine> <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net> <20030721205940.7190f845.diegocg@teleline.es> <1059058329.957.11.camel@teapot.felipe-alfaro.com> <20030724150841.GA12647@work.bitmover.com> <Pine.LNX.4.53.0307241134200.21503@chaos>
+	Thu, 24 Jul 2003 11:51:05 -0400
+Received: from D70c6.pppool.de ([80.184.112.198]:52869 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id S271700AbTGXPuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 11:50:46 -0400
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+From: Daniel Egger <degger@fhm.edu>
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org,
+       reiserfs mailing list <reiserfs-list@namesys.com>
+In-Reply-To: <3F1EF7DB.2010805@namesys.com>
+References: <3F1EF7DB.2010805@namesys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-11LU1xTdjT5qufgNnzxo"
+Message-Id: <1059062380.29238.260.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307241134200.21503@chaos>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 24 Jul 2003 17:59:40 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At least in the United States, you are not going to get away with
-> claiming there is some stolen code that caused damages. 
-...
-> Instead, to prevent this kind of "legal theft", the only thing a person
-> found in possession of "stolen" property needs to do is to return it,
-> unless there is evidence that the possessor actually stole the property
-> in question.
 
-Yeah, right.  
+--=-11LU1xTdjT5qufgNnzxo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-    ``I "found" these 3GB of mp3's of music and I had no idea that
-    they were stolen but now that you mention it, here they are back.
-    Finders keepers, right?''
+Am Mit, 2003-07-23 um 23.02 schrieb Hans Reiser:
 
-What were you thinking?  That's obviously incorrect, I know that it is
-incorrect from both observation of recent court cases as well as direct
-personal experience.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> In brief, V4 is way faster than V3, and the wandering logs are indeed=20
+> twice as fast as fixed location logs when performing writes in large=20
+> batches.
+
+How do the wandering logs compare to the "wandering" logs of the log
+structured filesystem JFFS2? Does this mean I can achieve an implicit
+wear leveling for flash memory?=20
+
+> We are able to perform all filesystem operations fully atomically,
+> while getting dramatic performance improvements.  (Other attempts at
+> introducing transactions into filesystems are said to have failed for
+> performance reasons.)
+
+How failsafe is it to switch off the power several times? When the
+filesystem really works atomically I should have either the old or the
+new version but no mixture. Does it still need to fsck or is the
+transaction replay done at mount time? In case one still needs fsck,
+what's the probability of needing user interaction? How long does it
+need to get a filesystem back into a consistent state after a powerloss
+(approx. per MB/GB)?
+
+Background: I'm doing systems on compactflash cards and need a reliable
+filesystem for it. At the moment I'm using a compressed JFFS2 over the
+mtd emulation driver for block devices which works quite well but has a
+few catches...
+
+--=20
+Servus,
+       Daniel
+
+--=-11LU1xTdjT5qufgNnzxo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/IAJschlzsq9KoIYRAvC8AJ9lp8blC1AHYohR0l96uQS7WILJ/wCdFeMi
+WA1IXOnx+5fdJJ+NruOuJuA=
+=OhEi
+-----END PGP SIGNATURE-----
+
+--=-11LU1xTdjT5qufgNnzxo--
+

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbUBDNKb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 08:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbUBDNKb
+	id S261270AbUBDNWB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 08:22:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUBDNWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 08:10:31 -0500
-Received: from www.trustcorps.com ([213.165.226.2]:52745 "EHLO raq1.nitrex.net")
-	by vger.kernel.org with ESMTP id S261262AbUBDNKa (ORCPT
+	Wed, 4 Feb 2004 08:22:01 -0500
+Received: from galileo.bork.org ([66.11.174.156]:26032 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261270AbUBDNV6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 08:10:30 -0500
-Message-ID: <4020EEB0.50002@hcunix.net>
-Date: Wed, 04 Feb 2004 13:08:00 +0000
-From: the grugq <grugq@hcunix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
-References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <20040204004318.GA253@elf.ucw.cz> <20040204062936.GA2663@thunk.org>
-In-Reply-To: <20040204062936.GA2663@thunk.org>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 08:21:58 -0500
+Date: Wed, 4 Feb 2004 08:21:57 -0500
+From: Martin Hicks <mort@bork.org>
+To: Uher Marek <Marek.Uher@t-mobile.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with NUMA kernel on IBM xSeries 455 server
+Message-ID: <20040204132157.GA3387@localhost>
+References: <6D2F48AA9477864682B4078EFF1BEAF1057F0B7D@RDMKSPE02.rdm.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6D2F48AA9477864682B4078EFF1BEAF1057F0B7D@RDMKSPE02.rdm.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+
+On Wed, Feb 04, 2004 at 01:46:33PM +0100, Uher Marek wrote:
 > 
-> The obvious thing to do would be to make it a mount option, so that
-> (a) recompilation is not necessary in order to use the feature, and
-> (b) the feature can be turned on or off on a per-filesystem feature.
-> In 2.6, it's possible to specify certain mount option to be specifed
-> by default on a per-filesystem basis (via a new field in the
-> superblock).  
+> 	Hi all,
 > 
-> So if you do things that way, then secure deletion would take place
-> either if the secure deletion flag is set (so it can be enabled on a
-> per-file basis), or if the filesystem is mounted with the
-> secure-deletion mount option.  
+> I have a problem with running Linux on my IBM xSeries 455 server (4 x Intel 
+> Xeon MP CPU 2.80GHz, 8 GB RAM). I have tried to compile kernel 2.6.2 with
+> Summit/EXA (IBM x440) NUMA support, high memory support (64GB), NUMA memory
+> allocation support, ACPI and ACPI NUMA support. When I have tried to make
+> bzImage I have got this messages:
+> 
+> drivers/built-in.o(.init.text+0x1751): In function `acpi_parse_slit': 
+> : undefined reference to `acpi_numa_slit_init'
+> drivers/built-in.o(.init.text+0x176d): In function `acpi_parse_processor_affinit
+> y':
+> : undefined reference to `acpi_numa_processor_affinity_init'
+> drivers/built-in.o(.init.text+0x1791): In function `acpi_parse_memory_affinity':
+> : undefined reference to `acpi_numa_memory_affinity_init'
+> drivers/built-in.o(.init.text+0x1850): In function `acpi_numa_init':
+> : undefined reference to `acpi_numa_arch_fixup'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> Do you have any idea? I don't know what is wrong.
 
-Makes sense to me. If either the file system, or the file, are in 
-'secure delete' mode, then erase everything about the file. Allowing the 
-paranoid to have the option as default, and the concerned to target 
-specific files. I like it.
+According to include/linux/acpi.h these functions are platform
+dependent.  There are ia64 versions, but I don't see them for non-ia64
+arches.
 
+This is the problem.  I don't know anything about Summit, so maybe
+someone else can better help you.  Perhaps there is an extra summit
+patch somewhere?  Or maybe you must turn off ACPI for this machine,
+although that seems unlikely.
 
-peace,
+mh
 
---gq
+-- 
+Martin Hicks || mort@bork.org || PGP/GnuPG: 0x4C7F2BEE

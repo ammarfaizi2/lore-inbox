@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbSJCIoh>; Thu, 3 Oct 2002 04:44:37 -0400
+	id <S263204AbSJCIm0>; Thu, 3 Oct 2002 04:42:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263211AbSJCIoh>; Thu, 3 Oct 2002 04:44:37 -0400
-Received: from uranus.lan-ks.de ([194.45.71.1]:61706 "EHLO uranus.lan-ks.de")
-	by vger.kernel.org with ESMTP id <S263208AbSJCIoe> convert rfc822-to-8bit;
-	Thu, 3 Oct 2002 04:44:34 -0400
-X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH, TRIVIAL] formatting of drivers/char/Config.in
-X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
-X-Message-Flag: This space is intentionally left blank
-X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
-X-Note: sending SPAM is a violation of both german and US law and will
-	at least trigger a complaint at your provider's postmaster.
-X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
-     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
-X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
-X-No-Archive: yes
-From: Jochen Hein <jochen@jochen.org>
-Date: Thu, 03 Oct 2002 10:25:58 +0200
-Message-ID: <873croq67d.fsf@gswi1164.jochen.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S263205AbSJCIm0>; Thu, 3 Oct 2002 04:42:26 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:57554 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263204AbSJCImZ>;
+	Thu, 3 Oct 2002 04:42:25 -0400
+Date: Thu, 3 Oct 2002 10:47:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Tobias Ringstrom <tori@ringstrom.mine.nu>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.40: AT keyboard input problem
+Message-ID: <20021003104750.A37411@ucw.cz>
+References: <Pine.LNX.4.44.0210030846180.11746-100000@boris.prodako.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0210030846180.11746-100000@boris.prodako.se>; from tori@ringstrom.mine.nu on Thu, Oct 03, 2002 at 08:59:30AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 03, 2002 at 08:59:30AM +0200, Tobias Ringstrom wrote:
+> While 2.5 has worked better than I hoped for so far, I do have a problem 
+> with the new input layer (I think) that is easily reproducible, and quite 
+> irritating.
+> 
+> If I press and hold my left Alt key, press and release the right AltGr
+> key, and then release the left Alt key, I get one of the following
+> messages in dmesg:
+> 
+> atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> 
+> The left Alt key is now stuck until I press and release it again.
+> 
+> The same thing happens for a few other combinations as well. I happens 
+> both in X and in the console.
+> 
+> Please let me know if you need more info.
 
-When switching my .config from 2.4.19 to 2.5.40 with "make oldconfig"
-I noticed:
+Yes, please try with #I8042_DEBUG_IO enabled, try all the suspicious key
+combinations and add comments to the log file which is which. This will
+allow me to fix it properly.
 
---- linux-2.5.40/drivers/char/Config.in.orig	2002-10-03 10:07:47.000000000 +0200
-+++ linux-2.5.40/drivers/char/Config.in	2002-10-03 10:08:02.000000000 +0200
-@@ -190,6 +190,6 @@
-    tristate 'ACP Modem (Mwave) support' CONFIG_MWAVE
- fi
- 
--tristate '  RAW driver (/dev/raw/rawN)' CONFIG_RAW_DRIVER
-+tristate 'RAW driver (/dev/raw/rawN)' CONFIG_RAW_DRIVER
- 
- endmenu
-
-Just a remark:  Some options I'm not sure about had no help texts.  A
-lot did, and that helped me a lot.  So, please add the missing peaces.
-Now to try it out...
-
-Jochen
+Thanks in advance. :)
 
 -- 
-Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.
+Vojtech Pavlik
+SuSE Labs

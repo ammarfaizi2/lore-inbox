@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTLMBcG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 20:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTLMBcG
+	id S262848AbTLMCGp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 21:06:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTLMCGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 20:32:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62994 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262844AbTLMBcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 20:32:04 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: sysctl vs /proc/sys
-Date: 12 Dec 2003 17:31:27 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <brdq5f$9sd$1@cesium.transmeta.com>
-References: <20031212.224649.20046672.yoshfuji@linux-ipv6.org> <Xine.LNX.4.44.0312120928120.2843-100000@thoron.boston.redhat.com> <20031212181517.GM15401@matchmail.com> <20031213.094210.107050343.yoshfuji@linux-ipv6.org>
+	Fri, 12 Dec 2003 21:06:45 -0500
+Received: from cabm.rutgers.edu ([192.76.178.143]:64017 "EHLO
+	lemur.cabm.rutgers.edu") by vger.kernel.org with ESMTP
+	id S262848AbTLMCGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 21:06:44 -0500
+Date: Fri, 12 Dec 2003 21:06:43 -0500 (EST)
+From: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Linux Kernel 2.6.0-test11 VFS problem
+In-Reply-To: <brdq5f$9sd$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0312122059410.4174-100000@puma.cabm.rutgers.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20031213.094210.107050343.yoshfuji@linux-ipv6.org>
-By author:    YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= <yoshfuji@linux-ipv6.org>
-In newsgroup: linux.dev.kernel
-> 
-> Yes, I meant to read old value and to set new one in one system call.
-> The sysctl system-call does lock_kernel, so sysctl(2) sytem-call 
-> are serialized.
-> 
 
-Dumb question... what do you need this for?  sysctl is mostly used to
-initialization-time stuff...  In most cases you can use flock(),
-probably, although that is advisory and not compulsory.
+	Hi, I am trying to get kernel 2.6.0-test11 on my 
+laptop. this is really stupid, I got all the "latest" 
+utilities etc... etc... etc... 
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-If you send me mail in HTML format I will assume it's spam.
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+But when I boot i get this error
+
+
+###################################
+VFS Cannot open root device "hda5" 
+Please append a correct "root=" boot option 
+Kernel Panic: VFS: Unable to mount root filesystem on hda5 
+###################################
+
+
+
+here is my grub.conf file
+
+*******************************
+title 2.6-test-11
+        root (hd0,1)
+        kernel /vmlinuz-2.6-test-11 ro root=305
+********************************
+
+
+What am I doing wrong today ??
+
+
+I know this is something really simple somwhere, but I am 
+giving this up and hitting up and hitting a Pilsner 
+Urquell.....
+
+ -- 
+Recruiter: "How do you write a perl script?"
+Canidate : "You type it."
+	-Actual phone interview, Circa Nov 2003
+
+

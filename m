@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTILVOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTILVOJ
+	id S261916AbTILVU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:20:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbTILVU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:14:09 -0400
-Received: from gprs144-244.eurotel.cz ([160.218.144.244]:1408 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261863AbTILVOG (ORCPT
+	Fri, 12 Sep 2003 17:20:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49122 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261918AbTILVUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:14:06 -0400
-Date: Fri, 12 Sep 2003 23:13:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Raphael Assenat <raph@raphnet.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ioctl entries for joystick in compat_ioctl.h
-Message-ID: <20030912211306.GA444@elf.ucw.cz>
-References: <20030912112557.C10099@raphnet.net> <20030912184145.GB5805@elf.ucw.cz> <20030912200148.GA7711@ucw.cz>
+	Fri, 12 Sep 2003 17:20:14 -0400
+Message-Id: <200309122120.h8CLKCj26347@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, cliffw@easystreet.com
+Subject: Re: 2.6.0-test5 usbserial oops 
+In-Reply-To: Message from Greg KH <greg@kroah.com> 
+   of "Wed, 10 Sep 2003 21:46:50 PDT." <20030911044650.GA10064@kroah.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030912200148.GA7711@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Date: Fri, 12 Sep 2003 14:20:12 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > I wanted to use a joystick on my sparc64 workstation, and discovered that the
-> > > joystick driver uses simple ioclt that are safe to pass from 32bit user space
-> > > to 64bit kernel space. My patch adds the necessary entries in compat_ioctl.h.
-> > > 
-> > > There is only one missing ioctl in the patch. The ioctl is defined like this:
-> > > #define JSIOCGNAME(len)         _IOC(_IOC_READ, 'j', 0x13, len)
-> > > so the command does not have a fixed value. I dont know how to handle this one,
-> > > but it is only used to get the joystick name, all the applications I tried work
-> > > well even if this ioctl fails.
+> On Wed, Sep 10, 2003 at 10:30:55PM -0500, Greg Norris wrote:
+> > I'm seeing a consistent oops with usbserial under 2.6.0-test5, which
+> > occurs when I try to sync my pda using pilot-link.  The module seems to
+> > load (via hotplug) without any difficulty, and the sync itself works
+> > fine... the oops occurs when the module is unloaded.  Once this
+> > happens, it requires a reboot to get usb working again.
 > > 
-> > Well, whoever invented that JSIOCGNAME should be shot. That is not
-> > single ioctl, its 2^14 of them!
+> > I've attached the decoded oops, along with my kernel .config.  If I
+> > need to provide any additional information, please let me know.
 > 
-> Well, who could ever have known that this will be a problem in 1998?
-> It's not the only ioctl done this way.
+> Can you load both the usbserial and visor modules with "debug=1":
+> 	modprobe usbserial debug=1
+> 	modprobe visor debug=1
+> 
+> and then sync and remove the visor driver?
+> I'd be very interested in the kernel debug log right up to the kernel
+> oops.
 
-So it was you? :-)
+I am also seeing an oops, 2.6.0-test5-mm1, Sony CLIE PDA. 
+I'll try to get you the kernel debug tonight.
+cliffw
 
-I believe ultrasparcs were around in '98. Anyway, what are other
-ioctls doing this? They look pretty problematic from compat_ioctl
-perspective.
+> 
+> thanks,
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-We could do better by pushing compat handler down to the drivers for
-ugly cases like this...
-									Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+

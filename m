@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290571AbSAYFxF>; Fri, 25 Jan 2002 00:53:05 -0500
+	id <S290567AbSAYFu0>; Fri, 25 Jan 2002 00:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290569AbSAYFwz>; Fri, 25 Jan 2002 00:52:55 -0500
-Received: from svr3.applink.net ([206.50.88.3]:25870 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S290540AbSAYFwh>;
-	Fri, 25 Jan 2002 00:52:37 -0500
-Message-Id: <200201250550.g0P5o1L09511@home.ashavan.org.>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: "George Bonser" <george@gator.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux console at boot
-Date: Fri, 25 Jan 2002 23:51:25 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com>
-In-Reply-To: <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S290566AbSAYFuP>; Fri, 25 Jan 2002 00:50:15 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:32275 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S290544AbSAYFuH>; Fri, 25 Jan 2002 00:50:07 -0500
+Date: Fri, 25 Jan 2002 13:55:4 +0800
+From: he jian bing <hjbsy@yahoo.com.cn>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: puzzled by the code : block_write_full_page()
+X-mailer: FoxMail 3.11 Release [cn]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020125055011Z290544-13996+11716@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 January 2002 23:05, George Bonser wrote:
-> Is there any way to stop the console scrolling during boot? My reason
-> for this is I am trying to troubleshoot a boot problem with
-> 2.4.18-pre7 and I would like to give a more useful report than "it
-> won't boot" but the screen outputs information every few seconds and I
-> can't "freeze" the display so I can copy down the initial error(s).
->
-> This is an Intel unit using the standard console (not serial console).
-> pre7 will not boot but pre6 boots every time.
->
+Hello all,
+   I have a question with the following kernel code (fs/buffer.c):
 
-you can get this info via "dmesg"
+   block_write_full_page(struct page *page, get_block_t *get_block)
+   {
+       ......
+       /* OK, are we completely out? */
+       if (page->index >= end_index+1 || !offset) {
+           UnlockPage(page);
+           return -EIO;
+       }
+       ......
+    }
 
--- 
-timothy.covell@ashavan.org.
+    If the above code is executed, and it return -EIO, where the kernel will use this return
+code? and we really arrive here?
+
+thanks.
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

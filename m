@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbTBQXEX>; Mon, 17 Feb 2003 18:04:23 -0500
+	id <S267637AbTBQXG7>; Mon, 17 Feb 2003 18:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267635AbTBQXEX>; Mon, 17 Feb 2003 18:04:23 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:50956 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267633AbTBQXEW>; Mon, 17 Feb 2003 18:04:22 -0500
-Date: Mon, 17 Feb 2003 18:13:20 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org,
-       rob@osinvestor.com
-Subject: Re: Build problem in 2.5.61/sparc
-Message-ID: <20030217181320.A31157@devserv.devel.redhat.com>
-References: <20030217152328.A7540@devserv.devel.redhat.com> <20030217203336.GA30694@mars.ravnborg.org>
+	id <S267641AbTBQXG7>; Mon, 17 Feb 2003 18:06:59 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:18583 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S267637AbTBQXG6>; Mon, 17 Feb 2003 18:06:58 -0500
+Date: Mon, 17 Feb 2003 18:16:44 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Patrick Finnegan <pat@purdueriots.com>
+Subject: Re: Bug: usb-storage module
+Message-ID: <20030217231644.GA1695@Master.Wizards>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Patrick Finnegan <pat@purdueriots.com>
+References: <Pine.LNX.4.44.0302161815360.23692-200000@ibm-ps850.purdueriots.com> <20030216192441.A26961@one-eyed-alien.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030217203336.GA30694@mars.ravnborg.org>; from sam@ravnborg.org on Mon, Feb 17, 2003 at 09:33:36PM +0100
+In-Reply-To: <20030216192441.A26961@one-eyed-alien.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Mon, 17 Feb 2003 21:33:36 +0100
-> From: Sam Ravnborg <sam@ravnborg.org>
-
-> > [zaitcev@lebethron linux-2.5.61-sparc]$ make oldconfig
-> > make -f scripts/Makefile.build obj=scripts
-> > make[1]: *** No rule to make target `scripts/fixdep', needed by `__build'.  Stop.
-> > make: *** [scripts] Error 2
-> > [zaitcev@lebethron linux-2.5.61-sparc]$
+On Sun, Feb 16, 2003 at 07:24:41PM -0800, Matthew Dharm wrote:
+> Hrm... when was the cache probing introduced? I'll bet the device doesn't
+> like that.
 > 
-> Looks to me that you are missing scripts/fixdep.c
-> fixdep.c got updated recently and somehow you may have lost that file in the process?
+> Matt
+> 
+The cache probing worked in 2.5.58. Nothing with usb-storage worked in 2.5.59
+in 2.5.60 & 61 cache probing fails for me, but I can still read. Writing causes
+a BUG() in usb-storage due to not being able to recover from some other error
+(don't know what the error is though - the stack trace only shows scsi_eh)
+although the data does get written
 
-FYI, it turned out that my make(1) was out of date. I was using
-make 3.76.1. I upgraded to make 3.80 and everything works so far.
-This is actually documented in Documentation/Changes.
-As an added bonus, I get working $(CURDIR), so I may stop
-commenting out ACPI now.
+-- 
+Murray J. Root
 
--- Pete

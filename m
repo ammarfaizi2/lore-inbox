@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318859AbSHNPbE>; Wed, 14 Aug 2002 11:31:04 -0400
+	id <S318900AbSHNPid>; Wed, 14 Aug 2002 11:38:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318900AbSHNPbE>; Wed, 14 Aug 2002 11:31:04 -0400
-Received: from zeke.inet.com ([199.171.211.198]:32641 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S318859AbSHNPbE>;
-	Wed, 14 Aug 2002 11:31:04 -0400
-Message-ID: <3D5A7896.7020407@inet.com>
-Date: Wed, 14 Aug 2002 10:34:46 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
+	id <S318907AbSHNPid>; Wed, 14 Aug 2002 11:38:33 -0400
+Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:4230 "EHLO
+	picard.csi-inc.com") by vger.kernel.org with ESMTP
+	id <S318900AbSHNPic>; Wed, 14 Aug 2002 11:38:32 -0400
+Message-ID: <050a01c243a9$2afa3590$f6de11cc@black>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: mmap'ing a large file
+Date: Wed, 14 Aug 2002 11:42:16 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: of dentries and inodes
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Is there a logical reason why a process can't mmap more than a 2G file?
 
-Ok, I'm puzzled... I have not yet found an answer from groups.google or 
-my oreilly tomes. :/
+I seem to get stuck at 2142208000 with
+mmap: Cannot allocate memory
 
-(I'm looking at a 2.2 kernel, but I doubt this has changed.) In ext2, as 
-well as many other fs's, there appears a line much like this in their 
-'struct file_system_type.read_super()' function:
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-sb->s_root = d_alloc_root(iget(sb, EXT2_ROOT_INO), NULL);
+#define FILESIZE 2500000000
 
-Now, I was under the impression that for each iget(), you need to have 
-an iput() when you're done with the inode... which in this case would 
-mean an iput() in 'struct super_operations.put_super()'... but I don't 
-see one there.
+int
+main ()
+{
+    unsigned long long offset = 0;
+    unsigned long maplength = getpagesize () * 1000;
+    int i;
+    unsigned char *p;
+    char mynull = 0;
+    int fd = open ("test.map", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd < 0) {
+        perror ("test.map");
+        exit (-1);
+    }
+    lseek (fd, FILESIZE - 1, SEEK_SET);
+    write (fd, &mynull, 1);
+    for (offset = 0; offset < FILESIZE - maplength; offset += maplength) {
+        p = mmap (p, maplength, PROT_READ | PROT_WRITE, MAP_SHARED, fd,offset);
+        printf ("%lld %p\n", offset, p);
+        fflush (stdout);
+        if (p == (unsigned char *) -1) {
+            perror ("mmap");
+            exit (-1);
+        }
+        memset (p, 1, maplength);
+#if 0
+        munmap (p, maplength);  /* this of course let's things go on */
+#endif
+    }
+    return 0;
+}
 
-So I would expect the root inode might hang around in the filesystem 
-cache(s) after a umount.  But I would expect that to cause filesystem 
-corruption on a regular basis.  ('mount, umount, mkfs' for example, 
-would yield an inconsistancy between disk and filesystem cache.)
 
-I'm missing something, or misunderstand something, or both... can anyone 
-point me in the right direction?
-
-TIA,
-
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Michael D. Black mblack@csi-inc.com
+http://www.csi-inc.com/
+http://www.csi-inc.com/~mike
+321-676-2923, x203
+Melbourne FL
 

@@ -1,43 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288557AbSATXCZ>; Sun, 20 Jan 2002 18:02:25 -0500
+	id <S288733AbSATXFZ>; Sun, 20 Jan 2002 18:05:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288733AbSATXCQ>; Sun, 20 Jan 2002 18:02:16 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:32780 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288557AbSATXCC>;
-	Sun, 20 Jan 2002 18:02:02 -0500
-Date: Sun, 20 Jan 2002 14:57:38 -0800
-From: Greg KH <greg@kroah.com>
-To: David Weinehall <tao@acc.umu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  January 18, 2002
-Message-ID: <20020120225737.GB27088@kroah.com>
-In-Reply-To: <3C477B7F.22875.11D4078A@localhost> <m1zo39grhm.fsf@frodo.biederman.org> <20020120133745.C1735@khan.acc.umu.se>
+	id <S288804AbSATXFP>; Sun, 20 Jan 2002 18:05:15 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:22151 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S288733AbSATXFG>; Sun, 20 Jan 2002 18:05:06 -0500
+Date: Sun, 20 Jan 2002 18:04:59 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: usb-ohci, ov511, video4linux
+Message-ID: <20020120230459.GN2873@online.fr>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020120154119.GB2873@online.fr> <20020120162258.GC16166@sliepen.warande.net> <20020120170837.GD2873@online.fr> <20020120225423.GA27088@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+sHJum3is6Tsg7/J"
 Content-Disposition: inline
-In-Reply-To: <20020120133745.C1735@khan.acc.umu.se>
+In-Reply-To: <20020120225423.GA27088@kroah.com>
 User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sun, 23 Dec 2001 19:50:29 -0800
+X-Operating-System: debian SID Gnu/Linux 2.4.17 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 20, 2002 at 01:37:45PM +0100, David Weinehall wrote:
-> 
-> Unless it's already in there:
-> 
-> * Sort out which USB UHCI-driver to keep (UHCI or UHCI-JE)
 
-Odds are it will be neither :)
-(The uhci.c driver will mutate into a uhci-hcd driver, and then the
-uhci.c and usb-uhci.c drivers will go away.)
+--+sHJum3is6Tsg7/J
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There's a start of a Linux USB TODO available at:
-	http://www.linux-usb.org/2.5_todo.php
+On Sun, Jan 20, 2002 at 02:54:23PM -0800, Greg KH wrote:
+> On Sun, Jan 20, 2002 at 12:08:37PM -0500, christophe barb=E9 wrote:
+> >=20
+> > The problem with the usb mouse is there with or without webcam.
+>=20
+> Is there any kernel log messages when the mouse "goes away"?
+> It could be a flaky hub that is dropping the connection to your device,
+> or a flaky mouse.  I've seen both of these before.
 
-It needs to be flushed out and added to, but at least it's a start.
+I see the mouse problem without hub.
+So it could be a flaky mouse.
+Is the fact that 'switching to the console and switching back to X
+restore X' compatible with your idea ?
 
-thanks,
+What sounds strange is that this appears only when CPU is mainly used by
+others apps.
 
-greg k-h
+My idea is a timeout in X (without output : strange) due to a latency.
+
+An important point here is that the mouse works fine with the 2.2 kernel
+(I should have used 2.2.17 to 2.2.19).
+
+Christophe
+
+>=20
+> thanks,
+>=20
+> greg k-h
+
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+A qui sait comprendre, peu de mots suffisent.
+(Intelligenti pauca.)=20
+
+--+sHJum3is6Tsg7/J
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8S00bj0UvHtcstB4RAlFZAKCe4pDxMnR9DJPVBkwASATLhF+DVwCeLa8h
+C2jD9BWr4SMTWBzF5Vcg3IY=
+=V2pN
+-----END PGP SIGNATURE-----
+
+--+sHJum3is6Tsg7/J--

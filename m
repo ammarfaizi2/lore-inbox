@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVCEPKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVCEPTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVCEPKo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVCEPKS
+	id S261427AbVCEPTf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVCEPTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:10:18 -0500
-Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:58549 "EHLO
-	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S261481AbVCEPIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:08:45 -0500
-From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
-Date: Sat, 5 Mar 2005 16:08:44 +0100
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] qtronix missing failure handling
-Message-ID: <20050305150844.GA7544@mech.kuleuven.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 5 Mar 2005 10:19:35 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:34953 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261427AbVCEPRk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:17:40 -0500
+Date: Sat, 5 Mar 2005 16:17:18 +0100 (MET)
+Message-Id: <200503051517.j25FHI2U001419@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: dahinds@users.sourceforge.net
+Subject: [PATCH][2.4.30-pre2] fix undefined behaviour in cistpl.c
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Compiling drivers/pcmcia/cistpl.c with gcc-4.0 generates this warning:
 
-The Qtronix keyboard driver doesn't handle the possible failure of memory
-allocation.
+cistpl.c: In function 'read_cis_mem':
+cistpl.c:143: warning: 'sys' is used uninitialized in this function
 
-Signed-off-by: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+Note 'is' not 'may be'. And there is indeed a control flow path in
+which 'sys' is updated with '+=' even though it has no initial value.
+Luckily 'sys' is reassigned later before being used, making this
+assignment redundant, so the fix is to simply remove it.
 
-diff -pruN linux-2.6.11-mm1/drivers/char/qtronix.c linux-2.6.11-mm1-pi/drivers/char/qtronix.c
---- linux-2.6.11-mm1/drivers/char/qtronix.c	2005-03-05 15:56:43.000000000 +0100
-+++ linux-2.6.11-mm1-pi/drivers/char/qtronix.c	2005-03-05 15:57:22.000000000 +0100
-@@ -591,6 +591,11 @@ static int __init psaux_init(void)
- 		return retval;
- 
- 	queue = (struct aux_queue *) kmalloc(sizeof(*queue), GFP_KERNEL);
-+	if (!queue) {
-+		misc_deregister(&psaux_mouse);
-+		return -ENOMEM;
-+	}
-+		
- 	memset(queue, 0, sizeof(*queue));
- 	queue->head = queue->tail = 0;
- 	init_waitqueue_head(&queue->proc_list);
--- 
-  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
-  http://people.mech.kuleuven.ac.be/~pissaris/
+This problem is not present in the 2.6 kernel.
+
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+
+--- linux-2.4.30-pre2/drivers/pcmcia/cistpl.c.~1~	2004-02-18 15:16:23.000000000 +0100
++++ linux-2.4.30-pre2/drivers/pcmcia/cistpl.c	2005-03-05 15:51:37.000000000 +0100
+@@ -140,7 +140,6 @@ int read_cis_mem(socket_info_t *s, int a
+     } else {
+ 	u_int inc = 1;
+ 	if (attr) { mem->flags |= MAP_ATTRIB; inc++; addr *= 2; }
+-	sys += (addr & (s->cap.map_size-1));
+ 	mem->card_start = addr & ~(s->cap.map_size-1);
+ 	while (len) {
+ 	    set_cis_map(s, mem);

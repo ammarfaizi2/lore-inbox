@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVCNLUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVCNL2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbVCNLUS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 06:20:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVCNLUS
+	id S261305AbVCNL2o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 06:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVCNL2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 06:20:18 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:62477 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP id S262116AbVCNLUN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 06:20:13 -0500
-Date: Mon, 14 Mar 2005 12:19:50 +0100
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-Cc: Jan De Luyck <lkml@kcore.org>, davej@redhat.com,
-       cpufreq@zenii.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux@dominikbrodowski.net
-Subject: Re: cpufreq on-demand governor up_treshold?
-Message-ID: <20050314111950.GE2298@poupinou.org>
-References: <200503140829.04750.lkml@kcore.org> <42354400.7070500@tremplin-utc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42354400.7070500@tremplin-utc.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bruno Ducrot <ducrot@poupinou.org>
+	Mon, 14 Mar 2005 06:28:44 -0500
+Received: from [151.97.230.9] ([151.97.230.9]:53769 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261305AbVCNL2n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 06:28:43 -0500
+Subject: [patch 1/1] uml-export-getgid-for-hostfs
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 11 Mar 2005 20:27:52 +0100
+Message-Id: <20050311192753.043836477@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 08:57:52AM +0100, Eric Piel wrote:
-> BTW, DaveJ, Dominik, I couldn't find them in the daily-snapshot 
-> available at codemonkey.org.uk. Should I worry, or is it just due to 
-> some latency between your private trees and the public one?
-> 
 
-This happens those days only when I upgrade the LINUX_2_4 branch
-(and only because its easier for me to diff between HEAD and LINUX_2_4).
 
--- 
-Bruno Ducrot
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
---  Which is worse:  ignorance or apathy?
---  Don't know.  Don't care.
+ linux-2.6.11-paolo/arch/um/os-Linux/user_syms.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+diff -puN arch/um/os-Linux/user_syms.c~uml-export-getgid-for-hostfs arch/um/os-Linux/user_syms.c
+--- linux-2.6.11/arch/um/os-Linux/user_syms.c~uml-export-getgid-for-hostfs	2005-03-11 20:15:37.347405816 +0100
++++ linux-2.6.11-paolo/arch/um/os-Linux/user_syms.c	2005-03-11 20:15:43.868414472 +0100
+@@ -82,6 +82,7 @@ EXPORT_SYMBOL_PROTO(statfs);
+ EXPORT_SYMBOL_PROTO(statfs64);
+ 
+ EXPORT_SYMBOL_PROTO(getuid);
++EXPORT_SYMBOL_PROTO(getgid);
+ 
+ /*
+  * Overrides for Emacs so that we follow Linus's tabbing style.
+_

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbULGTf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbULGTjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbULGTf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 14:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbULGTf4
+	id S261904AbULGTjn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 14:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbULGTjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 14:35:56 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:35851 "HELO
+	Tue, 7 Dec 2004 14:39:32 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44811 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261899AbULGTfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 14:35:10 -0500
-Date: Tue, 7 Dec 2004 20:35:05 +0100
+	id S261908AbULGTfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 14:35:34 -0500
+Date: Tue, 7 Dec 2004 20:35:26 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Fernando Fuganti <fuganti@netbank.com.br>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] watchdog/machzwd.c: remove unused functions (fwd)
-Message-ID: <20041207193505.GW7250@stusta.de>
+Cc: aeb@cwi.nl, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small partitions/msdos cleanups (fwd)
+Message-ID: <20041207193526.GE7250@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,84 +22,82 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.10-rc2-mm4.
+The patch forwarded below (already ACK'ed by Andries Brouwer) still 
+applies and compiles against 2.6.10-rc2-mm4.
 
 Please apply.
 
 
-
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Fri, 29 Oct 2004 02:30:55 +0200
+Date:	Sat, 30 Oct 2004 19:59:37 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: Fernando Fuganti <fuganti@netbank.com.br>
+To: aeb@cwi.nl
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] watchdog/machzwd.c: remove unused functions
+Subject: [2.6 patch] small partitions/msdos cleanups
 
-The patch below removes unused functions from 
-drivers/char/watchdog/machzwd.c
+The patch below makes the following changes to the msdos partition code:
+- remove CONFIG_NEC98_PARTITION leftovers
+- make parse_bsd static
 
 
 diffstat output:
- drivers/char/watchdog/machzwd.c |   29 -----------------------------
- 1 files changed, 29 deletions(-)
+ fs/partitions/Makefile |    1 -
+ fs/partitions/check.c  |    3 ---
+ fs/partitions/check.h  |    4 ----
+ fs/partitions/msdos.c  |    4 ++--
+ 4 files changed, 2 insertions(+), 10 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm1-full/drivers/char/watchdog/machzwd.c.old	2004-10-28 22:57:31.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/char/watchdog/machzwd.c	2004-10-28 23:56:59.000000000 +0200
-@@ -88,12 +88,6 @@
- 	return inw(DATA_W);
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/Makefile.old	2004-10-30 14:42:03.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/Makefile	2004-10-30 14:42:13.000000000 +0200
+@@ -17,4 +17,3 @@
+ obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
+ obj-$(CONFIG_IBM_PARTITION) += ibm.o
+ obj-$(CONFIG_EFI_PARTITION) += efi.o
+-obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/check.h.old	2004-10-30 14:40:20.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.h	2004-10-30 14:40:41.000000000 +0200
+@@ -30,7 +30,3 @@
+ 
+ extern int warn_no_part;
+ 
+-extern void parse_bsd(struct parsed_partitions *state,
+-			struct block_device *bdev, u32 offset, u32 size,
+-			int origin, char *flavour, int max_partitions);
+-
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/check.c.old	2004-10-30 14:41:32.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.c	2004-10-30 14:41:43.000000000 +0200
+@@ -76,9 +76,6 @@
+ #ifdef CONFIG_LDM_PARTITION
+ 	ldm_partition,		/* this must come before msdos */
+ #endif
+-#ifdef CONFIG_NEC98_PARTITION
+-	nec98_partition,	/* must be come before `msdos_partition' */
+-#endif
+ #ifdef CONFIG_MSDOS_PARTITION
+ 	msdos_partition,
+ #endif
+--- linux-2.6.10-rc1-mm2-full/fs/partitions/msdos.c.old	2004-10-30 14:38:38.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full//fs/partitions/msdos.c	2004-10-30 14:41:57.000000000 +0200
+@@ -202,12 +202,12 @@
+ #endif
  }
  
--static unsigned short zf_readb(unsigned char port)
--{
--	outb(port, INDEX);
--	return inb(DATA_B);
--}
--
- 
- MODULE_AUTHOR("Fernando Fuganti <fuganti@conectiva.com.br>");
- MODULE_DESCRIPTION("MachZ ZF-Logic Watchdog driver");
-@@ -155,13 +149,6 @@
- #endif
- 
- 
--/* STATUS register functions */
--
--static inline unsigned char zf_get_status(void)
--{
--	return zf_readb(STATUS);
--}
--
- static inline void zf_set_status(unsigned char new)
- {
- 	zf_writeb(STATUS, new);
-@@ -183,22 +170,6 @@
- 
- /* WD#? counter functions */
- /*
-- *	Just get current counter value
-- */
--
--static inline unsigned short zf_get_timer(unsigned char n)
--{
--	switch(n){
--		case WD1:
--			return zf_readw(COUNTER_1);
--		case WD2:
--			return zf_readb(COUNTER_2);
--		default:
--			return 0;
--	}
--}
--
--/*
-  *	Just set counter value
+-#if defined(CONFIG_BSD_DISKLABEL) || defined(CONFIG_NEC98_PARTITION)
++#if defined(CONFIG_BSD_DISKLABEL)
+ /* 
+  * Create devices for BSD partitions listed in a disklabel, under a
+  * dos-like partition. See parse_extended() for more information.
   */
- 
+-void
++static void
+ parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
+ 		u32 offset, u32 size, int origin, char *flavour,
+ 		int max_partitions)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

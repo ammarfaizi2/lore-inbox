@@ -1,76 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269719AbTGKAEu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 20:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269725AbTGKAEt
+	id S266551AbTGKAKG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 20:10:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbTGKAKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 20:04:49 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61868 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S269719AbTGKAEg
+	Thu, 10 Jul 2003 20:10:06 -0400
+Received: from smtp.terra.es ([213.4.129.129]:32480 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id S266551AbTGKAKD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 20:04:36 -0400
-Date: Fri, 11 Jul 2003 02:18:54 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Samuel Flory <sflory@rackable.com>
-cc: Steven Dake <sdake@mvista.com>,
-       Chad Kitching <CKitching@powerlandcomputers.com>,
-       <linux-kernel@vger.kernel.org>, <andre@linux-ide.org>
-Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21,
- patchattached to fix
-In-Reply-To: <3F0DFCC6.3000609@rackable.com>
-Message-ID: <Pine.SOL.4.30.0307110215560.7938-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Jul 2003 20:10:03 -0400
+Date: Fri, 11 Jul 2003 02:24:46 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Robert Love <rml@tech9.net>
+Cc: felipe_alfaro@linuxmail.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.75
+Message-Id: <20030711022446.0ef98986.diegocg@teleline.es>
+In-Reply-To: <1057880428.1984.12.camel@localhost>
+References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
+	<1057879835.584.7.camel@teapot.felipe-alfaro.com>
+	<1057880428.1984.12.camel@localhost>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El 10 Jul 2003 16:40:29 -0700 Robert Love <rml@tech9.net> escribió:
 
-On Thu, 10 Jul 2003, Samuel Flory wrote:
+> I do not see it as a _huge_ problem, because we are just worrying about
+> corner cases now. Worst case we can turn off the interactivity estimator
+> - which is both the root of the improvement and the problems - and be
+> back to where we are in 2.4.
 
-> Bartlomiej Zolnierkiewicz wrote:
->
-> >>>       for (port = 0; port <= 1; ++port) {
-> >>>               ide_pci_enablebit_t *e = &(d->enablebits[port]);
-> >>>
-> >>>               /*
-> >>>                * If this is a Promise FakeRaid controller,
-> >>>                * the 2nd controller will be marked as
-> >>>                * disabled while it is actually there and enabled
-> >>>                * by the bios for raid purposes.
-> >>>                * Skip the normal "is it enabled" test for those.
-> >>>                */
-> >>>               if (((d->vendor == PCI_VENDOR_ID_PROMISE) &&
-> >>>                    ((d->device == PCI_DEVICE_ID_PROMISE_20262) ||
-> >>>                     (d->device == PCI_DEVICE_ID_PROMISE_20265))) &&
-> >>>                   (secondpdc++==1) && (port==1))
-> >>>                       goto controller_ok;
-> >>>
-> >>>
-> >
-> >I think this test in reality does something different then comment states.
->
->   This seems to be a theme with the pdc comments in general.
+It used to work fine in the past; now as Felipe said, it's a PITA. Con's
+patch helps but it's not even near than what it used to be. My make -j 25
+without any skip is now -j3 with Con's patch and some mp3 skips. Perhaps
+i should start testing when it stopped "working" (i always save the kernel
+images)
 
-:-)
 
-> >For first port of PDC20262/65 this test increases secondpdc variable
-> >(so it is 1 after test). For second port this test is true
-> >(its PDC20262/65 && secondpdc == 1 && port == 1) so we don't test whether
-> >2nd port (not controller!) of 1st controller is enabled.
-> >
-> >Or I am reading it wrong?
-> >
->   Don't look at me.  I come to a different conclusion every time I read
-> it.  Rereading it a couple of times would seem support your theroy.
-> Which makes me wonder why Steven's patch works at all.  Unless for some
-> reason the second port needs to be enabled for things to work.  Which
-
-Steven, can you put printks for secondpdc and port into
-ide_pci_setup_ports() and get some output for your patch
-(without "Special FastTrak Feature")?
-
---
-Bartlomiej
-
-> begs the question why they didn't just test for an odd numbered channel.
-
+Diego Calleja

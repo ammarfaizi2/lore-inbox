@@ -1,99 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263198AbTDMEK2 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 00:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbTDMEK1 (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 00:10:27 -0400
-Received: from sith.maoz.com ([205.167.76.10]:57506 "EHLO sith.maoz.com")
-	by vger.kernel.org with ESMTP id S263198AbTDMEKY (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 00:10:24 -0400
-From: Jeremy Hall <jhall@maoz.com>
-Message-Id: <200304130422.h3D4M6XY031187@sith.maoz.com>
-Subject: Re: 2.5.67-mm2
-In-Reply-To: <200304130354.h3D3slbp031124@sith.maoz.com> from Jeremy Hall at
- "Apr 12, 2003 11:54:47 pm"
-To: Jeremy Hall <jhall@maoz.com>
-Date: Sun, 13 Apr 2003 00:22:06 -0400 (EDT)
-CC: Andrew Morton <akpm@digeo.com>, felipe_alfaro@linuxmail.org,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id S263197AbTDMEJc (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 00:09:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTDMEJc (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 00:09:32 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:64198 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263197AbTDMEJb (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 00:09:31 -0400
+Date: Sat, 12 Apr 2003 20:59:57 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       John Bradford <john@grabjohn.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel support for non-English user messages
+Message-ID: <241800000.1050206396@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0304121307420.18684-100000@dell>
+References: <Pine.LNX.4.44.0304121307420.18684-100000@dell>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ah, here we go
-
-BUG(); line 907 of mm/slab.c
-
-name == "size-32"
-
-in_interrupt() is an undefined symbol in this context, so I don't know 
-whether we are in interrupt context or not, if indeed that is what this 
-is
-
-no symbol BYTES_PER_WORD, but size == 32
-
-MAX_OBJ_ORDER and PAGE_SIZE are unknown symbols in this context
-
-dtor appears to be 0, and it looks like it should be set to something
-
-offset == 0 and it looks like it should be < 0 or > size
-
-in kmem_cache_create from kmem_cache_sizes_init at mm/slab.c:616
-
-_J
-
-In the new year, Jeremy Hall wrote:
-> mm1 worked.
+>> > > /Documentation could be a lot better than it is...  Some of it
+>> > > is very out of date.
+>> > 
+>> > 
+>> >   You are being way too kind.
+>> > 
+>> >   /Documentation is *awful*.
+>> 
+>> You know where to submit contributions
 > 
-> to be clear, my append line looks like
+> this is, from a personal perspective, simply too timely to pass up. in
+> fact, i have submitted six different patches, all aimed at either
+> improving the documentation or cleaning up configuration menus.
 > 
-> append="gdb console=gdb pci=biosirq" and maybe some other stuff on there
-> 
-> to get my machine to boot in single processor mode, I have to add nosmp 
-> and acpi=off
-> 
-> if I don't add acpi=off I get apic errors on my cpus, as well as if I say 
-> noapic like the boot process says to, it says
-> 
-> amd errata #22 may be present.  in the event of instability boot with the 
-> noapic option
-> 
-> dual athlon 1900 palamino's on a tyan 2462ung
-> 
-> _J
-> 
-> In the new year, Andrew Morton wrote:
-> > Jeremy Hall <jhall@maoz.com> wrote:
-> > >
-> > > I dunno about that, but mm2 locks in the boot process and doesn't display 
-> > > anything to me through gdb even though it is supposed to.  I have gdb 
-> > > console=gdb but that doesn't make the messages flow.
-> > > 
-> > 
-> > You want "gdb console=gdb".  It changed.
-> > 
-> > What CPU type?
-> > 
-> > Try just 2.5.67 plus 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm2/broken-out/linus.patch
-> > 
-> > try disabling kgdb in config.
-> > 
-> > etcetera.
-> > 
-> > --
-> > To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> > the body to majordomo@kvack.org.  For more info on Linux MM,
-> > see: http://www.linux-mm.org/ .
-> > Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-> > 
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-> 
+> without exception, every patch i have submitted directly has been dropped
+> without comment.  the only one that was eventually accepted (rearranged
+> filesystems menu) was because someone else with more authority and higher
+> up the kernel-hacker food chain was gracious enough to submit it on my
+> behalf.
+
+Well, that's often what it takes, I'm afraid ... going direct to Linus is
+by no means the only way to work, and it's often not the easiest. Try 
+picking someone who's interested in the area you're working on, if possible
+(ideally the maintainer if you can work out who it is). Failing that, try 
+Andrew or Alan or both. 
+
+> yes, i've read the "SubmittingPatches" guide, and at the risk of offending
+> a few people, i find it pretty irritating, if not downright patronizing,
+> to suggest that one should *expect* to have patches dropped without
+> comment, and should *expect* to have to work hard at resubmitting the same
+> patch until it takes.
+
+It's a bit like Darwinian evolution, or Democracy ... both rather horribly
+inefficient, but overall it's reasonably effective. Yeah, it's crap
+sometimes. Sorry.
+
+M.
 

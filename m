@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313126AbSDOJ1e>; Mon, 15 Apr 2002 05:27:34 -0400
+	id <S313128AbSDOJaJ>; Mon, 15 Apr 2002 05:30:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313131AbSDOJ1c>; Mon, 15 Apr 2002 05:27:32 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:17162 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313126AbSDOJ1c>; Mon, 15 Apr 2002 05:27:32 -0400
-Message-ID: <3CBA8E70.5010605@evision-ventures.com>
-Date: Mon, 15 Apr 2002 10:25:20 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313130AbSDOJaI>; Mon, 15 Apr 2002 05:30:08 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22803 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313128AbSDOJaH>; Mon, 15 Apr 2002 05:30:07 -0400
+Subject: Re: Memory Leaking. Help!
+To: ivan@es.usyd.edu.au (ivan)
+Date: Mon, 15 Apr 2002 10:09:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204151017480.20961-100000@dipole.es.usyd.edu.au> from "ivan" at Apr 15, 2002 10:28:00 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: admin@nextframe.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [COMMENTS IDE 2.5] - "idebus=66" in 2.5.8 results in "ide_setup:
- idebus=66 -- BAD OPTION"
-In-Reply-To: <20020415112332.A181@sexything>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16x2Tz-0005kV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morten Helgesen wrote:
-> Hey Martin (and the rest of you)
+> > What does ps -aux imply has all the memory ?
+> Top at 9am showed 3.2GB of availabe memory.
+> Top at 10am showed 2.3Gb of available memory
 
-> Now, I do not know the reasons for changing the code that handles "idebus=" stuff in ide.c (except from the fact
+That seems reasonable. The kernel knows free memory is waste. Until it
+has used all the available memory why does it need to worry about freeing
+caches ?
 
-Should be an off by one error there.
-
-> that it now looks cleaner :) - just thought I should let you know. I do not have the time right now to hunt down
-> the bug(?) and cook up a patch, but if you want me to, I`ll do it later today. 
-
-I would love if you could have a look at it...
-
-> One more thing, Martin - I compiled a 2.5.8 with TCQ enabled (yep, I`m aware of the fact that this one is _really_ alpha :), 
-> and tested it for, oh ... 10 minutes ... the system gave me all sorts of funny responses - segfaults, 
-> "inconsistency in ld.so" and so on ... would you like me to collect 'funnies' and send them to you ? If so, just 
-> give me a hint.
-
-Thats mostly Jens stuff...
-
+Alan
+--
+	First the west got slaves by raiding their nations
+	Then the west got slaves by invading their nations
+	Now the west gets slaves from unrepayable loans to their nations
+	Next the west will get slaves from owning their ideas

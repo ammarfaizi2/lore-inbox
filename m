@@ -1,91 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264030AbTGADqs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 23:46:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbTGADqs
+	id S265350AbTGADvE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 23:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbTGADvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 23:46:48 -0400
-Received: from dp.samba.org ([66.70.73.150]:48348 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264030AbTGADqn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 23:46:43 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Ray Bryant <raybry@sgi.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@digeo.com>, Andi Kleen <ak@suse.de>,
-       alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com
-Subject: Re: PROBLEM: Bug in __pollwait() can cause select() and poll() to hang in 2.4.22-pre2 -- second try 
-In-reply-to: Your message of "Mon, 30 Jun 2003 18:24:01 +0200."
-             <3F006421.4090408@colorfullife.com> 
-Date: Tue, 01 Jul 2003 11:17:44 +1000
-Message-Id: <20030701040105.2BCE42C22E@lists.samba.org>
+	Mon, 30 Jun 2003 23:51:03 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:14314
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265350AbTGADvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 23:51:00 -0400
+Date: Tue, 1 Jul 2003 06:04:59 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@imladris.surriel.com>
+Cc: Andrew Morton <akpm@digeo.com>, mel@csn.ul.ie, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <20030701040459.GO3040@dualathlon.random>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <20030630200237.473d5f82.akpm@digeo.com> <20030701032248.GM3040@dualathlon.random> <Pine.LNX.4.55L.0307010327250.1638@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307010327250.1638@imladris.surriel.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3F006421.4090408@colorfullife.com> you write:
-> Rusty Russell wrote:
+On Tue, Jul 01, 2003 at 03:29:54AM +0000, Rik van Riel wrote:
+> On Tue, 1 Jul 2003, Andrea Arcangeli wrote:
 > 
-> >2.5 has exactly the same issue: perhaps 2.4 should take this patch,
-> >and 2.5 should try something better (I'd suggest trying the embedded
-> >minitable approach).
->
-> I tried it, but Linus didn't like the idea of on-stack minitables. The 
-> patches are still at
-> http://www.colorfullife.com/~manfred/Linux-Kernel/poll/
-
-I wonder if he'd change his mind when presented with an apparently
-random set_task_state() in __alloc_pages...
-
-Linus?  See thread below: poll_wait is called with task state !=
-TASK_RUNNING, but can do a yield on low memory, causing eternal hangs.
-
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-
-In message <3EFC8AA8.7000501@sgi.com> you write:
->       The simplest fix (as suggested by Manfred Spraul) is to set
-> current=>state to TASK_RUNNING just before the call to yield() in
-> __alloc_pages().  I have tested this sufficiently that I believe
-> this does not change the user level semantics of select() (my
-> concern was that if state got set to TASK_RUNNING that the syscall
-> could return before any fd's are ready or the select() timeout has
-> expired, but this does not appear to be the case).
-
-Horrible problem.  Solution presented is icky, and at the *very* least
-needs a comment about its relationship to poll.
-
-More logical would be to have the set_task_state() before
-__get_free_page() inside __pollwait, but that will cause every poll to
-spin once, killing performance.  Allocating the first page up front
-(inside do_pollfd and do_select) would help that, but slow down the
-case where normally no alloc is needed, which might be common.  Having
-a small first table inside the poll_table itself would work, but the
-POLL_TABLE_FULL() macro then gets more complicated.
-
-2.5 has exactly the same issue: perhaps 2.4 should take this patch,
-and 2.5 should try something better (I'd suggest trying the embedded
-minitable approach).
-
-Anyway, my point is that it's not suitable for the Trivial Patch
-Monkey 8)
-
-> Here is a trivial patch against 2.4.22-pre2:
+> > Also think if you've a 1G box, the highmem list would be very small and
+> > if you shrink it first, you'll waste an huge amount of cache. Maybe you
+> > go shrink the zone normal list first in such case of unbalance?
 > 
-> --- linux-2.4.22-pre2.orig/mm/page_alloc.c      Thu Nov 28 17:53:15 2002
-> +++ linux-2.4.22-pre2/mm/page_alloc.c   Fri Jun 27 13:47:49 2003
-> @@ -418,6 +418,7 @@
->                  return NULL;
+> That's why you have low and high watermarks and try to balance
+> the shrinking and allocating in both zones.  Not sure how
+> classzone would influence this balancing though, maybe it'd be
+> harder maybe it'd be easier, but I guess it would be different.
 > 
->          /* Yield for kswapd, and try again */
-> +        set_current_state(TASK_RUNNING);
->          yield();
->          goto rebalance;
->   }
+> > Overall I think rotating too fast a global list sounds much better in this
+> > respect (with less infrequent GFP_KERNELS compared to the
+> > highmem/pagecache/anonmemory allocation rate) as far as I can tell, but
+> > I admit I didn't do any math (I didn't feel the need of a demonstration
+> > but maybe we should?).
+> 
+> Remember that on large systems ZONE_NORMAL is often under much
+> more pressure than ZONE_HIGHMEM.  Need any more arguments ? ;)
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+we run out of ZONE_NORMAL but until we run oom it doesn't mean we shrink
+it frequently, those are pretty static allocations (the mem_map is the
+most static and in turn the biggest one ;), but it doesn't mean, we
+allocate 500M and release 500M in a few seconds of zone normal. Also
+many like selects are released and reallocated before you've a chance to
+need a shrink.
+
+The shrinkers are the ones allocating huge chunks in a loop and never
+releasing it except through the VM (an updatedb would do it with the
+lots of metadata overhead, but it's not really as common as the
+highmem ones).
+
+So your argument about ZONE_NORMAL being uner much more pressure doesn't
+make sense to me, in line with my answer to Andrew that the frequency
+of allocations (NOTE: without later explicit deallocations but relaying
+on the cache collecting in the vm).
+
+Andrea

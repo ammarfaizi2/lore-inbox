@@ -1,117 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264513AbTH2KP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTH2KP2
+	id S264500AbTH2K0N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTH2K0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:15:28 -0400
-Received: from aneto.able.es ([212.97.163.22]:46046 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264513AbTH2KPZ (ORCPT
+	Fri, 29 Aug 2003 06:26:13 -0400
+Received: from [212.34.184.41] ([212.34.184.41]:9389 "EHLO mail.hometree.net")
+	by vger.kernel.org with ESMTP id S264500AbTH2K0M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:15:25 -0400
-Date: Fri, 29 Aug 2003 12:15:23 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030829101523.GC5417@werewolf.able.es>
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>; from jamie@shareable.org on Fri, Aug 29, 2003 at 07:35:10 +0200
-X-Mailer: Balsa 2.0.14
+	Fri, 29 Aug 2003 06:26:12 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: usb-storage: how to ruin your hardware(?)
+Date: Fri, 29 Aug 2003 10:25:50 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bin9ne$u7n$1@tangens.hometree.net>
+References: <20030828154454.A2343@pclin040.win.tue.nl> <200308281618.h7SGIMMp014455@wildsau.idv.uni.linz.at>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1062152750 30967 212.34.184.4 (29 Aug 2003 10:25:50 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 29 Aug 2003 10:25:50 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at> writes:
 
-On 08.29, Jamie Lokier wrote:
-> Dear All,
-> 
-> I'd appreciate if folks would run the program below on various
-> machines, especially those whose caches aren't automatically coherent
-> at the hardware level.
-> 
+>> On Thu, Aug 28, 2003 at 04:59:14AM +0200, H.Rosmanith (Kernel Mailing List) wrote:
+>> 
+>> > the contradiction to this is that the flashdisk can be used
+>> > in a "partition-less" state where it is possible to use the
+>> > whole device at one: "mke2fs /dev/sdb". you have to use the
+>> > vendor formating-tool to make the flashdisk look like an USB_FDD
+>> > device. but even in USB_HDD mode with partitions, the partitions
+>> > still look strange, not ending on cylinder boundaries and so on.
+>> 
+>> I have seen several posts from you, but all in this vague, almost
+>> information-free style.
 
-Uh ? So good are my PII ?
+>the information is vague, because I don't exactly know how I manage
+>to stop the drive working.
 
-werewolf:~> gcc -march=pentium2 -O2 -fomit-frame-pointer -o vm-test vm-test.c
-werewolf:~> vm-test
-Test separation: 4096 bytes: pass
-Test separation: 8192 bytes: pass
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
+Back it up:
 
-werewolf:~> gcc -DHAVE_SYSV_SHM -march=pentium2 -O2 -fomit-frame-pointer -o vm-test vm-test.c
-werewolf:~> vm-test
-Test separation: 4096 bytes: pass
-Test separation: 8192 bytes: pass
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
+dd if=/dev/sda of=/tmp/save bs=512 count=<number of blocks on your flash disk>
 
-werewolf:~> cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 5
-model name      : Pentium II (Deschutes)
-stepping        : 2
-cpu MHz         : 400.915
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips        : 799.53
+Clean it:
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 5
-model name      : Pentium II (Deschutes)
-stepping        : 2
-cpu MHz         : 400.915
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips        : 801.17
+dd if=/dev/zero of=/dev/sda bs=512 count=100
 
+See what happens. If it does not work any longer, we can take a peek
+at the backup (especially the first few sectors).
+
+	Regards
+		Henning
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire
+
+"Dominate!! Dominate!! Eat your young and aggregate! I have grotty silicon!" 
+      -- AOL CD when played backwards  (User Friendly - 200-10-15)

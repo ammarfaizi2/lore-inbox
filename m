@@ -1,83 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136581AbREAHJI>; Tue, 1 May 2001 03:09:08 -0400
+	id <S135987AbREAH0E>; Tue, 1 May 2001 03:26:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136582AbREAHI6>; Tue, 1 May 2001 03:08:58 -0400
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:7432 "HELO
+	id <S136583AbREAHZy>; Tue, 1 May 2001 03:25:54 -0400
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:44553 "HELO
 	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S136581AbREAHIx>; Tue, 1 May 2001 03:08:53 -0400
-Date: Tue, 1 May 2001 08:08:50 +0100
+	id <S136582AbREAHZi>; Tue, 1 May 2001 03:25:38 -0400
+Date: Tue, 1 May 2001 08:25:36 +0100
 From: Sean Hunter <sean@dev.sportingbet.com>
-To: Tim Moore <timothymoore@bigfoot.com>
-Cc: David Lang <david.lang@digitalinsight.com>,
-        valery <valery.brasseur@atosorigin.com>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux and high volume web sites
-Message-ID: <20010501080850.B30631@dev.sportingbet.com>
+To: Tony Hoyle <tmh@nothing-on.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: just-in-time debugging?
+Message-ID: <20010501082536.A30970@dev.sportingbet.com>
 Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Tim Moore <timothymoore@bigfoot.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	valery <valery.brasseur@atosorigin.com>,
-	linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0104280109430.15628-100000@dlang.diginsite.com> <3AEB2E25.E7404FAF@bigfoot.com>
+	Tony Hoyle <tmh@nothing-on.tv>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010428201708.E629E13F6A@mail.cvsnt.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AEB2E25.E7404FAF@bigfoot.com>; from timothymoore@bigfoot.com on Sat, Apr 28, 2001 at 01:55:01PM -0700
+In-Reply-To: <20010428201708.E629E13F6A@mail.cvsnt.org>; from tmh@nothing-on.tv on Sat, Apr 28, 2001 at 09:17:10PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also make sure you aren't suffering database lock contention from Mysql.  This
-causes very fast context switching on the database server, and is typically
-unable to do useful work even though its load avg is not high.  "vmstat" is
-useful here.
+My approach is something like the others.  I developed a small wrapper to catch
+unaligned traps on alpha.  What it does is run a program in gdb with some
+specified arguments (it also sets up so that the process gets a SIGBUS when it
+does an unaligned access, but that's probably not relevant here).
+
+Any case, its available by anonymous ftp at ftp://uncarved.com/unaligned.c 
+in case you're interested...
 
 Sean
 
-On Sat, Apr 28, 2001 at 01:55:01PM -0700, Tim Moore wrote:
-> David Lang wrote:
-> > 
-> > watch the resonate heartbeat and see if it is getting lost in the network
-> > traffic (the resonate logs will show missing heartbeat packets). think
-> > seriously of setting the resonate stuff to run at a higher priority so
-> > that it doesn't get behind.
-> > 
-> > depending on how high your network traffic is seriously look at putting in
-> > a second nic and switch to move the NFS traffic off the network that has
-> > the internet traffic and hearbeat.
-> > 
-> > I had the same problem with central dispatch a couple years ago when first
-> > implementing it. the exact details of the problem that I ran into should
-> > have been fixed by now (mostly having to do with large number of virtual
-> > IP addresses) but the symptoms were the same.
+On Sat, Apr 28, 2001 at 09:17:10PM +0100, Tony Hoyle wrote:
+> Is there a way (kernel or userspace... doesn't matter) that gdb/ddd
+> could be invoked when a program is about
+> to dump core, or perhaps on a certain signal (that the app could deliver
+> to itself when required).  The latter case
+> is what I need right now, as I have to debug an app that breaks
+> seemingly randomly & I need to halt when
+> certain assertions fail.  Core dumps aren't much use as you can't resume
+> them, otherwise I'd just force a segfault
+> or something.
 > 
-> In addition to the above make sure there's enough bandwidth to the filer
-> (eg- good switches, multiple ethernets).
+> I had a look at the do_coredump stuff and it looks like it could be
+> altered to call gdb in the same way that
+> modprobe gets called by kmod... however I don't sufficiently know the
+> code to work out whether it'd work properly
+> or not.  
 > 
-> Consider moving to 2.2.19.  Significant VM changes after 2.2.19pre3 which
-> could account for the freezes.
+> A patch to glibc would perhaps be better, but I know that code even
+> less!
 > 
-> rgds,
-> tim.
+> Something like responding to SIGTRAP would probably be ideal.
 > 
-> > > I have a high volume web site under linux :
-> > > kernel is 2.2.17
-> > > hardware is 5 bi-PIII 700Mhz / 512Mb, eepro100
-> > > all server are diskless (nfs on an netapp filer) except for tmp and swap
-> > >
-> > > dispatch is done by the Resonate product
-> > >
-> > > web server is apache+php (something like 400 processes), database
-> > > backend is a mysql on the same hardware
-> > >
-> > > in high volume from time to time machines are "freezing" then after a
-> > > few seconds they "reappear" and response timne is
-> > >
-> > >
-> > > how can I investigate all these problems ?
+> Tony
 > 
-> --
+> -- 
+> 
+> "Two weeks before due date, the programmers work 22 hour days cobbling an
+>  application from... (apparently) one programmer bashing his face into the
+>  keyboard." -- Dilbert
+> 
+> tmh@magenta-netlogic.com                http://www.nothing-on.tv 
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

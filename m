@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVBAXco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVBAXdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVBAXco (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:32:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVBAXck
+	id S262179AbVBAXdA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVBAXc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:32:40 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:15064 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262179AbVBAXcP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:32:15 -0500
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
-From: john stultz <johnstul@us.ibm.com>
-To: ncunningham@linuxmail.org
-Cc: Tim Bird <tim.bird@am.sony.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1107299672.13413.25.camel@desktop.cunninghams>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
-	 <41FFFD4F.9050900@am.sony.com>
-	 <1107298089.2040.184.camel@cog.beaverton.ibm.com>
-	 <1107299672.13413.25.camel@desktop.cunninghams>
-Content-Type: text/plain
-Date: Tue, 01 Feb 2005 15:32:09 -0800
-Message-Id: <1107300730.2040.195.camel@cog.beaverton.ibm.com>
+	Tue, 1 Feb 2005 18:32:59 -0500
+Received: from gprs214-253.eurotel.cz ([160.218.214.253]:51074 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262170AbVBAXcr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:32:47 -0500
+Date: Wed, 2 Feb 2005 00:29:50 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [ide-dev 3/5] generic Power Management for IDE devices
+Message-ID: <20050201232950.GB29350@elf.ucw.cz>
+References: <Pine.GSO.4.58.0501220004050.23959@mion.elka.pw.edu.pl> <20050122184124.GL468@openzaurus.ucw.cz> <58cb370e05020115032fdb8b59@mail.gmail.com> <1107300288.1665.33.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107300288.1665.33.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-02 at 10:14 +1100, Nigel Cunningham wrote:
-> Hi John and Tim.
-> 
-> On Wed, 2005-02-02 at 09:48, john stultz wrote:
-> > > I didn't scan for all uses of read_persistent_clock, but
-> > > in my experience get_cmos_time() has a latency of up to
-> > > 1 second on x86 because it synchronizes with the rollover
-> > > of the RTC seconds.
+Hi!
+
+> > > > Move PM code from ide-cd.c and ide-disk.c to IDE core so:
+> > > > * PM is supported for other ATAPI devices (floppy, tape)
+> > > > * PM is supported even if specific driver is not loaded
+> > > 
+> > > Why do you need to have state-machine? During suspend we are running
+> > > single-threaded, it should be okay to just do the calls directly.
 > > 
-> > I believe you're right. Although we don't call read_persistent_clock()
-> > very frequently, nor do we call it in ways we don't already call
-> > get_cmos_time(). So I'm not sure exactly what the concern is.
+> > If we are running single-threaded I also see no reason for state-machine.
+> > Ben?
+> > 
+> > Pavel, I assume that changes contained in the patch are OK with you?
 > 
-> Tim and I talked about this at the recent CELF conference. I have a
-> concern in that suspend-to-disk calls the suspend methods and then
-> (after the atomic copy) the resume methods. Since the copy usually takes
-> < 1s, and the suspend and resume methods both make two calls to
-> get_coms_time, that's an average of 1.5s per suspend call and 1.5s per
-> resume call - but if the copy does take next to no time (as normal),
-> it's really 1.5s + 2s = 3.5s average just for getting the time. I
-> believe Tim has similar issues in code he is working on. It's a concern
-> if your battery is running out and you're trying to hibernate!
+> We aren't always running single threaded. On PPC we are definitely
+> not :)
 
-Well, counting the atomic copy in the "3.5s average just for getting the
-time" doesn't quite seem fair, but I think I understand. Its
-interesting, I wasn't aware of the suspend/copy/resume process that
-occurs for suspend-to-disk. The thing I don't quite get is why are the
-resume methods called before we really suspend to disk?
-
-
-> > I've only lightly tested the suspend code, but on my system I didn't see
-> > very much drift appear. Regardless, it should be better then what the
-> > current suspend/resume code does, which doesn't keep any sub-second
-> > resolution across suspend.
-> 
-> My question is, "Is there a way we can get sub-second resolution without
-> waiting for the start of a new second four times in a row?" I'm sure
-> there must be.
-
-Well, I'm not sure what else we could use for the persistent clock, but
-I'd be happy to change the read/set_persistent_clock function to use it.
-
-thanks
--john
-
+Ok, Ben is right, I forgot about PPC.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

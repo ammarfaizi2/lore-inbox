@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbULNTHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbULNTNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbULNTHp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 14:07:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbULNTHo
+	id S261623AbULNTNw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 14:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbULNTNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 14:07:44 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:52969 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261603AbULNTHk (ORCPT
+	Tue, 14 Dec 2004 14:13:52 -0500
+Received: from news.suse.de ([195.135.220.2]:45805 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261619AbULNTNt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 14:07:40 -0500
-To: Roland McGrath <roland@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX clock_* syscalls
-References: <200412140355.iBE3t7KL008040@magilla.sf.frob.com.suse.lists.linux.kernel>
+	Tue, 14 Dec 2004 14:13:49 -0500
+Date: Tue, 14 Dec 2004 20:13:48 +0100
 From: Andi Kleen <ak@suse.de>
-Date: 14 Dec 2004 20:07:39 +0100
-In-Reply-To: <200412140355.iBE3t7KL008040@magilla.sf.frob.com.suse.lists.linux.kernel>
-Message-ID: <p73zn0gzojo.fsf@bragg.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org, ak@suse.de
+Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
+Message-ID: <20041214191348.GA27225@wotan.suse.de>
+References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com> <9250000.1103050790@flay>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9250000.1103050790@flay>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath <roland@redhat.com> writes:
->  
->  /*
-> + * This is called on clock ticks and on context switches.
-> + * Bank in p->sched_time the ns elapsed since the last tick or switch.
-> + */
-> +static void update_cpu_clock(task_t *p, runqueue_t *rq,
-> +			     unsigned long long now)
-> +{
-> +	unsigned long long last = max(p->timestamp, rq->timestamp_last_tick);
-> +	p->sched_time += now - last;
-> +}
+On Tue, Dec 14, 2004 at 10:59:50AM -0800, Martin J. Bligh wrote:
+> > NUMA systems running current Linux kernels suffer from substantial
+> > inequities in the amount of memory allocated from each NUMA node
+> > during boot.  In particular, several large hashes are allocated
+> > using alloc_bootmem, and as such are allocated contiguously from
+> > a single node each.
+> 
+> Yup, makes a lot of sense to me to stripe these, for the caches that
 
-This will completely mess up the register allocation in schedule()
-long long on i386 forces basically everything else out onto the stack
-because it needs 4 aligned registers.
+I originally was a bit worried about the TLB usage, but it doesn't
+seem to be a too big issue (hopefully the benchmarks weren't too
+micro though)
 
-I suspect when you benchmark it it will become visibly slower.
+> didn't Manfred or someone (Andi?) do this before? Or did that never
+> get accepted? I know we talked about it a while back.
 
-In general it seems like a bad idea to polute the extremly critical
-fast paths in schedule with support for such an obscure operation.
-Is there really any real need for such a high resolution per process
-timer anyways? I have my doubts about it, I would suspect most apps
-are more interested in wall clock time.
-
-I don't think this should be merged until a clear need from a useful
-application is demonstrated for it.
+I talked about it, but never implemented it. I am not aware of any
+other implementation of this before Brent's.
 
 -Andi
-

@@ -1,61 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129850AbRBRV42>; Sun, 18 Feb 2001 16:56:28 -0500
+	id <S129197AbRBRWIK>; Sun, 18 Feb 2001 17:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129826AbRBRV4S>; Sun, 18 Feb 2001 16:56:18 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:268 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S129850AbRBRV4J>;
-	Sun, 18 Feb 2001 16:56:09 -0500
-Message-Id: <200102182156.f1ILu2O97461@aslan.scsiguy.com>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: linux-kernel@vger.kernel.org
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: AIC7xxx oops with justin gibbs patch on 2.4.1 alpha noritake 
-In-Reply-To: Your message of "Sun, 18 Feb 2001 15:58:50 EST."
-	 <20010218155850.A16715@animx.eu.org> 
-Date: Sun, 18 Feb 2001 14:56:02 -0700
+	id <S129629AbRBRWIB>; Sun, 18 Feb 2001 17:08:01 -0500
+Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:37358 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S129826AbRBRWHx>; Sun, 18 Feb 2001 17:07:53 -0500
+From: brian@worldcontrol.com
+Date: Sun, 18 Feb 2001 14:08:39 -0800
+To: Dan Hollis <goemon@anime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Money stifles innovation [was: Linux stifles innovation.]
+Message-ID: <20010218140839.A14166@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010218004456.A13695@top.worldcontrol.com> <Pine.LNX.4.30.0102180051540.3862-100000@anime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <Pine.LNX.4.30.0102180051540.3862-100000@anime.net>; from goemon@anime.net on Sun, Feb 18, 2001 at 12:57:14AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->Here's the dmesg when it happened (I took this via serial console which I was
->logged in to)
->[root@kakarot:/lvm/misc] cp /dev/zero .
->(scsi1:A:2:0): data overrun detected in Data-out phase.  Tag == 0x33.
+> On Sun, 18 Feb 2001 brian@worldcontrol.com wrote:
+> > About a year later I was talking with a group of business owners who had
+> > also received a similar demand letter.  Some paid, some didn't.  Those
+> > who didn't pay were not pursued other than the occasional copy of the
+> > demand letter.
 
-Someone is sending a request that your drive believes specifies a data
-transfer to the drive such that either use_sg is 0 and request_buflen is
-0 or use_sg is non-zero, but pci_map_sg returns 0.  From looking at the
-alpha implementation of pci_map_sg, you should see a kernel message if
-it fails, so that should not be the problem.
+On Sun, Feb 18, 2001 at 12:57:14AM -0800, Dan Hollis wrote:
+> The XOR patent and the fraudulent enforcement of it is the purest
+> embodiment of everything that is wrong with the patent system and IP law.
 
-Some things to try...
+As a person with a some decades of experience with patents and
+trademarks, and playing among the various sides, I can state
+quite unequivocally that the problem is money.
 
-1) In aic7xxx_linux.c:ahc_run_device_queue() around line 1612, you can
-add code to panic should we ever get to that point with scb-sg_count == 0
-and cmd->sc_data_direction != SCSI_DATA_NONE.  If that hits, printout
-cmd->use_sg and cmd->request_buflen.
+Courts, or rights, can simply be bought with enough money.  And not
+necessarily in the way you would think.
 
-2) In aic7xxx.c:ahc_handle_seqint() around line 743, you might want to
-print out scb->io_ctx->cmnd which is the cdb that was sent.  It may also
-be good to print out cmd->use_sg and cmd->request_buflen.
+Here is a recent and true example:
 
->From the looks of it, it logged me out.  the 2nd oops I caused with the
->sysrq-s.  As you can see, I copied /dev/zero to a disk.  That disk is
->reiserfs ontop of LVM striping across 3 disks. 2.4.1 using the builtin
->qlogic controller appears to be solid (had a 10 day uptime or so when I
->shut it down.  before with the reiserfs patch it would crash every 3-4 days
->w/o usage).  what's strange is the fact that once the disk is full it then
->crashes.  Last time I tried this, after the system came back up I noticed
->that there were 0 bytes left on the drive (well 1995kb, but I couldn't write
->anything, I think that's a reiserfs bug, not sure)
+I owned the domain DemandTV.com, and had applied for a trademark.
 
-Perhaps in the case of a full disk, the kernel queues a 0 length transaction
-that is not caught before reaching the SCSI driver.  The driver doesn't
-spend a lot of its time trying to catch bogus transactions queued to it,
-so it doesn't surprise me that it falls over in this case.   Hopefully the
-information gleaned from the above printks/panics will help track down
-the source of the bogus transaction.
+DirecTV, or DirectV, the satellite people, and subsidiary of Hughes
+Aerospace, contested my trademark application calling it 'confusingly
+similar'.
 
---
-Justin
+Of course its not confusing similar as trademarks go.  They started
+by subpoena'ing anyone that could find related to the trademark.
+Hours and hours of questions over multiple days.
+
+My own lawyers, a well respected big name law firm, said they really had
+no standing whatsoever and for a measly 1/2 million dollars we'd get
+the trademark through the PTO process.
+
+However, that is not the end.  Even though the PTO would have blessed
+our trademark of DemandTV, it would still be up to District Courts as
+to decide whether we were infringing.  And that is individual district
+courts all over the country.  Hughes/DirectV could file basically as
+much as they want and we would be required to respond.
+
+We could try to sue for injunctive relief, but we would never "win"
+because we couldn't sustain the hemorrhage'ing of money.
+
+So they problem is that they have money and you don't so they win.
+
+Hughes was able to obtain the outcome they wanted simply because they
+had more money.
+
+Isn't that the golden rule? "He who has the gold makes the rules."
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

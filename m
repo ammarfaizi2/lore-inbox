@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279305AbRKFNzE>; Tue, 6 Nov 2001 08:55:04 -0500
+	id <S279313AbRKFNzy>; Tue, 6 Nov 2001 08:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279313AbRKFNy4>; Tue, 6 Nov 2001 08:54:56 -0500
-Received: from mons.uio.no ([129.240.130.14]:10204 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S279305AbRKFNyj>;
-	Tue, 6 Nov 2001 08:54:39 -0500
-To: Bob Smart <smart@hpc.CSIRO.AU>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Red Hat needs this patch (was Re: handling NFSERR_JUKEBOX)
-In-Reply-To: <200111061036.VAA07886@trout.hpc.CSIRO.AU>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 06 Nov 2001 14:54:24 +0100
-In-Reply-To: <200111061036.VAA07886@trout.hpc.CSIRO.AU>
-Message-ID: <shsg07sknsf.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S279321AbRKFNzp>; Tue, 6 Nov 2001 08:55:45 -0500
+Received: from gap.cco.caltech.edu ([131.215.139.43]:5034 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S279313AbRKFNzc>; Tue, 6 Nov 2001 08:55:32 -0500
+Subject: Re: How can I know the number of current users in the system?
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: Nicholas Berry <nikberry@med.umich.edu>
+Cc: amon@vnl.com, weixl@caltech.edu,
+        mlist-linux-kernel@nntp-server.caltech.edu
+In-Reply-To: <sbe793a0.090@mail-01.med.umich.edu>
+In-Reply-To: <sbe793a0.090@mail-01.med.umich.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16 (Preview Release)
+Date: 06 Nov 2001 14:44:14 +0100
+Message-Id: <1005054258.1221.122.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Bob Smart <smart@hpc.CSIRO.AU> writes:
+Absolutly true. 
 
-     > Maybe there is a subset of servers for which the patch is OK,
-     > and we could make that clear in the help for the config
-     > option. I'll ask Cray for clarification about their server.
+You can get a 90% solution by testing for tty and for proces that has a
+connection to a tcp port between 6000 and 6100 somewhere or has a unix
+socket to /tmp/.X11-unix/X0 (or whereever X chooses to place the unix
+socket). 
 
-I'm still not convinced this is a good idea, but if you are going to
-do things inside the NFS client, why don't you instead write a wrapper
-function around rpc_call_sync() for fs/nfs/nfs3proc.c. Something like
+But thats definitly not good enough to base your scheduling on.
 
-static int
-nfs_rpc_wrapper(struct rpc_clnt *clnt, struct rpc_message *msg, int flags)
-{
-        sigset_t oldset;
-        int res;
-        rpc_clnt_sigmask(clnt, &oldset);
-        do {
-                res = rpc_call_sync(clnt, msg, flags);
-                if (result != -EJUKEBOX)
-                        break;
-                set_current_state(TASK_INTERRUPTIBLE);
-                schedule_timeout(NFS_JUKEBOX_RETRY_TIME);
-                res = -ERESTARTSYS;
-        } while (!signalled());
-        rpc_clnt_sigunmask(clnt, &oldset);
-        return res;
-}
+TJ
 
-and then use a couple of '#define's to wrap rpc_call() and
-rpc_call_sync() in nfs3_proc_*(). That will take care of all those
-synchronous calls in one fell swoop.
+tir, 2001-11-06 kl. 13:38 skrev Nicholas Berry:
+    It depends whether you're looking for an idea of who's on, or you want a definitive count. The lattter is basically almost impossible. What if a logged-in user nohups two xterms to different X-servers, then logs out - how many people are logged in? I've spent a hell of a long time working on this on AIX for a certain German bank, and the bottom line is that it can't be done. What is 'logged on' anyway? Someone running bash or ksh, that's cool, but what about someone running /home/fred/myprog? Is it a shell?
+    
+    Basically once Unix went beyond serial terminals connected to dumb serial ports, we lost the ability to track users.
+    
+    Nik
+    
+    
+    > Hmmm, you should be able to count the number of pty's and tty's.
+    > Every logged in user is attached to some sort of getty
+    > whose parent is the init task (1). That might be a basis for
+    > a count.
+    
+-- 
+_________________________________________________________________________
 
-You'll still need to take care of asynchronous reads, writes and
-unlink, but those are easy. Just do something like
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-if (task->tk_error == -EJUKEBOX) {
-        rpc_delay(task, NFS_JUKEBOX_RETRY_TIMEO);
-        rpc_restart_call(task);
-        return;
-}
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 
-in nfs_readpage_result(), nfs_writeback_done(), nfs_commit_done(), and
-nfs_async_unlink_done()...
-
-Cheers,
-   Trond

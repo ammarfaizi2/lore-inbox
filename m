@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317668AbSGOWCn>; Mon, 15 Jul 2002 18:02:43 -0400
+	id <S317671AbSGOWEz>; Mon, 15 Jul 2002 18:04:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317671AbSGOWCm>; Mon, 15 Jul 2002 18:02:42 -0400
-Received: from pieck.student.uva.nl ([146.50.96.22]:41112 "EHLO
-	pieck.student.uva.nl") by vger.kernel.org with ESMTP
-	id <S317668AbSGOWCl>; Mon, 15 Jul 2002 18:02:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rvandijk@science.uva.nl>
-Reply-To: rvandijk@science.uva.nl
-Organization: UvA
-To: Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.4.19-rc1-ac5
-Date: Tue, 16 Jul 2002 00:10:05 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
-In-Reply-To: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S317673AbSGOWEy>; Mon, 15 Jul 2002 18:04:54 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:40966 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317671AbSGOWEx>; Mon, 15 Jul 2002 18:04:53 -0400
+Date: Mon, 15 Jul 2002 19:07:36 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <jlnance@intrex.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BKL removal
+In-Reply-To: <m3it3gg1b2.fsf@lapper.ihatent.com>
+Message-ID: <Pine.LNX.4.44L.0207151907121.12241-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020715220241Z317668-685+9887@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 15 July 2002 23:48, Alan Cox wrote:
-> Linux 2.4.19rc1-ac5
+On 15 Jul 2002, Alexander Hoogerhuis wrote:
 
-it looks like the file is damaged:
+> That takes Linux even one step closer to the big commercial world, we
+> now have a statement to quialify for membership into the same club as
+> Mr. Gates' "Who needs more than 640kb anyway?" and Olsen's (Digital?)
+> "There will only be a handfull of computers in the nation". :)
 
-# gzip -t patch-2.4.19-rc1-ac5.gz
-gzip: patch-2.4.19-rc1-ac5.gz: invalid compressed data--format violated
+With ongoing miniaturisation, Olsen might just be right again ...
 
-waiting for the .bz2 file...
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-	Rudmer
+http://www.surriel.com/		http://distro.conectiva.com/
+

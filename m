@@ -1,86 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbUKOOOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUKOOSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbUKOOOx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 09:14:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUKOOOx
+	id S261602AbUKOOSu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 09:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUKOOSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 09:14:53 -0500
-Received: from mail.shareable.org ([81.29.64.88]:9603 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S261607AbUKOONB (ORCPT
+	Mon, 15 Nov 2004 09:18:50 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:2241 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261602AbUKOOSM convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 09:13:01 -0500
-Date: Mon, 15 Nov 2004 14:12:47 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: bert hubert <ahu@ds9a.nl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, mingo@elte.hu,
-       seto.hidetoshi@jp.fujitsu.com
-Subject: Re: Futex queue_me/get_user ordering (was: 2.6.10-rc1-mm5 [u])
-Message-ID: <20041115141247.GC25502@mail.shareable.org>
-References: <20041113164048.2f31a8dd.akpm@osdl.org> <20041114090023.GA478@mail.shareable.org> <20041114010943.3d56985a.akpm@osdl.org> <20041114092308.GA4389@mail.shareable.org> <20041114095051.GA11391@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Nov 2004 09:18:12 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Documentation/networking/bonding.txt update
+Date: Mon, 15 Nov 2004 14:23:05 +0000
+User-Agent: KMail/1.6.1
+Cc: bonding-devel@lists.sourceforge.net
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041114095051.GA11391@outpost.ds9a.nl>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200411151423.05457.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.72; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> On Sun, Nov 14, 2004 at 09:23:08AM +0000, Jamie Lokier wrote:
-> 
-> > So I don't know if NPTL is buggy, but the pseudo-code given in the bug
-> > report is (because of unconditional wake++), and so is the failure
-> > example (because it doesn't use a mutex).
-> 
-> Please advise if 'Emergency Services''s update to the manpage is correct
-> (two levels up this message thread), if so, I can apply it and forward to
-> aeb.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-'Emergency Services' was me, if that's what you're asking.  I believe
-the updates to be correct and I have studied the futex code quite a
-lot.
 
-Two more things for the man page.  You wrote:
+Updates to Documentation/networking/bonding.txt to reflect an apparent change 
+in how to load the bonding.o driver more than once (Based on experience with 
+migrating a quad-nic/dual-bond server from 2.4.x to 2.6.x).
 
-     To reiterate, bare futexes are not intended as an easy to use
-     abstraction for end-users.  Implementors are expected to be
-     assembly literate and to have read the sources of the futex
-     userspace library referenced below.
 
-I agree they are not intended as an easy to use abstraction.  However,
-users do not have to be assembly literate, in the sense that it is
-possible to write code using futex which is architecture-indepedent.
+Signed-off-by: Mark Watts <m.watts@eris.qinetiq.com>
 
-For mutexes, architecture-dependent locked bus cycles are used, but
-some code which uses futex is written in C using counters.
-pthread_cond_signal/wait which started this thread is an example.  So
-I suggest a change to read:
 
-     To reiterate, bare futexes are not intended as an easy to use
-     abstraction for end-users.  Implementors are expected to
-     understand processor memory ordering, barriers and
-     synchronisation, and to have read the sources of the futex
-     userspace library referenced below.
+diff -Nurd linux-2.6.9/Documentation/networking/bonding.txt
+linux-2.6.9-mrw/Documentation/networking/bonding.txt
+- --- linux-2.6.9/Documentation/networking/bonding.txt    2004-10-18
+22:53:45.000000000 +0100
++++ linux-2.6.9-mrw/Documentation/networking/bonding.txt        2004-11-02
+09:48:05.831738136 +0000
+@@ -418,17 +418,27 @@
+ driver multiple times allows each instance of the driver to have differing
+ options.
 
-Secondly, is it appropriate to add Ulrich Drepper's "Futexes Are
-Tricky" paper to SEE ALSO?
++Note: 2.6 kernel modules are capable of being loaded multiple times without
++being explicitly loaded twice. The bonding.o driver however, defaults to
++only allowing you to load it once, unless you use the max_bonds parameter.
++Using "-o bonding1" is depreciated for 2.6 kernels.
++
+ For example, to configure two bonding interfaces, one with mii link
+ monitoring performed every 100 milliseconds, and one with ARP link
+- -monitoring performed every 200 milliseconds, the /etc/conf.modules should
++monitoring performed every 200 milliseconds, the /etc/modprobe.conf should
+ resemble the following:
 
-     "Futexes Are Tricky", Ulrich Drepper, June 2004,
-     http://people.redhat.com/drepper/futex.pdf
+ alias bond0 bonding
+ alias bond1 bonding
 
-It's a very interesting paper, worth reading.  But note that Ulrich's
-description of the FUTEX_WAIT operation in that paper is *wrong*:
++# For Kernel 2.4 (/etc/modules.conf or conf.modules):
+ options bond0 miimon=100
+ options bond1 -o bonding1 arp_interval=200 arp_ip_target=10.0.0.1
 
-     This means that the operation to wait on a futex is composed of
-     getting the lock for the futex, checking the current value, if
-     necessary adding the thread to the wait queue, and releasing the lock.
++# for Kernel 2.6:
++options bond0 miimon=100 max_bonds=2
++options bond1 arp_interval=200 arp_ip_target=10.0.0.1
++
+ Configuring Multiple ARP Targets
+ ================================
 
-In fact, waiting does not get the lock for the futex.  It relies on
-the ordering of (1) adding to the wait queue, (2) checking the current
-value, and (3) removing from the wait queue if the value doesn't
-match.  Among other things, this is necessary because checking the
-current value cannot be done with a spinlock held.
 
-The effect is very similar, but not exactly the same.
 
--- Jamie
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBmLvJBn4EFUVUIO0RAm5BAJ9+NiHTHtdUwdR3NE69dnD0Y7tQ3gCgxMUY
+CfRSAabygSimbUgRHRPO05s=
+=mu17
+-----END PGP SIGNATURE-----

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281061AbRKDRzu>; Sun, 4 Nov 2001 12:55:50 -0500
+	id <S281062AbRKDR4u>; Sun, 4 Nov 2001 12:56:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281057AbRKDRzk>; Sun, 4 Nov 2001 12:55:40 -0500
-Received: from mail.uhg.net ([208.128.168.19]:24334 "EHLO
-	UHGEXCHANGE00.uhg.net") by vger.kernel.org with ESMTP
-	id <S280970AbRKDRzb>; Sun, 4 Nov 2001 12:55:31 -0500
-Date: Sun, 4 Nov 2001 11:53:26 -0600
-From: "Roach, Mark R." <mrroach@uhg.net>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: asus P5A-B psaux problem
-Message-ID: <20011104115326.A29987@tncorpmrr001.uhg>
-In-Reply-To: <01110412085300.00772@baldrick>
-Mime-Version: 1.0
+	id <S280970AbRKDR4b>; Sun, 4 Nov 2001 12:56:31 -0500
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:12696 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S281057AbRKDR4U>; Sun, 4 Nov 2001 12:56:20 -0500
+Message-ID: <3BE581CF.F1AABA25@kegel.com>
+Date: Sun, 04 Nov 2001 09:58:39 -0800
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mike Galbraith <mikeg@wen-online.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stp@osdlab.org
+Subject: Re: Regression testing of 2.4.x before release?
+In-Reply-To: <Pine.LNX.4.33.0111040832060.364-100000@mikeg.weiden.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01110412085300.00772@baldrick>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 12:08:53PM +0100, Duncan Sands wrote:
-> Are you sure the mouse is not working?  I also
-> have a P5A-B, PS/2 mouse and 2.4 kernel (many
-> versions).  I also get no dmesg about PS/2.  But
-> the mouse works fine!  Did you tell X windows
-> that you are using a PS/2 mouse?
+Mike Galbraith wrote:
 > 
-> In XF86Config (xfree86 version 4):
+> On Sat, 3 Nov 2001, Dan Kegel wrote:
 > 
-> Section "InputDevice"
->         Identifier      "Default Mouse"
->         Driver          "mouse"
->         Option          "CorePointer"
->         Option          "Device"   "/dev/misc/psaux" # something else for you?
->         Option          "Protocol"   "PS/2"
-> EndSection
+> > I get the impression that Alan stress-tests his kernels
+> > more than Linus does before releasing them.
 > 
-> I hope this helps,
-> 
-> Duncan.
+> That's _our_ collective job.  We're supposed to beat the snot out
+> of the -pre kernels and report.  One guy can't cover effectively,
+> even if his name is Linus "stress-testing is boring" Torvalds ;-)
 
-Yes, definitely sure that X is configured correctly (it works fine when
-I boot with 2.2.19) I have also tried gpm, which works fine under 2.2,
-and under 2.4.8 tells me there is no such device or address, and under
-2.4.13 and 2.4.13-ac7 locks my keyboard and doesn't work.
+I'm not saying Linus should do the testing.  
 
-Thanks for the suggestion, though.
+It's good that Linus is asking others to test with cerberus, as he
+did in http://marc.theaimsgroup.com/?l=linux-kernel&m=100451768023436&w=2
 
-Mark Roach
+It would be even better if Linus came out and stated that he would
+refuse to call a kernel final if there is an outstanding report of 
+it failing an agreed-upon set of stress tests.
+
+And it would be *even better* if http://osdl.org/stp/ were used
+to do stress testing in a nice, automated way on 1, 4, 8, and 16-cpu 
+machines on release candidates.
+
+Almost none of this requires any work by Linus.  All Linus has to
+do is say "The 2.4.x kernels will pass stress tests before release",
+and recruit someone to run his kernels through OSDL's STP in a
+timely manner.
+
+(I'd be happy to help if it weren't for my darn tendinitis, which
+makes it hard even to stir up trouble on mailing lists these days.)
+- Dan

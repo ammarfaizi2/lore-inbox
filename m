@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262120AbRETRgX>; Sun, 20 May 2001 13:36:23 -0400
+	id <S262114AbRETRfX>; Sun, 20 May 2001 13:35:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262119AbRETRgP>; Sun, 20 May 2001 13:36:15 -0400
-Received: from front2.grolier.fr ([194.158.96.52]:17332 "EHLO
-	front2.grolier.fr") by vger.kernel.org with ESMTP
-	id <S262123AbRETRf6> convert rfc822-to-8bit; Sun, 20 May 2001 13:35:58 -0400
-Date: Sun, 20 May 2001 16:23:34 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-cc: Andrea Arcangeli <andrea@suse.de>, Richard Henderson <rth@twiddle.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-In-Reply-To: <20010520161234.B8223@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.10.10105201604080.758-100000@linux.local>
+	id <S262118AbRETRfN>; Sun, 20 May 2001 13:35:13 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:30143 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S262114AbRETRfJ>;
+	Sun, 20 May 2001 13:35:09 -0400
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+In-Reply-To: <Pine.LNX.4.33.0105191743000.393-100000@mikeg.weiden.de>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: 20 May 2001 15:44:12 +0200
+In-Reply-To: <Pine.LNX.4.33.0105191743000.393-100000@mikeg.weiden.de>
+Message-ID: <8766ew16fn.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.2 (Urania)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Galbraith <mikeg@wen-online.de> writes:
 
-
-On Sun, 20 May 2001, Ivan Kokshaysky wrote:
-
-> On Sun, May 20, 2001 at 04:40:13AM +0200, Andrea Arcangeli wrote:
-> > I was only talking about when you get the "pci_map_sg failed" because
-> > you have not 3 but 300 scsi disks connected to your system and you are
-> > writing to all them at the same time allocating zillons of pte, and one
-> > of your drivers (possibly not even a storage driver) is actually not
-> > checking the reval of the pci_map_* functions. You don't need a pte
-> > memleak to trigger it, even regardless of the fact I grown the dynamic
-> > window to 1G which makes it 8 times harder to trigger than in mainline.
+> Hi,
 > 
-> I think you're too pessimistic. Don't mix "disks" and "controllers" --
-> SCSI adapter with 10 drives attached is a single DMA agent, not 10 agents.
+> On Fri, 18 May 2001, Stephen C. Tweedie wrote:
 > 
-> If you're so concerned about Big Iron, go ahead and implement 64-bit PCI
-> support, it would be right long-term solution. I'm pretty sure that
-> high-end servers use mostly this kind of hardware.
+> > That's the main problem with static parameters.  The problem you are
+> > trying to solve is fundamentally dynamic in most cases (which is also
+> > why magic numbers tend to suck in the VM.)
 > 
-> Oh, well. This doesn't mean that I'm disagreed with what you said. :-)
-> Driver writers must realize that pci mappings are limited resources.
+> Magic numbers might be sucking some performance right now ;-)
+> 
+[snip]
 
-The IOMMU code allocation strategy is designed to fail due to
-fragmentation as everything that performs contiguous allocations of
-variable quantities.
+I like your patch, it improves performance somewhat and makes things
+more smooth and also code is simpler.
 
-I may add a test of pci_map_* return code in the sym53c8xx driver, but
-the driver will panic on failure. It is not acceptable to consider such
-kind of failure as a normal situation (returning some ?_BUSY status to
-the SCSI driver) for the following reasons:
+Anyway, 2.4.5-pre3 is quite debalanced and it has even broken some
+things that were working properly before. For instance, swapoff now
+deadlocks the machine (even with your patch applied).
 
-- IOs may be reordered and break upper layers assumptions.
-- Spurious errors and even BUS resets may happen.
+Unfortunately, I have failed to pinpoint the exact problem, but I'm
+confident that kernel goes in some kind of loop (99% system time, just
+before deadlock). Anybody has some guidelines how to debug kernel if
+you're running X?
 
-For now, driver methods that are requested to queue IOs are not allowed to
-wait for resources. Anyway, the pci_map_* interface is unable to wait.
-
-There are obviously ways to deal gracefully with such resource lack, but
-the current SCSI layer isn't featured for that. For example, a
-freeze/unfreeze mechanism as described in CAM can be implemented in order
-not to reorder IOs, and some mechanism (callback, resource wait, etc...)
-must be added to restart the operation when resource is likely to be
-available.
-
-IMO, the only acceptable fix in the current kernel is to perform IOMMU PTE
-allocations of a fixed quantity at a time, as limiting SG entry to fit in
-a single PAGE for example.
-
-  Gérard.
-
-PS: May-be I should look how *BSD's handles IOMMUs.
-
+Also in all recent kernels, if the machine is swapping, swap cache
+grows without limits and is hard to recycle, but then again that is
+a known problem.
+-- 
+Zlatko

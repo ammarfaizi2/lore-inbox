@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTIALrb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 07:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbTIALrb
+	id S262634AbTIAMCH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 08:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbTIAMCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 07:47:31 -0400
-Received: from dns.communicationvalley.it ([212.239.58.133]:63369 "HELO
-	dns.communicationvalley.it") by vger.kernel.org with SMTP
-	id S261702AbTIALra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 07:47:30 -0400
-From: biker@villagepeople.it
-Organization: Communication Valley SpA
-To: linux-kernel@vger.kernel.org
-Subject: pl2303 + uhci oops
-Date: Mon, 1 Sep 2003 14:00:08 +0200
-User-Agent: KMail/1.5.2
+	Mon, 1 Sep 2003 08:02:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41876 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262634AbTIAMCF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 08:02:05 -0400
+Date: Mon, 1 Sep 2003 09:04:45 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+X-X-Sender: marcelo@logos.cnet
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: request_firmware() backport to 2.4
+In-Reply-To: <1061814172.973.130.camel@pegasus>
+Message-ID: <Pine.LNX.4.44.0309010859250.2504-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309011400.08914.biker@villagepeople.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody!
-Using a pl2303-based usb->serial adaptor with the uhci driver always ends with 
-a oops.
-Usually, the first serial "session" works fine, but as soon as minicom or any 
-other program (kpilot, for example) drops the connection the kernel oopses.
-I've been able to reproduce the problem with three different kernels 
-(2.4.20-21-22) and two different hardware platform. The first is a Thinkpad 
-R40 (Chipset i845, Pentium 4, USB 2.0) and the second is a desktop (KT266A, 
-AthlonXP, USB 1.1).
-Note that the adaptor works perfectly if the usb-uhci driver is used instead.
 
-Since all the data required to debug the oops take up too much space to be 
-included here, I conveniently posted them on my web site in two directories, 
-one for the intel machine and the other for the amd.
 
-http://www.villagepeople.it/oops/   (It's just a directory listing, no images, 
-banners, redirects or anything else)
+On 25 Aug 2003, Marcel Holtmann wrote:
 
-Hope this helps.
+> Hi Marcelo,
+> 
+> I have collected the patches for the request_firmware() interface
+> backport for 2.4 done by Manuel Estrada Sainz. It is now in -ac for a
+> while and I have used it in my -mh patches. It works fine and seems to
+> be clean and very stable. Karsten Keil has tested it together with my
+> ported bfusb.o Bluetooth driver on AMD64.
+> 
+> Regards
+> 
+> Marcel
+> 
+> 
+> Please do a
+> 
+>         bk pull http://linux-mh.bkbits.net/fw-loader-2.4
+> 
+> This will update the following files:
+> 
+>  drivers/bluetooth/bfusb.h                             |52261 ------------------
 
--Silla
+Now bfusb loads "bfubase.frm", but stock kernel has no such thing. 
+
+I assume that breaks bfusb?
+
 

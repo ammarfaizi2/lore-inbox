@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266162AbUAUXWU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUAUXWU
+	id S266122AbUAUXTo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 18:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266132AbUAUXTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:22:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:38083 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266162AbUAUXVq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:21:46 -0500
-Date: Wed, 21 Jan 2004 15:21:45 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: List 'linux-dvb' closed to public posts
-Message-Id: <20040121152145.0d7561c9.shemminger@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401211413100.2123@home.osdl.org>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de>
-	<20040121194315.GE9327@redhat.com>
-	<Pine.LNX.4.58.0401211155300.2123@home.osdl.org>
-	<1074717499.18964.9.camel@localhost.localdomain>
-	<Pine.LNX.4.58.0401211413100.2123@home.osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 21 Jan 2004 18:19:44 -0500
+Received: from mother.ds.pg.gda.pl ([153.19.213.213]:31670 "HELO
+	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S266122AbUAUXTn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 18:19:43 -0500
+Date: Thu, 22 Jan 2004 00:19:46 +0100
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Message-ID: <20040121231946.GA23176@irc.pl>
+Mail-Followup-To: Tomasz Torcz <zdzichu@irc.pl>,
+	linux-kernel@vger.kernel.org
+References: <200401221012.17121.chakkerz@optusnet.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401221012.17121.chakkerz@optusnet.com.au>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the bridge list, I just setup the list up so all non-subscriber messages
-have to be approved by the list maintainer.  This adds a slight delay until
-I get a round to approving the message; but seems like a fair compromise
-to keep everyone else from reading the spam.
+On Thu, Jan 22, 2004 at 10:12:17AM +1100, Christian Unger wrote:
+> I'm not sure if this has been done to death or not, but i can not get the 4496 
+> and 5328 versions of the NVidia kernel to work on the 2.6.1 version of (you 
+> guessed it) Linux.
 
-After the first message, I also put the person on the "approved senders"
-list so the discussion can continue unhindered.
-
-Also, listing just a mailing list (with no human) contact seems pretty
-vague.
-
+ Complain to nVidia.
 
 -- 
-Stephen Hemminger 		mailto:shemminger@osdl.org
-Open Source Development Lab	http://developer.osdl.org/shemminger
+Tomasz Torcz                Only gods can safely risk perfection,     
+zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia

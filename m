@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293739AbSCETP0>; Tue, 5 Mar 2002 14:15:26 -0500
+	id <S293737AbSCETPH>; Tue, 5 Mar 2002 14:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293734AbSCETPR>; Tue, 5 Mar 2002 14:15:17 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:64501 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293736AbSCETPE>; Tue, 5 Mar 2002 14:15:04 -0500
-Date: Tue, 05 Mar 2002 11:16:25 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: Juan Quintela <quintela@mandrakesoft.com>, davej@suse.de,
-        torvalds@transmeta.com, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org
-cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH] 2.5.5-dj2 - Fast Walk Dcache to Decrease Cacheline Bouncing
-Message-ID: <15690000.1015355785@w-hlinder.des>
-In-Reply-To: <m2sn7f8zev.fsf@localhost.mandrakesoft.com>
-In-Reply-To: <33110000.1015293677@w-hlinder.des> <m2sn7f8zev.fsf@localhost.mandrakesoft.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S293734AbSCETO5>; Tue, 5 Mar 2002 14:14:57 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21000 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293736AbSCETOn>;
+	Tue, 5 Mar 2002 14:14:43 -0500
+Message-ID: <3C8518AE.B44AF2D5@zip.com.au>
+Date: Tue, 05 Mar 2002 11:12:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+CC: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020305161032.F20606@dualathlon.random> <Pine.LNX.4.44L.0203051354590.1413-100000@duckman.distro.conectiva> <20020305192604.J20606@dualathlon.random>,
+		<20020305192604.J20606@dualathlon.random>; from andrea@suse.de on Tue, Mar 05, 2002 at 07:26:04PM +0100 <20020305183053.A27064@fenrus.demon.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---On Tuesday, March 05, 2002 04:30:00 +0100 Juan Quintela <quintela@mandrakesoft.com> wrote:
->   
-> hanna> struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
-> hanna> {
-> hanna> +	struct dentry *dentry = NULL;
+Arjan van de Ven wrote:
 > 
-> Not needed.
-
-	Good catch. Changed.
+> On Tue, Mar 05, 2002 at 07:26:04PM +0100, Andrea Arcangeli wrote:
 > 
-> Would you mean retest if the speed is the same using lik the old code
-
-	Any tests people would like to see that might increase the chance 
-	of it getting accepted. 
+> > Another approch would be to add the pages backing the bh into the lru
+> > too, but then we'd need to mess with the slab and new bitflags, new
+> > methods and so I don't think it's the best solution. The only good
+> > reason for putting new kind of entries in the lru would be to age them
+> > too the same way as the other pages, but we don't need that with the bh
+> > (they're just in, and we mostly care only about the page age, not the bh
+> > age).
 > 
-> I think that it should not made difference, and code is IMHO, more
-> readadble (and you don't duplicate walk_init_root).
-> 
-	There is a difference. The reviewer of the first submission also
-	missed it. path_lookup duplicates walk_init_root because mntget 
-	and dget are not called when the dcache_lock is held. So it is not
-	an exact copy of walk_init_root. 
+> For 2.5 I kind of like this idea. There is one issue though: to make
+> this work really well we'd probably need a ->prepareforfreepage()
+> or similar page op (which for page cache pages can be equal to writepage()
+> ) which the vm can use to prepare this page for freeing.
 
-	The point of this is to find all the dentries in the path being 
-	walked already in the dcache (aka the easy lookups) without bumping 
-	the reference counter for every single dentry. On SMP this can lead 
-	to cacheline bouncing. When a dentry is not found in the cache then
-	call mntget and dget followed by releasing the dcache_lock to continue.
-	Al Viro came up with this idea, I have implemented it.
+If we stop using buffer_heads for pagecache I/O, we don't have this problem.
 
-	The lockmeter results and patch are here: http://lse.sf.net/locking
+I'm showing a 20% reduction in CPU load for large reads.  Which is a *lot*,
+given that read load is dominated by copy_to_user.
 
-Hanna Linder (hannal@us.ibm.com)
-IBM Linux Technology Center
+2.5 is significantly less efficient than 2.4 at this time.  Some of that 
+seems to be due to worsened I-cache footprint, and a lot of it is due
+to the way buffer_heads now have a BIO wrapper layer.
 
+Take a look at submit_bh().   The writing is on the wall, guys.
 
+-

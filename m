@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268925AbTGOQi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268931AbTGOQi3
+	id S268836AbTGOQkl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268449AbTGOQkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:38:29 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:61927 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S268925AbTGOQi1 convert rfc822-to-8bit (ORCPT
+	Tue, 15 Jul 2003 12:40:41 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:38587 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S268939AbTGOQkf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:38:27 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: ACPI patches updated (20030714)
-Date: Tue, 15 Jul 2003 09:53:02 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A8470255EE8E@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI patches updated (20030714)
-Thread-Index: AcNK8ZEdIQbzpMdzRLOw5aeaoWZFpg==
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "ACPI-Devel mailing list" <acpi-devel@lists.sourceforge.net>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 Jul 2003 16:53:03.0072 (UTC) FILETIME=[8E413E00:01C34AF1]
+	Tue, 15 Jul 2003 12:40:35 -0400
+Date: Tue, 15 Jul 2003 18:55:32 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: linux-fsdevel@vger.kernel.org
+Cc: Jan Kara <jack@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Quota Hash Abstraction 2.4.22-pre6
+Message-ID: <20030715165532.GA29282@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: linux-fsdevel@vger.kernel.org,
+	Jan Kara <jack@ucw.cz>, linux-kernel@vger.kernel.org
+References: <20030715164049.GA27550@www.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20030715164049.GA27550@www.13thfloor.at>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-The ACPI patches against 2.4 and 2.5 have been updated, and are now
-available on http://sf.net/projects/acpi . Thanks to the acceptance of
-the ACPI patch in 2.4, they are now both very small.
+ooops, as my compiler told me, this trivial patch
+is required to compile it with 2.4.22-pre6 8-)
 
-Regards -- Andy
+sorry for any inconvenience ...
 
-----------------------------------------
-14 July 2003.  Summary of changes for version 20030619:
-
-1) ACPI CA Core Subsystem:
-
-Parse SSDTs in order discovered, as opposed to reverse order
-(Hrvoje Habjanic)
-
-Fixes from FreeBSD and NetBSD. (Frank van der Linden, Thomas
-Klausner, Nate Lawson)
+best,
+Herbert
 
 
-2) Linux:
+--- linux-2.4.22-pre6-mq0.04/fs/dquot.c 2003-07-15 18:24:14.000000000 +0200
++++ linux-2.4.22-pre6-mq0.04-fix/fs/dquot.c      2003-07-15 18:47:23.000000000 +0200
+@@ -434,6 +434,7 @@
+        struct list_head *head;
+        struct dquot *dquot;
+        struct quota_info *dqopt = dqh_dqopt(hash);
++       struct super_block *sb = hash->dqh_sb;
+        int cnt;
+ 
+ restart:
 
-Dynamically allocate SDT list (suggested by Andi Kleen)
 
-proc function return value cleanups (Andi Kleen)
-
-Correctly handle NMI watchdog during long stalls (Andrew Morton)
-
-Make it so acpismp=force works (reported by Andrew Morton)
-
------------------------------
-Andrew Grover
-Intel Labs / Mobile Architecture
-andrew.grover@intel.com
 

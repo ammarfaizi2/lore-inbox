@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270332AbTHBSt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 14:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270338AbTHBSt1
+	id S270212AbTHBTIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 15:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270214AbTHBTII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 14:49:27 -0400
-Received: from www.13thfloor.AT ([212.16.59.250]:51162 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S270332AbTHBStZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 14:49:25 -0400
-Date: Sat, 2 Aug 2003 20:49:32 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Sean Estabrooks <seanlkml@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: .config in bzImage ?
-Message-ID: <20030802184932.GA12057@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Sean Estabrooks <seanlkml@rogers.com>,
-	linux-kernel@vger.kernel.org
-References: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
-User-Agent: Mutt/1.3.28i
+	Sat, 2 Aug 2003 15:08:08 -0400
+Received: from mail15.speakeasy.net ([216.254.0.215]:42882 "EHLO
+	mail.speakeasy.net") by vger.kernel.org with ESMTP id S270212AbTHBTIF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 15:08:05 -0400
+Date: Sat, 2 Aug 2003 12:08:02 -0700
+Message-Id: <200308021908.h72J82x10422@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+X-Fcc: ~/Mail/linus
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] bug in setpgid()? process groups and thread groups
+In-Reply-To: Jeremy Fitzhardinge's message of  , 2 August 2003 01:50:58 -0700 <1059814257.18860.38.camel@ixodes.goop.org>
+Emacs: a compelling argument for pencil and paper.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 02:36:12PM -0400, Sean Estabrooks wrote:
-> There was some talk of the .config file being included
-> within bzImage.  Did this ever happen?  If so, how 
-> does one extract the .config from the resulting image?
+The problem exists with uids/gids as well, in the sense that they are
+changed per-thread but POSIX semantics are that setuid et al affect the
+whole process (i.e. all threads in a thread group).  I emphatically agree
+that this should be changed, and I hope we can get it done in 2.6.  It's a
+significant divergence from POSIX semantics, and not something that can be
+worked around very robustly at user level.  (In the case of pgrp, you can
+ignore SIGTTIN/SIGTTOU and progress to some degree at user level.  In the
+case of uids/gids, you can change every thread individually.)
 
-hmm, since ages I use for 2.4.x a small patch, which
-includes the .config in the kernel image (gzipped or 
-bzip2ed). this information can be retrieved from the
-procfs by zcat /proc/config.gz or bzcat /proc/config.bz2
-respectively ...
+Changing each thread in the group seems clunky to me.  It also might have
+atomicity issues, as there is no synchronization with the reading of these
+values.  For job control changes, it probably doesn't matter--each thread
+went into its read/write/ioctl or whatever call "before" the setpgid call
+if you didn't get to it yet in the loop when it checks current->pgrp; I
+can't off hand think of a scenario where two threads can perceivably be on
+the opposite sides of the setpgid transition at the same time so as to call
+the process-wide transition not atomic.  In the case of uid et al, there is
+certainly a problem with the nonatomicity of one thread touching the fields
+of another thread that might be running.  The set*id calls change multiple
+fields at once, and the intermediate states in between these several word
+stores could perhaps be combinations of ids that the user wasn't supposed
+to be able to produce.  I am hesitant to hunt down all the permutations and
+ways they can be used by another racing thread that might be exploited for
+something or other.
 
-you can get the patch for recent 2.4.x kernels from
-my pages http://www.13thfloor.at/VServer/Patches.shtml
-(they are 03_kconfig* in the patchsets)
+It seems obvious to me that these fields should live in a separate data
+structure that is shared, like signal_struct and other pieces of
+"process-wide" state shared by the threads in a thread group.  This means a
+one time swell foop of changing ->{pgrp,uid,euid,...} into ->ids->... or
+perhaps task_...(current) macros in case the implementation might change
+again.  That's trivial enough to do by just compiling everything and fixing
+errors (given ability to compile on a reasonably wide set of platforms).
+Making access appear atomic with respect to updates takes a bit more work,
+but certainly less than if these fields are not shared among threads.
 
-for example for 2.4.22-pre10, this would be ...
-http://www.13thfloor.at/VServer/patches-2.4.22-p10c17/03_kconfig-2.4.22-pre3.patch.bz2
 
-HTH,
-Herbert
 
-> Cheers,
-> Sean
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks,
+Roland

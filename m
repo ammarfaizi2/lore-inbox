@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUIAIh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUIAIkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUIAIh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 04:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUIAIh4
+	id S264213AbUIAIkS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 04:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUIAIiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 04:37:56 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:9433 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264386AbUIAIh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 04:37:26 -0400
-Date: Wed, 1 Sep 2004 10:36:14 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Dan Kegel <dank@kegel.com>
-cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: Getting kernel.org kernel to build for m68k?
-In-Reply-To: <41355F88.2080801@kegel.com>
-Message-ID: <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be>
-References: <41355F88.2080801@kegel.com>
+	Wed, 1 Sep 2004 04:38:16 -0400
+Received: from launch.server101.com ([216.218.196.178]:29912 "EHLO
+	mail-pop3-1.server101.com") by vger.kernel.org with ESMTP
+	id S264213AbUIAIho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 04:37:44 -0400
+From: Tim Fairchild <tim@bcs4me.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: K3b and 2.6.9?
+Date: Wed, 1 Sep 2004 18:37:33 +1000
+User-Agent: KMail/1.6.1
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200408301047.06780.tim@bcs4me.com> <200408312037.00994.tim@bcs4me.com> <Pine.LNX.4.58.0408310959340.2295@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408310959340.2295@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409011837.33073.tim@bcs4me.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004, Dan Kegel wrote:
-> I noticed today that Linus's m68k kernel can't be built (at least with gcc-3.4.1).
->
-> The first problem I ran into,
->    CC      arch/m68k/kernel/asm-offsets.s
->    In file included from include/linux/spinlock.h:12,
->                   from include/linux/capability.h:45,
->                   from include/linux/sched.h:7,
->                   from arch/m68k/kernel/asm-offsets.c:12:
->    include/linux/thread_info.h:30: error: parse error before '{' token
-> is solved already in the m68k tree.
-> (In particular,
-> the #ifndef __HAVE_THREAD_FUNCTIONS ... #endif in
-> http://linux-m68k-cvs.apia.dhs.org/c/cvsweb/linux/include/linux/thread_info.h?rev=1.5;content-type=text%2Fplain
-> probably solves it.)
-> There are other problems after that.
+On Wednesday 01 Sep 2004 03:05,  Linus Torvalds wrote:
 
-Roman Zippel changed the threading stuff on m68k. Since it would affect other
-architectures, I never submitted it on my own.
+> But exactly _because_ it makes so much sense to just change K3b to use
+> O_RDWR in its open, I'm hoping that the K3b developers won't complain too
+> much about the kernel changing to require more strict checking (obviously,
+> I can understand that _users_ will complain - they only see the "it
+> stopped working" part).
 
-In short, we never really compile this code, since the m68k tree doesn't use it
-anymore. And yes, it even fails with older compiler versions, like 2.95.2.
+Thanks for the info. Yes, this is what I am seeing a lot on linux user 
+lists... "Don't use kernel 2.6.8.1 - it is broken" and so forth. Which is why 
+I was looking to gain some insight into the k3b problem so I feel I know a 
+little about the subject when on the lists... And also like to do testing 
+when I can to help... what little help it might be.
 
-> Any chance you could spend a bit of time sending Linus enough
-> patches for his kernel to build for m68k, if not run?
+thanks,
 
-I'll make sure a plain kernel.org kernel can build an m68k kernel.
-
-> It would be helpful to my crosstool project (I'm adding a
-> "can this toolchain build the kernel" test, and it's a lot
-> easier if I can count on the kernel.org tree at least building).
-
-Great!
-
-Let's hope people start doing the other way around as well, so I don't have to
-run allyesconfigs to catch bugs in non-m68k drivers ;-)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+tim

@@ -1,67 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270212AbRHGXU3>; Tue, 7 Aug 2001 19:20:29 -0400
+	id <S270222AbRHGXXJ>; Tue, 7 Aug 2001 19:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270218AbRHGXUT>; Tue, 7 Aug 2001 19:20:19 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:30468 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S270212AbRHGXUJ>; Tue, 7 Aug 2001 19:20:09 -0400
-Date: Wed, 8 Aug 2001 01:20:18 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Dan Podeanu <pdan@spiral.extreme.ro>
-cc: <linux-kernel@vger.kernel.org>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: netfs allows multiple identical mounts (was: smb/mount bug.)
-In-Reply-To: <Pine.LNX.4.33L2.0108060511330.25283-100000@spiral.extreme.ro>
-Message-ID: <Pine.LNX.4.30.0108071655260.20090-100000@cola.teststation.com>
+	id <S270219AbRHGXW7>; Tue, 7 Aug 2001 19:22:59 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:23526 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S270218AbRHGXWs>;
+	Tue, 7 Aug 2001 19:22:48 -0400
+Reply-To: <imran.badr@cavium.com>
+From: "Imran Badr" <imran.badr@cavium.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Exporting kernel memory to application
+Date: Tue, 7 Aug 2001 15:24:03 -0700
+Message-ID: <003501c11f8f$aa9d6270$6401a8c0@IMRANPC>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <23793.997222354@ocs3.ocs-net>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, Dan Podeanu wrote:
 
-> This should be self explanatory. My guess is, its probably the smb
-> filesystem reporting as mounting again a share after network failure.
+Hi,
 
-A very simple way to reproduce this (on 2.4.7):
+I am in a situation where it is required to export a kernel memory
+(allocated by kmalloc in the device driver) to the user application. I would
+really appreciate any guidance or suggestion.
 
-$ mount -t smbfs -o username=puw //srv/share /mnt/smb
-$ mount -t smbfs -o username=puw //srv/share /mnt/smb
-$ cat /proc/mounts | grep smbfs
-//srv/share /mnt/smb smbfs rw 0 0
-//srv/share /mnt/smb smbfs rw 0 0
-
-
-But smbfs isn't alone in allowing this, nfs does it too (hej Trond):
-
-$ mount -t nfs srv:/mnt/something /mnt/x1
-$ mount -t nfs srv:/mnt/something /mnt/x1
-$ cat /proc/mounts | grep x1
-srv:/mnt/store /mnt/x1 nfs rw,v2,rsize=8192,...
-srv:/mnt/store /mnt/x1 nfs rw,v2,rsize=8192,...
-
-
-This is probably something that smbmount could check before mounting.
-But I'm not sure if that is the best fix.
-
-fs/super.c:do_add_mount has this (2.4.7)
-
-        /* Refuse the same filesystem on the same mount point */
-        if (nd->mnt->mnt_sb == sb && nd->mnt->mnt_root == nd->dentry)
-                retval = -EBUSY;
-        else
-                retval = graft_tree(mnt, nd);
-
-As I read the rest of the code, 'nd->mnt->mnt_sb == sb' will be true if
-the block device is the same. And trying to mount a local fs multiple
-times on the same place fails. However, networked fs' get a new superblock
-(and device) each time they are mounted so that condition will never be
-true.
-
-It could compare the server string ("//srv/share") but what if that server
-listens to more than one name?
-
-/Urban
+Thanks,
+Imran Badr.
 

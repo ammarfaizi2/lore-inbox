@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVCNPD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVCNPGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVCNPD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 10:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVCNPD7
+	id S261530AbVCNPGK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 10:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVCNPGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 10:03:59 -0500
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:5596 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261528AbVCNPD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 10:03:57 -0500
-Subject: Re: [PATCH][-mm][1/2] cifs: whitespace cleanups for file.c
-From: Steve French <smfrench@austin.rr.com>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0503141207550.2534@dragon.hyggekrogen.localhost>
-References: <OF5618ED86.7D1043E7-ON87256FC4.00196859-86256FC4.0019866B@us.ibm.com>
-	 <Pine.LNX.4.62.0503141207550.2534@dragon.hyggekrogen.localhost>
+	Mon, 14 Mar 2005 10:06:10 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42901 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261530AbVCNPFx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 10:05:53 -0500
+Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for
+	openfirmware	devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Segher Boessenkool <segher@kernel.crashing.org>
+Cc: Jeff Mahoney <jeffm@suse.com>, Olaf Hering <olh@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <0409878c894cf868678d8e5226e20c42@kernel.crashing.org>
+References: <20050301211824.GC16465@locomotive.unixthugs.org>
+	 <1109806334.5611.121.camel@gaston> <42275536.8060507@suse.com>
+	 <20050303202319.GA30183@suse.de> <42277ED8.6050500@suse.com>
+	 <b34edd09a60d945f41bbe123a8321f22@kernel.crashing.org>
+	 <1110808986.5863.2.camel@gaston>
+	 <0409878c894cf868678d8e5226e20c42@kernel.crashing.org>
 Content-Type: text/plain
-Message-Id: <1110812782.2294.2.camel@smfhome.smfdom>
+Date: Tue, 15 Mar 2005 02:04:21 +1100
+Message-Id: <1110812661.5863.7.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 14 Mar 2005 09:06:22 -0600
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK - the first of them is merged in to the cifs bk tree.
-The second one looks like an improvement on structuring of the cifs open
-logic but needs review.  I may have a chance to test it later in the
-week.
 
-Thanks.
+> > Well, we have an unmaintained spec on one side that can't even be
+> > ordered from IEEE anymore and actual imlementations that work today,
+> > what do you chose ? ;)
+> 
+> I choose the spec.  If an implementation is not conformant to the spec,
+> it doesn't "work".
+> 
+> Not to say that Linux doesn't have to work around bugs in actual
+> implementations, of course.  And there's a lot of those.  Too bad ;-)
+
+Yah, well.. ok, let's say we have a spec... and an implementation that
+represents about 90% of the machines concerned. Those 90% have the
+"bug"... what do you chose ? :) 
+
+The separator in "compatible", afaik, is \0, not space btw.
+
+On possibiliy would be to have the kernel replace spaces with
+underscores for the sake of matching. That would make life easier for
+everybody.
+
+Ben.
 
 

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269564AbUI3V6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269581AbUI3WBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269564AbUI3V6M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 17:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUI3V6L
+	id S269581AbUI3WBb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 18:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269535AbUI3WBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 17:58:11 -0400
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:5351 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S269564AbUI3V6B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 17:58:01 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.9-rc3: USB OHCI failure on suspend on AMD64
-Date: Thu, 30 Sep 2004 14:58:01 -0700
-User-Agent: KMail/1.6.2
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>
-References: <200409302251.30903.rjw@sisk.pl>
-In-Reply-To: <200409302251.30903.rjw@sisk.pl>
+	Thu, 30 Sep 2004 18:01:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46782 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269582AbUI3WAu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 18:00:50 -0400
+Date: Thu, 30 Sep 2004 15:00:46 -0700 (PDT)
+From: Judith Lebzelter <judith@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Judith Lebzelter <judith@osdl.org>, <linux-aio@kvack.org>,
+       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Subject: Re: OSDL aio-stress results on latest kernels show buffered random
+ read issue
+In-Reply-To: <20040930004447.GI9106@holomorphy.com>
+Message-ID: <Pine.LNX.4.33.0409301412340.4332-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409301458.01099.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 September 2004 1:51 pm, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> It seems there's a problem with USB OHCI driver that causes these traces to 
-> appear on suspend on an AMD64-based box:
+On Wed, 29 Sep 2004, William Lee Irwin III wrote:
 
-Not all parts of power management integrate well yet with each other,
-though it's acting better.  Plus there are some OHCI updates in the USB
-patches (you'll have those in the MM tree) that help address some of
-the more perverse ways that suspend-to-disk kicks USB around, and
-a few similar usbcore changes that need re-integration with the RC3
-swsusp/pmdisk updates.
+> On Wed, Sep 29, 2004 at 04:29:08PM -0700, Judith Lebzelter wrote:
+> > There seems to be an issue with the reads.  Usually, reads
+> > should be at least as fast as writes of the same type.
+> > Also, there seems to be a substantial drop-off in the performance
+> > of AIO buffered-random writes in the mm kernels. (14% on 2CPU,
+> > 40% on 4CPU)
+>
+> Okay, is it cpu time or idle/iowait? If it's cpu time, where do
+> profiles show it appears?
 
-Keep using the "rmmod" workaround for now.  And don't combine
-CONFIG_USB_SUSPEND with suspend-to-{disk,ram} unless you're
-feeling like debugging the results.
+Th CPU is not that busy:
 
-- Dave
+2.6.9-rc2-mm4 Results and iostat outputs:
+http://khack.osdl.org/stp/297714/
+http://khack.osdl.org/stp/297714/results/bufferrand/iostat.txt
+
+2.6.9-rc2 Results and iostat outputs:
+http://khack.osdl.org/stp/297545/
+http://khack.osdl.org/stp/297545/results/bufferrand/iostat.txt
+
+
+The iostat has the write stats followed by the reads, taken every 15
+seconds.
+
+>
+>
+> -- wli
+>
+

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264979AbTIDNOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 09:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264998AbTIDNOJ
+	id S264978AbTIDNLU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 09:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbTIDNLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 09:14:09 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:11793 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S264979AbTIDNOG convert rfc822-to-8bit (ORCPT
+	Thu, 4 Sep 2003 09:11:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59053 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264978AbTIDNLT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 09:14:06 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 4 Sep 2003 09:11:19 -0400
+Date: Thu, 4 Sep 2003 06:01:39 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: rmk@arm.linux.org.uk, hch@lst.de, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix ppc ioremap prototype
+Message-Id: <20030904060139.5ef43d71.davem@redhat.com>
+In-Reply-To: <16215.14133.352143.660688@nanango.paulus.ozlabs.org>
+References: <20030903203231.GA8772@lst.de>
+	<16214.34933.827653.37614@nanango.paulus.ozlabs.org>
+	<20030904071334.GA14426@lst.de>
+	<20030904083007.B2473@flint.arm.linux.org.uk>
+	<16215.1054.262782.866063@nanango.paulus.ozlabs.org>
+	<20030904023624.592f1601.davem@redhat.com>
+	<20030904104801.A7387@flint.arm.linux.org.uk>
+	<16215.14133.352143.660688@nanango.paulus.ozlabs.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: cciss update for 2.4.23-pre2
-Date: Thu, 4 Sep 2003 08:14:04 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF104052B74@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cciss update for 2.4.23-pre2
-Thread-Index: AcNytX+fGvvlIahCTQWfIL9if2eMCAAMIcog
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: <arjanv@redhat.com>
-Cc: <axboe@suse.de>, <marcelo@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Sep 2003 13:14:04.0804 (UTC) FILETIME=[6A4DE440:01C372E6]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We didn't want to permanently allocate more majors than we already have.
+On Thu, 4 Sep 2003 22:59:33 +1000 (EST)
+Paul Mackerras <paulus@samba.org> wrote:
 
-mikem
+> Perhaps the sensible thing is to have a separate resource tree for
+> each PCI domain (actually two trees, for I/O and memory space),
+> and have them contain bus addresses rather than physical addresses.
 
------Original Message-----
-From: Arjan van de Ven [mailto:arjanv@redhat.com]
-Sent: Thursday, September 04, 2003 2:23 AM
-To: Miller, Mike (OS Dev)
-Cc: axboe@suse.de; marcelo@conectiva.com.br;
-linux-kernel@vger.kernel.org
-Subject: Re: cciss update for 2.4.23-pre2
+I disagree, I think the current model where all resources are
+in a global space makes more sense.
 
+kernel/resource.c would get more complex with your idea.
 
-On Thu, 2003-09-04 at 00:43, mike.miller@hp.com wrote:
-> This patch was built & tested using 2.4.22 with the 2.4.23-pre2 prepatch applied. It is intended for inclusion in the 2.4.23 kernel.
-> This patch adds support for more than 8 controllers. It does this by passing 0 as a major number and allows the OS to assign a dynamically allocated major number when there are more than 8 cciss controllers in a system.
-> It's primary purpose is to help support the SA6400 and SA6400 EM. When these 2 cards are used they are 2 separate controllers in a single PCI/PCI-X slot.
-
-how about just getting more official majors instead ?
+I'd suggest making an ocp_ioremap() to solve this problem for
+the time being.

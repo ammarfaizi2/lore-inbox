@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbUCKT1e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 14:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUCKT1d
+	id S261682AbUCKT1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 14:27:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUCKT0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 14:27:33 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:23189 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S261674AbUCKTZb (ORCPT
+	Thu, 11 Mar 2004 14:26:47 -0500
+Received: from ce.fis.unam.mx ([132.248.33.1]:9904 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id S261670AbUCKT0R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 14:25:31 -0500
-Message-ID: <4050BD27.9040502@matchmail.com>
-Date: Thu, 11 Mar 2004 11:25:27 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
-X-Accept-Language: en-us, en
+	Thu, 11 Mar 2004 14:26:17 -0500
+From: Max Valdez <maxvalde@fis.unam.mx>
+Organization: CCF
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Subject: Re: NVIDIA and 2.6.4?
+Date: Thu, 11 Mar 2004 13:26:07 -0600
+User-Agent: KMail/1.6.51
+Cc: linux-kernel@vger.kernel.org
+References: <405082A2.5040304@blueyonder.co.uk>
+In-Reply-To: <405082A2.5040304@blueyonder.co.uk>
 MIME-Version: 1.0
-To: jlnance@unity.ncsu.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-References: <20040310233140.3ce99610.akpm@osdl.org> <20040311134017.GA2813@ncsu.edu>
-In-Reply-To: <20040311134017.GA2813@ncsu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403111326.08055.maxvalde@fis.unam.mx>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@unity.ncsu.edu wrote:
-> On Wed, Mar 10, 2004 at 11:31:40PM -0800, Andrew Morton wrote:
-> 
->>  This affects I/O scheduling potentially quite significantly.  It is no
->>  longer the case that the kernel will submit pages for I/O in the order in
->>  which the application dirtied them.  We instead submit them in file-offset
->>  order all the time.
-> 
-> 
-> Hi Andrew,
->     I have a feeling this change might significantly improve the external
-> sorting benchmark I emailed you ( http://lkml.org/lkml/2003/12/20/46 ).
-> I will try running it when I get a chance and let you know.  It gives me
-> a good excuse to get 2.6 kernels working on my systems :-)
+That's weird:
+uname -a
+Linux garaged 2.6.4-rc2-mm1 #1 SMP Wed Mar 10 20:27:04 CST 2004 i686 Intel(R) 
+Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
 
-Hmm, what is happening with Roger Luethi's work lately?
+$ lsmod | grep nv
+nvidia               2075144  12
 
-Have there been any patches for use once in this case?
+
+Running KDE, using kdm, with nvidia module, no problem, I notice a slight 
+difference on fonts, but I dont know if it's my imagination.
+
+Been using nvidia modules for quite a few 2.6.x kernels, most of them mmX. 
+without problems
+
+Max
+-- 
+Linux garaged 2.6.3-mm3 #2 SMP Tue Feb 24 15:44:58 CST 2004 i686 Intel(R) 
+Pentium(R) 4 CPU 2.80GHz GenuineIntel GNU/Linux
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GS/S d- s: a-29 C++(+++) ULAHI+++ P+ L++>+++ E--- W++ N* o-- K- w++++ O- M-- 
+V-- PS+ PE Y-- PGP++ t- 5- X+ R tv++ b+ DI+++ D- G++ e++ h+ r+ z**
+------END GEEK CODE BLOCK------
+gpg-key: http://garaged.homeip.net/gpg-key.txt

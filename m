@@ -1,35 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135489AbRD3QNh>; Mon, 30 Apr 2001 12:13:37 -0400
+	id <S135494AbRD3QSR>; Mon, 30 Apr 2001 12:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135413AbRD3QN1>; Mon, 30 Apr 2001 12:13:27 -0400
-Received: from oss.sgi.com ([216.32.174.190]:40453 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S132959AbRD3QNN>;
-	Mon, 30 Apr 2001 12:13:13 -0400
-Date: Mon, 30 Apr 2001 13:12:13 -0300
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Rick Hohensee <humbubba@smarty.smart.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX bu
-Message-ID: <20010430131213.A25453@bacchus.dhis.org>
-In-Reply-To: <200104300233.WAA26770@smarty.smart.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200104300233.WAA26770@smarty.smart.net>; from humbubba@smarty.smart.net on Sun, Apr 29, 2001 at 10:33:44PM -0400
-X-Accept-Language: de,en,fr
+	id <S135498AbRD3QSH>; Mon, 30 Apr 2001 12:18:07 -0400
+Received: from mail1.bna.bellsouth.net ([205.152.150.13]:18847 "EHLO
+	mail1.bna.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S135494AbRD3QRx>; Mon, 30 Apr 2001 12:17:53 -0400
+From: volodya@mindspring.com
+Date: Mon, 30 Apr 2001 12:17:14 -0400 (EDT)
+Reply-To: volodya@mindspring.com
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, John Stoffel <stoffel@casc.com>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+In-Reply-To: <20010430040304.A5839@thyrsus.com>
+Message-ID: <Pine.LNX.4.20.0104301216300.901-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 29, 2001 at 10:33:44PM -0400, Rick Hohensee wrote:
 
-> Richards now has a beta port of Tripos to run on Linux called Cintpos.
-> It's in BCPL of course, which nowadays can compile itself in 8 seconds on
-> a P450. I had the pleasure of getting a thankyou from mr for noting that
-> you have to enable shared memory in your Linux kernel to run Cintpos.
 
-Too bad that Tripos aka dos.library was the really, really rotten part of
-that perl which AmigaDOS as whole is or was.
+On Mon, 30 Apr 2001, Eric S. Raymond wrote:
 
-  Ralf
+> Anton Altaparmakov <aia21@cam.ac.uk>:
+> > >I tried whitespace, but the default Tkinter font isn't fixed-width.  How
+> > >do you do invisible text?
+> > 
+> > Text colour = background colour -> invisible
+> 
+> Well, duh.  Unfortunately, it doesn't seem to have occured to the dozen or
+> so people who suggested this that:
+> 
+> (a) Background color can vary depending on how Tk's X resources are set, and
+> 
+> (b) Tk doesn't give me, AFAIK, any way to query either that background color
+>     or those resources.
+
+button .x
+.x cget -background
+
+                 Vladimir Dergachev
+
+
+> 
+> Fer cripes' sake.  If it were that easy I'd have *done* it already, people!
+> 
+> Anyway my attempts to set a foreground color on an inactive button widget 
+> failed.  I don't know why.  Tk is full of weird little corners like that.
+> 
+> What I've done is just disabled inactive help buttons without trying to
+> hack the text or color. That makes them all the same width, though the 
+> legend "Help" does show up in gray on the inacive ones.
+> -- 
+> 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> 
+> "The state calls its own violence `law', but that of the individual `crime'"
+> 	-- Max Stirner
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,32 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131012AbQLFJlo>; Wed, 6 Dec 2000 04:41:44 -0500
+	id <S129345AbQLAGax>; Fri, 1 Dec 2000 01:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131096AbQLFJle>; Wed, 6 Dec 2000 04:41:34 -0500
-Received: from hnlmail3.hawaii.rr.com ([24.25.227.37]:57104 "EHLO
-	hawaii.rr.com") by vger.kernel.org with ESMTP id <S131012AbQLFJlZ>;
-	Wed, 6 Dec 2000 04:41:25 -0500
-Message-ID: <FFFFFFFF9BFD9A66.7E0E71C@hawaii.rr.com>
-Date: Mon, 30 Oct 1916 16:35:19 -1000
-From: halfline@hawaii.rr.com
-Reply-To: halfline@hawaii.rr.com
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.17 alpha)
-X-Accept-Language: en
+	id <S129516AbQLAGan>; Fri, 1 Dec 2000 01:30:43 -0500
+Received: from mail.inconnect.com ([209.140.64.7]:31967 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S129345AbQLAGae>; Fri, 1 Dec 2000 01:30:34 -0500
+Date: Thu, 30 Nov 2000 23:00:07 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@redhat.com>, <andreas.bombe@munich.netsurf.de>
+Subject: Re: test12-pre3 (FireWire issue)
+In-Reply-To: <Pine.LNX.4.10.10011282248530.6275-100000@penguin.transmeta.com>
+Message-ID: <Pine.SOL.4.30.0011302253590.28037-100000@ultra1.inconnect.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Alpha PC164 Optimize
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to compile the kernel to for PC164 instead of
-generic, I get IDE probe errors and errors about not being
-able to get an interrupt.  Anyone have any ideas why?
-(I'm not subscribed to this list, so please cc me any 
-responses)
+Linus Torvalds said once upon a time (Tue, 28 Nov 2000):
 
---Ray
+>  - pre3:
+>     - Andreas Bombe: ieee1394 cleanups and fixes
+
+Linus, Andreas,
+
+I've been using this same config since FireWire was merged, just tried out
+test12-pre3 and got an unresolved symbol problem with raw1394.o
+
+#
+# IEEE 1394 (FireWire) support
+#
+CONFIG_IEEE1394=y
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=m
+CONFIG_IEEE1394_RAWIO=m
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
+
+
+make bzImage; make modules; make modules_install
+
+modules_install bombs out with:
+
+cd /lib/modules/2.4.0-test12; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.0-test12; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.0-test12/kernel/drivers/ieee1394/raw1394.o
+depmod: 	free_tlabel
+depmod: 	fill_iso_packet
+depmod: 	hpsb_register_highlevel
+depmod: 	highlevel_lock
+depmod: 	hpsb_unregister_highlevel
+depmod: 	hpsb_send_packet
+depmod: 	highlevel_read
+depmod: 	hpsb_make_lockpacket
+depmod: 	alloc_hpsb_packet
+depmod: 	highlevel_write
+depmod: 	hpsb_dec_host_usage
+depmod: 	hpsb_reset_bus
+depmod: 	hpsb_generation
+depmod: 	hpsb_unlisten_channel
+depmod: 	hpsb_make_readbpacket
+depmod: 	hpsb_listen_channel
+depmod: 	free_hpsb_packet
+depmod: 	hpsb_make_readqpacket
+depmod: 	hpsb_make_writebpacket
+depmod: 	hpsb_inc_host_usage
+depmod: 	hpsb_make_writeqpacket
+[root@thud linux]#
+
+
+Dax Kelson
+Guru Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

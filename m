@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267986AbRG0OR0>; Fri, 27 Jul 2001 10:17:26 -0400
+	id <S268857AbRG0OVG>; Fri, 27 Jul 2001 10:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268855AbRG0ORR>; Fri, 27 Jul 2001 10:17:17 -0400
-Received: from garlic.amaranth.net ([216.235.243.195]:22023 "EHLO
-	garlic.amaranth.net") by vger.kernel.org with ESMTP
-	id <S267986AbRG0ORE>; Fri, 27 Jul 2001 10:17:04 -0400
-Message-ID: <3B6177DB.26C6D378@egenera.com>
-Date: Fri, 27 Jul 2001 10:16:59 -0400
-From: "Philip R. Auld" <pauld@egenera.com>
-Organization: Egenera Inc.
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: kernel <linux-kernel@vger.kernel.org>
+	id <S268856AbRG0OU4>; Fri, 27 Jul 2001 10:20:56 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52487 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268857AbRG0OUk>; Fri, 27 Jul 2001 10:20:40 -0400
 Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <E15Q7eW-0005cP-00@the-village.bc.nu>
+To: pauld@egenera.com (Philip R. Auld)
+Date: Fri, 27 Jul 2001 15:21:53 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (kernel)
+In-Reply-To: <no.id> from "Philip R. Auld" at Jul 27, 2001 10:16:59 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15Q8Uz-0005l0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox wrote:
-> 
-> Its certainly a good idea. But it sounds to me like he is describing the
-> normal effect of metadata only logging.
-> 
+> This is something that is not present in other unix filesystems as far as I can
+> tell. If linux wants to be used in enterprise sites we can't allow 
+> old data blocks to be read. And ideally shouldn't allow zero blocks to be seen
+> either, but this is somewhat less serious.
 
-Which brings up something I have been struggling with lately:
+> I cannot reproduce this in ufs on either freebsd or solaris8.
 
-Linux (using both ext2 and reiserfs) can show garbage data blocks at the end of
-files after a crash. With reiserfs this is clearly due to metadata only logging
-and happens say 3 out of 5 times. With ext2 the frequency is about 1 in 5 times,
-and more often that not it is simply zeroed data. Sometimes it is old data
-though. 
+It can happen on UFS. What normally happens on UFS is that you get an old
+file attached to a new filename when the file is deleted and the inode
+reused.
 
+Basically it can happen on any no data logging fs (with a few exceptions for
+other clever algorithms like tree-phase)
 
-This is something that is not present in other unix filesystems as far as I can
-tell. If linux wants to be used in enterprise sites we can't allow 
-old data blocks to be read. And ideally shouldn't allow zero blocks to be seen
-either, but this is somewhat less serious.
+If you write the metadata block first (UFS) then there is a risk of getting
+someone elses data appended to the end of a file (eg length updated before
+data blocks). If you write data first there is a risk of writing the data
+and never committing the removal of the block from previous files.
 
-I cannot reproduce this in ufs on either freebsd or solaris8.
-
-I have not tested it with xfs and jfs for linux yet (and don't have any native
-systems at hand.)
-
-I believe vxfs to have a mechanism to prevent this despite metadata only
-logging.
-
-reiserfs with full data logging enabled of course does not show this behavior
-(and works really well if you are willing to take the performance hit).
-
-The basic test I use is to run this perl script for a while (to make sure at
-least somehting has had a chance to get written out) and then power-cycle the
-machine. When it comes back a simple tail logfile will show the problem. I also
-run bonnie before hand to fill the disk with a known pattern so its easier to
-spot.
-
-linux is 2.2.16 and 2.4.2 from redhat 7.1. reiserfs is 3.5.33 and was tested
-only on 2.2.16.
-
-
-#!/usr/bin/perl
-use Fcntl;
-$count = 0;
-while (1) {
-#sysopen(FH, "/scratch/logfile", O_RDWR|O_APPEND|O_CREAT|O_SYNC)
-sysopen(FH, "/scratch/logfile", O_RDWR|O_APPEND|O_CREAT)
-        or die "Couldn't open file $path : $!\n";
-print FH "Log file line ", $count , " yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda 
-yadda  yadda  yadda  yadda  yadda  yadda  yadda  yadda \n" ;
-close (FH);
-#print $count , "\n";
-$count++;
-}
-
-
-------------------------------------------------------
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera Corp.                        pauld@egenera.com
-165 Forest St, Marlboro, MA 01752        (508)786-9444
+FreeBSD softupdates probably make it very hard to trigger and they are a
+very nice approach

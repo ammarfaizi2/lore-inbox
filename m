@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUJSBKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUJSBNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268236AbUJSBKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 21:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268225AbUJSBKj
+	id S268225AbUJSBNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 21:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268228AbUJSBKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 21:10:39 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:51599 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268236AbUJSBJi
+	Mon, 18 Oct 2004 21:10:54 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:63380 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S268248AbUJSBKi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 21:09:38 -0400
-Subject: Re: [PATCH 1/3] ext3 reservation remove stale window fix
-From: Mingming Cao <cmm@us.ibm.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: akpm@osdl.org, "Stephen C. Tweedie" <sct@redhat.com>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <20041018234126.GB28904@waste.org>
-References: <1098140107.8803.1062.camel@w-ming2.beaverton.ibm.com> 
-	<20041018234126.GB28904@waste.org>
-Content-Type: text/plain
+	Mon, 18 Oct 2004 21:10:38 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Oct 2004 18:11:16 -0700
-Message-Id: <1098148283.9754.1090.camel@w-ming2.beaverton.ibm.com>
-Mime-Version: 1.0
+Subject: RE: function hugetlb_get_unmapped_area failed to find an unmapped area while unmapped area is huge
+Date: Tue, 19 Oct 2004 09:10:30 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E849CC872@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: function hugetlb_get_unmapped_area failed to find an unmapped area while unmapped area is huge
+Thread-Index: AcS1eD9tTxAvvIUuTnOVteb086W4tgAAA7ag
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+X-OriginalArrivalTime: 19 Oct 2004 01:10:31.0263 (UTC) FILETIME=[6D987EF0:01C4B578]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-18 at 16:41, Matt Mackall wrote:
-> On Mon, Oct 18, 2004 at 03:55:04PM -0700, Mingming Cao wrote:
-> > 
-> > Before we changed the per-filesystem reservations from a linked list
-> > to a red-black tree, in order to speed up the linear search from the
-> > list head, we keep the current(stale) reservation window as a
-> > reference pointer to skip the nodes prior to the current/stale
-> > window node, when failed to allocate a new window in current group
-> > and try to do allocation in next group.
-> 
-> One wonders whether a prio tree of the sort used by the current VMA
-> searching code would be a better match to the problem than the
-> red-black approach.
+Add subject.
 
-Could you please elaborate more? I think the current VMA code is using
-red-black tree in their searching code(find_vma()).
+>>-----Original Message-----
+>>From: Zhang, Yanmin
+>>Sent: 2004年10月19日 9:09
+>>To: linux-kernel@vger.kernel.org
+>>Cc: Chen, Kenneth W
+>>Subject:
+>>
+>>In base kernel 2.6.9-rc4, function hugetlb_get_unmapped_area failed to find
+>>an unmapped area while unmapped area is huge. That's because
+>>hugetlb_get_unmapped_area just searches forward from mm->free_area_cache. If
+>>reaching TASK_SIZE, it does not go back to TASK_UNMAPPED_BASE, just returns
+>>-ENOMEM.
+>>The attachment is a simple case to trigger it on IA32 machine.
+>>
+>>The other attachment is the patch to fix it.
+>>1) Add a specific hugetlb_get_unmapped_area on i386.
+>>2) Generic hugetlb_get_unmapped_area is also fixed.
+>>
+>>Signed-off-by: Zhang Yanmin	<yanmin.zhang@intel.com>
 

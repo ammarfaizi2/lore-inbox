@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316605AbSFQRMO>; Mon, 17 Jun 2002 13:12:14 -0400
+	id <S316655AbSFQRNk>; Mon, 17 Jun 2002 13:13:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316608AbSFQRMO>; Mon, 17 Jun 2002 13:12:14 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:12672 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316605AbSFQRMN>; Mon, 17 Jun 2002 13:12:13 -0400
-Date: Mon, 17 Jun 2002 13:12:42 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Roberto Nibali <ratz@drugphish.ch>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Firewire Disks. (fwd)
-In-Reply-To: <3D0E0E5F.20406@drugphish.ch>
-Message-ID: <Pine.LNX.3.95.1020617130745.2163A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316632AbSFQRNj>; Mon, 17 Jun 2002 13:13:39 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:48305 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S316608AbSFQRNh>; Mon, 17 Jun 2002 13:13:37 -0400
+Date: Mon, 17 Jun 2002 10:15:12 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Oliver Neukum <oliver@neukum.name>, Andries.Brouwer@cwi.nl,
+       garloff@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
+       linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net, dougg@torque.net
+Message-id: <3D0E1920.1030507@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <200206162202.g5GM2XT02750@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Roberto Nibali wrote:
-[SNIPPED...]
+> The idea behind using hotplug to solve the problem is that with scsimon, a 
+> hotplug insertion event is generated for every SCSI device as it is added.  
+> The script is provided with the information the kernel knows (host, channel, 
+> pun lun, model and vendor inquiry strings---see www.torque.net/scsimon.html 
 
+Make that http://www.torque.net/scsi/scsimon.html ... that page is linked
+from the http://linux-hotplug.sourceforge.net links page, and I'm glad to
+see it's been updated recently.
+
+
+> for details).  The hotplug script then does the remaining processing to 
+> extract the ID from the device (by ioctls, sending down SCSI commands etc.) 
+> and then binds it into the /dev/volume nodes using the identifier it 
+> determines.
 > 
-> Could you try with the latest 2.4.19preX tree and also replace the 
-> ../drivers/ieee1394 with the CVS one?
+> The result is that however you move the device around (between controllers or 
+> even change its id), it will always show up as its unique /dev/volume name.
 > 
-> [1] http://linux1394.sourceforge.net/svn.html
-> 
-> Best regards,
-> Roberto Nibali, ratz
-> 
-> p.s.: You have to hurry up, since I'm not online very often the next few 
-> weeks. Of course you could also show up at OLS with the disk ;).
+> The key philosophy is that the code to make the policy decision for assigning 
+> a unique name isn't cluttering up the kernel, it's in user land where it can 
+> be easily customised.  
 
-Okay. I did that now. However, `depmod -ae` shows some unresolved
-symbols:
+I think that's a good approach for packaging that naming policy, though I'm
+not quite sure where it stands in relation to "driverfs".  As with "usbfs"
+it seems to me that there need to be both low-level "topological" and higher
+level "logical/policy-driven" names.  And I'd prefer not to see a multiplicity
+of approaches for anything except the bus-specific parts (which in this case
+is "SCSI" even if the transport may be USB); I think I'm not alone in that.
 
-depmod: *** Unresolved symbols in /lib/modules/2.4.18/kernel/drivers
-    /ieee1394/pcilynx.o
-depmod: 	i2c_transfer
-depmod: 	i2c_bit_del_bus
-depmod: 	i2c_bit_add_bus
+Also, given what I noted earlier about stable IDs, I think SCSI_HOST should
+be a stable string ID, not an integer that can easily get switched around
+during system boot.
 
-Since I don't use this module, maybe I am "home-free" I need to try
-this on my system at home since my firewire stuff is there.
+- Dave
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
-
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
 

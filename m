@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315178AbSD3TUM>; Tue, 30 Apr 2002 15:20:12 -0400
+	id <S315179AbSD3T0e>; Tue, 30 Apr 2002 15:26:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315179AbSD3TUL>; Tue, 30 Apr 2002 15:20:11 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:63238 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S315178AbSD3TUL>; Tue, 30 Apr 2002 15:20:11 -0400
-Date: Tue, 30 Apr 2002 20:20:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre7aa3
-Message-ID: <20020430202010.A16236@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020430203154.B11414@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S315182AbSD3T0d>; Tue, 30 Apr 2002 15:26:33 -0400
+Received: from ucsu.Colorado.EDU ([128.138.129.83]:44451 "EHLO
+	ucsu.colorado.edu") by vger.kernel.org with ESMTP
+	id <S315179AbSD3T0c>; Tue, 30 Apr 2002 15:26:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Ivan G." <ivangurdiev@linuxfreemail.com>
+Reply-To: ivangurdiev@linuxfreemail.com
+Organization: ( )
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Subject: Re: 2.5.11 ide kernel panic
+Date: Tue, 30 Apr 2002 13:19:39 -0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <02042920011502.00813@cobra.linux> <3CCE5BED.9010809@evision-ventures.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <02043013193900.01859@cobra.linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 30, 2002 at 08:31:54PM +0200, Andrea Arcangeli wrote:
-> Only in 2.4.19pre7aa3: 00_wake_up_page-1
-> 
-> 	Reintroduced wake_up_page (not deadlock prone anymore), for modules
-> 	that were waking up pages.
 
-For what module?  (Don't say a agp/drm upgrade!)  As the person who invented
-wake_up_page I can't really see a good reason for it anymore.  Every single
-caller should have used unlock_page() instead.
+> Coudl you please remove the following code (or similar)
+> from the ata_irq_request() function and see whatever the crash still
+> happens? It could very well we that hwgroup->drive isn't
+> initialized during boot under seom cirumstances.
+
+the code is in function ide_do_request.
+I tested removing it. The problem persists.
+
+
+

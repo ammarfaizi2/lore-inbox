@@ -1,94 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbTJIRne (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 13:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbTJIRne
+	id S262356AbTJIRmd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 13:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTJIRmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 13:43:34 -0400
-Received: from web40908.mail.yahoo.com ([66.218.78.205]:55700 "HELO
-	web40908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262363AbTJIRnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 13:43:25 -0400
-Message-ID: <20031009174324.2806.qmail@web40908.mail.yahoo.com>
-Date: Thu, 9 Oct 2003 10:43:24 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: [PATCH] Allow UDF debugging messages to be disabled in the build system
-To: Ben Fennema <bfennema@falcon.csc.calpoly.edu>,
-       Dave Boynton <dave@trylinux.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Oct 2003 13:42:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1966 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262356AbTJIRmb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 13:42:31 -0400
+Subject: Re: 2.6.0-test6-mm4 - oops in __aio_run_iocbs()
+From: Daniel McNeil <daniel@osdl.org>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <20031009125902.GA11697@in.ibm.com>
+References: <20031005013326.3c103538.akpm@osdl.org>
+	 <1065655095.1842.34.camel@ibm-c.pdx.osdl.net>
+	 <20031009111624.GA11549@in.ibm.com>  <20031009125902.GA11697@in.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1065721345.1821.21.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 Oct 2003 10:42:25 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Fennema, Mr. Boynton,
+On Thu, 2003-10-09 at 05:59, Suparna Bhattacharya wrote:
+> On Thu, Oct 09, 2003 at 04:46:24PM +0530, Suparna Bhattacharya wrote:
+> > On Wed, Oct 08, 2003 at 04:18:15PM -0700, Daniel McNeil wrote:
+> > > I'm been testing AIO on test6-mm4 using a ext3 file system and
+> > > copying a 88MB file to an already existing preallocated file of 88MB.
+> > > I been using my aiocp program to copy the file using i/o sizes of
+> > > 1k to 512k and outstanding aio requests of between 1 and 64 using
+> > > O_DIRECT, O_SYNC and O_DIRECT & O_SYNC.  Everything works as long
+> > > as the file is pre-allocated.  When copying the file to a new file
+> > > (O_CREAT|O_DIRECT), I get the following oops:
+> > 
+> > What are the i/o sizes and block sizes for which you get the oops ?
+> > Is this only for large i/o sizes ?
+> > 
+> > __aio_run_iocbs should have been called only for buffered i/o, 
+> > so this sounds like an O_DIRECT fallback to buffered i/o.
+> > Possibly after already submitting some blocks direct to BIO,
+> > the i/o completion path for which ends up calling aio_complete
+> > releasing the iocb. That could explain the use-after-free situation
+> > you see.
+> > 
+> > But, O_DIRECT write should fallback to buffered i/o only if it 
+> > encounters holes in the middle of the file, not for simple appends 
+> > as in your case. Need to figure out how this could have happened ...
+> 
+> Took a quick look at aiocp.c - wondering if its possible that
+> some of the later read requests complete earlier and trigger
+> a write to higher offset first. Resulting in the file being
+> extended with holes in between - holes which get overwritten
+> at a later point as the earlier read requests complete.
 
-This patch to the UDF filesystem driver allows you to enable and disable
-the UDF debugging messages through the build system instead of editing
-linux/udf_fs.h.
+That is an interesting idea.  I can change my aiocp program to
+do a printf if it hits this situation.
 
-Patch was created against 2.6.0-test7-osdl1 but it applies cleanly to
-2.6.0-test6-mm4. Compile-tested and used on 2.6.0-test7-osdl1.
+> 
+> Though I don't yet see how a situation could arise in the 
+> single threaded case where part of the request gets submitted 
+> direct to BIO and the rest falls back to buffered-io ... Need 
+> to think about it a bit more. 
+> Are your writes all block aligned ?
 
-Please apply.
+All i/o is aligned to the size of the block size (128k in this
+test).
 
-Thanks,
+Daniel
 
-Brad Chapman
-
------
-diff -urN -X /home/bhchapm/source/dontdiff include/linux/udf_fs.h.orig
-include/linux/udf_fs.h
---- include/linux/udf_fs.h.orig	2003-10-09 18:14:19.935562952 -0400
-+++ include/linux/udf_fs.h	2003-10-09 18:16:25.896413992 -0400
-@@ -34,15 +34,15 @@
- #ifndef _UDF_FS_H
- #define _UDF_FS_H 1
- 
-+#include <linux/config.h>
-+
- #define UDF_PREALLOCATE
- #define UDF_DEFAULT_PREALLOC_BLOCKS	8
- 
- #define UDFFS_DATE			"2002/11/15"
- #define UDFFS_VERSION			"0.9.7"
- 
--#define UDFFS_DEBUG
--
--#ifdef UDFFS_DEBUG
-+#ifdef CONFIG_UDF_FS_DEBUG
- #define udf_debug(f, a...) \
- 	{ \
- 		printk (KERN_DEBUG "UDF-fs DEBUG %s:%d:%s: ", \
-diff -urN -X /home/bhchapm/source/dontdiff fs/Kconfig.orig fs/Kconfig
---- fs/Kconfig.orig	2003-10-09 18:16:48.056045216 -0400
-+++ fs/Kconfig	2003-10-09 18:34:53.930967136 -0400
-@@ -523,6 +523,17 @@
- 	  module will be called udf.
- 
- 	  If unsure, say N.
-+	  
-+config UDF_FS_DEBUG
-+	bool "UDF file system debugging"
-+	depends on UDF_FS
-+	default y
-+	help
-+	  Say Y here if you want the UDF filesystem driver to output debugging
-+	  messages every time a UDF volume is mounted, accessed or otherwise
-+	  used.
-+	  
-+	  If unsure, say N.
- 
- endmenu
- 
-
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

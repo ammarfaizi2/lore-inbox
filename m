@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264691AbUD1GAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264696AbUD1GCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264691AbUD1GAy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 02:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUD1GAy
+	id S264696AbUD1GCY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 02:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264695AbUD1GCY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 02:00:54 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:18456 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264691AbUD1GAw (ORCPT
+	Wed, 28 Apr 2004 02:02:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14735 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264696AbUD1GCV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 02:00:52 -0400
-Date: Wed, 28 Apr 2004 16:00:03 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Dru <andru@treshna.com>,
-       linux-xfs@oss.sgi.com, M?ns Rullg?rd <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: status of Linux on Alpha?
-Message-ID: <20040428160003.C640934@wobbly.melbourne.sgi.com>
-References: <yw1xr7vcn1z2.fsf@ford.guide> <20040329205233.5b7905aa@vaio.gigerstyle.ch> <20040404121032.7bb42b35@vaio.gigerstyle.ch> <20040409134534.67805dfd@vaio.gigerstyle.ch> <20040409134828.0e2984e5@vaio.gigerstyle.ch> <20040409230651.A727@den.park.msu.ru> <20040413194907.7ce8ceb7@vaio.gigerstyle.ch> <20040427185124.134073cd@vaio.gigerstyle.ch> <20040427215514.A651@den.park.msu.ru> <20040427200830.3f485a54@vaio.gigerstyle.ch>
+	Wed, 28 Apr 2004 02:02:21 -0400
+Date: Tue, 27 Apr 2004 23:02:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: busterbcook@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
+Message-Id: <20040427230203.1e4693ac.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
+References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040427200830.3f485a54@vaio.gigerstyle.ch>; from gigerstyle@gmx.ch on Tue, Apr 27, 2004 at 08:08:30PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 08:08:30PM +0200, Marc Giger wrote:
-> Hi Ivan,
-> 
-> Cool!
-> 
-> I will try your patch after I finished moving to my new flat:-)
-> 
-> I wonder why it happens only with the XFS code. What I saw
-> rw_sem is used all over the place in the kernel.
+Brent Cook <busterbcook@yahoo.com> wrote:
+>
+>   Running any kernel from the 2.6.6-rc* series (and a few previous
+>  -mm*'s),
 
-We do use the downgrade_write interface in XFS, which has
-an architecture specific component and a generic component.
-Its much less widely used than the rest of the rw_semaphore
-code - that'd be a good spot to look if one architecture is
-behaving oddly.
+It's a shame this wasn't reported earlier.
 
-cheers.
+> the pdflush process starts using near 100% CPU indefinitely after
+>  a few minutes of initial NFS traffic, as far as I can tell.
 
--- 
-Nathan
+Please confirm that the problem is observed on the NFS client and not the
+NFS server?  I'll assume the client.
+
+What other filesystems are in use on the client?
+
+Please describe the NFS mount options and the number of CPUs and the amount
+of memory in the machine.  And please send me your .config, off-list.
+
+Thanks.

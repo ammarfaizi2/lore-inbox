@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264634AbUD1Do2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263603AbUD1DyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264634AbUD1Do2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 23:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbUD1Do2
+	id S263603AbUD1DyY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 23:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264291AbUD1DyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 23:44:28 -0400
-Received: from chococat.sd.dreamhost.com ([66.33.206.16]:30679 "EHLO
+	Tue, 27 Apr 2004 23:54:23 -0400
+Received: from chococat.sd.dreamhost.com ([66.33.206.16]:1675 "EHLO
 	chococat.sd.dreamhost.com") by vger.kernel.org with ESMTP
-	id S264634AbUD1DoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 23:44:09 -0400
-Message-ID: <3159.171.64.70.113.1083123847.spork@webmail.coverity.com>
-Date: Tue, 27 Apr 2004 20:44:07 -0700 (PDT)
-Subject: 
+	id S263603AbUD1DyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 23:54:16 -0400
+Message-ID: <3197.171.64.70.113.1083124455.spork@webmail.coverity.com>
+Date: Tue, 27 Apr 2004 20:54:15 -0700 (PDT)
+Subject: [CHECKER] Implementation inconsistencies involving writes
 From: "Ken Ashcraft" <ken@coverity.com>
 To: linux-kernel@vger.kernel.org, linux@coverity.com
 Cc: davem@redhat.com, kraxel@goldbach.in-berlin.de, linux@brodo.de,
@@ -25,6 +25,9 @@ References:
 In-Reply-To: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+(Sorry if you receive this twice.  The first one snuck off with out a
+subject line.)
 
 I'm trying to cross check implementations of the same interface for
 errors.  I assume that if functions are assigned to the same function
@@ -51,14 +54,14 @@ Thanks,
 Ken Ashcraft
 
 #  Total   = 7
-# BUGs	|	File Name
-1	|	/fs/affs/super.c
-1	|	/drivers/usb/storage/scsiglue.c
-1	|	/arch/i386/kernel/cpu/cpufreq/longrun.c
-1	|	/drivers/net/irda/mcp2120-sir.c
-1	|	/drivers/net/wireless/wl3501_cs.c
-1	|	/drivers/media/video/bttv-cards.c
-1	|	/drivers/net/sunhme.c
+# BUGs        |        File Name
+1        |        /fs/affs/super.c
+1        |        /drivers/usb/storage/scsiglue.c
+1        |        /arch/i386/kernel/cpu/cpufreq/longrun.c
+1        |        /drivers/net/irda/mcp2120-sir.c
+1        |        /drivers/net/wireless/wl3501_cs.c
+1        |        /drivers/media/video/bttv-cards.c
+1        |        /drivers/net/sunhme.c
 ---------------------------------------------------------
 [BUG] (davem@redhat.com) not writing cmd->advertising
 
@@ -73,7 +76,7 @@ ERROR:WRITE: Not writing arg
 [fn_ex=0] [fn_counter=1] [ex=10] [counter=1] [z = -0.622543017479467]
 [fn-z = -4.35889894354067]
 
-	spin_unlock_irq(&hp->happy_lock);
+        spin_unlock_irq(&hp->happy_lock);
 }
 
 /* Ethtool support... */
@@ -81,7 +84,7 @@ ERROR:WRITE: Not writing arg
 Error --->
 static int hme_get_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
-	struct happy_meal *hp = dev->priv;
+        struct happy_meal *hp = dev->priv;
 
 ---------------------------------------------------------
 [BUG] <kraxel@goldbach.in-berlin.de> not writing v->mode.  the examples
@@ -104,8 +107,8 @@ ERROR:WRITE: Not writing arg [COUNTER=tvcard.audio_hook-1.deref.mode]
 
 Error --->
 void winview_audio(struct bttv *btv, struct video_audio *v, int set) {
-	/* PT2254A programming Jon Tombs, jon@gte.esi.us.es */
-	int bits_out, loops, vol, data;
+        /* PT2254A programming Jon Tombs, jon@gte.esi.us.es */
+        int bits_out, loops, vol, data;
 ---------------------------------------------------------
 [BUG] <linux@brodo.de> not writing policy->governor. looks like it is
 necessary to write a default value there.
@@ -121,7 +124,7 @@ ERROR:WRITE: Not writing arg
 [fn_ex=0] [fn_counter=1] [ex=9] [counter=1] [z = -0.72547625011001] [fn-z
 = -4.35889894354067]
 
-	return 0;
+        return 0;
 }
 
 
@@ -129,7 +132,7 @@ ERROR:WRITE: Not writing arg
 Error --->
 static int longrun_cpu_init(struct cpufreq_policy *policy)
 {
-	int                     result = 0;
+        int                     result = 0;
 
 ---------------------------------------------------------
 [BUG] <acme@conectiva.com.br> suspicious.  examples clear DEV_CONFIG bit
@@ -154,7 +157,7 @@ ERROR:WRITE: Not writing arg [COUNTER=pcmcia_driver.detach-0.deref.state]
 Error --->
 static void wl3501_detach(dev_link_t *link)
 {
-	dev_link_t **linkp;
+        dev_link_t **linkp;
 
 ---------------------------------------------------------
 [BUG](tangf@eyetap.org) not setting dev->speed
@@ -170,15 +173,15 @@ ERROR:WRITE: Not writing arg [COUNTER=dongle_driver.reset-0.deref.speed]
 -0.841191024192059] [fn-z = -4.35889894354067]
  */
 
-#define MCP2120_STATE_WAIT1_RESET	(SIRDEV_STATE_DONGLE_RESET+1)
-#define MCP2120_STATE_WAIT2_RESET	(SIRDEV_STATE_DONGLE_RESET+2)
+#define MCP2120_STATE_WAIT1_RESET        (SIRDEV_STATE_DONGLE_RESET+1)
+#define MCP2120_STATE_WAIT2_RESET        (SIRDEV_STATE_DONGLE_RESET+2)
 
 
 Error --->
 static int mcp2120_reset(struct sir_dev *dev)
 {
-	unsigned state = dev->fsm.substate;
-	unsigned delay = 0;
+        unsigned state = dev->fsm.substate;
+        unsigned delay = 0;
 ---------------------------------------------------------
 [BUG] (mdharm-usb@one-eyed-alien.net) not writing sdev->ordered_tags.  All
 the examples use scsi_adjust_queue_depth() to do this.
@@ -195,15 +198,15 @@ ERROR:WRITE: Not writing arg
 -1.12724296038136] [fn-z = -4.35889894354067]
 static const char* host_info(struct Scsi_Host *host)
 {
-	return "SCSI emulation for USB Mass Storage devices";
+        return "SCSI emulation for USB Mass Storage devices";
 }
 
 
 Error --->
 static int slave_configure (struct scsi_device *sdev)
 {
-	/* Scatter-gather buffers (all but the last) must have a length
-	 * divisible by the bulk maxpacket size.  Otherwise a data packet
+        /* Scatter-gather buffers (all but the last) must have a length
+         * divisible by the bulk maxpacket size.  Otherwise a data packet
 ---------------------------------------------------------
 [BUG] doesn't initialize buf->f_ffree
 
@@ -217,8 +220,8 @@ ERROR:WRITE: Not writing arg
 [COUNTER=super_operations.statfs-1.deref.f_ffree]  [fit=17] [fit_fn=1]
 [fn_ex=0] [fn_counter=1] [ex=6] [counter=1] [z = -1.12724296038136] [fn-z
 = -4.35889894354067]
-	}
-	return 0;
+        }
+        return 0;
 }
 
 static int
@@ -226,8 +229,7 @@ static int
 Error --->
 affs_statfs(struct super_block *sb, struct kstatfs *buf)
 {
-	int		 free;
-
+        int                 free;
 
 
 

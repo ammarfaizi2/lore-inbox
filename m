@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbTE0UyC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:54:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbTE0Uxu
+	id S264145AbTE0UvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264125AbTE0UvU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:53:50 -0400
-Received: from users.eiwaz.com ([216.243.209.216]:3552 "EHLO users.eiwaz.com")
-	by vger.kernel.org with ESMTP id S264161AbTE0Uxa (ORCPT
+	Tue, 27 May 2003 16:51:20 -0400
+Received: from ns.suse.de ([213.95.15.193]:32018 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264145AbTE0UvT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:53:30 -0400
-Subject: Re: Linux 2.5.70
-From: Andreas Boman <aboman@nerdfest.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
-Content-Type: text/plain
-Message-Id: <1054069573.580.7.camel@asgaard.midgaard.us>
+	Tue, 27 May 2003 16:51:19 -0400
+Date: Tue, 27 May 2003 23:04:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Andi Kleen <ak@suse.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make ACPI compile again on 64bit/gcc 3.3 II
+Message-ID: <20030527210433.GH27568@wotan.suse.de>
+References: <F760B14C9561B941B89469F59BA3A847E96EDE@orsmsx401.jf.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 27 May 2003 17:06:13 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F760B14C9561B941B89469F59BA3A847E96EDE@orsmsx401.jf.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-27 at 12:58, Ricky Beam wrote:
-<SNIP>
-> Take a look at the number of arch's that haven't seen much testing (and
-> in many respects are thus broken)... does anyone have a functional 2.5.70
-> sparc64 kernel?  I've built several but they're all too big to be booted
-> (i.e. over 3.5M, and yes, I've turned off everything possible.)
-> --Ricky
+On Tue, May 27, 2003 at 01:31:57PM -0700, Grover, Andrew wrote:
+> > From: Andi Kleen [mailto:ak@suse.de] 
+> > Sent: Saturday, May 24, 2003 3:40 PM
+> > To: Grover, Andrew
+> > Cc: Andi Kleen; torvalds@transmeta.com; linux-kernel@vger.kernel.org
+> > Subject: Re: [PATCH] Make ACPI compile again on 64bit/gcc 3.3 II
+> > 
+> > 
+> > On Sat, May 24, 2003 at 01:55:26PM -0700, Grover, Andrew wrote:
+> > > Actually, I think osl.c should be changed to match the header as it
+> > > stands. Could you try that and see if that also fixes things?
+> > 
+> > On looking again these functions are not used at all.
+> > How about just removing them? 
 > 
+> We will remove them for the next release.
 
-aboman@griffin:~> uname -a
-Linux griffin 2.5.70 #1 Tue May 27 16:53:08 EDT 2003 sparc64 unknown unknown GNU/Linux
+But can you merge one of the patches for now to make it compile again?
 
-aboman@griffin:~> ls -lh /boot/vmlinux-2.5.70 
--rwxrwxr-x    1 root     root         2.6M May 27 16:57 /boot/vmlinux-2.5.70
-
-regards, 
-	Andreas
-
+-Andi

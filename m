@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbTDKUjn (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTDKUjn (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 16:39:43 -0400
-Received: from warden3-p.diginsite.com ([208.147.64.186]:1250 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id S261789AbTDKUjl convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 16:39:41 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Jeremy Jackson'" <jerj@coplanar.net>, "'Greg KH'" <greg@kroah.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-hotplug-devel@lists.sourceforge.net'" 
-	<linux-hotplug-devel@lists.sourceforge.net>
-Date: Fri, 11 Apr 2003 13:48:17 -0700 (PDT)
-Subject: RE: [ANNOUNCE] udev 0.1 release
-In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBAA44@orsmsx116.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0304111347370.8422-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id S261651AbTDKU41 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 16:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTDKU41 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 16:56:27 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:37130 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S261651AbTDKU4Z (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 16:56:25 -0400
+Date: Fri, 11 Apr 2003 23:08:09 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel hcking
+Message-ID: <20030411210808.GT5242@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030411170709.A33459@freebsdcluster.dk> <200304111524.h3BFObYL001454@81-2-122-30.bradfords.org.uk> <20030411153711.GE25862@wind.cocodriloo.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mW9eGbZzDIYYWqGs"
+Content-Disposition: inline
+In-Reply-To: <20030411153711.GE25862@wind.cocodriloo.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ant then you also have all the same problems as devfs about default
-permissions, making permissions persistant across reboots, etc.
 
-David Lang
+--mW9eGbZzDIYYWqGs
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 11 Apr 2003, Perez-Gonzalez, Inaky wrote:
+On Fri, 2003-04-11 17:37:11 +0200, Antonio Vargas <wind@cocodriloo.com>
+wrote in message <20030411153711.GE25862@wind.cocodriloo.com>:
+> On Fri, Apr 11, 2003 at 04:24:37PM +0100, John Bradford wrote:
+> > > Also every time you makes changes in the kernel it must be hell to
+> > > recompile the whole thing
+> >=20
+> > If you are testing kernels on a separate machine to the one you are
+> > compiling on, and therefore not rebooting, it's not much of a problem
+> > - with enough RAM, most or all of the kernel source will be cached,
+> > and you can compile a kernel in three to five minutes on a fast
+> > machine.
+>=20
+> John, you mean a "make clean && make bzImage" takes you only about 4
+> minutes??? I would like to know more details about .config, machine
+> specs, compiler and so on :)
 
-> Date: Fri, 11 Apr 2003 13:42:58 -0700
-> From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-> To: 'Jeremy Jackson' <jerj@coplanar.net>, 'Greg KH' <greg@kroah.com>
-> Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
->      "'linux-hotplug-devel@lists.sourceforge.net'"
->     <linux-hotplug-devel@lists.sourceforge.net>
-> Subject: RE: [ANNOUNCE] udev 0.1 release
->
->
-> > From: Jeremy Jackson [mailto:jerj@coplanar.net]
-> >
-> > What about read-only root fs?
->
-> /dev on a tmpfs?
->
-> Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-> (and my fault)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Um, take 1.5GB RAM and one of those dual athlon boards and you'll even
+do a full compile in <5min...
+
+MfG, JBG
+
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--mW9eGbZzDIYYWqGs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+ly64Hb1edYOZ4bsRAlT6AJ9+RReOxV/+58hH989pIuyl565fBwCdH67q
+OX6LtvZqruIw+f2w1ZuFNcQ=
+=kkBF
+-----END PGP SIGNATURE-----
+
+--mW9eGbZzDIYYWqGs--

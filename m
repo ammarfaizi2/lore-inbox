@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282850AbRK0Hnh>; Tue, 27 Nov 2001 02:43:37 -0500
+	id <S282843AbRK0HpS>; Tue, 27 Nov 2001 02:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282847AbRK0Hms>; Tue, 27 Nov 2001 02:42:48 -0500
-Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:59345 "EHLO
-	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S282844AbRK0Hmd>; Tue, 27 Nov 2001 02:42:33 -0500
-Date: Tue, 27 Nov 2001 08:41:50 +0100
-From: Eric Streit <Eric.Streit@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: one missing line in ov511.c
-Message-ID: <20011127084150.A11807@sarah.maison.com>
+	id <S282845AbRK0Hno>; Tue, 27 Nov 2001 02:43:44 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:55559 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282843AbRK0Hmx>;
+	Tue, 27 Nov 2001 02:42:53 -0500
+Date: Tue, 27 Nov 2001 08:42:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "Nathan G. Grennan" <ngrennan@okcforum.org>, linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16
+Message-ID: <20011127084234.V5129@suse.de>
+In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org> <3C02C06A.E1389092@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C02C06A.E1389092@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Mon, Nov 26 2001, Andrew Morton wrote:
+> 2: The current elevator design is downright cruel to humans in
+> the presence of heavy write traffic.
 
-a short mail to report a small bug in "ov511.c".
-(drivers/usb/ov511.c)
+max_bomb_segments logic was established to help absolutely _nothing_ a
+long time ago.
 
-the line defining the kernel version is missing in the kernel 2.2.20.
+I agree that the current i/o scheduler has really bad interactive
+performance -- at first sight your changes looks mostly like add-on
+hacks though. Arjan's priority based scheme is more promising.
 
-I downloaded it 2 days ago.
+-- 
+Jens Axboe
 
-************line  missing**************
-static char kernel_version[] = UTS_RELEASE;
-************end of line missing********
-
-I am at work, so I have only the 2.2.19 kernel, so I cannot say
-the right line, but it's just under the "MODULE_DESCRIPTION" line.
-
-Hope this help,
-
-
-Eric
-
-Eric.Streit@wanadoo.fr
- 

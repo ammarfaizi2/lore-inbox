@@ -1,59 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264829AbUDWOoX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUDWOxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbUDWOoX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 10:44:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbUDWOoX
+	id S264819AbUDWOxE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 10:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbUDWOxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 10:44:23 -0400
-Received: from port-195-158-170-17.dynamic.qsc.de ([195.158.170.17]:56193 "EHLO
-	gw.localnet") by vger.kernel.org with ESMTP id S264829AbUDWOoV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 10:44:21 -0400
-Message-ID: <40892984.3010207@trash.net>
-Date: Fri, 23 Apr 2004 16:34:44 +0200
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
+	Fri, 23 Apr 2004 10:53:04 -0400
+Received: from web10410.mail.yahoo.com ([216.136.128.123]:7060 "HELO
+	web10410.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264819AbUDWOxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 10:53:00 -0400
+Message-ID: <20040423145258.68956.qmail@web10410.mail.yahoo.com>
+Date: Fri, 23 Apr 2004 07:52:58 -0700 (PDT)
+From: "D.J. Barrow" <barrow_dj@yahoo.com>
+Reply-To: dj_barrow@ariasoft.ie
+Subject: love letter
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Jim Hague <jim.hague@acm.org>
-CC: linux-kernel@vger.kernel.org, jsimmons@infradead.org
-Subject: Re: [PATCH]: Fix NULL-ptr dereference in pm2fb_probe
-References: <XFMail.20040423091422.jim.hague@acm.org>
-In-Reply-To: <XFMail.20040423091422.jim.hague@acm.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Hague wrote:
+Let me tell you about Anne O' Sullivan the woman that drove me to no fear
+& the level of creativity I have now.
 
->Out of interest, can I ask if you're running pm2fb and if so on what hardware?
->  
->
-I'm running pm2fb on a TVP4020, lspci -vvv looks like this:
+She is Tom O Sullivans adopted daughter & at 13 looked at the most headfucked
+25 year old in the Church in Glantane & said he needs me.
+At 15 the test came a dropped tennis ball she was nearer & more in need of the exercise
+& Slut Ruby picked it up instead.
 
-0000:01:00.0 Display controller: Texas Instruments TVP4020 [Permedia 2] 
-(rev 11)
-        Subsystem: Elsa AG GLoria Synergy
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-        Status: Cap+ 66MHz+ UDF- 
-FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (48000ns min, 48000ns max)
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at dfde0000 (32-bit, non-prefetchable) 
-[size=dfdd0000]
-        Region 1: Memory at df000000 (32-bit, non-prefetchable) [size=8M]
-        Region 2: Memory at de800000 (32-bit, non-prefetchable) [size=8M]
-        Expansion ROM at 00010000 [disabled]
-        Capabilities: [4c] Power Management version 1
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [40] AGP version 1.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- 
-HTrans- 64bit- FW- AGP3- Rate=x1
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
-Rate=<none>
+She is getting married very soon 
+I am going to have karate sex with her anyway.
+I will look after her kids with the least self confidence because I know
+they have her metal.
 
-Regards,
-Patrick
+Tell her I love her to peices
+
+Phone: 00353-22-47181
+Address:
+Anne O Sullivan,
+Brittas,
+Glantane,
+Mallow,
+Co. Cork,
+Ireland.
+
+Call by if in the area & tell her I was watching her under a microscope.
+
+
+Tell the boyfriend I'll buy the house if he likes,
+pay for the wedding & engagement ring if he likes,
+See if I can hook him up with a stripper, I have been subconciously
+matchmaking lately & the only close friend I have who I can't
+matchmake for is Benjamin Herrenschmidt
+he could keep typing with Anne Marie from Tahiti the
+biggest bitch I know slapping him in the face fucking him at the same
+time & drinking Jack Daniels & coke.
+
+When that fucker starts going the women had better be watching.
+
+Thanks for all your help,
+D.J.
+
+=====
+D.J. Barrow Linux kernel developer
+eMail: dj_barrow@ariasoft.ie 
+Home: +353-22-47196.
+Work IBM +49-7031-16-2943
+Mobile (IRL) +353-(0)86 1715438
+Mobile (DE) +49 (0)160-96659905
+Current Apt. +49 (0) 711 6332927
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Photos: High-quality 4x6 digital prints for 25¢
+http://photos.yahoo.com/ph/print_splash

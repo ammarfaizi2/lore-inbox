@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVCLKUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVCLK34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVCLKUK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 05:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVCLKUK
+	id S261342AbVCLK34 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 05:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVCLK34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 05:20:10 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:49372 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S261280AbVCLKUE
+	Sat, 12 Mar 2005 05:29:56 -0500
+Received: from smtp1.Stanford.EDU ([171.67.16.123]:19349 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S261342AbVCLK3y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 05:20:04 -0500
-From: Stefan Rompf <stefan@loplof.de>
-To: Felix von Leitner <felix-linuxkernel@fefe.de>
-Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
-Date: Sat, 12 Mar 2005 11:24:16 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
+	Sat, 12 Mar 2005 05:29:54 -0500
+Date: Sat, 12 Mar 2005 02:29:52 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: chaffee@bmrc.berkeley.edu
+cc: mc@cs.Stanford.EDU,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [CHECKER] crash + fsck cause file systems to contain loops (msdos
+ and vfat, 2.6.11)
+Message-ID: <Pine.GSO.4.44.0503120220190.10643-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200503121124.17295.stefan@loplof.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-Felix von Leitner wrote:
+We are from the Stanford Checker team and are currently developing a file
+system checker call FiSC.  FiSC mainly focuses on finding crash-recovery
+errors.  We applied it to FiSC and found a serious error where crash then
+recovery cause the file system to contain loops.
 
-> Did I mention that I'm really tired of you putting stones into ATI's
-> way?  You might believe you have a right to piss everyone off, after all
-> people get what they paid for.  Or maybe you think you are on a crusade
-> to promote open source software.  But if you keep alienating me (I'm a
-> software developer) like this, I spend more time working around this
-> bullshit and less time writing free software.  In the end, everyone
-> loses.  I sincerely hope some day you people are done pissing in the
-> pool and can create at least some semblance of semi-stable APIs.  This
-> house is never going to be safe for living until you stop digging around
-> the foundation.
+To reproduce the warning, download and run our test cases at
 
-I cannot agree more. Many developers and maintainers say they don't care about 
-binary modules - but I do have the impression a few of them care a lot by 
-doing changes in a way that they break the current NVIDIA drivers on every 
-new kernel release. As I read now, it seems to be the same way with ATI. Even 
-GPL drivers developed outside the kernel are disfigured over and over with 
-#ifdefs on KERNEL_VERSION.
+http://fisc.stanford.edu/bug7/crash.c (for msdos)
+http://fisc.stanford.edu/bug10/crash.c (for vfat)
 
-While I fully understand that no developer wants to support binary modules, I 
-would appreciate a little less hostile behaviour. And btw., instable API 
-leads to an instable kernel because not everyone can follow the changes.
+you can also find the crashed disk images in the corresponding
+directories.
 
-Stefan
+We are not sure if these are bugs or not.  Your
+confirmations/clarifications on this are well appreciated.
+
+-Junfeng
+

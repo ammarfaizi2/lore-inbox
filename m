@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268573AbUHLOCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268572AbUHLOPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268573AbUHLOCx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 10:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268572AbUHLOCx
+	id S268572AbUHLOPy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 10:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268574AbUHLOPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 10:02:53 -0400
-Received: from mail.metronet.co.uk ([213.162.97.75]:28880 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S268573AbUHLOCv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 10:02:51 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Reply-To: s0348365@sms.ed.ac.uk
-Organization: University of Edinburgh
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-Subject: Re: Linux SATA RAID FAQ
-Date: Thu, 12 Aug 2004 15:01:44 +0100
-User-Agent: KMail/1.6.82
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-In-Reply-To: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 12 Aug 2004 10:15:54 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:18117
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S268572AbUHLOPw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 10:15:52 -0400
+Message-ID: <411B7B96.7040306@bio.ifi.lmu.de>
+Date: Thu, 12 Aug 2004 16:15:50 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Robert M. Stockmann" <stock@stokkie.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <Pine.LNX.4.44.0408121549420.12580-100000@hubble.stokkie.net>
+In-Reply-To: <Pine.LNX.4.44.0408121549420.12580-100000@hubble.stokkie.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408121501.44870.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 August 2004 14:38, you wrote:
-> In article <20040812113413.GA19252@alpha.home.local> you wrote:
-> > I like it. It's fairly simple. I'm always amazed how many people do
-> > really believe that these cards provide hardware RAID !!! The problem is
-> > when you ask a reseller to add a real hardware RAID card in a system you
-> > purchase and you end up with a cheap silicon image... It happened to us
-> > once and it's not funny at all.
->
-> Speaing of that, does that mean that other OSes (i.e. Windows) are using
-> BIOS provided code to do raid, or do they also have raid software drivers
-> and the bios is only used on bootup for signature detection and formatting?
->
-> Greetings
-> Bernd
+Robert M. Stockmann wrote:
+> On Thu, 12 Aug 2004, Frank Steiner wrote:
 
-Windows also has "software drivers". Since vendors provide drivers 
-independently of Microsoft, they can put precisely what they like in them.
+> I posted this on comp.os.linux.advocacy some time ago :
+> 
+> "SuSE 9.1 : i'm not impressed, its a drama"
+> http://groups.google.com/groups?as_umsgid=pan.2004.07.03.05.05.30.79714@stokkie.net
+> 
+> There's a small typo inside and that is that :
+> 
+> "Not only did the suse9.1 kernel 2.4.5 ..
+> 
+> should read
+> 
+> "Not only did the suse9.1 kernel 2.6.5 ..
 
+I can't reproduce any of the problems you described there on our SuSE 9.1
+hosts... Everything runs fine here,no matter if we use the command line
+or xcdroast. Must be sth. special to your hardware.
+Of course, the 2.6.5 kernel is already old in generel, so I guess you
+should have checked a newer kernel.
+And when you only use the command line anyway, I guess you checked the
+dvd+rw-tools that SuSE ships with 9.1 before being "bitterly disappointed
+at SuSE 9.1" :-) Note that you need the version from their update directory
+to run with subfs, but this versions indeed runs fine.
+
+cu,
+Frank
 -- 
-Cheers,
-Alistair.
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.

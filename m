@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276962AbRJCUCW>; Wed, 3 Oct 2001 16:02:22 -0400
+	id <S276963AbRJCUIw>; Wed, 3 Oct 2001 16:08:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276963AbRJCUCN>; Wed, 3 Oct 2001 16:02:13 -0400
-Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:38529 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S276962AbRJCUCE>;
-	Wed, 3 Oct 2001 16:02:04 -0400
-Date: Wed, 3 Oct 2001 13:02:04 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ben Greear <greearb@candelatech.com>, jamal <hadi@cyberus.ca>,
-        Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Robert Olsson <Robert.Olsson@data.slu.se>,
-        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Message-ID: <20011003130203.A2315@netnation.com>
-In-Reply-To: <3BBB31F4.C223E12E@candelatech.com> <Pine.LNX.4.33.0110030920500.9427-100000@penguin.transmeta.com>
+	id <S276964AbRJCUIm>; Wed, 3 Oct 2001 16:08:42 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:15370 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S276963AbRJCUIZ>; Wed, 3 Oct 2001 16:08:25 -0400
+Date: Wed, 3 Oct 2001 22:08:51 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Christian Schroeder <c-h.schroeder@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Kernel 2.4.10 on SMP
+Message-ID: <20011003220850.H3638@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20011003145729Z276343-760+20191@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110030920500.9427-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011003145729Z276343-760+20191@vger.kernel.org>; from c-h.schroeder@gmx.net on Wed, Oct 03, 2001 at 04:56:51PM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 03, 2001 at 09:33:12AM -0700, Linus Torvalds wrote:
+On Wed, Oct 03, 2001 at 04:56:51PM +0200, Christian Schroeder wrote:
+> since I've been experisnsing large problems with my linux box crashing and 
+> crashing again, I want to give you this bug report, maybe someone else has 
+> the same problem. I used the bug report format in explained in the kernel 
+> sources.
 
-> Note that the big question here is WHO CARES?
-> 
-> There are two issues, and they are independent:
->  (a) handling of network packet flooding nicely
->  (b) handling screaming devices nicely.
-> 
-> First off, some comments:
->  (a) is not a major security issue. If you allow untrusted users full
->      100/1000Mbps access to your internal network, you have _other_
->      security issues, like packet sniffing etc that are much much MUCH
->      worse. So the packet flooding thing is very much a corner case, and
->      claiming that we have a big problem is silly.
-> 
->      HOWEVER, (a) _can_ be a performance issue under benchmark load.
->      Benchmarks (unlike real life) are almost always set up to have full
->      network bandwidth access, and can show this issue.
+[...]
 
-Actually, the way I first started looking at this problem is the result
-of a few attacks that have happened on our network.  It's not just a
-while(1) sendto(); UDP spamming program that triggers it -- TCP SYN
-floods show the problem as well, and _there is no way_ to protect against
-this without using syncookies or some similar method that can only be
-done on the receiving TCP stack only.
+> [7.3]
+> snd-pcm-oss            18816   1 (autoclean)
+> snd-pcm-plugin         14256   0 (autoclean) [snd-pcm-oss]
+> snd-mixer-oss           5280   0 (autoclean) [snd-pcm-oss]
+> NVdriver              723872  14 (autoclean)
+  ^^^^^^^^
+You have the NVidia binary only module loaded on your system. Either
+get support from NVidia, or try to recreate the bug without this
+module.
 
-At one point, one of our webservers received 30-40Mbit/sec of SYN packets
-sustained for almost 24 hours.  Needless to say, the machine was not
-happy.
 
-Simon-
+Erik
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318914AbSICUmi>; Tue, 3 Sep 2002 16:42:38 -0400
+	id <S318916AbSICUm4>; Tue, 3 Sep 2002 16:42:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318916AbSICUmi>; Tue, 3 Sep 2002 16:42:38 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:24035 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318914AbSICUmh>;
-	Tue, 3 Sep 2002 16:42:37 -0400
-Date: Tue, 3 Sep 2002 13:47:09 -0700
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: smc-ircc freeze kernel
-Message-ID: <20020903204709.GC19839@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S318917AbSICUm4>; Tue, 3 Sep 2002 16:42:56 -0400
+Received: from hacksaw.org ([216.41.5.170]:35999 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S318916AbSICUmx>; Tue, 3 Sep 2002 16:42:53 -0400
+Message-Id: <200209032050.g83Ko1CW019969@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
+To: Thunder from the hill <thunder@lightweight.ods.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-reply-to: Your message of "Tue, 03 Sep 2002 14:34:13 MDT."
+             <Pine.LNX.4.44.0209031423260.3373-100000@hawkeye.luckynet.adm> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Date: Tue, 03 Sep 2002 16:50:01 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Semler wrote :
+> > But more importantly, I want controllers that survive total power down.
 > 
-> ifconfig irda0 192.168.1.1 netmask 255.255.255.0
-> my kernel freeze after 3 seconds and only numlock and scrolllock blinks
+> You can't get that with partition tables either. And by the way, we 
 
-	Yeah, obviously it should not crash when the user make a
-mistake, but I expect tracking this bug to be non-trivial.
-	BTW : There is a Linux-IrDA mailing list for all your general
-IrDA question, a Linux-IrDA howto, and my web page.
-	Regards,
+WHAT? Partition tables written onto the disk certainly do survive total power 
+down.
 
-	Jean
+> 
+> Then give them two logical disks. Just a matter of management.
+
+Again, with an annoying controller, and having the user change their 
+requirements every so often (like once a day), I do not want to change the 
+RAID setup lots. The last RAID I was working with took up to an hour to commit 
+geometry changes to the disk.
+
+> Yes, that's cool in case we'd possibly need one. But in the raid cases we 
+> should get to a position where partition tables are not just theoretically 
+> meaningless.
+
+Again, I wouldn't want to depend on that, for the reasons above.
+
+> I've still not said you'd have to do that. You can have a perl script do 
+> your job scribbling the table together.
+
+Please describe this algorithm? Would this potentially mean looking at every 
+block on the disk, including the giant logical disk that a RAID might present? 
+Even if you only have to look at the first few bytes of each block, this is a 
+lot of seeking.
+-- 
+A decision changes the world.
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
 

@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267544AbTBEBlX>; Tue, 4 Feb 2003 20:41:23 -0500
+	id <S267658AbTBEBqW>; Tue, 4 Feb 2003 20:46:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267656AbTBEBlX>; Tue, 4 Feb 2003 20:41:23 -0500
-Received: from packet.digeo.com ([12.110.80.53]:23285 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267544AbTBEBlW>;
-	Tue, 4 Feb 2003 20:41:22 -0500
-Date: Tue, 4 Feb 2003 17:51:09 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, tytso@thunk.org,
-       rddunlap@osdl.org
-Subject: Re: [PATCH][RESEND 3] disassociate_ctty SMP fix
-Message-Id: <20030204175109.57bbfc51.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.50L.0302042306230.32328-100000@imladris.surriel.com>
-References: <Pine.LNX.4.50L.0302042235180.32328-100000@imladris.surriel.com>
-	<Pine.LNX.4.50L.0302042306230.32328-100000@imladris.surriel.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S267659AbTBEBqW>; Tue, 4 Feb 2003 20:46:22 -0500
+Received: from zok.sgi.com ([204.94.215.101]:31888 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S267658AbTBEBqV>;
+	Tue, 4 Feb 2003 20:46:21 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: MAINTAINERS update for SN support
+Date: Tue, 4 Feb 2003 17:55:49 -0800
+User-Agent: KMail/1.5
+References: <20030205011743.GA26333@sgi.com> <20030205012234.A11878@infradead.org>
+In-Reply-To: <20030205012234.A11878@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Feb 2003 01:50:49.0483 (UTC) FILETIME=[020715B0:01C2CCB9]
+Content-Disposition: inline
+Message-Id: <200302041755.49077.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> wrote:
->
-> ===== drivers/char/tty_io.c 1.55 vs edited =====
-> --- 1.55/drivers/char/tty_io.c	Tue Jan 14 23:37:20 2003
-> +++ edited/drivers/char/tty_io.c	Tue Feb  4 23:02:52 2003
-> @@ -425,19 +425,21 @@
->   */
->  void do_tty_hangup(void *data)
->  {
-> -	struct tty_struct *tty = (struct tty_struct *) data;
-> +	struct tty_struct *tty;
->  	struct file * cons_filp = NULL;
->  	struct task_struct *p;
->  	struct list_head *l;
->  	struct pid *pid;
->  	int    closecount = 0, n;
-> 
-> -	if (!tty)
-> -		return;
-> -
->  	/* inuse_filps is protected by the single kernel lock */
->  	lock_kernel();
-> -
-> +	tty = (struct tty_struct *) data;
-> +	if (!tty) {
-> +		unlock_kernel();
-> +		return;
-> +	}
-> +
->  	check_tty_count(tty, "do_tty_hangup");
->  	file_list_lock();
->  	for (l = tty->tty_files.next; l != &tty->tty_files; l = l->next) {
+On Tuesday 04 February 2003 05:22 pm, Christoph Hellwig wrote:
+> I wouldn't exactly consider code that hasn't ever compiled in 2.5
 
-This part is a no-op...
+It compiled (with the ia64 patch applied) last time I sent David an 
+update, which was for 2.5.45 I think.  I'm sure it needs some work now, 
+but I've got to upgrade my assembler to a special version before I can 
+mess with 2.5.59+ia64.  Now booting is a seperate issue... :)
+
+> maintainer..  But I know whom to bug now when the first Altix ships
+> to SGI's Munich office ;)
+
+Hope you get it soon, they're nice machines.
+
+Jesse
 

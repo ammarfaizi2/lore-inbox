@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSEBTWm>; Thu, 2 May 2002 15:22:42 -0400
+	id <S315375AbSEBTYe>; Thu, 2 May 2002 15:24:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSEBTWj>; Thu, 2 May 2002 15:22:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65293 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315372AbSEBTWf>;
-	Thu, 2 May 2002 15:22:35 -0400
-Message-ID: <3CD191C5.AC09B1F4@zip.com.au>
-Date: Thu, 02 May 2002 12:21:41 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S315378AbSEBTYd>; Thu, 2 May 2002 15:24:33 -0400
+Received: from dsl-213-023-038-046.arcor-ip.net ([213.23.38.46]:19361 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315375AbSEBTXi>;
+	Thu, 2 May 2002 15:23:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Date: Thu, 2 May 2002 21:22:07 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020502180632.I11414@dualathlon.random> <20020502171655.GJ32767@holomorphy.com> <20020502204136.M11414@dualathlon.random>
 MIME-Version: 1.0
-To: Daniel Pittman <daniel@rimspace.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.12 severe ext3 filesystem corruption warning!
-In-Reply-To: <87u1pqln4h.fsf@enki.rimspace.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E173M9Y-00027s-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Pittman wrote:
+On Thursday 02 May 2002 20:41, Andrea Arcangeli wrote:
+> On Thu, May 02, 2002 at 10:16:55AM -0700, William Lee Irwin III wrote:
+> > On Thu, May 02, 2002 at 09:10:00AM -0700, Martin J. Bligh wrote:
+> > >> Even with 64 bit DMA, the real problem is breaking the assumption
+> > >> that mem between 0 and 896Mb phys maps 1-1 onto kernel space.
+> > >> That's 90% of the difficulty of what Dan's doing anyway, as I
+> > >> see it.
+> > 
+> > On Thu, May 02, 2002 at 06:40:37PM +0200, Andrea Arcangeli wrote:
+> > > control on virt_to_page, pci_map_single, __va.  Actually it may be as
+> > > well cleaner to just let the arch define page_address() when
+> > > discontigmem is enabled (instead of hacking on top of __va), that's a
+> > > few liner. (the only true limit you have is on the phys ram above 4G,
+> > > that cannot definitely go into zone-normal regardless if it belongs to a
+> > > direct mapping or not because of pci32 API)
+> > > Andrea
+> > 
+> > Being unable to have any ZONE_NORMAL above 4GB allows no change at all.
 > 
-> I gave the 2.5.12 kernel a shot on my workstation tonight and found an
-> *extremely* serious ext3 filesystem corrupting behavior.
+> No change if your first node maps the whole first 4G of physical address
+> space, but in such case nonlinear cannot help you in any way anyways.
 
-A few things..
+You *still don't have a clue what config_nonlinear does*.
 
-Are your other filesystems using journalled data as well?
+It doesn't matter if the first 4G of physical memory belongs to node zero.
+Config_nonlinear allows you to map only part of that to the kernel virtual
+space, and the rest would be mapped to highmem.  The next node will map part
+of its local memory (perhaps the next 4 gig of physical memory) to a different
+part of the kernel virtual space, and so on, so that in the end, all nodes
+have at least *some* zone_normal memory.
 
-Are you sure that all kernel files were recompiled?  If,
-for example, you had some 2.5.11 objects in the link, that
-would be bad.
+Do you now see why config_nonlinear is needed in this case?  Are you
+willing to recognize the possibility that you might have missed some other
+cases where config_nonlinear is needed, and config_discontigmem won't do
+the job?
 
-Do you know whether the bad data is actually on-disk, or
-could it be just in-RAM?  ie: was the data still bad after
-a reboot?
-
-What blocksize is that filesystem using?  The output of
-`dumpe2fs -h /dev/whatever' will tell you this.
-
-Can you please force an fsck against that filesystem,
-see what it says?
-
-Thanks. 
-
--
+-- 
+Daniel

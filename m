@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbTFBMYy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 08:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTFBMYy
+	id S262262AbTFBM0I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 08:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTFBM0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 08:24:54 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:56326 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262259AbTFBMYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 08:24:52 -0400
-Date: Mon, 2 Jun 2003 22:34:38 +1000
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Include missing headers
-Message-ID: <20030602123438.GA13415@gondor.apana.org.au>
+	Mon, 2 Jun 2003 08:26:07 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:2524 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S262262AbTFBM0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 08:26:06 -0400
+Subject: Re: [PATCH] pci bridge class code
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Haverkamp <markh@osdl.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030602133258.A776@flint.arm.linux.org.uk>
+References: <1054239461.28608.74.camel@markh1.pdx.osdl.net>
+	 <20030529214044.B30661@flint.arm.linux.org.uk>
+	 <1054287852.23562.2.camel@dhcp22.swansea.linux.org.uk>
+	 <1054554964.535.35.camel@gaston>
+	 <20030602133258.A776@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054557568.535.47.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 02 Jun 2003 14:39:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-06-02 at 14:32, Russell King wrote:
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> That would not help the case when you have the "generic" bridge module
+> loaded and the specific bridge driver as a loadable module.
 
-This patch adds two missing headers:
+Well... we could store the match score of the driver, and if a newer
+driver comes with a better match, call a replace() callback in the
+current owner to ask if it allows "live" replacement... But that's
+far beyond my original idea though
 
-linux/timer.h: include linux/stddef.h for NULL
-linux/in.h: include linux/socket.h for sa_family_t
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Ben.
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: include/linux/timer.h
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/include/linux/timer.h,v
-retrieving revision 1.1.1.7
-diff -u -r1.1.1.7 timer.h
---- include/linux/timer.h	5 Nov 2001 20:42:13 -0000	1.1.1.7
-+++ include/linux/timer.h	2 Jun 2003 12:31:23 -0000
-@@ -3,6 +3,7 @@
- 
- #include <linux/config.h>
- #include <linux/list.h>
-+#include <linux/stddef.h>
- 
- /*
-  * In Linux 2.4, static timers have been removed from the kernel.
-Index: include/linux/in.h
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/include/linux/in.h,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 in.h
---- include/linux/in.h	1 Jun 2003 07:27:00 -0000	1.1.1.3
-+++ include/linux/in.h	2 Jun 2003 12:32:37 -0000
-@@ -18,6 +18,7 @@
- #ifndef _LINUX_IN_H
- #define _LINUX_IN_H
- 
-+#include <linux/socket.h>
- #include <linux/types.h>
- 
- /* Standard well-defined IP protocols.  */
-
---dDRMvlgZJXvWKvBx--

@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268447AbUJDTtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUJDT45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268447AbUJDTtL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 15:49:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUJDTtD
+	id S268263AbUJDT45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 15:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268410AbUJDT45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:49:03 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:60562 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268344AbUJDTr2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:47:28 -0400
-Message-ID: <4161A8F0.4040402@tmr.com>
-Date: Mon, 04 Oct 2004 15:48:00 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Mon, 4 Oct 2004 15:56:57 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:29166 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S268379AbUJDT4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 15:56:42 -0400
+From: Christian Borntraeger <linux-kernel@borntraeger.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc3-mm2
+Date: Mon, 4 Oct 2004 21:56:26 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20041004020207.4f168876.akpm@osdl.org>
+In-Reply-To: <20041004020207.4f168876.akpm@osdl.org>
 MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Mike Mestnik <cheako911@yahoo.com>, Dave Airlie <airlied@linux.ie>,
-       dri-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Merging DRM and fbdev
-References: <20041003183839.36810.qmail@web11903.mail.yahoo.com><9e4733910410030833e8a6683@mail.gmail.com> <9e47339104100311566f66eb43@mail.gmail.com>
-In-Reply-To: <9e47339104100311566f66eb43@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410042156.26562.linux-kernel@borntraeger.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On Sun, 3 Oct 2004 11:38:39 -0700 (PDT), Mike Mestnik
-> <cheako911@yahoo.com> wrote:
-> 
->>What about moving the DRM and FB specific code into there own per card
->>libs?
->>
->>radeon - attached to hardware
->>   radeon-drm
->>      drm - library
->>   radeon-fb
->>      fb - library
->>         fbcon - library
-> 
-> 
-> Fell free to convert the merged radeon driver in to a driver plus two
-> libs if you want. I'll accept the patch back. You'll need to wait
-> until I get the merged driver working.
-> 
-> What I don't want is two independent implementations of the hardware
-> initialization code like we currently have. The point of merging is to
-> make sure that a single logical driver programs the hardware is a
-> consistent way.
-> 
-> We spend so much time talking about splitting the radeon driver into
-> pieces. But I don't hear anyone saying I can't ship my product because
-> the radeon driver is 120K and all I can handle is 60K. I'm not going
-> to spend a week's work breaking things up and testing them just
-> because of some theoretical need for a non-existant embedded system.
-> When this hypothetical embedded system shows up the people making the
-> money off from the system can do the work.
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2
+>.6.9-rc3-mm2/
+[...]
+>   sysfs backing store
 
-Perhaps there might be some feedback from the embedded folks and/or 
-those who decide if these changes are what they want to go in the 
-kernel. If you're going to do something like this, one of the embedded 
-vendors might want to contribute to development. Clearly smaller 
-software parts have advantages, if resources were available to do it 
-split as part of the modification.
+What is the status of these patches? Any chance of merging them during the 
+2.6.10-rc time period or are there any known problems left? 
 
-That would probably reduce the maintenence effort in the future as well.
+To me, these patches make a lot of sense for systems with a large amount of 
+devices.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+cheers
+
+Christian

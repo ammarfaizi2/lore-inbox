@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318705AbSHEQeZ>; Mon, 5 Aug 2002 12:34:25 -0400
+	id <S318700AbSHEQmg>; Mon, 5 Aug 2002 12:42:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318712AbSHEQeZ>; Mon, 5 Aug 2002 12:34:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:9600 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S318705AbSHEQeZ>;
-	Mon, 5 Aug 2002 12:34:25 -0400
-Date: Mon, 5 Aug 2002 09:37:43 -0700
-From: Bob Miller <rem@osdl.org>
-To: =?iso-8859-1?Q?Edward_Shao_=28=AA=F2=AAv=B0=EA=29?= 
-	<szg90@cs.ccu.edu.tw>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: a question about __down() in Linux/arch/i386/kernel/semaphore.c
-Message-ID: <20020805093743.A9689@doc.pdx.osdl.net>
-References: <021b01c23c8d$22becc60$74667b8c@edward> <024c01c23c8e$5804d710$74667b8c@edward>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <024c01c23c8e$5804d710$74667b8c@edward>; from szg90@cs.ccu.edu.tw on Mon, Aug 05, 2002 at 10:42:37PM +0800
+	id <S318702AbSHEQmf>; Mon, 5 Aug 2002 12:42:35 -0400
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:31281 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id <S318700AbSHEQmf>; Mon, 5 Aug 2002 12:42:35 -0400
+Date: Mon, 5 Aug 2002 19:46:04 +0300 (EEST)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: Aaron Denny <euphguy86@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ppp problem
+In-Reply-To: <20020805122717.78585.qmail@web20514.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44.0208051940490.4448-100000@tassadar.physics.auth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 10:42:37PM +0800, Edward Shao \(邵治國\) wrote:
-> sorry, i found it!
-> wake_up_locked(&sem->wait);
-> but why do we need to wake up the sleepers again?
-> Thank you very much.
-> 
-> -Edward Shao-
-> 
-> ----- Original Message -----
-> From: "Edward Shao (邵治國)" <szg90@cs.ccu.edu.tw>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Monday, August 05, 2002 10:33 PM
-> Subject: a question about __down() in Linux/arch/i386/kernel/semaphore.c
-> 
-> 
-> > Hi,
-> >
-> > I have a question about __down() in kernel 2.4.18
-> > (Linux/arch/i386/kernel/semaphore.c)
-> > I found the last line of __down() is
-> > wake_up(&sem->wait);
-> > but in kernel 2.5.28, i didn't see this line..
-> > is this line necessary in kernel 2.4.18?
-> > why?
-> >
-> > Thank you very much.
-> >
-> > Best Regard!!!
-> >
-> > -Edward Shao-
-> >
-> >
+On Mon, 5 Aug 2002, Aaron Denny wrote:
 
-The quick answer: so we don't miss waking someone up.  But, seriously,
-the semaphore code is very subtle.
+> Hi, i recently updated my kernel to 2.4.9 from 2.2.13,
+> quite a large jump obviously, im in slackware 7.0, ok
 
-This semaphore implementation allows more than one process to be in the
-critical section at a time (a.k.a. a counting semaphore).  In order to
-support those semantics, more than one wakeup may occur before a process
-is pulled off the wake_q and changed to running.  Because the process that
-is waiting to run (in the __down() code) is responsible for pulling itself 
-off the wait_q, if the 2 __up()s happen before the __down() can finish,
-the 2 __up()s will wakeup the same process twice.  So, the __down() code
-needs to protect agaist this.
+  Slackware 7.x lacks /dev/ppp which is needed to do ppp with 2.4.x kernel
+, I had the same problem when I moved my slack 7.0 box to 2.4 You also
+need newer pppd . The steps you have to take  are in
+/your-linux-source-dir/Documentation/Changes . There is a ppp section in
+there . Read it and follow its instructions .
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+  Kind regards ,
+
+--
+=============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle Univercity of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+          http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : 4f84f3f53cb046008b4abcb2a092d28d  pgp_public_key.asc
+=============================================================================
+
+

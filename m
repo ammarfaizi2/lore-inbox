@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290603AbSAYH76>; Fri, 25 Jan 2002 02:59:58 -0500
+	id <S290598AbSAYIBl>; Fri, 25 Jan 2002 03:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290602AbSAYH7s>; Fri, 25 Jan 2002 02:59:48 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:7684 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S290598AbSAYH7b>;
-	Fri, 25 Jan 2002 02:59:31 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Xavier Bestel <xavier.bestel@free.fr>, timothy.covell@ashavan.org,
-        Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: booleans and the kernel
-In-Reply-To: <Pine.GSO.4.21.0201250109150.23657-100000@weyl.math.psu.edu>
-X-No-CC: Reply to lists, not to me.
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <Pine.GSO.4.21.0201250109150.23657-100000@weyl.math.psu.edu>
-Date: 25 Jan 2002 10:00:45 +0200
-Message-ID: <877kq6amhe.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S290602AbSAYIB2>; Fri, 25 Jan 2002 03:01:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:44677 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S290598AbSAYIBR>;
+	Fri, 25 Jan 2002 03:01:17 -0500
+Date: Fri, 25 Jan 2002 10:58:44 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <jfv@Bluesong.NET>
+Cc: jfv <jfv@us.ibm.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+        jstultz <jstultz@us.ibm.com>
+Subject: Re: [PATCH]: O(1) 2.4.17-J6 tuneable parameters
+In-Reply-To: <200201250518.g0P5IrR13332@Bluesong.NET>
+Message-ID: <Pine.LNX.4.33.0201251056250.3988-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alexander" == Alexander Viro <viro@math.psu.edu> writes:
->> > int main()
->> > {
->> >         char x;
->> > 
->> >         if ( x )
->> >         {
->> >                 printf ("\n We got here\n");
->> >         }
->> >         else
->> >         {
->> >                 // We never get here
->> >                 printf ("\n We never got here\n");
->> >         }
->> >         exit (0);
->> > }
->> > covell@xxxxxx ~>gcc -Wall foo.c
->> > foo.c: In function `main':
->> > foo.c:17: warning: implicit declaration of function `exit'
->> 
->> I'm lost. What do you want to prove ? (Al Viro would say you just want
->> to show you don't know C ;)
->> And why do you think you never get there ?
 
-Alexander> I suspect that our, ah, Java-loving friend doesn't realize that '\0' is
-Alexander> a legitimate value of type char...
+On Thu, 24 Jan 2002, Jack F. Vogel wrote:
 
-Alexander> BTW, he's got a funny compiler - I would expect at least a warning about
-Alexander> use of uninitialized variable.
+> 	Have been watching and testing your changes as they have
+> evolved. Our group has a customer request for a scheduler that will
+> give them some tuneable parameters, and your changes have actually had
+> some parameters change thru the deltas you've made. It seemed like it
+> might be useful to take them and make them tweakable on a running
+> system. I am not 100% convinced of the goodness of this, but I wanted
+> to submit it for your consideration.  The current code performs great
+> btw, thanks for all your hard work.
 
-That warning would require data-flow analysis (reachable definitions
-in this case), which is not enabled with certain levels of
-optimization.
+i'm using something like this, hence the structured extraction of all
+relevant parameters in -J6. It's very useful for testing. We do not want
+to slow down the scheduler with runtime parameters though (and it's just
+way too easy to change fundamental behavior of the scheduler by changing
+the paramters), so this should definitely remain a development-helper
+patch.
+
+	Ingo
 

@@ -1,32 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266286AbTADHPE>; Sat, 4 Jan 2003 02:15:04 -0500
+	id <S266296AbTADHQa>; Sat, 4 Jan 2003 02:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266296AbTADHPE>; Sat, 4 Jan 2003 02:15:04 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8200 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266286AbTADHPD>; Sat, 4 Jan 2003 02:15:03 -0500
-Date: Fri, 3 Jan 2003 23:22:43 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Hell.Surfers@cwctv.net
-cc: andrew@walrond.org, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <0180e0109070413DTVMAIL10@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.10.10301032320320.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266406AbTADHQa>; Sat, 4 Jan 2003 02:16:30 -0500
+Received: from f29.sea2.hotmail.com ([207.68.165.29]:2834 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S266296AbTADHQ2>;
+	Sat, 4 Jan 2003 02:16:28 -0500
+X-Originating-IP: [218.75.193.47]
+From: "fretre lewis" <fretre3618@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: please help me understand a line code about pci
+Date: Sat, 04 Jan 2003 07:24:51 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F29TmaiUYFjbhy5H71p0000f22d@hotmail.com>
+X-OriginalArrivalTime: 04 Jan 2003 07:24:51.0666 (UTC) FILETIME=[5EE18320:01C2B3C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Jan 2003 Hell.Surfers@cwctv.net wrote:
 
-> IMHO, if your wife would leave you for having no money shes an asshole. ;)
+hi,all
 
-Continuing down the gutter, does that mean your wife is freely distributed
-for anyone use, modify, bloat, but always return to you ?
+  I am reading code about pci, and I can't understand some lines in
+pci_check_direct(), in arch/i386/kernel/pci-pc.c
 
-Try again,
+well, I wonder why need "outb (0x01, 0xCFB);" if check configuration type 1 
+? and why "outb (0x00, 0xCFB);" if check configuration type 2?
+  please help me,thanks a lot.
 
-Andre Hedrick
-LAD Storage Consulting Group
+
+406 static struct pci_ops * __devinit pci_check_direct(void)
+407 {
+408         unsigned int tmp;
+409         unsigned long flags;
+410
+411         __save_flags(flags); __cli();
+412
+413         /*
+414          * Check if configuration type 1 works.
+415          */
+416         if (pci_probe & PCI_PROBE_CONF1) {
+417                 outb (0x01, 0xCFB);  <<<=========
+418                 tmp = inl (0xCF8);
+419                 outl (0x80000000, 0xCF8);
+420                 if (inl (0xCF8) == 0x80000000 &&
+421                     pci_sanity_check(&pci_direct_conf1)) {
+422                         outl (tmp, 0xCF8);
+423                         __restore_flags(flags);
+424                         printk(KERN_INFO "PCI: Using configuration type 
+1\n");
+425                         request_region(0xCF8, 8, "PCI conf1");
+426                         return &pci_direct_conf1;
+427                 }
+428                 outl (tmp, 0xCF8);
+429         }
+430
+431         /*
+432          * Check if configuration type 2 works.
+433          */
+434         if (pci_probe & PCI_PROBE_CONF2) {
+435                 outb (0x00, 0xCFB);   <<<=========
+436                 outb (0x00, 0xCF8);
+437                 outb (0x00, 0xCFA);
+438                 if (inb (0xCF8) == 0x00 && inb (0xCFA) == 0x00 &&
+439                     pci_sanity_check(&pci_direct_conf2)) {
+440                         __restore_flags(flags);
+441                         printk(KERN_INFO "PCI: Using configuration type 
+2\n");
+442                         request_region(0xCF8, 4, "PCI conf2");
+443                         return &pci_direct_conf2;
+444                 }
+445         }
+446
+447         __restore_flags(flags);
+448         return NULL;
+449 }
+450
+451 #endif
+
+
+
+
+
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE* 
+http://join.msn.com/?page=features/virus
 

@@ -1,149 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVAaRUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVAaRYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVAaRUf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 12:20:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVAaRUf
+	id S261268AbVAaRYT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 12:24:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVAaRYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 12:20:35 -0500
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:42984 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S261261AbVAaRUA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 12:20:00 -0500
-Date: Mon, 31 Jan 2005 12:19:03 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [RFC] shared subtrees
-In-reply-to: <Pine.LNX.4.61.0501291218290.1607@donald.themaw.net>
-To: raven@themaw.net
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-id: <41FE6887.3090006@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
- <41FABD4E.6050701@sun.com> <Pine.LNX.4.61.0501291218290.1607@donald.themaw.net>
+	Mon, 31 Jan 2005 12:24:19 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:27593 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261268AbVAaRYL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 12:24:11 -0500
+Subject: Re: [PATCH] OpenBSD Networking-related randomization port
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, netdev@oss.sgi.com,
+       Hank Leininger <hlein@progressive-comp.com>
+In-Reply-To: <20050131165025.GN18316@stusta.de>
+References: <1106932637.3778.92.camel@localhost.localdomain>
+	 <20050128100229.5c0e4ea1@dxpl.pdx.osdl.net>
+	 <1106937110.3864.5.camel@localhost.localdomain>
+	 <20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
+	 <1106944492.3864.30.camel@localhost.localdomain>
+	 <1106945266.7776.41.camel@laptopd505.fenrus.org>
+	 <200501290915.j0T9FkVY012948@turing-police.cc.vt.edu>
+	 <20050131165025.GN18316@stusta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sVRmgpnA8TFRirAc9KXF"
+Date: Mon, 31 Jan 2005 18:23:38 +0100
+Message-Id: <1107192218.3754.86.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Sorry for the bad quoting below:
+--=-sVRmgpnA8TFRirAc9KXF
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-raven@themaw.net wrote:
-> On Fri, 28 Jan 2005, Mike Waychison wrote:
-> 
-> Al Viro wrote:
-> 
->>>> OK, here comes the first draft of proposed semantics for subtree
->>>> sharing.  What we want is being able to propagate events between
->>>> the parts of mount trees.  Below is a description of what I think
->>>> might be a workable semantics; it does *NOT* describe the data
->>>> structures I would consider final and there are considerable
->>>> areas where we still need to figure out the right behaviour.
->>>>
-> 
-> Okay, I'm not convinced that shared subtrees as proposed will work well
-> with autofs.
-> 
-> 
->> OK. I've read the thread but haven't digested it so you'll have to put
->> up with some stupid questions.
-> 
-> 
-> The idea discussed off-line was this:
-> 
-> When you install an autofs mountpoint, on say /home, a daemon is started
-> to service the requests.  As far as the admin is concerned, an fs is
-> mounted in the current namespace, call it namespaceA.  The daemon
-> actually runs in it's one private namespace: call it namespaceB.
-> namespaceB receives a new autofs filesystem: call it autofsB.  autofsB
-> is in it's own p-node.  namespaceA gets an autofsA on /home as well, and
-> autofsA is 'owned' by autofsB's p-node.
-> 
-> So:
-> 
-> autofsB -> autofsB
-> and
-> autofsB -> autofsA
-> 
-> Effectively, namespaceA has a private instance of autofsB in its tree.
-> 
-> The problem is this:
-> 
-> Assume /home/mikew is accessed in namespaceA.  The daemon running in
-> namespaceB gets the event, and mounts an nfs vfsmount on autofsB.  This
-> event is propagated back to autofsA.
-> 
-> 
->> Which condition (or action) in the definition implies
-> 
->> autofsB -> autofsA
-> 
+El lun, 31-01-2005 a las 17:50 +0100, Adrian Bunk escribi=F3:
+> On Sat, Jan 29, 2005 at 04:15:43AM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > On Fri, 28 Jan 2005 21:47:45 +0100, Arjan van de Ven said:
+> >=20
+> > > as for obsd_get_random_long().. would it be possible to use the
+> > > get_random_int() function from the patches I posted the other day? Th=
+ey
+> > > use the existing random.c infrastructure instead of making a copy...
+> > >=20
+> > > I still don't understand why you need a obsd_rand.c and can't use the
+> > > normal random.c
+> >=20
+> > Note that obsd_rand.c started off life as a BSD-licensed file - I was t=
+old
+> > that was a show-stopper when I submitted basically the same patch a whi=
+le back.
+> >...
+>=20
+> At least the three clause BSD license is GPL compatible.
+>=20
 
-autofsB -> autofsA indicates that mount events are propagated from
-autofsB to autofsA.
+Yes, AFAIK :)
 
-Eg: if you have two mounts (A, B) in the same p-node, then
+I will try to follow Arjan's recommendations on using his functions
+instead of obsd ones, even if I think it should be alone in the current
+file.
+Also I will split up the patch.
 
-A -> B
-and
-B -> A
+I will do it as soon as I get time for it, I need first to work out a
+cleaner vsec (no more code in headers and such) and also a sys_chroot()
+hook that I requested yesterday on the bugzilla, among the SELinux 2.4
+backport which needs several fixes due to last 2.6 bk-commits reports.
 
-By definition, a mountpoint (A) alone in a one element p-node has the
-property:
+Thanks for the comments,
+Cheers.
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
 
-A -> A
+--=-sVRmgpnA8TFRirAc9KXF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
-Which doesn't mean much, other than to show that A is in a p-node.
-
-If you have a p-node p' owned by p-node p, then all mountpoints i' in p'
-will have the following relationship with all mountpoints i in p:
-
-i -> i'
-
-but not the reverse (one-way relationship).
-
-> 
-> (Problem 1: how do you block access to /home/mikew in namespaceA?)
-> 
-> Next, a CLONE_NS is done in namespaceA, creating namespaceA'.  the
-> homedir on /home/mikew is also copied.
-> 
-> Now, in namespaceA', what happens when a user umount's /home/mikew?  We
-> haven't yet determined how to handle umount event propagation, but it
-> appears likely that it will be *a hard thing to do*.
-> 
-> 
->> No I haven't spent enough time on the RFC buy into this one.
->> So I'll just say it looks like something is missing in this argument.
-> 
->> Perhaps the later is namespaceC?
-> 
-
-Sure, it doesn't matter, namespaceA' is an arbitrary name.
-
-HTH,
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFB/miHdQs4kOxk3/MRArCsAJ9PxyxE7crSRk4R0OMB4yppH10wpQCfeQO8
-qk6kcExaN7rzJOi4KoRyXoY=
-=VvFb
+iD8DBQBB/mmZDcEopW8rLewRAlqbAJwNTBNH7ugNu10emnGg6YxKw0q/SQCeOpLj
+Z4J7CgJ7BoxQu4HwPGcAmkM=
+=7prp
 -----END PGP SIGNATURE-----
+
+--=-sVRmgpnA8TFRirAc9KXF--
+

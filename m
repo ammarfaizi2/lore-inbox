@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263630AbRFSFMd>; Tue, 19 Jun 2001 01:12:33 -0400
+	id <S263703AbRFSFb4>; Tue, 19 Jun 2001 01:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263648AbRFSFMN>; Tue, 19 Jun 2001 01:12:13 -0400
-Received: from mcp.csh.rit.edu ([129.21.60.9]:37895 "EHLO mcp.csh.rit.edu")
-	by vger.kernel.org with ESMTP id <S263630AbRFSFMG>;
-	Tue, 19 Jun 2001 01:12:06 -0400
-Date: Tue, 19 Jun 2001 01:06:34 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
-Message-ID: <20010619010633.G8295@fury.csh.rit.edu>
-In-Reply-To: <Pine.LNX.4.30.0106182320510.2168-100000@coredump.sh0n.net> <Pine.LNX.4.30.0106182355500.118-100000@coredump.sh0n.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.30.0106182355500.118-100000@coredump.sh0n.net>; from spstarr@sh0n.net on Mon, Jun 18, 2001 at 11:57:16PM -0400
-X-Operating-System: SunOS 5.8 (sun4u)
+	id <S263746AbRFSFbp>; Tue, 19 Jun 2001 01:31:45 -0400
+Received: from www.wen-online.de ([212.223.88.39]:39432 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S263703AbRFSFbj>;
+	Tue, 19 Jun 2001 01:31:39 -0400
+Date: Tue, 19 Jun 2001 07:30:42 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: root <root@norma.kjist.ac.kr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 VM & swap question
+In-Reply-To: <200106181121.f5IBLdc02300@norma.kjist.ac.kr>
+Message-ID: <Pine.LNX.4.33.0106190725040.576-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 18, 2001 at 11:57:16PM -0400, Shawn Starr wrote:
-> 
-> read_super_block: can't find a reiserfs filesystem on dev 03:42
-> read_old_super_block: try to find super block in old location
-> read_old_super_block: can't find a reiserfs filesystem on dev 03:42
-> Kernel Panic: VFS: Unable to mount root fs on 03:42
-> 
-> my super block broke somewhere?
+On Mon, 18 Jun 2001, root wrote:
 
-    Out of curiousity, what device are you trying to boot from? 03:42, at least
-    according to linux/Documentation/devices.txt, corresponds to /dev/hda42.
+> Regarding to the discussion on the swap size,
+>
+> Recently, Rick van Riel posted a message that there is a bug
+> related to "reclaiming" the swap, and said that it is on his
+> TODO list.
 
-    Is that really the disk you're trying to mount? I'm not familiar with how
-    some IDE RAID controllers present disks, but it was the first thing I
-    noticed.
+That's fixed.
 
-    -Jeff
+> If I believe it, the current trouble we have regarding to the swap
+> size is not because we do not have a sufficient size for the swap,
+> but because there is a bug, although Linus advised us to assign
+> 2 times the physical memory for the swap.
 
--- 
-Jeff Mahoney
-jeffm@suse.com
-jeffm@csh.rit.edu
+Please try 2.4.6.pre3.  (folks with various load types should do this
+and report results.. even if it generates a brief spurt of traffic).
+
+	-Mike
+

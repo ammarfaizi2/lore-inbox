@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQKTTPG>; Mon, 20 Nov 2000 14:15:06 -0500
+	id <S129720AbQKTTWS>; Mon, 20 Nov 2000 14:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130144AbQKTTOq>; Mon, 20 Nov 2000 14:14:46 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:53687 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129345AbQKTTOo>; Mon, 20 Nov 2000 14:14:44 -0500
-Date: Mon, 20 Nov 2000 13:44:39 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: John Jasen <jjasen1@umbc.edu>
-cc: "Charles Turner, Ph.D." <cturner@quark.analogic.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-In-Reply-To: <Pine.SGI.4.21L.01.0011201318480.2040834-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.LNX.4.30.0011201341160.9463-100000@viper.haque.net>
+	id <S129553AbQKTTWI>; Mon, 20 Nov 2000 14:22:08 -0500
+Received: from f-197-65.cvx.ipdial.viaginterkom.de ([62.180.197.65]:20484 "HELO
+	stargate.schirmacher.de") by vger.kernel.org with SMTP
+	id <S129166AbQKTTV7>; Mon, 20 Nov 2000 14:21:59 -0500
+Message-ID: <01C0532B.427002B0.arne@schirmacher.de>
+From: Arne Schirmacher <arne@schirmacher.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: strange interaction between IDE and ieee1394 driver
+Date: Mon, 20 Nov 2000 19:51:21 -0000
+X-Mailer: Microsoft Internet E-Mail/MAPI - 8.0.0.4211
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same experince here....
+When I user the ieee1394 subsystem to transmit data from a camcorder to an 
+IDE disk and the IDE driver is not using DMA, then there will be some data 
+lost in the ieee1394 driver. If I turn on DMA in the IDE driver (hdparm -d1 
+/dev/hda), I do not have any data loss in the ieee1394 driver. Also, on a 
+system that is using a SCSI disk instead of an IDE disk everything is ok 
+too.
 
-Boxes ran perfectly fine with Windows (95/98/NT) but barfed with linux.
-RAM replacement fixed it. Now whenever I see a signal 11 with gcc memory
-is the first thing I go after.
+This behavior has been observed on several different systems. I can 
+reproduce it on my system with kernel 2.2.16 and 2.4.0 test10 with several 
+versions of the ieee1394 driver.
 
-On Mon, 20 Nov 2000, John Jasen wrote:
+My guess is that using the non-DMA mode in the IDE driver is somehow more 
+demanding compared to the DMA mode. Since both IDE and ieee1394 chips are 
+accessed via the PCI bus, perhaps the traffic is so high that the ieee1394 
+data doesn't make it through. But this is just a guess.
 
-> On Mon, 20 Nov 2000, Charles Turner, Ph.D. wrote:
-> On this note, I recall a time that I 'appropriated' a workstation for
-> linux.
->
-> It was pulled out of the student labs, where it had worked for 3 months
-> running NT 4.0, but the RH install kept on crashing out.
->
-> I could even reinstall NT 4.0.
->
-> *shrug*
->
-> Eventually traced it down to memory, and had our hardware hacks replace
-> it.
->
-> Sometimes hardware problems can be subtle.
+The data rate from the camcorder is about 3.6 MByte/sec, the hdparm -Tt 
+benchmark show 4.5 MByte/sec transfer speed when not using DMA and 19 
+MByte/sec when using DMA. (However even the slow disk speed is fast enough 
+to store the video data. The video packets get lost at the ieee1394 driver 
+side, not when attempting writing them to a disk file).
 
--- 
+Another thing is that there is no handshake available between camcorder and 
+ieee1394 interface (it wouldn't make sense for a video appplication). If 
+the interface is not listening, the dropped packet can't be retransmitted.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
+Any insights into the nature of this problem would be very appreciated.
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+
+Arne Schirmacher
+
+(I am not the developer of the ieee1394 driver, just a (currently unhappy) 
+user of both ieee1394 and IDE driver)
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132254AbQL1Bo3>; Wed, 27 Dec 2000 20:44:29 -0500
+	id <S132244AbQL1Bt7>; Wed, 27 Dec 2000 20:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132260AbQL1BoU>; Wed, 27 Dec 2000 20:44:20 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:30966 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S132254AbQL1BoE>;
-	Wed, 27 Dec 2000 20:44:04 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012280113.eBS1DUD00873@webber.adilger.net>
-Subject: Re: 2.2.18 dies on my 486..
-In-Reply-To: <Pine.LNX.4.31.0012220359540.666-100000@asdf.capslock.lan>
- "from Mike A. Harris at Dec 27, 2000 08:05:25 pm"
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>
-Date: Wed, 27 Dec 2000 18:13:30 -0700 (MST)
-CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+	id <S132260AbQL1Btt>; Wed, 27 Dec 2000 20:49:49 -0500
+Received: from p3EE3C826.dip.t-dialin.net ([62.227.200.38]:20996 "HELO
+	emma1.emma.line.org") by vger.kernel.org with SMTP
+	id <S132244AbQL1Btb>; Wed, 27 Dec 2000 20:49:31 -0500
+Date: Thu, 28 Dec 2000 02:18:59 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre3
+Message-ID: <20001228021859.A4661@emma1.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 00:52:32 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Harris writes:
-> I just upgraded my 486 firewall's kernel to pure 2.2.18 from
-> 2.2.17, with no other changes, and now it dies with all sorts
-> of hard disk failures.
-> 
-> I get:
-> 
-> hdb: lost interrupt
-> 
-> And stuff about DRQ lost...
+Somewhat late, but not too late; Alan Cox wrote:
 
-Is it possible you compiled the kernel with gcc 2.95.2?  I've been having
-a similar problem, but I'm having trouble tracking it down.  Because I
-normally use a very heavily modified 2.2.18 kernel, I'm trying to isolate
-just where the problem is - I have no problems with a stock 2.2.18 kernel.
-If I compile with gcc 2.7.2.3 it works fine.
+> 2.2.19pre1
+...
+> o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
 
-Cheers, Andreas
+I patched my 2.2.18-ma2 with that patch to see if that helps me off my
+sys time slowness, but it does unfortunately not help.
+
+I have my system clock drift roughly -1 s/min, though my CMOS clock is
+fine unless tampered with.
+
+What can I do?
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

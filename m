@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVAaRcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVAaRbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbVAaRcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 12:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVAaRcY
+	id S261275AbVAaRbz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 12:31:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVAaRbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 12:32:24 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:55050 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261277AbVAaRbM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 12:31:12 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10: SPARC64 mapped figure goes unsignedly negative...
-References: <87sm4izw3u.fsf@amaterasu.srvr.nix>
-	<Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com>
-	<87sm4hwr81.fsf@amaterasu.srvr.nix>
-	<Pine.LNX.4.61.0501311545200.5933@goblin.wat.veritas.com>
-	<87d5vlwp8k.fsf@amaterasu.srvr.nix>
-	<Pine.LNX.4.61.0501311642400.6072@goblin.wat.veritas.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: it's not slow --- it's stately.
-Date: Mon, 31 Jan 2005 17:31:04 +0000
-In-Reply-To: <Pine.LNX.4.61.0501311642400.6072@goblin.wat.veritas.com> (Hugh
- Dickins's message of "Mon, 31 Jan 2005 17:06:29 +0000 (GMT)")
-Message-ID: <87vf9dv73b.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 31 Jan 2005 12:31:53 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:20126 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261275AbVAaRbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 12:31:09 -0500
+Message-ID: <41FE6B42.7010807@grupopie.com>
+Date: Mon, 31 Jan 2005 17:30:42 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+References: <2.416337461@selenic.com> <1107191783.21706.124.camel@winden.suse.de>
+In-Reply-To: <1107191783.21706.124.camel@winden.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005, Hugh Dickins uttered the following:
-> On Mon, 31 Jan 2005, Nix wrote:
->> Filename				Type		Size	Used	Priority
->> /dev/sda2                               partition	523016	0	1
->> /dev/sda4                               partition	511232	57648	2
->> /dev/sdb2                               partition	523016	0	1
->> 
->> Is the problem that the higher-priority kicking out to swap which should
->> happen when memory is tight, won't?
+Andreas Gruenbacher wrote:
+> [...]
 > 
-> I had thought that it was any kicking out to swap - apart from kicking
-> tmpfs/shmem pages to swap, which should happen independently of Mapped.
-> 
-> If you're not using tmpfs or shmem, then I'm surprised by that figure.
+> static inline void swap(void *a, void *b, int size)
+> {
+>         if (size % sizeof(long)) {
+>                 char t;
+>                 do {
+>                         t = *(char *)a;
+>                         *(char *)a++ = *(char *)b;
+>                         *(char *)b++ = t;
+>                 } while (--size > 0);
+>         } else {
+>                 long t;
+>                 do {
+>                         t = *(long *)a;
+>                         *(long *)a = *(long *)b;
+>                         *(long *)b = t;
+>                         size -= sizeof(long);
+>                 } while (size > sizeof(long));
 
-Oh. Yes, tmpfs might just about explain it:
+You forgot to increment a and b, and this should be "while (size);", no?
 
-58320	/tmp
+>         }
+> }
 
-So it looks like I have a swap-free box for a time. I guess I'd better
-be careful... :)
+Or better yet,
 
-> There was 88 kB out to swap in your original /proc/meminfo, which we
-> may suppose was before Mapped went negative; but above shows more since.
+static inline void swap(void *a, void *b, int size)
+{
+	long tl;
+         char t;
 
-Yes, I expect so. It must've gone negative really rather early: and note
-that it's some distance below 2^64 by now, so it's still falling.  If I
-wait for a billion years or so it might wrap around. :)
+	while (size >= sizeof(long)) {
+                 tl = *(long *)a;
+                 *(long *)a = *(long *)b;
+                 *(long *)b = tl;
+		a += sizeof(long);
+		b += sizeof(long);
+                 size -= sizeof(long);
+	}
+	while (size) {
+                 t = *(char *)a;
+                 *(char *)a++ = *(char *)b;
+                 *(char *)b++ = t;
+		size--;
+         }
+}
+
+This works better if the size is not a multiple of sizeof(long), but is 
+bigger than a long.
+
+However it seems that this should be put in a generic library function...
 
 -- 
-`Blish is clearly in love with language. Unfortunately,
- language dislikes him intensely.' --- Russ Allbery
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

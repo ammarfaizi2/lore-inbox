@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbTDPOfG (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbTDPOfF 
+	id S264416AbTDPOgT (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 10:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTDPOgT 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 10:35:05 -0400
-Received: from dp.samba.org ([66.70.73.150]:40672 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264389AbTDPOfE 
+	Wed, 16 Apr 2003 10:36:19 -0400
+Received: from smtp02.wxs.nl ([195.121.6.54]:19427 "EHLO smtp02.wxs.nl")
+	by vger.kernel.org with ESMTP id S264416AbTDPOgS 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 10:35:04 -0400
-Date: Thu, 17 Apr 2003 00:46:31 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: ranty@debian.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: firmware separation filesystem (fwfs)
-Message-ID: <20030416144631.GB899@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, ranty@debian.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030416005710.GB29682@ranty.ddts.net> <1050492681.28586.39.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1050492681.28586.39.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.5.4i
+	Wed, 16 Apr 2003 10:36:18 -0400
+Date: Wed, 16 Apr 2003 16:50:54 +0200 (CEST)
+From: Ferry van Steen <freaky@www.bananateam.nl>
+Subject: Compilation problems
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.33.0304161633470.1131-100000@www.bananateam.nl>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 16, 2003 at 12:31:21PM +0100, Alan Cox wrote:
-> How is this better than simply having your hotplug helper load
-> the firmware from disk ? Its nice code but you have to ask the
-> question "why". I don't want the firmware wasting ram, I don't
-> need the firmware fs wasting ram. I may need to load the right
-> firmware from a choice of 16 odd types (usb_serial has some
-> examples there).
+Sorry to bring this here, I know it's not the most correct place, but I
+wouldn't know where else to find people that know this (I've asked in
+several places)
 
-The obvious case is where it's impossible, or at least difficult/messy
-for userspace to directly access the device to upload the firmware.
-The latter is the case for the orinoco devices: the same firmwares can
-be used by USB, PCMCIA and PCI devices - these all have somewhat
-different register configurationss and different upload methods.
-Having an upload program that handles all these cases (not to mention
-endian and IO vs. memory mapped registers) seems silly when the driver
-already knows how to talk to the devices properly (actually we don't
-do firmware upload yet, but one day).  
+First off, I have 2 computers a notebook with a P3, gentoo 1.4rc2 stage 1
+and a athlon xp workstation with gentoo 1.4rc2. The workstation has an IDE
+controller for which partially open-source drivers are available.
 
-The driver could provide a chardev interface to upload the firmware
-through, but that's a lot more work - and there are issues of mapping
-the right chardev to the right network device instance, coping with
-the device in half-alive mode (i.e. initialized enough that firmware
-can be uploaded, but not ready to use because there's no firmware yet)
-etc.
+At this moment I have 2 disks for linux in the workstation, one on the
+normal ide controller cause I couldn't get the RAID one to work and one on
+the RAID. As you might understand I want to loose the one on the normal
+IDE controller. Therefore, I started compiling on the notebook.
 
-I believe the idea is that hotplug (or other scripts) would copy the
-appropriate firmware into the relevant path in fwfs, so you don't need
-RAM for every firmware variant - just the one you're using.  And if
-we're really worried about memory it shouldn't be hard for the driver
-to arrange to unlink the firmware image once it's done with it (at the
-cost of not being able to reload the firmware on a reset/reinitialize,
-which might be sensible or necessary for some devices).
+Both computers have gentoo from stage 1, all applications/libraries are
+thus fully optimized for the CPU they run on.
 
-My personal feeling is that this would probably make more sense as a
-type of sysfs node, rather than a separate filesystem, but the basic
-concept seems sound.
+Now when I compile a 2.4.20 kernel on either of them, with the athlon CPU
+selected in the kernel config these run, no matter if it was compiled on
+the notebook or the workstation, they run fine on the workstation.
+However, if I compile the module on the notebook, against the sources of
+the kernel that was compiled for the workstation and -march=athlon (just
+like the kernel) this module will give unresolved symbols errors. If
+however I compile this module on the athlon it runs without a problem.
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+I don't know a whole lot about the lower level things of compilation like
+linkage, but what I think is that maybe part of the c libraries that have
+already been compiled are transferred (linked with) the module and that
+this P3 optimized code causes problems. This however are mere assumptions
+and raises questions like why isn't the kernel bothered by this? And AFAIK
+all P3 options should be supported on an Athlon-XP (that is /proc/cpuinfo
+has all the flags my p3 has as well).
+
+Any ideas what might cause this behaviour?
+
+Kind regards
+

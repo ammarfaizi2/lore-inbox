@@ -1,54 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264241AbTLUXFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 18:05:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264245AbTLUXFk
+	id S264256AbTLUXPn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 18:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTLUXPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 18:05:40 -0500
-Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:33408
-	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S264241AbTLUXFj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 18:05:39 -0500
-Date: Sun, 21 Dec 2003 18:05:24 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Mika Penttil? <mika.penttila@kolumbus.fi>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       jariruusu@users.sourceforge.net
-Subject: Re: [PATCH] loop.c patches, take two
-Message-ID: <20031221230522.GD4721@fukurou.paranoiacs.org>
-Mail-Followup-To: Ben Slusky <sluskyb@paranoiacs.org>,
-	Mika Penttil? <mika.penttila@kolumbus.fi>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jariruusu@users.sourceforge.net
-References: <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org> <20031101002650.GA7397@fukurou.paranoiacs.org> <20031102204624.GA5740@fukurou.paranoiacs.org> <20031221195534.GA4721@fukurou.paranoiacs.org> <3FE6076B.3090908@kolumbus.fi> <20031221211201.GC4721@fukurou.paranoiacs.org> <3FE62617.10604@kolumbus.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FE62617.10604@kolumbus.fi>
-User-Agent: Mutt/1.4i
+	Sun, 21 Dec 2003 18:15:43 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34260 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S264256AbTLUXPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 18:15:40 -0500
+Message-ID: <3FE62999.90309@labs.fujitsu.com>
+Date: Mon, 22 Dec 2003 08:15:37 +0900
+From: Tsuchiya Yoshihiro <tsuchiya@labs.fujitsu.com>
+Reply-To: tsuchiya@labs.fujitsu.com
+Organization: Fujitsu Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Stephen C. Tweedie" <sct@redhat.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: filesystem bug?
+References: <3FDD7DFD.7020306@labs.fujitsu.com>	 <1071582242.5462.1.camel@sisko.scot.redhat.com> <3FDF7BE0.205@jpl.nasa.gov>	 <3FDF95EB.2080903@labs.fujitsu.com>  <3FE0E5C6.5040008@labs.fujitsu.com> <1071782986.3666.323.camel@sisko.scot.redhat.com>
+In-Reply-To: <1071782986.3666.323.camel@sisko.scot.redhat.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Dec 2003 01:00:39 +0200, Mika Penttil? wrote:
-> AFAICS, this code path is never taken. You don't queue block device writes 
-> for the loop thread.
+Stephen C. Tweedie wrote:
 
-Yes I do, in loop_end_io_transfer. If we allocated fewer pages for the copy
-bio than contained in the original bio, then those pages are recycled for
-the next write.
+>>>Following is the failed combination:
+>>>Redhat9 with 2.4.20-8 ext2 and ext3
+>>>Redhat9 with 2.4.20-19.9 ext2 and ext3
+>>>Redhat9 with 2.4.20-24.9 ext2
+>>>      
+>>>
+>>I forgot to mention that I had been testing 2.4.20 from kernel.org 
+>>also.... And it failed now!
+>>    
+>>
+>
+>This looks more and more like either bad hardware, or a specific device
+>driver problem.  What storage is being used here?
+>
+>  
+>
+Hi,
 
-@@ -413,7 +411,7 @@ static int loop_end_io_transfer(struct b
- 	if (bio->bi_size)
- 		return 1;
- 
--	if (err || bio_rw(bio) == WRITE) {
-+	if (err || (bio_rw(bio) == WRITE && bio->bi_vcnt == rbh->bi_vcnt)) {
- 		bio_endio(rbh, rbh->bi_size, err);
- 		if (atomic_dec_and_test(&lo->lo_pending))
- 			up(&lo->lo_bh_mutex);
+Stephen, I don't think it is a hardware problem, since this problem
+happens on
+several different machines, and it happens both on SCSI disk and
+our own iSCSI like device driver. I typically use:
 
--- 
-Ben Slusky                | "Looks like yet another megatrend
-sluskyb@paranoiacs.org    |  has come and gone without affecting
-sluskyb@stwing.org        |  me in any way whatsoever."
-PGP keyID ADA44B3B        |                     www.theonion.com
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+<Adaptec aic7899 Ultra160 SCSI adapter>
+aic7899: Ultra160 Wide Channel B, SCSI Id=7, 32/253 SCBs
+
+blk: queue c1671674, I/O limit 4095Mb (mask 0xffffffff)
+Vendor: SEAGATE Model: ST336753LC Rev: DX03
+
+
+>It could possibly be a core VFS bug, but the VFS is in general pretty
+>reliable under load.  We've had problems under specific edge conditions
+>such as races between sync and unmount, but the basic VFS behaviour
+>under load generally gets _lots_ of testing, so I'd definitely start by
+>looking elsewhere.  
+>
+>I'd also like to see how your 2.4.23 and 2.6.0-test11 testing is going. 
+>That might give some clues, too.  There's a race between clear_inode()
+>and read_inode() fixed in those kernels, but that doesn't look relevant
+>here; there may be something else changed that's significant, though.
+>
+>  
+>
+EXT3 on 2.4.23 and 2.6.0-test11 both failed. I feel when I make the
+filesystem
+smaller - make the filesystem usage 70% to 80% during the test- ,
+the problem happens easyer.
+
+Yoshi
+--
+Yoshihiro Tsuchiya
+
+

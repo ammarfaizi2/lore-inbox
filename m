@@ -1,34 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264560AbUEaEJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264596AbUEaEMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264560AbUEaEJo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 00:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUEaEJo
+	id S264596AbUEaEMT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 00:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUEaEMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 00:09:44 -0400
-Received: from c-67-163-25-83.client.comcast.net ([67.163.25.83]:47620 "HELO
-	compuserve.com") by vger.kernel.org with SMTP id S264562AbUEaEJm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 00:09:42 -0400
-Date: Mon, 31 May 2004 04:09:28 +0000
-From: Moromogyk <moromogyk@fannclub.com>
-Subject: Linux-kernel, Pill to cure impotence
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <6F5KAL0JDCB6B191@vger.kernel.org>
-In-Reply-To: <6F5KAL0JDCB6B191@vger.kernel.org>
-Message-ID: <G2E32F43K976J0D3@fannclub.com>
-Reply-To: Bidukuz <bidukuz@purinmail.com>
+	Mon, 31 May 2004 00:12:19 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:13654 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S264609AbUEaELm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 00:11:42 -0400
+Date: Sun, 30 May 2004 22:11:40 -0600 (MDT)
+From: Stephen Smoogen <smoogen@lanl.gov>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How to use floating point in a module?
+In-Reply-To: <200405310152.i4V1qNk03732@mailout.despammed.com>
+Message-ID: <Pine.LNX.4.58.0405302207450.19352@smoogen3.lanl.gov>
+References: <200405310152.i4V1qNk03732@mailout.despammed.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello my friend
+On Sun, 30 May 2004 ndiamond@despammed.com wrote:
 
-http://www.pharmacy-farm.biz - Buy pills here
-My name is Kevin, and I wanted to thank you for your personal 
-attention (and answers to my extra questions), 
-your support team are exceptional and made me feel like a 
-real valued customer. Keep it up and thanks again! 
-http://www.pharmacy-farm.biz - Buy pills here
+>A driver, implemented as a module, must do some floating-point
+>computations including trig functions.  Fortunately the architecture is
+>x86.  A few hundred kilograms of searching (almost a ton of searching
+>:-) seems to reveal the following possibilities.
 
+How much precision do you need for you hardware device? It would
+probably be easier to use 1 to 2 precision point old integer approx
+equations for what you are wanting. However, it is probably the worst
+thing to do by putting that much overhead into kernel space. In the end,
+if you are needing tight control anyway, a real time kernel would be a 
+better match for your requirements. Keep the hardware as simple as 
+possible (or put the calculations into the sub-hardware piece).
+
+
+-- 
+Stephen John Smoogen		smoogen@lanl.gov
+Los Alamos National Lab  CCN-5 Sched 5/40  PH: 4-0645
+Ta-03 SM-1498 MailStop B255 DP 10S  Los Alamos, NM 87545
+-- You should consider any operational computer to be a security problem --

@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264628AbSKCVuJ>; Sun, 3 Nov 2002 16:50:09 -0500
+	id <S262491AbSKCVt6>; Sun, 3 Nov 2002 16:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264634AbSKCVuJ>; Sun, 3 Nov 2002 16:50:09 -0500
-Received: from 205-158-62-131.outblaze.com ([205.158.62.131]:205 "HELO
-	ws5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S264628AbSKCVuH>; Sun, 3 Nov 2002 16:50:07 -0500
-Message-ID: <20021103215631.30007.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S264624AbSKCVt6>; Sun, 3 Nov 2002 16:49:58 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:43015 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262491AbSKCVt6>; Sun, 3 Nov 2002 16:49:58 -0500
+Date: Sun, 3 Nov 2002 22:55:55 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5: troubles with piping make output
+In-Reply-To: <20021103213920.H5589@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211032252000.13258-100000@serv>
+References: <200211031122.gA3BMbp27805@Port.imtp.ilyichevsk.odessa.ua>
+ <20021103182805.GA1057@mars.ravnborg.org> <200211031946.gA3JkIp29186@Port.imtp.ilyichevsk.odessa.ua>
+ <Pine.LNX.4.44.0211032106010.6949-100000@serv> <20021103202446.F5589@flint.arm.linux.org.uk>
+ <Pine.LNX.4.44.0211032146240.6949-100000@serv> <20021103212435.G5589@flint.arm.linux.org.uk>
+ <Pine.LNX.4.44.0211032227100.6949-100000@serv> <20021103213920.H5589@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: m.c.p@wolk-project.de
-Date: Mon, 04 Nov 2002 05:56:31 +0800
-Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.45-mcp3
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws5-1.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> P.S.: Con: want to benchmark this?
+Hi,
 
-These are the results of contest 0.51 on my machine:
+On Sun, 3 Nov 2002, Russell King wrote:
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              128.8   97      0       0       1.01
-2.5.45 [1]              133.7   96      0       0       1.04
-2.5.45-mcp3 [1]         134.0   96      0       0       1.05
+> > As I already said, oldconfig still works as before. Maybe you should have 
+> > tried it first?
+> 
+> I have.  However, I thought you were about to change the oldconfig
+> behaviour.  My bad.
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              194.1   60      134     40      1.52
-2.5.45 [1]              190.1   68      58      32      1.48
-2.5.45-mcp3 [1]         190.4   68      59      33      1.49
+Why should I? The original problem was with 'make | tee', which might run 
+a silent version of oldconfig.
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.45 [1]              396.9   37      36      10      3.10
-2.5.45-mcp3 [1]         557.5   25      49      9       4.35
+> The patch is still required, though, to make sure stdout is flushed to
+> the user before asking a question, which doesn't happen in the case I
+> highlighted.
 
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.45 [1]              164.8   81      10      4       1.29
-2.5.45-mcp3 [1]         169.7   78      10      4       1.33
+Will add. Thanks.
 
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.45 [1]              151.1   87      0       6       1.18
-2.5.45-mcp3 [1]         151.8   87      0       6       1.19
+bye, Roman
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.19 [3]              161.1   80      38      2       1.26
-2.5.44-mm5 [5]          200.2   66      34      1       1.56
-2.5.45 [1]              188.9   70      35      1       1.47
-2.5.45-mcp3 [1]         248.3   53      35      1       1.94
-
-I hope it helps.
-
-Ciao,
-       Paolo
-
--- 
-
-Powered by Outblaze

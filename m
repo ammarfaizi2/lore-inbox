@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267716AbTGHWVw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267783AbTGHWVv
+	id S265417AbTGHW2i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 18:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbTGHW2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:21:51 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:34960 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S267716AbTGHWUY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:20:24 -0400
-Date: Wed, 9 Jul 2003 00:34:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       Andrew Grover <andrew.grover@intel.com>, torvalds@transmeta.com
-Subject: Fix thinko in acpi
-Message-ID: <20030708223444.GC183@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Tue, 8 Jul 2003 18:28:38 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:59399 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S265417AbTGHW2g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 18:28:36 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Tue, 8 Jul 2003 15:43:43 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Forking shell bombs
+In-Reply-To: <20030708212517.GO1030@dbz.icequake.net>
+Message-ID: <Pine.LNX.4.53.0307081539080.24018@jordan.eng.nateng.com>
+References: <20030708202819.GM1030@dbz.icequake.net> <3F0B2CE6.8060805@nni.com>
+ <20030708212517.GO1030@dbz.icequake.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-It probably is fixed in ACPI patches somewhere, but it surprises me it
-is not yet in Linus' kernel. Please apply,
-								Pavel
+HP/UX and some other systems, have kernel parameters that can be set for
+max number of processes, and or threads.  I'm not a big fan of it myself,
+since there are instances where it would appear to be a 'fork attack' but
+be legitimate threads or forks.
 
---- /usr/src/tmp/linux/drivers/acpi/sleep/main.c	2003-07-09 00:21:15.000000000 +0200
-+++ /usr/src/linux/drivers/acpi/sleep/main.c	2003-07-09 00:13:14.000000000 +0200
-@@ -244,7 +245,7 @@
- 	/* do we have a wakeup address for S2 and S3? */
- 	/* Here, we support only S4BIOS, those we set the wakeup address */
- 	/* S4OS is only supported for now via swsusp.. */
--	if (state == ACPI_STATE_S2 || state == ACPI_STATE_S3 || ACPI_STATE_S4) {
-+	if (state == ACPI_STATE_S2 || state == ACPI_STATE_S3 || state == ACPI_STATE_S4) {
- 		if (!acpi_wakeup_address)
- 			return AE_ERROR;
- 		acpi_set_firmware_waking_vector((acpi_physical_address) acpi_wakeup_address);
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Not to mention it is just tacky...  A better solution is:
+
+Know thy users, .... and thy baseball bat.
+
+  -- Sir Ace
+
+On Tue, 8 Jul 2003, Ryan Underwood wrote:
+
+>
+> Hi,
+>
+> On Tue, Jul 08, 2003 at 04:43:18PM -0400, jhigdon wrote:
+> >
+> > Have you tried this on any 2.5.x kernels? Just curious to see what it
+> > does, I plan on giving it a go later.
+>
+> I haven't, but a previous poster indicated that they had (2.5.74) with
+> the same results.
+>
+> I wonder if we could find an upper limit on the number of allowable
+> processes that would leave the box in a workable state?  Unfortunately,
+> I don't have a spare box to test such things on at the moment. ;)
+>
+> Thanks,
+>

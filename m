@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262763AbTIQOHr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 10:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbTIQOHr
+	id S262768AbTIQO3t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 10:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTIQO3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 10:07:47 -0400
-Received: from gw-nl5.philips.com ([212.153.235.109]:51391 "EHLO
-	gw-nl5.philips.com") by vger.kernel.org with ESMTP id S262763AbTIQOHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 10:07:19 -0400
-Message-ID: <3F686AEF.1000900@basmevissen.nl>
-Date: Wed, 17 Sep 2003 16:08:47 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Wed, 17 Sep 2003 10:29:49 -0400
+Received: from smtp1.att.ne.jp ([165.76.15.137]:5110 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262768AbTIQO3s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 10:29:48 -0400
+Message-ID: <0d5201c37d28$02128d80$63ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Russell King" <rmk@arm.linux.org.uk>, "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <1b7201c37a73$844b7030$2dee4ca5@DIAMONDLX60> <20030914091702.B20889@flint.arm.linux.org.uk> <20030916164941.GI3593@kroah.com> <20030916182059.D20141@flint.arm.linux.org.uk>
+Subject: Re: 2.6.0-test5 vs. Ethernet cards
+Date: Wed, 17 Sep 2003 23:27:55 +0900
 MIME-Version: 1.0
-To: jarausch@belgacom.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.14-pre7 Unresolved symbols
-References: <20030917095232.CC86AA7E68@numa-i.igpm.rwth-aachen.de>
-In-Reply-To: <20030917095232.CC86AA7E68@numa-i.igpm.rwth-aachen.de>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jarausch@belgacom.net wrote:
-> Hi,
-> 
-> trying to build 2.4.14-pre7 breaks with the error message
-> depmod: *** Unresolved symbols in /lib/modules/2.4.14-pre7/kernel/fs/romfs/romfs.o
-> depmod:         unlock_page
-> 
-> during make modules_install.
-> 
-> 2.4.14-pre6 is running fine here.
-> 
+"Russell King" wrote:
+> On Tue, Sep 16, 2003 at 09:49:41AM -0700, Greg KH wrote:
+> > On Sun, Sep 14, 2003 at 09:17:02AM +0100, Russell King wrote:
+> > > On Sun, Sep 14, 2003 at 12:51:29PM +0900, Norman Diamond wrote:
+> > > > Shutdown messages appear on the text console as follows:
+> > > > [...]
+> > > > Shutting down PCMCIA unregister_netdevice: waiting for eth0 to
+> > > > become free. Usage count = 1
+> > > > unregister_netdevice: waiting for eth0 to become free. Usage count =
+> > > > 1
+> > > > [...]
+> > > > The only way to shut down at this point is to turn off the power.
+> > >
+> > > IIRC the problem is your hotplug scripts.  Maybe the hotplug folk can
+> > > tell you the minimum version for 2.6.
+> >
+> > The last release version is the best for 2.6, but this doesn't look
+> > like a hotplug script issue at all.
+>
+> Hmm, ok.  However, in the past when people have upgraded their hotplug
+> scripts, the problem goes away.
 
-Why are you (still) using 2.4.14-preX? Current stable version is 2.4.22 
-and 2.4.23-preX is under development.
+It will be a while before I have time to try it, sorry.  SuSE 8.2 is
+partially installed on that machine now and one day next weekend will
+probably finish just that.
 
-Anyway, grep for "unlock_page" in all .c files, find out if the .o of it 
-is built and if the symbol is exported with EXPORT_SYMBOL.
+> Whatever, it's certainly not a PCMCIA issue either, so I'm at a loss what
+> to do about these reports.
+> I can only think that the right answer is to bat them all at the netdev
+> list, since it is a network device issue.
 
-BTW. Did you save the .config file and ran "make mrproper" before 
-building? It is very likely that after patching up in a "used" tree, the 
-rebuild is not going entirely correctly.
+Stephen Hemminger sent private e-mail guessing that IPV6 bugs might be the
+cause.  I did select a number of IPV6 options when building
+2.6.0-test[1..5].  Sorry I don't remember if my 2.4.19 included any IPV6
+support, and I'm not planning to try a regression test to that one.    I'll
+try to find time some weekend to experiment with 2.6.0-test5 and
+2.4.20-SuSE8.2 with and without IPV6.
 
-Regards,
-
-Bas.
-
+I don't have access to IPV6 at present but figure I will someday, and if I
+ever have time to experiment with it then the experimentation time will not
+be wasted.  Most of the world (except for North America) will not be able to
+survive without IPV6.
 

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310783AbSCRNXK>; Mon, 18 Mar 2002 08:23:10 -0500
+	id <S310787AbSCRNZu>; Mon, 18 Mar 2002 08:25:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310787AbSCRNXA>; Mon, 18 Mar 2002 08:23:00 -0500
-Received: from ns.suse.de ([213.95.15.193]:40209 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310783AbSCRNWn>;
-	Mon, 18 Mar 2002 08:22:43 -0500
-Date: Mon, 18 Mar 2002 14:22:40 +0100
-From: Dave Jones <davej@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, Martin Dalecki <martin@dalecki.de>,
-        Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [-ENOCOMPILE] ataraid as module in linux-2.5.7-pre2
-Message-ID: <20020318142240.D3025@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org, Martin Dalecki <martin@dalecki.de>,
-	Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <200203180938.g2I9c1q27846@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S310806AbSCRNZk>; Mon, 18 Mar 2002 08:25:40 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:48900 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310787AbSCRNZc>;
+	Mon, 18 Mar 2002 08:25:32 -0500
+Date: Mon, 18 Mar 2002 10:24:58 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: 2.4 Scheduler 
+In-Reply-To: <3C95CC7D.8070101@fugmann.dhs.org>
+Message-ID: <Pine.LNX.4.44L.0203181023580.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 18, 2002 at 11:37:33AM -0200, Denis Vlasenko wrote:
- > gcc -D__KERNEL__ -I/.share/usr/src/linux-2.5.7-pre2/include -Wall 
- > -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
- > -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
- > -march=i386 -DMODULE -DMODVERSIONS -include 
- > /.share/usr/src/linux-2.5.7-pre2/include/linux/modversions.h  
- > -DKBUILD_BASENAME=ataraid  -DEXPORT_SYMTAB -c ataraid.c
+On Mon, 18 Mar 2002, Anders Peter Fugmann wrote:
 
- Yup, this, the Raid5 report, and a few other non-compiling bits
- are logged at http://www.codemonkey.org.uk/Linux-2.5.html
+> I have some specific questions concering the implementation of the
+> scheduler in 2.4.18, which I hope you would please answer for me.
+>
+> Question #1:
+> Has anyone documented the functionality of the current scheduler?
 
- If there's no change in those files between pre's, re-reporting
- the same non-compile errors probably isn't going to get them fixed
- any quicker 8-)
+Yes.
 
+There is text about the scheduler in O'Reilly's
+"understanding the linux kernel" as well as in
+my "kernel tour" lecture.
+
+You can get the latter from http://surriel.com/lectures/
+
+regards,
+
+Rik
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

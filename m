@@ -1,106 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264950AbSJPHEo>; Wed, 16 Oct 2002 03:04:44 -0400
+	id <S264938AbSJPHRx>; Wed, 16 Oct 2002 03:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264951AbSJPHEo>; Wed, 16 Oct 2002 03:04:44 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:16005
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264950AbSJPHEm>; Wed, 16 Oct 2002 03:04:42 -0400
-Date: Wed, 16 Oct 2002 02:57:33 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: sfrench@us.ibm.com
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5] CIFS invalid UNC oops fix
-Message-ID: <Pine.LNX.4.44.0210160247480.1460-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264945AbSJPHRx>; Wed, 16 Oct 2002 03:17:53 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:14601 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S264938AbSJPHRw>; Wed, 16 Oct 2002 03:17:52 -0400
+Date: Wed, 16 Oct 2002 00:23:45 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
+Message-ID: <20021016072345.GE7844@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20021015165947.50642.qmail@web13801.mail.yahoo.com> <aoi6bb$309$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aoi6bb$309$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No username specified <1>Unable to handle kernel NULL pointer dereference 
-at virtual address 00000000
- printing eip:
-c01f5b29
-*pde = 00000000
-Oops: 0000
- 
-CPU:    0
-EIP:    0060:[<c01f5b29>]    Not tainted
-EFLAGS: 00010202
-EIP is at inet_addr+0x19/0xc0
-eax: 00000004   ebx: 00000000   ecx: c7bae800   edx: c7bae800
-esi: c5757da8   edi: c5757da8   ebp: 0000000c   esp: c5757da8
-ds: 0068   es: 0068   ss: 0068
-Process mount (pid: 1349, threadinfo=c5756000 task=c5ec2680)
-Stack: 00000000 c7bae800 c7bae800 c569e000 0000000c c01ee12d 00000000 00000000 
-       00000000 00000000 c5756000 c5756000 00000001 c58fc000 c0126586 00000546 
-       00000000 00000000 00000000 c0109767 00000546 00000000 80000000 c5756000 
-Call Trace:
- [<c01ee12d>] cifs_mount+0xed/0x900
- [<c0126586>] sys_waitpid+0x16/0x260
- [<c0109767>] syscall_call+0x7/0xb
- [<c0131f55>] request_module+0x205/0x2d0
- [<c014365a>] __kmem_cache_alloc+0xea/0x1d0
- [<c01e8577>] cifs_read_super+0x37/0x110
- [<c01e8866>] cifs_get_sb+0x56/0xb0
- [<c015c5af>] do_kern_mount+0x3f/0xb0
- [<c017321a>] do_add_mount+0x5a/0x150
- [<c01734ec>] do_mount+0x13c/0x190
- [<c0140068>] do_mremap+0x1f8/0x3f0
- [<c017335d>] copy_mount_options+0x4d/0xa0
- [<c0173976>] sys_mount+0xe6/0x120
- [<c01199a0>] do_page_fault+0x0/0x489
- [<c0109767>] syscall_call+0x7/0xb
+On Tue, Oct 15, 2002 at 03:54:35PM -0700, H. Peter Anvin wrote:
+> Followup to:  <20021015165947.50642.qmail@web13801.mail.yahoo.com>
+> By author:    Padraig O Mathuna <padraigo@yahoo.com>
+> In newsgroup: linux.dev.kernel
+> > 
+> > I'm developing some drivers for the AU1000 under
+> > Mountain Vista's 2.4.17 sherman release. The AU1000 is
+> > a MIPS based SOC with a 36 bit internal address bus
+> > and a 32 bit MIPS cpu.  According to the documentation
+> > the MIPS' TLB is able to map 32 bit virtual addresses
+> > to 36 bit physical addresses, however I cannot figure
+> > out how to get Linux to set this up.  I've looked at
+> > ioremap which only takes unsigned long (32bits) as an
+> > argument to assign a virtual address.  Is there
+> > another way?
+> > 
+> 
+> Oh no, the x86 madness is spreading!!!!
+> 
+> (It's depressing this happening on a MIPS system, which has been 64
+> bits since who-knows-when...)
+> 
+> *Vomit*
+> 
+> 	-hpa
 
-Code: 8a 0b 31 c0 31 ed 88 c8 8a 80 c0 cd 4b c0 83 e0 04 84 c0 74 
+Can't say exactly when but my MIPS RISC Architecture manual
+for the R2000/R3000 shows it to be a _strictly_ 32 bit
+architecture in 1988 and i distinctly remember the working
+with the newest R400x in 1993 which was still 32bit.  I
+know MIPS went to 64bit sometime not too long after that
+(mid 90's?) but by then Alpha and Sparc had beaten them to
+the punch.
 
-Index: linux-2.5.43/fs/cifs/connect.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.43/fs/cifs/connect.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 connect.c
---- linux-2.5.43/fs/cifs/connect.c	16 Oct 2002 06:18:33 -0000	1.1.1.2
-+++ linux-2.5.43/fs/cifs/connect.c	16 Oct 2002 06:52:27 -0000
-@@ -610,7 +610,7 @@
- {
- 	int rc = 0;
- 	int xid;
--    int ntlmv2_flag = FALSE;
-+	int ntlmv2_flag = FALSE;
- 	struct socket *csocket;
- 	struct sockaddr_in sin_server;
- /*	struct sockaddr_in6 sin_server6; */
-@@ -627,7 +627,10 @@
- 	xid = GetXid();
- 	cFYI(0, ("\nEntering cifs_mount. Xid: %d with: %s\n", xid, mount_data));
- 
--	parse_mount_options(mount_data, devname, &volume_info);
-+	if (parse_mount_options(mount_data, devname, &volume_info)) {
-+		FreeXid(xid);
-+		return -EINVAL;
-+	}
- 
- 	if (volume_info.username) {
- 		cFYI(1, ("\nUsername: %s ", volume_info.username));
-@@ -645,7 +648,7 @@
- 		cERROR(1,
- 		       ("\nCIFS mount error: No UNC path (e.g. -o unc=//192.168.1.100/public) specified  "));
- 		FreeXid(xid);
--		return -ENODEV;
-+		return -EINVAL;
- 	}
- 	/* BB add support to use the multiuser_mount flag BB */
- 	existingCifsSes =
-@@ -816,7 +819,7 @@
- 								 "",
- 								 cifs_sb->
- 								 local_nls);
--					return -ENODEV;
-+					return -EINVAL;
- 				} else {
- 					rc = CIFSTCon(xid, pSesInfo,
- 						      volume_info.UNC,
 -- 
-function.linuxpower.ca
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
+		Remember Cernan and Schmitt

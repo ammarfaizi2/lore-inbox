@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVBRUAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVBRUE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVBRUAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 15:00:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVBRUAZ
+	id S261478AbVBRUE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 15:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVBRUE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 15:00:25 -0500
-Received: from simmts5.bellnexxia.net ([206.47.199.163]:28371 "EHLO
-	simmts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S261468AbVBRUAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 15:00:15 -0500
-Message-ID: <3920.10.10.10.24.1108756671.squirrel@linux1>
-In-Reply-To: <d120d5000502181149670d27c0@mail.gmail.com>
-References: <seanlkml@sympatico.ca><4912.10.10.10.24.1108675441.squirrel@linux1><200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl><1451.10.10.10.24.1108713140.squirrel@linux1><20050218162729.GA5839@thunk.org><4075.10.10.10.24.1108751663.squirrel@linux1><d120d50005021811263c40f683@mail.gmail.com><3369.10.10.10.24.1108755080.squirrel@linux1>
-    <d120d5000502181149670d27c0@mail.gmail.com>
-Date: Fri, 18 Feb 2005 14:57:51 -0500 (EST)
-Subject: Re: [BK] upgrade will be needed
-From: "Sean" <seanlkml@sympatico.ca>
-To: dtor_core@ameritech.net
-Cc: "Theodore Ts'o" <tytso@mit.edu>, "Horst von Brand" <vonbrand@inf.utfsm.cl>,
-       "Chris Friesen" <cfriesen@nortel.com>, "d.c" <aradorlinux@yahoo.es>,
-       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-7
-X-Mailer: SquirrelMail/1.4.3a-7
+	Fri, 18 Feb 2005 15:04:27 -0500
+Received: from fire.osdl.org ([65.172.181.4]:47770 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261470AbVBRUDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 15:03:52 -0500
+Message-ID: <42164A27.8010402@osdl.org>
+Date: Fri, 18 Feb 2005 12:03:51 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 current BK] Unnecesary code gets compiled in during build?
+References: <132340039.20050218204824@dns.toxicfilms.tv>
+In-Reply-To: <132340039.20050218204824@dns.toxicfilms.tv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, February 18, 2005 2:49 pm, Dmitry Torokhov said:
+Maciej Soltysiak wrote:
+> Hi,
+> 
+> I am compiling 2.6.11-rc4-cset
+> 
+> And I see during the compilation:
+>   LD      drivers/media/common/built-in.o
+>   LD      drivers/media/dvb/b2c2/built-in.o
+>   LD      drivers/media/dvb/bt8xx/built-in.o
+>   LD      drivers/media/dvb/cinergyT2/built-in.o
+>   LD      drivers/media/dvb/dibusb/built-in.o
+>   LD      drivers/media/dvb/dvb-core/built-in.o
+>   LD      drivers/media/dvb/frontends/built-in.o
+>   LD      drivers/media/dvb/ttpci/built-in.o
+>   LD      drivers/media/dvb/ttusb-budget/built-in.o
+>   LD      drivers/media/dvb/ttusb-dec/built-in.o
+>   LD      drivers/media/dvb/built-in.o
+>   LD      drivers/media/radio/built-in.o
+>   LD      drivers/media/video/built-in.o
+> 
+> Although I know I have not added dvb, nor radio.
+> How come this shows up?
 
-> You from cvs you can import into other SCM of your choise.
+It makes the kbuild system easier ?
 
-This isn't true unfortunately, a lot of information is lost in cvs.  file
-deletes, renames etc..   Plus, the implementation from Bitkeeper is
-lacking, (eg. combining many changes into one).
+It's probably fixable (I haven't looked), but I have
+noticed the same thing that you are seeing.
+Patches are welcome... if it needs to be fixed.
 
->
-> Heh, you don't get to update the master repository even if you are
-> using BK.  And you are free to update your local tree with
-> CVS/SVN/whatever. So I am not sure why you trying this argument.
+Did you notice how large those built-in.o files are?
 
-Yeah,  I didn't mean to suggest that it be opened up to the public :o) 
-Just that the flow of information wouldn't all have to originate in bk to
-make it into head (ie. bk could pull changes from head too).
+> I am attaching my .config, it does not have DVB set.
 
-Cheers,
-Sean.
-
+-- 
+~Randy

@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316959AbSGSUt3>; Fri, 19 Jul 2002 16:49:29 -0400
+	id <S317035AbSGSUxH>; Fri, 19 Jul 2002 16:53:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316971AbSGSUt3>; Fri, 19 Jul 2002 16:49:29 -0400
-Received: from [208.48.139.185] ([208.48.139.185]:26512 "HELO
-	forty.greenhydrant.com") by vger.kernel.org with SMTP
-	id <S316959AbSGSUt2>; Fri, 19 Jul 2002 16:49:28 -0400
-Date: Fri, 19 Jul 2002 13:52:25 -0700
-From: David Rees <dbr@greenhydrant.com>
+	id <S317036AbSGSUxH>; Fri, 19 Jul 2002 16:53:07 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:62908 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S317035AbSGSUxG>;
+	Fri, 19 Jul 2002 16:53:06 -0400
+Message-Id: <200207192056.g6JKu9228703@mail.osdl.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1 VM too aggressive?
-Message-ID: <20020719135225.A4048@greenhydrant.com>
-Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
-	linux-kernel@vger.kernel.org
-References: <20020719163350.D28941@sventech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020719163350.D28941@sventech.com>; from johannes@erdfelt.com on Fri, Jul 19, 2002 at 04:33:50PM -0400
+Subject: OSDL adds database test to STP
+Date: Fri, 19 Jul 2002 13:56:09 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 04:33:50PM -0400, Johannes Erdfelt wrote:
-> I recently upgraded a web server I run to a the 2.4.19rc2aa1 kernel to
-> see how much better the VM is.
-> 
-> It seems to be better than the older 2.4 kernels used on this machine,
-> but there seems to be lots of motion in the cache for all of the free
-> memory that exists:
-> 
->    procs                      memory    swap          io     system  cpu
->  3  0  0 106036 502288  10812  67236   0   0     0     0  802   494  46  37  17
->  5  0  2 106032 476188  10844  91496   0   0     4   316  905   573  54  37   8
-> 16  0  2 106032 355400  10844 203880   0   0     4     0  909   540  51  49   0
-> 10  0  2 106024 340108  10852 221548   0   0    28     0  975   659  36  64   0
->  0  0  0 106024 528340  10852  43572   0   0     4     0  569   426  17  17  67
->  0  1  0 106024 531304  10852  43612   0   0     4     0  542   342   9  14  77
->
-> This is with a 1 second interval. Why is it that most of the time I have
-> ~400MB of memory free (this machine has 1GB of memory). Why does the
-> cache size vary so wildly?
-> 
-> This machine is busy, as you can see, but it looks like the VM is trying
-> to be a bit too aggressive here.
 
-What type of workload?  This looks fairly typicaly of a workload which
-writes/deletes large files.
+Subject: OSDL adds database test to STP
 
--Dave
+ As promised, we've added a Database Transaction test to
+ the Scalable Test Platform. The first release is a one-tier
+ test scaled for the 2-CPU STP platform.
+ The database is the open-source SAP DB. Further information on the
+ test and the test platform is available at:
+        http://www.osdl.org/projects/performance/osdldbt.html
+Sample results for linux-2.4.19-rc2 can be viewed at:
+        http://khack.osdlab.org/stp/3312/
+
+ Please let us know how we can improve this test.
+
+        To test your kernels on the Scalable Test Platform:
+                http://www.osdl.org/stp/
+        To add your own kernel test to the Scalable Test Platform:
+                http://www.osdl.org/stp/HOWTO.Port_Tests.html
+
+cliffw@osdl.org
+

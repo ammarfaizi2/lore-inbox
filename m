@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317772AbSIOEyv>; Sun, 15 Sep 2002 00:54:51 -0400
+	id <S317799AbSIOFDk>; Sun, 15 Sep 2002 01:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317799AbSIOEyv>; Sun, 15 Sep 2002 00:54:51 -0400
-Received: from dsl-213-023-043-058.arcor-ip.net ([213.23.43.58]:50848 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317772AbSIOEyu>;
-	Sun, 15 Sep 2002 00:54:50 -0400
+	id <S317816AbSIOFDk>; Sun, 15 Sep 2002 01:03:40 -0400
+Received: from dsl-213-023-043-058.arcor-ip.net ([213.23.43.58]:57504 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317799AbSIOFDj>;
+	Sun, 15 Sep 2002 01:03:39 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@arcor.de>
 To: Linus Torvalds <torvalds@transmeta.com>,
-       David Brownell <david-b@pacbell.net>
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Sun, 15 Sep 2002 07:01:44 +0200
+Date: Sun, 15 Sep 2002 07:10:00 +0200
 X-Mailer: KMail [version 1.3.2]
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>, Greg KH <greg@kroah.com>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209100947481.2842-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0209100947481.2842-100000@home.transmeta.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0209101156510.7106-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qRXU-0001qs-00@starship>
+Message-Id: <E17qRfU-0001qz-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 18:51, Linus Torvalds wrote:
-> On Tue, 10 Sep 2002, David Brownell wrote:
-> > Or in even shorter sound bite format:  "Just say no to BUG()s."
+On Tuesday 10 September 2002 21:03, Linus Torvalds wrote:
+> On 10 Sep 2002, Alan Cox wrote:
+> > 
+> > It drops you politely into the kernel debugger, you fix up the values
+> > and step over it. If you want to debug with zen mind power and printk
+> > feel free. For the rest of us BUG() is fine on SMP
 > 
-> Well, the thing is, BUG() _is_ sometimes useful. It's a dense and very 
-> convenient way to say that something catastrophic happened.
+> Ok, a show of hands.. 
+> 
+> Of the millions (whatever) of Linux machines, how many have a kernel 
+> debugger attached? Count them.
 
-There's an important case you're overlooking that takes us out of the
-"sometimes" zone, and that is where you want to load up some piece of
-heavily-context-dependent code with assertions, just to have confidence
-that the many assumptions actually hold.  And once you have those hooks
-in the code, it often makes little sense to take them out, because
-they'll just have to go back in again the next time some remote part
-of the kernel violates one of the assumptions.
+Eh, mine is getting one attached to it right now.  It's getting more
+popular, and it would be more popular yet if it weren't considered some
+dirty little secret, or somehow unmanly.
 
-What you *want* to do, is just turn them off, not remove them.  (Sure,
-there are lots that shouldn't survive the alpha version of any code,
-but still lots of good ones that should be kept, just stubbed out.)
+Let's try a different show of hands: How many users would be happier if
+they knew that kernel developers are using modern techniques to improve
+the quality of the kernel?
 
-So this is just a name problem: define MYSUBSYSTEM_BUG_ON which is nil
-in production, but equivalent to BUG_ON for alpha or beta code.  In the
-former case it means the code is going to run a little faster, plus the
-system is going to be a little more resilient, as you say.
-
-Otherwise, completely agreed.
-
-> And actually, outside of drivers and filesystems you can often know (or
-> control) the number of locks the surrounding code is holding, and then a
-> BUG() may not be as lethal. At which point the normal "oops and kill the
-> process" action is clearly fine - the machine is still perfectly usable.
-
-Eventually we could try some fancy trick that involves keeping track
-of the locks in a systematic way, so that they can be analyzed
-automatically by a tool that generates lock-breaking code.  Then a
-subsystem could use the generated code in its error path.  Sure, it's a
-lot of work just to add another "9" to reliability, but when was anything
-ever easy?
+Of course, I use the term "modern" here loosely, since kdb and kgdb are
+really only 80's technology.  Without them, we're stuck in the 60's.
 
 -- 
 Daniel

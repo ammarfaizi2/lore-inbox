@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268765AbRG0DPp>; Thu, 26 Jul 2001 23:15:45 -0400
+	id <S267018AbRG0DOW>; Thu, 26 Jul 2001 23:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268764AbRG0DPe>; Thu, 26 Jul 2001 23:15:34 -0400
-Received: from [216.21.153.1] ([216.21.153.1]:15371 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id <S268765AbRG0DPW>;
-	Thu, 26 Jul 2001 23:15:22 -0400
-Date: Thu, 26 Jul 2001 20:17:43 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: Christopher Allen Wing <wingc@engin.umich.edu>, sentry21@cdslash.net,
-        linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
-In-Reply-To: <200107261821.f6QIL4017990@lynx.adilger.int>
-Message-ID: <Pine.LNX.4.10.10107262011400.14197-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268764AbRG0DON>; Thu, 26 Jul 2001 23:14:13 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:63499 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267018AbRG0DOA>; Thu, 26 Jul 2001 23:14:00 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] gcc-3.0.1 and 2.4.7-ac1
+Date: Fri, 27 Jul 2001 03:12:23 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9jqm6n$163$1@penguin.transmeta.com>
+In-Reply-To: <9C117960438@vcnet.vc.cvut.cz> <20010726175735.A20320@twiddle.net>
+X-Trace: palladium.transmeta.com 996203644 771 127.0.0.1 (27 Jul 2001 03:14:04 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 27 Jul 2001 03:14:04 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-It should probably not allow things to be both a directory and a symlink
-as well.  I asked the original poster and he indicated the permissions
-were "all on" when he first discovered the file. Clearly that's not
-a combination fsck should let pass.
+In article <20010726175735.A20320@twiddle.net>,
+Richard Henderson  <rth@twiddle.net> wrote:
+>On Thu, Jul 26, 2001 at 08:28:32PM +0000, Petr Vandrovec wrote:
+>> Just adding '-finline-limit=150' fixes all of them (critical limit
+>> is somewhere between 120 and 150 on my kernel). As '-finline-limit'
+>> is documented as being 10000 by default, it looks like that someone
+>> changed default value to some really unreasonable value (probably 100).
+>
+>Yes.  The higher value resulted in much compile-time lossage on
+>heavily templated c++ code, as it proceeded to inline everything
+>in sight.
 
- 
-	Gerhard
- 
+Having seen the discussion on the gcc lists, I can only heartily
+approve.
 
-On Thu, 26 Jul 2001, Andreas Dilger wrote:
+I did some repmacement of "extern" into "static" in 2.4.8-pre1, but I
+don't have gcc-3.0.x on my machines (too many headaches, too little
+time). 
 
-> Chris Wing writes:
-> > I am assuming that the problem here was that fsck restored a lost inode to
-> > lost+found, but the inode had been corrupted and had the immutable bit
-> > set.
-> > 
-> > At the very least, ext2 fsck should complain about ext2 attributes set for
-> > symlinks or device files... I have had this same problem myself many times
-> > on machines with bad SCSI termination- I end up with unremovable device
-> > files thanks to a bogus immutable bit and have to use debugfs to get rid
-> > of them.
-> 
-> It should actually assume that such inodes are corrupt, and either just
-> delete them at e2fsck time, or at least clear the "bad" parts of the inode
-> before sticking it in lost+found.
-> 
-> Cheers, Andreas
-> 
-> PS - I CC'd Ted on this, as he can probably fix this a lot faster than I
->      (I may be able to fix it during another OLS presentation today or
->      tomorrow).
-> -- 
-> Andreas Dilger                               Turbolinux filesystem development
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+		Linus

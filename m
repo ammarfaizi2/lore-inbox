@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBGDic>; Tue, 6 Feb 2001 22:38:32 -0500
+	id <S129042AbRBGDq5>; Tue, 6 Feb 2001 22:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129028AbRBGDiX>; Tue, 6 Feb 2001 22:38:23 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:31472 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S129027AbRBGDiM>;
-	Tue, 6 Feb 2001 22:38:12 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Eric Berenguier <Eric.Berenguier@sycomore.fr>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: ipfwadm IP accounting (2.4.1) 
-In-Reply-To: Your message of "Tue, 06 Feb 2001 13:38:37 BST."
-             <l0310280ab6a59b6a53d3@[172.30.8.86]> 
-Date: Wed, 07 Feb 2001 14:37:57 +1100
-Message-Id: <E14QLQb-0002Tp-00@halfway>
+	id <S129026AbRBGDqh>; Tue, 6 Feb 2001 22:46:37 -0500
+Received: from d245.as5200.mesatop.com ([208.164.122.245]:1672 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S129027AbRBGDq1>; Tue, 6 Feb 2001 22:46:27 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Tue, 6 Feb 2001 20:49:11 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk, reiser@namesys.com
+Subject: [PATCH] Modify scripts/ver_linux to display reiserfsprogs version 
+MIME-Version: 1.0
+Message-Id: <01020620491101.00881@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <l0310280ab6a59b6a53d3@[172.30.8.86]> you write:
-> Using ipfwadm on a 2.4.1 kernel, some ip accouting rules for outgoing
-> packets have theirs packet and byte counter stuck to 0 value. There is no
-> such problem with incoming packets.
+Here is a patch to the linux/scripts/ver_linux script which adds
+the reiserfsprogs utils to the items checked.  If the reiserfsprogs
+have not been installed, the modified script outputs nothing for
+the Reiserfsprogs line (output looks the same as now).
 
-Hi Eric!
+The current version of reiserfsck does not have a "-V" or "--version"
+option, but the version number is printed on the same line as "reiserfsprogs",
+like this:
 
-You're exactly right: it was a typo.  Thanks.
+[root@localhost scripts]# reiserfsck --somethingbogus
 
-Linus, please apply.
+<-------------reiserfsck, 2000------------->
+reiserfsprogs 3.x.0b
+reiserfsck: unrecognized option `--somethingbogus'
+[the rest of the response snipped]
 
-Rusty.
---- linux-2.4.1/net/ipv4/netfilter/ip_fw_compat.c	Tue Feb  6 11:10:01 2001
-+++ linux/net/ipv4/netfilter/ip_fw_compat.c	Tue Feb  6 09:03:17 2001
-@@ -132,7 +132,7 @@
- 		if (ret == FW_ACCEPT || ret == FW_SKIP) {
- 			if (fwops->fw_acct_out)
- 				fwops->fw_acct_out(fwops, PF_INET,
--						   (struct net_device *)in,
-+						   (struct net_device *)out,
- 						   (*pskb)->nh.raw, &redirpt,
- 						   pskb);
- 			confirm_connection(*pskb);
+If reiserfsprogs reiserfsck is modified someday to respond to a
+version option, then these two new lines in ver_linux can be simplified.
 
---
-Premature optmztion is rt of all evl. --DK
+I'm sure that someone else can code something more elegantly, but
+the following output was provided with the patched ver_linux script:
+
+[root@localhost scripts]# ./ver_linux
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux localhost.localdomain 2.4.1-ac4 #1 Tue Feb 6 17:16:08 MST 2001 i686 unknown
+Kernel modules         2.4.2
+Gnu C                  2.95.3
+Gnu Make               3.79.1
+Binutils               2.10.0.24
+Linux C Library        2.1.3
+Dynamic linker         ldd (GNU libc) 2.1.3
+Procps                 2.0.7
+Mount                  2.10o
+Net-tools              1.57
+Console-tools          0.2.3
+Reiserfsprogs          3.x.0b
+Sh-utils               2.0
+Modules Loaded     
+
+Here is the patch, against 2.4.1-ac4.
+
+Steven
+
+--- linux/scripts/ver_linux.orig        Tue Feb  6 14:28:34 2001
++++ linux/scripts/ver_linux     Tue Feb  6 14:34:24 2001
+@@ -29,6 +29,8 @@
+ # while console-tools needs 'loadkeys -V'.
+ loadkeys -V 2>&1 | awk \
+ '(NR==1 && ($2 ~ /console-tools/)) {print "Console-tools         ", $3}'
++reiserfsck --bogusarg 2>&1 | grep reiserfsprogs | awk \
++'NR==1{print "Reiserfsprogs         ", $NF}'
+ expr --v 2>&1 | awk 'NR==1{print "Sh-utils              ", $NF}'
+ X=`cat /proc/modules | sed -e "s/ .*$//"`
+ echo "Modules Loaded         "$X
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

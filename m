@@ -1,51 +1,475 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVBZUUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVBZUWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbVBZUUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 15:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVBZUUJ
+	id S261274AbVBZUWW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 15:22:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVBZUWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 15:20:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36302 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261272AbVBZUUC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 15:20:02 -0500
-Message-ID: <4220D9DE.10904@pobox.com>
-Date: Sat, 26 Feb 2005 15:19:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-CC: Brian Kuschak <bkuschak@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.6.11-rc4 libata-core (irq 30: nobody cared!)
-References: <20050224015859.55191.qmail@web40910.mail.yahoo.com> <421D3D33.9060707@pobox.com> <20050226193255.GA6256@ime.usp.br>
-In-Reply-To: <20050226193255.GA6256@ime.usp.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 26 Feb 2005 15:22:22 -0500
+Received: from mail.murom.net ([213.177.124.17]:52134 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S261274AbVBZUUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 15:20:46 -0500
+Date: Sat, 26 Feb 2005 23:20:26 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Corey Minyard <minyard@acm.org>
+Cc: Greg KH <greg@kroah.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] New operation for kref to help avoid locks
+Message-Id: <20050226232026.5c12d5b0.vsu@altlinux.ru>
+In-Reply-To: <42209BFD.8020908@acm.org>
+References: <42209BFD.8020908@acm.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Sat__26_Feb_2005_23_20_26_+0300_DYsIePpN9esTYRMu"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito wrote:
-> On Feb 23 2005, Jeff Garzik wrote:
+--Signature=_Sat__26_Feb_2005_23_20_26_+0300_DYsIePpN9esTYRMu
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+On Sat, 26 Feb 2005 09:55:41 -0600 Corey Minyard wrote:
+
+> Greg,
 > 
->>Does this patch do anything useful?
->>	Jeff
+> This is the patch for krefs that we talked about.  If you don't like it 
+> but like the docs, feel free just to take the documentation and cut out 
+> the stuff at the end about the new operation.
+
+See below for comments to the patch.
+
 > 
-> (...)
+> Thanks,
 > 
-> The patch you posted seems to only affect people using SATA, right?
+> -Corey
 > 
-> BTW, just for clarity I'm seeing the message in a PATA environment (on
-> i386) and Brian is seeing his problem with a SATA device on ppc.
+> 
+> [kref_checked.diff  text/plain (10576 bytes)]
+> Add a routine to kref that allows the kref_put() routine to be
+> unserialized even when the get routine attempts to kref_get()
+> an object without first holding a valid reference to it.  This is
+> useful in situations where this happens multiple times without
+> freeing the object, as it will avoid having to do a lock/semaphore
+> except on the final kref_put().
+> 
+> This also adds some kref documentation to the Documentation
+> directory.
+> 
+> Signed-off-by: Corey Minyard <minyard@acm.org>
+> 
+> Index: linux-2.6.11-rc4/include/linux/kref.h
+> ===================================================================
+> --- linux-2.6.11-rc4.orig/include/linux/kref.h
+> +++ linux-2.6.11-rc4/include/linux/kref.h
+> @@ -28,5 +28,11 @@
+>  void kref_get(struct kref *kref);
+>  void kref_put(struct kref *kref, void (*release) (struct kref *kref));
+>  
+> +/* Get a kref if the count is not already zero.  This can be used to
+> +   avoid a lock in the routine that calls kref_put().  Returns 1 if
+> +   successful or zero if the count was already zero.  See
+> +   Documentation/kref.txt for details on how to use this. */
+> +int kref_get_with_check(struct kref *kref);
+> +
+>  #endif /* __KERNEL__ */
+>  #endif /* _KREF_H_ */
+> Index: linux-2.6.11-rc4/lib/kref.c
+> ===================================================================
+> --- linux-2.6.11-rc4.orig/lib/kref.c
+> +++ linux-2.6.11-rc4/lib/kref.c
+> @@ -52,6 +52,21 @@
+>  		release(kref);
+>  }
+>  
+> +/**
+> + * kref_get_with_check - increment refcount if the refcount is not already 0.
+> + * @kref: object.
+> + */
+> +int kref_get_with_check(struct kref *kref)
+> +{
+> +	atomic_inc(&kref->refcount);
+> +	if (atomic_read(&kref->refcount) == 1) {
+> +		atomic_dec(&kref->refcount);
+> +		return 0;
+> +	}
+> +	return 1;
+> +}
 
-"irq XX: nobody cared" is a screaming interrupt situation, which could 
-have 1001 causes.
+Consider this situation:
 
-Normally it's something that "pci=biosirq" or "acpi=off" will fix, but 
-on occasion the driver itself is what needs fixing.
+                        initially refcount is 1
 
-	Jeff
+  CPU1 does kref_get_with_check()         CPU2 does kref_put()
 
+  atomic_inc(&kref->refcount)
+  (increments refcount to 2)
 
+                                          atomic_dec_and_test(&kref->refcount)
+                                          (decrements refcount to 1)
 
+					  (kref_put() does nothing more
+					  because the refcount did not
+					  reach zero)
+
+  atomic_read(&kref->refcount)
+  (finds refcount == 1 and decides
+  that the entry was being deleted)
+
+  atomic_dec(&kref->refcount);
+  (decrements refcount to 0)
+
+  (then proceeds thinking that the
+  entry was about to be finalized,
+  thus creating a leak)
+
+Because of this, separate atomic_inc+atomic_read sequence is unsafe -
+you need atomic_inc_return() here instead:
+
+int kref_get_with_check(struct kref *kref)
+{
+	if (atomic_inc_return(&kref->refcount) == 1) {
+		atomic_dec(&kref->refcount);
+		return 0;
+	}
+	return 1;
+}
+
+> +
+>  EXPORT_SYMBOL(kref_init);
+>  EXPORT_SYMBOL(kref_get);
+>  EXPORT_SYMBOL(kref_put);
+> +EXPORT_SYMBOL(kref_get_with_check);
+> Index: linux-2.6.11-rc4/Documentation/kref.txt
+> ===================================================================
+> --- /dev/null
+> +++ linux-2.6.11-rc4/Documentation/kref.txt
+> @@ -0,0 +1,274 @@
+> +krefs allow you to add reference counters to your objects.  If you
+> +have objects that are used in multiple places and passed around, and
+> +you don't have refcounts, your code is almost certainly broken.  If
+> +you want refcounts, krefs are the way to go.
+> +
+> +To use a kref, add a one to your data structures like:
+> +
+> +struct my_data
+> +{
+> +	.
+> +	.
+> +	struct kref refcount;
+> +	.
+> +	.
+> +};
+> +
+> +The kref can occur anywhere within the data structure.
+> +
+> +You must initialize the kref after you allocate it.  To do this, call
+> +kref init as so:
+> +
+> +     struct my_data *data;
+> +
+> +     data = kmalloc(sizeof(*data), GFP_KERNEL);
+> +     if (!data)
+> +            return -ENOMEM;
+> +     kref_init(&data->refcount);
+> +
+> +This sets the refcount in the kref to 1.
+> +
+> +Once you have a refcount, you must follow the following rules:
+> +
+> +1) If you make a non-temporary copy of a pointer, especially if
+> +   it can be passed to another thread of execution, you must
+> +   increment the refcount with kref_get() before passing it off:
+> +       kref_get(&data->refcount);
+> +   If you already have a valid pointer to a kref-ed structure (the
+> +   refcount cannot go to zero) you may do this without a lock.
+> +
+> +2) When you are done with a pointer, you must call kref_put():
+> +       kref_put(&data->refcount, data_release);
+> +   If this is the last reference to the pointer, the release
+> +   routine will be called.  If the code never tries to get
+> +   a valid pointer to a kref-ed structure without already
+> +   holding a valid pointer, it is safe to do this without
+> +   a lock.
+> +
+> +3) If the code attempts to gain a reference to a kref-ed structure
+> +   without already holding a valid pointer, it must serialize access
+> +   where a kref_put() cannot occur during the kref_get(), and the
+> +   structure must remain valid during the kref_get().
+> +
+> +For example, if you allocate some data and then pass it to another
+> +thread to process:
+> +
+> +void data_release(struct kref *ref)
+> +{
+> +	struct my_data *data = container_of(ref, struct my_data, refcount);
+> +	kfree(data);
+> +}
+> +
+> +void more_data_handling(void *cb_data)
+> +{
+> +	struct my_data *data = cb_data;
+> +	.
+> +	. do stuff with data here
+> +	.
+> +	kref_put(data, data_release);
+> +}
+> +
+> +void my_data_handler(void)
+
+Should be int - you return something from it below.
+
+> +{
+> +	int rv = 0;
+> +	struct my_data *data;
+> +	data = kmalloc(sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +	kref_init(&data->refcount);
+> +
+> +	kref_get(&data->refcount);
+> +	rv = kthread_run(more_data_handling, data, "more_data_handling");
+> +	if (rv) {
+
+This code is wrong - kthread_run() returns a "struct task_struct *"
+(which might be ERR_PTR(-ENOMEM) if it fails).
+
+> +	        kref_put(&data->refcount);
+> +		goto out;
+> +	}
+> +
+> +	.
+> +	. do stuff with data here
+> +	.
+> + out:
+> +	kref_put(data, data_release);
+> +	return rv;
+> +}
+> +
+> +This way, it doesn't matter what order the two threads handle the
+> +data, the put handles knowing when the data is free and releasing it.
+> +The kref_get() does not require a lock, since we already have a valid
+> +pointer that we own a refcount for.  The put needs no lock because
+> +nothing tries to get the data without already holding a pointer.
+> +
+> +Note that the "before" in rule 1 is very important.  You should never
+> +do something like:
+> +
+> +	rv = kthread_run(more_data_handling, data, "more_data_handling");
+> +	if (rv)
+> +		goto out;
+> +	else
+> +		/* BAD BAD BAD - get is after the handoff */
+> +		kref_get(&data->refcount);
+> +
+> +Don't assume you know what you are doing and use the above construct.
+> +First of all, you may not know what you are doing.  Second, you may
+> +know what you are doing (there are some situations where locking is
+> +involved where the above may be legal) but someone else who doesn't
+> +know what they are doing may change the code or copy the code.  It's
+> +bad style.  Don't do it.
+> +
+> +There are some situations where you can optimize the gets and puts.
+> +For instance, if you are done with an object and enqueuing it for
+> +something else or passing it off to something else, there is no reason
+> +to do a get then a put:
+> +
+> +	/* Silly extra get and put */
+> +	kref_get(&obj->ref);
+> +	enqueue(obj);
+> +	kref_put(&obj->ref, obj_cleanup);
+> +
+> +Just do the enqueue.  A comment about this is always welcome:
+> +
+> +	enqueue(obj);
+> +	/* We are done with obj, so we pass our refcount off
+> +	   to the queue.  DON'T TOUCH obj AFTER HERE! */
+> +
+> +The last rule (rule 3) is the nastiest one to handle.  Say, for
+> +instance, you have a list of items that are each kref-ed, and you wish
+> +to get the first one.  You can't just pull the first item off the list
+> +and kref_get() it.  That violates rule 3 because you are not already
+> +holding a valid pointer.  You must add locks or semaphores.  For
+> +instance:
+> +
+> +static DECLARE_MUTEX(sem);
+> +static LIST_HEAD(q);
+> +struct my_data
+> +{
+> +	struct kref      refcount;
+> +	struct list_head link;
+> +};
+> +
+> +static struct my_data *get_entry()
+> +{
+> +	struct my_data *entry = NULL;
+> +	down(&sem);
+> +	if (!list_empty(&q)) {
+> +		entry = container_of(q.next, struct my_q_entry, link);
+> +		kref_get(&entry->refcount);
+> +	}
+> +	up(&sem);
+> +	return entry;
+> +}
+> +
+> +static void put_entry(struct my_data *entry)
+> +{
+> +	down(&sem);
+> +	kref_put(&entry->refcount);
+> +	list_del(&entry->link);
+
+1) kref_put(&entry->refcount, release_entry);
+2) Wrong order for kref_put() and list_del() - should be opposite.
+3) In this case you could safely up(&sem) after list_del(&entry->link),
+because get_entry() cannot get to this entry anymore, and kref_put()
+will ensure that only one invocation will actually call the release
+function.  Probably the example where the call to list_del() is inside
+the release_entry callback (which was omitted here) will illustrate the
+rule 3 better.
+
+static void release_entry(struct kref *ref)
+{
+	struct my_data *entry = container_of(ref, struct my_data, refcount);
+
+	list_del(&entry->link);
+	kfree(entry);
+}
+
+static void put_entry(struct my_data *entry)
+{
+	down(&sem);
+	kref_put(&entry->refcount, release_entry);
+	up(&sem);
+}
+
+> +	up(&sem);
+> +}
+> +
+> +
+> +There is one exception to rule 3.  kref_get_with_check() can be used
+> +to avoid a lock/semaphore in your routines that call kref_put(), except
+> +in the case that release is called.  It is useful in situations where
+> +you might be trying to get an object that might have just gone free,
+> +as in our list example above.
+> +
+> +For instance, suppose you have a queue of items to process in your
+> +driver.  The head of the queue is the current item being worked on.
+> +You driver has timers, interrupts, and user context threads that may
+> +all attempt to claim the head of the queue.
+> +
+> +So you define three routines, get_working_entry(), put_entry(), and
+> +entry_completed(), one to get the current queue entry that is being
+> +worked on, one to tell the system you are done working on that
+> +entry for now, and one to tell that the entry is completed and
+> +should be dequeued.  Here is some example code:
+> +
+> +static LIST_HEAD(q);
+> +DEFINE_SPINLOCK(q_lock);
+> +
+> +struct my_q_entry
+> +{
+> +	struct list_head link;
+> +	struct kref      refcount;
+> +	char             data[10];
+> +	void (*done)(struct my_q_entry *);
+> +};
+> +
+> +struct my_q_entry *get_working_entry(void)
+> +{
+> +	unsigned long     flags;
+> +	struct my_q_entry *entry = NULL;
+> +
+> +	spin_lock_irqsave(&q_lock, flags);
+> + retry:
+> +	if (!list_empty(&q)) {
+> +		entry = container_of(q.next, struct my_q_entry, link);
+> +		if (!kref_get_with_check(&entry->refcount)) {
+> +			/* Entry's refcount has been deleted, but it
+> +			 * has not yet been removed from the list.  We
+> +			 * raced with put_entry and are between the
+> +			 * kref_put() decrementing the count and the
+> +			 * release routine claiming the lock.  Just
+> +			 * remove it and retry. */
+> +			list_del(&entry->link);
+
+This must be list_del_init(&entry->link) - otherwise release_entry()
+will oops on its list_del() call.
+
+> +			entry = NULL;
+> +			goto retry;
+> +		}
+> +	}
+> +	spin_lock_irqrestore(&q_lock, flags);
+> +	return entry;
+> +}
+> +
+> +void release_entry(struct kref *ref)
+> +{
+> +	unsigned long     flags;
+> +	struct my_q_entry *entry = container_of(ref, struct my_q_entry,
+> +						refcount);
+> +
+> +	spin_lock_irqsave(&q_lock, flags);
+> +	list_del(&entry->link);
+> +	spin_lock_irqrestore(&q_lock, flags);
+> +	entry->done(entry);
+> +
+> +	entry = get_working_entry();
+> +	if (entry) {
+> +		/* Start next entry here. */
+> +	}
+> +	put_entry(entry)
+
+Obviously this call must be inside the if branch, because your example
+put_entry() implementation does not accept NULL.
+
+> +}
+> +
+> +void put_entry(struct my_q_entry *entry)
+> +{
+> +	kref_put(&entry->refcount, release_entry);
+> +}
+> +
+> +void entry_completed(struct my_q_entry *entry)
+> +{
+> +	kref_put(&entry->refcount, release_entry);
+> +}
+> +
+> +
+> +Note that there is no lock around kref_put(), which should avoid a
+> +lock on most put operations, except for the last one.  This works
+> +because if kref_put() sets the refcount to zero, one and only one
+> +thread of execution can be doing the kref_get().  If the kref_get()
+> +beats the kref_put(), everything is fine, the get routine has a
+> +valid entry.  If the kref_put() beats the kref_get(), the kref
+> +value will be zero and kref_get_with_check() will fail, but the
+> +release_entry() code will block on the spinlock.  So the entry will
+> +be dequeued and everything still works.
+> +
+> +This is generally only useful when you expect do have this happen many
+> +times for a single object.  If 99% of the time you have one get and
+> +one put, it's probably not worth the complexity.  If you generally
+> +have 20 gets and puts, it saves 19 locking operations, which is
+> +probably worth it.
+> +
+> +Other than this, normal kref rules apply.  You can do a kref_get()
+> +without a lock if you are holding a valid kref pointer.  
+> +
+> +
+> +Corey Minyard <minyard@acm.org>
+> +
+> +A lot of this was lifted from Greg KH's OLS presentation on krefs.
+
+--Signature=_Sat__26_Feb_2005_23_20_26_+0300_DYsIePpN9esTYRMu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCINoOW82GfkQfsqIRAiCNAJ4r7+tnS5jmf/NgPcwDTe7leL2K4wCfZNBz
+FDrvwKtWgGag363DCCKbIIQ=
+=Jq/3
+-----END PGP SIGNATURE-----
+
+--Signature=_Sat__26_Feb_2005_23_20_26_+0300_DYsIePpN9esTYRMu--

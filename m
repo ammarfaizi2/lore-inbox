@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270724AbRIANIM>; Sat, 1 Sep 2001 09:08:12 -0400
+	id <S270227AbRIANbJ>; Sat, 1 Sep 2001 09:31:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270721AbRIANIC>; Sat, 1 Sep 2001 09:08:02 -0400
-Received: from [213.98.126.44] ([213.98.126.44]:32405 "HELO trasno.mitica")
-	by vger.kernel.org with SMTP id <S270705AbRIANH6>;
-	Sat, 1 Sep 2001 09:07:58 -0400
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
-        linux-fsdevel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFD] readonly/read-write semantics
-In-Reply-To: <Pine.GSO.4.21.0108311558430.15931-100000@weyl.math.psu.edu>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <Pine.GSO.4.21.0108311558430.15931-100000@weyl.math.psu.edu>
-Date: 01 Sep 2001 15:08:18 +0200
-Message-ID: <m2y9nzjby5.fsf@mandrakesoft.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S270257AbRIANbA>; Sat, 1 Sep 2001 09:31:00 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:25592 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S270227AbRIANar>;
+	Sat, 1 Sep 2001 09:30:47 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 1 Sep 2001 13:30:28 GMT
+Message-Id: <200109011330.NAA16793@vlet.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
+Subject: Re: [RFC] lazy allocation of struct block_device
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "alexander" == Alexander Viro <viro@math.psu.edu> writes:
+(This sounds like a fragment in a discussion where I have not seen
+the previous fragment.)
 
+        Linus, I've looked into that (allocating ->i_bdev upon open()).
+    There are several problems with this approach and none of the solutions I
+    can see looks like a clear winner.
 
-Hi
+    1) when do we drop ->i_bdev?
+    2) how should we change the refcounting on struct block_device?
+    3) what to do with beasts that don't have major number and just set
+    ->i_bdev when they allocate an inode?
 
-viro> What we need is a "I want rw access to fs"/"I give up rw access"/"make
-viro> it ro" set of primitives.  Unfortunately, it's even more compilcated -
-viro> e.g. fs may stomp its foot and set MS_RDONLY in ->s_flags (e.g. upon
-viro> finding an error if it has such policy).  That DOESN'T look for files
-viro> opened for write (reasonable) and DOESN'T revoke write access to them.
+(I'll use my own terminology since the above questions about i_bdev
+only make sense if you first define the precise intended function of i_bdev.
+Probably you'll be able to translate, or tell me what point I should address.)
 
-I really will like that thing for supermount, supermount tries to do
-that thing by hand, and it really fails because it is difficult,
-supermount tries to have the underlying fs unmounted if nobody has
-open files on it, and mounted rw only when somebody has a file opened
-on it and if someone has a file opened for write of there is happening
-any operation that needs write access.  As we don't have an easy way
-to check if we are able to write in one filesystem (we can only use
-the IS_RDONLY() macro), it happens that I have to mount the filesystem
-rw for being able to call permission in that filesystem.  Notice that
-permission don't need write access per se, but the IS_RDONLY() macro
-needs to have the filesystem mounted rw to fail.  Yes, I can hack the
-macro to do the things that I need, but that means that everybody that
-needs that functionality will have to also hack it :(
+A kdev_t is a pointer to a struct that has the info now found in
+the arrays (and major, minor fields, and a name function..).
+This struct is allocated by the driver.
+Maybe it is statically compiled in, and no refcounting is needed.
+Maybe it is a static struct in the driver which is a module.
+Now refcounting is needed so that we can refuse to unload the driver
+when the count is nonzero.
+Maybe the struct was allocated dynamically, and we need a refcount
+to be able to free it again.
+Only the driver knows such details.
 
-viro> Again, the main issue here is what do we want, not how to implement it.
-viro> Flame away.
+To be more precise, I usually used two levels: driverstruct and
+devicestruct, where a kdev_t is a pointer to a devicestruct
+and the devicestruct contains a pointer to the driverstruct.
+In the block device case, the handling of devicestructs is the
+task of the partitioning code. Of course the driverstructs belong
+to the driver.
 
-I will want a method is the inode/super_block (don't care which of
-them) for:
-      - is_read_only_fs()?
-          Notice that this method told as if we are able to have the
-          fs rw, not necessarily that the fs is rw at the moment.
-      - get_write_access()
-      - put_write_access()
+An inode has fields kdev_t i_dev and dev_t i_rdev and kdev_t i_bcdev
+where the last two are significant only for devices, and the last one
+only for opened devices. It is the opened version of i_rdev, and
+significant whenever non-NULL.
+(It was a mistake of mine to make i_rdev a kdev_t: device nodes
+can just contain random numbers. The current code contains the same
+mistake when the mknod() code does init_special_inode(inode, mode, rdev);
+One should first start worrying about rdev when the thing is opened.)
 
-Notice that there exist the functions get_write_access() and
-put_write_access() functions in the tree, and I will be really happy if
-there where a way to hook fs specific information there, as it will
-make a lot of the code in supermount really easy, and the same for
-other fs that need similar semantics.
+Concerning refcounting:
+i_dev comes from s_dev and no refcount is required as long as sb exists
+s_dev comes from get_unnamed_dev() or ROOT_DEV or i_bcdev
+and a refcount must be incremented when it is set
+i_bcdev comes from opening i_rdev and a refcount must be incremented
+when it is set.
+This "a refcount" is the openct field of the device struct,
+somewhat like the present bd_openers.
 
-Later, Juan.
+The decrements of the refcount are done in kill_super() for s_dev
+and at the close/umount corresponding to the open/mount that set it for i_bcdev.
 
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+Andries

@@ -1,70 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271755AbRHRDd2>; Fri, 17 Aug 2001 23:33:28 -0400
+	id <S271765AbRHRD6O>; Fri, 17 Aug 2001 23:58:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271767AbRHRDdT>; Fri, 17 Aug 2001 23:33:19 -0400
-Received: from relay2.primushost.com ([207.244.125.21]:63453 "EHLO
-	relay2.primushost.com") by vger.kernel.org with ESMTP
-	id <S271755AbRHRDdF>; Fri, 17 Aug 2001 23:33:05 -0400
-From: Jay Rogers <jay@rgrs.com>
+	id <S271767AbRHRD6F>; Fri, 17 Aug 2001 23:58:05 -0400
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:61674 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S271765AbRHRD5t>; Fri, 17 Aug 2001 23:57:49 -0400
+Message-Id: <200108180358.XAA08108@pb.home>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: select() says closed socket readable
-Reply-to: Jay Rogers <jay@rgrs.com>
-Message-Id: <E15Xwmb-0007eJ-00@shell2.shore.net>
-Date: Fri, 17 Aug 2001 23:28:21 -0400
+Subject: strangeness writing CDs (ide and scsi)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <8105.998107081.1@pb>
+Date: Fri, 17 Aug 2001 23:58:01 -0400
+From: "Marty Leisner" <leisner@rochester.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For linux 2.4.2, select() indicates socket ready for read on a
-socket that's never been connected.  This is inconsistent with
-other versions of Unix including Linux 2.2.
+I just got an HP9600 cdwriter (scsi, external).
 
-The following program demonstrates:
+No problem...
 
-    #include <stdio.h>
-    #include <unistd.h>
-    #include <sys/time.h>
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    
-    main(int argc, char *argv[])
-    {
-        fd_set rfds;
-        int retval;
-        int sock;
-        struct timeval tv;
-    
-        sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock == -1) abort();
-    
-        FD_ZERO(&rfds);
-        FD_SET(sock, &rfds);
-        tv.tv_sec = 0;
-        tv.tv_usec = 0;
-    
-        retval = select(sock + 1, &rfds, NULL, NULL, &tv);
-        printf("retval from select(): %d\n", retval);
-    
-        exit(0);
-    } /* end main program */
+I made a CDROM and did a cmp against an ISO master...
 
-Output from "ver_linux" follows:
+then when I tried to read it on an IDE cdrom drive, I get:
+hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hda: cdrom_decode_status: error=0x30
+hda: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
+hda: cdrom_decode_status: error=0x30
 
-Linux costarica 2.4.2-2 #1 Sun Apr 8 20:41:30 EDT 2001 i686 unknown
- 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.10r
-modutils               2.4.2
-e2fsprogs              1.19
-reiserfsprogs          3.x.0f
-pcmcia-cs              3.1.22
-PPP                    2.4.0
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         nfs lockd sunrpc nls_iso8859-1 ide-cd cdrom autofs 3c59x ipchains usb-uhci usbcore
+
+I tried 3 different CD-ROM drives on 2 systems (one running redhat 7.1,
+the other 6.2).
+
+Same results.
+
+So for grunts, I have a NEC SCSI CD changer...I put the one I wrote
+in there...did the cmp...no problem...
+
+(It also would be very, very useful if the error messages would
+include the sectors in cdrom_decode_status).
+
+I'm somewhat puzzled...
+
+
+Marty Leisner
+leisner@rochester.rr.com

@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319293AbSH2UdZ>; Thu, 29 Aug 2002 16:33:25 -0400
+	id <S319338AbSH2UmY>; Thu, 29 Aug 2002 16:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319336AbSH2UdZ>; Thu, 29 Aug 2002 16:33:25 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:26634 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S319293AbSH2UdY>; Thu, 29 Aug 2002 16:33:24 -0400
-Message-ID: <3D6E85A0.A88FA63A@zip.com.au>
-Date: Thu, 29 Aug 2002 13:35:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S319339AbSH2UmX>; Thu, 29 Aug 2002 16:42:23 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:55949 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319338AbSH2UmW>;
+	Thu, 29 Aug 2002 16:42:22 -0400
+Date: Thu, 29 Aug 2002 22:46:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
 To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: /pub/linux/kernel/people/hedrick/ide-2.5.32
-References: <3D6E7CBB.407299E3@zip.com.au> <Pine.LNX.4.10.10208291300130.24156-100000@master.linux-ide.org>
+Cc: Meelis Roos <mroos@tartu.cyber.ee>, linux-kernel@vger.kernel.org
+Subject: Re: Hangs in 2.4.19 and 2.4.20-pre5 (IDE-related?)
+Message-ID: <20020829224621.A4175@ucw.cz>
+References: <Pine.LNX.4.44.0208292051520.25834-100000@ondatra.tartu-labor> <Pine.LNX.4.10.10208291235060.24156-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10208291235060.24156-100000@master.linux-ide.org>; from andre@linux-ide.org on Thu, Aug 29, 2002 at 12:37:19PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm a wee bit reluctant to shrink these settings globally,
-because it will have a small impact on people's ongoing
-evaluation of 2.5 on high-end SCSI hardware.
+On Thu, Aug 29, 2002 at 12:37:19PM -0700, Andre Hedrick wrote:
 
-Could you please set BIO_MAX_SECTORS to 64 within the IDE
-patch, and add a BIG FAT COMMENT?
+> On Thu, 29 Aug 2002, Meelis Roos wrote:
+> 
+> > pcibus = 33333
+> > 00:07.1 vendor=8086 device=7111 class=0101 irq=0 base4=f001
+> > ----------PIIX BusMastering IDE Configuration---------------
+> > Driver Version:                     1.3
+> > South Bridge:                       28945
+> > Revision:                           IDE 0x1
+> > Highest DMA rate:                   UDMA33
+> > BM-DMA base:                        0xf000
+> > PCI clock:                          33.3MHz
+> > -----------------------Primary IDE-------Secondary IDE------
+> > Enabled:                      yes                 yes
+> > Simplex only:                  no                  no
+> > Cable Type:                   40w                 40w
+> > -------------------drive0----drive1----drive2----drive3-----
+> > Prefetch+Post:        yes       yes       yes       yes
+> > Transfer Mode:        PIO       PIO       PIO       PIO
+> > Address Setup:       90ns      90ns      90ns      90ns
+> > Cmd Active:         360ns     360ns     360ns     360ns
+> > Cmd Recovery:       540ns     540ns     540ns     540ns
+> > Data Active:         90ns      90ns      90ns      90ns
+> > Data Recovery:       30ns      30ns      90ns      30ns
+> > Cycle Time:         120ns     120ns     180ns     120ns
+> > Transfer Rate:   16.6MB/s  16.6MB/s  11.1MB/s  16.6MB/s
+> 
+> That is not my work and you are on your own for that mess.
+> That looks straight out of 2.5.30.
 
+Don't be so quick with shooing people away - this is the output of the
+'atapci' userspace program. It only reads the PCI config registers and
+decodes them into a human readable form. The driver in 2.4.19 Meelis
+Roos is using and the crash are both still yours.
 
-Andre Hedrick wrote:
-> 
-> Andrew,
-> 
-> I am just now getting back to crawling speeds in the 2.5 tree.
-> I can only comment on what works and what Viro tells me.
-> But if you think it needs to be globally set, until the updates from Jens
-> arrive, please send to Linus.  I am running my stuff by Viro and company.
-> 
-> Cheers,
-> 
-> On Thu, 29 Aug 2002, Andrew Morton wrote:
-> 
-> > Andre Hedrick wrote:
-> > >
-> > > ...
-> > > There is one more thing to fix.
-> > >
-> > > ./fs/mpage.c
-> > >
-> > > /*
-> > >  * The largest-sized BIO which this code will assemble, in bytes.  Set this
-> > >  * to PAGE_CACHE_SIZE if your drivers are broken.
-> > >  */
-> > > #define MPAGE_BIO_MAX_SIZE 32768        //BIO_MAX_SIZE
-> > >
-> > > This is confirmed with Al Viro and was required to make things sane!
-> >
-> > You'll need to do the same thing to fs/direct-io.c:DIO_BIO_MAX_SIZE
-> > in that case.
-> >
-> > I'd suggest that you just go in and change BIO_MAX_SECTORS
-> > to 64.   Or 32 if you happen to be using a qlogic controller :(
-> >
-> > So everything's broken in there - a hardwired constant doesn't
-> > cut it.   Jens is cooking up an `add_page_to_bio()' API which
-> > will do the right thing based upon q->max_sectors.  But that
-> > is not yet available.
-> >
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
+-- 
+Vojtech Pavlik
+SuSE Labs

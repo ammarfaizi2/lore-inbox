@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbRCGSOh>; Wed, 7 Mar 2001 13:14:37 -0500
+	id <S131140AbRCGSU1>; Wed, 7 Mar 2001 13:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131139AbRCGSO1>; Wed, 7 Mar 2001 13:14:27 -0500
-Received: from infis-gw.ts.infn.it ([140.105.7.230]:41738 "EHLO
-	sole.infis.univ.trieste.it") by vger.kernel.org with ESMTP
-	id <S131138AbRCGSOW>; Wed, 7 Mar 2001 13:14:22 -0500
-Date: Wed, 7 Mar 2001 19:13:55 +0100 (CET)
-From: Andrea Barisani <lcars@infis.univ.trieste.it>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.2 command execution hangs and then succeded after 2
-  minutes....!? END!
-In-Reply-To: <Pine.LNX.4.10.10103071458560.9169-100000@sole.infis.univ.trieste.it>
-Message-ID: <Pine.LNX.4.10.10103071906430.13221-100000@sole.infis.univ.trieste.it>
+	id <S131141AbRCGSUR>; Wed, 7 Mar 2001 13:20:17 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:11731 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131140AbRCGSUM>;
+	Wed, 7 Mar 2001 13:20:12 -0500
+Date: Wed, 7 Mar 2001 15:12:17 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Jens Axboe <axboe@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 64-bit capable block device layer
+In-Reply-To: <20010307184749.A4653@suse.de>
+Message-ID: <Pine.LNX.4.33.0103071504250.1409-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Andrea Barisani wrote:
+On Wed, 7 Mar 2001, Jens Axboe wrote:
+> On Wed, Mar 07 2001, Rik van Riel wrote:
 
-> On Wed, 7 Mar 2001, Manfred Spraul wrote:
-> 
-> > Could you use strace and check what the apps are doing during these 2
-> > minutes?
-> > 
-> > Perhaps it's a variation of the nis hang:
-> > 2.4 doesn't forword udp error messages to the user space app, and thus a
-> > nis query to a nonexistant nis server blocks until the udp packets time
-> > out.
-> > 
+> > how would you feel about having the block device layer 64-bit
+> > capable, so Linux can have block devices of more than 2GB in
+> > size ?
+>
+> I already did this here, or something similar at least. Using
+> a sector_t type that is 64-bit, regardless of platform. Is it
+> really worth it to differentiate and use 32-bit types for old
+> machines?
 
-Ok!
+Wonderful !
 
-I've removed all nis reference in /etc/nsswitch.conf and now there are no
-more hangs...I have to admit, learning that thew execution process of tar
-is somehow related to nis,portmap is a little weird :) (but that's part of
-the fun isn't it?).
+I'm not sure how expensive 64-bit arithmetic would be on
+eg. 386, 486 or 68k machines, or how much impact the extra
+memory taken would have.
 
-Thanks again for the help
+OTOH, I'm not sure what problems it could give to make this
+a compile-time option...
 
-Bye
+regards,
 
-P.S. 
-Does anyone think that this kind of problem must be documentated in
-the kernel documentation?
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

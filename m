@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287311AbSACOiD>; Thu, 3 Jan 2002 09:38:03 -0500
+	id <S287310AbSACOmY>; Thu, 3 Jan 2002 09:42:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287320AbSACOhx>; Thu, 3 Jan 2002 09:37:53 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:20234 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S287311AbSACOhq>; Thu, 3 Jan 2002 09:37:46 -0500
-Message-Id: <200201031437.g03EbZwh022014@pincoya.inf.utfsm.cl>
-To: Brian Gerst <bgerst@didntduck.org>
-cc: esr@thyrsus.com, Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> 
-   of "Wed, 02 Jan 2002 22:34:42 CDT." <3C33D152.79FC8251@didntduck.org> 
-Date: Thu, 03 Jan 2002 11:37:35 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S287307AbSACOmO>; Thu, 3 Jan 2002 09:42:14 -0500
+Received: from ns.suse.de ([213.95.15.193]:12549 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287306AbSACOmK>;
+	Thu, 3 Jan 2002 09:42:10 -0500
+Date: Thu, 3 Jan 2002 15:42:09 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <8GBXFw6mw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.33.0201031540390.7309-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst <bgerst@didntduck.org> said:
+On 3 Jan 2002, Kai Henningsen wrote:
 
-[...]
+> Now, if we cannot reliably autodetect hardware, we should always make it
+> possible to override this manually, and maybe also inform the user that
+> we're not certain. But that's no excuse not to try to autodetect when the
+> user has *not* overridden us.
 
-> Then the best thing to do is to put a disclaimer on your
-> autoconfiguration program: "WARNING: autoconfigure may not detect older
-> hardware that was not designed for reliable detection.  If autoconfigure
-> fails to detect all of your hardware, you may need to manually configure
-> your kernel."
+Autodetecting non-pnp ISA hardware safely is something of a black art.
+Numerous drivers just hang if you load them and the card isn't present,
+or there's another card which answers on the same port/address.
 
-It is a lot easier just to leave a question in "Do you have old (ISA) cards
-in your machine?"... solves 95% of the "problem" with minimal effort. The
-question can then go for "Newbie configuration" in a few years.
-
-> Sometimes perfection isn't worth the effort, especially when trying to
-> support a class of hardware that is rapidly becoming obsolete.  Optimize
-> for the most likely case, and deal with the rare corner cases with other
-> means.
-
-Bingo!
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

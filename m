@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261281AbTC0SpI>; Thu, 27 Mar 2003 13:45:08 -0500
+	id <S261177AbTC0SmM>; Thu, 27 Mar 2003 13:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261282AbTC0SpH>; Thu, 27 Mar 2003 13:45:07 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:12195 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261281AbTC0SpF>;
-	Thu, 27 Mar 2003 13:45:05 -0500
-Date: Thu, 27 Mar 2003 11:58:14 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: David Brownell <david-b@pacbell.net>
-cc: <linux-kernel@vger.kernel.org>, <greg@kroah.com>, <andmike@us.ibm.com>
-Subject: Re: 2.5.recent: device_remove_file() doesn't
-In-Reply-To: <3E8275AD.40603@pacbell.net>
-Message-ID: <Pine.LNX.4.33.0303271154080.1001-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261273AbTC0SmM>; Thu, 27 Mar 2003 13:42:12 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:44296 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261177AbTC0SmL>;
+	Thu, 27 Mar 2003 13:42:11 -0500
+Date: Thu, 27 Mar 2003 10:52:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Mark Studebaker <mds@paradyne.com>, azarah@gentoo.org,
+       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
+       sensors@Stimpy.netroedge.com
+Subject: Re: lm sensors sysfs file structure
+Message-ID: <20030327185222.GI32667@kroah.com>
+References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com> <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com> <3E83459A.3090803@portrix.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E83459A.3090803@portrix.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 26 Mar 2003, David Brownell wrote:
-
-> I've noticed that recent kernels don't clean up device
-> attribute files correctly when they're removed.  Instead,
-> they're left in the directory with a refcount of zero.
+On Thu, Mar 27, 2003 at 07:40:26PM +0100, Jan Dittmer wrote:
+> Greg KH wrote:
+> >That would give us one value per file, use no floating point in the
+> >kernel (fake or not) and generally make things a whole lot more orderly.
+> >Also, if a sensor does not have a max value (for example, I don't really
+> >know if this is true), instead of having to fake a value, it can just
+> >not create the file.  Then userspace can easily detect this is not
+> >supported, and is not a placeholder value.
+> >
 > 
-> That refcount stays even when the file is recreated later;
-> and the contents can be read.  Delete them again, and now
-> the refcount is 65535 ... though now reading the contents
-> may cause oopsing.
-> 
-> This worked correctly at some point last month:  the file
-> no longer appeared in sysfs after deletion.
-> 
-> Got Patch?
+> Is this the way you want to go? Just an example for the voltages.
 
-Yeah, and I apologize. File deletion has been causing some problems 
-lately due to some bad assumptions of the dentry layer. This patch reverts 
-a small bit of the patch that went in a couple of weeks ago, and should 
-hopefully fix everything up. 
+That looks very good to me, nice job.
 
-This should also take care of the problem that some have been seeing of 
-symlinks not going away on device/module removal (though I've been unable 
-to reproduce those). 
+Sensors developers, does this look sane?
 
-Greg/Mike, could you give this patch a shot and let me know if helps?
+> Btw, is it indended behaviour of sysfs, that after writing to a file, 
+> the size is zero?
 
-Thanks,
+Hm, don't know about that, I haven't seen that before.  If you cat the
+file after writing it, does the file size change?
 
+thanks,
 
-	-pat
-
-===== fs/sysfs/inode.c 1.84 vs edited =====
---- 1.84/fs/sysfs/inode.c	Tue Mar 11 15:30:18 2003
-+++ edited/fs/sysfs/inode.c	Thu Mar 27 11:53:44 2003
-@@ -97,7 +97,7 @@
- 				 atomic_read(&victim->d_count));
- 
- 			simple_unlink(dir->d_inode,victim);
--
-+			d_delete(victim);
- 		}
- 		/*
- 		 * Drop reference from sysfs_get_dentry() above.
-
+greg k-h

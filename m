@@ -1,49 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312526AbSDOMJc>; Mon, 15 Apr 2002 08:09:32 -0400
+	id <S312576AbSDOMPy>; Mon, 15 Apr 2002 08:15:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312563AbSDOMJb>; Mon, 15 Apr 2002 08:09:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61191 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312526AbSDOMJb>;
-	Mon, 15 Apr 2002 08:09:31 -0400
-Date: Mon, 15 Apr 2002 14:09:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "Ivan G." <ivangurdiev@yahoo.com>, Linus Torvalds <torvalds@transmeta.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.8 compile bugs
-Message-ID: <20020415120927.GO12608@suse.de>
-In-Reply-To: <20020415115131.GN12608@suse.de> <Pine.LNX.4.21.0204151356070.26237-100000@serv>
+	id <S312588AbSDOMPx>; Mon, 15 Apr 2002 08:15:53 -0400
+Received: from employees.nextframe.net ([212.169.100.200]:9724 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S312576AbSDOMPw>; Mon, 15 Apr 2002 08:15:52 -0400
+Date: Mon, 15 Apr 2002 14:16:58 +0200
+From: Morten Helgesen <admin@nextframe.net>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re:  [COMMENTS IDE 2.5] - "idebus=66" in 2.5.8 results in "ide_setup: idebus=66 -- BAD OPTION"
+Message-ID: <20020415141658.A140@sexything>
+Reply-To: admin@nextframe.net
+In-Reply-To: <20020415112332.A181@sexything> <3CBA8E70.5010605@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15 2002, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 15 Apr 2002, Jens Axboe wrote:
-> 
-> > > That's not enough, some archs don't define pci_alloc_consistent/
-> > > pci_free_consistent, because they have neither PCI nor ISA.
-> > 
-> > Please, then those archs need to provide similar functionality. This is
-> > the established api, unless you want to change the documentation and xxx
-> > number of drivers?
-> 
-> These functions are only specified for PCI/ISA and there was no need so
+Hey again, Martin :)
 
-In my mind these are generic functions, it's a shame that they come with
-a pci_ prefix and take a pci dev as first argument (the NULL for isa
-seems like a kludge).
+What do you think about the following :
 
-> far to implement them. It's no problem to provide the functionality, but I
-> have to know with what API.
+--- clean-linux-2.5.8/drivers/ide/ide.c Sun Apr 14 21:18:52 2002
++++ patched-linux-2.5.8/drivers/ide/ide.c       Mon Apr 15 14:09:18 2002
+@@ -3120,7 +3120,7 @@
+        /*
+         * Look for bus speed option:  "idebus="
+         */
+-       if (strncmp(s, "idebus", 6)) {
++       if (strncmp(s, "idebus", 6) == 0) {
+                if (match_parm(&s[6], NULL, vals, 1) != 1)
+                        goto bad_option;
+                if (vals[0] >= 20 && vals[0] <= 66) {
 
-Should be very easy for you to provide similar functionality for m68k,
-just take a look at the x86 functions.
+gives :
+
+Kernel command line: BOOT_IMAGE=2.5.8-without-TCQ ro root=303 video=matrox:vesa:0x118 idebus=66 profile=2
+ide_setup: idebus=66
+ide: system bus speed 66MHz
+
+works like a charm :)
+
+== Morten
+
+On Mon, Apr 15, 2002 at 10:25:20AM +0200, Martin Dalecki wrote:
+> Morten Helgesen wrote:
+> >Hey Martin (and the rest of you)
+> 
+> >Now, I do not know the reasons for changing the code that handles "idebus=" 
+> >stuff in ide.c (except from the fact
+> 
+> Should be an off by one error there.
+> 
+> >that it now looks cleaner :) - just thought I should let you know. I do not 
+> >have the time right now to hunt down
+> >the bug(?) and cook up a patch, but if you want me to, I`ll do it later 
+> >today. 
+> 
+> I would love if you could have a look at it...
+> 
+> >One more thing, Martin - I compiled a 2.5.8 with TCQ enabled (yep, I`m 
+> >aware of the fact that this one is _really_ alpha :), and tested it for, oh 
+> >... 10 minutes ... the system gave me all sorts of funny responses - 
+> >segfaults, "inconsistency in ld.so" and so on ... would you like me to 
+> >collect 'funnies' and send them to you ? If so, just give me a hint.
+> 
+> Thats mostly Jens stuff...
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+== Morten
 
 -- 
-Jens Axboe
 
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net

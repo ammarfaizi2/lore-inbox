@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280803AbRKTAhK>; Mon, 19 Nov 2001 19:37:10 -0500
+	id <S278722AbRKTAfu>; Mon, 19 Nov 2001 19:35:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280804AbRKTAhB>; Mon, 19 Nov 2001 19:37:01 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6669 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280803AbRKTAgt>; Mon, 19 Nov 2001 19:36:49 -0500
-Date: Mon, 19 Nov 2001 16:31:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ken Brownfield <brownfld@irridia.com>
-cc: <linux-kernel@vger.kernel.org>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
-In-Reply-To: <20011119182516.B10597@asooo.flowerfire.com>
-Message-ID: <Pine.LNX.4.33.0111191621500.19753-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280805AbRKTAfk>; Mon, 19 Nov 2001 19:35:40 -0500
+Received: from [213.37.2.159] ([213.37.2.159]:2749 "EHLO alcorcon.madritel.es")
+	by vger.kernel.org with ESMTP id <S278722AbRKTAfe>;
+	Mon, 19 Nov 2001 19:35:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: LOBOS
+Message-Id: <E165yPH-000040-00@DervishD>
+Date: Tue, 20 Nov 2001 01:04:55 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <dervishd@jazzfree.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <dervishd@jazzfree.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hello all :))
 
-On Mon, 19 Nov 2001, Ken Brownfield wrote:
-> |
-> | So is this pre6aa1, or pre6 + just the watermark patch?
->
-> I'm currently using -pre6 with his separately-posted zone-watermark-1
-> patch.  Sorry, I should have been clearer.
+    I've reading a bit about booting Linux within Linux, and I'm
+pretty interested in this issue. The point here is, will a stable
+kernel support this in a near future?.
 
-Good. That removes the other variables from the equation, ie it's not an
-effect of some of the other tweaking in the -aa patches.
+    There are a few alternatives like 'LOBOS' (which, IMHO, is the
+most portable, easy and small of all), 'bootimg', the two kernel
+monte, etc...
 
-> Yeah, maybe a tiered default would be best, IMHO.  5MB on a 3GB box
-> does, on the other hand, seem anemic.
+    This will be very useful for a lot of thinks: netbooting, initrd
+replacement, kernel switching and testing, etc...
 
-Yeah, the 5MB _is_ anemic. It comes from the fact that we decide to never
-bother having more than zone_balance_max[] pages free, even if we have
-tons of memory. And zone_balance_max[] is fairly small, it limits us to
-255 free pages per zone (for page_min - wth "page_low" being twice that).
-So you get 3 zones, with 255*2 pages free max each, except the DMA zone
-has much less just because it's smaller. Thus 5MB.
+    Have you think about adding this to the kernel. It won't enlarge
+the kernel and IMHO is a very good thing to have. Of course I'm not a
+kernel guru and I don't know what kind of problems this would arise.
 
-There's no real reason for having zone_balance_max[] at all - without it
-we'd just always try to keep about 1/128th of memory free, which would be
-about 24MB on a 3GB box. Which is probably not a bad idea.
-
-With my "simplified-Andrea" patch, you should see slightly more than 5MB
-free, but not a lot more. A HIGHMEM allocation now wants to leave an
-"extra" 510 pages in NORMAL, and even more in the DMA zone, so you should
-see something like maybe 12-15 MB free instead of 300MB.
-
-(Wild hand-waving number, I'm too lazy to actually do the math, and I
-haven't even tested that the simple patch works at all - I think I forgot
-to mention that small detail ;)
-
-		Linus
-
+    Have fun :)
+    Raúl

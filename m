@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261732AbTCLPhV>; Wed, 12 Mar 2003 10:37:21 -0500
+	id <S261731AbTCLPhR>; Wed, 12 Mar 2003 10:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261734AbTCLPhU>; Wed, 12 Mar 2003 10:37:20 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:15826 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S261732AbTCLPhT>; Wed, 12 Mar 2003 10:37:19 -0500
-Date: Wed, 12 Mar 2003 16:47:13 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH][TRIVIAL] Linux 2.4.21pre5-ac3 - remove unused var in ide-proc.c
-In-Reply-To: <200303121500.h2CF0U2F000852@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.51.0303121645130.10932@dns.toxicfilms.tv>
-References: <200303121500.h2CF0U2F000852@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261732AbTCLPhR>; Wed, 12 Mar 2003 10:37:17 -0500
+Received: from bitmover.com ([192.132.92.2]:43424 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S261731AbTCLPhQ>;
+	Wed, 12 Mar 2003 10:37:16 -0500
+Date: Wed, 12 Mar 2003 07:47:59 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] BK->CVS (linux 2.4)
+Message-ID: <20030312154759.GB13792@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linux 2.4.21pre5-ac3
+>     mkdir ws
+>     cd ws
+>     cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs co linux-2.5
+> 
+> Each of the releases are tagged, they are of the form v2_5_64 etc.
 
-(ide_driver_t *) drive->driver is called in the sprintf instead of
-ide_driver_t *driver, so the var is not necessary.
-
-
---- linux-2.4.20/drivers/ide/ide-proc.c~	2003-03-12 16:13:36.000000000 +0100
-+++ linux-2.4.20/drivers/ide/ide-proc.c	2003-03-12 16:39:08.000000000 +0100
-@@ -623,7 +623,6 @@
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
- 	ide_drive_t	*drive = (ide_drive_t *) data;
--	ide_driver_t    *driver = (ide_driver_t *) drive->driver;
- 	int		len;
-
- 	len = sprintf(page,"%llu\n",
+This now works for linux-2.4 as well.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,100 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131771AbRCOSrX>; Thu, 15 Mar 2001 13:47:23 -0500
+	id <S131733AbRCOSoD>; Thu, 15 Mar 2001 13:44:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131779AbRCOSrN>; Thu, 15 Mar 2001 13:47:13 -0500
-Received: from robur.slu.se ([130.238.98.12]:29457 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S131771AbRCOSrC>;
-	Thu, 15 Mar 2001 13:47:02 -0500
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S131748AbRCOSnw>; Thu, 15 Mar 2001 13:43:52 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:24901 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S131733AbRCOSnl>; Thu, 15 Mar 2001 13:43:41 -0500
+Date: Thu, 15 Mar 2001 18:45:37 +0000 (GMT)
+From: Will Newton <will@misconception.org.uk>
+X-X-Sender: <will@dogfox.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: VIA audio and parport in 2.4.2
+Message-ID: <Pine.LNX.4.33.0103151829040.1581-100000@dogfox.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15025.3553.176799.382488@robur.slu.se>
-Date: Thu, 15 Mar 2001 19:45:53 +0100 (CET)
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-        Mårten_Wikström <Marten.Wikstrom@framfab.se>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-Subject: Re: How to optimize routing performance
-In-Reply-To: <Pine.LNX.4.33.0103152137240.1320-100000@duckman.distro.conectiva>
-In-Reply-To: <15024.53099.41814.716733@robur.slu.se>
-	<Pine.LNX.4.33.0103152137240.1320-100000@duckman.distro.conectiva>
-X-Mailer: VM 6.75 under Emacs 19.34.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Sorry for the length]
+I have a Asus K7V motherboard and a SB 128 PCI soundcard.
+The motherboard is vt82c686a based.
+The SB is a ES1371/AC97 card, seemingly identical to the onboard sound on
+this type of motherboard.
+However, the sound rarely works, and there are problems with the parport
+too.
 
-Rik van Riel writes:
- > On Thu, 15 Mar 2001, Robert Olsson wrote:
- > 
- > >  CONFIG_NET_HW_FLOWCONTROL enables kernel code for it. But device
- > >  drivers has to have support for it. But unfortunely very few drivers
- > >  has support for it.
- > 
- > Isn't it possible to put something like this in the layer just
- > above the driver ?
+Sound does not work (usually, I have had it work, but I can't reproduce
+it). The parport behaves strangely.
 
- There is a dropping point in netif_rx. The problem is that knowledge
- of congestion has to be pushed back to the devices that is causing this.
+Here is dmesg output:
 
- Alexey added netdev_dropping for drivers to check. And via netdev_wakeup()
- the drivers xon_metod can be called when the backlog below a certain 
- threshold. 
+Winbond Super-IO detection, now testing ports 3F0,370,250,4E,2E ...
+SMSC Super-IO detection, now testing Ports 2F0, 370 ...
+0x378: FIFO is 16 bytes
+0x378: writeIntrThreshold is 8
+0x378: readIntrThreshold is 8
+0x378: PWord is 8 bits
+0x378: Interrupts are ISA-Pulses
+0x378: possible IRQ conflict!
+0x378: ECP port cfgA=0x10 cfgB=0x00
+0x378: ECP settings irq=<none or set by other means> dma=<none or set by
+other means>
+parport0: PC-style at 0x378 (0x778), irq 7, dma 3
+[PCSPP,TRISTATE,COMPAT,ECP,DMA]
+parport0: cpp_mux: aa55f00f52ad51(80)
+parport0: cpp_daisy: aa5500ff(80)
+parport0: assign_addrs: aa5500ff(80)
+parport0: cpp_mux: aa55f00f52ad51(80)
+parport0: cpp_daisy: aa5500ff(80)
+parport0: assign_addrs: aa5500ff(80)
+parport_pc: Via 686A parallel port: io=0x378, irq=7, dma=3
+Winbond Super-IO detection, now testing ports 3F0,370,250,4E,2E ...
+SMSC Super-IO detection, now testing Ports 2F0, 370 ...
+0x378: FIFO is 16 bytes
+0x378: writeIntrThreshold is 8
+0x378: readIntrThreshold is 8
+0x378: PWord is 8 bits
+0x378: Interrupts are ISA-Pulses
+0x378: possible IRQ conflict!
+0x378: ECP port cfgA=0x10 cfgB=0x00
+0x378: ECP settings irq=<none or set by other means> dma=<none or set by
+other means>
+parport0: PC-style at 0x378 (0x778), irq 7, dma 3
+[PCSPP,TRISTATE,COMPAT,ECP,DMA]
+parport0: cpp_mux: aa55f00f52ad51(80)
+parport0: cpp_daisy: aa5500ff(80)
+parport0: assign_addrs: aa5500ff(80)
+parport0: cpp_mux: aa55f00f52ad51(80)
+parport0: cpp_daisy: aa5500ff(80)
+parport0: assign_addrs: aa5500ff(80)
+parport_pc: Via 686A parallel port: io=0x378, irq=7, dma=3
+lp0: using parport0 (interrupt-driven).
 
- So from here the driver has do the work. Not investing any resources and
- interrupts in packets we still have to drop. This what happens at very
- high load a kind of livelock. For routers routing protocols will time
- out and we loose conetivity. But I would say its important for all apps.
- 
- In 2.4.0-test10 Jamal added sampling of the backlog queue so device
- drivers get the current congestion level. This opens new possiblities.
- 
+I don't know why it prints it twice.
 
- > It probably won't work as well as putting it directly in the
- > driver, but it'll at least keep Linux from collapsing under
- > really heavy loads ...
+When printing errors are printed (buffer overrun or something like that,
+it seems RedHat only logs these damn things to console).
 
- 
- And we have done experiments with controlling interrupts and running
- the RX at "lower" priority. The idea is take RX-interrupt and immediately
- postponing the RX process to tasklet. The tasklet opens for new RX-ints.
- when its done.  This way dropping now occurs outside the box since and
- dropping becomes very undramatically.
+Also if I try to disbale interrupt driven printing I get an error:
 
-
- As little example of this. I monitored a DoS attack on Linux router
- equipped with this RX-tasklet driver.
-
-
-Admin up    6 day(s) 13 hour(s) 37 min 54 sec 
-Last input  NOW
-Last output NOW
-5min RX bit/s   22.4 M  
-5min TX bit/s   1.3 M
-5min RX pkts/s  44079    <====     
-5min TX pkts/s  877          
-5min TX errors  0            
-5min RX errors  0            
-5min RX dropped 49913    <====     
-      
-Fb: no 3127894088 low 154133938 mod 6 high 0 drp 0 <==== Congestion levels
-
-Polling:  ON starts/pkts/tasklet_count 96545881/2768574948/1850259980
-HW_flowcontrol xon's     0           
-
-
-
- A bit of explanation. Above is output from tulip driver. We are forwarding
- 44079 and we are dropping  49913 packets per second!  This box has 
- full BGP. The DoS attack was going on for about 30 minutes BGP survived 
- and the box was manageable. Under a heavy attack it still performs well.
+[root@dogfox log]# /usr/sbin/tunelp /dev/printers/0 -i 0
+tunelp: ioctl: Invalid argument
+/dev/printers/0 using IRQ 7
 
 
- Cheers.
+With sound, I get:
 
-						--ro
+es1371: version v0.27 time 00:47:56 Mar  7 2001
+es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
+PCI: Found IRQ 10 for device 00:0b.0
+es1371: found es1371 rev 8 at io 0xa400 irq 10
+es1371: features: joystick 0x0
+ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+
+Where the id field obviously should not be zero.
+
+The IRQ, DMA, I/O ports etc. are all the same as they are in Windows, but
+in Linux the sound doesn't work and the printer keeps hanging.
+
+I also get spurios interrupts on 7 when the parport is not loaded.
+
+I know other people are seeing similar effects with sinilar hardware, but
+to my knowledge there have been no solutions put forward.
+
+If anyone has any ideas I can try to diagnose this problem more clearly
+or wants any specific information, please ask.
+
 

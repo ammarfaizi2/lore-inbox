@@ -1,90 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265488AbRGEXHB>; Thu, 5 Jul 2001 19:07:01 -0400
+	id <S265559AbRGEXJB>; Thu, 5 Jul 2001 19:09:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265484AbRGEXGo>; Thu, 5 Jul 2001 19:06:44 -0400
-Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:2323 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S265470AbRGEXGX>; Thu, 5 Jul 2001 19:06:23 -0400
-Date: Thu, 5 Jul 2001 16:05:34 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Davide Libenzi <davidel@xmailserver.org>, linux-kernel@vger.kernel.org
-Subject: Re: linux/macros.h(new) and linux/list.h(mod) ...
-Message-ID: <20010705160534.A17113@one-eyed-alien.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <9515.994372983@redhat.com> <E15II3b-0003T8-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15II3b-0003T8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 05, 2001 at 11:57:11PM +0100
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
+	id <S265537AbRGEXIw>; Thu, 5 Jul 2001 19:08:52 -0400
+Received: from hypnos.cps.intel.com ([192.198.165.17]:9973 "EHLO
+	hypnos.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S265534AbRGEXIf>; Thu, 5 Jul 2001 19:08:35 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDF38@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Petr Vandrovec'" <vandrove@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org,
+        "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
+Subject: RE: What are rules for acpi_ex_enter_interpreter?
+Date: Thu, 5 Jul 2001 16:05:43 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for the report on the locking issue. A fix is checked in locally.
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> From: Petr Vandrovec [mailto:vandrove@vc.cvut.cz]
+> Replying to myself, after following change in additon to acpi_ex_...
+> poweroff on my machine works. It should probably map type 0 
+> => 0, 3 => 1
+> and 7 => 2, but it is hard to decide without VIA datasheet, so change
+> below is minimal change needed to get poweroff through ACPI 
+> to work on my 
+> ASUS A7V.
 
-Better, but throwing __FILE__ in there would be good too...
+How did you discover slp typ values of 2 worked, where 7 did not? Did you
+just try all possibilities (0-7)?
 
-Come to think of it, tho, we have multiple files named the same thing in
-multiple places on the kernel tree... even __var##__LINE__##__FILE__ isn't
-_guaranteed_ to be unique.
+Regards -- Andy
 
-Matt
-
-On Thu, Jul 05, 2001 at 11:57:11PM +0100, Alan Cox wrote:
-> > Life's a bitch.
-> > cf. get_user(__ret_gu, __val_gu); (on i386)
-> >=20
-> > Time to invent a gcc extension which gives us unique names? :)
->=20
-> #define min(a,b) __magic_minfoo(a,b, __var##__LINE__, __var2##__LINE__)
->=20
-> #define __magic_minfoo(A,B,C,D) \
-> 	{ typeof(A) C =3D (A)  .... }
->=20
->=20
-> Alan
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-Ye gods! I have feet??!
-					-- Dust Puppy
-User Friendly, 12/4/1997
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7RPK9z64nssGU+ykRAmFbAJ4hFXPbEJ0BtEmIBgV7LOa9P3P16ACfXGfU
-6KtUsSxdMUgsuZc5OQa/i7k=
-=346M
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--

@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265370AbUF2Cu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUF2DSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265370AbUF2Cu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 22:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUF2Cu0
+	id S265212AbUF2DSP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 23:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUF2DSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 22:50:26 -0400
-Received: from mail.inter-page.com ([12.5.23.93]:31748 "EHLO
-	mail.inter-page.com") by vger.kernel.org with ESMTP id S265370AbUF2CuY convert rfc822-to-8bit
+	Mon, 28 Jun 2004 23:18:15 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:37798 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S265212AbUF2DSN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 22:50:24 -0400
-From: "Robert White" <rwhite@casabyte.com>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: <oliver@neukum.org>, <scott@timesys.com>, <zaitcev@redhat.com>,
-       <greg@kroah.com>, <arjanv@redhat.com>, <jgarzik@redhat.com>,
-       <tburke@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <stern@rowland.harvard.edu>, <mdharm-usb@one-eyed-alien.net>,
-       <david-b@pacbell.net>
-Subject: RE: drivers/block/ub.c
-Date: Mon, 28 Jun 2004 19:49:51 -0700
-Organization: Casabyte, Inc.
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAAxSTKwqq2EuUht/ftlgbZAEAAAAA@casabyte.com>
+	Mon, 28 Jun 2004 23:18:13 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: not detectable
+To: linux-kernel@vger.kernel.org
+Subject: Just built 2.6.7-mm2, mouse dbl-click needs superfast clicks
+Date: Mon, 28 Jun 2004 23:29:08 -0400
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <20040628191545.7a298bc3.davem@redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Importance: Normal
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406282329.08570.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.59.165] at Mon, 28 Jun 2004 22:18:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, that is what it does.  That is not what *I* would have *expected* it to do.  I
-would have expected it to remain a struct when viewed from the outside rather than
-become an "N-byte blob".
+Greetings;
 
+Running 2.6.7-mm1 elevator=cfq on an athlon 1600-DX
 
------Original Message-----
-From: David S. Miller [mailto:davem@redhat.com] 
-Sent: Monday, June 28, 2004 7:16 PM
-To: Robert White
-Cc: oliver@neukum.org; scott@timesys.com; zaitcev@redhat.com; greg@kroah.com;
-arjanv@redhat.com; jgarzik@redhat.com; tburke@redhat.com;
-linux-kernel@vger.kernel.org; stern@rowland.harvard.edu;
-mdharm-usb@one-eyed-alien.net; david-b@pacbell.net
-Subject: Re: drivers/block/ub.c
+Has anyone else noticed this?  These old fingers cannot do a dbl-click 
+at the speeds it takes to make it work.  I don't think I noticed this 
+in the half hour or so I ran 2.6.7, also with elevator=cfq.
 
-On Mon, 28 Jun 2004 18:54:46 -0700
-"Robert White" <rwhite@casabyte.com> wrote:
+But I'll reboot back to it and double check.  I have the dbl-click set 
+for a full second in kde's prefs, it was at 600ms.  But that seems to 
+be being ignored.
 
-> The below makes no sense to me...  Nothing in the definition of struct bar{} (which
-> is not packed) infers (top me) in the slightest that foo should be unnaturally
-> aligned within it.
-
-First of all, it is what the compiler does and has done since the
-__packed__ attribute was added.
-
-Second of all, you are asking it to "PACK" the structure, this includes
-any place you place it within other data objects.  It becomes an N-byte
-blob that has no alignment constraints must be placed exactly where it
-is declared.
-
-I am growing very tired of this thread.
-
-
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

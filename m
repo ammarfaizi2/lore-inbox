@@ -1,70 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVCVVUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVCVVVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVCVVUE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 16:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVCVVUE
+	id S261972AbVCVVVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 16:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVCVVVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 16:20:04 -0500
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:47860 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261965AbVCVVT5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:19:57 -0500
-Date: Tue, 22 Mar 2005 21:19:52 +0000
-From: Willem Riede <osst@riede.org>
-Subject: Re: [2.6 patch] drivers/scsi/osst.c: make code static
-To: James.Bottomley@SteelEye.com, Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, osst-users@lists.sourceforge.net,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050322142806.GR3982@stusta.de>
-In-Reply-To: <20050322142806.GR3982@stusta.de> (from bunk@stusta.de on Tue
-	Mar 22 09:28:07 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1111526392l.12349l.36l@serve.riede.org>
+	Tue, 22 Mar 2005 16:21:12 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:43714 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261972AbVCVVUy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 16:20:54 -0500
+Message-ID: <42408D97.7000806@tmr.com>
+Date: Tue, 22 Mar 2005 16:26:47 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+CC: "J.A. Magallon" <jamagallon@able.es>, Dan Maas <dmaas@maasdigital.com>,
+       linux-kernel@vger.kernel.org, tmv@comcast.net
+Subject: Re: Distinguish real vs. virtual CPUs?
+References: <88056F38E9E48644A0F562A38C64FB600448EE27@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB600448EE27@scsmsx403.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 03/22/2005 09:28:07 AM, Adrian Bunk wrote:
-> This patch makes needlessly global code static.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-James, I agree with this, can you put it in BK, please?
-
-Signed-off-by: Willem Riede <osst@riede.org>
- 
-> ---
-> 
-> This patch was already sent on:
-> - 28 Feb 2005
-> 
->  drivers/scsi/osst.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.11-rc4-mm1-full/drivers/scsi/osst.c.old	2005-02-28 19:36:05.000000000 +0100
-> +++ linux-2.6.11-rc4-mm1-full/drivers/scsi/osst.c	2005-02-28 19:36:25.000000000 +0100
-> @@ -24,7 +24,7 @@
->  */
+Pallipadi, Venkatesh wrote:
 >  
->  static const char * cvsid = "$Id: osst.c,v 1.73 2005/01/01 21:13:34 wriede Exp $";
-> -const char * osst_version = "0.99.3";
-> +static const char * osst_version = "0.99.3";
->  
->  /* The "failure to reconnect" firmware bug */
->  #define OSST_FW_NEED_POLL_MIN 10601 /*(107A)*/
-> @@ -170,7 +170,7 @@
->  static int osst_probe(struct device *);
->  static int osst_remove(struct device *);
->  
-> -struct scsi_driver osst_template = {
-> +static struct scsi_driver osst_template = {
->  	.owner			= THIS_MODULE,
->  	.gendrv = {
->  		.name		=  "osst",
 > 
+> 
+>>This is 2xXeonHT, is, 4 cpus on 2 packages:
+>>
+>>cat /proc/cpuinfo:
+>>
+>>processor	: 0
+>>...
+>>physical id	: 0
+>>siblings	: 2
+>>core id		: 0
+>>cpu cores	: 1
+>>
+>>processor	: 1
+>>...
+>>physical id	: 0
+>>siblings	: 2
+>>core id		: 0
+>>cpu cores	: 1
+>>
+>>processor	: 2
+>>...
+>>physical id	: 3
+>>siblings	: 2
+>>core id		: 3
+>>cpu cores	: 1
+>>
+>>processor	: 3
+>>...
+>>physical id	: 3
+>>siblings	: 2
+>>core id		: 3
+>>cpu cores	: 1
+>>
+>>So something like:
+>>
+>>cat /proc/cpuinfo | grep 'core id' | uniq | wc -l
+>>
+>>would give you the number of packages or 'real cpus'. Then you have to
+>>choose which ones are unrelated. Usually evens are siblings of 
+>>odds, but
+>>I won't trust on it...
+>>
+> 
+> 
+> Number of unique physical id will tell you the number of physical CPU
+> packages in the system.
+
+For some Intel processors... Tom Vier just posted his cpuinfo which 
+shows all of his processors, which he notes are in separate sockets, are 
+identified as physical zero. I didn't find any Intel systems which 
+lacked unique physical ID, but clearly that's not true everywhere.
+
+It's not clear if that's bizarre practice on AMD system boards or if 
+it's mis-reported. Of course Tom may be running a NUMA setup, in which 
+case I won't guess what's expected to be displayed. I've added him to 
+the CC list, in hopes of comment.
+
+> Number of unique core id will tell you the total number of CPU cores in
+> the system.
+> Number of processor will tell you the total number of logical CPUs on
+> the system.
+> 
+> Then to find out the matching pairs, 
+> - to pair up all HT siblings on a core: Processors that have same "core
+> id" are HT siblings in a core.
+> - to pair up all CPUs in a package: Processors that have same "physical
+> id" are all the CPUs belonging to the same physical package.
 
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

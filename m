@@ -1,61 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267713AbUIGIiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUIGIry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267713AbUIGIiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 04:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIGIiw
+	id S267721AbUIGIry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 04:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267739AbUIGIry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 04:38:52 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:32781 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267713AbUIGIiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 04:38:50 -0400
-Message-ID: <413D74A5.3070002@hist.no>
-Date: Tue, 07 Sep 2004 10:43:17 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Keith Whitwell <keith@tungstengraphics.com>,
-       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-Subject: Re: New proposed DRM interface design
-References: <20040904102914.B13149@infradead.org>	 <4139C8A3.6010603@tungstengraphics.com>	 <9e47339104090408362a356799@mail.gmail.com>	 <4139FEB4.3080303@tungstengraphics.com>	 <9e473391040904110354ba2593@mail.gmail.com>	 <1094386050.1081.33.camel@localhost.localdomain>	 <9e47339104090508052850b649@mail.gmail.com>	 <1094393713.1264.7.camel@localhost.localdomain>	 <9e473391040905083326707923@mail.gmail.com>	 <1094395462.1271.12.camel@localhost.localdomain> <9e47339104090509056e54866e@mail.gmail.com>
-In-Reply-To: <9e47339104090509056e54866e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 04:47:54 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:1715 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S267721AbUIGIrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 04:47:51 -0400
+Date: Tue, 7 Sep 2004 10:47:50 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: pinotj@club-internet.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Supported architectures for Linux 2.6
+Message-ID: <20040907084750.GJ6985@lug-owl.de>
+Mail-Followup-To: pinotj@club-internet.fr,
+	linux-kernel@vger.kernel.org
+References: <mnet1.1094435592.18565.pinotj@club-internet.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="t1cwe7X0UXDc61Gr"
+Content-Disposition: inline
+In-Reply-To: <mnet1.1094435592.18565.pinotj@club-internet.fr>
+X-Operating-System: Linux mail 2.6.8-rc4 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
 
->They have to be merged. Cards with two heads need the mode set on each
->head. fbdev only sets the mode on one head. If I teach fbdev how to
->set the mode of the other head fbdev needs to learn about memory
->management.  The DRM memory management code is complex and is a big
->chunk of the driver.
->
->I would also like to fix things so that we can have two logged in
->users, one on each head. This isn't going to work if one them uses
->fbdev and keeps swithing the chip to 2D mode while the other user is
->in 3D mode. The chip needs to stay in 3D mode with the CP running.
->
->  
->
-Yes!  I use the ruby patch and have two users logged in on the
-two heads of a G550.  It works fine - as long as no mode
-change is attempted.  And only one user can use 3D (or even 2D),
-the other is stuck with a unaccelerated framebuffer.
+--t1cwe7X0UXDc61Gr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->We're not going to get OOPS display while running X without merging.
->Something I would really like to have since I just had some and was
->force to hook up a serial console.
->  
->
-Also nice to have.
+On Mon, 2004-09-06 03:53:12 +0200, pinotj@club-internet.fr <pinotj@club-int=
+ernet.fr>
+wrote in message <mnet1.1094435592.18565.pinotj@club-internet.fr>:
+> Hi,
+>=20
+> I updated the documentation I wrote about architectures supported by the =
+2.6.X kernel. Here is the beginning for the curious:
+[...]
+> The complete file is available here :
+> http://cercle-daejeon.homelinux.org/linux/kernel/arch.txt=20
 
-Helge Hafting
+The list of Alpha computers is missing the "NoName" model, aka AXPpci33.
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
+  O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--t1cwe7X0UXDc61Gr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBPXW2Hb1edYOZ4bsRAkENAKCAFbFXkRyrZWGz24iEDA6sk2mSfgCfcy6q
+EUBj730ziplRDVKcpD/q3/I=
+=tPLN
+-----END PGP SIGNATURE-----
+
+--t1cwe7X0UXDc61Gr--

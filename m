@@ -1,111 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbUJ0Fif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbUJ0Fku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbUJ0Fif (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 01:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbUJ0Fic
+	id S261657AbUJ0Fku (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 01:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbUJ0Fkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 01:38:32 -0400
-Received: from mxc.rambler.ru ([81.19.66.31]:57609 "EHLO mxc.rambler.ru")
-	by vger.kernel.org with ESMTP id S261651AbUJ0FiX (ORCPT
+	Wed, 27 Oct 2004 01:40:49 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15300 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261652AbUJ0Fkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 01:38:23 -0400
-Date: Wed, 27 Oct 2004 09:35:29 +0400
-From: Pavel Fedin <sonic_amiga@rambler.ru>
-To: linux-kernel@vger.kernel.org
-Cc: luther@debian.org
-Subject: [PATCH] VIA8231 support for parallel port driver
-Message-Id: <20041027093529.15ff1a31.sonic_amiga@rambler.ru>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 27 Oct 2004 01:40:43 -0400
+Date: Tue, 26 Oct 2004 22:33:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: nickpiggin@yahoo.com.au, riel@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+Message-Id: <20041026223335.6a1dad18.akpm@osdl.org>
+In-Reply-To: <20041027044445.GV14325@dualathlon.random>
+References: <417DCFDD.50606@yahoo.com.au>
+	<Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com>
+	<20041027005425.GO14325@dualathlon.random>
+	<417F025F.5080001@yahoo.com.au>
+	<20041027022920.GS14325@dualathlon.random>
+	<417F0FA2.4090800@yahoo.com.au>
+	<20041027032338.GU14325@dualathlon.random>
+	<417F1746.2080607@yahoo.com.au>
+	<20041026204308.73ee438b.akpm@osdl.org>
+	<20041027044445.GV14325@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Wed__27_Oct_2004_09_35_29_+0400_K=O=7XCI59KiQ_1H"
-X-Auth-User: sonic_amiga, whoson: (null)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Andrea Arcangeli <andrea@novell.com> wrote:
+>
+> So after allocating the highmem pages we invoke kswapd
+>  again
 
---Multipart=_Wed__27_Oct_2004_09_35_29_+0400_K=O=7XCI59KiQ_1H
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Nope.  We don't wake kswapd until the lower zones are below pages_low as
+well.  Then we rebalance all the zones which are below pages_high.
 
- Hello, all!
+As I say: run a workload mix and monitor /proc/vmstat:
 
- I already posted this patch but got no reply. Pribably it was missed by appropriate people so i try again.
+	pgscan_kswapd_high
+	pgscan_kswapd_normal
+	pgscan_kswapd_dma
 
- First let me introduce myself. I live in Moscow and own Pegasos-II PowerPC-based computer from Genesi (www.pegasosppc.com). I wrote a patch for parallel port driver in 2.6.8 kernel to handle VIA8231 southbridge used in this machine and i'd like to offer the patch for including into future kernels.
-  This patch allows the kernel to configure port's mode without help of BIOS. It is needed on my machine because its firmware simply ignores the parallel port leaving in unidirectional SPP mode.
- Notes on usage:
- To configure the port you need to:
-- if parport_pc driver is compiled as a module: specify parport_pc init_mode=[spp|ps2|epp|ecp|ecpepp] in /etc/modules file (for Debian Linux).
-- if the driver is linked statically with the kernel: specify parport_init_mode=[spp|ps2|epp|ecp|ecpepp] in kernel's arguments.
-This patch is intended for use primarily on Pegasos machines but it will work on any computer with VIA8231 south bridge. In this case it will override BIOS setting if you tell the driver to configure the port. BIOS setting will be honored if you omit init_mode parameter.
-Technical details:
-1. On Pegasos standard port settings (set by OpenFirmware) are: IRQ=7, DMA=3, base address=0x3BC, mode is unidirectional SPP.
-2. The patch changes only port mode, all other settings are preserved. So if you have a PC with VIA8231 and use driver to configure the port you'll still be able to change IRQ, DMA and base address in BIOS and these settings will be kept.
-3. One exclusion: if you tell the driver to turn on EPP mode (specify epp or ecpepp value) and if default base address is 0x3BC (this is the case on Pegasos) the port will be moved to 0x378. EPP port can't have 0x3BC as the base.
- Known problems:
-1. ECP+EPP mode is strange, it doesn't work even on several PC's i tested with Linux. ECP mode is detected and EPP is not. So if you get the same thing, it's not my fault. I just have no time to deal with it, current result is enough for me.
-2. Not all devices  work on Pegasos, i tried my Genuis-HR6 parallel port scanner and parallel ZIP drive and both of them don't work. ZIP drive is detected properly but then suddenly gets offline. Scanner does not answer any command at all. Without the patch the same thing happens. Obviously Pegasos has some more problems which are not discovered and not fixed yet.
+These should be increasing at rates which are proportional to their size,
+if most allocations have __GFP_HIGHMEM.
 
--- 
-Best regards,
-Pavel Fedin,									mailto:sonic_amiga@rambler.ru
+The lower-zone protection thing means that the scanning rate really should
+be proportional to (zone size - (protection from __GFP_HIGHMEM
+allocations)), but it's not too far off at present.
 
---Multipart=_Wed__27_Oct_2004_09_35_29_+0400_K=O=7XCI59KiQ_1H
-Content-Type: application/x-gzip;
- name="parport_pc-via8231.diff.gz"
-Content-Disposition: attachment;
- filename="parport_pc-via8231.diff.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---Multipart=_Wed__27_Oct_2004_09_35_29_+0400_K=O=7XCI59KiQ_1H--
+The balancing of the zone scanning rates is subtle and easy to break.  As is
+the balancing of that against slab scanning.

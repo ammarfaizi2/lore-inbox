@@ -1,112 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVATQuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVATQ70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVATQuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVATQqr
+	id S262301AbVATQ70 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVATQ4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:46:47 -0500
-Received: from pv106075.reshsg.uci.edu ([128.195.106.75]:46284 "EHLO
-	alpha.blx4.net") by vger.kernel.org with ESMTP id S262189AbVATQm1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:42:27 -0500
-Message-ID: <41EFDF7B.40408@blx4.net>
-Date: Thu, 20 Jan 2005 08:42:35 -0800
-From: Mathias Kretschmer <posting@blx4.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041218
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Thu, 20 Jan 2005 11:56:19 -0500
+Received: from web53806.mail.yahoo.com ([206.190.36.201]:46675 "HELO
+	web53806.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262290AbVATQvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 11:51:38 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=iUl9oTz9Lvdvc8Krf67BCDT4YioZ5OB/JrxGs/Nlx9qvl1Cy7dSgGgwFjcIyC47kZHMgvQKZvW4H/3mAVvMbRFexDgJIo1Xg+7no6byGjlwIiAk6qJOAfeciiF/yG4ksgqwNkE3Rb/ofzURUxYwMcOqi58rVNi3sDaRUC31QDBg=  ;
+Message-ID: <20050120165136.36914.qmail@web53806.mail.yahoo.com>
+Date: Thu, 20 Jan 2005 08:51:36 -0800 (PST)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: [ANNOUNCE] Linux-tracecalls, a new tool for Kernel development, released 
 To: linux-kernel@vger.kernel.org
-Subject: Asus A7N8X-E ACPI S3 resume hangs with 2.6.10 and 2.6.11-rc1
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------020407000706000009070902"
-X-Sanitizer: This message has been sanitized!
-X-Sanitizer-URL: http://mailtools.anomy.net/
-X-Sanitizer-Rev: $Id: Sanitizer.pm,v 1.83 2004/03/23 12:33:48 bre Exp $
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>
+In-Reply-To: <200501192037.j0JKbpuA008501@laptop11.inf.utfsm.cl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020407000706000009070902
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+--- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 
-Hi,
+> If it can't find out where a function could be called through a pointer
+> (very common due to the OOP-in-C style in the kernel) it has no chance.
 
-I haven't tried any earlier kernel. Problem exists with 2.6.10 and 
-2.6.11-rc1.  System seems to suspend ok. When I press the power button 
-the fans turn on again, the IDE LED seems to flash a little and then 
-stays on permanently. System hangs. Display is still off, so I don't 
-know if there are any kernel messages. All I can do is hit the Reset 
-button. S1 works fine.
+Dear Horst,
 
-Under WinXP S3 works.
+  No chance of what?
 
-Does anyone see the same problem ?
+  You do raise an interesting point. Linux-tracecalls already does "find out where a
+function could be called through a pointer" internally.  Therefore, it would be trivial
+to add some indication to the the head of the call chain that the subsearch aborted
+because a callback was detected; and I shall do so in the next release of the tool
+(which will shortly after kernel.org kernel 2.6.11 is released). 
 
-Mathias
+  The fact that the tool at this stage of development does not do something that it
+was never designed to do, does not make it worthless. Moreover, I believe the burden
+of your comments to be ill-considered for the following reasons:
 
+  The functions you refer to are the callbacks that I have explicitly referred
+to at http://www.linuxrd.com/~carl/linux-tracecalls :
 
+        “Also, by design, 'linux-tracecalls' will stop tracing when it reaches
+         a syscall, a gcc-builtin function or a callback.”
 
---------------020407000706000009070902
-Content-Type: application/DEFANGED-13721; name="lspci_out.DEFANGED-13721"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="lspci_out.DEFANGED-13721"
+  I should have further pointed out, were it not so obvious, that if the call
+chain as produced by the tool begins with function ‘F’ (ie 'F' is the oldest ancestor
+of the initial target function) then:
 
-0000:00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different version?) (rev c1)
-0000:00:00.1 RAM memory: nVidia Corporation nForce2 Memory Controller 1 (rev c1)
-0000:00:00.2 RAM memory: nVidia Corporation nForce2 Memory Controller 4 (rev c1)
-0000:00:00.3 RAM memory: nVidia Corporation nForce2 Memory Controller 3 (rev c1)
-0000:00:00.4 RAM memory: nVidia Corporation nForce2 Memory Controller 2 (rev c1)
-0000:00:00.5 RAM memory: nVidia Corporation nForce2 Memory Controller 5 (rev c1)
-0000:00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a4)
-0000:00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
-0000:00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev a4)
-0000:00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller (rev a4)
-0000:00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller (rev a4)
-0000:00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet Controller (rev a1)
-0000:00:05.0 Multimedia audio controller: nVidia Corporation nForce MultiMedia audio [Via VT82C686B] (rev a2)
-0000:00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 Audio Controler (MCP) (rev a1)
-0000:00:08.0 PCI bridge: nVidia Corporation nForce2 External PCI Bridge (rev a3)
-0000:00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
-0000:00:0d.0 FireWire (IEEE 1394): nVidia Corporation nForce2 FireWire (IEEE 1394) Controller (rev a3)
-0000:00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
-0000:01:04.0 Ethernet controller: Marvell Technology Group Ltd. Gigabit Ethernet Controller (rev 13)
-0000:01:0a.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 61)
-0000:01:0a.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 61)
-0000:01:0a.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 62)
-0000:01:0a.3 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
-0000:01:0b.0 RAID bus controller: Silicon Image, Inc. (formerly CMD Technology Inc) SiI 3112 [SATALink/SATARaid] Serial ATA Controller (rev 02)
-0000:03:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV250 If [Radeon 9000] (rev 01)
+    1)  You have been saved all the work of doing the tracing manually to that
+        point, not only for that particular chain but for all the chains leading
+        to your initial target function.
 
---------------020407000706000009070902
-Content-Type: text/sanitizer-log; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="sanitizer.log"
+    2)  You can then manually check at function ‘F’ to see if there is a callback
+        behind it.
 
-This message has been 'sanitized'.  This means that potentially
-dangerous content has been rewritten or removed.  The following
-log describes which actions were taken.
+    3)  If you find there is a callback behind ‘F’ then you can do another query
+        using the actual function represented by the callback as a new initial
+        target.
 
-Sanitizer (start="1106239356"):
-  Part (pos="1132"):
-    SanitizeFile (filename="unnamed.txt", mimetype="text/plain"):
-      Match (names="unnamed.txt", rule="9"):
-        Enforced policy: accept
+    4)  Callbacks - due to the OOP implications you have pointed out - are in most
+        cases ultimately invoked due to syscalls and the core part of the kernel
+        generally  (drivers do use OOP of course but it is not the absolute necessity
+        there it is in the case of, for example, the VFS).
 
-  Part (pos="1737"):
-    SanitizeFile (filename="lspci.out", mimetype="text/plain"):
-      Match (rule="default"):
-        Enforced policy: defang
+        That being so the paths to the callbacks are generally short ; thus the tool
+        is doing most of the work for you in any case, even in the minority of cases
+        involving a callback.
 
-      Replaced mime type with: application/DEFANGED-13721
-      Replaced file name with: lspci_out.DEFANGED-13721
+    5)  The tool has also done all the macro expansions of function-yielding macros
+        for you, which due to the recursive nature of kernel header files is a major
+        job in itself.
 
-  Total modifications so far: 1
+  At some future date I would like to add the capabilities you suggest - however
+'lnxtc.pl' is presently over 800 lines of code and what you are suggesting is at
+least an order of magnitude harder than what has been accomplished already, so it
+won't be next week
 
+  If this tool is really as useless as you suggest then I shall discontinue development.
 
-Anomy 0.0.0 : Sanitizer.pm
-$Id: Sanitizer.pm,v 1.83 2004/03/23 12:33:48 bre Exp $
-
---------------020407000706000009070902--
+  But I strongly disagree.  NIH?

@@ -1,99 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265089AbSJWQzP>; Wed, 23 Oct 2002 12:55:15 -0400
+	id <S265097AbSJWRFN>; Wed, 23 Oct 2002 13:05:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbSJWQzK>; Wed, 23 Oct 2002 12:55:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:16259 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S265089AbSJWQy0>;
-	Wed, 23 Oct 2002 12:54:26 -0400
-Date: Wed, 23 Oct 2002 10:03:51 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: jbradford@dial.pipex.com
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <tmolina@cox.net>, <erik@debill.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 Problem Report Status
-In-Reply-To: <200210231414.g9NEELVr004557@darkstar.example.net>
-Message-ID: <Pine.LNX.4.44.0210230952311.983-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265099AbSJWRFN>; Wed, 23 Oct 2002 13:05:13 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:63145 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S265097AbSJWRFK>;
+	Wed, 23 Oct 2002 13:05:10 -0400
+Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+In-Reply-To: <m1ptu1sm5u.fsf@frodo.biederman.org>
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
+	<1035328636.29319.55.camel@andyp>  <m1ptu1sm5u.fsf@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 23 Oct 2002 10:11:45 -0700
+Message-Id: <1035393105.25019.73.camel@andyp>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > lspci output for the system:
+> > 00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
+> > 00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 06)
+> > 00:01.0 VGA compatible controller: S3 Inc. Savage 4 (rev 04)
+> > 00:09.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+> > 00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
+> > 00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
+> > 00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04)
+> > 01:03.0 SCSI storage controller: Adaptec AIC-7892P U160/m (rev 02)
 
-On Wed, 23 Oct 2002 jbradford@dial.pipex.com wrote:
 
-> > > >                                2.5 Kernel Problem Reports as of 22 Oct
-> > > >    Status                 Discussion  Problem Title
-> > > >
-> > > > --------------------------------------------------------------------------
-> > > >    open                   17 Oct 2002 IDE not powered down on shutdown
-> > > >   55. http://marc.theaimsgroup.com/?l=linux-kernel&m=103476420012508&w=2
-> > > > 
-> > > > --------------------------------------------------------------------------
-> > > >
-> > > > --------------------------------------------------------------------------
-> > > >    open                   22 Oct 2002 2.5.44 fs corruption
-> > > >   77. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532467828806&w=2
-> > > > 
-> > > > --------------------------------------------------------------------------
-> > > 
-> > > Any possibility that the above two problems are related - I.E. disks
-> > > are not being flushed properly on shutdown?
-> > 
-> > Possibly. I would be suprised however
-> 
-> Alan - have there been any changes to the flush/spindown code between
-> 2.5.42 and 2.5.44?  I remember a discussion about a month ago where
-> you said that it's necessary to do both, but that the order could be
-> wrong.  I am seriously begining to suspect that something is
-> definitely wrong, because I can actually hear the disk spindown for a
-> fraction of a second, then spin up again, (at least with 2.5.43, so
-> far not with 2.5.44).
+> And please tell me what kexec_test-1.4 reports. I would love to find out which
+> BIOS calls are hanging your system.
 
-It's my fault. At least the the problem about the disk not spinning down. 
-The driver core code was changed in 2.5.44 to call ->shutdown() instead of 
-->remove() during system power transitions, and none of the drivers got 
-converted over before 2.5.44 went out. I'm really sorry about this, and I 
-sincerely hope that it hasn't bitten any too bad.. 
+It's this one: call print_dasd_type
 
-Concerning the actual shutdown, I'm simply calling the ide driver's 
-->standby() method. At least in the case of ide disks, there is a call in 
-the driver's ->cleanup() method to flush the cache. Should this be 
-moved to ->standby()? Or, should we call ->flushcache() for all drives 
-from ->shutdown()? 
+If I comment it out, kexec_test-1.4 runs to completion.
 
-Initial patch appended.
+FYI: My installation is on a scsi disk.  I'm beginning to wonder if
+there is something funky with the BIOS not being able to talk to
+the SCSI controller after the kernel has used it...  Hmmm.
 
-Thanks,
 
-	-pat
+Full output:
+Run 1:
+# ./kexec-1.4 -debug kexec_test-1.4
+kexecing image
+kexec_test 1.4 starting...
+eax: 0E1FB007 ebx: 00001078 ecx: 00000000 edx: 00000000
+esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
+idt: 00000000 C0000000
+gdt: 00000000 C0000000
+Switching descriptors.
+Descriptors changed.
+In real mode.
+Interrupts enabled.
+Base memory size: 0277
+Can not A20 line.
+E820 Memory Map.
+000000000009DC00 @ 0000000000000000 type: 00000001
+0000000000002400 @ 000000000009DC00 type: 00000002
+0000000000020000 @ 00000000000E0000 type: 00000002
+0000000027EED140 @ 0000000000100000 type: 00000001
+0000000000010000 @ 0000000027FF0000 type: 00000002
+0000000000002EC0 @ 0000000027FED140 type: 00000003
+0000000001400000 @ 00000000FEC00000 type: 00000002
+E801  Memory size: 0009F800
+Mem88 Memory size: FFFF
+Testing for APM.
+APM test done.
+DASD type:
 
-===== drivers/ide/ide.c 1.33 vs edited =====
---- 1.33/drivers/ide/ide.c	Fri Oct 18 12:44:11 2002
-+++ edited/drivers/ide/ide.c	Wed Oct 23 09:42:27 2002
-@@ -3351,6 +3351,14 @@
- 	return 0;
- }
- 
-+static void ide_drive_shutdown(struct device * dev)
-+{
-+	ide_drive_t * drive = container_of(dev,ide_drive_t,gendev);
-+	ide_driver_t * drive = drive->driver;
-+	if (driver && driver->standby)
-+		driver->standby(drive);
-+}
-+
- int ide_register_driver(ide_driver_t *driver)
- {
- 	struct list_head list;
-@@ -3372,6 +3380,7 @@
- 	driver->gen_driver.name = driver->name;
- 	driver->gen_driver.bus = &ide_bus_type;
- 	driver->gen_driver.remove = ide_drive_remove;
-+	driver->gen_driver.shutdown = ide_drive_shutdown;
- 	return driver_register(&driver->gen_driver);
- }
- 
+<Wedged>
 
+Run 2:
+# ./kexec-1.4 -debug kexec_test-1.4
+kexecing image
+kexec_test 1.4 starting...
+eax: 0E1FB007 ebx: 00001078 ecx: 00000000 edx: 00000000
+esi: 00000000 edi: 00000000 esp: 00000000 ebp: 00000000
+idt: 00000000 C0000000
+gdt: 00000000 C0000000
+Switching descriptors.
+Descriptors changed.
+In real mode.
+Interrupts enabled.
+Base memory size: 0277
+Can not A20 line.
+E820 Memory Map.
+000000000009DC00 @ 0000000000000000 type: 00000001
+0000000000002400 @ 000000000009DC00 type: 00000002
+0000000000020000 @ 00000000000E0000 type: 00000002
+0000000027EED140 @ 0000000000100000 type: 00000001
+0000000000010000 @ 0000000027FF0000 type: 00000002
+0000000000002EC0 @ 0000000027FED140 type: 00000003
+0000000001400000 @ 00000000FEC00000 type: 00000002
+E801  Memory size: 0009F800
+Mem88 Memory size: FFFF
+Testing for APM.
+APM test done.
+Equiptment list: 4427
+Sysdesc: F000:E6F5
+EDD:  ok 
+Video type: VGA
+Cursor Position(Row,Column): 0012 0000
+Video Mode: 0003
+Setting auto repeat rate  done
+A20 enabled
+Interrupts disabled.
+In protected mode.
+Halting.
 

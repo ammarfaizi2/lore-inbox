@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316599AbSIDX7u>; Wed, 4 Sep 2002 19:59:50 -0400
+	id <S316610AbSIEACY>; Wed, 4 Sep 2002 20:02:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316601AbSIDX7u>; Wed, 4 Sep 2002 19:59:50 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:29172 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316599AbSIDX7u>; Wed, 4 Sep 2002 19:59:50 -0400
-Date: Wed, 4 Sep 2002 20:04:24 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: Daniel Phillips <phillips@arcor.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-       Pavel Machek <pavel@suse.cz>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Large block device patch, part 1 of 9
-Message-ID: <20020904200424.O1394@redhat.com>
-References: <825516963@toto.iv> <15734.37217.686498.162782@wombat.chubb.wattle.id.au>
+	id <S316614AbSIEACY>; Wed, 4 Sep 2002 20:02:24 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:28918
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316610AbSIEACX>; Wed, 4 Sep 2002 20:02:23 -0400
+Subject: Re: writing OOPS/panic info to nvram?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Mackerras <paulus@au1.ibm.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Remco Post <r.post@sara.nl>,
+       morten.helgesen@nextframe.net, linux-kernel@vger.kernel.org
+In-Reply-To: <15734.39068.766611.169333@argo.ozlabs.ibm.com>
+References: <E471FA7E-C00E-11D6-A20D-000393911DE2@sara.nl>
+	<20020904140856.GA1949@werewolf.able.es>
+	<1031149539.2788.120.camel@irongate.swansea.linux.org.uk> 
+	<15734.39068.766611.169333@argo.ozlabs.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 05 Sep 2002 01:07:01 +0100
+Message-Id: <1031184421.2796.161.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15734.37217.686498.162782@wombat.chubb.wattle.id.au>; from peter@chubb.wattle.id.au on Thu, Sep 05, 2002 at 09:04:01AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 09:04:01AM +1000, Peter Chubb wrote:
-> Unfortunately, this doesn't really buy you much ---- standard C type
-> promotion rules mean that whatever (within reason) you pass to
-> llsect() will work without warning.
+On Thu, 2002-09-05 at 00:34, Paul Mackerras wrote:
+> IDE was relatively straightforward since you can do basic block I/O
+> with just the ATA-1 or ATA-2 registers and command set and PIO.  In
+> contrast, I believe SCSI defeated him. :)
 
-Not if someone changes a variable to a pointer by accident without 
-updating the printk.  It does happen.
+You have to reset and retune the interface/controller registers as well,
+otherwise bad things can happen. Rusty will be happy to know that next
+generation SATA drops the PIO interface for a demented PIO via DMA setup
+8)
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."

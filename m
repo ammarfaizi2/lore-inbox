@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbTJIWEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 18:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTJIWEb
+	id S262609AbTJIV6m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTJIV6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 18:04:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5331 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262629AbTJIWEa (ORCPT
+	Thu, 9 Oct 2003 17:58:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54735 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262609AbTJIV6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 18:04:30 -0400
-Message-Id: <200310092204.h99M4Ro28540@mail.osdl.org>
-From: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.0-test7 oops in proc_pid_stat
-To: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org,
-       Taner Halicioglu <taner@taner.net>
-Reply-To: torvalds@osdl.org
-Date: Thu, 09 Oct 2003 15:04:26 -0700
-References: <20031009130409.GA740@suse.de>
-Organization: OSDL
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	Thu, 9 Oct 2003 17:58:40 -0400
+Date: Thu, 9 Oct 2003 14:58:39 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Martin Aspeli <optilude@gmx.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Horrible ordeals with ACPI, APIC and HIGHMEM (2.6.0-test* and -ac kernels)
+Message-ID: <20031009145839.A18072@build.pdx.osdl.net>
+References: <oprwsg9wfc9y0cdf@mail.gmx.net> <20031009140523.A18065@build.pdx.osdl.net> <oprwsoirf09y0cdf@mail.gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <oprwsoirf09y0cdf@mail.gmx.net>; from optilude@gmx.net on Thu, Oct 09, 2003 at 10:26:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering wrote:
+* Martin Aspeli (optilude@gmx.net) wrote:
+> On Thu, 9 Oct 2003 14:05:23 -0700, Chris Wright <chrisw@osdl.org> wrote:
 > 
-> Linux version 2.6.0-test7 (olaf@zert152) (gcc version 3.2.2) #2 SMP Thu
-> Oct 9 08:49:29 CEST 2003
+> > Which 2.6.0-test kernels?  Have you tried 2.6.0-test7?  A fix for this
+> > type of problem went into -test7.
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address
-0000003c
+> Sadly, yes. My most recent and most comprehensive tests (today) were with 
+> the -test7 kernel. Could you give me some details as to what the fix is 
+> supposed to do and why it may not work?
 
-Ok, this seems to be due to the move of the job control fields from
-the task structure to the signal structure.
+fixes acpi pci link allocation which could pick a bad irq causing an
+interrupt storm.  typical symptom was hang on boot.  
 
-That looks like a bad idea, and the best thing to do is likely to just
-revert the whole thing.
+If you see:
 
-If you are a BK user, do a "bk changes" to find the ChangeSet that says
-"[PATCH] move job control fields from task_struct to", and just do a
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 6 7 10 *11 12)
+...
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 6
 
-        bk cset -xX.XXXX
+where the link is not enabled at the current setting (11 in this case,
+marked by *), you might experience this kind of hang.
 
-where X.XXXX is the changeset number in your tree (that will depend on
-exactly what else is in your tree).
+> Also, I'd still be interested to know - what is "events/0"?
 
-                Linus
+events/0 is a kernel thread (keventd) used for scheduling work into process
+context.  acpi uses keventd for handling acpi events, for example, so
+runaway apci events will cause events/0 to chew up cpu.
+
+> And why do 
+> things run like a 286 when I enable HIGHMEM? 
+
+I don't know, it shouldn't.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

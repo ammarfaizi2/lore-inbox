@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261942AbTDAACu>; Mon, 31 Mar 2003 19:02:50 -0500
+	id <S261947AbTDAAfw>; Mon, 31 Mar 2003 19:35:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261943AbTDAACu>; Mon, 31 Mar 2003 19:02:50 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50706 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261942AbTDAACu>; Mon, 31 Mar 2003 19:02:50 -0500
-Date: Mon, 31 Mar 2003 16:13:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
-In-Reply-To: <Pine.LNX.4.44.0303311551040.2220-100000@mf1.private>
-Message-ID: <Pine.LNX.4.44.0303311612060.6908-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261952AbTDAAfw>; Mon, 31 Mar 2003 19:35:52 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:22545 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261947AbTDAAfv>;
+	Mon, 31 Mar 2003 19:35:51 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Put all functions in kallsyms 
+In-reply-to: Your message of "Mon, 31 Mar 2003 18:14:03 +1000."
+             <20030331224033.489DD2C04B@lists.samba.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 01 Apr 2003 10:46:54 +1000
+Message-ID: <6572.1049158014@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 31 Mar 2003 18:14:03 +1000, 
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>D: TODO: Allow multiple kallsym tables, discard init one after init.
 
-On Mon, 31 Mar 2003, Wayne Whitney wrote:
-> 
-> UP with preempt.  2.5.66 with the patch you sent still locks up.  I should
-> mention that I am running two copies of a hacked XFree86 on two different
-> sets of KVM hardware, but that doesn't require any kernel patches (well, a
-> small one to the input layer).
-
-Can you check dosemu in text mode to see if the kernel prints out
-anything. I realize that not many things are relevant in text mode, but I
-have this memory of dosemu at least historically supporting it. Maybe not
-any more.
-
-		Linus
+Don't.  Almost all kernel threads have a backtrace that goes through
+__init code, even though that code no longer exists.  The symbols are
+still needed to get a decent backtrace and the overhead is minimal.
 

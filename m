@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277733AbRJIOnn>; Tue, 9 Oct 2001 10:43:43 -0400
+	id <S277735AbRJIOpQ>; Tue, 9 Oct 2001 10:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277731AbRJIOn1>; Tue, 9 Oct 2001 10:43:27 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:32704 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S277732AbRJIOnX>; Tue, 9 Oct 2001 10:43:23 -0400
-Date: Tue, 9 Oct 2001 16:43:48 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: kernel size
-Message-ID: <20011009164348.I30515@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <163112682879.20011009161634@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.3.95.1011009100315.5093A-100000@chaos.analogic.com>
+	id <S277732AbRJIOpK>; Tue, 9 Oct 2001 10:45:10 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:22064 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277731AbRJIOo4>; Tue, 9 Oct 2001 10:44:56 -0400
+Date: Tue, 9 Oct 2001 16:44:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: pre6 VM issues
+Message-ID: <20011009164417.G15943@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0110091057470.5604-100000@freak.distro.conectiva> <3BC30B9F.9060609@wipro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.95.1011009100315.5093A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Oct 09, 2001 at 10:16:48AM -0400
+In-Reply-To: <3BC30B9F.9060609@wipro.com>; from balbir.singh@wipro.com on Tue, Oct 09, 2001 at 08:07:19PM +0530
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 10:16:48AM -0400, Richard B. Johnson wrote:
-> Compiled, produces this:
-> 
-> 	.file	"xxx.c"
-> 	.version	"01.01"
-> gcc2_compiled.:
-> 	.comm	foo,4,4
-> 	.ident	"GCC: (GNU) egcs-2.91.66 19990314 (egcs-1.1.2 release)"
-> 
-> It __might__ be possible to link, without linking in ".ident", which
-> currently shares space with .rodata. My gcc man pages are not any
-> better than the usual Red Hat so I can't find out if there is any way
-> to turn OFF these spurious strings.
+On Tue, Oct 09, 2001 at 08:07:19PM +0530, BALBIR SINGH wrote:
+> their pages can even be swapped out if needed. But for a device that is not willing
+> to wait (GFP_ATOMIC) say in an interrupt context, this might be a issue.
 
-strip -R .ident -R .comment -R .note
+There's just a reserved pool for atomic allocations. See the __GFP_WAIT
+check in __alloc_pages.
 
-is your friend. 
-
-Or if we would like to solve it more elegant:
-
---- linux-2.4.10/arch/i386/vmlinux.lds       Tue Oct  9 16:36:06 2001
-+++ linux/arch/i386/vmlinux.lds   Tue Oct  9 16:36:28 2001
-@@ -70,6 +70,9 @@
-        *(.text.exit)
-        *(.data.exit)
-        *(.exitcall.exit)
-+       *(.ident)
-+       *(.comment)
-+       *(.note)
-        }
-
-   /* Stabs debugging sections.  */
-
-
-which puts it into the list of sections to be discarde on i386.
-
-Regards
-
-Ingo Oeser
+Andrea

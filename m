@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271688AbTHDOrk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 10:47:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271754AbTHDOrk
+	id S271755AbTHDO7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 10:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271758AbTHDO7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 10:47:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64270 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S271688AbTHDOrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 10:47:39 -0400
-Date: Mon, 4 Aug 2003 15:47:31 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jani Monoses <jani@iv.ro>
-Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: ide-cs stack_dump
-Message-ID: <20030804154731.C25847@flint.arm.linux.org.uk>
-Mail-Followup-To: Jani Monoses <jani@iv.ro>, linux-kernel@vger.kernel.org,
-	B.Zolnierkiewicz@elka.pw.edu.pl
-References: <20030804174828.08dfc5f4.jani@iv.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030804174828.08dfc5f4.jani@iv.ro>; from jani@iv.ro on Mon, Aug 04, 2003 at 05:48:28PM +0300
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 4 Aug 2003 10:59:42 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:20467 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S271755AbTHDO7k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 10:59:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Subject: Re: TOE brain dump
+Date: Mon, 4 Aug 2003 09:56:03 -0500
+X-Mailer: KMail [version 1.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <gq0f.8bj.9@gated-at.bofh.it> <gNpS.2YJ.9@gated-at.bofh.it> <3F2E6A86.3060402@softhome.net>
+In-Reply-To: <3F2E6A86.3060402@softhome.net>
+MIME-Version: 1.0
+Message-Id: <03080409560301.03650@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 05:48:28PM +0300, Jani Monoses wrote:
-> Hi
-> as reported by someone earlier this year there's a long stack_dump
-> starting from kobject_register failed with -17 (EEXISTS) when ide-cs
-> detects a CF card.
-> The reason is as I see it that both rescan_partitions and register_disk
-> are called, both of which in turn call add_partition for all partitions
-> on the CF card. add_partition calls kobject_register. Also devfs_mk_bdev
-> is called twice but it only prints an error msg 'could not append...'. I
-> don't know if that is how things should be called or whether kobjects
-> for IDE are broken as Alan responded to that earlier post but apart from
-> this initial stack_dump the card works fine (not eject of course) So is
-> kobject_register to verbose or calling code should make sure it does not
-> attempt to register the same object multiple times?
+On Monday 04 August 2003 09:15, Ihar 'Philips' Filipau wrote:
+> Jesse Pollard wrote:
+> >>3k of code.
+> >>not 650k of bzip.
+> >
+> > And it handles ipfilter?
+> > and LSM security hooks?
+> > how about IPSec?
+> > and IPv6?
+> >
+> > I don't think so.
+>
+>    Answer is "No".
+>
+>    I'm running expensive workstation - and I'm _NOT_ using
+> LSM/IPSec/IPv6. I do not care what I _*can*_ do - I care about what I
+> _*need*_ to do.
+>    Point is here that 3k of code is all what we need. Not 'what every
+> one does need', not Linux kernel.
 
-You can't kobject_register the same object multiple times.
+I'm on a workstation right now that needs IPv6 sometime in the next few 
+months. There have been several instances where IPSec would have resolved
+internal problems (it's not easily available for Solaris yet.. soon).
 
-What you're describing above sounds to me like an IDE problem.  It might
-be worth discussing this with Bart. (cc'd)
+So why should I buy another interface every time I need to change networks?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+And who said it was a workstation target? If you are going to offload TCP/IP
+in a TOE, it should be where it might be useful - large (and saturated) 
+compute servers, file servers. Not workstations. High bandwidth workstation
+requirements are rare. And large servers will require IPSec eventually 
+(personally, I think it should be required already). And if the server
+requires IPSec, then the workstation will too.
 
+So you have programmed your way into a small market. And a likely shrinking 
+one at that.
+ 
+>
+> P.S.
+>    printk() is absolutely renundant since there is no display at all ;-)
+>    And can you imagine Linux without printk, bug_on & panic?-)))
+
+So? It's called "embeded Linux". No MM, no printk (for production anyway).
+Display not required.

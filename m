@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbTLIO6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 09:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbTLIO4X
+	id S265925AbTLIO7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 09:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265933AbTLIO7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 09:56:23 -0500
-Received: from cafe.hardrock.org ([142.179.182.80]:41887 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265941AbTLIOzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 09:55:16 -0500
-Date: Tue, 9 Dec 2003 07:55:03 -0700 (MST)
-From: James Bourne <jbourne@hardrock.org>
-To: Tuukka Toivonen <tuukkat@ee.oulu.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: computer hangs with 2.4.23 (2.4.22 works)
-In-Reply-To: <Pine.GSO.4.58.0312091309090.15061@stekt37>
-Message-ID: <Pine.LNX.4.51.0312090752320.31228@cafe.hardrock.org>
-References: <Pine.GSO.4.58.0312091309090.15061@stekt37>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 9 Dec 2003 09:59:49 -0500
+Received: from codeblau.walledcity.de ([212.84.209.34]:28682 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S265925AbTLIO63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 09:58:29 -0500
+Date: Tue, 9 Dec 2003 15:58:47 +0100
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: /proc/sys/net/ipv4/config/eth0/arp_filter not working?
+Message-ID: <20031209145847.GA10652@codeblau.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Dec 2003, Tuukka Toivonen wrote:
+Hi!
 
-> [1.] One line summary of the problem:
-> Computer hangs after few hours of uptime
+I'm having trouble with the Linux kernel answering ARP requests it
+shouldn't answer.
 
-Hi,
-You have CONFIG_IP_NF_COMPAT_IPCHAINS as a module, are you using ipchains
-compatibility?
+In particular, I have added the IP 10.0.0.23 to lo using ip from
+iproute2.  On another machine, I have added the IP 10.0.0.23 to eth0
+using ip.  Now, an ARP request from a third machine is answered by both.
 
-Try the patch at:
-http://www.hardrock.org/kernel/current-updates/linux-2.4.23-updates.patch
-and see if that makes a difference for you.  It contains the ipchains compat
-oops amoung other patches.
+According to the documentation I found, the kernel (2.6.0-test11) should
+not answer ARP requests for the lo alias if I write 1 to
+/proc/sys/net/ipv4/config/eth0/arp_filter, and to be on the safe side, I
+also wrote 1 to /proc/sys/net/ipv4/config/lo/arp_filter.  However, the
+kernel still answers the ARP requests.
 
-Regards
-James
+Any takers?
 
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
+Felix

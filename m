@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264981AbTFCMiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 08:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264982AbTFCMiW
+	id S264983AbTFCMj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 08:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbTFCMj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 08:38:22 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:3750 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264981AbTFCMiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 08:38:21 -0400
-Date: Tue, 3 Jun 2003 14:51:39 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Question about style when converting from K&R to ANSI C.
-Message-ID: <20030603125139.GA6670@wohnheim.fh-wedel.de>
-References: <1054446976.19557.23.camel@spc> <20030601132626.GA3012@work.bitmover.com> <1054519757.161606@palladium.transmeta.com> <20030603123256.GG1253@admingilde.org> <20030603124501.GB13838@suse.de>
+	Tue, 3 Jun 2003 08:39:28 -0400
+Received: from unthought.net ([212.97.129.24]:62928 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S264983AbTFCMjV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 08:39:21 -0400
+Date: Tue, 3 Jun 2003 14:52:47 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
+Message-ID: <20030603125247.GD14947@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Michael Frank <mflt1@micrologica.com.hk>,
+	linux-kernel@vger.kernel.org
+References: <200306031912.53569.mflt1@micrologica.com.hk> <20030603122411.GB14947@unthought.net> <200306032043.28141.mflt1@micrologica.com.hk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030603124501.GB13838@suse.de>
+In-Reply-To: <200306032043.28141.mflt1@micrologica.com.hk>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 June 2003 13:45:01 +0100, Dave Jones wrote:
-> On Tue, Jun 03, 2003 at 02:32:56PM +0200, Martin Waitz wrote:
+On Tue, Jun 03, 2003 at 08:43:28PM +0800, Michael Frank wrote:
+> On Tuesday 03 June 2003 20:24, Jakob Oestergaard wrote:
+> > > When doing rsync or cp _from_ system running 2.4 _to_ system running 2.5
+> > > get Input/output error errors with random files.
+> >
+> > Do you use soft mounts?
 > 
->  > well, but it is nice to be able to grep for the declaration of a
->  > function like
->  > 
->  > 	grep "^where_is_it" *.c
->  > 
->  > without showing all the uses of that function.
+> Yes
+
+Then this is why you get the error
+
 > 
-> What's wrong with ctags for this?
+> >
+> > If so, try hard instead. soft will fail, sooner or later.
+> 
+> I don't like hard mounts because these do not timeout.
 
-- You have to set it up (hackers are lazy)
-- You generate an extra file that some people might not want
+You get what you ask for, then:  timeouts
 
-imo it doesn't really matter much either way.  Whatever you prefer,
-there are greater evils in the kernel, even in relatively important
-parts.  So why bother with such minor and highly personal issues.
+> 
+> Also, this does not explain why 2.5 > 2.4 (and 2.4 > 2.4) is OK - _never_ had any problem  
 
-Jörn
+Leave it running for a million years, and I'm sure a sporadic error will
+show up in those two situations as well.
+
+You just now found a case where sporadic errors show up more often.
+
+soft-mount = fail upon (sporadic) error
+hard-mount = retry (forever or until interrupted if used with 'intr') upon error
+
+I always use hard,intr so that I can manually interrupt hanging jobs,
+but also know that they do not randomly fail just because a few packets
+get dropped on my network.  This seems to be the common setup, as far as
+I know.
+
+Cheers,
 
 -- 
-Jörn Engel
-mailto: joern@wohnheim.fh-wedel.de
-http://wohnheim.fh-wedel.de/~joern
-Phone: +49 179 6704074
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

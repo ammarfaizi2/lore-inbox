@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293505AbSBZEPu>; Mon, 25 Feb 2002 23:15:50 -0500
+	id <S293508AbSBZEaC>; Mon, 25 Feb 2002 23:30:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293506AbSBZEPk>; Mon, 25 Feb 2002 23:15:40 -0500
-Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:6790 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S293505AbSBZEPa>;
-	Mon, 25 Feb 2002 23:15:30 -0500
+	id <S293509AbSBZE3x>; Mon, 25 Feb 2002 23:29:53 -0500
+Received: from goose.mail.pas.earthlink.net ([207.217.120.18]:47351 "EHLO
+	goose.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S293508AbSBZE3i>; Mon, 25 Feb 2002 23:29:38 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-Subject: Re: Linux 2.4.18
-Date: Sun, 24 Feb 2002 06:08:49 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
+From: Randy Hron <rwhron@earthlink.net>
+To: "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.18-rc4-jam2
+Date: Mon, 25 Feb 2002 23:33:59 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020225020725.A1674@werewolf.able.es>
+In-Reply-To: <20020225020725.A1674@werewolf.able.es>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16equ1-0001QS-00@starship.berlin>
+Message-Id: <E16fZEv-0002C5-00@goose.prod.itd.earthlink.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 25, 2002 08:18 pm, Marcelo Tosatti wrote:
-> On Mon, 25 Feb 2002, Holzrichter, Bruce wrote:
-> > > Ok, DAMN. I missed the -rc4 patch in 2.4.18. Real sorry about that.
-> > > 
-> > > 2.4.19-pre1 will contain it. 
-> > 
-> > Should 2.4.18 final get a -dontuse tag or something?  
+On Sun 24 Feb 02 20:07, J.A. Magallon wrote:
 > 
-> No. A "-dontuse" tag should be only used when the kernel can cause damage
-> in some way.
+> After one other session of patch messing, here is rc4-jam2. Main update
+> is vm-25 -> vm-27 from Andrea. Get it as usual at:
+> 
+> http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.18-rc4-jam2/
 
-That reminds me, why did 2.4.15 never get a -dontuse?  Did the iput bugfix
-get quietly added, or is it still an accident waiting to happen?
+Some recent jam patchsets next to -aa at:
+http://home.earthlink.net/~rwhron/kernel/jam.html
 
-I think there'a a limit to how strict one should be about the 'don't change
-it after posting rule'.
+There is a lot of common code in the kernels tested, but there are
+a few notables:
+-aa about 30% faster on the Open Source Database Benchmark
+-aa 10-20% faster on tests involving lots of forks.
+-jams about 15% faster on tbench
+Lots of variation in tiobench.
 
--- 
-Daniel
+The tiobench numbers are the most intriguing.  
+Hoping someone can make sense of them.

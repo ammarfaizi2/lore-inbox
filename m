@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275399AbRJATYM>; Mon, 1 Oct 2001 15:24:12 -0400
+	id <S275424AbRJATYW>; Mon, 1 Oct 2001 15:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275421AbRJATYC>; Mon, 1 Oct 2001 15:24:02 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49936 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S275399AbRJATXq>;
-	Mon, 1 Oct 2001 15:23:46 -0400
-Date: Mon, 1 Oct 2001 16:23:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
-In-Reply-To: <3.0.6.32.20011001203320.02381600@pop.tiscalinet.it>
-Message-ID: <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S275421AbRJATYN>; Mon, 1 Oct 2001 15:24:13 -0400
+Received: from colorfullife.com ([216.156.138.34]:23310 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S275406AbRJATXy>;
+	Mon, 1 Oct 2001 15:23:54 -0400
+Message-ID: <3BB8C2E4.D6B0581C@colorfullife.com>
+Date: Mon, 01 Oct 2001 21:24:20 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erich Focht <focht@ess.nec.de>, linux-kernel@vger.kernel.org
+Subject: Re: deadlock in crashed multithreaded job
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Oct 2001, Lorenzo Allegrucci wrote:
+> The symptoms: running the tests (make check) sometimes ends up
+> with hanging processes.
 
-> Disclaimer:
-> I don't know if this "benchmark" is meaningful or not, but anyhow..
+Does it _only_ hang during coredumping, or also during normal usage?
 
-I'm not sure either, since qsort doesn't really have much
-locality of reference but just walks all over the place.
+Could you remove
+	down_read(&mmap_sem);
+	binfmt->coredump();
+	up_read(&mmap_sem);
+from fs/exec.c and rerun your tests?
 
-This is direct contrast with the basic assumption on which
-VM and CPU caches are built ;)
+The hang during coredumping is known, there are 2 fixes [I have one, not
+yet released, Andrea wrote one, IIRC included in his -aa kernels].
 
-I wonder how eg. merge sort would perform ...
+Up to 2.4.10 there was a second hang with /proc/*/stats, that one is
+fixed in 2.4.10.
 
-> Below are linux-2.4.10 results
-> real    4m54.728s
->
-> kswapd CPU time: 3 seconds
-> qs RSS always on 238-240M, very stable never below 235M.
-
-> .. and 2.4.10-ac2 results
-> real    6m2.139s
->
-> kswapd CPU time: 20 seconds
-> qs RSS never above 204M, average value 150M.
-
-The RSS thing is just a side effect of how swap is allocated
-and should have little or no influence on which pages are
-kept in memory.
-
-One thing which could make 2.4.10 faster for this single case
-is the fact that it doesn't keep any page aging info, so IO
-clustering won't be confused by the process accessing its
-pages ;)
-
-cheers,
-
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+--
+	Manfred

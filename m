@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263149AbSJBQ1Y>; Wed, 2 Oct 2002 12:27:24 -0400
+	id <S263138AbSJBQWj>; Wed, 2 Oct 2002 12:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263152AbSJBQ1Y>; Wed, 2 Oct 2002 12:27:24 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:33263 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S263149AbSJBQ1X>; Wed, 2 Oct 2002 12:27:23 -0400
-Date: Wed, 2 Oct 2002 09:25:19 -0700
-From: Chris Wright <chris@wirex.com>
+	id <S263141AbSJBQWj>; Wed, 2 Oct 2002 12:22:39 -0400
+Received: from 62-190-203-8.pdu.pipex.net ([62.190.203.8]:12292 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263138AbSJBQWi>; Wed, 2 Oct 2002 12:22:38 -0400
+Date: Wed, 2 Oct 2002 17:36:32 +0100
+From: jbradford@dial.pipex.com
+Message-Id: <200210021636.g92GaWEp000312@darkstar.example.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Capabilities-related change in 2.5.40
-Message-ID: <20021002092519.C26557@figure1.int.wirex.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021001164907.GA25307@nevyn.them.org> <20021001134552.A26557@figure1.int.wirex.com> <20021001211210.GA8784@nevyn.them.org> <20021002003817.B26557@figure1.int.wirex.com> <20021002132331.GA17376@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021002132331.GA17376@nevyn.them.org>; from dan@debian.org on Wed, Oct 02, 2002 at 09:23:31AM -0400
+Subject: [PATCH] Bodge up serial support in 2.5.40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Daniel Jacobowitz (dan@debian.org) wrote:
-> 
-> Look at cap_proc.c:_libcap_cappid :
+Standard 8250/16550 UART support is broken in 2.5.40, and I needed it, so following a bit of advice from Russell King, I've prepared this patch.
 
-Right, but cap_get_proc calls _libcap_cappid with pid of 0.  At any
-rate, I believe pid == 0 is intentional to pick up the current
-capabilities.
+I thought I'd post it, just incase anybody else out there actually uses serial ports, (seems they don't).  Before you apply it, bear in mind that the last C I did was a hello world program :-), (only half kidding).
 
-> How very odd.  I have been running 2.5 on that machine for a while, and
-> the bug only showed up somewhere between 2.5.36 and 2.5.40.  Maybe a
-> coincidence triggered by the PID hashing... your tabbing is a little
-> odd but the patch looks right to me.  Thanks!
+This is a bodge up patch only, NOT an official solution.
 
-I tried on various older 2.5 kernels (> 2.5.20) and they returned -ESRCH.
-I agree, the PID hashing probably started picking up swapper.  And yes
-the tabbing is odd.  The file is badly in need of Lindent, as it's mostly
-space tabbed.  I didn't want to hide the patch in whitespace changes ;-)
+John.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--- linux-2.5.40-orig/drivers/serial/core.c	2002-10-02 15:07:21.000000000 +0100
++++ linux-2.5.40/drivers/serial/core.c	2002-10-02 15:09:38.000000000 +0100
+@@ -1604,8 +1604,6 @@
+ 	return retval;
+ }
+ 
+-#ifdef CONFIG_PROC_FS
+-
+ static const char *uart_type(struct uart_port *port)
+ {
+ 	const char *str = NULL;
+@@ -1708,7 +1706,6 @@
+ 	*start = page + (off - begin);
+ 	return (count < begin + len - off) ? count : (begin + len - off);
+ }
+-#endif
+ 
+ #ifdef CONFIG_SERIAL_CORE_CONSOLE
+ /*

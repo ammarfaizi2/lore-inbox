@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbVAJEWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVAJE1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbVAJEWp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 23:22:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVAJEWl
+	id S262065AbVAJE1H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 23:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVAJE1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 23:22:41 -0500
-Received: from ozlabs.org ([203.10.76.45]:4747 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262067AbVAJEWf (ORCPT
+	Sun, 9 Jan 2005 23:27:07 -0500
+Received: from zotz.mtu.ru ([195.34.34.227]:57609 "EHLO zotz.mtu.ru")
+	by vger.kernel.org with ESMTP id S262065AbVAJE1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 23:22:35 -0500
-Date: Tue, 11 Jan 2005 02:55:20 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PPC64] Hugepage bugfix
-Message-ID: <20050110155520.GA22101@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+	Sun, 9 Jan 2005 23:27:05 -0500
+Reply-To: <zapravka_03@umail.ru>
+From: =?ISO-8859-1?Q?=20=22CEPB=E9C=E3EHTP?=.1O9~787O" <zapravka_03@umail.ru>"@mail.w.ods.org (MOCKBA)
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	1O9~787O
+				^-missing closing '"' in token
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	1O9~787O
+				^-missing closing '"' in token
+Subject: =?ISO-8859-1?Q?=20Pacxo=C4=CE=C9=CB=C9,?=  =?ISO-8859-1?Q?=20=DAa=D0pa=D7=CBa?=  =?ISO-8859-1?Q?=20=CB?=
+	=?ISO-8859-1?Q?ap=D4p=C9=C4=D6e=CA,?=  =?ISO-8859-1?Q?=20=C4oc=D4a=D7=CBa?=  =?ISO-8859-1?Q?=20=D0?=
+	=?ISO-8859-1?Q?o?= MOCKBE.
+Date: Mon, 10 Jan 2005 07:21:49 +0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1081
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1081
+Message-Id: <20050110042110.8F1FC57886C@zotz.mtu.ru>
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, Linus, please apply:
-
-Fix a stupid unbalanced lock bug in the ppc64 hugepage code.  Lead
-rapidly to a crash if both CONFIG_HUGETLB_PAGE and CONFIG_PREEMPT were
-enabled (even without actually using hugepages at all).
-
-Signed-off-by: David Gibson <dwg@au1.ibm.com>
-
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2005-01-06 10:47:48.000000000 +1100
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2005-01-10 15:16:25.142319552 +1100
-@@ -745,7 +745,7 @@
- 
- 	pgdir = mm->context.huge_pgdir;
- 	if (! pgdir)
--		return;
-+		goto out;
- 
- 	mm->context.huge_pgdir = NULL;
- 
-@@ -768,6 +768,7 @@
- 	BUG_ON(memcmp(pgdir, empty_zero_page, PAGE_SIZE));
- 	kmem_cache_free(zero_cache, pgdir);
- 
-+ out:
- 	spin_unlock(&mm->page_table_lock);
- }
- 
-
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
-				| _around_!
-http://www.ozlabs.org/people/dgibson
+KAPTPéäöé, TOHEPù, úAðPABKA, äOCTABKA ðO MOCKBE.
+Í. TAçAHCKAñ:                     (O95) 74O~7552
+Í. ûOCCE üHTõúéACTOB:    (O95) 74O~755I
+çOPñþAñ ìéHéñ :               (O95) IO9~787O
+PEMOîô úAXBATA ðO îECKOìøKõ ìéCTOB - 5OO pÕÂ.

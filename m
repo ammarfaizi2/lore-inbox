@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUIZMI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269516AbUIZMJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267582AbUIZMI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 08:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269516AbUIZMI6
+	id S269516AbUIZMJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 08:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269517AbUIZMJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 08:08:58 -0400
-Received: from smtp08.web.de ([217.72.192.226]:58558 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S267582AbUIZMI4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 08:08:56 -0400
-Date: Sun, 26 Sep 2004 14:08:49 +0200
-From: Gundolf Kiefer <gundolf.kiefer@web.de>
-To: Jens Axboe <axboe@suse.de>, Christoph Bartelmus <lirc@bartelmus.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: IRQ blocking when reading audio CDs
-Message-ID: <20040926120849.GG3134@lilienthal>
-Reply-To: gundolfk@web.de
+	Sun, 26 Sep 2004 08:09:58 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64389 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269516AbUIZMJ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 08:09:56 -0400
+Subject: Re: [PATCH] ppc64: Fix 32 bits conversion of SI_TIMER signals
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040926094044.GB15204@suse.de>
+References: <1096156004.18236.49.camel@gaston>
+	 <20040926094044.GB15204@suse.de>
+Content-Type: text/plain
+Message-Id: <1096200493.18234.307.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.2
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 26 Sep 2004 22:08:13 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Jens (& Christoph),
+On Sun, 2004-09-26 at 19:40, Olaf Hering wrote:
+>  On Sun, Sep 26, Benjamin Herrenschmidt wrote:
+> 
+> > +		err |= __put_user((u32)(u64)s->si_ptr, &d->si_ptr);
+> 
+> That one surely doesnt work. Let me try it again.
 
-on my media PC (a Pentium II 350 MHz running Debian Woody with Kernel 
-2.4.25), I have problems using LIRC 0.6.6 with a serial IR reveiver when at 
-the same time some application (cdparanoia, xmms/Audio CD reader) is reading 
-audio data from a CD.
+Yup, my bad, see my other mail, I sent the wrong patch :(
 
-After some testing and exploration of the LIRC source code, I figured out 
-that during audio CD reading interrupts seem to be blocked for a longer time 
-(in the order of milliseconds), while lirc_serial measures the exact time 
-between two serial interrupts and thus relies on an accurate timing. In 
-consequence, LIRC does not recognize the IR sequences, there are no errors 
-reported. Assigning a high priority to the serial interrupt using "irq_tune" 
-did not help.
-
-Is there a way to make the audio CD read operations less blocking? Or does 
-any of you know a different source of the problem I observed?
-
-Thank you very much,
-
-Gundolf
+Ben.
 
 

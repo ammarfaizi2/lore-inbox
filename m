@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266434AbTBXK66>; Mon, 24 Feb 2003 05:58:58 -0500
+	id <S266443AbTBXLC3>; Mon, 24 Feb 2003 06:02:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266443AbTBXK65>; Mon, 24 Feb 2003 05:58:57 -0500
-Received: from packet.digeo.com ([12.110.80.53]:57007 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266434AbTBXK65>;
-	Mon, 24 Feb 2003 05:58:57 -0500
-Date: Mon, 24 Feb 2003 03:09:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: James Harper <james.harper@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH to fix irq sharing and SA_INTERRUPT on x86. please review
-Message-Id: <20030224030916.632dd876.akpm@digeo.com>
-In-Reply-To: <3E59F611.3020206@bigpond.com>
-References: <3E59F611.3020206@bigpond.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Feb 2003 11:09:03.0162 (UTC) FILETIME=[23AA29A0:01C2DBF5]
+	id <S266735AbTBXLC3>; Mon, 24 Feb 2003 06:02:29 -0500
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:52151 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S266443AbTBXLC1>; Mon, 24 Feb 2003 06:02:27 -0500
+Date: Mon, 24 Feb 2003 11:12:39 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cantab.net>
+Reply-To: Anton Altaparmakov <aia21@cantab.net>
+To: linux-kernel@vger.kernel.org
+cc: linux-ntfs-dev@lists.sourceforge.net
+Subject: [ANN] NTFS 2.1.1a for kernel 2.4.20 released
+Message-ID: <Pine.SOL.3.96.1030224111049.22477D-100000@draco.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Harper <james.harper@bigpond.com> wrote:
->
-> further to my email yesterday (to which i've had no response :) i 
-> propose the attached patch to arch/i386/kernel/irq.c. it corrects what i 
-> see as a bug in interrupt handling.
-> 
-> currently if a driver requests SA_INTERRUPT in an interrupt handler, it 
-> is only called with interrupts disabled if it is the first handler in 
-> the list.
+NTFS 2.1.1a is now released for kernel 2.4.20. This fixes both the
+reported hangs and improves the handling of compressed files so that the
+warning message people keep reporting is now gone. (Note the hangs were
+specific to the 2.4.x kernel ntfs versions. 2.5.x kernel ntfs versions
+are not affected.)
 
-ewww..
+Download the patch from:
 
-> my patch modifies setup_irq to put any interrupt with SA_INTERRUPT in 
-> the front of the handler queue (eg before any handlers without the flag).
-> 
-> and also modifies handle_IRQ_event to only enable interrupts when it 
-> hits the first handler with SA_INTERRUPT not set.
-> 
+        http://linux-ntfs.sf.net/downloads.html
 
-Yes, that's a nice fix, thanks.
+Or get from our BK repository (which is at the current BK linux-2.4
+version, i.e. 2.4.21-pre4-bk):
 
-Other architectures appear to have inherited this bug.
+        bk://linux-ntfs.bkbits.net/ntfs-2.4
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+
+

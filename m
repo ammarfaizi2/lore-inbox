@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274951AbRJJGl5>; Wed, 10 Oct 2001 02:41:57 -0400
+	id <S274972AbRJJGq1>; Wed, 10 Oct 2001 02:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274972AbRJJGlr>; Wed, 10 Oct 2001 02:41:47 -0400
-Received: from fe000.worldonline.dk ([212.54.64.194]:18193 "HELO
-	fe000.worldonline.dk") by vger.kernel.org with SMTP
-	id <S274951AbRJJGli>; Wed, 10 Oct 2001 02:41:38 -0400
-Date: Wed, 10 Oct 2001 08:41:57 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Toby Milne <toby@svector.co.uk>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] 2.4.10-ac9 CDRW Packet Fix
-Message-ID: <20011010084157.B3254@suse.de>
-In-Reply-To: <E15qgFQ-0004pk-00@avalon.svector.gotadsl.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15qgFQ-0004pk-00@avalon.svector.gotadsl.co.uk>
+	id <S274989AbRJJGqT>; Wed, 10 Oct 2001 02:46:19 -0400
+Received: from ns.suse.de ([213.95.15.193]:65038 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S274972AbRJJGqK>;
+	Wed, 10 Oct 2001 02:46:10 -0400
+Date: Wed, 10 Oct 2001 08:46:41 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Thomas Hood <jdthood@mail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: sysctl interface to bootflags?
+In-Reply-To: <1002596188.5283.17.camel@thanatos>
+Message-ID: <Pine.LNX.4.30.0110100844340.26743-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 08 2001, Toby Milne wrote:
-> The ac tree is missing some braces - without these the userspace buffer 
-> contents never get copied into the kernel buffer.
-> 
-> --- linux/drivers/cdrom/cdrom.c	Mon Oct  8 19:20:56 2001
-> +++ linux-2.4.10-ac9/drivers/cdrom/cdrom.c	Mon Oct  8 19:19:04 2001
-> @@ -1983,10 +1983,10 @@
->  	if (usense && !access_ok(VERIFY_WRITE, usense, sizeof(*usense)))
->  		goto out;
-> 
-> -	if (cgc->data_direction == CGC_DATA_READ)
-> +	if (cgc->data_direction == CGC_DATA_READ) {
->  		if (!access_ok(VERIFY_READ, ubuf, cgc->buflen))
->  			goto out;
-> -	else if (cgc->data_direction == CGC_DATA_WRITE)
-> +	} else if (cgc->data_direction == CGC_DATA_WRITE)
->  		if (copy_from_user(cgc->buffer, ubuf, cgc->buflen))
->  			goto out;
+On 8 Oct 2001, Thomas Hood wrote:
 
-Thanks, definitely a braino!
+> Well, it may run, but what it changed was NOT the SBF field.
+> When I restarted my machine the BIOS beeped and told me
+> there was an error in the nonvolatile RAM.  I was made to
+> reset the system date, and then the computer rebooted
+> normally.
+
+Ouch. Can you verify that the CMOS register its changing matches
+with what's listed in the BOOT record ?
+add a printk to bootflag.c to check.
+
+regards,
+
+Dave.
 
 -- 
-Jens Axboe
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 

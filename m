@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbTILCoT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 22:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbTILCoT
+	id S261441AbTILCnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 22:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbTILCnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 22:44:19 -0400
-Received: from students2.iit.edu ([216.47.143.102]:41215 "EHLO
-	students2.iit.edu") by vger.kernel.org with ESMTP id S261258AbTILCoM
+	Thu, 11 Sep 2003 22:43:14 -0400
+Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:49097
+	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S261441AbTILCnM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 22:44:12 -0400
-Date: Thu, 11 Sep 2003 21:44:09 -0500
-From: Jesse Yurkovich <yurkjes@iit.edu>
-Subject: Re: Bad directories w/Reiserfs on linux-2.6.0-test4
-To: linux-kernel@vger.kernel.org
-Message-id: <200309112144.09097.yurkjes@iit.edu>
-Organization: Illinois Institute of Technology
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.9
+	Thu, 11 Sep 2003 22:43:12 -0400
+Date: Thu, 11 Sep 2003 19:43:09 -0700
+To: Nuno Silva <nuno.silva@vgertech.com>
+Cc: Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org
+Subject: Re: bttv bug
+Message-ID: <20030912024309.GA5534@nasledov.com>
+References: <20030910064158.GA19930@nasledov.com> <20030910074123.GH18280@vitelus.com> <3F5F99AD.6080502@vgertech.com> <20030912023814.GA5274@nasledov.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030912023814.GA5274@nasledov.com>
+User-Agent: Mutt/1.5.4i
+From: Misha Nasledov <misha@nasledov.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-[snip]
- ... 
->> stat64("/usr/kde/3.1/lib/mmx", 0xbfffe8c0) = -1 ENOENT (No such file or directory)
->> open("/usr/kde/3.1/lib/libc.so.6", O_RDONLY) = -1 ENOENT (No such file or directory)
->> stat64("/usr/kde/3.1/lib", {st_mode=S_IFDIR|0755, st_size=35768, ...}) = 0
+I'd also like to mention that the FM radio component still seems to work fine
+and that I get a strange error whenever I attempt to access /dev/video0:
+(along with the Device or resource busy error)
 
->what kind of system installation do you have, is this intentional? Some kind
->of LD_PRELOAD or other wrappers?
+tuner: TV freq (268435455.93) out of range (44-958)
 
-Yeah, I have a LD_LIBRARY_PATH set for development ... etc. etc.
-
->> unlink("CVS")                           = -1 EISDIR (Is a directory)
->> chdir("CVS")                            = 0
->> open(".", O_RDONLY|O_NONBLOCK|O_LARGEFILE|O_DIRECTORY) = 4
->> getdents64(4, /* 0 entries */, 131072)  = 0
->> chdir("..")                             = 0
->> rmdir("CVS")                            = -1 ENOTEMPTY (Directory not empty)
-
->interesting... do you get the same empty dir (no . and ..) with ls?
-Yikes!!! -- hadn't noticed (CVS directory is bad for some reason)
-
-$ cd datatable-backup/CVS
-$ ls -la
-total 0			<-- not good   . and .. are not there
-
-whoa ... where did my parent go :(
-
->Greetings
->Bernd
-
--Jesse
+On Thu, Sep 11, 2003 at 07:38:14PM -0700, Misha Nasledov wrote:
+> It seems to work even with the nvidia module loaded, but once I start X, it
+> stops working. I thought that perhaps the patch to the nvidia kernel module
+> for -test5 was broken, so I used my older 2.6 nvidia kernel module source
+> and replaced the call to kdev_val() with MINOR() but that still did not fix
+> the problem. I can cat /dev/video0 before starting X, but afterwards it
+> says "Device or resouce busy", even after I kill X.
+-- 
+Misha Nasledov
+misha@nasledov.com
+http://nasledov.com/misha/

@@ -1,108 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318627AbSICDLl>; Mon, 2 Sep 2002 23:11:41 -0400
+	id <S318541AbSICFQO>; Tue, 3 Sep 2002 01:16:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318635AbSICDLl>; Mon, 2 Sep 2002 23:11:41 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:8466 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S318627AbSICDLk>; Mon, 2 Sep 2002 23:11:40 -0400
-Date: Mon, 2 Sep 2002 20:16:08 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
-Message-ID: <20020903031608.GC14810@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L.0209012327360.1857-100000@imladris.surriel.com> <3D72E267.6090502@wmich.edu> <20020902093910.G781@nightmaster.csn.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020902093910.G781@nightmaster.csn.tu-chemnitz.de>
-User-Agent: Mutt/1.3.27i
+	id <S318696AbSICFQO>; Tue, 3 Sep 2002 01:16:14 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:42465 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318541AbSICFQN>; Tue, 3 Sep 2002 01:16:13 -0400
+Date: Tue, 3 Sep 2002 06:20:44 +0100 (BST)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK-PATCH-2.5] Introduce new VFS inode cache lookup function
+In-Reply-To: <20020903035745.GG29452@ravel.coda.cs.cmu.edu>
+Message-ID: <Pine.SOL.3.96.1020903055423.13331A-100000@libra.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 02, 2002 at 09:39:10AM +0200, Ingo Oeser wrote:
-> Hi Ed,
-> Hi Rik,
-> Hi lkml,
+On Mon, 2 Sep 2002, Jan Harkes wrote:
+> On Sat, Aug 31, 2002 at 07:00:04PM +0100, Anton Altaparmakov wrote:
+> > Without such icache lookup functionality it is impossible to write inodes
+> > via the VM page dirty code paths AFAICS. - The only alternative I can see
+> > is to duplicate the whole icache private to NTFS so that I can perform the
+> > lookup internally but I think that is silly considering the VFS already
+> > keeps the inode cache...
 > 
-> On Mon, Sep 02, 2002 at 12:00:39AM -0400, Ed Sweetman wrote:
-> > I dont experience audio cutouts with anything i do, even the really 
-> > abusive things to the computer.  I've only had it cut out when using 
-> > bonnie or dbench and that's something you should expect. So what i see 
-> > as responsiveness is switching windows on the same desktop and switching 
-> > between virtual desktops.  I see responsiveness as the time between i do 
-> > something and the time it takes to redraw it. Using a G450, I expect a 
-> > certain level of hardware performance and half a second or so to redraw 
-> > a screen is not what i call responsive for a Tbird system. This is of 
-> > course all X related because i dont see much or any problem with the 
-> > console and with the kernel. At least nothing compared to X latencies.
->  
-> This is not only X. The problem is the software layering bloat.
-> Thats a design mistake we copied from W*ndows in our Linux
-> applications.
+> Wouldn't you be able to use something like the following code to do ilookup?
 > 
-> Take your favorite - and I mean your favorite, not the easiest -
-> application, find the handler for the problem event, try to do a
-> really complete call graph trough all software layers involved
-> (say from read(inputdevice_fd) to get the event up to
-> write(outputdevice_fd) to write to the framebuffer) and count
-> cycles. Don't forget the cache misses due to following pointers,
-> which lead to random, non-local memory access patterns 
-> (read: a VM and cache nightmare).
+> Jan
 > 
-> Once you really finish this boring task completely you know our
-> real performance problem.
 > 
-> Felix von Leitner did a nice presentation on our 
-> Chemnitzer Linux Tag (but in German) and many experienced
-> programmers and software enginieers were really stunned.
+> static int dont_set(struct inode *inode, void *data)
+> {
+> 	return -1;
+> }
 > 
-> So the problem is not really the kernel or the X layer. The
-> NUMBER of abstraction layers is the issue to attack.
-> 
-> People tend to import big bloated libraries or even completely
-> overkill operating systems just because it has ONE SIMPLE
-> property the actually need[1]. This must change.
+> struct inode *ilookup(struct super_block *sb, struct list_head *head,
+> 		      int (*test)(struct inode *, void *), void *data)
+> {
+> 	return iget5_locked(sb, head, test, dont_set, data);
+> }
 
-I dont' believe it is really X11.  The real killer of
-perceived performance seems to be the pager.  Great strides
-have been made here but i find that file I/O seems to be
-replacing often used pages so that when i change desktops or
-touch something that i haven't used for a while it stalls
-while my disk drive sounds like a nest of hornets.  I
-shouldn't see THAT much difference in behavior between a 10
-minute and a 2 minute interval when i have plenty of memory
-to hold my working set.  Backups and updatedb are guaranteed
-to effect this.
+Sure! But that makes me want to throw up. Before I use that I would
+implement my own ntfs inode cache alongside the VFS...
 
-It is of course most noticable with the large multi-layered
-GUI apps because a single event faults far too many pages as
-it works its way sparsely through the multiple libraries and
-their respecitive data.  Readahead would help more if there
-was better locality.
+1) The iget5_locked + failing set() approach incurs an
+alloc_inode()/destroy_inode() + a second find_inode() + second taking of
+inode_lock, i.e. it is very expensive operation. 
 
-Unfortunately there isn't much we are going to be able to do
-about this at the application level.  Perhaps the libraries
-could be optimized by reducing the layering but that is a
-matter for other lists.
+2) It will return inodes that are I_FREEING or I_CLEAR. I will have to
+test for these in NTFS and then iput() to wash my hands clean of such
+garbage. And if I am not mistaken, the iput() actually will BUG().
 
-The one thing the kernel can do is to not reclaim my often
-used pages when the pagecache is full of stale data that is
-unlikely to be reused.  Yes, i know this is HARD to do but
-it needs to be better.  I appreciate all those with
-headaches from trying to fix this.
+3) My proposed ilookup() is fast and small so I would prefer that. And it
+would seem quite a few other FS would be only too happy to see something
+along those lines appear.
 
-There was a patch that went by here recently that looked
-promising to me.  If i recall correctly it put newly read
-pages onto a special list so that if they didn't get read
-again before reaching the bottom the were reused.  Otherwise
-the wound up on the LRU.  
+4) If anything, as Christoph Hellwig suggested to me on #kernel,
+iget{,5}_locked() should be reimplemented in terms of my ilookup()
+implementation and not vice versa. (-:
 
+I suspect that point 2) may actually be an existing race condition in the
+VFS. If someone does iget() or iget_locked(), whatever, at just the right
+time, they could end up with a very weird struct inode which would BUG() 
+on iput() if the code actually survives that long... - I haven't looked
+into this closely so I may be missing something which doesn't allow these
+BUG() scenarios to happen but from a cursory look around when I was
+looking for a way to do the equivalent of ilookup() it would seem there
+isn't... 
+
+Thanks for your comments. It is interesting to read everyone's
+suggestions...
+
+Best regards,
+
+	Anton
 -- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-		Remember Cernan and Schmitt

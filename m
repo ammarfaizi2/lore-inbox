@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVCDAyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262856AbVCDBJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVCDAyl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 19:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262829AbVCDAtT
+	id S262856AbVCDBJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 20:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbVCDBFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 19:49:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22028 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262809AbVCDArN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 19:47:13 -0500
-Date: Fri, 4 Mar 2005 01:47:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] unexport complete_all
-Message-ID: <20050304004701.GU4608@stusta.de>
+	Thu, 3 Mar 2005 20:05:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:46300 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262837AbVCDBBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 20:01:18 -0500
+Date: Thu, 3 Mar 2005 17:01:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][26/26] IB: MAD cancel callbacks
+ fromthread
+Message-Id: <20050303170109.72e8a3f2.akpm@osdl.org>
+In-Reply-To: <52fyzcnsup.fsf@topspin.com>
+References: <ORSMSX401FRaqbC8wSA0000000e@orsmsx401.amr.corp.intel.com>
+	<52fyzcnsup.fsf@topspin.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't find any possible modular usage in the kernel.
+Roland Dreier <roland@topspin.com> wrote:
+>
+>     >> don't add casts to a void pointer, that's silly.
+> 
+> How should we handle this nit?  Should I post a new version of this
+> patch or an incremental diff that fixes it up?
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc5-mm1-full/kernel/sched.c.old	2005-03-04 01:04:28.000000000 +0100
-+++ linux-2.6.11-rc5-mm1-full/kernel/sched.c	2005-03-04 01:04:34.000000000 +0100
-@@ -3053,7 +3053,6 @@
- 			 0, 0, NULL);
- 	spin_unlock_irqrestore(&x->wait.lock, flags);
- }
--EXPORT_SYMBOL(complete_all);
- 
- void fastcall __sched wait_for_completion(struct completion *x)
- {
+I'll fix it up.

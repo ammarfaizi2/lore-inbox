@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130926AbRAaLUU>; Wed, 31 Jan 2001 06:20:20 -0500
+	id <S130105AbRAaLTk>; Wed, 31 Jan 2001 06:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131085AbRAaLUL>; Wed, 31 Jan 2001 06:20:11 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:47332 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S130926AbRAaLT5>;
-	Wed, 31 Jan 2001 06:19:57 -0500
-Date: Wed, 31 Jan 2001 12:19:52 +0100
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 -- Unresolved symbols in radio-miropcm20.o
-Message-ID: <20010131121952.A11947@fenrus.demon.nl>
-In-Reply-To: <3A772D3C.CB62DD4F@megapath.net> <m14NsuB-000OZJC@amadeus.home.nl> <20010131045520.B32636@cadcamlab.org> <20010131120712.A11819@fenrus.demon.nl> <14967.62433.949844.559264@wire.cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14967.62433.949844.559264@wire.cadcamlab.org>; from peter@cadcamlab.org on Wed, Jan 31, 2001 at 05:15:45AM -0600
+	id <S130926AbRAaLTa>; Wed, 31 Jan 2001 06:19:30 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:64777 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130105AbRAaLT2>;
+	Wed, 31 Jan 2001 06:19:28 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: David Woodhouse <dwmw2@infradead.org>
+Date: Wed, 31 Jan 2001 12:17:55 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Matrox G450 problems with 2.4.0 and xfree
+CC: <linux-kernel@vger.kernel.org>, marcel@mesa.nl
+X-mailer: Pegasus Mail v3.40
+Message-ID: <142368953925@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 05:15:45AM -0600, Peter Samuelson wrote:
+On 31 Jan 01 at 8:44, David Woodhouse wrote:
+> On Tue, 30 Jan 2001, Marcel J.E. Mol wrote:
 > 
-> [Arjan van de Ven]
-> > This doesn't take into account the case where someone says "n" to
-> > CONFIG_SOUND.
-> 
-> So move the test outside the 'if [ "$CONFIG_SOUND" = "y" ]'.  The
-> principle is the same.  
+> > Installed a Matrox G450 on my linux system. Now it has problems
+> > booting.
+> > 
+> > Previously I had a matrox G400 card and that worked without any problems.
+> > 
+> > Below follows .config for the 2.4.0 kernel.
+> > 
+> > # CONFIG_FB_MATROX_G450 is not set
 
-That won't work, unless you also want to force the soundlayer on people. 
-Which is unacceptable. period. I've been over this when I added the #ifdef
-to the 2.2 kernel, and nobody came up with a better idea.
-At least using the #ifdef + #error, the user gets a proper notification that
-his kernel won't work and what he can do about it.
+It is only for secondary head support - and all code which is guarded
+by this define is executed after lockup occurs, so no, it is not the 
+reason why it works / does not work...
 
-Greetings,
-   Arjan van de Ven
+If it helped you, I think that rule (4) from my another posting
+applies to you - you are just lucky...
+
+I asked matrox devrel again, but no answer. And linking matroxfb with 
+512KB binary-only mgaHALlib.a is unacceptable personally for me, not
+even talking about license issues... (and not talking about technical
+problems with getting mgaHALlib to work in kernel environment...)
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbTKYFBe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 00:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTKYFBe
+	id S261947AbTKYE6h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 23:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTKYE6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 00:01:34 -0500
-Received: from [64.65.189.210] ([64.65.189.210]:58084 "EHLO
-	mail.pacrimopen.com") by vger.kernel.org with ESMTP id S261965AbTKYFBc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 00:01:32 -0500
-Subject: Re: RAID-0 read perf. decrease after 2.4.20
-From: Joshua Schmidlkofer <kernel@pacrimopen.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031124100534.24941.qmail@web13902.mail.yahoo.com>
-References: <20031124100534.24941.qmail@web13902.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1069736477.1552.11.camel@menion.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 24 Nov 2003 21:01:18 -0800
+	Mon, 24 Nov 2003 23:58:37 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:42199 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S261947AbTKYE6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 23:58:35 -0500
+Date: Mon, 24 Nov 2003 20:58:24 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] Make balance_dirty_pages zone aware (1/2)
+Message-ID: <1070800000.1069736303@[10.10.2.4]>
+In-Reply-To: <20031124170506.4024bb30.akpm@osdl.org>
+References: <3FBEB27D.5010007@us.ibm.com><20031123143627.1754a3f0.akpm@osdl.org><1034580000.1069688202@[10.10.2.4]><20031124100043.5416ed4c.akpm@osdl.org><39670000.1069719009@flay> <20031124170506.4024bb30.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-11-24 at 02:05, Martin Knoblauch wrote:
-> >Hello All!
-> >
-> >Has anyone else experienced a drastic drop in read performance on
-> >software
-> >RAID-0 with post 2.4.20 kernels? We have a few Athlon XP's here at our
-> >lab with double IDE disks on different channels set up as RAID-0. Some
-> >bonnie++ benchmark results with various kernels, on the same machine
-> >(Athlon XP 2400+, 2 GHz, 1.5 GB RAM, VIA chipset, 2*Maxtor 120 GB
-> >6Y060L0):
-> >write read
-> >2.4.20-ac1: 88,000 135,000 K/sec
-> >2.4.21-pre7: 93,000 75,000
-> >2.4.22-ac4: 94,000 82,000
+>> Well ... not so sure of this as I once was ... so be gentle with me ;-)
+>> But if the system has been running for a while, memory is full of pagecache,
+>> etc. We try to allocate from the local node, fail, and fall back to the
+>> other nodes, which are all full as well. Then we wake up kswapd, but all
+>> pages in this node are dirty, so we block for ages on writeout, making 
+>> mem allocate really latent and slow (which was presumably what
+>> balance_dirty_pages was there to solve in the first place). 
 > 
-> Hi,
-> 
->  I can attest a similar drop in read performance on a IA64 box going
-> from a 2.4.19ish kernel to 2.4.22. In our setup the RAID0 is LVM, not
-> MD.The RAID is used a a scratch device for a out-of-core finite element
-> program (NASTRAN).
-> 
->  The setup is some 20 disks on 4 controllers. "iozone" read/reread
-> Performance went from about 400MB/sec to 260 MB/sec, while write went
-> up a notch. Unfortunatelly the read performance is more important for
-> the application in question.
-> 
->  Due to the fact that I have no controll over the use of the system I
-> cannot make any experiments to find out what killed performance. Sorry
-> :-(
-> 
-> Martin
-> 
-> =====
-> ------------------------------------------------------
-> Martin Knoblauch
-> email: knobi@knobisoft.de or knobi@rocketmail.com
-> www:   http://www.knobisoft.de
-> 
-> 
+> It is possible.  You'd be pretty unlucky to dirty so much lowmem when there
+> is such a huge amount of highmem floating about, but yes, if you tried hard
+> enough...
 
-And this isn't the read-ahead size change thing?
+I'm not really worried about lowmem vs highem - that was almost an 
+afterthought. I'm more worried about the NUMA bit - it's easy to fill
+one node's memory completely with dirty pages by just a writer running 
+on that node.
+ 
+> I have a feeling that some observed problem must have prompted this coding
+> frenzy from Matthew.  Surely some problem was observed, and this patch
+> fixed it up??
+
+No, just an observation whilst looking at balance_dirty_pages, that it's
+not working as intended on NUMA. It's just easy to goad Matt into a frenzy,
+I guess ;-) ;-)
+
+"dd if=/dev/zero of=foo" would trigger it, I'd think. Watching the IO
+rate, it should go wierd after ram is full (on a 3 or more node system, 
+so there's < 40% of RAM for each node). Yeah, I know you're going to give
+me crap for not actually trying it  ... and rightly so ... but it just
+seemed so obvious ... ;-) 
+
+>> > If we make the dirty threshold a proportion of the initial amount of free
+>> > memory in ZONE_NORMAL, as is done in 2.4 it will not be possible to fill
+>> > any node with dirty pages.
+>> 
+>> True. But that seems a bit extreme for a system with 64GB of RAM, and only
+>> 896Mb in ZONE_NORMAL ;-) Doesn't really seem like the right way to fix it.
+>> 
+> 
+> Increasing /proc/sys/vm/lower_zone_protection can be used to teach the VM
+> to not use lowmem for pagecache.  Does this solve the elusive problem too?
+
+Don't think so - see comment above re NUMA.
+
+M.
 

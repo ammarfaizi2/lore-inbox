@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVBQLDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVBQLHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbVBQLDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 06:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVBQLDZ
+	id S262253AbVBQLHK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 06:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVBQLHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 06:03:25 -0500
-Received: from gprs214-194.eurotel.cz ([160.218.214.194]:29129 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262177AbVBQLCu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 06:02:50 -0500
-Date: Thu, 17 Feb 2005 12:02:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Len Brown <len.brown@intel.com>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, seife@suse.de,
-       rjw@sisk.pl
+	Thu, 17 Feb 2005 06:07:10 -0500
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:63393 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262253AbVBQLHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 06:07:04 -0500
+Date: Thu, 17 Feb 2005 12:06:10 +0100
+To: Stefan =?iso-8859-15?Q?D=F6singer?= <stefandoesinger@gmx.at>
+Cc: acpi-devel@lists.sourceforge.net,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       Pavel Machek <pavel@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
 Subject: Re: [ACPI] Call for help: list of machines with working S3
-Message-ID: <20050217110233.GA1353@elf.ucw.cz>
-References: <20050214211105.GA12808@elf.ucw.cz> <1108621005.2096.412.camel@d845pe>
+Message-ID: <20050217110610.GH29993@gamma.logic.tuwien.ac.at>
+References: <20050214211105.GA12808@elf.ucw.cz> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at> <200502152038.00401.stefandoesinger@gmx.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <1108621005.2096.412.camel@d845pe>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200502152038.00401.stefandoesinger@gmx.at>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Die, 15 Feb 2005, Stefan Dösinger wrote:
+> > After deactivating DRI in the X config file and saving the states with
+> > your script (thanks) and turning off various stuff I get X running
+> > again.
+> >
+> > Questions:
+> > - DRI must be disabled I guess?! Even with newer X server (x.org)?
+>
+> Do you use the fglrx driver? This doesn't work with any type of suspend so 
 
-> I think that it is the BIOS' job on S3-suspend
-> to save the video mode.  On S3-resume the BIOS should
-> re-POST and restore the video mode.
+No
 
-Can you find it written down somewhere? It would be certainly easier
-for me if every BIOS did re-post, but it is not the case on any new
-BIOS....
+> far. If you use the radeon driver try a driver update.
 
-> To completely solve the Linux S3 video restore issue,
-> we need to push the platform and BIOS vendors.
-> 
-> What am I missing?
+>From deb http://www.nixnuts.net/files/ ./ ??
 
-I think we are missing few lines in docs somewhere saying "video must
-be re-POSTed during S3 wakeup". And then we miss someone going around
-vendors with baseball bat, telling them to fix their BIOSes.
+Or direct from dri.freedesktop.org, and updating X to X.org on sid?
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Norbert Preining <preining AT logic DOT at>                 Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+SWANIBOST (adj.)
+Complete shagged out after a hard day having income tax explained to
+you.
+			--- Douglas Adams, The Meaning of Liff

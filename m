@@ -1,99 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbUKPBXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbUKPBdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbUKPBXH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 20:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUKPBTi
+	id S261744AbUKPBdX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 20:33:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbUKPBdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 20:19:38 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:13837 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261758AbUKPBTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 20:19:02 -0500
-Date: Tue, 16 Nov 2004 02:18:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove bouncing email address of Hennus Bergman (fwd)
-Message-ID: <20041116011829.GE4946@stusta.de>
+	Mon, 15 Nov 2004 20:33:23 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46511 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261744AbUKPBdS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 20:33:18 -0500
+Subject: Re: Linux 2.6.10-rc2
+From: Lee Revell <rlrevell@joe-job.com>
+To: Paul Blazejowski <diffie@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Diffie <diffie@blazebox.homeip.net>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+In-Reply-To: <9dda349204111512234f30c60d@mail.gmail.com>
+References: <9dda349204111512234f30c60d@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 15 Nov 2004 16:16:31 -0500
+Message-Id: <1100553392.4369.1.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The trivial patch forwarded below still applies against 2.6.10-rc1-mm5.
+Please report ALSA issues to alsa-devel@lists.sourceforge.net.  I have
+added them to the cc:.
 
-Please apply.
+Lee
 
-
-
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date:	Mon, 30 Aug 2004 01:07:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove bouncing email address of Hennus Bergman
-
-The email address of Hennus Bergman in the kernel is bouncing.
-
-Aftern asking him whether I should update his email address in the Linux  
-kernel, he replied:
-
-<--  snip  -->
-
-I get a lot of spam already and I'd rather avoid getting even more by 
-'advertising' my email adres on the internet like that. So I don't want 
-my pobox email address in the kernel distribution.
-If you want to remove my old cybercomm.nl  email address, that's fine 
-by me.
-
-<--  snip  -->
-
-
-The patch below therefore simply removes his bouncing emal address and 
-no longer homepage.
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.9-rc1-mm1-full/CREDITS.old	2004-08-30 01:00:57.000000000 +0200
-+++ linux-2.6.9-rc1-mm1-full/CREDITS	2004-08-30 01:01:10.000000000 +0200
-@@ -325,8 +325,6 @@
- S: USA
- 
- N: Hennus Bergman
--E: hennus@cybercomm.nl
--W: http://www.cybercomm.nl/~hennus/
- P: 1024/77D50909 76 99 FD 31 91 E1 96 1C  90 BB 22 80 62 F6 BD 63
- D: Author and maintainer of the QIC-02 tape driver
- S: The Netherlands
---- linux-2.6.9-rc1-mm1-full/drivers/char/tpqic02.c.old	2004-08-30 01:01:38.000000000 +0200
-+++ linux-2.6.9-rc1-mm1-full/drivers/char/tpqic02.c	2004-08-30 01:01:49.000000000 +0200
-@@ -3,7 +3,6 @@
-  * Driver for tape drive support for Linux-i386
-  *
-  * Copyright (c) 1992--1996 by H. H. Bergman. All rights reserved.
-- * Current e-mail address: hennus@cybercomm.nl
-  *
-  * Distribution of this program in executable form is only allowed if
-  * all of the corresponding source files are made available through the same
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
-cu
-Adrian
-
+On Mon, 2004-11-15 at 15:23 -0500, Paul Blazejowski wrote:
+> Starting up ut2004 or doom3 games produces ALSA segfaults, dmesg prints:
+> 
+> scheduling while atomic: ut2004-bin/0x00000001/8390
+>  [<c0331508>] schedule+0x508/0x510
+>  [<c03319a3>] schedule_timeout+0x63/0xc0
+>  [<c0122c90>] process_timeout+0x0/0x10
+>  [<c012306f>] msleep+0x2f/0x40
+>  [<f8b9e02f>] snd_intel8x0_setup_pcm_out+0xbf/0x150 [snd_intel8x0]
+>  [<f8b9e14c>] snd_intel8x0_pcm_prepare+0x8c/0xb0 [snd_intel8x0]
+>  [<f8bfda84>] snd_pcm_do_prepare+0x14/0x40 [snd_pcm]
+>  [<f8bfcdd8>] snd_pcm_action_single+0x38/0x80 [snd_pcm]
+>  [<f8bfcfd0>] snd_pcm_action_nonatomic+0x80/0x90 [snd_pcm]
+>  [<f8bfdb37>] snd_pcm_prepare+0x57/0x80 [snd_pcm]
+>  [<f8c001b2>] snd_pcm_playback_ioctl1+0x52/0x310 [snd_pcm]
+>  [<f8d25ae9>] snd_pcm_oss_poll+0x49/0x1a0 [snd_pcm_oss]
+>  [<c016901a>] poll_freewait+0x3a/0x50
+>  [<f8c00828>] snd_pcm_kernel_playback_ioctl+0x38/0x50 [snd_pcm]
+>  [<f8d23026>] snd_pcm_oss_prepare+0x26/0x60 [snd_pcm_oss]
+>  [<f8d2309d>] snd_pcm_oss_make_ready+0x3d/0x60 [snd_pcm_oss]
+>  [<f8d2358d>] snd_pcm_oss_write1+0x3d/0x210 [snd_pcm_oss]
+>  [<f8d259d0>] snd_pcm_oss_write+0x40/0x60 [snd_pcm_oss]
+>  [<f8d25990>] snd_pcm_oss_write+0x0/0x60 [snd_pcm_oss]
+>  [<c01563e8>] vfs_write+0xb8/0x130
+>  [<c0156531>] sys_write+0x51/0x80
+>  [<c010317b>] syscall_call+0x7/0xb
+> 
+> .config attached
+> 
+> Regards,
+> 
+> Paul B.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee Revell <rlrevell@joe-job.com>
 

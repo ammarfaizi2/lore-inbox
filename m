@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131858AbQLVNvT>; Fri, 22 Dec 2000 08:51:19 -0500
+	id <S131944AbQLVOVi>; Fri, 22 Dec 2000 09:21:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131944AbQLVNvJ>; Fri, 22 Dec 2000 08:51:09 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8209 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131858AbQLVNvA>; Fri, 22 Dec 2000 08:51:00 -0500
-Date: Fri, 22 Dec 2000 14:19:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: Linux 2.2.19pre2
-Message-ID: <20001222141929.A13032@athlon.random>
-In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>, <E147MkJ-00036t-00@the-village.bc.nu>; <20001220142858.A7381@athlon.random> <3A40C8CB.D063E337@uow.edu.au>, <3A40C8CB.D063E337@uow.edu.au>; <20001220162456.G7381@athlon.random> <3A41DDB3.7E38AC7@uow.edu.au>, <3A41DDB3.7E38AC7@uow.edu.au>; <20001221161952.B20843@athlon.random> <3A4303AC.C635F671@uow.edu.au>
-Mime-Version: 1.0
+	id <S131964AbQLVOV2>; Fri, 22 Dec 2000 09:21:28 -0500
+Received: from d185fcbd7.rochester.rr.com ([24.95.203.215]:25615 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S131944AbQLVOVK>; Fri, 22 Dec 2000 09:21:10 -0500
+Date: Fri, 22 Dec 2000 08:49:09 -0500
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+Message-ID: <232360000.977492949@coffee>
+In-Reply-To: <Pine.GSO.4.21.0012212048210.5877-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3A4303AC.C635F671@uow.edu.au>; from andrewm@uow.edu.au on Fri, Dec 22, 2000 at 06:33:00PM +1100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 06:33:00PM +1100, Andrew Morton wrote:
-> add_waitqueue_exclusive() and TASK_EXCLUSIVE, add a
 
-There's no add_waitqueue_exclusive in my patch.
 
-> Except for this bit, which looks slightly fatal:
+On Thursday, December 21, 2000 20:54:09 -0500 Alexander Viro <viro@math.psu.edu> wrote:
+
 > 
-> 	/*
->          * We can drop the read-lock early if this
->          * is the only/last process.
->          */
->         if (next == head) {
->                  read_unlock(&waitqueue_lock);
->                  wake_up_process(p);
->                  goto out;
->         }
 > 
-> Once the waitqueue_lock has been dropped, the task at `p'
-> is free to remove itself from the waitqueue and exit.  This
-> CPU can then try to wake up a non-existent task, no?
+> On Thu, 21 Dec 2000, Chris Mason wrote:
+> 
+>> Obvious bug, block_write_full_page zeros out the bits past the end of 
+>> file every time.  This should not be needed for normal file writes.
+> 
+> Unfortunately, it _is_ needed for pageout path. mmap() the last page
+> of file. Dirty the data past the EOF (MMU will not catch that access).
+> Let the pageout send the page to disk. You don't want to have the data
+> past EOF end up on the backstore.
+> 
 
-Yes, that was an unlikely-to-happen SMP race I inerith from 2.2.18 and all
-previous 2.2.x vanilla kernels. Thanks.
+Sorry, I wasn't very clear.  I'd like to find a way to just do the memset in the one case it is needed (a real writepage), and not do it when we are using writepage just to flush dirty buffers.  I don't see how to do it though, without making a new flush operation.  That would also solve my concerns about the change in writepage semantics (even though every FS I could find in the kernel tree was using block_write_full_page). 
 
-Andrea
+thanks,
+Chris
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

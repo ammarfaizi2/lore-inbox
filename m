@@ -1,79 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275255AbRJJKXE>; Wed, 10 Oct 2001 06:23:04 -0400
+	id <S275224AbRJJKUE>; Wed, 10 Oct 2001 06:20:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRJJKW4>; Wed, 10 Oct 2001 06:22:56 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:57993 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S275255AbRJJKWn>; Wed, 10 Oct 2001 06:22:43 -0400
-Message-ID: <3BC4219F.6020604@wipro.com>
-Date: Wed, 10 Oct 2001 15:53:27 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S275255AbRJJKTy>; Wed, 10 Oct 2001 06:19:54 -0400
+Received: from fismat1.fcfm.buap.mx ([148.228.125.1]:31150 "EHLO
+	fismat1.fcfm.buap.mx") by vger.kernel.org with ESMTP
+	id <S275224AbRJJKTh>; Wed, 10 Oct 2001 06:19:37 -0400
+Date: Wed, 10 Oct 2001 04:19:29 -0500 (CDT)
+From: Luis Montgomery <monty@fismat1.fcfm.buap.mx>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] register_blkdev and unregister_blkdev
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+Subject: 2.4.11: problem with at1700
+Message-ID: <Pine.GSO.4.21.0110100409260.27961-100000@fismat1.fcfm.buap.mx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+I try to compile 2.4.11 and find this error:
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.11/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
+-include /usr/src/linux-2.4.11/include/linux/modversions.h   -c -o
+at1700.o at1700.c
+at1700.c:475: conflicting types for `read_eeprom'
+at1700.c:161: previous declaration of `read_eeprom'
+make[2]: *** [at1700.o] Error 1
 
-I was looking at the code for register_blkdev and unregister_blkdev. I 
-found that no
-locking (spinlocks) are used to protect the blkdevs struture in these 
-functions. I suspect
-we have not seen a problem till now since
+Luis Montgomery
 
-Either
-
-1. register_blkdev is called from modules, and only module 
-initialization is protected.
-2. register_blkdev is called during init time for drivers in the kernel 
-and I am not sure
-    about whether calls to register_blkdev at this time are implicitly 
-serialized, since only
-    1 CPU is active during initialization
-
-Anway, what I needed to know was if (1) and (2) are enough to ensure 
-safety in register_blkdev
-and unregister_blkdev.
-
-May be I am missing something, there is already some lock which is held 
-before these routines
-are invoked, I could not find any.
-
-Comments
-
-Thanks,
-Balbir Singh.
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--

@@ -1,32 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317791AbSFMR4c>; Thu, 13 Jun 2002 13:56:32 -0400
+	id <S315455AbSFMS04>; Thu, 13 Jun 2002 14:26:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317792AbSFMR4b>; Thu, 13 Jun 2002 13:56:31 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:60384 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317791AbSFMR4b>; Thu, 13 Jun 2002 13:56:31 -0400
-To: Alexander Viro <viro@math.psu.edu>
-Cc: engler@csl.Stanford.EDU, linux-kernel@vger.kernel.org
+	id <S317403AbSFMS0z>; Thu, 13 Jun 2002 14:26:55 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51361 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S315455AbSFMS0y>;
+	Thu, 13 Jun 2002 14:26:54 -0400
+Date: Thu, 13 Jun 2002 14:26:54 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andi Kleen <ak@muc.de>
+cc: engler@csl.Stanford.EDU, linux-kernel@vger.kernel.org
 Subject: Re: [CHECKER] 37 stack variables >= 1K in 2.4.17
-In-Reply-To: <200206130638.XAA08477@csl.Stanford.EDU> <Pine.GSO.4.21.0206130254360.18281-100000@weyl.math.psu.edu>
-From: Andi Kleen <ak@muc.de>
-Date: 13 Jun 2002 19:56:15 +0200
-Message-ID: <m3d6uvxdts.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+In-Reply-To: <m3d6uvxdts.fsf@averell.firstfloor.org>
+Message-ID: <Pine.GSO.4.21.0206131420010.20315-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
+
+
+On 13 Jun 2002, Andi Kleen wrote:
+
+> Alexander Viro <viro@math.psu.edu> writes:
+> > 
+> > I mean that due to the loop (link_path_walk->do_follow_link->foofs_follow_link
+> > ->vfs_follow_link->link_path_walk) you will get infinite maximal depth
+> > for everything that can be called by any of these functions.  And that's
+> > a _lot_ of stuff.
 > 
-> I mean that due to the loop (link_path_walk->do_follow_link->foofs_follow_link
-> ->vfs_follow_link->link_path_walk) you will get infinite maximal depth
-> for everything that can be called by any of these functions.  And that's
-> a _lot_ of stuff.
+> Surely an analysis pass can detect recursive function chains and flag them
+> (e.g. the global IPA alias analysis pass in open64 does this)
 
-Surely an analysis pass can detect recursive function chains and flag them
-(e.g. the global IPA alias analysis pass in open64 does this)
+Ugh...  OK, let me try again:
 
--Andi
+One bit of apriory information needed to get anything interesting from
+this analysis:  there is a set of mutually recursive functions (see above)
+and there is a limit (5) on the depth of recursion in that loop.
+
+It has to be known to checker.  Explicitly, since
+	a) automatically deducing it is not realistic
+	b) cutting off the stuff behind that loop will cut off a _lot_ of
+things - both in filesystems and in VFS (and in block layer, while we are
+at it).
+
+I'm not saying that checker can't be used for that analysis - it can, but
+naive approach (find recursive stuff and cut it off) will not be too
+interesting.  One of the main stumbling blocks - see above.  With explicit
+knowledge of that one the thing will be definitely very interesting - no
+arguments here.
+

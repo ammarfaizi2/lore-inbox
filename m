@@ -1,61 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282850AbRLGQG1>; Fri, 7 Dec 2001 11:06:27 -0500
+	id <S282861AbRLGQKx>; Fri, 7 Dec 2001 11:10:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282861AbRLGQGN>; Fri, 7 Dec 2001 11:06:13 -0500
-Received: from bitmover.com ([192.132.92.2]:16013 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S282850AbRLGQGE>;
-	Fri, 7 Dec 2001 11:06:04 -0500
-Date: Fri, 7 Dec 2001 08:06:03 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Henning Schmiedehausen <hps@intermeta.de>
-Cc: Daniel Phillips <phillips@bonn-fries.net>, Larry McVoy <lm@bitmover.com>,
-        "David S. Miller" <davem@redhat.com>, davidel@xmailserver.org,
-        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-        lars.spam@nocrew.org, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011207080603.B6983@work.bitmover.com>
-Mail-Followup-To: Henning Schmiedehausen <hps@intermeta.de>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-	davidel@xmailserver.org, rusty@rustcorp.com.au,
-	Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-	lars.spam@nocrew.org, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206115338.E27589@work.bitmover.com> <20011206.121554.106436207.davem@redhat.com> <20011206122116.H27589@work.bitmover.com> <E16C665-0000r5-00@starship.berlin> <1007715304.13220.0.camel@forge>
+	id <S282860AbRLGQKp>; Fri, 7 Dec 2001 11:10:45 -0500
+Received: from f126.law11.hotmail.com ([64.4.17.126]:59402 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S282867AbRLGQKb>;
+	Fri, 7 Dec 2001 11:10:31 -0500
+X-Originating-IP: [212.205.255.226]
+From: "PANTELIS PROIOS" <pproios@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: little OT: 2.4.13 kernel complains about  E2FS utils trying to go over partit
+Date: Fri, 07 Dec 2001 18:10:24 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <1007715304.13220.0.camel@forge>; from hps@intermeta.de on Fri, Dec 07, 2001 at 09:54:58AM +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <F1264iZWw8gRzpPWywC0000cfcd@hotmail.com>
+X-OriginalArrivalTime: 07 Dec 2001 16:10:25.0367 (UTC) FILETIME=[AE16AE70:01C17F39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How about creating one node as "master" and write a "cluster network
-> filesystem" which uses shared memory as its "network layer". 
+Hi there,
 
-Right.
+I am having some problems with e2fs utils and was wondering if you could
+help clear some things out for me. Please CC me as I am not subscribed to 
+the list.
 
-> Then boot all other nodes diskless from these cluster network
-> filesystems.
+I start with a dump of my partition table:
+##########################################################################
+FDISK
+##########################################################################
 
-Wrong.  Give each node its own private boot fs.  Then mount /data.
+:#  fdisk -l /dev/hdc
+Disk /dev/hdc: 255 heads, 63 sectors, 789 cylinders
+Units = cylinders of 16065 * 512 bytes
 
-> You can still have shared mmap (which I believe is Larry's toy point)
-> between the nodes but you avoid all of the filesystem locking issues,
-> because you're going over (a hopefully superfast) memory network
-> filesystem.
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hdc1   *         1       399   3204936    b  Win95 FAT32
+/dev/hdc2           400       529   1044225    e  Win95 FAT16 (LBA)
+/dev/hdc3           530       659   1044225   83  Linux native
+/dev/hdc4           660       789   1044225   83  Linux native
 
-There is no network, unless you consider the memory interconnect a 
-network (I think the hardware guys would raise their eyebrows at 
-that name).
+#  fdisk -l -u /dev/hdc
+Disk /dev/hdc: 255 heads, 63 sectors, 789 cylinders
+Units = sectors of 1 * 512 bytes
 
-> What I don't like about the approach is the fact that all nodes should
-> share the same file system. One (at least IMHO) does not want this for
-> at least /etc. 
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hdc1   *        63   6409934   3204936    b  Win95 FAT32
+/dev/hdc2       6409935   8498384   1044225    e  Win95 FAT16 (LBA)
+/dev/hdc3       8498385  10586834   1044225   83  Linux native
+/dev/hdc4      10586835  12675284   1044225   83  Linux native
 
-Read through my other postings, I said that things are private by
-default.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+Next, I tried to badblock the partition space before I mke2fs.
+2 weird things happened:
+
+1) badblocks kept on trying to access a block beyond the end of the
+device/partition (1044226) !!  Thank god it wasn't allowed to do it. Below
+is the output from the badblocks run and also from my /var/log/messages
+
+2) even though badblocks finished, it never showed me on stdout the
+badblock numbers!! I had to rerun with -o badblocks.txt to get the actual
+numbers. Is this a bug ?
+Now that I think of it a second time, the badblock # was 10440224, which
+might mean this: Note the "<----WTF ???" comments. Maybe when it was
+printed out on screen, it was written over by the blocks counter (due to
+me using the -s switch) and thus I couldn't "see it" on screen.
+
+Does my thinking here make sense?
+
+Should badblocks store the bad blocks until the end of the run if the -s
+switch is used ?
+
+##########################################################################
+BADBLOCKS
+##########################################################################
+
+# badblocks -c64 -svw /dev/hdc3
+
+Checking for bad blocks in read-write mode
+>From block 0 to 1044225
+Writing pattern 0xaaaaaaaa: done
+Reading and comparing: 104422472/  1044225 <--- WTF ????
+done
+Writing pattern 0x55555555: done
+Reading and comparing: done
+Writing pattern 0xffffffff: done
+Reading and comparing: done
+Writing pattern 0x00000000: done
+Reading and comparing: done
+Pass completed, 1 bad blocks found.
+
+
+#at the end of each "Writing pattern 0x...."
+Dec  3 20:25:39  kernel: attempt to access beyond end of device
+Dec  3 20:25:39  kernel: 16:03: rw=0, want=1044226, limit=1044225
+
+#at the end of each "Reading and comparing: done"
+Dec  3 20:28:03  kernel: attempt to access beyond end of device
+Dec  3 20:28:03  kernel: 16:03: rw=0, want=1044226, limit=1044225
+
+
+Well after I was done with badblocks -o I went on to e2fsck with 1024byte
+blocks (I am gonna have lots of small files). But that wouldn't fly. The
+output below tells why, but I am not sure why it would be having short
+reads that early into the partition...
+
+##########################################################################
+MKE2FS 1024
+##########################################################################
+
+# mke2fs -b 0124 -m 1 /dev/hdc3
+
+Filesystem label=
+OS type: Linux
+Block size=1024 (log=0)
+Fragment size=1024 (log=0)
+131072 inodes, 1044225 blocks
+10442 blocks (1.00%) reserved for the super user
+First data block=1
+128 block groups
+8192 blocks per group, 8192 fragments per group
+1024 inodes per group
+Superblock backups stored on blocks:
+        8193, 24577, 40961, 57345, 73729, 204801, 221185, 401409, 663553,
+        1024001
+
+Writing inode tables:   0/128^H^H^H^H^H^H^H
+Could not write 8 blocks in inode table starting at 8:
+Attempt to write block from filesystem resulted in short write
+
+
+So I tried 2048byte blocks, but I got yet another problem this time! It
+ignores the badblock (1044224) saying it's out of range!? (even though the
+partition has 1044225 blocks, and even though I never specified the
+start/end blocks myself (i let it auto-figure it out)). Any ideas ?
+
+Should my partitions have been even-numbered in block size ?  Is this a 
+kernel problem or an e2fs utils problem (i think the latter)
+
+##########################################################################
+MKE2FS 2048
+##########################################################################
+
+# mke2fs -c -l /tmp/bad -b 2048 -m 1 /dev/hdc3
+
+mke2fs 1.25 (20-Sep-2001)
+Filesystem label=
+OS type: Linux
+Block size=2048 (log=1)
+Fragment size=2048 (log=1)
+130560 inodes, 522112 blocks
+5221 blocks (1.00%) reserved for the super user
+First data block=0
+32 block groups
+16384 blocks per group, 16384 fragments per group
+4080 inodes per group
+Superblock backups stored on blocks:
+        16384, 49152, 81920, 114688, 147456, 409600, 442368
+
+Bad block 1044224 out of range; ignored.  <--- WTF ???
+Checking for bad blocks (read-only test): done
+Writing inode tables: done
+Writing superblocks and filesystem accounting information: done
+
+This filesystem will be automatically checked every 38 mounts or
+180 days, whichever comes first.  Use tune2fs -c or -i to override.
+
+
+##########################################################################
+
+Any feedback/help would be much appreciated.
+
+Thanks in advance
+
+
+PS: Please CC me as I am not subscribed to the list.
+
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+

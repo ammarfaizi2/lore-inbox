@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbTGAM6i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 08:58:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTGAM6i
+	id S262358AbTGANDP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 09:03:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbTGANDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 08:58:38 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:51394 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262316AbTGAM6h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 08:58:37 -0400
-Message-Id: <200307011312.h61DC6F2002208@eeyore.valparaiso.cl>
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-cc: linux-kernel@vger.kernel.org, gcc-bugs@gcc.gnu.org
-Subject: Re: [GCC] gcc vs. indentation 
-In-Reply-To: Message from Samium Gromoff <deepfire@ibe.miee.ru> 
-   of "Mon, 30 Jun 2003 09:20:15 +0400." <20030630092015.49dd6969.deepfire@ibe.miee.ru> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Tue, 01 Jul 2003 09:12:06 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 1 Jul 2003 09:03:15 -0400
+Received: from mail.hometree.net ([212.34.181.120]:35244 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S262358AbTGANDM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 09:03:12 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Dell vs. GPL
+Date: Tue, 1 Jul 2003 13:17:34 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bds1le$i0d$3@tangens.hometree.net>
+References: <Pine.LNX.4.10.10306301346540.5840-100000@master.linux-ide.org> <1057038825.7180.8.camel@lenin.trudheim.org>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1057065454 18445 212.34.181.4 (1 Jul 2003 13:17:34 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 1 Jul 2003 13:17:34 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Samium Gromoff <deepfire@ibe.miee.ru> said:
+Anders Karlsson <anders@trudheim.com> writes:
 
-[...]
+>to ensure your silence, the legal system of US should protect you from
+>that.
 
-> 	Surprisingly enough i`ve realised soon that indeed some indentation changes
->  give gcc a reason to produce different code.
+No. If there are, say, five companies in the market that might hire you
+for top $$$ and in the course of one of these contracts, you break
+an NDA for all the good reasons and even get away with it, the others will
+never ever again touch you with a polestick. So this is economic retaliation
+without even having to go to court. You can't force them to hire you.
 
-[...]
+Keeping your mouth shut even if you know something that is not legal?
+Not nice, but normal. Immoral? Yes. But understandably if you have
+mouth to feed and mortgages to pay.
 
-> --- ./origDAC960.o.d    2003-06-29 21:02:55.000000000 +0400
-> +++ ./newDAC960.o.d     2003-06-29 22:13:46.000000000 +0400
-> -    52ae:      7d 0d                   jge    52bd <DAC960_V1_ProcessCompletedCommand+0x7d>
-> +    52ae:      7c 0d                   jl     52bd <DAC960_V1_ProcessCompletedCommand+0x7d>
+	Regards
+		Henning
 
-[...]
-
-> -    542b:      8f 0d 27 00 00 00       popl   0x27
-> +    542b:      8e 0d 27 00 00 00       movl   0x27,%cs
-
-[...]
-
-> -    6ba8:      bc 11 27 00 00          mov    $0x2711,%esp
-> +    6ba8:      bb 11 27 00 00          mov    $0x2711,%ebx
-
-This looks like 1-bit errors to my eye...
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire
+
+--- Quote of the week: "It is pointless to tell people anything when
+you know that they won't process the message." --- Jonathan Revusky

@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262226AbSJFWTC>; Sun, 6 Oct 2002 18:19:02 -0400
+	id <S262245AbSJFW17>; Sun, 6 Oct 2002 18:27:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262230AbSJFWTC>; Sun, 6 Oct 2002 18:19:02 -0400
-Received: from vitelus.com ([64.81.243.207]:41231 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S262226AbSJFWTC>;
-	Sun, 6 Oct 2002 18:19:02 -0400
-Date: Sun, 6 Oct 2002 15:24:33 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Gigi Duru <giduru@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-Message-ID: <20021006222433.GB9785@vitelus.com>
-References: <20021005193650.17795.qmail@web13202.mail.yahoo.com> <20021006004438.GG10722@holomorphy.com>
-Mime-Version: 1.0
+	id <S262246AbSJFW16>; Sun, 6 Oct 2002 18:27:58 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49049 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262245AbSJFW1z>;
+	Sun, 6 Oct 2002 18:27:55 -0400
+Message-ID: <3DA0BA33.5B295A46@digeo.com>
+Date: Sun, 06 Oct 2002 15:33:23 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: 2.5.40-mm2
+References: <3DA0B422.C23B23D4@digeo.com> <1033943021.27093.29.camel@phantasy>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021006004438.GG10722@holomorphy.com>
-User-Agent: Mutt/1.5.1i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Oct 2002 22:33:26.0693 (UTC) FILETIME=[6330FD50:01C26D88]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 05:44:38PM -0700, William Lee Irwin III wrote:
-> Even better, if you yourself took action to correct this regression it
-> would be as welcome as any other Linux development activity.
+Robert Love wrote:
+> 
+> On Sun, 2002-10-06 at 18:07, Andrew Morton wrote:
+> 
+> > > -                       while (base->running_timer == timer) {
+> > > +                       while (base->running_timer == timer)
+> > >                                 cpu_relax();
+> > > -                               preempt_disable();
+> > > -                               preempt_enable();
+> 
+> I am confused as to why Ingo would put these here.  He knows very well
+> what he is doing... surely he had a reason.
+> 
+> If he intended to force a preemption point here, then the lines needs to
+> be reversed.  This assumes, of course, preemption is disabled here.  But
+> I do not think it is.
+> 
+> If he just wanted to check for preemption, we have a
+> preempt_check_resched() which does just that (I even think he wrote
+> it).  Note as long as interrupts are enabled this probably does not
+> achieve much anyhow.
+> 
 
-It seems to me that what would be even better than patches is a
-general awareness of bloat and an attitude discouraging adding any
-bloat whatsoever to the base kernel. Proactive bloat prevention is a
-much better solution than asking embedded developers to send fixes
-whenever someone increases the size of the core kernel unnecessarily.
-Let's prevent a Mozilla here.
+I think it's a way of doing "cond_resched() if cond_resched() is
+a legal thing to do right now".
+
+I'm sure David isn't using preempt though.

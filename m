@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135689AbREDBw0>; Thu, 3 May 2001 21:52:26 -0400
+	id <S135738AbREDB7h>; Thu, 3 May 2001 21:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135723AbREDBwR>; Thu, 3 May 2001 21:52:17 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:42502 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S135689AbREDBv6>;
-	Thu, 3 May 2001 21:51:58 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105040151.f441pUw113980@saturn.cs.uml.edu>
-Subject: Re: iso9660 endianness cleanup patch
-To: pavel@suse.cz (Pavel Machek)
-Date: Thu, 3 May 2001 21:51:30 -0400 (EDT)
-Cc: hpa@transmeta.com (H. Peter Anvin),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Andries.Brouwer@cwi.nl (Andries Brouwer),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20010501202139.B32@(none)> from "Pavel Machek" at May 01, 2001 08:21:40 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135774AbREDB71>; Thu, 3 May 2001 21:59:27 -0400
+Received: from juicer24.bigpond.com ([139.134.6.34]:15298 "EHLO
+	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
+	id <S135738AbREDB7J>; Thu, 3 May 2001 21:59:09 -0400
+Message-Id: <m14vTua-001QLyC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: l.s.r@web.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] strtok -> strsep (The Easy Cases) 
+In-Reply-To: Your message of "Tue, 01 May 2001 20:58:06 +0200."
+             <01050120580701.01713@golmepha> 
+Date: Fri, 04 May 2001 10:57:36 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
+In message <01050120580701.01713@golmepha> you write:
+> Hello,
+> 
+> the patch at the bottom does the bulk job of strtok replacement. It's a
+> very boring patch, containing easy cases, only. It became a bit big, too,
+> but I trust you can digest it nevertheless. It's made against kernel
+> version 2.4.4.
 
-> It  should ot break anything. gcc decides its bad to inline it, so it
-> does not inline it. Small code growth at worst. Compiler has right to
-> make your code bigger or slower, if it decides to do so.
+There are two cases where the substitution is problematic:
 
-Oh come on. The logical way:
+Array:
+	char tmparray[500];
+	strcpy(tmparray, str);
 
-inline          Compiler must inline (only!) or report an error.
-extern inline   This is a contradiction. Report an error.
-static inline   This is a contradiction. Report an error.
+	/* for (p = strtok(tmparray, "n"); p; p = strtok(NULL, "n")) { */
+	while ((p = strsep(&tmparray, ","))) {
 
-Anything else is obvious crap. It isn't OK for the compiler
-to ever ignore me; inline recursive functions are just wrong.
-Taking the address of an inline function is just wrong too.
+This is clearly wrong, and invokes a compiler warning.  &tmparray ==
+tmparray (a cute C oddity I've never really liked).  You are blowing
+away the first few characters in tmparray, and your parser won't work
+properly.
 
-Of course the above is not what we are given. We get crap.
-The old gcc behavior was crap, and I guess the C99 behavior
-is too. So the only sane thing is a #define that is set to
-whatever makes the compiler behave as nicely as possible.
-Then we use _INLINE everywhere, and get decent behavior out
-of both old and new compilers.
+Dynamic:
 
+	char *tmp = strdup(str);
 
+	/* for (p = strtok(tmp, "n"); p; p = strtok(NULL, "n")) { */
+	while ((p = strsep(&tmp, ","))) {
+	...
+	}
 
+	kfree(tmp);
+
+Here, tmp has changed in the strsep implementation, and kfree will do
+bad things.
+
+There is a real reason to avoid strtok, and that is SMP and multple
+threads calling it at once (that said, I don't know of a problem yet).
+But this patch is a step backwards.
+
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

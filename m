@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267300AbTGHNoc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 09:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267307AbTGHNoc
+	id S267317AbTGHNuj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 09:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbTGHNuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 09:44:32 -0400
-Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:53382 "EHLO
-	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S267300AbTGHNoa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 09:44:30 -0400
-Date: Tue, 8 Jul 2003 09:59:06 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: syscall __NR_mmap2
-Message-ID: <20030708135906.GW16938@kurtwerks.com>
-References: <Pine.LNX.4.53.0307071655470.22074@chaos> <20030708003656.GC12127@mail.jlokier.co.uk> <Pine.LNX.4.53.0307080749160.24488@chaos>
+	Tue, 8 Jul 2003 09:50:39 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56747
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S267317AbTGHNuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 09:50:37 -0400
+Subject: Re: Linux and IBM : "unauthorized" mini-PCI : Cisco mpi350 _way_
+	sub-optimal
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: emperor@EmperorLinux.com
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       EmperorLinux Research <research@EmperorLinux.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+In-Reply-To: <200307071412.00625.durey@EmperorLinux.com>
+References: <1054658974.2382.4279.camel@tori> <20030610233519.GA2054@think>
+	 <200307071412.00625.durey@EmperorLinux.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057672948.4358.20.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0307080749160.24488@chaos>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.21-krw
-X-Woot: Woot!
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Jul 2003 15:02:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoth Richard B. Johnson:
-> On Tue, 8 Jul 2003, Jamie Lokier wrote:
+On Llu, 2003-07-07 at 19:12, Lincoln D. Durey wrote:
+> Ted,
 > 
-> > Richard B. Johnson wrote:
-> > > mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, 3, 0xb8000) = 0xb8000
-> >
-> > You meant to write:
-> >
-> > 	mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE,
-> > 	      MAP_SHARED|MAP_FIXED, 3, 0xb8000 >> 12);
-> >
-> > The offset argument to mmap2 is divided by PAGE_SIZE.
-> > That is the whole point of mmap2 :)
-> >
-> > -- Jamie
-> 
-> Okay. Do you know where that's documented? Nothing in linux/Documentation,
-> and nothing in any headers. Do you have to read the code to find out?
-> 
-> So, the address is now the offset in PAGES, not bytes. Seems logical,
-> but there is no clue in any documentation.
+> This is an amazingly sub-optimal solution, and will make running Linux on the 
+> T40/X31 prohibitively difficult for most linux users.  Do you want everyone 
+> to use Linux?  Then tell IBM to let them use wifi cards that are easy to use, 
+> and support standard (and open) APIs.
 
-With the possible exception of the man mmap2 ;-)
-
-DESCRIPTION
-       The  function  mmap2  operates  in exactly the same way as
-       mmap(2), except that the final argument specifies the off­
-       set  into  the  file  in  units  of  the  system page size
-       (instead of bytes).  This enables applications that use  a
+You don't have to buy IBM products. Dunno what local prices are like but
+over here Comaq^WHP's come in at about two per thinkpad on price and do
+work once you have all the ACPI stuff set up
 
 
--- 
-"I have a very firm grasp on reality!  I can reach out and strangle it
-any time!"

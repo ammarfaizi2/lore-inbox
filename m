@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbTJLAD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 20:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTJLAD2
+	id S263393AbTJLBSM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 21:18:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTJLBSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 20:03:28 -0400
-Received: from moon.wincor-nixdorf.com ([193.155.23.11]:62153 "EHLO
-	moon.wincor-nixdorf.com") by vger.kernel.org with ESMTP
-	id S261662AbTJLAD1 convert rfc822-to-8bit (ORCPT
+	Sat, 11 Oct 2003 21:18:11 -0400
+Received: from adsl-208-191-162-70.dsl.hstntx.swbell.net ([208.191.162.70]:29444
+	"HELO adsl-208-191-162-70.dsl.hstntx.swbell.net") by vger.kernel.org
+	with SMTP id S263365AbTJLBSA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 20:03:27 -0400
-From: Ulf-Rainer Tietz <Ulf-Rainer.Tietz@Wincor-Nixdorf.com>
-Reply-To: Ulf-Rainer.Tietz@Wincor-Nixdorf.com
-Organization: Wincor Nixdorf
-To: linux-kernel@vger.kernel.org
-Subject: crash after "printk serio"
-Date: Sun, 12 Oct 2003 02:08:24 +0200
-User-Agent: KMail/1.5.3
+	Sat, 11 Oct 2003 21:18:00 -0400
+Message-ID: <53crb$x7ua384@ig4fd8s>
+From: "Guadalupe Haskins" <0ea1odsz4soy@juno.com>
+Reply-To: "Guadalupe Haskins" <0ea1odsz4soy@juno.com>
+To: linux-kernel-owner@vger.kernel.org
+Subject: mundpne adjudycate puuzb dhcptl xcroux
+Date: Sun, 12 Oct 03 20:10:48 GMT
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200310120208.24330.Ulf-Rainer.Tietz@Wincor-Nixdorf.com>
+Content-Type: multipart/alternative;
+	boundary="_8290BD04B15D3.C3...0CB"
+X-Priority: 5
+X-MSMail-Priority: Low
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I try to setup a friends notebook Fujitsu Siemens C Series Lifebook.
-When the kernel is booting the last I can see is serio .... and then the 
-system goes off. I tried to set boot parameters like debug= ... psmouse_noext 
-and I guess at least most of the possible permutations regarding ps2 and 
-synaptics support in xconfig. Whatever I configure, the system crashes at the 
-same spot. I tried this since 2.6.0test1 whenever I had the chance. Now I can 
-do any test to help fix the bug. 
-Questions: What can I do to slow down the system start, so I can handcopy the 
-last messages.
-How can I improve the possible output at the time of shutdown ?
 
-Under 2.4.21 the system works. After using X11 I have to go via Hotkey to 
-suspend and the´n wakeup to be able to work again , otherwise the system is 
-stalled.
+--_8290BD04B15D3.C3...0CB
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-I can provide any .config, lspci or similar list to help solve the problem. 
-Just nothing of the actual failure.
- I am not subsribed but read at least daily.
+One of your friends set you up on a Blind Date!
 
-Thanks for any help
-ulf
+Click here to confirm or reschedule your date:
+http://capitaldateme.com/confirm/?oc=3D50797459
+
+The FREE dating web site
+CREATED BY WOMEN
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+take-off
+http://capitaldateme.com/remove/?oc=3D50797559
+
+nadvoovyciiyaln fuhbh fv tkue
+iq
+ dntnfqlk lfndbtux
+dwfe hvjioywdtjds omfmgmxnjiqgvkrnhgefbo
+
+--_8290BD04B15D3.C3...0CB--
 

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291123AbSBHAJH>; Thu, 7 Feb 2002 19:09:07 -0500
+	id <S291157AbSBHAQ5>; Thu, 7 Feb 2002 19:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291155AbSBHAI5>; Thu, 7 Feb 2002 19:08:57 -0500
-Received: from rgminet2.oracle.com ([148.87.122.31]:4569 "EHLO
-	rgminet2.oracle.com") by vger.kernel.org with ESMTP
-	id <S291123AbSBHAIq>; Thu, 7 Feb 2002 19:08:46 -0500
-Message-ID: <3C631758.12A329A5@oracle.com>
-Date: Fri, 08 Feb 2002 01:10:00 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.4-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick Mochel <mochel@osdl.org>
-CC: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.4-pre1 (decoded) oops on boot in device_create_file
-In-Reply-To: <Pine.LNX.4.33.0202071426170.25114-100000@segfault.osdlab.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S291163AbSBHAQr>; Thu, 7 Feb 2002 19:16:47 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:24010 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S291157AbSBHAQj>; Thu, 7 Feb 2002 19:16:39 -0500
+Message-Id: <5.1.0.14.2.20020208001423.00b0bc60@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 08 Feb 2002 00:16:33 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] Fix floppy io ports reservation
+Cc: dwguest@win.tue.nl (Guest section DW), linux-kernel@vger.kernel.org
+In-Reply-To: <E16YwV5-0001ax-00@the-village.bc.nu>
+In-Reply-To: <20020207202452.GA1527@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
-> 
-> On 7 Feb 2002, Peter Osterlund wrote:
-> 
-> > Alessandro Suardi <alessandro.suardi@oracle.com> writes:
+At 21:54 07/02/02, Alan Cox wrote:
+> > > I asked a friend to check and on his Windows 2000 system the port
+> > > reservation was 0x3f2-0x3f5 + 0x3f7, i.e. it just excludes ports
+> > > 0x3f0-0x3f1, which are NOT used anywhere in the driver anyway.
 > >
-> > > Must be my time of the year - first the kmem_cache_create one in
-> > >  2.5.3-pre[45], now this one (should happen about PCI allocation
-> > >  of one of the Xircom CardBus resources):
-> >
-> > I had the same problem with 2.5.4-pre2. The patch below makes my
-> > laptop able to boot again, but I don't know if the patch is correct.
-> 
-> That looks ok, since cardbus behaves internally much like PCI.
-> 
-> I'll check if there's anything else that needs to happen.
+> > ports 0x3f0 and 0x3f1 are used on certain PS/2 systems
+> > and on some very old AT clones
+>
+>The driver must only reserve those ports on machines which needed them and
+>when it needs them (which it never actually does). The ports are used for
+>other superio related things on newer machines
 
-In the meantime I can confirm Peter's fix makes my laptop boot again :)
+Indeed, I couldn't find any code making use of the 0x3f0 and 0x3f1 ports, 
+hence why I put forward my patch... If someone would like to prove me wrong 
+here, please do so. (-:
 
-> Btw, thanks - I missed the original email in the sea of all the rest ;)
+Best regards,
 
-Uhm - well I could have directly addressed you as owner of the area
- changes, so my fault.
+Anton
 
 
-Thanks,
- 
---alessandro
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
- "If your heart is a flame burning brightly
-   you'll have light and you'll never be cold
-  And soon you will know that you just grow / You're not growing old"
-                              (Husker Du, "Flexible Flyer")

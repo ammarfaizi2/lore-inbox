@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129821AbQLINTA>; Sat, 9 Dec 2000 08:19:00 -0500
+	id <S130032AbQLINWw>; Sat, 9 Dec 2000 08:22:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130032AbQLINSv>; Sat, 9 Dec 2000 08:18:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5768 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129821AbQLINSq>;
-	Sat, 9 Dec 2000 08:18:46 -0500
-Date: Sat, 9 Dec 2000 04:32:21 -0800
-Message-Id: <200012091232.EAA17524@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: kernel@tekno-soft.it
-CC: rasmus@jaquet.dk, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it> (message
-	from Roberto Fichera on Sat, 09 Dec 2000 11:25:09 +0100)
-Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
-In-Reply-To: <4.3.2.7.2.20001209111347.00c829f0@mail.tekno-soft.it>
+	id <S131125AbQLINWm>; Sat, 9 Dec 2000 08:22:42 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:38909 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S130032AbQLINWg>;
+	Sat, 9 Dec 2000 08:22:36 -0500
+Date: Sat, 9 Dec 2000 13:52:08 +0100
+From: Andries Brouwer <aeb@veritas.com>
+To: Matan Ziv-Av <matan@svgalib.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Big IDE HD unclipping and IBM drive [solved]
+Message-ID: <20001209135208.A839@veritas.com>
+In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home> <Pine.LNX.4.21_heb2.09.0012091138590.631-100000@matan.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.21_heb2.09.0012091138590.631-100000@matan.home>; from matan@svgalib.org on Sat, Dec 09, 2000 at 11:50:59AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Sat, 09 Dec 2000 11:25:09 +0100
-   From: Roberto Fichera <kernel@tekno-soft.it>
+On Sat, Dec 09, 2000 at 11:50:59AM +0200, Matan Ziv-Av wrote:
 
-   Why we couldn't use atomic_inc(&mm->rss) here and below, avoiding to wrap
-   the inc with a spin_lock()/spin_unlock() ?
+> I use the attached program, which is a modification of setmax,
 
-atomic_t does not guarentee a large enough range necessary for mm->rss
+Good! So we learned something again.
+I merged both versions of setmax.c and added text to the
+Large Disk HOWTO. See
+	http://www.win.tue.nl/~aeb/linux/Large-Disk-11.html#ss11.3
 
-Later,
-David S. Miller
-davem@redhat.com
+Comments are welcome.
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

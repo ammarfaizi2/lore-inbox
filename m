@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131365AbQKTFxO>; Mon, 20 Nov 2000 00:53:14 -0500
+	id <S131256AbQKTGIQ>; Mon, 20 Nov 2000 01:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131366AbQKTFxE>; Mon, 20 Nov 2000 00:53:04 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:55547 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S131365AbQKTFw5>; Mon, 20 Nov 2000 00:52:57 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011200522.eAK5MrK04520@webber.adilger.net>
-Subject: Re: ext2 sparse superblocks
-In-Reply-To: <3A175226.3A9C3180@holly-springs.nc.us> "from Michael Rothwell at
- Nov 18, 2000 11:08:06 pm"
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Date: Sun, 19 Nov 2000 22:22:53 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+	id <S131268AbQKTGIH>; Mon, 20 Nov 2000 01:08:07 -0500
+Received: from mnh-1-12.mv.com ([207.22.10.44]:24591 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S131256AbQKTGID>;
+	Mon, 20 Nov 2000 01:08:03 -0500
+Message-Id: <200011200646.BAA17412@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.34-2.4.0-test11
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 20 Nov 2000 01:46:27 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rothwell write:
-> I'm looking for documentation on Ext2's support for sparse superblocks.
-> What it the method uses to reduce the number of superblocks?  How are
-> they laid out before vs after sparse_super is enabled?  Any caveats?
+The user-mode port of 2.4.0-test11 is available.
 
-In an old-style (non-sparse) filesystem, every block group has a superblock
-copy.  Only the superblock in the first group is used in normal cases.  In
-a sparse filesystem, superblock copies are in groups 0, 1 and ones that are
-powers of 3, 5, and 7.  The primary superblock is in group 0, and backups
-are in groups 1, 3, 5, 7, 9, 25, 27, 49, 81, 125, etc.
+UML is now able to run as a daemon, i.e. with no stdin/stdout/stderr.
 
-This greatly reduces the number of superblock copies stored in large
-filesystems.  What is actually more important is that group descriptor
-backups are only stored in the "sparse" groups as well.  Because the
-group descriptor table grows with the size of the filesystem, if there
-is a backup copy in each group (as with the old non-sparse layout) it
-would eventually fill the entire filesystem.
+The hostfs filesystem now works as a readonly filesystem.  It's now 
+configurable.  I'm using it as a module.  It ought to work compiled into the 
+kernel, but I haven't checked this.
 
-For a 1kB block non-sparse ext2 filesystem, this happens at 2TB -
-basically the entire filesystem is full with metadata, and no room
-to put any regular data.  For a 4kB block filesystem, this would
-happen at 524 TB.  With sparse filesystems, the metadata will only
-take a small percentage of the available space.
+I fixed a number of bugs.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+NOTE:  If you compile from source, you must put 'ARCH=um' on the make command 
+line or in the environment, like:
+	make linux ARCH=um
+or
+	ARCH=um make linux
+or
+	export ARCH=um
+	make linux
+
+This is because I've changed the top-level Makefile to build either a native 
+kernel or a usermode kernel, with the default being native.  This is in 
+preparation for submitting this port to the main pool.  The ARCH calculation 
+is now this:
+
+# SUBARCH tells the usermode build what the underlying arch is.  That is set
+# first, and if a usermode build is happening, the "ARCH=um" on the command
+# line overrides the setting of ARCH below.  If a native build is happening,
+# then ARCH is assigned, getting whatever value it gets normally, and 
+# SUBARCH is subsequently ignored.
+
+SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e 
+s/arm.*/arm/ -e s/sa110/arm/)
+ARCH := $(SUBARCH)
+
+If anyone has any objections to this going in the main pool, let me know, and 
+also let me know what you would suggest as a fix.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+The project's download page is http://sourceforge.net/project/filelist.php?grou
+p_id=429
+
+				Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

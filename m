@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293206AbSCOTZh>; Fri, 15 Mar 2002 14:25:37 -0500
+	id <S293203AbSCOT2p>; Fri, 15 Mar 2002 14:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293190AbSCOTXN>; Fri, 15 Mar 2002 14:23:13 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:47622 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S293169AbSCOTVm>; Fri, 15 Mar 2002 14:21:42 -0500
-Date: Sat, 16 Mar 2002 04:49:17 +1100
-From: john slee <indigoid@higherplane.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Gunther Mayer <gunther.mayer@gmx.net>,
-        Andre Hedrick <andre@linuxdiskcert.org>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
-Message-ID: <20020315174916.GE27706@higherplane.net>
-In-Reply-To: <Pine.GSO.4.21.0203111436120.14945-100000@weyl.math.psu.edu> <E16kW0A-0001Yl-00@the-village.bc.nu> <20020313125507.C38@toy.ucw.cz>
+	id <S293201AbSCOT2g>; Fri, 15 Mar 2002 14:28:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11271 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293190AbSCOT2T>;
+	Fri, 15 Mar 2002 14:28:19 -0500
+Date: Fri, 15 Mar 2002 19:28:18 +0000
+From: Joel Becker <jlbec@evilplan.org>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Joel Becker <jlbec@evilplan.org>, Rusty Russell <rusty@rustcorp.com.au>,
+        matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Re: futex and timeouts
+Message-ID: <20020315192818.R4836@parcelfarce.linux.theplanet.co.uk>
+Mail-Followup-To: Joel Becker <jlbec@evilplan.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, matthew@hairy.beasts.org,
+	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+In-Reply-To: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com> <20020315151507.2370C3FE0C@smtp.linux.ibm.com> <20020315160444.P4836@parcelfarce.linux.theplanet.co.uk> <20020315185844.8883E3FE06@smtp.linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020313125507.C38@toy.ucw.cz>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020315185844.8883E3FE06@smtp.linux.ibm.com>; from frankeh@watson.ibm.com on Fri, Mar 15, 2002 at 01:59:38PM -0500
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 12:55:07PM +0000, Pavel Machek wrote:
-> Hi!
+On Fri, Mar 15, 2002 at 01:59:38PM -0500, Hubertus Franke wrote:
+> > > What I would like to see is an interface that lets me pass optional
+> > > parameters to the syscall interface, so I can call with different number
+> > > of parameters.
+> >
+> > 	Is this to lock multiple futexes "atomically"?  If we are
+> > looking for a fast path stack-wise, this seems extra work.
 > 
-> > > Umm...  By what magic?  The entire interface _is_ root-only, isn't it?
-> > > And root can do a lot of fun stuff, starting with editing the kernel
-> > > image...
-> > 
-> > No argument there.
-> > 
-> > Do we want to assume all raw commands are CAP_SYS_RAWIO or break them down
-> > a bit ?
+> No, take for example...
 > 
-> As noone seriously uses capabiities, anyway, I guess CAP_SYS_RAWIO for all
-> is ok.
+> syscall3(int,futex,int,op, struct futex*, futex, int opt_arg);
 
-i believe the next debian (after the one currently stabilizing for
-release) has "real" use of capabilities as a major goal although that
-was hearsay and may be entirely false.  the amount of work involved is
-not insignificant
+	Oh, I totally misparsed your statement.  I thought you meant you
+wanted a vararg sys_futex(), not a smarter _syscall() :-)
 
-it'd certainly be a good thing to see.  after all these years of slowly
-converting things to use CAP_SYS_* instead of uid==0 i certainly don't
-want that effort to be wasted.
-
-j.
+Joel
 
 -- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+
+Life's Little Instruction Book #347
+
+	"Never waste the oppourtunity to tell someone you love them."
+
+			http://www.jlbec.org/
+			jlbec@evilplan.org

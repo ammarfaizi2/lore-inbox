@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280107AbRKECLJ>; Sun, 4 Nov 2001 21:11:09 -0500
+	id <S280118AbRKECOt>; Sun, 4 Nov 2001 21:14:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280116AbRKECK7>; Sun, 4 Nov 2001 21:10:59 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13837 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280107AbRKECKp>; Sun, 4 Nov 2001 21:10:45 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: The PCI ID Repository
-Date: 4 Nov 2001 18:10:22 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9s4see$egc$1@cesium.transmeta.com>
-In-Reply-To: <20011104170202.A3370@ucw.cz> <200111050044.fA50i8o182130@saturn.cs.uml.edu>
-MIME-Version: 1.0
+	id <S280120AbRKECOk>; Sun, 4 Nov 2001 21:14:40 -0500
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:12 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S280118AbRKECOY>;
+	Sun, 4 Nov 2001 21:14:24 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+To: Jeff Dike <jdike@karaya.com>
+Subject: Re: Special Kernel Modification
+Date: Sun, 4 Nov 2001 18:14:12 -0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200111050158.UAA05147@ccure.karaya.com>
+In-Reply-To: <200111050158.UAA05147@ccure.karaya.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Message-Id: <E160ZHB-0001Ae-00@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200111050044.fA50i8o182130@saturn.cs.uml.edu>
-By author:    "Albert D. Cahalan" <acahalan@cs.uml.edu>
-In newsgroup: linux.dev.kernel
-> 
-> Tundra provides an example: Universe, Universe II, Universe IIB
-> 
-> These chips are the same device in some sense; they are all
-> PCI-to-VME bridges. (damn popular too) The programming interface
-> is incompatible, so they get different revisions. Tundra isn't
-> alone in interpreting the PCI spec this way.
-> 
+Hey Jeff,
+> A virtual machine would be an administratively easy way of doing this.
+>
+> Let the 'app' be a VM with the real apps installed inside.  The users would
+> effectively be confined to a *file* on the host, not merely their home
+> directories.
+>
+> My (biased :-) recommendation would be User-mode Linux
+> (http://user-mode-linux.sourceforge.net), but VMWare would work as
+> well.
 
-Another interpretation, which seems pretty common (we use this one at
-Transmeta, for example) is to treat the version ID as the "minor
-revision" (indicating an upward compatible change) and the device ID
-as the "major revision" (change this to indicate an incompatible
-change in the programming interface.)
+I'm afraid that would scale horribly on anything greater than a very modest 
+load:
 
-Unfortunately PCI doesn't have the very nice "compatible with" list
-that ISAPnP has -- that, and the "human readable string" were very
-useful features of the ISAPnP spec.
+1) There is a fairly significant overhead due to running inside a VM, which 
+would certainly pile up over multiple invocations. Besides the overhead of 
+the VM, you have the have the additional overhead caused by such things as 
+having multiple running kernels doing exactly the same thing, all running 
+seperate copies of the required system daemons.
+2) Upgrading/changing the system configuration would require modifying -all- 
+of the VMs. This could be partially alleviated by using an NFS root, but then 
+the overhead mentioned above becomes even more looming
+3) Implicitly shared memory no longer works too well, and this is one of the 
+reasons Unix is so strong as a terminal server:
+  You have thirty people running StarOffice from /usr/bin, and because        
+they've all mmap()ed the same binary, the read only portions are all shared,  
+and will definitely stay in memory in the event of memory pressure. The same 
+things goes for all the libraries and mmap()'ed data files StarOffice uses, 
+including some pretty hefty ones such as glibc. Even many of the writable 
+pages will be shared until someone decides to write to one of them, and then 
+the writer will get a private copy.
+  Now, try 30 people all running from VMs. They all must have a seperate copy 
+of the otherwise sharable portions of StarOffice, and all of its 
+dependancies. Memory pressure quickly rises, and it will start swapping out 
+one copy of StarOffice in favour of an identical portion of another copy (!). 
+System quickly becomes unusable. 
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+So, to summarize, you could use a VM, and it'd work well for containment, but 
+it'd be pretty useless as far as performance, ease of administration, and 
+scaling go. Comments?
+
+-Ryan

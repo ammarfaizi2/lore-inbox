@@ -1,65 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTEMV3O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTEMV3O
+	id S263428AbTEMVUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTEMVUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:29:14 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:18188 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263522AbTEMV3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:29:10 -0400
-Date: Tue, 13 May 2003 22:41:52 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Console bug fix.
-Message-ID: <Pine.LNX.4.44.0305132237570.12672-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 May 2003 17:20:21 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:60143 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263428AbTEMVUS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 17:20:18 -0400
+Date: Tue, 13 May 2003 13:51:32 -0700
+From: Greg KH <greg@kroah.com>
+To: LKML <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@stimpy.netroedge.com>
+Cc: mhoffman@lightlink.com
+Subject: Re: [PATCH] Add SiS96x I2C/SMBus driver (vs 2.5.69-bk6)
+Message-ID: <20030513205132.GA11843@kroah.com>
+References: <20030512010613.GA12130@earth.solarsys.private>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030512010613.GA12130@earth.solarsys.private>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 11, 2003 at 09:06:13PM -0400, Mark M. Hoffman wrote:
+> This patch adds support for the SMBus of SiS96x south
+> bridges.  It is based on i2c-sis645.c from the lm sensors
+> project, which never made it into an official kernel and
+> was anyway mis-named.
+> 
+> This driver works on my SiS 645/961 board vs w83781d.
 
-The font size needs to be set for all terminals. This patch fixes that. 
-Please apply.
+Thanks, I've applied this to my trees and will send it on.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1077  -> 1.1078 
-#	drivers/char/vt_ioctl.c	1.22    -> 1.23   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/12	jsimmons@maxwell.earthlink.net	1.1078
-# [CONSOLE] This was the bug that was causing dual head (vga and mda) to lock up.
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
---- a/drivers/char/vt_ioctl.c	Mon May 12 14:12:47 2003
-+++ b/drivers/char/vt_ioctl.c	Mon May 12 14:12:47 2003
-@@ -869,13 +869,13 @@
- 		if (clin > 32)
- 			return -EINVAL;
- 		    
--		if (vlin)
--			vc->vc_scan_lines = vlin;
--		if (clin)
--			vc->vc_font.height = clin;
--	
--		for (i = 0; i < MAX_NR_CONSOLES; i++)
-+		for (i = 0; i < MAX_NR_CONSOLES; i++) {
-+			if (vlin)
-+				vc_cons[i].d->vc_scan_lines = vlin;
-+			if (clin)
-+				vc_cons[i].d->vc_font.height = clin;
- 			vc_resize(i, cc, ll);
-+		}
-   		return 0;
- 	}
- 
-
+greg k-h

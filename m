@@ -1,41 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSGDThI>; Thu, 4 Jul 2002 15:37:08 -0400
+	id <S313558AbSGDTry>; Thu, 4 Jul 2002 15:47:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSGDThI>; Thu, 4 Jul 2002 15:37:08 -0400
-Received: from ua83d37hel.dial.kolumbus.fi ([62.248.234.83]:18025 "EHLO
-	uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S313416AbSGDThH>; Thu, 4 Jul 2002 15:37:07 -0400
-Message-ID: <3D24A475.9CD70BE0@kolumbus.fi>
-Date: Thu, 04 Jul 2002 22:39:33 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S313563AbSGDTrx>; Thu, 4 Jul 2002 15:47:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:38353 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S313558AbSGDTrw>; Thu, 4 Jul 2002 15:47:52 -0400
+Date: Thu, 4 Jul 2002 21:50:17 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [2.4 patch] remove obsolete disk statistics header from /proc/partitions
+Message-ID: <Pine.NEB.4.44.0207042036380.14934-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [FREEZE] 2.4.19-pre10 + Promise ATA100 tx2 ver 2.20 (also with 
- Ultra133-TX2)
-References: <3D14C06F.6010906@fabbione.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fabio Massimo Di Nitto wrote:
-> 
-> The freeze is reproducible both with 2.4.19-pre10 and 2.4.18.
 
-I have lockups when updatedb is running using ide-2.4.19-p7.all.convert.10
-driver. Controller is Ultra133-TX2 (PDC20269) and mobo is ASUS A7M266
-(AMD761 northbridge).
+ChangeSet 1.579 removes the disk statistics in /proc/partitions.
 
-Memory has been checked to be OK. (48 hours of memtest86 3.0)
+But the header line is still present:
+
+<--  snip  -->
+
+# cat /proc/partitions
+major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse
+running use aveq
+
+  22    64   20039544 hdd
+  22    65   20039512 hdd1
+   3     0   20010312 hda
+   3     1    1028128 hda1
+   3     2    1020127 hda2
+   3     3          1 hda3
+   3     5    3076416 hda5
+   3     6    2867571 hda6
+   3     7    1959898 hda7
+   3     8   10056658 hda8
+#
+
+<--  snip   -->
 
 
-	- Jussi Laako
+I suggest the following patch to remove it:
+
+
+--- drivers/block/genhd.c.old	Thu Jul  4 20:32:35 2002
++++ drivers/block/genhd.c	Thu Jul  4 20:33:26 2002
+@@ -163,9 +163,7 @@
+ 	char buf[64];
+ 	int len, n;
+
+-	len = sprintf(page, "major minor  #blocks  name     "
+-			"rio rmerge rsect ruse wio wmerge "
+-			"wsect wuse running use aveq\n\n");
++	len = sprintf(page, "major minor  #blocks  name\n\n");
+
+
+ 	read_lock(&gendisk_lock);
+
+
+cu
+Adrian
 
 -- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
 

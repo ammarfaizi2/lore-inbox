@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263233AbUB1BFv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 20:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbUB1BFv
+	id S263236AbUB1BJf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 20:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbUB1BJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 20:05:51 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:59402 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263233AbUB1BFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 20:05:50 -0500
-Date: Sat, 28 Feb 2004 01:05:47 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix VT mode change vs. fbcon
-In-Reply-To: <1077923222.23344.50.camel@gaston>
-Message-ID: <Pine.LNX.4.44.0402280059590.2216-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Feb 2004 20:09:31 -0500
+Received: from bay14-f68.bay14.hotmail.com ([64.4.49.68]:44812 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263236AbUB1BJZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 20:09:25 -0500
+X-Originating-IP: [24.136.227.168]
+X-Originating-Email: [filamoon2@hotmail.com]
+From: "johnny zhao" <filamoon2@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: udp packet loss even with large socket buffer
+Date: Fri, 27 Feb 2004 20:09:24 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY14-F68kiyPoHZgzD000006ad@hotmail.com>
+X-OriginalArrivalTime: 28 Feb 2004 01:09:24.0447 (UTC) FILETIME=[811BAEF0:01C3FD97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> --- 1.34/drivers/char/vt_ioctl.c	Wed Feb 25 21:31:13 2004
-> +++ edited/drivers/char/vt_ioctl.c	Fri Feb 27 17:27:21 2004
-> @@ -497,7 +497,7 @@
->  		 */
->  		acquire_console_sem();
->  		if (arg == KD_TEXT)
-> -			unblank_screen();
-> +			do_unblank_screen(1);
->  		else
->  			do_blank_screen(1);
->  		release_console_sem();
-> @@ -1103,7 +1103,7 @@
->  	if (old_vc_mode != vt_cons[new_console]->vc_mode)
->  	{
->  		if (vt_cons[new_console]->vc_mode == KD_TEXT)
-> -			unblank_screen();
-> +			do_unblank_screen(1);
->  		else
->  			do_blank_screen(1);
->  	}
-> @@ -1138,7 +1138,7 @@
->  			if (old_vc_mode != vt_cons[new_console]->vc_mode)
->  			{
->  				if (vt_cons[new_console]->vc_mode == KD_TEXT)
-> -					unblank_screen();
-> +					do_unblank_screen(1);
->  				else
->  					do_blank_screen(1);
->  			}
+I have a problem when trying to receive udp packets containing video data 
+sent by Microsoft Windows Messenger. Here is a detailed description:
 
-How about calling resize_screen in vt.c instead in this function. This way 
-fbcon could reset the hardware state :-) 
+Linux box:
+    Linux-2.4.21-0.13mdksmp, P4 2.6G HT
+socket mode:
+    blocked mode
+code used:
+    while ( recvfrom(...) )
+socket buffer size:
+    8388608, set by using sysctl -w net.core.rmem_default and rmem_max
 
+I used ethereal(using libpcap) to monitor the network traffic. All the 
+packets were transferred and captured by libpcap. But my program constantly 
+suffers from packet loss. According to ethereal, the average time interval 
+between 2 packets  is 70-80ms, and the minimum interval can go down to ~1ms. 
+Each packet is smaller than 1500 bytes (ethernet MTU).
+
+Can anybody help me? I googled and found a similar case that had been solved 
+by increasing the socket buffer size. But it doesn't work for me. I think 8M 
+is a crazily large size :(
+
+Thank you!
+
+_________________________________________________________________
+Get fast, reliable access with MSN 9 Dial-up. Click here for Special Offer! 
+http://click.atdmt.com/AVE/go/onm00200361ave/direct/01/
 

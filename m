@@ -1,116 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbUK2LRq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbUK2LVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbUK2LRq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 06:17:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbUK2LRp
+	id S261674AbUK2LVv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 06:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUK2LVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 06:17:45 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:8411 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261660AbUK2LQq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 06:16:46 -0500
-Date: Mon, 29 Nov 2004 12:16:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041129111634.GB10123@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93>
+	Mon, 29 Nov 2004 06:21:50 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17166 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261674AbUK2LTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 06:19:51 -0500
+Date: Mon, 29 Nov 2004 12:19:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: davem@redhat.com, ralf@linux-mips.org
+Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove dp83840.h
+Message-ID: <20041129111943.GB9722@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dp83840.h is included once but none of the definitions it contains is 
+actually used.
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+Is the patch below to remove it OK, or is there any usage planned?
 
->   xruntrace1.0.tar.gz
->      - scripts used for xrun trace capture automation
->
->   xruntrace1-2.6.10-rc2-mm3-RT-V0.7.31-7.tar.gz
->      - actual xrun traces captured while running jackd on RT-V0.7.31-7
 
-the trace buffer is too small to capture a significant portion of the
-xrun - i'd suggest for you to increase it from 4096-1 to 4096*16-1, to
-be able to capture a couple of hundreds of millisecs worth of traces.
+diffstat output:
+ drivers/net/ioc3-eth.c  |    1 
+ include/linux/dp83840.h |   41 ----------------------------------------
+ 2 files changed, 42 deletions(-)
 
-also, i think it produces more stable results if the tracing is
-activated and deactivated from userspace - i.e. the patch below will
-measure the latency of poll() executed by the ALSA glue code within
-JACK. (i also removed the xrun printf, because it can cause delays.)
 
-this patch can be used the following way: do not activate xrun_debug via
-/proc (to not create additional latencies that make xruns worse), but
-otherwise set the /proc/sys/kernel/ flags the same way you do already. 
-If the patch is applied to jackd then /proc/latency_trace will show the
-latest and highest latency that was measured.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-note that this captures latencies visible in the ALSA glue, which doesnt
-cover the whole jackd critical path - but it should be pretty good as an
-initial start. It will definitely show all jackd-unrelated delay
-sources.
-
-to cover all latency paths, the last chunk of the patch could perhaps be
-modified to do:
-
-+		gettimeofday(1,0);
-+		gettimeofday(1,1);
-
-this will also capture latencies within jackd itself. But i think it is
-better to separate 'external' from 'internal' latencies, because the two
-situations are quite different and it might be hard to identify which
-particular latency we are seeing in /proc/latency_trace.
-
-	Ingo
-
---- ./drivers/alsa/alsa_driver.c.orig	2004-11-26 14:11:26.000000000 +0100
-+++ ./drivers/alsa/alsa_driver.c	2004-11-26 14:24:41.000000000 +0100
-@@ -1081,9 +1081,11 @@ alsa_driver_xrun_recovery (alsa_driver_t
- 		snd_pcm_status_get_trigger_tstamp(status, &tstamp);
- 		timersub(&now, &tstamp, &diff);
- 		*delayed_usecs = diff.tv_sec * 1000000.0 + diff.tv_usec;
-+#if 0
- 		fprintf(stderr, "\n\n**** alsa_pcm: xrun of at least %.3f "
- 			"msecs\n\n",
- 			*delayed_usecs / 1000.0);
-+#endif
- 	}
+--- linux-2.6.10-rc2-mm3-full/drivers/net/ioc3-eth.c.old	2004-11-29 12:14:25.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/drivers/net/ioc3-eth.c	2004-11-29 12:14:34.000000000 +0100
+@@ -56,7 +56,6 @@
+ #include <linux/etherdevice.h>
+ #include <linux/ethtool.h>
+ #include <linux/skbuff.h>
+-#include <linux/dp83840.h>
+ #include <net/ip.h>
  
- 	if (alsa_driver_stop (driver) ||
-@@ -1187,6 +1189,7 @@ alsa_driver_wait (alsa_driver_t *driver,
- 
- 		poll_enter = jack_get_microseconds ();
- 
-+		gettimeofday(1,1);
- 		if (poll (driver->pfd, nfds, driver->poll_timeout) < 0) {
- 
- 			if (errno == EINTR) {
-@@ -1206,6 +1209,7 @@ alsa_driver_wait (alsa_driver_t *driver,
- 			return 0;
- 			
- 		}
-+		gettimeofday(1,0);
- 
- 		poll_ret = jack_get_microseconds ();
- 
+ #include <asm/byteorder.h>
+--- linux-2.6.10-rc2-mm3-full/include/linux/dp83840.h	2004-10-18 23:54:32.000000000 +0200
++++ /dev/null	2004-11-25 03:16:25.000000000 +0100
+@@ -1,41 +0,0 @@
+-/*
+- * linux/dp83840.h: definitions for DP83840 MII-compatible transceivers
+- *
+- * Copyright (C) 1996, 1999 David S. Miller (davem@redhat.com)
+- */
+-#ifndef __LINUX_DP83840_H
+-#define __LINUX_DP83840_H
+-
+-#include <linux/mii.h>
+-
+-/*
+- * Data sheets and programming docs for the DP83840 are available at
+- * from http://www.national.com/
+- *
+- * The DP83840 is capable of both 10 and 100Mbps ethernet, in both
+- * half and full duplex mode.  It also supports auto negotiation.
+- *
+- * But.... THIS THING IS A PAIN IN THE ASS TO PROGRAM!
+- * Debugging eeprom burnt code is more fun than programming this chip!
+- */
+-
+-/* First, the MII register numbers (actually DP83840 register numbers). */
+-#define MII_CSCONFIG        0x17        /* CS configuration            */
+-
+-/* The Carrier Sense config register. */
+-#define CSCONFIG_RESV1          0x0001  /* Unused...                   */
+-#define CSCONFIG_LED4           0x0002  /* Pin for full-dplx LED4      */
+-#define CSCONFIG_LED1           0x0004  /* Pin for conn-status LED1    */
+-#define CSCONFIG_RESV2          0x0008  /* Unused...                   */
+-#define CSCONFIG_TCVDISAB       0x0010  /* Turns off the transceiver   */
+-#define CSCONFIG_DFBYPASS       0x0020  /* Bypass disconnect function  */
+-#define CSCONFIG_GLFORCE        0x0040  /* Good link force for 100mbps */
+-#define CSCONFIG_CLKTRISTATE    0x0080  /* Tristate 25m clock          */
+-#define CSCONFIG_RESV3          0x0700  /* Unused...                   */
+-#define CSCONFIG_ENCODE         0x0800  /* 1=MLT-3, 0=binary           */
+-#define CSCONFIG_RENABLE        0x1000  /* Repeater mode enable        */
+-#define CSCONFIG_TCDISABLE      0x2000  /* Disable timeout counter     */
+-#define CSCONFIG_RESV4          0x4000  /* Unused...                   */
+-#define CSCONFIG_NDISABLE       0x8000  /* Disable NRZI                */
+-
+-#endif /* __LINUX_DP83840_H */
 

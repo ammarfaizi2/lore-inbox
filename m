@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUEYI1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264812AbUEYIc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264808AbUEYI1c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 04:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbUEYI1c
+	id S264812AbUEYIc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 04:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUEYIc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 04:27:32 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35048 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264808AbUEYI1Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 04:27:25 -0400
-Date: Tue, 25 May 2004 10:27:04 +0200
-From: Jens Axboe <axboe@suse.de>
-To: braam <braam@clusterfs.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       "'Phil Schwan'" <phil@clusterfs.com>
-Subject: Re: [PATCH/RFC] Lustre VFS patch
-Message-ID: <20040525082704.GL1952@suse.de>
-References: <20040525064730.GB14792@suse.de> <20040525082305.BAEE93101A0@moraine.clusterfs.com>
+	Tue, 25 May 2004 04:32:29 -0400
+Received: from mx01.qsc.de ([213.148.129.14]:57559 "EHLO mx01.qsc.de")
+	by vger.kernel.org with ESMTP id S264812AbUEYI2c convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 04:28:32 -0400
+Date: Tue, 25 May 2004 10:22:41 +0200 (CEST)
+Message-Id: <20040525.102241.635758403.rene@rocklinux-consulting.de>
+To: azarah@nosferatu.za.org
+Cc: kangur@polcom.net, linux-kernel@vger.kernel.org, rock-user@rocklinux.org
+Subject: Re: Distributions vs kernel development
+From: Rene Rebe <rene@rocklinux-consulting.de>
+In-Reply-To: <1085426241.9516.7.camel@nosferatu.lan>
+References: <Pine.LNX.4.58.0405091057060.14709@alpha.polcom.net>
+	<20040509.111350.67880957.rene@rocklinux-consulting.de>
+	<1085426241.9516.7.camel@nosferatu.lan>
+X-Mailer: Mew version 3.1 on XEmacs 21.4.13 (Rational FORTRAN)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040525082305.BAEE93101A0@moraine.clusterfs.com>
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Score: 0.0 (/)
+X-Spam-Report: Spam detection software, running on the system "heap.localnet", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, On: Mon, 24 May 2004 21:17:21 +0200, Martin
+	Schlemmer <azarah@nosferatu.za.org> wrote: > On Sun, 2004-05-09 at
+	11:13, Rene Rebe wrote: > > > But the last time I took a look not even
+	an installer or such. + > > Gentoo has no support for custom
+	modifications not even thinking about > > a way to group such custom
+	modifications / build configuration into a > > well defined way to form
+	a distribution. + ROCK Linux has a real > > sandbox build environment,
+	not this optimization via CFLAGS, and so on > > Gentoo wannabe. > > > >
+	Weird .. last time I checked, Gentoo sandbox was originally derived
+	from > ROCK Linux's sandbox wrapper .... [...] 
+	Content analysis details:   (0.0 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25 2004, braam wrote:
-> Jens,
+Hi,
+
+On: Mon, 24 May 2004 21:17:21 +0200,
+    Martin Schlemmer <azarah@nosferatu.za.org> wrote:
+> On Sun, 2004-05-09 at 11:13, Rene Rebe wrote:
 > 
-> I think do answer your question:  
-> ...
-> > > If we were to return errors, (which, I agree, _seems_ much 
-> > more sane, 
-> > > and we _did_ try that for a while!) then there is a good chance, 
-> > > namely immediately when something is flushed to disk, that 
-> > the system 
-> > > will detect the errors and not continue to execute 
-> > transactions making 
-> > > consistent testing of our replay mechanisms impossible.
-> 
-> So: we can use the flags, but we cannot return the errors.
-
-The generic_make_request() change itself is fine, as long as the proper
-error is propagated back. I don't object to that at all, and I outlined
-that to Phil last week as well. So in short:
-
-        if (bio_data_dir(bio) == WRITE && bdev_read_only(bio->bi_bdev)) {
-                bio_endio(bio, bio->bi_size, -EROFS);
-                break;
-        }
-
-If you want to pass back 0 instead, then that would be a one-liner in
-your (private) debugging patch. Ok?
-
-> > And if this it to make sense for inclusion, io _must_ be 
-> > ended with -EROFS or similar.
+> > But the last time I took a look not even an installer or such. +
+> > Gentoo has no support for custom modifications not even thinking about
+> > a way to group such custom modifications / build configuration into a
+> > well defined way to form a distribution. + ROCK Linux has a real
+> > sandbox build environment, not this optimization via CFLAGS, and so on
+> > Gentoo wannabe.
 > > 
-> > It seems to me that this probably belongs in your test 
-> > harness for debugging purposes. At least in its current state 
-> > it's not acceptable for inclusion.
 > 
-> This is, as I mentioned, only for testing.  It is, clearly, NOT ordinary
-> system behavior at all since we don't, and won't, return the error. 
-> 
-> Some people find it very convenient to have this available, but if the
-> opinion is that it is better to let development teams manage their own
-> testing infrastructure that is acceptable to me.
+> Weird .. last time I checked, Gentoo sandbox was originally derived from
+> ROCK Linux's sandbox wrapper ....
 
-I don't think this change makes sense as written for the generic
-kernels, not if you want to simply ignore the write. If that is the
-case, it's a special case debug entry for a very narrow use (ie lustre).
+Interesting ,) I did not know Gentoo copied ROCK Linux code, too. I
+already put re-reviewing Gentoo on my this-year's TODO. So I'm finally
+up-to-date with such stuff again ...
 
--- 
-Jens Axboe
+Sincerely yours,
+  René Rebe
+    - ROCK Linux stable release maintainer
+
+--  
+René Rebe - Europe/Germany/Berlin
+  rene@rocklinux.org rene@rocklinux-consulting.de
+http://www.rocklinux.org http://www.rocklinux-consulting.de
 

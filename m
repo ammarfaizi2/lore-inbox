@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262561AbTDAOmn>; Tue, 1 Apr 2003 09:42:43 -0500
+	id <S262569AbTDAOm7>; Tue, 1 Apr 2003 09:42:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262569AbTDAOmn>; Tue, 1 Apr 2003 09:42:43 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:60312 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262561AbTDAOmm>;
-	Tue, 1 Apr 2003 09:42:42 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
+	id <S262570AbTDAOm7>; Tue, 1 Apr 2003 09:42:59 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:8150 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S262569AbTDAOm5>; Tue, 1 Apr 2003 09:42:57 -0500
+Date: Wed, 2 Apr 2003 00:54:34 +1000
+From: CaT <cat@zip.com.au>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Xavier Bestel <xavier.bestel@free.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Message-ID: <20030401145434.GF459@zip.com.au>
+References: <20030401142317.GC459@zip.com.au> <Pine.LNX.4.44.0304011536350.1375-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16009.43013.754047.36875@gargle.gargle.HOWL>
-Date: Tue, 1 Apr 2003 16:53:57 +0200
-dFrom: mikpe@csd.uu.se
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: simon@mtds.com
-Subject: New: SSE2 enabled by default on Celeron (P4 based) 
-In-Reply-To: <17080000.1049207466@[10.10.2.4]>
-References: <17080000.1049207466@[10.10.2.4]>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0304011536350.1375-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh writes:
- > http://bugme.osdl.org/show_bug.cgi?id=527
- > 
- >            Summary: SSE2 enabled by default on Celeron (P4 based)
- >     Kernel Version: 2.5.64
- >             Status: NEW
- >           Severity: normal
- >              Owner: mbligh@aracnet.com
- >          Submitter: simon@mtds.com
- > 
- > 
- > Distribution: Customised RH 7.1 with many mods
- > Hardware Environment: Celeron i686 (P4 based)
- > Software Environment: gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-81)
- > 
- > Problem Description: Kernel compiles OK, but at boot kernel panics as CPU
- > doesn't support SSE2
- > 
- > Steps to reproduce: Compile kernel choosing *any* Celeron option
- > 
- > /proc/cpuinfo:-
- > processor       : 0
- > vendor_id       : GenuineIntel
- > cpu family      : 6
- > model           : 11
+On Tue, Apr 01, 2003 at 03:43:09PM +0100, Hugh Dickins wrote:
+> There's plenty of room in unsigned long long size, yes, but si.totalram
+> is only an unsigned long, so the arithmetic as you have it starts out
+> overflowing an unsigned long.
 
-This is NOT a P4-based Celeron. It's a P6 Tualatin Celeron, and as such,
-it does not support SSE2.
+Ahh yes.
 
-This CPU needs a kernel configured for a Pentium III or less.
+> I don't know yet what it should say: RH2.96-110 is getting confused
+> by the do_div(size, 100) I have there (to respect Xavier's point),
+> and this is definitely _not_ worth adding a compiler dependency for.
+
+Would a cast be bad? ie:
+
+--- linux/mm/shmem.c.old	Sun Mar 30 00:51:39 2003
++++ linux/mm/shmem.c	Sun Mar 30 03:23:47 2003
+@@ -1630,6 +1630,12 @@
+ 		if (!strcmp(this_char,"size")) {
+ 			unsigned long long size;
+ 			size = memparse(value,&rest);
++			if (*rest == '%') {
++				struct sysinfo si;
++				si_meminfo(&si);
++				size = ((unsigned long long)si.totalram << PAGE_CACHE_SHIFT) / 100 * size;
++				rest++;
++			}
+ 			if (*rest)
+ 				goto bad_val;
+ 			*blocks = size >> PAGE_CACHE_SHIFT;
+-- 
+"Other countries of course, bear the same risk. But there's no doubt his
+hatred is mainly directed at us. After all this is the guy who tried to
+kill my dad."
+        - George W. Bush Jr, Leader of the United States Regime
+          September 26, 2002 (from a political fundraiser in Houston, Texas)

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264887AbTLaNxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 08:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbTLaNxw
+	id S264920AbTLaOHn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 09:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbTLaOHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 08:53:52 -0500
-Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:63367 "EHLO
-	cambrant.com") by vger.kernel.org with ESMTP id S264887AbTLaNxv
+	Wed, 31 Dec 2003 09:07:43 -0500
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:50674 "EHLO
+	mail.kroptech.com") by vger.kernel.org with ESMTP id S264920AbTLaOHm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 08:53:51 -0500
-Date: Wed, 31 Dec 2003 14:53:24 +0100
-From: Tim Cambrant <tim@cambrant.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.24-pre3
-Message-ID: <20031231135324.GA28029@cambrant.com>
-References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet>
+	Wed, 31 Dec 2003 09:07:42 -0500
+Date: Wed, 31 Dec 2003 09:14:06 -0500
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: David Ford <david+hb@blue-labs.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: APCUPSD and HID spam
+Message-ID: <20031231091406.A22231@mail.kroptech.com>
+References: <3FF257A0.8070906@blue-labs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FF257A0.8070906@blue-labs.org>; from david+hb@blue-labs.org on Tue, Dec 30, 2003 at 11:59:12PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 11:13:57AM -0200, Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes -pre3. It contains a PPC32/SPARC update, some i2c cleanups, LVM
-> update, network update, a new WAN driver, amongst others.
-> 
-> It should show up in ftp.kernel.org in a few minutes.
-> 
-> Happy new year!
-> 
+On Tue, Dec 30, 2003 at 11:59:12PM -0500, David Ford wrote:
+> after starting apcupsd, my system is deluged with over three thousand of 
+> these messages per second; the control queue full messages.  doesn't 
+> stop until apcupsd is stopped.  i can't say if this is new or longtime, 
+> i just hooked it up after several months.
 
-Great job, Marcelo. Happy new year!
+<snip>
 
--- 
-Tim Cambrant <tim@cambrant.com> 
-GPG KeyID 0x59518702
-Fingerprint: 14FE 03AE C2D1 072A 87D0  BC4D FA9E 02D8 5951 8702
+> Dec 30 23:42:09 Huntington-Beach drivers/usb/input/hid-core.c: control 
+> queue full
+
+Known bug. Upgrade apcupsd to 3.10.8 or the kernel to 2.6.1-rc1.
+
+FYI, in the future you should direct inquiries regarding apcupsd to the
+apcupsd-users list (apcupsd-users@lists.sourceforge.net) and search its
+archive where bugs such as this tend to be well known.
+
+--Adam
+

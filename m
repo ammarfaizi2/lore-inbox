@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267410AbUJIUvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUJIUzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267410AbUJIUvf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267396AbUJIUss
+	id S267377AbUJIUzE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267421AbUJIUvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:48:48 -0400
-Received: from web13725.mail.yahoo.com ([66.163.176.64]:2194 "HELO
-	web13725.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267404AbUJIUo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:44:29 -0400
-Message-ID: <20041009204425.49483.qmail@web13725.mail.yahoo.com>
-Date: Sat, 9 Oct 2004 13:44:25 -0700 (PDT)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
-To: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
-Cc: mkrikis@yahoo.com
-In-Reply-To: <87d5zzfds7.fsf@yahoo.com>
+	Sat, 9 Oct 2004 16:51:53 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:11452 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S267417AbUJIUsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:48:14 -0400
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Greg KH <greg@kroah.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>
+	<20041009115028.GA14571@electric-eye.fr.zoreil.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Sat, 09 Oct 2004 13:47:15 -0700
+In-Reply-To: <20041009115028.GA14571@electric-eye.fr.zoreil.com> (Francois
+ Romieu's message of "Sat, 9 Oct 2004 13:50:28 +0200")
+Message-ID: <52oejbliuk.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
 Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 09 Oct 2004 20:47:16.0225 (UTC) FILETIME=[294D3710:01C4AE41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 0.1.4.3 of the Intel Sofware RAID driver (iswraid) is now
-available for the 2.4 series kernels at
-http://prdownloads.sourceforge.net/iswraid/2.4.28-pre3-iswraid.patch.gz?download
+    Roland> it's orthogonal to any IP issues.  Since the Linux kernel
+    Roland> contains a lot of code written to specs available only
+    Roland> under NDA (and even reverse-engineered code where specs
+    Roland> are completely unavailable), I don't think the expense
+    Roland> should be an issue.
 
-It is an ataraid "subdriver" but uses the SCSI subsystem to find the
-RAID member disks. It depends on the libata library, particularly the
-ata_piix driver that enables the Serial ATA capabilities in ICH5/ICH6
-chipsets. Hence, for kernels older than 2.4.28, the libata patch by 
-Jeff Garzik should be applied before applying this patch. There is 
-more information and some ICH6R related patches at the project's home
-page at http://iswraid.sourceforge.net/. The patch applies cleanly to
-2.4.28-pre4 as well, and hopefully can be applied to any 2.4 kernel
-without too much difficulty. 
+    Francois> One can say good bye to peer review.
 
-The changes WRT version 0.1.4 are the following:
-* Different buffer_head b_state bit used for IOs submitted
-  to the mirror.
-* Disk sizing problem for disks with odd number of sectors fixed.
-* Entering degraded mode with many outstanding IOs fixed. 
+Yes and no.  Certainly people without specs can't review spec
+compliance, but review for coding style, locking bugs, etc. is if
+anything more valuable.
 
-Please consider this driver for inclusion in the 2.4 kernel tree.
-
-Driver documentation is included in Documentation/iswraid.txt,
-which is part of the patch. The license is GPL. I have added
-myself to the MAINTAINERS list, please feel free to throw me
-out if you don't think I should have done that.
-
-Please let me know if there is anything else I can do to make
-this driver acceptable for the 2.4 kernel.
- 
-   Martins Krikis
-   Storage Components Division
-   Intel Massachusetts
-
-
-
-		
-
+Thanks,
+  Roland

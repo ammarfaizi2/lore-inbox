@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267477AbTANGhU>; Tue, 14 Jan 2003 01:37:20 -0500
+	id <S267478AbTANGoS>; Tue, 14 Jan 2003 01:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267478AbTANGhU>; Tue, 14 Jan 2003 01:37:20 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:18850 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267477AbTANGhS>;
-	Tue, 14 Jan 2003 01:37:18 -0500
-Date: Mon, 13 Jan 2003 22:36:41 -0800 (PST)
-Message-Id: <20030113.223641.61538045.davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK-2.5] Update arm implementation of DMA API to include GFP_
- flags
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200301140606.h0E668L16950@hera.kernel.org>
-References: <200301140606.h0E668L16950@hera.kernel.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S267480AbTANGoS>; Tue, 14 Jan 2003 01:44:18 -0500
+Received: from pl1310.nas921.ichikawa.nttpc.ne.jp ([219.102.249.30]:823 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S267478AbTANGoR>;
+	Tue, 14 Jan 2003 01:44:17 -0500
+Date: Tue, 14 Jan 2003 15:52:56 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any chance of 2.6.0-test*?
+Message-Id: <20030114155256.2498eb0c.bruce@ask.ne.jp>
+In-Reply-To: <20030113130842.GE9031@codemonkey.org.uk>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+	<1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+	<20030113130842.GE9031@codemonkey.org.uk>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14
+ _qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq
+ *)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-   Date: Mon, 13 Jan 2003 16:30:18 +0000
+On Mon, 13 Jan 2003 13:08:42 +0000
+Dave Jones <davej@codemonkey.org.uk> wrote:
 
-   ChangeSet 1.930.8.3, 2003/01/13 10:30:18-06:00, jejb@raven.il.steeleye.com
-   
-   	Update arm implementation of DMA API to include GFP_ flags
-   
-Is this really safe?  Maybe ARM needs to use GFP_ATOMIC all the
-time for a specific reason, such as where and how it maps the
-cpu side mappings of the memory?
+> On Sun, Jan 12, 2003 at 02:34:54PM -0500, Rob Wilkens wrote:
+> 
+> Wow, one week later, and this would tie in with the fourth anniversary
+> of someone else[2] making an ass of himself on this issue[1]
+> 
+> 		Dave
+> 
+> [1] http://www.uwsg.iu.edu/hypermail/linux/kernel/9901.2/0939.html
+> [2] Complete with quaint 'cool' l33t handle. How 90s! *bows head in shame*
+
+So does that mean that we can look forward to Rob being a very productive
+leading Linux developer in four years time?
+
+Naaaah.... ;)
+
+

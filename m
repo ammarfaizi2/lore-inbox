@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266259AbUALVNg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 16:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUALVNe
+	id S266267AbUALVNW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 16:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUALVNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 16:13:34 -0500
-Received: from main.gmane.org ([80.91.224.249]:48853 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266259AbUALVNN (ORCPT
+	Mon, 12 Jan 2004 16:13:21 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30599 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265658AbUALVNB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 16:13:13 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jens Benecke <jens-usenet@spamfreemail.de>
-Subject: 2.6.1mm2: very bad interactive behaviour under XFree86
-Date: Mon, 12 Jan 2004 22:13:18 +0100
-Message-ID: <2867040.OKCKYgd4AF@spamfreemail.de>
+	Mon, 12 Jan 2004 16:13:01 -0500
+Date: Mon, 12 Jan 2004 22:12:49 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Doug Ledford <dledford@redhat.com>,
+       Arjan Van de Ven <arjanv@redhat.com>,
+       Martin Peschke3 <MPESCHKE@de.ibm.com>, Peter Yao <peter@exavio.com.cn>,
+       linux-kernel@vger.kernel.org,
+       linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
+Subject: Re: smp dead lock of io_request_lock/queue_lock patch
+Message-ID: <20040112211249.GB3543@suse.de>
+References: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com> <20040112151230.GB5844@devserv.devel.redhat.com> <20040112194829.A7078@infradead.org> <1073937102.3114.300.camel@compaq.xsintricity.com> <20040112200351.A7409@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: KNode/0.7.6
-X-No-Archive: Yes
+Content-Disposition: inline
+In-Reply-To: <20040112200351.A7409@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 12 2004, Christoph Hellwig wrote:
+> On Mon, Jan 12, 2004 at 02:51:42PM -0500, Doug Ledford wrote:
+> > More or less.  But part of it also is that a lot of the patches I've
+> > written are on top of other patches that people don't want (aka, the
+> > iorl patch).
+> 
+> I'm wondering whether we want it now that 2.4 is basically frozen, but
+> I don't think there was a strong case against it say 4 or 5 month ago.
+> OTOH given that success (or lack thereof) I had pushing core changes
+> through Marcelo the chances it had even if scsi folks ACKed wouldn't
+> have been too high.
 
-running an up-to-date XFree86 4.3 from Debian unstable, I have a stuck mouse
-pointer in X11 every time some application uses 100% CPU. I have
-folding@home running in the background at nice 19, which doesn't disturb
-anything, but when my machine starts up the following happens:
+That's the key point, is it appropriate to merge now...
 
-- KDE 3.2 boots up,
-- openoffice quickstart,
-- KGpg reads a couple thousand keys,
-- xmms, xosview, background picture, etc load up
-- about 10 cm worth of applets in the KDE panel start
+But I can completely back Doug on the point he made wrt pusing stuff
+back to mainline - it was hard, because we deviated too much. And that
+is also what I stressed would be the most important argument for merging
+the iorl + scsi core changes.
 
-During this time (20-30sec) the mouse pointer jerks from position to
-position about once to twice a second. My X server runs at priority 0, not
--10, as recommended. This has been the case since 2.6.0-test11, but I have
-the (subjective) impression that under 2.6.1rc1-mm1 and 2.6.1-mm2 it got
-worse.
+> > I've got a mlqueue patch that actually *really* should go
+> > into mainline because it solves a slew of various problems in one go,
+> > but the current version of the patch depends on some semantic changes
+> > made by the iorl patch.  So, sorting things out can sometimes be
+> > difficult.  But, I've been told to go ahead and do what I can as far as
+> > getting the stuff out, so I'm taking some time to try and get a bk tree
+> > out there so people can see what I'm talking about.  Once I've got the
+> > full tree out there, then it might be possible to start picking and
+> > choosing which things to port against mainline so that they don't depend
+> > on patches like the iorl patch.
+> 
+> I personally just don't care enough about 2.4 anymore, so I don't think
+> I'll invest major amounts of time into it.  Even though the scsi changes
+> you've done are fairly huge I'm wondering whether we should just throw
+> it all in anyway - given that you said you'll have to care for the 2.4
+> scsi stack for a longer time for RH and no one else seems to be interested
+> doing maintaince.
 
-I am using an Athlon XP 2600+ with 1024MB RAM, Nforce2 chipset, NVIDIA
-XFree86 drivers.
-
-
-Shall I try vanilla 2.6.1 and compare? Or is this an obvious problem?
-
-
-Thanks!
-
-
+Ditto.
 
 -- 
-Jens Benecke
+Jens Axboe
+

@@ -1,69 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbTHTEfM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 00:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbTHTEfM
+	id S261701AbTHTEnW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 00:43:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbTHTEnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 00:35:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:10627 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261700AbTHTEfG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 00:35:06 -0400
-Date: Tue, 19 Aug 2003 21:36:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Eric St-Laurent <ericstl34@sympatico.ca>, linux-kernel@vger.kernel.org
-Subject: Re: scheduler interactivity: timeslice calculation seem wrong
-Message-ID: <20030820043615.GF4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bill Davidsen <davidsen@tmr.com>,
-	David Lang <david.lang@digitalinsight.com>,
-	Eric St-Laurent <ericstl34@sympatico.ca>,
-	linux-kernel@vger.kernel.org
-References: <20030820004851.GD4306@holomorphy.com> <Pine.LNX.3.96.1030820000415.11300B-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030820000415.11300B-100000@gatekeeper.tmr.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Wed, 20 Aug 2003 00:43:22 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:54681 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261701AbTHTEnU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 00:43:20 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH][2.6][5/5]Support for HPET based timer
+Date: Tue, 19 Aug 2003 18:28:40 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1CE@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.6][5/5]Support for HPET based timer
+Thread-Index: AcNmowFrgR0gdHE3Tt6Pb9Nj02Z6ogADcn8g
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>
+Cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+X-OriginalArrivalTime: 20 Aug 2003 01:28:40.0633 (UTC) FILETIME=[62EFAA90:01C366BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003, William Lee Irwin III wrote:
->> This and/or mixed cpu speeds could make load balancing interesting on
->> SMP. I wonder who's tried. jejb?
 
-On Wed, Aug 20, 2003 at 12:11:26AM -0400, Bill Davidsen wrote:
-> Hum, I *guess* that if you are using some "mean time between dispatches"
-> to tune time slice you could apply a CPU speed correction, but mixed speed
-> SMP is too corner a case for me. I think if you were tuning time slice by
-> mean time between dispatches (or similar) you could either apply a
-> correction, set affinity low to keep jobs changing CPUs, or just ignore
-> it.
+I experimented with HPET in native APIC routing mode. But, there 
+are couple of issues in that space:
 
-Not corner case at all. It's very typical with incrementally upgradeable
-hardware (it would be very nice if commodity hardware were so, as it's
-very wasteful to have to throw out preexisting hardware just to upgrade).
-Conceptually what has to be done is very simple: pressure on cpus needs
-to be weighted by cpu speed. The question is about specifics, not concepts.
+1) During boot up kernel expects to receive timer interrupt much before
+the 
+IO-APIC initialization is done. If HPET uses native mode, it cannot
+generate 
+timer interrupts till IOAPICs are initialized. So, we need to have some
+sort of 
+Workarounds in generic kernel to avoid dependency on timer interrupt
+during the 
+early boot.
 
-I've even seen a system "in the field" (basically operating in a server
-capacity as opposed to being a kernel hacking vehicle) with cpu speeds
-ranging from 180MHz to 900MHz, with about 3 or 4 points in between.
+2) More important question is, do we really want to share timer
+interrupt with 
+other PCI devices? This potentially can add some delay in the timer
+interrupt 
+processing, and thus we may end up getting inaccurate time (and
+inaccurate 
+timer interrupts) in the kernel.
 
-
-On Wed, Aug 20, 2003 at 12:11:26AM -0400, Bill Davidsen wrote:
-> The thing I like about the idea is that if the CPU speed changes the MTBD
-> will change and the timeslice will compensate. You could use median MTBD,
-> or pick some percentile to tune for response or throughput.
-> I thought I was just thinking out loud, but it does sound interesting to
-> try, since it would not prevent using some priorities as well.
-
-Conceptually this is simple, too: take some tuning method based on cpu
-speed and periodically (or possibly in an event-driven fashion) re-tune.
-Again, this question's about the specifics, not the concept.
-
-
--- wli
+Thanks,
+-Venkatesh
+> -----Original Message-----
+> From: Vojtech Pavlik [mailto:vojtech@suse.cz] 
+> Sent: Tuesday, August 19, 2003 3:41 PM
+> To: Pallipadi, Venkatesh
+> Cc: linux-kernel@vger.kernel.org; torvalds@osdl.org; 
+> Nakajima, Jun; Mallick, Asit K
+> Subject: Re: [PATCH][2.6][5/5]Support for HPET based timer
+> 
+> 
+> On Tue, Aug 19, 2003 at 12:20:22PM -0700, Pallipadi, Venkatesh wrote:
+> 
+> > 5/5 - hpet5.patch - This can be a standalone patch. Without this
+> >                     patch we loose interrupt generation capability
+> >                     of RTC (/dev/rtc), due to HPET. With this patch
+> >                     we basically try to emulate RTC interrupt
+> >                     functions in software using HPET counter 1.
+> > 
+> 
+> This is very wrong IMO. We shouldn't try to emulate the RTC interrupt
+> for the kernel, instead the HPET should use native APIC interrupt
+> routing. This way the RTC will keep working and the 'legacy mode' of
+> HPET doesn't need to be used. I must admit I was a bit lazy when I was
+> implementing the x86_64 variant and the native IRQ for HPET 
+> is still on
+> my to-do list.
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs, SuSE CR
+> 

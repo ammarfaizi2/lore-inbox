@@ -1,69 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262699AbSJGUEx>; Mon, 7 Oct 2002 16:04:53 -0400
+	id <S262711AbSJGUJ0>; Mon, 7 Oct 2002 16:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262710AbSJGUEI>; Mon, 7 Oct 2002 16:04:08 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:37252 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262699AbSJGUCx>;
-	Mon, 7 Oct 2002 16:02:53 -0400
-Date: Mon, 7 Oct 2002 22:08:29 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: jbradford@dial.pipex.com
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.X breaks PS/2 mouse
-Message-ID: <20021007220829.A1773@ucw.cz>
-References: <20021007162318.A758@ucw.cz> <200210072015.g97KFjch003948@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210072015.g97KFjch003948@darkstar.example.net>; from jbradford@dial.pipex.com on Mon, Oct 07, 2002 at 09:15:45PM +0100
+	id <S262728AbSJGUIp>; Mon, 7 Oct 2002 16:08:45 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:13088 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S262672AbSJGUIT>;
+	Mon, 7 Oct 2002 16:08:19 -0400
+From: <Hell.Surfers@cwctv.net>
+To: alan@lxorguk.ukuu.org.uk, jennings@red-river.com,
+       linux-kernel@vger.kernel.org
+Date: Mon, 7 Oct 2002 21:13:51 +0100
+Subject: RE:Re: New PCI Device Driver
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034021631383"
+Message-ID: <016c823122007a2DTVMAIL9@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 09:15:45PM +0100, jbradford@dial.pipex.com wrote:
-> Finally re-assembled the laptop :-)
-> 
-> > > I didn't, but I've compiled a new kernel with it in.  Unfortunately,
-> > > it doesn't seem to do anything useful :-(.
-> > > 
-> > > cat /dev/input/eventX | hexdump
-> > > 
-> > > returns nothing, not even for keyboard events, which makes me think
-> > > I've gone wrong somewhere :-/
-> > 
-> > Have you tried all of them (0, 1, 2 ...)? Btw, you can compile evbug in
-> > also.
-> 
-> Whoops, me being silly again, I actually created a single device node
-> called /dev/input/eventX instead of event1, event2, etc.  :-)
-> 
-> > > mouse
-> > > 
-> > >  Left button - 09 00 00 08 00 00
-> > > Right button - 0a 00 00 08 00 00
-> > > 
-> > > trackball
-> > > 
-> > >  Left button - 01 00 00 00 00 00
-> > > Right button - 02 00 00 00 00 00
-> > 
-> > Hmm, interesting ... let's see what that means ...
-> > 
-> > Indeed the 0x08 byte indicates the beginning of a packet. The driver
-> > synchronizes on that, and when it's missing, it ignores the packets.
-> > Thus, it ignores all the packets from the trackball.
-> > 
-> > This patch should fix that:
-> 
-> It does.  Cool!
-> 
-> GPM and X work perfectly.
-> 
-> Cheers!
 
-And yet another case closed. :)
+--1034021631383
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Is your driver GPL?
+
+Cheers, Dean.
+
+On 	07 Oct 2002 20:58:26 +0100 	Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+--1034021631383
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Mon, 7 Oct 2002 21:06:11 +0100
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S262643AbSJGTnB>; Mon, 7 Oct 2002 15:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S262644AbSJGTnB>; Mon, 7 Oct 2002 15:43:01 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:42995 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262643AbSJGTnA>; Mon, 7 Oct 2002 15:43:00 -0400
+Received: from irongate.swansea.linux.org.uk (localhost [127.0.0.1])
+	by irongate.swansea.linux.org.uk (8.12.5/8.12.5) with ESMTP id g97JwSbg026635;
+	Mon, 7 Oct 2002 20:58:29 +0100
+Received: (from alan@localhost)
+	by irongate.swansea.linux.org.uk (8.12.5/8.12.5/Submit) id g97JwRFw026633;
+	Mon, 7 Oct 2002 20:58:27 +0100
+X-Authentication-Warning: irongate.swansea.linux.org.uk: alan set sender to alan@lxorguk.ukuu.org.uk using -f
+Subject: Re: New PCI Device Driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Patrick Jennings <jennings@red-river.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <NFBBJBMDCLFFHHFEAKNAMEEHCBAA.jennings@red-river.com>
+References: <NFBBJBMDCLFFHHFEAKNAMEEHCBAA.jennings@red-river.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Oct 2002 20:58:26 +0100
+Message-Id: <1034020706.26549.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+On Mon, 2002-10-07 at 18:24, Patrick Jennings wrote:
+> I have been tasked with writing a driver for my companies digital radio.
+> The card has 16K of PCI space at BAR0.  I need to memory map this into user
+> space, and provide DMA and isr handling.  First things first i want to get
+> the mapping working.   When i run the code below after inserting the module
+> i seg. fault.  I know this is what happens when engineers have to write
+> code, but can someone point me in the right direction?
+
+First things I'd pick on are the obvious ones - we have headers defining
+KERN_ERR etc as <1> so use them 8)
+
+Second you probably want to use the pci_module_init api then multiple
+cards will basically just work, cardbus will just work and even hotplug
+should come for free.
+
+Beyond that you get the pci resources correctly, you enable the device
+first as you should. You then ruin it all by poking around directly into
+I/O space you have not mapped.
+
+The kernel isn't running in physical space, and on other platforms it
+gets even more exciting as to what goes on. Its all abstracted do
+
+	addr = ioremap(io_base_start, len);
+        databuf = read(addr + 0x590);
+
+
+Finally note that we have a radio interface layer as part of
+video4linux. Other than some basic tuning ioctls it probably has little
+in common with digital radio (assuming you mean something like
+Eureka-147 (aka DAB) rather than digital tuner/mixer for analogue
+radio.It would nice to make use of that API and extend it logically if
+you want to get a driver into the base kernel eventually.
+
+Alan
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1034021631383--
+
+

@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270705AbRHSTKb>; Sun, 19 Aug 2001 15:10:31 -0400
+	id <S270724AbRHST1H>; Sun, 19 Aug 2001 15:27:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270708AbRHSTKW>; Sun, 19 Aug 2001 15:10:22 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:10245 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S270705AbRHSTKN>; Sun, 19 Aug 2001 15:10:13 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200108190825.KAA00983@kufel.dom>
-Subject: Re: Swap size for a machine with 2GB of memory
-To: kufel!thyrsus.com!esr@green.mif.pg.gda.pl
-Date: Sun, 19 Aug 2001 10:25:36 +0200 (CEST)
-Cc: kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl (Linux Kernel
-	List),
-        kufel!lanm-pc.com!gars@green.mif.pg.gda.pl
-In-Reply-To: <20010819024233.A26916@thyrsus.com> from "Eric S. Raymond" at sie 19, 2001 02:42:33 
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270721AbRHST06>; Sun, 19 Aug 2001 15:26:58 -0400
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:61648 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S270717AbRHST0u>;
+	Sun, 19 Aug 2001 15:26:50 -0400
+Message-Id: <5.1.0.14.2.20010819202622.00ae28d0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 19 Aug 2001 20:26:54 +0100
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Kernel 2.4.9 build fails on Mandrake 8.0
+Cc: Chris Oxenreider <oxenreid@state.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010819142008.C2580@conectiva.com.br>
+In-Reply-To: <Pine.SV4.4.10.10108191150090.1226-100000@dorthy>
+ <Pine.SV4.4.10.10108191150090.1226-100000@dorthy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> The Red Hat installation manual claims that the size of the swap partition
-> should be twice the size of physical memory, but no more than 128MB.
+At 18:20 19/08/2001, Arnaldo Carvalho de Melo wrote:
+>Em Sun, Aug 19, 2001 at 12:13:52PM -0500, Chris Oxenreider escreveu:
+> >
+> > Help.
+> > On a freshly installed system using a version of Mandrake 8.0 from the
+> > free 'iso' images on the linux-mandrake sight this is what happens:
+>
+>add
+>
+>#include <linux/kernel.h>
 
-This manual is outdated. 
+Yes, add above line to fs/ntfs/unistr.c and all is fine.
 
-1. You hahe 2GB limit for a single swap file/partition now. And you can use
-   many of them.
-2. it sjould be <= 2* RAM, i.e. 0 <= SWAP <= 2*RAM. More is inefficient.
-3. except kernels 2.4.x, where x <= 7-ac8, where you should have SWAP=0 or
-   SWAP > RAM. 2.4.7-ac9 & 2.4.8 have already this problem fixed.
+Anton
 
-> The screaming hotrod machine Gary Sandine and I built around the Tyan S2464
-> has 2GB of physical memory.  Should I believe the above formula?  If not,
-> is there a more correct one for calculating needed swap on machines with
-> very large memory?
 
-Correct and universal formula for swap size is as always:
-   SWAP = MAX_RAM_you_ever_need - physical_RAM_you_have
+>IIRC this will do the trick, getting the min definition from kernel.h
+>
+>- Arnaldo
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-However in 2.4 more eficient (and in 2.40-7 obligatory) is:
-   SWAP = MAX_RAM_you_ever_need > physical_RAM_you_have
-          ? MAX_RAM_you_ever_need
-;)
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-Andrzej

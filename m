@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbREYSFR>; Fri, 25 May 2001 14:05:17 -0400
+	id <S261411AbREYSG5>; Fri, 25 May 2001 14:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261404AbREYSFH>; Fri, 25 May 2001 14:05:07 -0400
-Received: from comverse-in.com ([38.150.222.2]:4306 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S261369AbREYSEr>; Fri, 25 May 2001 14:04:47 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678EF9@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: linux-kernel@vger.kernel.org
-Cc: "'torvalds@transmeta.com'" <torvalds@transmeta.com>,
-        alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] 2.4.x: update for PCI vendor id 0x12d4
-Date: Fri, 25 May 2001 14:03:31 -0400
+	id <S261404AbREYSGh>; Fri, 25 May 2001 14:06:37 -0400
+Received: from [63.109.146.2] ([63.109.146.2]:37873 "EHLO mail0.myrio.com")
+	by vger.kernel.org with ESMTP id <S261401AbREYSGZ>;
+	Fri, 25 May 2001 14:06:25 -0400
+Message-ID: <B65FF72654C9F944A02CF9CC22034CE22E1BD4@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'Adam J. Richter'" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Fwd: Copyright infringement in linux/drivers/usb/serial/keysp
+	an*fw.h
+Date: Fri, 25 May 2001 11:06:15 -0700
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C0E545.021F8C60"
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
-------_=_NextPart_000_01C0E545.021F8C60
-Content-Type: text/plain;
-	charset="koi8-r"
+Adam J. Richter wrote:
+> Doug Ledford wrote:
+> >"Adam J. Richter" wrote:
+> 
+> >>         On the question of whether this is nothing more than
+> >> aggregation,
 
-This is my 1st attempt to submit a patch here - flames welcome if I did smth
-wrong...
-It was done across 2.4.2, but it works safely against 2.4.4 as well.
+... 
+[patent law definition of aggregation]
+...
 
- <<pci_vendor_12d4.patch>> 
+Well, I'm just an interested bystander.  But having read the recent 
+lkml posts on this issue, it seems to me that the critical points are:
 
-Kind regards,
-	Vassilii
+>From the point of view of the kernel, the firmware code is just a big
+magic number that "turns on" the firmware.  
 
-------_=_NextPart_000_01C0E545.021F8C60
-Content-Type: application/octet-stream;
-	name="pci_vendor_12d4.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="pci_vendor_12d4.patch"
+The kernel is not _linked_ _with_ the firmware code.
 
---- /usr/src/linux-2.4.2/include/linux/pci_ids.h	Sat Feb  3 15:48:00 =
-2001=0A=
-+++ pci_ids.h	Fri May 25 13:15:51 2001=0A=
-@@ -1110,6 +1110,8 @@=0A=
- #define PCI_VENDOR_ID_NVIDIA_SGS	0x12d2=0A=
- #define PCI_DEVICE_ID_NVIDIA_SGS_RIVA128 0x0018=0A=
- =0A=
-+#define PCI_VENDOR_ID_ULTICOM	0x12d4 /* Formerly DGM&S */=0A=
-+=0A=
- #define PCI_SUBVENDOR_ID_CHASE_PCIFAST		0x12E0=0A=
- #define PCI_SUBDEVICE_ID_CHASE_PCIFAST4		0x0031=0A=
- #define PCI_SUBDEVICE_ID_CHASE_PCIFAST8		0x0021=0A=
---- /usr/src/linux-2.4.2/drivers/pci/devlist.h	Tue Mar 27 16:10:22 =
-2001=0A=
-+++ devlist.h	Fri May 25 13:35:50 2001=0A=
-@@ -3733,7 +3733,7 @@=0A=
- VENDOR(12d3,"Vingmed Sound A/S")=0A=
- ENDVENDOR()=0A=
- =0A=
--VENDOR(12d4,"DGM&S")=0A=
-+VENDOR(12d4,"Ulticom (formerly DGM&S)")=0A=
- ENDVENDOR()=0A=
- =0A=
- VENDOR(12d5,"Equator Technologies")=0A=
+The kernel doesn't even _exec_ the firmware.
 
-------_=_NextPart_000_01C0E545.021F8C60--
+The firmware code can be used, unmodified, in other operating systems.
+
+The firmware code does not run in the same address space as the kernel.
+
+In principle, and maybe in practice, that firmware code might be running
+on a different processor, with different RAM, and a different instruction
+set.  
+
+It's obviously not part of the kernel! 
+
+Torrey Hoffman  -  torrey.hoffman@myrio.com
+-------------------------------------------
+I find this corpse guilty of carrying a concealed weapon and I fine it $40. 
+-- Judge Roy Bean, finding a pistol and $40 on a man he'd just shot. 

@@ -1,167 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUJAVRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266689AbUJAVrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266517AbUJAVRi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 17:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266344AbUJAVRa
+	id S266689AbUJAVrk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 17:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUJAVPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 17:17:30 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:2530 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266512AbUJAU6f (ORCPT
+	Fri, 1 Oct 2004 17:15:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43186 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266674AbUJAUzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:58:35 -0400
-Message-ID: <415DC5D2.8000405@austin.ibm.com>
-Date: Fri, 01 Oct 2004 16:02:10 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linuxram@us.ibm.com
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Simplified Readahead
-References: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 1 Oct 2004 16:55:35 -0400
+Date: Fri, 1 Oct 2004 13:59:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       Chris Mason <mason@suse.com>
+Subject: Re: 2.6.9-rc2-mm4 ps hang ?
+Message-Id: <20041001135927.11527420.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0410012102510.9068-100000@localhost.localdomain>
+References: <20041001120926.4d6f58d5.akpm@osdl.org>
+	<Pine.LNX.4.44.0410012102510.9068-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Pai wrote:
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> lock_page inside mmap_sem a ranking bug?  Please recant!
 
-snip...
+generic_file_buffered_write() can take mmap_sem for reading while holding a
+page lock.  In that rare case where the page gets unmapped even though we
+manually faulted it in.
 
->>>>>To summarize you noticed 3 problems:
->>>>>
->>>>>1. page cache hits not handled properly.
->>>>>2. readahead thrashing not accounted.
->>>>>3. read congestion not accounted.
->>>>>          
->>>>>
->
->
->I have enclosed 5 patches that address each of the issues.
->
->1 . Code is obtuse and hard to maintain
->
->	The best I could do is update the comments to reflect the
->	current code. Hopefully that should help. 
->	
->	attached patch 1_comment.patch takes care of that part to
->	some extent.
->
->
->2. page cache hits not handled properly.
->
->	I fixed this by decrementing the size of the next readahead window
->	by the number of pages hit in the page cache. Now it slowly
->	accomodates the page cache hits. 
->
->	attached patch 2_cachehits.patch takes care of this issue.
->
->3. queue congestion not handled.
->
->	The fix is: call force_page_cache_readahead() if we are 
->	populating pages in the current window.
->	And call do_page_cache_readahead() if we are populating
->	pages in the ahead window. However if do_page_cache_readahead()
->	return with congestion, the readahead window is collapsed back 
->	to size zero. This will ensure that the next time ahead window
->	is attempted to populate.
->
->	attached patch 3_queuecongestion.patch handles this issue.
->
->4. page thrash handled ineffectively.
->
->	The fix is: on page thrash detection shutdown readahead.
->
->	attached patch 4_pagethrash.patch handles this issue.
->
->5. slow read path is too slow.
->
->	I could not figure out a way to atleast-read-the-requested-
->	number-of-pages if readahead is shutdown, without incorporating
->	the readsize parameter to page_cache_readahead(). So had
->	to pick some of your code in filemap.c to do that. Thanks!
->	
->	attached patch 5_fixedslowread.patch handles this issue.
->
->
->Apart from this you have noticed other issues
->
->6.  cache lookup done unneccessrily twice for pagecache_hits.
->
->	I have not handled this issue currently. But should be doable
->	if I introducing a flag, which notes when readahead is
->	shutdown by pagecahche hits. And hence attempts to lookup
->	the page only once.
->	
->
->And you have other features in your patch which will be the real
->differentiating factors.
->
->7.  exponential expand and shrink of window sizes.
->
->8.  overlapped read of current window and ahead window. 
->
->	( I think both are  desirable feature )
->
->I did run some premilinary tests using your patch and the above patches
->and found 
->
->your patch was doing slightly better on iozone and sysbench.
->however the above patch were doing slightly better with DSS workload.
->  
->
+Now, that's lock_page->down_read versus down_read->lock_page which I
+_think_ is safe, due to down_read semantics.  Even if a third thread is
+waiting for a down_write.
 
-Ok, I have re-run the Tiobench tests.  On a single cpu ide based system 
-you new patches have no noticable effect on sequential read performance 
-(a good thing); but on random I/O things went bad :-(.
+Except filemap_nopage() does lock_page too, so we have
 
-Here are the random read results for 16k io with 4GB fileset on 256MB 
-mem, single cpu IDE
+	lock_page->down_read->lock_page
 
-               Stock      w/ patches
+as well.
 
-  Threads      MBs/sec      MBs/sec    %diff         diff  
----------- ------------ ------------ -------- ------------ 
-         1         1.73         1.72    -0.58        -0.01  
-         4         1.70         1.56    -8.24        -0.14  
-        16         1.66         0.81   -51.20        -0.85  
-        64         1.49         0.68   -54.36        -0.81 
+All this does mean that down_write cannot nest either inside or outside
+lock_page.
 
-As you can see somewhere after 4 threads the new patches cause performance to tank.  
+The bigger problem is ext3 and reiser3 transaction start/stop.  It is
+equivalent to a down()/up() operation and we get the ranking for that
+inconsistent too.  Both wrt lock_page and wrt, I think, down_read(mmap_sem).
 
-With 512k ios the problem kicks in with less than 4 threads.
+generic_file_buffered_write() does, effectively
 
-               Stock      w/ patches
-  Threads      MBs/sec      MBs/sec    %diff         diff  
----------- ------------ ------------ -------- ------------ 
-         1        18.50        18.55     0.27         0.05 
-         4         8.55         6.59   -22.92        -1.96  
-        16         8.40         5.18   -38.33        -3.22 
-        64         7.34         4.76   -35.15        -2.58 
+	lock_page
+	->transaction_start
+          ->fault
+	  ->down_read(mmap_sem)
+	    ->lock_page
 
+and over in do_mmap_pgoff() we nest transaction start inside
+down_write(mmap_sem):
 
-Unfortunately this is the _good_ news.  The bad news is that this is much worse on SCSI.
-We lose a few percent on sequential reads for all block sizes and random is just totally screwed.
+	do_mmap_pgoff
+	->down_write(mmap_sem)
+	->generic_file_mmap
+	  ->file_accessed
+	    ->mark_inode_dirty
+	      ->transaction start
 
-Here is the same 16k io requests size with 4GB fileset on 1GB memory on 8way system on single scsi disk.
+It's all a bit of a mess.  Chris Mason and I have discussed it on and off. 
+I think Chris has a workload which actually does trigger a deadlock.
 
-               stock        w/ patch
-   Threads      MBs/sec      MBs/sec    %diff         diff   
----------- ------------ ------------ -------- ------------ 
-         1         3.43         3.03   -11.66        -0.40   
-         4         4.51         1.06   -76.50        -3.45 
-        16         5.86         1.43   -75.60        -4.43   
-        64         6.13         1.66   -72.92        -4.47 
-
-11% degrade even on 1 thread, 75% degrade for 4 threads and above!  This is horribly broken. 
-
-
-Steve
-
- 
-
-
-
-
-
+Maybe dropping and retaking mmap_sem in generic_file_mmap would be a
+sufficient stopgap.

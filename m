@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284321AbRLMQDU>; Thu, 13 Dec 2001 11:03:20 -0500
+	id <S284305AbRLMQHk>; Thu, 13 Dec 2001 11:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284318AbRLMQDK>; Thu, 13 Dec 2001 11:03:10 -0500
-Received: from dns.logatique.fr ([213.41.101.1]:65265 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S284301AbRLMQCz>; Thu, 13 Dec 2001 11:02:55 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Capricelli <orzel@kde.org>
-Organization: KDE
-To: linux-kernel@vger.kernel.org
-Subject: Mounting a in-ROM filesystem efficiently
-Date: Thu, 13 Dec 2001 17:02:39 +0100
-X-Mailer: KMail [version 1.3.6]
+	id <S284307AbRLMQHb>; Thu, 13 Dec 2001 11:07:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:64898 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S284305AbRLMQHX>; Thu, 13 Dec 2001 11:07:23 -0500
+Date: Thu, 13 Dec 2001 11:07:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: DevilKin <devilkin@gmx.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: User/kernelspace stuff to set/get kernel variables
+In-Reply-To: <20011213155532Z284289-18284+114@vger.kernel.org>
+Message-ID: <Pine.LNX.3.95.1011213110539.4556A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011213160007.D998D23CCB@persephone.dmz.logatique.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Dec 2001, DevilKin wrote:
+
+> Hello
+> 
+> I've been looking on the web, and couldn't really find what i would want...
+> 
+> Basically: is it possible to - one way or another - set variables at kernel boot and read those using userspace utilities?
+> 
+> for instance: i boot my kernel (using any old bootmanager that accepts kernel params)
+> 
+> 
+> LILO: linux network=dhcp
+> 
+
+Is this what you want?
+
+`cat /proc/cmdline`
 
 
-Hello,
+Cheers,
+Dick Johnson
 
-I'm looking for a way to put a filesystem into ROM.
-Seems pretty trivial, isn't it ?
-
-My understanding is (the way initrd does, and the way I do as of today)
-* create a RAMDISK
-* loads the data into ramdisk
-* mount the ramdisk
-
-problem is that I don't want to waste the RAM as the data in the ROM is 
-already in the address space. (it's an embedded system, btw)
-
-Speed is not an issue here. ROM access might be slower than RAM, it will 
-always be so much quicker than a disk access. (wrong?)
-
-Ideally, i would give address/length of the fs in ROM to a function, and I 
-would get a ramdisk configured to read its data exactly there, and not in 
-ram.
-
-Any hint ?
-
-I've tried to look in the different options from mainstream kernels and 
-embedded-oriented kernels whithout success.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+ Santa Claus is coming to town...
+          He knows if you've been sleeping,
+             He knows if you're awake;
+          He knows if you've been bad or good,
+             So he must be Attorney General Ashcroft.
 
 
-thanx,
-Thomas
-ps : i'm subscribed to lkml, no need to cc:
-
--- 
-Thomas Capricelli <orzel@kde.org>
-boson.eu.org, kvim, zetalinux

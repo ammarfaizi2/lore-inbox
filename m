@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272237AbRHWJMI>; Thu, 23 Aug 2001 05:12:08 -0400
+	id <S272239AbRHWJT2>; Thu, 23 Aug 2001 05:19:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272234AbRHWJL6>; Thu, 23 Aug 2001 05:11:58 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:63502 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S272238AbRHWJLx>; Thu, 23 Aug 2001 05:11:53 -0400
-Date: Thu, 23 Aug 2001 06:12:06 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
+	id <S272241AbRHWJTV>; Thu, 23 Aug 2001 05:19:21 -0400
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:46812 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S272239AbRHWJTF>; Thu, 23 Aug 2001 05:19:05 -0400
+Importance: Normal
+Subject: Re: Is there any interest in Dynamic API
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Allocation of sk_buffs in the kernel
-Message-ID: <20010823061206.U5062@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Jens Hoffrichter" <HOFFRICH@de.ibm.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OF451110AC.14EEC1A3-ONC1256AB1.0030B2FB@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <OF451110AC.14EEC1A3-ONC1256AB1.0030B2FB@de.ibm.com>; from HOFFRICH@de.ibm.com on Thu, Aug 23, 2001 at 11:01:42AM +0200
-X-Url: http://advogato.org/person/acme
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFBF2E4F7D.2CC84DCB-ON80256AB1.0032F74C@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Thu, 23 Aug 2001 10:18:01 +0100
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 23/08/2001 10:16:19
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Aug 23, 2001 at 11:01:42AM +0200, Jens Hoffrichter escreveu:
-> Hi,
-> 
-> > Maybe Jens should use something like WAITQUEUE_DEBUG if he want to know
-> > where alloc_skb and friends were called, see include/linux/wait.h 8)
-> Do you mean I should use something LIKE the WAITQUEUE_DEBUG (eg.
-> implementing something like that in skbuff.c) or I should use
-> WAITQUEUE_DEBUG?
 
-no, just use the same idea that is used to debug wait_queues
- 
-> The code in wait.h mainly seems to consist of issuing BUG() calls, and
-> thats not quite what I want to ;) But how is it to use? I don't know much
-> about waitqueues in the Linux kernel, I mainly played with the network
-> stack...
 
-heh, thats my use for the waitqueue debug now 8)
- 
-> Are there any examples how to use the WAITQUEUE_DEBUG?
+>> I was wondering whether the kernel community had any interest in seeing
+a
+>> dynamic api capability in the kernel. What I have in mind the ability
+for a
+>
+>We have one. Its called devices and file systems 8)
+>-
 
-oops, I mean the __waker thing, for debugging you could get the address of
-the caller with current_text_addr() and store it in an extra sk_buff field
-so that later on you could know who create the skb.
 
-About the example of WAITQUEUE_DEBUG:
+Thanks Alan, that's clear - syscalls for kernel only.
 
-after being awaken you could do this:
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-                dprintk("sleeper=%p, waker=%lx\n",
-                         current_text_addr(), wait.__waker);
 
-in a inline function does the trick, but this is just an example of a
-function that uses an extra debug field in a structure that is alocated
-somewhere and you want to know who allocated it later on.
 
-Yes, you'll have to decode the address from syslog, gotcha?
+Richard Moore -  RAS Project Lead - Linux Technology Centre (ATS-PIC).
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
 
-- Arnaldo
 

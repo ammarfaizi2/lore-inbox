@@ -1,82 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270203AbTHLKCR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 06:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270212AbTHLKCR
+	id S269191AbTHLJ6S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 05:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbTHLJ53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 06:02:17 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:17866 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S270203AbTHLKCC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 06:02:02 -0400
-Date: Tue, 12 Aug 2003 12:00:59 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Christian Mautner <linux@mautner.ca>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4: Allocation of >1GB in one chunk
-In-Reply-To: <20030811174934.GA7569@mautner.ca>
-Message-ID: <Pine.GSO.4.21.0308121158090.20533-100000@vervain.sonytel.be>
+	Tue, 12 Aug 2003 05:57:29 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:46245
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S268737AbTHLJ5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 05:57:19 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Russell King <rmk@arm.linux.org.uk>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Bug 1068] New: Errors when loading airo module
+Date: Tue, 12 Aug 2003 04:46:56 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, kernelbugzilla@kuntnet.org
+References: <51060000.1060524422@[10.10.2.4]> <20030810163350.D32508@flint.arm.linux.org.uk>
+In-Reply-To: <20030810163350.D32508@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308120447.00105.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003, Christian Mautner wrote:
-> please forgive me to ask this (perhaps newbie?) question here on
-> l-k, but I'm desperate. This is my problem:
-> 
-> I am running various kinds of EDA software on 32-bit Linux, and they
-> need substantial amounts of memory. I am running 2.4.21 with with
-> PAGE_OFFSET at 0xc0000000, so I can run processes just over 3GB. The
-> machine (a dual Xeon) has 4GB memory and 4GB swap.
-> 
-> But there is this one program now that dies because it's out of
-> memory. No surprise, as this happens frequently with tasks that would
-> need 4GB or more.
-> 
-> But this one needs less than 3GB. But what it does need (I strace'ed
-> this), is 1.3GB in one whole chunk.
-> 
-> I wrote a test program to mimic this:
-> 
-> The attached program allocates argv[1] MB in 1MB chunks and argv[2] MB
-> in one big chunk. (The original version also touched every page, but
-> this makes no difference here.)
-> 
-> [chm@trex7:~/C] ./foo 2500 500
-> Will allocate 2621440000 bytes in 1MB chunks...
-> Will allocate 524288000 bytes in one chunk...
-> Succeeded.
-> 
-> [chm@trex7:~/C] ./foo 1500 1000
-> Will allocate 1572864000 bytes in 1MB chunks...
-> Will allocate 1048576000 bytes in one chunk...
-> malloc: Cannot allocate memory
-> Out of memory.
-> 
-> The first call allocated 3GB and succeeds, the second one only 2.5GB
-> but fails!
-> 
-> The thing that comes to my mind is memory fragmentation, but how could
-> that be, with virtual memory? 
+On Sunday 10 August 2003 11:33, Russell King wrote:
+> On Sun, Aug 10, 2003 at 07:07:02AM -0700, Martin J. Bligh wrote:
+> > http://bugme.osdl.org/show_bug.cgi?id=1068
+> >
+> >            Summary: Errors when loading airo module
+> >     Kernel Version: 2.6.0-test3
+> >             Status: NEW
+> >           Severity: normal
+> >              Owner: rmk@arm.linux.org.uk
+> >          Submitter: kernelbugzilla@kuntnet.org
+>
+> This needs to go to the airo maintainers, not me - the oops is caused
+> by buggy airo.c.
+>
+> The IRQ problem is the result of bad configuration - you must enable
+> CONFIG_ISA if you're going to use non-Cardbus PCMCIA cards.
 
-Virtual memory fixes physical memory fragmentation only. I.e. you can `glue'
-multiple physical chunks together into one large virtual chunk.
+Do you mean something like:
 
-Biut you're still limited to a 32-bit virtual address space (3 GB in user
-space). If this virtual 3 GB gets fragmented, you're still out of luck.
+--- linux-2.6.0-test3/drivers/pcmcia/Kconfig	2003-08-09 00:39:25.000000000 -0400
++++ temp/drivers/pcmcia/Kconfig	2003-08-12 04:44:03.000000000 -0400
+@@ -86,7 +86,7 @@
+ 
+ config PCMCIA_SA1100
+ 	tristate "SA1100 support"
+-	depends on ARM && ARCH_SA1100 && PCMCIA
++	depends on ARM && ARCH_SA1100 && PCMCIA && ISA
+ 	help
+ 	  Say Y here to include support for SA11x0-based PCMCIA or CF
+ 	  sockets, found on HP iPAQs, Yopy, and other StrongARM(R)/
+@@ -96,7 +96,7 @@
+ 
+ config PCMCIA_SA1111
+ 	tristate "SA1111 support"
+-	depends on ARM && ARCH_SA1100 && SA1111 && PCMCIA
++	depends on ARM && ARCH_SA1100 && SA1111 && PCMCIA && ISA
+ 	help
+ 	  Say Y  here to include support for SA1111-based PCMCIA or CF
+ 	  sockets, found on the Jornada 720, Graphicsmaster and other
 
-To check this, print all allocated virtual addresses, or look at
-/proc/<pid>/maps, and see why it fails.
+Rob
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

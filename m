@@ -1,106 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbULAAjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbULAAnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbULAAjp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 19:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbULAAfa
+	id S261199AbULAAnd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 19:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbULAAks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:35:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23731 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261244AbULAA1I
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:27:08 -0500
-Date: Tue, 30 Nov 2004 14:29:56 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Nikita Danilov <nikita@clusterfs.com>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Andrew Morton <AKPM@Osdl.ORG>,
-       Linux MM Mailing List <linux-mm@kvack.org>
-Subject: Re: [PATCH]: 1/4 batch mark_page_accessed()
-Message-ID: <20041130162956.GA3047@dmt.cyclades>
-References: <16800.47044.75874.56255@gargle.gargle.HOWL> <20041126185833.GA7740@logos.cnet> <41A7CC3D.9030405@yahoo.com.au>
+	Tue, 30 Nov 2004 19:40:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37000 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261192AbULAAfm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 19:35:42 -0500
+Date: Tue, 30 Nov 2004 16:34:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeffrey Lim <jfs.world@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: help with writing a usb mouse driver
+Message-ID: <20041201003431.GC27772@kroah.com>
+Reply-To: linux-usb-devel@lists.sourceforge.net
+References: <4b3125cc041127073956f967de@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41A7CC3D.9030405@yahoo.com.au>
-User-Agent: Mutt/1.4i
+In-Reply-To: <4b3125cc041127073956f967de@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 27, 2004 at 11:37:17AM +1100, Nick Piggin wrote:
-> Marcelo Tosatti wrote:
-> >On Sun, Nov 21, 2004 at 06:44:04PM +0300, Nikita Danilov wrote:
-> >
-> >>Batch mark_page_accessed() (a la lru_cache_add() and 
-> >>lru_cache_add_active()):
-> >>page to be marked accessed is placed into per-cpu pagevec
-> >>(page_accessed_pvec). When pagevec is filled up, all pages are processed 
-> >>in a
-> >>batch.
-> >>
-> >>This is supposed to decrease contention on zone->lru_lock.
-> >
-> >
-> >Here are the STP 8way results:
-> >
-> >8way:
-> >
+On Sat, Nov 27, 2004 at 11:39:37PM +0800, Jeffrey Lim wrote:
+> Note: pls cc me in any replies as i'm not subscribed to the list.
 > 
-> ...
+> hi guys, i've been trying to write a usb mouse driver for a custom
+> mouse, but i'm getting stuck.
 > 
-> >kernbench 
-> >
-> >Decreases performance significantly (on -j4 more notably), probably due to 
-> >the additional atomic operations as noted by Andrew:
-> >
-> >kernel: nikita-b2                               kernel: patch-2.6.10-rc2
-> >Host: stp8-002                                  Host: stp8-003
-> >
-> 
-> ...
-> 
-> >
-> >Average Half Load -j 4 Run:                     Average Half Load -j 4 Run:
-> >Elapsed Time 274.916                            Elapsed Time 245.026
-> >User Time 833.63                                User Time 832.34
-> >System Time 73.704                              System Time 73.41
-> >Percent CPU 335.8                               Percent CPU 373.6
-> >Context Switches 12984.8                        Context Switches 13427.4
-> >Sleeps 21459.2                                  Sleeps 21642
-> 
-> Do you think looks like it may be a CPU scheduling or disk/fs artifact?
-> Neither user nor system time are significantly worse, while the vanilla
-> kernel is using a lot more of the CPUs' power (ie waiting for IO less,
-> or becoming idle less often due to CPU scheduler balancing).
+> I previously started out with trying to hack usbmouse.c, but
+> apparently after a wild goose chase, it seems that that is not the
+> recommended path to take. It supposedly conflicts with the hid driver,
+> though in what way i do not know. (If somebody could enlighten me on
+> this, pls do. Documentation/input/input.txt does not really explain
+> why).
 
-Nick,
+The Kconfig documentation for that driver should explain why.
+usbmouse.c is for USB Boot Protocol Mice only.  Only if you understand
+what this protocol is, should you use that driver.  Everyone else should
+use the hid driver.
 
-I do not think it is a disk/fs artifact.
+> So now it almost seems as if the only code i have for analysis and as
+> a sample is the hid code (hid-core.c, hid-input.c, i assume). But the
+> problem for me is that this code is too complex for me, and really
+> doesn't offer the easiest way to get started on this project. I'm not
+> too sure usb-skeleton.c does it either, because it doesn't have the
+> code for interfacing with the input layer.
 
-Because the ordering of LRU pages should be enhanced in respect to locality, 
-with the mark_page_accessed batching you group together tasks accessed pages 
-and move them at once to the active list. 
+What kind of usb mouse do you have?  Is it a HID mouse?  Or some custom
+protocol?
 
-You maintain better locality ordering, while decreasing the precision of aging/
-temporal locality.
+Also, this should be discussed on the linux-usb-devel mailing list,
+there are more Linux usb developers there than on linux-kernel.
 
-Which should enhance disk writeout performance.
+> I'm using kernel 2.4.20.
 
-On the other hand, without batching you mix the locality up in LRU - the LRU becomes 
-more precise in terms of "LRU aging", but less ordered in terms of sequential 
-access pattern.
+Ick, why?  What's wrong with the latest 2.4 or 2.6 kernel?
 
-The disk IO intensive reaim has very significant gain from the batching, its
-probably due to the enhanced LRU ordering (what Nikita says).
+thanks,
 
-The slowdown is probably due to the additional atomic_inc by page_cache_get(). 
-
-Is there no way to avoid such page_cache_get there (and in lru_cache_add also)?
-
-> Aside: under-load conditions like this is actually something where the
-> CPU scheduler doesn't do brilliantly at currently. I attribute this to
-> probably most "performance tests" loading it up as much as possible.
-> I am (on and off) looking at improving performance in these conditions,
-> and am making some inroads. 
-
-
+greg k-h

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbUCJPbv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 10:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbUCJPbv
+	id S262662AbUCJPga (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 10:36:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbUCJPg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 10:31:51 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:36282 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262665AbUCJPah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 10:30:37 -0500
-Message-ID: <404F3467.4050204@grupopie.com>
-Date: Wed, 10 Mar 2004 15:29:43 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Wed, 10 Mar 2004 10:36:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36788 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262662AbUCJPg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 10:36:28 -0500
+Date: Wed, 10 Mar 2004 07:43:10 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Richard Henderson <rth@twiddle.net>
+cc: Thomas Schlichter <thomas.schlichter@web.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       gcc@gcc.gnu.org
+Subject: Re: [PATCH] fix warning about duplicate 'const'
+In-Reply-To: <20040310054918.GB4068@twiddle.net>
+Message-ID: <Pine.LNX.4.58.0403100740120.1092@ppc970.osdl.org>
+References: <200403090043.21043.thomas.schlichter@web.de>
+ <20040308161410.49127bdf.akpm@osdl.org> <Pine.LNX.4.58.0403081627450.9575@ppc970.osdl.org>
+ <200403090217.40867.thomas.schlichter@web.de> <Pine.LNX.4.58.0403081728250.9575@ppc970.osdl.org>
+ <20040310054918.GB4068@twiddle.net>
 MIME-Version: 1.0
-To: Romain Lievin <romain@lievin.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Question: user-land filesystem & vfs
-References: <20040310095147.GA18197@lievin.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Romain Lievin wrote:
 
-> Hi,
+
+On Tue, 9 Mar 2004, Richard Henderson wrote:
 > 
-> is there a way to create a file system in user mode (without patching the kernel) ?
-> 
-> I saw that a project called LUFS (Linux User File System) exists at lufs.sf.net but it's not finished. Are there any other ones ?
-> 
-> Thanks, Romain
-> 
+> seems dicey at best.  I'm not sure what to do about this, actually.
+> We might could do something with a new __nonqual_typeof(a) that
+> strips outermost type qualifications, but I havn't given that much
+> thought.
 
+Ok, let's try just stripping the "const" out of the min/max macros, and
+see what complains. What the code _really_ wants to do is to just compare
+two types for being basically equal, and in real life what Linux really
+would prefer is to have "types" as first-class citizens and being able to
+compare them directly instead of playing games. And we may end up having
+that as a preprocessor phase (ie I might add it to the semantic parse
+thing).
 
-You can also take a look at FUSE:
-
-
-http://sourceforge.net/projects/avf
-
-I haven't tried it myself, so I'm just pointing you to it :)
-
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+		Linus

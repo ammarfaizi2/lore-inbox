@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTFYDfd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 23:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTFYDfd
+	id S263847AbTFYDkp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 23:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTFYDkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 23:35:33 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:30630 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263837AbTFYDfc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 23:35:32 -0400
-Date: Tue, 24 Jun 2003 20:49:30 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Robert White <rwhite@casabyte.com>
-Cc: Larry McVoy <lm@bitmover.com>, Werner Almesberger <wa@almesberger.net>,
-       Stephan von Krawczynski <skraw@ithnet.com>, miquels@cistron-office.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030625034930.GA11956@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Robert White <rwhite@casabyte.com>, Larry McVoy <lm@bitmover.com>,
-	Werner Almesberger <wa@almesberger.net>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	miquels@cistron-office.nl, linux-kernel@vger.kernel.org
-References: <20030625012105.GA2525@work.bitmover.com> <PEEPIDHAKMCGHDBJLHKGKECCDBAA.rwhite@casabyte.com>
+	Tue, 24 Jun 2003 23:40:45 -0400
+Received: from pcp03710388pcs.westk01.tn.comcast.net ([68.34.200.110]:48258
+	"EHLO ori.thedillows.org") by vger.kernel.org with ESMTP
+	id S263847AbTFYDko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 23:40:44 -0400
+Subject: Re: 2.4.21: kernel BUG at ide-iops.c:1262!
+From: David Dillow <dave@thedillows.org>
+To: Scott McDermott <vaxerdec@frontiernet.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030624204828.I30001@newbox.localdomain>
+References: <1056493150.2840.17.camel@ori.thedillows.org>
+	 <20030624204828.I30001@newbox.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056513292.3885.2.camel@ori.thedillows.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <PEEPIDHAKMCGHDBJLHKGKECCDBAA.rwhite@casabyte.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Jun 2003 23:54:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 08:22:13PM -0700, Robert White wrote:
-> [I don't have employees and I haven't created a sustainable business]
+On Tue, 2003-06-24 at 20:48, Scott McDermott wrote:
+> David Dillow on Tue 24/06 18:19 -0400:
+> > I've found a completely repeatable BUG/panic in 2.4.21
+> > (final). The kernel BUGS and then panics in an interrupt
+> > while beginning to burn a DVD+R. I get the following in
+> > the logs, then the BUG/panic decoded at the end of this
+> > message:
 > 
-> -- I also know a flawed business model when I see one.  
+> There were recent threads about this, and a Bugzilla bug 829
+> I think.  
 
-Hmm.  With all due respect, I think that arguing business with someone
-who has yet to be sucessful at it is not likely to help me or help the
-open source world.  I think you have some really interesting thoughts and
-it's clear that you have thought hard about this stuff.  I'm also someone
-who has thought hard about a lot of things I haven't done only to find
-that my opinions changed dramatically once I started doing those things.
-Theory and practice and all that.
+Doh! Missed those, and my quick search didn't hit. Found one after your
+message, though.
 
-No offense intended, but I'll pass on this for the time being.  I look
-forward to watching you create and run a business based on your principles.
-If it's successful, who knows?, maybe I'll be working for you one day and
-that would be cool, I'd love to work for someone with a better vision.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> Try killing magicdev.
+
+I thought I had, but upon checking, it was still kicking. Killing it
+allows the burn to complete uninterrupted.
+
+I'll test patches to kill the kernel BUG, but I'm happy to be able to
+burn without a reboot again.
+
+Dave

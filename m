@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVCAVmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVCAVsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVCAVmW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 16:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCAVmV
+	id S262047AbVCAVsg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 16:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVCAVsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 16:42:21 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32221 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262081AbVCAVmK (ORCPT
+	Tue, 1 Mar 2005 16:48:36 -0500
+Received: from colin2.muc.de ([193.149.48.15]:265 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262047AbVCAVsd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 16:42:10 -0500
-Date: Tue, 1 Mar 2005 13:47:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: christophe@saout.de, agruen@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-Message-Id: <20050301134714.055201f8.akpm@osdl.org>
-In-Reply-To: <20050301201241.GM3120@waste.org>
-References: <2.416337461@selenic.com>
-	<200502271417.51654.agruen@suse.de>
-	<20050227212536.GG3120@waste.org>
-	<1109703983.16139.16.camel@leto.cs.pocnet.net>
-	<20050301201241.GM3120@waste.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 1 Mar 2005 16:48:33 -0500
+Date: 1 Mar 2005 22:48:32 +0100
+Date: Tue, 1 Mar 2005 22:48:32 +0100
+From: Andi Kleen <ak@muc.de>
+To: Bernd Schubert <bernd-schubert@web.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+Subject: Re: x86_64: 32bit emulation problems
+Message-ID: <20050301214832.GA44624@muc.de>
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <20050301202417.GA40466@muc.de> <200503012207.02915.bernd-schubert@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503012207.02915.bernd-schubert@web.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
->
-> I'll queue this
-> up for after the sort and ACL stuff gets merged.
+On Tue, Mar 01, 2005 at 10:07:01PM +0100, Bernd Schubert wrote:
+> Hello Andi,
+> 
+> sorry, due to some mail sending/refusing problems, I had to resend to the 
+> nfs-list, which prevented the answers there to be posted to the other CCs.
+> 
+> > It is most likely some kind of user space problem.  I would change
+> > it to int err = stat(dir, &buf);
+> > and then go through it with gdb and see what value err gets assigned.
+> >
+> > I cannot see any kernel problem.
+> 
+> The err value will become -1 here.
 
-Whew!
+strace didn't say so, and normally it doesn't lie about things like this.
 
-I don't know how long the ACL changes will take to get merged up - is up to
-Trond and he had quite a lot of rather robust comments on the first
-iteration.
+> > bernd@hitchcock tests>./test_stat32 /mnt/test/yp
+> > stat for /mnt/test/yp failed
+> > ernno: 75 (Value too large for defined data type)
 
+errno is undefined unless a system call returned -1 before or
+you set it to 0 before.
+
+> > But why does stat64() on a 64-bit kernel tries to fill in larger data than
+
+A 64bit kernel has no stat64(). All stats are 64bit.
+
+> > on a 32-bit kernel and larger data also only for nfs-mount points? Hmm, I
+> > will tomorrow compare the tcp-packges sent by the server.
+> 
+> So I still think thats a kernel bug.
+
+Your data so far doesn't support this assertion.
+
+-Andi

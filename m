@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbUAANdP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 08:33:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUAANdP
+	id S261492AbUAANcD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 08:32:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbUAANcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 08:33:15 -0500
-Received: from holomorphy.com ([199.26.172.102]:52680 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261552AbUAANdO (ORCPT
+	Thu, 1 Jan 2004 08:32:03 -0500
+Received: from aragorn.imf.au.dk ([130.225.20.4]:36800 "EHLO aragorn.imf.au.dk")
+	by vger.kernel.org with ESMTP id S261492AbUAANcB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 08:33:14 -0500
-Date: Thu, 1 Jan 2004 05:33:01 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Michel D?nzer <michel@daenzer.net>
-Cc: Jon Smirl <jonsmirl@yahoo.com>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Dri-devel] 2.6 kernel change in nopage
-Message-ID: <20040101133301.GB3242@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Michel D?nzer <michel@daenzer.net>, Jon Smirl <jonsmirl@yahoo.com>,
-	dri-devel <dri-devel@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <20031231182148.26486.qmail@web14918.mail.yahoo.com> <1072958618.1603.236.camel@thor.asgaard.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072958618.1603.236.camel@thor.asgaard.local>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 1 Jan 2004 08:32:01 -0500
+Date: Thu, 1 Jan 2004 14:31:58 +0100 (MET)
+From: Anders Skovsted Buch <abuch@imf.au.dk>
+Reply-To: Anders Skovsted Buch <abuch@imf.au.dk>
+To: linux-kernel@vger.kernel.org
+Subject: System lockup when playing chess
+Message-ID: <Pine.HPP.3.95.1031231170644.6451A-100000@aragorn.imf.au.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01, 2004 at 01:03:38PM +0100, Michel D?nzer wrote:
-> No, this is Linux specific.
-> How does this patch look?
+Hello,
 
-Okay, you did something weird with nopage args, but I thought I did
-the equivalent of this in the original patch?
+I am experiencing consistent lockups of the linux kernel when I play chess
+with crafty.  What happens is that while the chess engine is running,
+suddenly the whole system will freeze, and the only think I can get to
+work is the reboot button.  I have tried to put the computer in text-mode
+(telinit 3) and run the chess program (with gui) from another computer on
+my LAN, to see if any oops-output would show up, but there is nothing.
+
+My system runs Redhat 7.2 and is uptodate with patches (so I'm running
+kernel version 2.4.20-24.7 #1, athlon version).  The chess program is
+Crafty 17.9.  The processor is "AMD Athlon(tm) 4 Processor".
+/var/log/messages shows nothing of interest.
+
+I wonder if this scarse information is good for anything.  And in any
+case, thanks for all your great work which I benefit from every day!!
+
+Anders Buch
 
 
--- wli

@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129501AbRCHBjb>; Wed, 7 Mar 2001 20:39:31 -0500
+	id <S131252AbRCHBZw>; Wed, 7 Mar 2001 20:25:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbRCHBjW>; Wed, 7 Mar 2001 20:39:22 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:778 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S129501AbRCHBjQ>;
-	Wed, 7 Mar 2001 20:39:16 -0500
-Date: Wed, 7 Mar 2001 17:36:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Erik DeBill <edebill@swbell.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac12 and ac13 breaks usb-visor
-Message-ID: <20010307173640.A14818@kroah.com>
-In-Reply-To: <E14aQA9-0001br-00@the-village.bc.nu> <20010307172056.A8647@austin.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010307172056.A8647@austin.rr.com>; from edebill@swbell.net on Wed, Mar 07, 2001 at 05:20:56PM -0600
-X-Operating-System: Linux 2.2.18-immunix (i586)
+	id <S131248AbRCHBZc>; Wed, 7 Mar 2001 20:25:32 -0500
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:55853 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S131251AbRCHBZR>; Wed, 7 Mar 2001 20:25:17 -0500
+Message-ID: <006301c0a765$3ca118e0$1601a8c0@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu> <20010307164052.B788@wirex.com>
+Subject: Questions about Enterprise Storage with Linux
+Date: Wed, 7 Mar 2001 19:17:31 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07, 2001 at 05:20:56PM -0600, Erik DeBill wrote:
-> 
-> I went to install some new software on my Visor yesterday and got a
-> rude surpise, as my system froze hard (unpingable, no response to
-> keyboard or mouse, no oops).  A bit of experimenting shows:
-> 
-> It works fine with usb-uhci in all versions I tested.
-> 
-> Plain 2.4.2 works fine with either usb-uhci or uhci.
+Hi All,
 
-uhci.o will cause crashes eventually.  It doesn't work with the visor
-driver, sorry.  Stick with usb-uhci is you use the visor USB driver.
+I'm seeking information in regards to a large Linux implementation we are
+planning.  We have been evaluating many storage options and I've come up
+with some questions that I have been unable to answer as far as Linux
+capabilities in regards to storage.
 
-I just tried -ac14, with all of the usb subsystem as modules, and
-everything worked fine syncing data, and installing packages on my
-visor.
+We are looking at storage systems that provide approximately 1TB of capacity
+for now and can scale to 10+TB in the future.  We will almost certainly use
+a storage system that provides both fiber channel connectivity as well as
+NFS connectivity.
 
-I'll try to run with everything compiled into the kernel later tonight.
-Does -ac14 with all of USB as modules, using usb-uhci work for you?
+The questions that have been asked are as follows (assume 2.4.x kernels):
 
-thanks,
+1.  What is the largest block device that linux currently supports?  i.e.
+Can I create a single 1TB volume on my storage device and expect linux to
+see it and be able to format it?
 
-greg k-h
+2.  Does linux have any problems with large (500GB+) NFS exports, how about
+large files over NFS?
 
--- 
-greg@(kroah|wirex).com
+3.  What filesystem would be best for such large volumes?  We currently use
+reirserfs on our internal system, but they generally have filesystems in the
+18-30GB ranges and we're talking about potentially 10-20x that.  Should we
+look at JFS/XFS or others?
+
+4.  We're seriously considering using LVM for volume management.  Does it
+have size limits per volume or other limitations that we should be aware of?
+
+I'm sure these answers are out there, but I haven't been able to find
+definitive answers (it seems everyone has a different answer to each
+question).  Any assistance in pointing me to the correct information would
+be greatly appreciated.
+
+Thanks,
+Tom
+
+

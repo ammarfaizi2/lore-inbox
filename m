@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269984AbRHMI4S>; Mon, 13 Aug 2001 04:56:18 -0400
+	id <S270023AbRHMJQy>; Mon, 13 Aug 2001 05:16:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269981AbRHMI4I>; Mon, 13 Aug 2001 04:56:08 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:46726 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S269984AbRHMIzx>;
-	Mon, 13 Aug 2001 04:55:53 -0400
-Date: Mon, 13 Aug 2001 10:55:54 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: PinkFreud <pf-kernel@mirkwood.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Are we going too fast?
-Message-ID: <20010813105554.A8387@se1.cogenit.fr>
-In-Reply-To: <Pine.LNX.4.20.0108130303120.1037-100000@eriador.mirkwood.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.20.0108130303120.1037-100000@eriador.mirkwood.net>; from pf-kernel@mirkwood.net on Mon, Aug 13, 2001 at 03:43:05AM -0400
-X-Organisation: Marie's fan club - I
+	id <S270021AbRHMJQj>; Mon, 13 Aug 2001 05:16:39 -0400
+Received: from dsl092-007-197.sfo1.dsl.speakeasy.net ([66.92.7.197]:59659 "EHLO
+	earth.zigamorph.net") by vger.kernel.org with ESMTP
+	id <S270012AbRHMJPX>; Mon, 13 Aug 2001 05:15:23 -0400
+Date: Mon, 13 Aug 2001 09:21:36 +0000 (UTC)
+From: Adam Fritzler <mid@zigamorph.net>
+To: linux-kernel@vger.kernel.org
+Subject: es1371 in 2.4.x
+Message-ID: <Pine.LNX.4.21.0108130915120.16961-100000@earth.zigamorph.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PinkFreud <pf-kernel@mirkwood.net> :
-[...]
-> kernel!), to the system with the NCR 53c810 SCSI board, which suffered
-> random kernel panics anywhere from 2 hours to 5 days after booting, due to
-> the ncr53c8xx driver, to YET ANOTHER system which has shown a penchant for
 
-The (ksymoops processed-) oopses may help. You can give a try at the
-sym53c8xx driver. It performs well here:
-- 53c875 adapter + BX + 2.4.3/2.4.7-ac11/2.4.8 + raid1 (small server)
-- 53c810 + VP3 + 2.4.2 (instant reboot at startup with 2.4.8, I guess I
-fscked some option).
+Are there known issues with es1371 in 2.4.x?
 
-[...]
-> until 2.2.10!).  Furthermore, I have had a HELL of a time trying
-> to get responses to the first two problems (this is the first report for
-> the third).  It used to be that I could ask a question on this list, and
-> receive responses.  Not anymore.  I can't seem to get the time of day from
-> anyone on this list now.
+I know there were some issues with VIA chipsets, but I am using an Intel 
+440GX+ SMP board.
 
-Try and send specific bug-reports to the maintainers. 
-l-k archives may give you some light on issues with VIA chipsets.
+The mixer works fine, I just can't play any audio.  Trying to play audio
+with anything results in the process (including just cat) getting stuck in
+the D state until broken.  No audio makes it out on the PCM channel, not
+even a pop or a buzz. 
 
-I'm not convinced that gaining stability on a VIA + G400 + X + smp 
-combo is an easy task anyway.
+The machine I'm using has been running 2.4.1, where es1371 did not work
+either.  I upgraded to 2.4.8 (and ac2) today, still doesn't work.
 
--- 
-Ueimor
+es1371: version v0.30 time 00:44:50 Aug 13 2001
+es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x06
+es1371: found es1371 rev 6 at io 0x3080 irq 20
+es1371: features: joystick 0x0
+ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
+
+Any help is appreciated.
+
+af.
+

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269478AbRGaVaD>; Tue, 31 Jul 2001 17:30:03 -0400
+	id <S269482AbRGaVfd>; Tue, 31 Jul 2001 17:35:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269475AbRGaV3x>; Tue, 31 Jul 2001 17:29:53 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:16654 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269479AbRGaV3k>; Tue, 31 Jul 2001 17:29:40 -0400
-Date: Tue, 31 Jul 2001 23:29:47 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Rik van Riel <riel@conectiva.com.br>
+	id <S269475AbRGaVfX>; Tue, 31 Jul 2001 17:35:23 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:9741 "HELO
+	clueserver.org") by vger.kernel.org with SMTP id <S269491AbRGaVfN>;
+	Tue, 31 Jul 2001 17:35:13 -0400
+Date: Tue, 31 Jul 2001 15:49:03 -0700 (PDT)
+From: Alan Olsen <alan@clueserver.org>
+To: Ian Stirling <root@mauve.demon.co.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010731232947.C13258@emma1.emma.line.org>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010731032104.O2650@mea-ext.zmailer.org> <Pine.LNX.4.33L.0107302219340.5582-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0107302219340.5582-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.19i
+Subject: Re: Virii on vger.kernel.org lists
+In-Reply-To: <200107312127.WAA15043@mauve.demon.co.uk>
+Message-ID: <Pine.LNX.4.10.10107311547060.24695-100000@clueserver.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Rik van Riel wrote:
+On Tue, 31 Jul 2001, Ian Stirling wrote:
 
-> > I didn't check if POSIX folks have thought of that.
-> 
-> Nice addition.  Easier to use than fsync() - no need to
-> open the file - and probably easier to implement in the
-> kernel because this way we'll be handing the whole path
-> to the kernel, whereas fsync() would have the dubious
-> task of finding out how this file can be traced all the
-> way down from the root of the filesystem.
+> Not everyone has control of the system they can post from.
+> Some IS departments are poor at keeping systems secure, but still
+> won't let users touch them.
 
-If I understand SUS v2 correctly, fsync() must sync meta data
-corresponding to the file.
+Or have been told by management that they are required to use buggy e-mail
+clients because "it is company policy".
 
-If Linux ext2 doesn't to that, it might be a good idea to change that so
-it does.
+They tried to get me to use Exchange at the last company I worked for.  I
+laughed and then moved all my mail to the Linux box under my desk.  I was
+one of the few people in the company that had a stable mail account.
 
--- 
-Matthias Andree
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+ "All power is derived from the barrel of a gnu." - Mao Tse Stallman
+

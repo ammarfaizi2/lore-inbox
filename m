@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUG3OO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267688AbUG3Oa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267686AbUG3OO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 10:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267688AbUG3OO5
+	id S267688AbUG3Oa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 10:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267689AbUG3OaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 10:14:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9455 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267686AbUG3OOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 10:14:49 -0400
-Date: Fri, 30 Jul 2004 16:14:41 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Grega Fajdiga <Gregor.Fajdiga@guest.arnes.si>,
-       Nicolas Boichat <nicolas@boichat.ch>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Compile error in 2.6.8-rc2-mm1 - rivafb related
-Message-ID: <20040730141441.GA685@fs.tum.de>
-References: <1091105305.11537.6.camel@cable155-82.ljk.voljatel.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 30 Jul 2004 10:30:22 -0400
+Received: from monster.roma2.infn.it ([141.108.255.100]:44702 "EHLO
+	monster.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S267688AbUG3OaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 10:30:16 -0400
+From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
+Reply-To: AlberT@SuperAlberT.it
+Organization: SuperAlberT.it
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: tty1 and italian charset ...
+Date: Fri, 30 Jul 2004 16:30:09 +0200
+User-Agent: KMail/1.6.2
+References: <200407261647.40006.AlberT@SuperAlberT.it> <200407280934.00373.AlberT@SuperAlberT.it> <20040729163133.GC4008@pclin040.win.tue.nl>
+In-Reply-To: <20040729163133.GC4008@pclin040.win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1091105305.11537.6.camel@cable155-82.ljk.voljatel.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200407301630.09754.AlberT@SuperAlberT.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 02:52:25PM +0200, Grega Fajdiga wrote:
+On 18:31, giovedì 29 luglio 2004, you wrote:
+> > > Sounds like you're trying to print Latin-1 on an UTF-8 console or vice
+> > > versa.
+> > >
+> > >         echo -ne '\\033%G'      -- Enable UTF-8
+> > >         echo -ne '\\033%@'      -- Disable UTF-8
+> > >
+> > >         -hpa
+>
+> (If it is not that, then investigate your font, etc.
+> This is probably not a kernel matter.)
 
-> Good day,
+yep, I tried them ... without the double backslash :-)
 
-Hi Grega,
+they just turn UTF-8 on/off ... no change about my problem.
+What problem in my font ??  why should my font works wrong _only_ on tty1 ???
 
-> Please CC me, since I'm not subscribed. 
-> I just tried to compile 2.6.8-rc2-mm1 and got this error:
-> drivers/built-in.o(.text+0x7e369): In function `rivafb_probe'::
-> undefined reference to `riva_create_i2c_busses'
-> drivers/built-in.o(.text+0x7e4c1): In function `rivafb_probe'::
-> undefined reference to `riva_delete_i2c_busses'
-> drivers/built-in.o(.exit.text+0x1ca): In function `rivafb_remove'::
-> undefined reference to `riva_delete_i2c_busses'
-> make: *** [.tmp_vmlinux1] Error 1
->...
+is there a place in kernel where I could set a wrong font for console, and a 
+reason explaining why this affects only tty1 ?
 
-thanks for this report.
 
-@Nicolas:
-Your rivafb-i2c-fixes patch in -mm causes this with CONFIG_FB_RIVA_I2C=n 
-(it moves i2c code from inside an #ifdef CONFIG_FB_RIVA_I2C to a place 
-where it isn't guarded by such an #ifdef).
-
-> Thanks,
-> Grega
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+<?php echo '       Emiliano `AlberT` Gabrielli       ',"\n",
+           '  E-Mail: AlberT_AT_SuperAlberT_it  ',"\n",
+           '  Web:    http://SuperAlberT.it  ',"\n",
+'  IRC:    #php,#AES azzurra.com ',"\n",'ICQ: 158591185'; ?>

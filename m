@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271832AbRIVQf3>; Sat, 22 Sep 2001 12:35:29 -0400
+	id <S271841AbRIVQg7>; Sat, 22 Sep 2001 12:36:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271841AbRIVQfT>; Sat, 22 Sep 2001 12:35:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:64527 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S271832AbRIVQfG>;
-	Sat, 22 Sep 2001 12:35:06 -0400
-Date: Sat, 22 Sep 2001 18:35:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
+	id <S271845AbRIVQgt>; Sat, 22 Sep 2001 12:36:49 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55820 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271841AbRIVQgb>; Sat, 22 Sep 2001 12:36:31 -0400
 Subject: Re: [patch] block highmem zero bounce v14
-Message-ID: <20010922183523.A6976@suse.de>
-In-Reply-To: <20010922071839.A10727@devserv.devel.redhat.com> <E15kphr-0003dS-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: axboe@suse.de (Jens Axboe)
+Date: Sat, 22 Sep 2001 17:41:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjanv@redhat.com (Arjan van de Ven),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Linux Kernel),
+        davem@redhat.com (David S. Miller)
+In-Reply-To: <20010922183523.A6976@suse.de> from "Jens Axboe" at Sep 22, 2001 06:35:23 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15kphr-0003dS-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
-X-OS: Linux 2.2.20 i686
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15kpqc-0003fI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 22 2001, Alan Cox wrote:
-> > Nope; without that it was still bust.
-> > Megaraid broke (and 3ware most likely as well) because  it had broken code
-> > for the "only 1 scatter gather element" case....
+> > Yet more evidence that it belongs in 2.5 first. Auditing every scsi driver
+> > for that error (and I bet someone had it first and it was copied..) is
+> > a big job
 > 
-> Yet more evidence that it belongs in 2.5 first. Auditing every scsi driver
-> for that error (and I bet someone had it first and it was copied..) is
-> a big job
+> Somehow I knew you would say that, Alan. 
 
-Somehow I knew you would say that, Alan. 
+I spent a lot of my time debugging driver code, and if its in one driver,
+its normally in ten. Look at the last serial driver fixup for example
 
-jens
-
+Alan

@@ -1,57 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269422AbUJGAUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269398AbUJGA04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269422AbUJGAUi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 20:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269511AbUJGAUi
+	id S269398AbUJGA04 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 20:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269535AbUJGA04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 20:20:38 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:62402 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269422AbUJGAUf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 20:20:35 -0400
-Message-Id: <200410070016.i970GSWx009446@owlet.beaverton.ibm.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-cc: colpatch@us.ibm.com, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Simon.Derr@bull.net,
-       frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement 
-In-reply-to: Your message of "Thu, 07 Oct 2004 09:23:05 +1000."
-             <41647E59.9080700@bigpond.net.au> 
-Date: Wed, 06 Oct 2004 17:16:28 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Wed, 6 Oct 2004 20:26:56 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:60644 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269398AbUJGA0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 20:26:50 -0400
+Subject: Re: Invisible threads in 2.6.9
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: patrics@interia.pl, nuno.silva@vgertech.com, xschmi00@stud.feec.vutbr.cz,
+       cfriesen@nortelnetworks.com
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097108498.2674.254.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 06 Oct 2004 20:21:38 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    It's not so much whether they NEED their own scheduler, etc. as whether 
-    it should be possible for them to have their own scheduler, etc.  With a 
-    configurable scheduler (such as ZAPHOD) this could just be a matter of 
-    having separate configuration variables for each cpuset (e.g. if a 
-    cpuset has been created to contain as bunch of servers there's no need 
-    to try and provide good interactive response for its tasks (as none of 
-    them will be interactive) so the interactive response mechanism can be 
-    turned off in that cpuset leading to better server response and throughput).
+We do indeed have a kernel problem. I re-did the
+example code using the raw clone() system call,
+to avoid any pthreads troubles. I took out the
+busy loop; add it back in if you care to verify
+that it would indeed chew up CPU time.
 
-Providing configurable schedulers is a feature/bug/argument completely
-separate from cpusets.  Let's stay focused on that for now.
+(I started the threads stopped, so they wouldn't
+need to have distinct stacks.)
 
-Two concrete examples for cpusets stick in my mind:
+-------------------------- begin example ---------------------------
+$ ./zombie-leader 
+$ ps -mfL
+UID       PID PPID  LWP  C NLWP STIME TTY          TIME CMD
+albert   3224 3223    -  0    1 Sep29 pts/19   00:00:00 bash
+albert      -    - 3224  0    1 Sep29 -        00:00:00 -
+albert   7442    1    -  0    9 20:05 pts/19   00:00:00 [zombie-leader] <defunct>
+albert   7457 3224    -  0    1 20:06 pts/19   00:00:00 xterm
+albert      -    - 7457  0    1 20:06 -        00:00:00 -
+albert   7475 3224    -  0    1 20:10 pts/19   00:00:00 ps -mfL
+albert      -    - 7475  0    1 20:10 -        00:00:00 -
+$ ls /proc/7442/task/
+ls: /proc/7442/task/: No such file or directory
+$ ls /proc/7442/     
+ls: cannot read symbolic link /proc/7442/cwd: Permission denied
+ls: cannot read symbolic link /proc/7442/root: Permission denied
+ls: cannot read symbolic link /proc/7442/exe: Permission denied
+auxv  cmdline  cwd  environ  exe  fd  maps  mem  mounts  root  stat  statm  status  task  wchan
+$ ps -mo stat,ppid,pid,tid,nlwp,args
+STAT PPID  PID  TID NLWP COMMAND
+-    3223 3224    -    1 bash
+Ss      -    - 3224    1 -
+-       1 7442    -    9 [zombie-leader] <defunct>
+-    3224 7457    -    1 xterm
+S       -    - 7457    1 -
+-    3224 7477    -    1 ps -mo stat,ppid,pid,tid,nlwp,args
+R+      -    - 7477    1 -
+---------------------------- end example -------------------------------
 
-    * the department that has been given 16 cpus of a 128 cpu machine,
-      is free to do what they want with them, and doesn't much care
-      specifically how they're laid out. Think general timeshare.
+////////////////////// begin code ///////////////////////////
+#include <sys/types.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+#include <sched.h>
 
-    * the department that has been given 16 cpus of a 128 cpu machine
-      to run a finely tuned application which expects and needs everybody
-      to stay off those cpus. Think compute-intensive.
+#ifndef CLONE_THREAD
+#define CLONE_THREAD         0x00010000
+#endif
+#ifndef CLONE_DETACHED
+#define CLONE_DETACHED       0x00400000
+#endif
+#ifndef CLONE_STOPPED
+#define CLONE_STOPPED        0x02000000
+#endif
 
-Correct me if I'm wrong, but CKRM can handle the first, but cannot
-currently handle the second.  And the mechanism(s) for creating either
-situation are suboptimal at best and non-existent at worst.
+// similar to NPTL pthreads, AFAIK
+#define FLAGS (CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_VM|CLONE_THREAD|CLONE_DETACHED)
 
-Rick
+static pid_t one;
+
+static void die(int signo){
+  (void)signo;
+  _exit(0);
+}
+
+static void hang(void){
+  for(;;) pause();
+}
+
+static int clone_fn(void *vp){
+  (void)vp;
+  hang();
+  return 0; // keep gcc happy
+}
+
+static long clone_stack_data[2048];
+#ifdef __hppa__
+static long *clone_stack = &clone_stack_data[0];
+#else
+static long *clone_stack = &clone_stack_data[2048];
+#endif
+
+int main(int argc, char *argv[]){
+  pid_t minime;
+  int i = 8;
+  (void)argc;
+  (void)argv;
+
+  one = getpid();
+  signal(SIGHUP,die);
+  if(fork()) hang();    // parent later killed as readyness signal
+
+  while(i--){
+    // better be stopped... they share a stack
+    minime = clone(clone_fn, clone_stack, FLAGS | CLONE_STOPPED, NULL);
+    if(minime==-1){
+      perror("no clone");
+      kill(one,SIGKILL);
+      _exit(8);
+    }
+  }
+
+  kill(one,SIGHUP); // let the shell know we're ready
+
+  _exit(0);  // make task group leader a zombie
+  return 0;  // keep gcc happy
+}
+
+/////////////////////// end code /////////////////////////////
+
+

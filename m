@@ -1,60 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319798AbSIMV5B>; Fri, 13 Sep 2002 17:57:01 -0400
+	id <S319800AbSIMV6F>; Fri, 13 Sep 2002 17:58:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319800AbSIMV5B>; Fri, 13 Sep 2002 17:57:01 -0400
-Received: from puerco.nm.org ([129.121.1.22]:53512 "HELO puerco.nm.org")
-	by vger.kernel.org with SMTP id <S319798AbSIMV5A>;
-	Fri, 13 Sep 2002 17:57:00 -0400
-Date: Fri, 13 Sep 2002 15:59:15 -0600 (MDT)
-From: todd-lkml@osogrande.com
-X-X-Sender: todd@gp
-Reply-To: linux-kernel@vger.kernel.org
-To: "David S. Miller" <davem@redhat.com>
-cc: "hadi@cyberus.ca" <hadi@cyberus.ca>,
-       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
-       patricia gilfeather <pfeather@cs.unm.edu>
-Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
-In-Reply-To: <20020912.161225.20790415.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0209131553510.10203-100000@gp>
+	id <S319801AbSIMV6F>; Fri, 13 Sep 2002 17:58:05 -0400
+Received: from petasus.ch.intel.com ([143.182.124.5]:20650 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S319800AbSIMV6E>; Fri, 13 Sep 2002 17:58:04 -0400
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DE63@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Matthew Wilcox'" <willy@debian.org>
+Cc: "'Marc Giger'" <gigerstyle@gmx.ch>, linux-kernel@vger.kernel.org,
+       acpi-devel@sourceforge.net
+Subject: RE: [ACPI] RE: ACPI Status
+Date: Fri, 13 Sep 2002 15:02:45 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dave, all,
+> From: Matthew Wilcox [mailto:willy@debian.org] 
+> One thing I'm not clear about is status of support for ACPI 2.0.
+> The FAQ on intel's website claims support for ACPI 1.0b only with 2.0
+> "in development", but it seems rather out of date.
 
-On Thu, 12 Sep 2002, David S. Miller wrote:
+ACPI 2.0 introduced new objects as well as AML grammar elements.
 
-> I disagree, at least for bulk receivers.  We have no way currently to
-> get rid of the data copy.  We desperately need sys_receivefile() and
-> appropriate ops all the way into the networking, then the necessary
-> driver level support to handle the cards that can do this.
+The interpreter is ACPI 2.0 grammar compliant (modulo bugs). A separate
+matter is writing the code to take advantage of new objects.
 
-not sure i understand what you're proposing, but while we're at it, why
-not also make the api for apps to allocate a buffer in userland that (for
-nics that support it) the nic can dma directly into?  it seems likely
-notification that the buffer was used would have to travel through the
-kernel, but it would be nice to save the interrupts altogether.
+We only take advantage of some ACPI 2.0 objects currently. (Indeed, we don't
+take advantage of all ACPI 1.0 objects.)
 
-this may be exactly what you were saying.
+Examples of some ACPI 1.0 objects we use: thermal zones, battery, embedded
+controller
+Examples of some ACPI 1.0 objects we don't use (yet): device power
+management, smart battery
 
-> 
-> Once 10gbit cards start hitting the shelves this will convert from a
-> nice perf improvement into a must have.
+Examples of some ACPI 2.0 objects we use: XSDT, ECDT, processor performance
+state objects
+Examples of some ACPI 2.0 objects we don't use (yet): _PXM, _CST, _HPP
 
-totally agreed.  this is a must for high-performance computing now (since 
-who wants to waste 80-100% of their CPU just running the network)?
-
-t.
-
--- 
-todd underwood, vp & cto
-oso grande technologies, inc.
-todd@osogrande.com
-
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin
-
+Regards -- Andy

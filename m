@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267234AbSKPGYg>; Sat, 16 Nov 2002 01:24:36 -0500
+	id <S267228AbSKPGYf>; Sat, 16 Nov 2002 01:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbSKPGYf>; Sat, 16 Nov 2002 01:24:35 -0500
-Received: from dp.samba.org ([66.70.73.150]:1677 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267234AbSKPGYe>;
+	id <S267235AbSKPGYe>; Sat, 16 Nov 2002 01:24:34 -0500
+Received: from dp.samba.org ([66.70.73.150]:2189 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267228AbSKPGYe>;
 	Sat, 16 Nov 2002 01:24:34 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>
-Subject: [PATCH] Export module_dummy_usage
-Date: Sat, 16 Nov 2002 17:30:25 +1100
-Message-Id: <20021116063131.92F752C0E2@lists.samba.org>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: in-kernel linking issues 
+In-reply-to: Your message of "Fri, 15 Nov 2002 15:47:47 -0800."
+             <20021115154747.B25789@twiddle.net> 
+Date: Sat, 16 Nov 2002 17:19:49 +1100
+Message-Id: <20021116063131.982452C0FC@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial patch.  We keep a dummy use count for old code which wants to
-know its own usecount using GET_USE_COUNT.  It needs to be exported.
+In message <20021115154747.B25789@twiddle.net> you write:
+> On Sat, Nov 16, 2002 at 09:45:21AM +1100, Rusty Russell wrote:
+> > Hmm, OK, I guess this is where I say "patch welcome"?
+> 
+> I guess this is where I say "patch for what"?  Do I have some
+> amount of buy-in for the shared library approach, or do I start
+> adding lots of code to your .o linker?
+> 
+> I guess I could work up a proof-of-concept patch for the former
+> and see what people think...
 
-Name: Export dummy_use_count
-Author: Rusty Russell
-Status: Trivial
-Depends: Module/module.patch.gz
+The former.  Just hack up a patch for x86 and alpha (skip dropping
+init for now) and we can see what it looks like.  I can do ppc32, and
+when I get back home, ppc64 and Itanium (which IMHO is the real test:
+ia64 seems to have one of everything).
 
-D: This exports dummy_use_count for the few cases of GET_USE_COUNT().
-D: Thank to Doug Ledford for the bug report.
+It will probably take a week, since I return to .au in two days, and
+that always hurts.  Sorry 8(
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7740-linux-2.5-bk/kernel/module.c .7740-linux-2.5-bk.updated/kernel/module.c
---- .7740-linux-2.5-bk/kernel/module.c	2002-11-16 08:36:15.000000000 +1100
-+++ .7740-linux-2.5-bk.updated/kernel/module.c	2002-11-16 17:28:07.000000000 +1100
-@@ -1155,6 +1155,7 @@ static int __init init(void)
- 
- /* Obsolete lvalue for broken code which asks about usage */
- int module_dummy_usage = 1;
-+EXPORT_SYMBOL(module_dummy_usage);
- 
- /* Call this at boot */
- __initcall(init);
-
+Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

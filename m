@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129595AbQLYDAw>; Sun, 24 Dec 2000 22:00:52 -0500
+	id <S129773AbQLYDJz>; Sun, 24 Dec 2000 22:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130376AbQLYDAm>; Sun, 24 Dec 2000 22:00:42 -0500
-Received: from [213.8.184.108] ([213.8.184.108]:55048 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S129595AbQLYDA0>;
-	Sun, 24 Dec 2000 22:00:26 -0500
-Date: Mon, 25 Dec 2000 04:26:31 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Zlatko Calusic <zlatko@iskon.hr>
-cc: Linus Torvalds <torvalds@transmeta.com>, "Marco d'Itri" <md@Linux.IT>,
-        Alexander Viro <viro@math.psu.edu>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: innd mmap bug in 2.4.0-test12
-In-Reply-To: <87puihl7y2.fsf@atlas.iskon.hr>
-Message-ID: <Pine.LNX.4.21.0012250416530.29006-100000@callisto.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130010AbQLYDJf>; Sun, 24 Dec 2000 22:09:35 -0500
+Received: from monza.monza.org ([209.102.105.34]:12051 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129773AbQLYDJa>;
+	Sun, 24 Dec 2000 22:09:30 -0500
+Date: Sun, 24 Dec 2000 18:38:56 -0800
+From: Tim Wright <timw@splhi.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Tim Wright <timw@splhi.com>, Kai Henningsen <kaih@khms.westfalen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: About Celeron processor memory barrier problem
+Message-ID: <20001224183856.A2133@scutter.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Tim Wright <timw@splhi.com>,
+	Kai Henningsen <kaih@khms.westfalen.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001224125023.A1900@scutter.internal.splhi.com> <Pine.LNX.4.10.10012241410240.4404-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012241410240.4404-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 24, 2000 at 02:25:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Dec 2000, Zlatko Calusic wrote:
-
-> Linus Torvalds <torvalds@transmeta.com> writes:
+On Sun, Dec 24, 2000 at 02:25:54PM -0800, Linus Torvalds wrote:
 > 
-> > On Sun, 24 Dec 2000, Linus Torvalds wrote:
-> > > 
-> > > Marco, would you mind changing the test in reclaim_page(), somewheer
-> > > around line mm/vmscan.c:487 that says:
-> > 
+> Indeed. Some of the issues end up just becoming compiler flags, which
+> means that anything that uses C is "tainted" by the processor choice. And
+> happily there isn't all that much non-C in the kernel any more.
 > 
-> Speaking of page_launder() I just stumbled upon two oopsen today on
-> the UP build. Maybe it could give a hint to someone, I'm not that good
-> at Oops decoding.
+> One thing we _could_ potentially do is to simplify the CPU selection a
+> bit, and make it a two-stage process. Basically have a
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address 0000000c
->  printing eip:
-> c012872e
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0010:[page_launder+510/2156]
+> 	bool "Optimize for current CPU" CONFIG_CPU_CURRENT
+> 
+> which most people who just want to get the best kernel would use. Less
+> confusion that way.
+> 
+> 		Linus
 
-I suspected I'm not the only one who is getting these exact same Oopses
-(and the lockups that follow them) so earlier today, I've decoded the Oops
-I got, and found that the problem is in vmscan.c:line-605, where 
-page->mapping is NULL and a_ops gets resolved and dereferenced at
-0x0000000c. 
+Makes sense. Are you thinking along the lines of parsing /proc/cpuinfo to work
+out what is there, or did you have something else in mind ?
 
-I leave the fix for the mm experts, I've notified Linus, I guess he's
-looking into it. 
+Regards,
+
+Tim
 
 -- 
-Dan Aloni 
-dax@karrde.org
-
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

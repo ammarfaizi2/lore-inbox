@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267760AbTAaLEv>; Fri, 31 Jan 2003 06:04:51 -0500
+	id <S267762AbTAaLrG>; Fri, 31 Jan 2003 06:47:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267762AbTAaLEv>; Fri, 31 Jan 2003 06:04:51 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:34309 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267760AbTAaLEu>;
-	Fri, 31 Jan 2003 06:04:50 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301311112.h0VBCv00000575@darkstar.example.net>
-Subject: Re: [PATCH] 2.5.59 morse code panics
-To: szepe@pinerecords.com (Tomas Szepe)
-Date: Fri, 31 Jan 2003 11:12:57 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, davej@codemonkey.org.uk,
-       linux-kernel@vger.kernel.org, arodland@noln.com
-In-Reply-To: <20030131104326.GF12286@louise.pinerecords.com> from "Tomas Szepe" at Jan 31, 2003 11:43:26 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267764AbTAaLrG>; Fri, 31 Jan 2003 06:47:06 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:53838 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S267762AbTAaLrF>; Fri, 31 Jan 2003 06:47:05 -0500
+Subject: Re: Permission to use atomic code under LGPL
+From: Christian Fredrik Kalager Schaller <Uraeus@linuxrising.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1043776362.2939.14.camel@thebox>
+References: <1043776362.2939.14.camel@thebox>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1044014183.1127.13.camel@thebox>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 31 Jan 2003 12:56:24 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > As this patch further builds upon the previous one,
-> > > It'd take a complete change of mind on his part to take
-> > > this as it is.
-> > 
-> > If its attached to atkbd then its not a PCism and its now
-> > nicely modularised in the atkbd driver. Providing we have
-> > a clear split between the core "morse sender" and the
-> > platform specific morse output device (do we want 
-> > morse_ops 8)) it should be clean and you can write morse
-> > drivers for pc speaker, for non pc keyboard and even for
-> > soundblaster 8)
+Hi,
+I got no objections to my request to use these few lines under the LGPL
+so I will now update our sourcefile to make sure linus gets copyright
+and origin is informed of. Thanks a lot guys!
 
-Actually the Soundblaster idea might not be so funny as it originally
-sounds, (pun intended :-) ), because if you've got another machine
-nearby, with a microphone, you could actually turn up the volume, and
-de-code the morse on the other box.  The PC speaker may well be too
-quiet to do that.  It should be fairly straightforward to get a simple
-bleep out of any card that implements the Adlib registers.
+Christian
 
-John.
+On Tue, 2003-01-28 at 18:52, Christian Fredrik Kalager Schaller wrote:
+> Hi,
+> I am with the GStreamer project (www.gstreamer.net). We did a small
+> license audit the other day and discovered we included some code from
+> the kernel. GStreamer uses the LGPL so this is a problem for us. 
+> 
+> The code in question is the atomic code and is included in our
+> sourcefile below. Do the person(s) in question responsible for this code
+> mind if we re-license it under the LGPL? 
+> 
+> We will of course add comments in the code stating its origin with
+> copyrights etc.
+> 
+> I am not subscribed to the list so if anyone has objections to this
+> relicensing of this particular piece of code, please CC me any
+> responses.
+> 
+> Sincerely,
+> Christian
+-- 
+Christian Fredrik Kalager Schaller <Uraeus@linuxrising.org>
+

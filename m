@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270031AbRHGCIF>; Mon, 6 Aug 2001 22:08:05 -0400
+	id <S270035AbRHGCPQ>; Mon, 6 Aug 2001 22:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270032AbRHGCHz>; Mon, 6 Aug 2001 22:07:55 -0400
-Received: from dict.and.org ([63.113.167.10]:21391 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id <S270031AbRHGCHq>;
-	Mon, 6 Aug 2001 22:07:46 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080317471707.01827@starship>
-	<20010803121638.A28194@cs.cmu.edu> <0108031854120A.01827@starship>
-	<Pine.LNX.4.33L.0107301320370.11893-100000@imladris.rielhome.conectiva>
-	<s5gvgkacqlm.fsf@egghead.curl.com>
-	<200107301711.f6UHBWHE001945@acap-dev.nas.cmu.edu>
-	<20010803132457.A30127@cs.cmu.edu> <s5g3d78261g.fsf@egghead.curl.com>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 06 Aug 2001 22:09:59 -0400
-In-Reply-To: <s5g3d78261g.fsf@egghead.curl.com>
-Message-ID: <nnk80gd3ig.fsf@code.and.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Academic Rigor)
+	id <S270038AbRHGCPG>; Mon, 6 Aug 2001 22:15:06 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31997 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S270035AbRHGCOy>;
+	Mon, 6 Aug 2001 22:14:54 -0400
+Date: Mon, 6 Aug 2001 22:15:03 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <200108070200.f77202G27928@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.GSO.4.21.0108062203170.16817-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Patrick J. LoPresti" <patl@cag.lcs.mit.edu> writes:
 
 
-[snip sendmail/cyrus/qmail/postfix]
+On Mon, 6 Aug 2001, Richard Gooch wrote:
 
- Just in case anyone cares here's what exim does (AFAICS)...
+> Again, historical reasons. When I wrote devfs, the pipe data trampled
+> the inode->u.generic_ip pointer. So that's no good. I see that the
+> pipe data has been moved away. Good. Hm. But there's still the
+> inode->u.socket_i structure. I'd need to check where that gets
+> trampled.
 
- int fd1 = open(f1);
- write(fd1);
- fsync(fd1);
- 
- int fd2 = open(tmp);
- write(fd2);
- fsync(fd2);
- rename(tmp, f2); // Good at this point.
+It isn't. socket_i is used only in inodes allocated by sock_alloc().
+It is not used in the inodes that live on any fs other than sockfs.
+For local-domain socket you get _two_ kinds of inodes, both with
+S_IFSOCK in ->i_mode: one on the filesystem (acting like an meeting
+place) and another - bearing the actual socket and used for all IO.
 
- So that seems to rely on all dir operations being sync.
+In other words, the only kind you can get from mknod(2) never uses
+->i_socket. It's used only by bind() and connect() - and only as
+a place in namespace. The only thing we ever look at is ownership
+and permissions - they determine who can bind()/connect() here.
 
- Ps. I did a patch for exim to do the dir sync though...
+So ->u.generic_ip is safe.
 
-http://www.and.org/exim-3.31-dirfsync.patch
-
--- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null

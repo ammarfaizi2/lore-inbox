@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317620AbSG2Sqg>; Mon, 29 Jul 2002 14:46:36 -0400
+	id <S317641AbSG2Sua>; Mon, 29 Jul 2002 14:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317619AbSG2Sqg>; Mon, 29 Jul 2002 14:46:36 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:38827 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317620AbSG2Sqf>; Mon, 29 Jul 2002 14:46:35 -0400
-Message-ID: <3D458E4B.4030702@us.ibm.com>
-Date: Mon, 29 Jul 2002 11:49:47 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020728
-X-Accept-Language: en-us, en
+	id <S317779AbSG2Sua>; Mon, 29 Jul 2002 14:50:30 -0400
+Received: from AMarseille-201-1-5-10.abo.wanadoo.fr ([217.128.250.10]:10608
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S317641AbSG2Su3>; Mon, 29 Jul 2002 14:50:29 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Tom Rini <trini@kernel.crashing.org>, Russell King <rmk@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: 3 Serial issues up for discussion (was: Re: Serial core
+ problems on embedded PPC)
+Date: Mon, 29 Jul 2002 20:13:52 +0200
+Message-Id: <20020729181352.27999@192.168.4.1>
+In-Reply-To: <20020729174341.GA12964@opus.bloom.county>
+References: <20020729174341.GA12964@opus.bloom.county>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: christopher.leech@intel.com, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] fix e1000 after irq craziness
-Content-Type: multipart/mixed;
- boundary="------------020009010406050401060500"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020009010406050401060500
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+>> a. architectures provide a sub-module to 8250.c which contains the
+>>    per-port details, rather than a table in serial.h.  This would
+>>    ideally mean removing serial.h completely.  The relevant object
+>>    would be linked into 8250.c when 8250.c is built as a module.
+>
+>I think this would work best.  On PPC this would allow us to change the
+>mess of include/asm-ppc/serial.h into a slightly cleaner Makefile
+>(especially if we do the automagic <platforms/platform.h> or
+><asm/platform.h> bit that's been talked about in the past) magic and we
+>could use that object file as well in the bootwrapper as well.
 
-I just duplicated the method used in:
-drivers/net/tulip/de2104x.c
+Especially, please, let's avoid once for all statically defined table,
+on PPC (specifically on pmac) the table is really dynamic, and
+the "legacy ports" (if any) may not be ttyS0..1, but could well be
+2..3, or higher, all this having to be decided at runtime for both
+built-in driver and modular (so eraly_serial_setup isn't good).
 
-Compiles for me.
--- 
-Dave Hansen
-haveblue@us.ibm.com
+I quite like the sub-module mecanism. I'd rather have it done the
+opposite though. I don't care that much about sharing those files
+with the bootloader, and i'd rather see the core serial code beeing
+a submodule of the arch specific module.
 
---------------020009010406050401060500
-Content-Type: text/plain;
- name="e1000-irqfix-2.5.29-0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="e1000-irqfix-2.5.29-0.patch"
+Typically, that would give us:
 
-diff -ur linux-2.5.29-clean/drivers/net/e1000/e1000_main.c linux-2.5.29/drivers/net/e1000/e1000_main.c
---- linux-2.5.29-clean/drivers/net/e1000/e1000_main.c	Fri Jul 26 19:58:36 2002
-+++ linux-2.5.29/drivers/net/e1000/e1000_main.c	Mon Jul 29 11:43:18 2002
-@@ -1699,7 +1699,7 @@
- {
- 	atomic_inc(&adapter->irq_sem);
- 	E1000_WRITE_REG(&adapter->hw, IMC, ~0);
--	synchronize_irq();
-+	synchronize_irq(adapter->netdev->irq);
- }
- 
- /**
+ - 8250_legacy.c would load 8250 core, probe legacy ports and
+instanciate them for typical x86 setup
+ - 8250_ppc.c would instanciate known ports on PReP or CHRP machines
+and do nothing on pmac
+ - 8250_pci.c would be a pci_driver and instanciate ports for a given
+PCI card
+ - 8250_cs.c would be a pcmcia driver and instanciate ports for a 
+given PCMCIA modem card
 
---------------020009010406050401060500--
+etc... And of course, we can have an arbitrary set of the above loaded
+instanciating ports are they are found.
+
+Ben.
+
 

@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136186AbRECH73>; Thu, 3 May 2001 03:59:29 -0400
+	id <S136197AbRECIDt>; Thu, 3 May 2001 04:03:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136196AbRECH7U>; Thu, 3 May 2001 03:59:20 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:16097 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S136186AbRECH7G>;
-	Thu, 3 May 2001 03:59:06 -0400
-Date: Thu, 3 May 2001 09:57:51 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jonathan Lundell <jlundell@pobox.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "David S. Miller" <davem@redhat.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: unsigned long ioremap()?
-In-Reply-To: <p05100308b716bb9ed170@[207.213.214.37]>
-Message-ID: <Pine.LNX.4.05.10105030956290.9438-100000@callisto.of.borg>
+	id <S136211AbRECIDj>; Thu, 3 May 2001 04:03:39 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:13514 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S136197AbRECIDa>;
+	Thu, 3 May 2001 04:03:30 -0400
+Message-ID: <3AF110CB.6074C036@mandrakesoft.com>
+Date: Thu, 03 May 2001 04:03:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: esr@thyrsus.com
+Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: Why recovering from broken configs is too hard
+In-Reply-To: <20010503034755.A27693@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 May 2001, Jonathan Lundell wrote:
-> At 3:18 AM -0400 2001-05-03, Jeff Garzik wrote:
-> >"David S. Miller" wrote:
-> >>  There is a school of thought which believes that:
-> >>
-> >  > struct xdev_regs {
-> >>          u32 reg1;
-> >>          u32 reg2;
-> >>  };
-> >  >
-> >>          val = readl(&regs->reg2);
-> >>
-> >>  is cleaner than:
-> >>
-> >>  #define REG1 0x00
-> >>  #define REG2 0x04
-> >>
-> >>          val = readl(regs + REG2);
-> >>
-> >>  I'm personally ambivalent and believe that both cases should be allowed.
-> >
-> >Agreed...  Tangent a bit, I wanted to plug using macros which IMHO make
-> >code even more readable:
-> >
-> >	val = RTL_R32(REG2);
-> >	RTL_W32(REG2, val);
-> >
-> >Since these are driver-private, if you are only dealing with one chip
-> >you could even shorten things to "R32" and "W32", if that doesn't offend
-> >any sensibilities :)
-> 
-> With a little arithmetic behind the scenes and a NULL pointer to the 
-> struct xdev, you could have:
-> 
-> struct xdev_regs {
->          u32 reg1;
->          u32 reg2;
-> } *xdr = 0;
-> 
-> #define RTL_R32(REG) readl(cookie+(unsigned long)(&xdr->REG))
+"Eric S. Raymond" wrote:
+> OK, so you want CML2's "make oldconfig" to do something more graceful than
+> simply say "Foo! You violated this constraint! Go fix it!"
+[...]
+> Have I got the point across yet?  There are *no* good solutions 
+> to this problem.  There aren't even any clean ways to separate 
+> easy cases from hard ones. 
 
-You can easily get rid of the xdr variable by s/xdr/((struct xdev_regs *)0)/.
+No good solutions?  Then how come I use "make oldconfig" every day...
 
-> cookie = ioremap(blah, blah);
-> 
-> val = RTL_R32(reg2);
-> 
-> ...and have the benefits of the R32 macro as well as the use of 
-> structure members.
+Are we to assume from your long missive that you are turning the
+possible into the impossible?  :)
 
-Gr{oetje,eeting}s,
+IMHO "make oldconfig" must stay.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

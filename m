@@ -1,118 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275428AbTHIWgt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 18:36:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275434AbTHIWgt
+	id S275424AbTHIWeC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 18:34:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275425AbTHIWeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 18:36:49 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:35044 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S275428AbTHIWgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 18:36:46 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 10 Aug 2003 00:36:42 +0200 (MEST)
-Message-Id: <UTC200308092236.h79MagQ27293.aeb@smtp.cwi.nl>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [PATCH sketch] More IDE stuff
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Sat, 9 Aug 2003 18:34:02 -0400
+Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:59264 "EHLO
+	finwe.eu.org") by vger.kernel.org with ESMTP id S275424AbTHIWd7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 18:33:59 -0400
+Date: Sun, 10 Aug 2003 00:33:58 +0200
+From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, zippel@linux-m68k.org,
+       vojtech@suse.cz
+Subject: Re: 2.6.0-test3 issue
+Message-ID: <20030809223358.GA3496@finwe.eu.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	zippel@linux-m68k.org, vojtech@suse.cz
+References: <20030809191326.GC8475@ip68-0-152-218.tc.ph.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030809191326.GC8475@ip68-0-152-218.tc.ph.cox.net>
+Organization: Kreatorzy Kreacji Bialej
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bartlomiej,
+Tom Rini wrote:
 
-I just wanted to send a few more fragments from my IDE series.
-Saw that some from last week are in -test3. Good.
-But all my patches give rejects. Bad.
+> Hello.  I just tried to compile up 2.6.0-test3 for my x86 box, and I
+> noticed that the following set of options will no longer work:
+> CONFIG_EMBEDDED=n
+> CONFIG_SERIO=m
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_KEYBOARD_ATKBD=y
+> 
+> The problem is that unless I set CONFIG_EMBEDDED, INPUT_KEYBOARD and
+> KEYBOAD_ATKBD both get set to 'Y', regardless of the other dependancies
+> (such as SERIO being 'm').
 
-It is inconvenient for me, and good for nobody, if you change the
-layout of my patches.
+I think it's:
 
-So, instead of a patch this time the hand sketched version
-of a patch.
+...
+Alan Cox:
+...
+  o mouse and keyboard by default if not embedded
+...  
 
-People have gotten corrupted filesystems from a bug in the IDE code,
-namely the one where one part of the driver decides that the disk
-is large, while another part of the driver decides that the controller
-cannot handle LBA48. Now writing past the 137 GB mark wraps around
-and overwrites the start of the disk. Ach.
+change.
 
-The routine that does this stuff is
+(I was wandering what I had done wrong, that mousedev.ko
+disappeared  8)
 
-------------------------------------------------------------
-static int probe_lba_addressing (ide_drive_t *drive, int arg)
-{
-        drive->addressing =  0;
-        if (HWIF(drive)->addressing)
-                return 0;
-        if (!(drive->id->cfs_enable_2 & 0x0400))
-                return -EIO;
-        drive->addressing = arg;
-        return 0;
-}
-------------------------------------------------------------
+jk
 
-Nobody who reads this understands it. So, I made it
-
-------------------------------------------------------------
-/*
- * drive->addressing:
- *      0: 28-bit
- *      1: 48-bit
- *      2: 48-bit-capable doing 28-bit
- *      3: 64-bit
- *
- * Note: setting addressing to 0 on a > 137 GB disk leads to fs corruption.
- */
-static int probe_lba_addressing (ide_drive_t *drive, int arg)
-{
-        drive->addressing =  0;
-	if (HWIF(drive)->cannot_do_lba48)
-		return 0;
-	if (!idedisk_supports_lba48(drive->id))
-		return -EIO;
-	drive->addressing = arg;
-	return 0;
-}
-------------------------------------------------------------
-
-Thus: hwif->addressing and drive->addressing are two entirely
-different animals. The first is a boolean, the second an enum.
-I renamed the former to "cannot_do_lba48". A simple global replace,
-but be careful not to touch drive->addressing.
-
-Of course further improvement is possible by naming the enum elements.
-
-Now probe_lba_addressing(drive, 1) is called at an early stage,
-before init_idedisk_capacity(), so the latter knows already
-whether we have 48-bit addressing at our disposal. That means
-that the filesystem corruption is prevented by
-
-        if (drive->addressing == 0 && drive->capacity48 > (1ULL)<<28) {
-                printk("%s: cannot use LBA48 - capacity reset "
-                       "from %llu to %llu\n",
-                       drive->name, drive->capacity48, (1ULL)<<28);
-                drive->capacity48 = (1ULL)<<28;
-        }
-
-at the end of init_idedisk_capacity().
-
-That is: first we look at the current size of the disk, then we
-enlarge it if possible by taking the Host Protected Area,
-and then we trim it again in case the controller is bad.
-
-Andries
-
-
-Note: lba_28_rw_disk() does
-        args.tfRegister[IDE_SECTOR_OFFSET]      = block;
-        args.tfRegister[IDE_LCYL_OFFSET]        = (block>>=8);
-        args.tfRegister[IDE_HCYL_OFFSET]        = (block>>=8);
-        args.tfRegister[IDE_SELECT_OFFSET]      = ((block>>8)&0x0f);
-without checking for the size of block.
-
-Moreover, it is called with
-	lba_28_rw_disk(drive, rq, (unsigned long) block);
-so block may have been truncated already here - there is nothing
-lba_28_rw_disk() can check.
-
-Probably there should also be a check in __ide_do_rw_disk().
+-- 
+Jacek Kawa

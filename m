@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUGUVwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266747AbUGUVzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266745AbUGUVwL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 17:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266747AbUGUVwL
+	id S266747AbUGUVzx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 17:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUGUVzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 17:52:11 -0400
-Received: from mail3.speakeasy.net ([216.254.0.203]:23766 "EHLO
-	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S266745AbUGUVwD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 17:52:03 -0400
-Message-ID: <40FEE582.9020200@nsr500.net>
-Date: Wed, 21 Jul 2004 14:52:02 -0700
-From: Tim Moore <linux-kernel@nsr500.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.26 oops
-References: <20040721145900.9878.69804.Mailman@linux.us.dell.com>
-In-Reply-To: <20040721145900.9878.69804.Mailman@linux.us.dell.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 21 Jul 2004 17:55:53 -0400
+Received: from mx2.magma.ca ([206.191.0.250]:9668 "EHLO mx2.magma.ca")
+	by vger.kernel.org with ESMTP id S266751AbUGUVyO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 17:54:14 -0400
+Subject: Re: [PATCH] delete devfs
+From: Jesse Stockall <stockall@magma.ca>
+To: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040721212745.GC18110@kroah.com>
+References: <20040721141524.GA12564@kroah.com>
+	 <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com>
+	 <1090444782.8033.4.camel@homer.blizzard.org>
+	 <20040721212745.GC18110@kroah.com>
+Content-Type: text/plain
+Message-Id: <1090446817.8033.18.camel@homer.blizzard.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 21 Jul 2004 17:53:37 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-07-21 at 17:27, Greg KH wrote:
+> 
+> It fixes an obviously broken chunk of code that is not maintained by
+> _anyone_.  And it will clean up all device drivers a _lot_ to have this
+> gone, which will benifit everyone in the long run.
+> 
 
+Agreed, but this 'broken' chunk of code is 'working' for a lot of people
+(whether or not this is due to pure luck is not the point)
 
-Peter Santoro wrote:
-> H/W: asus p3b-f, 1GB ecc ram, 1.4 Ghz tualatin celeron (no overclocking)
+> As for "right now"?  Why not?  I'm just embracing the new development
+> model of the kernel :)
 
-What slocket are you using?  Is it set to "auto"?
-What are the CPU/FSB/PCIbus/memory BIOS settings?
-Have you tried recompiling with CONFIG_M686=y?
-Have you tried turning ECC off?
-Are you paging a lot or running out of swap?
+That's the point that Oliver and I raised, the "leave it till 2.7" (not
+breaking things for real world users) argument seems stronger than the
+"rip it now" (because it makes things cleaner, easier to code, etc)
+argument. 
 
-t.
+Devfs should never have made it in the kernel in the first place, but
+ripping devfs out in the middle of a stable series does not solve any
+problems, it creates them.
 
-> S/W: slackware 9.1 with updates, kernel 2.4.26
-> 
-> System was running fine for almost 4 years (originally was P3 600E, 
-> upgraded to tualatin 1+ yr ago).  Prior to getting these 2.4.26 oops, I 
-> got random 2.4.26 lockups and reboots (usually using mouse in X) with 
-> nothing on my screen or in my logs.  I decided to install a new Antec 
-> Truepower 430W psu, but the problems remained.  Antec tech support told 
-> me that my new psu was not within spec, so they replaced it.  I'm now 
-> running with the replaced Antec Truepower 430 psu and getting a 2.4.26 
-> oops (usually happens when selecting a newsgroup via mouse in mozilla 
-> 1.7).  I suppose I could have a H/W problem, but just in case it's a 
-> valid kernel problem, I'm submitting this email.
-> 
-> Any help is appreciated.
-> 
-> 
-> Thank you,
-> 
-> 
-> Peter Santoro
-> 
-> =============== FROM SYSLOG ============
-> 
-> ksymoops 2.4.9 on i686 2.4.26.  Options used
->       -v /usr/src/linux/vmlinux (specified)
->       -k /proc/ksyms (default)
->       -l /proc/modules (default)
->       -o /lib/modules/2.4.26/ (default)
->       -m /usr/src/linux/System.map (default)
-> 
-> kernel BUG at page_alloc.c:103!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c0134346>]    Not tainted
-> ...
-> 
+Is keeping devfs around for 2.6 really that much or a burden? When was
+the last time you saw any mails on lkml asking for devfs support?
+
+Jesse
 
 -- 
-  | for direct mail add "private_" in front of user name
+Jesse Stockall <stockall@magma.ca>
+

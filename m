@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272338AbTGYVzk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTGYVzk
+	id S272359AbTGYWJz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 18:09:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272366AbTGYWJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 17:55:40 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:44301 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272338AbTGYVzj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 17:55:39 -0400
-Date: Fri, 25 Jul 2003 15:10:47 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Posting format
-Message-ID: <20030725221047.GC25838@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <200307252035.h6PKZKts001817@81-2-122-30.bradfords.org.uk>
+	Fri, 25 Jul 2003 18:09:55 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24485 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272359AbTGYWJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 18:09:54 -0400
+Date: Fri, 25 Jul 2003 15:22:21 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Harald Welte <laforge@netfilter.org>
+Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: Update: [PATCH 2.6] iptables MIRROR target fixes
+Message-Id: <20030725152221.1b751bd0.davem@redhat.com>
+In-Reply-To: <20030725205242.GH3244@sunbeam.de.gnumonks.org>
+References: <20030719142648.GS32475@sunbeam.de.gnumonks.org>
+	<20030725205242.GH3244@sunbeam.de.gnumonks.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307252035.h6PKZKts001817@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 09:35:20PM +0100, John Bradford wrote:
-> > > Can we all, please, at least do things like not repeatedly quoting the
-> > > list's four-line signature, and not quoting things like .config files?
+On Fri, 25 Jul 2003 22:52:42 +0200
+Harald Welte <laforge@netfilter.org> wrote:
 
-And user sigs, confidentiality declarations, etc.
-
-> >
-> > 	One more: don't answer to people directly, only thru the list.
-> > It is quite annoying to receive the same message twice, especially if
-> > on a flamewar...
-> >
-> > 	Actually I was quite surprised to learn these rules aren't
-> > followed here.
+> On Sat, Jul 19, 2003 at 04:26:48PM +0200, Harald Welte wrote:
 > 
-> No, that is not the etiquette on this list, please _don't_ break the
-> CC list when replying - the FAQ particularly mentions this in section
-> 5.3.  Breaking the CC list is very likely to reduce your chances of a
-> reply from a lot of developers.
+> > This is the first of my 2.6 merge of the recent bugfixes (all tested
+> > against 2.6.0-test1).  You might need to apply them incrementally
+> > (didn't test it in a different order).
 > 
-[snip]
+> Unfortunately I introduced a typo during the merge (which in turn
+> introduced a new bug).
 > 
-> Receiving the same message twice is generally a non-issue - the list
-> is high-volume anyway, so the odd duplicate message won't use up that
-> much extra bandwidth.
+> Please incrementially apply the following patch, thanks.
 
-And can be easily dealt with in procmail.  After filing the
-mailing list messages i trashcan any addressed to the lists.
-Then the only time i complain is when they are sent under
-seperate headers.
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+All 2.6.x netfilter patches applied, thanks.

@@ -1,78 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVAGRfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVAGRgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVAGRfD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 12:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVAGRfD
+	id S261362AbVAGRgf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 12:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVAGRgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:35:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:53172 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261364AbVAGRds (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:33:48 -0500
-Date: Fri, 7 Jan 2005 09:33:41 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Oleg Nesterov <oleg@tv-sign.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-In-Reply-To: <1105113998.24187.361.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
-References: <41DE9D10.B33ED5E4@tv-sign.ru>  <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
- <1105113998.24187.361.camel@localhost.localdomain>
+	Fri, 7 Jan 2005 12:36:10 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:49101 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261365AbVAGRev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 12:34:51 -0500
+Message-ID: <41DEC83D.30105@comcast.net>
+Date: Fri, 07 Jan 2005 12:34:53 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+References: <1105096053.5444.11.camel@ulysse.olympe.o2t> <20050107111508.GA6667@infradead.org> <20050107111751.GA6765@infradead.org>
+In-Reply-To: <20050107111751.GA6765@infradead.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+My scheme involved a 6 month release cycle supporting kernels with
+bugfixes for the prior 18 months (3 releases), though if you're really
+committed to hardware driver backporting, I guess it can be done in the
+actiwve "Stable" branch.
 
-On Fri, 7 Jan 2005, Alan Cox wrote:
->
-> > The reason I don't want to coalesce is that I don't ever want to modify a
-> > page that is on a pipe buffer (well, at least not through the pipe buffe
-> 
-> If I can't write 4096 bytes down it one at a time without blocking from
-> an empty pipe then its not a pipe in the eyes of the Unix world and the
-> standards.
+I really don't like the idea of driver backporting to maintain a
+supported tree because A) sometimes drivers can't work without invasive
+changes (reiser4); and B) somebody has to do the backporting, which
+means somebody may be facing an assload of extra work.
 
-Absolutely. In fact, with the new implementation, you can often write
-_several_ packets of 4096 bytes without blocking (but only writes less
-than PIPE_BUF are guaranteed to be done all-or-nothing). I'm very aware of
-the atomicity guarantees, I'm just saying that if you try to write 4096 
-bytes by doing it one byte at a time, that has changed.
+The last 6 paragraphs of [1] sketch it out fine; though the whole
+article was pretty much geared towards discussing the Linux Kernel
+development model.
 
-> > With this organization, a pipe ends up being able to act as a "conduit"  
-> > for pretty much any data, including some high-bandwidth things like video
-> > streams, where you really _really_ don't want to copy the data. So the 
-> > next stage is:
-> 
-> The data copying impact isn't very high even if it is just done for the
-> pipe() case for standards behaviour. You end up with one page that is
-> written too and then sent and then freed rather than many.
+I just want a development model that makes everyone happy.  I don't want
+to load up maintainers with a billion hours of backporting; but I don't
+want to load distributors with excess work either.
 
-I absolutely agree. A regular read()/write() still copies the data, and 
-that's because I'm a firm believer that copying even a few kB of data is 
-likely to be cheaper than trying to play MM games (not just the lookup of 
-the physical address - all the locking, COW, etc crud that VM games 
-require).
+Other interesting variations would be to allow driver backporting for
+uninvasive drivers, via third party support.  The maintainer would have
+to merge drivers into the stable kernel; but it would be up to other OSS
+developers (i.e. distributions most likely) to supply those backports.
+This would distribute the work.
 
-So while this shares some of the issues with the zero-copy pipes of yore,
-but doesn't actually do any of that for regular pipe read/writes. And
-never will, as far as I'm concerned. I just don't think user zero-copy is 
-interesting at that level: if the user wants to access somethign without 
-copying, he uses "mmap()".
+Oh well, what do I know?   :)
 
-So only when the data is _not_ in user VM space, that's when increasing a
-reference count is cheaper than copying. Pretty much by definition, you
-already have a "struct page *" at that point, along with which part of the
-page contains the data.
+[1] http://woct-blog.blogspot.com/2005/01/finally-new-pax.html
 
-So the "standard behaviour" (aka just plain read/write on the pipe) is all
-the same copies that it used to be. The "just move pages around" issue
-only happens when you want to duplicate the stream, or if you splice
-around stuff that is already in kernel buffers (or needs a kernel buffer
-anyway).
+Christoph Hellwig wrote:
+| [wrong cc list last time]
+|
+| On Fri, Jan 07, 2005 at 11:15:08AM +0000, Christoph Hellwig wrote:
+|
+|>On Fri, Jan 07, 2005 at 12:07:33PM +0100, Nicolas Mailhot wrote:
+|>
+|>>Hi all,
+|>>
+|>>Since 2.6 is turning into a continuous release, how about just taking
+|>>the last 2.6 release every six months and backport security fixes to it
+|>>for the next half year ?
+|>
+|>Half a year is far too long because hardware is changing to fast for that.
+|>Three month sounds like a much better idea.
+|>
+|>The real problem is that this is a really time-consuming issue, so
+|>there need to be people actually commited to doing this kind of thing.
+|>
+|>Andres Salomon from the Debian Kernel maintaince team has been thinking
+|>about such a bugfix tree, but he's worried about having the time to
+|>actually get the work done - and we know what we're talking about as
+|>we're trying to keep a properly fixed 2.6.8 tree for Debian sarge.
+|>
+|>-
+|>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+|>the body of a message to majordomo@vger.kernel.org
+|>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|>Please read the FAQ at  http://www.tux.org/lkml/
+|
+| ---end quoted text---
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+|
 
-		Linus
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB3sfMhDd4aOud5P8RAnKIAJ0YatkLwCSP9/69aavUBjI7Rxi9RgCfUfB0
+X2vS+7BKGJyr2O4X3PWmpXM=
+=kbdb
+-----END PGP SIGNATURE-----

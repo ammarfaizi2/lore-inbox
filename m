@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263525AbTJQUzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 16:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTJQUzW
+	id S263532AbTJQVAG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 17:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263533AbTJQVAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 16:55:22 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:40420 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263525AbTJQUzU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 16:55:20 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: online resizing of devices/filesystems (2.6)
-Date: Fri, 17 Oct 2003 15:49:44 -0500
-User-Agent: KMail/1.5
-Cc: thornber@sistina.com, linux-kernel@vger.kernel.org
-References: <200310171116.07362.kevcorry@us.ibm.com> <20031017130543.0e01d862.akpm@osdl.org>
-In-Reply-To: <20031017130543.0e01d862.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 17 Oct 2003 17:00:06 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:21212 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263532AbTJQVAC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 17:00:02 -0400
+Subject: Letext symbols in System.map
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1066424399.2589.171.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Oct 2003 13:59:59 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310171549.44589.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 October 2003 15:05, Andrew Morton wrote:
-> Resizing a blockdev while someone has a filesystem mounted on it is a bit
-> rude, but I guess that as long as it is being expanded, not much can go
-> wrong.
+I've been seeing intermittent Letext symbols showing up in System.maps
+for a while.  They're annoying because they seem to plant themselves at
+the same address as spinlocks and readprofile picks them over the
+spinlock symbol.  
 
-There's no technical reason why you couldn't shrink as well. But right now we 
-don't have any filesystems that support online shrink, so the tools prevent 
-that scenario. Online expand is quite common, though.
+c02c40d9 t .text.lock.af_packet
+c02c40d9 t Letext
 
-> bd_set_size() isn't quite what you want because it fiddles with the
-> blocksize as well.
+For me, they only show up when CONFIG_DEBUG_INFO is turned on, but
+Martin Bligh claims he's seen them other times as well.  
 
-Ok.
+After some googling, it appears that Letext is supposed to be a label
+for a string constant.  Since the spinlocks are defined using assembly
+inside string constants, perhaps the label for that asm string is
+hanging around too long.  
 
-> So one approach would be to do what NBD does, and just write i_size
-> directly.
+Is ther anything to keep us from simply grepping them away when
+System.map is created?  
 
-We had considered that originally. It just seemed like too big of a hack. :) 
-Plus I wasn't sure if there were locking issues with changing fields in the 
-inode.
+$(NM) $@ | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)\|\(Letext\)' | sort > System.map
 
-> You could create a little helper library function which takes i_sem and
-> then writes i_size.  But the VFS tends to avoid taking i_sem on blockdevs
-> because it doesn't expect i_size to change ;)
-
-So...should I take i_sem or not? :)  Perhaps calling i_size_write() in 
-include/linux/fs.h would be preferrable, since it seems to be doing different 
-things for SMP and preempt.
-
-Thanks for the feedback!
 -- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+Dave Hansen
+haveblue@us.ibm.com
 

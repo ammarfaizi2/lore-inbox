@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312255AbSDTTou>; Sat, 20 Apr 2002 15:44:50 -0400
+	id <S313173AbSDTTru>; Sat, 20 Apr 2002 15:47:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313179AbSDTTos>; Sat, 20 Apr 2002 15:44:48 -0400
-Received: from ns.suse.de ([213.95.15.193]:41487 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313168AbSDTToV>;
-	Sat, 20 Apr 2002 15:44:21 -0400
-Date: Sat, 20 Apr 2002 21:44:20 +0200
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove BK docs ... + x86-64 2.5.8 sync
-Message-ID: <20020420214420.A13635@wotan.suse.de>
-In-Reply-To: <p73u1q68cfu.fsf_-_@oldwotan.suse.de> <Pine.LNX.4.33.0204201230140.11732-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S313236AbSDTTrt>; Sat, 20 Apr 2002 15:47:49 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:48313 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S313173AbSDTTrr>; Sat, 20 Apr 2002 15:47:47 -0400
+Date: Sat, 20 Apr 2002 12:47:53 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Mel <mel@csn.ul.ie>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documenation/vm/numa
+Message-ID: <2948370542.1019306872@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.44.0204201703320.3995-100000@skynet>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 12:33:26PM -0700, Linus Torvalds wrote:
-> 
-> > I don't want to use BitKeeper because I don't like open logging. I hope
-> > I can continue to maintain the x86-64 port even without being part
-> > of the inner bitkeeper circle.
-> 
-> Absolutely - as you noticed I accepted the patch, even though there was a 
-> clash (with a released kernel) in there.
+> + node_start_paddr  The starting physical address of the node. This doesn't
+> +		    work really well as an unsigned long as it breaks for
+> +                   ia32 with PAE for example. A more suitable solution would be
+> +                   to record this as a Page Frame Number (pfn). This could be
+> +                   trivially defined as (page_phys_addr >> PAGE\_SHIFT).
 
-What clash was there? (just curious) I just checked and at least the 
-kernel.org finger still shows 2.5.8 as the latest released kernel.
+This looks fine.
 
-> 
-> >	 It would be good if you did e.g.
-> > a pre patch for every change that could require action from architecture
-> > or other maintainers as sync point (i guess that could be made easy with
-> > the appropiate script)
-> 
-> This is why I think it might be a good reason to just have a daily script: 
-> not just to create the patches, but also to kind of keep a running 
-> commentary on the kernel list on what I've merged..
+> +                   Alternatively, it could be the struct page * index inside
+> +                   mem_map.
 
-Would be fine for me. 
+But I'd just omit this last sentence ... that only works for machines 
+with a contig mem_map (not NUMA), and it's kind of an accidental
+kludge that happens to work in some cases, not the proper definition
+(what I originally posted was confusing).
 
--Andi
+I actually submitted a patch a couple of days ago to fix these to
+a pfn instead. If that gets in, we can update the documentation then.
+
+M.

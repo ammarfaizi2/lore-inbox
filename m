@@ -1,42 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263676AbUCYW1z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:27:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbUCYW1y
+	id S263636AbUCYW0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbUCYW0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:27:54 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:21920 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263676AbUCYW1v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:27:51 -0500
-Message-Id: <200403252226.i2PMQZu02326@owlet.beaverton.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andi Kleen <ak@suse.de>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       kernel@kolivas.org, rusty@rustcorp.com.au, anton@samba.org,
-       lse-tech@lists.sourceforge.net, mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3 
-In-reply-to: Your message of "Thu, 25 Mar 2004 22:59:08 +0100."
-             <20040325215908.GA19313@elte.hu> 
-Date: Thu, 25 Mar 2004 14:26:35 -0800
-From: Rick Lindsley <ricklind@us.ibm.com>
+	Thu, 25 Mar 2004 17:26:45 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48111 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263636AbUCYW0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 17:26:37 -0500
+Date: Thu, 25 Mar 2004 23:26:29 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: -mm: md-merging-fix causes ICE with gcc 2.95
+Message-ID: <20040325222628.GB16746@fs.tum.de>
+References: <20040323232511.1346842a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040323232511.1346842a.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    There's no way the scheduler can figure out the scheduling and memory
-    use patterns of the new tasks in advance.
+On Tue, Mar 23, 2004 at 11:25:11PM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.5-rc2-mm1:
+>...
+> +md-merging-fix.patch
+> 
+>  Fix RAID merging problem.
+>...
 
-True.  Four threads may want to stay on the same node because they are
-sharing a lot of data and working on something in parallel, or they
-may want to go to different nodes because the only thing they have in
-common is a control structure that directs their (largely independent
-but highly synchronized) efforts.
+I got the following compile error in 2.6.5-rc2-mm3 using the gcc 2.95 
+from Debian unstable on i386:
 
-A while ago there was some effort at user-level page replication, which
-meant you took a hit once but after that you'd effectively migrated a page
-to your local memory.  The longer you stayed put, the more local your
-RSS got.  I seem to recall some bugs or caveats, though.  Anybody know
-the state of that?  It might take the burden off the scheduler using a
-crystal ball and putting it on a 20/20-hindsight VM system instead.
+<--  snip  -->
 
-Rick
+...
+  CC      drivers/md/linear.o
+drivers/md/linear.c: In function `linear_mergeable_bvec':
+drivers/md/linear.c:84: Internal compiler error:
+drivers/md/linear.c:84: internal error--unrecognizable insn:
+(insn/i 49 47 210 (parallel[ 
+            (set (reg:SI 0 %eax)
+                (asm_operands ("") ("=a") 0[ 
+                        (reg:DI 1 %edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("drivers/md/linear.c") 41))
+            (set (reg:SI 1 %edx)
+                (asm_operands ("") ("=d") 1[ 
+                        (reg:DI 1 %edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("drivers/md/linear.c") 41))
+        ] ) -1 (insn_list 44 (nil))
+    (nil))
+cpp0: output pipe has been closed
+make[2]: *** [drivers/md/linear.o] Error 1
+
+<--  snip  -->
+
+
+I know that this is on the first hand a compiler bug, but gcc 2.95 is 
+although no longer supported by the gcc developers still the recommended 
+compiler for the kernel.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

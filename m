@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVC3Ldp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVC3Ljj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVC3Ldp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 06:33:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVC3Ldp
+	id S261874AbVC3Ljj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 06:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVC3Ljj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 06:33:45 -0500
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:25242 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S261871AbVC3Ldm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 06:33:42 -0500
-Message-ID: <424A8E58.6050607@f2s.com>
-Date: Wed, 30 Mar 2005 12:32:40 +0100
-From: Ian Molton <spyro@f2s.com>
-Organization: The Dragon Roost
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Hugh Dickins <hugh@veritas.com>, "David S. Miller" <davem@davemloft.net>,
-       nickpiggin@yahoo.com.au, akpm@osdl.org, tony.luck@intel.com,
-       benh@kernel.crashing.org, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-References: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>  <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com> <4243A257.8070805@yahoo.com.au> <20050325092312.4ae2bd32.davem@davemloft.net> <20050325162926.6d28448b.davem@davemloft.net> <22627.1112179577@redhat.com>
-In-Reply-To: <22627.1112179577@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Mar 2005 06:39:39 -0500
+Received: from [211.36.37.40] ([211.36.37.40]:24006 "HELO mail.qsv10.com")
+	by vger.kernel.org with SMTP id S261874AbVC3Ljf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 06:39:35 -0500
+Date: 30 Mar 2005 14:02:54 +0900
+Message-ID: <20050330050254.24553.qmail@mail.qsv10.com>
+From: info@qsv10.com
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20=1B$B!~=3DP2q$$7OI,>?= =?ISO-8859-1?Q?!>pJs!~=1B(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
 
->>I suspect Ian can live without his printk!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+          ┏━┓  ┏━┓  ┏━┓  ┏━┓  
+          ┃出┣━┫い┣━┫必┣━┫情┣━┓
+          ┗━┫会┣━┫系┣━┫勝┣━┫報┃
+              ┗━┛  ┗━┛  ┗━┛  ┗━┛
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-I expect so, since arm26 doesnt boot yet. Hopefully once I get my 
-current load of arm32 stuff done I'll get some time to revisit it.
+□■―――――――――――――――――――――――――――――――――□■
 
-arm26 mm is quite broken right now.
+
+知ってますか？実に会員様の３０％が、登録して１週間以内に出会っているのを！
+
+日本最大のネットコミュニティー！！　その名も「出会いＰＣ」
+
+　　　　　　　　　　　　http://com.deai-pc.com/?num=30010
+
+□■―――――――――――――――――――――――――――――――――□■
+
+      ┌─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┬─┐
+      │最│強│出│会│サ│イ│ト│が│リ│ニ│ュ│ー│ア│ル│      
+      └─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┘
+          │こ│れ│で│貴│方│も│モ│テ│モ│テ│に│！│
+          └─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┴─┘
+
+　　　　　　　　　　　　http://com.deai-pc.com/?num=40010
+
+□■―――――――――――――――――――――――――――――――――□■
+

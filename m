@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310686AbSCMPvy>; Wed, 13 Mar 2002 10:51:54 -0500
+	id <S310713AbSCMP4P>; Wed, 13 Mar 2002 10:56:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310676AbSCMPvd>; Wed, 13 Mar 2002 10:51:33 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:8119 "EHLO ns1.yggdrasil.com")
-	by vger.kernel.org with ESMTP id <S310686AbSCMPv1>;
-	Wed, 13 Mar 2002 10:51:27 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 13 Mar 2002 07:51:14 -0800
-Message-Id: <200203131551.HAA09551@adam.yggdrasil.com>
-To: davej@suse.de
-Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
-Cc: linux-kernel@vger.kernel.org
+	id <S310699AbSCMP4F>; Wed, 13 Mar 2002 10:56:05 -0500
+Received: from fc.capaccess.org ([151.200.199.53]:17426 "EHLO fc.Capaccess.org")
+	by vger.kernel.org with ESMTP id <S310676AbSCMPz4>;
+	Wed, 13 Mar 2002 10:55:56 -0500
+Message-id: <fc.008584120034e424008584120034e424.34e44b@Capaccess.org>
+Date: Wed, 13 Mar 2002 10:55:14 -0500
+Subject: [PATCH] 2.5.6-pre2 IDE cleanup 16
+To: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@Capaccess.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I pushed that revert to Linus. It was basically a cp of the driver
->from the 2.4 tree to the current 2.5 one, diff and send. 
+In the credit where due department...
 
-	Thanks for the information.  If I understand you correctly,
-you are saying that Linus's current 2.5 tree (2.5.7-pre1) has the
-new driver from 2.4, albeit one that does not compile.
+New note in osimplay....
 
-	Diffing the 2.4.18 and 2.5.6 versions of NCR53C8x.c and
-fdomain.c, they look the same, aside from some io_request_lock's
-replaced by scsi_host->host_lock.  dtc.c appears to have a few
-minor changes, which I assume are for 2.5.  So, it looks like
-the NCR53C80 drivers in 2.5.7-pre1 are approximately the correct
-starting point for generating working NCR53C80 drivers in 2.5 (as
-opposed to recopying them from 2.4).  Please correct me if I am wrong.
+                              [ Wrote 5164 lines ]
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+:; cLIeNUX /dev/tty3  11:14:52   /Ha3sm/colorgOS/tool
+:;. osimplay
+x86
+libo
+:; cLIeNUX /dev/tty3  11:14:55   /Ha3sm/colorgOS/tool
+:;clump h
+
+
+ clump creates a set of related offset names.  This sort of thing is
+popular for associating arbitrary data items into groups. The data
+associations can themseves be useful information. Data items in a clump
+are defined by thier spacing, and thus have implied sizes.
+
+        clump clumptypename item0 <size> item1 <size> ...
+
+will make $clumptypename_item0 $clumptypename_item1 and so on be the
+appropriate offsets from $clumptypename in the assembler state.
+$clumptypename itself has a value of zero. A clumptypename_size is also
+created that records the overall size of this type of clump. Sizes are in
+bytes. Those offset values can then be used during assembly to instantiate
+and perhaps initialize clumps of that type, or as address offsets at
+runtime, including offsets on the return stack. For fancy initializations,
+keep in mind that in this implementation of osimplay you have the full
+power of the shell available for extending osimplay, and that if you need
+to you can rewind the osimplay assembly pointer, H.
+
+Linus Torvalds said he'd love to have C structs that could initialize the
+values of particular fields (I think that's what he meant :o). As is often
+the case versus C, osimplay doesn't provide that, but as is always the
+case, osimplay doesn't prevent it either.
+
+
+:; cLIeNUX /dev/tty3  11:14:57   /Ha3sm/colorgOS/tool
+:;
+
+
+Rick Hohensee
+

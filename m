@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbUDRJUm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 05:20:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbUDRJUm
+	id S263064AbUDRJ3w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 05:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUDRJ3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 05:20:42 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:18057 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263027AbUDRJUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 05:20:41 -0400
-Message-ID: <40824864.7060106@yahoo.com.au>
-Date: Sun, 18 Apr 2004 19:20:36 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: markw@osdl.org
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: 2.6.5-mm5
-References: <200404162303.i3GN3h231348@mail.osdl.org>
-In-Reply-To: <200404162303.i3GN3h231348@mail.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Apr 2004 05:29:52 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:35340 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263064AbUDRJ3v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 05:29:51 -0400
+Date: Sun, 18 Apr 2004 10:29:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marc Singer <elf@buici.com>
+Cc: Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: vmscan.c heuristic adjustment for smaller systems
+Message-ID: <20040418102947.A5745@flint.arm.linux.org.uk>
+Mail-Followup-To: Marc Singer <elf@buici.com>,
+	Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
+	linux-kernel@vger.kernel.org
+References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org> <20040417233037.GA15576@flea> <20040417165151.24b1fed5.akpm@osdl.org> <20040418002343.GA16025@flea>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040418002343.GA16025@flea>; from elf@buici.com on Sat, Apr 17, 2004 at 05:23:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-markw@osdl.org wrote:
-
+On Sat, Apr 17, 2004 at 05:23:43PM -0700, Marc Singer wrote:
+> All of these tests are performed at the console, one command at a
+> time.  I have a telnet daemon available, so I open a second connection
+> to the target system.  I run a continuous loop of file copies on the
+> console and I execute 'ls -l /proc' in the telnet window.  It's a
+> little slow, but it isn't unreasonable.  Hmm.  I then run the copy
+> command in the telnet window followed by the 'ls -l /proc'.  It works
+> fine.  I logout of the console session and perform the telnet window
+> test again.  The 'ls -l /proc takes 30 seconds.
 > 
-> I do already have CONFIG_IRQBALANCE=y.  Is that the interrupt balancing?
-> I'll go ahead and get that schedstat data for you.
-> 
+> When there is more than one process running, everything is peachy.
+> When there is only one process (no context switching) I see the slow
+> performance.  I had a hypothesis, but my test of that hypothesis
+> failed.
 
-Hi Mark,
-Just another question (I think you've already told me once
-but I can't remember :P). Do you have HT enabled on your
-system? If so, you should have CONFIG_SCHED_SMT=y with -mm
-kernels. If not, did you get to the bottom of why oprofile
-with linus kernels says the system is P4 / Xeon, while with
-mm kernels, it is a P4 / Xeon with 2 hyper-threads?
+Guys, this tends to indicate that we _must_ have up to date aging
+information from the PTE - if not, we're liable to miss out on the
+pressure from user applications.  The "lazy" method which 2.4 will
+allow is not possible with 2.6.
+
+This means we must flush the TLB when we mark the PTE old.
+
+Might be worth reading my thread on linux-mm about this and commenting?
+(hint hint)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbSKBUPq>; Sat, 2 Nov 2002 15:15:46 -0500
+	id <S261356AbSKBUBn>; Sat, 2 Nov 2002 15:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbSKBUPq>; Sat, 2 Nov 2002 15:15:46 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:61369 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261364AbSKBUPp>;
-	Sat, 2 Nov 2002 15:15:45 -0500
-Date: Sat, 2 Nov 2002 20:22:08 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: rbtree scores (was Re: [patch] deadline-ioscheduler rb-tree sort)
-Message-ID: <20021102202208.GA5339@bjl1.asuk.net>
-References: <20021031134315.GC6549@suse.de> <20021101113401.GE8428@suse.de> <3DC2D72B.B4D5707E@digeo.com> <20021101205532.GB1780@bjl1.asuk.net> <20021102085947.GJ807@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021102085947.GJ807@suse.de>
-User-Agent: Mutt/1.4i
+	id <S261369AbSKBUBn>; Sat, 2 Nov 2002 15:01:43 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:388 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261356AbSKBUBT>; Sat, 2 Nov 2002 15:01:19 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 2 Nov 2002 12:17:31 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] total-epoll r2 ...
+In-Reply-To: <Pine.LNX.4.44.0211021126110.951-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0211021215100.951-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> > If it was worth it (I suspect not), you can make a data structure
-> > which has O(1) amortised insertion time for a number of common cases,
-> > such as runs of ascending block numbers.  Seems a likely pattern for a
-> > filesystem...
-> 
-> Fibonacci heaps, for instance. I looked into that as well. However, it's
-> actually more important to have (if possible) O(1) extraction than
-> insert. Extraction is typically run from interrupt context, when a
-> driver wants to requeue more requests because it has completed one (or
-> some). That was a worry with the rbtree solution. The linked list may
-> have had sucky O(N) insert, but extraction was a nice O(1). So far I
-> haven't been able to notice any regression in this area, regardless.
+On Sat, 2 Nov 2002, Davide Libenzi wrote:
 
-There's a skip list variant which offers O(1) extraction from the head
-of the list, and probabilistic O(log n) insertion, fwiw.
+>
+> The new epoll approach to event delivery seems stable on my machine an
+> result about performance look pretty good. The changes that the new design
+> introduce are :
+>
+> *) Full support for all devices that support ->f_op->poll()
+>
+> *) Multi-threaded support ( if you really like them )
+>
+> *) The function epoll_ctl(EP_CTL_ADD) drops an event if conditions are met
+>
+> *) Less intrusive design by hooking directly the poll support
+>
+> *) The patch is smaller, and this is a good news
+>
+> *) Looks even faster to me
+>
+> *) The function epoll_create(int size) has been changed. Not the "size"
+> 	parameter is just an hint to the kernel about how to dimension its
+> 	own internal data structures. In theory you can call
+> 	epoll_create(200) and stock 10000 fds inside epoll
 
--- Jamie
+
+*) The old /dev/epoll access has been dropped with this release.
+
+
+
+- Davide
+
+

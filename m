@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265258AbUETWXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUETWZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265258AbUETWXg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 18:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265314AbUETWXg
+	id S265196AbUETWZV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 18:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUETWZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 18:23:36 -0400
-Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:26887 "HELO
-	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
-	id S265258AbUETWXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 18:23:33 -0400
-Date: Thu, 20 May 2004 15:25:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: davidm@hpl.hp.com, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fixing sendfile on 64bit architectures
-Message-Id: <20040520152510.02de52a1.akpm@osdl.org>
-In-Reply-To: <200405201810.48141.jbarnes@engr.sgi.com>
-References: <26879984$108499340940abaf81679ba6.07529629@config22.schlund.de>
-	<16557.4709.694265.314748@napali.hpl.hp.com>
-	<20040520145658.3a7bf7df.akpm@osdl.org>
-	<200405201810.48141.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 20 May 2004 18:25:21 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:35738 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265196AbUETWZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 18:25:18 -0400
+Date: Fri, 21 May 2004 00:21:20 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Gopikrishnan Sidhardhan <gs33@eng.buffalo.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Data loss on IDE drive after crash
+Message-ID: <20040521002120.C2172@electric-eye.fr.zoreil.com>
+References: <40AD0365.6040003@eng.buffalo.edu> <1085081357.2044.1.camel@cassius.public.buffalo.edu> <20040520233312.B2172@electric-eye.fr.zoreil.com> <40AD28E0.2080705@eng.buffalo.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 May 2004 22:22:30.0119 (UTC) FILETIME=[F063BF70:01C43EB8]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40AD28E0.2080705@eng.buffalo.edu>; from gs33@eng.buffalo.edu on Thu, May 20, 2004 at 05:53:36PM -0400
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
->
-> On Thursday, May 20, 2004 5:56 pm, Andrew Morton wrote:
-> > An alternative might be to remove all the ifdefs, build with
-> > -ffunction-sections and let the linker drop any unreferenced code...
-> 
-> That would probably be even more confusing than the #ifdefs.  At least with 
-> those you know that you need to check whether the current code will be 
-> called...
-> 
+Gopikrishnan Sidhardhan <gs33@eng.buffalo.edu> :
+[...]
+> Is it?  The file has totally disppeared.  Isn't it because the inode has 
+> been marked as belonging to a deleted file?
 
-Me no understand Jesse.
+The machine crashed. The deleted part disappeared. The new part has not
+appeared. No unexpected behavior so far.
 
-Removing the ifdefs and letting the linker do the job has the advantage
-that the compiler gets to check more code for you.
+--
+Ueimor

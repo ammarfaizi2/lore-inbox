@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312997AbSDYJSE>; Thu, 25 Apr 2002 05:18:04 -0400
+	id <S313016AbSDYJaF>; Thu, 25 Apr 2002 05:30:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313016AbSDYJSD>; Thu, 25 Apr 2002 05:18:03 -0400
-Received: from surf.viawest.net ([216.87.64.26]:31390 "EHLO surf.viawest.net")
-	by vger.kernel.org with ESMTP id <S312997AbSDYJSC>;
-	Thu, 25 Apr 2002 05:18:02 -0400
-Date: Thu, 25 Apr 2002 02:17:55 -0700
-From: A Guy Called Tyketto <tyketto@wizard.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.9-dj1, fix for make xconfig in drivers/isdn/Config.in
-Message-ID: <20020425091755.GA9549@wizard.com>
-In-Reply-To: <1019619120.29017.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux/2.5.7 (i686)
-X-uptime: 2:09am  up 23:17,  2 users,  load average: 0.52, 0.21, 0.08
-X-RSA-KeyID: 0xE9DF4D85
-X-DSA-KeyID: 0xE319F0BF
-X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
+	id <S313019AbSDYJaE>; Thu, 25 Apr 2002 05:30:04 -0400
+Received: from [159.226.41.188] ([159.226.41.188]:30982 "EHLO
+	gatekeeper.ncic.ac.cn") by vger.kernel.org with ESMTP
+	id <S313016AbSDYJaD>; Thu, 25 Apr 2002 05:30:03 -0400
+Date: Thu, 25 Apr 2002 17:12:21 +0800
+From: "Huo Zhigang" <zghuo@gatekeeper.ncic.ac.cn>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Re: what`s wrong?
+Organization: NCIC
+X-mailer: FoxMail 3.11 Release [cn]
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-ID: <7754BE8DC82.AAA4CC2@gatekeeper.ncic.ac.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 23, 2002 at 09:31:59PM -0600, Steven Cole wrote:
-> I read that some of you got this while doing make xconfig.
-> 
-> [steven@localhost linux-2.5.9-dj1]$ make xconfig
-> rm -f include/asm
-> ( cd include ; ln -sf asm-i386 asm)
-> make -C scripts kconfig.tk
-> make[1]: Entering directory `/home/steven/kernels/linux-2.5.9-dj1/scripts'
-> cat header.tk >> ./kconfig.tk
-> ./tkparse < ../arch/i386/config.in >> kconfig.tk
-> drivers/isdn/Config.in: 10: incorrect argument
-> make[1]: *** [kconfig.tk] Error 1
-> make[1]: Leaving directory `/home/steven/kernels/linux-2.5.9-dj1/scripts'
-> make: *** [xconfig] Error 2
-> 
-> This fix seems to be the obvious one.
+>On Apr 24, 2002  18:06 +0200, il boba wrote:
+>> Is there anybody that can help me understand what`s wrong with this code?
 
-        This is definitely the right fix, now that I compare what I threw to 
-the list earlier, to the other Config.in scripts in the tree. Plus, this 
-applies to a vanilla 2.5.10.
+>Yes, easily spotted a major problem without even reading the whole
+>thing.
 
-        Linus, Dave, please consider applying.
+>> #define BUFSIZ 8192
+>> 
+>> int init_module()
+>> {
+>>  int err_frame[BUFSIZ];
+>
+>The entire kernel stack is only 8kB in size.  You have already killed
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>a bunch of random memory by allocating this much memory on the stack.
+>You allocated 4*8192 = 32kB on the stack here.
+  
+   Sure, the kernel stack is 8192 Bytes, but "err_frame[]" is a local variable. Does the kernel allocate memory for "err_frame[]" from the stack?? 
 
-                                                        BL.
--- 
-Brad Littlejohn                         | Email:        tyketto@wizard.com
-Unix Systems Administrator,             |           tyketto@ozemail.com.au
-Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
-  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+>> int init_err_frame(int err_frame[]) {
+>>  int i, k = 0, j = 0;
+>>  char buffer[BUFSIZ];
+>
+>Another 8kB on the stack here - further random corruption.
+   Here, I think, err_frame[] as a function parameter  will take 8K in the kernel stack.
+   Am I correct?
+  
+   Thank you.
+
 

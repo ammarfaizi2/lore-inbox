@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbTI3PO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 11:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbTI3PO2
+	id S261581AbTI3P3i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbTI3P3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 11:14:28 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:14829 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S261592AbTI3POU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 11:14:20 -0400
-Date: Tue, 30 Sep 2003 11:13:57 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Samuel Flory <sflory@rackable.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan i7501 Pro (S2721-533) lock-up (e1000?)
-In-Reply-To: <3F78E18F.50504@rackable.com>
-Message-ID: <Pine.GSO.4.33.0309301059350.13584-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Sep 2003 11:29:38 -0400
+Received: from h80ad2612.async.vt.edu ([128.173.38.18]:44447 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261581AbTI3P3g (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 11:29:36 -0400
+Message-Id: <200309301529.h8UFTNvl019529@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: -mregparm=3 (was Re: [PATCH] i386 do_machine_check() is redundant. 
+In-Reply-To: Your message of "Tue, 30 Sep 2003 10:28:40 +0200."
+             <3F793EB8.7010605@aitel.hist.no> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0309291142430.3626-100000@home.osdl.org> <200309291954.h8TJsm6p002210@turing-police.cc.vt.edu>
+            <3F793EB8.7010605@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-11006188P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 30 Sep 2003 11:29:23 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Sep 2003, Samuel Flory wrote:
->> Anyone else seeing similar problems with the i7501 pro?
->
->   We been using a lot of 2721-533 without issues.  Are you certain it's
->networking?  Have you tried a mem tester like memtst86 or ctcs?  Does
->the issue occur with addon cards, or the e100 nic?
+--==_Exmh_-11006188P
+Content-Type: text/plain; charset=us-ascii
 
-And I've used it's 603 cousins as well without issue.  I was thinking
-after I sent the message APPro may be using uncertified memory, however,
-I don't want to have to pull it back out of the rack to find out.
-(Personally, I'd rather build them myself than buy them pre-assembled.)
+On Tue, 30 Sep 2003 10:28:40 +0200, Helge Hafting said:
 
-It works fine until a large volume of traffic is sent at it on the gig
-ports.  It works sometimes, and locks up other times.  On rare occasions,
-the kernel stops receiving traffic -- the lights are blinking and the chip
-counters are still going up, but no traffic is showing up. (ethtool -r
-gets us back going.)
+> Nvidia can fix this easily. Either by having several versions of
+> their closed-source thing, or by having a open "interface" that
+> uses nvidia's calling convention for talking to their proprietary
+> binary code, and whatever the kernel uses for talking to the kernel.
 
-It's currently been running for 16 hours.  I made a few changes to BIOS
-settings (nothing that should matter.)  One thing I've noticed, even though
-Tyan only has ONE BIOS published for the board, both of the boards here
-have different versions (between themselves and what tyan is pushing.)
-
-I'm preparing to slam it with 87Mbps of traffic (as fast as I can transmit
-without error) and see how long it lasts.
-
---Ricky
-
-PS: There's a Del 2650 right below it.  There are reports of problems with
-the e1000's in that thing.  It's the same chipset as I recall.
+Well, they do have an open interface.  I've apparently just not gotten all the
+__attribute((regparm(0))) in the right places yet. ;)
 
 
+--==_Exmh_-11006188P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/eaFTcC3lWbTT17ARAj4XAJ9W2Ce46Y7Xar90KgW1JC3CrfwgEwCfTa2p
+NzPOy7wxEoJ0BlHSyjTc0Yk=
+=66wg
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-11006188P--

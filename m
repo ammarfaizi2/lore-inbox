@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266381AbRHJI4n>; Fri, 10 Aug 2001 04:56:43 -0400
+	id <S266448AbRHJJTT>; Fri, 10 Aug 2001 05:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266448AbRHJI4X>; Fri, 10 Aug 2001 04:56:23 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:6670 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S266381AbRHJI4I>; Fri, 10 Aug 2001 04:56:08 -0400
-Message-ID: <+4l4jdAsF6c7Ewxs@n-cantrell.demon.co.uk>
-Date: Fri, 10 Aug 2001 09:55:08 +0100
-To: linux-kernel@vger.kernel.org
-From: robert w hall <bobh@n-cantrell.demon.co.uk>
-Subject: Re: question on best "Linux" Internals book
-In-Reply-To: <LHEGJICMMCCGOHKDFALMIEOICAAA.rwideman@austin.rr.com>
- <20010810093452.G9277@vestdata.no>
-In-Reply-To: <20010810093452.G9277@vestdata.no>
+	id <S266469AbRHJJS7>; Fri, 10 Aug 2001 05:18:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55657 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S266448AbRHJJSs>; Fri, 10 Aug 2001 05:18:48 -0400
+To: jury gerold <geroldj@grips.com>
+Cc: Thodoris Pitikaris <thodoris@cs.teiher.gr>, linux-kernel@vger.kernel.org
+Subject: Re: is this a bug?
+In-Reply-To: <3B6FD644.7020409@cs.teiher.gr> <3B716E0A.8030005@grips.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Aug 2001 03:12:06 -0600
+In-Reply-To: <3B716E0A.8030005@grips.com>
+Message-ID: <m1g0b0th21.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain;charset=iso-8859-1
-X-Mailer: Turnpike Integrated Version 4.02 U <ZNyPpF8T4habUIG8OkVoLRXKJZ>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010810093452.G9277@vestdata.no>, Ragnar Kjørstad
-<kernel@ragnark.vestdata.no> writes
->On Fri, Aug 10, 2001 at 01:35:29AM -0500, Rob wrote:
->> I am looking for a book that is similar to The Design of the UNIX Operating
->> System by Maurice J. Bach but also for the Linux OS.  Is this book still
->> relevant to Linux even thought it isnt the "same"?  I have heard bad reviews
->> of Linux Internals by Moshe Bar and was wondering what would be a better
->> book for the deep internals of the OS....not exactly going over the code.
->
->I liked the "Linux device drivers" book. There is a new addition out,
->more information at: http://www.oreilly.com/catalog/linuxdrive2/
->
->
->
-obvious book is Bovet & Cesati 'Understanding the Linux Kernel' O'Reilly
-2001 - (it claims it even got by Alan Cox for checking... :-))
--- 
-robert w hall
+jury gerold <geroldj@grips.com> writes:
+
+> I have the same motherboard, same chipset, same CPU and the same crash.
+> No memory test cpu burn UDMA on/off, replace or remove of components
+> did any good.
+> Then i replaced the 100mhz SDRAM with a 133mhz and it is 100 % stable since
+> then.
+> 
+> No matter which compiler, kernel version, cputype.
+> It simply works now.
+
+Do you happen to have the SDRAM timings of the two sets of DIMMS?
+It would be interesting to see what changed besides the clock speed on
+the DIMMS.  I'm assuming your PC133 DIMMs are running at at 133Mhz,
+and you aren't over clocking anything.
+
+Eric

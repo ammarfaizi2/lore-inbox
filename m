@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266624AbUBLVxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 16:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUBLVwq
+	id S266631AbUBLWDv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266632AbUBLWDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 16:52:46 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47305 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266605AbUBLVwn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 16:52:43 -0500
-Date: Thu, 12 Feb 2004 13:54:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pat Gefre <pfg@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] small Altix mod [1/2]
-Message-Id: <20040212135421.2dbabe5c.akpm@osdl.org>
-In-Reply-To: <Pine.SGI.3.96.1040212104225.6390A-100000@fsgi900.americas.sgi.com>
-References: <Pine.SGI.3.96.1040212104225.6390A-100000@fsgi900.americas.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 12 Feb 2004 17:03:51 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:59061 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266631AbUBLWDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 17:03:49 -0500
+Date: Thu, 12 Feb 2004 22:01:32 +0000
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] bogus __KERNEL_SYSCALLS__ usage
+Message-ID: <20040212220132.GY12634@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	torvalds@osdl.org, "Randy.Dunlap" <rddunlap@osdl.org>
+References: <20040212162856.GU12634@redhat.com> <20040212134342.0874290a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040212134342.0874290a.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat Gefre <pfg@sgi.com> wrote:
->
-> Here's a small mod to the Altix code. Andrew can you take this ??
+On Thu, Feb 12, 2004 at 01:43:42PM -0800, Andrew Morton wrote:
 
-Both of these patches are in 2.6.3-rc2-mm1.
+ > > I just did a mini-audit of users of __KERNEL_SYSCALLS and turned
+ > > up a bunch of uglies. The patch below is the easy ones
+ > 
+ > OK.  But Randy is currently beavering away at the astonishing number of
+ > open-coded sys_foo() declarations, and that work has a significant
+ > intersection with yours.
+ > 
+ > So can we please park this for now, pick it up again when Randy has
+ > finished?
 
-I (almost) never silently drop patches.  If you sent something and didn't
-hear back, assume it went in.
+Yeah, that's fine with me, as is Randy hoovering this up and rolling
+it in with his stuff if he wants..
 
-I usually don't ack patches either, sorry.  Probably I should - davem does.
-Generally it's just noise.  I will ack if I made changes to the patch, or
-need more details, etc.   I shall try to be ackier.
-
-If you didn't hear, and the next -mm does not contain your patch, and you
-care about it even a little bit, please remind me.
-
-It helps me if the reminder contains a fresh copy of the patch, with your
-description.
-
-If the patch is urgent then please flag it as such.  We're at -rc now, and
-these patches don't look urgent to me, so I shall sit on them until after
-2.6.3.
+		Dave
 

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268597AbRG3Nyl>; Mon, 30 Jul 2001 09:54:41 -0400
+	id <S268616AbRG3OPu>; Mon, 30 Jul 2001 10:15:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268606AbRG3Nyc>; Mon, 30 Jul 2001 09:54:32 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44560 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268597AbRG3NyU>; Mon, 30 Jul 2001 09:54:20 -0400
-Subject: Re: ext3-2.4-0.9.4
-To: patl@cag.lcs.mit.edu (Patrick J. LoPresti)
-Date: Mon, 30 Jul 2001 14:55:07 +0100 (BST)
-Cc: mason@suse.com (Chris Mason), cw@f00f.org (Chris Wedgwood),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <s5gpuaiplwf.fsf@egghead.curl.com> from "Patrick J. LoPresti" at Jul 30, 2001 09:49:20 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S268614AbRG3OPl>; Mon, 30 Jul 2001 10:15:41 -0400
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:30598 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S268612AbRG3OPb>; Mon, 30 Jul 2001 10:15:31 -0400
+Date: Mon, 30 Jul 2001 15:15:38 +0100
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Kurt Garloff <garloff@suse.de>, Daniela Engert <dani@ngrt.de>
+Subject: Re: VIA KT133A / athlon / MMX
+Message-ID: <20010730151538.A5600@debian>
+Mail-Followup-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	Kurt Garloff <garloff@suse.de>, Daniela Engert <dani@ngrt.de>
+In-Reply-To: <20010729222830.A25964@pckurt.casa-etp.nl> <20010730125012Z268576-720+7896@vger.kernel.org> <20010730154458.C4859@pckurt.casa-etp.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15RDVj-0003oi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20010730154458.C4859@pckurt.casa-etp.nl>
+User-Agent: Mutt/1.3.18i
+From: Michael <leahcim@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> Chris Mason <mason@suse.com> writes:
+> > On Sun, 29 Jul 2001 22:28:30 +0200, Kurt Garloff wrote:
+> > [54:6]=Probe Next Tag State T1	0=disable   1=enable
 > 
-> > Correct, in the current 2.4.x code, its a quirk.  fsync(any object) ==
-> > fsync(all pending metadata, including renames).
+> Main suspect. (Should be 0)
+
+That's set in my stable kt133a system.
+ 
+> > [54:0]=Fast Write-to-Read	0=disable   1=enable
 > 
-> This does not help.  The MTAs are doing fsync() on the temporary file
-> and then using the *subsequent* rename() as the committing operation.
+> Third candidate. (Should be 0)
 
-Which is quaint, because as we've pointed out repeatedly to you rename
-is not an atomic operation. Even on a simple BSD or ext2 style fs it can
-be two directory block writes,  metadata block writes, a bitmap write
-and a cylinder group write.
+as is this one.
+ 
+> > [68:2]=Burst Refresh(4 times)	0=disable   1=enable
+> 
+> Fourth candidate (Should be 0?)
 
-> It would be nice to have an option (on either the directory or the
-> mountpoint) to cause all metadata updates to commit to the journal
-> without causing all operations to be fully synchronous.  This would
+I set this one yesterday to see if it would trigger the problem, it
+didn't :o/ Same with a few differences between my system and 0x6b, which
+didn't either.
 
-You mean fsync() on the directory. 
-
-Alan
-
+Out of curiosity, where are you getting the 'should be 0/1' details from?
+-- 
+Michael.
+ 

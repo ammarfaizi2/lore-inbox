@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKPBq5>; Wed, 15 Nov 2000 20:46:57 -0500
+	id <S129045AbQKPB5Z>; Wed, 15 Nov 2000 20:57:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129279AbQKPBqr>; Wed, 15 Nov 2000 20:46:47 -0500
-Received: from web1106.mail.yahoo.com ([128.11.23.126]:47620 "HELO
-	web1106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129091AbQKPBqe>; Wed, 15 Nov 2000 20:46:34 -0500
-Message-ID: <20001116011632.23521.qmail@web1106.mail.yahoo.com>
-Date: Thu, 16 Nov 2000 02:16:32 +0100 (CET)
-From: willy tarreau <wtarreau@yahoo.fr>
-Subject: Re: 2.4.0-test11-pre5/drivers/net/sunhme.c compile failure on x86
-To: "David S. Miller" <davem@redhat.com>, adam@yggdrasil.com
-Cc: willy@meta-x.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S129060AbQKPB5P>; Wed, 15 Nov 2000 20:57:15 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:36006 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S129045AbQKPB5B>; Wed, 15 Nov 2000 20:57:01 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 15 Nov 2000 17:26:57 -0800
+Message-Id: <200011160126.RAA32351@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, sailer@ife.ee.ethz.ch
+Subject: Patch: linux-2.4.0-test11-pre5/drivers/net/hamradio compile problems
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
 
-(thanks Dave for the quick patch)
+	linux-2.4.0-test11-pre5/drivers/net/hamradio/baycomm_epp.c and
+linux-2.4.0-test11-pre5/drivers/net/hamradio/soundmodem.h refer to
+current_cpu.x86_capability, which has changed from an integer to
+an array, causing compile errors in these files.  Here is a proposed
+patch.  Thomas, will you handle feeding these patches to Linus if
+they look good, or do you want me to?
 
-I also had to move the #include <asm/uaccess.h>
-out of the #ifdef __sparc__/#endif because
-copy_{from|to}_user were left undefined (see
-simple patch below).
-
-Regards,
-Willy
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
 
---- drivers/net/sunhme.c-orig   Wed Nov 15 12:56:33
-2000
-+++ drivers/net/sunhme.c        Wed Nov 15 12:59:35
-2000
-@@ -48,8 +48,8 @@
- #ifndef __sparc_v9__
- #include <asm/io-unit.h>
- #endif
--#include <asm/uaccess.h>
- #endif
-+#include <asm/uaccess.h>
+--- linux-2.4.0-test11-pre5/drivers/net/hamradio/baycom_epp.c	Fri Oct 27 10:55:01 2000
++++ linux/drivers/net/hamradio/baycom_epp.c	Wed Nov 15 17:20:16 2000
+@@ -814,7 +814,7 @@
+ #ifdef __i386__
+ #define GETTICK(x)                                                \
+ ({                                                                \
+-	if (current_cpu_data.x86_capability & X86_FEATURE_TSC)    \
++	if (test_bit(X86_FEATURE_TSC, &current_cpu_data.x86_capability))    \
+ 		__asm__ __volatile__("rdtsc" : "=a" (x) : : "dx");\
+ })
+ #else /* __i386__ */
+--- linux-2.4.0-test11-pre5/drivers/net/hamradio/soundmodem/sm.h	Wed Aug 18 11:38:50 1999
++++ linux/drivers/net/hamradio/soundmodem/sm.h	Wed Nov 15 16:46:57 2000
+@@ -299,7 +299,7 @@
  
- #include <asm/pgtable.h>
- #include <asm/irq.h>
-
-
-___________________________________________________________
-Do You Yahoo!? -- Pour dialoguer en direct avec vos amis, 
-Yahoo! Messenger : http://fr.messenger.yahoo.com
+ #ifdef __i386__
+ 
+-#define HAS_RDTSC (current_cpu_data.x86_capability & X86_FEATURE_TSC)
++#define HAS_RDTSC (test_bit(X86_FEATURE_TSC, &current_cpu_data.x86_capability))
+ 
+ /*
+  * only do 32bit cycle counter arithmetic; we hope we won't overflow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbULUNXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbULUN36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbULUNXc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 08:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbULUNXc
+	id S261755AbULUN36 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 08:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbULUN36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 08:23:32 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:65250 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S261754AbULUNXa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 08:23:30 -0500
-Date: Tue, 21 Dec 2004 14:22:55 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: James Pearson <james-p@moving-picture.com>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reducing inode cache usage on 2.4?
-Message-ID: <20041221132255.GI2143@dualathlon.random>
-References: <41C316BC.1020909@moving-picture.com> <20041217151228.GA17650@logos.cnet> <41C37AB6.10906@moving-picture.com> <20041217172104.00da3517.akpm@osdl.org> <20041220192046.GM4630@dualathlon.random> <41C80A04.9070504@moving-picture.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C80A04.9070504@moving-picture.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 21 Dec 2004 08:29:58 -0500
+Received: from piglet.wetlettuce.com ([82.68.149.69]:10369 "EHLO
+	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
+	id S261755AbULUN35 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 08:29:57 -0500
+Message-ID: <49295.192.102.214.6.1103635762.squirrel@webmail.wetlettuce.com>
+Date: Tue, 21 Dec 2004 13:29:22 -0000 (GMT)
+Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
+From: "Mark Broadbent" <markb@wetlettuce.com>
+To: <romieu@fr.zoreil.com>
+In-Reply-To: <20041221123727.GA13606@electric-eye.fr.zoreil.com>
+References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
+        <20041216211024.GK2767@waste.org>
+        <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
+        <20041217215752.GP2767@waste.org>
+        <20041217233524.GA11202@electric-eye.fr.zoreil.com>
+        <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
+        <20041220211419.GC5974@waste.org>
+        <20041221002218.GA1487@electric-eye.fr.zoreil.com>
+        <20041221005521.GD5974@waste.org>
+        <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com>
+        <20041221123727.GA13606@electric-eye.fr.zoreil.com>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <mpm@selenic.com>, <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Reply-To: markb@wetlettuce.com
+X-Mailer: SquirrelMail (version 1.2.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MailScanner: Mail is clear of Viree
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 21, 2004 at 11:33:24AM +0000, James Pearson wrote:
-> Setting vm_mapped_ratio to 20 seems to give a 'better' memory usage 
-> using my very contrived test - running a find will result in about 900Mb 
-> of dcache/icache, but then running a cat to /dev/null will shrink the 
-> dcache/icache down to between 100-300Mb - running the find and cat at 
-> the same time results in about the same dcache/icache usage.
-> 
-> I'll give this a go on the production NFS server and I'll see if it 
-> improves things.
 
-Ok great. If 20 isn't enough just set it to 40, just be careful that if
-you set it too high the system may swap a bit too early.
+Francois Romieu said:
+> Mark Broadbent <markb@wetlettuce.com> :
+> [...]
+>> OK, patch applied and spinlock debugging enabled.  Testing with eth1
+>> (r1869) doesn'tyield any additional messages, just the standard
+>> 'NMI Watchdog detected lockup'.
+>
+> Does the modified version below trigger _exactly_ the same hang ?
 
-Overall this is still a workaround, real fix would be a background
-scanning of the icache/dcache collisions in the hash buckets but that's
-not for 2.4 ;).
+Using the patch supplied I get no hang, just the message 'netconsole
+raced' output to the console and the packet capture proceeds as normal.
+Thanks
+Mark
+
+-- 
+Mark Broadbent <markb@wetlettuce.com>
+Web: http://www.wetlettuce.com
+
+
+

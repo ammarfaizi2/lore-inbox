@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292092AbSBYSnB>; Mon, 25 Feb 2002 13:43:01 -0500
+	id <S292122AbSBYS5Y>; Mon, 25 Feb 2002 13:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291825AbSBYSmn>; Mon, 25 Feb 2002 13:42:43 -0500
-Received: from petkele.almamedia.fi ([194.215.205.158]:37105 "HELO
-	petkele.almamedia.fi") by vger.kernel.org with SMTP
-	id <S292092AbSBYSm0>; Mon, 25 Feb 2002 13:42:26 -0500
-Message-ID: <3C7A8555.4EB80882@pp.inet.fi>
-Date: Mon, 25 Feb 2002 20:41:25 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
+	id <S293298AbSBYS5O>; Mon, 25 Feb 2002 13:57:14 -0500
+Received: from users.ccur.com ([208.248.32.211]:55319 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S292122AbSBYS5L>;
+	Mon, 25 Feb 2002 13:57:11 -0500
+From: jak@rudolph.ccur.com (Joe Korty)
+Message-Id: <200202251856.SAA11120@rudolph.ccur.com>
+Subject: [RFC][PATCH] irq0 affinity broke on some i386 boxes
+To: linux-kernel@vger.kernel.org
+Date: Mon, 25 Feb 2002 13:56:51 -0500 (EST)
+Reply-To: joe.korty@ccur.com (Joe Korty)
+X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
-To: mailerror@hushmail.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: loop under 2.2.20 - relative block support?
-In-Reply-To: <200202251608.g1PG8QH83933@mailserver4.hushmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mailerror@hushmail.com wrote:
-> On Sat, 23 Feb 2002 21:47:56 +0200, Jari Ruusu <jari.ruusu@pp.inet.fi> wrote:
-> >Kerneli patches use block size dependant IV computation (also called "time
-> >bomb" IV). Shit hits the fan when you move files to a device with different
-> >block size. Search linux-crypto archives for more information.
-> 
-> Aha. So if I moved the loopback file onto a partition with the same blocksize
-> again, it would all be fine?
+Hi everyone,
+  The following patch fixes a bug that prevents a write to
+/proc/irq/0/smp_affinity from actually changing the cpu affinity
+of IRQ #0, on all the (Dell server) SMP machines I have access to.
 
-If you can move original (unmodified) loop file to same block size, same
-kernel version, then yes. If you mounted it rw, then your "time bomb"
-exploded on your face.
+Given the wide variety of IO APIC and legacy PIC usage on various SMP
+motherboards, and the nascent state of my APIC understanding, it is
+quite likely that this fix is not universal.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+I would like expand this patch so that IRQ0 affinity assignment works
+properly on as many i386 SMP motherboards as possible.  If you have
+such a motherboard, please first 1) verify that assignments to
+/proc/irq/0/smp_affinity NOP for you, and 2) if it does NOP, that
+this patch does or does not fix the problem on your system.
+
+To verify that your system has the problem or not:
+
+    in one window, run `watch -n1 cat /proc/interrupts'.
+
+    in another window, assign some affinity value to irq0.  In the
+    following example, cpu #0 (in a 4-cpu system) is to no longer get
+    irq0 interrupts:
+
+	echo e >/proc/irq/0/smp_affinity
+
+    If your system is working properly, the watch-window should no
+    longer show increments for the irq0 value for cpu0.
+
+This patch is against 2.4.18-rc4
+
+Joe
+
+--- linux/arch/i386/kernel/io_apic.c.orig	Tue Nov 13 20:28:41 2001
++++ linux/arch/i386/kernel/io_apic.c	Mon Feb 25 13:17:13 2002
+@@ -1537,6 +1537,7 @@
+ 				setup_nmi();
+ 				check_nmi_watchdog();
+ 			}
++			add_pin_to_irq(0, 0, pin2);
+ 			return;
+ 		}
+ 		/*

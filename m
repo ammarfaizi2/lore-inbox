@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262422AbSJKIRb>; Fri, 11 Oct 2002 04:17:31 -0400
+	id <S261872AbSJKIWr>; Fri, 11 Oct 2002 04:22:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262428AbSJKIRb>; Fri, 11 Oct 2002 04:17:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51215 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262422AbSJKIRa>; Fri, 11 Oct 2002 04:17:30 -0400
-Date: Fri, 11 Oct 2002 09:23:14 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH][2.5] serial8250_init premature release
-Message-ID: <20021011092314.A3062@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0210110034170.13310-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
+	id <S261974AbSJKIWr>; Fri, 11 Oct 2002 04:22:47 -0400
+Received: from denise.shiny.it ([194.20.232.1]:3758 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S261872AbSJKIWq>;
+	Fri, 11 Oct 2002 04:22:46 -0400
+Message-ID: <XFMail.20021011102620.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210110034170.13310-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Fri, Oct 11, 2002 at 12:35:41AM -0400
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20021010225050.GC2673@matchmail.com>
+Date: Fri, 11 Oct 2002 10:26:20 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Cc: andersen@codepoet.org, Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Mark Mielke <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 12:35:41AM -0400, Zwane Mwaikambo wrote:
-> --- linux-2.5.41-mm/drivers/serial/8250.c.orig	2002-10-11 00:33:09.000000000 -0400
-> +++ linux-2.5.41-mm/drivers/serial/8250.c	2002-10-11 00:33:11.000000000 -0400
-> @@ -2051,7 +2051,7 @@
->  }
->  #endif
->  
-> -int __init serial8250_init(void)
-> +int serial8250_init(void)
->  {
->  	int ret, i;
->  	static int didit = 0;
+
+>> When a process opens a file with O_STREAMING, it tells the kernel
+>> it will use the data only once, but it tells nothing about other
+>> tasks. If that process reads something which is already cached,
+>> then it must not drop it because someone other used it recently
+>> and IMHO pagecache only should be allowed to drop it.
+>
+> You are missing the point.  If the app thinks that might happen, it
+> shouldn't use O_STREAMING.
 > 
+> Though, how do you get around some binary app using O_STREAMING when it
+> shouldn't?
 
-This doesn't apply to my tree.  serial8250_init should not be called at
-any other time than initialisation.
+Yes, it is with the current behaviour of O_STREAMING. If we change it to
+what I said above, O_STREAMING becomes useful in a larger set of cases
+with no drawbacks, I think. To not drop pages that were not loaded with
+O_STREAMING flag sounds simple, but I don't know how much it is easy to
+implement.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+Bye.
 

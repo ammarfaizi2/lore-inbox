@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272894AbTHKSFs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272824AbTHKSFO
+	id S273034AbTHKSO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273030AbTHKSO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:05:14 -0400
-Received: from holomorphy.com ([66.224.33.161]:62121 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S272818AbTHKSEn (ORCPT
+	Mon, 11 Aug 2003 14:14:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:9625 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S273028AbTHKSOK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:04:43 -0400
-Date: Mon, 11 Aug 2003 11:05:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test3-mm1
-Message-ID: <20030811180552.GG32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030809203943.3b925a0e.akpm@osdl.org> <94490000.1060612530@[10.10.2.4]>
+	Mon, 11 Aug 2003 14:14:10 -0400
+Date: Mon, 11 Aug 2003 11:14:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@redhat.com>, Jocelyn Mayer <l_indien@magic.fr>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2 does not boot with matroxfb
+Message-ID: <20030811181414.GB17442@kroah.com>
+References: <1060429216.29152.61.camel@jma1.dev.netgem.com> <1060624865.29139.137.camel@jma1.dev.netgem.com> <20030811180703.GA1564@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <94490000.1060612530@[10.10.2.4]>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030811180703.GA1564@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 07:35:31AM -0700, Martin J. Bligh wrote:
-> Degredation on kernbench is still there:
-> Kernbench: (make -j N vmlinux, where N = 16 x num_cpus)
->                               Elapsed      System        User         CPU
->               2.6.0-test3       45.97      115.83      571.93     1494.50
->           2.6.0-test3-mm1       46.43      122.78      571.87     1496.00
-> Quite a bit of extra sys time. I thought the suspected part of the sched
-> changes got backed out, but maybe I'm just not following it ...
+On Mon, Aug 11, 2003 at 07:07:03PM +0100, Dave Jones wrote:
+> On Mon, Aug 11, 2003 at 08:01:06PM +0200, Jocelyn Mayer wrote:
+>  > I played with my PC this week-end.
+>  > First I recompiled XFree up to version 4.3.0. It fixed nothing.
+>  > I found out that the agpgart/dri drivers failed to init:
+>  > Linux agpgart interface v0.100 (c) Dave Jones
+> 
+> Did you also compile in any of the AGP chipset drivers?
+> You should see another AGP line following the above message.
+> If you built them as modules, make sure you put amd-k7-agp or the like
+> in your /etc/modules to make sure it gets loaded.
+> 
+> Greg, I'm getting quite a few mails which has been people getting
+> bitten by this. We discussed this briefly at OLS, what's the missing
+> piece of the puzzle here, hotplug userspace scripts iirc ?
 
-Is this with or without the unit conversion fix for the load balancer?
+Yeah, putting a /sbin/hotplug and the agp modules in initramfs so that
+when the pci device is found during boot, the module will be loaded.  I
+think you might be able to do this with initrd too.
 
-It will be load balancing extra-aggressively without the fix.
+But in reality, it's a user config error :)
 
+thanks,
 
--- wli
+greg k-h

@@ -1,67 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271635AbRHPUwX>; Thu, 16 Aug 2001 16:52:23 -0400
+	id <S271633AbRHPUqX>; Thu, 16 Aug 2001 16:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271636AbRHPUwN>; Thu, 16 Aug 2001 16:52:13 -0400
-Received: from port488.ds1-ynoe.adsl.cybercity.dk ([217.157.176.117]:23363
-	"EHLO athena.colding.adsl.dk") by vger.kernel.org with ESMTP
-	id <S271635AbRHPUv6>; Thu, 16 Aug 2001 16:51:58 -0400
-Date: Thu, 16 Aug 2001 22:48:30 +0200 (CEST)
-From: Jules Colding <dsl11814@vip.cybercity.dk>
-X-X-Sender: <jules@athena.colding.adsl.dk>
-Reply-To: Jules Colding <dsl11814@vip.cybercity.dk>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] NTFS compile fix
-Message-ID: <Pine.LNX.4.33.0108162217001.1870-100000@athena.colding.adsl.dk>
+	id <S271636AbRHPUqE>; Thu, 16 Aug 2001 16:46:04 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:17819 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S271633AbRHPUqB> convert rfc822-to-8bit;
+	Thu, 16 Aug 2001 16:46:01 -0400
+Importance: Normal
+Subject: Re: Re: limit cpu
+To: Eduardo =?iso-8859-1?Q?Cort=E9s?= <the_beast@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF83B3DC6D.E0F03776-ON85256AAA.0070C275@pok.ibm.com>
+From: "Shailabh Nagar" <nagar@us.ibm.com>
+Date: Thu, 16 Aug 2001 16:46:06 -0400
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 08/16/2001 04:46:07 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-2.4.9 says:
-
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.9/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686  -DNTFS_VERSION=\"1.1.16\"   -c -o unistr.o unistr.c
-unistr.c: In function `ntfs_collate_names':
-unistr.c:99: warning: implicit declaration of function `min'
-unistr.c:99: parse error before `unsigned'
-unistr.c:99: parse error before `)'
-unistr.c:97: warning: `c1' might be used uninitialized in this function
-unistr.c: At top level:
-unistr.c:118: parse error before `if'
-unistr.c:123: warning: type defaults to `int' in declaration of `c1'
-unistr.c:123: `name1' undeclared here (not in a function)
-unistr.c:123: warning: data definition has no type or storage class
-unistr.c:124: parse error before `if'
-make[3]: *** [unistr.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.9/fs/ntfs'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.9/fs/ntfs'
-make[1]: *** [_subdir_ntfs] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.9/fs'
-make: *** [_dir_fs] Error 2
-
-
-This fixes it:
-
---- fs/ntfs/unistr.c.orig	Thu Aug 16 22:28:07 2001
-+++ fs/ntfs/unistr.c	Thu Aug 16 22:28:28 2001
-@@ -23,6 +23,7 @@
-
- #include <linux/string.h>
- #include <asm/byteorder.h>
-+#include <linux/kernel.h>
-
- #include "unistr.h"
- #include "macros.h"
 
 
 
-- jules
+Restricting CPU usage alone can be done relatively easily during
+recalculate . Before renewing the counter for a task, a quick check could
+be made against a newly added user-specific limit. If very precise
+accounting is not needed, the check could be done by one of the periodic
+daemons.....
+
+But a bigger question remains : will doing this achieve the objective of
+isolating a malicious/errant process ? There are a number of other system
+resources that the process/user could overuse to the detriment of other
+users/processes.
+
+Shailabh
+
+
+Eduardo Cortés <the_beast@softhome.net>@vger.kernel.org on 08/16/2001
+03:22:55 PM
+
+Sent by:  linux-kernel-owner@vger.kernel.org
+
+
+To:   linux-kernel@vger.kernel.org
+cc:
+Subject:  Re: Re: limit cpu
+
+
+
+On Thursday 16 August 2001 20:54, you wrote:
+> > If somebody want to develope it, a lot of thanks. I see scheduler could
+> > be better with this feature, opinions?
+>
+> one excellent reason noone has bothered with it is that hardware
+> is dirt cheap.  it's extremely unusual these days to find a machine
+> where hostile users are given shell accounts.  for non-hostile
+> situations (my lab, for instance), or for servers, the feature is
+> useless.
+at server level, this feature will be used for virtual hosts (a lot of
+ISP's). Could be used at home for security reason limitting any user
+95-97%,
+and box will be more secure. A lot of people use applications (for XFree)
+that could crash the box for this reason.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
 

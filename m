@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbUJ0B6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUJ0CCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbUJ0B6W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 21:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUJ0B6W
+	id S261532AbUJ0CCn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUJ0CCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 21:58:22 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:44685 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S261514AbUJ0B6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 21:58:15 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Paulo Marques <pmarques@grupopie.com>
-Date: Tue, 26 Oct 2004 18:58:05 -0700
-MIME-Version: 1.0
-Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
-CC: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       penguinppc-team@lists.penguinppc.org,
-       linuxconsole-dev@lists.sourceforge.net
-Message-ID: <417E9E3D.573.3C0CDE1A@localhost>
-In-reply-to: <417E317C.2020703@grupopie.com>
-References: <200410160841.08441.adaplas@hotpop.com>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+	Tue, 26 Oct 2004 22:02:43 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:60035 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261532AbUJ0CCk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 22:02:40 -0400
+Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space
+	for suspend/resume
+From: Li Shaohua <shaohua.li@intel.com>
+To: Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
+Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>, greg@kroah.com,
+       Len Brown <len.brown@intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>
+In-Reply-To: <OF7E38C2D0.FC23B846-ON49256F3A.000672D1-49256F3A.0007BB88@jp.ibm.com>
+References: <OF7E38C2D0.FC23B846-ON49256F3A.000672D1-49256F3A.0007BB88@jp.ibm.com>
+Content-Type: text/plain
+Message-Id: <1098842129.12477.2.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Oct 2004 09:55:30 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques <pmarques@grupopie.com> wrote:
-
-> Well, I played with the emulator last night to see if I could
-> reduce the code size, so that it would be easier to make it to the
-> official kernel. 
+On Wed, 2004-10-27 at 09:32, Hiroshi 2 Itoh wrote:
 > 
-> I only took ops.c and did some transformations, like using a
-> single function to make several operations based on the opcode,
-> instead of a separate function for each opcode, etc.[1] 
 > 
-> This is the result. Before:
+> Hi,
 > 
-> Size of stripped libx86emu.a: ~74kb
-> ops.c source code lines: 11682
-> ops.o .text size: 36136
-> ops.o .data: 1312
+> acpi-devel-admin@lists.sourceforge.net wrote on 2004/10/26 13:50:57:
 > 
-> After:
+> > Hi,
+> > We suffer from PCI config space issue for a long time, which causes many
+> > system can't correctly resume. Current Linux mechanism isn't sufficient.
+> > Here is a another idea:
+> > Record all PCI writes in Linux kernel, and redo all the write after
+> > resume in order. The idea assumes Firmware will restore all PCI config
+> > space to the boot time state, which is true at least for IA32.
+> >
 > 
-> Size of stripped libx86emu.a: ~57kb
-> ops.c source code lines: 5908
-> ops.o .text size: 19320
-> ops.o .data: 1280
+> I think a basic problem of current Linux device model is that there is no
+> effective message path from sibling devices to their root device.
+> Although the message direction from a root device to sibling devices is
+> natural from the viewpoint of device enumeration, the direction from
+> sibling devices to a root device is required for effective arbitration for
+> device configuration and power management.
 > 
-> If the same treatment is applied to ops2.c and prim_ops.c, I
-> believe it would be possible to have a functional emulator for
-> about 32kb of kernel code size, which seems pretty reasonable to
-> me and could solve a lot of problems. 
+> The Windows driver model uses the direction from sibling drivers to a root
+> bus driver mainly, i.e. sibling drivers are layered on a root bus driver.
+> While we need a kind of callback mechanism from PCI (sibling) devices to
+> PCI bus (root) device instead because their normal call interface is from a
+> root device to sibling devices.
+Hiro-san,
+I don't really understand why this is related with suspend/resume. Could
+you please explain it more clearly?
 
-Wow, that is great!
-
-> The decrease in source code size also helps maintenance, since
-> there is not so much repeated code has it was before. 
-> 
-> Of course, these changes are optimizing the emulator for code
-> size, and not execution speed. I haven't done any benchmarks to
-> see if there is a noticeable difference in speed. 
-
-Did you get the latest code? I have been sick with the flu and I think I 
-forgot to send you the latest code to play with. We should get you set up 
-so you can merge your changes into our tree and then we can update the 
-one in the X.org tree as well (Egbert Eich usually does that from our 
-tree).
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
+Thanks,
+Shaohua
 
 

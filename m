@@ -1,68 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272983AbTHFBMs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 21:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273004AbTHFBMr
+	id S273004AbTHFBX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 21:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273026AbTHFBX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 21:12:47 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:36840 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S272983AbTHFBMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 21:12:46 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Date: Wed, 6 Aug 2003 11:12:38 +1000
+	Tue, 5 Aug 2003 21:23:58 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:52899
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S273004AbTHFBX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 21:23:57 -0400
+Message-ID: <1060133030.3f3058a68e126@kolivas.org>
+Date: Wed,  6 Aug 2003 11:23:50 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O12.2int for interactivity
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <3F303494.3030406@techsource.com>
+In-Reply-To: <3F303494.3030406@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16176.22022.382294.55110@gargle.gargle.HOWL>
-Cc: muizelaar@rogers.com, linux-kernel@vger.kernel.org,
-       mru@users.sourceforge.net
-Subject: Re: FS: hardlinks on directories
-In-Reply-To: message from Stephan von Krawczynski on Tuesday August 5
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<yw1xsmohioah.fsf@users.sourceforge.net>
-	<20030804152226.60204b61.skraw@ithnet.com>
-	<3F2E7C63.2000203@rogers.com>
-	<20030804181500.074aec51.skraw@ithnet.com>
-	<16175.6729.962817.135747@gargle.gargle.HOWL>
-	<20030805114125.30a12916.skraw@ithnet.com>
-X-Mailer: VM 7.17 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday August 5, skraw@ithnet.com wrote:
-> > > Hm, and I just found out that re-exporting "mount --bind" volumes does not
-> > > work over nfs...
-> > > 
-> > > Is this correct, Neil?
-> > 
-> > Yes, though there is a reasonable chance that it can be made to work
-> > with linux-2.6.0 and nfs-utils-1.1.0 (neither of which have been
-> > released yet:-)
+Quoting Timothy Miller <miller@techsource.com>:
 > 
-> Is this a complex issue? Can you imagine a not-too-big sized patch can make it
-> work in 2.4? What is the basic reason it does in fact not work?
+> The interactivity detection algorithm will always be inherently 
+> imperfect.  Given that it is not psychic, it cannot tell in advance 
+> whether or not a given process is supposed to be interactive, so it must 
+> GUESS based on its behavior.
+> 
+> Furthermore, for any given scheduler algorithm, it is ALWAYS possible to 
+> write a program which causes it to misbehave.
+> 
+> This "thud" program is Goedel's theorem for the interactivity scheduler 
+> (well, that's not exactly right, but you get the idea).  It breaks the 
+> system.  If you redesign the scheduler to make "thud" work, then someone 
+> will write "thud2" (which is what you have just done!) which breaks the 
+> scheduler.  Ad infinitum.  It will never end.  And in this case, 
+> optimizing for "thud" is likely also to make some other much more common 
+> situations WORSE.
+> 
+> 
+> So, while it MAY be of value to write a few "thud" programs, don't let 
+> it go too far.  The scheduler should optimize for REAL loads -- things 
+> that people actually DO.  You will always be able to break it by 
+> reverse-engineering it and writing a program which violates its 
+> expectations.  Don't worry about it.  You will always be able to break 
+> it if you try hard enough.
 
-On reflection, it could probably work in 2.4 and current nfs-utils,
-but admin might be a bit clumsy.
+Thank you for your commentary which I agree with. With respect to these 
+potential issues I have always worked on a fix for where I thought real world 
+applications might cause these rather than try and fix it for just that program.
+It was actually the opposite reason that my patch prevented thud from working; 
+it is idle tasks that become suddenly cpu hogs that in the real world are 
+potential starvers,  and I made a useful fix for that issue. Thud just happened 
+to simulate those conditions and I only tested for it after I heard of thud. So 
+just a (hopefully reassuring) reminder; I'm not making an xmms interactivity 
+estimator, nor an X estimator, nor a "fix this exploit" one and so on.
 
-To allow knfsd to see a mountpoint, you have to export the mounted
-directory with the "nohide" option.  Currently "nohide" only works
-properly for exports to specific hosts, not to wildcarded hosts or
-netgroups.
-So if your /etc/export contains:
-
-  /path/to/some/--bind/mountpoint servername(nohide,....)
-
-for every mountpoint and every server, then it should work.
-
-In 2.6, you can (will be able to) just export the top level mount
-point with "crossmnt" and it should all work for you.
-
-Getting that functionality into 2.4 would be a very big job.
-
-NeilBrown
+Con

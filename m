@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277203AbRJZCCB>; Thu, 25 Oct 2001 22:02:01 -0400
+	id <S277317AbRJZCRg>; Thu, 25 Oct 2001 22:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277316AbRJZCBv>; Thu, 25 Oct 2001 22:01:51 -0400
-Received: from zero.tech9.net ([209.61.188.187]:14858 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S277203AbRJZCBk>;
-	Thu, 25 Oct 2001 22:01:40 -0400
-Subject: Re: SiS/Trident 4DWave sound driver oops
-From: Robert Love <rml@tech9.net>
-To: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-Cc: "Michael F. Robbins" <compumike@compumike.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <6693w4ds.wl@nisaaru.dvs.cs.fujitsu.co.jp>
-In-Reply-To: <1004016263.1384.15.camel@tbird.robbins>
-	<7ktjw58u.wl@nisaaru.dvs.cs.fujitsu.co.jp>
-	<1004060759.11258.12.camel@phantasy> 
-	<6693w4ds.wl@nisaaru.dvs.cs.fujitsu.co.jp>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.24.21.44 (Preview Release)
-Date: 25 Oct 2001 22:02:20 -0400
-Message-Id: <1004061741.11366.32.camel@phantasy>
+	id <S277322AbRJZCR0>; Thu, 25 Oct 2001 22:17:26 -0400
+Received: from queen.bee.lk ([203.143.12.182]:56705 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S277317AbRJZCRJ>;
+	Thu, 25 Oct 2001 22:17:09 -0400
+Date: Fri, 26 Oct 2001 08:17:28 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: bert hubert <ahu@ds9a.nl>, Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.13..
+Message-ID: <20011026081728.A14607@bee.lk>
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com> <20011024114026.A14078@outpost.ds9a.nl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011024114026.A14078@outpost.ds9a.nl>; from ahu@ds9a.nl on Wed, Oct 24, 2001 at 11:40:26AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-10-25 at 21:56, Tachino Nobuhiro wrote:
-> Robert Love wrote:
-> > Hm, I don't think so.  The last area is marked zero so code can know
-> > when it ends.  This is common practice.
+On Wed, Oct 24, 2001 at 11:40:26AM +0200, bert hubert wrote:
+>
+> On Tue, Oct 23, 2001 at 10:52:28PM -0700, Linus Torvalds wrote:
+> >
+> > final:
+> >  - page write-out throttling
+> >  - Pete Zaitcev: ymfpci sound driver update (make Civ:CTP happy with it)
+> >  - Alan Cox: i2o sync-up
+> >  - Andrea Arcangeli: revert broken x86 smp_call_function patch
+> >  - me: handle VM write load more gracefully. Merge parts of -aa VM
 > 
-> But the code does not use the last area. this is the code in
-> ac97_probe_codec().
+> Why do we do the exciting VM things in 'final'? We are confusing people with
+> pre-patches that are better than actual releases!
 
-ARRAY_SIZE(x) returns the number of elements in x, but since everything
-is 0-referenced going from 0 to i < ARRAY_SIZE isn't a problem.
+IMHO _nothing_ should be done for the final.  A better alternative is to name a
+stable pre kernel as a final without changes.  In the current scenario, a final
+kernel release is one which is _not_ tested.
 
-ie int x[3];
-ARRAY_SIZE(x) = 3;
-but x[2] is last element... so no issue here.
+Cheers,
 
-> 	id1 = codec->codec_read(codec, AC97_VENDOR_ID1);
-> 	id2 = codec->codec_read(codec, AC97_VENDOR_ID2);
-> 	for (i = 0; i < ARRAY_SIZE(ac97_codec_ids); i++) {
-> 		if (ac97_codec_ids[i].id == ((id1 << 16) | id2)) {
-> 			codec->type = ac97_codec_ids[i].id;
-> 			codec->name = ac97_codec_ids[i].name;
-> 			codec->codec_ops = ac97_codec_ids[i].ops;
-> 			break;
-> 		}
-> 	}
->   
-> If id1 and id2 happen to be 0, it matches the last entry and codec_ops
-> is set to uncertain value(maybe 0). it may cause the oops in ac97_init_mixer().
+Anuradha
 
-	Robert Love
+-- 
+
+Debian GNU/Linux (kernel 2.4.13)
+
+The most important design issue... is the fact that Linux is supposed to 
+be fun...
+	-- Linus Torvalds at the First Dutch International Symposium on Linux
 

@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318862AbSHLXOW>; Mon, 12 Aug 2002 19:14:22 -0400
+	id <S318867AbSHLXOy>; Mon, 12 Aug 2002 19:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318867AbSHLXOW>; Mon, 12 Aug 2002 19:14:22 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:9732 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318862AbSHLXOV>; Mon, 12 Aug 2002 19:14:21 -0400
-Date: Tue, 13 Aug 2002 01:17:15 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Greg Banks <gnb@alphalink.com.au>,
-       Peter Samuelson <peter@cadcamlab.org>, <linux-kernel@vger.kernel.org>,
-       <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [patch] config language dep_* enhancements
-In-Reply-To: <20020812224704.GG20176@opus.bloom.county>
-Message-ID: <Pine.LNX.4.44.0208130053360.28515-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318868AbSHLXOy>; Mon, 12 Aug 2002 19:14:54 -0400
+Received: from server0027.freedom2surf.net ([194.106.33.36]:53439 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S318867AbSHLXOw>; Mon, 12 Aug 2002 19:14:52 -0400
+Date: Tue, 13 Aug 2002 00:30:11 +0100
+From: Ian Molton <spyro@f2s.com>
+To: Hans-Christian Armingeon <linux.johnny@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ipaq 39xx
+Message-Id: <20020813003011.3d80cda9.spyro@f2s.com>
+In-Reply-To: <200208130030.33417.linux.johnny@gmx.net>
+References: <20020812225326.2ef976b8.spyro@f2s.com>
+	<200208130030.33417.linux.johnny@gmx.net>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.1cvs22 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 13 Aug 2002 00:30:33 +0200
+Hans-Christian Armingeon <linux.johnny@gmx.net> wrote:
 
-On Mon, 12 Aug 2002, Tom Rini wrote:
+> But stay away from Xscale, it is like the P4: optimized for MHz, not
+> for instructions per clock.
 
-> > A bit more flexibility certainly wouldn't hurt. :)
->
-> What does that gain however?  And it wouldn't make as much sense to
-> offer the IBM Spruce (750) next to the IBM Walnut (405GP).
-
-You weren't forced to sort them by cpu type. Maybe it works as is, you
-should know that better than me.
-I only used it as an example, because my tool has problems to
-automatically convert this construct into something useful (e.g. because
-of CONFIG_WILLOW in 2 seperate choice statements).
-
-bye, Roman
-
+The XScale also uses a lot less power, though...

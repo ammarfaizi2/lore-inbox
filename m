@@ -1,101 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbTL1AgV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 19:36:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTL1AgV
+	id S264884AbTL1Acx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 19:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264892AbTL1Acw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 19:36:21 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:461 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S264898AbTL1AgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 19:36:19 -0500
-Date: Sat, 27 Dec 2003 16:27:11 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: azarah@nosferatu.za.org
-cc: Edward Tandi <ed@efix.biz>, perex@suse.cz,
-       alsa-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Rob Love <rml@ximian.com>, Andrew Morton <akpm@osdl.org>,
-       Stan Bubrouski <stan@ccs.neu.edu>,
-       Henrik Storner <henrik-kernel@hswn.dk>
-Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
-Message-ID: <3160000.1072571230@[10.10.2.4]>
-In-Reply-To: <1072557893.6994.5.camel@nosferatu.lan>
-References: <1080000.1072475704@[10.10.2.4]> <1072479167.21020.59.camel@nosferatu.lan>  <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>  <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>  <2060000.1072483186@[10.10.2.4]> <1072500516.12203.2.camel@duergar>  <8240000.1072511437@[10.10.2.4]> <1072523478.12308.52.camel@nosferatu.lan> <1072525450.3794.8.camel@wires.home.biz>  <1960000.1072550125@[10.10.2.4]> <1072555431.12308.471.camel@nosferatu.lan> <1072557893.6994.5.camel@nosferatu.lan>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Dec 2003 19:32:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62957 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264884AbTL1Acv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 19:32:51 -0500
+Date: Sat, 27 Dec 2003 16:32:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-mm1 oops on boot (cpufreq related)
+Message-Id: <20031227163253.6f612adc.akpm@osdl.org>
+In-Reply-To: <3FEDEA78.1090301@oracle.com>
+References: <3FEDEA78.1090301@oracle.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I chose to just back out the wholefrag stuff - it doesn't seem to
-work. Presumably someone from the ALSA project will come up with a
-better fix than this, if not, I'll send this upstream. This should
-just fix it, without the need to do other stuff in userspace to work
-around it ... at least it does for me. 
+Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
+>
+> pufreq: CPU0 - ACPI performance management activated
+>  cpufreq: *P0: 1Mhz, 0 mW, 0 uS
+>  cpufreq:  P1: 0Mhz, 0 mW, 0 uS
+>  divide error: 0000 [#1]
+>  PREEMPT
+>  CPU:   0
+>  EIP:   0060:[<c02cb03f>]   Not tainted VLI
+>  EFLAGS: 00010246
+>  EIP is at cpufreq_notify_transition+0xb2/0x17a
+>  eax: 001b1000   ebx: 001b1000   ecx: 00000000   edx: 00000000
+>  esi: c1a37f70   edi: 00000000   ebp: 0000008b   esp: c1a37fa8
+>  ds: 007b   es: 007b   ss:0068
+>  Process swapper (pid: 1, threadinfo=c1a36000 task=f7f9f980)
+>  Stack: ffffff00 c01164d9 00000060 00000086 f7dab860 f7dab800 0000008b c01156d3
+>          c1a37f70 00000001 c1a37f60 c037b940 00000000 00000086 f7dab860 00000064
+>          01000000 c037b8e0 c037d37e 00000000 00000000 00000001 00000000 c1a37fa8
+>  Call Trace:
+>    [<c01164d9>] delay_tsc+0xb/0x15
+>    [<c01156d3>] acpi_processor_set_performance+0x1e0/0x3e6
+>    [<c04652c1>] acpi_cpufreq_init+0x243/0x2a3
+>    [<c045e6e6>] do_initcalls+0x27/0x93
+>    [<c012c9e7>] init_workqueues+0xf/0x28
+>    [<c01070bd>] init+0x30/0x133
+>    [<c010708d>] init+0x0/0x133
+>    [<c0108f59>] kernel_thread_helper+0x5/0xb
 
-This is the way the world was in -test2, and maybe it should have stayed 
-like that - the new feature seems to me to default wholefrag off, where
-it was on before. Patch is also in 2.6.0-mjb2, which I'll release in a bit.
+hmm, I don't think there's much in the way of cpufreq changes in -mm.
 
-M.
+Would you be able to try just 2.6.0 plus
 
-diff -urpN -X /home/fletch/.diff.exclude 610-alsa_100rc2/include/sound/pcm_oss.h 620-force_wholefrag/include/sound/pcm_oss.h
---- 610-alsa_100rc2/include/sound/pcm_oss.h	Mon Nov 17 18:29:43 2003
-+++ 620-force_wholefrag/include/sound/pcm_oss.h	Sat Dec 27 14:50:15 2003
-@@ -31,7 +31,6 @@ struct _snd_pcm_oss_setup {
- 		     direct:1,
- 		     block:1,
- 		     nonblock:1,
--		     wholefrag:1,
- 		     nosilence:1;
- 	unsigned int periods;
- 	unsigned int period_size;
-diff -urpN -X /home/fletch/.diff.exclude 610-alsa_100rc2/sound/core/oss/pcm_oss.c 620-force_wholefrag/sound/core/oss/pcm_oss.c
---- 610-alsa_100rc2/sound/core/oss/pcm_oss.c	Sat Dec 27 14:50:08 2003
-+++ 620-force_wholefrag/sound/core/oss/pcm_oss.c	Sat Dec 27 14:50:15 2003
-@@ -814,9 +814,8 @@ static ssize_t snd_pcm_oss_write1(snd_pc
- 			buf += tmp;
- 			bytes -= tmp;
- 			xfer += tmp;
--			if (substream->oss.setup == NULL || !substream->oss.setup->wholefrag ||
--			    runtime->oss.buffer_used == runtime->oss.period_bytes) {
--				tmp = snd_pcm_oss_write2(substream, runtime->oss.buffer, runtime->oss.buffer_used, 1);
-+			if (runtime->oss.buffer_used == runtime->oss.period_bytes) {
-+				tmp = snd_pcm_oss_write2(substream, runtime->oss.buffer, runtime->oss.period_bytes, 1);
- 				if (tmp <= 0)
- 					return xfer > 0 ? (snd_pcm_sframes_t)xfer : tmp;
- 				runtime->oss.bytes += tmp;
-@@ -2195,7 +2194,7 @@ static void snd_pcm_oss_proc_read(snd_in
- 	snd_pcm_oss_setup_t *setup = pstr->oss.setup_list;
- 	down(&pstr->oss.setup_mutex);
- 	while (setup) {
--		snd_iprintf(buffer, "%s %u %u%s%s%s%s%s%s\n",
-+		snd_iprintf(buffer, "%s %u %u%s%s%s%s%s\n",
- 			    setup->task_name,
- 			    setup->periods,
- 			    setup->period_size,
-@@ -2203,7 +2202,6 @@ static void snd_pcm_oss_proc_read(snd_in
- 			    setup->direct ? " direct" : "",
- 			    setup->block ? " block" : "",
- 			    setup->nonblock ? " non-block" : "",
--			    setup->wholefrag ? " whole-frag" : "",
- 			    setup->nosilence ? " no-silence" : "");
- 		setup = setup->next;
- 	}
-@@ -2270,8 +2268,6 @@ static void snd_pcm_oss_proc_write(snd_i
- 				template.block = 1;
- 			} else if (!strcmp(str, "non-block")) {
- 				template.nonblock = 1;
--			} else if (!strcmp(str, "whole-frag")) {
--				template.wholefrag = 1;
- 			} else if (!strcmp(str, "no-silence")) {
- 				template.nosilence = 1;
- 			}
+	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0/2.6.0-mm1/broken-out/acpi-20031203.patch
 
-
-
-
-
+Thanks.

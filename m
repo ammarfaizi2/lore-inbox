@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266718AbTBTSxb>; Thu, 20 Feb 2003 13:53:31 -0500
+	id <S266795AbTBTTEG>; Thu, 20 Feb 2003 14:04:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266749AbTBTSxb>; Thu, 20 Feb 2003 13:53:31 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:24214 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S266718AbTBTSx3>;
-	Thu, 20 Feb 2003 13:53:29 -0500
-Date: Thu, 20 Feb 2003 20:00:26 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
+	id <S266806AbTBTTEG>; Thu, 20 Feb 2003 14:04:06 -0500
+Received: from crack.them.org ([65.125.64.184]:55782 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S266795AbTBTTEG>;
+	Thu, 20 Feb 2003 14:04:06 -0500
+Date: Thu, 20 Feb 2003 14:13:58 -0500
+From: Daniel Jacobowitz <dan@debian.org>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302200949520.1385-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302201958370.1446-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Alex Larsson <alexl@redhat.com>, procps-list@redhat.com
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+Message-ID: <20030220191358.GA18459@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Alex Larsson <alexl@redhat.com>, procps-list@redhat.com
+References: <Pine.LNX.4.44.0302200902260.2493-100000@home.transmeta.com> <Pine.LNX.4.44.0302200918300.2493-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302200918300.2493-100000@home.transmeta.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 20 Feb 2003, Linus Torvalds wrote:
-
-> > a true heisenbug. I cannot reproduce it anymore. Anyway, from the serial
-> > console i collected 3 instances of crashes - whatever it's worth.
+On Thu, Feb 20, 2003 at 09:20:38AM -0800, Linus Torvalds wrote:
 > 
-> Pretty much every single time, release_task() has been there on the
-> backtrace.
+> On Thu, 20 Feb 2003, Linus Torvalds wrote:
+> > 
+> > It would just be _so_ much nicer if the threads would show up as 
+> > subdirectories ie /proc/<tgid>/<tid>/xxx. More scalable, more readable, 
+> > and just generally more sane.
 > 
-> In fact, I bet you this code in do_exit() is the cause:
+> It shouldn't even be all that much harder. You only really need to add the 
+> "lookup()" and "readdir()" logic to the pid-fd's, and they both should be 
+> fairly straightforward, ie something like the appended should do the 
+> lookup() part.
 > 
->         preempt_disable();
-> 
->         if (tsk->exit_signal == -1)
-> ***             release_task(tsk);	***
-> 
->         schedule();
-> 
-> Note how "release_task()" will be releasing the stack that the process
-> is running on right now. [...]
+> (UNTESTED! NOT COMPILED! PROBABLY HORRIBLY BUGGY! CAVEAT USER! CONCEPTUAL 
+> CODE ONLY! YOU GET THE IDEA! I'M GETTING HOARSE FROM ALL THE SHOUTING!)
 
-but, release_task() is a delayed thing for exactly this reason. It fills
-out the per-CPU task_cache but does not free the task.
+It'd be a little (very little) more complex, but can I once again
+suggest /proc/<tgid>/threads/<tid> instead of /proc/<tgid>/<tid>/xxx?
 
-the release_task() + schedule() must be atomic though - ie. we must not be
-preempted anytime inbetween [because that other task could free the
-task_cache] - but i wasnt running with CONFIG_PREEMPT, so i cannot see how
-it could happen.
 
-	Ingo
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

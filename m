@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263761AbRFDEDr>; Mon, 4 Jun 2001 00:03:47 -0400
+	id <S264259AbRFDNmX>; Mon, 4 Jun 2001 09:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263827AbRFDEDh>; Mon, 4 Jun 2001 00:03:37 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:19724 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S263761AbRFDED2>; Mon, 4 Jun 2001 00:03:28 -0400
-Date: Sun, 3 Jun 2001 21:02:18 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-cc: Andries.Brouwer@cwi.nl,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: keyboard hook?
-In-Reply-To: <20010603110239.A4982@513.holly-springs.nc.us>
-Message-ID: <Pine.LNX.4.10.10106032056310.14554-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264260AbRFDNmO>; Mon, 4 Jun 2001 09:42:14 -0400
+Received: from jalon.able.es ([212.97.163.2]:57305 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S264259AbRFDNmE>;
+	Mon, 4 Jun 2001 09:42:04 -0400
+Date: Mon, 4 Jun 2001 15:41:46 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: here comes the summer...
+Message-ID: <20010604154146.A2155@werewolf.able.es>
+In-Reply-To: <20010530233055.A1138@werewolf.able.es> <20010602135800.A33@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010602135800.A33@toy.ucw.cz>; from pavel@suse.cz on Sat, Jun 02, 2001 at 15:58:01 +0200
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Thanks, I'm loking through your driver now. Does the input api 
-> already/currently support ps2 keyboards?
+On 06.02 Pavel Machek wrote:
+> Hi!
+> 
+> > ...again (I think I asked just the same last summer)
+> > and lm_sensors is still out of the kernel (we have got 40ºC in Spain
+> > this week, and I would like to know how my PIIs suffer...)
+> 
+> Send some summer over here. It is 15C outside...
+> 
+> You should try latest ACPI patches, they include thermal managment, too.
+> 
 
-With the current tree no. The work around is to make input api keyboards
-behave as PS/2 keyboards. In 2.5.X ps2 keyboards will be input api based. 
-As you can see we already have PS/2 input api driver (i8042.c and atkbd.c). 
-I have been using it for several months now. It is just a matter of making
-sure it works on other platforms besides intel. 
+I have tried the latest CVS i2c+lm_sensors2, and the patches it generates
+look like much more clean. I am waiting for the announced 2.6 relase, and
+then will try to send a patch to Alan (if official mantainer do not does it
+himself...)
 
-P.S
-   I also need to port other keyboard drivers on other platforms over to
-the input api and test these drivers. If anyone would like to help out
-contact me.
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac6 #2 SMP Sat Jun 2 01:52:13 CEST 2001 i686

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135852AbREIDwD>; Tue, 8 May 2001 23:52:03 -0400
+	id <S135853AbREIEYy>; Wed, 9 May 2001 00:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135853AbREIDvw>; Tue, 8 May 2001 23:51:52 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:12818 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S135852AbREIDvm>; Tue, 8 May 2001 23:51:42 -0400
-Date: Tue, 8 May 2001 19:48:26 -0700 (PDT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@speech.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: nfs warning: mount version older than kernel
-Message-ID: <Pine.LNX.4.33.0105081947130.7618-100000@speech.corp.fedex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135855AbREIEYp>; Wed, 9 May 2001 00:24:45 -0400
+Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:18174 "EHLO
+	mailout2-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S135853AbREIEY1>; Wed, 9 May 2001 00:24:27 -0400
+Message-Id: <200105090424.AAA05768@soyata.home>
+X-Mailer: exmh version 2.1.0 09/18/1999
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Wow! Is memory ever cheap! 
+In-Reply-To: Message from Larry McVoy <lm@bitmover.com> 
+   of "Mon, 07 May 2001 11:56:59 PDT." <20010507115659.T14127@work.bitmover.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 09 May 2001 00:24:25 -0400
+From: "Marty Leisner" <leisner@rochester.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Where can I get the latest "mount" ?
+I'm confused by the "lets not use ECC and use bk" talk.
 
-# mount -t nfs lo:/ /mnt
-NFS: NFSv3 not supported.
-nfs warning: mount version older than kernel
+My understanding is suns big machines stopped using ecc and they
+started to have "random" problems running big-iron applications
+that took them a while to figure out (and a lot of bad press) and can
+only be rectified in the big cycle (this was last year so its probably solved 
+now).
 
-#mount --version
-mount: mount-2.11a
+I thought one of the primary reasons to have ecc is to catch
+wierd things before they become catostrophic...and at least
+know WHY weirdness is happening...
 
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+marty
 

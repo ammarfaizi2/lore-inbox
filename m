@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316296AbSEQQOL>; Fri, 17 May 2002 12:14:11 -0400
+	id <S316322AbSEQQVS>; Fri, 17 May 2002 12:21:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316322AbSEQQOK>; Fri, 17 May 2002 12:14:10 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:52623 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316296AbSEQQOJ>; Fri, 17 May 2002 12:14:09 -0400
-Date: Fri, 17 May 2002 11:14:00 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Andrew Morton <akpm@zip.com.au>, Ghozlane Toumi <ghoz@sympatico.ca>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: [PATCH] Fix BUG macro 
-In-Reply-To: <E178eCw-0008ML-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0205171111381.26436-100000@chaos.physics.uiowa.edu>
+	id <S316326AbSEQQVR>; Fri, 17 May 2002 12:21:17 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:22956 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id <S316322AbSEQQVQ>; Fri, 17 May 2002 12:21:16 -0400
+Date: Fri, 17 May 2002 12:21:00 -0400 (EDT)
+From: Paul Faure <paul@engsoc.org>
+X-X-Sender: <paul@lager.engsoc.carleton.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
+In-Reply-To: <E178hAf-0006PS-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0205171215560.31871-100000@lager.engsoc.carleton.ca>
+X-Home-Page: http://www.engsoc.org/
+X-URL: http://www.engsoc.org/
+Organisation: Engsoc Project (www.engsoc.org)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, Rusty Russell wrote:
+A little more information:
 
-> I don't care about the bloat: I care about the compile time exploding
-> because every file is different in different trees, due to the
-> filename strings.
+On a dual system:
+Running as root -> Single process app (50% total CPU)-> locks out network
+Running as root -> Multi process app (100% total CPU) -> locks out network
+Running unprivileged -> Single process(50%) -> Network works fine
+Running unprivileged -> Multi process(100%) -> locks out network
+
+Going to try a few other network cards if I find one.
+
+On Fri, 17 May 2002, Alan Cox wrote:
+
+> > So the problem would appear to be that your networking *requires*
+> > ksoftirqd services to function.  Either:
+> > 
+> > 1) The driver is bust - its hard_start_xmit() function is failing
+> >    frequently, and relying on ksoftirqd to get things done (I think;
+> >    it's been a while).  Or
 > 
-> It'd be very nice to have a solution to this, and I'll keep sending
-> patches to Linus until he applies them or says "no do it this way".
+> The ne2k card has little buffering. 
+> 
+> > 2) Something is wrong with the ksoftirqd design.  Or
+> 
+> I think its mostly #2. We invoke ksoftirq far far too easily.
+> 
 
-Well, a way to work around this would be to replace
-
-	-I$(TOPDIR)/include
-
-with
-
-	-I../../include
-
-on the command line, I suppose, with the right amount of "../". A bit 
-hackish, but it should do.
-
---Kai
+-- 
+Paul N. Faure					613.266.3286
+EngSoc Administrator            		paul-at-engsoc-dot-org
+Chief Technical Officer, CertainKey Inc.	paul-at-certainkey-dot-com
+Carleton University Systems Eng. 4th Year	paul-at-faure-dot-ca
 

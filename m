@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263291AbTJKMBO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 08:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbTJKMBN
+	id S263278AbTJKMBd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 08:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTJKMBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 08:01:13 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:64236 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S263291AbTJKMBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 08:01:10 -0400
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <1065873664.30987.431.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
-Date: Sat, 11 Oct 2003 13:01:05 +0100
-X-SA-Exim-Mail-From: dwmw2@infradead.org
-Subject: Signals and kernel threads.
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
+	Sat, 11 Oct 2003 08:01:33 -0400
+Received: from [202.149.212.34] ([202.149.212.34]:20835 "EHLO cmie.com")
+	by vger.kernel.org with ESMTP id S263278AbTJKMBa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 08:01:30 -0400
+Date: Sat, 11 Oct 2003 17:31:08 +0530 (IST)
+From: Nohez <nohez@cmie.com>
+X-X-Sender: <nohez@venus.cmie.ernet.in>
+To: <linux-kernel@vger.kernel.org>
+cc: <smartmontools-support@lists.sourceforge.net>
+Subject: Reproducable time problem with SMARTD & XNTPD
+Message-ID: <Pine.LNX.4.33.0310111545530.1047-100000@venus.cmie.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, kernel threads could make use of signals for receiving
-control from userspace. Now, the NPTL code looks at the recipient
-thread's userspace handlers for signals, even in the case of a kernel
-thread, and if there's not a handler installed will either discard the
-signal or convert it to SIGKILL.
 
-Could we disable this behaviour in the case where the recipient is a
-kernel thread please? Or at least make allow_signal() set sa_handler to
-some non-zero dummy value so that the signal is delivered as intended.
 
--- 
-dwmw2
+We have a Intel 875WP1-E motherboard with 2 onboard SATA ports.
+In addition to the two 80GB SATA disks attached to these ports we
+have three 160GB IDE HDD and one 300GB IDE HDD attached to 2 Promise
+controllers (PDC20269). The server has xntpd configured on it to sync
+time from remote timeserver. It has been running without any problems
+for more than 2 months.
 
+Last week we installed SMARTD on this box. SMARTD was configured to
+monitor the 6 HDDs. The time on the server started to go out of sync
+with the remote time server. And the difference increases over time.
+As soon as smartd daemon was shut XNTPD started to get the server time in
+sync slowly.  We tried this 2-3 times and have noticed the same results.
+
+Has anyone faced a similar problem ?
+
+Nohez
+
+
+Linux Distro: SuSE Linux 8.2 Professional
+Kernel      : k_smp-2.4.21-108 (SMP because of Hyper-threading)
+XNTPD       : xntp-4.1.1-177
+SMARTD      : smartmontools-5.1.4-20
 

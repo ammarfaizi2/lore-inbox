@@ -1,52 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbSJTIkF>; Sun, 20 Oct 2002 04:40:05 -0400
+	id <S262750AbSJTIym>; Sun, 20 Oct 2002 04:54:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262782AbSJTIkF>; Sun, 20 Oct 2002 04:40:05 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:5775 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262750AbSJTIkE>;
-	Sun, 20 Oct 2002 04:40:04 -0400
-Date: Sun, 20 Oct 2002 10:46:01 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jan Dittmer <jan@jandittmer.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
-Message-ID: <20021020104601.C8606@ucw.cz>
-References: <200210190241.49618.jan@jandittmer.de> <20021019091518.GG871@suse.de> <20021019222403.B3018@ucw.cz> <20021019230434.A800@ucw.cz> <20021020003834.GJ871@suse.de>
+	id <S262782AbSJTIym>; Sun, 20 Oct 2002 04:54:42 -0400
+Received: from vitelus.com ([64.81.243.207]:34319 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S262750AbSJTIyl>;
+	Sun, 20 Oct 2002 04:54:41 -0400
+Date: Sun, 20 Oct 2002 02:00:15 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: Zac Hansen <xaxxon@chopper.slackworks.com>,
+       Nicholas Wourms <nwourms@netscape.net>, linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper outrage, old and new
+Message-ID: <20021020090015.GE25042@vitelus.com>
+References: <aot5a4$894$1@main.gmane.org> <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com> <20021020084056.GD5064@mark.mielke.cc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021020003834.GJ871@suse.de>; from axboe@suse.de on Sun, Oct 20, 2002 at 02:38:34AM +0200
+In-Reply-To: <20021020084056.GD5064@mark.mielke.cc>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 20, 2002 at 02:38:34AM +0200, Jens Axboe wrote:
-> On Sat, Oct 19 2002, Vojtech Pavlik wrote:
-> > On Sat, Oct 19, 2002 at 10:24:03PM +0200, Vojtech Pavlik wrote:
-> > 
-> > > > It's not an oops, and it's not causes by TCQ either. The above is simply
-> > > > a reminder to fix the ide init sequence, because it's probe sequence
-> > > > tries to use drive->disk before it has been set up. That is worked
-> > > > around, but stack is dumped for good measure. So you can feel
-> > > > comfortable using 2.5.44 regardless.
-> > > > 
-> > > > But I'm curious about TCQ on your system, since another VIA user
-> > > > reported problems. Does it appear to work for you?
-> > > 
-> > > It definitely works on my VIA just fine.
-> > 
-> > Famous last words. I tried to play with the /proc using_tcq setting and
-> > got a filesystem corruption immediately.
-> 
-> There _may_ be issues with changing depth on the fly. So if you could
-> just test without fiddling with changing depths that would be great.
+On Sun, Oct 20, 2002 at 04:40:56AM -0400, Mark Mielke wrote:
+> Ask Richard if GCC was ever initially bootstrapped using a non-GPL
+> compiler suite.
 
-Ok. No changes in /proc using_tcq after boot, assuming it's enabled
-automatically (checked that in kernel config0, it works perfectly fine.
+Ah, but that's the point!
 
--- 
-Vojtech Pavlik
-SuSE Labs
+The bitkeeper license won't allow you to bootstrap a competing project
+using bitkeeper. If the same clauses existed in the licenses of these
+commercial compilers, we wouldn't have GCC.

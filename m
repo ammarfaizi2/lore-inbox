@@ -1,87 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292589AbSCRTnY>; Mon, 18 Mar 2002 14:43:24 -0500
+	id <S292588AbSCRTno>; Mon, 18 Mar 2002 14:43:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292588AbSCRTnT>; Mon, 18 Mar 2002 14:43:19 -0500
-Received: from rover.mkp.net ([209.217.122.9]:19467 "EHLO rover")
-	by vger.kernel.org with ESMTP id <S292555AbSCRTm7>;
-	Mon, 18 Mar 2002 14:42:59 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Joel Becker <jlbec@evilplan.org>, Anton Altaparmakov <aia21@cam.ac.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: fadvise syscall?
-From: "Martin K. Petersen" <mkp@mkp.net>
-Organization: mkp.net
-In-Reply-To: <3C945635.4050101@mandrakesoft.com> <3C945A5A.9673053F@zip.com.au>
-	<3C945D7D.8040703@mandrakesoft.com>
-	<5.1.0.14.2.20020317131910.0522b490@pop.cus.cam.ac.uk>
-	<20020318080531.W4836@parcelfarce.linux.theplanet.co.uk>
-	<3C95A1DB.CA13A822@zip.com.au> <yq1bsdmq6so.fsf@austin.mkp.net>
-	<3C963CD5.8E371FF@zip.com.au>
-Date: 18 Mar 2002 14:42:47 -0500
-Message-ID: <yq17ko9r7bc.fsf@austin.mkp.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+	id <S292594AbSCRTng>; Mon, 18 Mar 2002 14:43:36 -0500
+Received: from smtp1.extremenetworks.com ([216.52.8.6]:44932 "HELO
+	smtp1.extremenetworks.com") by vger.kernel.org with SMTP
+	id <S292588AbSCRTn0>; Mon, 18 Mar 2002 14:43:26 -0500
+Message-ID: <3C964358.B4EA3C80@extremenetworks.com>
+Date: Mon, 18 Mar 2002 11:43:20 -0800
+From: Jason Li <jli@extremenetworks.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMBOL doesn't work
+In-Reply-To: <2643.1016433275@kao2.melbourne.sgi.com> <3C963BF2.C9D78479@extremenetworks.com> <20020318191927.GB8155@opus.bloom.county>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@zip.com.au> writes:
+Tom Rini wrote:
+> 
+> On Mon, Mar 18, 2002 at 11:11:46AM -0800, Jason Li wrote:
+> > Keith Owens wrote:
+> > >
+> > > On Sun, 17 Mar 2002 22:25:16 -0800,
+> > > Jason Li <jli@extremenetworks.com> wrote:
+> > > >int (*fdbIoSwitchHook)(
+> > > >                           unsigned long arg0,
+> > > >                           unsigned long arg1,
+> > > >                           unsigned long arg2)=NULL;
+> > > >EXPORT_SYMBOL(fdbIoSwitchHook);
+> > > >gcc -D__KERNEL__ -I/home/jli/cvs2/exos/linux/include -Wall
+> > > >-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+> > > >-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+> > > >-march=i686    -c -o br_ioctl.o br_ioctl.c
+> > > >br_ioctl.c:26: warning: type defaults to `int' in declaration of
+> > > >`EXPORT_SYMBOL'
+> > >
+> > > #include <linux/module.h>
+> > >
+> > > Also add br_ioctl.o to export-objs in Makefile.
+> >
+> > Thanks alot. It works.
+> >
+> > Now another problem with versioning. It seems even after I have the
+> > following in my module c file the symbol generated is not versioned:
+> 
+> Backup your .config, run 'distclean' or 'mrproper' and try again.
+> 
+> --
+> Tom Rini (TR1265)
+> http://gate.crashing.org/~trini/
 
-Andrew> google fails me - where does your kiobuf-based splitter live?
+Just did a distclean. Now the inluce/linux/modules/netsym.ver has the
+fdbIoSwitchHook version info. 
 
-It's in the kiobuf XFS patches.
+Recompiled the module. Did a nm on the module, and saw the version info
+for the symbol. But when I dod insmod, it still complained about
+unresolved symbol fdbIoSwitchHook.
 
-
-Andrew> I'm curious to know how this will all work.  Will it take a
-Andrew> large BIO and split it into a number of smaller, newly
-Andrew> allocated BIOs?  
-
-For kiobufs I walked the request, cloned a new every time I crossed a
-stripe/device boundary and sent it off.  I had my own completion
-function with an atomic counter that would call the parent kiobuf's
-end_io function when all clones had completed.
-
-So I didn't chop the request into page sized chunks or something like
-that.
-
-
-Andrew> If that's really the only way in which we can solve this
-Andrew> problem, would it not be better to pass information up to the
-Andrew> higher layer, telling it when the BIO which is currently under
-Andrew> assembly cannot be grown further?  Say,
-Andrew> blk_can_i_add_more_stuff_to_this_bio()?
-
-We tried different approaches.  One of them was to be able to signal
-to upper layers that your I/O was too big and please submit smaller
-chunks.  Running with that, however, the I/O size converged against
-small requests because you'd often start an I/O - say 4K - from a
-stripe boundary.  And that would kill it right off.
-
-So unless the filesystem knows about stripe/device boundaries it's
-really hard to get the size signalling right.  And then what happens
-when you stack LVM and MD?
-
-In the end, cloning the kiobuf from the above and adjusting
-offset/length in the children turned out to be the best approach.
-
-And I suspect that's why Jens kept the clone facility around for bio
-bufs :)
-
-
-Andrew> Anyway.  I'm interested.  O_DIRECT is a bit of a weird
-Andrew> curiosity, but I'm working on making these big-BIO code paths
-Andrew> *the* way in which data gets to and from disk.  It needs to be
-Andrew> efficient ;)
-
-*nod*
+It seems now the version is different between the kernel and the module.
+Should I wait for the bzImage compilation to complete and install the
+new kernel?
 
 
-I'll try and poke at this again tonight.  Will shoot you the patch
-once I get the zoning evil sorted out.
-
--- 
-Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
-mkp@linuxcare.com, http://www.linuxcare.com/
-SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/
+Thanks a lot,
+Jason

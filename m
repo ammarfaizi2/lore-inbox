@@ -1,39 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266696AbRGTHly>; Fri, 20 Jul 2001 03:41:54 -0400
+	id <S266715AbRGTHsE>; Fri, 20 Jul 2001 03:48:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266706AbRGTHlo>; Fri, 20 Jul 2001 03:41:44 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:29900 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S266696AbRGTHl2>; Fri, 20 Jul 2001 03:41:28 -0400
-Message-ID: <3B57E0AB.F5D6B2E2@idcomm.com>
-Date: Fri, 20 Jul 2001 01:41:31 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
+	id <S266706AbRGTHrz>; Fri, 20 Jul 2001 03:47:55 -0400
+Received: from titan.golden.net ([199.166.210.90]:15572 "EHLO titan.golden.net")
+	by vger.kernel.org with ESMTP id <S266715AbRGTHrl>;
+	Fri, 20 Jul 2001 03:47:41 -0400
+From: "John L. Males" <software_iq@TheOffice.net>
+Organization: Toronto, Ontario, Canada
+To: linux-kernel@vger.kernel.org
+Date: Fri, 20 Jul 2001 03:47:43 -0500
 MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: bzImage, root device Q
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Linux Kernel 2.2.19 Available Memory Bug
+Reply-to: software_iq@TheOffice.net
+Message-ID: <3B57A9DF.10547.A92B31@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-When booting to a bzImage kernel, bytes 508 and 509 can be used to name
-the minor and major number of the intended root device (although it can
-be overridden with a command line parameter). Other characteristics are
-also available this way, through bytes in the kernel. rdev makes a
-convenient way to hex edit those bytes.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-What I'm more curious about is how does the kernel know what filesystem
-_type_ the root is? Are there similar bytes in the bzImage, and can rdev
-change this? And is there a command line syntax to allow specifying
-filesystem type (e.g., something like "vmlinuz root=/dev/scd0,iso9660"
-or "vmlinuz root=/dev/scd0,xfs")? Or is this limited in some way,
-requiring mount on one or a few known filesystem types ("linux native"
-subset comes to mind), followed by a chroot or pivot_root style command
-(which in turn means no direct root mount of some filesystem types)?
+Hello,
 
-D. Stimits, stimits@idcomm.com
+Please note I am not on the Kernel Mailing List so do try to copy me
+in with any reply, questions, clarifications, confirmations, et al on
+this bug report.
+
+Before I forget I am using SuSE 6.4 with most of the updates from the
+base applied, most meaning I generally lag a bit behind at times.  I
+am NOT using the SuSE kernel due to bugs introduced into the SuSE
+kernel with the SuSE patches/enhancements.  I am using the Linus
+2.2.19 Kernel with the OpenWall patches.  System is AMD K6-2 500
+based system.  The version of gcc was 2.95.2 to compile the kernel.
+
+The bug I am reporting is that when one sets the amount of memory,
+i.e. 128M, 256M; at the time of booting the 2.2.19 kernel the "Total
+Memory" as reported by KDE, "free", etc is short by a important
+amount.  To be more specific I will detail the results of "free"
+below against the "mem" value passed to the kernel.  Please note for
+the purposes of this test I always had 256MB or ram (2x128MB)
+installed in my system.  The BIOS reports total system memory as
+262144K.
+
+"mem=256m"
+***************
+
+KDE reports 251.09 Total System memory, or 263290880 bytes.
+
+"free -m" indicates "Total Memory" as 251
+"free -k" indicates "Total Memory" as 257120
+"free -k" indicates "Total Memory" as 263290880
+
+The exact same vaules as noted above are indicated for "mem=262144k",
+and "mem=268435546" (256 X 1024 x 1024).
+
+"mem=128m"
+***************
+
+"free -m" indicates "Total Memory" as 124
+"free -k" indicates "Total Memory" as 127344
+"free -k" indicates "Total Memory" as 130400256
+
+
+Regards,
+
+John L. Males
+Software I.Q. Consulting
+Toronto, Ontario
+Canada
+20 July 2001 03:47
+mailto:software_iq@TheOffice.net
+mailto:jlmales@softhome.net
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.8 for non-commercial use 
+<http://www.pgp.com>
+
+iQA/AwUBO1fwKPLzhJbmoDZ+EQKQowCfcqeGPdpduaFpTQO1P9XaOlJccHEAn20p
+v0V59vV7rrFEvMQCLwzXyO2V
+=Ezn3
+-----END PGP SIGNATURE-----
+

@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131077AbRCGNud>; Wed, 7 Mar 2001 08:50:33 -0500
+	id <S131078AbRCGNvx>; Wed, 7 Mar 2001 08:51:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131078AbRCGNuY>; Wed, 7 Mar 2001 08:50:24 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:64477 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131077AbRCGNuM>; Wed, 7 Mar 2001 08:50:12 -0500
-Message-Id: <5.0.2.1.2.20010307130210.00a25180@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Wed, 07 Mar 2001 13:49:17 +0000
-To: Ben Greear <greearb@candelatech.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What
-  happened ? (No
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3AA5B0F3.143E0528@candelatech.com>
-In-Reply-To: <E14aGFU-0000YQ-00@the-village.bc.nu>
+	id <S131079AbRCGNvn>; Wed, 7 Mar 2001 08:51:43 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:7901 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131078AbRCGNvh>;
+	Wed, 7 Mar 2001 08:51:37 -0500
+Date: Wed, 7 Mar 2001 13:48:24 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
+        Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: scsi vs ide performance on fsync's
+Message-ID: <20010307134824.A3715@redhat.com>
+In-Reply-To: <E14aGHY-0000Yc-00@the-village.bc.nu> <Pine.LNX.4.10.10103061042250.1989-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10103061042250.1989-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Mar 06, 2001 at 10:44:34AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:54 07/03/01, Ben Greear wrote:
->Alan Cox wrote:
-> > Its not a bug. As the system administrator you reconfigured a hard disk on
-> > the fly and shit happened. The hdparm man page warnings do exist for a 
-> reason.
->
->I'm not arguing it was a smart thing to do, but I would think that the
->fs/kernel/driver writers could keep really nasty and un-expected things
->from happenning.  For instance, the driver could dis-allow any new 
->(non-hdparm) writes while hdparm is doing it's test.  Or maybe the driver 
->could realize it was being told to do something that would break and just 
->not do it?
+Hi,
 
-No. This would be against Linux/Unix philosphy of giving you enough rope. 
-Maybe I want to break my hd? You never know. Or maybe the same commands 
-work perfectly well on a different hd/controller? In general, if you don't 
-understand the consequences of something you want to do, then *don't* do 
-it! Or at least have a backup handy and don't complain afterwards...
+On Tue, Mar 06, 2001 at 10:44:34AM -0800, Linus Torvalds wrote:
 
->Considering this disk is my root disk, is there *any* safe way to test
->out hdparm on this disk?
+> On Tue, 6 Mar 2001, Alan Cox wrote:
+> > You want a write barrier. Write buffering (at least for short intervals) in
+> > the drive is very sensible. The kernel needs to able to send drivers a write
+> > barrier which will not be completed with outstanding commands before the
+> > barrier.
+> 
+> But Alan is right - we needs a "sync" command or something. I don't know
+> if IDE has one (it already might, for all I know).
 
-Of course. Boot/change into single user mode, sync, and remount any 
-readwrite mounted fs readonly. Then it should be safe to check things out 
-with hdparm, at least I have done it this way for ages and never run into a 
-problem even though in my early stage of hdparm experimentation I would 
-cause kernel crashes more often then not... Chances are that if readonly 
-works fine, so will write, so once I find the fastest settings that still 
-give 100% reliability on reads I switch back to normal network multi user 
-mode and try read-write. Never failed me so far but YMMV, so keep a backup...
+Sync and barrier are very different models.  With barriers we can
+enforce some elemnt of write ordering without actually waiting for the
+IOs to complete; with sync, we're explicitly asking to be told when
+the data has become persistant.  We can make use of both of these.
 
-Best regards,
+SCSI certainly lets us do both of these operations independently.  IDE
+has the sync/flush command afaik, but I'm not sure whether the IDE
+tagged command stuff has the equivalent of SCSI's ordered tag bits.
+Andre?
 
-Anton
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+--Stephen

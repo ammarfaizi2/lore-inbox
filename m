@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284834AbRLDAVA>; Mon, 3 Dec 2001 19:21:00 -0500
+	id <S284627AbRLDAU4>; Mon, 3 Dec 2001 19:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284701AbRLDAQl>; Mon, 3 Dec 2001 19:16:41 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:39402 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S285210AbRLCVsd>;
-	Mon, 3 Dec 2001 16:48:33 -0500
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
+	id <S284807AbRLDAQ7>; Mon, 3 Dec 2001 19:16:59 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:54245 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S285141AbRLCU6b>; Mon, 3 Dec 2001 15:58:31 -0500
+Date: Mon, 3 Dec 2001 15:58:06 -0500
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ENTRY macro (coda maintainers please listen)
+Message-ID: <20011203155805.A7057@cs.cmu.edu>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011202215232.A1751@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15371.62205.231945.798891@napali.hpl.hp.com>
-Date: Mon, 3 Dec 2001 13:47:41 -0800
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org,
-        marcelo@conectiva.com.br, davem@redhat.com
-Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
-In-Reply-To: <20011203160059.A2022@devserv.devel.redhat.com>
-In-Reply-To: <20011203160059.A2022@devserv.devel.redhat.com>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20011202215232.A1751@elf.ucw.cz>
+User-Agent: Mutt/1.3.23i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 02, 2001 at 09:52:32PM +0100, Pavel Machek wrote:
+> linux/linkage.h includes macro "ENTRY(a)", while linux/coda_linux
+> includes ... macro "ENTRY".
 
-  Arjan> Hi, The patch below (against 2.4.16) makes the ia64 port no
-  Arjan> longer use the (VERY slow) software IO mmu but makes it use
-  Arjan> the same mechanism the x86 PAE port uses: it lets the higher
-  Arjan> layers take care of the proper bouncing of PCI-unreachable
-  Arjan> memory. The implemenation is pretty simple; instead of having
-  Arjan> a 4Gb GFP_DMA zone and a <rest of ram> GFP_KERNEL zone, the
-  Arjan> ia64 port now has a 4Gb GFP_DMA zone and a <rest of ram>
-  Arjan> GFP_HIGH zone.  Since the ia64 cpu can address all of this
-  Arjan> memory directly, the kmap() and related functions are
-  Arjan> basically nops.
+That could lead to a possible problem. We're just lucky that no file in
+the Coda code has __ASSEMBLY__ defined.
 
-  Arjan> The result: 100 mbit ethernet performance on a ia64 machine
-  Arjan> with 32Gb of ram increased more than 4x (from 20 mbit to 95
-  Arjan> mbit)....
+> It would be good to rename one of them (they are probably not needed
+> in one module, anyway, that's not clean)...
 
-  Arjan> The only downside is that the current kernel will always
-  Arjan> bounce buffer disk IO even if the scsi card is 64 bit PCI
-  Arjan> capable; Jens Axboe's block highmem patch fixes that downside
-  Arjan> nicely though.
+Actually all coda_XXX.h files don't even have to be in include/linux/,
+only coda.h contains structs/defines that should be 'visible' outside of
+the Coda kernel code, anything else should just go to fs/coda and get a
+good dust off to remove a bunch of cruft.
 
-How soon will Jens' patch make it into the official tree?  I think
-that would be a pre-requisite before switching to a highmem based
-implementation.
+> Oh and there's no entry for CODA in MAINTAINERS file. You probably
+> want to fix that.
 
-Another concern I have is that, fundamentally, I dislike the idea of
-penalizing all IA-64 platforms due to one chipset that is, shall we
-say, "lacking" (i.e., doesn't have an I/O TLB).
+Gee, oh well. I didn't consider it 'critical bug-fixes only' or
+important enough to push a patch for a maintainers entry into a stable
+series, and obviously wasn't paying attention during 2.3 development.
 
-Could someone comment on whether the 870 will have I/O TLB support
-(private mail is fine, if you don't feel comfortable sending mail to
-all the lists...).
+Besides I've been sending you updates whenever something critical
+changes in coda.o (considering you are using it for podfuk). I would
+figure that of all people at least you would know.
 
-Thanks,
+Jan
 
-	--david

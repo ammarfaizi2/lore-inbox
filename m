@@ -1,46 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVANBhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVANBdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVANBhO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:37:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVANBdX
+	id S261852AbVANBdG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVANBaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:33:23 -0500
-Received: from sigma957.CIS.McMaster.CA ([130.113.64.83]:11246 "EHLO
-	sigma957.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S261720AbVANBak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:30:40 -0500
-Subject: Re: 2.6.10-mm3 scaling problem with inotify
-From: John McCutchan <ttb@tentacle.dhs.org>
-To: Robert Love <rml@novell.com>
-Cc: John Hawkes <hawkes@tomahawk.engr.sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1105663758.6027.215.camel@localhost>
-References: <200501132356.j0DNujUY016224@tomahawk.engr.sgi.com>
-	 <1105663758.6027.215.camel@localhost>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 13 Jan 2005 20:31:23 -0500
-Message-Id: <1105666283.15782.2.camel@vertex>
+	Thu, 13 Jan 2005 20:30:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63701 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261720AbVANB1L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 20:27:11 -0500
+Date: Thu, 13 Jan 2005 17:26:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@cpushare.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lcall disappeared? kernel CVS destabilized?
+Message-Id: <20050113172651.70b4fcd5.akpm@osdl.org>
+In-Reply-To: <20050114010132.GJ5949@dualathlon.random>
+References: <20050114010132.GJ5949@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-PMX-Version-Mac: 4.7.0.111621, Antispam-Engine: 2.0.2.0, Antispam-Data: 2005.1.13.28
-X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0, __SANE_MSGID 0'
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 19:49 -0500, Robert Love wrote:
-> On Thu, 2005-01-13 at 15:56 -0800, John Hawkes wrote:
-> [snip]
-> 
-> I am open to other ideas, too, but I don't see any nice shortcuts like
-> what we can do in inotify_inode_queue_event().
-> 
-> (Other) John?  Any ideas?
+Andrea Arcangeli <andrea@cpushare.com> wrote:
+>
+> I'm porting the seccomp patch to 2.6.10, do you have an idea where lcall
+>  (i.e. call gates for binary compatibility with other OS) went? 
 
-No, you covered things well. This code was really just a straight copy
-of the dnotify code. Rob cleaned it up at some point, giving us what we
-have today. The only fix I can think of is the one suggested by Rob --
-copying the dnotify code again.
+Was removed on October 18.
 
--- 
-John McCutchan <ttb@tentacle.dhs.org>
+http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/entry.S@1.83?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/entry.S

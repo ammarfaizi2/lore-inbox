@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVB1HAM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVB1HUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVB1HAM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 02:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVB1G7Z
+	id S261159AbVB1HUs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 02:20:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbVB1HUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 01:59:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19100 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261566AbVB1G6K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 01:58:10 -0500
-Date: Sun, 27 Feb 2005 22:37:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Wen Xiong <wendyx@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-Subject: Re: [ patch 2/7] drivers/serial/jsm: new serial device driver
-Message-ID: <20050228063757.GA23595@kroah.com>
-References: <42225A04.7080505@us.ltcfwd.linux.ibm.com>
+	Mon, 28 Feb 2005 02:20:48 -0500
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:1681 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261159AbVB1HUi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 02:20:38 -0500
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, davem@redhat.com, jlan@sgi.com,
+       LSE-Tech <lse-tech@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       elsa-devel <elsa-devel@lists.sourceforge.net>
+In-Reply-To: <42227AEA.6050002@ak.jp.nec.com>
+References: <42168D9E.1010900@sgi.com>
+	 <20050218171610.757ba9c9.akpm@osdl.org> <421993A2.4020308@ak.jp.nec.com>
+	 <421B955A.9060000@sgi.com> <421C2B99.2040600@ak.jp.nec.com>
+	 <421CEC38.7010008@sgi.com> <421EB299.4010906@ak.jp.nec.com>
+	 <20050224212839.7953167c.akpm@osdl.org> <20050227094949.GA22439@logos.cnet>
+	 <4221E548.4000008@ak.jp.nec.com> <20050227140355.GA23055@logos.cnet>
+	 <42227AEA.6050002@ak.jp.nec.com>
+Date: Mon, 28 Feb 2005 08:20:36 +0100
+Message-Id: <1109575236.8549.14.camel@frecb000711.frec.bull.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42225A04.7080505@us.ltcfwd.linux.ibm.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.2 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/02/2005 08:29:35,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 28/02/2005 08:29:38,
+	Serialize complete at 28/02/2005 08:29:38
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 27, 2005 at 06:38:44PM -0500, Wen Xiong wrote:
+On Mon, 2005-02-28 at 10:59 +0900, Kaigai Kohei wrote:
+> Marcelo Tosatti wrote:
+>  > Yep, the netlink people should be able to help - they known what would be
+>  > required for not sending messages in case there is no listener registered.
+>  >
+>  > Maybe its already possible? I have never used netlink myself.
+> 
+> If we notify the fork/exec/exit-events to user-space directly as you said,
+> I don't think some hackings on netlink is necessary.
+> For example, such packets is sent only when /proc/sys/.../process_grouping is set,
+> and user-side daemon set this value, and unset when daemon will exit.
+> It's not necessary to take too seriously.
 
-> diff -Nuar linux-2.6.9.orig/drivers/serial/jsm/jsm_tty.c linux-2.6.9.new/drivers/serial/jsm/jsm_tty.c
-> --- linux-2.6.9.orig/drivers/serial/jsm/jsm_tty.c	1969-12-31 18:00:00.000000000 -0600
-> +++ linux-2.6.9.new/drivers/serial/jsm/jsm_tty.c	2005-02-27 17:09:43.456960832 -0600
-> @@ -0,0 +1,1273 @@
-> +/*
-> + * Copyright 2003 Digi International (www.digi.com)
-> + *	Scott H Kilau <Scott_Kilau at digi dot com>
+  I wrote a new fork connector patch with a callback to enable/disable
+messages in case there is or isn't listener. I will post it this week.
 
-But didn't you do a lot of work on this code too?  Shouldn't you be
-adding your copyright?
+  Basically there is a global variable that is manipulated with a
+connector callback so a user space daemon can manipulate the variable.
+In the fork_connector() function you have:
 
-> + *	NOTE TO LINUX KERNEL HACKERS:  DO NOT REFORMAT THIS CODE! 
-> + *
-> + *	This is shared code between Digi's CVS archive and the
-> + *	Linux Kernel sources.
-> + *	Changing the source just for reformatting needlessly breaks
-> + *	our CVS diff history.
-> + *
-> + *	Send any bug fixes/changes to:  Eng.Linux at digi dot com. 
-> + *	Thank you. 
+static inline void fork_connector(pid_t parent, pid_t child)
+{
+	static DEFINE_SPINLOCK(cn_fork_lock);
+	static __u32 seq;   /* used to test if message is lost */
 
-Is this still true?  The formatting looks sane, so you can probably take
-this all out.  And put a real email address in there please...
+	if (cn_fork_enable) {
+		[...]
+		cn_netlink_send(msg, CN_IDX_FORK);
+	}
+}
 
+and in the cn_fork module (drivers/connector/cn_fork.c) the callback is
+defined as:
 
-> + * $Id: jsm_tty.c,v 1.79 2004/09/25 07:01:46 scottk Exp $
+static void cn_fork_callback(void *data) 
+{
+	if (cn_already_initialized)
+		cn_fork_enable = cn_fork_enable ? 0 : 1;
+}
 
-Take these out, not needed.
+  Ok the protocol is maybe too "basic" but with this mechanism the user
+space application that uses the fork connector can start and stop the
+send of messages. This implementation needs somme improvements because
+currently, if two application are using the fork connector one can
+enable it and the other don't know if it is enable or not, but the idea
+is here I think.
 
-> +#include <linux/device.h>	/* For udelay */
+Regards,
+Guillaume
 
-Comment is incorrect.  What do you need device.h for?
-
-> +	DPR_IOCTL(("jsm_getmstat start\n"));
-
-You have odd macros with two "((", what's up with that?  Please use the
-standard macros dev_dbg() and friends.  It's a way to get a standard
-message out of the kernel.
-
-> +static void jsm_tty_set_mctrl(struct uart_port *port, unsigned int mctrl)
-> +{
-> +	DPR_IOCTL(("jsm_set_modem_info() start\n"));
-
-Oh, and why not just use __FUNCTION__?
-
-> +static void jsm_tty_stop_rx(struct uart_port *port)
-> +{
-> +
-> +	JSM_CHANNEL->ch_bd->bd_ops->disable_receiver(JSM_CHANNEL);
-> +
-> +}
-
-I think you can drop the extra lines here...
-
-And what's with the all uppercase JSM_CHANNEL?  Why not just use the
-structure pointer.
-
-thanks,
-
-greg k-h

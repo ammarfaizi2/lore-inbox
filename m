@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132529AbRDDXq0>; Wed, 4 Apr 2001 19:46:26 -0400
+	id <S132531AbRDDXsG>; Wed, 4 Apr 2001 19:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132531AbRDDXqQ>; Wed, 4 Apr 2001 19:46:16 -0400
-Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:20675 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S132529AbRDDXqD>; Wed, 4 Apr 2001 19:46:03 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880A07@xsj02.sjs.agilent.com>
-From: hiren_mehta@agilent.com
-To: Matt_Domsch@Dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: vmalloc on 2.4.x on ia64
-Date: Wed, 4 Apr 2001 17:44:25 -0600 
+	id <S132533AbRDDXr5>; Wed, 4 Apr 2001 19:47:57 -0400
+Received: from friley-168-165.stures.iastate.edu ([129.186.168.165]:29354 "EHLO
+	friley-168-165.stures.iastate.edu") by vger.kernel.org with ESMTP
+	id <S132531AbRDDXrm>; Wed, 4 Apr 2001 19:47:42 -0400
+Message-ID: <3ACBB35B.1060100@adiis.net>
+Date: Wed, 04 Apr 2001 18:50:51 -0500
+From: Ryan Butler <rbutler@adiis.net>
+Organization: ADI Internet Solutions
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; 0.8.1)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: Contacts within AMD?  AMD-756 USB host-controller blacklisted due to
+In-Reply-To: <Pine.LNX.4.21.0104050004060.21943-100000@campari.convergence.de> <3ACB94E3.2030108@megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can we call vmalloc() or get_free_pages() from scsi low-level driver 
-(HBA driver) ? The reason why I am asking is because, I am calling
-vmalloc from scsi low-level driver and I tried this on 2.4.2 on
-ia32 as well as ia64 and on both the systems, it is hanging.
-on ia64 it happens everytime whereas on ia32 it happens intermittently. 
-In case of ia32, I had watchdog enabled. So, on ia32, it detects LOCKUP
-and generates call trace. I am yet to try get_free_pages().
+Miles Lane wrote:
 
-TIA,
--hiren
+> 
+> 
+> Personally, I agree with you, but I can also understand David's
+> desire to avoid wasting time chasing phantom bugs that only
+> show up due to this broken hardware.  If it turns out that
+> there is actually a well-defined workaround that AMD will
+> tell us about, it shouldn't take too long before we have a
+> real fix and the AMD-756 can be taken off of the blacklist.
+> 
+> My guess is that there are specific drivers for which this
+> hardware bug causes problems.  You probably just aren't
+> using the *right* drivers.  :-)
+> 
+00:07.4 USB Controller: Advanced Micro Devices [AMD] AMD-756 [Viper] USB 
+(rev 06) (prog-if 10 [OHCI])
+   Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+   Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+   Latency: 80 max, 16 set, cache line size 08
+   Interrupt: pin D routed to IRQ 10
+   Region 0: Memory at efffd000 (32-bit, non-prefetchable) [size=4K]
 
-> -----Original Message-----
-> From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
-> Sent: Monday, April 02, 2001 6:30 PM
-> To: hiren_mehta@agilent.com
-> Subject: RE: vmalloc on 2.4.x on ia64
-> 
-> 
-> > That is what I said. I am using vmalloc only. But the call to
-> > vmalloc is hanging.
-> 
-> Oops, my mistake.  a) that shouldn't happen.  b) if it does, try
-> get_free_pages().
-> 
+
+This is also a rev 06 chip, on a MSI K7Pro (Slot A) board.
+
+The only item I use with it is a Creative Webcam III and I have yet to 
+see this error with any kernel version in the 2.4.x series.
+
+So I think you might be right about certain drivers exposing the 
+hardware flaw.
+
+As for not blacklisting the whole chipset, its probably the smart thing 
+to do, and for those who really really want to use the driver anyhow, a 
+simple diff between the usb-ohci.c files between 2.4.2 and 2.4.3 shows 
+how to remove the blacklist.
+
+Ryan Butler
+ADI Internet Solutions
+rbutler@adiis.net
+

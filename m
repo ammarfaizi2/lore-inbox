@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbTBTCrr>; Wed, 19 Feb 2003 21:47:47 -0500
+	id <S264729AbTBTCxM>; Wed, 19 Feb 2003 21:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264729AbTBTCrr>; Wed, 19 Feb 2003 21:47:47 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:41287
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S264724AbTBTCrr>; Wed, 19 Feb 2003 21:47:47 -0500
-Date: Wed, 19 Feb 2003 21:55:47 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <20030220022627.GW29983@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0302192146580.10247-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0302191527400.9786-100000@penguin.transmeta.com>
- <Pine.LNX.4.50.0302192113480.10247-100000@montezuma.mastecende.com>
- <20030220022627.GW29983@holomorphy.com>
+	id <S264730AbTBTCxM>; Wed, 19 Feb 2003 21:53:12 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:32424 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S264729AbTBTCxL>;
+	Wed, 19 Feb 2003 21:53:11 -0500
+Date: Thu, 20 Feb 2003 03:03:08 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: linux-kernel@vger.kernel.org
+Cc: marcelo@conectiva.com.br, <alan@redhat.com>
+Subject: [patch] i810 for loop replaced with udelay
+Message-ID: <Pine.LNX.4.44.0302200254350.2961-100000@skynet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Feb 2003, William Lee Irwin III wrote:
 
-> On Wed, Feb 19, 2003 at 09:22:42PM -0500, Zwane Mwaikambo wrote:
-> > 	Here is a triple fault case (2.5.62-pgcl) and since i'm not a Real 
-> > Man i had to use a simulator ;) Unfortunately i can't unwind the stack.
-> > 
-> > CR2=page fault linear address=0xf7f9bf8c
-> > CR3=0x00101000
-> >     PCD=page-level cache disable=0
-> >     PWT=page-level writes transparent=0
-> 
-> Looks like either a pagetable or physmap/vmalloc/fixmap screwup.
-> What do the bootlogs have for those things?
+Trivial patch pulled from the DRI tree against 2.4.20, please apply ..
 
-Verified there were no overlapping regions. If you really really really 
-want them i can put in some printks
+Dave.
 
-	Zwane
--- 
-function.linuxpower.ca
+
+--- kernel-2.4-orig/drivers/char/drm/i810_dma.c	2003-02-20 14:04:22.000000000 +1100
++++ kernel-2.4/drivers/char/drm/i810_dma.c	2003-02-20 14:04:53.000000000 +1100
+@@ -317,7 +317,7 @@
+ 		   	goto out_wait_ring;
+ 		}
+
+-	   	for (i = 0 ; i < 2000 ; i++) ;
++	   	udelay(1);
+ 	}
+
+ out_wait_ring:
+
+

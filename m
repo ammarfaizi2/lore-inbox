@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264037AbTEJLWF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 07:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264038AbTEJLWF
+	id S264038AbTEJL0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 07:26:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264041AbTEJL0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 07:22:05 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:51669 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S264037AbTEJLWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 07:22:04 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Sat, 10 May 2003 07:26:13 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:20716 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264038AbTEJL0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 07:26:12 -0400
+Date: Sat, 10 May 2003 13:38:43 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc2 IDE Modular non-compile
+Message-ID: <20030510113843.GC12431@louise.pinerecords.com>
+References: <20030509064035.4C6612C014@lists.samba.org> <20030509075319.A10102@infradead.org> <20030510102615.GB12431@louise.pinerecords.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16060.58322.808144.819886@napali.hpl.hp.com>
-Date: Sat, 10 May 2003 04:34:42 -0700
-To: "David S. Miller" <davem@redhat.com>
-Cc: davidm@hpl.hp.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: qla1280 mem-mapped I/O fix
-In-Reply-To: <1052566211.22636.1.camel@rth.ninka.net>
-References: <200305100951.h4A9pSAD012127@napali.hpl.hp.com>
-	<1052566211.22636.1.camel@rth.ninka.net>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20030510102615.GB12431@louise.pinerecords.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 10 May 2003 04:30:11 -0700, "David S. Miller" <davem@redhat.com> said:
+> [szepe@pinerecords.com]
+> 
+> > [hch@infradead.org]
+> > 
+> > This is the patch I sent marcelo just after rc1 was released, I gues
+> > it will still apply..
+> 
+> Christoph, for a fully modular IDE (.config snippet included at the
+> end of the post) on .21rc2 I need to apply the following patch on top
+> of the one you have posted.  100% untested.
 
-  DaveM> On Sat, 2003-05-10 at 02:51, David Mosberger wrote:
-  >> With the fix in the second hunk, I don't see any reason not to turn on
-  >> MEMORY_MAPPED_IO in qla1280.  It seems to work fine on my machine
-  >> with this controller (ia64 Big Sur).
+This is still not enough.  pci-*.o objects will need to be linked
+into a single ide.o module.  I'm leaving that up to somebody else. :)
 
-  DaveM> David, you absolute MAY NOT pass this:
-
-Me?  It's the driver that's doing it! ;-)
-
-	--david
+-- 
+Tomas Szepe <szepe@pinerecords.com>

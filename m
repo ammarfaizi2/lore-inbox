@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbTIVUZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 16:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTIVUZa
+	id S263174AbTIVUWe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 16:22:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbTIVUWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 16:25:30 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:2316 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263280AbTIVUZ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 16:25:29 -0400
-Date: Mon, 22 Sep 2003 22:25:27 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: John Bradford <john@grabjohn.com>
-Cc: aebr@win.tue.nl, ndiamond@wta.att.ne.jp, vojtech@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: Translated set 3
-Message-ID: <20030922222527.B1064@pclin040.win.tue.nl>
-References: <200309221242.h8MCgtMf000302@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309221242.h8MCgtMf000302@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Mon, Sep 22, 2003 at 01:42:55PM +0100
+	Mon, 22 Sep 2003 16:22:34 -0400
+Received: from mailserver3.hrz.tu-darmstadt.de ([130.83.126.47]:26635 "EHLO
+	mailserver3.hrz.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id S263174AbTIVUWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 16:22:33 -0400
+Message-ID: <3F6F5769.2040504@hrzpub.tu-darmstadt.de>
+Date: Mon, 22 Sep 2003 22:11:21 +0200
+From: Ruediger Scholz <rscholz@hrzpub.tu-darmstadt.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de-AT; rv:1.4) Gecko/20030624
+X-Accept-Language: de-de, de, en-us, en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: irq 9: nobody cared!
+References: <3F6EBEC7.7050204@hrzpub.tu-darmstadt.de> <20030922103028.A18616@osdlab.pdx.osdl.net>
+In-Reply-To: <20030922103028.A18616@osdlab.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.1, required 5,
+	IN_REP_TO, REFERENCES, USER_AGENT_MOZILLA_UA, X_ACCEPT_LANG)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 01:42:55PM +0100, John Bradford wrote:
+Chris Wright schrieb:
 
-> Why not simplify the whole problem, and either have:
-> 
-> * translated set 2 with workarounds for all known strange keyboards
-> * untranslated set 3
+> <snip>
+>
+>Can you try this patch against 2.6.0-test5-mm3?  PCI IRQ routing is
+>broken in some circumstances with ACPI.
+>
+Thank you very, very much. Now really everything is working fine without 
+any special ACPI bootparam. I've just listen to some music but no error 
+message like the former ones appeared... :-)
+Will this patch go into mainstrem kernel?
 
-Yes, you need untranslated set 3, everybody else on i386 needs
-translated set 2.
+Thanks again,
+    Ruediger
 
-(Other architectures do not do any translation and probably need
-untranslated set 2.)
+>
+>thanks,
+>-chris
+>  
+>
 
-(Very rarely, one sees untranslated set 1 on i386.)
-
-Let us wait and see what Vojtech creates.
 

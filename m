@@ -1,41 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261812AbTC0Ifb>; Thu, 27 Mar 2003 03:35:31 -0500
+	id <S261814AbTC0Idv>; Thu, 27 Mar 2003 03:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261816AbTC0Ifb>; Thu, 27 Mar 2003 03:35:31 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:21258 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261812AbTC0Ifa>; Thu, 27 Mar 2003 03:35:30 -0500
-Date: Thu, 27 Mar 2003 08:46:42 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com
-Subject: Re: [PATCH] s390 update (1/9): s390 arch fixes.
-Message-ID: <20030327084642.B29788@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-	linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-References: <20030326163014$65d6@gated-at.bofh.it> <20030326201008$0568@gated-at.bofh.it> <200303262350.h2QNoqjd015366@post.webmailer.de>
+	id <S261812AbTC0Idv>; Thu, 27 Mar 2003 03:33:51 -0500
+Received: from holomorphy.com ([66.224.33.161]:8106 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261814AbTC0Ids>;
+	Thu, 27 Mar 2003 03:33:48 -0500
+Date: Thu, 27 Mar 2003 00:44:43 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: rmk@arm.linux.org.uk
+Subject: Re: missing sched.h comments
+Message-ID: <20030327084443.GW1232@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+References: <20030327083124.GN1350@holomorphy.com> <20030327083605.A18292@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303262350.h2QNoqjd015366@post.webmailer.de>; from arnd@bergmann-dalldorf.de on Wed, Mar 26, 2003 at 11:44:51PM +0100
+In-Reply-To: <20030327083605.A18292@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 11:44:51PM +0100, Arnd Bergmann wrote:
-> > Now actually take a look at this diff :)  The biggest part is that the
-> > s390 compat files exist only on s390x and the math-emu dir only exists
-> > on s390, that's just a matter of conditionally compiling the files.
-> 
-> I agree that it would be nice to do this merge and that it can be done
-> without introducing much ugliness. However, removing a whole arch
-> tree would be a major change considering that we are in the middle
-> of what is supposed to be a feature freeze.
+On Thu, Mar 27, 2003 at 12:31:24AM -0800, William Lee Irwin III wrote:
+>> (3) ->did_exec, ->leader, ->used_math, and ->keep_capabilities are all
+>> 	boolean, and may fit into the same word. Also comment them.
 
-I don't think feature freeze matters for architeture-dependen code. If IBM
-thinks this can be done without disturbing their plans for 2.6-based
-production releases (and I couldn't see why it would), then it's okay.
+On Thu, Mar 27, 2003 at 08:36:05AM +0000, Russell King wrote:
+> Please don't combine used_math - this is set by assembly code, and you
+> can't pass the bit offset of this to asm.
 
+Yuck. I'll not mess with that one, then. But it probably needs a comment:
+
+Tidy up sched.h a bit.
+
+(1) ->personality has a "???" comment sitting above it. Comment it.
+(2) a comment referring to the nonexistent field ->father from before
+	the pidhash merge persists. Remove the comment. The replacements
+	are all already commented.
+(3) ->did_exec, ->leader, and ->keep_capabilities are all boolean, and
+	may fit into the same word. Also comment them.
+(4) used_math is used by assembly, leave it alone, but comment that.
+
+ sched.h |   17 +++++------------
+ 1 files changed, 5 insertions(+), 12 deletions(-)
+
+
+diff -urpN merge-2.5.66-9/include/linux/sched.h merge-2.5.66-10/include/linux/sched.h
+--- merge-2.5.66-9/include/linux/sched.h	2003-03-24 14:00:00.000000000 -0800
++++ merge-2.5.66-10/include/linux/sched.h	2003-03-27 00:28:39.000000000 -0800
+@@ -344,21 +344,16 @@ struct task_struct {
+ 	struct linux_binfmt *binfmt;
+ 	int exit_code, exit_signal;
+ 	int pdeath_signal;  /*  The signal sent when the parent dies  */
+-	/* ??? */
+-	unsigned long personality;
+-	int did_exec:1;
++	unsigned long personality; /* personality, which ABI to emulate */
+ 	pid_t pid;
+ 	pid_t pgrp;
+ 	pid_t tty_old_pgrp;
+ 	pid_t session;
+ 	pid_t tgid;
+-	/* boolean value for session group leader */
+-	int leader;
+-	/* 
+-	 * pointers to (original) parent process, youngest child, younger sibling,
+-	 * older sibling, respectively.  (p->father can be replaced with 
+-	 * p->parent->pid)
+-	 */
++	unsigned int leader:1,		/* boolean value for session leader */
++		keep_capabilities:1,	/* keep caps after dropping uid 0 */
++		did_exec:1;		/* has the process exec()'d */
++	unsigned short used_math;	/* was the FPU used -- touched by asm */
+ 	struct task_struct *real_parent; /* real parent process (when being debugged) */
+ 	struct task_struct *parent;	/* parent process */
+ 	struct list_head children;	/* list of my children */
+@@ -388,11 +383,9 @@ struct task_struct {
+ 	int ngroups;
+ 	gid_t	groups[NGROUPS];
+ 	kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
+-	int keep_capabilities:1;
+ 	struct user_struct *user;
+ /* limits */
+ 	struct rlimit rlim[RLIM_NLIMITS];
+-	unsigned short used_math;
+ 	char comm[16];
+ /* file system info */
+ 	int link_count, total_link_count;

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312489AbSCUUim>; Thu, 21 Mar 2002 15:38:42 -0500
+	id <S312485AbSCUUjw>; Thu, 21 Mar 2002 15:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312488AbSCUUic>; Thu, 21 Mar 2002 15:38:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36366 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312482AbSCUUiQ>; Thu, 21 Mar 2002 15:38:16 -0500
-Subject: Re: Bitkeeper licence issues
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Thu, 21 Mar 2002 20:54:05 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        lm@bitmover.com, pavel@ucw.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0203201520280.20018-100000@serv> from "Roman Zippel" at Mar 21, 2002 08:14:19 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312487AbSCUUjr>; Thu, 21 Mar 2002 15:39:47 -0500
+Received: from flaske.stud.ntnu.no ([129.241.56.72]:162 "EHLO
+	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S312485AbSCUUjU>; Thu, 21 Mar 2002 15:39:20 -0500
+Date: Thu, 21 Mar 2002 21:39:17 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rgooch@ras.ucalgary.ca, laforge@gnumonks.org, skraw@ithnet.com,
+        joe@tmsusa.com, linux-kernel@vger.kernel.org, elsner@zrz.TU-Berlin.DE
+Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
+Message-ID: <20020321213917.B20273@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020310163339.H16784@sunbeam.de.gnumonks.org> <20020310.164113.01028736.davem@redhat.com> <200203110055.g2B0tiP24585@vindaloo.ras.ucalgary.ca> <20020310.170338.83978717.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16o9ZV-0006EZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> themselves, they just buy it. The interesting point here is that their
-> biggest threat is now a technology which is not really disruptive, but
-> rather a technology they can't buy.
+David S. Miller:
+> This may surprise some people, but frankly I think the Tigon3's PCI
+> dma engine is junk based upon my current knowledge of the card.  It is
+> always possible I may find out something new which kills this
+> perception I have of the card, but we'll see...
 
-Read the book - buying into the new technology as an old company can 
-actually have dire results when you buy in. It is studied. 
+Is it possible that they've changed this in newer revisions of their
+chips?  Why is it junk?  What could've been done better?  What effects has
+does the "junky" DMA engine have on the NIC (can there be packet losses when
+there's packet bursts, for instance)?
 
-> repeating work. Most development which is moved to india is also the type
-> of development which is most likely to be automated by better tools. So if
-> india just relies on this it will be hit very badly.
+(I'm asking this because we're considering servers which as broadcom NICs
+as the only NICs on-board, on the servers).  
 
-Read the book 8)
-
+-- 
+Thomas

@@ -1,87 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271723AbRH0OBb>; Mon, 27 Aug 2001 10:01:31 -0400
+	id <S271736AbRH0OYw>; Mon, 27 Aug 2001 10:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271726AbRH0OBW>; Mon, 27 Aug 2001 10:01:22 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:34571 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S271723AbRH0OBR>; Mon, 27 Aug 2001 10:01:17 -0400
-Message-Id: <200108271401.f7RE1Xk27375@mail.swissonline.ch>
+	id <S271737AbRH0OYm>; Mon, 27 Aug 2001 10:24:42 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:11795 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271736AbRH0OYf>; Mon, 27 Aug 2001 10:24:35 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <cwidmer@iiic.ethz.ch>
-Reply-To: cwidmer@iiic.ethz.ch
-Subject: proc file system
-Date: Mon, 27 Aug 2001 16:01:29 +0200
-X-Mailer: KMail [version 1.3]
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Mon, 27 Aug 2001 16:31:21 +0200
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva> <20010824222226Z16116-32383+1242@humbolt.nl.linux.org> <3B89F1FC.40F747D4@idb.hist.no>
+In-Reply-To: <3B89F1FC.40F747D4@idb.hist.no>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+Message-Id: <20010827142441Z16237-32383+1641@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i need to report more then 4KB of data to the /proc and found a short
-note in "linux device drivers 2" how to do. so i wrote some functions
-that look like that one below.
+On August 27, 2001 09:08 am, Helge Hafting wrote:
+> Daniel Phillips wrote:
+> > 
+> > On August 24, 2001 09:02 pm, Rik van Riel wrote:
+> > > I guess in the long run we should have automatic collapse
+> > > of the readahead window when we find that readahead window
+> > > thrashing is going on, in the short term I think it is
+> > > enough to have the maximum readahead size tunable in /proc,
+> > > like what is happening in the -ac kernels.
+> > 
+> > Yes, and the most effective way to detect that the readahead window is too
+> > high is by keeping a history of recently evicted pages.  When we find
+> > ourselves re-reading pages that were evicted before ever being used we 
+> > know exactly what the problem is.
+> 
+> Counting how much we are reading ahead and comparing with total RAM
+> (or total cache) might also be an idea.  We may then read ahead
+> a lot for those who runs a handful of processes, and
+> do smaller readahead for those that runs thousands of processes.
 
-static int my_read_proc(char *page, char **start, off_t offset,
-                       int count, int *eof, void* data)
+Yes.  In fact I was just sitting down to write up a design for a new 
+readahead-handling strategy that incorporates this idea.  Here are my design 
+notes so far:
 
-{
-  static int  myIndex = 0, done = 0;
-  int en = 0, max = count - 256;
+  - Readahead cache should be able to expand to fill (almost) all
+    memory in the absence of other activity.
 
-  for(;myIndex < MAX_INDEX; myIndex++){
-	len += sprintf(page+len, "hier some info of dynamic length\n");
-	if(len > max){		// still data left
-           (*start) = page;
-            return len;
-         }	
-  }
-  myIndex = 0;			// all data out
-  *eof = 1
-  done   = 1;
-  return len;
-}
+  - Readahead pages have higher priority than inactive pages, lower
+    than active.
 
-not all of my output gets printed. looks like the data from the last 
-call to my function disapiers. thats wy i thought to delay the eof
-one call by:
+  - Readahead cache is naturally a fifo - new chunks of readahead
+    are added at the head and unused readahead is (eventually)
+    culled from the tail.
 
-static int my_read_proc(char *page, char **start, off_t offset,
-                        int count, int *eof, void* data)
+  - Readahead cache is important enough to get its own lru list.
+    We know it's a fifo so don't have to waste cycles scanning/aging.
+    Having a distinct list makes the accounting trivial, vs keeping
+    readahead on the active list for example.
 
-{
-  static int  myIndex = 0, done = 0;
-  int len = 0, count = offset - 256;
-  if(done){				// now we say that we are done
-    *eof = 1;
-    done = 0;
-    return 0;
-  }
- for(;myIndex < MAX_INDEX; myIndex++){
-	len += sprintf(page+len, "hier some info of dynamic length\n");
-	if(len > max){			//more data left
-           (*start) = page;
-            return len;
-         }	
- }
- (*start) = page;			//were done (but we dont say)
- myIndex = 0;
- done   = 1;
- return len;
-}
+  - A new readahead page starts on the readahead queue.  When used
+    (by generic_file_read) the readahead page moves to the inactive
+    queue and becomes a used-once page (i.e., low priority).  If a
+    readahead page reaches the tail of the readahead queue it may
+    be culled by moving it to the inactive queue.
 
-it does not cut any more some of my data. but endlessly dumping my data to 
-the terminal. after delaying the reset of 'done' as long as offest dont get
-back to 0 it seems to work.
+  - When the readahead cache fills up past its falloff limit we
+    will reduce amount of readahead submitted proportionally by the
+    amount the readahead cache exceeds the falloff limit.  At the
+    cutoff limit, no new readahead is submitted.
 
-  if(done & offset){			// wait until linux seems to have the
-					// same view of the proc-files state
-    *eof = 1;
-    return 0;
-  }else done = 0;
+  - At each try_to_free_pages step the readahead queue is culled
+    proportionally by the amount it exceeds its falloff limit.  A
+    tuning parameter controls the rate at which readahead is 
+    culled vs new readahead submissions (is there a better way?).
 
+  - The cutoff limit is adjusted periodically according to the size
+    of the active list, implementing the idea that active pages
+    take priority over readahead pages.
 
+  - The falloff limit is set proportionally to the cutoff limit.
 
-can anybody tell me wats going on here - i'm confused what do i not know?
+  - The mechanism operates without user intervention, though there
+    are several points at which proportional factors could be
+    exposed as tuning parameters.
 
+The overarching idea here is that we can pack more readahead into memory by 
+managing it carefully, in such a way that we do not often discard unused 
+readahead pages.  In other words, we do as much readahead as possible but 
+avoid thrashing.
+
+The advantages seem clear enough that I'll proceed to an implementation
+without further ado.
+
+--
+Daniel

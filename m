@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131463AbRCNQaB>; Wed, 14 Mar 2001 11:30:01 -0500
+	id <S131460AbRCNQ2W>; Wed, 14 Mar 2001 11:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131466AbRCNQ3w>; Wed, 14 Mar 2001 11:29:52 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:31782 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S131463AbRCNQ3b>; Wed, 14 Mar 2001 11:29:31 -0500
-Message-ID: <3AAF9BF3.B3DB8948@mvista.com>
-Date: Wed, 14 Mar 2001 08:27:31 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Martin Dalecki <dalecki@evision-ventures.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>, npsimons@fsmlabs.com,
-        Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: system call for process information?
-In-Reply-To: <Pine.LNX.4.33.0103141618320.21132-100000@duckman.distro.conectiva>
+	id <S131461AbRCNQ2M>; Wed, 14 Mar 2001 11:28:12 -0500
+Received: from monza.monza.org ([209.102.105.34]:10259 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S131460AbRCNQ2G>;
+	Wed, 14 Mar 2001 11:28:06 -0500
+Date: Wed, 14 Mar 2001 08:27:10 -0800
+From: Tim Wright <timw@splhi.com>
+To: John Jasen <jjasen1@umbc.edu>
+Cc: linux-kernel@vger.kernel.org, AmNet Computers <amnet@amnet-comp.com>
+Subject: Re: magic device renumbering was -- Re: Linux 2.4.2ac20
+Message-ID: <20010314082643.A1044@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: John Jasen <jjasen1@umbc.edu>,
+	linux-kernel@vger.kernel.org,
+	AmNet Computers <amnet@amnet-comp.com>
+In-Reply-To: <3AAF8A71.1C71D517@faceprint.com> <Pine.SGI.4.31L.02.0103141026460.532128-100000@irix2.gl.umbc.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SGI.4.31L.02.0103141026460.532128-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Wed, Mar 14, 2001 at 10:36:40AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Wed, Mar 14, 2001 at 10:36:40AM -0500, John Jasen wrote:
 > 
-> On Wed, 14 Mar 2001, george anzinger wrote:
+> The problem:
 > 
-> > Is it REALLY necessary to prevent them from seeing an
-> > inconsistent state?  Seems to me that in the total picture (i.e.
-> > system wide) they will never see a consistent state, so why be
-> > concerned with a small corner of the system.
+[ Device name slippage ]
 > 
-> You're right. All we need to make sure of is that the address
-> space we want to print info about doesn't go away while we're
-> reading the stats ...
+> Possible solutions(?):
 > 
-> (I think ... but we'll need to look at the procfs code in more
-> detail)
+> Solaris uses an /etc/path_to_inst file, to keep track of device ordering,
+> et al.
 > 
-For what its worth:
-On the last system I worked on we had a status program that maintained a
-screen with interesting things such as context switches per sec, disc
-i/o/sec, lan traffic/sec, ready queue length, next task (printed as
-current task) and... well a whole 26X80 screen full of stuff.  The
-program gathered all the data by reading system tables as quickly as
-possible and THEN did the formatting/ screen update.  Having to deal
-with pre formatted data would have a.) widened the capture window and
-b.) been a real drag to reformat and move to the right screen location. 
-We allowed programs that had the savvy to have read only access to the
-kernel area to make this as fast as possible.
+> Maybe we should consider something similar, where a physical device to
+> logical device map is kept and used to keep things consistent on
+> kernel/driver changes; device addition/removal, and so forth ...
+> 
+> I am, of course, open to better solutions.
+> 
 
-George
+This would currently be massive overkill for Linux, but DYNIX/ptx avoids this
+problem entirely by keeping a device naming database. This became necessary
+when we added support for multi-path fibre-channel connected disks. Most
+device-naming conventions rely on "physical" addresses i.e. this disk at the end
+of this bus connected to this controller in this PCI slot is /dev/sdd. The
+Solaris scheme mentioned above is no different in that respect. Unfortunately,
+it doesn't work with multi-path FC-connected devices.
+
+Very briefly, devices that are "id-able" i.e. already have a unique id are
+simply entered into the database (SCSI drives have a unique id that you can
+read at autoconf time). For elements that are not "id-able", we establish
+a derived id by recording their relation to "id-able" elements. At boot time,
+we scan (in parallel) the system and compare what we find to the database.
+That way, you get consistent naming for devices, and, at least in the case of
+the SCSI (or FC) drives, the name doesn't change, even if you pull a drive
+from one bus and plug it into a different bus entirely.
+
+As I say, this would be massive overkill for Linux, but it's a rather thorough
+solution :-)
+
+Tim
+
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

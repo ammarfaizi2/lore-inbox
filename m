@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312486AbSD2PKw>; Mon, 29 Apr 2002 11:10:52 -0400
+	id <S312498AbSD2PQM>; Mon, 29 Apr 2002 11:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312494AbSD2PKv>; Mon, 29 Apr 2002 11:10:51 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:10949 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S312486AbSD2PKv>;
-	Mon, 29 Apr 2002 11:10:51 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7DE8@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'tomas szepe'" <kala@pinerecords.com>, dmacbanay@softhome.net
+	id <S312505AbSD2PQL>; Mon, 29 Apr 2002 11:16:11 -0400
+Received: from igw3.watson.ibm.com ([198.81.209.18]:50939 "EHLO
+	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
+	id <S312498AbSD2PQK>; Mon, 29 Apr 2002 11:16:10 -0400
+Date: Mon, 29 Apr 2002 11:14:45 -0400
+From: "V. Guruprasad" <prasad@watson.ibm.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: ACPI in 2.5 kills kbd on Via-ACPI systems [Re: kernel 2.5.10 
-	problems]
-Date: Mon, 29 Apr 2002 08:10:43 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Subject: Re: difficulty with symbol export
+Message-ID: <20020429111445.B23004@watson.ibm.com>
+In-Reply-To: <20020429083514.A21779@watson.ibm.com> <Pine.LNX.4.44.0204290951180.32217-100000@chaos.physics.uiowa.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: tomas szepe [mailto:kala@pinerecords.com] 
-> You're right! I tried to point out before that my system had 
-> ignored the
-> keyboard since about the time of 2.5.7/2.5.8, but it didn't 
-> occur to me that
-> the problem could be ACPI related. Indeed, after compiling 
-> 2.5.10-dj1 (2.5.10
-> vanilla barfs an oops at me upon boot) w/ ACPI support turned 
-> off, I found
-> the system perfectly responsive again -- both mouse and keyboard work.
-> 
-> Thus I dare assume it's highly probable that input support 
-> has been broken
-> for VIA chipset-based systems by the recent ACPI changes in 2.5.x.
 
-Yes, this is an ACPI problem. You might try the latest patch at
-sf.net/projects/acpi (although it doesn't work in IOAPIC mode yet) and see
-if that helps. Once we get it working better it'll get submitted.
+On Mon 2002.04.29, Kai Germaschewski wrote:
 
-Regards -- Andy
+> Do you have CONFIG_MODVERSIONS turned on in your kernel config? If so,
+> you probably want to save your .config, make distclean and rebuild from 
+> scratch - that will likely fix the problem.
+
+Thanks, that solved it. Evidently, a 'make dep' was required which makes
+#defines in include/linux/modules/netsyms.ver
+
+thanks,
+-p.
+
+------------------------
+V. Guruprasad ('prasad'),
+http://www.columbia.edu/~vg96

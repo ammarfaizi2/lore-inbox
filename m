@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129856AbRBYWp4>; Sun, 25 Feb 2001 17:45:56 -0500
+	id <S129865AbRBYWso>; Sun, 25 Feb 2001 17:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129865AbRBYWpp>; Sun, 25 Feb 2001 17:45:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3601 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129856AbRBYWpe>;
-	Sun, 25 Feb 2001 17:45:34 -0500
-Date: Sun, 25 Feb 2001 22:39:13 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Steve Whitehouse <Steve@ChyGwyn.com>
-Cc: torvalds@transmeta.com, pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: NBD Cleanup patch and bugfix in ll_rw_blk.c
-Message-ID: <20010225223913.A3627@flint.arm.linux.org.uk>
-In-Reply-To: <200102251957.TAA01718@gw.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200102251957.TAA01718@gw.chygwyn.com>; from steve@gw.chygwyn.com on Sun, Feb 25, 2001 at 07:57:29PM +0000
+	id <S129874AbRBYWsY>; Sun, 25 Feb 2001 17:48:24 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:30440 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129865AbRBYWsQ>;
+	Sun, 25 Feb 2001 17:48:16 -0500
+Date: Sun, 25 Feb 2001 17:48:15 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jens Axboe <axboe@suse.de>
+cc: Nate Eldredge <neldredge@hmc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2-ac3: loop threads in D state
+In-Reply-To: <20010225233957.R7830@suse.de>
+Message-ID: <Pine.GSO.4.21.0102251745560.26808-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 25, 2001 at 07:57:29PM +0000, Steve Whitehouse wrote:
-> -int nbd_init(void)
-> +int __init nbd_init(void)
 
-> -void cleanup_module(void)
-> +void __exit nbd_cleanup(void)
 
-> +
-> +module_init(nbd_init);
-> +module_exit(nbd_cleanup);
+On Sun, 25 Feb 2001, Jens Axboe wrote:
 
-If you're using module_init/module_exit, shouldn't nbd_init/nbd_cleanup
-be declared statically?
+> On Sun, Feb 25 2001, Nate Eldredge wrote:
+> > Nate Eldredge writes:
+> >  > Kernel 2.4.2-ac3.
+> >  > 
+> >  >  FLAGS   UID   PID  PPID PRI  NI   SIZE   RSS WCHAN       STA TTY TIME COMMAND
+> >  >     40     0   425     1  -1 -20      0     0 down        DW< ?   0:00 (loop0)
+> > 
+> > It looks like this has been addressed in the thread "242-ac3 loop
+> > bug".  Jens Axboe posted a patch, but the list archive I'm reading
+> > mangled it.  Jens, could you make this patch available somewhere, or
+> > at least email me a copy?  (If it's going in an upcoming -ac patch,
+> > then don't bother; I can wait until then.)
+> 
+> Patch is here, I haven't checked whether Alan put it in ac4 yet (I
+> did cc him, but noone knows for sure :-).
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Jens, you have a race in lo_clr_fd() (loop-6). I've put the fixed
+variant on ftp.math.psu.edu/pub/viro/loop-S2.gz. Diff and you'll
+see - it's in the very beginning of the lo_clr_fd().
+							Cheers,
+								Al
+

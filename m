@@ -1,46 +1,37 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <971945-18554>; Thu, 9 Jul 1998 21:13:50 -0400
-Received: from neon-best.transmeta.com ([206.184.214.10]:19642 "EHLO neon.transmeta.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <971944-18554>; Thu, 9 Jul 1998 21:12:48 -0400
-Date: Thu, 9 Jul 1998 19:18:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bill Hawes <whawes@star.net>
-cc: ganesh.sittampalam@magd.ox.ac.uk, "Stephen C. Tweedie" <sct@redhat.com>, Virtual Memory problem report list <linux-kernel@vger.rutgers.edu>, mingo@valerie.inf.elte.hu, Alan Cox <number6@the-village.bc.nu>, "David S. Miller" <davem@dm.cobaltmicro.com>
-Subject: Re: Progress! was: Re: Yet more VM writable swap-cached pages
-In-Reply-To: <35A579F3.68F549AF@star.net>
-Message-ID: <Pine.LNX.3.96.980709191306.431I-100000@penguin.transmeta.com>
+Received: by vger.rutgers.edu id <972117-5431>; Fri, 10 Jul 1998 12:45:29 -0400
+Received: from haymarket.ed.ac.uk ([129.215.128.53]:53341 "EHLO haymarket.ed.ac.uk" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <972177-5431>; Fri, 10 Jul 1998 12:16:58 -0400
+Date: Fri, 10 Jul 1998 14:34:32 +0100
+Message-Id: <199807101334.OAA00877@dax.dcs.ed.ac.uk>
+From: "Stephen C. Tweedie" <sct@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: Bill Hawes <whawes@star.net>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, ganesh.sittampalam@magd.ox.ac.uk, Virtual Memory problem report list <linux-kernel@vger.rutgers.edu>
+Subject: Re: Progress! was: Re: Yet more VM writable swap-cached pages
+In-Reply-To: <35A57732.A7B5DFF@star.net>
+References: <Pine.LNX.3.95.980709184611.6873C-100000@fishy> <199807100042.BAA07833@dax.dcs.ed.ac.uk> <35A57732.A7B5DFF@star.net>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+Hi,
 
+On Thu, 09 Jul 1998 22:06:42 -0400, Bill Hawes <whawes@star.net> said:
 
-On Thu, 9 Jul 1998, Bill Hawes wrote:
->
-> > +extern inline pte_t pte_mkwrite(pte_t pte)     { pte_val(pte) |= _PAGE_RW; return pte; }
->                                                                     ^^^^^^^^
-> Did you mean to put in _PAGE_WRITABLE here, or can the pte_mkwrite macro always assume the
-> PRESENT bit is already set?
+> In my searches for the problem I had overlooked the interaction
+> between the PRESENT and PROT_NONE bits.
 
-I decided that it cannot matter. If somebody tries to make a PROT_NONE
-page writable by using pte_mkwrite(), there is already a bug there, and
-I'm happier keeping it PROT_NONE than I am to mark it present. 
+You're not the only one!
 
-Note that this can not happen through a normal page fault, because a
-normal page fault would have noticed that we don't actually have write
-permission to the page at all. As such, the only way somebody can mark a
-PROT_NONE page writable is if we're doing the nasty "bring in all the
-pages because somebody did a mlock[all]() on us". 
+> Hopefully any remaining swap bugs won't be so hard to track down ...
 
-In which case the above does the right thing, by certainly bringing the
-page in, but not actually allowing anybody to read/write to it (actually,
-I don't think this can happen even in that case, because if we have
-PROT_NONE then the make_pages_present() stuff will not try to bring it
-into memory writably, so we won't even try to make it writable). 
+Yep.  Ingo and I have been doing a bunch of swapping stress tests with
+no problems so far, so we're hoping that any other problems that turn
+up will be due to the use of specific features like PROT_NONE and
+won't be problems in the underlying swap mechanisms.  Well, we can
+hope, can't we?  :)
 
-In short, the above really only makes sense if PRESENT is already set, and
-if it was PROT_NONE from before it is a no-op which is fine.
-
-		Linus
+--Stephen
 
 
 -

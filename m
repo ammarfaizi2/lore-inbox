@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267893AbTAHVUy>; Wed, 8 Jan 2003 16:20:54 -0500
+	id <S267908AbTAHVZZ>; Wed, 8 Jan 2003 16:25:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267894AbTAHVUx>; Wed, 8 Jan 2003 16:20:53 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:24327 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267893AbTAHVUw>; Wed, 8 Jan 2003 16:20:52 -0500
-Date: Wed, 8 Jan 2003 22:29:30 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030108212930.GA12083@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <E18Vaoa-0002Pm-00@fencepost.gnu.org> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org> <20030107142612.GO17602@work.bitmover.com> <E18WB8R-0004k9-00@fencepost.gnu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18WB8R-0004k9-00@fencepost.gnu.org>
-User-Agent: Mutt/1.5.1i
+	id <S267909AbTAHVZY>; Wed, 8 Jan 2003 16:25:24 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:36759 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267908AbTAHVZX>;
+	Wed, 8 Jan 2003 16:25:23 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Date: Wed, 8 Jan 2003 22:33:49 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: PCI code:  why need  outb (0x01, 0xCFB); ?
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <CAD6B2D09F9@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Jan 2003, Richard Stallman wrote:
-
-> When you take part of my statement, stretch it, interpret it based on
-> assumptions you know I disagree with, and present the result as
-> something I said, that doesn't prove anything.  It is childish.
+On  8 Jan 03 at 22:22, Maciej W. Rozycki wrote:
+> On Wed, 8 Jan 2003, Petr Vandrovec wrote:
 > 
-> There is no ethical obligation to mention secondary contributions
-> incorporated in a large project.  There ethical obligation is to cite
-> the main developer.  In the GNU/Linux system, the GNU Project is the
-> principal contributor; the system is more GNU than anything else,
-> and we started it.
+> > > > 1. which device is at port address 0xCFB?
+> > > 
+> > > Hopefully none.
+> > 
+> > Actually I'm not sure. This code is here since at least 2.0.28,
+> > and during googling I even found code for direct PCI access
+> > (http://www-user.tu-chemnitz.de/~heha/viewzip.cgi/hs_freeware/gerald.zip/DIRECTNT.CPP?auto=CPP)
+> > which sets lowest bit at 0xCFB to 1 before doing PCI config
+> > accesses and reset it back to original value afterward.
+> > 
+> > So I believe that there were some chipsets (probably in 486&PCI times)
+> > which did conf1/conf2 accesses depending on value of this bit.
+> > Unfortunately I was not able to confirm this - almost nobody provides
+> > northbridge datasheets from '94 era, even Intel does not provide them
+> > (f.e. Neptune) anymore :-(
+> 
+>  Fortunately that's not true.  Grab the relevant docs from: 
+> 'ftp://download.intel.com/support/chipsets/430nx/'.  The semantics of
+> 0xcf8, 0xcf9, 0xcfa and 0xcfb I/O ports when used as byte quantities is
+> explained there.  Note that 0xcf8 and 0xcfa are the way to get at the PCI
+> config space using conf2 accesses. 
 
-You overestimate your influence. Now please go invest your energy into
-something that a) is more likely to succeed, b) does not happen on this
-list.
-
--- 
-Matthias Andree
+Thanks, page 34 of 290479.pdf is exactly what I was looking for 
+(i.e. write 1 to 0xCFB to get PCI conf1, write 0 to get PCI conf2).
+Next time I'll complain immediately instead of spending time with
+browsing Intel website and google.
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz

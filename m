@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292124AbSBTRoO>; Wed, 20 Feb 2002 12:44:14 -0500
+	id <S292130AbSBTRpo>; Wed, 20 Feb 2002 12:45:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292108AbSBTRoG>; Wed, 20 Feb 2002 12:44:06 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:1273
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S292094AbSBTRnu>; Wed, 20 Feb 2002 12:43:50 -0500
-Date: Wed, 20 Feb 2002 09:44:19 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Ville Herva <vherva@twilight.cs.hut.fi>,
-        george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-Subject: Re: jiffies rollover, uptime etc.
-Message-ID: <20020220174419.GD15228@matchmail.com>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Ville Herva <vherva@niksula.cs.hut.fi>,
-	george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020220173216.GC15228@matchmail.com> <Pine.LNX.4.44L.0202201439290.1413-100000@duckman.distro.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0202201439290.1413-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.27i
+	id <S292108AbSBTRpZ>; Wed, 20 Feb 2002 12:45:25 -0500
+Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:48521 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S292131AbSBTRpT>; Wed, 20 Feb 2002 12:45:19 -0500
+Date: Wed, 20 Feb 2002 12:44:59 -0500 (EST)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow.websense.net
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Elieser =?ISO-8859-1?Q?Le=E3o?= <elieser@quatro.com.br>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Lucent WinModem
+In-Reply-To: <3C73DC99.4030405@quatro.com.br>
+Message-ID: <Pine.LNX.4.44.0202201244170.2538-100000@sparrow.websense.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > On Wed, Feb 20, 2002 at 02:24:42PM -0300, Rik van Riel wrote:
-> > > One is a 64 bit extension to a modern superscalar
-> > > architecture which has descended from 8 bit machines
-> > > over the ages.
-> > >
-> > > The other is a 3-issue VLIW follow-up to the 2-issue
-> > > VLIW i860.
-> >
+Good day, Elieser,
 
-> On Wed, 20 Feb 2002, Mike Fedyk wrote:
-> > Oh, I didn't know that processor was used for more than printers, raid
-> > controllers, and similar.
-> >
-> > Anyone have an URL for this arch?
-> 
+On Wed, 20 Feb 2002, Elieser Leão wrote:
 
-On Wed, Feb 20, 2002 at 02:39:53PM -0300, Rik van Riel wrote:
-> Intel has it well hidden from their front page, but you
-> can find info here:
-> 
-> http://www.intel.com/itanium/index.htm
-> 
+> How can I use my LT Winmodem on Slackware???
+> I have a driver but doesn't work!!!! I don't know why...
 
-Thanks,
+	Please see http://www.linmodems.org/ for more information and a 
+mailing list where your question should go.
+	Cheers,
+	- Bill
 
-Do you have an URL for the "3-issue VLIW follow-up to the 2-issue VLIW i860"
-arch?
+---------------------------------------------------------------------------
+        "I've discovered that using VMS is a lot like driving a nail
+with your head: sure, you eventually get something practical done, but
+it usually results in a headache and some blood loss."
+(Courtesy of Dmitri <dmitri@users.sourceforge.net> and Sean A. Simpson)
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
+and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
+LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
+--------------------------------------------------------------------------
 
-Mike

@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVCJCI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVCJBy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVCJCI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVCJCF2
+	id S262705AbVCJBy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:54:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVCJBuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 21:05:28 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:64642 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262702AbVCJCEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 21:04:13 -0500
-Message-Id: <200503100204.j2A244g28335@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
-Subject: RE: Direct io on block device has performance regression on 2.6.x kernel
-Date: Wed, 9 Mar 2005 18:04:04 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUlEUiJXG7NNZKzRr2d0jQxLsIaVQAAIIbwAABvbBA=
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Wed, 9 Mar 2005 20:50:32 -0500
+Received: from fire.osdl.org ([65.172.181.4]:29901 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262705AbVCJBe0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 20:34:26 -0500
+Date: Wed, 9 Mar 2005 17:33:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Direct io on block device has performance regression on 2.6.x
+ kernel
+Message-Id: <20050309173351.0d69de25.akpm@osdl.org>
+In-Reply-To: <200503100111.j2A1BBg27931@unix-os.sc.intel.com>
+References: <20050309144458.2cbc554e.akpm@osdl.org>
+	<200503100111.j2A1BBg27931@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote on Wednesday, March 09, 2005 5:45 PM
-> Andrew Morton wrote on Wednesday, March 09, 2005 5:34 PM
-> > What are these percentages?  Total CPU time?  The direct-io stuff doesn't
-> > look too bad.  It's surprising that tweaking the direct-io submission code
-> > makes much difference.
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
 >
-> Percentage is relative to total kernel time.  There are three DIO functions
-> showed up in the profile:
->
-> __blockdev_direct_IO	4.97%
-> dio_bio_end_io		2.70%
-> dio_bio_complete	1.20%
+> Andrew Morton wrote on Wednesday, March 09, 2005 2:45 PM
+>  > >
+>  > > > Did you generate a kernel profile?
+>  > >
+>  > >  Top 40 kernel hot functions, percentage is normalized to kernel utilization.
+>  > >
+>  > >  _spin_unlock_irqrestore		23.54%
+>  > >  _spin_unlock_irq			19.27%
+>  >
+>  > Cripes.
+>  >
+>  > Is that with CONFIG_PREEMPT?  If so, and if you disable CONFIG_PREEMPT,
+>  > this cost should be accounting the the spin_unlock() caller and we can see
+>  > who the culprit is.   Perhaps dio->bio_lock.
+> 
+>  CONFIG_PREEMPT is off.
+> 
+>  Sorry for all the confusion, I probably shouldn't post the first profile
+>  to confuse people.  See 2nd profile that I posted earlier (copied here again).
+> 
+>  scsi_request_fn		7.54%
+>  finish_task_switch	6.25%
+>  __blockdev_direct_IO	4.97%
+>  __make_request		3.87%
+>  scsi_end_request		3.54%
+>  dio_bio_end_io		2.70%
+>  follow_hugetlb_page	2.39%
+>  __wake_up			2.37%
+>  aio_complete		1.82%
 
-For the sake of comparison, let's look at the effect of performance patch on
-raw device, in place of the above three functions, we now have two:
+What are these percentages?  Total CPU time?  The direct-io stuff doesn't
+look too bad.  It's surprising that tweaking the direct-io submission code
+makes much difference.
 
-raw_file_rw			1.59%
-raw_file_aio_rw		1.19%
-
-A total saving of 6.09% (4.97+2.70+1.20 -1.59-1.19).  That's only counting
-the cpu cycles.  We have tons of other data showing significant kernel path
-length reduction with the performance patch.  Cache misses reduced across
-the entire 3 level cache hierarchy, that's a secondary effect can not be
-ignored since kernel is also competing cache resource with application.
-
-- Ken
-
+hm.  __blockdev_direct_IO() doesn't actually do much.  I assume your damn
+compiler went and inlined direct_io_worker() on us.
 

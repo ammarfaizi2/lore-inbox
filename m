@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261758AbSJIPKf>; Wed, 9 Oct 2002 11:10:35 -0400
+	id <S261805AbSJIPQm>; Wed, 9 Oct 2002 11:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261805AbSJIPKJ>; Wed, 9 Oct 2002 11:10:09 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:56839 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261804AbSJIPJH>; Wed, 9 Oct 2002 11:09:07 -0400
-Date: Wed, 9 Oct 2002 17:14:11 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Brendan J Simon <brendan.simon@bigpond.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [kbuild-devel] Re: linux kernel conf 0.8
-In-Reply-To: <20021009144502.GD2954@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0210091705160.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261813AbSJIPQl>; Wed, 9 Oct 2002 11:16:41 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:10402 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261805AbSJIPQj>; Wed, 9 Oct 2002 11:16:39 -0400
+Subject: Re: softdog doesn't work on 2.4.20-pre10?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210091712.10987.roy@karlsbakk.net>
+References: <200210091607.32769.roy@karlsbakk.net>
+	<1034174409.1970.37.camel@irongate.swansea.linux.org.uk> 
+	<200210091712.10987.roy@karlsbakk.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Oct 2002 16:33:00 +0100
+Message-Id: <1034177580.1970.52.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 9 Oct 2002, J.A. Magallon wrote:
-
-> >stick with TCL/TK, like xconfig currently uses ?
-> >or is it not sufficient?  or just too ugly?
+On Wed, 2002-10-09 at 16:12, Roy Sigurd Karlsbakk wrote:
+> > > hi
+> > >
+> > > I have the softdog running on some of my machines, and I noticed it
+> > > didn't work very well. I've got this little program feeding the dog
+> > > (attached), so if it gets killed, the machine should reboot.
 > >
->
-> What is linux kernel conf written in ?
-> - perl: use perl-gtk (I think there is also a perl-qt)
-> - python: use py-gtk...
->
-> Use whatever the language gives. I never undestook why use tcl/tk
-> on a perl/python config system.
+> > Make sure you have no way out set
+> 
+> ok. works with no way out, but still...
+> 
+> When I killed 'feedthedog', I sent it a SIGKILL, so it couldn't have shut down 
+> the softdog properly.
 
-With the exception of the X interface everything is in C, what makes it
-difficult to use script languages, one always needs some extra development
-package installed. That's the main reason for creating a library backend,
-a lot can already be packaged by distributions and only the library needs
-to be built from the current kernel.
+Of course it did , it exited so the fil ehandles closed
 
-bye, Roman
 

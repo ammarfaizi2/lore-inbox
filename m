@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284642AbRLDAVN>; Mon, 3 Dec 2001 19:21:13 -0500
+	id <S277509AbRLDAZs>; Mon, 3 Dec 2001 19:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284632AbRLDAOT>; Mon, 3 Dec 2001 19:14:19 -0500
-Received: from 39.159.252.64.snet.net ([64.252.159.39]:2944 "EHLO
-	stinkfoot.org") by vger.kernel.org with ESMTP id <S285189AbRLCV2R>;
-	Mon, 3 Dec 2001 16:28:17 -0500
-Message-ID: <3C0BF1C2.5070407@stinkfoot.org>
-Date: Mon, 03 Dec 2001 16:42:26 -0500
-From: Ethan <Ethan@stinkfoot.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011125
-X-Accept-Language: en-us
+	id <S282951AbRLDAZD>; Mon, 3 Dec 2001 19:25:03 -0500
+Received: from ns.suse.de ([213.95.15.193]:8718 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S280983AbRLDAW4>;
+	Mon, 3 Dec 2001 19:22:56 -0500
+Date: Tue, 4 Dec 2001 01:22:52 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: <esr@thyrsus.com>, <kbuild-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
+In-Reply-To: <2313.1007345012@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0112040118210.3228-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PPC kernel fails when IDE built as modules
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just thought I'd drop a note that recent kernel builds (2.4.17-pre1,2) 
-on PPC fail when IDE is built as modules.
+On Mon, 3 Dec 2001, Keith Owens wrote:
 
--Ethan
+Hi Keith,
 
+> _If_ I can get CML2 support working before 2.5.1 comes out then we go
+>   2.5.2-pre1 Add kbuild 2.5 with both CML1 and CML2 support.
+>   2.5.2-pre2 Remove kbuild 2.4.
 
-ld -T arch/ppc/vmlinux.lds -Ttext 0xc0000000 -Bstatic 
-arch/ppc/kernel/head.o init/main.o init/version.o \
-        --start-group \
-        arch/ppc/kernel/kernel.o arch/ppc/mm/mm.o arch/ppc/lib/lib.o 
-kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o 
-drivers/net/net.o drivers/media/media.o drivers/scsi/scsidrv.o 
-drivers/cdrom/driver.o drivers/pci/driver.o 
-drivers/macintosh/macintosh.o drivers/video/video.o drivers/usb/usbdrv.o 
-drivers/input/inputdrv.o \
-        net/network.o \
-        /usr/src/linux-bk/lib/lib.a \
-        --end-group \
-        -o vmlinux
-arch/ppc/kernel/kernel.o: In function `pmac_init':
-arch/ppc/kernel/kernel.o(.text.init+0x2cfa): undefined reference to 
-`pmac_ide_init_hwif_ports'
-arch/ppc/kernel/kernel.o(.text.init+0x2cfe): undefined reference to 
-`pmac_ide_get_base'
-arch/ppc/kernel/kernel.o(.text.init+0x2d12): undefined reference to 
-`pmac_ide_init_hwif_ports'
-arch/ppc/kernel/kernel.o(.text.init+0x2d16): undefined reference to 
-`pmac_ide_get_base'
-arch/ppc/kernel/kernel.o: In function `pmac_ide_check_region':
-arch/ppc/kernel/kernel.o(.text.pmac+0x930): undefined reference to 
-`pmac_ide_check_base'
-arch/ppc/kernel/kernel.o(.text.pmac+0x930): relocation truncated to fit: 
-R_PPC_REL24 pmac_ide_check_base
-arch/ppc/kernel/kernel.o: In function `pmac_ide_request_region':
-arch/ppc/kernel/kernel.o(.text.pmac+0x988): undefined reference to 
-`pmac_ide_check_base'
-arch/ppc/kernel/kernel.o(.text.pmac+0x988): relocation truncated to fit: 
-R_PPC_REL24 pmac_ide_check_base
-arch/ppc/kernel/kernel.o: In function `pmac_ide_release_region':
-arch/ppc/kernel/kernel.o(.text.pmac+0x9d8): undefined reference to 
-`pmac_ide_check_base'
-arch/ppc/kernel/kernel.o(.text.pmac+0x9d8): relocation truncated to fit: 
-R_PPC_REL24 pmac_ide_check_base
-make: *** [vmlinux] Error 1
+Do you plan to fix the x2 slowdown before removing kbuild 2.4 ?
+Or is this something that will be worked on as we progress through 2.5.
 
+regards,
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268464AbUHaM5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUHaMws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268464AbUHaM5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 08:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUHaM5L
+	id S268335AbUHaMws (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 08:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUHaMtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 08:57:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:58503 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268329AbUHaMxm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 08:53:42 -0400
-Date: Tue, 31 Aug 2004 08:53:29 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Jeba Anandhan A <jeba_career@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem Programming
-In-Reply-To: <20040831124138.35309.qmail@web50607.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0408310851130.24913@chaos>
-References: <20040831124138.35309.qmail@web50607.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 Aug 2004 08:49:10 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:30701 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S268329AbUHaMsq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 08:48:46 -0400
+Date: Tue, 31 Aug 2004 15:48:43 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Joel Jaeggli <joelja@darkwing.uoregon.edu>,
+       James Colannino <lkml@colannino.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: submitting kernel patch for 3w-9xxx in 2.4
+Message-ID: <20040831124843.GS19844@mea-ext.zmailer.org>
+References: <413217A3.4020906@colannino.org> <20040829182333.GP19844@mea-ext.zmailer.org> <Pine.LNX.4.61.0408291433210.32154@twin.uoregon.edu> <20040830181821.GQ19844@mea-ext.zmailer.org> <1093952417.32684.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093952417.32684.9.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Aug 2004, Jeba Anandhan A wrote:
+On Tue, Aug 31, 2004 at 12:40:18PM +0100, Alan Cox wrote:
+> On Llu, 2004-08-30 at 19:18, Matti Aarnio wrote:
+> > I do urge you to consider rewriting configuration options, and file
+> > names so that triple-x doesn't appear in them.
+> 
+> Or just let people with buggy spamfilters suffer, as we do people
+> with ECN broken routers who want to use linux-kernel
 
-> i like to write filesystem programming .
-> how to start ?.
->
-> i am studying filesystem concepts and filesystem
-> objects.
-> how to access the superblock info of mounted
-> filesystem .
->
+People with buggy filters don't see it.  DaveM suffers the bounce flood..
+(and I, to a lesser degree.)
 
-Just read the raw device. You can get the source-code
-of all the ext2/3 untilities off the net. This will
-show everything you need to know (except how to put
-the file-system back together after your first mistake)(^.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+/Matti Aarnio

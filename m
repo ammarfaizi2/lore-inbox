@@ -1,154 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTEMVOv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 17:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTEMVOv
+	id S263376AbTEMVPA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 17:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263396AbTEMVPA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 17:14:51 -0400
-Received: from hermes.ctd.anl.gov ([130.202.113.27]:7837 "EHLO
-	hermes.ctd.anl.gov") by vger.kernel.org with ESMTP id S263354AbTEMVOi
+	Tue, 13 May 2003 17:15:00 -0400
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:9978 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S263376AbTEMVO4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 17:14:38 -0400
-Message-ID: <3EC16316.AE33A6C0@anl.gov>
-Date: Tue, 13 May 2003 16:26:46 -0500
-From: "Douglas E. Engert" <deengert@anl.gov>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	Tue, 13 May 2003 17:14:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Yoav Weiss <ml-lkml@unpatched.org>
+Subject: Re: The disappearing sys_call_table export.
+Date: Tue, 13 May 2003 16:26:15 -0500
+X-Mailer: KMail [version 1.2]
+Cc: 76306.1226@compuserve.com, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0305131633030.20904-100000@marcellos.corky.net>
+In-Reply-To: <Pine.LNX.4.44.0305131633030.20904-100000@marcellos.corky.net>
 MIME-Version: 1.0
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-CC: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG support
-References: <8812.1052841957@warthog.warthog> <Pine.LNX.4.44.0305130929340.1678-100000@home.transmeta.com> <20030513172029.GB25295@delft.aura.cs.cmu.edu> <3EC13E94.C9771D1F@anl.gov> <20030513203344.GC1005@delft.aura.cs.cmu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Transfer-Encoding: 7bit
-Content-Transfer-Encoding: 7bit
+Message-Id: <03051316261500.20373@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Jan Harkes wrote:
-> 
-> On Tue, May 13, 2003 at 01:51:00PM -0500, Douglas E. Engert wrote:
-> > Jan Harkes wrote:
-> > > The local user id is not a 'trusted' identity for a distributed filesystem.
-> > > Any user still have to prove his identity by obtaining tokens.
-> ...
-> > > Which is also why joining a PAG should never be allowed.
+On Tuesday 13 May 2003 08:44, Yoav Weiss wrote:
+> > > Until linux gets a real encrypted swap (the kind OpenBSD implements),
+> > > you can settle for encrypting your whole swap with one random key that
+> > > gets lost on reboot.  Encrypted loop dev with a key from /dev/random
+> > > easily gives you that.
 > >
-> > Joining a PAG can be allowed, if the connecting process can prove its
-> > identify to the owner of the PAG. This does not imply that using a
-> > weak password gets you access to a PAG that was instituted via some
-> > more secure method.
-> > In the example I used of Kerberized rsh, the rshd running as root, would
-> > only allow a second connection to join the PAG if the second connection was
-> > also authenticated via  the same Kerberos user.
-> 
-> The kernel doesn't know whether you got into the system using a
-> kerberized rsh, ssh, telnet, or by a buffer-overflow.
+> > Ahhh not a good idea if you want job restart or suspend/resume. And large
+> > systems DO want a job restart... as do laptops. During suspension you can
+> > do anything to the disk (as in remove it, insert in another system, read
+> > it, then put it back ...)
+>
+> While I agree with most of what you said in your post, I fail to see the
+> problem with this one.  My laptop has encrypted swap and it poses no
+> problem when suspending.  The disk can be taken out and read, but its
+> encrypted with a random key that exists only in memory so its harder to
+> extract.  (and if someone can extract my memory, the swap is the least of
+> my concerns).
 
-No, but the sshd, or rshd can look at the credentials and determine if you
-are establishing a new connection, and then let this process join the
-previous PAG, i.e. share the credentials if appropriate.
+Not the above - that one is obvious that the key can be compromised.
 
-> 
-> The 'authenticated' user in fact already got his kerberos tokens on the
-> system he is logging in from. The kerberized rshd simply adds the token
-> used as authentication to the new session, if it is a TGT it can be used
-> to obtain AFS and other credentials either from within the daemon or
-> through commands in a .login script (using afslog or aklog or something).
+> Maybe you're talking about hibernation rather than suspension.  (when
+> everything is written to disk and the memory is wiped).  In this case,
+> again, the encrypted swap's key is the least of your concern since all
+> your memory is written to disk plaintext anyway.  If hibernation is
+> implemented in software, you can have it encrypted too, and require a
+> user-supplied key upon restarting.  If its implemented by the hardware, I
+> guess there isn't much you can do.  Just have the kernel do the
+> hibernation into an encrypted loopdev and halt the machine.
 
-True but I am saying that you don't want to have to call aklog to get new
-AFS tokens for each connection, but would rather use the existing AFS token
-or credentials already present from the previous session. 
+This one...
 
-When we did this back in 1997 we did this with the DFS PAG as the overhead
-of getting a DCE context could be quite large, requiring many tickets
-Here are some comments forom the k5dcecon.c program:
+Though part of it has to do with large systems and crash. What is done
+on some of these systems is to periodically checkpoint batch jobs. If the
+kernel crashes, the job has a physical memory failure, a cpu dies (one out
+of many...) the system resumes processing (after reboot, or removing the
+memory page from the valid list ... whatever recovery method) to then
+reload/resume the processes.
 
-
-/*
- * k5dcecon - Program to convert a K5 TGT to a DCE context,
- * for use with DFS and its PAG.
- * 
- * The program is designed to be called as a sub process, 
- * and return via stdout the name of the cache which implies 
- * the PAG which should be used. This program itself does not 
- * use the cache or PAG itself, so the PAG in the kernel for 
- * this program may not be set. 
- * 
- * The calling program can then use the name of the cache
- * to set the KRB5CCNAME and PAG for its self and its children. 
- *
- * If no ticket was passed, an attemplt to join an existing
- * PAG will be made. 
- * 
- * If a forwarded K5 TGT is passed in, either a new DCE 
- * context will be created, or an existing one will be updated.
- * If the same ticket was already used to create an existing
- * context, it will be joined instead. 
- * 
- * Parts of this program are based on k5dceauth,c which was
- * given to me by HP and by the k5dcelogin.c which I developed. 
- * A slightly different version of k5dcelogin.c, was added to
- * DCE 1.2.2
- * 
- * D. E. Engert 6/17/97 ANL
- */
-
-
-> 
-> > Since each invocation of the server would be placed into its own PAG,
-> > (sort of by definition of a PAG) then each invocation of the server would
-> > have to get a new AFS token.
-> 
-> Which actually seems logical to me.
-> 
-> > What I am looking for is that the server can verify the identity, of the
-> > client, then use previously forwarded credentials, such as a TGT or AFS token,
-> > so it does not have to get a new token., i.e. it joins the existing PAG.
-> 
-> You could have the kerberized rshd remember the tokens it obtained
-> during a previous login or were forwarded by the client and associate
-> them with the new PAG. No need to join an existing PAG.
-
-We maybe saying the same thing. I would say the PAG is where this information is
-stored. One may define the PAG as a kernel only concept which is destroyed
-when the last process ends, where I am also saying it includes cached credentials
-which may persist longer.
-
-
-> 
-> What you propose has completely different behaviour depending on whether
-> the user happens to have a secondary permanent connection to the target
-> host or not. If there is no permanent session there will be no PAG to
-> join and each rsh invocation will have to reauthenticate anyways.
-
-It is possible that the credential can be kept around for some time, 
-as was the case with the k5dcecon, so previous credentials could be reused. 
-In the case of the DCE, there where three files, one of which was the kerberos
-cache. The filenames has the PAG number as part of the file name. 
-
-The DFS cache manager process would assist the kernel in getting additional
-tickets and use these files. 
-
-This was not possible with AFS, since the AFS token was only in the kernel,
-and would be destroyed when the last process in the PAG finished. 
-(To bad, as we have seen problems if a user saves a big file, then logs off,
-and the token is destroyed before the cache manager writes the file ac
-to the server.) 
-
-
-
-> 
-> Jan
-
--- 
-
- Douglas E. Engert  <DEEngert@anl.gov>
- Argonne National Laboratory
- 9700 South Cass Avenue
- Argonne, Illinois  60439 
- (630) 252-5444
+If the random key is lost due to a crash, then reload/resume fails.

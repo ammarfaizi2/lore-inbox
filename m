@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267686AbTAMAYy>; Sun, 12 Jan 2003 19:24:54 -0500
+	id <S267668AbTAMAdd>; Sun, 12 Jan 2003 19:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267687AbTAMAYx>; Sun, 12 Jan 2003 19:24:53 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:52497 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267686AbTAMAYx>; Sun, 12 Jan 2003 19:24:53 -0500
-Message-ID: <3E21FF13.DD9B8340@linux-m68k.org>
-Date: Mon, 13 Jan 2003 00:49:39 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S267672AbTAMAdc>; Sun, 12 Jan 2003 19:33:32 -0500
+Received: from tomts12.bellnexxia.net ([209.226.175.56]:13975 "EHLO
+	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267668AbTAMAdc>; Sun, 12 Jan 2003 19:33:32 -0500
+Date: Sun, 12 Jan 2003 19:42:24 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Randy Dunlap <rddunlap@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: restructuring of filesystems config menu
+In-Reply-To: <1725.4.64.197.173.1042416090.squirrel@www.osdl.org>
+Message-ID: <Pine.LNX.4.44.0301121941220.21501-100000@dell>
 MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: make xconfig broken in bk current
-References: <200301121512.59840.tomlins@cam.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 12 Jan 2003, Randy Dunlap wrote:
 
-> This makes sense.  Debian has changed its default compiler to 3.2 in
-> sid...  Suspect we will get quite a few reports like this one.
+> >
+> >   i've attached a gzipped patch against 2.5.56 for reorganizing
+> > the filesystem menu under "make xconfig", and i'm certainly
+> > open to feedback/comments/criticism/large sums of money.
 > 
-> Solution would seem to be to fix the links in /usr/bin for:
+> 
+> Any special reason that you gzipped and attached it?
+> That's a good way to have some people not bother looking at it.
 
-Until qt is recompiled, "make HOSTCXX=g++-2.95 xconfig" should do it.
+um ... because it was 80K unzipped and 20K zipped?  i just
+wanted to get some feedback before submitting it as an
+official patch, that's all.
 
-bye, Roman
-
+rday
 

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbTBTULm>; Thu, 20 Feb 2003 15:11:42 -0500
+	id <S264931AbTBTU16>; Thu, 20 Feb 2003 15:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266926AbTBTULm>; Thu, 20 Feb 2003 15:11:42 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37127 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265987AbTBTULl>; Thu, 20 Feb 2003 15:11:41 -0500
-Date: Thu, 20 Feb 2003 12:17:05 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302202057020.2262-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0302201207320.12127-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266962AbTBTU15>; Thu, 20 Feb 2003 15:27:57 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:31668 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S264931AbTBTU14>;
+	Thu, 20 Feb 2003 15:27:56 -0500
+Date: Thu, 20 Feb 2003 20:50:17 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Thomas Schlichter <schlicht@uni-mannheim.de>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c with flush_tlb_all()
+Message-ID: <20030220205017.GA29206@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>,
+	Andrew Morton <akpm@digeo.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200302202002.h1KK2YZ00018@rumms.uni-mannheim.de> <20030220203619.GA26583@codemonkey.org.uk> <200302202131.08663.schlicht@uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302202131.08663.schlicht@uni-mannheim.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 20, 2003 at 09:30:55PM +0100, Thomas Schlichter wrote:
 
-On Thu, 20 Feb 2003, Ingo Molnar wrote:
-> 
-> ie. something like:
+ > > This looks bogus. You're killing the wbinvd() in flush_kernel_map() which
+ > > is needed.
+ > I must admit I don't exactly know the wbinvd() command, but as the comment 
+ > says:
+ >   /* Could use CLFLUSH here if the CPU supports it (Hammer,P4) */
+ > 
+ > I thought it is not NEEDED, just a COULD...
 
-Well, please remove the double test for task inequality.
+Its hinting at a possible optimisation, not saying
+that it is unneeded.
 
-I like the patch conceptually, HOWEVER, I'm not sure it's correct. The 
-thing is, moving the wait_task_inactive() to __put_task_struct() means 
-that we will be doing the "release_task()" teardown while the task is 
-still potentially active on another CPU.
+		Dave
 
-In particular, we'll be freeing the security stuff and the signals while 
-the process may still be active in the scheduler on another CPU. This can 
-be dangerous, ie doing things like calling "free_uid()" on a process that 
-is still running means that suddenly you have issues like not being able 
-to trust "current->user" from interrupts. We may not care right now, but 
-it's still wrong (imagine us doing per-user time accounting - which makes 
-a _lot_ of sense).
-
-		Linus
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

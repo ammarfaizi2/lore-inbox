@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132880AbRASBsZ>; Thu, 18 Jan 2001 20:48:25 -0500
+	id <S130882AbRASBsY>; Thu, 18 Jan 2001 20:48:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132911AbRASBsO>; Thu, 18 Jan 2001 20:48:14 -0500
-Received: from [63.109.146.2] ([63.109.146.2]:51953 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S132880AbRASBsC>;
-	Thu, 18 Jan 2001 20:48:02 -0500
-Message-ID: <4461B4112BDB2A4FB5635DE1995874320223D5@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: linux-kernel@vger.kernel.org
-Subject: Is there a Crystal 4299 sound driver?
-Date: Thu, 18 Jan 2001 17:47:55 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132880AbRASBsP>; Thu, 18 Jan 2001 20:48:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:7695 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132877AbRASBr7>;
+	Thu, 18 Jan 2001 20:47:59 -0500
+Date: Fri, 19 Jan 2001 02:47:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1pre8 slowdown on dbench tests
+Message-ID: <20010119024745.G18209@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0101181449240.4124-100000@freak.distro.conectiva> <20010119011629.C32087@athlon.random> <20010119024023.B18209@suse.de> <20010119024610.A7573@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010119024610.A7573@gruyere.muc.suse.de>; from ak@suse.de on Fri, Jan 19, 2001 at 02:46:10AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know of a driver for the Crystal 4299 sound chip?
+On Fri, Jan 19 2001, Andi Kleen wrote:
+> > Yes I agree, that values should probably be tweaked a bit. I'll
+> > try and squeeze some testing in to generate the best possible
+> > values.
+> 
+> Please also add a sysctl. I always feel uncomfortable with such hardcoded
+> heuristics. There tends to be always another workload where the heuristic
+> fails and manual tuning is useful. 
 
-I grepped through /drivers/sound in both 2.2.18 and 2.4.0. 
+Sure, we can do that. But it should only really make a difference
+for low memory machines, otherwise the numbers wouldn't change
+so much. So the limits are not really that important, and only
+need to be in the ball park.
 
-The only hints were that "ac97_codec.c" has two codec id's listed for it.
->From old changelogs I see that Mulder Tjeerd was involved in adding those...
-perhaps he is writing a driver?  
-
-Any hints would be appreciated.
-
-Torrey Hoffman
-torrey.hoffman@myrio.com
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTHaOJe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 10:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTHaOJd
+	id S262065AbTHaOFu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 10:05:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTHaOFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 10:09:33 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:10916 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262115AbTHaOJ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 10:09:29 -0400
-Message-ID: <3F52062A.4020701@kegel.com>
-Date: Sun, 31 Aug 2003 07:28:58 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: GCC Mailing List <gcc@gcc.gnu.org>, linux-kernel@vger.kernel.org
-Subject: Re: LMbench as gcc performance regression test?
-References: <3F51A201.8090108@kegel.com> <20030831140037.GA16620@work.bitmover.com>
-In-Reply-To: <20030831140037.GA16620@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 31 Aug 2003 10:05:50 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:15016 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262065AbTHaOFo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 10:05:44 -0400
+Date: Sun, 31 Aug 2003 10:05:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: marcelo@parcelfarce.linux.theplanet.co.uk
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [bk patches] 2.4.x quick fixes
+Message-ID: <20030831140543.GA4819@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> On Sun, Aug 31, 2003 at 12:21:37AM -0700, Dan Kegel wrote:
-> 
->>(There seems to be large variations in successive runs of LMBench
->>when I try it, so it may take me a bit of work to get repeatable
->>results.)
-> 
-> 
-> Other than the context switch part or anything based on it, that shouldn't
-> be true, it should be very stable.
-> 
-> I'm pretty convinced that the variations are due to different pages being
-> allocated and the result cache contention makes things bounce.
 
-Or an idiot running the benchmark.  We really do have to rule that out first.
-- Dan
+Marcelo, please do a
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+	bk pull bk://kernel.bkbits.net/jgarzik/misc-2.4
 
+This will update the following files:
+
+ arch/i386/kernel/pci-irq.c |    1 +
+ drivers/pci/pci.c          |    2 +-
+ include/linux/pci.h        |    2 +-
+ 3 files changed, 3 insertions(+), 2 deletions(-)
+
+through these ChangeSets:
+
+<jgarzik@redhat.com> (03/08/31 1.1106)
+   [BK] ignore auto-generated files lib/{crc32table.h,gen_crc32table}
+
+<jgarzik@redhat.com> (03/08/31 1.1105)
+   [PCI] fix export of pdev_set_mwi/pci_generic_prep_mwi
+   
+   Missed in recent PCI MWI change.
+
+<jgarzik@redhat.com> (03/08/31 1.1104)
+   [ia32] add PCI id for VIA irq router
+   
+   Noticed by Sebastian Reichelt.
+
+
+diff -Nru a/arch/i386/kernel/pci-irq.c b/arch/i386/kernel/pci-irq.c
+--- a/arch/i386/kernel/pci-irq.c	Sun Aug 31 09:57:19 2003
++++ b/arch/i386/kernel/pci-irq.c	Sun Aug 31 09:57:19 2003
+@@ -610,6 +610,7 @@
+ 		case PCI_DEVICE_ID_VIA_82C586_0:
+ 		case PCI_DEVICE_ID_VIA_82C596:
+ 		case PCI_DEVICE_ID_VIA_82C686:
++		case PCI_DEVICE_ID_VIA_8231:
+ 		/* FIXME: add new ones for 8233/5 */
+ 			r->name = "VIA";
+ 			r->get = pirq_via_get;
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	Sun Aug 31 09:57:19 2003
++++ b/drivers/pci/pci.c	Sun Aug 31 09:57:19 2003
+@@ -2151,7 +2151,7 @@
+ EXPORT_SYMBOL(pci_set_master);
+ EXPORT_SYMBOL(pci_set_mwi);
+ EXPORT_SYMBOL(pci_clear_mwi);
+-EXPORT_SYMBOL(pdev_set_mwi);
++EXPORT_SYMBOL(pci_generic_prep_mwi);
+ EXPORT_SYMBOL(pci_set_dma_mask);
+ EXPORT_SYMBOL(pci_dac_set_dma_mask);
+ EXPORT_SYMBOL(pci_assign_resource);
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Sun Aug 31 09:57:19 2003
++++ b/include/linux/pci.h	Sun Aug 31 09:57:19 2003
+@@ -628,7 +628,7 @@
+ #define HAVE_PCI_SET_MWI
+ int pci_set_mwi(struct pci_dev *dev);
+ void pci_clear_mwi(struct pci_dev *dev);
+-int pdev_set_mwi(struct pci_dev *dev);
++int pci_generic_prep_mwi(struct pci_dev *dev);
+ int pci_set_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_assign_resource(struct pci_dev *dev, int i);

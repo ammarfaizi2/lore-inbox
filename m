@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbUBZXEa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:04:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbUBZXE0
+	id S261225AbUBZXB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:01:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbUBZXBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:04:26 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:37279 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261248AbUBZXDL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:03:11 -0500
-Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
-From: john stultz <johnstul@us.ibm.com>
-To: Go Taniguchi <go@turbolinux.co.jp>, willy@debian.org
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1077830762.2857.164.camel@cog.beaverton.ibm.com>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	 <1077668801.2857.63.camel@cog.beaverton.ibm.com>
-	 <20040224170645.392abcff.akpm@osdl.org> <403E0563.9050007@turbolinux.co.jp>
-	 <1077830762.2857.164.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Message-Id: <1077836576.2857.168.camel@cog.beaverton.ibm.com>
+	Thu, 26 Feb 2004 18:01:24 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:13982 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261244AbUBZW6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 17:58:13 -0500
+Date: Thu, 26 Feb 2004 22:56:01 +0000
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What happened to LAN Media Corporation?
+Message-ID: <20040226225601.GA16996@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+References: <20040226225131.GX5499@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 26 Feb 2004 15:02:56 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040226225131.GX5499@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-26 at 13:26, john stultz wrote:
-> On Thu, 2004-02-26 at 06:40, Go Taniguchi wrote:
-> > Hi,
-> > 
-> > Andrew Morton wrote:
-> > > john stultz <johnstul@us.ibm.com> wrote:
-> > > 
-> > >>	Booting 2.6.3-mm3 on an x440 hangs the box during the SCSI probe after
-> > >>the following:
-> > >> 
-> > >>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-> > >>        <Adaptec aic7899 Ultra160 SCSI adapter>                 
-> > >>        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-> > >>                                                                
-> > >>
-> > >>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
-> > >>there as well. 
-> > > 
-> > > 
-> > > Could you try reverting aic7xxx-deadlock-fix.patch?  Also, add
-> > > initcall_debug to the boot command just so we know we aren't blaming the
-> > > wrong thing.
-> > > 
-> > > Apart from that, gosh.  Maybe you could add just linus.patch and
-> > > bk-scsi.patch, see if that hangs too?  Or just test the latest linus tree -
-> > > the scsi changes were merged this morning.  Thanks.
-> > > 
-> > 
-> > Problem patch is expanded-pci-config-space.patch.
-> > x440 can not enable acpi by dmi_scan.
-> > expanded-pci-config-space.patch need acpi support.
-> > So, kernel can not get x440's xAPIC interrupt.
-> 
-> Wow, thanks for that analysis Go! I'll test it here to confirm. 
+On Thu, Feb 26, 2004 at 11:51:31PM +0100, Adrian Bunk wrote:
+ > MAINTAINERS says:
+ > 
+ > LANMEDIA WAN CARD DRIVER
+ > P:      Andrew Stanley-Jones
+ > M:      asj@lanmedia.com
+ > W:      http://www.lanmedia.com/
+ > S:      Supported
+ > 
+ > But lanmedia.com seems to be for sale by buydomains.com .
 
-Yep, I've confirmed that backing out the expanded-pci-config-space patch
-solves it. Thanks again, Go, for hunting that down! 
+First hit on google..
 
-Matthew, any ideas why the patch fails if the system has an ACPI
-blacklist entry?
+http://www.sbei.net/archive/prs/2000/071400.htm
 
-thanks
--john
+		Dave
 

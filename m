@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131693AbRCTB3s>; Mon, 19 Mar 2001 20:29:48 -0500
+	id <S131687AbRCTBTS>; Mon, 19 Mar 2001 20:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131692AbRCTB3i>; Mon, 19 Mar 2001 20:29:38 -0500
-Received: from aic.ee.ndhu.edu.tw ([203.64.105.113]:28047 "EHLO
-	aic.ee.ndhu.edu.tw") by vger.kernel.org with ESMTP
-	id <S131611AbRCTB3Y>; Mon, 19 Mar 2001 20:29:24 -0500
-Date: Tue, 20 Mar 2001 09:28:45 +0800
-From: ³¯¤ý®i <cwz@aic.ee.ndhu.edu.tw>
-To: Pierre Etchemaite <petchema@concept-micro.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About DC-315U scsi driver
-Message-Id: <20010320092845.1953d505.cwz@aic.ee.ndhu.edu.tw>
-In-Reply-To: <XFMail.20010319193049.petchema@concept-micro.com>
-In-Reply-To: <20010313190304.62fbf6c7.cwz@aic.ee.ndhu.edu.tw>
-	<XFMail.20010319193049.petchema@concept-micro.com>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.4.2-ac20; i686)
+	id <S131692AbRCTBTJ>; Mon, 19 Mar 2001 20:19:09 -0500
+Received: from [24.221.152.185] ([24.221.152.185]:60654 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S131687AbRCTBTD>; Mon, 19 Mar 2001 20:19:03 -0500
+Date: Mon, 19 Mar 2001 18:13:47 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "J. Michael Kolbe" <wicked@convergence.de>
+Cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: sysrq.txt
+Message-ID: <20010319181347.D26631@opus.bloom.county>
+In-Reply-To: <20010316161919.A30690@midget.convergence.de> <20010318233955.D13058@bug.ucw.cz> <20010319091559.A22291@opus.bloom.county> <20010319203659.A17888@dontpanic.int.convergence.de> <20010319134653.C22291@opus.bloom.county> <3AB692BB.7AFCC646@uow.edu.au> <20010319162135.B26631@opus.bloom.county> <20010320010053.A248@dontpanic.int.convergence.de> <20010319171623.C26631@opus.bloom.county> <20010320020713.A249@dontpanic.int.convergence.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010320020713.A249@dontpanic.int.convergence.de>; from wicked@convergence.de on Tue, Mar 20, 2001 at 02:07:13AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Mar 2001 19:30:49 +0100 (CET)
-Pierre Etchemaite <petchema@concept-micro.com> wrote:
+On Tue, Mar 20, 2001 at 02:07:13AM +0100, J. Michael Kolbe wrote:
 
-
-> FYI, burning CDRs with this adapter seldom work under Windows too, Tekram
-> adapters are usually fine, but those DC-315* & DC-395* really look like chip
-> stuff...
+[snip]
+> Well, as there is no keyboard combo that works on every Mac, I think we should
+> list every known to be working combo.
 > 
-> BR,
-> Pierre.
+> Like:
 > 
-> 
+> On PowerPC - Press 'ALT - Print Screen (or F13) - <command key>,
+>              Print Screen (or F13) - <command key> may suffice.
 
-  I never have errors under MS-windows with VIA bridge chip. It's a problem
-for me,when I start to use kernel 2.4.x. The timing between the new SCSI
-layer and the Hardware of DC-315 has some mismatch.(I guess it)
+Sounds good.
 
-  Maybe at sometimes,I would not like waiting a specific driver for it.
-What's the best choice of SCSI card which support won't have errors and
-the linux kernel won't give up supporting it???
+> Maybe it's a good idea to include F13's keycode, which I don't know.
 
+Nah.  I think we should try and fix this sometime tho.  Perhaps the round
+powerbutton on the keyboard could do 'F13' (and add this to the list..)
 
-
-Best Regards,cwz
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

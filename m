@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUJVTQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUJVTUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265697AbUJVTQd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJVTIY
+	id S266155AbUJVTUE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUJVTSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:08:24 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:37796
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S265697AbUJVTGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:06:52 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9.3
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <41795653.6020802@cybsft.com>
-References: <OF7FC21EAE.3A2E362A-ON86256F35.0066D568-86256F35.0066D58B@raytheon.com>
-	 <41795653.6020802@cybsft.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Fri, 22 Oct 2004 20:58:48 +0200
-Message-Id: <1098471528.3306.4.camel@thomas>
+	Fri, 22 Oct 2004 15:18:01 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:20741 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S266155AbUJVTQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:16:43 -0400
+Date: Fri, 22 Oct 2004 21:16:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: Re: 2.6.9-mm1: timer_event multiple definition
+Message-ID: <20041022191608.GB22558@stusta.de>
+References: <20041022032039.730eb226.akpm@osdl.org> <20041022135026.GC2831@stusta.de> <Pine.LNX.4.58.0410220812170.7868@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410220812170.7868@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 13:49 -0500, K.R. Foley wrote:
-> Mark_H_Johnson@raytheon.com wrote:
-> >>i have released the -U9.3 Real-Time Preemption patch, ...
-> >>
-> > 
-> > It is getting hard to keep up with the updates....
-> > 
-> > This version built OK and since I noticed it includes fixes for the
-> > parallel port, I added that back to my configuration and built / booted
-> > without any problems. I still see the BUG from:
-> > 
-> > Oct 22 12:27:50 dws77 kernel: 8139too Fast Ethernet driver 0.9.27
-> > Oct 22 12:27:50 dws77 kernel: eth0: RealTek RTL8139 at 0xdc00,
-> > 00:50:bf:39:11:fc, IRQ 11
-> > Oct 22 12:27:50 dws77 kernel: BUG: atomic counter underflow at:
-> > Oct 22 12:27:50 dws77 kernel:  [<c02b8f88>] qdisc_destroy+0x98/0xa0 (12)
-> > 
-> > I saw the messages about fixes for the other network drivers, but
-> > don't forget this one.
+On Fri, Oct 22, 2004 at 08:24:44AM -0700, Christoph Lameter wrote:
+> On Fri, 22 Oct 2004, Adrian Bunk wrote:
 > 
-> I still get this also. This is not fixed by the network driver fix, but 
-> I don't think it was expected to be.
+> >   LD      .tmp_vmlinux1
+> > drivers/built-in.o(.text+0x30a210): In function `timer_event':
+> > : multiple definition of `timer_event'
+> > kernel/built-in.o(.text+0x16270): first defined here
+> > ld: Warning: size of symbol `timer_event' changed from 157 in
+> > kernel/built-in.o to 11 in drivers/built-in.o
+> > make: *** [.tmp_vmlinux1] Error 1
+> >
+> > <--  snip  -->
+> >
+> >
+> > I'd say drivers/net/skfp/queue.c is more at fault for using the pretty
+> > generic timer_event name...
+> 
+> It built fine on my system ?!?.
+>...
 
-No, the fix was for the missing pci shutdown in tulip.
 
-This one is something weird, which has to do with kuzdu triggered
-load,unload,reload of a module. Not sure what happens there. I would
-need more detailed information. Maybe enabling some debug print of the
-card driver would reviel whats going on.
+You don't have "SysKonnect FDDI PCI support" enabled in your .config?
 
-tglx
 
+That's what I wanted to say in my comment:
+
+
+There's a name clash between two global `timer_event':
+The one you introduced, and the one in drivers/net/skfp/queue.c .
+
+I don't know whether `timer_event' is too generic for the use you 
+introduced, but for the use in drivers/net/skfp/queue.c (which was 
+already present) it seems too generic.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

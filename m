@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129032AbQJaPjX>; Tue, 31 Oct 2000 10:39:23 -0500
+	id <S129166AbQJaPlX>; Tue, 31 Oct 2000 10:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129166AbQJaPjO>; Tue, 31 Oct 2000 10:39:14 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43018 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129032AbQJaPjD>; Tue, 31 Oct 2000 10:39:03 -0500
-Date: Tue, 31 Oct 2000 11:40:44 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-cc: "'Linux Kernel Development'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.16 & memory usage
-In-Reply-To: <27525795B28BD311B28D00500481B76016237C@ftrs1.intranet.ftr.nl>
-Message-ID: <Pine.LNX.4.21.0010311140180.1475-100000@freak.distro.conectiva>
+	id <S129470AbQJaPlO>; Tue, 31 Oct 2000 10:41:14 -0500
+Received: from mail-gw.fol.uk.net ([193.218.222.20]:45074 "EHLO
+	mail-gw.fol.uk.net") by vger.kernel.org with ESMTP
+	id <S129286AbQJaPlF>; Tue, 31 Oct 2000 10:41:05 -0500
+Message-ID: <06e301c04351$2eadd4d0$1400000a@farmline.com>
+From: "Geoff Winkless" <geoff@farmline.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <E13qdD3-0007zf-00@the-village.bc.nu>
+Subject: Re: 2.2.17 & VM: do_try_to_free_pages failed / eepro100
+Date: Tue, 31 Oct 2000 15:42:31 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Alan Cox" <alan@lxorguk.ukuu.org.uk> writes:
+[about what I wrote]
+> > > VM: do_try_to_free_pages failed for httpd...
+> > > VM: do_try_to_free_pages failed for httpd...
+>
+> These if they are odd ones and the box continues are fine, if you get
+masses
+> of them then probably not
 
+What's it actually doing when this happens? Would it help to allocate more
+VM?
 
-On Tue, 31 Oct 2000, Heusden, Folkert van wrote:
+> > (our quiet periods) the syslog is nearly empty. In extremis it has been
+> > necessary to reboot the machine by kicking the power button.
+>
+> Are you using software raid ?
 
-> Is an 2.2.16 system that suddenly out of the blue (always! like; every time
-> the system is started) uses all memory and all swap-space and then crashes
-> of any intrest?
-> Or should I just ignore it and install 2.2.17?
+No. Should have said it's a Symbios 53c896 SCSI onboard, on an Intel GX
+board.
 
-Ignore and use 2.2.17. 
+Incidentally I stupidly compiled in support for the onboard sound, which is
+the es1371 (rev 8) - don't know if this has any bearing but I'll be taking
+it out anyway!
 
-If you have problems with it, report please. 
+Geoff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

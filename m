@@ -1,87 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275252AbTHGJfp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 05:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275253AbTHGJfp
+	id S275245AbTHGJeq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 05:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275251AbTHGJeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 05:35:45 -0400
-Received: from camus.xss.co.at ([194.152.162.19]:49677 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id S275252AbTHGJfg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 05:35:36 -0400
-Message-ID: <3F321D41.1090004@xss.co.at>
-Date: Thu, 07 Aug 2003 11:34:57 +0200
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
+	Thu, 7 Aug 2003 05:34:46 -0400
+Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:1664 "EHLO
+	bigred.russwhit.org") by vger.kernel.org with ESMTP id S275245AbTHGJeo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 05:34:44 -0400
+Date: Thu, 7 Aug 2003 02:31:53 -0700 (PDT)
+From: Russell Whitaker <russ@ashlandhome.net>
+X-X-Sender: russ@bigred.russwhit.org
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: 2.6.0: lp not working
+In-Reply-To: <20030806223820.5578d282.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.53.0308070222360.357@bigred.russwhit.org>
+References: <20030806130452.722d7fb2.rddunlap@osdl.org>
+ <20030806223820.5578d282.rddunlap@osdl.org>
 MIME-Version: 1.0
-To: herbert@13thfloor.at
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Rene Mayrhofer <rene.mayrhofer@gibraltar.at>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jason Baron <jbaron@redhat.com>
-Subject: Re: pivot_root solved by patch to 2.4.22-pre7
-References: <3F309FD8.8090105@gibraltar.at> <Pine.LNX.4.44.0308061633240.2722-100000@logos.cnet> <20030806195101.GB16054@www.13thfloor.at>
-In-Reply-To: <20030806195101.GB16054@www.13thfloor.at>
-X-Enigmail-Version: 0.74.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hi!
 
-Herbert Pötzl wrote:
-> On Wed, Aug 06, 2003 at 04:33:52PM -0300, Marcelo Tosatti wrote:
+On Wed, 6 Aug 2003, Randy.Dunlap wrote:
+
+> | Date: Tue, 5 Aug 2003 22:43:17 -0700 (PDT)
+> | From: Russell Whitaker <russ@ashlandhome.net>
+> | To: linux-kernel@vger.kernel.org
+> | Subject: 2.6.0: lp not working
+> |
+> |
+> | Hi
+> | Edited lilo.conf so I can boot either kernel-2.6.0-test2
+> | (default) or kernel-2.4.21, using hda1.
+> |
+> | lpr a small file, no print. ctrl-alt-del and rebooted using
+> | 2.4.21, file printed. Checked the two config files and could
+> | not find any difference in this area.
+> |
+> | Printer is a Panasonic dot-matrix running in text mode.
+> | Also using patch bk5.
 >
->>What is your problem with pivot_root?
->>
->>Sorry but I've searched the list archives and found nothing but this email
->>and this patch, which seems a bit hackish.
+> Is "Parallel Printer support" built into your kernel or built as a
+> module?  If built as a module, are you sure that the module is
+> loaded?  If modular, please provide contents of /proc/modules
+> when you try to print.
 >
->
->  Jul 21  Rene Mayrhofer     82 pivot_root seems to be broken in 2.4.21-a1716
->  Jul 22  Denis Vlasenko    103   >
->  Jul 22  Rene Mayrhofer     54     >
->  Jul 22  Jason Baron        18       >
->  Jul 22  Alan Cox           22         >
->  Jul 22  Rene Mayrhofer     25           >
->  Jul 22  Alan Cox           17             >
->  Jul 22  Rene Mayrhofer    154               >
->  Jul 23  Mika Penttilä      40               >
->  Jul 22  Mika Penttilä      41           >
->
-This patch also solves my problem as reported on Jul. 29th
-(Subject: "2.4.22-pre4: devfs on initrd stays busy after pivot_root"
-Message-ID: 3F267FD7.4040400@xss.co.at) and in more detail
-on July 30th, (Message-ID: 3F2795DE.5020306@xss.co.at)
+Built as a module
+Found lp.ko in /lib/modules/2.6.0-test2-bk4/kernel/drivers/char
+lp <file> then lpq shows <file> in queue
 
-I just tried it with 2.4.22-rc1, and with this patch I am
-able to umount /initrd/dev and /initrd after pivot_root
-again!
+contents of /proc/modules
+ipt_LOG 5376 1 - Live 0xf891a000
+ipt_limit 2496 1 - Live 0xf8915000
+ipt_state 1792 2 - Live 0xf8913000
+iptable_filter 2752 1 - Live 0xf88d3000
+ip_tables 22080 4 ipt_LOG,ipt_limit,ipt_state,iptable_filter, Live 0xf88d8000
+ip_conntrack_ftp 72308 0 - Live 0xf88fe000
+ip_conntrack 43092 2 ipt_state,ip_conntrack_ftp, Live 0xf88df000
+ide_cd 41536 0 - Live 0xf88ba000
+cdrom 35168 1 ide_cd, Live 0xf88c6000
 
-Don't know yet if it has any ill side effects, though.
-
-HTH
-
-- - andreas
-
-- --
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE/Mh0/xJmyeGcXPhERAmbLAKCUrXFUA44ggJvOBMlwvA4GKFsWdwCeNIid
-4bWSyQ2OFqwXnNdU8t/bJsw=
-=sdiS
------END PGP SIGNATURE-----
-
+Hope this helps
+  Russ

@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbTLZHuc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 02:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLZHuc
+	id S264890AbTLZIPj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 03:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLZIPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 02:50:32 -0500
-Received: from jack.feedbackplusinc.com ([64.25.11.70]:17098 "EHLO
-	jack.feedbackplusinc.com") by vger.kernel.org with ESMTP
-	id S264954AbTLZHub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 02:50:31 -0500
-Subject: XFS filesystem corruption: 2.6.0. Massive failure. With raid5
-From: Jerry Haltom <jhaltom@feedbackplusinc.com>
-To: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1072425031.737.9.camel@osaka>
+	Fri, 26 Dec 2003 03:15:39 -0500
+Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:59332
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S264890AbTLZIPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 03:15:37 -0500
+Date: Fri, 26 Dec 2003 00:15:35 -0800
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: vojtech@suse.cz
+Subject: Can't eject a previously mounted CD?
+Message-ID: <20031226081535.GB12871@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	vojtech@suse.cz
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 26 Dec 2003 01:50:31 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has happened twice now. Massive XFS file system corruption. The
-system is running on a 3ware card in Raid5 config. / is XFS. Cannot
-mount:
 
-XFS: log has mismatchd uuid - can't recover
-XFS: failed to find log head
-XFS: log mount/recovery/failed
-...
+--5I6of5zJg18YgZEa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-xfs_repair lets me know a lot of stuff, and:
+Hi Vojtech,
 
-* ERROR: mismathced uuid in log
-* SB: some long number
-* log: a slightly different long number
+I suspect this problem has something to do with my nForce2 motherboard.
+When I mount a CD, unmount it, and try to eject it from my drive, the
+drive flashes the red 'busy / locked' light and refuses to let me eject
+it. I'm using the AMD / nVidia IDE kernel support and the obvious
+conclusion is that it's failing to release the device or something. Is
+this true?
 
-It doesn't work.
+I suspect the fix would be a one liner.
 
-xfs_logprint -t /dev/sda4 produces a lot of illegal type errors and ends
-up with Segmentation fault (uh oh).
+--=20
+Joshua Kwan
 
-I am willing to give an XFS developer access to the machine to poke
-around (and fix it!!!) It's just my desktop at home, not a big deal. But
-I have a ton of large files i'd like to recover. :)
+--5I6of5zJg18YgZEa
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I could fix it by forcing hte logs clean, that is what I did the first
-time this happened. However, I lost a lot of files last time, and this
-shouldn't happen. So here it is for you guys. I am hanging out in #xfs
-on irc.freenode.net if anybody wants to check it out.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Jerry Haltom
-Feedback Plus, Inc.
+iQIVAwUBP+vuJaOILr94RG8mAQK5JQ/+PuD/FvdWQp/IN09QzyxpQncbTOB722EP
+vv0Y3f5vQpWuNbrFXGvISX6rLNa/NUJhAiouMEZ++vNG6iP7m39MpOAjU04sqCVo
+TXqYFRUe40KScyVRBxWiQ1dotk2w2S449nFgaGQt9Rec6ODBK+zxwZ5+w3RH5Q6N
+maXwI0m4w5iGWiatfXjqnTBsiLii6V0+S5DbzFaHQuE4lckKfzrRg2Xx80CgzG5V
+pUk3/nRLPYf5IXMNFj7f3CUVN1dhY+DibcTYE2cCNrI+w2HxO7EuLkvRY1nI+I6E
+R26ql2LMLEKCumHpLrUAept0XfLgBInUsh28oTHDvGBRltfbLAbhCfm8fvkmY+kx
+H27CaZcaBySbquz+aTwMGF2MHEqFWAE83Om/deeuaCOr5cavfJyNvRK6AhZzUwBt
+KBO0XXXq8sw4zOcmqM9GiR41QZIQPs1qpgvfT3refVMt3rrlYjNum7j4HWeNFJl0
+wJix3213G+wmIMJ6MKQFanmPLbDWD/ThUBrtu9itrlYGRLs7BO5WyYupapDCpOtG
+fk9DYFQWFekmpa5k1OSQgVyfJGKgqbsav+hgWg6TtrOyoPh1jtHMfhbRNuMJcfWc
+mNry8aIsU9UWQG5mMV9t1BHVrWlwjmdV3vVHE3inlC/FEOfhLVPiY7No3NNvl48z
+aGrgiw2ssXY=
+=TS0s
+-----END PGP SIGNATURE-----
 
+--5I6of5zJg18YgZEa--

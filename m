@@ -1,122 +1,239 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265172AbTLaPZj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 10:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265175AbTLaPZj
+	id S265164AbTLaPUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 10:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265165AbTLaPUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 10:25:39 -0500
-Received: from imap.infonegocio.com ([213.4.129.150]:45787 "EHLO
-	telesmtp3.mail.isp") by vger.kernel.org with ESMTP id S265172AbTLaPZX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 10:25:23 -0500
-From: Xan <DXpublica@telefonica.net>
-Reply-To: DXpublica@telefonica.net
-To: Matthias Schniedermeyer <ms@citd.de>
-Subject: Re: i18n for kernel 2.7.x?
-Date: Wed, 31 Dec 2003 16:25:24 +0100
-User-Agent: KMail/1.5.4
+	Wed, 31 Dec 2003 10:20:35 -0500
+Received: from rat-5.inet.it ([213.92.5.95]:15842 "EHLO rat-5.inet.it")
+	by vger.kernel.org with ESMTP id S265164AbTLaPUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 10:20:12 -0500
+From: Paolo Ornati <ornati@lycos.it>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.1-rc1 [resend]
+Date: Wed, 31 Dec 2003 16:19:27 +0100
+User-Agent: KMail/1.5.2
+References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <200312311434.17036.ornati@lycos.it> <20031231150607.GQ27687@holomorphy.com>
+In-Reply-To: <20031231150607.GQ27687@holomorphy.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200312311332.15422.DXpublica@telefonica.net> <20031231125156.GA12588@citd.de>
-In-Reply-To: <20031231125156.GA12588@citd.de>
 MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_/ju8/Cg85/3i0B3"
+Message-Id: <200312311619.27812.ornati@lycos.it>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+--Boundary-00=_/ju8/Cg85/3i0B3
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312311625.25178.DXpublica@telefonica.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimecres 31 Desembre 2003 13:51, en/na Matthias Schniedermeyer (<Matthias 
-Schniedermeyer <ms@citd.de>>) va escriure:
-
-> On Wed, Dec 31, 2003 at 01:32:15PM +0100, Xan wrote:
-> > Hi,
-> >
-> > Just a thing: why not internationalization of kernel. That is, why not
-> > that the kernel could display error or debug messages in different
-> > languages (for example)?
+On Wednesday 31 December 2003 16:06, you wrote:
+> On Wed, Dec 31, 2003 at 04:00:07PM +0100, Paolo Ornati wrote:
+> > With 2.6.1-rc1 I have noticed a strange IDE performance change.
+> > Results of "hdparm -t /dev/hda" with 2.6.0 kernel:
+> > (readahead = 256):		~26.31 MB/s
+> > (readahead = 128):		~31.82 MB/s
+> > PS = readahead is set to 256 by default on my system, 128 seems to be
+> > the best value
+> > Results of "hdparm -t /dev/hda" with 2.6.1-rc1 kernel:
+> > (readahead = 256):		~26.41 MB/s
+> > (readahead = 128):		~26.27 MB/s
+> > Setting readahead to 128 doesn't have the same effect with the new
+> > kernel...
 >
-> This is a FAQ.
->
-> http://www.kernel.org/pub/linux/docs/lkml/#s9-16
->
-> So it should be better to end this before it begins (again).
+> What io scheduler are you using? Or, could you post /var/log/dmesg?
 
-It appears that you (kernel developers) have panic about it. Wow!. What a 
-contundent message!. It appears as a tabu topic.
+"dmesg" and "config" attached.
 
-In the link you provide me, there is the following information, but I want to 
-point some comments about it:
-
-** (REG) There are several reasons why this should not be done: 
-**	- It would bloat the kernel sources 
-
-Yes it bloat the kernel sources. It's evident as the support of new driver 
-will bloat. It's a redesign of a kernel in more abstract way and the majorty 
-of all abstraction redesign do.
-
-I think that the key is what we will win and what we will lose with i18n of 
-kernel. I believe that the positive reasons have more weight.
-
-Why not make a module that displays all the information from the kernel to the 
-user, shell, ....?. It not only serve us for i18n. It could serve us as low 
-support for Brailley's readers or any other outputs. Imagine that the kernel 
-is running in a virtually reality machine. It could be interesting that if a 
-kernel bug appears in some process, then the bug is displayed as sound, image 
-and feelings (the next virtually reallity machine gerneration will support 
-this). So there is a little work of kernel in this process of displaying 
-bugs. isn't?
-
-**	- It would drastically increase the cost of maintaining the kernel message 
-database 
-
-Not. We could have all the traductions as avaliable modules. If we want 
-display message in catalan, so we have to "load" the cataln module and switch 
-to catalan the display option of kernel. The database of messages?. If we 
-have the english messages in the core kernel (eventually with an identifier), 
-then, in some circumstances, the core kernel pass this message to module of 
-display, say M, then M with the help of cataln module translate literally the 
-english message in catalan message. I believe that M can add to the 
-traduction some process as: "show it as brailley" if module is avaliable.
-
-	- Kernel message output would slow down 
-** We will have to think what optimize the message output with the new 
-situation. I beleive that it's more prefered the abstraction versus a little 
-bit more slowly kernel.
-
-**	- English is the language in which the kernel sources are written, and thus 
-is the language in which kernel messages are written. Developers cannot be 
-expected to provide translations 
-
-Yes, but the developers allways have the original message. We could add an id 
-to any message. So any "translated bug" that we send to any developer has its 
-id and so the devenloper could see the message in the id-message table.
-
-And it's clear that the developers will not translate nothing. Sure there will 
-be other people that would translate mesages.
-
-***	- Bug reports should be submitted in English, and that includes kernel 
-messages. If kernel messages were to be output in some other language, most 
-developers could not help in fixing bugs 
-
-
-***	- Translation can be performed in user-space, there is no need to change 
-the kernel 
-
----> How?
-
-	- It would bloat the kernel sources 
-Finally, it will not be done. No core developer supports this. Neither does 
-Linus. Don't even ask. 
-
-And the internationalization of the Documentation directory, README,... files 
-and the web page?
-
-Regards,
-Xan.
 >
 >
->
-> Bis denn
+> -- wli
+
+-- 
+	Paolo Ornati
+	Linux v2.6.1-rc1
+
+--Boundary-00=_/ju8/Cg85/3i0B3
+Content-Type: application/x-gzip;
+  name="dmesg.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="dmesg.gz"
+
+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
+
+--Boundary-00=_/ju8/Cg85/3i0B3
+Content-Type: application/x-gzip;
+  name="config-2.6.1-rc1.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="config-2.6.1-rc1.gz"
+
+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
+
+--Boundary-00=_/ju8/Cg85/3i0B3--
 

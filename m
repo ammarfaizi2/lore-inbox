@@ -1,118 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262603AbUAUWaX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 17:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbUAUWaX
+	id S266139AbUAUWpU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 17:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266140AbUAUWpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 17:30:23 -0500
-Received: from dsl-213-023-011-163.arcor-ip.net ([213.23.11.163]:36751 "EHLO
-	fusebox.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S262603AbUAUWaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 17:30:13 -0500
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: "Martin Loschwitz" <madkiss@madkiss.org>, <linux-kernel@vger.kernel.org>,
-       "Brown, Len" <len.brown@intel.com>, <acpi-devel@lists.sourceforge.net>
-Subject: Re: PROBLEM: ACPI freezes 2.6.1 on boot
-References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
-	<m3u12pgfpr.fsf@reason.gnu-hamburg>
-From: "Georg C. F. Greve" <greve@gnu.org>
-Organisation: Free Software Foundation Europe - GNU Project
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Wed, 21 Jan 2004 23:29:51 +0100
-In-Reply-To: <m3u12pgfpr.fsf@reason.gnu-hamburg> (Georg C. F. Greve's
- message of "Wed, 21 Jan 2004 22:21:52 +0100")
-Message-ID: <m3ptddgckg.fsf@reason.gnu-hamburg>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 21 Jan 2004 17:45:19 -0500
+Received: from gw.linuxforce.net ([207.106.35.93]:2697 "EHLO
+	linux00.LinuxForce.net") by vger.kernel.org with ESMTP
+	id S266139AbUAUWpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 17:45:08 -0500
+Date: Wed, 21 Jan 2004 17:41:56 -0500
+From: Stephen Gran <steve@linuxforce.net>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel oops report
+Message-ID: <20040121224156.GA6243@linux00.LinuxForce.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Editor: VIM - Vi IMproved 6.1 
+X-OS: Linux linux00 2.4.18-1-686-smp i686
+X-Uptime: 42 days
+X-Date: Today is Sweetmorn, the 21st day of Chaos in the YOLD 3170
+X-DDate: Only 2431586 Shopping Days Left Before X-Day. Kallisti! 
+X-Motto: debian/rules
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UPDATE:
+Hello all,
+I am sorry if this is not the right place to send this, but this is my
+first oops report (shows how good you normally are :)
 
-Out of curiosity and because it seemed to be the interrupt handling
-that was problematic, I disabled "Local APIC support on uniprocessors."
+Background - dual k6 box, with raid array and 1 gb RAM.  Fairly busy
+webserver, but not significantly loaded (uptime says >1 for all).
 
-That convinced the machine to boot with ACPI.
+If you need any more information, I will be happy to try to help debug
+this.  I'm guessing it's a problem in the k6 smp code, but I can't be
+sure.
 
-Here is an excerpt from dmesg regarding ACPI only:
+afradm@www01:~$ ksymoops < oops.txt
+ksymoops 2.4.5 on i686 2.4.24-xertus-1-k6-smp.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.24-xertus-1-k6-smp/ (default)
+     -m /boot/System.map-2.4.24-xertus-1-k6-smp (default)
 
-[...]
-ACPI: RSDP (v000 ACPIAM                                    ) @ 0x000f4b60
-ACPI: RSDT (v001 A M I  OEMRSDT  0x06000310 MSFT 0x00000097) @ 0x1f740000
-ACPI: FADT (v002 A M I  OEMFACP  0x06000310 MSFT 0x00000097) @ 0x1f740200
-ACPI: OEMB (v001 A M I  OEMBIOS  0x06000310 MSFT 0x00000097) @ 0x1f750040
-ACPI: DSDT (v001  0ABBD 0ABBD001 0x00000001 MSFT 0x0100000d) @ 0x00000000
-[...]
-ACPI: Subsystem revision 20031002
-ACPI: IRQ 9 was Edge Triggered, setting to Level Triggerd
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-[...]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
-ACPI: Embedded Controller [EC0] (gpe 28)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 *5 6 7 11 12)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 12)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 6 7 12)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 6 7 12)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 12)
-ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 12)
-ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 12)
-ACPI: PCI Interrupt Link [LNKH] (IRQs 3 *4 5 6 7 12)
-ACPI: Power Resource [GFAN] (off)
-[...]
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 5
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 5
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
-ACPI: PCI Interrupt Link [LNKH] enabled at IRQ 4
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 5
-PCI: Using ACPI for IRQ routing
-PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
-[...]
-speedstep-centrino: found "Intel(R) Pentium(R) M processor 1600MHz": max frequency: 1600000kHz
-[...]
-ACPI: AC Adapter [AC0] (on-line)
-ACPI: Battery Slot [BAT0] (battery present)
-ACPI: Power Button (FF) [PWRF]
-ACPI: Sleep Button (CM) [SLPB]
-ACPI: Lid Switch [LID]
-ACPI: Fan [FN00] (off)
-ACPI: Processor [CPU1] (supports C1 C2 C3, 8 throttling states)
-ACPI: Thermal Zone [THRM] (54 C)
-Asus Laptop ACPI Extras version 0.26
-  M2N model detected, supported
-[...]
-Resume Machine: resuming from /dev/hda8
-Resuming from device hda8
-Resume Machine: This is normal swap space
-PM: Reading pmdisk image.
-PM: Resume from disk failed.
-ACPI: (supports S0 S1 S3 S4 S5)
-[...]
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Jan 21 16:44:09 www01 kernel: Unable to handle kernel paging request at virtual address 01000100
+Jan 21 16:44:09 www01 kernel: c0134446
+Jan 21 16:44:09 www01 kernel: *pde = 3454c001
+Jan 21 16:44:09 www01 kernel: Oops: 0000
+Jan 21 16:44:09 www01 kernel: CPU:    1
+Jan 21 16:44:09 www01 kernel: EIP:    0010:[kfree+70/160]    Not tainted
+Jan 21 16:44:09 www01 kernel: EFLAGS: 00010006
+Jan 21 16:44:09 www01 kernel: eax: 00000004   ebx: 01000100   ecx: c1a5fe00   edx: c1000020
+Jan 21 16:44:09 www01 kernel: esi: e80f321c   edi: 00000282   ebp: 00000003   esp: dc553f30
+Jan 21 16:44:09 www01 kernel: ds: 0018   es: 0018   ss: 0018
+Jan 21 16:44:09 www01 kernel: Process dpkg (pid: 21420, stackpage=dc553000)
+Jan 21 16:44:09 www01 kernel: Stack: f6908240 e88f31c0 e88efcc0 e80f321c c01524ee e80f321c ea8dc840 ea8dc840
+Jan 21 16:44:09 www01 kernel:        ea929450 ea9293c0 c015280d 0000000f ea8dc840 c014a6b4 ea8dc840 ea8d82d0
+Jan 21 16:44:09 www01 kernel:        c014a8b9 ea8dc840 ea8dc840 ea8dc840 dd0ab000 dc553fa4 c014aa60 ea9293c0
+Jan 21 16:44:09 www01 kernel: Call Trace:    [prune_dcache+286/384] [shrink_dcache_parent+13/32] [d_unhash+68/128] [vfs_rmdir+457/704] [sys_rmdir+176/256]
+Jan 21 16:44:09 www01 kernel: Code: 8b 13 89 d0 3b 43 04 73 08 89 74 83 08 ff 03 eb 39 8b 41 28
+Using defaults from ksymoops -t elf32-i386 -a i386
 
 
-This looks pretty good, I think. Already checked some
-funcionality. Suspend to RAM seems to work, although the display
-remains dark on restart (but normal shutdown works, so the machine is
-definitely back up).
+>>ebx; 01000100 Before first symbol
+>>ecx; c1a5fe00 <_end+15b9930/38434b30>
+>>edx; c1000020 <_end+b59b50/38434b30>
+>>esi; e80f321c <_end+27c4cd4c/38434b30>
+>>esp; dc553f30 <_end+1c0ada60/38434b30>
 
-So the problem we've been seeing seems to be related to the
-interaction between local APIC support and ACPI.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 13                     mov    (%ebx),%edx
+Code;  00000002 Before first symbol
+   2:   89 d0                     mov    %edx,%eax
+Code;  00000004 Before first symbol
+   4:   3b 43 04                  cmp    0x4(%ebx),%eax
+Code;  00000007 Before first symbol
+   7:   73 08                     jae    11 <_EIP+0x11> 00000011 Before first symbol
+Code;  00000009 Before first symbol
+   9:   89 74 83 08               mov    %esi,0x8(%ebx,%eax,4)
+Code;  0000000d Before first symbol
+   d:   ff 03                     incl   (%ebx)
+Code;  0000000f Before first symbol
+   f:   eb 39                     jmp    4a <_EIP+0x4a> 0000004a Before first symbol
+Code;  00000011 Before first symbol
+  11:   8b 41 28                  mov    0x28(%ecx),%eax
 
-I hope this helps tracking it down...
 
-Regards,
-Georg
+1 warning issued.  Results may not be reliable.
 
 
-P.S. Martin? Can you reproduce this?
+afradm@www01:~$ sh ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
 
+Linux www01 2.4.24-xertus-1-k6-smp #1 SMP Thu Jan 8 13:04:42 EST 2004 i686 unknown
+
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.12.90.0.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.15
+e2fsprogs              1.27
+reiserfsprogs          3.x.1b
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         ipt_limit ipt_state ipt_multiport ipt_TOS ipt_MASQUERADE ipt_REJECT ipt_LOG ip_nat_ftp ip_conntrack_ftp iptable_nat ip_conntrack iptable_mangle iptable_filter ip_tables af_packet
+
+Thanks,
 -- 
-Georg C. F. Greve                                       <greve@gnu.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Brave GNU World	                           (http://brave-gnu-world.org)
+ --------------------------------------------------------------------------
+|  Stephen Gran                  | Divorce is a game played by lawyers.    |
+|  steve@linuxforce.net          | -- Cary Grant                           |
+|  http://www.linuxforce.net     |                                         |
+ --------------------------------------------------------------------------

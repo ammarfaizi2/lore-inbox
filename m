@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVC3XrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVC3X6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbVC3XrT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 18:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVC3XrS
+	id S262582AbVC3X6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 18:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVC3X6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 18:47:18 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:1646 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262602AbVC3Xqo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 18:46:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KpxGbv0wLWE66toU/Iyg8zy5yp82xmMvVp5PA8tym742GxUGbH/m0qMO1yGHWNiT0BV9YXPxVBeFSAZwPdhKG51MLYL5A5L7ilVWwxurgxXWSrVjpRJ10YFZ+pxITxvljux/s7EzWs2slrkLF2keNL5PZo6C5f9DsCal3nuIlPM=
-Message-ID: <6f6293f105033015467d87993@mail.gmail.com>
-Date: Thu, 31 Mar 2005 01:46:39 +0200
-From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-To: 20050323135317.GA22959@roonstrasse.net
-Subject: Re: forkbombing Linux distributions
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050328172820.GA31571@linux.ensimag.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050328172820.GA31571@linux.ensimag.fr>
+	Wed, 30 Mar 2005 18:58:07 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:4836 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262582AbVC3X6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 18:58:04 -0500
+Date: Wed, 30 Mar 2005 17:57:49 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Big GCC bug!!! [Was: Re: Do not misuse Coverity please]
+In-reply-to: <3NUDL-DU-13@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <424B3CFD.5050402@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3NC4e-1X1-21@gated-at.bofh.it> <3NGrd-5rX-21@gated-at.bofh.it>
+ <3NQgW-5h6-41@gated-at.bofh.it> <3NR3q-5YI-59@gated-at.bofh.it>
+ <3NUDL-DU-13@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Mar 2005 19:28:20 +0200, Matthieu Castet
-<mat@ensilinx1.imag.fr> wrote:
-> > The memory limits aren't good enough either: if you set them low
-> > enough that memory-forkbombs are unperilous for
-> > RLIMIT_NPROC*RLIMIT_DATA, it's probably too low for serious
-> > applications.
-> 
-> yes, if you want to run application like openoffice.org you need at
-> least 200Mo. If you want that your system is usable, you need at least 40 process per user. So 40*200 = 8Go, and it don't think you have all this memory...
-> 
-> I think per user limit could be a solution.
-> 
-> attached a small fork-memory bombing.
+Kyle Moffett wrote:
+> Dereferencing null pointers is relied upon by a number of various
+> emulators and such, and is "platform-defined" in the standard, so
+> since Linux allows mmap at NULL, GCC shouldn't optimize that case
+> any differently.
 
-Doesn't do anything on my machine:
+ From the GCC manual: "The compiler assumes that dereferencing a null 
+pointer would have halted the program. If a pointer is checked after it 
+has already been dereferenced, it cannot be null. In some environments, 
+this assumption is not true, and programs can safely dereference null 
+pointers. Use -fno-delete-null-pointer-checks to disable this 
+optimization for programs which depend on that behavior. "
 
-# ulimits -a
-core file size          (blocks, -c) 0
-data seg size           (kbytes, -d) unlimited
-file size               (blocks, -f) unlimited
-pending signals                 (-i) 4095
-max locked memory       (kbytes, -l) 32
-max memory size         (kbytes, -m) unlimited
-open files                      (-n) 1024
-pipe size            (512 bytes, -p) 8
-POSIX message queues     (bytes, -q) 819200
-stack size              (kbytes, -s) 8192
-cpu time               (seconds, -t) unlimited
-max user processes              (-u) 100
-virtual memory          (kbytes, -v) unlimited
-file locks                      (-x) unlimited
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-it tops at 100 processes and eats a little CPU... although the system
-is under load, it's completely responsive.

@@ -1,83 +1,88 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSEHWHK>; Wed, 8 May 2002 18:07:10 -0400
+	id <S315446AbSEHWvN>; Wed, 8 May 2002 18:51:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315393AbSEHWHJ>; Wed, 8 May 2002 18:07:09 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:2295 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S315388AbSEHWHI>; Wed, 8 May 2002 18:07:08 -0400
-Date: Wed, 8 May 2002 18:07:06 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Dan Yocum <yocum@fnal.gov>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ns83820 bug.  [was Re: Poor NFS client performance on 2.4.18?]
-Message-ID: <20020508180705.B14959@redhat.com>
-In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no> <3CD6FE1E.A20384D@fnal.gov> <E174zP0-0007N9-00@charged.uio.no> <3CD7F385.BAA3870B@fnal.gov> <3CD7F8A2.24DF8433@fnal.gov> <3CD98837.16B32F84@fnal.gov>
+	id <S315473AbSEHWvM>; Wed, 8 May 2002 18:51:12 -0400
+Received: from revdns.flarg.info ([213.152.47.19]:62084 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S315446AbSEHWvK>;
+	Wed, 8 May 2002 18:51:10 -0400
+Date: Wed, 8 May 2002 23:51:47 +0100
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.14-dj2
+Message-ID: <20020508225147.GA11390@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upgrade to 0.17 (which is in 2.4.19-pre5 or so and later) and you should 
-find the issue resolved.
+Some more pending items, including a large patch from Patrick
+which splits the x86 CPU initialisation code up a lot, cleaning
+up a lot of cruft in the process. Feedback on this welcomed from
+users of as many weird and wonderful x86 variants as can be found.
 
-		-ben
+As usual,..
+Patch against 2.5.14 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
 
-On Wed, May 08, 2002 at 03:19:03PM -0500, Dan Yocum wrote:
-> Trond, et al.
-> 
-> You're right, it's a driver (ns83820) issue.  Strange that it only shows up
-> when trying to execute an app that's mounted via NFS, but, whatever. 
-> Running apps from the the NFS volumes with the eepro100 adapter that's on
-> the machine works fine with the updated NFS_all patch applied.
-> 
-> Thanks, again,
-> Dan
-> 
-> 
-> Dan Yocum wrote:
-> > 
-> > Dan Yocum wrote:
-> > >
-> > > Trond Myklebust wrote:
-> > > >
-> > > > On Tuesday 7. May 2002 00:05, Dan Yocum wrote:
-> > > > > Trond,
-> > > > >
-> > > > > OK, so backing out the rpc_tweaks dif fixed the performance problem,
-> > > > > however, seems to have introduced another problem that appears to be
-> > > > > stemming from the seekdir.dif.  Attempting to run an app from an IRIX
-> > > > > client (that has the 32bitclients option set) freezes the NFS volume - one
-> > > > > can't access it from the Linux side, anymore.
-> > > > >
-> > > > > You can read and write to the NFS volume *before* trying to run something
-> > > > > from there, but not after.
-> > > > >
-> > > > > Ideas?
-> > > >
-> > > > That smells like another network driver bug. Have you tcpdumped the traffic
-> > > > between client and server?
-> > >
-> > > Ah, that may be the case - the problem also exists with a Linux server as
-> > > well... let me check, and I'll let you know.
-> > 
-> > I take that back - it's only hanging on the Linux server when the IRIX
-> > server is already hung.
-> 
-> 
-> -- 
-> Dan Yocum
-> Sloan Digital Sky Survey, Fermilab  630.840.6509
-> yocum@fnal.gov, http://www.sdss.org
-> SDSS.  Mapping the Universe.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
+
+ -- Davej.
+
+2.5.14-dj2
+o   Split up x86 CPU initialisation.			(Patrick Mochel,
+							 Mark Haverkamp)
+o   Drop aic7xxx changes, and aacraid.
+o   tlb_state alignment tweak.				(Me)
+o   Use centralised ALIGN macro in depca driver.	(Peter Denison)
+o   Missing header in nfsroot.				(David Gibson)
+o   Use standard AS rules for x86 arch.			(Steven Rothwell)
+o   smp_call_function bh context changes for non-x86	(Dipankar Sarma)
+o   IDE patches up to -58.				(Martin Dalecki)
+o   Fix IOAPIC compile problem.				(Mikael Pettersson)
+o   Update remaining references to egcs.		(Adrian Bunk)
+o   Add some missing __init's to x86 smpboot.		(Andrey Panin)
+o   Fix invalid koi8-ru NLS return codes.		(Petr Vandrovec)
+o   Set up default NLS mapping for unknown encodings.	(Petr Vandrovec)
+o   Improved romfs superblock cleanup.		(Christoph Hellwig)
+o   Fix compile problem with IOVIRT debug + MULTIQUAD.	(Martin J. Bligh)
+o   RTC driver region cleanup.				(William Stinson)
+    | Munged a bit by me.
+o   Various NBD improvements.				(Steven Whitehouse)
+o   3c509 Full duplex support.				(David Ruggiero)
+
+
+2.5.14-dj1
+o   Don't prefetch memcpy's to/from io addresses.	(Me)
+o   Fix MMX prefetching for x86-64			(Me)
+o   Other small MMX copying tweaks for x86-64.		(Me)
+o   Drop more silly bits found whilst patch splitting.
+o   Fix tcq brown paper bag bug.			(Jens Axboe)
+o   OSS API emulation config.in thinko.			(Jaroslav Kysela)
+o   Update to IDE-55					(Martin Dalecki)
+o   Disallow compilation with gcc 2.91.66		(Andrew Morton)
+o   Missed blksize cleanup in rd.c			(Al Viro)
+o   NTFS compile fix.					(Andrew Morton)
+o   More futex updates.					(Rusty Russell)
+o   DE600 region checking cleanup.			(William Stinson)
+o   Update VIA quirk URL.				(Erich Schubert)
+o   Fix up a few _llseek prototypes.			(Frank Davis)
+o   Move busmouse BKL usage to correct place.		(Frank Davis)
+o   __d_lookup() microoptimisation.			(Paul Menage)	
+o   Fix CAP_SYS_RAWIO thinko for cpqfcTSinit		(Christoph Hellwig)
+o   malloc.h -> slab.h for pc300_tty			(Adrian Bunk)
+o   Add CONFIG_BROKEN_SCSI_ERROR_HANDLING		(Me)
+    | Those who don't care about their data can now
+    | choose the same behaviour as mainline.
+
 
 -- 
-"You will be reincarnated as a toad; and you will be much happier."
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

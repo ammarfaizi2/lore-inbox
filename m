@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316078AbSETPVT>; Mon, 20 May 2002 11:21:19 -0400
+	id <S316084AbSETP00>; Mon, 20 May 2002 11:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316080AbSETPVS>; Mon, 20 May 2002 11:21:18 -0400
-Received: from mailgw.prontomail.com ([209.185.149.10]:24807 "EHLO
-	c0mailgw11.prontomail.com") by vger.kernel.org with ESMTP
-	id <S316078AbSETPVS>; Mon, 20 May 2002 11:21:18 -0400
-X-Version: beer 7.5.2333.0
-From: "will fitzgerald" <william.fitzgerald6@beer.com>
-Message-Id: <881711E8388E16A4DA8E2FCAA1BD2387@william.fitzgerald6.beer.com>
-Date: Mon, 20 May 2002 16:16:55 +0100
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: linux-kernel@vger.kernel.org
-Subject: sk_buff extraction problem
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
+	id <S316083AbSETP0Z>; Mon, 20 May 2002 11:26:25 -0400
+Received: from 209-6-202-152.c3-0.nwt-ubr1.sbo-nwt.ma.cable.rcn.com ([209.6.202.152]:33780
+	"EHLO chezrutt.dyndns.org") by vger.kernel.org with ESMTP
+	id <S316082AbSETP0Y>; Mon, 20 May 2002 11:26:24 -0400
+From: John Ruttenberg <rutt@chezrutt.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15593.5530.966736.798235@localhost.localdomain>
+Date: Mon, 20 May 2002 11:26:18 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Dell Inspiron i8100 with 2 batteries  [Solved!]
+In-Reply-To: <19261.1021724437@redhat.com>
+X-Mailer: VM 6.96 under Emacs 20.7.1
+Reply-to: rutt@chezrutt.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
+Marc Lehmann suggested downgrading to Dell's A7 bios and it fixed this problem
+(along with some minor stuff with the i8k fan/temperature control stuff.
+(Fans no longer go through speed 2 to get to speed 1).  I am also hoping that
+it will result in better clock accuracy (I read some posting about this), but
+my experiments with this aren't complete.
 
-i'm having trouble extracting a packets source and destination 
-address from the sk_buff. i want to be able to see if a packet does 
-in fact pass through my router.
-
-for no particular reason i choose dev.c and a function called 
-netif_rx to do this.
-
-at the beginning of netif_rx() i added the lines:
-int this_cpu = smp_processor_id();
-........
-        char *p;
-        int i;
-        
-                 //  p=   (char *) (skb->mac.ethernet);
-                    p=   (char *) (skb->h.uh);
-
-then just before return softnet_data[this_cpu].cng_level;
-i added this:
-
-for( i=0; i<8;i++){
-            printk(KERN_DEBUG"netif_rx() ->ethernet: %02x ",*(p+i));
-            }
-
-it complies but as soon as i pass a packet through it the router 
-freezes up.
-
-am i even on the rigth track?
-
-regards will.			
-
-
-Beer Mail, brought to you by your friends at beer.com.
+David Woodhouse:
+> 
+> dave@AFRInc.com said:
+> >  I've got the same laptop with one battery, but I'm using ACPI. None
+> > of the current user-space utilities parse this stuff particularly well
+> > (the filenames in /proc/acpi have changed), but the data all look
+> > reasonable. 
+> 
+> Those data also come straight from the BIOS. The ACPI code on those laptops 
+> is all just traps into the SMM BIOS. I'd guess it's running exactly the 
+> same code inside.
+> 
+> --
+> dwmw2

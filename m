@@ -1,29 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317436AbSFHU2f>; Sat, 8 Jun 2002 16:28:35 -0400
+	id <S317445AbSFHU3A>; Sat, 8 Jun 2002 16:29:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317445AbSFHU2e>; Sat, 8 Jun 2002 16:28:34 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:23699 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S317436AbSFHU2e>; Sat, 8 Jun 2002 16:28:34 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 8 Jun 2002 13:24:26 -0700 (PDT)
-Subject: Passthrough kernel module?
-In-Reply-To: <UTC200206082004.g58K4gV27229.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0206081318430.6927-100000@dlang.diginsite.com>
+	id <S317447AbSFHU27>; Sat, 8 Jun 2002 16:28:59 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:18382 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S317445AbSFHU26>;
+	Sat, 8 Jun 2002 16:28:58 -0400
+Message-ID: <3D01307C.4090503@candelatech.com>
+Date: Fri, 07 Jun 2002 15:15:24 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: cfriesen@nortelnetworks.com, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+In-Reply-To: <3CFFB9F8.54455B6E@nortelnetworks.com> <20020606.202108.52904668.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to reverse engineer the interface for a piece of equipment
-and it would be extreamly handy to have a kernel module that I could load
-that I could then point a /dev entry and and have the module echo
-everything that is sent to it (reads/writes/ioctls) to the real device,
-recording the request and response.
+Datagram sockets are the ones that drop data though (tcp will
+deal with it via re-transmits).
 
-Does such a module exist? Is there a better way to do this that I'm
-missing?
+I have not looked at his patch in detail, but I would welcome anything
+that gets us closer to being able to account for every packet that enters
+the NIC, or enters the kernel from user-space via send(to), etc...
 
-David Lang
+David S. Miller wrote:
+
+> Your idea is totally useless for non-datagram sockets.
+> Only datagram sockets use the interfaces where you bump
+> the counters.
+> 
+> I don't like the patch, nor the idea behind it, at all.
+> 
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

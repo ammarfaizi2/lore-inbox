@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264595AbUETBFn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264799AbUETBGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264595AbUETBFn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 21:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264799AbUETBFn
+	id S264799AbUETBGS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 21:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264818AbUETBGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 21:05:43 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:47040 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264595AbUETBFl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 21:05:41 -0400
-Subject: Re: [Ext2-devel] Re: question about ext3_find_goal with reservation
-From: Mingming Cao <cmm@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-In-Reply-To: <20040519155249.76626220.akpm@osdl.org>
-References: <E1BOQmf-0005cP-4Q@thunk.org>
-	<20040513195310.5725fa43.akpm@osdl.org>
-	<1085004276.15374.1318.camel@w-ming2.beaverton.ibm.com> 
-	<20040519155249.76626220.akpm@osdl.org>
-Content-Type: text/plain
+	Wed, 19 May 2004 21:06:18 -0400
+Received: from [213.171.41.46] ([213.171.41.46]:28439 "EHLO
+	kaamos.homelinux.net") by vger.kernel.org with ESMTP
+	id S264799AbUETBGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 21:06:14 -0400
+From: Alexey Kopytov <alexeyk@mysql.com>
+To: Ram Pai <linuxram@us.ibm.com>
+Subject: Re: Random file I/O regressions in 2.6 [patch+results]
+Date: Thu, 20 May 2004 05:06:02 +0400
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, peter@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+References: <200405022357.59415.alexeyk@mysql.com> <1084480888.22208.26.camel@dyn319386.beaverton.ibm.com> <1084815010.13559.3.camel@localhost.localdomain>
+In-Reply-To: <1084815010.13559.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Organization: MySQL AB
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 May 2004 18:04:44 -0700
-Message-Id: <1085015085.15395.1448.camel@w-ming2.beaverton.ibm.com>
-Mime-Version: 1.0
+Message-Id: <200405200506.03006.alexeyk@mysql.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-19 at 15:52, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> > If the pattern is random write, in the current implementation(with the
-> > goal fix), the ext3_find_near() will find a goal with good locality.( I
-> > have a hard time understand the ext3_find_near(), need some help
-> > here...)
-> 
-> The comments in ext3_find_near() pretty well cover things.
-Thanks.
-> 
-> > With reservation, we probably don't need ext3_find_near() to guide us to
-> > find a goal block. But we still need that in the case the filesystem is
-> > mounted without reservation on.
-> 
-> You might need it for the very first block allocation.  For example, if the
-> app opens an existing file and starts appending to it, does the current
-> code correctly commence allocation immediately beyond the file's final
-> block?
+Ram Pai wrote:
 
-Good point. I will check.
-> 
-> > If all above make sense, then the goal should be the start block of the
-> > reservation window.
-> 
-> Well.  It'll be some block within the reservation window - the code should
-> be recording how far across the reservation window we currently are.  We
-> don't want to do a linear search across the entire reservation window for
-> each block allocation attempt.
-Currently we don't trace the last-allocated-block-from-reservation
-window, but it's doable. It's kind of duplicated with the
-i_next_alloc_goal
+>Attached the cleaned up patch and the performance results of the patch.
+>
+>Overall Observation:
+>        1.Small improvement with iozone with the patch, and overall
+>                        much better performance than 2.4
+>        2.Small/neglegible improvement with DSS workload.
+>        3.Negligible impact with sysbench, but results worser than
+>                        2.4 kernels
 
-> It would be nice to separate the old allocation things (i_alloc_block,
-> i_alloc_goal, etc) from the new code completely.  Making one somehow
-> dependent upon or aware fo the other is confusing, and ultimately we'd like
-> to remove those fields from the inode altogether.
-> 
-yes, it's nice to do so.  I will think about it.
+Ram, can you clarify the status of this patch please?
 
+I ran the same sysbench test on my hardware with patched 2.6.6 and got 
+122.2348s execution time, i.e. almost the same results as in the original 
+tests. Is this patch an intermediate step to improve the sysbench workload on 
+2.6, or it just addresses another problem?
+
+-- 
+Alexey Kopytov, Software Developer
+MySQL AB, www.mysql.com
+
+Are you MySQL certified?  www.mysql.com/certification

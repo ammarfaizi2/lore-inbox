@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbTK1B3k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 20:29:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbTK1B3k
+	id S261868AbTK1CFt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 21:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTK1CFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 20:29:40 -0500
-Received: from [63.205.85.133] ([63.205.85.133]:63430 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261796AbTK1B3i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 20:29:38 -0500
-Date: Thu, 27 Nov 2003 17:34:08 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
-       davem@redhat.com,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
-Message-ID: <20031128013408.GD73661@gaz.sfgoth.com>
-References: <1069934643.2393.0.camel@teapot.felipe-alfaro.com> <20031127.210953.116254624.yoshfuji@linux-ipv6.org> <20031127194602.A25015@flint.arm.linux.org.uk> <20031128.045413.133305490.yoshfuji@linux-ipv6.org> <20031127200041.B25015@flint.arm.linux.org.uk> <1069970770.2138.10.camel@teapot.felipe-alfaro.com> <20031127221928.F25015@flint.arm.linux.org.uk> <20031127223348.G25015@flint.arm.linux.org.uk>
+	Thu, 27 Nov 2003 21:05:49 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:19977 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S261868AbTK1CFs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 21:05:48 -0500
+Date: Fri, 28 Nov 2003 11:05:25 +0900 (JST)
+Message-Id: <20031128.110525.113293143.yoshfuji@linux-ipv6.org>
+To: felipe_alfaro@linuxmail.org
+Cc: timo@kamph.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       davem@redhat.com, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH 2.6]: IPv4: strcpy -> strlcpy
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1069970946.2138.13.camel@teapot.felipe-alfaro.com>
+References: <20031127142125.GG8276@jdj5.mit.edu>
+	<3FC67128.14704.30155D53@localhost>
+	<1069970946.2138.13.camel@teapot.felipe-alfaro.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031127223348.G25015@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Sorry, bad example.  Hmm, from a glance around, it seems that all of
-> the places which use strncpy() implicitly zero the buffer prior to
-> using strncpy().
-> 
-> This means that the x86 strncpy is doing unnecessary zeroing.  I do
-> remember Alan complaining about the last set of strlcpy() stuff
-> introducing information leaks - maybe those got fixed though.
+In article <1069970946.2138.13.camel@teapot.felipe-alfaro.com> (at Thu, 27 Nov 2003 23:09:06 +0100), Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> says:
 
-The problem is that most places you're filling in an array in a struct.
-So even if you use strncpy() everywhere you can still get bitten if the
-compiler inserts any padding for alignment on some architecture (since
-even if you fully initialize each char[] array in the structure using
-strncpy you might still leak info in padding bytes)
+> diff -uNr linux-2.6.0-test11.orig/net/ipv4/ipconfig.c linux-2.6.0-test11/net/ipv4/ipconfig.c
+> --- linux-2.6.0-test11.orig/net/ipv4/ipconfig.c	2003-11-26 21:42:55.000000000 +0100
+> +++ linux-2.6.0-test11/net/ipv4/ipconfig.c	2003-11-27 13:32:06.904650818 +0100
+> @@ -299,7 +299,7 @@
+>  	int err;
+>  
+>  	memset(&ir, 0, sizeof(ir));
+> -	strcpy(ir.ifr_ifrn.ifrn_name, ic_dev->name);
+> +	strlcpy(ir.ifr_ifrn.ifrn_name, ic_dev->name, sizeof(ir.ifr_ifrn.ifrn_name));
 
-The safest thing to do in these cases is:
-  1. memset() the array before you start
-  2. strlcpy() for filling each char[] array (since strncpy would just
-     re-zero those bytes it's wasteful)
+please use
+	strlcpy(ir.ifr_name, ic_dev->name, sizeof(ir.ifr_name));
+instead.
 
-Yes, the full memset() is a small waste, but its safe.  In 99% of these
-cases we're talking about some weird ioctl() or something that's way off
-the fast path anyways.
-
-I pointed this out some months ago and someone (forgot who) replied that
-there shouldn't be any padding in any struct exported from the kernel.
-They added a compiler warning for structure padding in the -mm series for
-a few days, but I guess it caused so many warnings that they took it right
-out again, so I believe that there ARE plenty of places that user-visible
-struct's get padded by the ABI of some platforms.  If there's some difinitive
-evidence that padding never happens I'd like to see it.
-
--Mitch
+--yoshfuji

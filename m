@@ -1,90 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135226AbRD3Nlz>; Mon, 30 Apr 2001 09:41:55 -0400
+	id <S133019AbRD3NqF>; Mon, 30 Apr 2001 09:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135216AbRD3Nlp>; Mon, 30 Apr 2001 09:41:45 -0400
-Received: from barn.holstein.com ([198.134.143.193]:29198 "EHLO holstein.com")
-	by vger.kernel.org with ESMTP id <S133019AbRD3Nld>;
-	Mon, 30 Apr 2001 09:41:33 -0400
-Date: Mon, 30 Apr 2001 13:40:23 GMT
-Message-Id: <200104301340.f3UDeN115068@pcx4168.holstein.com>
-From: "Todd M. Roy" <troy@holstein.com>
-To: matthias.andree@stud.uni-dortmund.de
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010430013956.A1578@emma1.emma.line.org> (message from Matthias
-	Andree on Mon, 30 Apr 2001 01:39:56 +0200)
-Subject: Re: 2.4.3 2.4.4pre8: aic7xxx showstopper bug fails to detect sda
-Reply-To: troy@holstein.com
-In-Reply-To: <20010428202225.D11994@emma1.emma.line.org> <PGEDKPCOHCLFJBPJPLNMCEDICMAA.denali@sunflower.com> <20010429122546.A1419@werewolf.able.es> <20010430013956.A1578@emma1.emma.line.org>
-X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 04/30/2001 09:40:26 AM,
-	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 04/30/2001 09:40:27 AM,
-	Serialize complete at 04/30/2001 09:40:27 AM
-X-Priority: 3 (Normal)
+	id <S135216AbRD3Npz>; Mon, 30 Apr 2001 09:45:55 -0400
+Received: from ausxc08.us.dell.com ([143.166.99.216]:43337 "EHLO
+	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
+	id <S133019AbRD3Npm>; Mon, 30 Apr 2001 09:45:42 -0400
+Message-ID: <CDF99E351003D311A8B0009027457F1402F7EB8F@ausxmrr501.us.dell.com>
+From: Mark_Rusk@Dell.com
+To: linux-kernel@vger.kernel.org
+Subject: RE: ServerWorks LE and MTRR
+Date: Mon, 30 Apr 2001 08:44:00 -0500
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias,
-  I tried pretty much the same thing, and I also tried your patch.
-Unhappily when I access my zip drive using the aic7xxx driver my system
-becomes pretty much unresposive, just short of locking up completely.
-ie at least the emergency alt-sysrq keys still work.
+I had sent the original patch to Alan back in the Feb. to correct problems
+with XFree 4.0.2 and LE chipsets.  I will check that the problem is
+corrected with Rev's >5. We would see complete system lockups when the Xfree
+server would use write-combining mtrr segments. 
 
-I guess we'll just have to wait for Justin to come out with the real patch...
+-----Original Message-----
+From: Dave Jones [mailto:davej@suse.de]
+Sent: Sunday, April 29, 2001 8:06 PM
+To: Steffen Persvold
+Cc: lkml; troels@thule.no
+Subject: Re: ServerWorks LE and MTRR
 
--- todd -- 
+
+On Sun, 29 Apr 2001, Steffen Persvold wrote:
+
+> ...
+> Therefore please consider my small patch to allow the
+> good ones to be able to use write-combining. I have several rev 06 and
+they are
+> working fine with this patch.
+> ...
+
+ObPedant:
+ Can you make a note of this in the comment a few lines above also,
+so others who stumble across this code know why the check is there.
+afaik, this chipset info isn't public, so it may not be obvious
+in the future why the check has been added.
+
+Just something simple like..
+
+-    /* ServerWorks LE chipsets have problems with  write-combining
++    /* ServerWorks LE chipsets < rev 6 have problems with write-combining
+       Don't allow it and  leave room for other chipsets to be tagged */
 
 
+Otherwise, if this works for everyone else with rev 6+ serverworks
+chipsets, looks ok to me.
 
->  X-Apparently-To: todd_m_roy@yahoo.com via web13607.mail.yahoo.com
->  X-Track: 1: 40
->  Date:	Mon, 30 Apr 2001 01:39:56 +0200
->  From:	Matthias Andree <matthias.andree@stud.uni-dortmund.de>
->  Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
->  Content-Type: text/plain; charset=us-ascii
->  Content-Disposition: inline
->  User-Agent: Mutt/1.2.5i
->  Sender:	linux-kernel-owner@vger.kernel.org
->  Precedence: bulk
->  X-Mailing-List:	linux-kernel@vger.kernel.org
->  
->  On Sun, 29 Apr 2001, J . A . Magallon wrote:
->  
->  > >              Command found on device queue
->  > > aic7xxx_abort returns 8194
->  > 
->  > I have seen blaming for this error to aic7xxx new driver prior to version
->  > 6.1.11. It was included in the 2.4.3-ac series, but its has not got into
->  > main 2.4.4 (there is still 6.1.5). Everything needs its time.
->  
->  Since the official aic7xxx site doesn't carry a patch against 2.4.4 yet
->  (just 2.4.3) which has cosmetic issues when being patched, I made a
->  patch against 2.4.4: I took the 2.4.3-aic7xxx-6.1.12 patch, applied to
->  2.4.4, bumped the version to read -ma1 in EXTRAVERSION, and made a new
->  patch against vanilla 2.4.4, to be found at:
->  
->  *** WARNING BELOW ***
->  
->  http://mandree.home.pages.de/kernelpatches/v2.4/v2.4.4/
->   72k linux-2.4.4-aic7xxx-to-6.1.12.patch.gz
->  
->  Apply with patch -p1.
->  
->  NOTE: Do not expect this patch to last until after either Justin has a
->  patch against 2.4.4 available or 2.4.5 has been released.
->  
->  *** WARNING *** I did not yet try to boot it, that will have to wait
->  until later.
->  -
->  To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->  the body of a message to majordomo@vger.kernel.org
->  More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  Please read the FAQ at  http://www.tux.org/lkml/
->  
+regards,
 
-**********************************************************************
-This footnote confirms that this email message has been swept by 
-MIMEsweeper for the presence of computer viruses.
-**********************************************************************
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

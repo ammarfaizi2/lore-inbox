@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265935AbSKBL0q>; Sat, 2 Nov 2002 06:26:46 -0500
+	id <S265936AbSKBLq7>; Sat, 2 Nov 2002 06:46:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265936AbSKBL0q>; Sat, 2 Nov 2002 06:26:46 -0500
-Received: from B53c2.pppool.de ([213.7.83.194]:64399 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S265935AbSKBL0p>; Sat, 2 Nov 2002 06:26:45 -0500
-Subject: Re: IRQ Routing Conflict
-From: Daniel Egger <degger@fhm.edu>
-To: Heinz Diehl <hd@cavy.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021101223645.GA216@chiara.cavy.de>
-References: <20021101223645.GA216@chiara.cavy.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-VpgNnR8pPeFxrF8jviQq"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Nov 2002 00:42:34 +0100
-Message-Id: <1036194155.14932.17.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S265938AbSKBLq7>; Sat, 2 Nov 2002 06:46:59 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:40460 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S265936AbSKBLq6>; Sat, 2 Nov 2002 06:46:58 -0500
+Date: Sat, 2 Nov 2002 12:53:21 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Fix 2.5-bk build error
+In-Reply-To: <20021102065444.GA16100@think.thunk.org>
+Message-ID: <Pine.LNX.4.44.0211021246560.6949-100000@serv>
+References: <E187Agn-0003b9-00@snap.thunk.org> <20021101002419.GA1683@rivenstone.net>
+ <20021101004751.GB1683@rivenstone.net> <20021101010607.GC1683@rivenstone.net>
+ <Pine.LNX.4.44.0211011239290.6949-100000@serv> <20021101172807.GA982@caphernaum.rivenstone.net>
+ <20021102065444.GA16100@think.thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-VpgNnR8pPeFxrF8jviQq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sat, 2 Nov 2002, Theodore Ts'o wrote:
 
-Am Fre, 2002-11-01 um 23.36 schrieb Heinz Diehl:
+> On Fri, Nov 01, 2002 at 12:28:07PM -0500, Joseph Fannin wrote:
+> > > BTW2 in the future above can be simplified into
+> > > 
+> > > config FS_MBCACHE
+> > > 	tristate
+> > > 	depends on EXT2_FS_XATTR || EXT3_FS_XATTR
+> > > 	default EXT2_FS || EXT3_FS
+> >
+> >     Okay, here's a patch that does that.  Linus, this fixes a build
+> > error in your current -bk tree that happens when one of ext[23] is a
+> > module and the other is built-in.  Please apply it.
+> 
+> Um, Roman, am I right in understanding that when you say, "in the
+> future above can be simplified" means that infrastructure to support
+> this construct isn't merged into the 2.5 kernel yet?  
 
-> [....]
-> 8139too Fast Ethernet driver 0.9.26
-> PCI: Found IRQ 11 for device 00:11.0
-> IRQ routing conflict for 00:11.0, have irq 10, want irq 11
-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  =20
+No, it means that the support for this isn't written yet. I have looked 
+into it, but it's not actually done yet.
 
-> Regardless of which PCI slot the card uses, the problem stays the same.
-> I searched the net and found many people having the same trouble, but not=
- a
-> single solution for it.
-
-Now that you mentioned it: Just a few hours ago I popped in a soundcard
-into one of my machines:
-Nov  1 16:10:20 nicole kernel: solo1: version v0.19 time 11:19:52 Apr 14 20=
-02
-Nov  1 16:10:20 nicole kernel: PCI: Found IRQ 10 for device 00:13.0
-Nov  1 16:10:20 nicole kernel: IRQ routing conflict for 00:13.0, have irq 3=
-, want irq 10
-
-This is also an Apollo/MVP3 chipset. Other than that the soundcard seems
-to work fine. I don't see this with any other card BTW.
-
---=20
-Servus,
-       Daniel
-
---=-VpgNnR8pPeFxrF8jviQq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA9wxFqchlzsq9KoIYRAn0dAJsH70LdBh46TXLpWDCHLwq3xvRXuwCfb+IT
-6nRRjArm8KbGdTcm0EezXIQ=
-=GTa2
------END PGP SIGNATURE-----
-
---=-VpgNnR8pPeFxrF8jviQq--
+bye, Roman
 

@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264272AbTKTCzr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 21:55:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTKTCzr
+	id S264202AbTKTDLk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 22:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTKTDLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 21:55:47 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:25282 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264272AbTKTCzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 21:55:45 -0500
-Date: Wed, 19 Nov 2003 21:53:15 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Nico Schottelius <nico-mutt@schottelius.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: transmeta cpu code question
-Message-ID: <20031120025315.GR11983@phunnypharm.org>
-References: <20031120020218.GJ3748@schottelius.org>
+	Wed, 19 Nov 2003 22:11:40 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:52713 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264202AbTKTDLj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 22:11:39 -0500
+Date: Wed, 19 Nov 2003 19:11:37 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120031137.GA8465@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031120020218.GJ3748@schottelius.org>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 03:02:18AM +0100, Nico Schottelius wrote:
-> Hello!
+Jeff Garzik wrote :
 > 
-> What does this do:
+> Pontus Fuchs wrote:
+> > Please! I don't want to start a flamewar if this is a good thing to do.
+> > I'm just trying to scratch my own itch and I doubt that this project
+> > changes the way Broadcom treats Linux users.
 > 
->                 printk(KERN_INFO "CPU: Processor revision %u.%u.%u.%u,
-> %u MHz\n",
->                        (cpu_rev >> 24) & 0xff,
->                        (cpu_rev >> 16) & 0xff,
->                        (cpu_rev >> 8) & 0xff,
->                        cpu_rev & 0xff,
->                        cpu_freq);
 > 
-> (from arch/i386/kernel/cpu/transmeta.c)
+> Then help us reverse engineer the driver :)
 > 
-> Does not & 0xff make no sense? 0 & 1 makes 0, 1 & 1 makes 1, 
-> no changes.
->
-> And I don't understand why we do this for 8bit and shifting the
-> cpu_rev...
+> 	Jeff
 
-You are a bit confused. The cpu_rev is a 4 byte value, each byte is a
-decimal of the revision.
+	Even better :
+		1) go to the Wireless LAN Howto
+		2) find a card are supported under Linux that suit your needs
+		3) buy this card
+	I don't see the point of giving our money to vendors that
+don't care about us when there are vendors making a real effort toward
+us.
+	Regards,
 
-And (0 & 1) makes 1, not 0. That's an AND, not an OR.
+	Jean
 
-Think about it this way. If cpu_rev == 0x01040801, then this would
-produce:
-
-(0x01040801 >> 24 & 0xff) -> (0x01 & 0xff) ->     0x01
-
-(0x01040801 >> 16 & 0xff) -> (0x0104 & 0xff) ->   0x04
-
-(0x01040801 >> 8  & 0xff) -> (0x010408 & 0xff) -> 0x08
-
-(0x01040801 & 0xff)                            -> 0x01
-
-
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265620AbUBBE7r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 23:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265621AbUBBE7r
+	id S265607AbUBBErB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 23:47:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265611AbUBBErB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 23:59:47 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:12480 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S265620AbUBBE7q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 23:59:46 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: hotplug question
-Date: Sun, 1 Feb 2004 23:59:45 -0500
-User-Agent: KMail/1.6
+	Sun, 1 Feb 2004 23:47:01 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:16086 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S265607AbUBBEq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 23:46:59 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Daniel Jacobowitz <dan@debian.org>
+Date: Mon, 2 Feb 2004 15:46:49 +1100
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402012359.46020.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.53.166] at Sun, 1 Feb 2004 22:59:45 -0600
+Message-ID: <16413.54841.104599.928032@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID arrays not reconstructing in 2.6
+In-Reply-To: message from Daniel Jacobowitz on Sunday February 1
+References: <20040201171525.GA2092@nevyn.them.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Sunday February 1, dan@debian.org wrote:
+> I saw this a couple of weeks ago in a 2.6.0-test kernel, and today in
+> 2.6.2-rc3.  When I have to hit the hard reset button on my desktop, whose
+> root filesystem is RAID5 on /dev/md0, it comes back up cleanly - no
+> reconstruction.
 
-About a week ago I did and rm -fR on the hotplug stuffs because it was 
-totally hanging the boot for some reason.
+Cool, isn't it!
 
-Tonight I re-installed it and did a test reboot to 2.6.2-rc3.  When it 
-got to "Starting hotplug", the init script sat there for around 30 
-seconds, and eventually said OK.  It did load the one module I have 
-set as a module, for the pl-2303 seriel to usb adaptor.  Or at least 
-I didn't have to do it by hand with modprobe.
+> 
+> Have we gotten a whole lot more enthusiastic about marking superblocks clean
+> lately, or should I be worried?  Obviously this always used to trigger
+> reconstruction, until recently.
 
-Is this huge, even worse than kudzu, boot delay normal for hotplug?
+Yes.  Lots more enthusiastic.
+If there is no write activity for 20msec, we mark the superblock clean
+and write it out, and are careful to write out a dirty superblock
+before allowing another write to complete.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+NeilBrown
+
+> 
+> -- 
+> Daniel Jacobowitz
+> MontaVista Software                         Debian GNU/Linux Developer

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271463AbTGQOb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 10:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271464AbTGQOb0
+	id S271464AbTGQOdU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 10:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271465AbTGQOdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 10:31:26 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:59083 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S271463AbTGQObY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 10:31:24 -0400
-Subject: Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all needed rpms
-	installed)
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0307170254500.32541@montezuma.mastecende.com>
-References: <1058196612.3353.2.camel@aurora.localdomain>
-	 <Pine.LNX.4.53.0307160148420.32541@montezuma.mastecende.com>
-	 <1058411485.4705.20.camel@aurora.localdomain>
-	 <Pine.LNX.4.53.0307170254500.32541@montezuma.mastecende.com>
-Content-Type: text/plain
-Message-Id: <1058453171.3356.5.camel@aurora.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-2) 
-Date: 17 Jul 2003 10:46:12 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Jul 2003 10:33:20 -0400
+Received: from list.rug.nl ([129.125.4.44]:38188 "EHLO list.rug.nl")
+	by vger.kernel.org with ESMTP id S271464AbTGQOdP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 10:33:15 -0400
+From: "J. Hidding" <J.Hidding@student.rug.nl>
+Subject: Re: linux-2.6.0-test1 freezes sometimes
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.4.0.6
+Date: Thu, 17 Jul 2003 16:48:04 +0200
+Message-ID: <web-8156551@mail.rug.nl>
+In-Reply-To: <3F1545FD.5060801@gts.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-17 at 02:55, Zwane Mwaikambo wrote:
-> On Wed, 16 Jul 2003, Trever L. Adams wrote:
-> > Sure, I sent it to the list already, here it is again.  This is some
-> > time before the ethernet card driver gets loaded, etc.  Hopefully this
-> > helps clear things up.
-> 
-> Ok it's not what i had suspected, incidentally, do you get that 'disabling 
-> irq3' message every boot? Can you randomly get it to boot without that 
-> occuring?
+>Yes, me :(
+>
+>They seem to be totally random (no mozilla, here): I use 
+>KDE and they may occur while scrolling down a window, or 
+>while typing in a shell session or whatever.
+>
+>I couldn't find a way to reproduce it so far.
+>
+>Note that they did not happen up to kernel 2.5.75, and 
+>they show up with 2.6.0-t1 and 2.6.0-t1-mm1.
+>
+>No clues in syslog or kern.log, simply a sudden hard 
+>freeze, without particular HD or CPU activity before.
+>
+>Bye!
+>
+>-- 
+>Stefano RIVOIR
+>GTS Srl
+>
 
-I believe it goes away completely if I turn of ACPI.   I will have to
-check that later today to be sure, but I am 99% there.
+I'm getting very frustated right now, as I seem to be 
+unable to find ANY kernel that doesn't freeze. (2.4.21 
+this time) I'm beginning to think there's something wrong 
+with my machine itself. How can I test my computer for any 
+malfunctioning hardware (memory for example, or 
+overheating)?
 
-Trever
---
-"It was as true as taxes is. And nothing's truer than them." -- Charles
-Dickens (1812-70)
-
+Johan Hidding

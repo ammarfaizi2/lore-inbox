@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267579AbRG2JZ7>; Sun, 29 Jul 2001 05:25:59 -0400
+	id <S267580AbRG2Jp4>; Sun, 29 Jul 2001 05:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267577AbRG2JZs>; Sun, 29 Jul 2001 05:25:48 -0400
-Received: from hood.tvd.be ([195.162.196.21]:62062 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S267579AbRG2JZe>;
-	Sun, 29 Jul 2001 05:25:34 -0400
-Date: Sun, 29 Jul 2001 11:19:19 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: herbert@gondor.apana.org.au
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Paul Mackerras <paulus@linuxcare.com.au>
-Subject: Re: Patch in 2.2.18pre21 breaks fbcon logo
-In-Reply-To: <20010728180801.A671@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.05.10107291112320.10841-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267633AbRG2Jpq>; Sun, 29 Jul 2001 05:45:46 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:15369 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S267584AbRG2Jpd>; Sun, 29 Jul 2001 05:45:33 -0400
+X-mailer: xrn 8.03-beta-26
+From: Paul Menage <pmenage@ensim.com>
+Subject: Re: Detecting x86 SMP on a UP kernel
+To: John Levon <moz@compsoc.man.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D142557@nasdaq.ms.ensim.com>
+Message-Id: <E15Qn81-0002EK-00@pmenage-dt.ensim.com>
+Date: Sun, 29 Jul 2001 02:44:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 28 Jul 2001, it was written:
-> The following patch that appeared in 2.2.18pre21 breaks the fbcon logo.
-> Anyone knows what it was for?
+>
+>Hi, I need to be able to detect underlying x86 SMP hardware
+>when running a UP kernel, from a module.
+>
 
-When switching to a new VC, the palette must be set after the switch to the new
-VC. This matters for consoles where the palette handling is different for
-different video modes and thus depends on the current VC (different VCs may use
-a different video mode).
+A simple and AFAIK reasonably reliable user-space approach is to use
+the mptable program, and grep the output for the string "AP,"
+(additional processor). If you're looking for SMP support in the
+motherboard, rather than the existence of the additional processor(s),
+then you might want to parse the output in other ways.
 
-As an example, imagine switching from an 8-color pseudocolor console to a
-15-bit directcolor console.
+You could probably do this more directly from within the kernel, but
+mptable may provide a useful starting point.
 
-Iff it introduced a problem, are you sure it wasn't fixed in a later 2.2.x
-release? If not, please compare with the corresponding 2.4.x console code.
+You can find mptable at http://www.ima.umn.edu/~klee/linux/mptable.c
 
-Hmmm... something jumps into my mind. Probably this change means the 16-color
-logo must use the VGA palette now, just like on 2.4.x. Fixes for that are on my
-webpage:
-
-    http://home.tvd.be/cr26864/Linux/fbdev/logo.html
-
-Linus applied them in recent 2.4.x.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Paul

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288061AbSACAWO>; Wed, 2 Jan 2002 19:22:14 -0500
+	id <S288093AbSACAWO>; Wed, 2 Jan 2002 19:22:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288064AbSACAUg>; Wed, 2 Jan 2002 19:20:36 -0500
-Received: from mxzilla2.xs4all.nl ([194.109.6.50]:10511 "EHLO
-	mxzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288054AbSACAUH>; Wed, 2 Jan 2002 19:20:07 -0500
-Date: Thu, 3 Jan 2002 01:20:04 +0100
-From: jtv <jtv@xs4all.nl>
-To: Richard Henderson <rth@redhat.com>, Tom Rini <trini@kernel.crashing.org>,
-        Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020103012004.E19933@xs4all.nl>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102232320.A19933@xs4all.nl> <20020102231243.GO1803@cpe-24-221-152-185.az.sprintbbd.net> <20020103004514.B19933@xs4all.nl> <20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102160739.A10659@redhat.com>
+	id <S288061AbSACAUd>; Wed, 2 Jan 2002 19:20:33 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16654 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288052AbSACATU>;
+	Wed, 2 Jan 2002 19:19:20 -0500
+Date: Wed, 2 Jan 2002 16:18:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Roger Leblanc <r_leblanc@videotron.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock in kernel on USB shutdown
+Message-ID: <20020103001816.GB4162@kroah.com>
+In-Reply-To: <3C33A22F.40906@videotron.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020102160739.A10659@redhat.com>; from rth@redhat.com on Wed, Jan 02, 2002 at 04:07:39PM -0800
+In-Reply-To: <3C33A22F.40906@videotron.ca>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 05 Dec 2001 21:46:14 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 04:07:39PM -0800, Richard Henderson wrote:
-> On Wed, Jan 02, 2002 at 05:01:18PM -0700, Tom Rini wrote:
-> > Yes, but doesn't -ffreestanding imply that gcc _can't_ assume this is
-> > the standard library...
-> 
-> Ignore strcpy.  Yes, that's what visibly causing a failure here,
-> but the bug is in the funny pointer arithmetic.  Leave that in
-> there and the compiler _will_ bite your ass sooner or later.
+On Wed, Jan 02, 2002 at 07:13:35PM -0500, Roger Leblanc wrote:
+> It doesn't get that far. The first thing my init script (or Mandrake 8.1 
+> script) does at shutdown is to run modprobe -r on modules usb-ohci, 
+> usb-uhci and uhci. The system freeses when it gets to usb-uhci. It does 
+> it also if I run these commands on the command line.
 
-Thank you for taking it all and putting it in a nutshell.
+Have you unloaded your scanner module before unloading the usb-uhci
+module?
 
+thanks,
 
-Jeroen
-
+greg k-h

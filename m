@@ -1,57 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVCLQfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVCLQjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVCLQfe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 11:35:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVCLQfe
+	id S261969AbVCLQjW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 11:39:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVCLQhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 11:35:34 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:32486 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261456AbVCLQf2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 11:35:28 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
-Date: Sat, 12 Mar 2005 08:34:50 -0800
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel@vger.kernel.org,
-       Felix von Leitner <felix-linuxkernel@fefe.de>
-References: <3GZyA-16B-17@gated-at.bofh.it> <423278D6.2090603@shaw.ca> <20050311211908.434baba1.akpm@osdl.org>
-In-Reply-To: <20050311211908.434baba1.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Mar 2005 11:37:50 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:64186 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261954AbVCLQhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 11:37:17 -0500
+Date: Sat, 12 Mar 2005 08:36:00 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: George Anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       "J. Bruce Fields" <bfields@fieldses.org>,
+       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: spin_lock error in arch/i386/kernel/time.c on APM resume
+Message-ID: <20050312083559.A23564@unix-os.sc.intel.com>
+References: <20050312131143.GA31038@fieldses.org> <4233111A.5070807@mvista.com> <Pine.LNX.4.61.0503120918130.2166@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503120834.50788.david-b@pacbell.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0503120918130.2166@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Sat, Mar 12, 2005 at 09:25:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 March 2005 9:19 pm, Andrew Morton wrote:
+On Sat, Mar 12, 2005 at 09:25:13AM -0700, Zwane Mwaikambo wrote:
+> On Sat, 12 Mar 2005, George Anzinger wrote:
 > 
-> (Restoring email headers.  Please always use reply-to-all)
+> > And more... That this occures implies we are attempting to update the cmos
+> > clock on resume seems wrong.  One would presume that the time is wrong at this
+> > time and we are about to save that wrong time.  Possibly the APM code should
+> > change time_status to STA_UNSYNC on the way into the sleep (or what ever it is
+> > called).  Who should we ping with this?
 > 
-> Robert Hancock <hancockr@shaw.ca> wrote:
-> >
-> > Felix von Leitner wrote:
-> > > My new nForce 4 mainboard has 10 or so USB 2.0 outlets.  In Windows,
-> > > they all work.  In Linux, two of them work.  Putting my USB stick or
-> > > anything else in one of the others produces nothing in Linux.
-> > > Apparently no IRQ getting through or something?
-> > 
-> > Likely similar to the problem I reported in this thread on 
-> > linux-usb-devel - the patch that David Brownell posted fixed the problem 
-> > for me..
-> > 
-> > http://sourceforge.net/mailarchive/message.php?msg_id=10755097
-> > 
+> timer_resume, which appears to be the problem, wants to calculate amount 
+> of time was spent suspended, also your unconditional irq enable in 
+> get_cmos_time breaks the atomicity of device_power_up and would deadlock 
+> in sections of code which call get_time_diff() with xtime_lock held. I 
+> sent a patch subject "APM: fix interrupts enabled in device_power_up" 
+> which should address this.
+> 
 
-My thoughts exactly.  However, 2.6.11 includes that fix.  Are you
-sure that dmesg output came from 2.6.11?
+How about this patch? Also fixes one other use of rtc_lock in acpi/sleep/proc.c
 
-To repeat what Alan Stern said yesterday:  provide full "dmesg"
-output, with CONFIG_USB_DEBUG enabled.  I think that falls into
-the category of "how to provide a usable bug report" ... :)
+Thanks,
+Venki
 
 
+rtc_lock is held during timer interrupts. So, we should block interrupts
+while holding it.
+
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+
+--- linux-2.6.10/arch/i386/kernel/time.c.org	2005-03-12 10:38:23.000000000 -0800
++++ linux-2.6.10/arch/i386/kernel/time.c	2005-03-12 10:40:26.000000000 -0800
+@@ -305,15 +305,16 @@ irqreturn_t timer_interrupt(int irq, voi
+ unsigned long get_cmos_time(void)
+ {
+ 	unsigned long retval;
++	unsigned long flags;
+ 
+-	spin_lock(&rtc_lock);
++	spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 	if (efi_enabled)
+ 		retval = efi_get_time();
+ 	else
+ 		retval = mach_get_cmos_time();
+ 
+-	spin_unlock(&rtc_lock);
++	spin_unlock_restore(&rtc_lock, flags);
+ 
+ 	return retval;
+ }
+--- linux-2.6.10/drivers/acpi/sleep/proc.c.org	2005-03-12 10:50:40.000000000 -0800
++++ linux-2.6.10/drivers/acpi/sleep/proc.c	2005-03-12 10:53:08.000000000 -0800
+@@ -84,10 +84,11 @@ static int acpi_system_alarm_seq_show(st
+ 	u32			sec, min, hr;
+ 	u32			day, mo, yr;
+ 	unsigned char		rtc_control = 0;
++	unsigned long 		flags;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_system_alarm_seq_show");
+ 
+-	spin_lock(&rtc_lock);
++	spin_lock_irqsave(&rtc_lock, flags);
+ 
+ 	sec = CMOS_READ(RTC_SECONDS_ALARM);
+ 	min = CMOS_READ(RTC_MINUTES_ALARM);
+@@ -109,7 +110,7 @@ static int acpi_system_alarm_seq_show(st
+ 	else
+ 		yr = CMOS_READ(RTC_YEAR);
+ 
+-	spin_unlock(&rtc_lock);
++	spin_unlock_restore(&rtc_lock, flags);
+ 
+ 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 		BCD_TO_BIN(sec);

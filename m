@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265494AbUAJVri (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265499AbUAJVrh
+	id S265581AbUAJVy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265604AbUAJVy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:47:37 -0500
-Received: from zork.zork.net ([64.81.246.102]:2704 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S265494AbUAJVrg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:47:36 -0500
-To: Peter Osterlund <petero2@telia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Do not use synaptics extensions by default
-References: <20040110175930.GA1749@elf.ucw.cz> <20040110193039.GA22654@ucw.cz>
-	<20040110194420.GA1212@elf.ucw.cz> <20040110195531.GD22654@ucw.cz>
-	<6u1xq77e29.fsf@zork.zork.net> <20040110202348.GA23318@ucw.cz>
-	<6uwu7z5y1y.fsf@zork.zork.net> <m2u133qyj7.fsf@p4.localdomain>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Peter Osterlund <petero2@telia.com>,
- linux-kernel@vger.kernel.org
-Date: Sat, 10 Jan 2004 21:47:32 +0000
-In-Reply-To: <m2u133qyj7.fsf@p4.localdomain> (Peter Osterlund's message of
- "10 Jan 2004 22:33:32 +0100")
-Message-ID: <6un08v5vd7.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jan 2004 16:54:58 -0500
+Received: from netline-mail1.netline.ch ([195.141.226.27]:50447 "EHLO
+	netline-mail1.netline.ch") by vger.kernel.org with ESMTP
+	id S265581AbUAJVy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 16:54:57 -0500
+Subject: Re: [Dri-devel] 2.6 kernel change in nopage
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
+References: <20031231182148.26486.qmail@web14918.mail.yahoo.com>
+	 <1072958618.1603.236.camel@thor.asgaard.local>
+	 <1072959055.5717.1.camel@laptop.fenrus.com>
+	 <1072959820.1600.252.camel@thor.asgaard.local>
+	 <20040101122851.GA13671@devserv.devel.redhat.com>
+	 <1072967278.1603.270.camel@thor.asgaard.local>
+	 <Pine.LNX.4.58.0401011205110.2065@home.osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1073771694.2290.17.camel@thor.asgaard.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 10 Jan 2004 22:54:54 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> writes:
 
-> Sean Neakums <sneakums@zork.net> writes:
->
->> Vojtech Pavlik <vojtech@suse.cz> writes:
->> 
->> > On Sat, Jan 10, 2004 at 08:18:22PM +0000, Sean Neakums wrote:
->> >
->> >> Will this also result in the passthough port not being enabled?
->> >> (I'd like to disable it.)
->> >
->> > It depends on the touchpad firmware. Most leave it enabled.
->> > In this mode we don't have any control over the passthrough port.
->> 
->> I notice that the passthrough appears as an extra device (mouse1 on my
->> system).  Is there a way to disable devices from userspace?
->
-> You can write a program that grabs the event device for exclusive
-> access and then just ignores all events, like this:
+First of all, thanks for all the suggestions I've received in this
+thread.
 
-That works great.  Thank you!
+New patch up at http://penguinppc.org/~daenzer/DRI/drm-nopage.diff; does
+this look acceptable to those who are going to do merges between the
+trees? :)
+
+
+-- 
+Earthling Michel Dänzer      |     Debian (powerpc), X and DRI developer
+Software libre enthusiast    |   http://svcs.affero.net/rm.php?r=daenzer
 

@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUJOAro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267651AbUJOAsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUJOAro (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 20:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUJOArn
+	id S267651AbUJOAsS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 20:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267661AbUJOAsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 20:47:43 -0400
-Received: from ozlabs.org ([203.10.76.45]:13532 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267522AbUJOArk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 20:47:40 -0400
+	Thu, 14 Oct 2004 20:48:18 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:9933 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267651AbUJOAsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 20:48:13 -0400
 Subject: Re: Fw: signed kernel modules?
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: David Howells <dhowells@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Greg KH <greg@kroah.com>,
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+       rusty@ozlabs.au.ibm.com, Greg KH <greg@kroah.com>,
        Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
        lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16127.1097751772@redhat.com>
-References: <1097707986.14303.36.camel@localhost.localdomain>
-	 <1097626296.4013.34.camel@localhost.localdomain>
-	 <1096544201.8043.816.camel@localhost.localdomain>
+In-Reply-To: <1097707239.14303.22.camel@localhost.localdomain>
+References: <1096544201.8043.816.camel@localhost.localdomain>
 	 <1096411448.3230.22.camel@localhost.localdomain>
 	 <1092403984.29463.11.camel@bach> <1092369784.25194.225.camel@bach>
 	 <20040812092029.GA30255@devserv.devel.redhat.com>
@@ -34,62 +33,28 @@ References: <1097707986.14303.36.camel@localhost.localdomain>
 	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
 	 <1097534090.16153.7.camel@localhost.localdomain>
 	 <1097570159.5788.1089.camel@baythorne.infradead.org>
-	 <27277.1097702318@redhat.com>   <16127.1097751772@redhat.com>
+	 <1097626296.4013.34.camel@localhost.localdomain>
+	 <1097664137.4440.5.camel@localhost.localdomain>
+	 <1097707239.14303.22.camel@localhost.localdomain>
 Content-Type: text/plain
-Message-Id: <1097801271.22673.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 10:47:51 +1000
 Content-Transfer-Encoding: 7bit
+Message-Id: <1097797477.8275.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 15 Oct 2004 00:44:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-14 at 21:02, David Howells wrote:
-> > I'd prefer to see:
-> > 	err = module_verify(hdr, len, &gpgsig_ok);
-> > 	if (err)
-> > 		goto free_hdr;
+On Mer, 2004-10-13 at 23:40, Rusty Russell (IBM) wrote:
+> > Whoops bang "num 0 elements". That check set isn't safe standalone
 > 
-> I've been moaned at for doing this before. Other people have told me they
-> prefer to see the value returned through the return value since there's enough
-> scope.
-
-I suppose this is a matter of taste.  I find it much clearer this way,
-to overloading 0 vs 1 returns.
-
-> > And then have module_verify for the !CONFIG_MODULE_SIG case (in
-> > module-verify.h) simply be:
+> Thanks, Alan.
 > 
-> I think it should still check the ELF, even if we're not going to check a
-> signature. This permits us to drop a few checks later in the module loading
-> process.
+> I'd appreciate your opinion on the issue at hand.  Is it worth 600 lines
+> of ELF verification and canonicalization code so we can strip modules
+> without altering the signature?
 
-Not really: I've never had a single bug report, and I've had a fair
-number of bug reports.  Without signed modules, it's really 300 lines of
-code for no actual gain.  OTOH, it's going to be in the tree anyway. 
-Unless we want to "sign" modules with a straight checksum when
-!CONFIG_MODULE_SIG?  I'm not really convinced it's worth it.  Thoughts
-welcome.
-
-> > Multiplicative overflow.
-> 
-> Not so in this ELF incarnation.
-
-Sorry, my bad.
-
-Now we have the code in front of us, I'll ask you to answer honestly. 
-Do *you* think that the extra ~600 lines of code is a worthwhile
-tradeoff so we can simply strip modules without resigning?  You know my
-opinion, but you've done the code, and if you're really convinced of
-that, I'll ack it.
-
-(I'm not sure that having a whole GPG format parser in the kernel
-matches our minimalistic ideals either, but I can see a much stronger
-incentive there: less risk of weakening the signatures, convenience, and
-the signing infrastructure can be used for other things).
-
-Cheers,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+I'm unconvinced at the moment, it seems it would be easier to write the
+neccessary code to do this in userspace, and then sign the canonicalised
+module so that the kernel interface is small and clean.
 

@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261576AbTCHBOp>; Fri, 7 Mar 2003 20:14:45 -0500
+	id <S261759AbTCHBUV>; Fri, 7 Mar 2003 20:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261612AbTCHBOp>; Fri, 7 Mar 2003 20:14:45 -0500
-Received: from pop.gmx.de ([213.165.64.20]:52751 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261576AbTCHBOo>;
-	Fri, 7 Mar 2003 20:14:44 -0500
-Message-ID: <3E692DEB.2030207@gmx.net>
-Date: Sat, 08 Mar 2003 00:40:27 +0100
-From: Christian <evilninja@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030210
-X-Accept-Language: de, en
+	id <S261731AbTCHBUV>; Fri, 7 Mar 2003 20:20:21 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:16901
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S261659AbTCHBUS>; Fri, 7 Mar 2003 20:20:18 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33DD7@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Bryan Whitehead'" <driver@jpl.nasa.gov>
+Cc: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org
+Subject: RE: devfs + PCI serial card = no extra serial ports
+Date: Fri, 7 Mar 2003 17:30:53 -0800 
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_ALPHA_SRM not compiling on 2.5
-References: <3E6538EF.3060602@gmx.net> <20030305005309.GM27794@lug-owl.de>
-In-Reply-To: <20030305005309.GM27794@lug-owl.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw schrieb:
->
-> There seems to be a missing dependency then. Please ensure that you
-> compile in the input subsystem core as well as virtual terminal support
-> and support for console on virtual terminal.
+On Fri, Mar 07, 2003 at 4:59 PM, Bryan Whitehead wrote:
+> 
+> Quick question: What PCI serial port add on card works with devfs in 
+> kernel 2.4.19 out of the box? No pissing around?
+> 
+> While I'm messing around with the one I got (that doesn't 
+> work) I need 
+> one that does... any suggestions??
+> 
+> Thanks to all for the help!!
+> 
+ [ snip ]
 
-oh, stupid me. yes, after selection input core support i was able to
-select VT / console on VT support.
+Bryan,
 
-enabling this (and SRM), 2.5.63 compiled instantly.
-but it won't boot now.
+Anything in the /usr/src/linux*/drivers/char/serial.c driver's
+serial_pci_tbl list (~line 4537) will be recognized. Also, a card _without_
+a parallel port would solve the port ordering problem. 
 
-after typing "b" in SRM console (to start booting) and then after
-choosing the kernel on the aboot (a boot loader) prompt, this is what i get:
+Cheers,
+Ed
 
--------
-Starting kernel boot/2.5.63/vmlinux [....]
-Linux version 2.5.63 #7 Wed Mar 05 [...]
-
-halt code = 7
-machine check while inPAL mode
-PC = 14a0c
->>>
--------
-
-hm, could be anything i guess. well, i'll have to google around a bit
-and read even more...
-
-Thank you,
-Christian.
-
--- 
-############ Christian ##############
-########## c_kujau@web.de ###########
-#####################################
-
-
-
+---------------------------------------------------------------- 
+Ed Vance              edv (at) macrolink (dot) com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------

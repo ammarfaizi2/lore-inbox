@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUC0GLv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 01:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUC0GLv
+	id S261604AbUC0GSp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 01:18:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUC0GSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 01:11:51 -0500
-Received: from zero.aec.at ([193.170.194.10]:46088 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261784AbUC0GLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 01:11:50 -0500
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: potential /dev/urandom scalability improvement
-References: <1DLZM-8aK-67@gated-at.bofh.it> <1DLZM-8aK-65@gated-at.bofh.it>
-	<1DOE1-20o-17@gated-at.bofh.it> <1DOXn-2k7-5@gated-at.bofh.it>
-	<1DXxI-Z7-39@gated-at.bofh.it> <1E467-6KK-17@gated-at.bofh.it>
-	<1E4IT-7f3-21@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 27 Mar 2004 02:29:12 +0100
-In-Reply-To: <1E4IT-7f3-21@gated-at.bofh.it> (Andrew Morton's message of
- "Fri, 26 Mar 2004 20:00:15 +0100")
-Message-ID: <m3fzbvqdqv.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Mar 2004 01:18:45 -0500
+Received: from pao-nav01.pao.digeo.com ([12.47.58.24]:39440 "HELO
+	pao-nav01.pao.digeo.com") by vger.kernel.org with SMTP
+	id S261604AbUC0GSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 01:18:44 -0500
+Date: Fri, 26 Mar 2004 22:17:31 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: replace MAX_MAP_COUNT with /proc/sys/vm/max_map_count
+Message-Id: <20040326221731.54772019.akpm@digeo.com>
+In-Reply-To: <16485.5722.591616.846576@napali.hpl.hp.com>
+References: <16485.5722.591616.846576@napali.hpl.hp.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Mar 2004 06:17:30.0850 (UTC) FILETIME=[2F6DEC20:01C413C3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+David Mosberger <davidm@napali.hpl.hp.com> wrote:
 >
-> I think this gets it right, but I probably screwed something up.
->
-> static inline void prefetch_range(void *addr, size_t len)
-> {
-> #ifdef ARCH_HAS_PREFETCH
-> 	char *cp;
-> 	unsigned long end;
->
-> 	end = ((unsigned long)addr + len + PREFETCH_STRIDE - 1);
-> 	end &= ~(PREFETCH_STRIDE - 1);
->
-> 	for (cp = addr; cp < (char *)end; cp += PREFETCH_STRIDE)
-> 		prefetch(cp);
-> #endif
-> }
+> Below is a warmed up version of a patch originally done by Werner
+> Almesberger (see http://tinyurl.com/25zra) to replace the
+> MAX_MAP_COUNT limit with a sysctl variable.
 
-The memory/bus controller usually only has a limited queue of
-outstanding transactions and for a big buffer you will likely overflow
-it. Also usually on modern CPUs it is enough to do prefetch for 2-3
-cache lines at the beginning, then an automatic hardware prefetcher
-will kick in and take care of the rest.
+Fair enough.
 
--Andi
+>  int sysctl_overcommit_memory = 0;	/* default is heuristic overcommit */
+>  int sysctl_overcommit_ratio = 50;	/* default is 50% */
+> +int sysctl_max_map_count = DEFAULT_MAX_MAP_COUNT;
+>  atomic_t vm_committed_space = ATOMIC_INIT(0);
+>  
+>  EXPORT_SYMBOL(sysctl_overcommit_memory);
+>  EXPORT_SYMBOL(sysctl_overcommit_ratio);
+> +EXPORT_SYMBOL(sysctl_max_map_count);
+>  EXPORT_SYMBOL(vm_committed_space);
 
+The SELinux guys may want to hook into this.  I assume that's why these
+symbols are exported to modules at present?
+
+Stephen, if my surmise is correct could you please prep the final patch?

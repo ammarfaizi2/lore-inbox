@@ -1,105 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261875AbTCaW3M>; Mon, 31 Mar 2003 17:29:12 -0500
+	id <S261877AbTCaWeD>; Mon, 31 Mar 2003 17:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261877AbTCaW3M>; Mon, 31 Mar 2003 17:29:12 -0500
-Received: from dp.samba.org ([66.70.73.150]:49640 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261875AbTCaW3K>;
-	Mon, 31 Mar 2003 17:29:10 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Put all functions in kallsyms
-Date: Mon, 31 Mar 2003 18:14:03 +1000
-Message-Id: <20030331224033.489DD2C04B@lists.samba.org>
+	id <S261883AbTCaWeC>; Mon, 31 Mar 2003 17:34:02 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:37311 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id <S261877AbTCaWeB>;
+	Mon, 31 Mar 2003 17:34:01 -0500
+Date: Mon, 31 Mar 2003 14:45:00 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: helgehaf@aitel.hist.no, erik@hensema.net, linux-kernel@vger.kernel.org
+Subject: Re: Delaying writes to disk when there's no need
+Message-Id: <20030331144500.17bf3a2e.akpm@digeo.com>
+In-Reply-To: <3E88BAF9.8040100@cyberone.com.au>
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
+	<20030328231248.GH5147@zaurus.ucw.cz>
+	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
+	<3E8845A8.20107@aitel.hist.no>
+	<3E88BAF9.8040100@cyberone.com.au>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Mar 2003 22:45:17.0200 (UTC) FILETIME=[3363C100:01C2F7D7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+> it seems to me that
+> doing writeout whenever the disk would otherwise be idle
+> (and we have dirty memory to write out) would be a good
+> solution.
 
-	Simple, untested patch.  Any objections?
+This is what the recently-removed BDI_read_active flag in backing_dev_info
+was supposed to be for.  I let it go because I don't think it's terribly
+important and it's time to stop fiddling with the vfs writeout code and it
+wasn't right anyway.
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Note that 2.5 starts pdflush writeout at 10% of memory dirty.  Or even lower
+if there is a lot of mapped memory around.  Whereas 2.4 will start background
+writeout at 30% or 40% dirty.  That's a fairly significant tuning change.
 
-Name: Include All Functions in kallsyms
-Author: Rusty Russell
-Status: Experimental
+The algorithm for utilisation of an idle disk should be, in
+balance_dirty_pages():
 
-D: Do not discard functions outside _stext and _etext, but include all
-D: 't' or 'T' functions.  This means __init functions are included (in my
-D: config this means an increas from 5691 to 6442 functions.
-D:
-D: TODO: Allow multiple kallsym tables, discard init one after init.
-D: TODO: Use huffman name compression and 16-bit offsets (see IDE
-D: oopser patch)
+	if (ps.nr_dirty + ps.nr_writeback < background_thresh) {
+		if (time_after(jiffies, bdi->last_read + HZ/100)) {
+			if (bdi->write_requests_in_flight < 2) {
+				struct writeback_control wbc = {
+					.bdi		= bdi,
+					.sync_mode	= WB_SYNC_NONE,
+					.nr_to_write	= write_chunk,
+				};
 
---- working-2.5.66-uml/scripts/kallsyms.c.~1~	2003-02-07 19:22:29.000000000 +1100
-+++ working-2.5.66-uml/scripts/kallsyms.c	2003-03-31 18:08:41.000000000 +1000
-@@ -14,14 +14,12 @@
- 
- struct sym_entry {
- 	unsigned long long addr;
--	char type;
- 	char *sym;
- };
- 
- 
- static struct sym_entry *table;
- static int size, cnt;
--static unsigned long long _stext, _etext;
- 
- static void
- usage(void)
-@@ -35,8 +33,9 @@
- {
- 	char str[500];
- 	int rc;
-+	char type;
- 
--	rc = fscanf(in, "%llx %c %499s\n", &s->addr, &s->type, str);
-+	rc = fscanf(in, "%llx %c %499s\n", &s->addr, &type, str);
- 	if (rc != 3) {
- 		if (rc != EOF) {
- 			/* skip line */
-@@ -44,19 +43,18 @@
- 		}
- 		return -1;
- 	}
-+
-+	/* Only interested in functions. */
-+	if (type != 't' && type != 'T')
-+		return -1;
-+
- 	s->sym = strdup(str);
- 	return 0;
- }
- 
--static int
-+static inline int
- symbol_valid(struct sym_entry *s)
- {
--	if (s->addr < _stext)
--		return 0;
--
--	if (s->addr > _etext)
--		return 0;
--
- 	if (strstr(s->sym, "_compiled."))
- 		return 0;
- 
-@@ -80,12 +78,6 @@
- 		if (read_symbol(in, &table[cnt]) == 0)
- 			cnt++;
- 	}
--	for (i = 0; i < cnt; i++) {
--		if (strcmp(table[i].sym, "_stext") == 0)
--			_stext = table[i].addr;
--		if (strcmp(table[i].sym, "_etext") == 0)
--			_etext = table[i].addr;
--	}
- }
- 
- static void
+				writeback_inodes(&wbc);
+			}
+		}
+		return;
+	}
+
+
+Or something like that.  It's pretty close.
+
+It could have pretty bad failure modes.  Short-lived files in /tmp now
+perform writeout, which needs to be waited on when those files are removed.
+

@@ -1,64 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292815AbSB0RSC>; Wed, 27 Feb 2002 12:18:02 -0500
+	id <S292818AbSB0RZ4>; Wed, 27 Feb 2002 12:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292304AbSB0RRw>; Wed, 27 Feb 2002 12:17:52 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:32913 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292815AbSB0RRl>; Wed, 27 Feb 2002 12:17:41 -0500
-Date: Wed, 27 Feb 2002 10:31:26 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S
-Message-ID: <20020227103126.A31578@vger.timpanogas.org>
-In-Reply-To: <20020227102545.B31524@vger.timpanogas.org>
+	id <S292826AbSB0RZl>; Wed, 27 Feb 2002 12:25:41 -0500
+Received: from brev.stud.ntnu.no ([129.241.56.70]:38099 "EHLO
+	brev.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S292840AbSB0RZX>; Wed, 27 Feb 2002 12:25:23 -0500
+Date: Wed, 27 Feb 2002 18:25:20 +0100
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BETA] First test release of Tigon3 driver
+Message-ID: <20020227182520.C22422@stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020227125611.A20415@stud.ntnu.no> <20020227.040653.58455636.davem@redhat.com> <20020227132454.B24996@stud.ntnu.no> <20020227.042845.54186884.davem@redhat.com> <20020227.042845.54186884.davem@redhat.com>; <20020227170321.B22422@stud.ntnu.no> <3C7D0510.2C300D12@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020227102545.B31524@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Wed, Feb 27, 2002 at 10:25:45AM -0700
+In-Reply-To: <3C7D0510.2C300D12@redhat.com>; from arjanv@redhat.com on Wed, Feb 27, 2002 at 04:10:56PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 10:25:45AM -0700, Jeff V. Merkey wrote:
-> 
+Arjan van de Ven:
+> google for nttcp
+> runs a nice tcp performance test...
+
+Ok, here's some numbers:
+
+UDP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r -u 129.241.57.161
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=3702
+nttcp-l: send window size = 65535
+nttcp-l: receive window size = 65535
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/udp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=1820, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-u@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: send window size = 65535
+nttcp-1: receive window size = 65535
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/udp
+
+nttcp-l: got EOF
+nttcp-l: received 7725056 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  7725056    0.07    0.07    878.2714    882.8635    1887  26816.93   26957.1
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+nttcp-l: try to get outstanding messages from 1 remote clients
+1  8388608    0.07    0.05    966.3321   1342.1773    2051  29533.31   41020.0
+nttcp-1: exiting
+
+TCP:
+kiwi:~/nttcp-1.47# ./nttcp -T -v -r 129.241.57.161   
+nttcp-l: nttcp, version 1.47
+nttcp-l: Pid=3705
+nttcp-l: accept from 129.241.57.161
+nttcp-l: send window size = 16384
+nttcp-l: receive window size = 87380
+nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/tcp
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: Pid=1821, InetPeer= 129.241.57.160
+nttcp-1: Optionline="nttcp@-t@-l4096@-n2048@-v@-f@%9b%8.2rt%8.2ct%12.4rbr%12.4cbr%8c%10.2rcr%10.1ccr@-N1"
+nttcp-1: from ?: "129.241.57.160" (=dataport: 5038)
+nttcp-1: send window size = 16384
+nttcp-1: receive window size = 87380
+nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/tcp
+
+nttcp-l: received 8388608 bytes
+     Bytes  Real s   CPU s Real-MBit/s  CPU-MBit/s   Calls  Real-C/s   CPU-C/s
+l  8388608    0.08    0.05    865.7309   1342.1773    2177  28084.16   43540.0
+nttcp-l: try to get outstanding messages from 1 remote clients
+nttcp-1: transmitted 8388608 bytes
+1  8388608    0.08    0.04    864.4930   1677.7216    2048  26382.23   51200.0
+nttcp-1: exiting
 
 
-More info.  I put in some trace code to determine how many io buffer
-heads were being fed to each adapter.  When the number of bh's reaches
-numbers above 4244+- buffer heads outstanding at one time, then I see the 
-cards lockup.  
+nttcp on the receiving host is running throuhg xinetd, I don't think that
+impacts the performance, tho.
 
-Jeff
-
-> 
-> 
-> Running 4 3Ware 7810 Adapters with the updated 48 bit LBA firmware
-> for the 78110, and attached to 8 Maxtor 160 GB hard disks on each card
-> (32 drives total) striping Raid 0m across 5.6 terabytes of disk, I am
-> seeing about 216-224 MB/S total throughput on writes to local 
-> arrays on 2.4.18.  
-> 
-> The system is also running an Intel Gigabit Ethernet Card at 
-> 116-122 MB/S with full network traffic and writing this traffic to 
-> the 3Ware arrays.  All this hardware is running on a Serverworks 
-> HE chipset with a SuperMicro motherboard and dual 933 Mhz PIII
-> processors.
-> 
-> After running for about 3 hours, the system will hard hang and die.  
-> Using debugging tools, I have isolated to the hang to the 3Ware 
-> adapters.  If I remove all but a single 3Ware adapter, the system will
-> run reliably for days at these data rates.  The moment I add more 
-> than one 3Ware 7810 adapter, the system will lock up.  Recent testing
-> reveals that the hang is in the 3Ware card itself (all the LEDs go 
-> on at once and stay on).  Attempts by the system to reset the adapter
-> fail until the system is power cycled.  
-> 
-> 3Ware dfriver version is .16 from the 2.4.18 tree.  Firmware is the 48 bit
-> LBA version.  
-> 
-> Please advise.  
-> 
-> Jeff
-
-
+-- 
+Thomas

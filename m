@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266169AbUHWQYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUHWQ2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266169AbUHWQYB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 12:24:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUHWQXh
+	id S265887AbUHWQ2z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 12:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHWQWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 12:23:37 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:46224 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S266166AbUHWQQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 12:16:41 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Alexander Nyberg <alexn@telia.com>
-Subject: Re: 2.6.8.1-mm IRQ routing problems
-Date: Mon, 23 Aug 2004 10:16:36 -0600
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <1093088008.777.13.camel@boxen> <20040822180911.22bbbc96.akpm@osdl.org> <1093264936.834.1.camel@boxen>
-In-Reply-To: <1093264936.834.1.camel@boxen>
+	Mon, 23 Aug 2004 12:22:55 -0400
+Received: from ppp1-adsl-170.the.forthnet.gr ([193.92.232.170]:24871 "EHLO
+	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
+	id S265887AbUHWQPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 12:15:32 -0400
+From: V13 <v13@priest.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: [PATCH] Reread partition table when a partition is added
+Date: Mon, 23 Aug 2004 19:14:56 +0300
+User-Agent: KMail/1.7
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+References: <200408230119.12878.v13@priest.com> <20040823095318.GB2682@pclin040.win.tue.nl>
+In-Reply-To: <20040823095318.GB2682@pclin040.win.tue.nl>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart2966970.rxEKs3jUU5";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408231016.36318.bjorn.helgaas@hp.com>
+Message-Id: <200408231915.01591.v13@priest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 August 2004 6:42 am, Alexander Nyberg wrote:
-> On Mon, 2004-08-23 at 03:09, Andrew Morton wrote:
-> > Alexander Nyberg <alexn@telia.com> wrote:
-> > >
-> > > Using 2.6.8.1-mm3 I ran into some problems on x86_64. This
-> > > only happens when fsck runs at bootup because in my case
-> > > of the max-mount-count being reached (I use ext3). Booting 
-> > > with pci=routeirq makes problem go away.
-> > > 
-> > > Do I win the weird problem prize?
-> > 
-> > I think this was fixed in -mm4.  Please retest.
-> 
-> Still happens in -mm4.
+--nextPart2966970.rxEKs3jUU5
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Can you double-check this, and perhaps post the dmesg for the 2.6.8.1-mm4
-attempt?  It still looks very much like the problem Randy fixed here:
+On Monday 23 August 2004 12:53, Andries Brouwer wrote:
+> On Mon, Aug 23, 2004 at 01:19:06AM +0300, Stefanos Harhalakis wrote:
+> >   This small patch rereads the partition table even if the block device
+> > is beeing used. It only rereads it when there are no changes at the
+> > current partitions and there are new partitions added at the end. Any
+> > existing partition change will/should make it fail.
+> >
+> >   Is it OK and/or useful ?
+>
+> What you want is possible already today.
+> For an example, see partx in util-linux.
 
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=109313574928853&w=2
+Oh! didn't new about that. Indeed it seems to be the right thing to do (tm)=
+=20
+regarding partition handling. Util-linux does not build partx by default so=
+ I=20
+didn't notice it at all.
 
-I just checked, and Randy's patch is indeed in 2.6.8.1-mm4.  If the oops
-still occurs there, it must be a different problem, and the dmesg might
-help diagnose it.
+Thanks!
 
-> > > Pid: 121, comm: modprobe Not tainted 2.6.8.1-mm3
-> > > RIP: 0010:[<ffffffff8035f090>] <ffffffff8035f090>{add_pin_to_irq+0}
-> > > RSP: 0018:000001003eff1d40  EFLAGS: 00010216
-> > > RAX: 0000000000002000 RBX: 0000000000000012 RCX: 0000000000008000
-> > > RDX: 0000000000000012 RSI: 0000000000000000 RDI: 0000000000000012
-> > > RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000000
-> > > R10: 0000000000000000 R11: ffffffff80232fa0 R12: 0000000000000001
-> > > R13: 0000000000000001 R14: 0000000000000012 R15: 0000000000508b70
-> > > FS:  0000002a95ac8380(0000) GS:ffffffff80351d40(0000) knlGS:0000000000000000
-> > > CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> > > CR2: 0000000000002000 CR3: 0000000000101000 CR4: 00000000000006e0
-> > > Process modprobe (pid: 121, threadinfo 000001003eff0000, task 000001003f44aa50)
-> > > Stack: ffffffff8011ac90 0000000000010000 0000000000000046 0000000000010000 
-> > >        010000000001a900 000001003ffda200 ffffffffa00115e8 0000000000000012 
-> > >        0000000000000001 0000000000000001 
-> > > Call Trace:<ffffffff8011ac90>{io_apic_set_pci_routing+160} <ffffffff80118b68>{acpi_register_gsi+104} 
-> > >        <ffffffff801e8688>{acpi_pci_irq_enable+413} <ffffffff801cbe26>{pci_enable_device_bars+38} 
-> > >        <ffffffff801cbe55>{pci_enable_device+21} <ffffffffa001408a>{:e1000:e1000_probe+42} 
-> > >        <ffffffff80185346>{d_rehash+118} <ffffffff801cca8f>{pci_device_probe+111} 
-> > >        <ffffffff8020afd7>{bus_match+71} <ffffffff8020b0fb>{driver_attach+75} 
-> > >        <ffffffff8020b490>{bus_add_driver+144} <ffffffff801cc8ce>{pci_register_driver+62} 
-> > >        <ffffffffa001403e>{:e1000:e1000_init_module+62} <ffffffff8014abb9>{sys_init_module+281} 
-> > >        <ffffffff8010e25e>{system_call+126} 
-> > > 
-> > > Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-> > > RIP <ffffffff8035f090>{add_pin_to_irq+0} RSP <000001003eff1d40>
-> > > CR2: 0000000000002000
+> Andries
+<<V13>>
+
+--nextPart2966970.rxEKs3jUU5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBKhgFVEjwdyuhmSoRAtTuAJ9jtm8udACnG0TsjbodWxjU9x89hACgkUHi
+0FP6g3nUS/72K7UcnxwJ2tI=
+=EoS+
+-----END PGP SIGNATURE-----
+
+--nextPart2966970.rxEKs3jUU5--

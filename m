@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbSLEQrQ>; Thu, 5 Dec 2002 11:47:16 -0500
+	id <S261900AbSLEQqR>; Thu, 5 Dec 2002 11:46:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264723AbSLEQrQ>; Thu, 5 Dec 2002 11:47:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56585 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261978AbSLEQrP>;
-	Thu, 5 Dec 2002 11:47:15 -0500
-Message-ID: <3DEF84B9.3000807@pobox.com>
-Date: Thu, 05 Dec 2002 11:54:17 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S261678AbSLEQqR>; Thu, 5 Dec 2002 11:46:17 -0500
+Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:48808 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261900AbSLEQqQ>; Thu, 5 Dec 2002 11:46:16 -0500
+Subject: Re: [warnings] [6/8] fix mismatched function type in
+	arch/i386/kernel/ioapic.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: wli@holomorphy.com
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        kernel-janitor-discuss@lists.sourceforge.net, rmk@arm.linux.org.uk,
-       miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
-       pavel@ucw.cz
-Subject: Re: [warnings] [5/8] fix printk() type warning in drivers/net/starfire.c
-References: <0212050252.Pd6dQaLdjd~bKaCc5bYa1cXb9dBdsb0a20143@holomorphy.com>
-In-Reply-To: <0212050252.Pd6dQaLdjd~bKaCc5bYa1cXb9dBdsb0a20143@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+       jgarzik@pobox.com, miura@da-cha.org, viro@math.psu.edu, pavel@ucw.cz
+In-Reply-To: <0212050252.jbobndDcEaLdlb5bCcEaYaZb~akaFc3d20143@holomorphy.com>
+References: <0212050252.jbobndDcEaLdlb5bCcEaYaZb~akaFc3d20143@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Dec 2002 17:28:05 +0000
+Message-Id: <1039109285.19681.8.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-your net drivers patches look ok to me.  I'll merge them in the next day 
-or so, if Linus does not.
+On Thu, 2002-12-05 at 10:52, wli@holomorphy.com wrote:
+> Change the function return type so as to match the required initcall
+> prototype. Alan, this is yours to ack.
+
+Already iny my tree - ack
 

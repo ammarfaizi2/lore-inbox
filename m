@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUB1UxI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 15:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbUB1UxI
+	id S261914AbUB1VIk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 16:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbUB1VIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 15:53:08 -0500
-Received: from nn1.excitenetwork.com ([207.159.120.55]:29728 "EHLO
-	xprdmailfe4.nwk.excite.com") by vger.kernel.org with ESMTP
-	id S261913AbUB1UxF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 15:53:05 -0500
-To: linux-kernel@vger.kernel.org
-Subject: One error . i really dont know what it is
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: ID = a3ab7e141cb368c1dde68d24797db165
-Reply-To: bastardu@excite.com
-From: "" <bastardu@excite.com>
-MIME-Version: 1.0
-X-Mailer: PHP
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20040228205305.3CF333D01@xprdmailfe4.nwk.excite.com>
-Date: Sat, 28 Feb 2004 15:53:05 -0500 (EST)
+	Sat, 28 Feb 2004 16:08:39 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:36312 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261914AbUB1VIj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 16:08:39 -0500
+Date: Sat, 28 Feb 2004 22:08:02 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: bastardu@excite.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: One error . i really dont know what it is
+Message-ID: <20040228220802.A28731@electric-eye.fr.zoreil.com>
+References: <20040228205305.3CF333D01@xprdmailfe4.nwk.excite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040228205305.3CF333D01@xprdmailfe4.nwk.excite.com>; from bastardu@excite.com on Sat, Feb 28, 2004 at 03:53:05PM -0500
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+bastardu@excite.com <bastardu@excite.com> :
+[...]
+> This is what i copyed from the screen i dont know if is going to help or
+> i did something wrong. the kernel is 2.6.0 and that is all i know about it.
 
-code 0f ba 6e 24 00 89 34 24 c7 44 24 04 00 00 00 00 e8 bb fa ff
-<0> Kernel panic: Fatal exception in interrupt
-In interrupt handler – not syncing
+1 - It misses a few lines. :o(
+2 - Upgrade to a more recent kernel
+3 - 'locate REPORTING-BUGS' on your computer or google on
+    "REPORTING-BUGS linux kernel"
 
-This is what i copyed from the screen i dont know if is going to help or i did something wrong. 
-the kernel is 2.6.0 and that is all i know about it.
+Thank you.
 
-
-
-_______________________________________________
-Join Excite! - http://www.excite.com
-The most personalized portal on the Web!
+--
+Ueimor

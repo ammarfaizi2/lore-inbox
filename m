@@ -1,80 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265019AbUEYSFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265021AbUEYSHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265019AbUEYSFq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 14:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbUEYSFp
+	id S265021AbUEYSHo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 14:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265005AbUEYSHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 14:05:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17860 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265018AbUEYSF2 (ORCPT
+	Tue, 25 May 2004 14:07:44 -0400
+Received: from mail.tmr.com ([216.238.38.203]:3848 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S265021AbUEYSF7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 14:05:28 -0400
-Date: Tue, 25 May 2004 11:05:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
-       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-In-Reply-To: <20040525105442.2ebdc355.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston> <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
- <1085371988.15281.38.camel@gaston> <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
- <1085373839.14969.42.camel@gaston> <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
- <20040525034326.GT29378@dualathlon.random> <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
- <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org> <20040525153501.GA19465@foobazco.org>
- <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org> <20040525102547.35207879.davem@redhat.com>
- <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org> <20040525105442.2ebdc355.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 25 May 2004 14:05:59 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: [2.6.7-rc1] BUG: ibmasm doesn't compile
+Date: Tue, 25 May 2004 14:08:35 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c901ne$4f9$1@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1085508142 4585 192.168.12.100 (25 May 2004 18:02:22 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Actually the ibmasm driver (driver->misc->ibmasm) hasn't compiled in 
+some versions. However, it will compile as a module, so at the expecse 
+of having all the stuff to do modules you can use it. Given the size of 
+the machines which use that hardware, that's hardly an issue ;-) But not 
+compiling built-in indicates a problem.
 
+Does anyone know if there will be a driver for the current hardware? The 
+one in 2.6.recent can see an RSA-I card, but doesn't seem to speak to 
+the RSA-II card, which is required for security.
 
-On Tue, 25 May 2004, David S. Miller wrote:
-> On Tue, 25 May 2004 10:49:21 -0700 (PDT)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > So what I can tell, the fix is really something like this (this does both 
-> > x86 and ppc64 just to show how two different approaches would handle it, 
-> > but I have literally _tested_ neither).
-> > 
-> > What do people think?
-> 
-> So on sparc32 sun4m we'd implement ptep_update_dirty_accessed() with
-> some kind of loop using the swap instruction?
-
-Yes. Except that if everybody else uses atomic updates (including the hw 
-walkers), _and_ "dirty" is true, then you can optimize that case to just 
-to an atomic write (since we don't care what the previous contents were, 
-and everybody else is guaranteed to honor the fact that we set all the 
-bits.
-
-(And an independent optimization is obviously to not do the store at all
-if it is already has the new value, although that _should_ be the rare 
-case, since if that was true I don't see why you got a page fault in the 
-first place).
-
-So _if_ such an atomic loop is fundamentally expensive for some reason, it 
-should be perfectly ok to do
-
-	if (dirty) {
-		one atomic write with all the bits set;
-	} else {
-		cmpxchg until successful;
-	}
-
-Oh - btw - my suggested patch was totally broken for ppc64, because that 
-"ptep_update_dirty_accessed()" thing obviously also needs to that damn 
-hpte_update() crud etc. 
-
-BenH - I'm leaving that ppc64 code to somebody knows what the hell he is
-doing. Ie you or Anton or something. Ok? I can act as a collector the
-different architecture things for that "ptep_update_dirty_accessed()"
-function.
-
-		Linus
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

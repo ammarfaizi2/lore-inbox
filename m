@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272989AbRINR5W>; Fri, 14 Sep 2001 13:57:22 -0400
+	id <S272991AbRINSRO>; Fri, 14 Sep 2001 14:17:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272988AbRINR5L>; Fri, 14 Sep 2001 13:57:11 -0400
-Received: from [207.167.207.80] ([207.167.207.80]:25061 "EHLO mx.atitech.ca")
-	by vger.kernel.org with ESMTP id <S272985AbRINR4z>;
-	Fri, 14 Sep 2001 13:56:55 -0400
-Message-ID: <761E23C7F09AD51188990008C74C26141221@fgl00exh01.atitech.com>
-From: Alexander Stohr <AlexanderS@ati.com>
+	id <S273369AbRINSRE>; Fri, 14 Sep 2001 14:17:04 -0400
+Received: from w2.euroseek.net ([212.209.54.39]:48270 "EHLO w2.euroseek.net")
+	by vger.kernel.org with ESMTP id <S272991AbRINSQq>;
+	Fri, 14 Sep 2001 14:16:46 -0400
+Date: Fri, 14 Sep 2001 20:17:05 +0200 (MET DST)
+From: jurij@euroseek.com
+Message-Id: <200109141817.UAA00924@w2.euroseek.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10-pre9 min/max raises "const" warnings
-Date: Fri, 14 Sep 2001 19:55:35 +0200
+Subject: VIA IDE and SMP do not work together (2.2.19   ide patch)
+X-Originating-IP: 130.237.25.178
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try this one:
+Hi!
 
-  int a, b, c, d;
-  d = min( a, min( b, c ));
+Recently we've been trying to install linux on a machine with 
+Tyan S2507 Tiger 230 2-processor motherboard with a VIA Apollo
+Pro 133A chipset (particularly, VIA IDE controller VT82C686B). 
+We have tried 2.2.19 kernel with ide patch dated 05042001 from 
+ 
+http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.2.19/
 
-and you will see a gnu c warning about multiple const qualifiers.
-(this might depend on the warning level you drive.)
+It turns out, that when both the support for VIA82CXXXX chipset
+and SMP are enabled, the machine refuses to boot, it hangs right
+after the lines
 
-fix it with this code:
+hda: IC35L060AVER07-0, ATA DISK drive
+hdb: SAMSUNG CD-ROM SC-152C, ATAPI CDROM drive
+hdc: IC35L060AVER07-0, ATA DISK drive
 
-  #define min(x,y) ({ \
+(I am not quite sure, which line is actually the last, but I could
+check that if needed)
 
-      const typeof(x) _x = (x);       \
+However, if one disables either SMP or VIA82CXXXX chipset support
+(keeping "Generic PCI IDE chipset support", "Generic PCI bus-master
+DMA support" and "Use DMA by default when available"), then the
+machine boots ok. In the latter case one still can achieve full
+disk performance by issuing "hdparm -c1d1X69 /dev/hda", after that
+"hdparm -t" reports around 32-33 MB/sec, however a message like
+"ide0: Speed warnings UDMA 3/4/5 is not functional." appears in the
+logs. Full dmesg from such a boot is available at
 
-      const typeof(y) _y = (y);       \
+http://www.theophys.kth.se/~jurijus/dmesg
 
-      (void) (&_x == &_y);            \
+Another strange feature is a message 
 
-      (_x < _y) ? (typeof(x)) _x : (typeof(y)) _y; })
+"WARNING: unexpected IO-APIC, please mail to linux-smp@vger.kernel.org"
 
-simply the last line has changed towards linux kernel patch-2.4.10-pre9 from
-ftp.
-the same change should apply for the max() macro.
+Thus, few questions arise:
 
-i am yet not sure if the used "? :" operator set does qualify as
-a left-value. maybe this could be another important reason why 
-return types here should stay identical to input types.
+1. Should one try some other version of kernel/patch/whatever to make
+VIA82CXXXX and SMP work together?
+2. Is it worth it? What's the advantage of using VIA82CXXXX chipset 
+support? It seems like we are getting maximum disk performance even
+without it, just with "Generic PCI IDE chipset support" provided by
+the patch.
+3. What's that "Speed warnings" message from hdparm?
+4. Should one worry about the "unexpected IO-APIC"? It does not seem to
+affect the SMP functionality, what does it actually mean?
 
-regards AlexS.
+Best regards and TIA,
 
-PS: i am not subscribed to this list.
+Jurij.
 
+P.S. Please CC the responses to me, because I'm not subscribed.
+
+______________________________________________________
+Get Your Free Email at http://mail.euroseek.com

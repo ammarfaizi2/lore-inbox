@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317506AbSHOVoa>; Thu, 15 Aug 2002 17:44:30 -0400
+	id <S317520AbSHOVrl>; Thu, 15 Aug 2002 17:47:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317520AbSHOVoa>; Thu, 15 Aug 2002 17:44:30 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:55283 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317506AbSHOVo3>; Thu, 15 Aug 2002 17:44:29 -0400
-Date: Thu, 15 Aug 2002 17:48:25 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] reduce stack usage of sanitize_e820_map
-Message-ID: <20020815174825.F29874@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317521AbSHOVrl>; Thu, 15 Aug 2002 17:47:41 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:63430 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S317520AbSHOVrk>; Thu, 15 Aug 2002 17:47:40 -0400
+Date: Thu, 15 Aug 2002 16:50:33 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Alan Cox <alan@redhat.com>
+cc: Adrian Bunk <bunk@fs.tum.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre2-ac3
+In-Reply-To: <200208152054.g7FKsif02357@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0208151649030.849-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 15 Aug 2002, Alan Cox wrote:
 
-Currently, sanitize_e820_map uses 0x738 bytes of stack.  The patch below 
-moves the arrays into __initdata, reducing stack usage to 0x34 bytes.
+> > > Linux 2.4.20-pre2-ac2
+> > >...
+> > > o	Tweak isdn to try and fix gcc 2.95 compile 	(Kai Germaschewski)
+> > >...
+> > 
+> > Compilation of 2.4.20-pre2-ac3 fails:
+> 
+> Ok fixed the ifdef way to handle the old cpp problems then
 
-		-ben
+Well, so I had to dowload and compile gcc 2.95 and reproduce the
+problem... The following patch fixes it:
 
-:r ~/patches/v2.5/v2.5.31-stack-e820.diff
-diff -urN foo-v2.5.31/arch/i386/kernel/setup.c bar-v2.5.31/arch/i386/kernel/setup.c
---- foo-v2.5.31/arch/i386/kernel/setup.c	Mon Jun 17 15:41:13 2002
-+++ bar-v2.5.31/arch/i386/kernel/setup.c	Thu Aug 15 17:47:41 2002
-@@ -275,16 +275,17 @@
-  * replaces the original e820 map with a new one, removing overlaps.
-  *
-  */
-+struct change_member {
-+	struct e820entry *pbios; /* pointer to original bios entry */
-+	unsigned long long addr; /* address for this change point */
-+};
-+struct change_member change_point_list[2*E820MAX] __initdata;
-+struct change_member *change_point[2*E820MAX] __initdata;
-+struct e820entry *overlap_list[E820MAX] __initdata;
-+struct e820entry new_bios[E820MAX] __initdata;
-+
- static int __init sanitize_e820_map(struct e820entry * biosmap, char * pnr_map)
- {
--	struct change_member {
--		struct e820entry *pbios; /* pointer to original bios entry */
--		unsigned long long addr; /* address for this change point */
--	};
--	struct change_member change_point_list[2*E820MAX];
--	struct change_member *change_point[2*E820MAX];
--	struct e820entry *overlap_list[E820MAX];
--	struct e820entry new_bios[E820MAX];
- 	struct change_member *change_tmp;
- 	unsigned long current_type, last_type;
- 	unsigned long long last_addr;
+diff -ur linux-2.4.20-pre2/drivers/isdn/hisax/hisax_debug.h linux-2.4.20-pre2.x/drivers/isdn/hisax/hisax_debug.h
+--- linux-2.4.20-pre2/drivers/isdn/hisax/hisax_debug.h	Thu Aug 15 16:48:25 2002
++++ linux-2.4.20-pre2.x/drivers/isdn/hisax/hisax_debug.h	Thu Aug 15 
+16:48:04 2002
+@@ -28,7 +28,7 @@
+ 
+ #define DBG(level, format, arg...) do { \
+ if (level & __debug_variable) \
+-printk(KERN_DEBUG "%s: " format "\n" , __FUNCTION__, ## arg); \
++printk(KERN_DEBUG "%s: " format "\n" , __FUNCTION__ , ## arg); \
+ } while (0)
+ 
+ #define DBG_PACKET(level,data,count) \
+
+

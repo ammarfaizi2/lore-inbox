@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278594AbRJ1Qoi>; Sun, 28 Oct 2001 11:44:38 -0500
+	id <S278582AbRJ1Q6N>; Sun, 28 Oct 2001 11:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278603AbRJ1Qo2>; Sun, 28 Oct 2001 11:44:28 -0500
-Received: from cc264272-a.gambrills1.md.home.com ([65.14.225.200]:18098 "HELO
-	orthanc.cipherdyne.com") by vger.kernel.org with SMTP
-	id <S278594AbRJ1QoN>; Sun, 28 Oct 2001 11:44:13 -0500
-Date: Sun, 28 Oct 2001 11:45:00 -0500
-From: Michael Rash <mbr@cipherdyne.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Darrell A Escola <darrell-sg@descola.net>, linux-kernel@vger.kernel.org,
-        netfilter@lists.samba.org
-Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
-Message-ID: <20011028114500.A27656@orthanc.cipherdyne.com>
-In-Reply-To: <1002646705.2177.9.camel@aurora> <Pine.LNX.4.33.0110091005540.209-100000@desktop> <20011010135503.4f5c06b9.rusty@rustcorp.com.au> <20011019061830.A8087@descola.net> <20011024142512.4f22ab17.rusty@rustcorp.com.au>
+	id <S278584AbRJ1Q6D>; Sun, 28 Oct 2001 11:58:03 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:50585
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S278582AbRJ1Q5q>; Sun, 28 Oct 2001 11:57:46 -0500
+Date: Sun, 28 Oct 2001 09:58:19 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alexander Schulz <alex@shark-linux.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] RTC policy questions
+Message-ID: <20011028095819.I15768@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <3BDC331E.50B8DB5E@shark-linux.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20011024142512.4f22ab17.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Oct 24, 2001 at 02:25:12PM +1000
+Content-Disposition: inline
+In-Reply-To: <3BDC331E.50B8DB5E@shark-linux.de>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 24, 2001, Rusty Russell wrote:
+On Sun, Oct 28, 2001 at 05:32:30PM +0100, Alexander Schulz wrote:
 
-> On Fri, 19 Oct 2001 06:18:30 -0700
-> Darrell A Escola <darrell-sg@descola.net> wrote:
-> 
-> > I have been running 2.4.10-ac11 for 7 days now with
-> > TCP_CONNTRACK_CLOSE_WAIT set to 120 seconds - this has stopped nearly
-> > all firewall activity on established connections.
-> 
-> OK... I think this needs changing then.  Can everyone please try the following
-> trivial patch and report any changes?
+> I am currently working on porting the linux kernel to
+> the Shark, a StrongARM based computer (DNARD from digital)
+> that contains many parts known from PCs.
+[snip]
+3) Re-write/replace drivers/char/rtc.c in 2.5.  This is something I've
+been thinking about for a bit because of the number of 'generic' RTC
+drivers, and how they only vary slighlty.  And then there are some
+hw-specific RTC drivers (efirtc.c) which could be modified to be a
+personality for the new generic rtc driver.  The m68k/APUS version right
+now uses a 'mach_hwclk' which handles the actual get/set bits.  I
+haven't worked out all of the details just yet, but I'm thinking some of
+the arch/hw-specific bits will be in a different file and on a per-arch
+baises on how mach_hwclk is actually done.  Eg PPC would still end up
+calling the right ppc_md version, x86 (and default) would yeild the
+current behavior.
 
-Running 2.4.4 with this patch for the past 4 days has reduced the number of 
-inappropriately dropped packets by ip_conntrack to nearly zero.  The number
-of legitimate packets that used to be dropped previous to running this patch
-would sometimes reach into the low hundreds over the same time frame.  (FWIW,
-I have a cable modem connection to the 'net, and so it gets a bit slow from 
-time to time since my bandwidth is shared...).
+And this all relates to the original post since we could make sure that
+other arches have access to any functions they might need internally.
 
---Mike
+Is there anyone else out there who's been thinking about reworking the
+RTC driver?
 
-
-> diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.4.12-official/net/ipv4/netfilter/ip_conntrack_proto_tcp.c working-2.4.12-tcptime/net/ipv4/netfilter/ip_conntrack_proto_tcp.c
-> --- linux-2.4.12-official/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Sun Apr 29 06:17:11 2001
-> +++ working-2.4.12-tcptime/net/ipv4/netfilter/ip_conntrack_proto_tcp.c	Wed Oct 24 14:23:26 2001
-> @@ -55,7 +55,7 @@
->      2 MINS,	/*	TCP_CONNTRACK_FIN_WAIT,	*/
->      2 MINS,	/*	TCP_CONNTRACK_TIME_WAIT,	*/
->      10 SECS,	/*	TCP_CONNTRACK_CLOSE,	*/
-> -    60 SECS,	/*	TCP_CONNTRACK_CLOSE_WAIT,	*/
-> +    2 MINS,	/*	TCP_CONNTRACK_CLOSE_WAIT,	*/
->      30 SECS,	/*	TCP_CONNTRACK_LAST_ACK,	*/
->      2 MINS,	/*	TCP_CONNTRACK_LISTEN,	*/
->  };
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-Michael B. Rash
-http://www.cipherdyne.com
-Key fingerprint = 8E40 0826 4BBD 9DAF 4563  695C AC21 A428 70C9 B006
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

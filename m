@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272129AbTGYOdc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272131AbTGYOdc
+	id S272130AbTGYOkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272132AbTGYOkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:33:32 -0400
-Received: from monarch.prairienet.org ([192.17.3.5]:32743 "HELO
-	mail.prairienet.org") by vger.kernel.org with SMTP id S272129AbTGYOd3
+	Fri, 25 Jul 2003 10:40:55 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:25732 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272130AbTGYOkx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:33:29 -0400
-Message-ID: <3F2142CE.4090608@prairienet.org>
-Date: Fri, 25 Jul 2003 10:46:38 -0400
-From: John Belmonte <jvb@prairienet.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Ben Collins" <bcollins@debian.org>, "Linus Torvalds" <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       "Michael Wawrzyniak" <gan@planetlaz.com>
-Subject: [PATCH] bad strlcpy conversion breaks toshiba_acpi
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Jul 2003 10:40:53 -0400
+Date: Fri, 25 Jul 2003 07:55:34 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Larry McVoy <lm@bitmover.com>,
+       Leandro Guimar?es Faria Corsetti Dutra 
+	<lgcdutra@terra.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Switching to the OSL License, in a dual way.
+Message-ID: <20030725145534.GB13840@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jesse Pollard <jesse@cats-chateau.net>,
+	Larry McVoy <lm@bitmover.com>,
+	Leandro Guimar?es Faria Corsetti Dutra <lgcdutra@terra.com.br>,
+	linux-kernel@vger.kernel.org
+References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <pan.2003.07.24.21.05.40.969654@terra.com.br> <20030724215744.GA7777@work.bitmover.com> <03072508173301.16381@tabby>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <03072508173301.16381@tabby>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please revert the following item from Ben Collins' "drivers/* strlcpy 
-conversions" patch dated 2003-May-26.
+On Fri, Jul 25, 2003 at 08:17:33AM -0500, Jesse Pollard wrote:
+> On Thursday 24 July 2003 16:57, Larry McVoy wrote:
+> [snip
+> >
+> > In other words, reverse engineering is ok if the product doesn't
+> > provide access to your data, we do that already, poof, no reverse
+> > engineering allowed.  So it's illegal to reverse engineer BK.
+> 
+> Nonesense. If the business no longer has the licence to use BK (for
+> whatever reason) then it no longer has access to the data. Now to
+> get access to the data you must reverse engineer BK...
 
-The strlcpy function requires a zero-terminated string, which is not a 
-valid assumption for the code in question.  I suggest that Ben review 
-all such modifications he made to the kernel for similar errors.  It's 
-quite annoying to have someone add bugs to your driver while you're not 
-looking.  Either notify the maintainer of your patch or don't make mistakes.
+Oh, I see, you violate our license, your license is revoked, and
+now you have the write to reverse engineer BK?  Show me the law which 
+says that is true.
 
-Another gripe I have is that bitkeeper user "bcollins" does not have a 
-valid email address.
+BK has a command that will take a BK tree and produce pure SCCS files,
+there is even a GNU SCCS clone so tell me again you need to go poking
+around in BK?
 
--John Belmonte
+This whole thread is nuts.  First of all, there is no need to do so other
+than to try and piss us off.  Second of all, it's completely unrealistic
+to think you can reverse engineer it and keep up with our advancements.
 
+> Even though the data is still ASCII, the interrelationships between the
+> parts of the data is still "data". And extracting/viewing that would
+> require the reverse enginnering.
 
-Item to be REVERTED:
-
---- 1.9/drivers/acpi/toshiba_acpi.c	Mon May 19 10:57:16 2003
-+++ 1.10/drivers/acpi/toshiba_acpi.c	Sun May 25 17:00:00 2003
-@@ -108,8 +108,7 @@
-  	int result;
-  	char* str2 = kmalloc(n + 1, GFP_KERNEL);
-  	if (str2 == 0) return 0;
--	strncpy(str2, str, n);
--	str2[n] = 0;
-+	strlcpy(str2, str, n);
-  	va_start(args, format);
-  	result = vsscanf(str2, format, args);
-  	va_end(args);
-
-
-References:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/0267.html
-http://linux-acpi.bkbits.net:8080/linux-acpi/diffs/drivers/acpi/toshiba_acpi.c@1.10?nav=index.html|src/|src/drivers|src/drivers/acpi|hist/drivers/acpi/toshiba_acpi.c
-
-
+And those relationships are available from the command line, using BK 
+commands.  In other words, you're just trying to yank my chain.  Give
+it a rest or join the rest of the wankers in my procmailrc.  Think about
+that, one day you may need something from me and I'll never see your 
+request, it will be languishing in /dev/null with the rest of wankers.
 -- 
-http:// if   l .o  /
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,91 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136993AbRATArY>; Fri, 19 Jan 2001 19:47:24 -0500
+	id <S136298AbRATB1q>; Fri, 19 Jan 2001 20:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137106AbRATArP>; Fri, 19 Jan 2001 19:47:15 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:22022 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S136993AbRATArF>;
-	Fri, 19 Jan 2001 19:47:05 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101200046.f0K0kgj201065@saturn.cs.uml.edu>
-Subject: Re: Coding Style
-To: mark4@purplecoder.com (Mark I Manning IV)
-Date: Fri, 19 Jan 2001 19:46:42 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A68809B.E12EF3D9@purplecoder.com> from "Mark I Manning IV" at Jan 19, 2001 12:59:55 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S136948AbRATB10>; Fri, 19 Jan 2001 20:27:26 -0500
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:31426 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S136298AbRATB1Q>; Fri, 19 Jan 2001 20:27:16 -0500
+Message-ID: <3A68E929.3E27D64E@home.com>
+Date: Fri, 19 Jan 2001 20:26:01 -0500
+From: John Cavan <johncavan@home.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Coding Style
+In-Reply-To: <3A68809B.E12EF3D9@purplecoder.com> <3A68D725.DA5409A9@linux.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tabs are 8 characters so NO tabs should be used in ANY source file what 
-...
-> Rationale:  Tabs force your code out to the right edge of the display
-> leaving no room for comments.  You don't need great big gaping spaces to
-> delineate the start and end of a block, TWO spaces do this just fine.
-
-Correct, because adjustable tab width is a myth. The comments don't
-line up when you muck with tab width.
-
->   int function(int x)   
->   {
->     body of function    // correctly braced and commented :)
->   }
-
-1. put your head in a PET scanner
-2. think about Pascal while the doctors observe
-3. get radiation treatment to kill neurons infected with Pascal
-
-> Linus states that the placement of the first brace at the end of the 
-> first line keeps your code less vertical and thus saves you some space
-> for comments.  This commenting style just plane sucks, it fragments your
-> source file creating all kinds of visual clutter making them impossible 
-> to read.  New lines ARE A RENEWABLE resource, if they aren't then you need 
-> to buy more ram for your 8086 (or is it a z80 ?).
-
-I get 30 to 60 lines on my monitors, but I want over 200 lines.
-Such a monitor would be at least $6000, assuming I could find one.
-(fuzzy text doesn't count)
-
-> One other thing.  Allot of people neglect to brace a statement if 
-> it has a single line body.  This is VERY bad, always brace your
-> statements....
+David Ford wrote:
+> > One other thing.  Allot of people neglect to brace a statement if
+> > it has a single line body.  This is VERY bad, always brace your
+> > statements....
+> >
+> >  if (x = 1)
+> >    if (y = 2)
+> >      if (z = 3)
+> >        for (i = 1; i < 10; i++)
+> >          if ....
+> >            switch (foo)
+> >              .....
+> >
+> > ...is really stupid.  DON'T DO IT!
 > 
->  if (x = 1)
->    if (y = 2)
->      if (z = 3)
->        for (i = 1; i < 10; i++)
->          if ....
->            switch (foo)
->              .....
-> 
-> ...is really stupid.  DON'T DO IT!
+> No, it's really stupid to surround it with braces that aren't needed. The
+> above is incredibly easy to read and incredibly easy to trace and debug.
 
-Agreed, but braces are not the fix.
+"really stupid" is probably too harsh in both cases...
 
-> I would however like to state that the C switch statement is evil and
-> to be avoided at all costs.  If you really need to use one for what 
-> ever reason then each case in that switch statement should be a
+Anyways, he has a point here: clarity. When doing late night debugging,
+your eyes are not going to be fooled as easily if the result of the
+condition is braced. Whether you consider it important is a personal
+taste, but it is also consistent with multi-line if statements, and when
+rapidly scanning code consistency is very useful.
 
-The gcc computed goto extension is better, because it doesn't suffer
-the overhead of that stupid built-in default. We need __raw_switch
-to overcome this. If I leave out the default and pass in bogus values
-then I should get a crash. (this is about performance)
+The rest of it, I generally agree with, except I like perl. :o) But,
+just like working for a company, you follow the standards for the system
+you're working on.
 
-> I have never really liked the C language, it seems to me that it has a
-> habit of making ANY idiot think he/she can be a coder.  C is an easy 
-> language to learn but to be a good C coder takes years of hard study
-> and a TRUE artistic flair for programming.  This means that 99% of all 
-> C code is JUNK code.  
+John
 
-I'm still looking for a readable description of C99 aliasing rules
-and proper usage of "restrict". It is no wonder that schools are
-switching to Java.
-
-
-
+P.S. What's wrong with perl? Very useful language IMHO.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

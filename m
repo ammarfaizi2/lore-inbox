@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275017AbRIYO1N>; Tue, 25 Sep 2001 10:27:13 -0400
+	id <S275020AbRIYOcm>; Tue, 25 Sep 2001 10:32:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275018AbRIYO1C>; Tue, 25 Sep 2001 10:27:02 -0400
-Received: from mail.altus.de ([195.124.129.2]:10237 "EHLO imail.altus.de")
-	by vger.kernel.org with ESMTP id <S275017AbRIYO0v>;
-	Tue, 25 Sep 2001 10:26:51 -0400
-Message-ID: <3BB09442.B3D099F7@altus.de>
-Date: Tue, 25 Sep 2001 16:27:14 +0200
-From: Juri Haberland <haberland@altus.de>
-Organization: Altus Analytics AG
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-xfs i686)
-X-Accept-Language: en
+	id <S275021AbRIYOcd>; Tue, 25 Sep 2001 10:32:33 -0400
+Received: from conx.aracnet.com ([216.99.200.135]:39360 "HELO cj90.in.cjcj.com")
+	by vger.kernel.org with SMTP id <S275020AbRIYOcY>;
+	Tue, 25 Sep 2001 10:32:24 -0400
+Message-ID: <3BB0958B.8030703@cjcj.com>
+Date: Tue, 25 Sep 2001 07:32:43 -0700
+From: cj <cj@cjcj.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Luis Fernando Pias de Castro <luis@cs.sunysb.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 power management lockup
-In-Reply-To: <20010924220433.29ED8763@localhost.blazeconnect.net>
-		<3BB03A41.4B64F831@altus.de> <87g09bicga.fsf@lfmobile.lmc.cs.sunysb.edu>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.10 etherboot initrd init= problem
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luis Fernando Pias de Castro wrote:
-> 
-> Probably not much interesting, but I have an i8000 working fine
-> (suspending when display is closed and all) with 2.4.8-ac11 (and
-> several others prior to this) as long as I never load the agpgart
-> module.
+Linux 2.4.10 etherbooting via mknbi-linux panics with:
+....
+Net4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+RAMDISK: Compressed image found at block 0
+Freeing initrd memory 3084k freed
+VFS:: Mounted root (ext2 filesystem).
+Mounted devfs on /dev
+Freeing unused kernel memory: 276k freed
+Kernel panic: No init found.  Try passing init= option to kernel.
 
-Yes, that's another issue where I hope to find the time to provide some
-useful debuging info to the relevant people...
+These kernel command lines work with 2.4.9 but not 2.4.10:
+auto rw root=/dev/ram ramdisk_size=8192
+auto rw root=/dev/ram init=/sbin/init ramdisk_size=8192
+auto rw root=/dev/ram init=/bin/ash ramdisk_size=8192
 
-Juri
 
--- 
-  If each of us have one object, and we exchange them,
-     then each of us still has one object.
-  If each of us have one idea,   and we exchange them,
-     then each of us now has two ideas.

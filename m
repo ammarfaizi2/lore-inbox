@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVBXQii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVBXQoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVBXQii (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 11:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVBXQih
+	id S261598AbVBXQoU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 11:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVBXQoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 11:38:37 -0500
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:56496 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S262420AbVBXQiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 11:38:17 -0500
-From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-To: Greg Freemyer <greg.freemyer@gmail.com>
-Subject: Re: [patch ide-dev 3/9] merge LBA28 and LBA48 Host Protected Area support code
-Date: Thu, 24 Feb 2005 17:30:55 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Tejun Heo <htejun@gmail.com>
-References: <Pine.GSO.4.58.0502241539100.13534@mion.elka.pw.edu.pl> <87f94c370502240810583e3a4a@mail.gmail.com>
-In-Reply-To: <87f94c370502240810583e3a4a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Feb 2005 11:44:20 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:3524 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S261598AbVBXQoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 11:44:16 -0500
+Date: Thu, 24 Feb 2005 17:44:15 +0100
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Rog?rio Brito <rbrito@ime.usp.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11rc4: irq 5, nobody cared
+Message-ID: <20050224164407.GC5138@vanheusden.com>
+References: <20050220164010.GA17806@ime.usp.br> <421CF352.2090200@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502241730.56015.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <421CF352.2090200@tmr.com>
+Organization: www.unixexpert.nl
+Read-Receipt-To: <folkert@vanheusden.com>
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+Reply-By: Fri Feb 25 17:07:35 CET 2005
+X-MSMail-Priority: High
+User-Agent: Mutt/1.5.6+20040907i
+From: folkert@vanheusden.com (Folkert van Heusden)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 February 2005 17:10, Greg Freemyer wrote:
-> I have generic question about HPA, not the patch.
-> 
-> I have noticed with a SUSE 2.6.8 vendor kernel, the HPA behavior is
-> not consistent.
+> >>My linux laptop says:
+> >>irq 5: nobody cared!
+> >(...)
+> >>Does anyone care? :-)
+> >Well, I'm getting similar stack traces with my system and those are sure
+> >scary, but it seems that my e-mails to the list are simply ignored,
+> >unfortunately.
+> I posted a similar thing, but the problem is not that you get the 
+> message. It means your hardware generated an unexpected interrupt. The 
+> kernel is reporting that fact as it should.
+> The problem I had (not resolved) is that after the message
+>   DISABLING IRQ NN
+> I continued to get interrupts! So the logic to disable the IRQ is not 
+> working correctly.
 
-Please retry with vanilla kernel.
+In my case, the interrupt should NOT be disabled as my WIFI-interface is
+behind it (via ndiswrappers).
 
-> ie. With exactly the same computer/controller, but with different disk
-> drives (models/manufacturers) the HPA behavior varies.
-> 
-> In all my testing the HPA was always properly detected, but sometimes
-> the max_address is set to the native_max_address during bootup and
-> sometimes it is not.
+> as you note, because the hardware is generating the condition, no one 
+> seems to care, even though there clearly is a problem in the disable 
+> logic. I found a way to fix my hardware thanks to some pointers I got, 
+> so I'm running, but I haven't heard that the base problem is fixed.
 
-Please be more precise.
+Aight.
 
-What do you mean by 'sometimes'?
 
-What are the exact differences between machines?
+Folkert van Heusden
 
-Are there any differences in software configurations
-(i.e. kernel parameters) between this machines?
-
-> Is there some reason for this behavior or is one case or the other a bug?
-
-Dunno, not enough info.
-
-> Does this patch somehow address the inconsistency?
-
-No.
-
-> Am I right in assuming this behavior also exists in the vanilla
-> kernels?.  ie. I doubt that vendors are patching this behavior.
-
-Recent vanilla kernels always set maximum available capacity.
+Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
++------------------------------------------------------------------+
+|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
+|a try, it brings monitoring logfiles to a different level! See    |
+|http://vanheusden.com/multitail/features.html for a feature list. |
++------------------------------------------= www.unixsoftware.nl =-+
+Phone: +31-6-41278122, PGP-key: 1F28D8AE

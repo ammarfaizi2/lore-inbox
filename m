@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129299AbRAaC7D>; Tue, 30 Jan 2001 21:59:03 -0500
+	id <S129393AbRAaDAd>; Tue, 30 Jan 2001 22:00:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129393AbRAaC6x>; Tue, 30 Jan 2001 21:58:53 -0500
-Received: from main.cyclades.com ([209.128.87.2]:44550 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S129299AbRAaC6p>;
-	Tue, 30 Jan 2001 21:58:45 -0500
-Date: Tue, 30 Jan 2001 18:58:43 -0800 (PST)
-From: Ivan Passos <lists@cyclades.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Kernel 2.2.18: Protocol 0008 is buggy
-Message-ID: <Pine.LNX.4.10.10101301831460.24409-100000@main.cyclades.com>
+	id <S129675AbRAaDAX>; Tue, 30 Jan 2001 22:00:23 -0500
+Received: from [64.160.188.242] ([64.160.188.242]:23557 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S129393AbRAaDAP>; Tue, 30 Jan 2001 22:00:15 -0500
+Date: Tue, 30 Jan 2001 18:59:38 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: linux-kernel@vger.kernel.org
+Subject: VIA VT82C686X
+Message-ID: <Pine.LNX.4.21.0101301847530.3488-100000@ns-01.hislinuxbox.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+Woohoo! Just found out that ATA66 on the VIA aint too great.
 
-I have a customer who's getting tons of these msgs in his LOGs:
+I set the kernel boot options idebus=66 ide0=ata66 enabling ATA66
+according to dmesg. The HDD is a WDC UDMA100 30.5GB drive. I retried the
 
-kernel: protocol 0008 is buggy, dev hdlc0
-kernel: protocol 0608 is buggy, dev hdlc0
+dd if=/dev/hda7 of=/tmp/testing2.img bs=1024k count=2000 
 
-The msg comes from net/core/dev.c, and this device is using the Cisco HDLC 
-protocol in drivers/net/hdlc.c . However, AFAIK, 0008 and 0608 represent
-IP and ARP (respectively), not Cisco HDLC. So ...
+on one VT, ran renice -20 on the dd process then ran procinfo on another
+and top on a 3rd. I logged into a fourth and ran sync;sync;sync;sync;sync.
 
-What I'd like to know is: what exactly causes this msg?? It seems that
-it's printed when someone sends a packet without properly setting 
-skb->nh.raw first, but who's supposed to set skb->nh.raw?? The HW driver??
-The data link (HDLC) driver?? The kernel protocol drivers? How should I go
-about fixing this problem, where should I start??
+After @30 seconds the machine became totally unresponsive, locking up all
+but the current VT.
 
-I'm at a total loss here. Any help would be really appreciated.
+I let it sit there and waited until the dd finished in case the renice was
+what killed the control. When dd finished I tried running any type of
+command but the tty was completely frozen. All other VTs were non
+responsive as well.
 
-Later,
-Ivan
+
+This is gonna be fun when I test the Promise controller. hehe
+
+
+David D.W. Downey
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

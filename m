@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267833AbTBROwE>; Tue, 18 Feb 2003 09:52:04 -0500
+	id <S267853AbTBRPDy>; Tue, 18 Feb 2003 10:03:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267834AbTBROwE>; Tue, 18 Feb 2003 09:52:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57860 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267833AbTBROwB>;
-	Tue, 18 Feb 2003 09:52:01 -0500
-Date: Tue, 18 Feb 2003 15:02:01 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: fcntl and flock wakeups not FIFO?
-Message-ID: <20030218150201.A22992@parcelfarce.linux.theplanet.co.uk>
-References: <20030218010054.J28902@parcelfarce.linux.theplanet.co.uk> <3E5246C3.4090008@nortelnetworks.com>
+	id <S267855AbTBRPDy>; Tue, 18 Feb 2003 10:03:54 -0500
+Received: from lgsx01.lg.ehu.es ([158.227.2.34]:46342 "EHLO lgsx01.lg.ehu.es")
+	by vger.kernel.org with ESMTP id <S267853AbTBRPDs>;
+	Tue, 18 Feb 2003 10:03:48 -0500
+Date: Mon, 17 Feb 2003 16:07:56 +0100
+From: Luis Miguel Garcia <ktech@wanadoo.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bug in 2.5.62 kernel
+Message-Id: <20030217160756.568fe6ec.ktech@wanadoo.es>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E5246C3.4090008@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Tue, Feb 18, 2003 at 09:44:19AM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 09:44:19AM -0500, Chris Friesen wrote:
->   > That certainly isn't what's supposed to happen.  They should get woken
->   > up in-order.  The code in 2.4.18 seems to be doing that.  Are you
->   > doing anything clever with scheduling?
+I'm doing 
 
-> static void locks_wake_up_blocks(struct file_lock *blocker,
-> unsigned int wait)
-> {
->      while (!list_empty(&blocker->fl_block)) {
->        struct file_lock *waiter = list_entry(blocker->fl_block.next,
->                                             struct file_lock, fl_block);
->        if (wait) {
->          locks_notify_blocked(waiter);
-> 
->          /* Let the blocked process remove waiter from the
->           * block list when it gets scheduled.
->           */
->          current->policy |= SCHED_YIELD;
->          schedule();
->        } else {
->          /* Remove waiter from the block list, because by the
->           * time it wakes up blocker won't exist any more.
->           */
->          locks_delete_block(waiter);
->          locks_notify_blocked(waiter);
->        }
->      }
-> }
-> 
-> It appears that if this function is called with a wait value of zero,
-> all of the waiting processes will be woken up before the scheduler gets
-> called.  This means that the scheduler ends up picking which process
-> runs rather than the locking code.
+make bzImage modules modules_install
 
-Right.  That's why I asked whether you were doing something clever with
-scheduling ;-)
+so i don't know in wich stage is the problem.
 
-> Looking through the file, there is no call chain on an unlock or on
-> closing the last locked fd which can give a nonzero wait value, meaning
-> that we will always end up with the scheduler making the decision in
-> these cases.
+How can i redirect the output to a file in order to see it?
 
-I'm impressed that you chased it through ;-)  This logic is mostly gone
-from 2.5 because I found it too hard to keep in my mind while working
-on this file.
+Thanks!
 
-> Am I missing something?
-
-Nope, it's true.  But the tasks get marked as runnable in the right order,
-so the scheduler should be doing the right thing -- if any tasks really
-have a better reason to run first (whether it's through RT scheduling
-or through standard Unix priority scheduling) then they'll get the lock
-first.  Otherwise, I'd've thought it should be first-runnable, first-run.
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+>Hi,
+>
+>During what part of the compilation process do you get the unresolved symbols?
+>what command did you use?>
+>
+>alvaro
+>
+>On Monday 17 Feb 2003 2:34 pm, Luis Miguel Garcia wrote:
+>> Hello:
+>>
+>>  I'm a newby so I need info in order to give you useful info about what's
+>> happening. I'm trying to compile 2.5.62 kernel and I get "Unresolved
+>> Symbols" but I don't know how to write this to a file in order to send it
+>> to you.
+>>
+>>  What can I do?
+>>
+>>  Thanks!

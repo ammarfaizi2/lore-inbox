@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132407AbRCaOyF>; Sat, 31 Mar 2001 09:54:05 -0500
+	id <S132399AbRCaNyY>; Sat, 31 Mar 2001 08:54:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132409AbRCaOx4>; Sat, 31 Mar 2001 09:53:56 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:34308 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S132407AbRCaOxs>;
-	Sat, 31 Mar 2001 09:53:48 -0500
-Date: Sat, 31 Mar 2001 16:52:46 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: James Lewis Nance <jlnance@intrex.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re:  Plans for 2.5
-Message-ID: <20010331165246.I4174@marowsky-bree.de>
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B271A4@hasmsx52.iil.intel.com> <Pine.LNX.4.30.0103301941431.29402-100000@twin.uoregon.edu> <20010331093633.D966@bessie.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <20010331093633.D966@bessie.dyndns.org>; from "James Lewis Nance" on 2001-03-31T09:36:33
-X-Ctuhulu: HASTUR
+	id <S132400AbRCaNyO>; Sat, 31 Mar 2001 08:54:14 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:38416 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S132399AbRCaNyA>; Sat, 31 Mar 2001 08:54:00 -0500
+Date: Sat, 31 Mar 2001 15:58:11 +0200 (MET DST)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: "Scott G. Miller" <scgmille@indiana.edu>
+cc: <linux-kernel@vger.kernel.org>, Andy Carlson <naclos@swbell.net>
+Subject: Re: pcnet32 (maybe more) hosed in 2.4.3 
+In-Reply-To: <20010330190137.A426@indiana.edu>
+Message-ID: <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-03-31T09:36:33,
-   James Lewis Nance <jlnance@intrex.net> said:
 
-> > > 4) What is the time frame of releasing 2.5.x-final (or 2.6.x) ?
-> > wow that's jumping the gun a bit.
-> But its easy to answer.  It will come out about 1 year after whatever
-> target date we initially set :-)
+On Fri, 30 Mar 2001, Scott G. Miller wrote:
 
-Sorry, s/we initially set/we assume at any given time/. (Recursion, noun: see
-recursion)
+> Linux 2.4.3, Debian Woody.  2.4.2 works without problems.  However, in
+> 2.4.3, pcnet32 loads, gives an error message:
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+2.4.3 (and -ac's) are also broken as guest in VMWware due to the pcnet32
+changes [doing 32 bit IO on 16 bit regs on the 79C970A controller].
+Reverting this part of patch-2.4.3 below made things work again.
 
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+	Szaka
+
+@@ -528,11 +535,13 @@
+     pcnet32_dwio_reset(ioaddr);
+     pcnet32_wio_reset(ioaddr);
+
+-    if (pcnet32_wio_read_csr (ioaddr, 0) == 4 && pcnet32_wio_check (ioaddr)) {
+-       a = &pcnet32_wio;
++    /* Important to do the check for dwio mode first. */
++    if (pcnet32_dwio_read_csr(ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
++        a = &pcnet32_dwio;
+     } else {
+-       if (pcnet32_dwio_read_csr (ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
+-           a = &pcnet32_dwio;
++        if (pcnet32_wio_read_csr(ioaddr, 0) == 4 &&
++           pcnet32_wio_check(ioaddr)) {
++           a = &pcnet32_wio;
+        } else
+            return -ENODEV;
+     }
+
 

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272161AbTHDTdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272167AbTHDTdJ
+	id S272128AbTHDTbP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272166AbTHDTbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:33:09 -0400
-Received: from almesberger.net ([63.105.73.239]:24581 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S272161AbTHDTdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:33:06 -0400
-Date: Mon, 4 Aug 2003 16:32:56 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 4 Aug 2003 15:31:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15234 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S272128AbTHDTbM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:31:12 -0400
+Date: Mon, 4 Aug 2003 12:26:32 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: ebiederm@xmission.com, jgarzik@pobox.com, niv@us.ibm.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
 Subject: Re: TOE brain dump
-Message-ID: <20030804163256.M5798@almesberger.net>
-References: <g83n.8vu.9@gated-at.bofh.it> <3F2CFC80.4090401@softhome.net> <20030803151000.D10280@almesberger.net> <3F2E1F7B.3020906@softhome.net>
+Message-Id: <20030804122632.65ba2122.davem@redhat.com>
+In-Reply-To: <20030804162433.L5798@almesberger.net>
+References: <20030802140444.E5798@almesberger.net>
+	<3F2BF5C7.90400@us.ibm.com>
+	<3F2C0C44.6020002@pobox.com>
+	<20030802184901.G5798@almesberger.net>
+	<m1fzkiwnru.fsf@frodo.biederman.org>
+	<20030804162433.L5798@almesberger.net>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F2E1F7B.3020906@softhome.net>; from filia@softhome.net on Mon, Aug 04, 2003 at 10:55:23AM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ihar 'Philips' Filipau wrote:
->    It makes not that much sense to run kernel (especially Linux) on CPU 
-> which is optimized for handling of network packets. (And has actually 
-> several co-processors to help in this task).
+On Mon, 4 Aug 2003 16:24:33 -0300
+Werner Almesberger <werner@almesberger.net> wrote:
 
-All you need to do is to make the CPU capable of running the kernel
-(well, some of it), but it doesn't have to be particularly good at
-running anything but the TCP/IP code. And you can still benefit
-from most of the features of NPUs, such as a specialized memory
-architecture, parallel data paths, accelerated operations, etc.
+> Eric W. Biederman wrote:
+> > There is one place in low latency communications that I can think
+> > of where TCP/IP is not the proper solution.  For low latency
+> > communication the checksum is at the wrong end of the packet.
+> 
+> That's one of the few things ATM's AAL5 got right.
 
-- Werner
+Let's recall how long the IFF_TRAILERS hack from BSD :-)
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+> But in the end, I think it doesn't really matter.
+
+I tend to agree on this one.
+
+And on the transmit side if you have more than 1 pending TX frame, you
+can always be prefetching the next one into the fifo so that by the
+time the medium is ready all the checksum bits have been done.
+
+In fact I'd be surprised if current generation 1g/10g cards are not
+doing something like this.

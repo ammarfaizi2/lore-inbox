@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135604AbRAWBOh>; Mon, 22 Jan 2001 20:14:37 -0500
+	id <S133036AbRAWBOH>; Mon, 22 Jan 2001 20:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135940AbRAWBOS>; Mon, 22 Jan 2001 20:14:18 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:50441 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S135604AbRAWBOO>;
-	Mon, 22 Jan 2001 20:14:14 -0500
-Date: Mon, 22 Jan 2001 17:14:24 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Jinnah Dylan Hosein <jdh@iostream.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: Odd Question: pc_keyb as a module?
-In-Reply-To: <Pine.LNX.4.10.10101221929330.23022-100000@hfuhruhurr.vindigo.com>
-Message-ID: <Pine.LNX.4.21.0101221711130.328-100000@euclid.oak.suse.com>
+	id <S135604AbRAWBN6>; Mon, 22 Jan 2001 20:13:58 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:31250 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S133036AbRAWBNr>; Mon, 22 Jan 2001 20:13:47 -0500
+Date: Mon, 22 Jan 2001 17:13:19 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.4.1-test10
+Message-ID: <Pine.LNX.4.10.10101221711560.1309-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I have a need to use pc_keyb as a module. I am using off the shelf ps/2
-> keyboard chipsets as chording keyboard controllers. This uses a modified
-> pc_keyb.c that see's multiple key presses and translates them into
-> scancodes that are then handled by the rest of the keyboard driver.
-> 
-> It would make life much better if I were able to have one pc_keyb.o module
-> that was the kernel original and another that has the chording code. That
-> way I could swap them, and I wouldn't need to rebuild and install an 
-> entirely kernel everytime I make a tweak to the chording code.
-> 
-> I'm not entirely sure home much trouble this would cause. But any help or
-> direction would be much appreciated.
+The ChangeLog may not be 100% complete. The physically big things are the
+PPC and ACPI updates, even if most people won't notice.
 
-Hi!
- 
-   Actually we have something like that in our developement tree. We have
-converted over the PS/2 chipset and their devices to the Input API. The
-drivers are completely modular. With a USB keybaord this would be really
-handy. If have more questions just ask. Take a look at
+		Linus
 
-http://linuxconsole.sourceforge.net
+----
 
+pre10:
+ - got a few too-new R128 #defines in the Radeon merge. Fix.
+ - tulip driver update from Jeff Garzik
+ - more cpq and DAC elevator fixes from Jens. Looks good.
+ - Petr Vandrovec: nicer ncpfs behaviour
+ - Andy Grover: APCI update
+ - Cort Dougan: PPC update
+ - David Miller: sparc updates
+ - David Miller: networking updates
+ - Neil Brown: RAID5 fixes
 
+pre9:
+ - cpq array driver elevator fixes 
+ - merge radeon driver from X CVS tree
+ - ispnp cleanups
+ - emu10k unlock on error fixes
+ - hpfs doesn't allow truncate to larger
 
+pre8:
+ - Don't drop a megabyte off the old-style memory size detection
+ - remember to UnlockPage() in ramfs_writepage()
+ - 3c59x driver update from Andrew Morton
+ - egcs-1.1.2 miscompiles depca: workaround by Andrew Morton
+ - dmfe.c module init fix: Andrew Morton
+ - dynamic XMM support. Andrea Arkangeli.
+ - ReiserFS merge
+ - USB hotplug updates/fixes
+ - boots on real i386 machines
+ - blk-14 from Jens Axboe
+ - fix DRM R128/AGP dependency
+ - fix n_tty "canon" mode SMP race
+ - ISDN fixes
+ - ppp UP deadlock attack fix
+ - FAT fat_cache SMP race fix
+ - VM balancing tuning
+ - Locked SHM segment deadlock fix
+ - fork() page table copy race fix
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

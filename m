@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265448AbSJXXgM>; Thu, 24 Oct 2002 19:36:12 -0400
+	id <S265692AbSJXXdl>; Thu, 24 Oct 2002 19:33:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265697AbSJXXgM>; Thu, 24 Oct 2002 19:36:12 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:27666 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S265448AbSJXXgL>; Thu, 24 Oct 2002 19:36:11 -0400
-Message-Id: <200210242342.g9ONgGT04819@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Steven Dake <sdake@mvista.com>
-cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap 
-In-Reply-To: Message from Steven Dake <sdake@mvista.com> 
-   of "Thu, 24 Oct 2002 13:45:48 PDT." <3DB85BFC.2080009@mvista.com> 
+	id <S265701AbSJXXdl>; Thu, 24 Oct 2002 19:33:41 -0400
+Received: from sccrmhc03.attbi.com ([204.127.202.63]:49884 "EHLO
+	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
+	id <S265692AbSJXXdk>; Thu, 24 Oct 2002 19:33:40 -0400
+Date: Thu, 24 Oct 2002 16:39:45 -0700
+From: "H. J. Lu" <hjl@lucon.org>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: PCI device order problem
+Message-ID: <20021024163945.A21961@lucon.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 24 Oct 2002 18:42:16 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The locking most definately needs to be added to the kernel.  I'm
-> surprised the original patch didn't contain any locking, but then
-> again, my first patch didn't  either:) 
+In arch/i386/kernel/pci-pc.c, there are
 
-When I first read the SCSI code many years ago, I found surprise wasn't 
-adequate and I was forced to resort to astonishment.  It's being cleaned up 
-slowly.
+/*
+ * Sort the device list according to PCI BIOS. Nasty hack, but since some
+ * fool forgot to define the `correct' device order in the PCI BIOS specs
+ * and we want to be (possibly bug-to-bug ;-]) compatible with older kernels 
+ * which used BIOS ordering, we are bound to do this... 
+ */
 
-Originally hot removal/insertion was the exception, so nobody tripped over the 
-locking issue.  Now it's fast becoming the rule.
+static void __devinit pcibios_sort(void)
 
-> This may be true, but most systems will only have at most 4-5 devices.
-> 
->  Theres only so much room on PCI for FC devices :) 
+The problem is on my MB:
 
-I have to think about other SCSI systems as well.  Some IBM beasties have > 
-256 PCI slots.  Infiniband is threatening direct bus-fibre attachment.
+00:00.0 Host bridge: Intel Corp. e7500 [Plumas] DRAM Controller (rev 03)
+00:00.1 Class ff00: Intel Corp. e7500 [Plumas] DRAM Controller Error Reporting ( rev 03)
+00:03.0 PCI bridge: Intel Corp. e7500 [Plumas] HI_C Virtual PCI Bridge (F0) (rev 03)
+00:03.1 Class ff00: Intel Corp. e7500 [Plumas] HI_C Virtual PCI Bridge (F1) (rev 03)
+00:1d.0 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801CA/CAM USB (Hub  (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 42)
+00:1f.0 ISA bridge: Intel Corp. 82801CA ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801CA IDE U100 (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801CA/CAM SMBus (rev 02)
+01:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+02:1c.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
+02:1d.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
+02:1e.0 PIC: Intel Corp. 82870P2 P64H2 I/OxAPIC (rev 03)
+02:1f.0 PCI bridge: Intel Corp. 82870P2 P64H2 Hub PCI Bridge (rev 03)
+03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
+03:07.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
+03:08.0 RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev 01)
 
-> In Advanced TCA (what spawned this work) a button is pressed to
-> indicate  hotswap removal which makes for easy detection of hotswap
-> events.  This is why there are  kernel interfaces for removal and
-> insertion (so a kernel driver can be written to detect  the button
-> press and remove the devices from the os data structures and then
-> light a blue  led indicating safe for removal). 
+Eth1 becomes:
+03:07.0 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
 
-OK, I understand what's going on now.  It's no different from those hotplug 
-PCI busses where you press the button and a second or so later the LED goes 
-out and you can remove the card.  10ms sounds rather a short maximum time for 
-a technician to wait for a light to go out....I suppose Telco technicians are 
-rather impatient.
+and eth0 becomes:
+03:07.1 Ethernet controller: Intel Corp. 82546EB Gigabit Ethernet Controller (rev 01)
 
-I really think you need to lengthen this interval.  The kernel is moving 
-towards this type of hotplug infrastructure which you can easily leverage (or 
-even help build), but it's definitely going to be mainly in user space.
-
-James
+Is that a good idea to have an option to sort the PCI device by PCI bus and
+slot numbers?
 
 
-
+H.J.

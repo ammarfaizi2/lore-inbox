@@ -1,70 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318168AbSIEVjy>; Thu, 5 Sep 2002 17:39:54 -0400
+	id <S318217AbSIEVwW>; Thu, 5 Sep 2002 17:52:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318191AbSIEVjy>; Thu, 5 Sep 2002 17:39:54 -0400
-Received: from tank.panorama.sth.ac.at ([193.170.53.11]:17328 "EHLO
-	tank.panorama.sth.ac.at") by vger.kernel.org with ESMTP
-	id <S318168AbSIEVjx>; Thu, 5 Sep 2002 17:39:53 -0400
-Date: Thu, 5 Sep 2002 23:44:28 +0200
-From: Peter Surda <shurdeek@panorama.sth.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Uptime timer-wrap
-Message-ID: <20020905214428.GC2853@noir.cb.ac.at>
-References: <20020905180253.GC2567@noir.cb.ac.at> <Pine.LNX.3.95.1020905160808.141A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iFRdW5/EC4oqxDHL"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020905160808.141A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux noir 2.4.9-31
-X-Editor: VIM - Vi IMproved 6.0 (2001 Sep 26, compiled Jan 28 2002 06:08:06)
+	id <S318191AbSIEVwL>; Thu, 5 Sep 2002 17:52:11 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:38409 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S318196AbSIEVvS>;
+	Thu, 5 Sep 2002 17:51:18 -0400
+Message-ID: <3D77C532.3050806@domdv.de>
+Date: Thu, 05 Sep 2002 22:57:22 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.20pre5 trivial compiler warning fix for irtty.c
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090103040802030002080109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090103040802030002080109
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---iFRdW5/EC4oqxDHL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+the attached patch fixes deprecated usage warnings for __FUNCTION__ in 
+irtty.c.
+-- 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 
-On Thu, Sep 05, 2002 at 04:16:52PM -0400, Richard B. Johnson wrote:
-> I tried to simulate your observation by making a driver that
-> set the 'jiffies' count upon an 'open'. The idea was to get
-> the jiffies count to something close to wrap so I didn't have to
-> wait a long time.
->=20
-> Anyway, I found that setting the jiffies count to more than a
-> few hundred counts into the future, causes the machine to halt
-> with no interrupts (no Capslock, no NumLock, no network ping, etc).
-I noticed I perhaps didn't describe the symptoms precisely. It didn't stop
-working permanently, the network was going up and down unpredictably, in
-intervals of about 5 to 20 minutes. Perhaps there was a pattern, but I hope
-you'll excuse me for mot measuring the exact times as the main point was to
-get it running, not to write a scientific report about it :-).
+--------------090103040802030002080109
+Content-Type: text/plain;
+ name="irtty.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="irtty.c.diff"
 
-If it wasn't fixed by a reboot I'd say it was an odd hardware problem.
+--- drivers/net/irda/irtty.c.orig	2002-09-05 22:49:01.000000000 +0200
++++ drivers/net/irda/irtty.c	2002-09-05 22:53:51.000000000 +0200
+@@ -121,9 +121,8 @@
+ 	
+ 	/* Unregister tty line-discipline */
+ 	if ((ret = tty_register_ldisc(N_IRDA, NULL))) {
+-		ERROR(__FUNCTION__ 
+-		      "(), can't unregister line discipline (err = %d)\n",
+-		      ret);
++		ERROR("%s(), can't unregister line discipline (err = %d)\n",
++		      __FUNCTION__,ret);
+ 	}
+ 
+ 	/*
+@@ -230,7 +229,7 @@
+ 	self->rx_buff.data = self->rx_buff.head;
+ 	
+ 	if (!(dev = dev_alloc("irda%d", &err))) {
+-		ERROR(__FUNCTION__ "(), dev_alloc() failed!\n");
++		ERROR("%s(), dev_alloc() failed!\n",__FUNCTION__);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -249,7 +248,7 @@
+ 	err = register_netdevice(dev);
+ 	rtnl_unlock();
+ 	if (err) {
+-		ERROR(__FUNCTION__ "(), register_netdev() failed!\n");
++		ERROR("%s(), register_netdev() failed!\n",__FUNCTION__);
+ 		return -1;
+ 	}
+ 
+@@ -455,8 +454,8 @@
+ 			irda_task_next_state(task, IRDA_TASK_CHILD_DONE);
+ 		break;
+ 	case IRDA_TASK_CHILD_WAIT:
+-		WARNING(__FUNCTION__ 
+-			"(), changing speed of dongle timed out!\n");
++		WARNING("%s(), changing speed of dongle timed out!\n",
++			__FUNCTION__);
+ 		ret = -1;		
+ 		break;
+ 	case IRDA_TASK_CHILD_DONE:
+@@ -467,7 +466,7 @@
+ 		self->task = NULL;
+ 		break;
+ 	default:
+-		ERROR(__FUNCTION__ "(), unknown state %d\n", task->state);
++		ERROR("%s(), unknown state %d\n", __FUNCTION__, task->state);
+ 		irda_task_next_state(task, IRDA_TASK_DONE);
+ 		self->task = NULL;
+ 		ret = -1;
 
-Bye,
+--------------090103040802030002080109--
 
-Peter Surda (Shurdeek) <shurdeek@panorama.sth.ac.at>, ICQ 10236103, +436505=
-122023
 
---
-                Where do you think you're going today?
-
---iFRdW5/EC4oqxDHL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9d9A8zogxsPZwLzcRAnbQAJ46kULHSOC8tdGfTYtxGmH+je2ouwCfVsRk
-VaLrrsqyrhobFZP/dJkK95M=
-=TpRX
------END PGP SIGNATURE-----
-
---iFRdW5/EC4oqxDHL--

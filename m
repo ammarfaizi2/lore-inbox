@@ -1,430 +1,282 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262951AbTCSJKT>; Wed, 19 Mar 2003 04:10:19 -0500
+	id <S262952AbTCSJSZ>; Wed, 19 Mar 2003 04:18:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262952AbTCSJKS>; Wed, 19 Mar 2003 04:10:18 -0500
-Received: from packet.digeo.com ([12.110.80.53]:52660 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262951AbTCSJKM>;
-	Wed, 19 Mar 2003 04:10:12 -0500
-Date: Wed, 19 Mar 2003 01:21:15 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: 2.5.65-mm2
-Message-Id: <20030319012115.466970fd.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Mar 2003 09:20:55.0300 (UTC) FILETIME=[D8193C40:01C2EDF8]
+	id <S262953AbTCSJSZ>; Wed, 19 Mar 2003 04:18:25 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3829 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S262952AbTCSJSV>;
+	Wed, 19 Mar 2003 04:18:21 -0500
+Message-ID: <3E78384A.6040406@mvista.com>
+Date: Wed, 19 Mar 2003 01:28:42 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+CC: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix nanosleep() granularity bumps
+References: <Pine.LNX.4.33.0303190832430.32325-100000@gans.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.33.0303190832430.32325-100000@gans.physik3.uni-rostock.de>
+Content-Type: multipart/mixed;
+ boundary="------------020000020701020809090405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.65/2.5.65-mm2/
-
-will appear sometime at:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.65/2.5.65-mm2/
-
-
-. Added all the 32-bit dev_t patches.
-
-. An update to the brlock-removal patches which might fix the reported
-  netfilter problems (would like confirmation of this please).
-
-
-
-Changes since 2.5.65-mm1:
-
-
-+linus.patch
-
- Latest from Linus
-
--noirqbalance-fix.patch
--ppc64-64-bit-exec-fix.patch
--remove-unused-congestion-stuff.patch
--smalldevfs.patch
--timer-cleanup.patch
--timer-readdition-fix.patch
--set_current_state-fs.patch
--set_current_state-mm.patch
--copy_thread-leak-fix.patch
--file_list_lock-contention-fix.patch
--tty_files-fixes.patch
--file_list_cleanup.patch
--file_list-remove-free_list.patch
--file-list-less-locking.patch
--vt_ioctl-stack-use.patch
--no-mmu-stubs.patch
--nommu-slab.patch
--nfs-memleak-fix.patch
--ufs-memleak-fix.patch
--posix-timers-update.patch
--oops-counters.patch
--io_apic-DO_ACTION-cleanup.patch
--oprofile-timer-fix.patch
--pgd_index-comments.patch
--proc-sysrq-trigger.patch
--CONFIG_NUMA-fixes.patch
--nfsd-symlink-failpath.patch
--get_disk-error-checking.patch
--nanosleep-accuracy-fix.patch
-
- Merged
-
-+as-predict-data-direction.patch
-
- Anticipatory scheduler work: starting to track per-process behaviour a
- little more.
-
--brlock-removal-1.patch
-+brlock-1b.patch
-
- Updated (might fix a netfilter problem)
-
-+nanosleep-accuracy-fix-2.patch
-
- Another go at fixing the nanosleep() inaccuracy.
-
-+linear-oops-fix-1.patch
-
- Fix oops in the MD linear driver
-
-+dev_t-1-kill-cdev.patch
-+dev_t-2-remove-MAX_CHRDEV.patch
-+dev_t-3-major_h-cleanup.patch
-+dev_t-32-bit.patch
-+dev_t-drm-warnings.patch
-+dev_t-remove-B_FREE.patch
-
- 32-bit dev_t work
-
-+cpufreq-xtime-locking.patch
-
- locking fix
-
-+cs46xx-fixes.patch
-
- Minor fixes
-
-+notsclock-option.patch
-
- Add "notsclock" boot option for misbehaving SpeedStep machines.
-
-+tty-put_user-checks.patch
-
- Fix some missing uaccess checks.
-
-+fail-setup_irq-for-unconfigured-IRQs.patch
-
- Stuff from Zwane.
-
-+raw-fix-address_space-rewriting.patch
-+raw-cleanups-and-fixlets.patch
-
- Fixes for the raw driver
-
-+oops-dump-preceding-code.patch
-
- Make the ia32 oops code dump instructions which preceded the failing EIP. 
- Keith has ksymoops support for this and it works nicely.  I'm not sure what
- his plans are for adding it to a released version.
-
-
-
-All 105 patches:
-
-linus.patch
-  Latest from Linus
-
-mm.patch
-  add -mmN to EXTRAVERSION
-
-kgdb.patch
-
-kgdb-cleanup.patch
-  make kgdb less invasive (when disabled)
-
-proc-sys-debug.patch
-  create /proc/sys/debug/0 ... 7
-
-config_spinline.patch
-  uninline spinlocks for profiling accuracy.
-
-ppc64-reloc_hide.patch
-
-ppc64-pci-patch.patch
-  Subject: pci patch
-
-ppc64-aio-32bit-emulation.patch
-  32/64bit emulation for aio
-
-ppc64-scruffiness.patch
-  Fix some PPC64 compile warnings
-
-sym-do-160.patch
-  make the SYM driver do 160 MB/sec
-
-config-PAGE_OFFSET.patch
-  Configurable kenrel/user memory split
-
-ptrace-flush.patch
-  cache flushing in the ptrace code
-
-buffer-debug.patch
-  buffer.c debugging
-
-warn-null-wakeup.patch
-
-ext3-truncate-ordered-pages.patch
-  ext3: explicitly free truncated pages
-
-reiserfs_file_write-5.patch
-
-tcp-wakeups.patch
-  Use fast wakeups in TCP/IPV4
-
-rcu-stats.patch
-  RCU statistics reporting
-
-ext3-journalled-data-assertion-fix.patch
-  Remove incorrect assertion from ext3
-
-nfs-speedup.patch
-
-nfs-oom-fix.patch
-  nfs oom fix
-
-sk-allocation.patch
-  Subject: Re: nfs oom
-
-nfs-more-oom-fix.patch
-
-rpciod-atomic-allocations.patch
-  Make rcpiod use atomic allocations
-
-linux-isp.patch
-
-isp-update-1.patch
-
-kblockd.patch
-  Create `kblockd' workqueue
-
-as-iosched.patch
-  anticipatory I/O scheduler
-
-as-debug-BUG-fix.patch
-
-as-eject-BUG-fix.patch
-  AS: don't go BUG during cdrom eject
-
-as-jumbo-fix.patch
-  AS: OSDL fixes
-
-as-request_fn-in-timer.patch
-  Remove the scheduled_work thing
-
-as-remove-request-fix.patch
-
-as-np-1.patch
-  as: cleanups & comments
-
-as-use-kblockd.patch
-
-as-cleanup-2.patch
-  AS: cleanup + comments
-
-as-as_remove_request-simplification.patch
-  as: as_remove_request simplification
-
-as-dont-go-BUG-again.patch
-
-as-handle-non-block-requests.patch
-  AS: handle non-block requests
-
-as-np-reads-1.patch
-  AS: read-vs-read fixes
-
-as-np-reads-2.patch
-  AS: more read-vs-read fixes
-
-as-predict-data-direction.patch
-  as: predict direction of next IO
-
-cfq-2.patch
-  CFQ scheduler, #2
-
-unplug-use-kblockd.patch
-  Use kblockd for running request queues
-
-remap-file-pages-2.5.63-a1.patch
-  Subject: [patch] remap-file-pages-2.5.63-A1
-
-hugh-remap-fix.patch
-  hugh's file-offset-in-pte fix
-
-fremap-limit-offsets.patch
-  fremap: limit remap_file_pages() file offsets
-
-fremap-all-mappings.patch
-  Make all executable mappings be nonlinear
-
-filemap_populate-speedup.patch
-  filemap_populate speedup
-
-file-offset-in-pte-x86_64.patch
-  x86_64: support for file offsets in pte's
-
-file-offset-in-pte-ppc64.patch
-
-objrmap-2.5.62-5.patch
-  object-based rmap
-
-objrmap-nonlinear-fixes.patch
-  objrmap fix for nonlinear
-
-sched-2.5.64-D3.patch
-  sched-2.5.64-D3, more interactivity changes
-
-scheduler-tunables.patch
-  scheduler tunables
-
-show_task-free-stack-fix.patch
-  show_task() fix and cleanup
-
-yellowfin-set_bit-fix.patch
-  yellowfin driver set_bit fix
-
-htree-nfs-fix.patch
-  Fix ext3 htree / NFS compatibility problems
-
-update_atime-ng.patch
-  inode a/c/mtime modification speedup
-
-one-sec-times.patch
-  Implement a/c/time speedup in ext2 & ext3
-
-task_prio-fix.patch
-  simple task_prio() fix
-
-slab_store_user-large-objects.patch
-  slab debug: perform redzoning against larger objects
-
-pcmcia-2.patch
-
-pcmcia-3b.patch
-
-pcmcia-3.patch
-
-pcmcia-4.patch
-
-pcmcia-5.patch
-
-pcmcia-6.patch
-
-pcmcia-7b.patch
-
-pcmcia-7.patch
-
-pcmcia-8.patch
-
-pcmcia-9.patch
-
-pcmcia-10.patch
-
-htree-nfs-fix-2.patch
-  htree nfs fix
-
-ext2-no-lock_super.patch
-  concurrent block allocation for ext2
-
-ext2-ialloc-no-lock_super.patch
-  concurrent inode allocation for ext2
-
-brlock-1b.patch
-  Re: 2.5.64-mm8 breaks MASQ
-
-brlock-removal-2.patch
-  brlock removal 2/5: remove brlock from snap and vlan
-
-brlock-removal-3.patch
-  brlock removal 3/5: remove brlock from bridge
-
-brlock-removal-4.patch
-  brlock removal 4/5: removal from ipv4/ipv6
-
-brlock-removal-5.patch
-  brlock removal 5/5: remove brlock code
-
-lseek-ext2_readdir.patch
-  remove lock_kernel() from readdir implementations.
-
-inode_setattr-lock_kernel-removal.patch
-  remove lock_kernel() from inode_setattr's vmtruncate() call
-
-ide_probe-init_irq-fix.patch
-  ide-probe init_irq cleanup
-
-raid1-fix.patch
-  MD RAID1 fix
-
-nmi-watchdog-fix.patch
-  NMI watchdog fix
-
-vm_enough_memory-speedup.patch
-  speed up vm_enough_memory()
-
-nanosleep-accuracy-fix-2.patch
-  fix nanosleep() granularity bumps
-
-linear-oops-fix-1.patch
-  md/linear oops fix
-
-dev_t-1-kill-cdev.patch
-  dev_t [1/3]: kill cdev
-
-dev_t-2-remove-MAX_CHRDEV.patch
-  dev_t [2/3] - remove MAX_CHRDEV
-
-dev_t-3-major_h-cleanup.patch
-  dev_t [3/3]: major.h cleanups
-
-dev_t-32-bit.patch
-  [for playing only] change type of dev_t
-
-dev_t-drm-warnings.patch
-  dev_t: fix drm printk warnings
-
-dev_t-remove-B_FREE.patch
-  dev_t: eliminate B_FREE
-
-smalldevfs.patch
-  smalldevfs
-
-cpufreq-xtime-locking.patch
-  add write_seqlock to cpufreq change notifier for TSC
-
-cs46xx-fixes.patch
-  cs46xx minor fixes
-
-notsclock-option.patch
-  boot time parameter to turn of TSC usage
-
-tty-put_user-checks.patch
-  Add missing put_user checks in n_tty
-
-fail-setup_irq-for-unconfigured-IRQs.patch
-  Fail setup_irq for unconfigured IRQs
-
-raw-fix-address_space-rewriting.patch
-  raw driver: rewrite i_mapping only on final close
-
-raw-cleanups-and-fixlets.patch
-  raw driver: cleanups and small fixes
-
-oops-dump-preceding-code.patch
-  i386 oops output: dump preceding code
-
-
+This is a multi-part message in MIME format.
+--------------020000020701020809090405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+The attached patch is for 2.5.65.  As of this moment, the bk patch has 
+not been posted to the snapshots directory.  I will wait for that to 
+update.
+
+For what its worth, can someone explain how the add_timer call from 
+run_timers was causing a problem.  The code looks right to me, unless 
+the caller is so nasty as to continue to do the same thing (which 
+would loop forever).  In this case, the simple fix is to bump the 
+base->timer_jiffies at the beginning of the loop rather than the end. 
+   This would cause the new timer to be put in the next jiffie instead 
+of the current one AND it is free!
+
+-g
+
+
+
+Tim Schmielau wrote:
+> 
+> On Tue, 18 Mar 2003, Andrew Morton wrote:
+> 
+> 
+>>george anzinger <george@mvista.com> wrote:
+>>
+>>>Here is a fix for the problem that eliminates the index from the
+>>>structure.
+> 
+> [...]
+> 
+>>Seems to be a nice change.  I think it would be better to get Tim's fix into
+>>Linus's tree and let your rationalisation bake for a while in -mm.
+> 
+> 
+> I'm all for this way. Push my quick'n ugly patch to mainline soon to get
+> thinks working again. Have at least one mainline release before changing
+> again to start off from something working. Then add George's patch when
+> it has matured.
+> 
+> 
+>>There is currently a mysterious timer lockup happening on power4 machines.
+>>I'd like to keep these changes well-separated in time so we can get an
+>>understanding of what code changes correlate with changed behaviour.
+> 
+> 
+> Can this problem be reproduced with INITIAL_JIFFIES=0? Just to make sure I
+> didn't break something more.
+> 
+> 
+> On Tue, 18 Mar 2003, George Anzinger wrote:
+> 
+> 
+>>Here is a fix for the problem that eliminates the index from the
+>>structure.  The index ALWAYS depends on the current value of
+>>base->timer_jiffies in a rather simple way which is I exploit.  Either
+>>patch works, but this seems much simpler...
+> 
+> [...]
+> 
+>>@@ -384,22 +382,26 @@
+>>  * This function cascades all vectors and executes all expired timer
+>>  * vectors.
+>>  */
+>>+#define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS)) &
+> 
+> TVN_MASK
+> 
+> No, with the current implementation we need
+>  #define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS) +1) &
+>  TVN_MASK
+> although I'd like to see that cleaned up.
+
+I tried with the +1 and boot hangs trying to set up networking.  I 
+think the difference is that the init code is trying to set things up 
+the way they would look AFTER cascade executes and this is doing it 
+BEFORE the cascade call.
+> 
+> 
+>>+
+>>static inline void __run_timers(tvec_base_t *base)
+>> {
+>>+	int index = base->timer_jiffies & TVR_MASK;
+>> 	spin_lock_irq(&base->lock);
+>>+	if(jiffies - base->timer_jiffies > 0)
+>> 	while ((long)(jiffies - base->timer_jiffies) >= 0) {
+>> 		struct list_head *head, *curr;
+>>
+> 
+> 
+> Are the doubled 'if' and 'while' really what you meant?
+
+Remove in the attached patch :)
+> 
+> 
+>>@@ -1181,12 +1182,7 @@
+>> 	for (j = 0; j < TVR_SIZE; j++)
+>> 		INIT_LIST_HEAD(base->tv1.vec + j);
+>>
+>>-	base->timer_jiffies = INITIAL_JIFFIES;
+>>-	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
+>>-	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
+>>-	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) &
+> 
+> TVN_MASK;
+> 
+>>-	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) &
+> 
+> TVN_MASK;
+> 
+>>-	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) &
+> 
+> TVN_MASK;
+> 
+>>+	base->timer_jiffies = jiffies -1;
+>> }
+>>
+>> static int __devinit timer_cpu_notify(struct notifier_block *self,
+> 
+> 
+> Why 'jiffies -1'? This will just be made up for in the first
+> timer interrupt, where timer_jiffies will get incremented twice.
+
+Again, I removed the -1 in the attached.
+> 
+> 
+> Did you bother to test the patch? It doesn't even boot for me, and I don't
+> see how it is supposed to.
+> I'll look into it more closely in the evening. Have to go to work now.
+
+The old one ran on 2.5.64 but not 2.5.65 ???  I found and fixed a bug 
+(index needs to be caculated INSIDE the while loop) that seems to have 
+been the cause.
+> 
+> Tim
+
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+--------------020000020701020809090405
+Content-Type: text/plain;
+ name="hrtimers-runtimer-2.5.65.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hrtimers-runtimer-2.5.65.patch"
+
+diff -urP -I '\$Id:.*Exp \$' -X /usr/src/patch.exclude linux-2.5.65-kb/kernel/timer.c linux/kernel/timer.c
+--- linux-2.5.65-kb/kernel/timer.c	2003-03-05 15:10:40.000000000 -0800
++++ linux/kernel/timer.c	2003-03-19 01:08:24.000000000 -0800
+@@ -44,12 +44,10 @@
+ #define TVR_MASK (TVR_SIZE - 1)
+ 
+ typedef struct tvec_s {
+-	int index;
+ 	struct list_head vec[TVN_SIZE];
+ } tvec_t;
+ 
+ typedef struct tvec_root_s {
+-	int index;
+ 	struct list_head vec[TVR_SIZE];
+ } tvec_root_t;
+ 
+@@ -117,7 +115,7 @@
+ 		 * Can happen if you add a timer with expires == jiffies,
+ 		 * or you set a timer to go off in the past
+ 		 */
+-		vec = base->tv1.vec + base->tv1.index;
++		vec = base->tv1.vec + (base->timer_jiffies & TVR_MASK);
+ 	} else if (idx <= 0xffffffffUL) {
+ 		int i = (expires >> (TVR_BITS + 3 * TVN_BITS)) & TVN_MASK;
+ 		vec = base->tv5.vec + i;
+@@ -351,12 +349,12 @@
+ #endif
+ 
+ 
+-static int cascade(tvec_base_t *base, tvec_t *tv)
++static int cascade(tvec_base_t *base, tvec_t *tv, int index)
+ {
+ 	/* cascade all the timers from tv up one level */
+ 	struct list_head *head, *curr, *next;
+ 
+-	head = tv->vec + tv->index;
++	head = tv->vec + index;
+ 	curr = head->next;
+ 	/*
+ 	 * We are removing _all_ timers from the list, so we don't  have to
+@@ -374,7 +372,7 @@
+ 	}
+ 	INIT_LIST_HEAD(head);
+ 
+-	return tv->index = (tv->index + 1) & TVN_MASK;
++	return index  & TVN_MASK;
+ }
+ 
+ /***
+@@ -384,22 +382,25 @@
+  * This function cascades all vectors and executes all expired timer
+  * vectors.
+  */
++#define INDEX(N) (base->timer_jiffies >> (TVR_BITS + N * TVN_BITS)) & TVN_MASK
++
+ static inline void __run_timers(tvec_base_t *base)
+ {
+ 	spin_lock_irq(&base->lock);
+ 	while ((long)(jiffies - base->timer_jiffies) >= 0) {
+ 		struct list_head *head, *curr;
++		int index = base->timer_jiffies & TVR_MASK;
+ 
+ 		/*
+ 		 * Cascade timers:
+ 		 */
+-		if (!base->tv1.index &&
+-			(cascade(base, &base->tv2) == 1) &&
+-				(cascade(base, &base->tv3) == 1) &&
+-					cascade(base, &base->tv4) == 1)
+-			cascade(base, &base->tv5);
++		if (!index &&
++			(cascade(base, &base->tv2, INDEX(0)) == 1) &&
++				(cascade(base, &base->tv3, INDEX(1)) == 1) &&
++					cascade(base, &base->tv4, INDEX(2)) == 1)
++			cascade(base, &base->tv5, INDEX(3));
+ repeat:
+-		head = base->tv1.vec + base->tv1.index;
++		head = base->tv1.vec + index;
+ 		curr = head->next;
+ 		if (curr != head) {
+ 			void (*fn)(unsigned long);
+@@ -424,7 +425,6 @@
+ 			goto repeat;
+ 		}
+ 		++base->timer_jiffies; 
+-		base->tv1.index = (base->tv1.index + 1) & TVR_MASK;
+ 	}
+ #if CONFIG_SMP
+ 	base->running_timer = NULL;
+@@ -1181,12 +1181,7 @@
+ 	for (j = 0; j < TVR_SIZE; j++)
+ 		INIT_LIST_HEAD(base->tv1.vec + j);
+ 
+-	base->timer_jiffies = INITIAL_JIFFIES;
+-	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
+-	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
+-	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) & TVN_MASK;
+-	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) & TVN_MASK;
+-	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) & TVN_MASK;
++	base->timer_jiffies = jiffies;
+ }
+ 	
+ static int __devinit timer_cpu_notify(struct notifier_block *self, 
+
+--------------020000020701020809090405--
 

@@ -1,124 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265317AbRGBPnT>; Mon, 2 Jul 2001 11:43:19 -0400
+	id <S265310AbRGBPrT>; Mon, 2 Jul 2001 11:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265310AbRGBPnJ>; Mon, 2 Jul 2001 11:43:09 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:46240 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S265317AbRGBPmy>; Mon, 2 Jul 2001 11:42:54 -0400
-Message-ID: <3B4096D9.36F40BF4@uow.edu.au>
-Date: Tue, 03 Jul 2001 01:44:25 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tobias Ringstrom <tori@unhappy.mine.nu>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: WOL with 3c59x and 2.4.6-pre6 breaks WOL
-In-Reply-To: <Pine.LNX.4.33.0106291257180.3935-200000@boris.prodako.se>
+	id <S265315AbRGBPrJ>; Mon, 2 Jul 2001 11:47:09 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:29144 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265310AbRGBPqy>; Mon, 2 Jul 2001 11:46:54 -0400
+Date: Mon, 2 Jul 2001 11:46:52 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix binfmt_elf.c
+Message-ID: <20010702114652.A11623@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Ringstrom wrote:
-> 
-> I just tried 2.4.6-pre6 this morning, and found out that when I enable
-> WOL (using enable_wol=1), my 3c905c-tx does not work at all any more.
-> It worked just fine with 2.4.5.  Without enable_wol=1, I have no problems.
-> 
-> It is my guess that this is very easy to reproduce, but if not, please ask
-> me for more details.  I'm attaching the dmesg output.  I'll be gone until
-> monday.
+Hi!
 
-Seems that the new PM code has broken the driver.  It
-wasn't doing the right thing in the first place.
+There is a bug in binfmt_elf.c if the dynamic linker has non-zero base vaddr
+(e.g. if it is prelinked). The issue is that in such case ld-linux.so.2 is
+loaded at ELF_ET_DYN_BASE + p_vaddr instead of ELF_ET_DYN_BASE, on some
+architectures into non-desirable places in virtual memory.
 
-Please use 2.4.6-pre8 plus this patch, let me know.
+Best explained on a ld-linux.so.2 prelink(1)ed to 0x40000000 on ia32:
 
---- linux-2.4.6-pre8/drivers/pci/pci.c	Sun Jul  1 16:11:25 2001
-+++ linux-akpm/drivers/pci/pci.c	Tue Jul  3 01:28:35 2001
-@@ -425,7 +425,7 @@ int pci_enable_wake(struct pci_dev *dev,
+$ LD_TRACE_LOADED_OBJECTS=1 ./ld-linux.so.2 ./libc.so.6
+        /lib/ld-linux.so.2 => ./ld-linux.so.2 (0x6aaaa000)
+
+ELF_ET_DYN_BASE is defined to 0x2aaaa000 in ia32 (see the patch, it was
+meant to be 0x80000000), so ld-linux.so.2 should have l_map_start 0x2aaaa000
+while as you see in reality it has 0x6aaaa000.
+If this prelinked VMA + ELF_ET_DYN_BASE fits into kernel reserved address
+space, ./ld-linux.so.2 running won't work at all.
+
+Also, many platforms such as i386 use
+#define ELF_ET_DYN_BASE (2 * TASK_SIZE / 3)
+which I guess is not what was originally intended (on i386 this is usually
+0x2aaaaaaa). As this value gets passed to elf_map which rounds it down to
+ELF page boundary anyway, I think (TASK_SIZE / 3 * 2) is far better.
+I've changed it on ia32 only, but if someone would test it on other
+platforms which set ELF_ET_DYN_BASE this way it would be probably good to
+change elsewhere as well.
+
+--- linux/fs/binfmt_elf.c.jj	Thu May 24 11:11:36 2001
++++ linux/fs/binfmt_elf.c	Thu May 24 11:32:26 2001
+@@ -396,7 +396,7 @@ out:
+ static int load_elf_binary(struct linux_binprm * bprm, struct pt_regs * regs)
+ {
+ 	struct file *interpreter = NULL; /* to shut gcc up */
+- 	unsigned long load_addr = 0, load_bias;
++ 	unsigned long load_addr = 0, load_bias = 0;
+ 	int load_addr_set = 0;
+ 	char * elf_interpreter = NULL;
+ 	unsigned int interpreter_type = INTERPRETER_NONE;
+@@ -595,12 +595,6 @@ static int load_elf_binary(struct linux_
+ 	setup_arg_pages(bprm); /* XXX: check error */
+ 	current->mm->start_stack = bprm->p;
  
- 	if (enable) value |= PCI_PM_CTRL_PME_STATUS;
- 	else value &= ~PCI_PM_CTRL_PME_STATUS;
+-	/* Try and get dynamic programs out of the way of the default mmap
+-	   base, as well as whatever program they might try to exec.  This
+-	   is because the brk will follow the loader, and is not movable.  */
 -
-+	value |= PCI_PM_CTRL_PME_ENABLE;
- 	pci_write_config_word(dev, pm + PCI_PM_CTRL, value);
- 	
- 	return 0;
---- linux-2.4.6-pre8/drivers/net/3c59x.c	Sun Jul  1 16:11:24 2001
-+++ linux-akpm/drivers/net/3c59x.c	Tue Jul  3 01:29:08 2001
-@@ -760,6 +760,7 @@ struct vortex_private {
- 	u16 io_size;						/* Size of PCI region (for release_region) */
- 	spinlock_t lock;					/* Serialise access to device & its vortex_private */
- 	spinlock_t mdio_lock;				/* Serialise access to mdio hardware */
-+	u32 power_state[16];
- };
- 
- /* The action to take with a media selection timer tick.
-@@ -1239,9 +1240,6 @@ static int __devinit vortex_probe1(struc
+-	load_bias = ELF_PAGESTART(elf_ex.e_type==ET_DYN ? ELF_ET_DYN_BASE : 0);
+-
+ 	/* Now we do a little grungy work by mmaping the ELF image into
+ 	   the correct location in memory.  At this point, we assume that
+ 	   the image should be loaded at fixed address, not at a variable
+@@ -624,6 +618,11 @@ static int load_elf_binary(struct linux_
+ 		vaddr = elf_ppnt->p_vaddr;
+ 		if (elf_ex.e_type == ET_EXEC || load_addr_set) {
+ 			elf_flags |= MAP_FIXED;
++		} else if (elf_ex.e_type == ET_DYN) {
++			/* Try and get dynamic programs out of the way of the default mmap
++			   base, as well as whatever program they might try to exec.  This
++		           is because the brk will follow the loader, and is not movable.  */
++			load_bias = ELF_PAGESTART(ELF_ET_DYN_BASE - vaddr);
  		}
- 	}
  
--	if (pdev && vp->enable_wol && (vp->capabilities & CapPwrMgmt))
--		acpi_set_WOL(dev);
--
- 	if (vp->capabilities & CapBusMaster) {
- 		vp->full_bus_master_tx = 1;
- 		printk(KERN_INFO"  Enabling bus-master transmits and %s receives.\n",
-@@ -1279,6 +1277,10 @@ static int __devinit vortex_probe1(struc
- 	dev->set_multicast_list = set_rx_mode;
- 	dev->tx_timeout = vortex_tx_timeout;
- 	dev->watchdog_timeo = (watchdog * HZ) / 1000;
-+	if (pdev && vp->enable_wol) {
-+		pci_save_state(vp->pdev, vp->power_state);
-+		acpi_set_WOL(dev);
-+	}
- 	retval = register_netdev(dev);
- 	if (retval == 0)
- 		return 0;
-@@ -1331,8 +1333,10 @@ vortex_up(struct net_device *dev)
- 	unsigned int config;
- 	int i;
+ 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt, elf_prot, elf_flags);
+--- linux/include/asm-i386/elf.h.jj	Mon Mar 26 18:48:10 2001
++++ linux/include/asm-i386/elf.h	Thu May 24 11:49:38 2001
+@@ -55,7 +55,7 @@ typedef struct user_fxsr_struct elf_fpxr
+    the loader.  We need to make sure that it is out of the way of the program
+    that it will "exec", and that there is sufficient room for the brk.  */
  
--	if (vp->pdev && vp->enable_wol)			/* AKPM: test not needed? */
-+	if (vp->pdev && vp->enable_wol) {
- 		pci_set_power_state(vp->pdev, 0);	/* Go active */
-+		pci_restore_state(vp->pdev, vp->power_state);
-+	}
+-#define ELF_ET_DYN_BASE         (2 * TASK_SIZE / 3)
++#define ELF_ET_DYN_BASE         (TASK_SIZE / 3 * 2)
  
- 	/* Before initializing select the active media port. */
- 	EL3WINDOW(3);
-@@ -1516,9 +1520,6 @@ vortex_open(struct net_device *dev)
- 	int i;
- 	int retval;
+ /* Wow, the "main" arch needs arch dependent functions too.. :) */
  
--	if (vp->pdev && vp->enable_wol)				/* AKPM: test not needed? */
--		pci_set_power_state(vp->pdev, 0);		/* Go active */
--
- 	/* Use the now-standard shared IRQ implementation. */
- 	if ((retval = request_irq(dev->irq, vp->full_bus_master_rx ?
- 				&boomerang_interrupt : &vortex_interrupt, SA_SHIRQ, dev->name, dev))) {
-@@ -2452,8 +2453,10 @@ vortex_down(struct net_device *dev)
- 	if (vp->full_bus_master_tx)
- 		outl(0, ioaddr + DownListPtr);
- 
--	if (vp->pdev && vp->enable_wol && (vp->capabilities & CapPwrMgmt))
-+	if (vp->pdev && vp->enable_wol) {
-+		pci_save_state(vp->pdev, vp->power_state);
- 		acpi_set_WOL(dev);
-+	}
- }
- 
- static int
-@@ -2808,8 +2811,10 @@ static void acpi_set_WOL(struct net_devi
- 	/* The RxFilter must accept the WOL frames. */
- 	outw(SetRxFilter|RxStation|RxMulticast|RxBroadcast, ioaddr + EL3_CMD);
- 	outw(RxEnable, ioaddr + EL3_CMD);
-+
- 	/* Change the power state to D3; RxEnable doesn't take effect. */
--	pci_set_power_state(vp->pdev, 0x8103);
-+	pci_enable_wake(vp->pdev, 0, 1);
-+	pci_set_power_state(vp->pdev, 3);
- }
+	Jakub

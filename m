@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265984AbUAEWdp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:33:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbUAEWcO
+	id S265958AbUAEW2l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265982AbUAEW0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:32:14 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4074 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265983AbUAEWad
+	Mon, 5 Jan 2004 17:26:38 -0500
+Received: from s383.jpl.nasa.gov ([137.79.94.127]:20618 "EHLO
+	s383.jpl.nasa.gov") by vger.kernel.org with ESMTP id S265979AbUAEW0T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:30:33 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Mikael Pettersson <mikpe@csd.uu.se>, wrlk@riede.org
-Subject: Re: The survival of ide-scsi in 2.6.x
-Date: Mon, 5 Jan 2004 23:33:26 +0100
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
-References: <200401052201.i05M1her002460@harpo.it.uu.se>
-In-Reply-To: <200401052201.i05M1her002460@harpo.it.uu.se>
+	Mon, 5 Jan 2004 17:26:19 -0500
+Message-ID: <3FF9E468.9090402@jpl.nasa.gov>
+Date: Mon, 05 Jan 2004 14:25:44 -0800
+From: Bryan Whitehead <driver@jpl.nasa.gov>
+Organization: Jet Propulsion Laboratory
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en-us, en, zh, zh-cn, zh-hk, zh-sg, zh-tw, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200401052333.26085.bzolnier@elka.pw.edu.pl>
+To: Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401040815.54655.kernel@kolivas.org> <20040103233518.GE3728@alpha.home.local> <200401041242.47410.kernel@kolivas.org> <slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>
+In-Reply-To: <slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 of January 2004 23:01, Mikael Pettersson wrote:
-> On Mon, 29 Dec 2003 08:07:28 -0500, Willem Riede wrote:
-> >> Based on my expirience with ide-tape, I would rather have it
-> >> killed instead. One neat trick to appease enemies of ide-scsi
-> >> might be to rename it into ide-scsi into ide-tape-bis.
-> >> Might even add DSC bit handling... But the ide-tape is too
-> >> ugly to live for sure.
-> >
-> >I would agree, but would that get any people in trouble? That is,
-> >are there any IDE tape drives currently supported by ide-tape,
-> >that are not compatble with ide-scsi plus st?
->
-> My Seagate STT8000A works better with ide-scsi+st than with ide-tape.
-> As long as a working ide-scsi is around, I couldn't care less about
-> the ide-tape abomination.
 
->From your previous mail:
-"I use ide-scsi + st for my Seagate ATAPI tape drive, so I welcome
-your initiative. ide-tape has had many reliability problems in the
-2.4 kernels, and the 2.5 bio changes left it broken from 2.5.12 or
-so to 2.6.0-test<late>. It may have been repaired lately, but I for
-one don't trust that code base any more."
+> [1] Others say that it only affects them first time through - after
+> something is cached, it goes back to normal speed. For me - it is slow
+> *all* the time. If I pipe it to cat or tail or something, it is a
+> *lot* quicker.
 
-So how do you know that ide-scsi+st is better? ;-)
+I get slow all the time at home with a single CPU system.
 
-Both ide-tape and ide-scsi are to stay in 2.6.x and die in 2.7.x.
+At work I have a Dual p4 1.7Ghz XEON... Only when I keep both CPU's busy 
+(example: make -j 4) does it happen on the dual machine. So basically if 
+my dual machine is busy (one CPU has to be pegged or both are over 50% 
+usage) I start getting very crappy xterm/gnome-terminal response.
 
---bart
+I've been running each xterm/gnome-terminal with screen and when it 
+starts grinding I detach/reattach.
+
+-- 
+Bryan Whitehead
+SysAdmin - JPL - Interferometry and Large Optical Systems
+Phone: 818 354 2903
+driver@jpl.nasa.gov
 

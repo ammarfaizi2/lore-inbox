@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265818AbUA1DRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 22:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265836AbUA1DRc
+	id S265826AbUA1DKI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 22:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265835AbUA1DKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 22:17:32 -0500
-Received: from mail.bluebottle.com ([69.20.6.25]:35052 "EHLO
-	www.bluebottle.com") by vger.kernel.org with ESMTP id S265818AbUA1DRa convert rfc822-to-8bit
+	Tue, 27 Jan 2004 22:10:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59326 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265826AbUA1DKC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 22:17:30 -0500
-Date: Wed, 28 Jan 2004 01:17:26 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: linux-kernel@vger.kernel.org
-Subject: devfs 199.17 not in 2.4 (was Re:2.4.22 devfs/zlib outstanding updates
- ...)
-Message-ID: <Pine.LNX.4.58.0401280110530.949@pervalidus.dyndns.org>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 27 Jan 2004 22:10:02 -0500
+Date: Wed, 28 Jan 2004 03:09:58 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@vger.kernel.org>
+Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
+Message-ID: <20040128030958.GH11844@parcelfarce.linux.theplanet.co.uk>
+References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Pötzl wrote on Sat, 12 Jul 2003 00:22:07 +0200
+On Wed, Jan 28, 2004 at 10:54:37AM +0900, Hironobu Ishii wrote:
+> This is a readX_check() prototype patch to evaluate
+> the performance disadvantage.
 
-> just wanted to remind/state that the final? v199.17 devfs
-> patch and the 1.1.4 zlib update are not in 2.4.22-pre5.
+I think you've just demonstrated why this type of interface is unacceptable:
 
-About the devfs patch.
+> + #ifdef CONFIG_PCI_RECOVERY
+> +   {
+> +    int read_fail;
+> +    read_fail = CHIPREG_READ32(&pa, &ioc->chip->ReplyFifo);
+> +    if (read_fail) {
+> +     printk("PCI PIO read error:%d\n", read_fail);
+> +     /* recovery code */
+> +    }
+> +    if (pa == 0xFFFFFFFF)
+> +     return IRQ_HANDLED;
+> +   }
+> + #else
+>     if ((pa = CHIPREG_READ32(&ioc->chip->ReplyFifo)) == 0xFFFFFFFF)
+>      return IRQ_HANDLED;
+> ! #endif
 
-Yes, I already reported it a long time ago -
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0306.2/1655.html
-and have no idea why it hasn't been merged in 2.4, after all
-it's supposed to fix some things and there have been no changes
-since then in the kernel.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103474534430016&w=2
-
-Can someone clarify this ? I've been applying this patch since
-its release and it didn't broke anything.
+We go from two easily understood lines to ten plus the recovery code.
+If indeed recovery is even possible.  An exception framework is clearly
+the way to do this.
 
 -- 
-http://www.pervalidus.net/contact.html
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

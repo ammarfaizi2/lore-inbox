@@ -1,92 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbULVAA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbULVAFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbULVAA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 19:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULUX7G
+	id S261912AbULVAFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 19:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbULVAFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 18:59:06 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:21648 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261907AbULUX60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 18:58:26 -0500
-Message-ID: <41C8B89E.7000806@yahoo.com.au>
-Date: Wed, 22 Dec 2004 10:58:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chris Ross <chris@tebibyte.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.9-ac16
-References: <200412211850_MC3-1-916E-59A6@compuserve.com>
-In-Reply-To: <200412211850_MC3-1-916E-59A6@compuserve.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 21 Dec 2004 19:05:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:22682 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261912AbULVAFY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 19:05:24 -0500
+Date: Tue, 21 Dec 2004 16:05:09 -0800
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, willy@debian.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] add legacy resources to sysfs
+Message-ID: <20041222000509.GA12595@kroah.com>
+References: <200412211247.44883.jbarnes@engr.sgi.com> <20041221214623.GB10362@kroah.com> <200412211405.09536.jbarnes@engr.sgi.com> <200412211542.47997.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412211542.47997.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any chance this can get into 2.6 before Linus fires off 2.6.10?
+On Tue, Dec 21, 2004 at 03:42:47PM -0800, Jesse Barnes wrote:
+> On Tuesday, December 21, 2004 2:05 pm, Jesse Barnes wrote:
+> > On Tuesday, December 21, 2004 1:46 pm, Greg KH wrote:
+> > > You are passing the wrong things around :)
+> > >
+> > > A struct pci_bus is a struct class_device, not a struct device.  I think
+> > > you need to rethink your goal of putting the files into the pci device
+> > > directory, or just put the files into the proper /sys/class/pci_bus/*
+> > > directory as your code assumes is happening.
+> >
+> > Something like this then?  I added bin file support to class.c and use that
+> > instead from probe.c.  I also fixed the container_of stuff in pci-sysfs.c.
+> 
+> Here it is w/o the ia64 stuff.  That way people can buy off on the API and not 
+> worry about the platform stuff.  I can send that to Tony separately if 
+> there's agreement on this part.  I'd like to create a symlink 
+> from /sys/class/pci_bus/<bus>/legacy_* to /sys/devices/pci<foo>/legacy_* too, 
+> how do I do that?
 
-Chuck Ebbert wrote:
-> Chuck Ebbert wrote:
-> 
-> 
->> I backported this patch to 2.6.9 but haven't tested it yet.  It requires the
->>'spurious oomkill' patch I posted earlier in this thread.  Early reports
->>are that it stops the freezes during heavy paging.
-> 
-> 
->  OK here's one that actually compiles.  (3AM was not a good time to be
-> making patches.)
-> 
-> # mm_swap_token_disable.patch
-> #       include/linux/swap.h -0 +1
-> #       mm/rmap.c -0 +3
-> #       mm/thrash.c -1 +4
-> #
-> #       NOTE: On 2.6.9 there is no sysctl to change
-> #             swap_token_default_timeout.
-> #
-> #       Based on a patch by Con Kolivas for 2.6.10
-> #       Backported to 2.6.9 by Chuck Ebbert <76306.1226@compuserve.com>
-> #
-> --- 2.6.9.1/include/linux/swap.h
-> +++ 2.6.9.2/include/linux/swap.h
-> @@ -230,6 +230,7 @@
->  
->  /* linux/mm/thrash.c */
->  extern struct mm_struct * swap_token_mm;
-> +extern unsigned long swap_token_default_timeout;
->  extern void grab_swap_token(void);
->  extern void __put_swap_token(struct mm_struct *);
->  
-> --- 2.6.9.1/mm/rmap.c
-> +++ 2.6.9.2/mm/rmap.c
-> @@ -394,6 +394,9 @@ int page_referenced(struct page *page, i
->  {
->         int referenced = 0;
->  
-> +       if (!swap_token_default_timeout)
-> +               ignore_token = 1;
-> +
->         if (page_test_and_clear_young(page))
->                 referenced++;
->  
-> --- 2.6.9.1/mm/thrash.c
-> +++ 2.6.9.2/mm/thrash.c
-> @@ -19,7 +19,11 @@ unsigned long swap_token_check;
->  struct mm_struct * swap_token_mm = &init_mm;
->  
->  #define SWAP_TOKEN_CHECK_INTERVAL (HZ * 2)
-> -#define SWAP_TOKEN_TIMEOUT (HZ * 300)
-> +#define SWAP_TOKEN_TIMEOUT     0
-> +/*
-> + * Currently disabled; Needs further code to work at HZ * 300.
-> + */
-> +unsigned long swap_token_default_timeout = SWAP_TOKEN_TIMEOUT;
->  
->  /*
->   * Take the token away if the process had no page faults
-> _
+You can make a symlink to a kobject, not a attribute.  We already have a
+symlink in that directory to the device, so do you really need another
+one?
+
+>  drivers/base/class.c    |   16 ++++++++++
+
+Hm, how about splitting this further, one for the driver core stuff (you
+forgot the device.h change here too...) and the other for the PCI stuff?
+
+thanks,
+
+greg k-h

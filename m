@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUEJU6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUEJVBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUEJU6w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 16:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUEJU6w
+	id S261611AbUEJVBz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 17:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbUEJVBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 16:58:52 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:57802 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261605AbUEJU6u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 16:58:50 -0400
-Subject: Re: [PATCH] hci-usb bugfix
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Sebastian Schmidt <yath@yath.eu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200405102238.11876.oliver@neukum.org>
-References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org>
-	 <200405102115.26504.oliver@neukum.org> <1084217971.9639.55.camel@pegasus>
-	 <200405102238.11876.oliver@neukum.org>
-Content-Type: text/plain
-Message-Id: <1084222715.9639.105.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 10 May 2004 22:58:35 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 10 May 2004 17:01:55 -0400
+Received: from imf24aec.mail.bellsouth.net ([205.152.59.72]:19698 "EHLO
+	imf24aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261611AbUEJVBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 17:01:52 -0400
+Date: Mon, 10 May 2004 16:59:54 -0400 (EDT)
+From: Richard A Nelson <cowboy@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.6-mm1 Oops with dummy network device (sysfs related?)
+Message-ID: <Pine.LNX.4.58.0405101654130.5731@erartnqr.onqynaqf.bet>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Oliver,
+: divert: allocating divert_blk for dummy0
+: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+:  printing eip:
+: c016dcad
+: *pde = 00000000
+:        ___      ______
+:       0--,|    /OOOOOO\
+:      {_o  /  /OO plop OO\
+:        \__\_/OO oh dear OOO\s
+:           \OOOOOOOOOOOOOOOO/
+:            __XXX__   __XXX__
+: Oops: 0000 [#1]
+: PREEMPT
+: CPU:    0
+: EIP:    0060:[d_move+109/576]    Not tainted VLI
+: EFLAGS: 00210246   (2.6.6-mm1)
+: EIP is at d_move+0x6d/0x240
+: eax: 00000000   ebx: c25549a4   ecx: c2554a0c   edx: 00000000
+: esi: c313d908   edi: c155f928   ebp: c496aebc   esp: c496aea8
+: ds: 007b   es: 007b   ss: 0068
+: Process ip (pid: 5604, threadinfo=c496a000 task=c7cc54c0)
+: Stack: 00000006 c0149c27 c480cca0 c313d908 c155f928 c496aedc c018e251 00200286
+:        c496af44 c480ce50 c480ce50 c480cca0 c50d5113 c496aeec c01d18b1 c480ce48
+:        c480cca0 c496aefc c0231ca8 c480cca0 c480cdcc c496af24 c028f56b c496af24
+: Call Trace:
+:  [show_stack+122/144] show_stack+0x7a/0x90
+:  [show_registers+324/432] show_registers+0x144/0x1b0
+:  [die+153/272] die+0x99/0x110
+:  [do_page_fault+485/1327] do_page_fault+0x1e5/0x52f
+:  [error_code+45/56] error_code+0x2d/0x38
+:  [sysfs_rename_dir+193/224] sysfs_rename_dir+0xc1/0xe0
+:  [kobject_rename+33/64] kobject_rename+0x21/0x40
+:  [class_device_rename+56/80] class_device_rename+0x38/0x50
+:  [dev_change_name+315/448] dev_change_name+0x13b/0x1c0
+:  [dev_ioctl+339/704] dev_ioctl+0x153/0x2c0
+:  [inet_ioctl+154/176] inet_ioctl+0x9a/0xb0
+:  [sock_ioctl+239/656] sock_ioctl+0xef/0x290
+:  [sys_ioctl+261/608] sys_ioctl+0x105/0x260
+:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
+:
+: Code: 00 8b 46 10 39 43 10 74 37 8b 43 68 8d 4b 68 8b 51 04 85 c0 89 02 74 03 89 50 04 c7 41 04 00 02 20 00 8b
+46 10 89 43 10 8b 56 10 <8b> 02 89 51 04 89 43 68 85 c0 74 03 89 48 04 89 0a 83 63 04 ef
+:  <6>note: ip[5604] exited with preempt_count 4
+: bad: scheduling while atomic!
+:  [dump_stack+23/32] dump_stack+0x17/0x20
+:  [schedule+1190/1200] schedule+0x4a6/0x4b0
+:  [shmem_file_write+523/624] shmem_file_write+0x20b/0x270
+:  [do_acct_process+780/816] do_acct_process+0x30c/0x330
+:  [acct_process+66/138] acct_process+0x42/0x8a
+:  [do_exit+128/1008] do_exit+0x80/0x3f0
+:  [die+260/272] die+0x104/0x110
+:  [do_page_fault+485/1327] do_page_fault+0x1e5/0x52f
+:  [error_code+45/56] error_code+0x2d/0x38
+:  [sysfs_rename_dir+193/224] sysfs_rename_dir+0xc1/0xe0
+:  [kobject_rename+33/64] kobject_rename+0x21/0x40
+:  [class_device_rename+56/80] class_device_rename+0x38/0x50
+:  [dev_change_name+315/448] dev_change_name+0x13b/0x1c0
+:  [dev_ioctl+339/704] dev_ioctl+0x153/0x2c0
+:  [inet_ioctl+154/176] inet_ioctl+0x9a/0xb0
+:  [sock_ioctl+239/656] sock_ioctl+0xef/0x290
+:  [sys_ioctl+261/608] sys_ioctl+0x105/0x260
+:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
+:
 
-> > which results in the same as if we set NULL for the private pointer when
-> > we claim the second interface. If this really happens then we have more
-> > problems in the driver itself, because this case won't be handled in
-> > either way. However I don't think that this will happen, because for
-> 
-> You can trigger it in software through usbfs.
-
-I've never done this before. Can you show me how?
-
-> > Bluetooth devices interface 0 and 1 can be seen as a unit. The only
-> > reason that this was split over two interfaces, was that you don't have
-> > to stop the bulk transfers when you change the altsetting on the second
-> > interface.
-> 
-> Yes, but you should really stop using the second interface _before_
-> returning returning from disconnect() for _that_ interface. You will
-> operate correctly if the primary interface is disconnected first,
-> but you cannot depend on that. If the secondary interface is
-> disconnected first, you have a window where you illegally use an
-> interface you no longer own.
-
-You are absolutely right and this needs to be fixed, but this problem is
-a different one than that my patch fixes. However this problem is now on
-my todo list. Thanks for making me aware of.
-
-Regards
-
-Marcel
-
-
+-- 
+Rick Nelson
+<Crow_> hmm, is there a --now-dammit option for exim?

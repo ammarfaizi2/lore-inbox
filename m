@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261387AbSKBUaq>; Sat, 2 Nov 2002 15:30:46 -0500
+	id <S261459AbSKBUid>; Sat, 2 Nov 2002 15:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbSKBUal>; Sat, 2 Nov 2002 15:30:41 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:6920 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261387AbSKBUah>; Sat, 2 Nov 2002 15:30:37 -0500
-Date: Sat, 2 Nov 2002 21:36:29 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45 build failures
-In-Reply-To: <20021102151121.GA731@gallifrey>
-Message-ID: <Pine.LNX.4.44.0211022135180.13258-100000@serv>
-References: <20021102151121.GA731@gallifrey>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261463AbSKBUid>; Sat, 2 Nov 2002 15:38:33 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:45956 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S261459AbSKBUi2>;
+	Sat, 2 Nov 2002 15:38:28 -0500
+Date: Sat, 2 Nov 2002 12:44:57 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: LA Walsh <law@tlinx.org>
+Cc: "'Alexander Viro'" <viro@math.psu.edu>, "'Dax Kelson'" <dax@gurulabs.com>,
+       "'Rik van Riel'" <riel@conectiva.com.br>,
+       "'Linus Torvalds'" <torvalds@transmeta.com>,
+       "'Rusty Russell'" <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: What's left over.
+Message-ID: <20021102204457.GA6625@tapu.f00f.org>
+References: <Pine.GSO.4.21.0210310241230.13031-100000@weyl.math.psu.edu> <000001c28296$35f8d380$1403a8c0@sc.tlinx.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000001c28296$35f8d380$1403a8c0@sc.tlinx.org>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Nov 02, 2002 at 09:35:17AM -0800, LA Walsh wrote:
 
-On Sat, 2 Nov 2002, Dr. David Alan Gilbert wrote:
+> Then why do we need 'non-repudiation' w/r/t certificates?
 
-> I like qconf a lot more than the old tk based xconfig - but I do have a
-> few niggles:
->   a) The window starts very small
+we dont
 
-I'll see what I can do.
 
-> 	b) In split window mode, the arrows in the right hand window don't
-> 	seem to always work right.  For example in Bus options->support for
-> 	hot pluggable.  When I click on the 'PCMCIA/CardBus support' arrow
-> 	the right hand window contents are replaced with just the
-> 	PCMCIA/Cardbus enabling rather than expanding in the existing list. In
-> 	addition there appears to be no way to get the standard Bus Option
-> 	right screen back without selecting something else in the left hand
-> 	pane and then selecting Bus options again.
-
-Try the back button or <Esc>.
-
-bye, Roman
-
+  --cw

@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267726AbUH1AA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUH1AFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267726AbUH1AA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267730AbUH1AA2
+	id S267748AbUH1AFr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUH1AFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:00:28 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:213 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S267726AbUH1AAO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:00:14 -0400
-Date: Sat, 28 Aug 2004 02:02:23 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <6561987.20040828020223@tnonline.net>
-To: Hubert Chan <hubert@uhoreg.ca>
-CC: reiserfs-list@namesys.com, linux-fsdevel@vger.kernel.org,
+	Fri, 27 Aug 2004 20:05:47 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:60683 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267748AbUH1AFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:05:36 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Rob van Nieuwkerk <robn@berrymount.nl>,
+       Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Date: Sat, 28 Aug 2004 03:03:43 +0300
+User-Agent: KMail/1.5.4
+Cc: Rob van Nieuwkerk <robn@berrymount.nl>, prakashkc@gmx.de,
        linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <87llg0mnl0.fsf@uhoreg.ca>
-References: <412EEB75.1030401@namesys.com>
- <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
- <1888171711.20040827171520@tnonline.net> <87llg0mnl0.fsf@uhoreg.ca>
+References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <Pine.LNX.4.61.0408271536340.578@senta.theria.org> <20040828011818.2d5f282c.robn@berrymount.nl>
+In-Reply-To: <20040828011818.2d5f282c.robn@berrymount.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408280303.43166.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 28 August 2004 02:18, Rob van Nieuwkerk wrote:
+> On Fri, 27 Aug 2004 15:44:32 +0200 (CEST)
+> Wouter Van Hemel <wouter-kernel@fort-knox.rave.org> wrote:
+>
+> Hi all,
+>
+> > Also note that this driver had some Philips support in the form of
+> > information - sadly enough, partly under NDA.
+>
+> Just a tiny little detail that might be interesting to anyone
+> forming an opinion on all the pwc/linux stuff:
+>
+> 	-----------------------------------------------------------
+> 	The author of the pwc driver has publicly stated that this
+> 	NDA has expired more than 1 year ago !!!
+> 	-----------------------------------------------------------
 
-  
-
->>>>>> "Spam" == Spam  <spam@tnonline.net> writes:
-
->> Rik van Riel wrote:
->>> On Fri, 27 Aug 2004, Hans Reiser wrote:
->>>> Why are you guys even considering going to any pain at all to
->>>> distort semantics for the sake of backup?  tar is easy, we'll fix it
->>>> and send in a patch.
-
->>> It's not as easy as you make it out, and not just because there are a
->>> few dozen backup programs that need fixing.
-
->>> The problem is more fundamental than that.  Some of the file streams
->>> proposed need to be backed up, while others are alternative
->>> presentations of the file, which should not be backed up.
-
-Spam>>   No, not really. This is a user decision and should be options in
-Spam>> the backup software.  I don't think it is up to the kernel,
-Spam>> filesystem, or the OS in general to decide what information the
-Spam>> user want to retain or not.
-
-> Why not just define an attribute named something like "do-not-backup"?
-> Then whatever program that generates the thumbnail can automatically add
-> the do-not-backup bit, and the backup software knows to ignore it.
-> (Obviously, that bit should apply recursively down the subtree.)
-
-  This  is  about  the  same  idea  as the archive flag in DOS/Windows
-  environments.  It  didn't really work to well IMO. If meta files are
-  definable  by  users/application then the backup system could create
-  its own meta files with the specific information it needs.
-
-  ~S
-
-  
+"NDA expired" == "information is not a secret anymore" ?
+I'm not sure, IANAL...
+--
+vda
 

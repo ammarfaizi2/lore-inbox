@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266164AbUBCWgx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 17:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUBCWgx
+	id S266163AbUBCW6P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 17:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUBCW6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 17:36:53 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:19611 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266164AbUBCWgq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 17:36:46 -0500
-Subject: 2.6 probe.c "pcibus_class" Device Class, release function
-From: John Rose <johnrose@austin.ibm.com>
-To: colpatch@us.ibm.com, greg KH <gregkh@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1075847619.28337.31.camel@verve>
+	Tue, 3 Feb 2004 17:58:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60109 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266163AbUBCW6K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 17:58:10 -0500
+Date: Tue, 3 Feb 2004 14:59:29 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, josh@stack.nl
+Subject: Re: [PATCH] 2.6.1 Hyperthread smart "nice" 2
+Message-Id: <20040203145929.01a96d9b.akpm@osdl.org>
+In-Reply-To: <20040203105758.GA7783@elte.hu>
+References: <200401291917.42087.kernel@kolivas.org>
+	<200402022027.10151.kernel@kolivas.org>
+	<20040202103122.GA29402@elte.hu>
+	<200402032152.46481.kernel@kolivas.org>
+	<20040203105758.GA7783@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 03 Feb 2004 16:33:39 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The function release_pcibus_dev() in probe.c defines the release procedure for
-device class pcibus_class.  I want to suggest that this function be scrapped :)
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> > At least it appears Intel are well aware of the priority problem, but
+> > full priority support across logical cores is not likely. However I
+> > guess these new instructions are probably enough to work with if
+> > someone can do the coding.
+> 
+> these instructions can be used in the idle=poll code instead of rep-nop. 
+> This way idle-wakeup can be done via the memory bus in essence, and the
+> idle threads wont waste CPU time. (right now idle=poll wastes lots of
+> cycles on HT boxes and is thus unusable.)
 
-This release function is called in the code path of class_device_unregister().
-The pcibus_class devices aren't currently unregistered anywhere, from what I
-can tell, so this release function is currently unused.  The runtime removal of
-PCI buses from logical partitions on PPC64 requires the unregistration of these
-class devices.  The natural place to do this IMHO is in pci_remove_bus_device()
-in remove.c.  
+The code to do this was merged quite a while ago.  See
+arch/i386/kernel/process.c:mwait_idle().
 
-The problem is that this calls pci_destroy_dev(), which calls put() on the same
-"bridge" device that the release function does.  This should only be done once
-in the course of removing a pci_bus, and I doubt that we want to change
-pci_destroy_dev().   The kfree() of the pci_bus struct is also done in both
-pci_remove_bus_device() and release_pcibus_dev().  
-
-So the only two operations in the release function are redundantly performed in
-the place where it makes sense to unregister.  For these reasons, I think we
-should scrap the release function altogether and set that pointer in the struct
-class to NULL.
-
-Thoughts?
-John
-
+I was hoping to see a spinlock patch using mwait(), but nothing yet..

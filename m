@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVA0LRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVA0LRg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVA0LRh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 06:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVA0LQA
+	id S262579AbVA0LRg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 06:17:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVA0LQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 06:16:00 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:57615 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262599AbVA0LEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 06:04:48 -0500
-Date: Thu, 27 Jan 2005 12:04:44 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: len.brown@intel.com
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] #ifdef ACPI_FUTURE_USAGE acpi_ut_create_pkg_state_and_push
-Message-ID: <20050127110443.GF28047@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 27 Jan 2005 06:16:09 -0500
+Received: from smtp3.poczta.onet.pl ([213.180.130.29]:56749 "EHLO
+	smtp3.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262579AbVA0LMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 06:12:21 -0500
+From: Sebastian Piechocki <sebekpi@poczta.onet.pl>
+Reply-To: sebekpi@poczta.onet.pl
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: i8042 access timings
+Date: Thu, 27 Jan 2005 12:12:23 +0100
+User-Agent: KMail/1.7.1
+Cc: Jaco Kroon <jaco@kroon.co.za>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <200501260040.46288.sebekpi@poczta.onet.pl> <41F888CB.8090601@kroon.co.za> <20050127102507.GC2702@ucw.cz>
+In-Reply-To: <20050127102507.GC2702@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501271212.24143.sebekpi@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The prototype of the unused global function 
-acpi_ut_create_pkg_state_and_push was already #ifdef 
-ACPI_FUTURE_USAGE'd, but the actual function wasn't.
+Dnia czwartek, 27 stycznia 2005 11:25, Vojtech Pavlik napisa³:
+> On Thu, Jan 27, 2005 at 08:23:07AM +0200, Jaco Kroon wrote:
+> > Sebastian Piechocki wrote:
+> > >As I said I'm sending you mails from kernel masters:)
+> >
+> > Thanks.
+> >
+> > >If you haven't such a problem, please send them your dmesg with
+> > >i8042.debug and acpi=off.
+> >
+> > I made an alternative plan.  I applied a custom patch that gives me
+> > far less output and prevents scrolling and gets what I hope is what
+> > is required.
+>
+> ... could you just increase the timeout value to some insane amount?
+> That should take care of the AUX_LOOP output getting back only after
+> issuing the next command.
 
-Most likely this was a bug in my patch that added
-ACPI_FUTURE_USAGE.
+Increasing the timeout doesn't help. I've increased timout ten times and 
+the result is the same.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-rc2-mm1-full/drivers/acpi/utilities/utmisc.c.old	2005-01-26 22:31:11.000000000 +0100
-+++ linux-2.6.11-rc2-mm1-full/drivers/acpi/utilities/utmisc.c	2005-01-26 22:40:40.000000000 +0100
-@@ -872,7 +885,7 @@
-  * DESCRIPTION: Create a new state and push it
-  *
-  ******************************************************************************/
--
-+#ifdef ACPI_FUTURE_USAGE
- acpi_status
- acpi_ut_create_pkg_state_and_push (
- 	void                            *internal_object,
-@@ -894,7 +907,7 @@
- 	acpi_ut_push_generic_state (state_list, state);
- 	return (AE_OK);
- }
--
-+#endif  /*  ACPI_FUTURE_USAGE  */
- 
- /*******************************************************************************
-  *
-
+-- 
+Sebastian Piechocki
+sebekpi@poczta.onet.pl

@@ -1,82 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291323AbSBGV01>; Thu, 7 Feb 2002 16:26:27 -0500
+	id <S291318AbSBGV3H>; Thu, 7 Feb 2002 16:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291324AbSBGV0S>; Thu, 7 Feb 2002 16:26:18 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:56196 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S291323AbSBGV0K>; Thu, 7 Feb 2002 16:26:10 -0500
-Date: Thu, 7 Feb 2002 16:29:05 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: "Perches, Joe" <joe.perches@spirentcom.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: want opinions on possible glitch in 2.4 network error reporti ng
-In-Reply-To: <3C62EC67.FCB9958A@nortelnetworks.com>
-Message-ID: <Pine.LNX.3.95.1020207160857.12052A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291320AbSBGV2t>; Thu, 7 Feb 2002 16:28:49 -0500
+Received: from bitmover.com ([192.132.92.2]:54238 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291318AbSBGV23>;
+	Thu, 7 Feb 2002 16:28:29 -0500
+Date: Thu, 7 Feb 2002 13:28:28 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020207132828.E27932@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <20020208002324.C423@stingr.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020208002324.C423@stingr.net>; from i@stingr.net on Fri, Feb 08, 2002 at 12:23:24AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Chris Friesen wrote:
+On Fri, Feb 08, 2002 at 12:23:24AM +0300, Paul P Komkoff Jr wrote:
+> Also bitkeeper ... I don't use X. and without damn renametool I cannot do
+> proper renaming :(((
 
-> "Richard B. Johnson" wrote:
-> > 
-> > On Thu, 7 Feb 2002, Chris Friesen wrote:
-> 
-[SNIPPED]
+You can.  We just have to tell you how.
 
-> 
-> Okay, I buy the fact that sendto can't guarantee that the packet got
-> anywhere. 
-> Fine.  Now what about sending packets out faster than the output device can
-> possibly handle them?  We know the device is busy, it's under our control.  It
-> seems to me to be logical to block the sender until the congestion goes
-> away, or
-> return with an error code if the sender is non-blocking.  This may not
-> play nice
-> with the current kernel networking code (qdisc and all that) but doesn't
-> it seem
-> like a good idea in principle?
-> 
-> Chris
->
+cd `bk bin`
+vi import		# this is a shell script
+Look for a call to "bk patch".
+You will see some funny arguments, those are there to generate a list
+of "creates" and "deletes" which are passed to renametool.  Instead 
+of calling renametool, write your on way of doing text based rename
+matchup and stick it in there.
 
-Basically it has nothing to do with the current networking code. If
-you started from scratch and wrote the 'perfect' networking code you
-would soon learn that various links run at different transfer speeds.
-If you have a 100 Mb/s link that goes to a router that has a 9600-baud
-dial-up connection, the only way you can do flow-control is to throw
-away packets. So, you thought a single UDP packet got there --into
-a full buffer on the router, trying to send all the M$ Netbeui packets
-down the 9600 baud pipe. Guess again! Whatever host sends the most
-data to the starved router will get the most packets through and no
-host will get them all through. It's just that simple.
-
-Since UDP, by definition isn't acknowledged, your perfect networking
-software "thought" that everything was fine because it never got any
-errors at all.
-
-Just for information. Do `tcpdump -n` on your machine. Look at all
-those packets. Now, how big a buffer would you need to save them all
-and send them out a 9600-baud dial-up?  The answer is 'N', which
-tends towards infinity, the longer the dial-up persists. So, if
-you were routing these, in your perfect network, you would just
-throw away the ones that you don't have room for. You can't tell
-the sender(s); "Stop Sending!". They won't be listening to you.
-They will only be listening to the end-point, and that, only if
-the end-point is "connected".
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Next problem, please :-)
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,77 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbTJCWlh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 18:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbTJCWlh
+	id S261336AbTJCWjM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 18:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbTJCWjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 18:41:37 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:44262 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S261403AbTJCWle (ORCPT
+	Fri, 3 Oct 2003 18:39:12 -0400
+Received: from aneto.able.es ([212.97.163.22]:8120 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S261298AbTJCWjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 18:41:34 -0400
-Subject: NULL pointer dereference in sysfs_hash_and_remove()
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: mochel@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1065220892.31749.39.camel@tux.rsn.bth.se>
+	Fri, 3 Oct 2003 18:39:07 -0400
+Date: Sat, 4 Oct 2003 00:39:04 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       linux-hfsplus-devel@lists.sourceforge.net,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] new HFS(+) driver
+Message-ID: <20031003223904.GE30751@werewolf.able.es>
+References: <Pine.LNX.4.44.0310021029110.17548-100000@serv> <20031003070422.GA8627@werewolf.able.es> <Pine.LNX.4.44.0310031227460.17548-100000@serv>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 04 Oct 2003 00:41:32 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.44.0310031227460.17548-100000@serv> (from zippel@linux-m68k.org on Fri, Oct 03, 2003 at 12:30:36 +0200)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-I compiled 2.6.0-test6 and ran it on a laptop with cardbus.
-I have an Xircom NIC and if I remove it during operation I get the bug
-below.
+On 10.03, Roman Zippel wrote:
+> Hi,
+> 
+> On Fri, 3 Oct 2003, J.A. Magallon wrote:
+> 
+> > Two notes:
+> > - You should give a patch or at least give a notice that linux/include/hfs* have
+> >   to be killed (or move hfs_fs.h there).
+> 
+> You did apply linux-2.4.hfs.diff? I don't understand why you had to move 
+> hfs_fs.h, it should be picked up from the current directory.
+> 
 
-I have yenta_socket and xircom_cb loaded as modules.
+I applied it, it just keeps mainstream files from including old hfs* files
+in include/linux, but the old files stay around (you end with two
+versions of hfs_fs.h, one in include/linux and other in fs/hfs...)
+I did not move anything, just deleted those old files. But as other
+filesystems put their xxxx_fs.h in include/linux, I thought that
+perhaps hfs(plus) should do the same.
 
+> > - I had to include linux/sched.h in hfs/sysdep.c to get the definition for
+> >   'current', that was neded in some subinclude of linux/smp_lock. This can be
+> >   caused by any other of my patches, but it doesn't hurt.
+> 
+> Simply move <linux/smp_lock.h> past "hfs_fs.h".
+> 
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000068
- printing eip:
-c017cd75
-*pde = 0df96067
-*pte = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c017cd75>]    Not tainted
-EFLAGS: 00010282
-EIP is at sysfs_hash_and_remove+0x15/0x7d
-eax: 00000000   ebx: c03109e4   ecx: 00000068   edx: ccf13dd0
-esi: ccf13d60   edi: c03106e4   ebp: cea5c454   esp: cd0ede54
-ds: 007b   es: 007b   ss: 0068
-Process pccardd (pid: 528, threadinfo=cd0ec000 task=ce1c8740)
-Stack: c017cd55 cd0ede60 c03109e4 ccf13d60 c017e231 ccf13d60 c02c390f ccf13d60 
-       c0310a40 c017e368 ccf13d60 c0310a40 cfc2dc00 cfc2dd90 c023e937 cfc2dd98 
-       c0310a40 cfc2dc00 cd0edeb4 c023b99a cfc2dc00 00000006 cfc2dc00 00000282 
-Call Trace:
- [<c017cd55>] sysfs_get_dentry+0x65/0x70
- [<c017e231>] remove_files+0x31/0x40
- [<c017e368>] sysfs_remove_group+0x28/0x70
- [<c023e937>] netdev_unregister_sysfs+0x67/0x70
- [<c023b99a>] netdev_run_todo+0xea/0x1f0
- [<d086738c>] xircom_remove+0xac/0xd0 [xircom_cb]
- [<c01a9deb>] pci_device_remove+0x3b/0x40
- [<c01e9316>] device_release_driver+0x66/0x70
- [<c01e9455>] bus_remove_device+0x55/0xa0
- [<c01e81bd>] device_del+0x5d/0xa0
- [<c01e8213>] device_unregister+0x13/0x30
- [<c01a740e>] pci_destroy_dev+0x1e/0x70
- [<c01a752b>] pci_remove_behind_bridge+0x2b/0x40
- [<c0221b48>] shutdown_socket+0x88/0x120
- [<c0222263>] socket_remove+0x13/0x50
- [<c022230a>] socket_detect_change+0x6a/0x90
- [<c02224c8>] pccardd+0x198/0x220
- [<c011a980>] default_wake_function+0x0/0x30
- [<c011a980>] default_wake_function+0x0/0x30
- [<c0222330>] pccardd+0x0/0x220
- [<c01092a5>] kernel_thread_helper+0x5/0x10
+Thanks.
 
-Code: ff 48 68 78 63 89 34 24 8b 44 24 18 89 44 24 04 e8 66 ff ff 
- 
 -- 
-/Martin
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre6-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))

@@ -1,179 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268765AbRHBJCg>; Thu, 2 Aug 2001 05:02:36 -0400
+	id <S268856AbRHBJD4>; Thu, 2 Aug 2001 05:03:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268857AbRHBJC1>; Thu, 2 Aug 2001 05:02:27 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:32976 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S268765AbRHBJCT>; Thu, 2 Aug 2001 05:02:19 -0400
-Date: Thu, 02 Aug 2001 18:02:19 +0900
-Message-ID: <8zh2vnqc.wl@nisaaru.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: Brent Baccala <baccala@freesoft.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: enhanced spinlock debugging code for intel
-In-Reply-To: <3B68FAF4.2B3C9064@freesoft.org>
-In-Reply-To: <3B68FAF4.2B3C9064@freesoft.org>
-User-Agent: Wanderlust/2.5.8 (Smooth) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.7 () APEL/10.3 MULE XEmacs/21.1 (patch 14) (Cuyahoga Valley) (i586-kondara-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268857AbRHBJDq>; Thu, 2 Aug 2001 05:03:46 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:52747 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S268856AbRHBJDf>; Thu, 2 Aug 2001 05:03:35 -0400
+Date: Thu, 2 Aug 2001 11:03:41 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010802110341.B17927@emma1.emma.line.org>
+Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010726130809.D17244@emma1.emma.line.org> <3B60022D.C397D80E@zip.com.au> <20010726143002.E17244@emma1.emma.line.org> <9jpea7$s25$1@penguin.transmeta.com> <20010731025700.G28253@emma1.emma.line.org> <20010801170230.B7053@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010801170230.B7053@redhat.com>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 01 Aug 2001, Stephen Tweedie wrote:
 
-Hello,
+> > Chase up to the root manually, because Linux' ext2 violates SUS v2
+> > fsync() (which requires meta data synched BTW)
+> 
+> Please quote chapter and verse --- my reading of SUS shows no such
+> requirement.  
+> 
+> fsync is required to force "all currently queued I/O operations
+> associated with the file indicated by file descriptor fildes to the
+> synchronised I/O completion state."  But as you should know, directory
+> entries and files are NOT the same thing in Unix/SUS.  
 
-At Thu, 02 Aug 2001 03:02:12 -0400,
-Brent Baccala wrote:
-> 
-> Hi -
-> 
-> I'm having a problem with my USB CD burner that involves spinlocks - in
-> particular, some code that trys to grab a spinlock that's already locked
-> (this on a uni-processor machine).
-> 
-> The existing spinlock debug code on intel only checked for unlocking an
-> unlocked spinlock, so I added code to check for locking a locked
-> spinlock as well - it now catches my problem.
+Read on: "All I/O operations are completed as defined for synchronised
+I/O _file_ integrity completion.". To show what that means, see the
+glossary.
 
-   I think your code has a race. See following sequence.
+http://www.opengroup.org/onlinepubs/007908799/xbd/glossary.html#tag_004_000_291
 
+  "synchronised I/O data integrity completion
 
-	cpu0					cpu1
-----------------------------------------------------------------------------------------
+  [...]
 
-						call spin_unlock()
-						
-						last_lock_processor is 1 here.
+  * For write, when the operation has been completed or diagnosed if
+  unsuccessful.  The write is complete only when the data specified in
+  the write request is successfully transferred and all file system
+  information required to retrieve the data is successfully transferred.
 
-	call spin_lock...
+  File attributes that are not necessary for data retrieval (access
+  time, modification time, status change time) need not be successfully
+  transferred prior to returning to the calling process.
 
-	if (spin_is_locked(lock)
-	  && lock->last_lock_processor == my_processor_id)
+  synchronised I/O file integrity completion
 
-	asm(spin_lock_string)
-						call spin_lock()...
+  Identical to a synchronised I/O data integrity completion with the
+  addition that all file attributes relative to the I/O operation
+  (including access time, modification time, status change time) will be
+  successfully transferred prior to returning to the calling process."
 
-						if (spin_is_locked(lock)
-						  && lock->last_lock_processor == my_processor_id)
-							BUG();
-						
-						-------------------------------------------
-						last_lock_processor and my_processor_id are
-						both 1 here. So BUG() is called incorrectly.
-						-------------------------------------------
-						
+As I understand it, the directory entry's st_ino is a file attribute
+necessary for data retrieval and also contains the m/a/ctime, so it must
+be flushed to disk on fsync() as well.
 
-        last_lock_processor = 0;
-	
-> 
-> I'm attaching the code.  The basic operation is to add a field (when
-> SPINLOCK_DEBUG is set in include/asm-i386/spinlock.h; no config option)
-> to the spinlock structure that contains the processor ID that set the
-> lock.  Then, when we try to grab the lock, check to see if 1) it's
-> already locked and 2) the current processor is the one that holds the
-> lock.
-> 
-> I've had to add some hideous code to get the processor ID:
-> 
-> 	#define my_processor_id (((int *)current)[13])
-> 
-> since sched.h includes spinlock.h, so task_struct isn't defined when
-> this file is parsed, so we can't just dereference current to find the
-> processor ID.  Any better suggestions would be welcome.
-> 
-> The code also adds fields to record the PC and current task_struct when
-> the lock is grabbed, so if somebody comes along later and trys to grab
-> it again, we can figure out who already has it.  This information
-> doesn't show up in a oops, but is easily extracted using remote gdb (see
-> my previous post).
-> 
-> Try it if you'd like; it's not very complex, but I would like a better
-> solution for getting the processor ID before I make it an "official"
-> submission to Linus.
-> 
-> -- 
->                                         -bwb
-> 
->                                         Brent Baccala
->                                         baccala@freesoft.org
-> 
-> ==============================================================================
->        For news from freesoft.org, subscribe to announce@freesoft.org:
->    
-> mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
-> ==============================================================================
-> diff -ru linux-2.4.6-dist/include/asm-i386/spinlock.h linux-2.4.6-kgdb/include/asm-i386/spinlock.h
-> --- linux-2.4.6-dist/include/asm-i386/spinlock.h	Fri May 25 21:01:26 2001
-> +++ linux-2.4.6-kgdb/include/asm-i386/spinlock.h	Wed Aug  1 23:11:51 2001
-> @@ -1,6 +1,8 @@
->  #ifndef __ASM_SPINLOCK_H
->  #define __ASM_SPINLOCK_H
->  
-> +#include <asm/smp.h>
-> +#include <asm/current.h>
->  #include <asm/atomic.h>
->  #include <asm/rwlock.h>
->  #include <asm/page.h>
-> @@ -12,7 +14,7 @@
->   * initialize their spinlocks properly, tsk tsk.
->   * Remember to turn this off in 2.4. -ben
->   */
-> -#define SPINLOCK_DEBUG	0
-> +#define SPINLOCK_DEBUG	1
->  
->  /*
->   * Your basic SMP spinlocks, allowing only a single CPU anywhere
-> @@ -22,13 +24,16 @@
->  	volatile unsigned int lock;
->  #if SPINLOCK_DEBUG
->  	unsigned magic;
-> +	void *last_lock_addr;
-> +	void *last_lock_current;
-> +	int last_lock_processor;
->  #endif
->  } spinlock_t;
->  
->  #define SPINLOCK_MAGIC	0xdead4ead
->  
->  #if SPINLOCK_DEBUG
-> -#define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
-> +#define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC, NULL
->  #else
->  #define SPINLOCK_MAGIC_INIT	/* */
->  #endif
-> @@ -75,6 +80,15 @@
->  	return oldval > 0;
->  }
->  
-> +/* This is here because the definition of smp_processor_id() pulls the
-> + * processor id out of the current task_struct, which is defined in
-> + * linux/sched.h, which includes this file because it declares spinlocks.
-> + * So we can't use smp_processor_id() because task_struct hasn't been
-> + * defined yet.  Damn these computers.
-> + */
-> +
-> +#define my_processor_id (((int *)current)[13])
-> +
->  static inline void spin_lock(spinlock_t *lock)
->  {
->  #if SPINLOCK_DEBUG
-> @@ -84,10 +98,18 @@
->  printk("eip: %p\n", &&here);
->  		BUG();
->  	}
-> +	if (spin_is_locked(lock)
-> +	    && lock->last_lock_processor == my_processor_id)
-> +		BUG();
->  #endif
->  	__asm__ __volatile__(
->  		spin_lock_string
->  		:"=m" (lock->lock) : : "memory");
-> +#if SPINLOCK_DEBUG
-> +	lock->last_lock_addr = &&here;
-> +	lock->last_lock_processor = my_processor_id;
-> +	lock->last_lock_current = current;
-> +#endif
->  }
->  
->  static inline void spin_unlock(spinlock_t *lock)
+> There can be many ways of reaching that file in the directory
+> hierarchy, or there can be none, but fsync() doesn't talk at all about
+> the status of those dirents after the sync.
+
+Well, if there's not a single dirent, you cannot retrieve the data, so
+I'd assume at least one dirent needs to be flushed as well. If there's a
+simple way to get unflushed dentries to disk (hard links included),
+flush them. Not sure about symlinks, but since they don't share the
+inode number, that might be rather difficult for the kernel (I didn't
+check):
+
+touch 1 ; ln 1 2 ; ln -s 1 3 ; ls -li
+
+ 303464 -rw-r--r--   2 emma     users           0 Aug  2 10:56 1
+ 303464 -rw-r--r--   2 emma     users           0 Aug  2 10:56 2
+ 303466 lrwxrwxrwx   1 emma     users           1 Aug  2 10:56 3 -> 1
+
+-- 
+Matthias Andree

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277942AbRJOAIv>; Sun, 14 Oct 2001 20:08:51 -0400
+	id <S277946AbRJOAIB>; Sun, 14 Oct 2001 20:08:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277944AbRJOAIn>; Sun, 14 Oct 2001 20:08:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35078 "EHLO
+	id <S277944AbRJOAHm>; Sun, 14 Oct 2001 20:07:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33542 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277942AbRJOAIa>; Sun, 14 Oct 2001 20:08:30 -0400
+	id <S277942AbRJOAHb>; Sun, 14 Oct 2001 20:07:31 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Wireless Extension update
-Date: 14 Oct 2001 17:08:51 -0700
+Date: 14 Oct 2001 17:07:53 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9qd9ej$982$1@cesium.transmeta.com>
-In-Reply-To: <20011008191247.B6816@bougret.hpl.hp.com>
+Message-ID: <9qd9cp$977$1@cesium.transmeta.com>
+In-Reply-To: <3BC3243A.D3B48880@osdlab.org> <Pine.LNX.4.21.0110142252270.6433-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,25 +21,25 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011008191247.B6816@bougret.hpl.hp.com>
-By author:    Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Followup to:  <Pine.LNX.4.21.0110142252270.6433-100000@Consulate.UFP.CX>
+By author:    Riley Williams <rhw@MemAlpha.cx>
 In newsgroup: linux.dev.kernel
->  /* -------------------------- IOCTL LIST -------------------------- */
-> @@ -137,6 +144,8 @@
->  #define SIOCGIWRANGE	0x8B0B		/* Get range of parameters */
->  #define SIOCSIWPRIV	0x8B0C		/* Unused */
->  #define SIOCGIWPRIV	0x8B0D		/* get private ioctl interface info */
-> +#define SIOCSIWSTATS	0x8B0E		/* Unused */
-> +#define SIOCGIWSTATS	0x8B0F		/* Get /proc/net/wireless stats */
->  
->  /* Mobile IP support */
->  #define SIOCSIWSPY	0x8B10		/* set spy addresses */
-> @@ -177,11 +186,33 @@
->  #define SIOCSIWPOWER	0x8B2C		/* set Power Management settings */
->  #define SIOCGIWPOWER	0x8B2D		/* get Power Management settings */
->  
+> 
+> 	DD.MM.YYYY	(European)
+> 	MM/DD/YYYY	(American)
+> 	YYYY-MM-DD	(Japanese)
+> 
+> ...with the punctuation character specifying the one in use. I note that
+> the dates as originally quoted above are clearly consistant with this
+> standard, so see no problem myself.
+> 
+> Personally, I prefer to use the DD-MMM-YYYY format myself, where MMM in
+> the three-letter English abbreviation for the month in question, and
+> there is thus no room for misreading it as something else.
+> 
 
-Please, pretty please, use _IOC() macros...
+YYYY-MM-DD is also unambiguous, and has the nice properties of being
+(a) sortable and (b) language-independent.
 
 	-hpa
 -- 

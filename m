@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTJNLCc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 07:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbTJNLCc
+	id S262377AbTJNLE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 07:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTJNLE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 07:02:32 -0400
-Received: from gprs145-216.eurotel.cz ([160.218.145.216]:32901 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262282AbTJNLCb (ORCPT
+	Tue, 14 Oct 2003 07:04:26 -0400
+Received: from users.linvision.com ([62.58.92.114]:41114 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262377AbTJNLEX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 07:02:31 -0400
-Date: Tue, 14 Oct 2003 13:02:19 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: George Anzinger <george@mvista.com>
-Cc: "'high-res-timers-discourse@lists.sourceforge.net'" 
-	<high-res-timers-discourse@lists.sourceforge.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] VST (tick elimination) is now available
-Message-ID: <20031014110218.GA20211@elf.ucw.cz>
-References: <3F873067.9020805@mvista.com>
+	Tue, 14 Oct 2003 07:04:23 -0400
+Date: Tue, 14 Oct 2003 13:04:13 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Karel Kulhav? <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make htmldocs
+Message-ID: <20031014110413.GC15075@bitwizard.nl>
+References: <20031013185539.B1832@beton.cybernet.src> <20031014094601.GB15075@bitwizard.nl> <20031014120946.A4969@beton.cybernet.src>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F873067.9020805@mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031014120946.A4969@beton.cybernet.src>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> The first release of the VST package is now available.  VST or 
-> Variable Scheduling Timeouts (or if you prefer, Variable Sleep Times) 
-> contains code that, from the idle task, scans the timer list and, if 
-> no timer is near, skips the timer interrupts that would otherwise be 
-> generated.  The patch name is hrtimers-vst-*
+On Tue, Oct 14, 2003 at 12:09:46PM +0200, Karel Kulhav? wrote:
+> > > 2) How do I install DocBook stylesheets?
+> > 
+> > Depends on distribution.
 > 
-> The net result is that a quite system will use far less power as it 
-> does not need to wake up ever 1/HZ timer tick.
+> How do I determine what distribution I have? I have compiled my whole system
+> manually.
 
-Do you have some measurements of how much power does it save? Making
-Sharp Zaurus run longer on batteries would certainly be nice ;-).
-								Pavel
+Not the problem of the kernel. If you can build your whole system
+manually, you also know how to use Google.
+
+> Asking again: how do I install "DocBook stylesheets"?
+
+Replying again: Depends on distribution. (On Debian: apt-get install
+docbook docbook-dsssl).
+
+> Do you say that the place where DocBook stylesheet sources can be downloaded
+> depends on distribution I have? I have been looking at their sourceforge
+> project page but there is nothing like "download DocBook stylesheets".
+> There are DocBook-dsssl and a ton of other cryptic packages but none of them
+> is stylesheets.
+
+Distributions tend to package these kind of projects. DocBook is one of
+the projects that has been packaged by the distributions. GCC is
+another project.
+
+> If there doesn't exist any distribution-idependent installation process
+> for "DocBook stylesheets", then "DocBook stylesheets" is not portable,
+> and transitively, "Linux Kernel" is not portable. Could you please
+> recommend me some other open-source free operating system where I don't
+> need to have a "distribution" to be even able to read it's enclosed
+> documentation? I have been using Linux Kernel for 7 years but can't anymore
+> because I am unable to read it's manual.
+
+DocBook is not necessary to *build* the kernel. It's only used to make
+nicely formatted documents from the comments already in the kernel
+source or to make nicely formatted documents from the source of the
+books in Documentation/DocBook/. If you don't have DocBook available,
+that doesn't make the kernel less portable, all documentation is
+available in a human readable format.
+
+
+Erik
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost? Stay calm and contact Harddisk-recovery.com

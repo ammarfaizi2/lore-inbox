@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUH0NNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUH0NW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUH0NNg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 09:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbUH0NNg
+	id S264795AbUH0NW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 09:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUH0NW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 09:13:36 -0400
-Received: from pop.gmx.de ([213.165.64.20]:62952 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262418AbUH0NNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 09:13:34 -0400
-X-Authenticated: #4512188
-Message-ID: <412F337C.90206@gmx.de>
-Date: Fri, 27 Aug 2004 15:13:32 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
-X-Accept-Language: en-us, en
+	Fri, 27 Aug 2004 09:22:56 -0400
+Received: from kettenhemdhuehner.de ([217.160.131.79]:50077 "EHLO
+	p15104972.pureserver.info") by vger.kernel.org with ESMTP
+	id S264795AbUH0NWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 09:22:55 -0400
+From: Kristian =?iso-8859-1?q?K=F6hntopp?= <kris@xn--khntopp-90a.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux as a router and load balancer
+Date: Fri, 27 Aug 2004 15:22:52 +0200
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <200408270917.47656.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0408271445120.578@senta.theria.org> <200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408271522.52981.kris@koehntopp.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Denis Vlasenko wrote:
-| On Friday 27 August 2004 15:47, Wouter Van Hemel wrote:
-|
-|>On Fri, 27 Aug 2004, Denis Vlasenko wrote:
+I'd like to compare the power of a Linux system as a router, load 
+balancer and SSL offloader to some propietary hardware, and I am 
+looking for numbers.
 
-|>If the maintainer wants it pulled, I feel it would be stealing to add it
-|>back into the kernel without his approval. Perhaps we could rewrite the
-|>driver and merge it with some other webcam driver projects.
-|
-|
-| This is the problem. It is far easier to _feel_ something
-| than to _do_ something.
+If you know of any benchmarks or real-world measurements with 
+numbers like packets per second routed by a Linux machine with 
+two Gigabit interfaces, KB/sec routed, SSL connections taken by 
+a Linux with an Apache2 mod_ssl, or SSL KB/sec transferred by a 
+Linux with an Apache2 mod_ssl, I would be very glad if you point 
+me to the URLs.
 
-Intersting, that in the legal case, people are having a bad feeling, but
-in illegal case of doing reverse-engineering, drivers make it into the
-kernel...
+Please reply directly to me and not to the list, I'll summarize 
+to the list or directly to the people interested.
 
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBLzNuxU2n/+9+t5gRAhdaAKDMhNFwLUp8fe25fjPyk9in+87aLQCeJFu1
-wZulPU+6czw5QAj8kJzHoQk=
-=v1k/
------END PGP SIGNATURE-----
+Thank you,
+ Kristian

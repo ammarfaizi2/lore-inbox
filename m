@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVBATS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVBAT0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVBATS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 14:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVBATS3
+	id S261534AbVBAT0r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 14:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVBAT0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 14:18:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13781 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261534AbVBATSN (ORCPT
+	Tue, 1 Feb 2005 14:26:47 -0500
+Received: from orb.pobox.com ([207.8.226.5]:26294 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261534AbVBAT0q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 14:18:13 -0500
-Date: Tue, 1 Feb 2005 11:18:06 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Mel Gorman <mel@csn.ul.ie>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Helping prezoring with reduced fragmentation allocation
-In-Reply-To: <20050201171641.CC15EE5E8@skynet.csn.ul.ie>
-Message-ID: <Pine.LNX.4.58.0502011110560.3436@schroedinger.engr.sgi.com>
-References: <20050201171641.CC15EE5E8@skynet.csn.ul.ie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Feb 2005 14:26:46 -0500
+Subject: Re: [ANN] removal of certain net drivers coming soon:
+	eepro100,?xircom_tulip_cb, iph5526
+From: Scott Feldman <sfeldma@pobox.com>
+Reply-To: sfeldma@pobox.com
+To: linux-os@analogic.com
+Cc: Meelis Roos <mroos@linux.ee>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0502011405530.8039@chaos.analogic.com>
+References: <E1CuSUy-00063X-LK@rhn.tartu-labor>
+	 <1106939504.18167.364.camel@localhost.localdomain>
+	 <Pine.SOC.4.61.0502011444310.26768@math.ut.ee>
+	 <1107284234.3366.95.camel@sfeldma-mobl.dsl-verizon.net>
+	 <Pine.LNX.4.61.0502011405530.8039@chaos.analogic.com>
+Content-Type: text/plain
+Message-Id: <1107286101.3366.111.camel@sfeldma-mobl.dsl-verizon.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 01 Feb 2005 11:28:21 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Feb 2005, Mel Gorman wrote:
+On Tue, 2005-02-01 at 11:09, linux-os wrote:
+> You just need to load mii first. Both of these drivers are working
+> fine on 2.6.10.
 
-> This is a patch that makes a step towards tieing the modified allocator
-> for reducing fragmentation with the prezeroing of pages that is based
-> on a discussion with Christoph. When a block has to be split to satisfy a
-> zero-page, both buddies are zero'd, one is allocated and the other is placed
-> on the free-list for the USERZERO pool. Care is taken to make sure the pools
-> are not accidently fragmented.
+Huh?  You have 82556 cards working with eepro100 or e100 on 2.6.10?
 
-Thanks for integrating the page zero stuff. If you are zeroing pages
-before their are fragmented then we may not need scrubd anymore. On the
-other hand, larger than necessary zeroing may be performaned in the hot
-code paths which may result in sporadically longer delays during
-allocation (well but then the page_allocator can generate these delays for
-a number of reasons).
+Neither driver will work on any card without mii loaded.
 
-> I would expect that a scrubber daemon would go through the KERNNORCLM pool,
-> remove pages, scrub them and move them to USERZERO. It is important that pages
-> not be moved from the USERRCLM or KERNRCLM pools as it'll cause fragmentation
-> problems over time.
-
-Would it not be better to zero the global 2^MAX_ORDER pages by the scrub
-daemon and have a global zeroed page list? That way you may avoid zeroing
-when splitting pages?
-
+-scott
 

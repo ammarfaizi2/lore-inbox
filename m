@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263273AbSJHTTr>; Tue, 8 Oct 2002 15:19:47 -0400
+	id <S261421AbSJHTOy>; Tue, 8 Oct 2002 15:14:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263275AbSJHTSd>; Tue, 8 Oct 2002 15:18:33 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:1028 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S263273AbSJHTSP>;
-	Tue, 8 Oct 2002 15:18:15 -0400
-Date: Tue, 8 Oct 2002 21:23:10 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: JBD Documentation added in BK-current
-Message-ID: <20021008212310.A13265@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S261326AbSJHTN6>; Tue, 8 Oct 2002 15:13:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29200 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261421AbSJHTKa>; Tue, 8 Oct 2002 15:10:30 -0400
+Subject: PATCH: tidy for the max_thread stuff from the kernel list
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 20:07:40 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17yzhk-0004vR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The JBD documentation have been added in BK-current.
-But 'compiling' the documentation result in a lot of SGML related
-errors.
-
-Someone knowing SGML that care to take a look?
-
-[I'm cleaning up the mess in the Makefile after JBD was added right now].
-
-	Sam
-
-  DB2PS   Documentation/DocBook/journal-api.ps
-Using catalogs: /etc/sgml/sgml-docbook-3.1.cat
-Using stylesheet: /usr/share/sgml/docbook/utils-0.6.9/docbook-utils.dsl#print
-Working on: /home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:211:5:E: document type does not allow element "PARA" here; missing one of "FOOTNOTE", "MSGTEXT", "CAUTION", "IMPORTANT", "NOTE", "TIP", "WARNING", "BLOCKQUOTE", "INFORMALEXAMPLE" start-tag
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:212:7:E: end tag for "PARA" omitted, but OMITTAG NO was specified
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:211:0: start tag was here
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:212:7:E: end tag for "PARA" omitted, but OMITTAG NO was specified
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:195:0: start tag was here
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:248:9:E: end tag for "PARA" omitted, but OMITTAG NO was specified
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:215:0: start tag was here
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:248:9:E: end tag for "SECT1" omitted, but OMITTAG NO was specified
-jade:/home/sam/src/linux/kernel/bk/clean3/Documentation/DocBook/journal-api.sgml:213:0: start tag was here
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/kernel/fork.c linux.2.5.41-ac1/kernel/fork.c
+--- linux.2.5.41/kernel/fork.c	2002-10-07 22:12:28.000000000 +0100
++++ linux.2.5.41-ac1/kernel/fork.c	2002-10-07 23:17:19.000000000 +0100
+@@ -165,12 +165,14 @@
+ 	 * of memory.
+ 	 */
+ 	max_threads = mempages / (THREAD_SIZE/PAGE_SIZE) / 8;
+-
+ 	/*
+-	 * we need to allow at least 10 threads to boot a system
++	 * we need to allow at least 20 threads to boot a system
+ 	 */
+-	init_task.rlim[RLIMIT_NPROC].rlim_cur = max(10, max_threads/2);
+-	init_task.rlim[RLIMIT_NPROC].rlim_max = max(10, max_threads/2);
++	if(max_threads < 20)
++		max_threads = 20;
++
++	init_task.rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
++	init_task.rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
+ }
+ 
+ static struct task_struct *dup_task_struct(struct task_struct *orig)

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263895AbUGNOy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267395AbUGNO6T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbUGNOy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 10:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUGNOxc
+	id S267395AbUGNO6T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 10:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267493AbUGNO6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 10:53:32 -0400
-Received: from nef.ens.fr ([129.199.96.32]:37650 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id S267400AbUGNOxN (ORCPT
+	Wed, 14 Jul 2004 10:58:00 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:30876 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S267406AbUGNOyr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 10:53:13 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: ipw2100 wireless driver
-In-Reply-To: <20040714115523.GC2269@elf.ucw.cz>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz>
-Date: Wed, 14 Jul 2004 16:53:10 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <20040714145310.9CB7D18457@quatramaran.ens.fr>
-From: ebrunet@quatramaran.ens.fr ( =?ISO-8859-1?Q?=C9ric?= Brunet)
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Wed, 14 Jul 2004 16:53:10 +0200 (CEST)
+	Wed, 14 Jul 2004 10:54:47 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [Q] don't allow tmpfs to page out
+Date: Wed, 14 Jul 2004 16:54:29 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200407141654.31817.mbuesch@freenet.de>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >What is the status of ipw2100? Is there chance that it would be pushed
->> >into mainline?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-For your information, I am very happy with that module; I installed the
-rpm from atrpms.net on my Fedora Core 2, ran the GUI to set up the
-interface, ifup eth1 and it worked on the first try. No recompile, no
-fiddle with configuration files, I couldn't believe it and was very
-impressed. I am not using the wifi card very often, but it works with no
-glitch each time I try it.
+Hi,
 
-It would really be a pity that the authors of the module get discouraged
-and stop developping it.
+Is it possible to disable the tmpfs feature to page out
+memory to swap?
+I didn't find any mount option or something like that
+for it in the documentation.
 
-(Computer is an ASUS S5200N; everything on that computer including lspci
-output on https://systemausfall.org/~phil/s5n.html)
+- --
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
-Éric Brunet
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA9UklFGK1OIvVOP4RAvlyAKC0Aoug0HRSa8zRQuFAH8ufFY1C+wCg0ycG
+uMXEYVntwUiiueZloUnizPo=
+=t1IM
+-----END PGP SIGNATURE-----

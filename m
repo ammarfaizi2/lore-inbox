@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUFKGsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUFKHCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUFKGsV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 02:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUFKGsV
+	id S261981AbUFKHCu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 03:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUFKHCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 02:48:21 -0400
-Received: from mail.the-epc.com ([210.176.207.29]:28678 "EHLO mail.the-epc.com")
-	by vger.kernel.org with ESMTP id S261984AbUFKGsT (ORCPT
+	Fri, 11 Jun 2004 03:02:49 -0400
+Received: from main.gmane.org ([80.91.224.249]:51872 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261981AbUFKHCs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 02:48:19 -0400
+	Fri, 11 Jun 2004 03:02:48 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: SAV detected a violation in a document you authored.
-X-Priority: 3 (Normal)
-Date: Fri, 11 Jun 2004 14:45:40 +0800
-Message-ID: <OF4984C951.A67938C8-ON48256EB0.00252430@the-epc.com>
-From: administrator@the-epc.com
-X-MIMETrack: Serialize by Router on gateway/epc(Release 5.0.11  |July 24, 2002) at 06/11/2004
- 02:45:44 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: Insults in the kernel-sources
+Date: Fri, 11 Jun 2004 09:02:48 +0200
+Message-ID: <yw1xvfhyfug7.fsf@kth.se>
+References: <Pine.LNX.4.44.0406101316480.16923-100000@www.fnordora.org> <40C8F7BA.1060700@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:jEsAJOWjyRr8l46ajacjik6Qwk8=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please contact your system administrator.
+Nigel Cunningham <ncunningham@linuxmail.org> writes:
 
+> alan wrote:
+>> Turns out the Microsoft code has just as much profanity, if not
+>> more, than the Linux kernel source.  (Of course, they have more to
+>> swear about...)
+>
+> The amount of profanity in the Microsoft code is irrelevant, unless
+> you want to base your ethics on what people do. If you think it
+> through, you'll see that's a very shaky foundation for determining
+> right and wrong.
 
-The infected component in the scanned document was deleted.
+Hey, let's add some comments about homophobia to the kernel.
 
+Sorry, couldn't resist.
 
-Violation Information:
-The attachment message.scr contained the virus W32.Netsky.P@mm and was
-deleted.
-
-
+-- 
+Måns Rullgård
+mru@kth.se
 

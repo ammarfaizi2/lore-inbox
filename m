@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUJARCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUJARFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265093AbUJARCe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 13:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUJARCe
+	id S265768AbUJARFr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 13:05:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJARFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 13:02:34 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:38546 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265093AbUJARCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 13:02:31 -0400
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ralph Corderoy <ralph@inputplus.co.uk>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
-References: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
+	Fri, 1 Oct 2004 13:05:46 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:36554 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S265195AbUJARDV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 13:03:21 -0400
+Subject: Re: [patch] make dnotify compile-time configurable
+From: Robert Love <rml@novell.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: mpm@selenic.com, ttb@tentacle.dhs.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, gamin-list@gnome.org
+In-Reply-To: <20041001085823.05adc9b5.rddunlap@osdl.org>
+References: <1096611874.4803.18.camel@localhost>
+	 <20041001151124.GQ31237@waste.org>
+	 <1096644076.7676.6.camel@betsy.boston.ximian.com>
+	 <20041001083110.76a58fd2.rddunlap@osdl.org>
+	 <1096645479.7676.15.camel@betsy.boston.ximian.com>
+	 <20041001085823.05adc9b5.rddunlap@osdl.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1096646383.21940.66.camel@localhost.localdomain>
+Date: Fri, 01 Oct 2004 13:01:55 -0400
+Message-Id: <1096650115.7676.20.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 01 Oct 2004 17:00:06 +0100
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-10-01 at 16:59, Ralph Corderoy wrote:
-> And the written offer is in the welcome email *now* but probably wasn't
-> until I hassled them. 
+On Fri, 2004-10-01 at 08:58 -0700, Randy.Dunlap wrote:
 
-Well fine, you can't magically fix mistakes in documentation. You'd also
-I think find the law took the same view. 
+> Sorry, that's about all that I was trying to say.  If patches A & B
+> are logically separate, don't combine them.  Nothing new there.
 
-> *After that* you get a `welcome email' containing the written offer.
-> Sorry, but I have the binaries once I walk out the shop.  Where's my
-> written offer?  What do I do if I bought one and got it shipped to
-> France and so it won't `phone home'?
+In this case I offer A or A&B.
 
-You know I regularly hear people talking about the "spirit of the
-license", but that goes in both directions. From discussions my own
-impression is that in this case they may or may not have forgotten to
-put it in the manual but they've done their best to be compliant and
-they have no desire not to be compliant.
+> Well, the patch shouldn't remove dnotify unconditionally, or not
+> until we have that elusive stable kernel series that people keep
+> mentioning elsewhere.
+
+No patch I posted removes dnotify unconditionally.
+
+	Robert Love
 
 

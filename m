@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265101AbUAJLbv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 06:31:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265105AbUAJLbv
+	id S265069AbUAJL2D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 06:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbUAJL2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 06:31:51 -0500
-Received: from imap.gmx.net ([213.165.64.20]:19597 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265101AbUAJLbt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 06:31:49 -0500
-X-Authenticated: #20450766
-Date: Sat, 10 Jan 2004 12:10:46 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 NFS-server low to 0 performance
-In-Reply-To: <20040110013824.GA17845@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0401101143280.2363-100000@poirot.grange>
+	Sat, 10 Jan 2004 06:28:03 -0500
+Received: from ms-smtp-02-smtplb.ohiordc.rr.com ([65.24.5.136]:25047 "EHLO
+	ms-smtp-02-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S265069AbUAJL1x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 06:27:53 -0500
+From: Rob <rpc@cafe4111.org>
+Reply-To: rpc@cafe4111.org
+Organization: Cafe 41:11
+To: ivern@acm.org
+Subject: Re: Make the init-process look like the StarWars Credits
+Date: Sat, 10 Jan 2004 06:26:17 -0500
+User-Agent: KMail/1.5.4
+References: <3FFEDD1D.7000003@ippensen.de> <200401092107.13588.rpc@cafe4111.org> <3FFFDBDF.4090900@acm.org>
+In-Reply-To: <3FFFDBDF.4090900@acm.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401100626.17775.rpc@cafe4111.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Mike Fedyk wrote:
+On Saturday 10 January 2004 06:02 am, you wrote:
 
-> On Sat, Jan 10, 2004 at 01:38:00AM +0100, Guennadi Liakhovetski wrote:
-> > On Fri, 9 Jan 2004, Mike Fedyk wrote:
-> > > Find out how many packets are being dropped on your two hosts with 2.4 and
-> > > 2.6.
-> >
-> > So, I've run 2 tcpdumps - on server and on client. Woooo... Looks bad.
-> >
-> > With 2.4 (_on the server_) the client reads about 8K at a time, which is
-> > sent in 5 fragments 1500 (MTU) bytes each. And that works. Also
-> > interesting, that fragments are sent in the reverse order.
-> >
-> > With 2.6 (on the server, same client) the client reads about 16K at a
-> > time, split into 11 fragments, and then packets number 9 and 10 get
-> > lost... This all with a StrongARM client and a PCMCIA network-card. With a
-> > PXA-client (400MHz compared to 200MHz SA) and an on-board eth smc91x, it
-> > gets the first 5 fragments, and then misses every other fragment. Again -
-> > in both cases I was copying files to RAM. Yes, 2.6 sends fragments in
-> > direct order.
+> I think you're overcomplicating the issue.  You certainly don't need any
+> 3D code to get a star-wars like scroll going.  You can make a 2D
+> transform to make the fonts _look_ like they're scrolling out into
+> space.  As a matter of fact, wouldn't simply transforming the
+> rectangular viewport into a trapezoid do the trick?  You could then
+> frame this with a starry bitmap, or whatever.
 >
-> Is that an x86 server, and an arm client?
+> This doesn't sound like it would require any massive hacking (although
+> I'll readily confess that I haven't looked into the code.)
 
-Yes. The reason for the problem seems to be the increased default size of
-the transfer unit of NFS from 2.4 to 2.6. 8K under 2.4 was still ok, 16K
-is too much - only the first 5 fragments pass fine, then data starts to
-get lost. If it is a hardware limitation (not all platforms can manage
-16K), it should be probably set back to 8K. If the reason is that some
-buffer size was not increased correspondingly, then this should be done.
+i know,  i'm a pessimist seeing things way too negatively. not trying to knock 
+a guy senseless for his 3d suggestion, i just got carried away. sorry...
 
-Just checked - mounting with rsize=8192,wsize=8192 fixes the problem -
-there are again 5 fragments and they all are received properly.
+of course you wouldn't _need_ actual 3D code, so you can leave mesa out. it's 
+just the issue of HW accel vs. software making things really hard to do 
+without engineering a new DRI-like fb, it seems. and that new fb has other 
+(ab)uses... one thing leads to another.
 
-Anyway, I think, default values should be safe on all platforms, with
-further optimisations being possible, where it is safe.
+and what youre describing... that's quite like the hacked fb fullscreen splash 
+code i'm suggesting. but i'm not realizing that a little code can draw a lot 
+of things. thus it probably _could_ all fit in the kernel (except gfx) and 
+run instantly (but only unitl init is through booting to the default 
+runlevel, i hope?)
 
-Thanks
-Guennadi
----
-Guennadi Liakhovetski
-
-
+-- 
+Rob Couto
+rpc@cafe4111.org
+Rules for computing success:
+1) Attitude is no substitute for competence.
+2) Ease of use is no substitute for power.
+3) Safety matters; use a static-free hammer.
+--
 

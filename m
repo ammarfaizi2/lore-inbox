@@ -1,91 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318869AbSG1AjY>; Sat, 27 Jul 2002 20:39:24 -0400
+	id <S318867AbSG1Akv>; Sat, 27 Jul 2002 20:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318867AbSG1AjY>; Sat, 27 Jul 2002 20:39:24 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:41073 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S318865AbSG1AjW>; Sat, 27 Jul 2002 20:39:22 -0400
-Date: Sun, 28 Jul 2002 02:42:35 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Christoph Hellwig <hch@infradead.org>, Alexander Viro <viro@math.psu.edu>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sd_many done right (1/5)
-Message-ID: <20020728004235.GA7691@nbkurt.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Christoph Hellwig <hch@infradead.org>,
-	Alexander Viro <viro@math.psu.edu>,
-	Linux SCSI list <linux-scsi@vger.kernel.org>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-References: <20020726154533.GD19721@nbkurt.etpnet.phys.tue.nl> <Pine.GSO.4.21.0207261245070.21586-100000@weyl.math.psu.edu> <20020726165411.GI19721@nbkurt.etpnet.phys.tue.nl> <20020726175027.GC2746@clusterfs.com> <20020726185545.B18629@infradead.org> <20020726223224.GJ19721@nbkurt.etpnet.phys.tue.nl> <20020727104119.A5992@infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-In-Reply-To: <20020727104119.A5992@infradead.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S318868AbSG1Aku>; Sat, 27 Jul 2002 20:40:50 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:33298 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S318867AbSG1Akr>;
+	Sat, 27 Jul 2002 20:40:47 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207280043.g6S0hop72617@saturn.cs.uml.edu>
+Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
+To: jdow@earthlink.net (jdow)
+Date: Sat, 27 Jul 2002 20:43:50 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+       acahalan@cs.uml.edu (Albert D. Cahalan),
+       wowbagger@sktc.net (David D. Hagood),
+       arodland@noln.com (Andrew Rodland), linux-kernel@vger.kernel.org
+In-Reply-To: <04a801c235b9$03f699f0$1125a8c0@wednesday> from "jdow" at Jul 27, 2002 03:00:26 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jdow writes:
+> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+>> On Sat, 2002-07-27 at 19:56, Albert D. Cahalan wrote:
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>> I'm one of the 42 remaining people with a terminal. My VT510
+>>> mostly sits unplugged due to heat, and it's taking up space.
+>>
+>> There is a vt420 sitting next to the rack right here.
 
-Hi Christoph, Al,
+Alan is #2 out of the 42 people with terminals.
 
-On Sat, Jul 27, 2002 at 10:41:19AM +0100, Christoph Hellwig wrote:
-> On Sat, Jul 27, 2002 at 12:32:24AM +0200, Kurt Garloff wrote:
-> Linus wants this, and he stated that again on the kernel summit. =20
+> Alan, the really perverse can actually read 45.45bps Baudot RTTY streams
+> by ear. (Ironically the person I have watched do it is also named Alan.)
+> Should it also send out Baudot as an option?
 
-I've not been there :-(
+Yow. That's 60 to 65 WPM for a continuous transmission.
 
-> But to do this porperly (=3D not the EVMS way) it needs preparation. =20
-> Al currently does lots of work in that area to make the block drivers
-> largely independent of the major number.
+For the PC speaker, Baudot RTTY is easy. Data pulses are 22 ms
+and stop pulses are 22, 31, or 33 ms. If the kernel is compiled
+with HZ==100 then you must do the European "50 bauds" instead,
+at 66.67 WPM with 20 ms data and 30 ms stop.
 
-So he should port my sd patch to 2.5. All the data it uses is in a per-major
-data structure. Currently, in most function it uses the kdev_t passed to fi=
-nd
-the right pointer. But that's very easy to replace.
-Of course, sd still assumes it gets a whole major and not parts of one. Oth=
-er-
-wise, more splitting would be needed.
+Ask that other Alan what frequency shift he likes; mark/space
+may be 2125/2975, 2125/2295, 1275/2125, or 1275/1445.
 
-> Once the drivers don't need the major number anymore
-> internally the only that needs sorting out is userlevel backwards-compati=
-nlity.
+> Now, are you sure
+> that you are going to be ready to type in the Morse you copy in your head
+> as the machine surprises you with a crash and bleats of Morse code?
 
-That takes more effort than the change itself, I guess.
-
-> I'm pretty sure the preparation will be finished for 2.6, also I can't co=
-mment
-> whether the unified disk major will be done. (Al?)
-
-Would certainly be nice.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9Qz37xmLh6hyYd04RAjIIAJ9g87rIiH2xsaT88ZD2BOx0LaRq/wCgiyJw
-2X1f1rb+Ll+nar92MwQ6pok=
-=/2ox
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+It needs to repeat.

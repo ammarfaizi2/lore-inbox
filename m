@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132513AbRDNSOY>; Sat, 14 Apr 2001 14:14:24 -0400
+	id <S132516AbRDNSVO>; Sat, 14 Apr 2001 14:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132514AbRDNSOO>; Sat, 14 Apr 2001 14:14:14 -0400
-Received: from napalm.go.cz ([212.24.148.98]:33802 "EHLO napalm.go.cz")
-	by vger.kernel.org with ESMTP id <S132513AbRDNSOI>;
-	Sat, 14 Apr 2001 14:14:08 -0400
-Date: Sat, 14 Apr 2001 20:12:50 +0200
-From: Jan Dvorak <johnydog@go.cz>
-To: Guest section DW <dwguest@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Unisys pc keyboard new keys patch, kernel 2.4.3
-Message-ID: <20010414201250.A7260@napalm.go.cz>
-Mail-Followup-To: Guest section DW <dwguest@win.tue.nl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010413150219.A440@napalm.go.cz> <20010414002120.A15596@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.11i
-In-Reply-To: <20010414002120.A15596@win.tue.nl>; from dwguest@win.tue.nl on Sat, Apr 14, 2001 at 12:21:20AM +0200
-Organization: (XNET.cz)
-X-URL: http://doga.go.cz/
-X-OS: Linux 2.4.3 i686
+	id <S132514AbRDNSVF>; Sat, 14 Apr 2001 14:21:05 -0400
+Received: from sitebco-home-5-17.urbanet.ch ([194.38.85.209]:32280 "EHLO
+	vulcan.alphanet.ch") by vger.kernel.org with ESMTP
+	id <S132517AbRDNSUy>; Sat, 14 Apr 2001 14:20:54 -0400
+Date: Sat, 14 Apr 2001 20:20:49 +0200
+From: Marc SCHAEFER <schaefer@alphanet.ch>
+Message-Id: <200104141820.UAA16097@vulcan.alphanet.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCSI tape corruption problem
+In-Reply-To: <Pine.LNX.4.05.10104141940320.12788-100000@callisto.of.borg>
+Organization: ALPHANET NF -- Not for profit telecom research
+X-Newsreader: TIN [UNIX 1.3 unoff BETA 970705; i586 Linux 2.0.38]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 14, 2001 at 12:21:20AM +0200, Guest section DW wrote:
-> No, these codes cannot be larger than 127 today.
-> You can use the utility setkeycodes to assign keycodes to these keys.
-I always tought it is 8bit - more-than-128-keys keyboards exists quite long
-time. 
+In article <Pine.LNX.4.05.10104141940320.12788-100000@callisto.of.borg> you wrote:
+> So you make gzip use blocks of 32 kB.
 
-> [One of the things for 2.5 is 15- or 31-bit keycodes.
-> The 7-bits we have today do no longer suffice. I have a 132-key keyboard.]
-Yes, this is necessary then. Hmm, the move to 15bits looks simple,
-any ideas why this wasn't implemented before ? Yes, this isn't priority,
-because it is working fine with setkeycodes, but anyway ...
+no, infact it really makes it using blocks of 4k (a PIPE_SIZE is 4k), so
+it is really equivalent to bs=4k. dd doesn't re-join blocks when
+they are smaller then bs=, unless you specify obs=32k.
 
-Jan Dvorak <johnydog@go.cz>
+I have been playing with buffer recently and mixed up both.
+buffer is really a nice tool.
 
+But as I said, as long as you don't play with non-fixed block size
+you don't have problems.
+
+sorry for mixup.

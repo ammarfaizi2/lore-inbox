@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266998AbTCEBKv>; Tue, 4 Mar 2003 20:10:51 -0500
+	id <S261900AbTCEBXT>; Tue, 4 Mar 2003 20:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267013AbTCEBKu>; Tue, 4 Mar 2003 20:10:50 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:37901 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S266998AbTCEBKt>; Tue, 4 Mar 2003 20:10:49 -0500
-Date: Wed, 5 Mar 2003 02:21:12 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Erlend Aasland <erlend-a@ux.his.no>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5][RFC] Make mconf inform user about supported make
- targets
-In-Reply-To: <20030304191311.GB1917@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0303050219250.1336-100000@serv>
-References: <20030304113054.GA29401@badne3.ux.his.no> <20030304191311.GB1917@mars.ravnborg.org>
+	id <S266865AbTCEBXT>; Tue, 4 Mar 2003 20:23:19 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:145 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S261900AbTCEBXS>; Tue, 4 Mar 2003 20:23:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "James H. Cloos Jr." <cloos@jhcloos.com>, ext2-devel@lists.sf.net
+Subject: Re: ext3 htree brelse problems look to be fixed!
+Date: Wed, 5 Mar 2003 09:24:52 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
+References: <m3of4q4rdl.fsf@lugabout.jhcloos.org>
+In-Reply-To: <m3of4q4rdl.fsf@lugabout.jhcloos.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030305013347.F0C9CECEC3@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed 05 Mar 03 00:57, James H. Cloos Jr. wrote:
+> I beleive (with this patch) htree is now ready for prime time.
 
-On Tue, 4 Mar 2003, Sam Ravnborg wrote:
+Good that it's working for you, but it's not quite the last issue.  There is 
+some apparent cache thrashing to track down, and I believe there's still an 
+outstanding NFS issue.  It's getting there, though.
 
-> > Solution: Get mconf to tell the user about arch-specific targets,
-> > instead of i386 targets.
-> 
-> I see no need for this patch.
-> Most architectures today (if not all) has a sensible default target.
-> 
-> So changing mconf to print something like:
-> "Next, you may run 'make' to build your kernel."
-> 
-> Should be a good enough guide for the user.
+Regards,
 
-I agree and actually I'd like to remove that message completely from the 
-config tools. It's the job of kbuild to tell the user what to do next.
-
-bye, Roman
-
+Daniel

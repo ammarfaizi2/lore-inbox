@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129738AbRBLXyG>; Mon, 12 Feb 2001 18:54:06 -0500
+	id <S129268AbRBLXyG>; Mon, 12 Feb 2001 18:54:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129813AbRBLXx4>; Mon, 12 Feb 2001 18:53:56 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:41232 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S129738AbRBLXxq>; Mon, 12 Feb 2001 18:53:46 -0500
-Date: Mon, 12 Feb 2001 11:21:34 +0100
-From: Kurt Garloff <kurt@garloff.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: dc295
-Message-ID: <20010212112134.B1027@garloff.etpnet.phys.tue.nl>
-In-Reply-To: <m3bssa8qb2.fsf@h0050bad6338d.ne.mediaone.net>
-Mime-Version: 1.0
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3bssa8qb2.fsf@h0050bad6338d.ne.mediaone.net>; from nick@coelacanth.com on Sat, Feb 10, 2001 at 11:18:25AM -0500
-X-Operating-System: Linux 2.2.16 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TUE/NL, SuSE/FRG
+	id <S129738AbRBLXx5>; Mon, 12 Feb 2001 18:53:57 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1291 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129268AbRBLXxm>; Mon, 12 Feb 2001 18:53:42 -0500
+Message-ID: <3A887777.3895D3F8@transmeta.com>
+Date: Mon, 12 Feb 2001 15:53:27 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <E14SSNw-0008To-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, Feb 10, 2001 at 11:18:25AM -0500, Nick Papadonis wrote:
-> I saw a posting about the DC-395 from you.
+Alan Cox wrote:
 > 
-> What the current state of the driver?  Where is it? =20
+> > Depends on what the client can handle.  For the kernel, that might be
+> > true, but for example a boot loader may only have a few K worth of buffer
+> > space.
+> 
+> That same constraint is true of any UDP protocol too, and indeed any protocol
+> not entirely based on FEC (which rather rules out ethernet based solutions)
+> 
+> You also dont need much buffering for a smart embedded stack, its no secret
+> that some embedded tcps dont buffer the data but pointers to constant data and
+> values for only non constant objects. You really can make a minimal TCP very
+> low resource.
+> 
 
-http://www.garloff.de/kurt/linux/dc395/
+I'm sure you can.  That doesn't mean it's the right solution.
 
-Works perfectly for most people, but corrupts data for some.
+	-hpa
 
-> I just bought the card thinking a Linux driver was available, but one
-> doesn't appear to be in the 2.4 kernel tree.
-
-I won't push it into the kernel with the "corruption for a few" feature.
-Data loss is not what you expect from your Linux.
-And it's hard to fix without any reasonable chipset docu.
-
-> Any insight appreciated.
-
-Regards,
 -- 
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
- (See mail header or public key servers for PGP2 and GPG public keys.)
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

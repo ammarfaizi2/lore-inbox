@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262479AbSJWBw4>; Tue, 22 Oct 2002 21:52:56 -0400
+	id <S262689AbSJWB4r>; Tue, 22 Oct 2002 21:56:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262568AbSJWBw4>; Tue, 22 Oct 2002 21:52:56 -0400
-Received: from web21501.mail.yahoo.com ([66.163.169.12]:32935 "HELO
-	web21501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262479AbSJWBw4>; Tue, 22 Oct 2002 21:52:56 -0400
-Message-ID: <20021023015905.63415.qmail@web21501.mail.yahoo.com>
-Date: Tue, 22 Oct 2002 18:59:05 -0700 (PDT)
-From: Lk Overrun <lkoverrun@yahoo.com>
-Subject: Brust data send problem on gigabit NIC on Linux
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262697AbSJWB4r>; Tue, 22 Oct 2002 21:56:47 -0400
+Received: from dp.samba.org ([66.70.73.150]:2540 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262689AbSJWB4q>;
+	Tue, 22 Oct 2002 21:56:46 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au,
+       richard <richardj_moore@uk.ibm.com>, suparna@in.ibm.com,
+       bharata <bharata@in.ibm.com>, tom <hanharat@us.ibm.com>
+Subject: Re: [patch 1/4] kprobes - base for 2.5.44 
+In-reply-to: Your message of "22 Oct 2002 13:43:29 +0200."
+             <1035287010.3002.4.camel@localhost.localdomain> 
+Date: Wed, 23 Oct 2002 11:07:54 +1000
+Message-Id: <20021023020256.A03CE2C068@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am seeking advice on how to best send out huge
-number of packets on a gigabit ethernet interface.  I
-am using kernel 2.4.19.  I try to send out as many as
-possible 15Kbyte-long ethernet packets to try to
-utilize the giga-bit/sec bandwidth.  My CPU is really
-fast (2 GHz) amd I dump the packets to the interface
-in a  tight loop in user space.  However, I can only
-reach around 400 Mbits/sec before the packets get
-dropped.  The queue discipline (qdisc) seems to be
-responsible because the queue length (txqueuelen) is
-only 100 by default, and the queue just cannot store
-so many packets at once.  I can eliminate the packet
-drop by raising the queue length to somewhere like
-60000 but that is not practical because it uses too
-much memory. It seems I need some delay between
-sending packets but I cannot sleep for less than 10 ms
-(1/Hz) in user space and 10 ms is too long.
+In message <1035287010.3002.4.camel@localhost.localdomain> you write:
+> On Tue, 2002-10-22 at 13:09, Vamsi Krishna S . wrote:
+> > Here is the basic kprobes patch for 2.5.44. It is the same patch that
+> > Rusty has been sending out since a while, just ported up to 2.5.44.
+> 
+> I also would like to thank you personally for the consideration and
+> courtesy of resending a patch series patch as a thread instead of just
+> spewing linux-kernel.
 
-I am using raw socket bypassing the IP stack and my
-NIC is the Intel Pro1000 (using the e1000.o driver).
+[ How do you do that?  I've never done that, and it'd be kind of
+neat. ]
 
-What is the best way to send raw ethernet packets,
-reaching gigabit range withuut packet drop on Linux? 
-Thanks for any advice.
+> Oh and thank you for the major changes above just
+> porting to 2.5.44.
 
- 
+These major changes must have been subtle, since I missed them.
 
-__________________________________________________
-Do you Yahoo!?
-Y! Web Hosting - Let the expert host your web site
-http://webhosting.yahoo.com/
+>                 NOT
+
+I'll try to translate from socially-retarted elitist-speak into
+English:
+
+================
+On 22 Oct 2002 13:43:29 +0200, Arjan van de Ven should have written:
+> Hi Vamsi,
+> 
+>    Two immediate comments on your patch: it's easier to follow if
+> you send it as one thread, rather than disconnected posts, and there
+> seem to be large changes between <last time I read them> and now,
+> such as <xxx>, which are not simply porting to 2.5.44.  I'm not sure
+> I follow.
+>
+> Arjan.
+
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,124 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbSLKVY6>; Wed, 11 Dec 2002 16:24:58 -0500
+	id <S267300AbSLKVbW>; Wed, 11 Dec 2002 16:31:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbSLKVY6>; Wed, 11 Dec 2002 16:24:58 -0500
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:22533 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S267292AbSLKVY4>; Wed, 11 Dec 2002 16:24:56 -0500
-Message-Id: <5.1.1.6.2.20021211223006.00cded00@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 11 Dec 2002 22:33:05 +0100
-To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: Same with Linux 2.4.20-ac2 <-> Re: Problems compiling 2.4.20 -
-  fail just in 'make' - please help
-In-Reply-To: <5.1.1.6.2.20021211210820.00cde0c0@192.168.2.131>
-References: <Pine.LNX.4.33L2.0212111138530.15702-100000@dragon.pdx.osdl .net>
- <20021211192105.GA1649@localhost.localdomain>
+	id <S267307AbSLKVbV>; Wed, 11 Dec 2002 16:31:21 -0500
+Received: from inet-mail1.oracle.com ([148.87.2.201]:59566 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S267300AbSLKVbV>; Wed, 11 Dec 2002 16:31:21 -0500
+Date: Wed, 11 Dec 2002 13:38:57 -0800
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 Changes doc update.
+Message-ID: <20021211213857.GC585@nic1-pc.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20021211172559.GA8613@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021211172559.GA8613@suse.de>
+User-Agent: Mutt/1.4i
+Organization: Oracle Corporation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey Dave,
+	First, thanks for a very useful document. I have one comment below:
 
-Same problem with Linux 2.4.20-ac2
+On Wed, Dec 11, 2002 at 05:25:59PM +0000, Dave Jones wrote:
+> Internal filesystems.
+> ~~~~~~~~~~~~~~~~~~~~~
+> /proc/filesystems will contain several filesystems that are not
+> mountable in userspace, but are used internally by the kernel
+> to keep track of things. These filesystems are futexfs, eventpollfs
+> and hugetlbfs
 
-I think its not a kernel code problem. Have any some idea about the real one?
-Any compatibility problem with gcc3.2.2 in variable use?
+I don't believe hugetlbfs is an "internal filesystem"... Last time I
+checked, it was supposed to be mounted from userspace, and was intended for
+use in that context...
+	--Mark
 
-BTW: special warning with:
--> /usr/src/linux-2.4.20/include/linux/kernel.h:10:20: stdarg.h: No such 
-file or directory
-
-At 21:11 11/12/2002 +0100, system_lists@nullzone.org wrote:
-
-
->My gcc compiler:
->
->server01:/usr/src/linux-2.4.20# gcc -v
->Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.2/specs
->Configured with: ../src/configure -v 
->--enable-languages=c,c++,java,f77,proto,pascal,objc,ada --prefix=/usr 
->--mandir=/usr/share/man --infodir=/usr/share/info 
->--with-gxx-include-dir=/usr/include/c++/3.2 --enable-shared 
->--with-system-zlib --enable-nls --without-included-gettext 
->--enable-__cxa_atexit --enable-clocale=gnu --enable-java-gc=boehm 
->--enable-objc-gc i386-linux
->Thread model: posix
->gcc version 3.2.2 20021202 (Debian prerelease)
->
->
->------- the fail --------
->
->server01:/usr/src/linux-2.4.20# make
->gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes 
->-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
->-pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=main -c 
->-o init/main.o init/main.c
->. scripts/mkversion > .tmpversion
->gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes 
->-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
->-pipe -mpreferred-stack-boundary=2 -march=i686  -DUTS_MACHINE='"i386"' 
->-DKBUILD_BASENAME=version -c -o init/version.o init/version.c
->gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes 
->-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
->-pipe -mpreferred-stack-boundary=2 
->-march=i686   -DKBUILD_BASENAME=do_mounts -c -o init/do_mounts.o 
->init/do_mounts.c
->make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall 
->-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
->-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 " 
->-C  kernel
->make[1]: Entering directory `/usr/src/linux-2.4.20/kernel'
->make all_targets
->make[2]: Entering directory `/usr/src/linux-2.4.20/kernel'
->gcc -D__KERNEL__ -I/usr/src/linux-2.4.20/include -Wall -Wstrict-prototypes 
->-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
->-pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix 
->include -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o sched.o sched.c
->In file included from /usr/src/linux-2.4.20/include/linux/wait.h:13,
->                  from /usr/src/linux-2.4.20/include/linux/fs.h:12,
->                  from /usr/src/linux-2.4.20/include/linux/capability.h:17,
->                  from /usr/src/linux-2.4.20/include/linux/binfmts.h:5,
->                  from /usr/src/linux-2.4.20/include/linux/sched.h:9,
->                  from /usr/src/linux-2.4.20/include/linux/mm.h:4,
->                  from sched.c:23:
->/usr/src/linux-2.4.20/include/linux/kernel.h:10:20: stdarg.h: No such file 
->or directory
->In file included from /usr/src/linux-2.4.20/include/linux/wait.h:13,
->                  from /usr/src/linux-2.4.20/include/linux/fs.h:12,
->                  from /usr/src/linux-2.4.20/include/linux/capability.h:17,
->                  from /usr/src/linux-2.4.20/include/linux/binfmts.h:5,
->                  from /usr/src/linux-2.4.20/include/linux/sched.h:9,
->                  from /usr/src/linux-2.4.20/include/linux/mm.h:4,
->                  from sched.c:23:
->/usr/src/linux-2.4.20/include/linux/kernel.h:74: parse error before "va_list"
->/usr/src/linux-2.4.20/include/linux/kernel.h:74: warning: function 
->declaration isn't a prototype
->/usr/src/linux-2.4.20/include/linux/kernel.h:77: parse error before "va_list"
->/usr/src/linux-2.4.20/include/linux/kernel.h:77: warning: function 
->declaration isn't a prototype
->/usr/src/linux-2.4.20/include/linux/kernel.h:81: parse error before "va_list"
->/usr/src/linux-2.4.20/include/linux/kernel.h:81: warning: function 
->declaration isn't a prototype
->make[2]: *** [sched.o] Error 1
->make[2]: Leaving directory `/usr/src/linux-2.4.20/kernel'
->make[1]: *** [first_rule] Error 2
->make[1]: Leaving directory `/usr/src/linux-2.4.20/kernel'
->make: *** [_dir_kernel] Error 2
->server01:/usr/src/linux-2.4.20#
->
->
->
->???????
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
+--
+Mark Fasheh
+Software Developer, Oracle Corp
+mark.fasheh@oracle.com

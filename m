@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130673AbQKRTEX>; Sat, 18 Nov 2000 14:04:23 -0500
+	id <S130614AbQKRTGn>; Sat, 18 Nov 2000 14:06:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130775AbQKRTED>; Sat, 18 Nov 2000 14:04:03 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:19985 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S130673AbQKRTDz>; Sat, 18 Nov 2000 14:03:55 -0500
-Message-ID: <3A16CB81.30AD0439@Hell.WH8.TU-Dresden.De>
-Date: Sat, 18 Nov 2000 19:33:37 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Markus Schoder <markus_schoder@yahoo.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130751AbQKRTGd>; Sat, 18 Nov 2000 14:06:33 -0500
+Received: from getafix.lostland.net ([216.29.29.27]:28580 "EHLO
+	getafix.lostland.net") by vger.kernel.org with ESMTP
+	id <S130614AbQKRTGW>; Sat, 18 Nov 2000 14:06:22 -0500
+Date: Sat, 18 Nov 2000 13:34:49 -0500 (EST)
+From: adrian <jimbud@lostland.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Freeze on FPU exception with Athlon
-In-Reply-To: <20001118182230.14470.qmail@web3407.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.10.10011181002190.1655-100000@cesium.transmeta.com>
+Message-ID: <Pine.BSO.4.30.0011181332030.1052-100000@getafix.lostland.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Schoder wrote:
 
-> My test program caused the exception (and the freeze)
-> unintendedly in the return statement since the
-> division was optimized away as Brian pointed out.
 
-It's quite strange that I cannot seem to trigger the
-problem here on my machine.
+On Sat, 18 Nov 2000, Linus Torvalds wrote:
 
-> I know of another guy with the exact same CPU (Athlon
-> Thunderbird 900MHz) and mainboard (ABIT KT7-RAID) who
-> has the same problem.
->
-> I use gcc 2.95.2 to compile the kernel.
+> There's almost certainly more than that. I'd love to have a report on my
+> asm-only version, but even so I suspect it also requires the 3dnow stuff,
 
-Makes me wonder whether it could be an issue with your
-board (I have an Asus A7V) or with gcc 2.95-2 (I use
-egcs-1.1.2).
+I tried all three versions, and no freezes.  I forgot to mention the tests
+were run on a model 2 Athlon (original slot K7, .18 micron).  The kernel
+is compiled with 3dnow support.
 
-> Note that cpuinfo shows model 4 whereas e.g. Brian had
-> model 2 if that means anything.
+Regards,
+Adrian
 
-Mine is a model 4 also, so if it's related to that, I
-should probably see the problem here as well.
 
-/proc/cpuinfo
 
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 807.000213
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-features        : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 1608.91
 
--Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

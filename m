@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbUBZK5z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 05:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUBZK5z
+	id S262766AbUBZLDx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 06:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUBZLDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 05:57:55 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:13066 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262768AbUBZK5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 05:57:39 -0500
-Date: Thu, 26 Feb 2004 10:57:37 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jakub Bogusz <qboosh@pld-linux.org>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: i2c on alpha - used but not available in 2.6.3
-Message-ID: <20040226105737.A17579@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jakub Bogusz <qboosh@pld-linux.org>, linux-kernel@vger.kernel.org
-References: <20040225160833.GA5803@gruby.cs.net.pl> <20040225161441.A6161@infradead.org> <20040226105357.GF19602@gruby.cs.net.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040226105357.GF19602@gruby.cs.net.pl>; from qboosh@pld-linux.org on Thu, Feb 26, 2004 at 11:53:57AM +0100
+	Thu, 26 Feb 2004 06:03:53 -0500
+Received: from zadnik.org ([194.12.244.90]:20951 "EHLO lugburz.zadnik.org")
+	by vger.kernel.org with ESMTP id S262766AbUBZLDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 06:03:52 -0500
+Date: Thu, 26 Feb 2004 13:03:33 +0200 (EET)
+From: Grigor Gatchev <grigor@zadnik.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: Christer Weinigel <christer@weinigel.se>,
+       Nikita Danilov <Nikita@Namesys.COM>, <root@chaos.analogic.com>,
+       Rik van Riel <riel@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: A Layered Kernel: Proposal
+In-Reply-To: <403D325F.9070907@techsource.com>
+Message-ID: <Pine.LNX.4.44.0402261258380.21036-100000@lugburz.zadnik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 11:53:57AM +0100, Jakub Bogusz wrote:
-> - beside drivers/i2c there was no drivers/misc and drivers/telephony in
->   alpha/Kconfig - was this intentional or accidental?
-> 
->   drivers/misc currently contains only IBM_ASM, which looks like some
->   hardware-specific driver - maybe it should be available only on some
->   arch(s)?
 
-drivers/misc/ is empty here, and until we have some policy decision it
-should stay that way.  What tree do you look at?
 
-> - on alpha drivers/parport was placed in "System setup" menu - but
->   I suppose it can be moved to standard location without problems
+On Wed, 25 Feb 2004, Timothy Miller wrote:
 
-Yes.
+>
+> I think TOE (TCP/IP stack on the ethernet card) might be one of those
+> things which doesn't fit cleanly into the layered model.
 
-> - drivers/message/fusion was included only conditionaly, depending on
->   PCI option (in drivers/Kconfig it's unconditional).
->   If message/fusion requires PCI, maybe it should have "depends on PCI"
->   in its Kconfig?
+Yes. More such things exist. That is why it is hard to design a good
+layered model...
 
-Yes, this is probably worth fixing.
+And I keep thinking that the right place of a TCP/IP stack is not inside
+the NIC. If God designed the man this way, where he would put our brains?
+;-)
+
 

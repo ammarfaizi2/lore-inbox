@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbTKTPLi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 10:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTKTPLi
+	id S261903AbTKTPRC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 10:17:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbTKTPRC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 10:11:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44957 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261901AbTKTPLg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 10:11:36 -0500
-Date: Thu, 20 Nov 2003 07:17:09 -0800
+	Thu, 20 Nov 2003 10:17:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36256 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261903AbTKTPQ7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 10:16:59 -0500
+Date: Thu, 20 Nov 2003 07:22:36 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: maneesh@in.ibm.com
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-       mochel@osdl.org, dipankar@in.ibm.com
-Subject: Re: [PATCH] sysfs_remove_dir Vs dcache_readdir race fix
-Message-Id: <20031120071709.0acf35aa.akpm@osdl.org>
-In-Reply-To: <20031120102525.GD1367@in.ibm.com>
-References: <20031120054707.GA1724@in.ibm.com>
-	<20031120054957.GD24159@parcelfarce.linux.theplanet.co.uk>
-	<20031120055655.GB1724@in.ibm.com>
-	<20031120102525.GD1367@in.ibm.com>
+To: Frank Dekervel <kervel@drie.kotnet.org>
+Cc: linux-kernel@vger.kernel.org, Adam Belay <ambx1@neo.rr.com>
+Subject: Re: 2.6.0-test9-mm4 (does not boot)
+Message-Id: <20031120072236.68327dca.akpm@osdl.org>
+In-Reply-To: <200311201137.55553.kervel@drie.kotnet.org>
+References: <200311191749.28327.kervel@drie.kotnet.org>
+	<20031119165928.70a1d077.akpm@osdl.org>
+	<200311201134.04050.kervel@drie.kotnet.org>
+	<200311201137.55553.kervel@drie.kotnet.org>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni <maneesh@in.ibm.com> wrote:
+Frank Dekervel <kervel@drie.kotnet.org> wrote:
 >
-> Actually race is not directly between dcache_readdir and sysfs_remove_dir but
->  it is like this
+> Op Thursday 20 November 2003 11:34, schreef Frank Dekervel:
+> > pnpbios says something like this:
+> >  found installation structure 0xc00f5560
+> >  version 1.0 entry 0xf0000:0x6149 dseg 0xf0000
+> >
+> > i'm going to try without pnpbios i think.
+> >
+> > my working 2.6.0test9 also has pnpbios setup:
+> > kervel@bakvis:~$ cat /boot/config-2.6.0-test9 | grep -i pnpbios
+> > CONFIG_PNPBIOS=y
 > 
->  cpu 0						cpu 1
->  dcache_dir_open()
->  --> adds the cursor dentry
+> ok, replying to myself to be more specific:
 > 
->  					sysfs_remove_dir()
->  					--> list_del_init cursor dentry
+> working pnpbios gives this:
+> ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 10 *11 12 14 15)
+> Linux Plug and Play Support v0.97 (c) Adam Belay
+> PnPBIOS: Scanning system for PnP BIOS support...
+> PnPBIOS: Found PnP BIOS installation structure at 0xc00f5560
+> PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x614a, dseg 0xf0000
+> PnPBIOS: 15 nodes reported by PnP BIOS; 15 recorded by driver
+> SCSI subsystem initialized
 > 
->  dcache_readdir()
->  --> loops forever on inititalized cursor dentry.
+> mm4 pnpbios gives the same numbers, but never says 
+> PnPBIOS: 15 nodes reported by PnP BIOS; 15 recorded by driver
+> instead it says general protection fault
 > 
-> 
->  Though all these operations happen under parent's i_sem, but it is dropped 
->  between ->open() and ->readdir() as both are different calls. 
-> 
->  I think people will also agree that there is no need for sysfs_remove_dir() 
->  to modify d_subdirs list.
 
-Seems to me that the libfs code is fragile.
+There are three pnpbios patches in -mm:
 
-What happens if the dentry at filp->f_private_data gets moved to a
-different directory after someone did dcache_dir_open()?  Does the loop
-in dcache_readdir() go infinite again?
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-1.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-2.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/broken-out/pnp-fix-3.patch
 
+It would help if you could determine which (if any) of these are causing
+the problem.  You can remove the patches with
+
+	cd /usr/src/linux
+	patch -p1 -R < ~/pnp-fix-3.patch
+
+etcetera.
+
+
+Thanks.

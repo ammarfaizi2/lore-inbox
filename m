@@ -1,89 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261454AbTCGJcG>; Fri, 7 Mar 2003 04:32:06 -0500
+	id <S261459AbTCGJor>; Fri, 7 Mar 2003 04:44:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261459AbTCGJcG>; Fri, 7 Mar 2003 04:32:06 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56332 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261454AbTCGJcF>; Fri, 7 Mar 2003 04:32:05 -0500
-Date: Fri, 7 Mar 2003 09:42:35 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Chris Dukes <pakrat@www.uk.linux.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
-       Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: Make ipconfig.c work as a loadable module.
-Message-ID: <20030307094235.A11807@flint.arm.linux.org.uk>
-Mail-Followup-To: Chris Dukes <pakrat@www.uk.linux.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jeff Garzik <jgarzik@pobox.com>, Robin Holt <holt@sgi.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	netdev@oss.sgi.com
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk> <20030306221136.GB26732@gtf.org> <20030306222546.K838@flint.arm.linux.org.uk> <1046996037.18158.142.camel@irongate.swansea.linux.org.uk> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk> <20030307000816.P838@flint.arm.linux.org.uk> <20030307012905.G20725@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030307012905.G20725@parcelfarce.linux.theplanet.co.uk>; from pakrat@www.uk.linux.org on Fri, Mar 07, 2003 at 01:29:05AM +0000
+	id <S261461AbTCGJor>; Fri, 7 Mar 2003 04:44:47 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:54161
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261459AbTCGJoq>; Fri, 7 Mar 2003 04:44:46 -0500
+Date: Fri, 7 Mar 2003 04:53:01 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: Oops: 2.5.64 check_obj_poison for 'size-64'
+In-Reply-To: <20030307010539.3c0a14a3.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.50.0303070450290.18716-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
+ <20030306222328.14b5929c.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
+ <20030306233517.68c922f9.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070351060.18716-100000@montezuma.mastecende.com>
+ <20030307010539.3c0a14a3.akpm@digeo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 01:29:05AM +0000, Chris Dukes wrote:
-> If IBM can fit a kernel and a ramdisk containing all the utilities you
-> describe and more in smaller than 5M of file for tftp, one would think 
-> that it could be done on Linux.
+On Fri, 7 Mar 2003, Andrew Morton wrote:
 
-Wow.  5MB eh?  We currently do NFS-root in 690K.
-
-> > ipconfig.c does more than just configure networking.  It's a far smaller
-> > solution to NFS-root than any userspace implementation could ever hope
-> > to be.
+> > [root@dev16-002 root]# Slab corruption: start=db0bbc44, expend=db0bbc83, problemat=db0bbc48
+> > Data: ....71 F0 2C .........................................................
+> > Next: 71 F0 2C .71 F0 2C .........................
+> > slab error in check_poison_obj(): cache `size-64': object was modified after freeing
+> > Call Trace:
+> >  [<c0142319>] check_poison_obj+0x119/0x130
+> >  [<c0143c92>] kmalloc+0xd2/0x180
+> >  [<c0166188>] pipe_new+0x28/0xd0
+> >  [<c0166263>] get_pipe_inode+0x23/0xb0
+> >  [<c0166322>] do_pipe+0x32/0x1e0
+> >  [<c01704ac>] dput+0x1c/0x2b0
+> >  [<c016661e>] getname+0x5e/0xa0
+> >  [<c012f9b0>] sigprocmask+0xe0/0x150
+> >  [<c012fb9a>] sys_rt_sigprocmask+0x17a/0x190
+> >  [<c0111ed3>] sys_pipe+0x13/0x60
+> >  [<c010ad9b>] syscall_call+0x7/0xb
 > 
-> That's nice.  Would you mind explaining to us where that would be a
-> benefit?  Aside from dead header space in elf executables, I'm at
-> a loss as to how a usermode implementation must be significantly
-> larger than kernel code.
+> I don't see any clues there.
+> 
+> This is a bad, bad bug.  How are you triggering it?
 
-If you're suggesting above that "5MB isn't significantly larger than
-the size Linux can do this" then I think I've just proven you wrong.
+Very hard to trigger, currently it's happening whilst the system appears 
+to be idle so i'm trying to track down what processes there are when the 
+trigger happens.
 
-Lets see - building an ramdisk to mount a root filesystem out of existing
-binaries would require from my exisitng systems probably something like:
+> Manfred, would it be possible to add builtin_return_address(0) into each
+> object, so we can find out who did the initial kmalloc (or kfree, even)?
+> 
+> It'll probably require CONFIG_FRAME_POINTER.
 
-   text    data     bss     dec     hex filename
-1093047   21224   15560 1129831  113d67 /lib/libc.so.6
- 515890   22320   16640  554850   87762 /bin/sh
-  58540    2436    9776   70752   11460 /lib/libresolv.so.2
-  53685    1476    5488   60649    ece9 /bin/mount
-  45511     672     432   46615    b617 /bin/sed
-  42830     624      40   43494    a9e6 /sbin/pump
-  10783     500     104   11387    2c7b /lib/libtermcap.so.2
-   8765     444      28    9237    2415 /lib/libdl.so.2
-
-pump isn't really suitable for the task, but I don't have dhcpcd around.
-dhcpcd is even larger than pump however.
-
-That's getting on for 2MB vs:
-
-   2620    2012       0    4632    1218 fs/nfs/nfsroot.o
-   8016     380      80    8476    211c net/ipv4/ipconfig.o
-
-about 13K.
-
-Which version is overly bloated?
-Which version is huge?
-Which version is compact?
-
-Even the klibc ipconfig version is significantly larger than the in-kernel
-version - and klibc and its binaries are written to be small.
-
-
-
-Note: I *do* agree that ipconfig.c needs to die before 2.6 but I do not
-agree that today is the right day.
-
+	Zwane
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+function.linuxpower.ca

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbTEFSRu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 14:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbTEFSRu
+	id S264015AbTEFSVn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 14:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbTEFSVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 14:17:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:33773 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264002AbTEFSRt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 14:17:49 -0400
-Date: Tue, 6 May 2003 20:30:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nicolas Pitre <nico@cam.org>, Russell King <rmk@arm.linux.org.uk>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Marcus Meissner <meissner@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Only use MSDOS-Partitions by default on X86
-Message-ID: <20030506183010.GK905@suse.de>
-References: <Pine.LNX.4.44.0305061320080.11648-100000@xanadu.home> <1052241988.1202.36.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 6 May 2003 14:21:42 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4481
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264011AbTEFSVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 14:21:07 -0400
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030506164252.GA5125@mail.jlokier.co.uk>
+References: <20030506164252.GA5125@mail.jlokier.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052242508.1201.43.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052241988.1202.36.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 18:35:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06 2003, Alan Cox wrote:
-> On Maw, 2003-05-06 at 18:23, Nicolas Pitre wrote:
-> > According to Alan it's nearly possible to configure the block layer out 
-> > entirely, which would be a good thing to associate with a CONFIG_DISK option 
-> > too.
-> 
-> David Woodhouse I believe..
+On Maw, 2003-05-06 at 17:42, Jamie Lokier wrote:
+> So, as dynamic loading is ok between parts of Linux and binary-only
+> code, that seems to imply we could build a totally different kind of
+> binary-only kernel which was able to make use of all the Linux kernel
+> modules.  We could even modularise parts of the kernel which aren't
+> modular now, so that we could take advantage of even more parts of Linux.
 
-Are we talking about everything below submit_bh/bio? Shouldn't be too
-hard to write a small no-block.c for that...
-
--- 
-Jens Axboe
+You want a legal list - you really do. Its all about derived works and
+thats an area where even some lawyers will only hunt in packs 8)
 

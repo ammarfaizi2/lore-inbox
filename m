@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbUKJJtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbUKJJ4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbUKJJtv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 04:49:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUKJJtu
+	id S261631AbUKJJ4G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 04:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbUKJJ4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 04:49:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36776 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261634AbUKJJpx (ORCPT
+	Wed, 10 Nov 2004 04:56:06 -0500
+Received: from smtp.rol.ru ([194.67.21.9]:49000 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S261631AbUKJJz4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 04:45:53 -0500
-Date: Wed, 10 Nov 2004 01:45:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Hood <jdthood@yahoo.co.uk>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Documentation/preempt-locking.txt clarification
-Message-Id: <20041110014543.143b8ff3.akpm@osdl.org>
-In-Reply-To: <1100078840.3654.822.camel@thanatos>
-References: <1073302283.1903.85.camel@thanatos.hubertnet>
-	<1074561880.26456.26.camel@localhost>
-	<1100074907.3654.780.camel@thanatos>
-	<20041110005742.35828d2b.akpm@osdl.org>
-	<1100078840.3654.822.camel@thanatos>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 10 Nov 2004 04:55:56 -0500
+Message-ID: <4191E657.1030409@vlnb.net>
+Date: Wed, 10 Nov 2004 12:58:47 +0300
+From: Vladislav Bolkhovitin <vst@vlnb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: "Moore, Eric Dean" <Eric.Moore@lsil.com>, mpt_linux_developer@lsil.com,
+       linux-kernel@vger.kernel.org,
+       "Shirron, Stephen" <Stephen.Shirron@lsil.com>
+Subject: Re: 2.6: unused code under drivers/message/fusion/
+References: <91888D455306F94EBD4D168954A9457C2D1E91@nacos172.co.lsil.com> <4191CD47.1000205@vlnb.net> <20041110094041.GI4089@stusta.de>
+In-Reply-To: <20041110094041.GI4089@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Hood <jdthood@yahoo.co.uk> wrote:
->
-> On Wed, 2004-11-10 at 09:57, Andrew Morton wrote:
->  > I guess it's saying ...
+Adrian Bunk wrote:
+> On Wed, Nov 10, 2004 at 11:11:51AM +0300, Vladislav Bolkhovitin wrote:
 > 
->  Thanks for the explanation.  I include a new patch which incorporates
->  your example.  I am in no position to judge the _truth_ of the
->  statements in this document; I am only hoping to _understand_ them.  :)
+>>Moore, Eric Dean wrote:
+>>
+>>>We need to hold off on this change. Yes, there are 
+>>>customers of LSI Logic using mptstm.c, as
+>>>part of the target-mode drivers.  
+>>>
+>>>The proposed generic target mode drivers proposal is yet part
+>>>of the kernel.  
+>>>http://scst.sourceforge.net/
+>>>We are looking into supporting this once its available.
+>>
+>>Well, SCST is already available, stable and useful. People use it 
+>>without considerable problems, except with inconvenient LUNs management, 
+>>which we are going to fix in the next version. I don't expect it will be 
+>>considering for the kernel inclusion at least until 2.7. So, you can 
+>>start supporting it right now :-).
+> 
+> 
+> With the current kernel development model, there is no 2.7 planned for 
+> the next years.
+> 
+> Linus and Andrew believe 6 was an odd number, so you could submit your 
+> code now. [1]
 
-I think the statement is in fact false.  Ingo, what's your take on this
-paragraph, from preempt-locking.txt?
+OK, I'll prepare the next version as the kernel patch.
 
+Thanks,
+Vlad
 
-  An additional concern is proper usage of local_irq_disable and
-  local_irq_save.  These may be used to protect from preemption, however,
-  on exit, if preemption may be enabled, a test to see if preemption is
-  required should be done.  If these are called from the spin_lock and
-  read/write lock macros, the right thing is done.  They may also be called
-  within a spin-lock protected region, however, if they are ever called
-  outside of this context, a test for preemption should be made.  Do note
-  that calls from interrupt context or bottom half/ tasklets are also
-  protected by preemption locks and so may use the versions which do not
-  check preemption.
+>>Vlad
+> 
+> 
+> cu
+> Adrian
+> 
+> [1] this is a slightly abbreviated version of the development model
+>     Linus announced
+> 
+

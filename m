@@ -1,48 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262198AbTC1E5n>; Thu, 27 Mar 2003 23:57:43 -0500
+	id <S262212AbTC1Fi2>; Fri, 28 Mar 2003 00:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262199AbTC1E5n>; Thu, 27 Mar 2003 23:57:43 -0500
-Received: from holomorphy.com ([66.224.33.161]:63661 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262198AbTC1E5m>;
-	Thu, 27 Mar 2003 23:57:42 -0500
-Date: Thu, 27 Mar 2003 21:08:39 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
-Message-ID: <20030328050839.GP1350@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030115105802.GQ940@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030115105802.GQ940@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S262213AbTC1Fi2>; Fri, 28 Mar 2003 00:38:28 -0500
+Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:44286
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262212AbTC1Fi0>; Fri, 28 Mar 2003 00:38:26 -0500
+Date: Fri, 28 Mar 2003 00:45:41 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Andre Hedrick <andre@linux-ide.org>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       "" <linux-kernel@vger.kernel.org>
+Subject: Re: 64GB NUMA-Q before pgcl
+In-Reply-To: <Pine.LNX.4.10.10303272136540.25072-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.50.0303280045240.2884-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.10.10303272136540.25072-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 02:58:02AM -0800, William Lee Irwin III wrote:
-> Minor extrapolation: aside from potential explosions in very unusual
-> corner cases, with these hacks/workarounds 64GB NUMA-Q should boot and
-> run (slowly) with an approximate LowTotal of 173296 kB. The main obstacle
-> is our setup here would require an additional NR_CPUS > BITS_PER_LONG
-> patch, and there isn't much local interest in even seeing whether or how
-> poorly it would run without working patches (e.g. hugh's MMUPAGE_SIZE that
-> I'm fwd. porting) to do something about runaway mem_map lowmem consumption.
+On Thu, 27 Mar 2003, Andre Hedrick wrote:
 
-I was only 3MB off wrt. mainline's 64GB LowTotal, not bad at all:
+> 
+> Where is the IDE/ATA in the system?
 
-HighTotal:    65134592 kB
-HighFree:     65116864 kB
-LowTotal:       176076 kB
-LowFree:        144180 kB
+Not really there...
 
-Turns out NR_CPUS > BITS_PER_LONG was avoided. I'll dig up whatever else
-I can here. AIM7 with 10000 tasks and various other things were runnable
-on 48GB, but I still need to straighten various fragmentation things out
-before benching produces meaningful numbers instead of runs vs. doesn't.
+piix: 450NX errata present, disabling IDE DMA.
+piix: A BIOS update may resolve this.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with 
+idebus=xx
+PIIX4: IDE controller at PCI slot 00:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PCI: Setting latency timer of device 00:0e.1 to 64
+    ide0: BM-DMA at 0x00e0-0x00e7, BIOS settings: hda:pio, hdb:pio
+PIIX4: IDE controller at PCI slot 00:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 03:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 03:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 05:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 05:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 07:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 07:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 09:0e.1
+PCI: Enabling device 09:0e.1 (0000 -> 0001)
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 09:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 0b:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 0b:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 0d:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 0d:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
+PIIX4: IDE controller at PCI slot 0f:0e.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+PIIX4: port 0x01f0 already claimed by ide0
+PIIX4: neither IDE port enabled (BIOS)
+PIIX4: IDE controller at PCI slot 0f:10.0
+PIIX4: device not capable of full native PCI mode
+PIIX4: device disabled (BIOS)
 
-
--- wli
+-- 
+function.linuxpower.ca

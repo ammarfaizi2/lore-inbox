@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUJUKqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268894AbUJUKvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268899AbUJUKqb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 06:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbUJUKnt
+	id S268894AbUJUKvG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 06:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270634AbUJUKs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 06:43:49 -0400
-Received: from gprs214-246.eurotel.cz ([160.218.214.246]:10624 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S270481AbUJUKmy (ORCPT
+	Thu, 21 Oct 2004 06:48:29 -0400
+Received: from smtp4.vol.cz ([195.250.128.79]:22788 "EHLO smtp4.vol.cz")
+	by vger.kernel.org with ESMTP id S270484AbUJUKoq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 06:42:54 -0400
-Date: Thu, 21 Oct 2004 12:42:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: rl@hellgate.ch, jgarzik@pobox.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@zip.com.au>
-Subject: Fix suspend/resume support in via-rhine2
-Message-ID: <20041021104239.GA2201@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 21 Oct 2004 06:44:46 -0400
+Message-ID: <41779315.7080306@rokos.info>
+Date: Thu, 21 Oct 2004 12:44:37 +0200
+From: Michal Rokos <michal@rokos.info>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Netdev List <netdev@oss.sgi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [Patch 2.6] Natsemi -  add missing pci_disable_device() call
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-If I want via-rhine to work after resume, I need this patch. It stops
-interrupts during suspend and reinitializes them after that. Please
-apply,
+natsemi doesn't call pci_disable_device() during exit or error in init.
 
-								Pavel
+So this patch does it.
 
---- clean/drivers/net/via-rhine.c	2004-10-01 00:30:16.000000000 +0200
-+++ linux/drivers/net/via-rhine.c	2004-10-21 12:32:56.000000000 +0200
-@@ -1957,6 +1957,7 @@
- 	rhine_shutdown(&pdev->dev);
- 	spin_unlock_irqrestore(&rp->lock, flags);
- 
-+	free_irq(dev->irq, dev);
- 	return 0;
- }
- 
-@@ -1970,6 +1971,9 @@
- 	if (!netif_running(dev))
- 		return 0;
- 
-+        if (request_irq(dev->irq, rhine_interrupt, SA_SHIRQ, dev->name, dev))
-+		printk(KERN_ERR "via-rhine %s: request_irq failed\n", dev->name);
-+
- 	ret = pci_set_power_state(pdev, 0);
- 	if (debug > 1)
- 		printk(KERN_INFO "%s: Entering power state D0 %s (%d).\n",
+	Michal
 
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/10/21 10:56:57+02:00 michal@rokos.ack-prg.csas.cz
+#   [NATSEMI] Add missing pci_disable_device().
+#
+# drivers/net/natsemi.c
+#   2004/10/21 10:56:45+02:00 michal@rokos.ack-prg.csas.cz +9 -3
+#   Add missing pci_disable_device().
+#
+diff -Nru a/drivers/net/natsemi.c b/drivers/net/natsemi.c
+--- a/drivers/net/natsemi.c	2004-10-21 10:58:06 +02:00
++++ b/drivers/net/natsemi.c	2004-10-21 10:58:06 +02:00
+@@ -821,7 +821,7 @@
+  #endif
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+  	i = pci_enable_device(pdev);
+-	if (i) return i;
++	if (i) goto out;
+
+  	/* natsemi has a non-standard PM control register
+  	 * in PCI config space.  Some boards apparently need
+@@ -843,8 +843,10 @@
+  		pci_set_master(pdev);
+
+  	dev = alloc_etherdev(sizeof (struct netdev_private));
+-	if (!dev)
+-		return -ENOMEM;
++	if (!dev) {
++		i = -ENOMEM;
++		goto err_alloc_etherdev;
++	}
+  	SET_MODULE_OWNER(dev);
+  	SET_NETDEV_DEV(dev, &pdev->dev);
+
+@@ -1001,6 +1003,9 @@
+
+   err_pci_request_regions:
+  	free_netdev(dev);
++ err_alloc_etherdev:
++	pci_disable_device(pdev);
++ out:
+  	return i;
+  }
+
+@@ -3133,6 +3138,7 @@
+  	iounmap(ioaddr);
+  	free_netdev (dev);
+  	pci_set_drvdata(pdev, NULL);
++	pci_disable_device(pdev);
+  }
+
+  #ifdef CONFIG_PM

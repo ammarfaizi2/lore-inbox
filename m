@@ -1,82 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVCRJF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVCRJIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVCRJF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 04:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVCRJF6
+	id S261518AbVCRJIO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 04:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVCRJHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 04:05:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:15769 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261512AbVCRJEV (ORCPT
+	Fri, 18 Mar 2005 04:07:04 -0500
+Received: from fire.osdl.org ([65.172.181.4]:50834 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261518AbVCRJFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 04:04:21 -0500
-Date: Fri, 18 Mar 2005 10:04:06 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: dipankar@in.ibm.com, shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050318090406.GA9188@elte.hu>
-References: <20050318002026.GA2693@us.ibm.com>
+	Fri, 18 Mar 2005 04:05:48 -0500
+Date: Fri, 18 Mar 2005 01:05:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: yxie@cs.stanford.edu, linux-kernel@vger.kernel.org
+Subject: Re: Potential DOS in load_elf_library?
+Message-Id: <20050318010501.3190d8c6.akpm@osdl.org>
+In-Reply-To: <E1DCDDS-0007K8-00@gondolin.me.apana.org.au>
+References: <Pine.LNX.4.60.0503180008140.25717@localhost.localdomain>
+	<E1DCDDS-0007K8-00@gondolin.me.apana.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050318002026.GA2693@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
-
-> 4. Preemptible read side.
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
+>
+> Yichen Xie <yxie@cs.stanford.edu> wrote:
+>  > Hi guys, I was looking at the load_elf_library function (fs/binfmt_elf.c) 
+>  > in 2.6.10, and noticed the following:
+>  > 
+>  >        elf_phdata = (struct elf_phdr *) kmalloc(j, GFP_KERNEL);
+>  >        ...
+>  >        while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
+>  >        ...
+>  >        kfree(elf_phdata);
+>  > 
+>  > Could this be problematic since the pointer being freed might be different 
+>  > from that returned from kmalloc?
 > 
-> 	RCU read-side critical sections can (in theory, anyway) be quite
-> 	large, degrading realtime scheduling response.	Preemptible RCU
-> 	read-side critical sections avoid such degradation.  Manual
-> 	insertion of "preemption points" might be an alternative as well.
-> 	But I have no intention of trying to settle the long-running
-> 	argument between proponents of preemption and of preemption
-> 	points.  Not today, anyway!  ;-)
+>  Indeed.  This bug has been around since last century.
 
-i'm cleverly sidestepping that argument by offering 4 preemption models
-in the -RT tree :-) We dont have to pick a winner, users will. The way
-low latencies are achieved depends on the preemption model:
+Duh, I was looking at the wrong function.  Thanks.
 
-               ( ) No Forced Preemption (Server)
-               ( ) Voluntary Kernel Preemption (Desktop)
-               ( ) Preemptible Kernel (Low-Latency Desktop)
-               (X) Complete Preemption (Real-Time)
+>  How does this look?
 
-"Server" is the current default !PREEMPT model. Best throughput, bad
-worst-case latencies.
+I think it'd be better to use epptr everywhere, so we can see that it only
+gets assigned, tested then freed.
 
-"Low-Latency Desktop" is the current PREEMPT model. Has some runtime
-overhead relative to Server, offers fair worst-case latencies.
+--- 25/fs/binfmt_elf.c~load_elf_binary-kfree-fix	2005-03-18 01:00:49.000000000 -0800
++++ 25-akpm/fs/binfmt_elf.c	2005-03-18 01:03:14.000000000 -0800
+@@ -1028,6 +1028,7 @@ out_free_ph:
+ static int load_elf_library(struct file *file)
+ {
+ 	struct elf_phdr *elf_phdata;
++	struct elf_phdr *eppnt;
+ 	unsigned long elf_bss, bss, len;
+ 	int retval, error, i, j;
+ 	struct elfhdr elf_ex;
+@@ -1051,44 +1052,47 @@ static int load_elf_library(struct file 
+ 	/* j < ELF_MIN_ALIGN because elf_ex.e_phnum <= 2 */
+ 
+ 	error = -ENOMEM;
+-	elf_phdata = (struct elf_phdr *) kmalloc(j, GFP_KERNEL);
++	elf_phdata = kmalloc(j, GFP_KERNEL);
+ 	if (!elf_phdata)
+ 		goto out;
+ 
++	eppnt = elf_phdata;
+ 	error = -ENOEXEC;
+-	retval = kernel_read(file, elf_ex.e_phoff, (char *) elf_phdata, j);
++	retval = kernel_read(file, elf_ex.e_phoff, (char *)eppnt, j);
+ 	if (retval != j)
+ 		goto out_free_ph;
+ 
+ 	for (j = 0, i = 0; i<elf_ex.e_phnum; i++)
+-		if ((elf_phdata + i)->p_type == PT_LOAD) j++;
++		if ((eppnt + i)->p_type == PT_LOAD)
++			j++;
+ 	if (j != 1)
+ 		goto out_free_ph;
+ 
+-	while (elf_phdata->p_type != PT_LOAD) elf_phdata++;
++	while (eppnt->p_type != PT_LOAD)
++		eppnt++;
+ 
+ 	/* Now use mmap to map the library into memory. */
+ 	down_write(&current->mm->mmap_sem);
+ 	error = do_mmap(file,
+-			ELF_PAGESTART(elf_phdata->p_vaddr),
+-			(elf_phdata->p_filesz +
+-			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)),
++			ELF_PAGESTART(eppnt->p_vaddr),
++			(eppnt->p_filesz +
++			 ELF_PAGEOFFSET(eppnt->p_vaddr)),
+ 			PROT_READ | PROT_WRITE | PROT_EXEC,
+ 			MAP_FIXED | MAP_PRIVATE | MAP_DENYWRITE,
+-			(elf_phdata->p_offset -
+-			 ELF_PAGEOFFSET(elf_phdata->p_vaddr)));
++			(eppnt->p_offset -
++			 ELF_PAGEOFFSET(eppnt->p_vaddr)));
+ 	up_write(&current->mm->mmap_sem);
+-	if (error != ELF_PAGESTART(elf_phdata->p_vaddr))
++	if (error != ELF_PAGESTART(eppnt->p_vaddr))
+ 		goto out_free_ph;
+ 
+-	elf_bss = elf_phdata->p_vaddr + elf_phdata->p_filesz;
++	elf_bss = eppnt->p_vaddr + eppnt->p_filesz;
+ 	if (padzero(elf_bss)) {
+ 		error = -EFAULT;
+ 		goto out_free_ph;
+ 	}
+ 
+-	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
+-	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
++	len = ELF_PAGESTART(eppnt->p_filesz + eppnt->p_vaddr + ELF_MIN_ALIGN - 1);
++	bss = eppnt->p_memsz + eppnt->p_vaddr;
+ 	if (bss > len) {
+ 		down_write(&current->mm->mmap_sem);
+ 		do_brk(len, bss - len);
+_
 
-"Desktop" is a new mode that is somewhere between Server and Low-Latency
-Desktop: it's what was initially called 'voluntary preemption'. It
-doesnt make the kernel forcibly preemptible anywhere, but inserts a fair
-number of preemption points to decrease latencies statistically, while
-keeping the runtime overhead close to the "Server". (a variant of this
-model is utilized by Fedora and RHEL4 currently, so if this gets
-upstream i expect distros to pick it up - it can be a migration helper
-towards the "Low-Latency Desktop" model.)
-
-"Real-Time" is the no-compromises hard-RT model: almost everything but
-the scheduler itself is fully preemptible. Phenomenal worst-case
-latencies in every workload scenario, but also has the highest runtime
-overhead.
-
-preemptable RCU makes sense for the "Low-Latency Desktop" and
-"Real-Time" preemption models - these are the ones that do forced
-preemption.
-
-	Ingo

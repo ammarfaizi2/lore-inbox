@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319020AbSHMRNZ>; Tue, 13 Aug 2002 13:13:25 -0400
+	id <S319027AbSHMRPo>; Tue, 13 Aug 2002 13:15:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319018AbSHMRNZ>; Tue, 13 Aug 2002 13:13:25 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:6881 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S319016AbSHMRNX>;
-	Tue, 13 Aug 2002 13:13:23 -0400
-Date: Tue, 13 Aug 2002 10:14:58 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Matt Dobson <colpatch@us.ibm.com>
-Subject: Re: [PATCH] NUMA-Q disable irqbalance
-Message-ID: <1995160000.1029258898@flay>
-In-Reply-To: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S319028AbSHMRPn>; Tue, 13 Aug 2002 13:15:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:37588 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S319027AbSHMRPm>;
+	Tue, 13 Aug 2002 13:15:42 -0400
+Date: Tue, 13 Aug 2002 19:19:45 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Erik Andersen <andersen@codepoet.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] clone_startup(), 2.5.31-A0
+In-Reply-To: <20020813160924.GA3821@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0208131918360.4369-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> This patch is from Matt Dobson. It disables irq_balance for the NUMA-Q
->> and makes it a config option for everyone else.
+
+On Tue, 13 Aug 2002, Erik Andersen wrote:
+
+> > First the name souns horrible.  What about spawn_thread or create_thread
+> > instead?  it's not our good old clone and not a lookalike, it's some
+> > pthreadish monster..
 > 
-> Please don't use negative config options.
-> 
-> I'd much rather have
-> 
-> 	bool 'IRQ balancing support' CONFIG_IRQ_BALANCE
-> 
-> than some "Disable IRQ balancing?" question.
+> How about "clone2"?
 
-That piece of wierdness I'll take the blame for, not Matt. It's more complex, we 
-just wanted to make the default be to have it turned on, maybe we've missed 
-some way in the config to make it work like that?
+ni fact it was sys_clone2() first time around, but Ulrich Drepper
+requested another name for it because in glibc it collided with ia64 where
+clone2() is something different. So whatever name there is going to be, it
+should not be sys_clone2().
 
-> Also, the explanation should probably explain that a P4 needs manual IRQ 
-> balancing since the P4 broke the Intel-documented round-robin behaviour.
-> 
-> Finally, exactly since IRQ balancing is practically required on P4-SMP, I
-> really don't think a CONFIG option works. It needs to be configured in on
-> any kernel that expects to use P4's in an SMP configuration.
+	Ingo
 
-That'd be easier if it was written in such a way it worked on all P4 systems.
-For one, it does an rdtsc directly, which doesn't work on all machines.
-For another, it assumes flat logical addressing mode. We need to be able
-to disable this until it's rewritten in such a way as to be more generic.
-
-> In other words, I think this needs to do a dynamic disable (with the 
-> possible exception of a NUMA-Q machine, since that one is already a static 
-> config option and won't have P4's in it).
-
-Was there some reason you really need this on P4s? I seem to recall something
-to do with timer interrupts, but don't remember exactly.
-
-M.
-
-PS. I think __DO_ACTION gets an award for disgusting use of macros.

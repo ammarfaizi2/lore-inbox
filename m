@@ -1,39 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbULJNhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbULJOPz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbULJNhX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 08:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbULJNhX
+	id S261199AbULJOPz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 09:15:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbULJOPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 08:37:23 -0500
-Received: from [193.178.151.93] ([193.178.151.93]:22651 "EHLO as.unibanka.lv")
-	by vger.kernel.org with ESMTP id S261210AbULJNgh (ORCPT
+	Fri, 10 Dec 2004 09:15:55 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:14497 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261199AbULJOPf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 08:36:37 -0500
-From: Aivils <aivils@unibanka.lv>
-Reply-To: aivils@unibanka.lv
-Organization: Unibanka
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Linux input event extending tool exist?
-Date: Fri, 10 Dec 2004 16:38:05 +0200
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, lineak-devel@lists.sourceforge.net
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 10 Dec 2004 09:15:35 -0500
+Subject: Re: [RFC PATCH] convert uhci-hcd to use debugfs
+From: Josh Boyer <jdub@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20041210005514.GB17822@kroah.com>
+References: <20041210005055.GA17822@kroah.com>
+	 <20041210005514.GB17822@kroah.com>
+Content-Type: text/plain
+Message-Id: <1102688117.26320.7.camel@weaponx.rchland.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 10 Dec 2004 08:15:18 -0600
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412101638.05125.aivils@unibanka.lv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vojtech?
+On Thu, 2004-12-09 at 18:55, Greg KH wrote:
+> diff -Nru a/drivers/usb/host/uhci-debug.c b/drivers/usb/host/uhci-debug.c
+> --- a/drivers/usb/host/uhci-debug.c	2004-12-09 16:32:17 -08:00
+> +++ b/drivers/usb/host/uhci-debug.c	2004-12-09 16:32:17 -08:00
+> @@ -11,7 +11,7 @@
+>  
+>  #include <linux/config.h>
+>  #include <linux/kernel.h>
+> -#include <linux/proc_fs.h>
+> +#include <linux/debugfs.h>
+>  #include <linux/smp_lock.h>
+>  #include <asm/io.h>
+>  
+> @@ -507,7 +496,7 @@
+>  
+>  #define MAX_OUTPUT	(64 * 1024)
+>  
+> -static struct proc_dir_entry *uhci_proc_root = NULL;
+> +static struct dentry *uhci_debugfs_root = NULL;
+>  
+>  struct uhci_proc {
+>  	int size;
+> @@ -517,8 +506,7 @@
+>  
+>  static int uhci_proc_open(struct inode *inode, struct file *file)
+>  {
 
-	Exist right now tool which one allow to use ioctl() like
-EVIOCGKEYCODE , EVIOCSKEYCODE
-an so define new scan-keycodes for unknow "Pluto-Pepino-Paperino"
-keyboards which keys sometimes will not generate input event
-on /dev/input/eventXX
+Didn't want to rename this uhci_debug_open?
 
-	How to debug keyboard, when showkeys keep silence?
+> -	const struct proc_dir_entry *dp = PDE(inode);
+> -	struct uhci_hcd *uhci = dp->data;
+> +	struct uhci_hcd *uhci = inode->u.generic_ip;
+>  	struct uhci_proc *up;
+>  	int ret = -ENOMEM;
+>  
+> diff -Nru a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
+> --- a/drivers/usb/host/uhci-hcd.c	2004-12-09 16:32:31 -08:00
+> +++ b/drivers/usb/host/uhci-hcd.c	2004-12-09 16:32:31 -08:00
+> @@ -46,7 +46,7 @@
+>  #include <linux/unistd.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/spinlock.h>
+> -#include <linux/proc_fs.h>
+> +#include <linux/debugfs.h>
+>  #include <linux/pm.h>
+>  #include <linux/dmapool.h>
+>  #include <linux/dma-mapping.h>
+> @@ -1927,12 +1927,10 @@
+>  		uhci->fl = NULL;
+>  	}
+>  
+> -#ifdef CONFIG_PROC_FS
+> -	if (uhci->proc_entry) {
+> -		remove_proc_entry(uhci->hcd.self.bus_name, uhci_proc_root);
+> -		uhci->proc_entry = NULL;
+> +	if (uhci->dentry) {
+> +		debugfs_remove(uhci->dentry);
+> +		uhci->dentry = NULL;
+>  	}
+> -#endif
+>  }
+>  
+>  static int uhci_reset(struct usb_hcd *hcd)
+> @@ -1972,25 +1970,17 @@
+>  	unsigned io_size;
+>  	dma_addr_t dma_handle;
+>  	struct usb_device *udev;
+> -#ifdef CONFIG_PROC_FS
+> -	struct proc_dir_entry *ent;
+> -#endif
+> +	struct dentry *dentry;
+>  
+>  	io_size = pci_resource_len(to_pci_dev(uhci_dev(uhci)), hcd->region);
+>  
+> -#ifdef CONFIG_PROC_FS
+> -	ent = create_proc_entry(hcd->self.bus_name, S_IFREG|S_IRUGO|S_IWUSR, uhci_proc_root);
+> -	if (!ent) {
+> -		dev_err(uhci_dev(uhci), "couldn't create uhci proc entry\n");
+> +	dentry = debugfs_create_file(hcd->self.bus_name, S_IFREG|S_IRUGO|S_IWUSR, uhci_debugfs_root, uhci, &uhci_proc_operations);
+> +	if (!dentry) {
 
-Aivils Stoss
+That won't work if debugfs is not configured.  You'll get back (void *)
+-ENODEV, which is not NULL.
+
+> +		dev_err(uhci_dev(uhci), "couldn't create uhci debugfs entry\n");
+>  		retval = -ENOMEM;
+>  		goto err_create_proc_entry;
+>  	}
+> -
+> -	ent->data = uhci;
+> -	ent->proc_fops = &uhci_proc_operations;
+> -	ent->size = 0;
+> -	uhci->proc_entry = ent;
+> -#endif
+> +	uhci->dentry = dentry;
+>  
+>  	uhci->fsbr = 0;
+>  	uhci->fsbrtimeout = 0;
+> @@ -2192,13 +2182,10 @@
+>  	uhci->fl = NULL;
+>  
+>  err_alloc_fl:
+> -#ifdef CONFIG_PROC_FS
+> -	remove_proc_entry(hcd->self.bus_name, uhci_proc_root);
+> -	uhci->proc_entry = NULL;
+> +	debugfs_remove(uhci->dentry);
+> +	uhci->dentry = NULL;
+>  
+>  err_create_proc_entry:
+> -#endif
+> -
+>  	return retval;
+>  }
+>  
+> @@ -2405,11 +2392,9 @@
+>  			goto errbuf_failed;
+>  	}
+>  
+> -#ifdef CONFIG_PROC_FS
+> -	uhci_proc_root = create_proc_entry("driver/uhci", S_IFDIR, NULL);
+> -	if (!uhci_proc_root)
+> +	uhci_debugfs_root = debugfs_create_dir("uhci", NULL);
+> +	if (!uhci_debugfs_root)
+
+Same thing here.
+
+>  		goto proc_failed;
+> -#endif
+>  
+>  	uhci_up_cachep = kmem_cache_create("uhci_urb_priv",
+>  		sizeof(struct urb_priv), 0, 0, NULL, NULL);
+
+josh
+

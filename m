@@ -1,113 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261346AbSJPTgn>; Wed, 16 Oct 2002 15:36:43 -0400
+	id <S261187AbSJPTdd>; Wed, 16 Oct 2002 15:33:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261347AbSJPTgi>; Wed, 16 Oct 2002 15:36:38 -0400
-Received: from telus-2.cdlsystems.com ([142.179.183.92]:8698 "EHLO
-	cdlsystems.com") by vger.kernel.org with ESMTP id <S261346AbSJPTga>;
-	Wed, 16 Oct 2002 15:36:30 -0400
-Message-ID: <0d3901c2754c$7bf17060$2c0e10ac@frinkiac7>
-From: "Mark Cuss" <mcuss@cdlsystems.com>
-To: <jamesclv@us.ibm.com>, <root@chaos.analogic.com>,
-       "Samuel Flory" <sflory@rackable.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.95.1021016135105.150A-100000@chaos.analogic.com> <200210161228.58897.jamesclv@us.ibm.com>
-Subject: Re: Kernel reports 4 CPUS instead of 2...
-Date: Wed, 16 Oct 2002 13:44:47 -0600
+	id <S261289AbSJPTdd>; Wed, 16 Oct 2002 15:33:33 -0400
+Received: from mail.3ware.com ([205.253.146.92]:31762 "EHLO
+	siamese.engr.3ware.com") by vger.kernel.org with ESMTP
+	id <S261187AbSJPTdc>; Wed, 16 Oct 2002 15:33:32 -0400
+Message-ID: <A1964EDB64C8094DA12D2271C04B812672C79B@tabby>
+From: Adam Radford <aradford@3WARE.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'torvalds@transmeta.com'" <torvalds@transmeta.com>
+Subject: 2.5.43 aic7xxx segfault sd_synchronize_cache() called after SHT->
+	release()
+Date: Wed, 16 Oct 2002 12:41:14 -0700
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Return-Path: mcuss@cdlsystems.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: mcuss@cdlsystems.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Speaking of performance.... :)
+I think sd_synchronize_cache() is getting called after SHT->release()
+function,
+which couldn't possibly be right.  This causes adaptec, 3ware, etc, to
+segfault
+on rmmod.
 
-Has anyone done any testing on a dual CPU configuration like this?  I've
-been testing this box with both the RedHat 8 Stock Kernel (2.4.18.something)
-and 2.4.19 from kernel.org.  Currently, I can't make the thing perform
-anywhere near as fast as my Dual PIII 1 Ghz box (running 2.4.7 for the last
-325 days...) .  I've been compiling the same block of code on both the
-machines and comparing the times.  The PIII box is around 7 s, while the new
-Xeon Box is 13 or 14s...
+See below for adaptec segfault output:
 
-My thinking was that since the CPUs are much faster, and the FSB is faster,
-and the disk controller is faster, that the computer would be faster.
+aic7xxx
+CPU:    1
+EIP:    0060:[<c025918b>]    Not tainted
+EFLAGS: 00010202
+EIP is at put_device+0x7b/0xa0
+eax: 00000000   ebx: c8997028   ecx: 00000001   edx: c0465470
+esi: c12f4174   edi: c8997000   ebp: 00000000   esp: c5b81ee4
+ds: 0068   es: 0068   ss: 0068
+Process rmmod (pid: 1085, threadinfo=c5b80000 task=c5d4a800)
+Stack: c8997028 c0481e20 c02d0f3a c8997028 c8997028 c0481f3c c8997028
+c0481f4c
+       00000000 c66fe1e8 00000286 c798aa00 c0481e20 c12f4000 c13b5000
+c02be9aa
+       c12f4000 c5b81f30 00000002 00030002 00000002 08072009 c042399f
+08071fff
+Call Trace:
+ [<c02d0f3a>] sg_detach+0x20a/0x240
+ [<c02be9aa>] scsi_unregister_host+0x26a/0x5f0
+ [<c01418d8>] __alloc_pages+0x88/0x270
+ [<c892f12a>] exit_this_scsi_driver+0xa/0xc [aic7xxx]
+ [<c893a740>] driver_template+0x0/0x70 [aic7xxx]
+ [<c012029e>] free_module+0x1e/0x140
+ [<c011f3db>] sys_delete_module+0x1db/0x4c0
+ [<c010787f>] syscall_call+0x7/0xb
 
-The hardware is obviously faster, I'm sure its just something I've done
-wrong in the kernel configuration...  If anyone has any advice or words of
-wisdom, I'd really appreciate them...
+Code: 0f 0b 0d 01 86 69 3d c0 8b 83 d4 00 00 00 85 c0 74 04 53 ff
+ Segmentation fault
+[root@localhost boot]#
 
-Thanks in advance,
-
-Mark
-
------ Original Message -----
-From: "James Cleverdon" <jamesclv@us.ibm.com>
-To: <root@chaos.analogic.com>; "Samuel Flory" <sflory@rackable.com>
-Cc: "Mark Cuss" <mcuss@cdlsystems.com>; <linux-kernel@vger.kernel.org>
-Sent: Wednesday, October 16, 2002 1:28 PM
-Subject: Re: Kernel reports 4 CPUS instead of 2...
-
-
-> On Wednesday 16 October 2002 10:54 am, Richard B. Johnson wrote:
-> > On Wed, 16 Oct 2002, Samuel Flory wrote:
-> > > >On Wed, 16 Oct 2002, Mark Cuss wrote:
-> > > >
-> > > >This is the correct behavior. If you don't like this, you can
-> > > >swap motherboards with me ;) Otherwise, grin and bear it!
-> > >
-> > >   Wouldn't it be easier just to turn off the hypertreading or jackson
-> > > tech option in the bios ;-)
-> >
-> > Why would you ever want to turn it off?  You paid for a CPU with
-> > two execution units and you want to disable one?  This makes
-> > no sense unless you are using Windows/2000/Professional, which
-> > will trash your disks and all their files if you have two
-> > or more CPUs (true).
->
-> No, you're thinking of IBM's Power4 chip, which really does have two CPU
-cores
-> on one chip, sharing only the L2 cache.
->
-> The P4 hyperthreading shares just about all CPU resources between the two
-> threads of execution.  There are only separate registers, local APIC, and
-> some other minor logic for each "CPU" to call its own.  All execution
-units
-> are demand shared between them.  (The new "pause" opcode, rep nop, allows
-one
-> half to yield resources to the other half.)
->
-> That's why typical job mixes only get around 20% improvement.  Even
-optimized
-> benchmarks, which run only integer code on one side and floating point on
-the
-> other only get around a 40% boost.  The P4 just doesn't have all that many
-> execution units to go around.  Future chips will probably do better.
->
-> > Cheers,
-> > Dick Johnson
-> > Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> > The US military has given us many words, FUBAR, SNAFU, now ENRON.
-> > Yes, top management were graduates of West Point and Annapolis.
->
->
-> --
-> James Cleverdon
-> IBM xSeries Linux Solutions
-> {jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+--
+Adam Radford
+Software Engineer
+3ware, Inc.

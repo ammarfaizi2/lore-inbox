@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129438AbRCBTlJ>; Fri, 2 Mar 2001 14:41:09 -0500
+	id <S129460AbRCBTn3>; Fri, 2 Mar 2001 14:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbRCBTkx>; Fri, 2 Mar 2001 14:40:53 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:47319 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129460AbRCBTki>;
-	Fri, 2 Mar 2001 14:40:38 -0500
-Date: Fri, 2 Mar 2001 19:38:56 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Cc: Ben LaHaise <bcrl@redhat.com>, Stephen Tweedie <sct@redhat.com>,
-        Tigran Aivazian <tigran@veritas.com>
-Subject: Raw IO fixes for 2.4.2-ac8
-Message-ID: <20010302193856.D28854@redhat.com>
+	id <S129443AbRCBTnU>; Fri, 2 Mar 2001 14:43:20 -0500
+Received: from www0a.netaddress.usa.net ([204.68.24.30]:17622 "HELO
+	www0a.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S129468AbRCBTnG> convert rfc822-to-8bit; Fri, 2 Mar 2001 14:43:06 -0500
+Message-ID: <20010302194303.14346.qmail@www0a.netaddress.usa.net>
+Date: 2 Mar 2001 13:43:03 CST
+From: Neelam Saboo <neelam_saboo@usa.net>
+To: Manfred Spraul <manfred@colorfullife.com>, neelam_saboo@usa.net
+Subject: [Re: paging behavior in Linux]
+CC: linux-kernel@vger.kernel.org
+X-Mailer: USANET web-mailer (34FM.0700.16.05)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hi,
 
-I've just uploaded the current raw IO fixes as
-kiobuf-2.4.2-ac8-A0.tar.gz on
+After I installed a newer version of Kernel (2.4.2) and enable DMA option in
+hardware configuration, the behavior changes.
+I can see performance improvements when another thread is used. Also, i can
+see timing overlaps between two threads. i.e. when one thread is blocked on a
+page fault, other thread keeps working.
+Now, how can this behavior be explained , given the earlier argument.
+Is it that, a newer version of kernel has fixed the problem of the semaphore
+?
 
-	ftp.uk.linux.org:/pub/linux/sct/fs/raw-io/
+thanks
+neelam
 
-and
+> That's a known problem:
+> 
+> The paging io for a process is controlled with a per-process semaphore.
+> The semaphore is held while waiting for the actual io. Thus the paging
+> in multi threaded applications is single threaded.
+> Probably your prefetch thread is waiting for disk io, and the worker
+> thread causes a minor pagefault --> worker thread sleeps until the disk
+> io is completed.
+> 
+> --
+> 	Manfred
 
-	ftp.*.kernel.org:/pub/linux/kernel/people/sct/raw-io/
 
-This includes:
-
-00-movecode.diff:	move kiobuf code from mm/memory.c to fs/iobuf.c
-02-faultfix.diff:	fixes for faulting and pinning pages
-03-unbind.diff:		allow unbinding of raw devices
-04-pgdirty.diff:	use the new SetPageDirty to dirty pages after reads
-05-bh-err.diff:		fix cleanup of buffer_heads after ENOMEM
-06-eio.diff:		fix error returned on EIO in first block of IO
-
-The first 3 of these are from the current 2.2 raw patches.  The 4th is
-the fix for dirtying pages after raw reads, using the new
-functionality of the 2.4 VM.  The 5th and 6th fix up problems
-introduced when brw_kiovec was moved to use submit_bh().
-
-Cheers,
- Stephen
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267698AbTACW2V>; Fri, 3 Jan 2003 17:28:21 -0500
+	id <S267694AbTACWhq>; Fri, 3 Jan 2003 17:37:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267699AbTACW2V>; Fri, 3 Jan 2003 17:28:21 -0500
-Received: from vsmtp3.tin.it ([212.216.176.223]:6371 "EHLO smtp3.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S267698AbTACW2U>;
-	Fri, 3 Jan 2003 17:28:20 -0500
-Message-ID: <3E161DFD.AB8D25AE@tin.it>
-Date: Fri, 03 Jan 2003 23:34:21 +0000
-From: "A.D.F." <adefacc@tin.it>
-Reply-To: adefacc@tin.it
-Organization: Private
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.2.21 i686)
-X-Accept-Language: en
+	id <S267697AbTACWhq>; Fri, 3 Jan 2003 17:37:46 -0500
+Received: from mailer2.lut.ac.uk ([158.125.1.206]:46735 "EHLO
+	mailer2.lut.ac.uk") by vger.kernel.org with ESMTP
+	id <S267694AbTACWhp>; Fri, 3 Jan 2003 17:37:45 -0500
+Message-ID: <3E1612D4.60304@lboro.ac.uk>
+Date: Fri, 03 Jan 2003 22:46:44 +0000
+From: A E Lawrence <A.E.Lawrence@lboro.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-gb, en-us
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: TCP Zero Copy for mmapped files
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: GET_TIMEOUT too small for hotplugging in usb.c (2.4.20)
+Content-Type: multipart/mixed;
+ boundary="------------090003070803020604040003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FreeBSD 5.0 should already have a zero copy for mmapped files and
-IMHO it would be worth to have it in Linux 2.6 too.
+This is a multi-part message in MIME format.
+--------------090003070803020604040003
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-It would also be very nice to be able to enable zero copy for mmapped files
-by a config option.
+There seem to be several threads in the archives which report problems that 
+the small timeout seems to explain. Details attached.
 
-Many applications use mapped memory to serve lots of small and
-medium sized files (4 - 1024 KB) or even a few big files
-(think at web servers, i.e. Apache 2, etc.);  this is done to better
-serve multiple / parallel downloads being done on the same files.
+ael
 
-Using or not using mmap() is a userland / application choice that depends
-on lots of factors / strategies that are outside kernel scope.
+--------------090003070803020604040003
+Content-Type: text/plain;
+ name="usb_TIMEOUT.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="usb_TIMEOUT.txt"
 
-Besides this there seems to be some work in progress to speed up
-mmap() calls, thus why not doing all the work right ?
+GET_TIMEOUT in usb.c requires a larger value to permit hotplugging
+------------------------------------------------------------------
 
--- 
-Nick Name:      A.D.F.
-E-Mail:         adefacc@tin.it
-E-Mail-Font:    Courier New (plain text, no html)
---
+drivers/usb/usb.c from 2.4.20 (no version number in file)
+
+#ifdef CONFIG_USB_LONG_TIMEOUT
+#define GET_TIMEOUT 20          <== This was 4
+#else
+#define GET_TIMEOUT 3
+#endif
+#define SET_TIMEOUT 3
+
+Hotplugging my usb Epson scanner ceased to work sometime ago. I have just 
+traced this to a short GET_TIMEOUT in usb.c as above.
+
+It is well known that Epson scanners take a long time to respond.
+Mine takes around 12 seconds: the explanation seems to be that it switchs
+on the transparency light source and waits for it to stabilize before answering
+enquiries. This is covered in scanner.c which uses extended timeouts for
+Epsons.
+
+However, even with CONFIG_USB_LONG_TIMEOUT set, the timeout in usbcore is only
+4 seconds, so the hotplug script does not get called to load that scanner
+module. So the longer value of GET_TIMEOUT needs to be increased to at least
+15 seconds, perhaps much longer to cover other devices that may be even slower?
+Or should it become a module parameter?
+
+A.E.Lawrence
+
+--------------090003070803020604040003--
+

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271631AbRHUKLJ>; Tue, 21 Aug 2001 06:11:09 -0400
+	id <S271630AbRHUKOt>; Tue, 21 Aug 2001 06:14:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271630AbRHUKK7>; Tue, 21 Aug 2001 06:10:59 -0400
-Received: from web20102.mail.yahoo.com ([216.136.226.39]:1548 "HELO
-	web20102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S271631AbRHUKKt>; Tue, 21 Aug 2001 06:10:49 -0400
-Message-ID: <20010821101104.96000.qmail@web20102.mail.yahoo.com>
-Date: Tue, 21 Aug 2001 03:11:04 -0700 (PDT)
-From: Venu Gopal Krishna Vemula <vvgkrishna_78@yahoo.com>
-Subject: Re: On Network Drivers......
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <E15YoId-0005y8-00@the-village.bc.nu>
+	id <S271634AbRHUKOj>; Tue, 21 Aug 2001 06:14:39 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:51843 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S271630AbRHUKOe>; Tue, 21 Aug 2001 06:14:34 -0400
+Message-ID: <3B823476.9060109@korseby.net>
+Date: Tue, 21 Aug 2001 12:14:14 +0200
+From: Kristian <kristian@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: cwidmer@iiic.ethz.ch
+CC: linux-kernel@vger.kernel.org
+Subject: Re: massive filesystem corruption with 2.4.9
+In-Reply-To: <3B821509.8000006@korseby.net> <200108210834.f7L8Ysk09023@mail.swissonline.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sir,
-
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
->>  A driver of layered one.., in which one layer
->> communicates with another. But overall there 
->> should be  only one driver . (Just like Stream's
->> drivers, but we don't want Stream Drivers). 
-
+Christian Widmer wrote:
+> i had similar problems with 2.4.6. unfortunately i didn't save the errors so
+> i can't compare the msg's. i just can say that with 2.4.6 it destroyed the
+> ext2 on a 40GB and 60GB maxtor disk. since then my nfs server is running 
+> 2.2.19 with works fine (with minor promblems*).
 > 
-> We have a single layer between the network stack and
-> the drivers. However  nothing stops drivers from 
-> implementing multiple  layers internally or
-> calling back into other drivers. shaper is an
-> example of a driver that  calls other drivers.
-> 
+> * after a client mounted an exprots once. i cant unmount that partition on 
+> the server after the client unmounted the exports.
 
- Can you please explain something about implementing
-multiple layers internally in a Network Driver 
-                     or
- inform me where i can find information (Source code)
+I have several entries more in my logfile. It would be no problem collecting 
+them if that is helpful. I forgot to say that I'm using an IBM 41 GB (hda: 
+IBM-DTLA-305040, ATA DISK drive) and that this problem only occurs on my 
+root-partition (hda5), the always mounted /boot-Partition (hda1) and partially 
+mounted misc-Partition (hda7) are not effected.
 
-         Today i have searched a lot to find any
-information related to the Network driver(in which
-multiple layers has to develop internally)  in
-Internet, but i could not found any source code or
-information in Internet.
+I don't use any NFS.
 
-With Thanks,
-regards,
-vvgkrishna_78@yahoo.com
+Kristian
 
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                          :: http://www.korseby.net
+                          :: http://www.tomlab.de
+kristian@korseby.net ....::
 
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/

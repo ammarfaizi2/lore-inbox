@@ -1,68 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269604AbUJLKqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268535AbUJLKsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269604AbUJLKqj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 06:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269611AbUJLKqj
+	id S268535AbUJLKsm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 06:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269608AbUJLKsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 06:46:39 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:19103 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S269604AbUJLKqc (ORCPT
+	Tue, 12 Oct 2004 06:48:42 -0400
+Received: from [64.62.253.241] ([64.62.253.241]:23815 "EHLO staidm.org")
+	by vger.kernel.org with ESMTP id S268535AbUJLKsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 06:46:32 -0400
-Date: Tue, 12 Oct 2004 12:46:32 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: James Bruce <bruce@andrew.cmu.edu>, Greg KH <greg@kroah.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
-Message-ID: <20041012104632.GA32663@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Oliver Neukum <oliver@neukum.org>,
-	James Bruce <bruce@andrew.cmu.edu>, Greg KH <greg@kroah.com>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-References: <20041011120701.GA824@outpost.ds9a.nl> <416B9436.3010902@andrew.cmu.edu> <200410121224.44910.oliver@neukum.org>
+	Tue, 12 Oct 2004 06:48:14 -0400
+Date: Tue, 12 Oct 2004 03:50:56 -0700
+From: Bryan Rittmeyer <bryan@staidm.org>
+To: John McCutchan <ttb@tentacle.dhs.org>, Robert Love <rml@novell.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] inotify 0.13.1 cleanup
+Message-ID: <20041012105056.GA26353@staidm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="n8g4imXOkfNTN/H1"
 Content-Disposition: inline
-In-Reply-To: <200410121224.44910.oliver@neukum.org>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 12, 2004 at 12:24:44PM +0200, Oliver Neukum wrote:
 
-> Devices break. You have to cope with devices going away suddenly.
-> You are not required to ensure data integrity in all cases, but the system
-> must not suffer. To allow that you must be able to get rid of the mounts
-> even if users do not cooperate. 
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Well, in retrospect, the kernel appears to offer the following semantics,
-perhaps unintentionally:
+Two minor optimizations and an ENOMEM.
 
-	When a device goes away for any reason, but there are mounts that
-	refer to it, the device nominally stays around and an umount will
-	always succeed, removing the vestiges of the device with it.
+-Bryan
 
-This would in fact allow something in userspace listening to hotplug events
-to umount on a disconnect event from USB. Except that I'm not sure if the
-semantics above are guaranteed - they may just be an accident.
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="inotify-0.13.1-cleanup_1.patch"
 
-Things get more complicated if we have logical volumes or raid partitions
-which ultimately depend on a device that is removed. In this case, userspace
-should be aware of all dependencies in order to know which mountpoints to
-umount. This might even include loopback mounts.
+--- inotify.c.orig	2004-10-12 01:16:12.000000000 -0700
++++ inotify.c	2004-10-12 02:44:52.000000000 -0700
+@@ -218,7 +218,6 @@
+ 
+ 	/* the queue has just overflowed and we need to notify user space */
+ 	if (dev->event_count == MAX_INOTIFY_QUEUED_EVENTS) {
+-		dev->event_count++;
+ 		kevent = kernel_event(-1, IN_Q_OVERFLOW, cookie, NULL);
+ 		iprintk(INOTIFY_DEBUG_EVENTS, "sending IN_Q_OVERFLOW to %p\n",
+ 			dev);
+@@ -229,19 +228,18 @@
+ 			!event_and(mask, watch->mask))
+ 		return;
+ 
+-	dev->event_count++;
+ 	kevent = kernel_event(watch->wd, mask, cookie, filename);
+ 
+ add_event_to_queue:
+ 	if (!kevent) {
+ 		iprintk(INOTIFY_DEBUG_EVENTS, "failed to queue event for %p"
+ 			" -- could not allocate kevent\n", dev);
+-		dev->event_count--;
+ 		return;
+ 	}
+ 
+ 	/* queue the event and wake up anyone waiting */
+ 	list_add_tail(&kevent->list, &dev->events);
++	dev->event_count++;
+ 	iprintk(INOTIFY_DEBUG_EVENTS,
+ 		"queued event %x for %p\n", kevent->event.mask, dev);
+ 	wake_up_interruptible(&dev->wait);
+@@ -470,13 +468,17 @@
+ 	if (!inode->inotify_data) {
+ 		inode->inotify_data = kmem_cache_alloc(inode_data_cachep,
+ 							GFP_ATOMIC);
++
++		if(!inode->inotify_data)
++			return -ENOMEM;
++
+ 		INIT_LIST_HEAD(&inode->inotify_data->watches);
+ 		inode->inotify_data->watch_mask = 0;
+ 		inode->inotify_data->watch_count = 0;
+ 	}
+ 	list_add(&watch->i_list, &inode->inotify_data->watches);
+ 	inode->inotify_data->watch_count++;
+-	inode_update_watch_mask(inode);
++	inode->inotify_data->watch_mask |= watch->mask;
+ 
+ 	return 0;
+ }
+@@ -788,6 +790,7 @@
+ {
+ 	struct inode *inode;
+ 	struct inotify_watch *watch;
++	int ret;
+ 
+ 	inode = find_inode(request->dirname);
+ 	if (IS_ERR(inode))
+@@ -842,7 +845,17 @@
+ 		return -ENOSPC;
+ 	}
+ 
+-	inode_add_watch(inode, watch);
++	ret = inode_add_watch(inode, watch);
++	if(ret < 0) {
++		iprintk(INOTIFY_DEBUG_ERRORS,
++			"can't add watch\n");
++		list_del(&watch->d_list); /* inotify_dev_rm_watch w/o event */
++		delete_watch(dev, watch);
++		spin_unlock(&dev->lock);
++		spin_unlock(&inode->i_lock);
++		unref_inode(inode);
++		return ret;
++	}
+ 
+ 	spin_unlock(&dev->lock);
+ 	spin_unlock(&inode->i_lock);
 
-The kernel knows the dependencies implicitly and might be in a better
-position to know what is invalidated by a disconnect, and which devices
-disappear because of dependencies on it.
-
-I'm hoping either Greg or Al will chime in - it appears as if part of the
-infrastructure is there, but not quite developed.
-
-Thanks.
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+--n8g4imXOkfNTN/H1--

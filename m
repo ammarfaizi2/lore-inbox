@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbTLXV7x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 16:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTLXV7w
+	id S263937AbTLXWBx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 17:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLXWBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 16:59:52 -0500
-Received: from ms-smtp-02-qfe0.nyroc.rr.com ([24.24.2.56]:10693 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S263923AbTLXV7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 16:59:51 -0500
-Message-ID: <3FEA0C3C.9090601@cs.oswego.edu>
-Date: Wed, 24 Dec 2003 16:59:24 -0500
-From: Keith Lea <keith@cs.oswego.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 24 Dec 2003 17:01:50 -0500
+Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:55201 "EHLO
+	mail.home") by vger.kernel.org with ESMTP id S263937AbTLXWAT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 17:00:19 -0500
+From: Eric <eric@cisu.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test11 data loss
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: allow process or user to listen on priviledged ports?
+Date: Wed, 24 Dec 2003 16:00:16 -0600
+User-Agent: KMail/1.5.94
+References: <bscg1m$1eg$1@sea.gmane.org> <y2allp1c32o.fsf@cartman.at.fivegeeks.net>
+In-Reply-To: <y2allp1c32o.fsf@cartman.at.fivegeeks.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200312241600.16035.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I'm not subscribed to this list. This is not a help request, and 
-not really a bug report, I just thought someone should know about this.
-
-I installed the 2.6.0-beta11-mm kernel last week, and the other day my 
-computer locked up (this is normal on my laptop with every kernel 
-version I've tried, this isn't the problem I'm posting about). When I 
-restarted, many, many files that had been open when it locked up were 
-filled with garbage, or the contents of totally unrelated files. For 
-example, my syslog contained some KDE header file code, and 
-/sbin/modprobe contained 82kb of data that seemed like random noise. I 
-think each file was the same size as it was originally, just with 
-different data, but I'm not sure.
-
-The corruption happened on two separate partitions on a single IDE 
-laptop drive, and both were ReiserFS 3.6 partitions. I don't know if 
-this is a kernel bug or a Reiser bug or something else, but I thought 
-the kernel developers should know about this, and be on the lookout for 
-similar things (hopefully with more informative bug reports than mine). 
-I'm sorry I don't have more information, but if anyone wants to know 
-more about my system I'd be glad to help.
-
--Keith Lea
+On Wednesday 24 December 2003 03:34 pm, Adam Sampson wrote:
+> Sven Köhler <skoehler@upb.de> writes:
+> > So is there any machanism to bind that permission (to listen on a
+> > priviledged tcp-port) to a specific user or a specific process?
+>
+> Even if you can't find a way to do this, you can cheat: use an
+> iptables DNAT rule to translate connections to the desired port into
+> connections to a non-privileged port upon which your daemon is
+> actually listening. Something like:
+>
+> iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to 1.2.3.4:8080
+ Not to be too picky, but I think the redirect target is better suited for 
+this. I haven't seen the source, but I assume it will be more efficient 
+because it knows the destination is the local machine. 
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 22
+-------------------------
+Eric Bambach
+Eric at cisu dot net
+-------------------------

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131296AbRA3QU2>; Tue, 30 Jan 2001 11:20:28 -0500
+	id <S130352AbRA3QYs>; Tue, 30 Jan 2001 11:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131383AbRA3QUS>; Tue, 30 Jan 2001 11:20:18 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:31109 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S131296AbRA3QUG>; Tue, 30 Jan 2001 11:20:06 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A76E155.2030905@redhat.com> 
-In-Reply-To: <3A76E155.2030905@redhat.com>  <3A75A70C.4050205@redhat.com> <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <20010129084410.B32652@hq.fsmlabs.com> <30672.980867280@redhat.com> 
-To: Joe deBlaquiere <jadb@redhat.com>
-Cc: yodaiken@fsmlabs.com, Andrew Morton <andrewm@uow.edu.au>,
-        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0 
+	id <S130526AbRA3QYi>; Tue, 30 Jan 2001 11:24:38 -0500
+Received: from pD902B913.dip.t-dialin.net ([217.2.185.19]:55680 "EHLO
+	defiant.crash") by vger.kernel.org with ESMTP id <S130352AbRA3QYZ>;
+	Tue, 30 Jan 2001 11:24:25 -0500
+From: Ronald Lembcke <es186@fen-net.de>
+Date: Tue, 30 Jan 2001 17:24:28 +0100
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: no boot with 2.4.x
+Message-ID: <20010130172428.A4899@defiant.crash>
+In-Reply-To: <98087051420864-30100120864rhairyes@lee.k12.nc.us>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jan 2001 16:19:14 +0000
-Message-ID: <5797.980871554@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <98087051420864-30100120864rhairyes@lee.k12.nc.us>; from rhairyes@lee.k12.nc.us on Tue, Jan 30, 2001 at 04:01:54PM +0000
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-jadb@redhat.com said:
->  I wasn't thinking of running the kernel XIP from writable, but even
-> trying to do that from the filesystem is a mess. If you're going to be
->  that way about it...
-
-Heh. I am. Read-only XIP is going to be doable, but writable XIP means that
-any time you start to write to the flash chip, you have to find all the
-mappings of every page from that chip and mark them absent, then deal 
-properly with faults on them; making processes sleep till the chip is in a 
-readable state again. It's going to suck. Lots.
-
-I'm not going to emulate our beloved leader and declare that it's never
-going to be supported - I have no particular problem with someone doing
-this, as long as I don't have to get too involved and it doesn't end up in
-my CVS tree with me being the one who's expected to feed/justify it to
-Linus.
-
-> /me hands over the crackpipe
-
-You don't want writable XIP. You just think you do, because you work for a 
-software company and you're not allowed to call the hardware designers 
-naughty names when they fail to realise that compression is far more useful 
-than XIP and also cheaper, in 99% of cases.
-
---
-dwmw2
+Hi!
 
 
+On Tue, Jan 30, 2001 at 04:01:54PM +0000, Ryan Hairyes wrote:
+> I compiled the 2.4 kernel on my laptop last night.
+> After editing lilo, I rebooted the machine. I selected
+> this new kernel and when it began to boot, it told me
+> that it was uncompressing the kernel and that the 
+> kernel uncompression was ok.  Then it just froze.  Any
+> ideas?
+
+The same happened to me (not on a laptop) when I forgot to select
+the right CPU-Type (AMD K6-2) and Pentium 3 was still selected.
+
+Und weg... 
+           Roni
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

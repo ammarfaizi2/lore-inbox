@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289615AbSAJTQA>; Thu, 10 Jan 2002 14:16:00 -0500
+	id <S289612AbSAJTP7>; Thu, 10 Jan 2002 14:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289621AbSAJTPp>; Thu, 10 Jan 2002 14:15:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:38152 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S289629AbSAJTO1>;
-	Thu, 10 Jan 2002 14:14:27 -0500
-Date: Thu, 10 Jan 2002 20:14:13 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Aaron Blew <aaron.blew@district6.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S289627AbSAJTPn>; Thu, 10 Jan 2002 14:15:43 -0500
+Received: from sweetums.bluetronic.net ([66.57.88.6]:64457 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S289621AbSAJTOQ>; Thu, 10 Jan 2002 14:14:16 -0500
+Date: Thu, 10 Jan 2002 14:14:15 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Jim Crilly <noth@noth.is.eleet.ca>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
 Subject: Re: Bigggg Maxtor drives (fwd)
-Message-ID: <20020110201413.K19814@suse.de>
-In-Reply-To: <Pine.LNX.4.33L.0201101010090.2985-100000@imladris.surriel.com> <1010689195.390.3.camel@workmonkey>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1010689195.390.3.camel@workmonkey>
+In-Reply-To: <3C3D191E.7090804@noth.is.eleet.ca>
+Message-ID: <Pine.GSO.4.33.0201101408260.28783-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10 2002, Aaron Blew wrote:
-> This is where I am right now :).  25+GB of space I can't use is
-> frustrating, especially considering that I've only got 30-40GB free,
-> with space dissappearing regularly (I obsessively capture video off TV
+On Wed, 9 Jan 2002, Jim Crilly wrote:
+>Actually it would seem this is just Andre's, not so subtle, way of
+>trying to prove that his ATA133/48-bit addressing patches need included
+>in 2.4.
 
-I always read emails like that, what exactly is wrong with having
-patches out-of-kernel for a while? Surely nothing prevents you from
-applying them when you upgrade your kernel?!
+And I'm sure many of his patches would be accepted if he sent them in the
+method prescribed by Linus (loudly and on multiple occasions.)  That is,
+ONE patch to fix or support *ONE* thing. (Translation: minimize the amount
+of stuff you screw up with your patch.) The "megapatch" is deleted on sight.
 
-Note that this is not an email saying we should not include Andre's
-work, I'm quite sure we will do that eventually.
+*I* would certainly appreciate individual patches.
 
--- 
-Jens Axboe
+--Ricky
+
 

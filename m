@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVAaXC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVAaXER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVAaXC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 18:02:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVAaXC4
+	id S261421AbVAaXER (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 18:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVAaXER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 18:02:56 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:64458 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261418AbVAaXCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 18:02:32 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.10-ac11 announcement?
-Date: Tue, 1 Feb 2005 00:02:49 +0100
-User-Agent: KMail/1.7.1
-Cc: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050129191235.GG14791@charite.de> <1107158722.14787.68.camel@localhost.localdomain>
-In-Reply-To: <1107158722.14787.68.camel@localhost.localdomain>
+	Mon, 31 Jan 2005 18:04:17 -0500
+Received: from [144.140.70.13] ([144.140.70.13]:44194 "HELO
+	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
+	id S261421AbVAaXEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 18:04:05 -0500
+Message-ID: <41FEB951.8070307@bigpond.net.au>
+Date: Tue, 01 Feb 2005 10:03:45 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Ingo Molnar <mingo@elte.hu>
+CC: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+References: <200501201542.j0KFgOwo019109@localhost.localdomain> <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <41F6C5CE.9050303@bigpond.net.au> <20050126092014.GA7003@elte.hu>
+In-Reply-To: <20050126092014.GA7003@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502010002.50734.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Monday, 31 of January 2005 09:05, Alan Cox wrote:
-> On Sad, 2005-01-29 at 19:12, Ralf Hildebrandt wrote:
-> > Where is the 2.6.10-ac11 announcement?
+Ingo Molnar wrote:
+> * Peter Williams <pwil3058@bigpond.net.au> wrote:
 > 
-> Good question
 > 
-> Arjan van de Ven is now building RPMS of the kernel and those can be found
-> in the RPM subdirectory and should be yum-able. Expect the RPMS to lag the
-> diff a little as the RPM builds and tests do take time.
+>>As I understand this (and I may be wrong), the intention is that if a
+>>task has its RT_CPU_RATIO rlimit set to a value greater than zero then
+>>setting its scheduling policy to SCHED_RR or SCHED_FIFO is allowed. 
 > 
-> Nothing terribly exciting here security wise but various bugs for problems
-> people have been hitting that are now fixed upstream, and also the ULi
-> tulip variant should now work. If you are running IPv6 you may well want
-> the networking fixes.
+> 
+> correct.
+> 
+> 
+>>This causes me to ask the following questions:
+>>
+>>1. Why is current->signal->rlim[RLIMIT_RT_CPU_RATIO].rlim_cur being used 
+>>in setscheduler() instead of p->signal->rlim[RLIMIT_RT_CPU_RATIO].rlim_cur?
+>>
+>>2. What stops a task that had a non zero RT_CPU_RATIO rlimit and
+>>changed its policy to SCHED_RR or SCHED_FIFO from then setting
+>>RT_CPU_RATIO rlimit back to zero and escaping the controls?  As far as
+>>I can see (and, once again, I may be wrong) the mechanism for setting
+>>rlimits only requires CAP_SYS_RESOURCE privileges in order to increase
+>>the value.
+> 
+> 
+> you are right, both are bugs.
+> 
+> i've uploaded the -D6 patch that should have both fixed:
+> 
+>   http://redhat.com/~mingo/rt-limit-patches/
+> 
 
-Is there a broken-out version of the patch available?  It reboots at startup
-(before it mounts the root fs) on my dual-Opteron box (SuSE 9.2), but -ac10
-works fine, evidently.  I could check which changeset actually caused this to
-happen, but I'd need to separate them.
+I've just noticed what might be a bug in the original code.  Shouldn't 
+the following:
 
-Greets,
-Rafael
+        if ((current->euid != p->euid) && (current->euid != p->uid) &&
+                !capable(CAP_SYS_NICE))
 
+be:
 
+        if ((current->uid != p->uid) && (current->euid != p->uid) &&
+                !capable(CAP_SYS_NICE))
+
+I.e. if the real or effective uid of the task doing the setting is not 
+the same as the uid of the target task it is not allowed to change the 
+target task's policy unless it is specially privileged.
+
+Peter
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280002AbRLRPyf>; Tue, 18 Dec 2001 10:54:35 -0500
+	id <S284138AbRLRQEz>; Tue, 18 Dec 2001 11:04:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284124AbRLRPyZ>; Tue, 18 Dec 2001 10:54:25 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:30621 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S280002AbRLRPyN>;
-	Tue, 18 Dec 2001 10:54:13 -0500
-Date: Tue, 18 Dec 2001 16:51:45 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0112181639240.11499-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+	id <S284139AbRLRQEq>; Tue, 18 Dec 2001 11:04:46 -0500
+Received: from m788-mp1-cvx1b.edi.ntl.com ([62.253.11.20]:19438 "EHLO
+	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S284138AbRLRQEf>; Tue, 18 Dec 2001 11:04:35 -0500
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200112181459.fBIExrW15830@pinkpanther.swansea.linux.org.uk>
+Subject: Re: Limits broken in 2.4.x kernel.
+To: war@starband.net (war)
+Date: Tue, 18 Dec 2001 14:59:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <3C1E5A88.57F5A68A@starband.net> from "war" at Dec 17, 2001 03:50:16 
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Dec 2001, Linus Torvalds wrote:
-
+> would be limited to 3 processes.
 > 
-> On Mon, 17 Dec 2001, William Lee Irwin III wrote:
-> >
-> >   5:   46490271          XT-PIC  soundblaster
-> >
-> > Approximately 4 times more often than the timer interrupt.
-> > That's not nice...
+> I was curious if this fix would ever be merged into the Linux Kernel so
+> limits would actually work properly?
 
-  0:   24867181          XT-PIC  timer
-  5:    9070614          XT-PIC  soundblaster
-
-After I bootup I start X and then xmms and then my system plays mp3's
-almost all the time.
-
-> > > Which sound driver are you using, just in case this _is_ the reason?
-> >
-> > SoundBlaster 16
-
-I have an old ISA SoundBlaster 16
- 
-> Raising that min_fragment thing from 5 to 10 would make the minimum DMA
-> buffer go from 32 bytes to 1kB, which is a _lot_ more reasonable (what,
-> at 2*2 bytes per sample and 44kHz would mean that a 1kB DMA buffer empties
-> in less than 1/100th of a second, but at least it should be < 200 irqs/sec
-> rather than >400).
-
-After watchning /proc/interrupts with 30 second intervals I see that I
-only get 43 interrupts/second when playing 16bit 44.1kHz stereo.
-
-And according to vmstat I have 153-158 interrupts/second in total
-(it's probably the networktraffic that increases it a little above 143).
-
-/Martin
+Linus kept rejecting it. Now we have Marcelo as 2.4.x maintainer I'll
+look at submitting it. 2.5 will no doubt stay broken for a while.
 

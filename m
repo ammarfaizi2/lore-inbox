@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUH2QsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUH2Qsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268119AbUH2QsB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268132AbUH2QsB
+	id S268132AbUH2Qsi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268161AbUH2Qsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:48:01 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:24705 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268119AbUH2Qr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:47:58 -0400
-Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Roland Dreier <roland@topspin.com>, jmerkey@comcast.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       jmerkey@drdos.com
-In-Reply-To: <20040829164239.GH5492@holomorphy.com>
-References: <082620040421.9849.412D655C000690BA000026792200735446970A059D0A0306@comcast.net>
-	 <20040826043318.GO2793@holomorphy.com> <52isb6bj64.fsf@topspin.com>
-	 <20040826044954.GP2793@holomorphy.com>
-	 <1093783694.27899.7.camel@localhost.localdomain>
-	 <20040829164239.GH5492@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1093794337.28141.8.camel@localhost.localdomain>
+	Sun, 29 Aug 2004 12:48:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:27822 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268132AbUH2Qsc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 12:48:32 -0400
+Date: Sun, 29 Aug 2004 09:48:25 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       nathanl@austin.ibm.com, jbarnes@sgi.com
+Subject: Re: sched_domains + NUMA issue
+Message-ID: <20040829164825.GI5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+	nickpiggin@yahoo.com.au, nathanl@austin.ibm.com, jbarnes@sgi.com
+References: <20040829111855.GB26072@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 29 Aug 2004 16:45:37 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040829111855.GB26072@krispykreme>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-29 at 17:42, William Lee Irwin III wrote:
-> On Iau, 2004-08-26 at 05:49, William Lee Irwin III wrote:
-> The big nasty is that userspace has very little to go on here. We need
-> to report the limits of the address space somewhere for this kind of
-> affair and probably even hammer out our own addenda to ABI specs so
-> instead of SVR4 $ARCH/ELF ABI spec we have a Linux $ARCH/ELF ABI spec.
-> I see no one so motivated to make backward-incompatible ABI changes
-> that they are willing to do that kind of work.
+On Sun, Aug 29, 2004 at 09:18:55PM +1000, Anton Blanchard wrote:
+> We are seeing errors in the sched domains debug code when SMT + NUMA is
+> enabled. Nathan pointed out that the recent change to limit the number
+> of nodes in a scheduling group may be causing this - in particular
+> sched_domain_node_span.
+> It looks like ia64 are the only ones implementing a reasonable
+> node_distance, the others just do:
+> #define node_distance(from,to) (from != to)
+> On these architectures I wonder if we should disable the
+> sched_domain_node_span code since we will just get a random grouping of
+> cpus.
 
-Ok so I can compile with a.out support. End of problem, that makes the
-patch useful and "spec compliant", although the spec compliance is
-irrelevant anyway. The spec doesn't determine what Linux is it's a
-useful reference for normality. Special cases are special cases and you
-harm the system by seeking to stop stuff that works purely for pieces of
-paper.
+For fsck's sake... macro writers need to exercise more discipline.
 
+
+Index: wait-2.6.9-rc1-mm1/include/linux/topology.h
+===================================================================
+--- wait-2.6.9-rc1-mm1.orig/include/linux/topology.h	2004-08-24 00:03:18.000000000 -0700
++++ wait-2.6.9-rc1-mm1/include/linux/topology.h	2004-08-29 09:44:35.932705488 -0700
+@@ -55,7 +55,7 @@
+ 	for (node = 0; node < numnodes; node = __next_node_with_cpus(node))
+ 
+ #ifndef node_distance
+-#define node_distance(from,to)	(from != to)
++#define node_distance(from,to)	((from) != (to))
+ #endif
+ #ifndef PENALTY_FOR_NODE_WITH_CPUS
+ #define PENALTY_FOR_NODE_WITH_CPUS	(1)
+Index: wait-2.6.9-rc1-mm1/include/asm-ia64/numa.h
+===================================================================
+--- wait-2.6.9-rc1-mm1.orig/include/asm-ia64/numa.h	2004-08-24 00:02:26.000000000 -0700
++++ wait-2.6.9-rc1-mm1/include/asm-ia64/numa.h	2004-08-29 09:45:07.223948496 -0700
+@@ -59,7 +59,7 @@
+  */
+ 
+ extern u8 numa_slit[MAX_NUMNODES * MAX_NUMNODES];
+-#define node_distance(from,to) (numa_slit[from * numnodes + to])
++#define node_distance(from,to) (numa_slit[(from) * numnodes + (to)])
+ 
+ extern int paddr_to_nid(unsigned long paddr);
+ 
+Index: wait-2.6.9-rc1-mm1/include/asm-i386/topology.h
+===================================================================
+--- wait-2.6.9-rc1-mm1.orig/include/asm-i386/topology.h	2004-08-24 00:02:20.000000000 -0700
++++ wait-2.6.9-rc1-mm1/include/asm-i386/topology.h	2004-08-29 09:45:24.973250192 -0700
+@@ -67,7 +67,7 @@
+ }
+ 
+ /* Node-to-Node distance */
+-#define node_distance(from, to) (from != to)
++#define node_distance(from, to) ((from) != (to))
+ 
+ /* Cross-node load balancing interval. */
+ #define NODE_BALANCE_RATE 100

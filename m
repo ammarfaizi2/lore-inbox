@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264379AbUFCPXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264385AbUFCPYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbUFCPXy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 11:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUFCPXp
+	id S264385AbUFCPYW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFCPYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 11:23:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34511 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265554AbUFCPUv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 11:20:51 -0400
-Date: Thu, 3 Jun 2004 17:20:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
-Subject: Re: 2.6.7-rc2-mm2
-Message-ID: <20040603152042.GK1946@suse.de>
-References: <20040603015356.709813e9.akpm@osdl.org>
+	Thu, 3 Jun 2004 11:24:19 -0400
+Received: from mta10-svc.ntlworld.com ([62.253.162.94]:55879 "EHLO
+	mta10-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S265515AbUFCPLE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 11:11:04 -0400
+Date: Thu, 3 Jun 2004 16:10:59 +0100
+From: Mike Jagdis <mjagdis@eris-associates.co.uk>
+To: khandelw@cs.fsu.edu
+Cc: jyotiraditya@softhome.net, linux-kernel@vger.kernel.org
+Subject: Re: Select/Poll
+Message-ID: <20040603151058.GA3169@eris-associates.co.uk>
+References: <courier.40BD66BD.00006D7D@softhome.net> <1086190109.a0ea5ca71914e@system.cs.fsu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040603015356.709813e9.akpm@osdl.org>
+In-Reply-To: <1086190109.a0ea5ca71914e@system.cs.fsu.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03 2004, Andrew Morton wrote:
->  bk-acpi.patch
+On Wed, Jun 02, 2004 at 11:28:29AM -0400, khandelw@cs.fsu.edu wrote:
+> Hello,
+>    Can you give more details - Like which machine which vendor etc.,
+> On a sony vaio pcg frv31 laptop/ redhat 9.0/ after firing some 36,000+ request
+> my select multiplexed server used to fail. With select I believe you not get
+> any packet loss...
 
-Doesn't compile if you disable ACPI, since mp_register_gsi is guarded by
+Then you'd be wrong. Poll/select tell you when desriptors
+are readable/writable. They do *not* impose any magic queuing
+mechanism that guarantees the buffers won't overflow. If the
+low level protocol is non-flow controlled like UDP you *have*
+to read data faster than it arrives and not write data faster
+than it is being transmitted.
 
-#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI_INTERPRETER)
-
-but used in arch/i386/kernel/acpi/boot.c if CONFIG_X86_IO_APIC is set
-alone. I have to disable ACPI on this box still, otherwise it crashes
-very hard immediately after displaying ACPI banner.
+Mike
 
 -- 
-Jens Axboe
-
+Mike Jagdis                        Web: http://www.eris-associates.co.uk
+Eris Associates Limited            Tel: +44 7780 608 368
+Reading, England                   Fax: +44 118 926 6974

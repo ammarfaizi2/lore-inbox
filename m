@@ -1,119 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268367AbUJOTPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268357AbUJOTRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268367AbUJOTPO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 15:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268346AbUJOTJc
+	id S268357AbUJOTRh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 15:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUJOTPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 15:09:32 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:14053 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268357AbUJOTIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 15:08:47 -0400
-Date: Fri, 15 Oct 2004 12:08:22 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: page fault scalability patch V10: [7/7] s/390 atomic pte operations
-In-Reply-To: <Pine.LNX.4.58.0410151201020.26697@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0410151207360.26697@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0409201348070.4628@schroedinger.engr.sgi.com>
- <20040920205752.GH4242@wotan.suse.de> <200409211841.25507.vda@port.imtp.ilyichevsk.odessa.ua>
- <20040921154542.GB12132@wotan.suse.de> <41527885.8020402@myrealbox.com>
- <20040923090345.GA6146@wotan.suse.de> <Pine.LNX.4.58.0409271204180.31769@schroedinger.engr.sgi.com>
- <Pine.LNX.4.58.0410151201020.26697@schroedinger.engr.sgi.com>
+	Fri, 15 Oct 2004 15:15:48 -0400
+Received: from mail.linicks.net ([217.204.244.146]:42508 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S268357AbUJOTJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 15:09:57 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: Black Friday
+Date: Fri, 15 Oct 2004 20:09:49 +0100
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410152009.49873.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Provide atomic pte operations for s390
+Hi all,
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Here is a story that happened to me today, and a sightly warning for any 
+sysadmins that read here.
 
-Index: linux-2.6.9-rc4/include/asm-s390/pgtable.h
-===================================================================
---- linux-2.6.9-rc4.orig/include/asm-s390/pgtable.h	2004-10-10 19:58:24.000000000 -0700
-+++ linux-2.6.9-rc4/include/asm-s390/pgtable.h	2004-10-14 12:22:14.000000000 -0700
-@@ -567,6 +567,17 @@
- 	return pte;
- }
+At 9:50 am on the 1st Oct (2 weeks ago), main file server at work crashed big 
+time (a Snapserver 4100).  It trashed the RAID (240GB - 170GB usable [50GB 
+free]), but the OS (BSD based, I believe) is pretty good and rebuilt it - 
+took 8 hours - no data lost out of 120+ GB
 
-+#define ptep_xchg_flush(__vma, __address, __ptep, __pteval)            \
-+({                                                                     \
-+	struct mm_struct *__mm = __vma->vm_mm;                          \
-+	pte_t __pte;                                                    \
-+	spin_lock(&__mm->page_table_lock);                              \
-+	__pte = ptep_clear_flush(__vma, __address, __ptep);             \
-+	set_pte(__ptep, __pteval);                                      \
-+	spin_unlock(&__mm->page_table_lock);                            \
-+	__pte;                                                          \
-+})
-+
- static inline void ptep_set_wrprotect(pte_t *ptep)
- {
- 	pte_t old_pte = *ptep;
-@@ -778,6 +789,19 @@
+I also have a second Snapserver that runs Quantums own synchronisation 
+software, so that at any point it time, server 'b' is an exact copy of server 
+'a' - this I set to sync at 1:00 am each day.  The idea being you can 
+recover/swap from server to server real time.
 
- #define kern_addr_valid(addr)   (1)
+The first crash proved problems I never thought off in disaster recover 
+options.  The Snapserver synchronisation software doesn't 'sync' directory 
+share nor file permissions - just the actual binary data.  So the 'copy' 
+server 'b' is not as is server 'a'.
 
-+/* Atomic PTE operations */
-+#define __HAVE_ARCH_ATOMIC_TABLE_OPS
-+
-+static inline pte_t ptep_xchg(struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t pteval)
-+{
-+	return __pte(xchg(ptep, pte_val(pteval)));
-+}
-+
-+static inline int ptep_cmpxchg (struct mm_struct *mm, unsigned long address, pte_t *ptep, pte_t oldval, pte_t newval)
-+{
-+	return cmpxchg(ptep, pte_val(oldval), pte_val(newval)) == pte_val(oldval);
-+}
-+
- /*
-  * No page table caches to initialise
-  */
-@@ -791,6 +815,7 @@
- #define __HAVE_ARCH_PTEP_CLEAR_DIRTY_FLUSH
- #define __HAVE_ARCH_PTEP_GET_AND_CLEAR
- #define __HAVE_ARCH_PTEP_CLEAR_FLUSH
-+#define __HAVE_ARCH_PTEP_XCHG_FLUSH
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
- #define __HAVE_ARCH_PTEP_MKDIRTY
- #define __HAVE_ARCH_PTE_SAME
-Index: linux-2.6.9-rc4/include/asm-s390/pgalloc.h
-===================================================================
---- linux-2.6.9-rc4.orig/include/asm-s390/pgalloc.h	2004-10-10 19:58:06.000000000 -0700
-+++ linux-2.6.9-rc4/include/asm-s390/pgalloc.h	2004-10-14 12:22:14.000000000 -0700
-@@ -97,6 +97,10 @@
- 	pgd_val(*pgd) = _PGD_ENTRY | __pa(pmd);
- }
+OK, so since that 'black Friday' two weeks ago, I hacked a way to get the file 
+permissions from box ''a' to box 'b' replicated manually so at least a quick 
+swap over from box 'a' to box 'b' would be possible and the change over for 
+the users would be invisible and all file/share permissions are correct.
 
-+static inline int pgd_test_and_populate(struct mm_struct *mm, pdg_t *pgd, pmd_t *pmd)
-+{
-+	return cmpxchg(pgd, _PAGE_TABLE_INV, _PGD_ENTRY | __pa(pmd)) == _PAGE_TABLE_INV;
-+}
- #endif /* __s390x__ */
+Today at 9:50 Snapserver box 'a' crashed again.  I suspected that it was dying 
+now, and the better move would be to push everybody to the back up box 'b' 
+and replace the dodgy box 'a' until I could replace it.
 
- static inline void
-@@ -119,6 +123,18 @@
- 	pmd_populate_kernel(mm, pmd, (pte_t *)((page-mem_map) << PAGE_SHIFT));
- }
+Except box 'b' was AWOL as well (I didn't scream exactly...).  That crashed 
+too at 9:50 (yes, in sync with box 'a').  The 'sync' software is bloody 
+good ;)
 
-+static inline int
-+pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *page)
-+{
-+	int rc;
-+	spin_lock(&mm->page_table_lock);
-+
-+	rc=pte_same(*pmd, _PAGE_INVALID_EMPTY);
-+	if (rc) pmd_populate(mm, pmd, page);
-+	spin_unlock(&mm->page_table_lock);
-+	return rc;
-+}
-+
- /*
-  * page table entry allocation/free routines.
-  */
+After a lengthy discussion with Snap engineers, it turns out the OS does a 
+KERNEL PANIC after a certain number of file opens/shares get accessed on the 
+version OS I was running.  It only does this once the server reaches the 
+point of whatever threshhold causes it - i.e. a growing, expanding fileserver 
+- they didn't really tell me, nor elaborate.
+
+But because two weeks ago, only one server crashed, I put it down to the 
+gremlins... but as 'a' had not sync'ed with 'b' yet, that is why only one 
+crashed then, and as both are sync'ed since, today both of them.
+
+Two weeks later, both have the same threshhold to cause the kernel crash.
+
+Snap guys gave me new OS firmware to flash - I have done one server, the main 
+server  tomorrow.
+
+The gist of this mail?  Never, ever think you are safe.
+
+Nick
+P.S still have DLT backup anyway - but users want to USE NOW not wait :(
+
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

@@ -1,102 +1,498 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUKODhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUKODoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbUKODhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKODgv
+	id S261476AbUKODoc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:44:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUKODgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:36:51 -0500
-Received: from ozlabs.org ([203.10.76.45]:691 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261468AbUKOCj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 21:39:58 -0500
-MIME-Version: 1.0
+	Sun, 14 Nov 2004 22:36:08 -0500
+Received: from almesberger.net ([63.105.73.238]:57348 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261507AbUKOC7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 21:59:49 -0500
+Date: Sun, 14 Nov 2004 23:59:36 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Make MM use generalized prio_tree (2/3)
+Message-ID: <20041114235936.A23273@almesberger.net>
+References: <20041114235646.K28802@almesberger.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16792.6126.561975.238024@cargo.ozlabs.ibm.com>
-Date: Mon, 15 Nov 2004 13:43:58 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Add __iomem annotations to drivers/scsi/mac53c94.c
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <20041114235646.K28802@almesberger.net>; from werner@almesberger.net on Sun, Nov 14, 2004 at 11:56:46PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds __iomem annotations to drivers/scsi/mac53c94.c, and
-changes one use of st_le32 to writel.
+The second part: make mm/prio_tree.c use lib/prio_tree.c
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+- Werner
 
-diff -urN linux-2.5/drivers/scsi/mac53c94.c test-pmac/drivers/scsi/mac53c94.c
---- linux-2.5/drivers/scsi/mac53c94.c	2004-04-04 16:06:05.000000000 +1000
-+++ test-pmac/drivers/scsi/mac53c94.c	2004-11-15 09:36:29.000000000 +1100
-@@ -41,9 +41,9 @@
- };
+---------------------------------- cut here -----------------------------------
+
+--- linux-2.6.9-orig/mm/prio_tree.c	Mon Oct 18 18:55:28 2004
++++ linux-2.6.9/mm/prio_tree.c	Sun Nov 14 21:32:50 2004
+@@ -11,33 +11,12 @@
+  * 02Feb2004	Initial version
+  */
  
- struct fsc_state {
--	struct	mac53c94_regs *regs;
-+	struct	mac53c94_regs __iomem *regs;
- 	int	intr;
--	struct	dbdma_regs *dma;
-+	struct	dbdma_regs __iomem *dma;
- 	int	dmaintr;
- 	int	clk_freq;
- 	struct	Scsi_Host *host;
-@@ -106,10 +106,10 @@
- static int mac53c94_host_reset(struct scsi_cmnd *cmd)
- {
- 	struct fsc_state *state = (struct fsc_state *) cmd->device->host->hostdata;
--	struct mac53c94_regs *regs = state->regs;
--	struct dbdma_regs *dma = state->dma;
-+	struct mac53c94_regs __iomem *regs = state->regs;
-+	struct dbdma_regs __iomem *dma = state->dma;
+-#include <linux/init.h>
+-#include <linux/module.h>
+ #include <linux/mm.h>
+ #include <linux/prio_tree.h>
  
--	st_le32(&dma->control, (RUN|PAUSE|FLUSH|WAKE) << 16);
-+	writel((RUN|PAUSE|FLUSH|WAKE) << 16, &dma->control);
- 	writeb(CMD_SCSI_RESET, &regs->command);	/* assert RST */
- 	udelay(100);			/* leave it on for a while (>= 25us) */
- 	writeb(CMD_RESET, &regs->command);
-@@ -121,8 +121,8 @@
+ /*
+- * A clever mix of heap and radix trees forms a radix priority search tree (PST)
+- * which is useful for storing intervals, e.g, we can consider a vma as a closed
+- * interval of file pages [offset_begin, offset_end], and store all vmas that
+- * map a file in a PST. Then, using the PST, we can answer a stabbing query,
+- * i.e., selecting a set of stored intervals (vmas) that overlap with (map) a
+- * given input interval X (a set of consecutive file pages), in "O(log n + m)"
+- * time where 'log n' is the height of the PST, and 'm' is the number of stored
+- * intervals (vmas) that overlap (map) with the input interval X (the set of
+- * consecutive file pages).
+- *
+- * In our implementation, we store closed intervals of the form [radix_index,
+- * heap_index]. We assume that always radix_index <= heap_index. McCreight's PST
+- * is designed for storing intervals with unique radix indices, i.e., each
+- * interval have different radix_index. However, this limitation can be easily
+- * overcome by using the size, i.e., heap_index - radix_index, as part of the
+- * index, so we index the tree using [(radix_index,size), heap_index].
+- *
+- * When the above-mentioned indexing scheme is used, theoretically, in a 32 bit
+- * machine, the maximum height of a PST can be 64. We can use a balanced version
+- * of the priority search tree to optimize the tree height, but the balanced
+- * tree proposed by McCreight is too complex and memory-hungry for our purpose.
++ * See ../lib/prio_tree.c for details on the general radix priority search tree
++ * code.
+  */
  
- static void mac53c94_init(struct fsc_state *state)
- {
--	struct mac53c94_regs *regs = state->regs;
--	struct dbdma_regs *dma = state->dma;
-+	struct mac53c94_regs __iomem *regs = state->regs;
-+	struct dbdma_regs __iomem *dma = state->dma;
- 	int x;
+ /*
+@@ -62,422 +41,9 @@
+ 	GET_INDEX_VMA(__tmp, radix, heap); 	\
+ } while (0)
  
- 	writeb(state->host->this_id | CF1_PAR_ENABLE, &regs->config1);
-@@ -143,7 +143,7 @@
- static void mac53c94_start(struct fsc_state *state)
- {
- 	struct scsi_cmnd *cmd;
--	struct mac53c94_regs *regs = state->regs;
-+	struct mac53c94_regs __iomem *regs = state->regs;
- 	int i;
+-static unsigned long index_bits_to_maxindex[BITS_PER_LONG];
  
- 	if (state->phase != idle || state->current_req != NULL)
-@@ -191,8 +191,8 @@
- static void mac53c94_interrupt(int irq, void *dev_id, struct pt_regs *ptregs)
- {
- 	struct fsc_state *state = (struct fsc_state *) dev_id;
--	struct mac53c94_regs *regs = state->regs;
--	struct dbdma_regs *dma = state->dma;
-+	struct mac53c94_regs __iomem *regs = state->regs;
-+	struct dbdma_regs __iomem *dma = state->dma;
- 	struct scsi_cmnd *cmd = state->current_req;
- 	int nb, stat, seq, intr;
- 	static int mac53c94_errors;
-@@ -458,10 +458,10 @@
- 	state->pdev = pdev;
- 	state->mdev = mdev;
+-void __init prio_tree_init(void)
+-{
+-	unsigned int i;
++#include "../lib/prio_tree.c"
  
--	state->regs = (struct mac53c94_regs *)
-+	state->regs = (struct mac53c94_regs __iomem *)
- 		ioremap(macio_resource_start(mdev, 0), 0x1000);
- 	state->intr = macio_irq(mdev, 0);
--	state->dma = (struct dbdma_regs *)
-+	state->dma = (struct dbdma_regs __iomem *)
- 		ioremap(macio_resource_start(mdev, 1), 0x1000);
- 	state->dmaintr = macio_irq(mdev, 1);
- 	if (state->regs == NULL || state->dma == NULL) {
+-	for (i = 0; i < ARRAY_SIZE(index_bits_to_maxindex) - 1; i++)
+-		index_bits_to_maxindex[i] = (1UL << (i + 1)) - 1;
+-	index_bits_to_maxindex[ARRAY_SIZE(index_bits_to_maxindex) - 1] = ~0UL;
+-}
+-
+-/*
+- * Maximum heap_index that can be stored in a PST with index_bits bits
+- */
+-static inline unsigned long prio_tree_maxindex(unsigned int bits)
+-{
+-	return index_bits_to_maxindex[bits - 1];
+-}
+-
+-static void prio_tree_remove(struct prio_tree_root *, struct prio_tree_node *);
+-
+-/*
+- * Extend a priority search tree so that it can store a node with heap_index
+- * max_heap_index. In the worst case, this algorithm takes O((log n)^2).
+- * However, this function is used rarely and the common case performance is
+- * not bad.
+- */
+-static struct prio_tree_node *prio_tree_expand(struct prio_tree_root *root,
+-		struct prio_tree_node *node, unsigned long max_heap_index)
+-{
+-	struct prio_tree_node *first = NULL, *prev, *last = NULL;
+-
+-	if (max_heap_index > prio_tree_maxindex(root->index_bits))
+-		root->index_bits++;
+-
+-	while (max_heap_index > prio_tree_maxindex(root->index_bits)) {
+-		root->index_bits++;
+-
+-		if (prio_tree_empty(root))
+-			continue;
+-
+-		if (first == NULL) {
+-			first = root->prio_tree_node;
+-			prio_tree_remove(root, root->prio_tree_node);
+-			INIT_PRIO_TREE_NODE(first);
+-			last = first;
+-		} else {
+-			prev = last;
+-			last = root->prio_tree_node;
+-			prio_tree_remove(root, root->prio_tree_node);
+-			INIT_PRIO_TREE_NODE(last);
+-			prev->left = last;
+-			last->parent = prev;
+-		}
+-	}
+-
+-	INIT_PRIO_TREE_NODE(node);
+-
+-	if (first) {
+-		node->left = first;
+-		first->parent = node;
+-	} else
+-		last = node;
+-
+-	if (!prio_tree_empty(root)) {
+-		last->left = root->prio_tree_node;
+-		last->left->parent = last;
+-	}
+-
+-	root->prio_tree_node = node;
+-	return node;
+-}
+-
+-/*
+- * Replace a prio_tree_node with a new node and return the old node
+- */
+-static struct prio_tree_node *prio_tree_replace(struct prio_tree_root *root,
+-		struct prio_tree_node *old, struct prio_tree_node *node)
+-{
+-	INIT_PRIO_TREE_NODE(node);
+-
+-	if (prio_tree_root(old)) {
+-		BUG_ON(root->prio_tree_node != old);
+-		/*
+-		 * We can reduce root->index_bits here. However, it is complex
+-		 * and does not help much to improve performance (IMO).
+-		 */
+-		node->parent = node;
+-		root->prio_tree_node = node;
+-	} else {
+-		node->parent = old->parent;
+-		if (old->parent->left == old)
+-			old->parent->left = node;
+-		else
+-			old->parent->right = node;
+-	}
+-
+-	if (!prio_tree_left_empty(old)) {
+-		node->left = old->left;
+-		old->left->parent = node;
+-	}
+-
+-	if (!prio_tree_right_empty(old)) {
+-		node->right = old->right;
+-		old->right->parent = node;
+-	}
+-
+-	return old;
+-}
+-
+-/*
+- * Insert a prio_tree_node @node into a radix priority search tree @root. The
+- * algorithm typically takes O(log n) time where 'log n' is the number of bits
+- * required to represent the maximum heap_index. In the worst case, the algo
+- * can take O((log n)^2) - check prio_tree_expand.
+- *
+- * If a prior node with same radix_index and heap_index is already found in
+- * the tree, then returns the address of the prior node. Otherwise, inserts
+- * @node into the tree and returns @node.
+- */
+-static struct prio_tree_node *prio_tree_insert(struct prio_tree_root *root,
+-		struct prio_tree_node *node)
+-{
+-	struct prio_tree_node *cur, *res = node;
+-	unsigned long radix_index, heap_index;
+-	unsigned long r_index, h_index, index, mask;
+-	int size_flag = 0;
+-
+-	GET_INDEX(node, radix_index, heap_index);
+-
+-	if (prio_tree_empty(root) ||
+-			heap_index > prio_tree_maxindex(root->index_bits))
+-		return prio_tree_expand(root, node, heap_index);
+-
+-	cur = root->prio_tree_node;
+-	mask = 1UL << (root->index_bits - 1);
+-
+-	while (mask) {
+-		GET_INDEX(cur, r_index, h_index);
+-
+-		if (r_index == radix_index && h_index == heap_index)
+-			return cur;
+-
+-                if (h_index < heap_index ||
+-		    (h_index == heap_index && r_index > radix_index)) {
+-			struct prio_tree_node *tmp = node;
+-			node = prio_tree_replace(root, cur, node);
+-			cur = tmp;
+-			/* swap indices */
+-			index = r_index;
+-			r_index = radix_index;
+-			radix_index = index;
+-			index = h_index;
+-			h_index = heap_index;
+-			heap_index = index;
+-		}
+-
+-		if (size_flag)
+-			index = heap_index - radix_index;
+-		else
+-			index = radix_index;
+-
+-		if (index & mask) {
+-			if (prio_tree_right_empty(cur)) {
+-				INIT_PRIO_TREE_NODE(node);
+-				cur->right = node;
+-				node->parent = cur;
+-				return res;
+-			} else
+-				cur = cur->right;
+-		} else {
+-			if (prio_tree_left_empty(cur)) {
+-				INIT_PRIO_TREE_NODE(node);
+-				cur->left = node;
+-				node->parent = cur;
+-				return res;
+-			} else
+-				cur = cur->left;
+-		}
+-
+-		mask >>= 1;
+-
+-		if (!mask) {
+-			mask = 1UL << (root->index_bits - 1);
+-			size_flag = 1;
+-		}
+-	}
+-	/* Should not reach here */
+-	BUG();
+-	return NULL;
+-}
+-
+-/*
+- * Remove a prio_tree_node @node from a radix priority search tree @root. The
+- * algorithm takes O(log n) time where 'log n' is the number of bits required
+- * to represent the maximum heap_index.
+- */
+-static void prio_tree_remove(struct prio_tree_root *root,
+-		struct prio_tree_node *node)
+-{
+-	struct prio_tree_node *cur;
+-	unsigned long r_index, h_index_right, h_index_left;
+-
+-	cur = node;
+-
+-	while (!prio_tree_left_empty(cur) || !prio_tree_right_empty(cur)) {
+-		if (!prio_tree_left_empty(cur))
+-			GET_INDEX(cur->left, r_index, h_index_left);
+-		else {
+-			cur = cur->right;
+-			continue;
+-		}
+-
+-		if (!prio_tree_right_empty(cur))
+-			GET_INDEX(cur->right, r_index, h_index_right);
+-		else {
+-			cur = cur->left;
+-			continue;
+-		}
+-
+-		/* both h_index_left and h_index_right cannot be 0 */
+-		if (h_index_left >= h_index_right)
+-			cur = cur->left;
+-		else
+-			cur = cur->right;
+-	}
+-
+-	if (prio_tree_root(cur)) {
+-		BUG_ON(root->prio_tree_node != cur);
+-		INIT_PRIO_TREE_ROOT(root);
+-		return;
+-	}
+-
+-	if (cur->parent->right == cur)
+-		cur->parent->right = cur->parent;
+-	else
+-		cur->parent->left = cur->parent;
+-
+-	while (cur != node)
+-		cur = prio_tree_replace(root, cur->parent, cur);
+-}
+-
+-/*
+- * Following functions help to enumerate all prio_tree_nodes in the tree that
+- * overlap with the input interval X [radix_index, heap_index]. The enumeration
+- * takes O(log n + m) time where 'log n' is the height of the tree (which is
+- * proportional to # of bits required to represent the maximum heap_index) and
+- * 'm' is the number of prio_tree_nodes that overlap the interval X.
+- */
+-
+-static struct prio_tree_node *prio_tree_left(struct prio_tree_iter *iter,
+-		unsigned long *r_index, unsigned long *h_index)
+-{
+-	if (prio_tree_left_empty(iter->cur))
+-		return NULL;
+-
+-	GET_INDEX(iter->cur->left, *r_index, *h_index);
+-
+-	if (iter->r_index <= *h_index) {
+-		iter->cur = iter->cur->left;
+-		iter->mask >>= 1;
+-		if (iter->mask) {
+-			if (iter->size_level)
+-				iter->size_level++;
+-		} else {
+-			if (iter->size_level) {
+-				BUG_ON(!prio_tree_left_empty(iter->cur));
+-				BUG_ON(!prio_tree_right_empty(iter->cur));
+-				iter->size_level++;
+-				iter->mask = ULONG_MAX;
+-			} else {
+-				iter->size_level = 1;
+-				iter->mask = 1UL << (iter->root->index_bits - 1);
+-			}
+-		}
+-		return iter->cur;
+-	}
+-
+-	return NULL;
+-}
+-
+-static struct prio_tree_node *prio_tree_right(struct prio_tree_iter *iter,
+-		unsigned long *r_index, unsigned long *h_index)
+-{
+-	unsigned long value;
+-
+-	if (prio_tree_right_empty(iter->cur))
+-		return NULL;
+-
+-	if (iter->size_level)
+-		value = iter->value;
+-	else
+-		value = iter->value | iter->mask;
+-
+-	if (iter->h_index < value)
+-		return NULL;
+-
+-	GET_INDEX(iter->cur->right, *r_index, *h_index);
+-
+-	if (iter->r_index <= *h_index) {
+-		iter->cur = iter->cur->right;
+-		iter->mask >>= 1;
+-		iter->value = value;
+-		if (iter->mask) {
+-			if (iter->size_level)
+-				iter->size_level++;
+-		} else {
+-			if (iter->size_level) {
+-				BUG_ON(!prio_tree_left_empty(iter->cur));
+-				BUG_ON(!prio_tree_right_empty(iter->cur));
+-				iter->size_level++;
+-				iter->mask = ULONG_MAX;
+-			} else {
+-				iter->size_level = 1;
+-				iter->mask = 1UL << (iter->root->index_bits - 1);
+-			}
+-		}
+-		return iter->cur;
+-	}
+-
+-	return NULL;
+-}
+-
+-static struct prio_tree_node *prio_tree_parent(struct prio_tree_iter *iter)
+-{
+-	iter->cur = iter->cur->parent;
+-	if (iter->mask == ULONG_MAX)
+-		iter->mask = 1UL;
+-	else if (iter->size_level == 1)
+-		iter->mask = 1UL;
+-	else
+-		iter->mask <<= 1;
+-	if (iter->size_level)
+-		iter->size_level--;
+-	if (!iter->size_level && (iter->value & iter->mask))
+-		iter->value ^= iter->mask;
+-	return iter->cur;
+-}
+-
+-static inline int overlap(struct prio_tree_iter *iter,
+-		unsigned long r_index, unsigned long h_index)
+-{
+-	return iter->h_index >= r_index && iter->r_index <= h_index;
+-}
+-
+-/*
+- * prio_tree_first:
+- *
+- * Get the first prio_tree_node that overlaps with the interval [radix_index,
+- * heap_index]. Note that always radix_index <= heap_index. We do a pre-order
+- * traversal of the tree.
+- */
+-static struct prio_tree_node *prio_tree_first(struct prio_tree_iter *iter)
+-{
+-	struct prio_tree_root *root;
+-	unsigned long r_index, h_index;
+-
+-	INIT_PRIO_TREE_ITER(iter);
+-
+-	root = iter->root;
+-	if (prio_tree_empty(root))
+-		return NULL;
+-
+-	GET_INDEX(root->prio_tree_node, r_index, h_index);
+-
+-	if (iter->r_index > h_index)
+-		return NULL;
+-
+-	iter->mask = 1UL << (root->index_bits - 1);
+-	iter->cur = root->prio_tree_node;
+-
+-	while (1) {
+-		if (overlap(iter, r_index, h_index))
+-			return iter->cur;
+-
+-		if (prio_tree_left(iter, &r_index, &h_index))
+-			continue;
+-
+-		if (prio_tree_right(iter, &r_index, &h_index))
+-			continue;
+-
+-		break;
+-	}
+-	return NULL;
+-}
+-
+-/*
+- * prio_tree_next:
+- *
+- * Get the next prio_tree_node that overlaps with the input interval in iter
+- */
+-static struct prio_tree_node *prio_tree_next(struct prio_tree_iter *iter)
+-{
+-	unsigned long r_index, h_index;
+-
+-repeat:
+-	while (prio_tree_left(iter, &r_index, &h_index))
+-		if (overlap(iter, r_index, h_index))
+-			return iter->cur;
+-
+-	while (!prio_tree_right(iter, &r_index, &h_index)) {
+-	    	while (!prio_tree_root(iter->cur) &&
+-				iter->cur->parent->right == iter->cur)
+-			prio_tree_parent(iter);
+-
+-		if (prio_tree_root(iter->cur))
+-			return NULL;
+-
+-		prio_tree_parent(iter);
+-	}
+-
+-	if (overlap(iter, r_index, h_index))
+-		return iter->cur;
+-
+-	goto repeat;
+-}
+ 
+ /*
+  * Radix priority search tree for address_space->i_mmap
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

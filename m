@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292846AbSBVL4S>; Fri, 22 Feb 2002 06:56:18 -0500
+	id <S289597AbSBEPps>; Tue, 5 Feb 2002 10:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292848AbSBVL4J>; Fri, 22 Feb 2002 06:56:09 -0500
-Received: from [200.181.68.90] ([200.181.68.90]:28597 "EHLO www5.mailbr.com.br")
-	by vger.kernel.org with ESMTP id <S292845AbSBVLzx>;
-	Fri, 22 Feb 2002 06:55:53 -0500
-Message-Id: <200202221145.g1MBjkj05721@www5.mailbr.com.br>
-Content-Type: text/plain
-Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?=DFuzzLinux?= <buzz@linuxbr.com.br>
-Organization: RedHat
-X-Originating-Ip: 200.136.189.9
-Mime-Version: 1.0
-Reply-To: =?ISO-8859-1?Q?=DFuzzLinux?= <buzz@linuxbr.com.br>
-Date: Sex, 22 Fev 2002 8:45:46
-X-Mailer: EMUmail 3.1_XX
-Subject: error with =?ISO-8859-1?Q?binfmt=B4s?= modules
+	id <S289600AbSBEPpi>; Tue, 5 Feb 2002 10:45:38 -0500
+Received: from gold.he.net ([216.218.149.2]:34308 "EHLO gold.he.net")
+	by vger.kernel.org with ESMTP id <S289597AbSBEPpT>;
+	Tue, 5 Feb 2002 10:45:19 -0500
+Reply-To: <jss@pacbell.net>
+From: "J.S.Souza" <jss@pacbell.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel compile problem after reboot
+Date: Tue, 19 Feb 2002 07:47:54 -0800
+Message-ID: <PGEMINDOPMDNMJINCKBNMECBCAAA.jss@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have compiled a kernel 2.4.17 and with binfmt_aout.o, binfmt_misc.o 
-and binfmt_elf.o modules.
-When I try to add binfmt_misc.o modules he says: device or resource 
-busy, and with the red hat 7.2 kernel (2.4.7-10) I could add with no 
-error this modules
-The binfmt_elf.o modules return unresolved symbols.
-And, when I try to enter boot teh vmlinuz-2.4.17 it returns a fatal 
-error:
-kmod: /sbin/modprobe -s -k binfmt*****.....
+I am using Slack 8 with 2.2.19 and trying to install 2.4.17.  The whole
+compile process goes as planned until I reboot.  After reconfiguring
+lilo.conf and running lilo to update changes, I reboot and when I select the
+new kernel all I get is
 
-Plese fix these bugs
+Loading Linux........................
+
+Then my computer reboots and this continues to do the same until I select
+the old kernel and it reboots fine.
+Did I do something wrong in lilo?  I merely made a duplicate entry with a
+different image= and label= entry:
+
+image = /boot/vzlinuz-2.4.17
+root = /dev/hda5
+label = Linux_2.4.17
+read-only
+
+I perform the standard:
+make mrproper
+make menuconfig
+make dep && make bzImage && make modules &&
+make modules_install
+cp System.map to /boot
+cp bzImage to /boot
+edit lilo.conf
+run lilo
+reboot
+swear at the computer.
+
+The compile is clean from what I can see - no error messages.
+The menuconfig part is all defaults (just trying to get it to reboot at this
+point).
+
+Any advice would be better than what i've got and would be much appreciated.
 
 
+			J.S.Souza
 
-iBEST - Internet com alta qualidade de conexão.
-GANHE ACESSO GRATUITO à Internet do iBEST em
-http://discador.ibest.com.br

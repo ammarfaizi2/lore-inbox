@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbTI2RH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTI2RHB
+	id S263782AbTI2RB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 13:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263783AbTI2RB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:07:01 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:26807 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S263795AbTI2RE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:04:56 -0400
-To: torvalds@osdl.org
-From: davej@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove unnecessary checks in pcmcia
-Message-Id: <E1A41Rq-0000NP-00@hardwired>
-Date: Mon, 29 Sep 2003 18:04:34 +0100
+	Mon, 29 Sep 2003 13:01:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39556 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263782AbTI2RB5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:01:57 -0400
+Date: Mon, 29 Sep 2003 09:57:44 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@localhost.localdomain
+To: Pavel Machek <pavel@ucw.cz>
+cc: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] Make software resume be called at resume
+In-Reply-To: <20030928222404.GA227@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0309290955050.968-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-io->stop/start are 16 bits, so will never be >0xffff
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pcmcia/i82092.c linux-2.5/drivers/pcmcia/i82092.c
---- bk-linus/drivers/pcmcia/i82092.c	2003-09-13 14:44:55.000000000 +0100
-+++ linux-2.5/drivers/pcmcia/i82092.c	2003-09-13 16:20:24.000000000 +0100
-@@ -675,7 +675,7 @@ static int i82092aa_set_io_map(struct pc
- 		leave("i82092aa_set_io_map with invalid map");
- 		return -EINVAL;
- 	}
--	if ((io->start > 0xffff) || (io->stop > 0xffff) || (io->stop < io->start)){
-+	if (io->stop < io->start) {
- 		leave("i82092aa_set_io_map with invalid io");
- 		return -EINVAL;
- 	}
+> [Yes, software_suspend needs to return int and do some error
+> handling. But not today, and this is better than random bit flips.]
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pcmcia/i82365.c linux-2.5/drivers/pcmcia/i82365.c
---- bk-linus/drivers/pcmcia/i82365.c	2003-09-11 21:18:34.000000000 +0100
-+++ linux-2.5/drivers/pcmcia/i82365.c	2003-09-12 15:37:05.000000000 +0100
-@@ -1143,8 +1143,8 @@ static int i365_set_io_map(u_short sock,
- 	  "%#4.4x-%#4.4x)\n", sock, io->map, io->flags,
- 	  io->speed, io->start, io->stop);
-     map = io->map;
--    if ((map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
--	(io->stop < io->start)) return -EINVAL;
-+    if ((map > 1) || (io->stop < io->start))
-+	return -EINVAL;
-     /* Turn off the window before changing anything */
-     if (i365_get(sock, I365_ADDRWIN) & I365_ENA_IO(map))
- 	i365_bclr(sock, I365_ADDRWIN, I365_ENA_IO(map));
+Random bit flips? I have no idea what you're talking about. 
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pcmcia/tcic.c linux-2.5/drivers/pcmcia/tcic.c
---- bk-linus/drivers/pcmcia/tcic.c	2003-09-11 21:18:34.000000000 +0100
-+++ linux-2.5/drivers/pcmcia/tcic.c	2003-09-12 15:37:05.000000000 +0100
-@@ -786,8 +786,8 @@ static int tcic_set_io_map(struct pcmcia
-     DEBUG(1, "tcic: SetIOMap(%d, %d, %#2.2x, %d ns, "
- 	  "%#4.4x-%#4.4x)\n", lsock, io->map, io->flags,
- 	  io->speed, io->start, io->stop);
--    if ((io->map > 1) || (io->start > 0xffff) || (io->stop > 0xffff) ||
--	(io->stop < io->start)) return -EINVAL;
-+    if ((io->map > 1) || (io->stop < io->start))
-+		return -EINVAL;
-     tcic_setw(TCIC_ADDR+2, TCIC_ADR2_INDREG | (psock << TCIC_SS_SHFT));
-     addr = TCIC_IWIN(psock, io->map);
- 
+> --- clean/kernel/power/swsusp.c	2003-09-28 22:06:45.000000000 +0200
+> +++ linux/kernel/power/swsusp.c	2003-09-29 00:19:37.000000000 +0200
+> @@ -5,7 +5,10 @@
+>   * machine suspend feature using pretty near only high-level routines
+>   *
+>   * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
+> - * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
+> + * Copyright (C) 1998,2001-2003 Pavel Machek <pavel@suse.cz>
+> + * Copyright (C) 2003 Patrick Mochel <mochel@osdl.org>
+
+Please remove this. I want as little correlation between my name and 
+swsusp as possible. 
+
+>  static void do_software_suspend(void)
+>  {
+> -	arch_prepare_suspend();
+> +	if (arch_prepare_suspend())
+> +		panic("Architecture failed to prepare\n");
+
+For crying out loud, why? WTF is wrong with:
+
+
+		printk("Architecture failed to prepare\n");
+		return;
+
+? Why do that to your users? 
+
+
+
+	Pat
+

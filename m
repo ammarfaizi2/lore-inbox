@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131063AbQL2OkC>; Fri, 29 Dec 2000 09:40:02 -0500
+	id <S130255AbQL2OkM>; Fri, 29 Dec 2000 09:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130255AbQL2Ojx>; Fri, 29 Dec 2000 09:39:53 -0500
-Received: from host55.osagesoftware.com ([209.142.225.55]:50448 "EHLO
-	netmax.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S129797AbQL2Oji>; Fri, 29 Dec 2000 09:39:38 -0500
-Message-Id: <4.3.2.7.2.20001229090753.00bc69a0@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Fri, 29 Dec 2000 09:09:01 -0500
-To: "Giacomo A. Catenazzi" <cate@student.ethz.ch>
-From: David Relson <relson@osagesoftware.com>
+	id <S131266AbQL2OkC>; Fri, 29 Dec 2000 09:40:02 -0500
+Received: from air.lug-owl.de ([62.52.24.190]:45329 "HELO air.lug-owl.de")
+	by vger.kernel.org with SMTP id <S129838AbQL2Ojp> convert rfc822-to-8bit;
+	Fri, 29 Dec 2000 09:39:45 -0500
+Date: Fri, 29 Dec 2000 15:09:14 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
 Subject: Re: [PATCH] Processor autodetection (when configuring kernel)
-Cc: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
+Message-ID: <20001229150913.A18678@lug-owl.de>
+Reply-To: jbglaw@lug-owl.de
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-kbuild@torque.net
 In-Reply-To: <3A4C941E.EA824F87@student.ethz.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A4C941E.EA824F87@student.ethz.ch>; from cate@student.ethz.ch on Fri, Dec 29, 2000 at 02:39:42PM +0100
+X-Operating-System: Linux air 2.4.0-test8-pre1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giacomo,
+On Fri, Dec 29, 2000 at 02:39:42PM +0100, Giacomo A. Catenazzi wrote:
+> +  case $cpu_id in
+> +    GenuineIntel:5:[0123]      )  echo CONFIG_M586TSC   ;;
+> +    GenuineIntel:5:[48]        )  echo CONFIG_M586MMX   ;;
+> +    GenuineIntel:6:[01356]     )  echo CONFIG_M686      ;;
+> +    GenuineIntel:6:{8,9,11}    )  echo CONFIG_M686FXSR  ;;
+> +    AuthenticAMD:5:[0123]      )  echo CONFIG_M586      ;;
+> +    AuthenticAMD:5:{8,9,10,11} )  echo CONFIG_MK6       ;;
+> +    AuthenticAMD:6:[0124]      )  echo CONFIG_MK7       ;;
+> +    UMC:4:[12]                 )  echo CONFIG_M486      ;; # "UMC" !
+> +    NexGenDriven:5:0           )  echo CONFIG_M386      ;;
+> +    {TransmetaCPU,GenuineTMx86}:* ) echo CONFIG_MCROSUE ;;   
 
-I don't think cpu_info.sh is quite right.  It identified my 500 Mhz Pentium 
-III as CONFIG_M386.  I think CONFIG_M686 is closer, but as I don't know the 
-significance of all the flags (MMX, TSC, etc), I'm not certain.  Since the 
-flags do include fxsr, the correct answer may be CONFIG_M686FXSR.
+What about non-ia32 processor based systems? I'd ivolunteer to
+extend the patch, but I'd need *your* /proc/cpuinfo... I think
+that's worth it...
 
-Anyhow, here are my results:
+MfG, JBG
 
-[relson@osage relson]$ cat /proc/cpuinfo
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 7
-model name	: Pentium III (Katmai)
-stepping	: 3
-cpu MHz	: 501.147
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug	: no
-sep_bug	: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 
-mmx fxsr xmm
-bogomips	: 999.42
-
-[relson@osage relson]$ ARCH=i386 ; . cpu_detect.sh
-GenuineIntel:6:7
-CONFIG_M386
-
-Also, here's a patch to make the script echo CONFIG_M686:
-
-diff -urN cpu_detect.sh.orig cpu_detect.sh
---- cpu_detect.sh.orig	Fri Dec 29 09:02:27 2000
-+++ cpu_detect.sh	Fri Dec 29 09:01:14 2000
-@@ -18,7 +18,7 @@
-    case $cpu_id in
-      GenuineIntel:5:[0123]      )  echo CONFIG_M586TSC   ;;
-      GenuineIntel:5:[48]        )  echo CONFIG_M586MMX   ;;
--    GenuineIntel:6:[01356]     )  echo CONFIG_M686      ;;
-+    GenuineIntel:6:[013567]    )  echo CONFIG_M686      ;;
-      GenuineIntel:6:{8,9,11}    )  echo CONFIG_M686FXSR  ;;
-      AuthenticAMD:5:[0123]      )  echo CONFIG_M586      ;;
-      AuthenticAMD:5:{8,9,10,11} )  echo CONFIG_MK6       ;;
-
-David
-
-P.S.  I'm running 2.2.18, if it matters.
---------------------------------------------------------
-David Relson                   Osage Software Systems, Inc.
-relson@osagesoftware.com       Ann Arbor, MI 48103
-www.osagesoftware.com          tel:  734.821.8800
-
+-- 
+Fehler eingestehen, Größe zeigen: Nehmt die Rechtschreibreform zurück!!!
+/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
+keyID=0x8399E1BB fingerprint=250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 8399 E1BB
+     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

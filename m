@@ -1,187 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262469AbSKCVEB>; Sun, 3 Nov 2002 16:04:01 -0500
+	id <S262662AbSKCVKD>; Sun, 3 Nov 2002 16:10:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262482AbSKCVEA>; Sun, 3 Nov 2002 16:04:00 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:15115
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262469AbSKCVD6>; Sun, 3 Nov 2002 16:03:58 -0500
-Date: Sun, 3 Nov 2002 13:09:07 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Peter Denison <lkml@marshadder.uklinux.net>
-cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE: correct partially initialised hw structures
-In-Reply-To: <Pine.LNX.4.44.0210271954160.9670-100000@marshall.localnet>
-Message-ID: <Pine.LNX.4.10.10211031308240.27918-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S262663AbSKCVKD>; Sun, 3 Nov 2002 16:10:03 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:14071 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S262662AbSKCVKA>;
+	Sun, 3 Nov 2002 16:10:00 -0500
+Date: Sun, 3 Nov 2002 22:16:32 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: zippel@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [kconfig] Single-menu mode support for make menuconfig
+Message-ID: <20021103211632.GB20338@pasky.ji.cz>
+Mail-Followup-To: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hello,
 
-No major issues here; however does it not stomp on the preloaded defaults?
+  this patch (against 2.5.45) brings the single_menu_mode option from the old
+Menuconfig script to the new kconfig. Contrary to the original script, now you
+select the mconf behaviour by passing a special environment variable
+(SINGLE_MENU) to it. For example, make menuconfig SINGLE_MENU=1.
 
-On Sun, 27 Oct 2002, Peter Denison wrote:
+  With this mode, when you enter a category, no new menu is open, but the
+category is unrolled to the current menu, thus the whole configuration is
+forming one single tree. Some users prefer this as a form of configuration, as
+they consider it easier to take in than the classical behaviour.
 
-> Summary: Initialise all parts of hw_regs_t structures before passing them
-> to ide_register_hw
-> 
-> The hw structure (specifically the hw->chipset field) held uninitialised
-> data.  This (before the initialisation order fixup recently posted) meant
-> that no chipset could ever get selected by an idex=<chipset> commandline
-> (silently!).
-> 
-> Only occurs on non-PCI platforms. All ARM platforms have already been
-> fixed - though slightly differently.
-> 
-> I'm not sure how valid a lot of the code I patched actually is. Does it
-> make sense on e.g. ia64 or x86_64 to specify CONFIG_PCI = n? Or even to
-> have the concept of default interfaces?  The interfaces should get probed
-> anyway, and the ide_init_hwif_ports() part is called from init_hwif_data()
-> already. The only thing these arch-specific routines do extra is calling
-> ide_register_hw, which probably wants to happen from the probes, not here.
-> 
-> Applies: 2.5.44 (and probably others)
-> 
-> --- linux/include/asm-ia64/ide.h.old	2002-10-06 10:11:35.000000000 +0100
-> +++ linux/include/asm-ia64/ide.h	2002-10-27 18:47:26.000000000 +0000
-> @@ -82,6 +82,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-x86_64/ide.h.old	2002-10-19 12:43:40.000000000 +0100
-> +++ linux/include/asm-x86_64/ide.h	2002-10-27 18:47:46.000000000 +0000
-> @@ -69,6 +69,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-ppc/ide.h.old	2002-10-06 10:11:33.000000000 +0100
-> +++ linux/include/asm-ppc/ide.h	2002-10-27 18:48:20.000000000 +0000
-> @@ -89,6 +89,8 @@
->  	int index;
->  	ide_ioreg_t base;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for (index = 0; index < MAX_HWIFS; index++) {
->  		base = ide_default_io_base(index);
->  		if (base == 0)
-> --- linux/include/asm-mips/ide.h.old	2002-08-25 13:26:53.000000000 +0100
-> +++ linux/include/asm-mips/ide.h	2002-10-27 19:37:39.000000000 +0000
-> @@ -55,6 +55,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-parisc/ide.h.old	2002-08-25 13:26:53.000000000 +0100
-> +++ linux/include/asm-parisc/ide.h	2002-10-27 18:48:54.000000000 +0000
-> @@ -71,6 +71,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-i386/ide.h.old	2002-10-06 10:02:03.000000000 +0100
-> +++ linux/include/asm-i386/ide.h	2002-10-19 00:17:05.000000000 +0100
-> @@ -68,6 +68,8 @@
->  #ifndef CONFIG_PCI
->  	hw_regs_t hw;
->  	int index;
-> +
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> 
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
-> --- linux/include/asm-sparc64/ide.h.old	2002-10-06 10:02:03.000000000 +0100
-> +++ linux/include/asm-sparc64/ide.h	2002-10-27 18:50:10.000000000 +0000
-> @@ -59,6 +59,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for (index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-alpha/ide.h.old	2002-10-06 10:11:37.000000000 +0100
-> +++ linux/include/asm-alpha/ide.h	2002-10-27 18:50:58.000000000 +0000
-> @@ -72,6 +72,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for (index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-sparc/ide.h.old	2002-10-06 10:02:03.000000000 +0100
-> +++ linux/include/asm-sparc/ide.h	2002-10-27 18:52:12.000000000 +0000
-> @@ -63,6 +63,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for (index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-cris/ide.h.old	2002-08-25 13:26:53.000000000 +0100
-> +++ linux/include/asm-cris/ide.h	2002-10-27 18:52:48.000000000 +0000
-> @@ -79,6 +79,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-mips64/ide.h.old	2002-08-25 13:26:53.000000000 +0100
-> +++ linux/include/asm-mips64/ide.h	2002-10-27 19:38:04.000000000 +0000
-> @@ -58,6 +58,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> --- linux/include/asm-sh/ide.h.old	2002-08-25 13:26:53.000000000 +0100
-> +++ linux/include/asm-sh/ide.h	2002-10-27 18:53:46.000000000 +0000
-> @@ -97,6 +97,8 @@
->  	hw_regs_t hw;
->  	int index;
-> 
-> +	memset(&hw, 0, sizeof(hw_regs_t));
-> +
->  	for(index = 0; index < MAX_HWIFS; index++) {
->  		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
->  		hw.irq = ide_default_irq(ide_default_io_base(index));
-> 
-> -- 
-> Peter Denison <peterd at marshadder dot uklinux dot net>
-> Please use the address above only for personal mail, not copied to any lists
-> that are gatewayed to news or web pages unless the addresses are removed.
-> 
+ scripts/kconfig/expr.h  |    1 +
+ scripts/kconfig/mconf.c |   28 ++++++++++++++++++++++++----
+ scripts/lxdialog/util.c |    2 +-
+ 3 files changed, 26 insertions(+), 5 deletions(-)
 
-Andre Hedrick
-LAD Storage Consulting Group
+  Kind regards,
+				Petr Baudis
 
+diff -ru linux/scripts/kconfig/expr.h linux+pasky/scripts/kconfig/expr.h
+--- linux/scripts/kconfig/expr.h	Sun Nov  3 15:24:01 2002
++++ linux+pasky/scripts/kconfig/expr.h	Sun Nov  3 15:00:17 2002
+@@ -169,6 +169,7 @@
+ 	//char *help;
+ 	struct file *file;
+ 	int lineno;
++	int expanded; /* solely for frontend use */
+ 	//void *data;
+ };
+ 
+diff -ru linux/scripts/kconfig/mconf.c linux+pasky/scripts/kconfig/mconf.c
+--- linux/scripts/kconfig/mconf.c	Sun Nov  3 15:24:08 2002
++++ linux+pasky/scripts/kconfig/mconf.c	Sun Nov  3 15:12:27 2002
+@@ -1,6 +1,9 @@
+ /*
+  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
+  * Released under the terms of the GNU GPL v2.0.
++ *
++ * Introduced single_menu_mode (show all sub-menus in one large tree).
++ * 2002-11-03 Petr Baudis <pasky@ucw.cz>
+  */
+ 
+ #include <sys/ioctl.h>
+@@ -84,6 +87,7 @@
+ static struct menu *current_menu;
+ static int child_count;
+ static int do_resize;
++static int single_menu_mode;
+ 
+ static void conf(struct menu *menu);
+ static void conf_choice(struct menu *menu);
+@@ -274,10 +278,20 @@
+ 			case P_MENU:
+ 				child_count++;
+ 				cprint("m%p", menu);
+-				if (menu->parent != &rootmenu)
+-					cprint1("   %*c", indent + 1, ' ');
+-				cprint1("%s  --->", prompt);
++
++				if (single_menu_mode) {
++					cprint1("%s%*c%s",
++						menu->expanded ? "-->" : "++>",
++						indent + 1, ' ', prompt);
++				} else {
++					if (menu->parent != &rootmenu)
++						cprint1("   %*c", indent + 1, ' ');
++					cprint1("%s  --->", prompt);
++				}
++
+ 				cprint_done();
++				if (single_menu_mode && menu->expanded)
++					goto conf_childs;
+ 				return;
+ 			default:
+ 				if (prompt) {
+@@ -442,7 +456,10 @@
+ 		case 0:
+ 			switch (type) {
+ 			case 'm':
+-				conf(submenu);
++				if (single_menu_mode)
++					submenu->expanded = !submenu->expanded;
++				else
++					conf(submenu);
+ 				break;
+ 			case 't':
+ 				if (sym_is_choice(sym) && sym_get_tristate_value(sym) == yes)
+@@ -682,6 +699,9 @@
+ int main(int ac, char **av)
+ {
+ 	int stat;
++
++	single_menu_mode = !!getenv("SINGLE_MENU");
++
+ 	conf_parse(av[1]);
+ 	conf_read(NULL);
+ 
+diff -ru linux/scripts/lxdialog/util.c linux+pasky/scripts/lxdialog/util.c
+--- linux/scripts/lxdialog/util.c	Sun Nov  3 15:24:21 2002
++++ linux+pasky/scripts/lxdialog/util.c	Sun Nov  3 15:11:44 2002
+@@ -348,7 +348,7 @@
+ 		c = tolower(string[i]);
+ 
+ 		if (strchr("<[(", c)) ++in_paren;
+-		if (strchr(">])", c)) --in_paren;
++		if (strchr(">])", c) && in_paren > 0) --in_paren;
+ 
+ 		if ((! in_paren) && isalpha(c) && 
+ 		     strchr(exempt, c) == 0)
+--- linux/scripts/README.Menuconfig	Sun Nov  3 15:23:43 2002
++++ linux+pasky/scripts/README.Menuconfig	Sun Nov  3 21:34:56 2002
+@@ -1,7 +1,8 @@
+ Menuconfig gives the Linux kernel configuration a long needed face
+ lift.  Featuring text based color menus and dialogs, it does not
+-require X Windows.  With this utility you can easily select a kernel
+-option to modify without sifting through 100 other options.
++require X Windows (however, you need ncurses in order to use it).
++With this utility you can easily select a kernel option to modify
++without sifting through 100 other options.
+ 
+ Overview
+ --------
+@@ -172,11 +173,16 @@
+ ******** IMPORTANT, OPTIONAL ALTERNATE PERSONALITY AVAILABLE ********
+ ********                                                     ********
+ If you prefer to have all of the kernel options listed in a single
+-menu, rather than the default multimenu hierarchy, you may edit the
+-Menuconfig script and change the line "single_menu_mode="  to 
+-"single_menu_mode=TRUE".
++menu, rather than the default multimenu hierarchy, run the menuconfig
++with SINGLE_MENU environment variable set. Example:
+ 
+-This mode is not recommended unless you have a fairly fast machine.
++make menuconfig SINGLE_MENU=1
++
++<Enter> will then unroll the appropriate category, or enfold it if it
++is already unrolled.
++
++Note that this mode is a little more CPU expensive (especially with
++a larger number of unrolled categories) than the default mode.
+ *********************************************************************
+ 
+ 

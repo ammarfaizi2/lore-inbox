@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267689AbUBTCXT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 21:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267691AbUBTCXT
+	id S267697AbUBTC2w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 21:28:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUBTC2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 21:23:19 -0500
-Received: from caffeine.cafuego.net ([210.8.121.71]:35456 "EHLO
-	caffeine.cc.com.au") by vger.kernel.org with ESMTP id S267689AbUBTCXQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 21:23:16 -0500
-Subject: Re: 2.6.2 PPC ALSA snd-powermac
-From: Peter Lieverdink <peter@cc.com.au>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040215133946.GT1308@fs.tum.de>
-References: <1076483508.13791.6.camel@kahlua> <s5hr7x1bzvr.wl@alsa2.suse.de>
-	 <1076540202.13791.19.camel@kahlua> <20040214164707.GL1308@fs.tum.de>
-	 <1076794515.30208.0.camel@kahlua>  <20040215133946.GT1308@fs.tum.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UiXHTHsL2MkGNuFG5IWf"
-Organization: Creative Contingencies Pty. Ltd.
-Message-Id: <1077243790.29312.12.camel@kahlua>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 20 Feb 2004 13:23:10 +1100
+	Thu, 19 Feb 2004 21:28:52 -0500
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:33695 "HELO
+	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S267697AbUBTC2u convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 21:28:50 -0500
+X-Analyze: Velop Mail Shield v0.0.3
+Date: Thu, 19 Feb 2004 23:28:47 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: HOWTO use udev to manage /dev
+In-Reply-To: <20040220015433.GC3134@kroah.com>
+Message-ID: <Pine.LNX.4.58.0402192306110.694@pervalidus.dyndns.org>
+References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com>
+ <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org> <20040219230749.GA15848@kroah.com>
+ <Pine.LNX.4.58.0402192033490.694@pervalidus.dyndns.org> <20040219235602.GI15848@kroah.com>
+ <Pine.LNX.4.58.0402192057590.694@pervalidus.dyndns.org> <20040220015433.GC3134@kroah.com>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 19 Feb 2004, Greg KH wrote:
 
---=-UiXHTHsL2MkGNuFG5IWf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> On Thu, Feb 19, 2004 at 09:51:52PM -0300, Frédéric L. W. Meunier wrote:
+> > On Thu, 19 Feb 2004, Greg KH wrote:
+> >
+> > > How about changing the #!/bin/bash to #!/bin/sash in the
+> > > first line for the start_udev script?
+> >
+> > I didn't have it, but compiled and changed. Yes, it works.
+>
+> > OK, I'll later boot with it and see if it works. If it does,
+> > I'll run strace with the other.
+>
+> How about using sash?  That is statically linked.
 
-Problem solved on 2.6.3
+As I reported, it works with it.
 
-- Peter.
+> > I forgot to run it, but noticed there was a /dev/null, but
+> > a text file (0644). And I didn't create it anywhere.
 
-On Mon, 2004-02-16 at 00:39, Adrian Bunk wrote:
-> On Sun, Feb 15, 2004 at 08:35:15AM +1100, Peter Lieverdink wrote:
->=20
-> > No prob, here you go...
->=20
-> Thanks.
->=20
-> Now I do understand the problem.
->=20
-> Short version:
-> It should work if you try 2.6.3-rc3 instead.
->=20
-> Long version:
-> arch/ppc/Kconfig didn't use drivers/Kconfig in 2.6.2 and didn't inclide=20
-> drivers/i2c/Kconfig.
-> In 2.6.3-rc3, arch/ppc/Kconfig uses drivers/Kconfig.
->=20
-> > - Peter.
-> >...
->=20
-> cu
-> Adrian
---=20
-Peter Lieverdink <peter@cc.com.au>
-Creative Contingencies Pty. Ltd.
+> That sounds like some program is trying to write to it.
 
---=-UiXHTHsL2MkGNuFG5IWf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I bet it was fsck. It was the last to run before sulogin.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+> Hm, there is a patch in the Red Hat version of udev that basically makes
+> udev do the start_udev logic, in the .c file because they do not have a
+> shell in their initrd.  If you can dig it out of there, that might be a
+> solution for you to use.
 
-iD8DBQBANW+Of34AjKyA6C4RAoK+AKCztJmQixk3MF7tAuKj6soOJtcUvwCfZNuC
-b4pKnuxxC2zOUgZl4yhLOoo=
-=qJJO
------END PGP SIGNATURE-----
+Sounds good to get rid of the script. I'll see.
 
---=-UiXHTHsL2MkGNuFG5IWf--
+> Other than that, how about running strace on start_udev when your rc.S
+> script calls it?  That might help out.
 
+I did it, and guess what, it worked.
+
+-[ ! -e /dev/.devfsd -a -d /sys/block ] && /etc/rc.d/start_udev
++[ ! -e /dev/.devfsd -a -d /sys/block ] && strace -o /tmp/udev.txt /etc/rc.d/start_udev
+
+-- 
+http://www.pervalidus.net/contact.html

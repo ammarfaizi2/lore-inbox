@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289066AbSAIWvl>; Wed, 9 Jan 2002 17:51:41 -0500
+	id <S286303AbSAIW6B>; Wed, 9 Jan 2002 17:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289068AbSAIWvb>; Wed, 9 Jan 2002 17:51:31 -0500
-Received: from [66.35.146.201] ([66.35.146.201]:34821 "EHLO int1.nea-fast.com")
-	by vger.kernel.org with ESMTP id <S289066AbSAIWvL>;
-	Wed, 9 Jan 2002 17:51:11 -0500
-Message-Id: <200201092250.RAA03139@int1.nea-fast.com>
-Content-Type: text/plain; charset=US-ASCII
-From: walter <walt@nea-fast.com>
-To: linux-kernel@vger.kernel.org
-Subject: new kernel --this is wierd
-Date: Wed, 9 Jan 2002 17:50:48 -0500
-X-Mailer: KMail [version 1.3.2]
+	id <S288566AbSAIW5w>; Wed, 9 Jan 2002 17:57:52 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13066 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S286303AbSAIW5k>;
+	Wed, 9 Jan 2002 17:57:40 -0500
+Date: Wed, 9 Jan 2002 20:57:24 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Daniel Tuijnman <daniel@ATComputing.nl>
+Cc: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Memory management problems in 2.4.16
+In-Reply-To: <20020109234706.B4555@ATComputing.nl>
+Message-ID: <Pine.LNX.4.33L.0201092053010.2985-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This may be a SGI question...
+On Wed, 9 Jan 2002, Daniel Tuijnman wrote:
 
-After upgrading to kernel-2.4.14-SGI_XFS_1.0.2 I can no longer connect to 
-www.zdnet.com. I can connect to any other web site. 
+> > Well ... maybe *in theory* 2.4.16 should work on a machine with that
+> > little RAM but I'd say in practice Linux has simply outgrown your
+> > machine. Have you tried any other 2.4 kernels, say, before 2.4.10 when
+> > the VM changed?
 
-I've tried kde konqueror-2.2.2-1, netscape-communicator-4.77-0.6.2, 
-netscape-navigator-4.77-0.6.2, netscape-communicator-4.78-2, and the latest 
-release of opera. 
+Rubbish, a VM is supposed to improve, not make it impossible to
+run programs after an upgrade. Keeping Linux working on low memory
+machines is definately a big issue for the VM I'm developing and
+I suspect it's near the top of Andrea's list too...
 
-I've used rpm to verify all depends. I get no error messages anywhere that I 
-can find. If I boot to winsucks98 I have no problem(boo) so I know its not a 
-firewall problem. Does anyone have any ideas what the problem may be or a way 
-to figure out whats happening? Someone I work with suggested process 
-accouting.
+> No I haven't. Was the older VM better, then? Sorry to put it so blunt,
+> but if it can't swap out unneeded data, it is broken.
 
-Thanks!
+> 2. My first Linux experience was on a P60 with 8MB of memory, 16MB swap.
+> I ran X and used TeX on my 300p. Ph.D. thesis, and that ran fine.
+> So why should I need more to get less?
+
+Absolutely agreed, the thing should just work.
+
+If you have the time, you could try my latest -rmap patch,
+available at:
+
+	http://surriel.com/patches/2.4/2.4.17-rmap-11a
+
+I've done some testing with 'mem=9m' (using a rather fat
+kernel w/ profiling) and it seems to work decently.
+
+regards,
+
+Rik
 -- 
-Walter Anthony
-System Administrator
-National Electronic Attachment
-2865 Amwiler Rd. Suite 400
-Atlanta, Georgia 30360
-1-800-782-5150 ext. 1608
-"If it's not broke....tweak it"
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbTEZUOu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbTEZUOu
+	id S262211AbTEZUVh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 16:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTEZUVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:14:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43531 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262193AbTEZUOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:14:49 -0400
-Date: Mon, 26 May 2003 13:27:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCHES] add ata scsi driver
-In-Reply-To: <1053976644.2298.194.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44.0305261317520.12186-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 May 2003 16:21:37 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:23814 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S262211AbTEZUVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 16:21:36 -0400
+Date: Mon, 26 May 2003 22:34:43 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Paulo Andre'" <fscked@iol.pt>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [RFC] [PATCH] Add 'make' with no target as preferred build command
+Message-ID: <20030526203443.GA1209@mars.ravnborg.org>
+Mail-Followup-To: Paulo Andre' <fscked@iol.pt>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
+References: <20030526182907.108fd71e.fscked@iol.pt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030526182907.108fd71e.fscked@iol.pt>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 26 May 2003, James Bottomley wrote:
->
-> On Mon, 2003-05-26 at 15:07, Jens Axboe wrote:
-> > Alright, so what do you need? Start out with X tags, shrink to Y (based
-> > on repeated queue full conditions)? Anything else?
+On Mon, May 26, 2003 at 06:29:07PM +0100, Paulo Andre' wrote:
+> Hello,
 > 
-> Actually, it's easier than that: just an API to alter the number of tags
-> in the block layer (really only the size of your internal hash table). 
-> The actual heuristics of when to alter the queue depth is the province
-> of the individual drivers (although Doug Ledford was going to come up
-> with a generic implementation).
+> It seems for 2.5/2.6 'make' is the preferred command for building the
+> kernel tree (also stated in davej's 2.6 "what to expect" document). That
+> scenario however isn't even presented when the user finishes the kernel
+> configuration. This is a simple patch to scripts/kconfig/mconf.c which
+> tackles that, perhaps not in the best fashion but certainly in the
+> simplest.
 
-Talking about tagged queueing - does the SCSI layer still remove the
-request from the request list when it starts executing it?
+If we really want this boilerplate text then bzImage should not be
+present. It is i386 centric.
+Revised patch below. Also made it a bit more readable by wrapping
+a long line.
 
-At least historically that's a major mistake, and generates a crappy 
-elevator, because it removes information from the block layer about where 
-the disk is (or is going to be).
+Roman Zippel cc:ed as he is the kconfig maintainer.
 
-I know Andrew thinks that SCSI tagged queuing is a bunch of crap, and he 
-has the latency numbers to prove it. He blames the SCSI disks themselves, 
-but I think it might be the fact that SCSI makes it impossible to make a 
-fair queuing algorithm for higher levels by hiding information.
+	Sam
 
-Has anybody looked at just removing the request at command _completion_ 
-time instead? That's what IDE does, and it's the _right_ thing to do.
-
-I'd hate for SATA to pick up these kinds of mistakes from the SCSI layer.
-
-			Linus
-
+===== scripts/kconfig/mconf.c 1.5 vs edited =====
+--- 1.5/scripts/kconfig/mconf.c	Sat Mar 15 18:25:55 2003
++++ edited/scripts/kconfig/mconf.c	Mon May 26 22:30:47 2003
+@@ -780,10 +780,12 @@
+ 		conf_write(NULL);
+ 		printf("\n\n"
+ 			"*** End of Linux kernel configuration.\n"
+-			"*** Check the top-level Makefile for additional configuration.\n"
+-			"*** Next, you may run 'make bzImage', 'make bzdisk', or 'make install'.\n\n");
++			"*** Execute 'make' to build the kernel"
++		        " or try 'make help'.\n\n");
+ 	} else
+-		printf("\n\nYour kernel configuration changes were NOT saved.\n\n");
++		printf("\n\n"
++			"*** Your kernel configuration changes were NOT saved."
++			"\n\n");
+ 
+ 	return 0;
+ }

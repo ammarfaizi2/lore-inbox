@@ -1,86 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbTASKw6>; Sun, 19 Jan 2003 05:52:58 -0500
+	id <S267444AbTASLXm>; Sun, 19 Jan 2003 06:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264986AbTASKw6>; Sun, 19 Jan 2003 05:52:58 -0500
-Received: from impact.colo.mv.net ([199.125.75.20]:19124 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP
-	id <S264907AbTASKw5>; Sun, 19 Jan 2003 05:52:57 -0500
-Message-ID: <3E2A85A3.4090402@bogonomicon.net>
-Date: Sun, 19 Jan 2003 05:01:55 -0600
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
+	id <S267451AbTASLXm>; Sun, 19 Jan 2003 06:23:42 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:21657 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S267444AbTASLXl>; Sun, 19 Jan 2003 06:23:41 -0500
+Date: Sun, 19 Jan 2003 11:32:33 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+X-X-Sender: dwmw2@imladris.demon.co.uk
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030119012938.GY10647@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0301191117540.29823-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21-pre3-ac4 oops in free_pages_ok
-References: <3E289A53.40203@bogonomicon.net>
-In-Reply-To: <3E289A53.40203@bogonomicon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [2.5 patch] mics cleanups for mtd
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As I thought and others felt too.  It looks like the -ac4
-patch for 2.4.21-pre3 has some error in it that causes an
-oops.  I've tested a 2.4.21-pre3 with only the nvidia2
-related patches from -ac4 added to it and it appears to be
-stable.  A few kernel comples and 53 mke2fs with bad block
-scan runs and it stayed up.  I'm now running memtest86 over
-night to be pedantic that it isn't a memory error.  Sofar
-it passed the first pass of the tests, we'll see what
-happens over night.
+On Sun, 19 Jan 2003, Adrian Bunk wrote:
 
-What are some good system abuse test suites?  In the past
-I've used kernel compiles in an endless loop.  I'd do one
-run then compare the outputs from each run to the first
-run.  Any difference constitutes a failure.
+> Below is a cleanup for mtd:
+> 
+> I started with removing all #if'd code for kernels < 2.4.4.
 
-Bryan Andersen wrote:
-> I too have been seeing this oops crash problem.  I can
-> consistantly reproduce mine by running:
-> 
->   $ mke2fs -c -j -i 16768 /dev/hdc6
-> 
-> The interesting thing is running:
-> 
->   $ mke2fs -j -i 16768 /dev/hdc6
-> 
-> does not cause an oops crash.  The only difference being
-> the bad block scan.
-> 
-> These are the outputs of ksymoops for the stack trace part
-> of the oops output from.  Kernel version is
-> linux-2.4.21-pre3-ac4.
-> 
-> Adhoc c013f4b7 <try_to_free_buffers+c7/140>
-> Adhoc c013d8c9 <try_to_release_page+49/50>
-> Adhoc c01348ac <__free_pages+1c/20>
-> Adhoc c0133863 <shrink_cache+383/3b0>
-> Adhoc c01339f6 <shrink_caches+56/80>
-> Adhoc c0133a5c <try_to_free_pages_zone+3c/60>
-> Adhoc c013452e <balance_classzone+5e/1d0>
-> Adhoc c01347b2 <__alloc_pages+112/160>
-> Adhoc c012ebc1 <generic_file_write+3f1/710>
-> Adhoc c01344c6 <_alloc_pages+16/20>
-> Adhoc c012ebdd <generic_file_write+40d/710>
-> Adhoc c013b316 <sys_write+96/110>
-> Adhoc c0106f8b <system_call+33/38>
-> 
-> Adhoc c0134239 <__free_pages_ok+279/2a0>
-> 
-> I'm going to do further tests with the generic IDE
-> driver instead of the NVIDIA one.  Then I plan on
-> teasing out the NVIDIA2 specific stuff from the ac4
-> patch and only applying them to a pre3 patched kernel.
-> 
-> - Bryan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+That's a reasonable idea, I suppose -- I haven't had someone bitch about
+me breaking the 2.2 uClinux build for a while now. I want to go further
+than that with the block device drivers -- they'll be completely forked
+for 2.4/2.5 support because it's just too ugly to try to support both.  
+
+For most of the other code, the pain of maintaining two separate versions
+just isn't justified by the marginal cleanup which this affords -- 
+especially for the drivers where the _only_ difference between building 
+out-of-the-box in 2.4 and not doing so is a #include <linux/mtd/compatmac.h>
+
+> After this cleanup linux/mtd/compatmac.h contained only #include's so I 
+> completely removed this file, removed all #include's of it in both the 
+> mtd and jffs2 (sic) code and added the few needed #include's in the .c 
+> files.
+
+You misunderstand the purpose of this. The idea is that the code itself
+can be written for the latest kernel, but people can use it on older
+kernels and compatmac.h makes it OK. If you remove the #include
+compatmac.h then that doesn't work; obviously :)
+
+The extra #include does no harm -- do not remove it. Removing everything
+from compatmac.h in 2.5 is OK though; just leave it almost empty (but with 
+the #ifdef guard to prevent GCC from reading it more than once).
+
+Adding the include files which were indirectly included through 
+compatmac.h is also OK -- we can just 'touch' those to make it build with 
+older kernels; they weren't intentionally omitted.
+
+> Besides this I removed a few #include <stdarg.h>.
+
+OK.
+
+-- 
+dwmw2
+
 

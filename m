@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbTDZUYN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 16:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTDZUYL
+	id S263096AbTDZVqb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 17:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbTDZVqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 16:24:11 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:7577 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263020AbTDZUYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 16:24:10 -0400
-Date: Sat, 26 Apr 2003 22:36:23 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Thunder Anklin <thunder@keepsake.ch>
-Cc: "Randy.Dunlap" <randy.dunlap@verizon.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: missing #includes?
-Message-ID: <20030426203623.GB3456@wohnheim.fh-wedel.de>
-References: <20030425235119.6f337e70.randy.dunlap@verizon.net> <20030426201706.GE69349@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030426201706.GE69349@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.3.28i
+	Sat, 26 Apr 2003 17:46:31 -0400
+Received: from mx12.arcor-online.net ([151.189.8.88]:21461 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263096AbTDZVqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 17:46:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Werner Almesberger <wa@almesberger.net>
+Subject: Re: Flame Linus to a crisp!
+Date: Sat, 26 Apr 2003 23:59:54 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030425143613.8646E130965@mx12.arcor-online.net> <20030425143734.W3557@almesberger.net>
+In-Reply-To: <20030425143734.W3557@almesberger.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030426215843.2555712F7D8@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 26 April 2003 22:17:07 +0200, Thunder Anklin wrote:
-> On Fri, Apr 25, 2003 at 11:51:19PM -0700, Randy.Dunlap wrote:
-> > What's the preferred thing to do here?  I would like to see explicit
-> > #includes when symbols are used.  Is that what others expect also?
-> 
-> It's perlable. I might do this if you want.
+On Friday 25 April 2003 19:37, Werner Almesberger wrote:
+> Daniel Phillips wrote:
+> > I imagine the likelihood of people running completely separate DRM Linux
+> > boxes, just to participate in DRM-controlled online games, is not high.
+>
+> You could still dual-boot, as many people do today.
 
-If you just take the current script, there is little point in a
-translation. But if you could merge it sanely with
-scripts/checkincludes.pl, that might be nice.
+Only neanderthals dual-boot ;-)
 
-Now, how does one check all c files for all implicitly included
-symbols without writing a complete c parser or generating tons of
-false positives? Maybe you can play some trick with "gcc -C -E".
+> > the whole concept is inherently fragile, there are just too many parts
+> > involved.
+>
+> ... and companies relying on DRM are likely to distrust Linux for
+> every single such flaw that is found. They'll put up with Windows,
+> because they have to.
 
-Jörn
+Companies relying on DRM are candidates for Darwin awards, IMHO.  However, 
+the pure technical challenge of trying to make DRM work for something, 
+somehow, sometime might be enough to get decent support on Linux.  I wonder 
+if the Quake thing is interesting enough to motivate anyone.  It could be 
+advertised as "the only place you'll ever get a fair fight".
 
--- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
--- Theodore Roosevelt, Kansas City Star, 1918
+Maybe DRM support is a way for some Linux vendor to differentiate themselves. 
+Now... DRM in Debian?  Sounds like an oxymoron.  I certainly won't be asking 
+for it.
+
+> It all makes sense - in some ugly, twisted way.
+
+What seems to be missing is the motivation to get exited about it.  Seems to 
+me, I've never bought or played a copy-protected CD, or video disk (took a 
+pass on the whole video disk thing, didn't regret it) or anything else, and 
+it's not because I'm a fanatic about it, it's just that it never made sense.
+
+The whole DRM thing is likely to land with a dull thud and be as forgotten as 
+8 track tapes.  It's all just too clunky, and there's nothing in it for the 
+consumer.
+
+Regards,
+
+Daniel
 

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270212AbTHBTIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 15:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270214AbTHBTII
+	id S270210AbTHBTDV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 15:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270214AbTHBTDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 15:08:08 -0400
-Received: from mail15.speakeasy.net ([216.254.0.215]:42882 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S270212AbTHBTIF
+	Sat, 2 Aug 2003 15:03:21 -0400
+Received: from law11-oe70.law11.hotmail.com ([64.4.16.205]:54538 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270210AbTHBTDS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 15:08:05 -0400
-Date: Sat, 2 Aug 2003 12:08:02 -0700
-Message-Id: <200308021908.h72J82x10422@magilla.sf.frob.com>
+	Sat, 2 Aug 2003 15:03:18 -0400
+X-Originating-IP: [165.98.111.210]
+X-Originating-Email: [bmeneses_beltran@hotmail.com]
+From: "Viaris" <bmeneses_beltran@hotmail.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Law11-OE70LwHc9ny7B0000e8d4@hotmail.com> <20030801211300.GA15146@mars.ravnborg.org>
+Subject: Re: problems compiling kernel 2.5.75
+Date: Sat, 2 Aug 2003 13:03:15 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-X-Fcc: ~/Mail/linus
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] bug in setpgid()? process groups and thread groups
-In-Reply-To: Jeremy Fitzhardinge's message of  , 2 August 2003 01:50:58 -0700 <1059814257.18860.38.camel@ixodes.goop.org>
-Emacs: a compelling argument for pencil and paper.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <Law11-OE708awYFDIfW0000fc44@hotmail.com>
+X-OriginalArrivalTime: 02 Aug 2003 19:03:17.0247 (UTC) FILETIME=[BB4D38F0:01C35928]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem exists with uids/gids as well, in the sense that they are
-changed per-thread but POSIX semantics are that setuid et al affect the
-whole process (i.e. all threads in a thread group).  I emphatically agree
-that this should be changed, and I hope we can get it done in 2.6.  It's a
-significant divergence from POSIX semantics, and not something that can be
-worked around very robustly at user level.  (In the case of pgrp, you can
-ignore SIGTTIN/SIGTTOU and progress to some degree at user level.  In the
-case of uids/gids, you can change every thread individually.)
+Hi All,
 
-Changing each thread in the group seems clunky to me.  It also might have
-atomicity issues, as there is no synchronization with the reading of these
-values.  For job control changes, it probably doesn't matter--each thread
-went into its read/write/ioctl or whatever call "before" the setpgid call
-if you didn't get to it yet in the loop when it checks current->pgrp; I
-can't off hand think of a scenario where two threads can perceivably be on
-the opposite sides of the setpgid transition at the same time so as to call
-the process-wide transition not atomic.  In the case of uid et al, there is
-certainly a problem with the nonatomicity of one thread touching the fields
-of another thread that might be running.  The set*id calls change multiple
-fields at once, and the intermediate states in between these several word
-stores could perhaps be combinations of ids that the user wasn't supposed
-to be able to produce.  I am hesitant to hunt down all the permutations and
-ways they can be used by another racing thread that might be exploited for
-something or other.
+Ok, now my new kernel 2.5.75 is fine, but I have problems with the CDROM,
+this new kernel no found /dev/cdrom, my CDROM is IDE, how can I To resolv
+this problem?
 
-It seems obvious to me that these fields should live in a separate data
-structure that is shared, like signal_struct and other pieces of
-"process-wide" state shared by the threads in a thread group.  This means a
-one time swell foop of changing ->{pgrp,uid,euid,...} into ->ids->... or
-perhaps task_...(current) macros in case the implementation might change
-again.  That's trivial enough to do by just compiling everything and fixing
-errors (given ability to compile on a reasonably wide set of platforms).
-Making access appear atomic with respect to updates takes a bit more work,
-but certainly less than if these fields are not shared among threads.
+Thanks in Advanced,
+
+Regards,
+
+----- Original Message -----
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Viaris" <bmeneses_beltran@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, August 01, 2003 3:13 PM
+Subject: Re: problems compiling kernel 2.5.75
 
 
-
-Thanks,
-Roland
+> On Fri, Aug 01, 2003 at 02:51:32PM -0600, Viaris wrote:
+> > Hi all, I ma compiling kernel version 2.5.75, but I have the folloienw
+> > error:
+> >
+> > drivers/built-in.o(.text+0x1d41e): In function `pc_close':
+> > : undefined reference to `save_flags'
+> Try to disbale SMP (do you need it)?
+>
+> Sam
+>

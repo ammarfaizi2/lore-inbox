@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266212AbUA3Auk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 19:50:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUA3Auk
+	id S266502AbUA3ArP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 19:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266506AbUA3ArP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 19:50:40 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:7582 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S266212AbUA3Aui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 19:50:38 -0500
-Message-ID: <4019AA2D.7010609@oracle.com>
-Date: Fri, 30 Jan 2004 01:49:49 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
-X-Accept-Language: en-us, en
+	Thu, 29 Jan 2004 19:47:15 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:63455 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S266502AbUA3ArM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 19:47:12 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: hanasaki <hanasaki@hanaden.com>
+Date: Fri, 30 Jan 2004 11:46:31 +1100
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Alt-SysRq-B doesn't work in recent 2.6 kernels
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-White-List-Member: TRUE
+Message-ID: <16409.43367.545322.356713@notabene.cse.unsw.edu.au>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [NFS] NFS rpc and stale handles on 2.6.x servers
+In-Reply-To: message from hanasaki on Sunday January 25
+References: <4014675D.2040405@hanaden.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now that my oops-on-boot has been fixed thanks to many on lkml
-  and a spot-on tip by Len Brown, I'll chase another one of the
-  issues I still have :)
+On Sunday January 25, hanasaki@hanaden.com wrote:
+> The below is being reported, on and off, when hitting nfs-kernel-servers
+> running on 2.6.0 and 2.6.1  Could someone tell me if this is smoe bug or
+> what?  Thanks
+> 	RPC request reserved 0 but used 124
+> 
+> Debian sarge
+> nfs-kernel-server
+> am-untils
+> nfsv3 over tcp
+> 
 
-The problem in $subject happens reliably at least in 2 cases:
+stale file handles is a known bug that is fixed in the but BK and will
+be in 2.6.3.
 
-  1. after the ACPI oops-on-boot (-mm tree and 2.6.2-rc2+)
-  2. in 2.6.2-rc1+ after the Cisco VPN client daemon (cvpnd,
-      v.4.0.3.B) gets stuck in D state [__down] and I try to
-      shutdown but obviously that gets stuck in turn
+The "RPC request reserved 0 ..." is very odd. It does immediately
+indicate a major problem, but it should be fixed, if only I could
+figure out what was causing it.
 
-In both cases I can Alt-SysRq-{P,T,S,U,O} [though in case 1
-  Off only prints out "Power Off" but doesn't actually do it],
-  and when I attempt a Alt-SysRq-B I only get
+I might put come more info into the message so future bug reports will
+tell me more.
 
-atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
-
-  and no effect at all.
-
-
-Available for testing, as usual :) thanks in advance & ciao,
-
---alessandro
-
-  "Two rivers run too deep
-   The seasons change and so do I"
-       (U2, "Indian Summer Sky")
-
+Thanks,
+NeilBrown

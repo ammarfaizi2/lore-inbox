@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280760AbRKKAkj>; Sat, 10 Nov 2001 19:40:39 -0500
+	id <S280762AbRKKA6S>; Sat, 10 Nov 2001 19:58:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280761AbRKKAk2>; Sat, 10 Nov 2001 19:40:28 -0500
-Received: from maile.telia.com ([194.22.190.16]:56296 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S280760AbRKKAkQ>;
-	Sat, 10 Nov 2001 19:40:16 -0500
-Message-Id: <200111110040.fAB0eDZ13820@maile.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Thomas Foerster <puckwork@madz.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Module / Patch with implements "sshfs"
-Date: Sun, 11 Nov 2001 01:38:25 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011109152819Z279925-17408+12662@vger.kernel.org>
-In-Reply-To: <20011109152819Z279925-17408+12662@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S280765AbRKKA6I>; Sat, 10 Nov 2001 19:58:08 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:52977 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280762AbRKKA5w>;
+	Sat, 10 Nov 2001 19:57:52 -0500
+Date: Sat, 10 Nov 2001 17:57:25 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Terje Eggestad <terje.eggestad@scali.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: confused about raw-io blocksizes
+Message-ID: <20011110175725.M1778@lynx.no>
+Mail-Followup-To: Terje Eggestad <terje.eggestad@scali.no>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011109171311.J1778@lynx.no> <Pine.LNX.4.30.0111101231350.24890-100000@elin.scali.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.30.0111101231350.24890-100000@elin.scali.no>; from terje.eggestad@scali.no on Sat, Nov 10, 2001 at 12:55:36PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A simpler way is to use the kio_fish
- http://apps.kde.com/na/2/info/id/1331
-(I had problem with compiling this under SuSE 7.1 but with
-SuSE 7.3 there were no problems)
+On Nov 10, 2001  12:55 +0100, Terje Eggestad wrote:
+> > LVM is broken in this regard, unless you have a recent patch (Linus'
+> > kernel does not).  I sent him a patch to fix that, but it did not get in.
+> 
+> I'm been trying with RH 2.4.2-2, stock 2.4.10, stock 2.4.13, and a RH
+> 2.4.3 with some additional patches. All of them  has lvm 0.9.1_beta2
+> (isn't that getting old??)
 
-You browsing will look like:
- fish://192.168.9.99/home/
-compare with
- ftp://ftp.kernel.org/
+Yes it is.  You need a patch for LVM from the Sistina site, or -ac kernel.
 
-And since it is KDE all KDE programs will be able to use it :-)
-(To be sure I tried to create a file with advanced editor and save it
- remote - it worked! :-)
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-KDE port done by: Jörg Walter
-Originally for mc by: Pavel Machek
- 
-/RogerL
-
-On Friday 09 November 2001 16:26, Thomas Foerster wrote:
-> Hi folks,
->
-> i came across the idea to mount a remote filesystem via SSH[1|2].
->
-> I've seen a free program for Windows that implements parts of what i'm
-> thinking of.
->
-> Does someone know about a kernel module/patch to implement a "sshfs" ?
-> (to be used with mount)
->
-> What i want to do is to mount my webserver (external ip) from an internal
-> system (internal ip).
->
-> Thanks,
->   Thomas
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Roger Larsson
-Skellefteå
-Sweden

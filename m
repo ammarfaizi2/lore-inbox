@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUJIAuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUJIA5h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266349AbUJIAuk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 20:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUJIAuk
+	id S266344AbUJIA5h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 20:57:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUJIA5h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 20:50:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:57914 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266349AbUJIAuj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 20:50:39 -0400
-Message-ID: <58cb370e04100817508fe62d0@mail.gmail.com>
-Date: Sat, 9 Oct 2004 02:50:38 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Ken Moffat <ken@kenmoffat.uklinux.net>
-Subject: Re: Problem with ide=nodma
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0410090140020.26639@ppg_penguin.kenmoffat.uklinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 8 Oct 2004 20:57:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63469 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266344AbUJIA5f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 20:57:35 -0400
+Message-ID: <41673772.9010402@pobox.com>
+Date: Fri, 08 Oct 2004 20:57:22 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <roland@topspin.com>
+CC: Greg KH <greg@kroah.com>, openib-general@openib.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>
+In-Reply-To: <528yagn63x.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0410090019150.26458@ppg_penguin.kenmoffat.uklinux.net>
-	 <58cb370e04100817353254b8cd@mail.gmail.com>
-	 <Pine.LNX.4.58.0410090140020.26639@ppg_penguin.kenmoffat.uklinux.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Oct 2004 01:44:57 +0100 (BST), Ken Moffat
-<ken@kenmoffat.uklinux.net> wrote:
-> On Sat, 9 Oct 2004, Bartlomiej Zolnierkiewicz wrote:
-> 
-> > On Sat, 9 Oct 2004 00:32:01 +0100 (BST), Ken Moffat
-> > <ken@kenmoffat.uklinux.net> wrote:
-> > > Hi,
-> > >
-> > >  I'm trying a sii 0680 disk controller at the moment, as a possible
-> > > workaround for some via southbridge problems (this is on a ppc which
-> > > isn't yet supported by the official kernels, but it has been stable here
-> > > since 2.6.7 and looks nearly ready for a first review).  Unfortunately,
-> > > DMA is a big no go at the moment so I have to pass ide=nodma in the
-> > > bootargs.
-> > >
-> > >  I've got the drives plugged into the sii card, and ide=reverse is doing
-> > > its job.  But although dmesg shows that dma has been turned off,
-> >
-> > Is it possible that you are reading it wrong?
-> 
->  I don't think so, and the box is a lot more responsive.  dmesg shows
-> 
-> ide_setup: ide=nodmaIDE: Prevented DMA
+Roland Dreier wrote:
+> As for IP, as far as I know, there has been no change to any of the
+> bylaws or other members agreements.  If there is some specific
+> provision that concerns you, please bring it to our attention -- the
+> IBTA in general and the IBTA steering committee in general have been
+> very supportive of the OpenIB effort.  In fact, most of the IBTA
+> steering commitee companies (Agilent, HP, IBM, InfiniCon, Intel,
+> Mellanox, Sun, Topspin, and Voltaire) have been active participants in
+> OpenIB development.  I would hope we can resolve any issues relating
+> to open source and the Linux kernel.
 
-This is misleading as drivers are free to override this setting.
+
+Read the member agreement :)  It -explicitly- does -not- require waiving 
+of patent claims related to any implementation of IB.
+
+That's different from ATA, SCSI, USB, the list goes on...
+
+	Jeff
+
+

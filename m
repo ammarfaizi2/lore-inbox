@@ -1,67 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267323AbUIJIzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267327AbUIJIys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267323AbUIJIzR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 04:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUIJIzO
+	id S267327AbUIJIys (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 04:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUIJIxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 04:55:14 -0400
-Received: from asplinux.ru ([195.133.213.194]:59151 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S267323AbUIJIxG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 04:53:06 -0400
-Message-ID: <41416E1A.5050905@sw.ru>
-Date: Fri, 10 Sep 2004 13:04:26 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 10 Sep 2004 04:53:03 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:11436 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S267323AbUIJIw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 04:52:26 -0400
+Date: Fri, 10 Sep 2004 10:52:07 +0200 (CEST)
+From: Simon Derr <simon.derr@bull.net>
+X-X-Sender: derr@daphne.frec.bull.fr
+To: simon.derr@bull.net, pj@sgi.com
+cc: linux-kernel@vger.kernel.org
+Subject: [rfc][patch] 1/2 Additional cpuset features
+Message-ID: <Pine.LNX.4.58.0409101036090.2891@daphne.frec.bull.fr>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: Q: bugs in generic_forget_inode()?
-References: <413C52E2.10809@sw.ru> <20040906123534.3487839e.akpm@osdl.org>
-In-Reply-To: <20040906123534.3487839e.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Kirill Korotaev <dev@sw.ru> wrote:
-> 
->>Hello,
->>
->>1. I found that generic_forget_inode() calls write_inode_now() dropping 
->>inode_lock and destroys inode after that. The problem is that 
->>write_inode_now() can sleep and during this sleep someone can find inode 
->>in the hash, w/o I_FREEING state and with i_count = 0.
-> 
-> The filesystem is in the process of being unmounted (!MS_ACTIVE).  So the
-> question is: who is doing inode lookups against a soon-to-be-defunct
-> filesystem?
+Hi,
 
-Yup, I'm studing this issue.
-But while looking at code I found this interesting place:
+I'm sending a series of two cpuset-related patches.
+I'm not asking for their inclusion in the current kernel.
+These are just feature proposals.
 
-__writeback_single_inode()
-{
-         while (inode->i_state & I_LOCK) {
-                 __iget(inode);			<<<<<<
-                 spin_unlock(&inode_lock);
-                 __wait_on_inode(inode);
-                 iput(inode);			<<<<<<
-                 spin_lock(&inode_lock);
-        }
-	return __sync_single_inode(inode, wbc); <<<<<<
-}
+Actually, these patches aim to restore the "original" behaviour of the
+cpusets, as it was one year from now or so. Since then, to ease the
+acceptance of the cpusets, some 'contreversial' features have been
+removed.
 
-the problem here is iget/iput.
+This first patch adds automatic process migration upon cpuset
+modification. Whenever the list of CPUs of a cpuset changes, the kernel
+will move tasks so they stay "inside" their cpuset.
 
-There are 2 possible cases:
-1. all callers of this function do hold reference on inode, then 
-iget/iput is unneeded.
-2. if 1) is incorrect then it's a bug, since inode is used after iput.
+Applies against 2.6.9-rc1-mm4.
 
-This place looks really ugly, or I don't understand something here?
 
-Kirill
+Signed-Off-By: Simon Derr <simon.derr@bull.net>
+Index: mm4/kernel/cpuset.c
+===================================================================
+--- mm4.orig/kernel/cpuset.c	2004-09-08 10:01:23.168151957 +0200
++++ mm4/kernel/cpuset.c	2004-09-08 10:13:30.335135237 +0200
+@@ -534,6 +534,84 @@
+ 	return 0;
+ }
+
++/**
++ *	migrate_cpuset_processes - re-place processes into their cpuset's cpus
++ *	@cs:	the cpusets whose processes we have to migrate.
++ *
++ *	When the list of CPUs of cpuset @cs changes, we have to update all the
++ *	attached processes' masks, and maybe even migrate them.
++ *	Should be called with the cpuset_sem hold
++ */
++static void migrate_cpuset_processes(struct cpuset * cs)
++{
++	struct task_struct *g, *p;
++	/* This should be a RARE use of the cpusets.
++	 * therefore we'll prefer an inefficient operation here
++	 * (searching the whole process list)
++	 * than adding another list_head in task_t
++	 * and locks and list_add for each fork()
++	 */
++
++	/* we need to lock tasklist_lock for reading the processes list
++	 * BUT we cannot call set_cpus_allowed with any spinlock held
++	 * => we need to store the list of task struct in an array
++	 */
++	struct task_struct ** array;
++	int first = 1;
++	int nb = 0;
++	int sz;
++
++retry:
++	/* at most cs->count - 1 processes to migrate */
++	/* keep some room in case some processes fork() during kmalloc() */
++	sz = atomic_read(&cs->count) + 10;
++	array = (struct task_struct **) kmalloc(sz * sizeof(struct task_struct *), GFP_ATOMIC);
++	if (!array) {
++		printk("Error allocating array in migrate_cpuset_processes !\n");
++		return;
++	}
++	/* see linux/sched.h for this nested for/do-while loop */
++	read_lock(&tasklist_lock);
++	do_each_thread(g, p) {
++		if (p->cpuset == cs) {
++			if (nb == sz) {
++				printk("migrate_cpuset_processes: array full !\n");
++				read_unlock(&tasklist_lock);
++				kfree(array);
++				goto retry;
++			}
++			get_task_struct(p);
++			array[nb++] = p;
++		}
++	} while_each_thread(g, p);
++	read_unlock(&tasklist_lock);
++
++	while(nb) {
++		struct task_struct * p = array[--nb];
++		cpumask_t cpus;
++		/*
++		 * If the tasks current CPU placement overlaps with its new cpuset,
++		 * then let it run in that overlap.  Otherwise fallback to simply
++		 * letting it have the run of the CPUs in the new cpuset.
++		 */
++		cpus_and(cpus, p->cpus_allowed, cs->cpus_allowed);
++		if (cpus_empty(cpus))
++			cpus = cs->cpus_allowed;
++		set_cpus_allowed(p, cpus);
++		put_task_struct(p);
++	}
++	kfree(array);
++	/* what happens if a task present in the array forks now ?
++	 * solution (ahem) -- do everything twice -- that way forked
++	 * tasks missed by the first pass will be taken by the second pass,
++	 * and the tasks missed by the second pass have their parent taken
++	 * by the first pass */
++	if (first) {
++		first = 0;
++		goto retry;
++	}
++}
++
+ static int update_cpumask(struct cpuset *cs, char *buf)
+ {
+ 	struct cpuset trialcs;
+@@ -544,9 +622,13 @@
+ 	if (retval < 0)
+ 		return retval;
+ 	cpus_and(trialcs.cpus_allowed, trialcs.cpus_allowed, cpu_online_map);
+-	retval = validate_change(cs, &trialcs);
+-	if (retval == 0)
+-		cs->cpus_allowed = trialcs.cpus_allowed;
++	if (!cpus_equal(cs->cpus_allowed, trialcs.cpus_allowed)) {
++		retval = validate_change(cs, &trialcs);
++		if (retval == 0) {
++			cs->cpus_allowed = trialcs.cpus_allowed;
++			migrate_cpuset_processes(cs);
++		}
++	}
+ 	return retval;
+ }
 

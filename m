@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317321AbSFCI57>; Mon, 3 Jun 2002 04:57:59 -0400
+	id <S317322AbSFCJAa>; Mon, 3 Jun 2002 05:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317322AbSFCI56>; Mon, 3 Jun 2002 04:57:58 -0400
-Received: from daimi.au.dk ([130.225.16.1]:37999 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317321AbSFCI55>;
-	Mon, 3 Jun 2002 04:57:57 -0400
-Message-ID: <3CFB2F92.34D174C3@daimi.au.dk>
-Date: Mon, 03 Jun 2002 10:57:54 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
+	id <S317323AbSFCJA3>; Mon, 3 Jun 2002 05:00:29 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29704
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317322AbSFCJA2>; Mon, 3 Jun 2002 05:00:28 -0400
+Date: Mon, 3 Jun 2002 01:59:14 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: INTEL 845G Chipset IDE Quandry
+In-Reply-To: <3CF9B4CC.7020205@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10206030142490.14596-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RAID-6 support in kernel?
-In-Reply-To: <Pine.LNX.4.33.0206031025400.30424-100000@mail.pronto.tv>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
-> 
-> > > RAID-6 layout: http://www.acnc.com/04_01_06.html
-> >
-> > If it is supposed to survive two arbitrary disk failures something is
-> > wrong with that figure. They store 12 logical sectors in 20 physical
-> > sectors across 4 drives. With two lost disks there are 10 physical
-> > sectors left from which we want to reconstruct 12 logical sectors.
-> > That is impossible.
-> 
-> Might be the diagram is wrong.
+On Sun, 2 Jun 2002, Martin Dalecki wrote:
 
-Could be the case, so until I find another description I will
-still not know how RAID-6 works.
+> Of year 2010 - remember learning proper C will take him time.
+> Becouse I never ever saw any code contributed by him
+> despite the fact that I'm still open for patches, as
+> I have told him upon request.
+> Once exception was a broken patch which even didn't
+> compile and couldn't solve the problem it was
+> proclaiming to solve.
 
-> 
-> > OTOH it is possible to construct a system with optimal capacity and
-> > ability to survive any chosen number of disk failures. This can be
-> > done using either a Reed-Soloman code or Lagrange interpolation of
-> > polynomials over a finite field.
-> >
-> > However I guess those techniques would be inefficient in software.
-> 
-> Yeah? That's what the hardware RAID vendors all say, and I yet haven't
-> seen one single test where Linux Software RAID can't beat hardware RAID.
+There is a difference.  I can pay a code monkey to write clean code.
+Can you pay somebody to make the driver work?
+Obviously you still can not read state diagrams even after I invited you
+to IRC and walked you through the documents and explaining how there are
+different events described in each.  I then explain the difference of how
+there are two ways to enter each one.
 
-Well, I'm not a hardware vendor. I just happen to have tried
-doing it in software, and I wasn't able to do it efficiently.
+Then you tell me you have a grand idea for a unified interrupt handler,
+which guesses what the operation to be completed by reading the command
+register.  But it is only command on a write, it is status on a read,
+since an interrupt happened the command opcode is gone.  NICE.
 
-> That is also after some testing I did on a high-end intel server at
-> Compaq's lab in Oslo. How can RAID-6 be so much different?
+Then you toss out the next one.  Gee, I can stall device interrupts to the
+interface if a toggle the eIEN line on and off.  Now where you planning to
+do this between DMA interrupts if you had more than one PRD?  I never
+dreamed of such a brilliant idea, but you forgot one thing.  NO touching
+the taskfile registers until you stop DMAing.  Either abort the
+transaction of deadlock the interface.
 
-I guess RAID-6 can be done efficiently in software. It is the
-other encodings I'm worried about.
+Now I will go learn proper C, and you have all the time you need to try
+get the data-transport layer right.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+As for that patch I sent you, it works but you did not try.  See after I
+sent it to you on a short test compile, I ran tests on it the next day.
+
+Lastly, I started to make a new one, but since there is no way to
+determine what the entry mode of the driver upon command block execution.
+
+Regards ...
+
+Andre Hedrick
+LAD Storage Consulting Group
+

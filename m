@@ -1,57 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266495AbTGEVGk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 17:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266498AbTGEVGe
+	id S266494AbTGEVF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 17:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbTGEVF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 17:06:34 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:8387 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S266495AbTGEVGb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 17:06:31 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Diego Calleja =?iso-8859-1?q?Garc=EDa?= <diegocg@teleline.es>
-Subject: Re: 2.5.74-mm1
-Date: Sat, 5 Jul 2003 23:22:10 +0200
-User-Agent: KMail/1.5.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20030703023714.55d13934.akpm@osdl.org> <200307051728.12891.phillips@arcor.de> <20030705214006.37a52d15.diegocg@teleline.es>
-In-Reply-To: <20030705214006.37a52d15.diegocg@teleline.es>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Sat, 5 Jul 2003 17:05:56 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:39816 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S266494AbTGEVFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 17:05:53 -0400
+Date: Sat, 5 Jul 2003 23:20:21 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: usb-storage doesn't recognize a Sony DSC-P92
+Message-ID: <20030705212021.GB21621@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307052322.10123.phillips@arcor.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 July 2003 21:40, Diego Calleja García wrote:
-> > to get us so far with this.  The situation re scheduling in 2.5 feels
-> > much as the vm situation did in 2.3, in other words, we're halfway down a
-> > long twisty road that ends with something that works, after having tried
-> > and failed at many flavors of tweaking and tuning.  Ultimately the
-> > problem will be solved by redesign, and probably not just limited to
-> > kernel code.
->
-> I never run 2.3, but 2.5 behaviour has been much better in the past. I used
-> to run make -j25 and mp3 didn't skip, X and all apps were still very
-> reponsive.
->
-> That was a lot of releases ago, before the so called linus' "interactivity"
-> patch. IMHO the behaviour in those releases was great; i think the
-> scheduler just needs a bit of tweaking from the Ingo's hand :)
+Hi!
 
-It is good, so long as the sound process runs at a higher-than-default 
-priority.  Trying to get sound to run skiplessly at the same priority as a 
-normal process is just a waste of time.  If it happens to work in some kernel 
-versions or hardware configurations, it's an accident.
+For over a year I've been using a DSC-P9 successfully under Linux.
+Now my mother-in-law got a P92, so I thought: "I simply hook it up, it
+will work the same way".
 
-Though I've admittedly only done a small of testing, I haven't seen a glitch 
-recently.  I'm a happy camper.  (Right now I'm running make -j25, apt-get 
-installing OpenOffice and listening to Bolero.)
+Not so.
+USB and usb-storage modules are loaded, but where the P9 works, the
+P92 is not accessible. I think this may be due to a missing
+vendor/product entry.
 
-Regards,
+When I hook it up on the USB port I get:
 
-Daniel
+Jul  5 20:50:25 shawarma kernel: hub.c: port 1, portstatus 103, change 0, 12 Mb/s
+Jul  5 20:50:25 shawarma kernel: hub.c: new USB device 00:07.2-1, assigned address 8
+Jul  5 20:50:25 shawarma kernel: usb.c: kmalloc IF d4b04bc0, numif 1
+Jul  5 20:50:25 shawarma kernel: usb.c: new device strings: Mfr=1, Product=2, SerialNumber=0
+Jul  5 20:50:25 shawarma kernel: usb.c: USB device number 8 default language ID 0x409
+Jul  5 20:50:25 shawarma kernel: Manufacturer: Sony
+Jul  5 20:50:25 shawarma kernel: Product: Sony DSC
+Jul  5 20:50:25 shawarma kernel: usb.c: unhandled interfaces on device
+Jul  5 20:50:25 shawarma kernel: usb.c: USB device 8 (vend/prod 0x54c/0x10) is not claimed by any active driver.
+Jul  5 20:50:25 shawarma kernel:   Length              = 18
+Jul  5 20:50:25 shawarma kernel:   DescriptorType      = 01
+Jul  5 20:50:25 shawarma kernel:   USB version         = 1.10
+Jul  5 20:50:25 shawarma kernel:   Vendor:Product      = 054c:0010
+Jul  5 20:50:25 shawarma kernel:   MaxPacketSize0      = 8
+Jul  5 20:50:25 shawarma kernel:   NumConfigurations   = 1
+Jul  5 20:50:25 shawarma kernel:   Device version      = 4.50
+Jul  5 20:50:25 shawarma kernel:   Device Class:SubClass:Protocol = 00:00:00
+Jul  5 20:50:25 shawarma kernel:     Per-interface classes
+Jul  5 20:50:25 shawarma kernel: Configuration:
+Jul  5 20:50:25 shawarma kernel:   bLength             =    9
+Jul  5 20:50:25 shawarma kernel:   bDescriptorType     =   02
+Jul  5 20:50:25 shawarma kernel:   wTotalLength        = 0027
+Jul  5 20:50:25 shawarma kernel:   bNumInterfaces      =   01
+Jul  5 20:50:25 shawarma kernel:   bConfigurationValue =   01
+Jul  5 20:50:25 shawarma kernel:   iConfiguration      =   00
+Jul  5 20:50:25 shawarma kernel:   bmAttributes        =   c0
+Jul  5 20:50:25 shawarma kernel:   MaxPower            =    2mA
+Jul  5 20:50:25 shawarma kernel: 
+Jul  5 20:50:25 shawarma kernel:   Interface: 0
+Jul  5 20:50:25 shawarma kernel:   Alternate Setting:  0
+Jul  5 20:50:26 shawarma kernel:     bLength             =    9
+Jul  5 20:50:26 shawarma kernel:     bDescriptorType     =   04
+Jul  5 20:50:26 shawarma kernel:     bInterfaceNumber    =   00
+Jul  5 20:50:26 shawarma kernel:     bAlternateSetting   =   00
+Jul  5 20:50:26 shawarma kernel:     bNumEndpoints       =   03
+Jul  5 20:50:26 shawarma kernel:     bInterface Class:SubClass:Protocol =   08:ff:01
+Jul  5 20:50:26 shawarma kernel:     iInterface          =   00
+Jul  5 20:50:26 shawarma kernel:     Endpoint:
+Jul  5 20:50:26 shawarma kernel:       bLength             =    7
+Jul  5 20:50:26 shawarma kernel:       bDescriptorType     =   05
+Jul  5 20:50:26 shawarma kernel:       bEndpointAddress    =   01 (out)
+Jul  5 20:50:26 shawarma kernel:       bmAttributes        =   02 (Bulk)
+Jul  5 20:50:26 shawarma kernel:       wMaxPacketSize      = 0040
+Jul  5 20:50:26 shawarma kernel:       bInterval           =   00
+Jul  5 20:50:26 shawarma kernel:     Endpoint:
+Jul  5 20:50:26 shawarma kernel:       bLength             =    7
+Jul  5 20:50:26 shawarma kernel:       bDescriptorType     =   05
+Jul  5 20:50:26 shawarma kernel:       bEndpointAddress    =   82 (in)
+Jul  5 20:50:26 shawarma kernel:       bmAttributes        =   02 (Bulk)
+Jul  5 20:50:26 shawarma kernel:       wMaxPacketSize      = 0040
+Jul  5 20:50:26 shawarma kernel:       bInterval           =   00
+Jul  5 20:50:26 shawarma kernel:     Endpoint:
+Jul  5 20:50:26 shawarma kernel:       bLength             =    7
+Jul  5 20:50:26 shawarma kernel:       bDescriptorType     =   05
+Jul  5 20:50:26 shawarma kernel:       bEndpointAddress    =   83 (in)
+Jul  5 20:50:26 shawarma kernel:       bmAttributes        =   03 (Interrupt)
+Jul  5 20:50:26 shawarma kernel:       wMaxPacketSize      = 0008
+Jul  5 20:50:26 shawarma kernel:       bInterval           =   ff
+Jul  5 20:50:26 shawarma kernel: usb.c: kusbd: /sbin/hotplug add 8
+Jul  5 20:50:26 shawarma kernel: hub.c: port 2, portstatus 300, change 0, 1.5 Mb/s
+Jul  5 20:57:02 shawarma kernel: uhci.c: root-hub INT complete: port1: 48a port2: 580 data: 2
+Jul  5 20:57:02 shawarma kernel: uhci.c: d400: suspend_hc
+Jul  5 20:57:02 shawarma kernel: hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+Jul  5 20:57:02 shawarma kernel: hub.c: port 1 connection change
+Jul  5 20:57:02 shawarma kernel: hub.c: port 1, portstatus 100, change 3, 12 Mb/s
+Jul  5 20:57:02 shawarma kernel: usb.c: USB disconnect on device 00:07.2-1 address 8
+Jul  5 20:57:02 shawarma kernel: usb.c: kusbd: /sbin/hotplug remove 8
 
+and the device cannot be mounted using
+mount -t vfat /dev/sda1 /camera
+
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix

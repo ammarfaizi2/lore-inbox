@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbTA1OXR>; Tue, 28 Jan 2003 09:23:17 -0500
+	id <S265480AbTA1OQ5>; Tue, 28 Jan 2003 09:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbTA1OXR>; Tue, 28 Jan 2003 09:23:17 -0500
-Received: from home.wiggy.net ([213.84.101.140]:54719 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S265587AbTA1OXQ>;
-	Tue, 28 Jan 2003 09:23:16 -0500
-Date: Tue, 28 Jan 2003 15:32:35 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bootscreen
-Message-ID: <20030128143235.GY4868@wiggy.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> <200301281144.h0SBi0ld000233@darkstar.example.net> <20030128114840.GV4868@wiggy.net> <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk> <20030128130953.GW4868@wiggy.net> <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265523AbTA1OQ5>; Tue, 28 Jan 2003 09:16:57 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:55812 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265480AbTA1OQf>;
+	Tue, 28 Jan 2003 09:16:35 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301281426.h0SEQRRn001008@darkstar.example.net>
+Subject: Re: AW: Bootscreen
+To: Raphael_Schmid@CUBUS.COM (Raphael Schmid)
+Date: Tue, 28 Jan 2003 14:26:27 +0000 (GMT)
+Cc: rob@r-morris.co.uk, Raphael_Schmid@CUBUS.COM, linux-kernel@vger.kernel.org
+In-Reply-To: <398E93A81CC5D311901600A0C9F29289469380@cubuss2> from "Raphael Schmid" at Jan 28, 2003 03:11:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Alan Cox wrote:
-> I'd not really pondered people who compile many drivers into their kernel
-> instead of into the initrd. I guess a few people still do that.
+> > Wait screen, then just hangs", which would then require an
+> > engineer visit, as opposed to, for example, "it says Obtaining IP
+> > Address... then hangs"
+> I do have a solution for that. Just make the image 640x440 instead
+> 640x480, and have the initscripts output on one of the lower lines
+> only, always over-writing the previous message. That way, the
+> support engineer would know what's going wrong and you'd still have
+> a cute picture.
 
-Agreed - what you probably want to do is have a minimal kernel that
-boots an initrd which loads modules for the rest. If the kernel is
-small enough you don't care for its boot messages: if it fails the
-hardware is screwed and your box has to be repaired (esp. if you are
-dealing with embedded/special purpose systems where the people using
-the box can't even see the hardware). 
+At the moment, the framebuffer reserves a few lines for the Tux icons,
+and uses the rest for text.  Why not just modify that code to achieve
+what you want, (a large logo, and a text window).
 
-Then have the bios/bootloader setup your pretty bootscreen and reset
-it in the initrd when you load a fb driver.
+You could do that on the Atari 65XE, have a text mode window at the
+bottom of a graphics screen :-)
 
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+John

@@ -1,72 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbUEEAMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUEEASo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUEEAMK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 20:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbUEEAMK
+	id S261875AbUEEASo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 20:18:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUEEASo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 20:12:10 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:33761 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261822AbUEEAMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 20:12:06 -0400
-Date: Wed, 5 May 2004 01:12:00 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: mbligh@aracnet.com, <rmk@arm.linux.org.uk>, <James.Bottomley@SteelEye.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rmap 22 flush_dcache_mmap_lock
-In-Reply-To: <20040504154057.73770fe8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0405050100590.3076-100000@localhost.localdomain>
+	Tue, 4 May 2004 20:18:44 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:24245 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S261830AbUEEASj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 20:18:39 -0400
+Message-ID: <409832D2.2020507@watson.ibm.com>
+Date: Tue, 04 May 2004 20:18:26 -0400
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] Re: [RFC] Revised CKRM release
+References: <4090BBF1.6080801@watson.ibm.com> <20040504173529.GE11346@logos.cnet>
+In-Reply-To: <20040504173529.GE11346@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 May 2004, Andrew Morton wrote:
+Marcelo Tosatti wrote:
+> On Thu, Apr 29, 2004 at 04:25:21AM -0400, Shailabh Nagar wrote:
 > 
-> Looks like this patch will break a lot of architectures.  Was that
-> intentional?
-
-Didn't you get the next patch, rmap 23?  That does the other arches.
-
-> If not, and if you expect that all other architectures do not need the lock
-> then the above could be cast as:
+>>The Class-based Resource Management project is happy to release the
+>>first bits of a working prototype following a major revision of its
+>>interface and internal organization.
+>>
+>>The basic concepts and motivation of CKRM remain the same as described
+>>in the overview at http://ckrm.sf.net. Privileged users can define
+>>classes consisting of groups of kernel objects (currently tasks and
+>>sockets) and specify shares for these classes. Resource controllers,
+>>which are independent of each other, can regulate and monitor the
+>>resources consumed by classes e.g the CPU controller will control the
+>>CPU time received by a class etc. Optional classification engines,
+>>implemented as kernel modules, can assist in the automatic
+>>classification of the kernel objects (tasks/sockets currently) into
+>>classes.
 > 
-> #ifndef flush_dcache_mmap_lock
-> #define flush_dcache_mmap_lock(mapping)		do { } while (0)
-> #define flush_dcache_mmap_unlock(mapping)	do { } while (0)
-> #endif
 > 
-> in some generic file.
+> Cool!
+> 
+> 
+>>New in this release are the following:
+>>
+>>rbce.ckrm-E12:
+>>
+>>Two classification engines (CE) to assist in automatic classification
+>>of tasks and sockets. The first one, rbce, implements a rule-based
+>>classification engine which is generic enough for most users. The
+>>second, called crbce, is a variant of rbce which additionally provides
+>>information on significant kernel events (where a task/socket could
+>>get reclassified) to userspace as well as reports per-process wait
+>>times for cpu, memory, io etc. Such information can be used by user
+>>level tools to reclassify tasks to new classes, change class shares
+>>etc.
+> 
+> 
+> It sounds to me the classification engine can be moved to userspace? 
+> 
+> Such "classification" sounds a better suited to be done there.
 
-I was very tempted to do so, but it's not the style for flush_dcache_page
-& friends, so I updated each asm/cacheflush.h (well, sh goes down a level).
+I suppose it could. However, one of our design objectives was to 
+support multi-threaded server apps where each thread (task) changes 
+its class fairly rapidly (say every time it starts doing work on 
+behalf of a more/less important transaction). Doing a transition to 
+userspace and back may be too costly for such a scenario.
 
-> wrt overloading of tree_lock: The main drawback is that the VM lock ranking
-> is now dependent upon the architecture.  That, plus the dang thing is
-> undocumented!
+There might also be some concerns with keeping the reclassify 
+operation atomic wrt deletion of the target class...but we haven't 
+thought this through for userspace classification.
 
-Not really: there's an extra level at the bottom for two of the arches.
-Documented with the rest in filemap.c (though I didn't commit to which
-arches there).
 
-> And it seems strange to be grabbing that lock expecting that it will
-> protect the tree which is elsewhere protected by a different lock.  You
-> sure this is correct?
 
-I most certainly agree it isn't pretty, I'd gladly solve it a
-better way - if you or someone else can tell me that better way.
+> 
+> Note: I haven't read the code yet.
+>
 
-Obviously we could add another spinlock rather than reusing tree_lock,
-but I don't think that'll help much: still regrettable.
+Why just read when you can test as well :-) We just released a testing 
+tarball at http://ckrm.sf.net.. any inputs, bugs will be most welcome !
 
-> I wonder if it wouldn't be better to simply make i_shared_lock irq-safe?
 
-A sixth sense tells me that we don't want to disable interrupts
-throughout vmtruncate's unmapping of pages from vmas...
 
-But perhaps there's another way of looking at the problem.
-
-Hugh
-
+Looking forward to more inputs,
+-- Shailabh

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263824AbTJCSbX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 14:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263825AbTJCSbX
+	id S263836AbTJCS23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 14:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263839AbTJCS23
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 14:31:23 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:3476 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263824AbTJCSbQ
+	Fri, 3 Oct 2003 14:28:29 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20883 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263836AbTJCS2O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 14:31:16 -0400
+	Fri, 3 Oct 2003 14:28:14 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH][IDE] small cleanup for AMD/nVidia IDE driver
-Date: Fri, 3 Oct 2003 20:34:01 +0200
+Subject: [PATCH][IDE] small cleanup for VIA IDE driver
+Date: Fri, 3 Oct 2003 20:31:26 +0200
 User-Agent: KMail/1.5.4
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -20,185 +20,154 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200310032034.01122.bzolnier@elka.pw.edu.pl>
+Message-Id: <200310032031.26349.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Almost identical to VIA's patch.
+Hi Vojtech,
+
+Can you take a look?
+Patch was tested on vt8235 with one port disabled, worked okay.
 
 --bartlomiej
 
-[IDE] small cleanup for AMD/nVidia IDE driver
+[IDE] small cleanup for VIA IDE driver
 
 ide_pci_setup_ports() from setup-pci.c checks if port is disabled, if so
 d->init_setup_dma() and d->init_hwif() won't be called.  There is no need
-to check it once again inside init_hwif_amd74xx(), init_dma_amd74xx()
-and amd74xx_tune_drive() (hwif->tuneproc will be NULL for disabled port).
-Therefore remove amd_enabled variable and now unnecessary init_dma_amd74xx().
-Also do not set .init_{iops, dma} to NULL in amd74xx.h (amd74xx_chipsets[]
+to check it once again inside init_hwif_via82cxxx(), init_dma_via82cxxx()
+and via82cxxx_tune_drive() (hwif->tuneproc will be NULL for disabled port).
+Therefore remove via_enabled variable and now unnecessary init_dma_via82cxx().
+Also do not set .init_{iops, dma} to NULL in via82cxxx.h (via82cxxx_chipsets[]
 is declared static).  Bump driver's version number to reflect changes.
 
- drivers/ide/pci/amd74xx.c |   25 ++++---------------------
- drivers/ide/pci/amd74xx.h |   15 ---------------
- 2 files changed, 4 insertions(+), 36 deletions(-)
+ drivers/ide/pci/via82cxxx.c |   33 +++++++--------------------------
+ drivers/ide/pci/via82cxxx.h |    5 -----
+ 2 files changed, 7 insertions(+), 31 deletions(-)
 
-diff -puN drivers/ide/pci/amd74xx.c~ide-amd-enabled-cleanup drivers/ide/pci/amd74xx.c
---- linux-2.6.0-test6-bk2/drivers/ide/pci/amd74xx.c~ide-amd-enabled-cleanup	2003-10-03 20:22:25.372286072 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/amd74xx.c	2003-10-03 20:22:41.094895872 +0200
-@@ -1,5 +1,5 @@
+diff -puN drivers/ide/pci/via82cxxx.c~ide-via-enabled-cleanup drivers/ide/pci/via82cxxx.c
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/via82cxxx.c~ide-via-enabled-cleanup	2003-10-03 20:04:07.000000000 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/via82cxxx.c	2003-10-03 20:15:17.048526664 +0200
+@@ -1,6 +1,6 @@
  /*
-- * Version 2.9
-+ * Version 2.11
   *
-  * AMD 755/756/766/8111 and nVidia nForce IDE driver for Linux.
+- * Version 3.37
++ * Version 3.38
   *
-@@ -65,7 +65,6 @@ static struct amd_ide_chip {
+  * VIA IDE driver for Linux. Supported southbridges:
+  *
+@@ -96,7 +96,6 @@ static struct via_isa_bridge {
  };
  
- static struct amd_ide_chip *amd_config;
--static unsigned char amd_enabled;
- static unsigned int amd_80w;
- static unsigned int amd_clock;
+ static struct via_isa_bridge *via_config;
+-static unsigned char via_enabled;
+ static unsigned int via_80w;
+ static unsigned int via_clock;
+ static char *via_dma[] = { "MWDMA16", "UDMA33", "UDMA66", "UDMA100", "UDMA133" };
+@@ -146,7 +145,7 @@ static int via_get_info(char *buffer, ch
+ 	via_print("----------VIA BusMastering IDE Configuration"
+ 		"----------------");
  
-@@ -103,7 +102,7 @@ static int amd74xx_get_info(char *buffer
+-	via_print("Driver Version:                     3.37");
++	via_print("Driver Version:                     3.38");
+ 	via_print("South Bridge:                       VIA %s",
+ 		via_config->name);
  
- 	amd_print("----------AMD BusMastering IDE Configuration----------------");
+@@ -370,9 +369,6 @@ static int via_set_drive(ide_drive_t *dr
  
--	amd_print("Driver Version:                     2.9");
-+	amd_print("Driver Version:                     2.11");
- 	amd_print("South Bridge:                       %s", pci_name(bmide_dev));
- 
- 	pci_read_config_byte(dev, PCI_REVISION_ID, &t);
-@@ -250,9 +249,6 @@ static int amd_set_drive(ide_drive_t *dr
- 
- static void amd74xx_tune_drive(ide_drive_t *drive, u8 pio)
+ static void via82cxxx_tune_drive(ide_drive_t *drive, u8 pio)
  {
--	if (!((amd_enabled >> HWIF(drive)->channel) & 1))
+-	if (!((via_enabled >> HWIF(drive)->channel) & 1))
 -		return;
 -
  	if (pio == 255) {
- 		amd_set_drive(drive, ide_find_best_mode(drive, XFER_PIO | XFER_EPIO));
- 		return;
-@@ -330,9 +326,6 @@ static unsigned int __init init_chipset_
- 			break;
+ 		via_set_drive(drive,
+ 			ide_find_best_mode(drive, XFER_PIO | XFER_EPIO));
+@@ -506,7 +502,6 @@ static unsigned int __init init_chipset_
+ 	 */
+ 
+ 	pci_read_config_byte(dev, VIA_IDE_ENABLE, &v);
+-	via_enabled = ((v & 1) ? 2 : 0) | ((v & 2) ? 1 : 0);
+ 
+ 	/*
+ 	 * Set up FIFO sizes and thresholds.
+@@ -523,9 +518,9 @@ static unsigned int __init init_chipset_
+ 	/* Fix FIFO split between channels */
+ 	if (via_config->flags & VIA_SET_FIFO) {
+ 		t &= (t & 0x9f);
+-		switch (via_enabled) {
+-			case 1: t |= 0x00; break;	/* 16 on primary */
+-			case 2: t |= 0x60; break;	/* 16 on secondary */
++		switch (v & 3) {
++			case 2: t |= 0x00; break;	/* 16 on primary */
++			case 1: t |= 0x60; break;	/* 16 on secondary */
+ 			case 3: t |= 0x20; break;	/* 8 pri 8 sec */
+ 		}
  	}
+@@ -603,8 +598,8 @@ static void __init init_hwif_via82cxxx(i
+ 	hwif->mwdma_mask = 0x07;
+ 	hwif->swdma_mask = 0x07;
  
--	pci_read_config_dword(dev, AMD_IDE_ENABLE, &u);
--	amd_enabled = ((u & 1) ? 2 : 0) | ((u & 2) ? 1 : 0);
--
- /*
-  * Take care of prefetch & postwrite.
-  */
-@@ -408,8 +401,8 @@ static void __init init_hwif_amd74xx(ide
-         hwif->mwdma_mask = 0x07;
-         hwif->swdma_mask = 0x07;
- 
--        if (!(hwif->udma_four))
--                hwif->udma_four = ((amd_enabled & amd_80w) >> hwif->channel) & 1;
+-	if (!(hwif->udma_four))
+-		hwif->udma_four = ((via_enabled & via_80w) >> hwif->channel) & 1;
 +	if (!hwif->udma_four)
-+		hwif->udma_four = (amd_80w >> hwif->channel) & 1;
-         hwif->ide_dma_check = &amd74xx_ide_dma_check;
-         if (!noautodma)
-                 hwif->autodma = 1;
-@@ -417,16 +410,6 @@ static void __init init_hwif_amd74xx(ide
-         hwif->drives[1].autodma = hwif->autodma;
++		hwif->udma_four = (via_80w >> hwif->channel) & 1;
+ 	hwif->ide_dma_check = &via82cxxx_ide_dma_check;
+ 	if (!noautodma)
+ 		hwif->autodma = 1;
+@@ -612,20 +607,6 @@ static void __init init_hwif_via82cxxx(i
+ 	hwif->drives[1].autodma = hwif->autodma;
  }
  
--/*
-- * We allow the BM-DMA driver only work on enabled interfaces.
+-/**
+- *	init_dma_via82cxxx	-	set up for IDE DMA
+- *	@hwif: IDE interface
+- *	@dmabase: DMA base address
+- *
+- *	We allow the BM-DMA driver to only work on enabled interfaces.
 - */
 -
--static void __init init_dma_amd74xx(ide_hwif_t *hwif, unsigned long dmabase)
+-static void __init init_dma_via82cxxx(ide_hwif_t *hwif, unsigned long dmabase)
 -{
--	if ((amd_enabled >> hwif->channel) & 1)
+-	if ((via_enabled >> hwif->channel) & 1)
 -		ide_setup_dma(hwif, dmabase, 8);
 -}
 -
  extern void ide_setup_pci_device(struct pci_dev *, ide_pci_device_t *);
  
- static int __devinit amd74xx_probe(struct pci_dev *dev, const struct pci_device_id *id)
-diff -puN drivers/ide/pci/amd74xx.h~ide-amd-enabled-cleanup drivers/ide/pci/amd74xx.h
---- linux-2.6.0-test6-bk2/drivers/ide/pci/amd74xx.h~ide-amd-enabled-cleanup	2003-10-03 20:22:25.375285616 +0200
-+++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/amd74xx.h	2003-10-03 20:22:25.379285008 +0200
-@@ -27,7 +27,6 @@ static ide_pci_host_proc_t amd74xx_procs
+ static int __devinit via_init_one(struct pci_dev *dev, const struct pci_device_id *id)
+diff -puN drivers/ide/pci/via82cxxx.h~ide-via-enabled-cleanup drivers/ide/pci/via82cxxx.h
+--- linux-2.6.0-test6-bk2/drivers/ide/pci/via82cxxx.h~ide-via-enabled-cleanup	2003-10-03 20:04:07.000000000 +0200
++++ linux-2.6.0-test6-bk2-root/drivers/ide/pci/via82cxxx.h	2003-10-03 20:04:07.000000000 +0200
+@@ -27,7 +27,6 @@ static ide_pci_host_proc_t via_procs[] _
  
- static unsigned int init_chipset_amd74xx(struct pci_dev *, const char *);
- static void init_hwif_amd74xx(ide_hwif_t *);
--static void init_dma_amd74xx(ide_hwif_t *, unsigned long);
+ static unsigned int init_chipset_via82cxxx(struct pci_dev *, const char *);
+ static void init_hwif_via82cxxx(ide_hwif_t *);
+-static void init_dma_via82cxxx(ide_hwif_t *, unsigned long);
  
- static ide_pci_device_t amd74xx_chipsets[] __devinitdata = {
+ static ide_pci_device_t via82cxxx_chipsets[] __devinitdata = {
  	{	/* 0 */
-@@ -35,9 +34,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_AMD_COBRA_7401,
- 		.name		= "AMD7401",
- 		.init_chipset	= init_chipset_amd74xx,
+@@ -35,9 +34,7 @@ static ide_pci_device_t via82cxxx_chipse
+ 		.device		= PCI_DEVICE_ID_VIA_82C576_1,
+ 		.name		= "VP_IDE",
+ 		.init_chipset	= init_chipset_via82cxxx,
 -		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
+ 		.init_hwif	= init_hwif_via82cxxx,
+-		.init_dma	= init_dma_via82cxxx,
  		.channels	= 2,
- 		.autodma	= AUTODMA,
+ 		.autodma	= NOAUTODMA,
  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
-@@ -48,9 +45,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_AMD_VIPER_7409,
- 		.name		= "AMD7409",
- 		.init_chipset	= init_chipset_amd74xx,
+@@ -48,9 +45,7 @@ static ide_pci_device_t via82cxxx_chipse
+ 		.device		= PCI_DEVICE_ID_VIA_82C586_1,
+ 		.name		= "VP_IDE",
+ 		.init_chipset	= init_chipset_via82cxxx,
 -		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
+ 		.init_hwif	= init_hwif_via82cxxx,
+-		.init_dma	= init_dma_via82cxxx,
  		.channels	= 2,
- 		.autodma	= AUTODMA,
+ 		.autodma	= NOAUTODMA,
  		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
-@@ -61,9 +56,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_AMD_VIPER_7411,
- 		.name		= "AMD7411",
- 		.init_chipset	= init_chipset_amd74xx,
--		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
-@@ -74,9 +67,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_AMD_OPUS_7441,
- 		.name		= "AMD7441",
- 		.init_chipset	= init_chipset_amd74xx,
--		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
-@@ -87,9 +78,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_AMD_8111_IDE,
- 		.name		= "AMD8111",
- 		.init_chipset	= init_chipset_amd74xx,
--		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
- 		.autodma	= AUTODMA,
- 		.channels	= 2,
- 		.enablebits	= {{0x40,0x02,0x02}, {0x40,0x01,0x01}},
-@@ -101,9 +90,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE_IDE,
- 		.name		= "NFORCE",
- 		.init_chipset	= init_chipset_amd74xx,
--		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
-@@ -115,9 +102,7 @@ static ide_pci_device_t amd74xx_chipsets
- 		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE,
- 		.name		= "NFORCE2",
- 		.init_chipset	= init_chipset_amd74xx,
--		.init_iops	= NULL,
- 		.init_hwif	= init_hwif_amd74xx,
--		.init_dma	= init_dma_amd74xx,
- 		.channels	= 2,
- 		.autodma	= AUTODMA,
- 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
 
 _
 

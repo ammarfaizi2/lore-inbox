@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266637AbUBMBM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 20:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUBMBM0
+	id S266640AbUBMBQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 20:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266646AbUBMBQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 20:12:26 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:59397 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S266637AbUBMBMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 20:12:19 -0500
-Date: Thu, 12 Feb 2004 20:12:13 -0500
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
-Message-ID: <20040213011213.GB25298@fieldses.org>
-References: <200402130615.10608.mhf@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 12 Feb 2004 20:16:58 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:12294 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266640AbUBMBQ4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 20:16:56 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+Date: Fri, 13 Feb 2004 02:16:53 +0100
+User-Agent: KMail/1.6.1
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040209115852.GB877@schottelius.org> <200402121655.39709.robin.rosenberg.lists@dewire.com> <20040213003839.GB24981@mail.shareable.org>
+In-Reply-To: <20040213003839.GB24981@mail.shareable.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200402130615.10608.mhf@linuxmail.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200402130216.53434.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 06:15:10AM +0800, Michael Frank wrote:
-> +Note that perhaps the most terrible way to write code is to put multiple
-> +statements onto a single line:
+On Friday 13 February 2004 01.38, Jamie Lokier wrote:
+> Robin Rosenberg wrote:
+>  Now consider the case with an external firewire
+> > disk or memory stick created on a machine with iso-8859-1 as the system character
+> > set and e.g xfs as the file system. What happens when I hook it up to a new redhat
+> > installation that thinks file names are best stored as utf8? Most non-ascii
+> > file names aren't even legal in utf8.
+> 
+> It goes wrong.  This happens both with filesystems that know nothing
+> about encodings, e.g. ext3, and filesystems that need to be told what
+> to transcode to/from utf-8, e.g. ntfs.
 
-If you can't manage Linus's sense of humor, go for something simple that
-doesn't call attention to itself; e.g., "Don't put multiple statements
-on a single line:"
+Yes, so ext3&co. should be equipped with charset options just the other so
+it can be fixed by the user or in some cases the mount tools. 
 
-> +Lagging spaces are deprecated.
+Is there a place to store character set information in these file systems?
 
-Does everyone know immediately what "Lagging spaces" means?  "Trailing
-spaces" seem to be more common usage.  "Don't leave whitespace at the
-end of lines" might be clearest.
+> It is also a problem that some applications access the filesystem
+> assuming utf-8 and some don't.  Nothing in the filesystem can make the
+> different applications cooperate regarding these.  E.g. I have
+> filenames that look fine in "ls" containg things like c-cedilla, but
+> xmms displays them wrongly.
 
-> +The limit on the length of lines is 80 columns and this is a hard limit.
-> +
-> +Statements longer than 80 columns will be broken into sensible chunks.
-> +The beginning of a statement is the parent and further chunks are
-> +descendent's. Descendent's are always shorter than the parent and
+Some apps simply don't think non-ascii is relevant. Xmms is one, although
+is doesn't crash at least. My guess was that it was a font problem since it
+looks like XMMS uses some special fonts. Even new apps (like gedit have 
+character set problems. These apps have to be fixed since they don't work
+properly anywhere outside the US. But that is a pure userspace problem, not 
+a kernel one. 
 
-The last vowel of descendant (in the sense you're using it) is an "a",
-and its plural is descendants.
-
-Surely this section is overkill for a discussion of line lengths.  The
-current document has the advantage of being short.
-
-> +Centralized exiting of functions
-
-That, on the other hand, is something worth documenting.
-
-> +Complex expressions are easier to understand and maintain when extra
-> +parenthesis are used. Here is an extreme example
-> +
-> +x = (((a + (b * c)) & d) | e)  // would work also without any parenthesis
-
-Ugh.  This isn't LISP here.  The number of operators in C does make
-keeping track of precedence tricky, but readers should be expected to
-know a few things (like that * is higher precedence than +).  I'd just
-leave out this discussion entirely.  CodingStyle is not, I think, meant
-to be a complete C style guide.
-
-> +Periods terminating kernel messages are deprecated
-
-> +Usage of the apostrophe <'> in kernel messages is deprecated
-
-> +Printing numbers in parenthesis ie (%d) is deprecated
-
-I find the "X is deprecated" construction a little awkward.  In any case
-it's overused here.
-
---Bruce Fields
+-- robin

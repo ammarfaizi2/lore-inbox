@@ -1,77 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261535AbSJMPWh>; Sun, 13 Oct 2002 11:22:37 -0400
+	id <S261555AbSJMPir>; Sun, 13 Oct 2002 11:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261536AbSJMPWh>; Sun, 13 Oct 2002 11:22:37 -0400
-Received: from gemini.nr.no ([156.116.2.76]:13209 "EHLO gemini.nr.no")
-	by vger.kernel.org with ESMTP id <S261535AbSJMPWg>;
-	Sun, 13 Oct 2002 11:22:36 -0400
+	id <S261556AbSJMPiq>; Sun, 13 Oct 2002 11:38:46 -0400
+Received: from cpe.atm0-0-0-209183.0x3ef29767.boanxx7.customer.tele.dk ([62.242.151.103]:2462
+	"HELO mail.hswn.dk") by vger.kernel.org with SMTP
+	id <S261555AbSJMPiq>; Sun, 13 Oct 2002 11:38:46 -0400
+Date: Sun, 13 Oct 2002 17:44:35 +0200
+From: Henrik =?iso-8859-1?Q?St=F8rner?= <henrik@hswn.dk>
 To: linux-kernel@vger.kernel.org
-Subject: Bug/panic: ATAPI fails with 2.4.20-pre10-ac2
-From: Thor Kristoffersen <Thor.Kristoffersen@nr.no>
-Date: 13 Oct 2002 17:28:23 +0200
-Message-ID: <yznit06jr3c.fsf@triumph.nr.no>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
+Subject: 2.5.42 breaks Soundblaster OSS driver and smbfs modules
+Message-ID: <20021013154435.GA25380@hswn.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *180kfI-0001ia-00*5eomIdWfgbY*
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System:
-  MSI KT3 Ultra2 (KT333/VT8235 bridges)
-  XP1700+
-  1G DDR RAM
-  Seagate ST380021A
-  Plexwriter PX-W2410A
-  Radeon 32M SDR
-  Ensoniq 5880 AudioPCI
-  SMC EtherPower II
-  RedHat 8.0
-  GCC 3.2
+Yes, I still have an old SB16 ISA card in my machine. Works
+fine i 2.5.41, but with 2.5.42 I get this:
 
+osiris:~ $ sudo /sbin/depmod -ae
+depmod: *** Unresolved symbols in /lib/modules/2.5.42/kernel/fs/smbfs/smbfs.o
+depmod:         do_schedule
+depmod: *** Unresolved symbols in /lib/modules/2.5.42/kernel/sound/oss/sound.o
+depmod:         movsl_mask
+depmod:         __copy_user_zeroing_int
+depmod:         do_schedule
+depmod:         __copy_user_int
 
-Linux 2.4.20-pre10:
+depmod version 2.4.18
 
-Setup A: IDE0 = HD, IDE1 = HD
-and
-Setup B: IDE0 = HD, IDE1 = ATAPI CD-Writer w/ide-scsi driver
-
-  Everything works, but only in PIO mode.
-
-
-Linux 2.4.20-pre10-ac2:
-
-Setup A: IDE0 = HD, IDE1 = HD
-
-  Everything works in UDMA mode 5.
-
-
-Setup B: IDE0 = HD, IDE1 = ATAPI CD-Writer w/ide-scsi driver
-
-  The HD works in UDMA mode 5, but the ATAPI CD-Writer is unusable.
-  When I try to mount a CD-ROM, the kernel spews lots of messages like these:
-    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-    hdc: drive not ready for command
-    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-    hdc: drive not ready for command
-    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-    hdc: drive not ready for command
-    hdc: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-    hdc: drive not ready for command
-    hdc: status error: status=0x49 { DriveReady DataRequest Error }
-    hdc: status error: error=0x04
-    hdc: drive not ready for command
-    hdc: ATAPI reset complete
-  Usually the CD-ROM can be mounted and read, although it is extremely
-  slow.  Once, however, the kernel paniced before it got as far as mounting
-  it.  Unfortunately the oops was not captured in the logs, but I think its
-  last words were something like "AIEEE, killed interrupt handler".
-
-
-If anyone is willing to look into this problem I'd be happy to send you
-whatever logs, config, and /proc information you need.  I can also try out
-new patches.
-
-
-Thor
+-- 
+Henrik Storner <henrik@hswn.dk> 

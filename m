@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263116AbUB1DjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 22:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbUB1DjZ
+	id S263117AbUB1DzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 22:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbUB1DzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 22:39:25 -0500
-Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:45975 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S263116AbUB1DjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 22:39:23 -0500
-Message-ID: <40400D6B.4050003@backtobasicsmgmt.com>
-Date: Fri, 27 Feb 2004 20:39:23 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back To Basics Network Management
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Daniel Robbins <drobbins@gentoo.org>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-bk9 QA testing: firewire good, USB printing dead
-References: <1077933682.14653.23.camel@wave.gentoo.org>	 <20040228021040.GA14836@kroah.com> <1077937052.14653.40.camel@wave.gentoo.org>
-In-Reply-To: <1077937052.14653.40.camel@wave.gentoo.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 27 Feb 2004 22:55:16 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4243 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263117AbUB1DzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 22:55:08 -0500
+Date: Fri, 27 Feb 2004 19:55:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, davem@redhat.com,
+       kenneth.w.chen@intel.com, olof@austin.ibm.com
+Subject: Re: [PATCH] performance problem with established hash
+Message-Id: <20040227195548.210f7204.akpm@osdl.org>
+In-Reply-To: <20040228022537.GR5801@krispykreme>
+References: <20040228022537.GR5801@krispykreme>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Robbins wrote:
+Anton Blanchard <anton@samba.org> wrote:
+>
+> -		goal = min(10UL, goal);
+>  +		goal = min(1UL << 10, goal);
 
-> Feb 27 10:52:44 [kernel] drivers/usb/class/usblp.c: usblp0: error -71 reading printer status
->                 - Last output repeated 1140 times -
+oops.  Better fix the route cache too.
 
-I have this identical problem using a 2.6.3-bk snapshot from a few days 
-ago. My hardware is a Samsung ML-2150 printer (USB 2 High Speed) 
-connected to a VIA EHCI embedded in my VIA KT-600 chipset.
+I'm not sure what went wrong in there, sorry for letting that slip through.
+Obviously, doing
 
-I sent a four page print job through CUPS; during page 4, the printer 
-timed out, and the CUPS "usb" process was hung and would not respond to 
-any signals (not even -9). When I unplugged the printer's USB cable, the 
-"usb" process died, and my syslog reported these error messages (but not 
-before I unplugged the cable). In my case I had 3,458 of them.
+	if (a)
+		foo = bar;
+	else
+		foo = zot;
 
-Plugging the printer back in, usblp re-registered it, so I tried sending 
-a job again, but could not get any data to flow to the printer without 
-restarting the Linux system.
+	if (b)
+		foo = rab;
+	else
+		foo = toz;
+
+does not make a ton of sense.
+
+This should fix it up.  We keep the table sizing identical to that which
+we had in 2.6.earlier, with a boot option override.
+
+
+ net/ipv4/route.c |    4 +---
+ net/ipv4/tcp.c   |    4 +---
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff -puN net/ipv4/route.c~ip_rt_init-sizing-fix net/ipv4/route.c
+--- 25/net/ipv4/route.c~ip_rt_init-sizing-fix	2004-02-27 19:43:01.000000000 -0800
++++ 25-akpm/net/ipv4/route.c	2004-02-27 19:51:02.000000000 -0800
+@@ -2753,9 +2753,7 @@ int __init ip_rt_init(void)
+ 		panic("IP: failed to allocate ip_dst_cache\n");
+ 
+ 	goal = num_physpages >> (26 - PAGE_SHIFT);
+-	if (!rhash_entries)
+-		goal = min(10, goal);
+-	else
++	if (rhash_entries)
+ 		goal = (rhash_entries * sizeof(struct rt_hash_bucket)) >> PAGE_SHIFT;
+ 	for (order = 0; (1UL << order) < goal; order++)
+ 		/* NOTHING */;
+diff -puN net/ipv4/tcp.c~ip_rt_init-sizing-fix net/ipv4/tcp.c
+--- 25/net/ipv4/tcp.c~ip_rt_init-sizing-fix	2004-02-27 19:51:40.000000000 -0800
++++ 25-akpm/net/ipv4/tcp.c	2004-02-27 19:52:27.000000000 -0800
+@@ -2621,9 +2621,7 @@ void __init tcp_init(void)
+ 	else
+ 		goal = num_physpages >> (23 - PAGE_SHIFT);
+ 
+-	if (!thash_entries)
+-		goal = min(10UL, goal);
+-	else
++	if (thash_entries)
+ 		goal = (thash_entries * sizeof(struct tcp_ehash_bucket)) >> PAGE_SHIFT;
+ 	for (order = 0; (1UL << order) < goal; order++)
+ 		;
+
+_
+

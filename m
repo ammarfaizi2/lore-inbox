@@ -1,96 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUCIEln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 23:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbUCIEln
+	id S261545AbUCIEq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 23:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUCIEq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 23:41:43 -0500
-Received: from fed1mtao08.cox.net ([68.6.19.123]:62350 "EHLO
-	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S261535AbUCIElk
+	Mon, 8 Mar 2004 23:46:58 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:51435 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261564AbUCIEqs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 23:41:40 -0500
-Date: Mon, 8 Mar 2004 21:41:38 -0700
-From: Deepak Saxena <dsaxena@plexity.net>
-To: linux-kernel@vger.kernel.org
-Subject: pci_set_dma_mask()/pci_dma_supported() & broken PCI bridge issue
-Message-ID: <20040309044138.GA9491@plexity.net>
-Reply-To: dsaxena@plexity.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 8 Mar 2004 23:46:48 -0500
+From: "Amit S. Kale" <amitkale@emsyssoft.com>
+Organization: EmSysSoft
+To: George Anzinger <george@mvista.com>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Date: Tue, 9 Mar 2004 10:16:30 +0530
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       trini@kernel.crashing.org, pavel@ucw.cz
+References: <200403081504.30840.amitkale@emsyssoft.com> <200403081619.16771.amitkale@emsyssoft.com> <404CF07D.1090303@mvista.com>
+In-Reply-To: <404CF07D.1090303@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Plexity Networks
+Message-Id: <200403091016.30844.amitkale@emsyssoft.com>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 09 Mar 2004 3:45 am, George Anzinger wrote:
+> Amit S. Kale wrote:
+> > On Monday 08 Mar 2004 3:56 pm, Andrew Morton wrote:
+> >>"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+> >>>Here are features that are present only in full kgdb:
+> >>> 1. Thread support  (aka info threads)
+> >>
+> >>argh, disaster.  I discussed this with Tom a week or so ago when it
+> >> looked like this it was being chopped out and I recall being told that
+> >> the discussion was referring to something else.
+> >>
+> >>Ho-hum, sorry.  Can we please put this back in?
+> >
+> > Err., well this is one of the particularly dirty parts of kgdb. That's
+> > why it's been kept away. It takes care of correct thread backtraces in
+> > some rare cases.
+> >
+> > If you consider it an absolutely must, we can do something so that the
+> > dirty part is kept away and info threads almost always works.
+>
+> Amit,
+>
+> I think we should just put the info threads in the core.  No attempt to do
+> any trace back from kgdb.  Let them all show up in the switch code.  I have
+> a script (gdb macro) that will give a rather decent "info threads" display.
+>  Oh, we need to add one other responce to kgdb for the process info gdb
+> command.
 
-I am a bit confused about the proper way that dma_set_mask() should
-behave. My situation is that I have an ARM core that has broken
-PCI window, allowing DMA only to/from the lower 64MB of RAM. My
-current approach to get around this is custom dma-API functions
-that trap based on (dev->bus == &pci_bus_type && *dev->dma_mask !=
-0xfffffff). If dma_mask is 0xfffffff, I use the generic ARM dma API
-implementation, otherwise I call my platform-specific functions
-that bounce buffers that are > 64MB.  I set the dma_mask to (64MB - 1) 
-by hooking in a platform_notify() function and calling dma_set_mask()
-if the device is a PCI device.
+qfProcessInfo looks like a very useful command.
 
-Everything was working fine with PCI IDE, EEPro100, and USB, but 
-when I tried switching to Intel's e100 driver, the self test failed.  
-Looking at the code, the cuplrit is the following line:
+This is still a hack. These kinds of hacks are difficult to maintain over a 
+long time because they are based on undocumented information.
 
-	if((err = pci_set_dma_mask(pdev, 0xFFFFFFFFULL))) {
-		DPRINTK(PROBE, ERR, "No usable DMA configuration, aborting.\n");
-		goto err_out_free_res;
-	}
+While setting up kgdb for the first time isn't easy, macros add to that 
+complexity.
 
-pci_set_dma_mask does:
+Have you experienced "shakyness" of macros? I have used process information 
+macros at kgdb.sourceforge.net to display a "ps" command like output since 
+the days of 2.4.0. I had to change them 3-4 times till now because of kernel 
+structure changes. The "changing" part is typically a 2-3 hour regorous 
+exercise :-)
 
-int
-pci_set_dma_mask(struct pci_dev *dev, u64 mask)
-{
-	if (!pci_dma_supported(dev, mask))
-		return -EIO; 
+-Amit
 
-	dev->dma_mask = mask;
+>   * This query allows the target stub to return an arbitrary string
+>   * (or strings) giving arbitrary information about the target process.
+>   * This is optional; the target stub isn't required to implement it.
+>   *
+>   * Syntax: qfProcessInfo        request first string
+>   *         qsProcessInfo        request subsequent string
+>   * reply:  'O'<hex-encoded-string>
+>   *         'l'                  last reply (empty)
+>   */
+> What we want here is the thread name.
+>
+> Here is the macro set:
+>
+> set var $low_sched=0
+>
+> define do_threads
+>    if (void)$low_sched==(void)0
+> 	set_b
+>    end
+>    thread apply all do_th_lines
+> end
+>
+> define do_th_lines
+>    set var $do_th_co=0
+>    while ($pc > $low_sched) && ($pc < $high_sched)
+>      up-silent
+>      set var $do_th_co=$do_th_co+1
+>    end
+>    if $do_th_co==0
+>      info remote-process
+>      bt
+>    else
+>      up-silent
+>      info remote-process
+>      down
+>    end
+> end
+>
+> define set_b
+>    set var $low_sched=scheduling_functions_start_here
+>    set var $high_sched=scheduling_functions_end_here
+> end
+>
+>
+> ~
 
-	return 0;
-}
-
-Currently pci_dma_supported() on ARM returns 1 on 0xffffffff, so
-the device's dma_mask gets updated and my code is no longer 
-trapping the calls to the DMA API, so the self-test buffer
-is getting allocated outside of the DMA-safe window and it
-never gets updated by the device's write (A PCI analyzer confirms
-this is the case). I can fix pci_dma_supported() to return 0 
-on my platform if (dma_mask > 64MB), but this still leaves me
-with an unusable driver b/c it will just bail out. 
-
-My comment from this experience is that it seems that there needs to 
-be a way for the platform code to tell the PCI layer "this dma mask you 
-gave me is not supported, but here is what I can support" and the driver 
-can decide if this is appropriate. The other option is to have the driver 
-keep on trying smaller and smaller masks as Documentation/dma-mapping.txt 
-describes. 
-
-Perhaps a pci_get_dma_mask() so that drivers can see what
-the current mask is set to? In that case, drivers could do:
-
-	unsigned long long my_mask = 0x00ffffffULL;
-
-	if(pci_get_dma_mask(pdev) > my_mask) {
-		if(!pci_set_dma_mask(my_mask)) {
-			bail_out;
-		}
-		... 	
-	} else {
-		/* We're OK on this platform */
-		...
-	}
-
-Comments?
-
-~Deepak
-
--- 
-Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267925AbTBVVfl>; Sat, 22 Feb 2003 16:35:41 -0500
+	id <S267920AbTBVVot>; Sat, 22 Feb 2003 16:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267927AbTBVVfl>; Sat, 22 Feb 2003 16:35:41 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:33218 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267925AbTBVVfk>;
-	Sat, 22 Feb 2003 16:35:40 -0500
-Date: Sat, 22 Feb 2003 16:45:45 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: David Dillow <dave@thedillows.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: typhoon rx_copybreak
-Message-ID: <20030222214545.GE27739@gtf.org>
-References: <20030222.004504.113090900.davem@redhat.com> <3E57D54A.5FCDD811@thedillows.org> <20030222214128.GC27739@gtf.org>
+	id <S267927AbTBVVot>; Sat, 22 Feb 2003 16:44:49 -0500
+Received: from packet.digeo.com ([12.110.80.53]:13232 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267920AbTBVVos>;
+	Sat, 22 Feb 2003 16:44:48 -0500
+Date: Sat, 22 Feb 2003 13:55:07 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: procps-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
+Message-Id: <20030222135507.5f539bba.akpm@digeo.com>
+In-Reply-To: <1045947170.19445.57.camel@cube>
+References: <Pine.LNX.4.44.0302201818060.32324-100000@localhost.localdomain>
+	<1045947170.19445.57.camel@cube>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030222214128.GC27739@gtf.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Feb 2003 21:54:51.0558 (UTC) FILETIME=[06AEAC60:01C2DABD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 04:41:28PM -0500, Jeff Garzik wrote:
-> This spams me with a lot of email, but really does optimize the
-> submission process, and gets your updates into the mainline kernel very
-> quickly.  Ideally, I just have to do "read, read, read, cut-n-paste your
-> supplied bk pull URL"
+Albert Cahalan <albert@users.sourceforge.net> wrote:
+>
+> Note that the recent /proc/*/wchan addition was botched.
+> Caching is prevented due to race conditions. This could
+> be fixed by changing the file format to contain:
+>     number, function name
 
-Adding to this,
-If you have a number of patches, I don't mind receiving a tarball of
-patches, instead of a bunch of separate emails.  Up to you.
+There is not enough detail here for it to be fixed.
 
-	Jeff
+What are the race conditions?
 
-
+What is "number"?
 

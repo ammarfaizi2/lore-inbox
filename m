@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266053AbUFDWzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266058AbUFDW6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266053AbUFDWzD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 18:55:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266050AbUFDWyt
+	id S266058AbUFDW6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 18:58:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266038AbUFDWzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 18:54:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28873 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266041AbUFDWw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 18:52:56 -0400
-Date: Sat, 5 Jun 2004 00:52:47 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Eric BEGOT <eric_begot@yahoo.fr>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.27-pre5
-Message-ID: <20040604225247.GH7744@fs.tum.de>
-References: <20040603022432.GA6039@logos.cnet> <40C08A0D.9010003@yahoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Jun 2004 18:55:21 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:36481 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266040AbUFDWwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 18:52:50 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       davidm@hpl.hp.com, akpm@osdl.org, willy@debian.org
+Subject: [PATCH] ia64 MAINTAINERS update
+Date: Fri, 4 Jun 2004 15:51:25 -0700
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40C08A0D.9010003@yahoo.fr>
-User-Agent: Mutt/1.5.6i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_tzPwA9DosQhBL93"
+Message-Id: <200406041551.25405.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 04:41:17PM +0200, Eric BEGOT wrote:
-> Marcelo Tosatti wrote:
-> 
-> >Hi, 
-> >
-> >Here goes -pre5.
-> >
-> >This time we have merges from Jeff's -netdrivers tree, David's -net tree, 
-> >including a fix for compilation error without CONFIG_SCTP set, SPARC64 
-> >update,
-> >i810_audio fixes, amongst others.
-> >
-> > 
-> >
-> when compiling linux-2.4.27-pre5 under a x86 architecture, I've a lot of 
-> warnings :
-> 
-> In file included from 
-> /usr/src/devel//usr/src/devel/include/linux/modules/i386_ksyms.ver:127:1: 
-> warning: "__ver_atomic_dec_and_lock" redefined
-> In file included from /usr/src/devel/include/linux/modversions.h:70,
->                from <command line>:8:
-> /usr/src/devel/include/linux/modules/dec_and_lock.ver:1:1: warning: this 
-> is the location of the previous definition
-> 
-> __ver_atomic_dec_and_lock is declared two times. Maybe it lacks a #ifdef 
-> somewhere in the modversions.h no ?
-> The compilation doesn't fail bu it's not very nice :)
 
-Please send your .config .
+--Boundary-00=_tzPwA9DosQhBL93
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-TIA
-Adrian
+Dave Hansen pointed out that linux-ia64@linuxia64.org is broken.  Since the 
+list has moved and the domain is gone, update the list address and kill the 
+URL.  I think willy has a new domain for ia64 Linux, but it was down for me, 
+so I'll let him update the file later with the new URL if he wants to.
 
--- 
+Jesse
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--Boundary-00=_tzPwA9DosQhBL93
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="ia64-maintainers-update.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ia64-maintainers-update.patch"
 
+===== MAINTAINERS 1.216 vs edited =====
+--- 1.216/MAINTAINERS	Mon May 31 18:02:57 2004
++++ edited/MAINTAINERS	Fri Jun  4 15:49:17 2004
+@@ -944,15 +944,14 @@
+ IA64 (Itanium) PLATFORM
+ P:	David Mosberger-Tang
+ M:	davidm@hpl.hp.com
+-L:	linux-ia64@linuxia64.org
+-W:	http://www.linuxia64.org/
++L:	linux-ia64@vger.kernel.org
+ S:	Maintained
+ 
+ SN-IA64 (Itanium) SUB-PLATFORM
+ P:	Jesse Barnes
+ M:	jbarnes@sgi.com
+ L:	linux-altix@sgi.com
+-L:	linux-ia64@linuxia64.org
++L:	linux-ia64@vger.kernel.org
+ W:	http://www.sgi.com/altix
+ S:	Maintained
+ 
+
+--Boundary-00=_tzPwA9DosQhBL93--

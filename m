@@ -1,82 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312718AbSDTWOX>; Sat, 20 Apr 2002 18:14:23 -0400
+	id <S313016AbSDTWOl>; Sat, 20 Apr 2002 18:14:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313199AbSDTWOW>; Sat, 20 Apr 2002 18:14:22 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:32552 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312718AbSDTWOW>; Sat, 20 Apr 2002 18:14:22 -0400
-Message-Id: <5.1.0.14.2.20020420231218.06e72bf0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 20 Apr 2002 23:14:29 +0100
-To: Stevie O <stevie@qrpff.net>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020420175004.00aa9288@whisper.qrpff.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313202AbSDTWOk>; Sat, 20 Apr 2002 18:14:40 -0400
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:39694 "EHLO
+	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S313016AbSDTWOj>; Sat, 20 Apr 2002 18:14:39 -0400
+Date: Sat, 20 Apr 2002 16:14:34 -0600 (MDT)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
+Subject: [PATCH] (Correction) 2.4.18 model 0x02 CPU for family 0x0F
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.44.0204201607580.18397-200000@skuld.mtroyal.ab.ca>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:00 20/04/02, Stevie O wrote:
->  From what I can see, this is the situation:
->
->Daniel is now bothered by the presence of BK documentation in the Linux 
->kernel tree. Therefore, he submitted a patch to remove this documentation.
->
->Just about everybody else involved in this thread accuses him of 
->censorship, for attempting to restrict the dissemination of ideas. I do 
->not know whether all of these people use BK; all I know is the 
->"censorship" claim, on the basis that he is restricting the dissemination 
->of information.
->
->I ask this: What if, instead of Daniel removing this documentation change, 
->Linus himself did the patch?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-That is completely different. Linus owns the Linux kernel. He is the 
-dictator on what happens with it. As such he can do with it as he pleases. 
-If anyone doesn't like his actions, they are free to fork the kernel and do 
-whatever they want. That is what the GPL is all about!
+--Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 
-This thread is getting sillier and sillier...
+Thanks to Jeff Nguyen for pointing out this error.  The P4 XEON processors
+are orficially referred to as XEON processors by Intel.  
 
-Best regards,
+Patch adds the ident of model 0x02 to family 0x0F.
 
-Anton
+A rose by any other name..
 
->2600 asserted that source code is speech, with the DeCSS case. I doubt 
->EVERYONE here agrees with that, but I do agree that source code is a very 
->precise form of communcating ideas...
->
->
->(1) If I were to write a driver, and submit it for inclusion with the 
->mainline kernel, would Linus be "censoring" me if he did not include my patch?
->
->And here is a better reason:
->
->(2) If I had such a driver included in mainline, and that driver broke in 
->the 2.5 series -- due to, say, BIO changes, VFS changes, procfs changes, 
->DMA changes, PCI subsystem changes, you get the idea -- and as a result, 
->Linus chose to remove it from mainline, he's restricting the dissemination 
->of my ideas (driver).  Does that mean he is censoring me?
->
->--
->
->Stevie-O
->
->*This sig was deleted for violating the DMCA.*
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Regards,
+James Bourne
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
 
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
+
+
+
+--Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)
+Content-id: <Pine.LNX.4.44.0204201614340.18397@skuld.mtroyal.ab.ca>
+Content-type: TEXT/PLAIN; name=2.4.18-xeon-ident.patch; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=2.4.18-xeon-ident.patch
+Content-description: 
+
+--- linux-2.4.18/arch/i386/kernel/mpparse.c~	Sat Apr 20 15:59:10 2002
++++ linux-2.4.18/arch/i386/kernel/mpparse.c	Sat Apr 20 16:03:10 2002
+@@ -113,6 +113,8 @@
+ 		case 0x0F:
+ 			if (model == 0x00)
+ 				return("Pentium 4(tm)");
++			if (model == 0x02)
++				return("XEON(tm)");
+ 			if (model == 0x0F)
+ 				return("Special controller");
+ 	}
+
+--Boundary_(ID_xLTKD5Ft7sbA4l3+UH9fpg)--

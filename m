@@ -1,89 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264804AbRFSVxR>; Tue, 19 Jun 2001 17:53:17 -0400
+	id <S264808AbRFSV7h>; Tue, 19 Jun 2001 17:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264807AbRFSVxH>; Tue, 19 Jun 2001 17:53:07 -0400
-Received: from lorax.neutraldomain.org ([64.81.248.141]:53253 "HELO
-	lorax.neutraldomain.org") by vger.kernel.org with SMTP
-	id <S264804AbRFSVwx>; Tue, 19 Jun 2001 17:52:53 -0400
-Date: Tue, 19 Jun 2001 14:53:20 -0700
-From: Gabriel Rocha <grocha@onesecure.com>
-To: Eli Carter <eli.carter@inet.com>
-Cc: Gabriel Rocha <grocha@onesecure.com>,
-        McHarry John <john.mcharry@gemplex.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to compile on one machine and install on another?
-Message-ID: <20010619145320.G81548@onesecure.com>
-Mail-Followup-To: Eli Carter <eli.carter@inet.com>,
-	Gabriel Rocha <grocha@onesecure.com>,
-	McHarry John <john.mcharry@gemplex.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <A5F553757C933442ADE9B31AF50A273B028DB4@corp-p1.gemplex.com> <20010619143253.F81548@onesecure.com> <3B2FC7F4.2AAA6A8D@inet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Z0mFw3+mXTC5ycVe"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B2FC7F4.2AAA6A8D@inet.com>; from eli.carter@inet.com on Tue, Jun 19, 2001 at 04:45:24PM -0500
+	id <S264807AbRFSV72>; Tue, 19 Jun 2001 17:59:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15635 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264810AbRFSV7H>; Tue, 19 Jun 2001 17:59:07 -0400
+Subject: Re: Linux 2.2.20-pre4
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Tue, 19 Jun 2001 22:57:42 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        kloczek@rudy.mif.pg.gda.pl (Tomasz =?iso-8859-1?Q?K=B3oczko?=),
+        laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3B2FC899.3F0105F1@mandrakesoft.com> from "Jeff Garzik" at Jun 19, 2001 05:48:09 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15CTVG-0006o0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> IMHO omitting -fno-builtin when compiling the kernel was always a risky
+> proposition...  Since we provide our own copies of many of the builtins
+> [which are used in the kernel] anyway... why not always -fno-builtin,
+> and then call __builtin_foo when we really want the compiler's version..
 
---Z0mFw3+mXTC5ycVe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+That may well be the right thing to do. Of course we rely on the compiler
+providing some of them too
 
-hey, how and where you export the filesystem is an exercise left for the
-reader, i have no problem exporting nfs filesystems in my internal
-network, what you do or dont, is up to you. and there is always
-cfs...
+> gcc 3.0 without -fno-builtin is perfectly allowed to assume it can
+> insert calls to memcpy..
 
-,----[ On Tue, Jun 19, at 04:45PM, Eli Carter wrote: ]--------------
-| Gabriel Rocha wrote:
-| >=20
-| > you could always compile on one machine and nfs mount the /usr/src/linux
-| > and do a make modules_install from the nfs mounted directory...
-|=20
-| Which would require exporting that filesystem with root permissions
-| enabled...any security bells going off?
-|=20
-| C-ya,
-|=20
-| Eli=20
-| -----------------------.   No wonder we didn't get this right first time
-| Eli Carter             |      through. It's not really all that horribly=
-=20
-| eli.carter(at)inet.com `- complicated, but the _details_ kill you. Linus
-`----[ End Quote ]---------------------------
+I have no argument about its correctness there, but -fno-builtin will still
+give a kernel that dosnt link due to abs() and other problems.. 8)
 
---=20
-Gabriel Rocha (grocha@onesecure.com) - 1-877-4-1SECURE
-OneSecure, Inc. Sunnyvale Security Operations Center (GMT -0700)
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: 2.6.3ia
-
-mQCNAzrYQA8AAAEEAL/fjYD12U8QNO0PJX30zYd+0Wg1aZq+jPp34hTiMXrGg2bv
-VE2hwrcz4iILCaQ5KlncteycMx6VL7u0tnIkxnT0M8fAPuS4VpqB/tS/mr3RcHLa
-52+TRZ45KnZt/6pp+pc9zJM8STJvGatfF+YPYKtzEM3mFL4OEnMJdtsEFkx1AAUT
-tCRHYWJyaWVsIFJvY2hhIDxncm9jaGFAb25lc2VjdXJlLmNvbT6JAJUDBRA62EAP
-cwl22wQWTHUBATrVA/9Z+/pUsd0nV6ZtOn014Q9hJ1TUzhzVcNVF1zUufTHTwLO1
-gnKaomNj1Fb+pwGK3ZxNqomUTAnCXCU3HxQ0DkG8OIjzuOIr08Lv57pA9u/yjlTR
-IOV5REUNFWD0ogKLAlVG9wp3IsSgntjToB/rj75siVrBapqzbgR+Dcs3nb8Ijg=3D=3D
-=3DHwqX
------END PGP PUBLIC KEY BLOCK-----
-
---Z0mFw3+mXTC5ycVe
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: 2.6.3in
-
-iQCVAwUBOy/J0HMJdtsEFkx1AQFAXAP9Hqj+eEF53lmmD3VYJdTYOgrJBG5Qqcf7
-i958RqAm8oXvgFPhNXh06K5NTTfPCO+FczLtvDc7FRwY7oJeTtQSIdW8Ly/C76eu
-Ls51yvbYCVqfz9r06QTcZ/bqzqR6IumBoiBaX2YEuEAwxIg6KmA0dFT9HhihtBmq
-iOAtNAwLnhQ=
-=zFsD
------END PGP SIGNATURE-----
-
---Z0mFw3+mXTC5ycVe--

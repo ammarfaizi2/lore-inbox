@@ -1,62 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUG1Sxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbUG1S6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUG1Sxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 14:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUG1Sxw
+	id S262322AbUG1S6l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 14:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUG1S6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 14:53:52 -0400
-Received: from scrye.com ([216.17.180.1]:37771 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S262106AbUG1Sxu (ORCPT
+	Wed, 28 Jul 2004 14:58:41 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:8950 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262322AbUG1S6g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 14:53:50 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jul 2004 14:58:36 -0400
+Subject: Re: [announce][draft3] HVCS for inclusion in 2.6 tree
+From: Ryan Arnold <rsa@us.ibm.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>
+In-Reply-To: <20040727155011.77897e68.rddunlap@osdl.org>
+References: <1089819720.3385.66.camel@localhost>
+	 <16633.55727.513217.364467@cargo.ozlabs.ibm.com>
+	 <1090528007.3161.7.camel@localhost> <20040722191637.52ab515a.akpm@osdl.org>
+	 <1090958938.14771.35.camel@localhost>
+	 <20040727155011.77897e68.rddunlap@osdl.org>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1091032768.14771.283.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Jul 2004 11:39:29 -0500
 Content-Transfer-Encoding: 7bit
-Date: Wed, 28 Jul 2004 12:53:42 -0600
-From: Kevin Fenzi <kevin-kernel@scrye.com>
-To: linux-kernel@vger.kernel.org
-Subject: pmdisk/swusp1 (merged) with 2.6.8-rc2-mm1
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Message-Id: <20040728185346.45CE54189@voldemort.scrye.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2004-07-27 at 17:50, Randy.Dunlap wrote:
+> +struct hvcs_partner_info {};
+> 
+> Ugly comments style.  Which comment goes with which
+> data?  Commenting data can be very helpful, but most of these
+> are close to useless since they are so obvious.
+> And put a space after "/*".
 
+Right, this is definitely more obvious now.  I think I can pretty much
+remove the comments now that the element names make sense.
 
-Greetings. 
+> +int hvcs_convert(long to_convert)
+> +{
+> +	switch (to_convert) {
+> +		case H_Success:
+> +			return 0;
+> +		case H_Parameter:
+> +			return -EINVAL;
+> +		case H_Hardware:
+> +			return -EIO;
+> +		case H_Busy:
+> 
+> Can these H_values be converted from that coding style?
 
-I am a happy software suspend2 user, but with the recent merge of
-pmdisk and swsusp1, I thought I would give it a try and see how far
-along it's come. 
+Converted to what/how?  I am confused by your question.
 
-Using 2.6.8-rc2-mm1 (that has the merged pmdisk/swsusp) I booted
-single user and unloaded all modules, then started a hibernate. 
+> 
+> +		/* This is a very small struct and will be freed soon */
+> +		next_partner_info = kmalloc(sizeof(struct hvcs_partner_info),
+> +				GFP_ATOMIC);
+> 
+> Where is it freed?
+> 
+It is freed in hvcs_free_partner_info() because the partner info that is
+allocated needs to have scope outside of the hvcs_get_partner_info()
+call.
 
-It gets to: 
+>  config PC9800_OLDLP
+> 
+> This patch segment won't apply since PC9800 has been removed.
 
-PM: Attempting to suspend to disk.
+I'll make future patches against 2.6.8-rc2.
 
-and then hangs. Machine has to be hard power cycled. 
-Looking at the code the problem appears to be that my laptop is
-reporting that it has "S4_bios" support. It doesn't, but swsup1 sees
-the S4_bios in /proc/acpi/sleep and tries to call that instead of
-swsusp1. 
+> +#define __ALIGNED__	__attribute__((__aligned__(8)))
+> 
+> Why aligned? why 8?  (just curious)  Could use a comment if it's important.
 
-Is there any way to disable detection of S4_bios?
+Randy, here's an explanation given by Hollis Blanchard and Paul
+Mackerras that I'll add to the code as a comment.
 
-Is there any way to get swsusp1 to use it's S4 instead of S4_bios?
+The hcall interface involves putting 8 chars into each of two registers.
+We load up those 2 registers (in arch/ppc64/hvconsole.c) by casting
+char[16] to long[2].  It would work without __ALIGNED__, but a little
+(tiny) bit slower because an unaligned load is slower than aligned load.
 
-I guess I can recompile with the calls to S4_bios removed and see how
-things go. 
+I took care of all the other formatting things you pointed out.
 
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
+Thanks for the suggestions Randy.  Hopefully I'll have a patch out this
+afternoon encompassing your suggestions.
 
-iD8DBQFBB/Y53imCezTjY0ERAhleAJsEaaiXoC05j9Wm/w51G9YSKPEwmwCdE/Ux
-0dxA8IXceHabVDCw5BJTqfI=
-=2wIb
------END PGP SIGNATURE-----
+Ryan S. Arnold
+IBM Linux Technology Center
+

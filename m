@@ -1,60 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263607AbUEGPG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263614AbUEGPKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbUEGPG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 11:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263615AbUEGPG5
+	id S263614AbUEGPKC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 11:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbUEGPKC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 11:06:57 -0400
-Received: from [151.38.86.74] ([151.38.86.74]:18692 "EHLO gateway.milesteg.arr")
-	by vger.kernel.org with ESMTP id S263607AbUEGPGu (ORCPT
+	Fri, 7 May 2004 11:10:02 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:27654 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S263614AbUEGPJz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 11:06:50 -0400
-Date: Fri, 7 May 2004 17:06:37 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sis900 fix (Was: [CHECKER] Resource leaks in driver shutdown functions)
-Message-ID: <20040507150637.GB12798@picchio.gall.it>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	linux-kernel@vger.kernel.org
-References: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com> <20040504084326.GA11133@gateway.milesteg.arr> <200405061223.40942.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405061223.40942.rob@landley.net>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
+	Fri, 7 May 2004 11:09:55 -0400
+Message-ID: <409BA6B1.7030809@aknet.ru>
+Date: Fri, 07 May 2004 19:09:37 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040410
+X-Accept-Language: ru, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Bug in IO bitmap handling? Probably exploitable (2.6.5)
+Content-Type: multipart/mixed;
+ boundary="------------010809070002000601030101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 12:23:40PM -0500, Rob Landley wrote:
-> Does this fix the problem where you unplug the cat 5 cable from an SiS900 and 
-> then plug it back in (toggling the MII tranciever link detect status and all 
-> that), and the device goes positively mental until you reboot the system?  
-> (Packets randomly dropped or delayed for up to 15 seconds, and arriving out 
-> of sequence with horrible impacts on performance?)
-> 
-> I tried pursuing this when I first noticed it circa 2.4.4, but as you say,
-> the driver is unmaintained and I haven't got specs (or any clue about) the 
-> chipset...
-I was not aware of this problem, the driver is slow to recognize the
-link status of the interface and often needs sending some packets before
-switching to link status on. But on my sis900 (on a laptop) I never
-observed a behavior similar to yours.
+--------------010809070002000601030101
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The patch I submitted is a small fix in the power management code, so
-it's very unlikely that it fixes anything in the link detection,
-please also note that the patch is for kernels 2.6.x.
 
-The driver in 2.6 has some small differencies that probably are fixes
-never backported, is the driver in 2.4 also broken for other people ?
-Are you using the 2.6 or 2.4 driver ?
+Hello.
 
-Thanks for the feedback.
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
+The attached is the small program that
+tries to write 0x20 to port 0x20.
+Normally this should cause SIGSEGV, so
+the program should crash.
+I think there is a bug in the 2.6
+kernels though, which makes it to not
+crash if some trivial conditions are
+met. Basically it seems that if any process
+that obtained an IO access permissions
+via ioperm(), exits without explicitly
+"dropping" that permissions, the IO
+permissions gets "inherited" by all
+other processes in the system.
+The cause seems to be that exit_thread()
+only invalidates the per-thread io_bitmap
+pointer, but doesn't invalidate the
+per-TSS io_bitmap pointer as well. As the
+per-thread pointer is invalidated,
+__switch_to() doesn't take care of that
+one either, so the per-TSS pointer stays
+valid as long as some other process
+does ioperm().
+Here it is sufficient to start an X server
+and exit it, and then the program that
+is attached, will not get a SIGSEGV any
+more, actually successing with the port
+write.
+I am also attaching the patch that seems
+like fixing the problem - it invalidates
+also the per-TSS io_bitmap pointer and
+the problem goes away.
 
+Can someone please confirm (or refute)
+the presense of the bug there? Because
+if it is really a bug, I suppose it can
+be exploited, if not for getting root,
+then at least to deadlock the machine.
+
+--------------010809070002000601030101
+Content-Type: text/plain;
+ name="port.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="port.c"
+
+
+#include <stdio.h>
+#include <asm/io.h>
+
+int main()
+{
+  outb(0x20, 0x20);
+  printf("Fine, I am alive!\n");
+  return 0;
+}
+
+--------------010809070002000601030101
+Content-Type: text/plain;
+ name="tss_iobtm.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tss_iobtm.diff"
+
+
+--- linux/arch/i386/kernel/process.c	2004-04-14 09:41:14.000000000 +0400
++++ linux/arch/i386/kernel/process.c	2004-05-07 14:54:13.000000000 +0400
+@@ -293,8 +293,11 @@
+ 
+ 	/* The process may have allocated an io port bitmap... nuke it. */
+ 	if (unlikely(NULL != tsk->thread.io_bitmap_ptr)) {
++		int cpu = smp_processor_id();
++		struct tss_struct *tss = init_tss + cpu;
+ 		kfree(tsk->thread.io_bitmap_ptr);
+ 		tsk->thread.io_bitmap_ptr = NULL;
++		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
+ 	}
+ }
+ 
+
+--------------010809070002000601030101
+Content-Type: text/plain
+
+
+Scanned by evaluation version of Dr.Web antivirus Daemon 
+http://drweb.ru/unix/
+
+
+--------------010809070002000601030101--

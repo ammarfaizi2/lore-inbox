@@ -1,36 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268000AbUHEWmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268024AbUHEWqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268000AbUHEWmf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 18:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267906AbUHEWmf
+	id S268024AbUHEWqm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 18:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267906AbUHEWql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 18:42:35 -0400
-Received: from mail.kroah.org ([69.55.234.183]:32746 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268006AbUHEWmI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 18:42:08 -0400
-Date: Thu, 5 Aug 2004 15:41:46 -0700
-From: Greg KH <greg@kroah.com>
-To: John Rose <johnrose@austin.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linas Vepstas <linas@us.ibm.com>
-Subject: Re: [PATCH] rpaphp build break - remove eeh register
-Message-ID: <20040805224145.GC18523@kroah.com>
-References: <1091548044.13500.4.camel@sinatra.austin.ibm.com>
-Mime-Version: 1.0
+	Thu, 5 Aug 2004 18:46:41 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:33799 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S268039AbUHEWpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 18:45:52 -0400
+To: Andi Kleen <ak@muc.de>
+Cc: "Michael Chan" <mchan@broadcom.com>, linux-kernel@vger.kernel.org
+Subject: Re: MMCONFIG violates pci power mgmt spec
+X-Message-Flag: Warning: May contain useful information
+References: <2pYrs-17y-31@gated-at.bofh.it>
+	<m3brhp8biw.fsf@averell.firstfloor.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 05 Aug 2004 15:45:50 -0700
+In-Reply-To: <m3brhp8biw.fsf@averell.firstfloor.org> (Andi Kleen's message
+ of "Fri, 06 Aug 2004 00:28:55 +0200")
+Message-ID: <52pt65fbkx.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091548044.13500.4.camel@sinatra.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+X-OriginalArrivalTime: 05 Aug 2004 22:45:50.0445 (UTC) FILETIME=[F4DB49D0:01C47B3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03, 2004 at 10:47:25AM -0500, John Rose wrote:
-> Hi Greg-
-> 
-> The following patch removes eeh function calls that currently break the
-> RPA PCI Hotplug module.  The functions in question were rejected from
-> mainline, and an alternate solution is being worked.
+    Andi> If someone cites the spec that says that it is not allowed I
+    Andi> guess it could be removed.
 
-Applied, thanks.
+I believe the PCI Express spec says that config writes are never posted.
+(I'll check later to be sure)
 
-greg k-h
+ - Roland

@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265275AbSKOLuP>; Fri, 15 Nov 2002 06:50:15 -0500
+	id <S266112AbSKOLwB>; Fri, 15 Nov 2002 06:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbSKOLuP>; Fri, 15 Nov 2002 06:50:15 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:3599 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265275AbSKOLuO>; Fri, 15 Nov 2002 06:50:14 -0500
-Date: Fri, 15 Nov 2002 09:57:02 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] swsuspend and CONFIG_DISCONTIGMEM=y
-Message-ID: <20021115115701.GP18180@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Pavel Machek <pavel@suse.cz>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021115081044.GI18180@conectiva.com.br> <20021115115402.GB25902@atrey.karlin.mff.cuni.cz>
+	id <S266175AbSKOLwB>; Fri, 15 Nov 2002 06:52:01 -0500
+Received: from holomorphy.com ([66.224.33.161]:32718 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266112AbSKOLwA>;
+	Fri, 15 Nov 2002 06:52:00 -0500
+Date: Fri, 15 Nov 2002 03:55:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: kernel-janitor-discuss@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: fix warning in sd.c
+Message-ID: <20021115115517.GT22031@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	kernel-janitor-discuss@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021115115402.GB25902@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Nov 15, 2002 at 12:54:02PM +0100, Pavel Machek escreveu:
-> > So perhaps the following patch is in order? Its kind of brute force, disabling it
-> > altogether, but it at least fixes it for now.
-> 
-> Please don't, better patch is pending to fix that.
+This fixes a warning in sd.c
 
-wli told me, going to use shrink_all_memory(), etc
+ sd.c |    1 -
+ 1 files changed, 1 deletion(-)
 
-- Arnaldo
+diff -urpN cleanup-2.5.47-3/drivers/scsi/sd.c cleanup-2.5.47-4/drivers/scsi/sd.c
+--- cleanup-2.5.47-3/drivers/scsi/sd.c	2002-11-10 19:28:28.000000000 -0800
++++ cleanup-2.5.47-4/drivers/scsi/sd.c	2002-11-15 03:03:22.000000000 -0800
+@@ -758,7 +758,6 @@ static void
+ sd_spinup_disk(struct scsi_disk *sdkp, char *diskname,
+ 	       struct scsi_request *SRpnt, unsigned char *buffer) {
+ 	unsigned char cmd[10];
+-	struct scsi_device *sdp = sdkp->device;
+ 	unsigned long spintime_value = 0;
+ 	int the_result, retries, spintime;
+ 

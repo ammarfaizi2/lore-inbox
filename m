@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130882AbRA3BAt>; Mon, 29 Jan 2001 20:00:49 -0500
+	id <S130338AbRA3BC7>; Mon, 29 Jan 2001 20:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130338AbRA3BAj>; Mon, 29 Jan 2001 20:00:39 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:25421 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S130882AbRA3BAZ>; Mon, 29 Jan 2001 20:00:25 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Torrey Hoffman <torrey.hoffman@myrio.com>
-cc: Matthew Pitts <mpitts@suite224.net>, Jacob Anawalt <anawaltaj@qwest.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Knowing what options a kernel was compiled with 
-In-Reply-To: Your message of "Mon, 29 Jan 2001 12:41:31 -0800."
-             <4461B4112BDB2A4FB5635DE1995874320223F3@mail0.myrio.com> 
+	id <S131666AbRA3BCt>; Mon, 29 Jan 2001 20:02:49 -0500
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:50201 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S130338AbRA3BCn>; Mon, 29 Jan 2001 20:02:43 -0500
+Date: Mon, 29 Jan 2001 19:02:38 -0600
+From: Matthew Fredrickson <lists@frednet.dyndns.org>
+To: Adrian Cox <apc@agelectronics.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: More on the VIA KT133 chipset misbehaving in Linux
+Message-ID: <20010129190238.A15549@frednet.dyndns.org>
+In-Reply-To: <3A75278F.B41B492B@bigfoot.com> <3A75507A.9386AFE2@agelectronics.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jan 2001 12:00:16 +1100
-Message-ID: <26703.980816416@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <3A75507A.9386AFE2@agelectronics.co.uk>; from apc@agelectronics.co.uk on Mon, Jan 29, 2001 at 11:14:02AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001 12:41:31 -0800, 
-Torrey Hoffman <torrey.hoffman@myrio.com> wrote:
->Should someone submit a patch to copy the .config to a standard location as
->part of "make install" or "make modules_install"? If included in the
->official sources, that good example would encourage the distribution
->maintainers do the same. 
+On Mon, Jan 29, 2001 at 11:14:02AM +0000, Adrian Cox wrote:
+> Dylan Griffiths wrote:
+> > The VIA KT133 chipset exhibits the following bugs under Linux 2.2.17 and
+> > 2.4.0:
+> > 1) PS/2 mouse cursor randomly jumps to upper right hand corner of screen and
+> > locks for a bit
+> 
+> This happens to me about once a month on a BX chipset PII machine here,
+> and on a KT133 chipset machine I have.  I have to hit ctrl-alt-backspace
+> to regain control of the console. I always assumed it was a bug in X,
+> but it never caused me enough trouble to actually make me pursue it.
 
-Not until FHS decide what that standard location is.  An entry in FHS
-will carry far more weight with distributors than a kernel Makefile
-patch.
+It happens to me also.  In fact, I posted a message a week or two ago
+asking if anybody else had similar trouble and if anybody knew anything
+about it.  I eventually just quit using the ps/2 mouse port and hooked my
+mouse up to the usb port to get it fixed.  It irritated me a great deal
+though until I finally just switched it over to usb.
 
+Matthew Fredrickson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261680AbTCQBHR>; Sun, 16 Mar 2003 20:07:17 -0500
+	id <S261690AbTCQBLu>; Sun, 16 Mar 2003 20:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261682AbTCQBHR>; Sun, 16 Mar 2003 20:07:17 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:25611 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261680AbTCQBHQ>; Sun, 16 Mar 2003 20:07:16 -0500
-Date: Mon, 17 Mar 2003 02:18:03 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Nicolas Pitre <nico@cam.org>, Ben Collins <bcollins@debian.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-In-Reply-To: <20030316215219.GX1252@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0303170104080.5042-100000@serv>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home>
- <Pine.LNX.4.44.0303162014090.12110-100000@serv> <20030316215219.GX1252@dualathlon.random>
+	id <S261682AbTCQBLu>; Sun, 16 Mar 2003 20:11:50 -0500
+Received: from ns.cinet.co.jp ([61.197.228.218]:64782 "EHLO multi.cinet.co.jp")
+	by vger.kernel.org with ESMTP id <S261681AbTCQBLq>;
+	Sun, 16 Mar 2003 20:11:46 -0500
+Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A348@ns.cinet.co.jp>
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: "'James Bottomley '" <James.Bottomley@steeleye.com>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
+       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>,
+       "'Christoph Hellwig '" <hch@infradead.org>,
+       "'Geert Uytterhoeven '" <geert@linux-m68k.org>
+Subject: RE: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
+Date: Mon, 17 Mar 2003 10:22:36 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Thanks for the comments.
 
-On Sun, 16 Mar 2003, Andrea Arcangeli wrote:
+-----Original Message-----
+From: James Bottomley
+To: Osamu Tomita
+Cc: Linux Kernel Mailing List; Alan Cox; Christoph Hellwig; Geert
+Uytterhoeven
+Sent: 2003/03/17 2:47
+Subject: Re: Complete support PC-9800 for 2.5.64-ac4 (11/11) SCSI
 
-> > Not really, it's actually more simple to what Larry is currently offering. 
-> > A simply SCCS to RCS converter would be enough. Merging information is
-> > easy to add as well. If you now also add a sequence number is quite simple 
-> > to modify a CVS server which can export the data reliably.
+> On Sat, 2003-03-15 at 19:15, Osamu Tomita wrote:
+> > This is the patch to support NEC PC-9800 subarchitecture
+> > against 2.5.64-ac4. (11/11)
 > 
-> CVS basically exports RCS through the network, your argument makes no
-> sense to me, what's the difference, I don't see what you mean.
-
-RCS is not that limited. It's very simple to take all deltas from a SCCS 
-file and put it into a RCS file:
-
-	for delta in (all sorted deltas)
-		get -rdelta foo.c
-		ci -rdelta foo.c
-
-Now one needs a little knowledge about the SCCS format. New deltas are 
-added at the top and deltas have their own sequence numbers, it's no 
-problem to add this sequence number to a RCS delta. This sequence number 
-can be used by CVS to export the data reliable, the client would simply 
-see 1.sequencenr as the version number.
-If one looks now at the bk SCCS files, it's pretty easy to guess, which 
-deltas are merges, so it should be really no problem to add this info to 
-the RCS file as well.
-
-> > If you want to test an alternative system to see whether it's usable for 
-> > kernel development, what better data is there? How could you compare it 
-> > against bk?
+> > SCSI host adapter support.
+> >  - BIOS parameter change for PC98.
+> >  - Add pc980155 driver for old PC98.
+> >  - wd33c93.c update error handler for eh_*.
+> >  - wd33c93.h register to int for PIO mode.
 > 
-> Larry has all the rights to not to help providing a testcase, it makes
-> no sense for you to complain he's not providing a testcase for a
-> competitive system. It make no sense just like complaining that if Larry
-> changes the bk format to something encrypted compressed or .doc. he has
-> the rights to do it, so please stop raising pointless arguments.
+> I suppose the first thing to point out is that it would be helpful if
+> you could send this to linux-scsi@vger.kernel.org.  Although most SCSI
+> people also read linux-kernel, it is easy to lose things in the noise.
+I see.
 
-Well, this wasn't the deal. Larry doesn't own the data, he can't say that 
-you only get all the data, if you use bk. One of the arguments for the 
-move to bk was that the format was open and the data wasn't locked in.
-Technically it makes a lot of sense to move to a different format, but if 
-he needs help to convert the data into proper RCS format, he only needs to 
-ask, I'd be happy to help.
+> > diff -Nru linux/drivers/scsi/sd.c linux98/drivers/scsi/sd.c
+> > --- linux/drivers/scsi/sd.c	2003-03-05 12:29:32.000000000 +0900
+> > +++ linux98/drivers/scsi/sd.c	2003-03-08 11:13:28.000000000 +0900
+> > @@ -485,6 +485,15 @@
+> >  	else
+> >  		scsicam_bios_param(bdev, sdkp->capacity, diskinfo);
+> >  
+> > +#ifdef CONFIG_X86_PC9800
+> > +	{
+> > +		extern int pc98_bios_param(struct scsi_device *,
+> > +					   struct block_device *,
+> > +					   sector_t, int *);
+> > +		pc98_bios_param(sdp, bdev, sdkp->capacity, diskinfo);
+> > +	}
+> > +#endif
+> > +
+> >  	if (put_user(diskinfo[0], &loc->heads))
+> >  		return -EFAULT;
+> >  	if (put_user(diskinfo[1], &loc->sectors))
+> 
+> You already have the pc98_bios_param as part of your local driver.  Why
+> do you need this in addition?
+We need this for other SCSI cards not only wd33c93. For example, we
+have cards for PC98 that use aha152x, aic7xxx, advansys and sym53c8xx
+drivers. 
+PC98 architecture has own boot selector and can boot any of 16 partitions
+per 1 drive. The partition table conatins C/H/S geometry. And we can
+assign non zero head or sector. Boot selector reads the partition table
+and call BIOS by C/H/S parameters on boottime. If geometry is not mach
+to BIOS, cannot boot from the partition created on linux. 
 
-bye, Roman
+> [...]
+> >  static inline uchar
+> >  read_aux_stat(const wd33c93_regs regs)
+> >  {
+> > -	return inb(*regs.SASR);
+> > +	return inb(regs.SASR);
+> >  }
+> >  
+> >  static inline void
+> >  write_wd33c93(const wd33c93_regs regs, uchar reg_num, uchar value)
+> >  {
+> > -      outb(reg_num, *regs.SASR);
+> > -      outb(value, *regs.SCMD);
+> > +      outb(reg_num, regs.SASR);
+> > +      outb(value, regs.SCMD);
+> >  }
+> >  
+> [...]
+> >     /* This is what the 3393 chip looks like to us */
+> >  typedef struct {
+> > +#ifdef CONFIG_WD33C93_PIO
+> > +   unsigned int   SASR;
+> > +   unsigned int   SCMD;
+> > +#else
+> >     volatile unsigned char  *SASR;
+> >     volatile unsigned char  *SCMD;
+> > +#endif
+> >  } wd33c93_regs;
+> >  
+> 
+> This really doesn't look right.  For non PIO (which is all drivers apart
+> from yours), they expect to dereference SASR to get the port number (as
+> an unsigned char).  If you remove the dereference, don't they all break?
+> 
+> Perhaps the better thing to do is to make your driver use an unsigned
+> int *, so the dereference works in all cases.
+> 
+> James
+I supposed, I use this patch with "#ifdef CONFIG_WD33C93_PIO" in
+wd33c98.c. 
 
+Regards,
+Osamu Tomita

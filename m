@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263663AbUC3N7u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 08:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUC3N7r
+	id S263657AbUC3N7k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 08:59:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUC3N7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 08:59:47 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:19392 "EHLO
+	Tue, 30 Mar 2004 08:59:40 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:18368 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263660AbUC3N7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S263657AbUC3N7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 30 Mar 2004 08:59:38 -0500
-Date: Tue, 30 Mar 2004 13:39:15 +0200
+Date: Mon, 29 Mar 2004 17:36:06 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Eduard Bloch <edi@gmx.de>, David Schwartz <davids@webmaster.com>,
-       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-Message-ID: <20040330113915.GB3084@openzaurus.ucw.cz>
-References: <20040325225423.GT9248@cheney.cx> <MDEHLPKNGKAHNMBLJOLKCEEOLEAA.davids@webmaster.com> <20040326131629.GB26910@zombie.inka.de> <40643BFA.1000302@stesmi.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Ivan Godard <igodard@pacbell.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel support for peer-to-peer protection models...
+Message-ID: <20040329153606.GA3084@openzaurus.ucw.cz>
+References: <048e01c413b3_3c3cae60_fc82c23f@pc21.suse.lists.linux.kernel> <p73y8pm951k.fsf@nielsen.suse.de> <07b501c41502_48bd4d20_fc82c23f@pc21> <20040329011416.591ad315.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40643BFA.1000302@stesmi.com>
+In-Reply-To: <20040329011416.591ad315.ak@suse.de>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >#include <hallo.h>
-> >* David Schwartz [Thu, Mar 25 2004, 04:41:23PM]:
-> >
-> >
-> >>>IMHO code that can be compiled would probably be the preferred form
-> >>>of the work.
-> >>
-> >>	You are seriously arguing that the obfuscated binary of the 
-> >>	firmware is the
-> >>preferred form of the firmware for the purpose of making 
-> >>modifications to
-> >>it?!
-> >
-> >
-> >Yes, the driver authors PREFERS to make the changes on the C source
-> >code, he never has to modify the firmware. Exactly what the GPL
-> >requests, where is your problem?
+> > > Overall it sounds like your architecture is not very well suited to
+> > > run Linux.
+> > 
+> > We believe we can adopt the Linux protection model (i.e. the 386 protection
+> > model) with no more work than any other port to a new architectire (ahem).
 > 
-> But the firmware didn't appear out of thin air - someone wrote it
-> somehow. If that's using a hex editor or inside the C code doesn't
-> matter, but most likely they used some other language like either
-> C or assembly (no, not all firmware is written using assembly), and
-> there are cases where some are in fact written using a hex editor but
-> I can't remember any that has been for the last 30 or so years but
-> I'm sure there has been cases where there hasn't been a working
-> assembler.
+> Just FYI - Linux has been ported to several architectures with similar SASOS
+> capabilities in hardware (IA64 or ppc64 on iseries) and they have all opted to use 
+> an conventional protection model.
+> 
 
-If my code contains picture of human, do I have to provide his DNA, too?
-				Pavel
-
-(runs away)
+It might be actually plus for Ivan: if ia64 and ppc64 benefit from
+changes for mill, it makes them more acceptable.
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

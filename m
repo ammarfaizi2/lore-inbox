@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263189AbUJ2JvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263180AbUJ2Jw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263189AbUJ2JvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 05:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263180AbUJ2JvG
+	id S263180AbUJ2Jw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 05:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbUJ2Jw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 05:51:06 -0400
-Received: from out001pub.verizon.net ([206.46.170.140]:33740 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S263189AbUJ2JuJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 05:50:09 -0400
-Message-ID: <41821250.70502@verizon.net>
-Date: Fri, 29 Oct 2004 05:50:08 -0400
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Jez <dave.jez@seznam.cz>
-CC: Martin Mares <mj@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: PCI & IRQ problems on TI Extensa 600CD
-References: <20041023142906.GA15789@stud.fit.vutbr.cz> <417AB69E.8010709@verizon.net> <20041025161945.GA82114@stud.fit.vutbr.cz> <20041029081848.GA5240@stud.fit.vutbr.cz>
-In-Reply-To: <20041029081848.GA5240@stud.fit.vutbr.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [209.158.211.53] at Fri, 29 Oct 2004 04:50:08 -0500
+	Fri, 29 Oct 2004 05:52:29 -0400
+Received: from lug-owl.de ([195.71.106.12]:18591 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S263180AbUJ2JwP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 05:52:15 -0400
+Date: Fri, 29 Oct 2004 11:52:14 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: i386: use generic support for offsets.h
+Message-ID: <20041029095214.GM11105@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
+References: <20041028185917.GA9004@mars.ravnborg.org> <20041028190221.GD9004@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Ll0BBk1HBk/f94B0"
+Content-Disposition: inline
+In-Reply-To: <20041028190221.GD9004@mars.ravnborg.org>
+X-Operating-System: Linux mail 2.6.8-rc4 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Jez wrote:
->   Hi all,
-> 
->   Last night i solved this problem. It cause by crippled PCI chipset
-> parody called ALi and his perverse undocumented "features". I think that
-> use ISA bridge as IRQ router if we haven't any router is guite good idea.
->   Everythink with this patch works fine even though i have different irq in
-> win. See attached logs.
->   Jim, can you try this patch please? I assume that you have some kind
-> of ALi chipset too. Maybe this solves your problem too.
->   Martin, Marcelo, please aply :-).
-> 
-> PS: is here anybody who have relevant datascheet?
-> 
->   Regards,
-> 
-> 
 
-Naah.  I have a piix chipset.  My problem (per David Hinds) is that my laptop is 
-even more b0rken than yours - IBM never hooked up the PCI INTx lines on the TI 
-1130.  My laptop never worked with Cardbus stuff - even in Windows.
+--Ll0BBk1HBk/f94B0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-He reccommended the external pcmcia_cs package for my system - there's a dummy_cs 
-module in there (2.4 only, though) that should fix my problem.
+On Thu, 2004-10-28 21:02:21 +0200, Sam Ravnborg <sam@ravnborg.org>
+wrote in message <20041028190221.GD9004@mars.ravnborg.org>:
+> diff -Nru a/include/asm-i386/offsets.c b/include/asm-i386/offsets.c
+> --- /dev/null	Wed Dec 31 16:00:00 196900
+> +++ b/include/asm-i386/offsets.c	2004-10-28 20:47:38 +02:00
+> @@ -0,0 +1,66 @@
 
-Thanks,
+To be honest, I don't really like to have .c files in the include
+pathes... However, I don't know about a better idea (except maybe to
+place this into ./linux/arch/$(ARCH)/lib/)...
 
-Jim
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
+  O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--Ll0BBk1HBk/f94B0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBghLOHb1edYOZ4bsRApG6AJsH6jv0QUxRnrhuBhZtZeRpcPfPSwCfevBp
+eY+hct9FVgHBcjXtd3pPxjQ=
+=MjcJ
+-----END PGP SIGNATURE-----
+
+--Ll0BBk1HBk/f94B0--

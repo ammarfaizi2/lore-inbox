@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314073AbSEVONG>; Wed, 22 May 2002 10:13:06 -0400
+	id <S314284AbSEVOOn>; Wed, 22 May 2002 10:14:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSEVONF>; Wed, 22 May 2002 10:13:05 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62474 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S314073AbSEVONE>; Wed, 22 May 2002 10:13:04 -0400
-Date: Wed, 22 May 2002 16:13:06 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
-        Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Message-ID: <20020522141306.GB29028@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020521222139.GJ22878@atrey.karlin.mff.cuni.cz> <E17AWSq-0001l6-00@the-village.bc.nu>
+	id <S314077AbSEVOOl>; Wed, 22 May 2002 10:14:41 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:1714 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313906AbSEVOOk>;
+	Wed, 22 May 2002 10:14:40 -0400
+Date: Wed, 22 May 2002 16:12:59 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Padraig Brady <padraig@antefacto.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+Message-ID: <20020522161259.A1060@ucw.cz>
+In-Reply-To: <3CEB9465.6040409@evision-ventures.com> <Pine.GSO.4.21.0205220957320.2737-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, May 22, 2002 at 09:59:41AM -0400, Alexander Viro wrote:
 
-> > I believe I seen some strange memcpy for PPro (or something that
-> > obscure) that done out-of-order accesses to trigger prefetch logic. I
-> > can't find it any more, so I can't be sure...
+> On Wed, 22 May 2002, Martin Dalecki wrote:
 > 
-> Its festering quietly in the glibc source tree where all large and 
-> dubiously justifiable hacks seem to end up
+> > So at least we know now:
+> > 
+> > 1. Kernel is bogous.
+> > 2. util-linux is bogous.
+> > 
+> > IOCTL is ineed the way to go to implement such functionality...
+> 
+> For kbdrate???  sysctl I might see - after all, we are talking about
+> setting two numbers.  ioctl() to pass a couple of integers to the kernel?
+> No, thanks.
 
-In such case, linus, here is your "reasonable" example. For PPro, it
-is faster to copy out-of-order, and if we wanted to use that for
-copy_to_user, you'd have your example.
-								Pavel
+Sysctl won't be too good an idea if you have more than one keyboard.
+It needs to be device-related, hence an ioctl.
+
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Vojtech Pavlik
+SuSE Labs

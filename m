@@ -1,88 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132686AbRDKRgo>; Wed, 11 Apr 2001 13:36:44 -0400
+	id <S132684AbRDKRlP>; Wed, 11 Apr 2001 13:41:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132684AbRDKRge>; Wed, 11 Apr 2001 13:36:34 -0400
-Received: from t2.redhat.com ([199.183.24.243]:9214 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S132683AbRDKRgY>; Wed, 11 Apr 2001 13:36:24 -0400
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: David Howells <dhowells@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix
-In-Reply-To: Your message of "Wed, 11 Apr 2001 09:56:09 PDT."
-             <3AD48CA9.CA03B85D@uow.edu.au>
-Date: Wed, 11 Apr 2001 18:36:23 +0100
-Message-ID: <17325.987010583@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@cambridge.redhat.com>
+	id <S132688AbRDKRlH>; Wed, 11 Apr 2001 13:41:07 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:37387 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S132683AbRDKRkt>; Wed, 11 Apr 2001 13:40:49 -0400
+Date: Wed, 11 Apr 2001 13:41:44 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: <proski@fonzie.nine.com>
+To: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: [PATCH] Initial permissions on ramfs
+Message-ID: <Pine.LNX.4.33.0104111322440.22147-100000@fonzie.nine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> I think that's a very good approach.  Sure, it's suboptimal when there
-> are three or more waiters (and they're the right type and order).  But
-> that never happens.  Nice design idea.
+Hello!
 
-Cheers.
+This patch is against 2.4.3-ac4. It won't apply to the Linus' tree!
 
-> These numbers are infinity :)
+This patch makes it possible to manage all RAM filesystems in one place -
+in /etc/fstab. No need to write scripts to change permissions after mount.
 
-I know, but I think Linus may be happy with the resolution for the moment. It
-can be extended later by siphoning off excess quantities of waiters into a
-separate counter (as is done now) and by making the access count use a larger
-part of the variable.
+The patch adds "mode", "uid" and "gid" options to ramfs. They only affect
+the top-level directory. The permissions can be changed later. For
+example:
 
-Unfortunately, managing the count and siphoned-off count together is tricky.
+mount -t ramfs -o mode=1777,uid=0,gid=100 none /tmp
 
-> You need sterner testing stuff :)  I hit the BUG at the end of rwsem_wake()
-> in about a second running rwsem-4.  Removed the BUG and everything stops
-> in D state.
->
-> Grab rwsem-4 from
-> ...
+This patch superseeds my older patch that only allowed to specify "mode"
+but not "gid" and "uid" of the top-level directory. It also includes
+corresponding changes in the documentation.
 
-Will do.
+I'm using this patch all the time on the system where I'm writing these
+lines for /tmp. No problems so far.
 
-> It's very simple.  But running fully in-kernel shortens the
-> code paths enormously and allows you to find those little
-> timing windows.
+This patch is orthogonal to the "umount" problem I reported yesterday
+(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0104.1/0414.html) - it
+neither fixes nor introduces the "umount" problem.
 
-I thought I'd got them all by using an activity counter incremented by both
-read and write lockers.
+The patch is also available online:
+http://www.red-bean.com/~proski/linux/ramfs_access.diff
 
-> - rwsemdebug(FMT, ...) doesn't compile with egcs-1.1.2.  Need
-> to remove the comma.
+-- 
+Regards,
+Pavel Roskin
 
-This is tricky... you get all sorts of horrible warnings with gcc-2.96 if you
-remove the comma. What I've done is now ANSI-C99 compliant, but egcs is not.
+_______________________________
+--- linux.orig/Documentation/filesystems/ramfs.txt
++++ linux/Documentation/filesystems/ramfs.txt
+@@ -45,3 +45,18 @@
+ 		Sets the maximum number of inodes (i.e. distinct
+ files) on the filesystem to NNN. If NNN=0 there is no limit. The
+ default is no limit (but there can never be more inodes than dentries).
++
++	mode=NNN
++		Sets the initial permissions of the root inode. By
++default this is 755. You can specify the sticky bit if you want to
++mount /tmp as ramfs, but make sure to set maxsize (see above) to a safe
++value to avoid running out of memory.
++
++	uid=NNN
++		Sets the initial owner of the root inode. You can later
++change the owner. Other inodes are not affected.
++
++	gid=NNN
++		Sets the initial group of the root inode. You can later
++change the group. Other inodes are not affected.
++
+--- linux.orig/fs/ramfs/inode.c
++++ linux/fs/ramfs/inode.c
+@@ -297,7 +297,7 @@ static void ramfs_truncatepage(struct pa
+ 	ramfs_dealloc_page(inode, page);
+ }
 
-> - The comments in down_write and down_read() are inaccurate.
-> RWSEM_ACTIVE_WRITE_BIAS is 0xffff0001, not 0x00010001
+-struct inode *ramfs_get_inode(struct super_block *sb, int mode, int dev)
++struct inode *ramfs_get_inode(struct super_block *sb, int mode, int dev, uid_t uid, gid_t gid)
+ {
+ 	struct inode * inode;
 
-Done.
+@@ -308,8 +308,8 @@ struct inode *ramfs_get_inode(struct sup
 
-> - It won't compile when WAITQUEUE_DEBUG is turned on. I
-> guess you knew that.
+ 	if (inode) {
+ 		inode->i_mode = mode;
+-		inode->i_uid = current->fsuid;
+-		inode->i_gid = current->fsgid;
++		inode->i_uid = uid;
++		inode->i_gid = gid;
+ 		inode->i_blksize = PAGE_CACHE_SIZE;
+ 		inode->i_blocks = 0;
+ 		inode->i_rdev = to_kdev_t(dev);
+@@ -349,7 +349,7 @@ static int ramfs_mknod(struct inode *dir
+ 	if (! ramfs_alloc_dentry(sb))
+ 		return error;
 
-Currently putting in separate debugging stuff for rwsems.
+-	inode = ramfs_get_inode(dir->i_sb, mode, dev);
++	inode = ramfs_get_inode(dir->i_sb, mode, dev, current->fsuid, current->fsgid);
 
-> - The comments above the functions in semaphore.h need
-> updating.
+ 	if (inode) {
+ 		d_instantiate(dentry, inode);
+@@ -504,6 +504,9 @@ struct ramfs_params {
+ 	long filepages;
+ 	long inodes;
+ 	long dentries;
++	mode_t root_mode;
++	mode_t root_uid;
++	mode_t root_gid;
+ };
 
-Done. (BTW in the latest patch, they're actually split out into separate
-header files as per Linus's suggestion).
+ static int parse_options(char * options, struct ramfs_params *p)
+@@ -514,6 +517,9 @@ static int parse_options(char * options,
+ 	p->filepages = -1;
+ 	p->inodes = -1;
+ 	p->dentries = -1;
++	p->root_mode = 755;
++	p->root_uid = current->uid;
++	p->root_gid = current->gid;
 
-> - What on earth does __xg() do?  (And why do people write
-> code like that without explaining why?  Don't answer this
-> one).
+ 	for (optname = strtok(options,","); optname;
+ 	     optname = strtok(NULL,",")) {
+@@ -541,6 +547,18 @@ static int parse_options(char * options,
+ 			p->dentries = simple_strtoul(value, &value, 0);
+ 			if (*value)
+ 				return -EINVAL;
++		} else if (!strcmp(optname, "mode") && value) {
++			p->root_mode = simple_strtoul(value, &value, 8) & 07777;
++			if (*value)
++				return -EINVAL;
++		} else if (!strcmp(optname, "uid") && value) {
++			p->root_uid = simple_strtoul(value, &value, 0);
++			if (*value)
++				return -EINVAL;
++		} else if (!strcmp(optname, "gid") && value) {
++			p->root_gid = simple_strtoul(value, &value, 0);
++			if (*value)
++				return -EINVAL;
+ 		}
 
-Stolen from the xchg() macro/function, but I'm not sure what it does. Plus I
-don't use it now.
+ 		if (optname != options)
+@@ -725,7 +743,8 @@ static struct super_block *ramfs_read_su
 
-> - Somewhat offtopic: the `asm' statements in semaphore.c
-> are really dangerous.
+ 	init_limits(rsb, &params);
 
-Now all got .text in.
+-	inode = ramfs_get_inode(sb, S_IFDIR | 0755, 0);
++	inode = ramfs_get_inode(sb, S_IFDIR | params.root_mode, 0,
++				params.root_uid,  params.root_gid);
+ 	if (!inode)
+ 		return NULL;
+
+_______________________________
+
 

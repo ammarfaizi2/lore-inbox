@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277021AbRJCX23>; Wed, 3 Oct 2001 19:28:29 -0400
+	id <S277024AbRJCXjj>; Wed, 3 Oct 2001 19:39:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277022AbRJCX2T>; Wed, 3 Oct 2001 19:28:19 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:62985 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S277021AbRJCX2E>;
-	Wed, 3 Oct 2001 19:28:04 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [patch] 2.4.11-pre2 for EXPORT_SYMBOL_GPL()
+	id <S277025AbRJCXja>; Wed, 3 Oct 2001 19:39:30 -0400
+Received: from janeway.cistron.net ([195.64.65.23]:44548 "EHLO
+	janeway.cistron.net") by vger.kernel.org with ESMTP
+	id <S277024AbRJCXjX>; Wed, 3 Oct 2001 19:39:23 -0400
+Date: Thu, 4 Oct 2001 01:39:50 +0200
+From: Wichert Akkerman <wichert@cistron.nl>
+To: linux-lvm@sistina.com
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [linux-lvm] Re: partition table read incorrectly
+Message-ID: <20011004013950.A16757@cistron.nl>
+Mail-Followup-To: linux-lvm@sistina.com, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200110031901.TAA04080@vlet.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Oct 2001 09:28:21 +1000
-Message-ID: <5442.1002151701@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110031901.TAA04080@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Oct 03, 2001 at 07:01:10PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AC's original EXPORT_SYMBOL_GPL() was incorrect, it has been fixed in
-2.4.10-ac but not in 2.4.11-pre.  Patch against 2.4.11-pre2.
+Previously Andries.Brouwer@cwi.nl wrote:
+> But why do you call it wrong?
 
-Index: 11-pre2.1/include/linux/module.h
---- 11-pre2.1/include/linux/module.h Tue, 02 Oct 2001 11:04:33 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.4 644)
-+++ 10.30/include/linux/module.h Tue, 02 Oct 2001 11:25:49 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.1.6 644)
-@@ -366,10 +366,10 @@ __attribute__((section("__ksymtab"))) =	
- 
- #define __EXPORT_SYMBOL_GPL(sym, str)			\
- const char __kstrtab_##sym[]				\
--__attribute__((section(".kstrtab"))) = str;		\
--const struct module_symbol __ksymtab_GPLONLY_##sym	\
-+__attribute__((section(".kstrtab"))) = "GPLONLY_" str;	\
-+const struct module_symbol __ksymtab_##sym		\
- __attribute__((section("__ksymtab"))) =			\
--{ (unsigned long)&sym, __kstrtab_GPLONLY_##sym }
-+{ (unsigned long)&sym, __kstrtab_##sym }
- 
- #if defined(MODVERSIONS) || !defined(CONFIG_MODVERSIONS)
- #define EXPORT_SYMBOL(var)  __EXPORT_SYMBOL(var, __MODULE_STRING(var))
+I deleted all partitions with fdisk so I expect none to be there.
+fdisk shows none, but the kernel does.
 
+Wichert.
+
+-- 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129036AbQKFJLs>; Mon, 6 Nov 2000 04:11:48 -0500
+	id <S129146AbQKFJXJ>; Mon, 6 Nov 2000 04:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129146AbQKFJLh>; Mon, 6 Nov 2000 04:11:37 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:5386 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S129036AbQKFJLX>;
-	Mon, 6 Nov 2000 04:11:23 -0500
-Message-ID: <3A067597.FE669D4F@mandrakesoft.com>
-Date: Mon, 06 Nov 2000 04:10:47 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S129203AbQKFJW7>; Mon, 6 Nov 2000 04:22:59 -0500
+Received: from earth.msynet.gr.jp ([210.154.76.130]:11049 "EHLO
+	earth.msynet.gr.jp") by vger.kernel.org with ESMTP
+	id <S129146AbQKFJWs>; Mon, 6 Nov 2000 04:22:48 -0500
+Message-Id: <200011060922.AA00000@basecamp.msynet.gr.jp>
+From: Seiichi Nakashima <nakasei@msynet.gr.jp>
+Date: Mon, 06 Nov 2000 18:22:47 +0900
+To: linux-kernel@vger.kernel.org
+Subject: pre-patch-2.0.39-final work fine for IP-masquerade
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-In-Reply-To: <200011041941.WAA28119@ms2.inr.ac.ru>
+X-Mailer: AL-Mail32 Version 1.11
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
-> > de4x5 is becoming EISA-only in 2.5.x too, since its PCI support is
-> > duplicated now in tulip driver.
-> 
-> Luckily, my old Multia died. 8)
-> 
-> Jeff, tulip did not work with genuine Digital cards.
+Dear.
 
-I'm pretty sure I fixed that.  Tested it on my Multia in fact :)  (and
-my AS200 too)
+I use pre-patch-2.0.39-final for IP-masquerade PC.
+and work fine ( work 24 hours in a day ).
 
-The fix should be in 2.2.17 tulip.c, as well as 2.4.x...
+H/W    Mitsubishi Electoric Apricot XEN-PC
 
-	Jeff
+motherboard ( unknown )
+CPU  Pentium 60MHz
+Memory 32 MB
+Ethernet card ( ISA ) NE2000 Compatible ( RTL chip )  x  2
+Disk Seagate 8GB
 
-
--- 
-Jeff Garzik             | Dinner is ready when
-Building 1024           | the smoke alarm goes off.
-MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

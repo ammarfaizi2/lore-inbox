@@ -1,189 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbTJFPZu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 11:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTJFPZu
+	id S262273AbTJFPkp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 11:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTJFPko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 11:25:50 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:15630 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S262236AbTJFPZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 11:25:45 -0400
-Date: Mon, 6 Oct 2003 17:24:48 +0200 (CEST)
-From: Jesper Juhl <jju@dif.dk>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 71MB compressed for COMPILED(!!!) 2.6.0-test6
-In-Reply-To: <20031006102415.GB7598@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.56.0310061655070.26687@jju_lnx.backbone.dif.dk>
-References: <20031006082340.GA1135@matchmail.com> <1065428996.5033.5.camel@laptop.fenrus.com>
- <20031006083803.GB1135@matchmail.com> <20031006102415.GB7598@merlin.emma.line.org>
+	Mon, 6 Oct 2003 11:40:44 -0400
+Received: from covilha.procergs.com.br ([200.198.128.212]:53001 "EHLO
+	covilha.procergs.com.br") by vger.kernel.org with ESMTP
+	id S262273AbTJFPkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 11:40:43 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test6-bk7: kernel freeze if try to change to console
+References: <87d6db2gw0.fsf@retteb.casa>
+	<16257.17952.546250.954616@gargle.gargle.HOWL>
+	<87vfr2ttev.fsf@retteb.casa>
+	<16257.33403.756457.433093@gargle.gargle.HOWL>
+From: Otavio Salvador <otavio@debian.org>
+Date: Mon, 06 Oct 2003 12:40:39 -0300
+In-Reply-To: <16257.33403.756457.433093@gargle.gargle.HOWL> (Mikael
+ Pettersson's message of "Mon, 6 Oct 2003 16:55:55 +0200")
+Message-ID: <87ad8etlvs.fsf@retteb.casa>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mikael Pettersson <mikpe@csd.uu.se> writes:
 
-On Mon, 6 Oct 2003, Matthias Andree wrote:
-
-> On Mon, 06 Oct 2003, Mike Fedyk wrote:
+> Otavio Salvador writes:
+>  > Mikael Pettersson <mikpe@csd.uu.se> writes:
+>  > 
+>  > > Otavio Salvador writes:
+>  > >  > Folks,
+>  > >  > 
+>  > >  > I'm using kernel 2.6.0-test6-bk7 and have some problems. If I try to
+>  > >  > change to console from X my system freeze. I'm including my .config
+>  > >  > file bellow.
+>  > >
+>  > > I have a hunch but I need to see your boot dmesg log to confirm.
+>  > > Please post it.
+>  > 
+>  > Hello,
+>  > 
+>  > Here is it.
 >
-> > config DEBUG_INFO
-> > 	bool "Compile the kernel with debug info"
-> > 	depends on DEBUG_KERNEL
-> > 	help
-> >           If you say Y here the resulting kernel image will include
-> > 	  debugging info resulting in a larger kernel image.
-> > 	  Say Y here only if you plan to use gdb to debug the kernel.
-> > 	  If you don't debug the kernel, you can say N.
-> >
-> > "Larger kernel image" yeah, NO SHIT! ;)
-> >
-> > Maybe something that says it may enlarge your kernel by 5-10 times would be
-> > nice...
+> Ok now I'm confused. The .config you posted earlier stated that
+> you had both UP_APIC and APM_DISPLAY_BLANK enabled. Your dmesg
+> log indicates that you're running on a 1.6GHz Athlon-XP, but
+> there's no mention of APIC anything in the dmesg log.
+
+Yes. Was my last try to solve the problem removing the APIC and
+solves.
+
+> So either your Athlon has had its local APIC disabled, or you
+> changed the .config to exclude UP_APIC.
 >
-> Send a patch...
->
+> In any case, APM_DISPLAY_BLANK is known to sometimes lock up when it
+> blanks the console (e.g., when X exists). This is because some graphics
+> card BIOSen can't handle local APIC interrupts (e.g., the timer).
+> The workaround is to disable either APM_DISPLAY_BLANK or UP_APIC.
 
-How about this one?  :
+Now is working nicely. I've disabled APIC and all working fine now.
 
+Thanks by your help.
 
-diff -ur linux-2.6.0-test6-orig/arch/alpha/Kconfig linux-2.6.0-test6/arch/alpha/Kconfig
---- linux-2.6.0-test6-orig/arch/alpha/Kconfig	2003-09-28 02:50:39.000000000 +0200
-+++ linux-2.6.0-test6/arch/alpha/Kconfig	2003-10-06 17:10:32.000000000 +0200
-@@ -769,6 +769,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/arm26/Kconfig linux-2.6.0-test6/arch/arm26/Kconfig
---- linux-2.6.0-test6-orig/arch/arm26/Kconfig	2003-09-28 02:50:29.000000000 +0200
-+++ linux-2.6.0-test6/arch/arm26/Kconfig	2003-10-06 17:08:55.000000000 +0200
-@@ -336,6 +336,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/i386/Kconfig linux-2.6.0-test6/arch/i386/Kconfig
---- linux-2.6.0-test6-orig/arch/i386/Kconfig	2003-09-28 02:50:10.000000000 +0200
-+++ linux-2.6.0-test6/arch/i386/Kconfig	2003-10-06 17:05:38.000000000 +0200
-@@ -1244,6 +1244,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/ia64/Kconfig linux-2.6.0-test6/arch/ia64/Kconfig
---- linux-2.6.0-test6-orig/arch/ia64/Kconfig	2003-09-28 02:51:04.000000000 +0200
-+++ linux-2.6.0-test6/arch/ia64/Kconfig	2003-10-06 17:10:08.000000000 +0200
-@@ -683,6 +683,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/m68k/Kconfig linux-2.6.0-test6/arch/m68k/Kconfig
---- linux-2.6.0-test6-orig/arch/m68k/Kconfig	2003-09-28 02:50:29.000000000 +0200
-+++ linux-2.6.0-test6/arch/m68k/Kconfig	2003-10-06 17:09:33.000000000 +0200
-@@ -1166,6 +1166,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/parisc/Kconfig linux-2.6.0-test6/arch/parisc/Kconfig
---- linux-2.6.0-test6-orig/arch/parisc/Kconfig	2003-09-28 02:50:29.000000000 +0200
-+++ linux-2.6.0-test6/arch/parisc/Kconfig	2003-10-06 17:12:14.000000000 +0200
-@@ -257,6 +257,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/ppc/Kconfig linux-2.6.0-test6/arch/ppc/Kconfig
---- linux-2.6.0-test6-orig/arch/ppc/Kconfig	2003-09-28 02:51:12.000000000 +0200
-+++ linux-2.6.0-test6/arch/ppc/Kconfig	2003-10-06 17:06:47.000000000 +0200
-@@ -1390,6 +1390,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use some sort of debugger to
- 	  debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-diff -ur linux-2.6.0-test6-orig/arch/ppc64/Kconfig linux-2.6.0-test6/arch/ppc64/Kconfig
---- linux-2.6.0-test6-orig/arch/ppc64/Kconfig	2003-09-28 02:50:25.000000000 +0200
-+++ linux-2.6.0-test6/arch/ppc64/Kconfig	2003-10-06 17:11:00.000000000 +0200
-@@ -374,6 +374,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/s390/Kconfig linux-2.6.0-test6/arch/s390/Kconfig
---- linux-2.6.0-test6-orig/arch/s390/Kconfig	2003-09-28 02:50:16.000000000 +0200
-+++ linux-2.6.0-test6/arch/s390/Kconfig	2003-10-06 17:13:03.000000000 +0200
-@@ -309,6 +309,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/sparc64/Kconfig linux-2.6.0-test6/arch/sparc64/Kconfig
---- linux-2.6.0-test6-orig/arch/sparc64/Kconfig	2003-09-28 02:50:53.000000000 +0200
-+++ linux-2.6.0-test6/arch/sparc64/Kconfig	2003-10-06 17:07:22.000000000 +0200
-@@ -819,6 +819,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-diff -ur linux-2.6.0-test6-orig/arch/x86_64/Kconfig linux-2.6.0-test6/arch/x86_64/Kconfig
---- linux-2.6.0-test6-orig/arch/x86_64/Kconfig	2003-09-28 02:50:40.000000000 +0200
-+++ linux-2.6.0-test6/arch/x86_64/Kconfig	2003-10-06 17:12:39.000000000 +0200
-@@ -495,6 +495,8 @@
- 	help
-           If you say Y here the resulting kernel image will include
- 	  debugging info resulting in a larger kernel image.
-+	  This will substantially increase the size of the kernel image.
-+	  Size increases of 5 to 10 times normal size is to be expected.
- 	  Say Y here only if you plan to use gdb to debug the kernel.
- 	  If you don't debug the kernel, you can say N.
-
-
-
-
-Kind regards,
-
-Jesper Juhl <jju@dif.dk>
-
+-- 
+        O T A V I O    S A L V A D O R
+---------------------------------------------
+ E-mail: otavio@debian.org      UIN: 5906116
+ GNU/Linux User: 239058     GPG ID: 49A5F855
+ Home Page: http://www.freedom.ind.br/otavio
+---------------------------------------------

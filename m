@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263617AbTJQWua (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 18:50:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTJQWua
+	id S261190AbTJQWmK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 18:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbTJQWmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 18:50:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8620 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261193AbTJQWu0 (ORCPT
+	Fri, 17 Oct 2003 18:42:10 -0400
+Received: from ns.suse.de ([195.135.220.2]:10187 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261162AbTJQWmH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 18:50:26 -0400
-Date: Fri, 17 Oct 2003 15:50:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+	Fri, 17 Oct 2003 18:42:07 -0400
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
-Message-Id: <20031017155028.2e98b307.akpm@osdl.org>
-In-Reply-To: <200310171610.36569.bjorn.helgaas@hp.com>
-References: <200310171610.36569.bjorn.helgaas@hp.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0F367D@scsmsx401.sc.intel.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I'm ZIPPY the PINHEAD and I'm totally committed to the festive mode.
+Date: Sat, 18 Oct 2003 00:40:48 +0200
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0F367D@scsmsx401.sc.intel.com> (Tony
+ Luck's message of "Fri, 17 Oct 2003 15:19:49 -0700")
+Message-ID: <jellrjfpxr.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+"Luck, Tony" <tony.luck@intel.com> writes:
+
+>> I expect there are probably different opinions about the idea
+>> that "dd if=/dev/mem" exits without doing anything.  Sparc and
+>> 68K have nearby code that bit-buckets writes and returns zeroes
+>> for reads of page zero.  We could do that, too, but it seems like
+>> kind of a hack, and holes on ia64 can be BIG (on the order of
+>> 256GB for one box).
 >
-> Old behavior:
-> 
->     # dd if=/dev/mem of=/dev/null
->     <unrecoverable machine check>
+> Filling in the holes does seem like a bad idea, but so does returning
+> EOF when you hit a hole (which is what I think your patch is doing).
+>
+> Would ENODEV be better?
 
-I recently fixed this for ia32 by changing copy_to_user() to not oops if
-the source address generated a fault.  Similarly copy_from_user() returns
-an error if the destination generates a fault.
+EIO would probably fit better.
 
-In other words: drivers/char/mem.c requires that the architecture's
-copy_*_user() functions correctly handle faults on either the source or
-dest of the copy.
+Andreas.
 
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

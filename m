@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbUKDPds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbUKDPgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262255AbUKDPds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 10:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUKDPdr
+	id S262263AbUKDPgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 10:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbUKDPgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 10:33:47 -0500
-Received: from mail01.hpce.nec.com ([193.141.139.228]:61673 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S262263AbUKDPbw convert rfc822-to-8bit
+	Thu, 4 Nov 2004 10:36:16 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:18953 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S262263AbUKDPgC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 10:31:52 -0500
-From: Erich Focht <efocht@hpce.nec.com>
-To: Jack Steiner <steiner@sgi.com>
-Subject: Re: Externalize SLIT table
-Date: Thu, 4 Nov 2004 16:31:42 +0100
-User-Agent: KMail/1.6.2
-Cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com> <20041104141337.GA18445@sgi.com>
-In-Reply-To: <20041104141337.GA18445@sgi.com>
+	Thu, 4 Nov 2004 10:36:02 -0500
+Date: Thu, 4 Nov 2004 16:30:23 +0100 (CET)
+To: degger@fhm.edu
+Subject: Re: dmi_scan on x86_64
+X-IlohaMail-Blah: khali@gcu.info
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
+Message-ID: <JwLGVeAP.1099582223.3370560.khali@gcu.info>
+In-Reply-To: <B55F1204-2E70-11D9-BF00-000A958E35DC@fhm.edu>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "LKML" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200411041631.42627.efocht@hpce.nec.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 November 2004 15:13, Jack Steiner wrote:
-> I think it would also be useful to have a similar cpu-to-cpu distance
-> metric:
->         % cat /sys/devices/system/cpu/cpu0/distance
->         10 20 40 60 
-> 
-> This gives the same information but is cpu-centric rather than
-> node centric.
 
-I don't see the use of that once you have some way to find the logical
-CPU to node number mapping. The "node distances" are meant to be
-proportional to the memory access latency ratios (20 means 2 times
-larger than local (intra-node) access, which is by definition 10). 
-If the cpu_to_cpu distance is necessary because there is a hierarchy
-in the memory blocks inside one node, then maybe the definition of a
-node should be changed...
+> > Feel free to submit a dump (using i2cdump) of that unknown chip if you
+> > want me to comment on it.
+>
+> egger@ulli:~$ sudo i2cdetect -l
+> i2c-2   unknown         SMBus2 AMD8111 adapter at c400
+> (...)
+> egger@ulli:~$ sudo i2cdetect 2
+> (...)
+>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+> 00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
+> 10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+> 20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+> 30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+> 40: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+> 50: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+> 60: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+> 70: XX XX XX XX XX XX XX XX
 
-We currently have (at least in -mm kernels):
-       % ls /sys/devices/system/node/node0/cpu*
-for finding out which CPUs belong to which nodes. Together with
-       /sys/devices/system/node/node0/distances
-this should be enough for user space NUMA tools.
+According to the SMBus 2.0 specs [1], page 59, address 0x08 represents
+the SMBus host itself, so it's not a client. This SMBus is empty.
 
-Regards,
-Erich
+> Anything else I can try?
 
+No, this bus is simply empty, no need to look any further. For some
+reason these AMD chipsets have two different SMBus. Most motherboard
+manufacturers only use the first one.
+
+Jean
+
+[1] http://www.smbus.org/specs/smbus20.pdf

@@ -1,61 +1,161 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317974AbSGPUjQ>; Tue, 16 Jul 2002 16:39:16 -0400
+	id <S317954AbSGPUkV>; Tue, 16 Jul 2002 16:40:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317973AbSGPUjP>; Tue, 16 Jul 2002 16:39:15 -0400
-Received: from ja.mac.ssi.bg ([212.95.166.194]:43012 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S317954AbSGPUjN>;
-	Tue, 16 Jul 2002 16:39:13 -0400
-Date: Tue, 16 Jul 2002 23:41:57 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-X-X-Sender: ja@u.domain.uli
-To: Daniel Gryniewicz <dang@fprintf.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] unwanted proxy arp in 2.4.19-pre10
-In-Reply-To: <1026849894.3520.5.camel@athena.fprintf.net>
-Message-ID: <Pine.LNX.4.44.0207162312270.1816-100000@u.domain.uli>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317977AbSGPUkV>; Tue, 16 Jul 2002 16:40:21 -0400
+Received: from draco.netpower.no ([212.33.133.34]:60945 "EHLO
+	draco.netpower.no") by vger.kernel.org with ESMTP
+	id <S317954AbSGPUkK>; Tue, 16 Jul 2002 16:40:10 -0400
+Date: Tue, 16 Jul 2002 22:42:59 +0200
+From: Erlend Aasland <erlend-a@innova.no>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5][TRIVIAL] {get,put}_binfmt()
+Message-ID: <20020716224259.A20283@innova.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-	Hello,
+While browsing through kernel/{fork,exit}.c, I noticed that a pair of
+{get,put}_binfmt() could make some code slightly more readable (imho).
+After a few seconds of grepping, I found the function put_binfmt() in
+fs/exec.c, and I made a little "sister-function" for it: get_binfmt().
 
-On 16 Jul 2002, Daniel Gryniewicz wrote:
+This patch adds get_binfmt(). It gives {put,get}_binfmt() a new home:
+include/linux/binfmts.h (so kernel/{fork,exit}.c can use them.) Minor
+#include changes was needed in fork.c, exit.c and exec.c to make this
+work.
 
-> Okay, I have no problem with this. What I have a problem with is Linux
-> sending an ARP request out an interface and using the address of
+If you think this is a bad idea, just ignore this patch :)
 
-	Please apply rp_filter_mask and be happy :) By this way
-you can safely use rp_filter with hubs if that is your problem.
 
-> *another interface* as the tell address.  This is just broken.
+Regards,
+	Erlend Aasland
 
-	From routing perspective it is not broken: ARP request is
-built from data approved from routing and extracted from the
-IP packet. If you provide different sender IP in the ARP request
-you risk this probe to be answered on another target host's interface,
-i.e. the remote host can answer it on eth0 and then our IP packet (with
-different src IP) will be dropped on this device if it is allowed
-on eth1 and the rp_filter_mask I mentioned in previous mail is not
-supported/set (and it is usually not). This happens if the remote host
-has 2 devices attached to the same hub we are connected and in such
-case it usually accept one ARP probe on one interface (eth*/rp_filter=1).
-This is the reason Linux ARP to use addresses from the IP packets.
-You must not break this rule or you risk problems. Do you see the 
-symmetry? If you lie in your ARP probe then you can receive wrong MAC for 
-that target. Note that we resolve the path (SRCIP->DSTIP), not only DSTIP.
-We ask "where should I send traffic from SRCIP to DSTIP?". The
-question "where is DSTIP" is too ambiguous, you risk to receive
-wrong answer (as usually happens). This is not mentioned in RFC826. 
-Nor the word "hub" :)
 
-Again, you are welcome on linux-net where we can find solution for
-every setup which involves Linux ARP :)
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+diff -urN linux-2.5.25/fs/exec.c linux-2.5.25-dirty/fs/exec.c
+--- linux-2.5.25/fs/exec.c	Wed Jun 19 04:11:52 2002
++++ linux-2.5.25-dirty/fs/exec.c	Tue Jul 16 21:19:10 2002
+@@ -35,9 +35,9 @@
+ #include <linux/highmem.h>
+ #include <linux/spinlock.h>
+ #include <linux/personality.h>
+-#include <linux/binfmts.h>
+ #define __NO_VERSION__
+ #include <linux/module.h>
++#include <linux/binfmts.h>
+ #include <linux/namei.h>
+ 
+ #include <asm/uaccess.h>
+@@ -92,12 +92,6 @@
+ 	return -EINVAL;
+ }
+ 
+-static inline void put_binfmt(struct linux_binfmt * fmt)
+-{
+-	if (fmt->module)
+-		__MOD_DEC_USE_COUNT(fmt->module);
+-}
+-
+ /*
+  * Note that a shared library must be both readable and executable due to
+  * security reasons.
+@@ -947,11 +941,9 @@
+ void set_binfmt(struct linux_binfmt *new)
+ {
+ 	struct linux_binfmt *old = current->binfmt;
+-	if (new && new->module)
+-		__MOD_INC_USE_COUNT(new->module);
++	get_binfmt(new);
+ 	current->binfmt = new;
+-	if (old && old->module)
+-		__MOD_DEC_USE_COUNT(old->module);
++	put_binfmt(old);
+ }
+ 
+ int do_coredump(long signr, struct pt_regs * regs)
+diff -urN linux-2.5.25/include/linux/binfmts.h linux-2.5.25-dirty/include/linux/binfmts.h
+--- linux-2.5.25/include/linux/binfmts.h	Wed Jun 19 04:11:55 2002
++++ linux-2.5.25-dirty/include/linux/binfmts.h	Tue Jul 16 21:06:48 2002
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/ptrace.h>
+ #include <linux/capability.h>
++#include <linux/module.h>
+ 
+ /*
+  * MAX_ARG_PAGES defines the number of pages allocated for arguments
+@@ -60,6 +61,17 @@
+ extern int do_coredump(long signr, struct pt_regs * regs);
+ extern void set_binfmt(struct linux_binfmt *new);
+ 
++static inline void put_binfmt(struct linux_binfmt * fmt)
++{
++	if (fmt && fmt->module)
++		__MOD_DEC_USE_COUNT(fmt->module);
++}
++
++static inline void get_binfmt(struct linux_binfmt * fmt)
++{
++	if (fmt && fmt->module)
++		__MOD_INC_USE_COUNT(fmt->module);
++}
+ 
+ #if 0
+ /* this went away now */
+diff -urN linux-2.5.25/kernel/exit.c linux-2.5.25-dirty/kernel/exit.c
+--- linux-2.5.25/kernel/exit.c	Mon Jul  8 08:38:59 2002
++++ linux-2.5.25-dirty/kernel/exit.c	Tue Jul 16 21:13:26 2002
+@@ -9,7 +9,6 @@
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/smp_lock.h>
+-#include <linux/module.h>
+ #include <linux/completion.h>
+ #include <linux/personality.h>
+ #include <linux/tty.h>
+@@ -551,8 +550,7 @@
+ 		disassociate_ctty(1);
+ 
+ 	put_exec_domain(tsk->thread_info->exec_domain);
+-	if (tsk->binfmt && tsk->binfmt->module)
+-		__MOD_DEC_USE_COUNT(tsk->binfmt->module);
++	put_binfmt(tsk->binfmt);
+ 
+ 	tsk->exit_code = code;
+ 	exit_notify();
+diff -urN linux-2.5.25/kernel/fork.c linux-2.5.25-dirty/kernel/fork.c
+--- linux-2.5.25/kernel/fork.c	Mon Jul  8 08:38:59 2002
++++ linux-2.5.25-dirty/kernel/fork.c	Tue Jul 16 21:12:06 2002
+@@ -16,7 +16,6 @@
+ #include <linux/init.h>
+ #include <linux/unistd.h>
+ #include <linux/smp_lock.h>
+-#include <linux/module.h>
+ #include <linux/vmalloc.h>
+ #include <linux/completion.h>
+ #include <linux/namespace.h>
+@@ -645,9 +644,7 @@
+ 		goto bad_fork_cleanup_count;
+ 	
+ 	get_exec_domain(p->thread_info->exec_domain);
+-
+-	if (p->binfmt && p->binfmt->module)
+-		__MOD_INC_USE_COUNT(p->binfmt->module);
++	get_binfmt(p->binfmt);
+ 
+ #ifdef CONFIG_PREEMPT
+ 	/*
+@@ -818,8 +815,7 @@
+ 	exit_semundo(p);
+ bad_fork_cleanup:
+ 	put_exec_domain(p->thread_info->exec_domain);
+-	if (p->binfmt && p->binfmt->module)
+-		__MOD_DEC_USE_COUNT(p->binfmt->module);
++	put_binfmt(p->binfmt);
+ bad_fork_cleanup_count:
+ 	atomic_dec(&p->user->processes);
+ 	free_uid(p->user);

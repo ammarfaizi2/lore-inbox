@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261934AbSLMLKX>; Fri, 13 Dec 2002 06:10:23 -0500
+	id <S261963AbSLMLXK>; Fri, 13 Dec 2002 06:23:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261963AbSLMLKX>; Fri, 13 Dec 2002 06:10:23 -0500
-Received: from B57b6.pppool.de ([213.7.87.182]:33464 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261934AbSLMLKX>; Fri, 13 Dec 2002 06:10:23 -0500
-Subject: Re: Why does C3 CPU downgrade in kernel 2.4.20?
-From: Daniel Egger <degger@fhm.edu>
-To: Joseph <jospehchan@yahoo.com.tw>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
-References: <Pine.LNX.4.44.0212111151410.1397-100000@twin.uoregon.edu>
-	 <002e01c2a1bf$4bfde0b0$3716a8c0@taipei.via.com.tw>
-	 <20021212133339.GE1145@suse.de>
-	 <004d01c2a274$915cf690$3716a8c0@taipei.via.com.tw>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JRpwXoLWRI55WQqdZpqL"
-Organization: 
-Message-Id: <1039777487.13307.7.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 13 Dec 2002 12:04:48 +0100
+	id <S262023AbSLMLXK>; Fri, 13 Dec 2002 06:23:10 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57552 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261963AbSLMLXJ>; Fri, 13 Dec 2002 06:23:09 -0500
+Date: Fri, 13 Dec 2002 09:30:43 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.20-rmap15b - compile failure
+In-Reply-To: <3DF9BCAA.C96AA165@eyal.emu.id.au>
+Message-ID: <Pine.LNX.4.50L.0212130929370.15917-100000@duckman.distro.conectiva>
+References: <Pine.LNX.4.50L.0212122349520.17748-100000@imladris.surriel.com>
+ <3DF9BCAA.C96AA165@eyal.emu.id.au>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 13 Dec 2002, Eyal Lebedinsky wrote:
 
---=-JRpwXoLWRI55WQqdZpqL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> I had a failure building NVIDIA_kernel/nv.c (the nvidia driver):
+> http://download.nvidia.com/XFree86_40/1.0-4191/NVIDIA_kernel-1.0-4191.tar.gz
+>
+> It uses
+> 	pte = *pte_offset(pg_mid_dir, address);
+> but this patch removes pte_offset().
+>
+> 1) what is the correct fix (use pte_offset_kernel?)?
 
-Am Fre, 2002-12-13 um 07.55 schrieb Joseph:
+I'd assume so, but since I don't know exactly what the nvidia
+driver does I can't tell you for sure.
 
-> Is there any plan to optimize for C3 CPU in future gcc released version?
+> 2) in general, is it wise to remove pte_offset() or should it
+>    be left for compatability?
 
-Certainly, as soon as some reliable (optimisation-) manual shows up.
-Whether that will happen before you fixed your mailer is a different
-question though.... :)
+It should be removed, otherwise some drivers would compile
+but silently fail (because pte_offset() wouldn't be the right
+choice from the two alternatives.
 
-> --=20
-> Servus,
->        Daniel
+regards,
 
---=-JRpwXoLWRI55WQqdZpqL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA9+b7Pchlzsq9KoIYRAln0AJ9a6i0D3oT6uFoElEpxQHGeRwMt9ACgr0+j
-l5hn1ObuVSpCOWxDss0xOi4=
-=s6b5
------END PGP SIGNATURE-----
-
---=-JRpwXoLWRI55WQqdZpqL--
-
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
+http://www.surriel.com/		http://guru.conectiva.com/

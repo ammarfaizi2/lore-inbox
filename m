@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUHBNlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266523AbUHBNml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266498AbUHBNlp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 09:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266523AbUHBNlp
+	id S266523AbUHBNml (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 09:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUHBNml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 09:41:45 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:10426 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266498AbUHBNlg (ORCPT
+	Mon, 2 Aug 2004 09:42:41 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:59104 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S266523AbUHBNmi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 09:41:36 -0400
-Date: Mon, 2 Aug 2004 15:41:17 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: serialize access to ide device
-In-Reply-To: <20040802131150.GR10496@suse.de>
-Message-ID: <Pine.GSO.4.58.0408021540070.12449@waterleaf.sonytel.be>
-References: <20040802131150.GR10496@suse.de>
+	Mon, 2 Aug 2004 09:42:38 -0400
+Message-ID: <410E44CC.2080004@vision.ee>
+Date: Mon, 02 Aug 2004 16:42:36 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+Organization: Vision
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: mingo@redhat.com, Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
+References: <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+In-Reply-To: <20040801193043.GA20277@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Aug 2004, Jens Axboe wrote:
-> +		schedule_timeout(HZ/100);
+Ingo Molnar wrote:
 
-Hmm, we still have a few platforms where HZ < 100.
+>here's the latest version of the voluntary-preempt patch:
+>  
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-O2
+>  
+>
+Rediff against 2.6.8-rc2-mm2 would be nice if possible (there are some 
+rejects right now).
 
-Probably safer to use `schedule_timeout((HZ+99)/100);'?
+Lenar
 
-BTW, did anyone ever audit the kernel for such usages?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

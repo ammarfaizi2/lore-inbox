@@ -1,50 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263439AbUCTPKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 10:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbUCTPKK
+	id S263437AbUCTPSN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 10:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbUCTPSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 10:10:10 -0500
-Received: from holomorphy.com ([207.189.100.168]:31112 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263439AbUCTPKF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 10:10:05 -0500
-Date: Sat, 20 Mar 2004 07:09:56 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       mjy@geizhals.at, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040320150956.GE2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-	mjy@geizhals.at, linux-kernel@vger.kernel.org
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <405A584B.40601@cyberone.com.au> <20040319050948.GN2045@holomorphy.com> <20040320121423.GA9009@dualathlon.random> <20040320145111.GD2045@holomorphy.com> <20040320150311.GN9009@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 20 Mar 2004 10:18:13 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:59914 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263437AbUCTPSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 10:18:09 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.5-rc2] Add missing -EFAULT for sysctl
+Date: Sat, 20 Mar 2004 16:17:04 +0100
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040320150311.GN9009@dualathlon.random>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Organization: Working Overloaded Linux Kernel
+Message-Id: <200403201617.04712@WOLK>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_wBGXAcwiu1JTD4D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 20, 2004 at 06:51:11AM -0800, William Lee Irwin III wrote:
->> I may have missed one of his posts where he gave the results from the
->> RT test suite. I found a list of functions with some kind of numbers,
->> though I didn't see a description of what those numbers were and was
->> looking for something more detailed (e.g. the output of the RT
->> instrumentation things he had with and without preempt). This is all
->> mostly curiosity and sort of hoping this gets carried out vaguely
->> scientifically anyway, so I'm not really arguing one way or the other.
 
-On Sat, Mar 20, 2004 at 04:03:11PM +0100, Andrea Arcangeli wrote:
-> agreed. what I've seen so far is a great number of graphs, they were
-> scientific enough for my needs and covering real life different
-> workloads, but I'm not sure what Takashi published exactly, you may want
-> to discuss it with him.
+--Boundary-00=_wBGXAcwiu1JTD4D
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I didn't see the graphs; they may be helpful for my purposes.
+Hi Linus, Andrew,
 
+Kernel 2.6 lacks two -EFAULT returns in get_user() in kernel/sysctl.c.
 
--- wli
+It's already fixed in 2.4 9 months ago, but I forgot to send it for 2.6.
+
+It's basically this one:
+
+http://linux.bkbits.net:8080/linux-2.4/diffs/kernel/sysctl.c@1.23?nav=index.html|
+src/|src/kernel|hist/kernel/sysctl.c
+
+Please apply.
+
+ciao, Marc
+
+--Boundary-00=_wBGXAcwiu1JTD4D
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="missing-EFAULT-sysctl.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="missing-EFAULT-sysctl.patch"
+
+--- old/kernel/sysctl.c	2004-03-20 15:53:22.000000000 +0100
++++ wolk-for-2.6/kernel/sysctl.c	2004-03-20 16:05:32.000000000 +0100
+@@ -1107,7 +1107,8 @@ int do_sysctl_strategy (ctl_table *table
+ 	 * zero, proceed with automatic r/w */
+ 	if (table->data && table->maxlen) {
+ 		if (oldval && oldlenp) {
+-			get_user(len, oldlenp);
++			if (get_user(len, oldlenp))
++				return -EFAULT;
+ 			if (len) {
+ 				if (len > table->maxlen)
+ 					len = table->maxlen;
+@@ -1406,7 +1407,7 @@ int proc_dostring(ctl_table *table, int 
+ 		len = 0;
+ 		p = buffer;
+ 		while (len < *lenp) {
+-			if(get_user(c, p++))
++			if (get_user(c, p++))
+ 				return -EFAULT;
+ 			if (c == 0 || c == '\n')
+ 				break;
+@@ -1573,7 +1574,7 @@ static int do_proc_dointvec(ctl_table *t
+ 		p = (char *) buffer;
+ 		while (left) {
+ 			char c;
+-			if(get_user(c, p++))
++			if (get_user(c, p++))
+ 				return -EFAULT;
+ 			if (!isspace(c))
+ 				break;
+@@ -1808,7 +1809,7 @@ static int do_proc_doulongvec_minmax(ctl
+ 		p = (char *) buffer;
+ 		while (left) {
+ 			char c;
+-			if(get_user(c, p++))
++			if (get_user(c, p++))
+ 				return -EFAULT;
+ 			if (!isspace(c))
+ 				break;
+@@ -2033,7 +2034,7 @@ int sysctl_string(ctl_table *table, int 
+ 		return -ENOTDIR;
+ 	
+ 	if (oldval && oldlenp) {
+-		if(get_user(len, oldlenp))
++		if (get_user(len, oldlenp))
+ 			return -EFAULT;
+ 		if (len) {
+ 			l = strlen(table->data);
+@@ -2090,7 +2091,8 @@ int sysctl_intvec(ctl_table *table, int 
+ 
+ 		for (i = 0; i < length; i++) {
+ 			int value;
+-			get_user(value, vec + i);
++			if (get_user(value, vec + i))
++				return -EFAULT;
+ 			if (min && value < min[i])
+ 				return -EINVAL;
+ 			if (max && value > max[i])
+
+--Boundary-00=_wBGXAcwiu1JTD4D--

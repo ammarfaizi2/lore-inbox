@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264979AbTF2VOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 17:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbTF2VOJ
+	id S265027AbTF2VRp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 17:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbTF2VRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 17:14:09 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:2946 "EHLO
-	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
-	id S264908AbTF2VOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 17:14:03 -0400
-Subject: Re: [PATCH] Fix mtdblock / mtdpart / mtdconcat
-From: David Woodhouse <dwmw2@redhat.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20030629213450.B5653@flint.arm.linux.org.uk>
-References: <20030623010031.E16537@flint.arm.linux.org.uk>
-	 <1056544988.24294.9.camel@passion.cambridge.redhat.com>
-	 <20030629213450.B5653@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: Red Hat UK Ltd.
-Message-Id: <1056922045.6616.28.camel@lapdancer.baythorne.internal>
+	Sun, 29 Jun 2003 17:17:45 -0400
+Received: from smtp.terra.es ([213.4.129.129]:40278 "EHLO tsmtp10.mail.isp")
+	by vger.kernel.org with ESMTP id S265027AbTF2VRn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 17:17:43 -0400
+Date: Sun, 29 Jun 2003 23:32:01 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: rmoser <mlmoser@comcast.net>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: File System conversion -- ideas
+Message-Id: <20030629233201.5db9c248.diegocg@teleline.es>
+In-Reply-To: <200306291545410600.02136814@smtp.comcast.net>
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
+	<20030629132807.GA25170@mail.jlokier.co.uk>
+	<3EFEEF8F.7050607@post.pl>
+	<20030629192847.GB26258@mail.jlokier.co.uk>
+	<20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk>
+	<200306291545410600.02136814@smtp.comcast.net>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Sun, 29 Jun 2003 22:27:25 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-29 at 21:34, Russell King wrote:
-> While looking over the changes between 1.5 and 1.6, I spotted this.  You
-> may want to fix this change:
-> 
-> -                   concat->mtd.eccsize != subdev[i]->eccsize) {
-> +                   concat->mtd.eccsize != subdev[i]->eccsize ||
-> +                   !concat->mtd.read_ecc != !concat->mtd.read_ecc ||
-> +                   !concat->mtd.write_ecc != !concat->mtd.write_ecc ||
-> +                   !concat->mtd.read_oob != !concat->mtd.read_oob ||
-> +                   !concat->mtd.write_oob != !concat->mtd.write_oob) {
+On Sun, 29 Jun 2003 15:45:41 -0400
+rmoser <mlmoser@comcast.net> wrote:
 
-Oops. Fixed in CVS.
+> no, in-kernel conversion between everything.  You don't think it can be done?
+> It's not that difficult a problem to manage data like that :D
 
--- 
-dwmw2
+personally, whan i want to change the filesystem of my data (not very often
+though, 2 or 3 times in my life, and that was because i was bored), i just do
+a new particion with the filesystem i want, mount it, and cp -a everything I
+want (or tar it, or use whatever backup/script software you want). Thats the
+way of doing things, IMHO. Appart that you can convert all your data to
+another filesystem, it gives you flexibility, which I wouldn't get in the
+kernel. 
 
+And well...how many people are you expecting to change from one filesystem
+to another in the real world?

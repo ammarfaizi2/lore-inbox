@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbUJ0G4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbUJ0HAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbUJ0G4w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 02:56:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUJ0Gy3
+	id S262304AbUJ0HAn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 03:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUJ0G5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 02:54:29 -0400
-Received: from [213.188.213.77] ([213.188.213.77]:55446 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S262299AbUJ0Guu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 02:50:50 -0400
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'Willy Tarreau'" <willy@w.ods.org>
-Cc: "'Rik van Riel'" <riel@redhat.com>,
-       "'Marcos D. Marado Torres'" <marado@student.dei.uc.pt>,
-       "'Ed Tomlinson'" <edt@aei.ca>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: My thoughts on the "new development model"
-Date: Wed, 27 Oct 2004 08:50:35 +0200
-Message-ID: <015b01c4bbf1$48069580$e60a0a0a@guendalin>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <20041027062833.GV15367@holomorphy.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+	Wed, 27 Oct 2004 02:57:12 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:46542 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262306AbUJ0Gz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 02:55:29 -0400
+Date: Tue, 26 Oct 2004 23:55:24 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Subject: Re: [RFC] Rename SECTOR_SIZE to IDE_SECTOR_SIZE
+Message-ID: <20041027065524.GA1524@taniwha.stupidest.org>
+References: <20041027060828.GA32396@taniwha.stupidest.org> <417F4497.3020205@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417F4497.3020205@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Oct 27, 2004 at 08:04:33AM +0200, Willy Tarreau wrote:
-> > Oh yes I remember... I was very interested because of netfilter and 
-> > ramfs but couldn't use it because of its awful stability. That was 
-> > when I started complaining about linux development model, where new 
-> > features were more important than bug fixes, which resulted in no 
-> > usable kernel before 2.4.18.
-> 
-> 2.6.x has taken a rather different path from 2.4.x
+On Wed, Oct 27, 2004 at 02:47:51AM -0400, Jeff Garzik wrote:
 
-However, results are similar. 
+> It's highly silly to rename the same name + the same value to
+> multiple different names.
 
-2.6 seems to work better than 2.4 in "early stage of stable branch" but
-It's quite impossible to set up a production server on 2.6.x, optimize
-it and keeping the same performance with 2.6.(x+2).
+initially i was going to do that, but when i looked at the code i
+realized the problem is some of the users seem to be semantically
+different and potentially might want to be changed separate to the
+others
 
-Iosched has a lot of flavours, with performance worse than 2.4 (at least
-for databases). 
-Swap is a misterious thing and It needs a degree in swappiness to
-understand how it works and how it changes.
+> Put it in a common header somewhere, and only rename the oddballs
+> (if any).
 
-I see a lot of efforts in making a top-performance kernel but these
-efforts are not compatible with a stable-tree.
-
-Stable means not only that the kernel does not hangs, but that features
-remains (almost) the same for a reasonable amount of time.
-
-Max
-
+we could have UNIX_SECTOR_SIZE in blkdev.h but as i said, some users
+really are 512 for different reasons that might change (?)

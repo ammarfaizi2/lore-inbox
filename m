@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317799AbSHaRhz>; Sat, 31 Aug 2002 13:37:55 -0400
+	id <S317836AbSHaRrH>; Sat, 31 Aug 2002 13:47:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSHaRhz>; Sat, 31 Aug 2002 13:37:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5132 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317799AbSHaRhz>;
-	Sat, 31 Aug 2002 13:37:55 -0400
-Message-ID: <3D7102C1.CF3A961C@zip.com.au>
-Date: Sat, 31 Aug 2002 10:54:09 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-CC: Daniel Phillips <phillips@arcor.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Include LRU in page count
-References: <3D644C70.6D100EA5@zip.com.au> <3D6989F7.9ED1948A@zip.com.au> <akdq8h$fqn$1@penguin.transmeta.com> <E17kunE-0003IO-00@starship> <20020831161448.12564.qmail@thales.mathematik.uni-ulm.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317845AbSHaRrH>; Sat, 31 Aug 2002 13:47:07 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:18436 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S317836AbSHaRrH>;
+	Sat, 31 Aug 2002 13:47:07 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200208311751.g7VHpUA02632@oboe.it.uc3m.es>
+Subject: using a device in O_DIRECT mode through a FS
+To: linux kernel <linux-kernel@vger.kernel.org>
+Date: Sat, 31 Aug 2002 19:51:30 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Ehrhardt wrote:
-> 
-> ...
-> Solution: Change the PageLRU bit inside the lock. Looks like
-> lru_cache_add is the only place that doesn't hold the lru lock to
-> change the LRU flag and it's probably not a good idea even without
-> the patch.
-> 
+I've managed to mount a block device in "direct" mode in 2.5.31,
+by modifying the block driver to set the O_DIRECT flag on opens, but
+this doesn't affect subsequent accesses to files on the mounted
+filesystem.  They're cached in VMS as usual, instead of going straight
+to the metal and back.
 
-2.4.20-pre already does that:
+Can anyone indicate to me what I have to do in order to make all
+accesses to structures on the mounted FS avoid VMS also?  Is it a FS
+thing?  If so, what do I have to alter where in the FS driver? (Yes,
+I imagine it's whatever the open call translates to ..).
 
-void lru_cache_add(struct page * page)
-{
-        if (!PageLRU(page)) {
-                spin_lock(&pagemap_lru_lock);
-                if (!TestSetPageLRU(page))
-                        add_page_to_inactive_list(page);
-                spin_unlock(&pagemap_lru_lock);
-        }
-}
-
-there was an oopsing race with activate_page()...
+Peter

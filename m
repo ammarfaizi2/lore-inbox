@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271278AbRH1PD3>; Tue, 28 Aug 2001 11:03:29 -0400
+	id <S271365AbRH1PI7>; Tue, 28 Aug 2001 11:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271365AbRH1PDU>; Tue, 28 Aug 2001 11:03:20 -0400
-Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:14538 "EHLO
-	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S271278AbRH1PDK>; Tue, 28 Aug 2001 11:03:10 -0400
-Message-ID: <3B8BB2B9.302F6485@pandora.be>
-Date: Tue, 28 Aug 2001 17:03:21 +0200
-From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
-Organization: MyHome
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: nl-BE, nl, en, de
+	id <S271349AbRH1PIt>; Tue, 28 Aug 2001 11:08:49 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:60859 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S271307AbRH1PIh>; Tue, 28 Aug 2001 11:08:37 -0400
+Message-ID: <3B8BB3BA.7FBC8EE4@us.ibm.com>
+Date: Tue, 28 Aug 2001 10:07:38 -0500
+From: Andrew Theurer <habanero@us.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Camiel Vanderhoeven <camiel_toronto@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DOS2linux
-In-Reply-To: <001101c12fd0$0fd7f9c0$0100a8c0@kiosks.hospitaladmission.com>
+To: Andi Kleen <ak@suse.de>
+CC: Emmanuel Varagnat <Emmanuel_Varagnat-AEV010@email.mot.com>,
+        Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Journal Filesystem Comparison on Netbench
+In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com.suse.lists.linux.kernel> <3B8AA7B9.8EB836FF@namesys.com.suse.lists.linux.kernel> <oupsneck77v.fsf@pigdrop.muc.suse.de> <3B8B755F.D6317A9A@crm.mot.com> <20010828125003.A27996@gruyere.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Camiel Vanderhoeven wrote:
+Andi Kleen wrote:
 > 
-> Did you do a normal read from memory, or did you use port-i/o?
+> On Tue, Aug 28, 2001 at 12:41:35PM +0200, Emmanuel Varagnat wrote:
+> >
+> > Andi Kleen wrote:
+> > >
+> > > It does not really look like a locking problem. If you look at the profiling
+> > > logs it is pretty clear that the problem is the algorithm used in
+> > > bitmap.c:find_forward. find_forward and reiserfs_in_journal
+> > > ...
+> > > journaled blocks set also, to quickly skip them for the common case.
+> >
+> > I'm very interested in the way you did profiling.
+> > Did you compile the kernel with profiling options (gprof ?) ?
+> > If so, where the profiling information file is saved ?
+> 
+> I did not do any profiling in this case; I just read an existing log.
+> If you want to do profiling yourself you could use the simple
+> builtin statistical profiler: boot with profile=2 on the command line
+> and read the log at anytime using the readprofile command.
+> Other ways are documented on the lse homepage http://lse.sourceforge.net
 
-I used the inb() function.
+The profiles I provided were with SGI's kernprof 0.9.2.  I chose ACG,
+which does have a lot of overhead (cg_record_arc and mcount), but also
+provides a lot of information.  I have a separate kernel for each
+filesystem and each filesystem+profle_patch (10 kernels).  No modules
+were used so that all profiles have no 'unknown kernel' functions.  Each
+profile was taken for 60 seconds, starting at 90 seconds into the test. 
+All profiles were taken on the 44 client test.  
 
-> you should use the latter. Of course, your card could be at 2000h in
-> stead of 1000h, or at X000h for that matter.
-
-My card is at 1000h, that's something i know for sure, because I can
-probe the EISA ID at 0x1000+0xc80.
-
-> I'm not very familiar with
-> the EISA architecture, but I do know that each card can use the
-> following I/O ranges:
-> X000h-X0FFh; X400h-X4FFh; X800h-X8FFh; XC00-XCFF, where X is the slot
-> number.
-
-I guess you mean X0000h-X0FFF; X1000-X1FFF; ...
-
-> There is a book on the EISA architecture available free of
-> charge as a PDF file from www.mindshare.com/pdf/eisabook.pdf. Perhaps
-> you'll find what you need to know from studying that. I hope this helps.
-
-Tnx for the tip!  I will check it out!
-
-I also found this URL: http://uw7doc.sco.com/cgi-bin/man/man?eisa+D4
-
-It comes from UnixWare 7 documentation and there they have the kind of
-translation that I want to do (that is: translate INT 15h call "Read
-Function" (AH=D8h, AL=01h)) to linux.  As i understood there isn't
-such thing available for linux?  Meaning I'll have to try and
-implement that stuff myself?  But then the problem remains: how do i
-get to the data that is in the 320 byte buffer returned from an INT
-15h call "Read Function" (AH=D8h, AL=01h)
- 
-
-Greetzzz,
-mc303
-
--- 
-Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
-Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
-B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
-----------------------------------------------------------------------
-"Any fool can know, the point is to understand." - Albert Einstein
+Andrew Theurer

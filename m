@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313914AbSDJWkq>; Wed, 10 Apr 2002 18:40:46 -0400
+	id <S313916AbSDJWkA>; Wed, 10 Apr 2002 18:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313915AbSDJWkp>; Wed, 10 Apr 2002 18:40:45 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57475 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S313914AbSDJWkn>; Wed, 10 Apr 2002 18:40:43 -0400
-Date: Wed, 10 Apr 2002 16:40:22 -0600
-Message-Id: <200204102240.g3AMeMn16102@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Aviv Shavit <avivshavit@yahoo.com>, Ken Brownfield <brownfld@irridia.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: vm-33, strongly recommended [Re: [2.4.17/18pre] VM and swap - it's really unusable]
-In-Reply-To: <20020410023006.B6875@dualathlon.random>
+	id <S313914AbSDJWj7>; Wed, 10 Apr 2002 18:39:59 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:5581 "EHLO mail3.aracnet.com")
+	by vger.kernel.org with ESMTP id <S313916AbSDJWj4>;
+	Wed, 10 Apr 2002 18:39:56 -0400
+Date: Wed, 10 Apr 2002 15:02:46 -0700 (PDT)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: David Lang <david.lang@digitalinsight.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel developer attitudes, a problem to watch for.
+In-Reply-To: <Pine.LNX.4.44.0204101421000.29888-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.33.0204101444360.6452-100000@shell1.aracnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
-> On Tue, Apr 09, 2002 at 06:07:50PM -0600, Richard Gooch wrote:
-> > Andrea Arcangeli writes:
-> > > I recommend everybody to never use a 2.4 kernel without first applying
-> > > this vm patch:
-> > [...]
-> > 
-> > The way you write this makes it sound that the unpatched kernel is
-> > very dangerous. Is this actually true? Or do you really just mean "the
-> > patched kernel has better handling under extreme loads"?
-> 
-> The unpatched kernel isn't dangerous in the sense it won't destroy
-> data, it won't corrupt memory and finally it won't deadlock on smp
-> locks, but it can theoretically deadlock with oom and it has various
-> other runtime issues starting from highmem balancing, too much
-> swapping, lru list balancing, related-bhs in highmem, numa broken
-> with += min etc... so IMHO it is better to _always_ use the patched
-> kernel that takes care of all problems that I know of at the moment,
-> plus it has further optimizations. OTOH for lots of workloads
-> mainline is just fine, the deadlocks never trigger and the runtime
-> behaviour is ok, but unless you are certain you don't need the
-> vm-33.gz patch, I recommend to apply it.
+On Wed, 10 Apr 2002, David Lang wrote:
 
-So, in other words, 99.99% of users don't need to apply the patch.
-They should, in order to have a better system, but 99.99% of them
-won't notice the difference. That seems to be a more honest
-recommendation than the "panic stations" alert that you posted.
+[soapbox snipped]
 
-Just because you want people to apply your patches, doesn't mean you
-should resort to alarmist-sounding messages. Let's at least have truth
-in advertising in one small corner of the world :-)
+In the absence of
 
-				Regards,
+a. A formal software development process,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+b. Formal requirements documents,
+
+c. A high-level formal design document,
+
+d. Marketing and sales,
+
+e. A formal Quality Assurance, Security Assurance and Performance
+Assurance effort,
+
+f. A corporate structure,
+
+etc. ...
+
+I don't think it's reasonable to expect people to behave in a different
+manner from the way they currently behave. I've heard this described as
+a brutal meritocracy, and organizations that need any of the above to
+meet their objectives are free to implement them at their own cost and
+to their own (and presumably their customers') benefit.
+
+That said, I think Linux could benefit greatly from some of the above,
+in particular c. and e. And the recent debate over printk vs. event logs
+would be a non-issue if we had b. and d. -- we'd have both because one
+is wonderful for rapid debugging and the other is wonderful for system
+administration.
+-- 
+M. Edward Borasky
+znmeb@borasky-research.net
+
+The COUGAR Project
+http://www.borasky-research.com/Cougar.htm
+
+If God had meant carrots to be eaten cooked, He would have given rabbits
+fire.
+

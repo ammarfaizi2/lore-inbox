@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262798AbTELVxD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 17:53:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbTELVxC
+	id S262817AbTELWEs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTELWEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 17:53:02 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:34201
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262798AbTELVxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 17:53:00 -0400
-Subject: Re: PCMCIA 2.5.X sleeping from illegal context
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: David Hinds <dahinds@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1052775331.1995.49.camel@diemos>
-References: <1052775331.1995.49.camel@diemos>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 12 May 2003 18:04:39 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:54299 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S262817AbTELWEC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:04:02 -0400
+Date: Mon, 12 May 2003 15:16:29 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: James Morris <jmorris@intercode.com.au>
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: Re: MPPE in kernel?
+Message-ID: <20030512151629.D30310@google.com>
+References: <20030512045929.C29781@google.com> <Mutt.LNX.4.44.0305130038300.3377-100000@excalibur.intercode.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 12 May 2003 22:07:13 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Mutt.LNX.4.44.0305130038300.3377-100000@excalibur.intercode.com.au>; from jmorris@intercode.com.au on Tue, May 13, 2003 at 12:59:19AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-05-12 at 22:35, Paul Fulghum wrote:
-> The 2.5.X PCMCIA kernel support seems to have a problem
-> with drivers/pcmcia/rsrc_mgr.c in function undo_irq().
+On Tue, May 13, 2003 at 12:59:19AM +1000, James Morris wrote:
+> On Mon, 12 May 2003, Frank Cusack wrote:
+> 
+> > What are the chances of getting MPPE (PPP encryption) into the 2.4.21
+> > and/or 2.5.x kernels?
+> > 
+> > For 2.4.21, sha1 and arcfour code needs to be added, so I don't have
+> > too much hope :-) even though the code is trivial to integrate.
+> > 
+> > For 2.5.x, just the arcfour code is needed (since sha1 is already there).
+> > I've written a public domain implementation, which I'd be willing to
+> > relicense under GPL (although I don't see the point), but in any case
+> > the algorithm is easy and could be written by anyone.
+> 
+> One issue is that there is no support in the crypto API yet for stream 
+> ciphers.
 
-Does this still happen with all the patches Russell King posted
-that everyone else is ignoring ?
+Doesn't need it, AFAICT.  The caller keeps the state.
 
+/fc

@@ -1,95 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVBCW3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVBCWgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVBCW3w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbVBCW3u
+	id S261176AbVBCWgT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbVBCWb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:29:50 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:51609
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261164AbVBCW0Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:26:25 -0500
-Date: Thu, 3 Feb 2005 14:19:01 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: anton@samba.org, okir@suse.de, netdev@oss.sgi.com,
+	Thu, 3 Feb 2005 17:31:26 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:17059 "EHLO
+	postbox.bitmover.com") by vger.kernel.org with ESMTP
+	id S263135AbVBCW3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 17:29:02 -0500
+Date: Thu, 3 Feb 2005 14:28:54 -0800
+To: Stelian Pop <stelian@popies.net>, "H. Peter Anvin" <hpa@zytor.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] arp_queue: serializing unlink + kfree_skb
-Message-Id: <20050203141901.5ce04c92.davem@davemloft.net>
-In-Reply-To: <20050203203010.GA7081@gondor.apana.org.au>
-References: <20050131102920.GC4170@suse.de>
-	<E1CvZo6-0001Bz-00@gondolin.me.apana.org.au>
-	<20050203142705.GA11318@krispykreme.ozlabs.ibm.com>
-	<20050203203010.GA7081@gondor.apana.org.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050203222854.GC20914@bitmover.com>
+Mail-Followup-To: lm@bitmover.com, Stelian Pop <stelian@popies.net>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <20050202155403.GE3117@crusoe.alcove-fr> <200502030028.j130SNU9004640@terminus.zytor.com> <20050203033459.GA29409@bitmover.com> <20050203193220.GB29712@sd291.sivit.org> <20050203202049.GC20389@bitmover.com> <20050203220059.GD5028@deep-space-9.dsnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050203220059.GD5028@deep-space-9.dsnet>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Feb 2005 07:30:10 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
-
-> On Fri, Feb 04, 2005 at 01:27:05AM +1100, Anton Blanchard wrote:
-> > 
-> > Architectures should guarantee that any of the atomics and bitops that
-> > return values order in both directions. So you dont need the
-> > smp_mb__before_atomic_dec here.
+> I really don't want to start a new BK flamewar. You asked what could
+> you do and I said what would be nice to have. End of story.
 > 
-> I wasn't aware of this requirement before.  However, if this is so,
-> why don't we get rid of the smp_mb__* macros?
+> >     - The idea that the granularity in CVS is unreasonable is pure
+> 
+> I didn't say it was unreasonable, I said it could be better.
 
-They are for cases where you want strict ordering even for the
-non-return-value-giving atomic_t ops.
+Sure, everything can always be better.  Reasonable is reasonable.  If
+you want more than reasonable then use BK.
 
-Actually.... Herbert has a point.  By Anton's specification, several
-uses in 2.6.x I see of these smp_mb__*() routines are bogus.  Case
-in point, look at mm/filemap.c:
+> > 		CVS		BitKeeper [*]
+> > 	Deltas	235,956		280,212
+> 
+> Indeed, for now the differences are rather small. But with more and
+> more BK trees and more merges between them the proportion will raise.
 
-void fastcall unlock_page(struct page *page)
-{
-	smp_mb__before_clear_bit();
-	if (!TestClearPageLocked(page))
-		BUG();
-	smp_mb__after_clear_bit(); 
-	wake_up_page(page, PG_locked);
-}
+Actually that's not been the case to date, it's held pretty constant
+and in fact the ratio has gotten better.  The last time we visited 
+these numbers it wasn't as good as it is today in CVS>
 
-TestClearPageLocked() uses one of the bitops returning a value, so
-must be providing the explicit memory barriers in it's implementation.
+> If Andrew were to start using BK today we could immediately lose
+> (on the CVS side) a big part of the history.
 
-void end_page_writeback(struct page *page)
-{
-	if (!TestClearPageReclaim(page) || rotate_reclaimable_page(page)) {
-		if (!test_clear_page_writeback(page))
-			BUG();
-	}
-	smp_mb__after_clear_bit();
-	wake_up_page(page, PG_writeback);
-}
+"A big part"?  What big part?  You are fixated on something that doesn't
+have any value.  You're complaining about losing information that CVS
+wouldn't have recorded if you were using CVS.  The CVS export tree has
+MORE information than you would have if all the development had been 
+done under CVS.  Explain to me why this information is suddenly so 
+valuable to you?  Explain to me why all the people using all the CVS
+maintained projects in the world aren't whining about all the lost 
+information.
 
-Same thing there.
+> It is a bit difficult to get it right wrt renames, deletes etc, and
+> it can take quite a while to execute, but 3 man month work is a bit
+> extreme.
 
-Looking at include/linux/sunrpc/sched.h, those uses are legitimate,
-correct, and needed.  As is the put_bh() use in include/linux/buffer_head.h
-There are several other correct and necessary uses in:
+I stand by the 3 month number.
 
-	include/linux/interrupt.h
-	include/linux/netdevice.h
-	include/linux/nfs_page.h
-	include/linux/spinlock.h
-	net/core/dev.c
-	net/sunrpc/sched.c
-	sound/pci/bt87x.c
-	fs/buffer.c
-	fs/nfs/pagelist.c
-	drivers/block/ll_rw_blk.c
-	arch/ppc64/kernel/smp.c
-	arch/i386/kernel/smp.c
-	arch/i386/mach-voyager/smp.c
+> I thought the competition was between the tools not the data inside...
+> Why is that every time someone wants the full history of the kernel
+> you think it wants to compete with you ? That history is not even a
+> secret, everybody can get it from BK/web or by running the free
+> edition of BK (if allowed).
 
-I'm working on a rough but rather complete draft Anton said needs
-to be written to explicitly spell out the atomic_t and bitops
-stuff.
+Right but people agree to not use BK to compete with us.  It's a form
+of payment for the product, we give it to you for no money and you agree
+not to copy the product and take away our business.
+
+I realize you hate this, it curtails your freedom, there are a thousand
+reasons not to like it, I wouldn't like it if I were in your shoes.
+I get it, it's a miserable arrangement.  However, we took a huge risk
+handing you and everyone else our product for free.  It works better, you
+can see that, and you are just the sort to try and reverse engineer it.
+As a business strategy it was foolish.  But it wasn't a business decision,
+it was a choice that I made because I wanted to help Linus.
+
+And it worked.  That ought to have some value in your eyes.  Maybe
+enough to respect our terms.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129325AbRADWbq>; Thu, 4 Jan 2001 17:31:46 -0500
+	id <S132291AbRADWdQ>; Thu, 4 Jan 2001 17:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbRADWbg>; Thu, 4 Jan 2001 17:31:36 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13264 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132263AbRADWbZ>;
-	Thu, 4 Jan 2001 17:31:25 -0500
-Date: Thu, 4 Jan 2001 17:31:12 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Andreas Dilger <adilger@enel.ucalgary.ca>,
-        Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        "Theodore Y. Ts'o" <tytso@mit.edu>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
-In-Reply-To: <20010104220433.T1290@redhat.com>
-Message-ID: <Pine.GSO.4.21.0101041721531.20875-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129450AbRADWdG>; Thu, 4 Jan 2001 17:33:06 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:5649 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129183AbRADWcv>;
+	Thu, 4 Jan 2001 17:32:51 -0500
+Date: Thu, 4 Jan 2001 22:28:38 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Douglas Gilbert <dgilbert@interlog.com>
+Cc: sct@redhat.com, "H. Peter Anvin" <hpa@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: devices.txt inconsistency]
+Message-ID: <20010104222838.V1290@redhat.com>
+In-Reply-To: <3A534CC1.B792AEFF@interlog.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A534CC1.B792AEFF@interlog.com>; from dgilbert@interlog.com on Wed, Jan 03, 2001 at 11:01:05AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Wed, Jan 03, 2001 at 11:01:05AM -0500, Douglas Gilbert wrote:
+> Stephen,
+> Did you respond to hpa on this matter?
 
-On Thu, 4 Jan 2001, Stephen C. Tweedie wrote:
+Not yet, I'm just catching up on festive-season email.  Happy New
+Year, all!
 
-> The problem with directories is that they don't always grow rapidly
-> like that.  Spool directories are perfect examples of directories
-> which grow sporadically over a long time, which is why we wanted
-> persistent preallocation.
+> [From the cc address it seems as though you 
+> work both for transmeta as well as redhat.]
 
-OK... It could be dealt with analog of defragmentation-on-write a-la *BSD,
-but that's a different story. Oh, well... I still think that we would
-benefit from doing normal prealloc for all objects, though. In addition
-to persistent prealloc for directories, that is - the latter will become
-faster and ext2_alloc_block() will become simpler.
+Nope, unless transmeta and red hat have been negotiating behind my
+back. :)  The misdirected email is probably why I didn't spot this
+earlier.
 
-BTW, what inumber do you want for whiteouts? IIRC, we decided to use
-the same entry type as UFS does (14), but I don't remember what was
-the decision on inumber. UFS uses 1 for them, is it OK with you?
+> > but something like this would be more accurate:
+> > 162 char        Raw block device interface
+> >                   0 = /dev/rawctl       Raw I/O control device
+> >                   1 = /dev/raw/raw1     First raw I/O device
+> >                   2 = /dev/raw/raw2     Second raw I/O device
+> >                     ...
+> > 
+> > The raw(8) command supplied in RH 6.2 and 7.0 assumes the
+> > latter structure. I have already alerted sct and this
+> > change may be coming through in one of his patches.
+> 
+> The latter is actually better, so I certainly don't mind.  sct, should I
+> change it?
 
-Al, putting together fs patches for -bird...
+Please do: the current util-linux should be using the new layout.
 
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

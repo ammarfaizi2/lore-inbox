@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285051AbRLFRVz>; Thu, 6 Dec 2001 12:21:55 -0500
+	id <S285182AbRLFR0P>; Thu, 6 Dec 2001 12:26:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285180AbRLFRVq>; Thu, 6 Dec 2001 12:21:46 -0500
-Received: from opengraphics.com ([216.208.162.194]:58069 "EHLO
-	hurricane.opengraphics.com") by vger.kernel.org with ESMTP
-	id <S285051AbRLFRVZ>; Thu, 6 Dec 2001 12:21:25 -0500
-Date: Thu, 6 Dec 2001 12:21:22 -0500
-To: Wolfgang Rohdewald <WRohdewald@dplanet.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Flash ASUS Bios without Floppy?
-Message-ID: <20011206122122.A16293@concord.opengraphics.com>
-In-Reply-To: <20011202230331.E30DA332@localhost.localdomain>
-Mime-Version: 1.0
+	id <S285183AbRLFR0F>; Thu, 6 Dec 2001 12:26:05 -0500
+Received: from colorfullife.com ([216.156.138.34]:52230 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S285182AbRLFRZt>;
+	Thu, 6 Dec 2001 12:25:49 -0500
+Message-ID: <3C0FAA21.BF96E001@colorfullife.com>
+Date: Thu, 06 Dec 2001 18:25:53 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Jason Kohles <jkohles@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 + strace 4.4 + setuid programs
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011202230331.E30DA332@localhost.localdomain>
-User-Agent: Mutt/1.3.18i
-From: Len Sorensen <lsorense@opengraphics.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 03, 2001 at 12:03:31AM +0100, Wolfgang Rohdewald wrote:
-> how can I update my Bios (Asus A7V266) if I don't have a floppy drive
-> for using the Asus DOS utility?
-> 
-> Is there any Linux utililty that can do this?
-> 
-> Could I do it with freedos?
+>  If you want to strace setuid things and
+> have the setuid bit honored, you have to run strace as root with the -u
+> option.
 
-There is a flash utility for windows, that runs from HD, so you could
-use that.  If you don't have windows, why do you even care about the BIOS?
+No, even that's not possible anymore.
+setuid is now always ignored if a process is ptraced, even if root
+is ptracing - that's the fix for the latest ptrace root exploit
+(2.4.1x).
 
-And if it fails, you WILL need a floppy to recover from the backup bios.
-
-Len Sorensen
+--
+	Manfred

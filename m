@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318814AbSHRD0O>; Sat, 17 Aug 2002 23:26:14 -0400
+	id <S318816AbSHRDrw>; Sat, 17 Aug 2002 23:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318815AbSHRD0O>; Sat, 17 Aug 2002 23:26:14 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10765 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318814AbSHRD0N>; Sat, 17 Aug 2002 23:26:13 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
-Date: 17 Aug 2002 20:29:51 -0700
-Organization: Transmeta Corporation
-Message-ID: <ajn4bf$c2r$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44.0208171134070.3169-100000@home.transmeta.com> <Pine.LNX.4.44.0208172051280.17227-100000@localhost.localdomain>
+	id <S318818AbSHRDrw>; Sat, 17 Aug 2002 23:47:52 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28176
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S318816AbSHRDrv>; Sat, 17 Aug 2002 23:47:51 -0400
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208172001530.1491-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208172001530.1491-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 17 Aug 2002 23:51:52 -0400
+Message-Id: <1029642713.863.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0208172051280.17227-100000@localhost.localdomain>,
-Ingo Molnar  <mingo@elte.hu> wrote:
->
->oh, setup.S. nasty indeed. (yet) untested patch attached, booting into the
->new kernel shortly.
+On Sat, 2002-08-17 at 23:05, Linus Torvalds wrote:
 
-Ingo, this only fixes the gdt size, it doesn't fix the fact that the gdt
-itself doesn't seem to be aligned at all (and to clarify, I'm talking
-very much about the boot-time entry.S gdt, not the "real" run-time gdt). 
+> This is particularly true on things like embedded routers, where the 
+> machine usually doesn't actually _run_ much user-level software, but is 
+> just shuffling packets back and forth. Your logic seems to make it not add 
+> any entropy from those packets, which can be _deadly_ if then the router 
+> is also used for occasionally generating some random numbers for other 
+> things.
 
-Mind doing that part too?
+Agreed.  Further, embedded routers - since they are headless/diskless -
+have problems even with the _current_ /dev/random code.  They simply do
+not generate enough entropy to fulfill sshd requests [1].
 
-(I can well imagine that some CPU's may not even have the low 4 bits of
-the gdt register wired up at all, since they should always be zero. So
-doing a lgdt or lidt with the base not being 16-byte aligned could well
-result in basically loading crap into the LDT, causing the system not to
-work at all).
+Saying "use /dev/urandom" in this case means we may as well not have a
+/dev/random.  There is a difference between incorrect accounting (which
+it seems you have identified) and just too strict gathering behavior.
 
-This is also true of "bootsect_gdt", I think. Altough I have no idea
-what the bios "int 15" interfaces actually do.
+	Robert Love
 
-		Linus
+[1] this is why I wrote my netdev-random patches.  some machines just
+    have to take the entropy from the network card... there is nothing
+    else.
+

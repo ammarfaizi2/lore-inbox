@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269466AbRHGVfU>; Tue, 7 Aug 2001 17:35:20 -0400
+	id <S269471AbRHGVgU>; Tue, 7 Aug 2001 17:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269467AbRHGVfK>; Tue, 7 Aug 2001 17:35:10 -0400
-Received: from cardinal0.Stanford.EDU ([171.64.15.238]:25774 "EHLO
-	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S269466AbRHGVet>; Tue, 7 Aug 2001 17:34:49 -0400
-Date: Tue, 7 Aug 2001 14:34:48 -0700 (PDT)
-From: Ted Unangst <tedu@stanford.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: summary Re: encrypted swap
-In-Reply-To: <fa.g4fleqv.1mle133@ifi.uio.no>
-Message-ID: <Pine.GSO.4.31.0108071419300.2838-100000@cardinal0.Stanford.EDU>
+	id <S269468AbRHGVgL>; Tue, 7 Aug 2001 17:36:11 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:38415 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269474AbRHGVf6> convert rfc822-to-8bit; Tue, 7 Aug 2001 17:35:58 -0400
+Date: Tue, 7 Aug 2001 14:33:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.33.0108071245250.30280-100000@touchme.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.33.0108071425590.1434-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id OAA00853
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-basically, there are a few scenarios that have come up.
 
-1. notebook is stolen.  presumably, if you have sensitive data, you would
-know not to suspend and only power down completely after use.  so the
-notebook can be stolen while the power is on, or while the power is off.
-if the power is off, all is good, the data is safe.  if the power is on, i
-don't think this was a random street thug who snatched your notebook.
-(what were you doing working on sensitive data in a dark alley?)
-presumably, you were there with it.  in that case, it was probably a
-"directed" hit by someone after the data, and not just the notebook.
-there's a good chance that *you* will also be taken if they want the data
-that bad.  really, who leaves their notebook on and unattended?  esp. if
-it contains super sensitive data.  and whether you know the swap passwork
-or not, you will know the password for your email, and you're in for a
-long night with some truth serum and a meat hook.  ;)
+On Tue, 7 Aug 2001, Ben LaHaise wrote:
+> > Try pre4.
+>
+> It's similarly awful (what did you expect -- there are no meaningful
+> changes between the two!).  io throughput to a 12 disk array is humming
+> along at a whopping 40MB/s (can do 80) that's very spotty and jerky,
+> mostly being driven by syncs.
 
-2. a server, or maybe a workstation.  if you are working with sensitive
-data, but wouldn't notice the "plumber" sawing apart your computer to
-extract ram chips, you're in bad shape.  a quick hit and run operation
-wouldn't have time for all the fancy hacks and cpu swaps to get at the
-swap password.  and again, there are *people* who know everything on that
-disk.  and they will probably be eaiser to brute force than the hard
-drive.
+How about some sane approach to "balace_dirty()", like in -pre6.
 
-conclusion:  if your data is that valuable, you will need a small army to
-protect it.  don't bother encrypting swap, because guns are a better means
-of protection.  if your data is only semi-valuable, or private that you
-wouldn't want random others to read it, then swap encryption is good.
-it's a nice feature that some people might like to have.  does it solve
-every problem? no.  but the people in the edge cases are most likely very
-aware of the possibilities.
+The sane approach to balance_dirty() is to
+ - when we're over the threshold of dirty, but not over the hard limit, we
+   start IO. We don't wait for it (except in the sense that if we overflow
+   the request queue we will _always_ wait for it, of course. No way to
+   avoid that).
+ - if we're over the hard limit, we wait for the oldest buffer on the
+   locked list.
 
-btw, i've used it, just for fun, and didn't notice too much performance
-hit.
+The only question is "when should we wake up bdflush?" I currently wake it
+up any time we're over the soft limit, but I have this feeling that we
+really should wait until we're over the hard limit - oherwise we might end
+up dribbling again. I haven't tried it, but I will. Others please do too -
+its trivially moving the wakeup around in fs/buffer.c: balance_dirty().
 
-implementation paper:
-http://www.openbsd.org/papers/swapencrypt.ps
+At least here it gives quite good results, and was rather usable even
+under X when writing a 8GB file. I haven't seen this disk push 20MB/s
+sustained before, and it did now (except when I was doing other things at
+the time).
 
-ted
+Will it keep the IO queues full as hell and make interactive programs
+suffer? Yes, of course it will. No way to avoid the fact that reads are
+going to be slower if there's a lot of writes going on. But I didn't see
+vmstat hickups or anything like that.
 
+Of course, this will depend on machine and on disk controller etc. Which
+is why it would be good to test..
 
-
-
---
-"I read a funny story about how the Republicans freed the slaves.
-The Republicans are the ones who created slavery by law in the
-1600's.  Abraham Lincoln freed the slaves and he was not a
-Republican."
-      - M. Barry, Mayor of Washington, DC
+		Linus
 

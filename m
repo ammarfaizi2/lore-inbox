@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267117AbTAUQnH>; Tue, 21 Jan 2003 11:43:07 -0500
+	id <S267106AbTAUQzi>; Tue, 21 Jan 2003 11:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267120AbTAUQnH>; Tue, 21 Jan 2003 11:43:07 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13062 "EHLO
+	id <S267112AbTAUQzi>; Tue, 21 Jan 2003 11:55:38 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13830 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267117AbTAUQnF>; Tue, 21 Jan 2003 11:43:05 -0500
-Date: Tue, 21 Jan 2003 11:48:56 -0500 (EST)
+	id <S267106AbTAUQzh>; Tue, 21 Jan 2003 11:55:37 -0500
+Date: Tue, 21 Jan 2003 12:02:03 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-cc: "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant errno variable 
-In-Reply-To: <200301201527.h0KFRgil001575@eeyore.valparaiso.cl>
-Message-ID: <Pine.LNX.3.96.1030121111236.30858A-100000@gatekeeper.tmr.com>
+To: Michal Jaegermann <michal@harddata.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5] initrd/mkinitrd still not working
+In-Reply-To: <20030120191838.A7174@mail.harddata.com>
+Message-ID: <Pine.LNX.3.96.1030121115018.30858B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jan 2003, Horst von Brand wrote:
+On Mon, 20 Jan 2003, Michal Jaegermann wrote:
 
-[ the war between effeciency and maintainability continues ]
-
-> "Adam J. Richter" <adam@yggdrasil.com> said:
-> > 	To my knowledge, a goto in this case is not necessary for
-> > avoiding code duplication.  If there are a small number of failable
-> > steps that may need to be unwound, you could adopt the style of my patch
-> > (which shortened the code slightly):
+> On Mon, Jan 20, 2003 at 08:35:46PM +0100, Sam Ravnborg wrote:
+> > On Mon, Jan 20, 2003 at 07:19:21PM +0000, John Levon wrote:
+> > > Ooops, I was mis-remembering commit logs. I meant :
+> > > 
+> > > http://linus.bkbits.net:8080/linux-2.5/user=kai/cset@1.838.1.86?nav=!-|index.html|stats|!+|index.html|ChangeSet
 > > 
-> >        if (step1() == ok) {
-> > 		if (step2() == ok) {
-> > 			if (strep3() == ok)
-> > 				return OK;
-> > 			undo_step2();
-> > 		}
-> > 		undo_step1();
-> > 	}
-> > 	return failure;
+> > OK, this is something else.
+> > Making the shift to the extension .ko allowed the syntax:
+> > make fs/ext2/ext2.ko or whatever module we want to build.
+> > 
+> > Thats very nice when developing on a module to speed up things.
 > 
-> The "undo_stepX()"'s pollute the CPU's cache, and (even much worse) the
-> gentle reader's.
+> Well, yes, but while installing into a final location all these .ko
+> files could be renamed to have .o extensions.  This would avoid
+> screwing up user-space utilities.  It is not that difficult to
+> fix mkinitrd to try _both_ ways (I do not know how many folks runs
+> exclusively 2.5 kernels) but who knows how many other things
+> will have to be modified introducing gratituos incompatibilities.
 
-Given the probably effect of the steps on the cache, I think the
-readability argument is a better one, particularly if you have more than a
-few steps. There is an effect, but it's relatively small. But use of goto
-need not be unreadable.
+I frankly doubt that avoiding breakage was considered in any way... So
+much is changed without visible gain, I'm still trying to identify what
+wonderful new capability was gained by doing the change at all.
 
-  if (step1() != ok) goto errex0;
-  if (step2() != ok) goto errex1;
-  if (step3() == ok) {
-    if (step4() == ok) return OK;
-    undo_step3();
-  }
-  undo_step2();
-errex1:
-  undo_step1();
-errex0:
-  /* in case there is something other than just return, jump here */
-  return FAIL;
-
-Less indenting, and the undo's falling through look visually like a switch
-without the overhead.
-
-I have not looked at the code this generates, it's a comment on human
-readability rather than an actual implementation, and I'm sure someone
-will argue that the first failure should just be a return if there's
-nothing else which needs to be done. On the other hand the return inline
-would be more bytes, so someone else can argue against. 
+That said, since the new stuff is different, the change of extension is
+probably a good thing, since it clearly prevents someone from dropping a
+2.4 module into the tree without a clue that things have changed. That's
+not a problem, other than it breaking mkinitrd, a module utility still
+notably missing from the module_init stuff.
 
 -- 
 bill davidsen <davidsen@tmr.com>

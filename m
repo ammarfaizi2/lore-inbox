@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbTIDUc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 16:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTIDUcO
+	id S262046AbTIDU3s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 16:29:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTIDU3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 16:32:14 -0400
-Received: from mail.gmx.de ([213.165.64.20]:15757 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262105AbTIDUbV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 16:31:21 -0400
-From: Michael Schierl <schierlm-usenet@gmx.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: laptop touchpad on linux-2.6.0-test4
-Date: Thu, 04 Sep 2003 22:30:12 +0200
-Reply-To: schierlm@gmx.de
-References: <rauV.61c.9@gated-at.bofh.it> <raEA.6jw.17@gated-at.bofh.it>
-In-Reply-To: <raEA.6jw.17@gated-at.bofh.it>
-X-Mailer: Forte Agent 1.93/32.576 English (American)
+	Thu, 4 Sep 2003 16:29:48 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:40666 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S262046AbTIDU32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 16:29:28 -0400
+Date: Thu, 4 Sep 2003 16:29:14 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: James Clark <jimwclark@ntlworld.com>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+In-Reply-To: <200309042114.45234.jimwclark@ntlworld.com>
+Message-ID: <Pine.LNX.4.44.0309041628380.14715-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S262105AbTIDUbV/20030904203206Z+914@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 02 Sep 2003 06:10:12 +0200, in linux.kernel you wrote:
+On Thu, 4 Sep 2003, James Clark wrote:
 
->http://geocities.com/dt_or/gpm/gpm.html for updated version of GPM
+> I'm very surprised by the number of posts that have ranted about
+> Open/Close source, GPL/taint issues etc. This is not about source code
+> it is about making Linux usable by the masses.
 
-Hmm, I downloaded gpm-1.20.1, unpacked it, applied the patches (tried
-it both with the cumulative one and with the single ones), ran
+How would "making it easier to include impossible to debug
+device drivers" help towards your goal of making Linux more
+usable ?
 
-autoconf && ./configure && make
-
-and got:
-
-[...]
-gcc -I/usr/src/gpm/gpm-1.20.1/src -DHAVE_CONFIG_H -include
-headers/config.h -Wall -DSYSCONFDIR="\"/usr/local/etc\""
--DSBINDIR="\"/usr/local/sbin\""  -g -O2  -c -o prog/mouse-test.o
-prog/mouse-test.c
-prog/mouse-test.c: In function `main':
-prog/mouse-test.c:285: parse error before `struct'
-prog/mouse-test.c:337: `opt' undeclared (first use in this function)
-prog/mouse-test.c:337: (Each undeclared identifier is reported only
-once
-prog/mouse-test.c:337: for each function it appears in.)
-prog/mouse-test.c:394: `mdev' undeclared (first use in this function)
-prog/mouse-test.c:553: warning: value computed is not used
-prog/mouse-test.c:606: warning: value computed is not used
-prog/mouse-test.c:655: warning: value computed is not used
-make[1]: *** [prog/mouse-test.o] Error 1
-make[1]: Leaving directory `/usr/src/gpm/gpm-1.20.1/src'
-make: *** [do-all] Error 1
-
-Any ideas what I did wrong?
-
-Michael
 -- 
-"New" PGP Key! User ID: Michael Schierl <schierlm@gmx.de>
-Key ID: 0x58B48CDD    Size: 2048    Created: 26.03.2002
-Fingerprint:  68CE B807 E315 D14B  7461 5539 C90F 7CC8
-http://home.arcor.de/mschierlm/mschierlm.asc
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

@@ -1,32 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266170AbUJRLkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266175AbUJRLow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUJRLkf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 07:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUJRLkd
+	id S266175AbUJRLow (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 07:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUJRLow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 07:40:33 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:52619 "EHLO
+	Mon, 18 Oct 2004 07:44:52 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:56459 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S266170AbUJRLka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 07:40:30 -0400
-Date: Mon, 18 Oct 2004 13:39:29 +0200
+	id S266175AbUJRLot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 07:44:49 -0400
+Date: Mon, 18 Oct 2004 13:44:43 +0200
 From: Martin Waitz <tali@admingilde.org>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       penguinppc-team@lists.penguinppc.org
-Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
-Message-ID: <20041018113929.GB3618@admingilde.org>
-Mail-Followup-To: Gerd Knorr <kraxel@bytesex.org>,
-	linux-fbdev-devel@lists.sourceforge.net,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	penguinppc-team@lists.penguinppc.org
-References: <416E6ADC.3007.294DF20D@localhost> <87d5zkqj8h.fsf@bytesex.org> <Pine.GSO.4.61.0410151437050.10040@waterleaf.sonytel.be> <87y8i8p1jq.fsf@bytesex.org> <20041017120728.GC10532@admingilde.org> <20041018083632.GE3065@bytesex>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041018114443.GC3618@admingilde.org>
+Mail-Followup-To: Kendall Bennett <KendallB@scitechsoft.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <m3655cjc1r.fsf@averell.firstfloor.org> <416FB29A.11731.1C46848@localhost>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7ZAtKRhVyVSsbBD2"
+	protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
 Content-Disposition: inline
-In-Reply-To: <20041018083632.GE3065@bytesex>
+In-Reply-To: <416FB29A.11731.1C46848@localhost>
 User-Agent: Mutt/1.3.28i
 X-Habeas-SWE-1: winter into spring
 X-Habeas-SWE-2: brightly anticipated
@@ -42,56 +40,46 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7ZAtKRhVyVSsbBD2
+--z4+8/lEcDcG5Ke9S
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 hi :)
 
-On Mon, Oct 18, 2004 at 10:36:32AM +0200, Gerd Knorr wrote:
-> On Sun, Oct 17, 2004 at 02:07:28PM +0200, Martin Waitz wrote:
-> > On Fri, Oct 15, 2004 at 03:13:13PM +0200, Gerd Knorr wrote:
-> > > You have a application running which uses the framebuffer device, then
-> > > suspend with that app running.  You'll have to restore the state of
-> > > the device _before_ restarting all the userspace proccesses, otherwise
-> > > the app will not be very happy.
-> >=20
-> > As long as the app only interfaces with the framebuffer device and not
-> > directly with the hardware it won't notice.
+On Fri, Oct 15, 2004 at 11:20:58AM -0700, Kendall Bennett wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > It doesn't imply this at all. You set an initial mode with the BIOS
+> > during boot up. When your initrd runs you gain the ability to flip mode
+> > and do cool stuff - arguably it doesn't even need to be in initrd.
 >=20
-> Well, mmap("/dev/fb") will just map the gfx cards memory into
-> the applications address space, so they _will_ interface with
-> the hardware.
+> That works great on x86, but this solution was developed for PowerPC and=
+=20
+> MIPS embedded systems development not x86 desktop systems. For those=20
+> platforms you either need a boot loader that can bring up the system into=
+=20
+> graphics mode
 
-but still through a driver which can take care of this access.
+not neccessarily.
 
-> > The apps data will simply not show up on the screen until the
-> > usermode helper finishes.
->=20
-> Whenever writing to the gfx memory before finishing the initialization
-> is harmless or not probably depends on the hardware, I'd better not
-> count on it ...
-
-when the application tries to access the framebuffer memory then
-the driver is asked to map the corresponding page.
-If the hardware does not cope with framebuffer access while it
-is not correctly initialized, then the driver can defer those
-mappings until the userspace helper is run.
+If anything goes wrong before console is initialized, then that could
+be displayed by the firmware.
+Is there any arch which doesn't have some basic text-output
+functunality in its firmware?
 
 --=20
 Martin Waitz
 
---7ZAtKRhVyVSsbBD2
+--z4+8/lEcDcG5Ke9S
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFBc6twj/Eaxd/oD7IRAoboAJ9KreNPAGUNdcMAOn1yQiEAKqKeggCdEP9g
-Qb0rzXaKA2dW8M8EnE6UfrY=
-=EH4+
+iD8DBQFBc6yqj/Eaxd/oD7IRAnaOAKCBH56JnYRZ6m03gfOHdkUo9kdDrQCfU8O6
+lUD+RfPj4/l/TALLVUDgiRk=
+=K0SS
 -----END PGP SIGNATURE-----
 
---7ZAtKRhVyVSsbBD2--
+--z4+8/lEcDcG5Ke9S--

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280960AbRKTRvI>; Tue, 20 Nov 2001 12:51:08 -0500
+	id <S281191AbRKTRwB>; Tue, 20 Nov 2001 12:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281183AbRKTRur>; Tue, 20 Nov 2001 12:50:47 -0500
-Received: from 24-148-25-58.na.21stcentury.net ([24.148.25.58]:52849 "EHLO
-	danapple.com") by vger.kernel.org with ESMTP id <S280960AbRKTRuj>;
-	Tue, 20 Nov 2001 12:50:39 -0500
-Message-Id: <200111201750.fAKHoYa03354@danapple.com>
-To: linux-kernel@vger.kernel.org
-Subject: built-in USB /proc bug
-From: "Daniel I. Applebaum" <danapple@danapple.com>
-Date: Tue, 20 Nov 2001 11:50:34 -0600
+	id <S281189AbRKTRvs>; Tue, 20 Nov 2001 12:51:48 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:44036 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S281183AbRKTRvb>; Tue, 20 Nov 2001 12:51:31 -0500
+Message-ID: <3BFA9818.147C86FF@lexus.com>
+Date: Tue, 20 Nov 2001 09:51:20 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linuxlist@visto.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [OT] Re: tftp boot loader source
+In-Reply-To: <3BE1CB8E000E8CF4@iso2.vistocorporation.com> (added by
+		    administrator@vistocorporation.com)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+rohit prasad wrote:
 
-I tried building a 2.4.13 kernel with USB support as built-in, instead
-of modules.  The system worked, and USB devices worked, but there were
-no entries in /proc/bus/usb Yes, I had enabled both /proc filesystem
-and USB /proc filesystem support.  When the same kernel was built but
-with USB support as modules, the /proc/bus/usb entries appear.
+> Hi,
+>
+>  There is a tftpboot directory in Red Hat 7.2 what I have just installed.
+>
+>  Where can i find the source code for the server and client for the tftp boot loader.
 
-Although no expert in these matters, I suspect that when the USB
-subsystem is built-in, it is initialized before /proc is mounted, and
-the USB /proc filesystem support either turns itself off or puts the
-"files" elsewhere.
+er, on your Red Hat 7.2 source CDROM -
 
-A viable solution might be to have make menuconfig warn against this
-combination.
+cu
 
-Dan.
+jjs
+
+
+
 

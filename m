@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265729AbUBBRff (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 12:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbUBBRfe
+	id S265744AbUBBRyp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 12:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265748AbUBBRyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 12:35:34 -0500
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:2418 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S265729AbUBBRfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 12:35:33 -0500
-Date: Mon, 2 Feb 2004 17:37:19 +0000
-From: DaMouse Networks <damouse@ntlworld.com>
-To: Timothy Miller <miller@techsource.com>
+	Mon, 2 Feb 2004 12:54:45 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:9348 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265744AbUBBRyn (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 12:54:43 -0500
+Message-Id: <200402021754.i12Hsgmd006098@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Christian Borntraeger <kernel@borntraeger.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Crazy idea: Design open-source graphics chip
-Message-Id: <20040202173719.52952f7f@EozVul.WORKGROUP>
-In-Reply-To: <401E85EA.7010209@techsource.com>
-References: <20040201145827.059332d3@EozVul.WORKGROUP>
-	<401E85EA.7010209@techsource.com>
-Organization: DaMouse Networks
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: Uptime counter 
+In-Reply-To: Your message of "Sun, 01 Feb 2004 22:02:06 +0100."
+             <200402012202.07204.kernel@borntraeger.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0402012239010.6206-100000@midi>
+            <200402012202.07204.kernel@borntraeger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_812467427P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Feb 2004 12:54:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Feb 2004 12:16:26 -0500
-Timothy Miller <miller@techsource.com> wrote:
+--==_Exmh_812467427P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> 
-> DaMouse Networks wrote:
-> >>A cheap cludge would be an optional second GPU on the card just to do
-> >>the required VGA modes, with an analogue video pass-through. That
-> >>would make the VGA cards more expensive than a single GPU which
-> >>incorporated VGA, but add almost nothing in cost or complexity terms
-> >>to the non-VGA cards.
-> > 
-> > 
-> > I was thinking of suggesting something similar as I browsed the thread. I would think that having Linux instead of the BIOS would be good since you would only need a small cut-down Linux that has drivers for a VGA->FB interface or something similar. The SMP approach from XGI might work in this since Linux supports SMP very well and  it could perform well with up to like 4+ GPUs? (thinking of the card size that might limit this you could have them stacked :) )
-> > 
-> > I think I'm gonna have to follow this thread closely :)
-> 
-> 
-> So, do you all honestly think that adding cost to the board is going to 
-> make it sell?
-> 
+On Sun, 01 Feb 2004 22:02:06 +0100, you said:
 
-More cost? how is saving money on the BIOS raising cost? also the SMP thing would allow like a ton of cheap chips to be stuck on with uber glue :)
+> By the way: Having a machine with more than 497 days of uptime normally=
+ =
 
--DaMouse
+> shows a serios lack of security awareness..
+
+Or an embedded system that you don't really feel like rebooting, like
+an HVAC controller or a deep-space probe....
+
+--==_Exmh_812467427P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAHo7hcC3lWbTT17ARAsnAAJwJT9HCsH7eYjIKBOvyhmSnMXceEgCggILU
+07jvwRdnG0/ZzPLRnSF+Qko=
+=BThJ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_812467427P--

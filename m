@@ -1,53 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267965AbTBSECA>; Tue, 18 Feb 2003 23:02:00 -0500
+	id <S267969AbTBSEHx>; Tue, 18 Feb 2003 23:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267969AbTBSECA>; Tue, 18 Feb 2003 23:02:00 -0500
-Received: from almesberger.net ([63.105.73.239]:5132 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S267965AbTBSEB7>; Tue, 18 Feb 2003 23:01:59 -0500
-Date: Wed, 19 Feb 2003 01:11:54 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Roman Zippel <zippel@linux-m68k.org>, kuznet@ms2.inr.ac.ru,
-       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Is an alternative module interface needed/possible?
-Message-ID: <20030219011154.X2092@almesberger.net>
-References: <20030218142257.A10210@almesberger.net> <20030219033429.9DA592C0CC@lists.samba.org>
-Mime-Version: 1.0
+	id <S267970AbTBSEHx>; Tue, 18 Feb 2003 23:07:53 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:46531 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S267969AbTBSEHw>; Tue, 18 Feb 2003 23:07:52 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "David S. Miller" <davem@redhat.com>
+Date: Wed, 19 Feb 2003 15:13:48 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030219033429.9DA592C0CC@lists.samba.org>; from rusty@rustcorp.com.au on Wed, Feb 19, 2003 at 02:30:46PM +1100
+Content-Transfer-Encoding: 7bit
+Message-ID: <15955.1148.929905.130326@notabene.cse.unsw.edu.au>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: sendmsg and IP_PKTINFO
+In-Reply-To: message from David S. Miller on Tuesday February 18
+References: <15949.40369.601166.550803@notabene.cse.unsw.edu.au>
+	<1045552237.4501.8.camel@rth.ninka.net>
+	<15954.4693.893707.471216@notabene.cse.unsw.edu.au>
+	<20030218.195205.85404023.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Of course, if you wanted to remove the entry at any other time
-> (eg. hotplug), this doesn't help you one damn bit (which is kind of
-> your point).
+On Tuesday February 18, davem@redhat.com wrote:
+>    From: Neil Brown <neilb@cse.unsw.edu.au>
+>    Date: Tue, 18 Feb 2003 22:00:37 +1100
+>    
+>    It does go on to say that the outgoing packet will be sent over the
+>    same interface, however I feel that is an illogical conclusion given
+>    the description of the meaning of the field.
+>    
+>    So yes, the current behaviour seems to match part of the
+>    documentation.  However I argue that the documented behaviour is
+>    irrational.
+> 
+> Alexey and myself totally disagree.  We have described for you
+> the intended purpose of this feature.  Please do not try to use
+> it in some other way, it may prove to be painful :-)
 
-Yep, try_module_get solves the general synchronization problem for
-the special but interesting case of modules, but not for the general
-case.
 
-> This is what network devices do, and what the sockopt registration
-> code does, too, so this is already in the kernel, too.  It's not
-> great, but it becomes a noop for the module deregistration stuff.
+Thankyou for making that clear.
 
-Yes, I think just sleeping isn't so bad at all. First of all,
-we already have the module use count as a kind of "don't unload
-now" advice (not sure if you plan to phase out MOD_INC_USE_COUNT ?),
-and second, it's not exactly without precedent anyway. E.g. umount
-will have little qualms of letting you sleep "forever". (And,
-naturally, every once in a while, people hate it for this :-)
+I am currently working towards testing a patch that will fix the
+behaviour of glibc.
 
-Anyway, I'll write more about this tomorrow. For tonight, I
-have my advanced insanity 101 to finish, topic "ptracing
-more than one UML/TT at the same time".
+Currently the sunrpc/svc_udp.c code asks for an IP_PKTINFO from
+recvmsg, and passes it verbatim down through sendmsg.
+My patch checks that the returned data looks believable and, if it
+does, zeros the ipi_ifindex field.
 
-- Werner
+NeilBrown
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+
+
+--- sunrpc/svc_udp.c.orig	2003-02-19 11:25:20.000000000 +1100
++++ sunrpc/svc_udp.c	2003-02-19 14:28:46.000000000 +1100
+@@ -256,8 +256,26 @@
+       mesgp->msg_controllen = sizeof(xprt->xp_pad)
+ 			      - sizeof (struct iovec) - sizeof (struct msghdr);
+       rlen = recvmsg (xprt->xp_sock, mesgp, 0);
+-      if (rlen >= 0)
+-	len = mesgp->msg_namelen;
++      if (rlen >= 0) {
++	      struct cmsghdr *cmsg;
++	      len = mesgp->msg_namelen;
++	      cmsg = CMSG_FIRSTHDR(mesgp);
++	      if (cmsg == NULL ||
++		  CMSG_NXTHDR(mesgp, cmsg) != NULL ||
++		  cmsg->cmsg_level != SOL_IP ||
++		  cmsg->cmsg_type != IP_PKTINFO ||
++		  cmsg->cmsg_len != sizeof(struct in_pktinfo)) {
++		      /* Not a simple IP_PKTINFO, ignore it */
++		      mesgp->msg_control = NULL;
++		      mesgp->msg_controllen = 0;
++	      } else {
++		      /* it was a simple IP_PKTIFO as we expected,
++		       * Discard the interface field 
++		       */
++		      struct in_pktinfo *pkti = CMSG_DATA(cmsg);
++		      pkti->ipi_ifindex = 0;
++	      }
++      }
+     }
+   else
+ #endif
+

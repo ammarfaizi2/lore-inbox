@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVCJEeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVCJEeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVCJEeF (ORCPT <rfc822;willy@w.ods.org>);
+	id S261738AbVCJEeF (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 9 Mar 2005 23:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVCJEd7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVCJEdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 23:33:59 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16609 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262333AbVCIXMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:12:21 -0500
-Date: Wed, 9 Mar 2005 15:11:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org, chrisw@osdl.org, torvalds@osdl.org,
-       akpm@osdl.org
-Subject: Re: Linux 2.6.11.2
-Message-ID: <20050309231156.GB31064@kroah.com>
-References: <20050309083923.GA20461@kroah.com> <20050309210631.GY3163@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Mar 2005 23:33:24 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33244 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262556AbVCIXyO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:54:14 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: Direct io on block device has performance regression on 2.6.x kernel
+Date: Wed, 9 Mar 2005 15:52:41 -0800
+User-Agent: KMail/1.7.2
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+References: <200503092218.j29MICg26503@unix-os.sc.intel.com> <m1r7iov1ya.fsf@muc.de>
+In-Reply-To: <m1r7iov1ya.fsf@muc.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050309210631.GY3163@waste.org>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200503091552.41450.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 01:06:31PM -0800, Matt Mackall wrote:
-> On Wed, Mar 09, 2005 at 12:39:23AM -0800, Greg KH wrote:
-> > And to further test this whole -stable system, I've released 2.6.11.2.
-> > It contains one patch, which is already in the -bk tree, and came from
-> > the security team (hence the lack of the longer review cycle).
-> > 
-> > It's available now in the normal kernel.org places:
-> > 	kernel.org/pub/linux/kernel/v2.6/patch-2.6.11.2.gz
-> > which is a patch against the 2.6.11.1 release.
-> 
-> Argh! @*#$&!!&! 
-> 
-> > If consensus arrives
-> > that this patch should be against the 2.6.11 tree, it will be done that
-> > way in the future.
-> 
-> Consensus arrived back when 2.6.8.1 came out.
+On Wednesday, March 9, 2005 3:23 pm, Andi Kleen wrote:
+> "Chen, Kenneth W" <kenneth.w.chen@intel.com> writes:
+> > Just to clarify here, these data need to be taken at grain of salt. A
+> > high count in _spin_unlock_* functions do not automatically points to
+> > lock contention.  It's one of the blind spot syndrome with timer based
+> > profile on ia64.  There are some lock contentions in 2.6 kernel that
+> > we are staring at.  Please do not misinterpret the number here.
+>
+> Why don't you use oprofileÂ>? It uses NMIs and can profile "inside"
+> interrupt disabled sections.
 
-It did?  So, what was it agreed to be?  Any pointers to that agreement?
+Oh, and there are other ways of doing interrupt off profiling by using the 
+PMU.  q-tools can do this I think.
 
-> Please, folks, there are automated tools that "know" about kernel
-> release numbering and so on. Said tools broke with 2.6.11.1 because it
-> wasn't in the same place that 2.6.8.1 was and now this breaks with all
-> precedent by being an interdiff along a branch.
-
-2.6.11.1 is now in the proper place, sorry for any inconvience that
-caused.  This happened yesterday.
-
-> Fixing it in the future is too #*$%* late because you've now turned it
-> into a special case.
-
-No, I can always respin the patch, and re-release it if it's a problem.
-
-thanks,
-
-greg k-h
+Jesse

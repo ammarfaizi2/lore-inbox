@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVCRLk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVCRLpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVCRLk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 06:40:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCRLk0
+	id S261587AbVCRLpx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 06:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCRLpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 06:40:26 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33931 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261586AbVCRLkN (ORCPT
+	Fri, 18 Mar 2005 06:45:53 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33428 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261587AbVCRLpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 06:40:13 -0500
-Date: Fri, 18 Mar 2005 12:39:57 +0100
+	Fri, 18 Mar 2005 06:45:50 -0500
+Date: Fri, 18 Mar 2005 12:45:36 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: coywolf@gmail.com, "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] SUSPEND_PD_PAGES-fix
-Message-ID: <20050318113957.GC32253@elf.ucw.cz>
-References: <20050316202800.GA22750@everest.sosdg.org>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, rusty@rustcorp.com.au
+Subject: Re: CPU hotplug on i386
+Message-ID: <20050318114536.GA14399@elf.ucw.cz>
+References: <20050316132151.GA2227@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050316202800.GA22750@everest.sosdg.org>
+In-Reply-To: <20050316132151.GA2227@elf.ucw.cz>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,26 +27,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
+> I tried to solve long-standing uglyness in swsusp cmp code by calling
+> cpu hotplug... only to find out that CONFIG_CPU_HOTPLUG is not
+> available on i386. Is there way to enable CPU_HOTPLUG on i386?
 
-> This fixes SUSPEND_PD_PAGES, which wastes one page under most cases.
-
-Ok, applied to my tree, will eventually propagate it. (I hope it looks
-okay to you, rafael).
-
-> Signed-off-by: Coywolf Qi Hunt <coywolf@gmail.com>
-> diff -pruN 2.6.11-mm4/include/linux/suspend.h 2.6.11-mm4-cy/include/linux/suspend.h
-> --- 2.6.11-mm4/include/linux/suspend.h	2005-03-17 01:22:16.000000000 +0800
-> +++ 2.6.11-mm4-cy/include/linux/suspend.h	2005-03-17 04:14:16.000000000 +0800
-> @@ -34,7 +34,7 @@ typedef struct pbe {
->  #define SWAP_FILENAME_MAXLENGTH	32
->  
->  
-> -#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe))/PAGE_SIZE+1)
-> +#define SUSPEND_PD_PAGES(x)     (((x)*sizeof(struct pbe)+PAGE_SIZE-1)/PAGE_SIZE)
->  
->  extern dev_t swsusp_resume_device;
->     
-
+BTW Li Shaohua has prototype smp/S3 implementation. I'll take detailed
+look at that one.
+								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

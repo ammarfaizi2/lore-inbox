@@ -1,53 +1,52 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154200-27302>; Mon, 8 Feb 1999 04:28:37 -0500
-Received: by vger.rutgers.edu id <154434-27302>; Mon, 8 Feb 1999 04:28:18 -0500
-Received: from styx.cs.kuleuven.ac.be ([134.58.40.3]:40512 "EHLO styx.cs.kuleuven.ac.be" ident: "TIMEDOUT2") by vger.rutgers.edu with ESMTP id <154144-27302>; Mon, 8 Feb 1999 04:25:47 -0500
-Date: Mon, 8 Feb 1999 10:43:21 +0100 (CET)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@cs.kuleuven.ac.be>
-To: "Robert G. Werner" <rwerner@lx1.microbsys.com>
-Cc: Ben Bridgwater <bennyb@ntplx.net>, kernel-list <linux-kernel@vger.rutgers.edu>
-Subject: Re: Linux Graphics Architecture (format fixed)
-In-Reply-To: <Pine.LNX.3.96.990207125900.16041E-100000@lx1.microbsys.com>
-Message-ID: <Pine.LNX.4.03.9902081041570.29366-100000@mercator.cs.kuleuven.ac.be>
+Received: by vger.rutgers.edu via listexpand id <154763-27300>; Sun, 14 Feb 1999 15:56:00 -0500
+Received: by vger.rutgers.edu id <154567-27300>; Sun, 14 Feb 1999 15:54:44 -0500
+Received: from mail.blox.se ([195.7.73.197]:63183 "EHLO lix.blox.se" ident: "IDENT-NONSENSE") by vger.rutgers.edu with ESMTP id <154624-27302>; Sun, 14 Feb 1999 15:51:56 -0500
+From: Bjorn Ekwall <bj0rn@blox.se>
+Message-Id: <199902142140.WAA06554@lix.blox.se>
+Subject: New snapshot of modutils
+To: linux-kernel@vger.rutgers.edu
+Date: Sun, 14 Feb 1999 22:40:08 +0100 (CET)
+Cc: rth@piglet.twiddle.net (Richard Hendersson), jack@solucorp.qc.ca (Jacques Gelinas)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sun, 7 Feb 1999, Robert G. Werner wrote:
-> What was the consensus,  Geert?  Knowing what the fbdev people decided might
-> squash out of gamut discussions on lkml.
+Hi all,
 
-For what it's worth, Fabrice Bellard <bellard@email.enst.fr> wrote:
-| I read the papers of SGI and the related papers about XFree 3d. I
-| understand that implementing an acceleration API in fbdev will clearly
-| hurt the performances and add too much bloat in ther kernel, especially
-| for 3D acceleration. I understand too that if the hardware is well
-| designed, the kernel support for the graphical acceleration can be
-| small, consistent and elegant.
-|
-| So I changed my mind and I admit now that we should concentrate in
-| puting in fbcon/fbdev only things related to text mode and mode
-| switching.
+Richard Hendersson is extremely busy at the moment.
+After talking to him, Richard and I have agreed that I will help with
+creating an updated release of the module support utilities.
 
-References:
+So, for a snapshot of the current state, please look at:
+	<http://www.pi.se/blox/modutils/>
+You will find the latest snapshot as "modutils-snap990214.tar.gz"
 
-  - SGI paper:
+It is quite possible that the development will by accessible via cvs
+very soon; I'll keep you posted.
 
-    http://trant.sgi.com/opengl/docs/Direct/direct.html
-       
-  - XFRee86-3D:
+Please note that the depmod and modprobe utilities are back to C++.
+This is a result of a discussion in linux-kernel last week, and
+this is the way it has to be, in consideration of all involved.
 
-    http://www.dpmms.cam.ac.uk/~werdna/XFree86-3D-status.html
+I have verified that the current snapshot compiles, at least, but I haven't
+done anything like a full-scale testing.  For the future, your suggestions
+for improvements and restructuring are definitely welcome.
+Send your input to <bj0rn@blox.se> and I will start upgrading even faster...
 
-Greetings,
+Here is part of the TODO-file:
+- Upgrade modprobe and depmod with things that happened since modutils-2.1.23
+- Verify that the current patches didn't break too much...
+- Prepare for merging modprobe with insmod (too much duplication right now)
+- Cleaner handling of multiple invocations of insmod
+- Collect and merge more patches
 
-						Geert
 
---
-Geert Uytterhoeven                     Geert.Uytterhoeven@cs.kuleuven.ac.be
-Wavelets, Linux/{m68k~Amiga,PPC~CHRP}  http://www.cs.kuleuven.ac.be/~geert/
-Department of Computer Science -- Katholieke Universiteit Leuven -- Belgium
+Cheers,
 
+Björn Ekwall <bj0rn@blox.se>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

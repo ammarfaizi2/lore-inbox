@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266086AbUFDXWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266096AbUFDXYT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266086AbUFDXWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 19:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266070AbUFDXTl
+	id S266096AbUFDXYT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 19:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266083AbUFDXXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 19:19:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6041 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264428AbUFDXPD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 19:15:03 -0400
-Date: Sat, 5 Jun 2004 00:14:56 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: linux-kernel@vger.kernel.org
-Cc: perex@suse.cz, torvalds@osdl.org
-Subject: Re: [RFC] ASLA design, depth of code review and lack thereof
-Message-ID: <20040604231456.GS12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 4 Jun 2004 19:23:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266061AbUFDXVi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 19:21:38 -0400
+Date: Fri, 4 Jun 2004 19:21:30 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Clay Haapala <chaapala@cisco.com>
+cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Crypto digests and kmapping sg entries larger than a page, with
+ [PATCH]
+In-Reply-To: <yquj7junkviw.fsf@chaapala-lnx2.cisco.com>
+Message-ID: <Xine.LNX.4.44.0406041921180.14838-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 05, 2004 at 12:08:19AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> Ladies and gentlemen, may I politely ask what description would fit somebody
-> who have made the following
+On Fri, 4 Jun 2004, Clay Haapala wrote:
+
+> He supplies a patch, below.
 > 
->         case SNDRV_PCM_FORMAT_FLOAT_BE:
->         {
->                 union {
->                         float f;
->                         u_int32_t i;
->                 } u;
->                 u.f = 0.0;
-> #ifdef SNDRV_LITTLE_ENDIAN
->                 return bswap_32(u.i);
-> #else
->                 return u.i;
-> #endif
->         }
-> and quite a few similar, er, wonders an ioctl?
+> If you agree with the implementation, I'll re-diff and test against a
+> recent BitKeeper extract and submit a patch.
 
-... immediately followed by a self-LART - it's still an ugly code, all
-right, but that's not an ioctl.
+Thanks, please do so.
 
-My apologies to everyone.
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

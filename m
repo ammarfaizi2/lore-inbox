@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVANUwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVANUxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVANUwU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 15:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVANUwL
+	id S262157AbVANUxW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 15:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbVANUwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 14 Jan 2005 15:52:37 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:43825 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262111AbVANUwL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 14 Jan 2005 15:52:11 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:21146 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262121AbVANUuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 15:50:25 -0500
-Subject: DRM changes in 2.6.11-rc1.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1105735923.16972.11.camel@desktop.cunninghams>
+Date: Fri, 14 Jan 2005 21:52:42 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH 1/8 ] ltt for 2.6.10: core implementation
+Message-ID: <20050114205242.GC8385@mars.ravnborg.org>
+Mail-Followup-To: Karim Yaghmour <karim@opersys.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LTT-Dev <ltt-dev@shafik.org>
+References: <41E76271.3000004@opersys.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 15 Jan 2005 07:52:03 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41E76271.3000004@opersys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Hi Karim.
 
-Just wanted to express thanks to the DRI/DRM guys. I can now suspend and
-resume my i865 chipset/Radeon video card with DRM enabled without any
-problems at all.
+> + * (C) Copyright, 1999, 2000, 2001, 2002, 2003, 2004 -
+> + *              Karim Yaghmour (karim@opersys.com)
+2005?
 
-Great work guys!
+> + * Changelog:
+> + *	14/12/04, Renamed trace macros and variables to avoid namespace
+> + *		pollution (i.e. TRACE_XXX is now ltt_ev_xxx, etc.)
+...
+Common practice is not to include Changelog in files.
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
-
+	Sam

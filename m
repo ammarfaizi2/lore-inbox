@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268408AbUHTRiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268429AbUHTRpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268408AbUHTRiz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268429AbUHTRiz
+	id S268429AbUHTRpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268448AbUHTRpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:38:55 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:24635 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268408AbUHTRiM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:38:12 -0400
-Date: Fri, 20 Aug 2004 21:38:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Dave Hansen <haveblue@us.ibm.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Matt Mackall <mpm@selenic.com>
-Cc: Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: ketchup versus patch-kernel
-Message-ID: <20040820193835.GB7298@mars.ravnborg.org>
-Mail-Followup-To: Dave Hansen <haveblue@us.ibm.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Matt Mackall <mpm@selenic.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1093021608.15662.1228.camel@nighthawk>
+	Fri, 20 Aug 2004 13:45:07 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:9433 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S268429AbUHTRpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:45:04 -0400
+Subject: 2.6.8.1-mm, programs crashing on x86_64
+From: Alexander Nyberg <alexn@telia.com>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de
+Content-Type: text/plain
+Message-Id: <1093023902.908.8.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1093021608.15662.1228.camel@nighthawk>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 19:45:02 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 10:06:48AM -0700, Dave Hansen wrote:
-> Since 2.6.8.1 came out, I'm sure a lot of automated tools stopped
-> working, ketchup included. 
+This does not happen in linus -bk. I noticed it happens in
+2.6.8-mm2 also, but not sure about earlier. I'll try some earlier
+-mm's and if noone knows what could be it I'll do a binary search.
 
-Can someone please explain to me what is the difference between
-patch-kernel and ketchup?
+Must be quite newly introduced though...
 
-With difference I ask for what problem they solve (and mayby how).
-I know very well ketchup uses phython - thats an implementation detail.
+boxen:~# chroot /mnt/store/x86/ bash
+bash[911] bad frame in 32bit signal deliver frame:00000000ffffd220 rip:556605d6 rsp:ffffd500 orax:ffffffffffffffff
+bash[910] bad frame in 32bit signal deliver frame:00000000ffffd220 rip:556605d6 rsp:ffffd500 orax:ffffffffffffffff
+bash[910]: segfault at 00000000ffffd51c rip 00000000556605d6 rsp 00000000ffffd500 error 7
+bash[911]: segfault at 00000000ffffd51c rip 00000000556605d6 rsp 00000000ffffd500 error 7
 
-Rationale behind the question is if we should include both patch-kernel
-and ketchup in the kernel.
 
-	Sam
+
+

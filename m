@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263983AbTEJKtO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 06:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTEJKtO
+	id S263742AbTEJLRf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 07:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264037AbTEJLRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 06:49:14 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:5125 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263983AbTEJKtN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 06:49:13 -0400
-Date: Sat, 10 May 2003 12:54:43 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!)
-Message-ID: <20030510125443.A14897@electric-eye.fr.zoreil.com>
-References: <20030510000222.A10796@electric-eye.fr.zoreil.com> <200305092339.h49NcYGi011242@locutus.cmf.nrl.navy.mil>
+	Sat, 10 May 2003 07:17:34 -0400
+Received: from rth.ninka.net ([216.101.162.244]:41359 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S263742AbTEJLRe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 07:17:34 -0400
+Subject: Re: qla1280 mem-mapped I/O fix
+From: "David S. Miller" <davem@redhat.com>
+To: davidm@hpl.hp.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200305100951.h4A9pSAD012127@napali.hpl.hp.com>
+References: <200305100951.h4A9pSAD012127@napali.hpl.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052566211.22636.1.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200305092339.h49NcYGi011242@locutus.cmf.nrl.navy.mil>; from chas@locutus.cmf.nrl.navy.mil on Fri, May 09, 2003 at 07:38:34PM -0400
-X-Organisation: Marie's fan club - III
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 May 2003 04:30:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chas williams <chas@locutus.cmf.nrl.navy.mil> :
-[...]
-> i hope you dont mind, but i really dislike the goto.  one is plenty. 
+On Sat, 2003-05-10 at 02:51, David Mosberger wrote:
+> With the fix in the second hunk, I don't see any reason not to turn on
+> MEMORY_MAPPED_IO in qla1280.  It seems to work fine on my machine
+> with this controller (ia64 Big Sur).
 
-I am not fond of the 'test before destruction' approach when the tests 
-could have been avoided. Anyway you maintain the driver on a regular basis,
-you are free to choose the fix.
+David, you absolute MAY NOT pass this:
 
-> attached is a cleanup for the iphase (i made a small addition -- i believe
-> the MEMDUMP_XXXXXXREG cases are also guilty of dereferencing).
+> -	pci_read_config_word (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
+> +	pci_read_config_dword (ha->pdev, PCI_BASE_ADDRESS_1, &mmapbase);
 
-Yes.
+into ioremap() which is exactly what this driver is doing.
+One must use the PCI device struct resource values.
 
---
-Ueimor
+-- 
+David S. Miller <davem@redhat.com>

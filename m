@@ -1,111 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264920AbUFAHnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264924AbUFAIC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264920AbUFAHnM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 03:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUFAHnM
+	id S264924AbUFAIC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 04:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264926AbUFAIC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 03:43:12 -0400
-Received: from mail.wdsl.co.za ([196.28.86.3]:6092 "EHLO mail.uninetwork.co.za")
-	by vger.kernel.org with ESMTP id S264920AbUFAHnF (ORCPT
+	Tue, 1 Jun 2004 04:02:57 -0400
+Received: from linuxhacker.ru ([217.76.32.60]:29863 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S264924AbUFAICv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 03:43:05 -0400
-Subject: Multiple CDR's on an IDE based system
-From: Hamish Whittal <hamish@QEDux.co.za>
-Reply-To: hamish@QEDux.co.za
+	Tue, 1 Jun 2004 04:02:51 -0400
+Date: Tue, 1 Jun 2004 11:01:04 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: QED Technologies cc
-Message-Id: <1086083663.925.114.camel@defender.QEDux.co.za>
+Subject: [2.4] Lockup detected by NMI Watchdog
+Message-ID: <20040601080104.GA94212@linuxhacker.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 01 Jun 2004 09:54:23 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
+Hello!
 
-I have tried, without success to solve this for the last couple of
-weeks, so I am trying the guru's as a last resort.....
+   It's been awhile since last lockup detected by NMI watchdog on this box,
+   but this night it happened again. In completely different place too.
+   The kernel version is 2.4.26, dual P4 Xeons, HT enabled, spinlock debug
+   enabled. 2G RAM ECC RAM, highmem enabled.
 
-Here is the problem:
+NMI Watchdog detected LOCKUP on CPU1, eip c01168e7, registers:
+CPU:    1
+EIP:    0010:[<c01168e7>]    Not tainted
+EFLAGS: 00000002
+eax: 00000001   ebx: 00000000   ecx: 00000000   edx: c2833f78
+esi: 00000001   edi: c2832000   ebp: c2833f6c   esp: c2833f58
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c2833000)
+Stack: f6465280 f5b36000 c0105460 c2832000 c2832000 c2833fac c010cf5d c2833f78
+       c0105460 00000000 c2832000 c2832000 c2832000 c2833fac 00000000 c2830018
+       c2830018 ffffffef c010548c 00000010 00000246 c2833fc0 c0105522 0102080b
+Call Trace:    [<c0105460>] [<c010cf5d>] [<c0105460>] [<c010548c>] [<c0105522>]
+  [<c012088b>] [<c01206b4>]
 
-I have a machine that has 3 CDRW's in it. I have tried many different
-configurations of these drives on various IDE controllers, but am still
-having some problems.
+Code: a8 01 75 f5 31 ff f6 42 32 02 75 06 f6 42 2c 03 74 05 bf 01
+console shuts up ...
+ NMI Watchdog detected LOCKUP on CPU3, eip c0109457, registers:
+ NMI Watchdog detected LOCKUP on CPU2, eip c01168e2, registers:
+   
+>>EIP; c01168e7 <smp_apic_timer_interrupt+47/140>   <=====
+   
+>>edx; c2833f78 <_end+243b298/384bc380>
+>>edi; c2832000 <_end+2439320/384bc380>
+>>ebp; c2833f6c <_end+243b28c/384bc380>
+>>esp; c2833f58 <_end+243b278/384bc380>
 
-I will try to sketch the scenario:
-CDRW1 slave on controller with HDD
-CDRW2 as master on second on-board IDE controller
-CDRW3 as master on additional PCI IDE controller
+Trace; c0105460 <default_idle+0/40>
+Trace; c010cf5d <call_apic_timer_interrupt+5/10>
+Trace; c0105460 <default_idle+0/40>
+Trace; c010548c <default_idle+2c/40>
+Trace; c0105522 <cpu_idle+52/70>
+Trace; c012088b <release_console_sem+11b/120>
+Trace; c01206b4 <printk+194/200>
 
-(I have also tried adding 2 PCI IDE controllers, and putting each CDRW
-as master on each of these controllers, but I get the FIFO buffer
-dropping to 0% very soon after starting a write).
+Code;  c01168e7 <smp_apic_timer_interrupt+47/140>
+00000000 <_EIP>:
+Code;  c01168e7 <smp_apic_timer_interrupt+47/140>   <=====
+   0:   a8 01                     test   $0x1,%al   <=====
+Code;  c01168e9 <smp_apic_timer_interrupt+49/140>
+   2:   75 f5                     jne    fffffff9 <_EIP+0xfffffff9>
+Code;  c01168eb <smp_apic_timer_interrupt+4b/140>
+   4:   31 ff                     xor    %edi,%edi
+Code;  c01168ed <smp_apic_timer_interrupt+4d/140>
+   6:   f6 42 32 02               testb  $0x2,0x32(%edx)
+Code;  c01168f1 <smp_apic_timer_interrupt+51/140>
+   a:   75 06                     jne    12 <_EIP+0x12>
+Code;  c01168f3 <smp_apic_timer_interrupt+53/140>
+   c:   f6 42 2c 03               testb  $0x3,0x2c(%edx)
+Code;  c01168f7 <smp_apic_timer_interrupt+57/140>
+  10:   74 05                     je     17 <_EIP+0x17>
+Code;  c01168f9 <smp_apic_timer_interrupt+59/140>
+  12:   bf 01 00 00 00            mov    $0x1,%edi
 
-In this configuration, provided the writers are writing no faster than
-16x (CDRW can write up to 52x) they seem to complete  - reading and
-writing the correct number of bytes from the HDD and to the CDR. Any
-other configuration seems to fail almost immediately. 
+The code itself seems to be looping in smp_apic_timer_interrupt->irq_enter()'s
+loop based on what I see in the disassembly. (cpu1 an cpu2), cpu3 is at
+handle_IRQ_event (irq_enter loop as well).
+Unfortunatelly data on cpu0's place of execution is unavailable.
+(I guess this might be not all that bad idea to print traces from all
+available cpus when NMI watchdog triggers, if possible)
 
-I am writing ISO images (from the HDD) to the CDR's simultaneously using
-a parallel perl script which just calls the cdrecord program to actually
-do the writing.
+Sort of useless bugreport as I see it. I guess I really need to patch in
+kgdb and gather more data next time something like this hits.
+(will kgdb work in such conditions I wonder?)
 
-Problem is now though, that although cdrecord claims to have
-read/written the correct number of bytes from the HDD to the CDR (which
-I don't dispute since the files are all there), when I install, the
-install seems to go fine bar a couple of files. It would seem that the
-files are the same each time. Although they seem to be fine (in terms of
-file size), they produce an Input/Output error when I try to install
-just those files, or even just copy them.
-
-I have tried writing the single ISO that seems problematic "by hand"
-(i.e. not in parallel) and the problem does not seems to be present. It
-only seems to raise it's head when I am writing the images
-simultaneously. To me this indicates there may be interference on the
-IDE bus - but this is a layman speaking(;
-
-I did lots of searching on the Internet about this problem, and only
-have found a couple of references to similar problems. (I also tried to
-subscribe to the cdrecord mailing list, but seem to be getting emails
-bounced saying that the email address I am sending to does not exist -
-so not sure whether the list is still alive).
-
-My machine is a Debian linux IDE based machine. The specs of the machine
-are as follows:
-CPU      : Intel(R) Pentium(R) 4 CPU 2.80GHz
-2 IDE controllers, single 120GB HDD.
-Additional PCI IDE controller
-
-Kernel: 2.4.25-1-686
-
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-Vendor: AOPEN    Model: CD-RW CRW5224    Rev: 1.07
-Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-Vendor: AOPEN    Model: CD-RW CRW5224    Rev: 1.07
-Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-Vendor: AOPEN    Model: CD-RW CRW5224    Rev: 1.07
-Type:   CD-ROM                           ANSI SCSI revision: 02
-
-CD record version:
-Cdrecord-Clone 2.01a26 (i686-pc-linux-gnu)
-
-cdrecord called as follows:
-cdrecord -immed gracetime=2 -eject -v -tao dev=0,0,0
-/distros/Debian/1Disc.iso
-
-Naturally the other two drives are called with dev=0,1,0 and dev=0,2,0
-
-I actually restrict the speed to 20x as if it writes faster the FIFO
-buffer empties very quickly with the understood consequences.
-
-Thanks for ANY help,
-
-Kindest,
-
-Hamish
-
+Bye,
+    Oleg

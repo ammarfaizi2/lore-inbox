@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262728AbUCPFER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 00:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbUCPFER
+	id S262649AbUCPFDq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 00:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbUCPFDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 00:04:17 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:20418 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262728AbUCPFEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 00:04:13 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Date: Tue, 16 Mar 2004 16:03:57 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 16 Mar 2004 00:03:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55248 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262649AbUCPFDp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 00:03:45 -0500
+Date: Mon, 15 Mar 2004 21:03:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: Patch - make config_max_raw_devices work
+Message-Id: <20040315210341.707c85dc.akpm@osdl.org>
+In-Reply-To: <20040316023946.GO19737@krispykreme>
+References: <200403160053.i2G0rNm31241@unix-os.sc.intel.com>
+	<20040315181406.2f2d8f38.akpm@osdl.org>
+	<20040316023946.GO19737@krispykreme>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16470.35517.840261.107456@notabene.cse.unsw.edu.au>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1 - 4g patch breaks when X86_4G not selected
-In-Reply-To: message from Andrew Morton on Monday March 15
-References: <20040310233140.3ce99610.akpm@osdl.org>
-	<16465.3163.999977.302378@notabene.cse.unsw.edu.au>
-	<20040311172244.3ae0587f.akpm@osdl.org>
-	<16465.20264.563965.518274@notabene.cse.unsw.edu.au>
-	<20040311235009.212d69f2.akpm@osdl.org>
-	<16466.57738.590102.717396@notabene.cse.unsw.edu.au>
-	<16469.2797.130561.885788@notabene.cse.unsw.edu.au>
-	<20040315091843.GA21587@elte.hu>
-	<16470.22982.831048.924954@notabene.cse.unsw.edu.au>
-	<20040315205201.7699e1c1.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday March 15, akpm@osdl.org wrote:
+Anton Blanchard <anton@samba.org> wrote:
+>
+>  
+> > Badari wrote basically the same patch a couple of months back.  I dropped
+> > it then, too ;)
+> > 
+> > raw is a deprecated interface and if we keep on adding new features to it,
+> > we will never be rid of the thing.  If your application requires more than
+> > 256 raw devices, please convert it to open the block device directly,
+> > passing in the O_DIRECT flag.
 > 
-> That is useful, thanks.  Sorry about the hassle.
-> 
-> Calling page_address_init() earlier isn't the fix though - pmd pages aren't
-> in highmem so we should never have got that far.  Looks like the pgd or the
-> pmd page contains garbage.  Did you try it without
-> CONFIG_DEBUG_SLAB?
+> We only deprecated this thing on the 4th Feb 2004. I want to see the raw
+> driver die but we cant expect apps to change their interfaces in the space
+> of a month.
 
-Without CONFIG_DEBUG_SLAB, it boots OK.
+Nobody has complained about the 256-device limit thus far.  I fully
+expected to lose this one, but I don't think I've bitched about it enough
+yet.
 
-> 
-> Nick was seeing slab 0x6b patterns on the NUMAQ, inside the pmd, so there's
-> some consistency there.  We do have one early setup fix from Manfred, but
-> it's unlikely to cure this.
-> 
-> I'll have a play with your .config, see if I can reproduce it.  If not I'll
-> squeeze off -mm3 and would ask you to retest on that if poss.
+> Can we reach a compromise? :)
 
-When it comes, I'll test it.
-
-thanks,
-NeilBrown
+OK, how about a udelay(10) in each I/O?

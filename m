@@ -1,18 +1,19 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262588AbVDACNK (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 31 Mar 2005 21:13:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVDACNK
+	id S262600AbVDAEDP (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 31 Mar 2005 23:03:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDAEDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 21:13:10 -0500
-Received: from [203.237.124.70] ([203.237.124.70]:18180 "HELO freemail.de")
-	by vger.kernel.org with SMTP id S262588AbVDACNE (ORCPT
+	Thu, 31 Mar 2005 23:03:15 -0500
+Received: from [222.103.154.70] ([222.103.154.70]:41225 "HELO freemail.de")
+	by vger.kernel.org with SMTP id S262600AbVDAEDD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 21:13:04 -0500
-Message-ID: <d2ef01c5361a$4aeca700$6d4a27a9@softwarenews>
+	Thu, 31 Mar 2005 23:03:03 -0500
+Message-ID: <727101c5364c$f8aae190$a08e5264@softwarenews>
+Reply-To: <softwarenews@freemail.de>
 From: <softwarenews@freemail.de>
 To: <linux-kernel@vger.kernel.org>
-Subject: Beursverkoop software
-Date: Thu, 31 Mar 2005 17:51:40 +0800
+Subject: Photoshop 80 USD
+Date: Thu, 31 Mar 2005 23:54:26 +0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -22,7 +23,7 @@ X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262588AbVDACNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262600AbVDAEDP@vger.kernel.org>
 
 Geachte dames en heren,
  

@@ -1,75 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262068AbTJJNq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 09:46:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbTJJNq0
+	id S262803AbTJJNjY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 09:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTJJNjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 09:46:26 -0400
-Received: from pat.uio.no ([129.240.130.16]:8171 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262068AbTJJNqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 09:46:24 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16262.47147.943477.24070@charged.uio.no>
-Date: Fri, 10 Oct 2003 09:46:19 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-In-Reply-To: <20031010123732.GA28224@mail.shareable.org>
-References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org>
-	<3F85ED01.8020207@redhat.com>
-	<20031010002248.GE7665@parcelfarce.linux.theplanet.co.uk>
-	<20031010044909.GB26379@mail.shareable.org>
-	<16262.17185.757790.524584@charged.uio.no>
-	<20031010123732.GA28224@mail.shareable.org>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Fri, 10 Oct 2003 09:39:24 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:41415 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262803AbTJJNjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 09:39:22 -0400
+Subject: Re: Linksys/Cisco GPL Violations
+From: David Woodhouse <dwmw2@infradead.org>
+Reply-To: dwmw2@infradead.org
+To: Florian Schirmer <jolt@tuxbox.org>
+Cc: linux-kernel@vger.kernel.org, David Turner <novalis@fsf.org>,
+       andrew@mikl.as, rob@nocat.net
+In-Reply-To: <023501c38f32$2b83caa0$9602010a@jingle>
+References: <1064859766.20847.33983.camel@banks>
+	 <1065428944.22491.169.camel@hades.cambridge.redhat.com>
+	 <01f301c38f2f$b1a7e0b0$9602010a@jingle>
+	 <1065791790.24015.238.camel@hades.cambridge.redhat.com>
+	 <023501c38f32$2b83caa0$9602010a@jingle>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1065793144.24015.274.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Fri, 10 Oct 2003 14:39:04 +0100
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
+On Fri, 2003-10-10 at 15:26 +0200, Florian Schirmer wrote:
+> The ethernet and wireless driver where never linked into the kernel.
+>  So it should be okay if they only distribute the module.
 
-     > Trond Myklebust wrote:
-    >> Belongs in fcntl()... Just return ENOLCK if someone tries to
-    >> set a lease or a directory notification on an NFS file...
+That is true, according to the GPL, _only_ if the modules are
+distributed as separate works. If they are part of a collective work
+which is based on the kernel (note, not a _derived_ work but a
+_collective_ work) then they must be released under the terms of the
+GPL.
 
-     > It should be a filesystem hook, so that even remote filesystems
-     > like SMB can implement it, although it must be understood that
-     > remote notification has different ordering properties than
-     > local.
+This is a _different_ issue to the question of whether a module is
+indeed a derived work, and it's _far_ more clear-cut.
 
-Sure. We might even try actually implementing leases on NFSv4 for
-delegated files.
+Ask yourself the following questions:
 
-     > I don't care about the cache semantics at all; what I care
-     > about is whether a returned stat() result may be stale.
+1. The wireless and Ethernet driver modules are distributed within
+   a cramfs file system in a flash image on a chip soldered to the
+   board of the device.
 
-Note that this too may be a per-file property. Under NFSv4 I can
-guarantee you that stat() results are correct in the case where I have
-a delegation. Otherwise, you are indeed subject to inherent races.
-"noac" cannot entirely resolve such races, but it sounds as if it
-could in the particular cases you describe.
+   Are they being distributed 'as separate works'?
 
-     > This is not ideal.  In particular, I don't know of any way to
-     > _guarantee_ that I have the latest file contents from remote
-     > filesystems short of F_SETLK, which way too heavy.[2]
+2. The fundamental mode of operation of these devices is to
+   receive network packets from one of the drivers, pass them
+   through the Linux kernel routing or bridging code, and then
+   back out through another of the network interfaces. All 
+   three parts of this are indispensable and the product is 
+   useless without any one part.
 
-Err... open() should normally suffice to do that...
+   A) Does this form a whole which is a derived work based on the
+      Linux kernel?
 
-Unless you are simultaneously writing to the file on a remote system,
-in which case you really need mandatory locking rather than NFSv2/v3's
-weaker advisory model. Or possibly something like CIFS/SMB's open
-"share" model (which can also be implemented in NFSv4).
+   B) Does this form a whole which is a collective work?
 
+   C) Is this collective work based, in part, on the Linux kernel?
 
+3. Refer back to the facts in question 1. Is this 'mere aggregation
+   of a work not based on the [kernel] on a volume of a storage or
+   distribution medium'?
 
-...so I would argue that the caching models both can and do make a
-difference to your example cases (contrary to what you assert).
+Now, having answered those questions, reread the final three paragraphs
+of §2 of the GPL.
 
-Cheers,
-  Trond
+-- 
+dwmw2
+

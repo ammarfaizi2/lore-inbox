@@ -1,101 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVDEVoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVDEVr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVDEVoN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 17:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVDEVmv
+	id S262070AbVDEVr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 17:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVDEVpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 17:42:51 -0400
-Received: from rzlab.ucr.edu ([138.23.92.77]:14997 "EHLO
-	epsilon.donarmstrong.com") by vger.kernel.org with ESMTP
-	id S261872AbVDEVhV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 17:37:21 -0400
-Date: Tue, 5 Apr 2005 14:37:16 -0700
-From: Don Armstrong <don@debian.org>
-To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050405213716.GT5814@archimedes.ucr.edu>
-Mail-Followup-To: debian-legal@lists.debian.org
-References: <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405152159.GB25311@pegasos>
+	Tue, 5 Apr 2005 17:45:46 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2189 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262052AbVDEVn5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 17:43:57 -0400
+Date: Tue, 5 Apr 2005 23:43:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: linux-serial@vger.kernel.org
+Subject: fix u32 vs. pm_message_t in drivers/
+Message-ID: <20050405214331.GA1842@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AGZzQgpsuUlWC1xT"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050405152159.GB25311@pegasos>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---AGZzQgpsuUlWC1xT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-rc2-mm1 still contains few places where u32 and pm_message_t. This
+fixes drivers/serial [should change no code]. Please apply,
+								Pavel
 
-[MFT set to -legal, as this is becoming legal arcana probably not
-particularly interesting to any other list.]
+--- clean-mm/drivers/serial/amba-pl010.c	2004-12-25 13:35:01.000000000 +0100
++++ linux-mm/drivers/serial/amba-pl010.c	2005-04-05 12:13:37.000000000 +0200
+@@ -772,7 +772,7 @@
+ 	return 0;
+ }
+ 
+-static int pl010_suspend(struct amba_device *dev, u32 state)
++static int pl010_suspend(struct amba_device *dev, pm_message_t state)
+ {
+ 	struct uart_amba_port *uap = amba_get_drvdata(dev);
+ 
+--- clean-mm/drivers/serial/imx.c	2005-04-05 10:55:20.000000000 +0200
++++ linux-mm/drivers/serial/imx.c	2005-04-05 12:13:37.000000000 +0200
+@@ -825,7 +825,7 @@
+ 	.cons           = IMX_CONSOLE,
+ };
+ 
+-static int serial_imx_suspend(struct device *_dev, u32 state, u32 level)
++static int serial_imx_suspend(struct device *_dev, pm_message_t state, u32 level)
+ {
+         struct imx_port *sport = dev_get_drvdata(_dev);
+ 
+--- clean-mm/drivers/serial/pmac_zilog.c	2005-02-03 22:27:18.000000000 +0100
++++ linux-mm/drivers/serial/pmac_zilog.c	2005-04-05 12:13:37.000000000 +0200
+@@ -1590,7 +1590,7 @@
+ }
+ 
+ 
+-static int pmz_suspend(struct macio_dev *mdev, u32 pm_state)
++static int pmz_suspend(struct macio_dev *mdev, pm_message_t pm_state)
+ {
+ 	struct uart_pmac_port *uap = dev_get_drvdata(&mdev->ofdev.dev);
+ 	struct uart_state *state;
+--- clean-mm/drivers/serial/pxa.c	2004-12-25 13:35:01.000000000 +0100
++++ linux-mm/drivers/serial/pxa.c	2005-04-05 12:13:37.000000000 +0200
+@@ -797,7 +797,7 @@
+ 	.cons		= PXA_CONSOLE,
+ };
+ 
+-static int serial_pxa_suspend(struct device *_dev, u32 state, u32 level)
++static int serial_pxa_suspend(struct device *_dev, pm_message_t state, u32 level)
+ {
+         struct uart_pxa_port *sport = dev_get_drvdata(_dev);
+ 
+--- clean-mm/drivers/serial/s3c2410.c	2005-03-19 00:31:50.000000000 +0100
++++ linux-mm/drivers/serial/s3c2410.c	2005-04-05 12:13:37.000000000 +0200
+@@ -1156,7 +1156,7 @@
+ 
+ #ifdef CONFIG_PM
+ 
+-int s3c24xx_serial_suspend(struct device *dev, u32 state, u32 level)
++int s3c24xx_serial_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	struct uart_port *port = s3c24xx_dev_to_port(dev);
+ 
+--- clean-mm/drivers/serial/sa1100.c	2005-03-19 00:31:50.000000000 +0100
++++ linux-mm/drivers/serial/sa1100.c	2005-04-05 12:13:37.000000000 +0200
+@@ -854,7 +854,7 @@
+ 	.cons			= SA1100_CONSOLE,
+ };
+ 
+-static int sa1100_serial_suspend(struct device *_dev, u32 state, u32 level)
++static int sa1100_serial_suspend(struct device *_dev, pm_message_t state, u32 level)
+ {
+ 	struct sa1100_port *sport = dev_get_drvdata(_dev);
+ 
+--- clean-mm/drivers/serial/serial_txx9.c	2005-02-03 22:27:18.000000000 +0100
++++ linux-mm/drivers/serial/serial_txx9.c	2005-04-05 12:13:37.000000000 +0200
+@@ -1095,7 +1095,7 @@
+ 	}
+ }
+ 
+-static int pciserial_txx9_suspend_one(struct pci_dev *dev, u32 state)
++static int pciserial_txx9_suspend_one(struct pci_dev *dev, pm_message_t state)
+ {
+ 	int line = (int)(long)pci_get_drvdata(dev);
+ 
+--- clean-mm/drivers/serial/vr41xx_siu.c	2005-03-19 00:31:50.000000000 +0100
++++ linux-mm/drivers/serial/vr41xx_siu.c	2005-04-05 12:13:37.000000000 +0200
+@@ -1026,7 +1026,7 @@
+ 	return 0;
+ }
+ 
+-static int siu_suspend(struct device *dev, u32 state, u32 level)
++static int siu_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	struct uart_port *port;
+ 	int i;
 
-On Tue, 05 Apr 2005, Sven Luther wrote:
-> There are two solutions to this issue, either you abide by the GPL
-> and provide also the source code of those firmware binaries (the
-> prefered solution :), or you modify the copyright statement of these
-> files, to indicate that even thought the file per se is under the
-> GPL, the firmware binary code is not, and give us a licence to
-> distribute it. Something akin to :
->=20
-> /* This program, except the firmware binary code,  is free software; you =
-can  */
-> /* redistribute it and/or modify it under the terms of the GNU General Pu=
-blic */
-> /* License as published by the Free Software Foundation, located in the f=
-ile  */
-> /* LICENSE.                                                              =
-     */
-> /* Distribution, either as is or modified syntactically to adapt to the  =
-     */
-> /* layout of the surrounding GPLed code is allowed, provided this copyrig=
-ht   */
-> /* notice is acompanying it                                              =
-     */
-
-Just a word of warning: The wording above fails to make it clear what
-the second clause is applying to. Additionally it has the following
-restrictions that are probably not intended:
-
-   1) Does not specifically allow this firware to be sold as part of an
-      aggregate
-
-   2) The range of modifications allowed is rather vague, and implies
-      that the firmware can't be extracted
-
-I'd instead suggest applying a pre-existing license like MIT[1] to the
-firmware portion of the code file, rather than inventing your own
-licensing text that only partially deals with the problem(s) at issue.
-(Inventing licensing text is quite often very hazardous to your
-health.)
-
-
-Don Armstrong
-
-1: http://www.opensource.org/licenses/mit-license.php
---=20
-Build a fire for a man, an he'll be warm for a day.  Set a man on  =20
-fire, and he'll be warm for the rest of his life.
- -- Jules Bean
-
-http://www.donarmstrong.com              http://rzlab.ucr.edu
-
---AGZzQgpsuUlWC1xT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCUwUMgcCJIoCND9ARAuj1AJ9DOrunY0ZEBefQlPc3aehTDBt65QCeLjA2
-EWwdMLkDUBP+s4pDSd4YQto=
-=stDb
------END PGP SIGNATURE-----
-
---AGZzQgpsuUlWC1xT--
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbUKHWen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbUKHWgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbUKHWen (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:34:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKHWem
+	id S261273AbUKHWgq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUKHWgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:34:42 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:22812 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261280AbUKHWdn
+	Mon, 8 Nov 2004 17:36:46 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:23883 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261273AbUKHWgg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:33:43 -0500
-Date: Mon, 8 Nov 2004 23:34:09 +0100
+	Mon, 8 Nov 2004 17:36:36 -0500
+Date: Mon, 8 Nov 2004 23:37:03 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc1-mm3: (fix for make xconfig)
-Message-ID: <20041108223409.GB16261@mars.ravnborg.org>
-Mail-Followup-To: "Rafael J. Wysocki" <rjw@sisk.pl>,
-	linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <20041105001328.3ba97e08.akpm@osdl.org> <200411051907.19008.rjw@sisk.pl> <200411051948.32936.rjw@sisk.pl> <20041105202601.GA8785@mars.opasia.dk>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: makeing a loadable module
+Message-ID: <20041108223703.GC16261@mars.ravnborg.org>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <200411072328.48785.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041105202601.GA8785@mars.opasia.dk>
+In-Reply-To: <200411072328.48785.gene.heskett@verizon.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 09:26:01PM +0100, Sam Ravnborg wrote:
- 
-> Wrong fix.
-> I will look into it later tonight.
+On Sun, Nov 07, 2004 at 11:28:48PM -0500, Gene Heskett wrote:
+> Greetings;
+> 
+> I found some code I can play with/hack/etc, in the form of a loadable 
+> module and some testing driver programs, in 'dpci8255.tar.gz'.
+> 
+> Unforch its for a slightly different card than the one I have, and 
+> once I've hacked the code to suit, I need to rebuild it.
+> 
+> So whats the gcc command line to make just a bare, loadable module for 
+> say a 2.4.25 kernel?   Obviously I'm missing something when it 
+> complains and quits, claiming there is no 'main' defined, which I 
+> don't think modules actually have one of those?
+> 
+> What I'm trying to do (hey, no big dummy jokes please :)
+> 
+> [root@coyote dist]# cc -o dpci8255.o dpci8255lib.c
+> /usr/lib/gcc-lib/i386-redhat-linux/3.3.3/../../../crt1.o(.text+0x18): 
+> In function `_start':
+> : undefined reference to `main'
+> collect2: ld returned 1 exit status
 
-Here is the fix. Tested with both xconfg and gconfig.
+Create a small Makefile:
+echo obj-m := dpci8255.o > Makefile
+
+And use:
+make -C $PATH_TO_KERNEL_SRC SUBDIRS=$PWD modules
+
+This will give you the correct gcc commandline - adopted to actual
+configuration of the kernel.
+Any other way to compile a module is br0ken.
+
+For 2.6 the above syntax works as well, but simpler versions exists.
 
 	Sam
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/11/06 21:18:02+01:00 sam@mars.ravnborg.org 
-#   kconfig: fix xconfig and gconfig
-#   
-#   Patch that disabled use of loadable modules broke qconf and gconf.
-#   Fixed by disabling this also for these targets.
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# scripts/kconfig/Makefile
-#   2004/11/06 21:17:26+01:00 sam@mars.ravnborg.org +5 -4
-#   Enable build of qconf anf gconf without loadable module support
-# 
-diff -Nru a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
---- a/scripts/kconfig/Makefile	2004-11-08 23:33:26 +01:00
-+++ b/scripts/kconfig/Makefile	2004-11-08 23:33:26 +01:00
-@@ -84,11 +84,11 @@
- 
- ifeq ($(qconf-target),1)
- qconf-cxxobjs	:= qconf.o
--qconf-objs	:= kconfig_load.o
-+qconf-objs	:= kconfig_load.o zconf.tab.o
- endif
- 
- ifeq ($(gconf-target),1)
--gconf-objs	:= gconf.o kconfig_load.o
-+gconf-objs	:= gconf.o kconfig_load.o zconf.tab.o
- endif
- 
- clean-files	:= lkc_defs.h qconf.moc .tmp_qtcheck \
-@@ -99,10 +99,11 @@
- HOSTCFLAGS_zconf.tab.o	:= -I$(src)
- 
- HOSTLOADLIBES_qconf	= -L$(QTLIBPATH) -Wl,-rpath,$(QTLIBPATH) -l$(QTLIB) -ldl
--HOSTCXXFLAGS_qconf.o	= -I$(QTDIR)/include 
-+HOSTCXXFLAGS_qconf.o	= -I$(QTDIR)/include -D LKC_DIRECT_LINK
- 
- HOSTLOADLIBES_gconf	= `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --libs`
--HOSTCFLAGS_gconf.o	= `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --cflags`
-+HOSTCFLAGS_gconf.o	= `pkg-config gtk+-2.0 gmodule-2.0 libglade-2.0 --cflags` \
-+                          -D LKC_DIRECT_LINK
- 
- $(obj)/conf.o $(obj)/mconf.o $(obj)/qconf.o $(obj)/gconf.o: $(obj)/zconf.tab.h
- 

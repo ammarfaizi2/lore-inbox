@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262732AbUKXOrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbUKXOJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262732AbUKXOrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUKXOpW
+	id S262680AbUKXOJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUKXOGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:45:22 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:58382 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262732AbUKXOmq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 09:42:46 -0500
-To: Colin Leroy <colin@colino.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
-References: <20041118194959.3f1a3c8e.colin@colino.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 24 Nov 2004 23:02:06 +0900
-In-Reply-To: <20041118194959.3f1a3c8e.colin@colino.net> (Colin Leroy's
- message of "Thu, 18 Nov 2004 19:49:59 +0100")
-Message-ID: <87pt23wdk1.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+	Wed, 24 Nov 2004 09:06:35 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:25549 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262709AbUKXNjj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:39:39 -0500
+Message-ID: <41A48395.60100@sgi.com>
+Date: Wed, 24 Nov 2004 06:50:29 -0600
+From: Eric Sandeen <sandeen@sgi.com>
+User-Agent: Mozilla Thunderbird 0.9 (Macintosh/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+CC: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: [2.6.10-rc2] XFS filesystem corruption
+References: <200411221530.30325.lkml@kcore.org> <20041122155106.GG2714@holomorphy.com> <41A30D3E.9090506@gmx.de> <20041124082736.E6205230@wobbly.melbourne.sgi.com> <41A44071.9040101@gmx.de>
+In-Reply-To: <41A44071.9040101@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colin Leroy <colin@colino.net> writes:
+Prakash K. Cheemplavam wrote:
+> Nathan Scott schrieb:
+> 
+>> Did you see
+>> any of those device errors since switching to ext3?
+> 
+> 
+> No. That's why I am wondering. I read about such errors like I got 
+> before in lkml and usually they were not fs related but libata siimage 
+> driver related. It could be just a coincidence that it came up with xfs, 
+> but till now (I guess 5 days now, though not 24/7 running) ext3 is 
+> behaving nicely.
 
-> @@ -764,6 +765,11 @@
->  	dir->i_atime = dir->i_ctime = dir->i_mtime = CURRENT_TIME;
->  	mark_inode_dirty(dir);
->  
-> +	sb = dir->i_sb;
-> +
-> +	if (sb->s_flags & MS_SYNCHRONOUS)
-> +		sync_dirty_buffer(bh);
-> +
+It's almost certainly not a filesystem problem, but an IO layer problem. 
+  Maybe you only see it with xfs due to different disk IO patterns with 
+xfs vs. ext3...  the two will certainly be allocating & writing to the 
+disk in different ways.
 
-This bh is already released.
-
->  	retval = generic_file_write(filp, buf, count, ppos);
->  	if (retval > 0) {
->  		inode->i_mtime = inode->i_ctime = CURRENT_TIME;
->  		MSDOS_I(inode)->i_attrs |= ATTR_ARCH;
->  		mark_inode_dirty(inode);
-> +		if (sb->s_flags & MS_SYNCHRONOUS) {
-> +			bh = sb_bread(sb, MSDOS_SB(sb)->fsinfo_sector);
-> +			if (bh != NULL) {
-> +				sync_dirty_buffer(bh);
-> +				brelse(bh);
-> +			} else {
-> +				BUG_ON(1);
-> +			}
-> +		}
-
-FAT12/16 doesn't have FSINFO sector.  And if sb_bread() returns NULL,
-we should return the valid error.
-
-> @@ -105,4 +118,8 @@
->  	unlock_kernel();
->  	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
->  	mark_inode_dirty(inode);
-> +	if (sb->s_flags & MS_SYNCHRONOUS) {
-> +		bh = sb_bread(sb, sbi->fsinfo_sector);
-> +		sync_dirty_buffer(bh);
-> +	}
-
-Ditto.
-
-Aren't you forgetting to update the inode and various metadata (e.g. FAT)?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+-Eric

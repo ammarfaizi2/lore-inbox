@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318059AbSGWNG2>; Tue, 23 Jul 2002 09:06:28 -0400
+	id <S317855AbSGWNZD>; Tue, 23 Jul 2002 09:25:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318061AbSGWNG2>; Tue, 23 Jul 2002 09:06:28 -0400
-Received: from t8o53p67.telia.com ([213.64.145.187]:23169 "EHLO
-	best.localdomain") by vger.kernel.org with ESMTP id <S318059AbSGWNG1>;
-	Tue, 23 Jul 2002 09:06:27 -0400
-Date: Tue, 23 Jul 2002 15:09:17 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@best.localdomain
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-In-Reply-To: <20020723113923.H800@suse.de>
-Message-ID: <Pine.LNX.4.44.0207231435190.4586-100000@best.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318061AbSGWNZD>; Tue, 23 Jul 2002 09:25:03 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:61706 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S317855AbSGWNZC>;
+	Tue, 23 Jul 2002 09:25:02 -0400
+Date: Tue, 23 Jul 2002 15:28:11 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5.26 - arch/alpha
+Message-ID: <20020723132811.GX8891@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200207211354.g6LDsADU005586@alder.intra.bruli.net> <3D3D6B3B.25754.1392D3FD@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H7QJU8Gl1+/xsYtC"
+Content-Disposition: inline
+In-Reply-To: <3D3D6B3B.25754.1392D3FD@localhost>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002, Jens Axboe wrote:
 
-> On Fri, Jul 19 2002, Peter Osterlund wrote:
-> > Peter Osterlund <petero2@telia.com> writes:
-> > 
-> > > Dave Jones <davej@suse.de> writes:
-> > > 
-> > > > On Thu, Jul 18, 2002 at 12:46:43PM -0400, Bill Davidsen wrote:
-> > > > 
-> > > >  > > o UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
-> > > >  > 	Hopefully this is close as well
-> > > > 
-> > > > This has been around for an age, but I haven't seen anything for 2.5
-> > > > yet. Then again, I dropped off the packet-writing mailing list a long
-> > > > time ago, so I'm not sure how up to date those folks are.
-> > > 
-> > > Patches for 2.5 can be found here:
-> > > 
-> > >         http://w1.894.telia.com/~u89404340/patches/packet/2.5/
-> > > 
-> > > The most recent patch is for 2.5.25. As far as I know, there are only
-> > > two remaining problems with the 2.5 patch:
-> > 
-> > Btw, there is one more potential problem. A new block major number is
-> > allocated for the pktcdvd device. Is this still forbidden? Are there
-> > better ways to do this now?
-> 
-> Why a new number? What's wrong with the official 97?
+--H7QJU8Gl1+/xsYtC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It is still using 97. I didn't know it was official until it got into the
-kernel tree. I think Linus once said he wouldn't accept patches adding
-device numbers, because he wanted people to think up something better than
-device numbers.
+On Tue, 2002-07-23 14:42:03 +0200, Martin Brulisauer <martin@uceb.org>
+wrote in message <3D3D6B3B.25754.1392D3FD@localhost>:
+> On 21 Jul 2002, at 18:57, Oliver Pitzeier wrote:
+> > Oh... I did... :o( :o) But it's currently a mission
+> > impossible. The last kernel running fine for my alpha
+> > is 2.5.18 (with a lot of patches...)
 
-I was thinking about this old message:
+There was a quite good patch sent to l-k some weeks ago which
+(basically) still applies. I'm using this one (with watering eyes
+waiting for a compileable Linus-Kernel...).
 
-	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0105.1/1042.html
+> Is there anybody who is willing to test such a patch
+> on different alpha's (I only have some XLT's, an AS800
+> and one AS250, so all alcor based systems with
+> ISA and PCI but without EISA and all are using sys_alcor.c)?
+> Further I can't test SMP with this _very_ old hardware.
 
-If that's no longer a problem, then fine.
+I cannot test SMP either (I've not got a SMP alpha), but I can test on
+Miata, Avanit and NoName.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+MfG, JBG
 
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
+
+--H7QJU8Gl1+/xsYtC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9PVnrHb1edYOZ4bsRAkTwAJ9w0EJo+ZjVJ6DzGbc+B0vmjNxM9gCfaRvz
+9c50CghX0FVYnf5SqULquT4=
+=Xs+t
+-----END PGP SIGNATURE-----
+
+--H7QJU8Gl1+/xsYtC--

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131520AbQLMXsN>; Wed, 13 Dec 2000 18:48:13 -0500
+	id <S130010AbQLMXxo>; Wed, 13 Dec 2000 18:53:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131554AbQLMXsC>; Wed, 13 Dec 2000 18:48:02 -0500
-Received: from fe4.rdc-kc.rr.com ([24.94.163.51]:26130 "EHLO mail4.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S131520AbQLMXrp>;
-	Wed, 13 Dec 2000 18:47:45 -0500
-To: Mark Kettenis <kettenis@wins.uva.nl>
-Cc: Peter Berger <peterb@telerama.com>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: Pthreads, linux, gdb, oh my! (and ptrace must die!)
-In-Reply-To: <Pine.BSI.4.02.10012081445290.26743-100000@frogger.telerama.com>
-	<s3ilmtka14t.fsf@debye.wins.uva.nl>
-From: Mike Coleman <mcoleman2@kc.rr.com>
-Date: 13 Dec 2000 17:16:52 -0600
-In-Reply-To: Mark Kettenis's message of "13 Dec 2000 14:42:26 +0100"
-Message-ID: <87zohzoqsb.fsf_-_@subterfugue.org>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S131167AbQLMXxf>; Wed, 13 Dec 2000 18:53:35 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:7635 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S130010AbQLMXxS>; Wed, 13 Dec 2000 18:53:18 -0500
+Message-ID: <3A3804CA.E07FDBB1@haque.net>
+Date: Wed, 13 Dec 2000 18:22:50 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: test12 lockups -- need feedback
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Kettenis <kettenis@wins.uva.nl> writes:
-> However, the "zombie problem" is caused by the way ptrace() interacts
-> with clone()/exit()/wait(), which I consider to be a kernel bug.
-[insightful analysis omitted]
+At first I thought it was just me when I reported the lockups I was
+having with test12 earlier this week. Now the reports are flooding. Of
+course, now my machine isn't locking up anymore after recompiling from a
+clean source tree (test5 w/ patches through test12)
 
-I think you've hit the nail on the head, and I'm a bit frustrated that I never
-noticed this problem even though I've spent quite a bit of time poring over
-the code that makes ptrace work.
+Now, I'm trying to determine what the common element is.
 
-My limited mental abilities notwithstanding, I think this is one more reason
-to ditch ptrace for a better method of process tracing/control.  It's served
-up to this point, but ptrace has a fundamental flaw, which is that it tries to
-do a lot of interprocess signalling and interlocking in an in-band way, doing
-process reparenting to try to take advantage of existing code.  In the end
-this seems to be resulting in an inscrutable, flaky mess.
+Those of you who are having lockups, was test12 compiled from a patched
+tree that you've previously compiled?
 
-What would a better process tracing facility be like?  One key feature is
-utter transparency.  That is, it should be impossible for traced processes or
-other processes that interact with them to be aware of whether or not tracing
-is going on.  This means that there should be no difference between the way a
-process behaves under tracing versus how it would behave if it weren't being
-traced, which is a key to faithful tracing/debugging and avoiding the
-Heisenbug effect.  (There does need to be some interface via which information
-about tracing itself can be observed, but it should be hidden from the target
-processes.)
+Those that are locking up in X. Do you have a second machine you can
+hook up via serial port to grab Oops output?
 
-It would also be nice to have something accessible via devices in the proc
-filesystem.  Maybe something like Solaris' "proc" debugging interface would be
-a starting point:
-
-   http://docs.sun.com:80/ab2/coll.40.6/REFMAN4/@Ab2PageView/42351?DwebQuery=proc&Ab2Lang=C&Ab2Enc=iso-8859-1
-
---Mike
-
+I've got KDB compiled in my current kernel. I'll compile a fresh kernel
+without KDB and see how long I last when I get a chance.
 -- 
-[O]ne of the features of the Internet [...] is that small groups of people can
-greatly disturb large organizations.  --Charles C. Mann
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

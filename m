@@ -1,80 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280686AbRKSUvC>; Mon, 19 Nov 2001 15:51:02 -0500
+	id <S280703AbRKSU6M>; Mon, 19 Nov 2001 15:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280684AbRKSUux>; Mon, 19 Nov 2001 15:50:53 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:57591 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280686AbRKSUuq>;
-	Mon, 19 Nov 2001 15:50:46 -0500
-Date: Mon, 19 Nov 2001 13:50:11 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: DD-ing from device to device.
-Message-ID: <20011119135011.L1308@lynx.no>
-Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011119130223.K1308@lynx.no> <200111192013.VAA06391@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200111192013.VAA06391@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Mon, Nov 19, 2001 at 09:13:16PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S280690AbRKSU6D>; Mon, 19 Nov 2001 15:58:03 -0500
+Received: from schwerin.p4.net ([195.98.200.5]:22794 "EHLO schwerin.p4.net")
+	by vger.kernel.org with ESMTP id <S280684AbRKSU5u>;
+	Mon, 19 Nov 2001 15:57:50 -0500
+Message-ID: <3BF9728E.2080106@p4all.de>
+Date: Mon, 19 Nov 2001 21:58:54 +0100
+From: Michael Dunsky <michael.dunsky@p4all.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Hp 8xxx Cd writer
+In-Reply-To: <EXCH01SMTP01aJ6pkNz0000350b@smtp.netcabo.pt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 19, 2001  21:13 +0100, Rogier Wolff wrote:
-> Andreas Dilger wrote:
-> > dd if=/dev/zero of=tt bs=1k count=1 seek=16M
+Miguel Maria Godinho de Matos wrote:
+
+> Guys u have been great for answering me but........
 > 
+> Lets see, almost all of u tell to look in my current configuration, so i can 
+> load it when i am going to recompile the kernel right?
 > 
->  /tmp> dd if=/dev/zero of=tt bs=1k count=1 seek=16M
-> dd: tt: Invalid argument
-> 1+0 records in
-> 1+0 records out
-
-Invalid argument is probably from ftruncate.
-
->  /tmp> dd if=/dev/zero of=tt bs=1k seek=2047k
-> 19913+0 records in
-> 19912+0 records out
-> ^C
->  /tmp> ls -al tt
-> ls: tt: Value too large for defined data type
->  /tmp> su
-> Password: 
->  /tmp# rm tt
-> rm: cannot remove `tt': Value too large for defined data type
->  /tmp# mv tt xx
-> mv: tt: Value too large for defined data type
->  /tmp# rm -f tt
-> rm: cannot remove `tt': Value too large for defined data type
->  /tmp# dd if=/dev/zero of=uu bs=1k count=2050 seek=2047k
-> 2050+0 records in
-> 2050+0 records out
->  /tmp# l uu
-> ls: uu: Value too large for defined data type
->  /tmp# 
-
-Looks like your fileutils and/or shell and/or glibc are conspiring against
-you.
-
-> > Can you test the "dd" above to ensure it works with your tools and the old
-> > kernel?  For your next 2.4.14 kernel build, it may be instructive to put
-> > a printk() inside the 3 checks in generic_file_write() before it outputs
-> > SIGXFSZ, which tells us limit and RLIM_INIFINITY, pos and count, and pos
-> > and s_maxbytes are, respectively.  This will also tell us what limit is
-> > being hit (although it is most likely a ulimit issue).
+> Well the major problem is that in my current configuration, red hat doesn't 
+> also have the suppor for hp cd writer 8200!
 > 
-> Grmbl...  I'll see what I can do. 
+> So even if i do so, which i did, it doesn't solve my problem as those modules 
+> aren't loaded in my current kernel!
+> 
+> John, u say i probably have to say yes to experimental drivers right?, in 
+> which menu can i state that, cause i am looking the xconfig menus as i am 
+> typing and i don't seem able to find that option. Also u may be right, but ho 
+> 8200 has been supported since the firs 2.4 kernel, so they may not be 
+> experimental in the 2.4.14 ( i am probably wrong as i don't understand much 
+> of the subject ).
+> 
+> Plz guys, can one of u try do make xconfig or make menuconfig as if u were to 
+> compile the kernel so u can look at the usb menu and check which my problem 
+> is and how to solve it?
+> 
+> Once again tks for your cooperation.
+> 
+> Gratefull Astinus.
+> 
 
-Start by upgrading your tools to largefile aware ones.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+sure!
+
+# make xconfig
+
+Click "Code maturity level options".
+There you find "Prompt for development and or incomplete code/drivers".
+That's where the "experimental" stuff will be enabled.
+Say "Y" there and go back to main menu.
+Now go to USB support, use your option (y or m) for main USB-support and 
+say "y" or "m" to "USB Mass Storage support". Now you can choose "HP 
+CD-Writer 82xx-support"
+
+ciao
+
+Michael
 

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268884AbTBSE7K>; Tue, 18 Feb 2003 23:59:10 -0500
+	id <S268885AbTBSFFW>; Wed, 19 Feb 2003 00:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268885AbTBSE7K>; Tue, 18 Feb 2003 23:59:10 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:38845 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268884AbTBSE7J>;
-	Tue, 18 Feb 2003 23:59:09 -0500
-Date: Tue, 18 Feb 2003 20:53:25 -0800 (PST)
-Message-Id: <20030218.205325.14347725.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: willy@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5] convert atm_dev_lock from spinlock to semaphore 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200302190501.h1J511Gi002225@locutus.cmf.nrl.navy.mil>
-References: <1045630056.10926.4.camel@rth.ninka.net>
-	<200302190501.h1J511Gi002225@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268886AbTBSFFW>; Wed, 19 Feb 2003 00:05:22 -0500
+Received: from dp.samba.org ([66.70.73.150]:36323 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268885AbTBSFFV>;
+	Wed, 19 Feb 2003 00:05:21 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@digeo.com>
+Cc: mikpe@user.it.uu.se, linux-kernel@vger.kernel.org
+Subject: Re: module changes 
+In-reply-to: Your message of "Tue, 18 Feb 2003 19:51:40 -0800."
+             <20030218195140.27b0798f.akpm@digeo.com> 
+Date: Wed, 19 Feb 2003 15:28:52 +1100
+Message-Id: <20030219051523.BD7B92C28D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Wed, 19 Feb 2003 00:01:01 -0500
-   
-   we (meaning some folks here at nrl) already maintain a seperate 
-   kernel with atm 'enhancements' locally.  we are very interested in keeping
-   linux-atm alive (particularly in the linux kernel) and extending it
-   as well.  i would take the role of maintainer for atm if no one truly
-   wants it.
-   
-This is the situation.
+In message <20030218195140.27b0798f.akpm@digeo.com> you write:
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > The problem is that then you have to have to know whether this is a
+> > per-cpu thing created in a module, or not, when you use it 8(
+> > 
+> > There are two things we can use to alleviate the problem.  The first
+> > would be to put a minimal cap on the per-cpu data size (eg. 8k).  The
+> > other possibility is to allocate on an object granularity, in which
+> > case the rule becomes "no single per-cpu object can be larger than
+> > XXX", but the cost is to write a mini allocator.
+> > 
+> 
+> Is kmalloc_percpu() not suitable?
 
-Therefore, please send me a patch to add an appropriate entry
-to linux/MAINTAINERS.
+Unfortunately, no.  You have to use the same offsets as the in-kernel
+DEFINE_PER_CPU declarations, meaning that each cpu's stuff needs to be
+"sizeof kernel per-cpu-section" apart.
 
-Thank you.
+Which means an allocator which keeps a linked list of NR_CPUS * sizeof
+kernel-per-cpu-section things, and allocs and frees from that.
+
+Hence this patch just tacks it on the end of the module, rather than
+deal with an allocator.  A minor improvement would be only to allocate
+for the maximum possible CPU, which means about 6k * numcpus per
+module which declares per-cpu data, which is probably fine.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262404AbTCROPT>; Tue, 18 Mar 2003 09:15:19 -0500
+	id <S262408AbTCROQi>; Tue, 18 Mar 2003 09:16:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262417AbTCROPT>; Tue, 18 Mar 2003 09:15:19 -0500
-Received: from bestroot.de ([217.160.170.131]:35039 "EHLO
-	p15112267.pureserver.de") by vger.kernel.org with ESMTP
-	id <S262404AbTCROPS>; Tue, 18 Mar 2003 09:15:18 -0500
-Message-ID: <3E772DA1.5080504@elitedvb.net>
-Date: Tue, 18 Mar 2003 15:30:57 +0100
-From: Felix Domke <tmbinc@elitedvb.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20021216
-X-Accept-Language: en-us, en
+	id <S262410AbTCROQi>; Tue, 18 Mar 2003 09:16:38 -0500
+Received: from 39.208-78-194.adsl-fix.skynet.be ([194.78.208.39]:31476 "EHLO
+	mail.macqel.be") by vger.kernel.org with ESMTP id <S262408AbTCROQg>;
+	Tue, 18 Mar 2003 09:16:36 -0500
+Message-Id: <200303181427.h2IERQ110701@mail.macqel.be>
+Subject: Re: sundance DFE-580TX DL10050B patch
+In-Reply-To: <20030317174920.GC9667@gtf.org> from Jeff Garzik at "Mar 17, 2003
+ 12:49:20 pm"
+To: Jeff Garzik <jgarzik@pobox.com>
+Date: Tue, 18 Mar 2003 15:27:26 +0100 (CET)
+CC: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+From: "Philippe De Muyter" <phdm@macqel.be>
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IDE 48 bit addressing causes data corruption
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jeff Garzik wrote :
+> On Mon, Mar 17, 2003 at 06:40:36PM +0100, Philippe De Muyter wrote:
+> > Dave Jones wrote :
+> > > On Mon, Mar 17, 2003 at 02:56:09PM +0100, Philippe De Muyter wrote:
+> > > 
+> > >  > +		writew((dev->dev_addr[i + 1] << 8) + dev->dev_addr[i],
+> > > 
+> > > Don't you want to OR those together instead of add them ?
+> > > 
+> > > 		Dave
+> > > 
+> > You're right.
+> 
+> No.
+> 
+> Adding and or'ing are exactly equivalent for the above case, where you
+> shift an 8-bit value left 8 bits, then add it to another 8-bit value.
 
-i'm having linuxppc-embedded based system (2.4.21-pre, but 2.4.20 shows 
-same results) with a normal ATAPI-5-styled IDE controller.
+That was implied in Dave's remark and in my answer.
 
-When using a 200GB Maxtor HDD, there are strange effects. When writing 
-just the sector number to every sector (or every 100MB is enough), and 
-reading back, data from incorrect sectors is read. The upper 24bit of 
-the LBA seem to be invalid, shows like the upper 24bit aren't updated in 
-the 2 cycle LBA-write in the ide-disk.c. For example, reading from 
-0x946000000 (LBA 0x4A30000) will read from 0x2f46000000 (LBA 0x17A30000).
-note that i lineary fill the disk, and 0x17xxxxxx is the highest 
-possible LBA, so the last upper bit from the write won't be actualized 
-any more when reading back from lower addresses.
+> 
+> The final answer may be obtained from examining the compiler's assembly
+> output, and see which combination ('or' or 'add') produces the best
+> code.
 
-However, reading them back (using the HOB-bit) will work and give 
-correct results. I don't really know whats going wrong, except that 
-there are addressing-faults.
+We can't do that as that should be done for all the supported processors.
+Furthermore, it is the compiler's job to produce the best machine code.
 
-Is this a known bug of the Maxtor 6Y200L maybe? the 160GB version showed 
-the same effect.
+The only thing we can do to help the compiler is write simple code.  From
+a logical point of view, oring is what is needed here, and from a hardware
+point of view oring is cheaper than adding.
 
-Is it possible that the IDE-Controller causes the fault? normal 28bit 
-HDDs work just fine.
+> 	Jeff
 
+Now, back to the real problem :) .  Will you apply my patch ?
 
-Can somebody please confirm again that i don't need an atapi-6 (ATA133) 
-controller to use LBA48 ?
+Philippe
 
-Regulary some people are stating this, and regulary some people tell 
-that these people are wrong.
-
-
-felix
-
-
+Philippe De Muyter  phdm@macqel.be  Tel +32 27029044
+Macq Electronique SA  rue de l'Aeronef 2  B-1140 Bruxelles  Fax +32 27029077

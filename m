@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264473AbUBRNQK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbUBRNQK
+	id S267426AbUBROd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267432AbUBROd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:16:10 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:48564 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S264473AbUBRNQF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:16:05 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH][0/6] A different KGDB stub
-Date: Wed, 18 Feb 2004 18:45:01 +0530
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@osdl.org>, Tom Rini <trini@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Andi Kleen <ak@suse.de>, George Anzinger <george@mvista.com>,
-       Jim Houston <jim.houston@ccur.com>, Matt Mackall <mpm@selenic.com>
-References: <20040217220236.GA16881@smtp.west.cox.net> <200402181026.29813.amitkale@emsyssoft.com> <20040218125647.GA4706@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040218125647.GA4706@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402181845.01628.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+	Wed, 18 Feb 2004 09:33:58 -0500
+Received: from [199.45.143.209] ([199.45.143.209]:58634 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S267426AbUBROd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 09:33:56 -0500
+Subject: Re: TCP: Treason uncloaked DoS ??
+From: Zan Lynx <zlynx@acm.org>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Klaus Ethgen <Klaus@Ethgen.de>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040218105508.GA7320@dingdong.cryptoapps.com>
+References: <20040218102725.GB3394@hathi.ethgen.de>
+	 <20040218105508.GA7320@dingdong.cryptoapps.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VQzZd72WBXlcWShzrmJ2"
+Message-Id: <1077114772.7182.4.camel@titania.zlynx.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 18 Feb 2004 07:32:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 Feb 2004 6:26 pm, Pavel Machek wrote:
-> Hi!
->
-> > > > > The following is my next attempt at a different KGDB stub
-> > > > > for your tree
-> > > >
-> > > > Is this the patch which everyone agrees on?
-> > >
-> > > It is based on Amit's version, so I think answer is "yes". I certainly
-> > > like this one.
-> >
-> > I don't agree. I did a few more cleanups after Andi expressed concerns
-> > over globals kgdb_memerr and debugger_memerr_expected.
-> >
-> > I liked Pavel's approach. Let's first get a minimal kgdb stub into
-> > mainline kernel. Even this much is going to involve some effort. We can
-> > merge other features later.
-> >
-> > Let's create a cvs tree at kgdb.sourceforge.net for kgdb components to be
-> > pushed int mainline kernel. This split is to keep current kgdb
-> > unaffected. People who are already using it won't be affected.
->
-> I do not think we want separate CVS tree.
->
-> What about simply splitting core.patch into core-lite.patch and
-> core.patch, maybe do the same with i386 patch, and be done with that?
-> [We do not have enough people for a fork, I think].
 
-Agreed. Let's create core-lite.patch and i386-lite.patch
-It makes it somewhat difficult to maintain them, but should be easier than 
-maintaining a separate CVS tree.
+--=-VQzZd72WBXlcWShzrmJ2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->
-> Hopefully soon after that *-lite is merged, so it disappears, and
-> stuff is easy once again.
+On Wed, 2004-02-18 at 03:55, Chris Wedgwood wrote:
+> On Wed, Feb 18, 2004 at 11:27:25AM +0100, Klaus Ethgen wrote:
+>=20
+> > Well I have the same every night when my backup on the local host is
+> > running. Many of the "kernel: TCP: Treason uncloaked! Peer
+> > 192.168.17.2:2988/33016 shrinks window 3035402428:3035418812. Repaired.=
+"
+>=20
+> > But 192.168.17.2 is the same host! So the buggy TCP stack seams to
+> > be in linux kernel.
+>=20
+> My guess is there is a PacketShaper in between mangling things.
 
-Yes.
--- 
-Amit Kale
-EmSysSoft (http://www.emsyssoft.com)
-KGDB: Linux Kernel Source Level Debugger (http://kgdb.sourceforge.net)
+I have seen this same Treason uncloaked! error message between two of my
+Linux systems recently, while running rsync backups between them.  One
+system is 2.4.21, the other 2.6.2.  I was not using any shaping.
+
+I was trying to figure it out, but I cannot reproduce it reliably, it
+seems to just happen.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-VQzZd72WBXlcWShzrmJ2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAM3eUG8fHaOLTWwgRAtTZAJ92k4Wg3foMySSobbcE80P5XM0FtgCaA4eL
+rM6XlObgCMjvq5yscXkEzSg=
+=BeMc
+-----END PGP SIGNATURE-----
+
+--=-VQzZd72WBXlcWShzrmJ2--
 

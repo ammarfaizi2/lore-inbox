@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267515AbRGMRng>; Fri, 13 Jul 2001 13:43:36 -0400
+	id <S267513AbRGMRng>; Fri, 13 Jul 2001 13:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbRGMRn1>; Fri, 13 Jul 2001 13:43:27 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:4873 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S267513AbRGMRnP>;
-	Fri, 13 Jul 2001 13:43:15 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200107131743.f6DHhGc186373@saturn.cs.uml.edu>
-Subject: Re: tty->name conversion?
-To: taral@taral.net (Taral)
-Date: Fri, 13 Jul 2001 13:43:16 -0400 (EDT)
+	id <S267515AbRGMRn1>; Fri, 13 Jul 2001 13:43:27 -0400
+Received: from ns.suse.de ([213.95.15.193]:3077 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267514AbRGMRnU>;
+	Fri, 13 Jul 2001 13:43:20 -0400
+Date: Fri, 13 Jul 2001 19:43:18 +0200
+From: Joerg Reuter <jreuter@suse.de>
+To: Maksim Krasnyanskiy <maxk@qualcomm.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010705023647.A18014@taral.net> from "Taral" at Jul 05, 2001 02:36:47 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: [BUG?] vtund broken by tun driver changes in 2.4.6
+Message-ID: <20010713194317.A18866@suse.de>
+In-Reply-To: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net.suse.lists.linux.kernel> <009601c106ff$a3cb2070$6baaa8c0@kevin.suse.lists.linux.kernel> <20010713133329.DDCEB19A57@lamarr.suse.de> <01071308585200.00792@btdemo1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <01071308585200.00792@btdemo1.qualcomm.com>
+User-Agent: Mutt/1.3.19i
+X-Face: #DGJ)DCeau/h"w7G~n9r|/jxvQQrtU)nat27v-><7':==-=.mfnXc+8&qOj`*R|qPr14[|4
+	E_BUo5T*NT\(+fE7wr3}QoN*!c7\.Z.DiA{ko;01^TCi$K}1TIV|bNO.$jm;i<A,|
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Taral writes:
 
-> I noticed that ps still relies on device numbers to determine tty, since
-> /proc/*/stat only exports the device number. Is there any way to get the
-> device name? I noticed that it is not present in tty_struct anywhere
-> (proc_pid_stat() uses task->tty->device, which is a kdev_t).
->
-> This would be useful to consider if we ever intend to create real
-> unnumbered character/block devices.
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This isn't quite true, at least for the version shipped with Debian.
+On Fri, Jul 13, 2001 at 08:58:52AM -0700, Maksim Krasnyanskiy wrote:
 
-The non-existant /proc/*/tty link is examined first. This is
-because several people have agreed that such a link would be
-good, even though it is difficult to implement with the current
-code. I think viro, hpa, and tytso have all looked into this.
+> Ioctls were defined _without_ IOW macros. And that was ugly. That's why I=
+ redifened them.
+> So, if you recompile everything will be fine.
 
-The ps code also looks at /proc/*/fd/* when possible. This often
-gives a real filename. Otherwise, ps has to guess a name based
-on the device number and either a hard-coded table or information
-from /proc/tty/drivers.
+So you break binary compatibilty within a _stable_ kernel release just
+for the sake of beauty? Besides, this does not only affect VTUND but
+also other applications like Hercules. Just recompiling Hercules doesn't
+help here anyway, because it (rightfully) refuses to include kernel
+headers but (due to the lack of net/if_tun.h within glibc) constructs
+the IOCTL command on its own.
+
+> > And BTW, you shouldn't include kernel headers from user space programs,=
+ should you.
+> That rule doesn't apply here.=20
+
+Can you tell me why it does not apply here? Just because you happen to
+be the author of both the driver (which is, without doubt, very
+valuable) and _one_ of several applications using it?
+
+--=20
+Joerg Reuter                                    http://yaina.de/jreuter
+And I make my way to where the warm scent of soil fills the evening air.=20
+Everything is waiting quietly out there....                 (Anne Clark)
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Weitere Infos: siehe http://www.gnupg.org
+
+iD8DBQE7TzM1XQh8bpcgulARAg1yAJwJMYx3uJ1nxa+aztNXAppcUccieACfcK+L
+lz4XtF19sD2WqSnvu4wZLPY=
+=2VkA
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--

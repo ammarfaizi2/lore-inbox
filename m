@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282963AbRLVXTF>; Sat, 22 Dec 2001 18:19:05 -0500
+	id <S282968AbRLVXTG>; Sat, 22 Dec 2001 18:19:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282968AbRLVXSp>; Sat, 22 Dec 2001 18:18:45 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:54792 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282963AbRLVXSh>;
-	Sat, 22 Dec 2001 18:18:37 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
+	id <S282969AbRLVXSp>; Sat, 22 Dec 2001 18:18:45 -0500
+Received: from jalon.able.es ([212.97.163.2]:8637 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S282968AbRLVXSi>;
+	Sat, 22 Dec 2001 18:18:38 -0500
+Date: Sun, 23 Dec 2001 00:20:38 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: mingo@elte.hu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Assigning syscall numbers for testing 
-In-Reply-To: Your message of "Sat, 22 Dec 2001 14:01:26 CDT."
-             <20011222140126.B19442@redhat.com> 
+Subject: Re: [patch] irqrate-2.4.17-A0
+Message-ID: <20011223002038.E6735@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.33.0112221227540.4953-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 23 Dec 2001 10:18:26 +1100
-Message-ID: <17322.1009063106@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0112221227540.4953-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Dec 22, 2001 at 12:33:33 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Dec 2001 14:01:26 -0500, 
-Benjamin LaHaise <bcrl@redhat.com> wrote:
->On Sat, Dec 22, 2001 at 10:28:55PM +1100, Keith Owens wrote:
->> The patch below dynamically assigns a syscall number to a name and
->> exports the number and name via /proc.  Dynamic assignment removes the
->> collision problem.  Exporting via /proc allows user space code to
->> automatically find out what the syscall number is this week.  strace
->> could read the /proc output to print the syscall name, although it
->> still cannot print the arguments.
+
+On 20011222 Ingo Molnar wrote:
 >
->Doesn't work.  You've still got problems running binaries compiled against 
->newer kernels (say, glibc supporting a new syscall) against the dynamic 
->syscall.  Numbers don't work, plain and simple.
+>i've uploaded the latest, 2.4.17-A0 IRQ-rate-limiting patch to:
+>
+>        http://redhat.com/~mingo/irqrate-patches/
+>
+>this is just a straightforward port to 2.4.17. The patch, while it adds
+>the dynamic hard-IRQ-limiting feature and fixes softirq performance, it
+>also removes more lines of code than it adds.
+>
+>comments, bug reports and suggestions are welcome,
+>
 
-You did not read my mail all the way through, did you?  I said -
+Mmmm, hunks at the end for your m, mb, mo, etc scripts ?
 
-If the [user space] code cannot open /proc/dynamic_syscalls or cannot
-find the desired syscall name, fall back to the assigned syscall number
-(if any) or fail if there is no assigned syscall number.  By falling
-back to the assigned syscall number, new versions of the user space
-code are backwards compatible, on older kernels it will use the dynamic
-syscall number, on newer kernels it will use the assigned number.
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.17-beo #1 SMP Fri Dec 21 21:39:36 CET 2001 i686

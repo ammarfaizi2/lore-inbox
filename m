@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261391AbSJDJZ1>; Fri, 4 Oct 2002 05:25:27 -0400
+	id <S261542AbSJDJ2z>; Fri, 4 Oct 2002 05:28:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbSJDJZ1>; Fri, 4 Oct 2002 05:25:27 -0400
-Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:44528 "EHLO
-	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S261391AbSJDJZ1>; Fri, 4 Oct 2002 05:25:27 -0400
-Subject: Re: [rfc] [patch] kernel hooks
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Mikael Pettersson <mikpe@csd.uu.se>,
-       Michael Grundy <vamsi_krishna@in.ibm.com>,
-       suparna <bsuparna@in.ibm.com>, vamsi@linux.ibm.com
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFF2808A5A.15BF3213-ON80256C48.003070FC@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Fri, 4 Oct 2002 10:23:54 +0100
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
- 04/10/2002 10:26:13
+	id <S261548AbSJDJ2z>; Fri, 4 Oct 2002 05:28:55 -0400
+Received: from [213.181.64.18] ([213.181.64.18]:260 "HELO vger.kernel.org")
+	by vger.kernel.org with SMTP id <S261542AbSJDJ2x>;
+	Fri, 4 Oct 2002 05:28:53 -0400
+From: "MR REUBEN SAVIMBI" <isavimbi@africamail.com>
+Date: Wed, 10 Apr 2002 10:33:39
+To: linux-kernel@vger.kernel.org
+Subject: MUTUAL TRANSACTION
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20021004092853Z261542-8740+6087@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear,
 
->> Why do we need a spinlock? We change one byte, we are not concerned
-about
->> when exactly that takes effect, only that there are always valid
->> instructions in the pipeline.
->
-> Because you are programming for real silicon not for the imaginary
-> perfect processor. Read the x86 errata
+I am MR REUBEN SAVIMBI one of the favorite sons of Mr.JONAS SAVIMBI
+(The Rebel leader) and also the head of the Unita Forces of Angola who was 
+killed in the Struggle between Angolan arm forces and his unita
+rebels On Friday the 22nd of February 2002. 
 
-OK I see what you're getting at here  -you're talking about the XMC
-algorithm.
+I am from Angola but currently I am currently on exile due to the War
+in my country between the Rebel Group (Unita rebels) Led by my father
+Jonas Savimbi and the Angolan Government. 
+I want a trust worthy, honest and God fearing individual to go into 
+business Partnership with and that is the reason why I have decided
+to contact you. The fund for investment is US$45.5M (Forty Five Million
+Five Hundred Thousand United States Dollars) and Diamond worth over 
+Twelve Million Dollars. This fund was realized from the sales of Diamonds
+during the crisis between the Unita Rebels (headed by my father Jonas
+Savimbi) and the then President Jose Eduardo dos Santos Of Angola. 
 
-However, I'm not convinced that we will hit E49 in our specific case - we
-looked at this some time ago and felt that because we are not altering
-instruction length or boundary, and that even if there is a score-boarding
-effect on the register value stored, we still wouldn't generate exceptions
-from  intermediates. There are apparent  inconsistencies in the
-architecture manuals; in the past when I've found these and queried the
-processor behaviour with Intel's  microarchitecture guys they've provided
-clarification. I'll do the same  here and see what they say. It's no big
-deal whatever their response as kernel hooks has two mechanisms: generic,
-which is architecturally independent and doesn't use self-modifying code;
-and architecturally specific, which does. We can always restrict the IA32
-mechanism for processors < P3 to use the generic hook or implement the XMC
-algorithm.
+I fled from my country with this fund, which my father suppose to use 
+procure more arms for the Unita Rebels. This is because I felt that
+the battle waged by the Unita Forces was more of rebellion and it was 
+baseless. I had this fund sealed in a diplomatic box and deposited in
+a private Security Company in Europe. I will need assistance from you
+to use your facilities to effect the removal of this fund and
+subsequently transferred to your nominated account in your country. 
+This business has to be done in a more confidential manner. 
 
-Richard
+For participating in the business with me, I have two options for
+you. You can choose to have certain percentage of the funds or you can go
+into partnership with me for proper profitable investment of the money in
+your country. 
 
+Whichever the option you want, feel free to notify me. The money is 
+presently lodged with a security firm and I will give you further
+details immediately I hear from you. Please contact me immediately for the
+next line of action then I will introduce you to the security company
+where the funds are been deposited. 
+
+I would like you to include your personal phone and fax numbers for
+more confidential Communication with the Security Company. I will like you
+to understand that I have no access to telephone for now so you are
+advice to contact me through my e-mail address or my alternative 
+e-mailaddress {markee_company@hkem.com}. 
+
+Regards 
+
+REUBEN J.SAVIMBI. 
+(For the family) 
 
 
 

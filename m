@@ -1,91 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbUDRAXr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 20:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUDRAXr
+	id S261298AbUDRAvc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 20:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbUDRAvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 20:23:47 -0400
-Received: from florence.buici.com ([206.124.142.26]:32640 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S264088AbUDRAXo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 20:23:44 -0400
-Date: Sat, 17 Apr 2004 17:23:43 -0700
-From: Marc Singer <elf@buici.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Marc Singer <elf@buici.com>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: vmscan.c heuristic adjustment for smaller systems
-Message-ID: <20040418002343.GA16025@flea>
-References: <20040417193855.GP743@holomorphy.com> <20040417212958.GA8722@flea> <20040417162125.3296430a.akpm@osdl.org> <20040417233037.GA15576@flea> <20040417165151.24b1fed5.akpm@osdl.org>
+	Sat, 17 Apr 2004 20:51:32 -0400
+Received: from outmx017.isp.belgacom.be ([195.238.2.116]:41858 "EHLO
+	outmx017.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261298AbUDRAv2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 20:51:28 -0400
+Subject: [PATCH 2.6.6pre1 nfs4] portmap register switcher
+From: Fabian Frederick <Fabian.Frederick@skynet.be>
+To: Trond <trond.myklebust@fys.uio.no>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-1c4UtJsZstzzzj+j31l/"
+Message-Id: <1082249676.2075.11.camel@bluerhyme.real3>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040417165151.24b1fed5.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 18 Apr 2004 02:54:36 +0200
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx017.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 17, 2004 at 04:51:51PM -0700, Andrew Morton wrote:
-> Marc Singer <elf@buici.com> wrote:
-> >
-> > On Sat, Apr 17, 2004 at 04:21:25PM -0700, Andrew Morton wrote:
-> > > Marc Singer <elf@buici.com> wrote:
-> > > >
-> > > >  I'd say that there is no statistically significant difference between
-> > > >  these sets of times.  However, after I've run the test program, I run
-> > > >  the command "ls -l /proc"
-> > > > 
-> > > >  				 swappiness
-> > > >  			60 (default)		0
-> > > >  			------------		--------
-> > > >  elapsed time(s)		18			1
-> > > >  			30			1
-> > > >  			33			1
-> > > 
-> > > How on earth can it take half a minute to list /proc?
-> > 
-> > I've watched the vmscan code at work.  The memory pressure is so high
-> > that it reclaims mapped pages zealously.  The program's code pages are
-> > being evicted frequently.
-> 
-> Which tends to imply that the VM is not reclaiming any of that nfs-backed
-> pagecache.
 
-I don't think that's the whole story.  They question is why.
+--=-1c4UtJsZstzzzj+j31l/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> > I've been wondering if the swappiness isn't a red herring.  Is it
-> > reasonable that the distress value (in refill_inactive_zones ()) be
-> > 50?
-> 
-> I'd assume that setting swappiness to zero simply means that you still have
-> all of your libc in pagecache when running ls.
+Trond,
 
-Perhaps.  I think it is more important that it is still mapped.
+	Here's a patch to have an svc_makesock portmap switcher (+ lockd & nfs
+updated).
 
-> 
-> What happens if you do the big file copy, then run `sync', then do the ls?
 
-It still takes a long time.  I'm watching the network load as I
-perform the ls.  There's almost 20 seconds of no screen activity while
-NFS reloads the code. 
+Regards,
+Fabian
 
-> 
-> Have you experimented with the NFS mount options?  v2? UDP?
+--=-1c4UtJsZstzzzj+j31l/
+Content-Disposition: attachment; filename=pmap_reg1.diff
+Content-Type: text/x-patch; name=pmap_reg1.diff; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Doesn't seem to matter.  I've used v2, v3, UDP and TCP.
+diff -Naur orig/fs/lockd/svc.c edited/fs/lockd/svc.c
+--- orig/fs/lockd/svc.c	2004-04-04 05:37:36.000000000 +0200
++++ edited/fs/lockd/svc.c	2004-04-18 02:32:00.000000000 +0200
+@@ -237,9 +237,9 @@
+ 		goto out;
+ 	}
+ 
+-	if ((error = svc_makesock(serv, IPPROTO_UDP, nlm_udpport)) < 0 
++	if ((error = svc_makesock(serv, IPPROTO_UDP, nlm_udpport, 1)) < 0 
+ #ifdef CONFIG_NFSD_TCP
+-	 || (error = svc_makesock(serv, IPPROTO_TCP, nlm_tcpport)) < 0
++	 || (error = svc_makesock(serv, IPPROTO_TCP, nlm_tcpport, 1)) < 0
+ #endif
+ 		) {
+ 		if (warned++ == 0) 
+diff -Naur orig/fs/nfs/callback.c edited/fs/nfs/callback.c
+--- orig/fs/nfs/callback.c	2004-04-17 00:38:02.000000000 +0200
++++ edited/fs/nfs/callback.c	2004-04-18 02:30:08.000000000 +0200
+@@ -93,8 +93,7 @@
+ 	ret = -ENOMEM;
+ 	if (!serv)
+ 		goto out_err;
+-	/* FIXME: We don't want to register this socket with the portmapper */
+-	ret = svc_makesock(serv, IPPROTO_TCP, 0);
++	ret = svc_makesock(serv, IPPROTO_TCP, 0, 0);
+ 	if (ret < 0)
+ 		goto out_destroy;
+ 	if (!list_empty(&serv->sv_permsocks)) {
+diff -Naur orig/fs/nfsd/nfssvc.c edited/fs/nfsd/nfssvc.c
+--- orig/fs/nfsd/nfssvc.c	2004-04-04 05:37:23.000000000 +0200
++++ edited/fs/nfsd/nfssvc.c	2004-04-18 02:37:25.000000000 +0200
+@@ -101,12 +101,12 @@
+ 		nfsd_serv = svc_create(&nfsd_program, NFSD_BUFSIZE);
+ 		if (nfsd_serv == NULL)
+ 			goto out;
+-		error = svc_makesock(nfsd_serv, IPPROTO_UDP, port);
++		error = svc_makesock(nfsd_serv, IPPROTO_UDP, port, 1);
+ 		if (error < 0)
+ 			goto failure;
+ 
+ #ifdef CONFIG_NFSD_TCP
+-		error = svc_makesock(nfsd_serv, IPPROTO_TCP, port);
++		error = svc_makesock(nfsd_serv, IPPROTO_TCP, port, 1);
+ 		if (error < 0)
+ 			goto failure;
+ #endif
+diff -Naur orig/include/linux/sunrpc/svcsock.h edited/include/linux/sunrpc/svcsock.h
+--- orig/include/linux/sunrpc/svcsock.h	2004-04-04 05:36:53.000000000 +0200
++++ edited/include/linux/sunrpc/svcsock.h	2004-04-18 02:42:49.000000000 +0200
+@@ -55,7 +55,7 @@
+ /*
+  * Function prototypes.
+  */
+-int		svc_makesock(struct svc_serv *, int, unsigned short);
++int		svc_makesock(struct svc_serv *, int, unsigned short, int);
+ void		svc_delete_socket(struct svc_sock *);
+ int		svc_recv(struct svc_serv *, struct svc_rqst *, long);
+ int		svc_send(struct svc_rqst *);
+diff -Naur orig/net/sunrpc/svcsock.c edited/net/sunrpc/svcsock.c
+--- orig/net/sunrpc/svcsock.c	2004-04-17 00:37:41.000000000 +0200
++++ edited/net/sunrpc/svcsock.c	2004-04-18 02:42:04.000000000 +0200
+@@ -1388,7 +1388,7 @@
+  * Create socket for RPC service.
+  */
+ static int
+-svc_create_socket(struct svc_serv *serv, int protocol, struct sockaddr_in *sin)
++svc_create_socket(struct svc_serv *serv, int protocol, struct sockaddr_in *sin, int pmap_register)
+ {
+ 	struct svc_sock	*svsk;
+ 	struct socket	*sock;
+@@ -1424,7 +1424,7 @@
+ 			goto bummer;
+ 	}
+ 
+-	if ((svsk = svc_setup_socket(serv, sock, &error, 1)) != NULL)
++	if ((svsk = svc_setup_socket(serv, sock, &error, pmap_register)) != NULL)
+ 		return 0;
+ 
+ bummer:
+@@ -1474,7 +1474,7 @@
+  * Make a socket for nfsd and lockd
+  */
+ int
+-svc_makesock(struct svc_serv *serv, int protocol, unsigned short port)
++svc_makesock(struct svc_serv *serv, int protocol, unsigned short port, int pmap_register)
+ {
+ 	struct sockaddr_in	sin;
+ 
+@@ -1482,7 +1482,7 @@
+ 	sin.sin_family      = AF_INET;
+ 	sin.sin_addr.s_addr = INADDR_ANY;
+ 	sin.sin_port        = htons(port);
+-	return svc_create_socket(serv, protocol, &sin);
++	return svc_create_socket(serv, protocol, &sin, pmap_register);
+ }
+ 
+ /*
 
-I have more data.
+--=-1c4UtJsZstzzzj+j31l/--
 
-All of these tests are performed at the console, one command at a
-time.  I have a telnet daemon available, so I open a second connection
-to the target system.  I run a continuous loop of file copies on the
-console and I execute 'ls -l /proc' in the telnet window.  It's a
-little slow, but it isn't unreasonable.  Hmm.  I then run the copy
-command in the telnet window followed by the 'ls -l /proc'.  It works
-fine.  I logout of the console session and perform the telnet window
-test again.  The 'ls -l /proc takes 30 seconds.
-
-When there is more than one process running, everything is peachy.
-When there is only one process (no context switching) I see the slow
-performance.  I had a hypothesis, but my test of that hypothesis
-failed.

@@ -1,40 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbULYLBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbULYLLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbULYLBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 06:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbULYLBZ
+	id S261496AbULYLLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 06:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbULYLLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 06:01:25 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:16579 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261495AbULYLBW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 06:01:22 -0500
-Date: Sat, 25 Dec 2004 12:01:18 +0100 (MET)
-Message-Id: <200412251101.iBPB1IpP009024@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: fw@deneb.enyo.de, juhl-lkml@dif.dk
-Subject: Re: [PATCH] fix inlining related build failures in mxser.c
-Cc: linux-kernel@vger.kernel.org
+	Sat, 25 Dec 2004 06:11:09 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:53136 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261496AbULYLLI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 06:11:08 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ho ho ho - Linux v2.6.10
+Date: Sat, 25 Dec 2004 11:11:06 +0000
+User-Agent: KMail/1.7.2
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200412251111.06350.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Dec 2004 14:54:43 +0100, Florian Weimer wrote:
->* Jesper Juhl:
->
->>> Add -funit-at-a-time to the CFLAGS, and the compiler is happy.
->>> 
->> But, does unit-at-a-time work reliably for all compilers on all archs back 
->> to and including gcc 2.95.3 ? 
->
->Unit-at-a-time is only available in GCC 3.4 and above.
+On Friday 24 December 2004 22:39, Linus Torvalds wrote:
+> Ok, with a lot of people taking an xmas break, here's something to play
+> with over the holidays (not to mention an excuse for me to get into the
+> Glögg for real ;)
 
-The problem with unit-at-a-time isn't compiler availability,
-but the fact that at least with gcc-3.4 on x86 it causes
-significant stack usage increases, which in the kernel lead
-to stack overflow problems. This is not a theoretical issue,
-the overflows have been observed in normal kernels.
-
-So wrt inlining failures, the correct fix is to remove the
-inlines or rearrange the code to allow inlining w/o unit-at-a-time.
-
-/Mikael
+Merry Christmas!

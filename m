@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268325AbUJJPpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268330AbUJJQMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268325AbUJJPpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 11:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268329AbUJJPpU
+	id S268330AbUJJQMx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 12:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268334AbUJJQMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 11:45:20 -0400
-Received: from zero.aec.at ([193.170.194.10]:55567 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268325AbUJJPpQ (ORCPT
+	Sun, 10 Oct 2004 12:12:53 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:35215 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S268330AbUJJQMv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 11:45:16 -0400
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] __initdata strings
-References: <2NNXM-1fZ-5@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 10 Oct 2004 17:45:12 +0200
-In-Reply-To: <2NNXM-1fZ-5@gated-at.bofh.it> (Oleg Nesterov's message of
- "Sun, 10 Oct 2004 17:40:07 +0200")
-Message-ID: <m38yae1ss7.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Sun, 10 Oct 2004 12:12:51 -0400
+Message-ID: <41695F85.A0000E3D@tv-sign.ru>
+Date: Sun, 10 Oct 2004 20:12:53 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] __initdata strings
+References: <2NNXM-1fZ-5@gated-at.bofh.it> <m38yae1ss7.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+Andi Kleen wrote:
+> 
+> There is a more generic way to do this with gcc extensions. Something like
+> 
+> #define __i(x) ({ static char __str[] __initdata = x; __str; })
 
-> Hello.
->
-> This patch is not intended for inclusion, just for illustration.
->
-> __init functions leaves strings (mainly printk's arguments) in
-> .data section. It make sense to move them in .init.data.
->
-> Is there anyone else who would consider this useful?
+I can't see any difference with:
 
-There is a more generic way to do this with gcc extensions. Something like
-(uncompiled/untested)
+#define I_STRING(str)  \
+({                                             \
+       static char data[] __initdata = (str);  \
+       data;                                   \
+})
 
-#define __i(x) ({ static char __str[] __initdata = x; __str; })
+> But I'm not sure the few bytes saved are worth the code uglification.
 
-But I'm not sure the few bytes saved are worth the code uglification. 
-Probably not. likely/unlikely is already bad enough.
+Probably you are right, but i think it would be few kilobytes,
+there are so many __init functions.
 
--Andi
-
+Oleg.

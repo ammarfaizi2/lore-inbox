@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284580AbRLES70>; Wed, 5 Dec 2001 13:59:26 -0500
+	id <S284570AbRLES7Q>; Wed, 5 Dec 2001 13:59:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284574AbRLES7Q>; Wed, 5 Dec 2001 13:59:16 -0500
-Received: from ns0.dhm-systems.de ([195.126.154.163]:269 "EHLO
-	ns0.dhm-systems.de") by vger.kernel.org with ESMTP
-	id <S284575AbRLES7K>; Wed, 5 Dec 2001 13:59:10 -0500
-Message-ID: <3C0E6E77.A5365331@web-systems.net>
-Date: Wed, 05 Dec 2001 19:59:03 +0100
-From: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
-Reply-To: Ado.Arnolds@dhm-systems.de
-Organization: DHM GmbH & Co. KG
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: de, en, fr, ru
+	id <S284574AbRLES7G>; Wed, 5 Dec 2001 13:59:06 -0500
+Received: from alageremail2.agere.com ([192.19.192.110]:34014 "EHLO
+	alageremail2.agere.com") by vger.kernel.org with ESMTP
+	id <S284575AbRLES6y>; Wed, 5 Dec 2001 13:58:54 -0500
+From: "Michael Smith" <smithmg@agere.com>
+To: "'John Levon'" <movement@marcelothewonderpenguin.com>,
+        <linux-kernel@vger.kernel.org>
+Cc: <kernelnewbies@nl.linux.org>
+Subject: RE: Unresolved symbol memset
+Date: Wed, 5 Dec 2001 13:59:00 -0500
+Organization: Agere Systems
+Message-ID: <00a601c17dbe$e6b6ea50$4d129c87@agere.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.16: running *really* short on DMA buffers
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <20011205184028.A82273@compsoc.man.ac.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I have optimization turned.  Using -02 in the makefile.
 
-I get the message "kernel: Warning - running *really* short on DMA
-buffers" frequently with medium to heavy disk i/o (running several
-tar and/or moving huge directories).
+I am new to the linux kernel but not kernel development.  If you still
+think this is the wrong list, I will post on the other one.  Sorry if it
+is the wrong list
 
-Can anybody give me some hints what the reason for this might be
-and how to avoid this condition.
 
-Do you need more information (I'm using only SCSI disks attached
-to a Symbios controller: <875> rev 0x26 on pci bus 0 device 11 func
-tion 0 irq 15)? I even can't find this error string in the kernel
-sources.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of John Levon
+Sent: Wednesday, December 05, 2001 1:40 PM
+To: linux-kernel@vger.kernel.org
+Cc: smithmg@agere.com; kernelnewbies@nl.linux.org
+Subject: Re: Unresolved symbol memset
 
-Thanks for your help.
+On Wed, Dec 05, 2001 at 01:18:37PM -0500, Michael Smith wrote:
 
-Ado
+> Hello all,
+>      I am new the Linux world and have a problem which is somewhat
+> confusing.  I am using the system call memset() in kernel code written
+> for Red Hat 7.1(kernel 2.4).  I needed to make this code compatible
+with
+> Red Hat 6.2(kernel 2.2) and seem to be getting a unresolved symbol.
+> This is only happening in one place of the code in one file.  I am
+using
+> memset() in other areas of the code which does not lead to the
+problem.
+
+You need to compile with optimisation turned on.
+
+Btw, your question would be more appropriate on the kernelnewbies list -
+see
+http://www.kernelnewbies.org/
+
+regards
+john
 
 -- 
-------------------------------------------------------------------------
-  Heinz-Ado Arnolds                        Ado.Arnolds@web-systems.net
-  Websystems GmbH                              +49 2234 1840-0 (voice)
-  Max-Planck-Strasse 2, 50858 Koeln, Germany   +49 2234 1840-40  (fax)
+"Faced with the prospect of rereading this book, I would rather have 
+ my brains ripped out by a plastic fork."
+	- Charles Cooper on "Business at the Speed of Thought" 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

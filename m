@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269523AbUINRCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269623AbUINW6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269523AbUINRCr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269580AbUINQ5J
+	id S269623AbUINW6L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 18:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268001AbUINWzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:57:09 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:10413 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S269589AbUINQcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:32:31 -0400
-Date: Tue, 14 Sep 2004 18:31:43 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       Ray Bryant <raybry@sgi.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914163143.GQ4180@dualathlon.random>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914155103.GR9106@holomorphy.com> <20040914160531.GP4180@dualathlon.random> <200409140916.48786.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409140916.48786.jbarnes@engr.sgi.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Sep 2004 18:55:50 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:11603 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269553AbUINWzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 18:55:16 -0400
+Message-ID: <414776CE.5030302@yahoo.com.au>
+Date: Wed, 15 Sep 2004 08:55:10 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+References: <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914145457.GA13113@elte.hu>
+In-Reply-To: <20040914145457.GA13113@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 09:16:48AM -0700, Jesse Barnes wrote:
-> the readprofile times, I'd say per-cpu would be the way to go just because it 
-> retains the simplicity of the current approach while allowing it to work on 
-> large machines (as well as limiting the performance impact of builtin 
-> profiling in general).  wli's approach seems like a reasonable tradeoff 
-> though, assuming what you suggest doesn't work.
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>>Another thing, I don't mean this to sound like a rhetorical question,
+>>but if we have a preemptible kernel, why is it a good idea to sprinkle
+> 
+>       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 
+>>cond_rescheds everywhere? Isn't this now the worst of both worlds? Why
+>>would someone who really cares about latency not enable preempt?
+> 
+> 
+> two things:
+> 
+> 1) none of the big distros enables CONFIG_PREEMPT in their kernels - not
+> even SuSE. This is pretty telling.
+> 
+> 2) 10 new cond_resched()'s are not precisely 'sprinkle everywhere'.
+> 
 
-per-cpu certainly sounds simple enough conceptually, so if you can
-notice any slowdown even with idle loop ruled out, per-cpu is sure
-better.
+No, but I mean putting them right down into fastpaths like the vmscan
+one, for example.
 
-This bouncing is likely to hurt smaller SMP too (but once the cpu is
-idle normally it's not a too bad thing since it only hurted reschedule
-latency, since we remain stuck in the timer irq for a bit longer than we
-should), but duplicating the ram of the array there doesn't look as nice
-as it would be on the altix, not all SMP have tons of ram. So an
-intermediate solution for this problem still sound worthwhile for the
-normal smp case.
+And if I remember correctly, you resorted to putting them into
+might_sleep as well (but I haven't read the code for a while, maybe
+you're now getting decent results without doing that).

@@ -1,36 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263098AbTCLIok>; Wed, 12 Mar 2003 03:44:40 -0500
+	id <S263096AbTCLImI>; Wed, 12 Mar 2003 03:42:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbTCLIok>; Wed, 12 Mar 2003 03:44:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2721 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263098AbTCLIoj>;
-	Wed, 12 Mar 2003 03:44:39 -0500
-Date: Wed, 12 Mar 2003 09:55:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ben Collins <bcollins@debian.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312085517.GK811@suse.de>
-References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312041621.GE563@phunnypharm.org>
+	id <S263097AbTCLImI>; Wed, 12 Mar 2003 03:42:08 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:17198 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S263096AbTCLImE>; Wed, 12 Mar 2003 03:42:04 -0500
+Date: Wed, 12 Mar 2003 09:45:35 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Richard Henderson <rth@twiddle.net>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+In-Reply-To: <20030312001739.B30855@twiddle.net>
+Message-ID: <Pine.LNX.4.30.0303120916430.17121-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 11 2003, Ben Collins wrote:
-> You've made quite a marketing move. It's obvious to me, maybe not to
-> others. By providing this CVS gateway, you make it almost pointless to
-> work on an alternative client. Also by providing it, you make it easier
-> to get away with locking the revision history into a proprietary format.
 
-This is a really good point, deserves high lighting imho...
+On Wed, 12 Mar 2003, Richard Henderson wrote:
+> On Wed, Mar 12, 2003 at 09:02:08AM +0100, Szakacsits Szabolcs wrote:
+> > gcc team must have, haven't it? Do you know?
+>
+> I have one test case.  It was never turned into anything
+> that you could run.
 
-The BK candy is getting increasingly bitter to swallow here, I may just
-have to drop it soon. A shame.
+The simplest test case I've found is at
 
--- 
-Jens Axboe
+	http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=57760
+
+I did/do not have time to check it closely now but at first sight it's
+the same I've found.
+
+> > I thought about it, I'm just afraid too much kernel wouldn't build.
+>
+> Then it won't build.  Use a different compiler.
+
+If we know the impact [how wildly broken compilers are used] we could
+decide about the approach, IMHO.
+
+Please note, this is not only about how to make build fail but how not
+to waste potentially significant users and developers time if one
+circumvent the blocking phase and starts distributing [intentional or
+not] the broken binaries. Bigger the impact the bigger the chance it
+happens.
+
+> > This bug is in most 2.95, 2.96 and according to Alan in 3.0 and early
+> > 3.1) and people would just start "working around" it by commenting out
+> > the check for getting something to work quickly then forgetting about
+> > the issue completely.
+>
+> The bug report I can find,
+>
+>    http://gcc.gnu.org/ml/gcc-patches/2001-06/msg00746.html
+>
+> was fixed before gcc 3.0.0 was released.  So if this is
+> a different bug...
+
+Could be also the classical "copy-paste [slightly change one occasion]
+then fix one occasion" type of bug? I've never looked the quality of
+the gcc source. I really don't know.
+
+	Szaka
 

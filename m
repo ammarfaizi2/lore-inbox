@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261311AbTCGAys>; Thu, 6 Mar 2003 19:54:48 -0500
+	id <S261310AbTCGAxz>; Thu, 6 Mar 2003 19:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbTCGAys>; Thu, 6 Mar 2003 19:54:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41997 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261311AbTCGAym>; Thu, 6 Mar 2003 19:54:42 -0500
-Message-ID: <3E67F03F.2070902@zytor.com>
-Date: Thu, 06 Mar 2003 17:05:03 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-References: <20030307001655.GB13766@kroah.com> <Pine.LNX.4.44.0303070156430.32518-100000@serv>
-In-Reply-To: <Pine.LNX.4.44.0303070156430.32518-100000@serv>
+	id <S261311AbTCGAxz>; Thu, 6 Mar 2003 19:53:55 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:61969 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S261310AbTCGAxy>;
+	Thu, 6 Mar 2003 19:53:54 -0500
+Date: Thu, 6 Mar 2003 18:04:22 -0700
+From: Val Henson <val@nmt.edu>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Those ruddy punctuation fixes
+Message-ID: <20030307010422.GI26725@boardwalk>
+References: <20030305111015.B8883@flint.arm.linux.org.uk> <20030305122008.GA4280@suse.de> <1046920285.3786.68.camel@spc1.mesatop.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1046920285.3786.68.camel@spc1.mesatop.com>
+User-Agent: Mutt/1.4i
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
+On Wed, Mar 05, 2003 at 08:11:11PM -0700, Steven Cole wrote:
 > 
-> On Thu, 6 Mar 2003, Greg KH wrote:
-> 
->>Here's a series of changesets that add klibc support to the 2.5.64
->>kernel.  The only change since the last time I sent this is an addition
->>of a LICENSE file to the klibc directory, and a merge with your latest
->>bk tree.
-> 
-> Ok, nobody wants to mention it, so I'll have to do it.
-> Above license is the BSD license. What were the exact reasons to choose 
-> this one? 
-> 
+> That is why I was very careful with my its -> it's patch.
+> In the two files where an extra apostrophe would have broken
+> the build, I changed its to it is.  Why not just leave it alone?
+> Because some well-meaning spelling fixer may come along in the
+> future and break it, just like in proc-fns.h.
 
-Actually, it's the MIT license, which differs from the (new) BSD license
-only in the no-endorsement clause, which seemed superfluous.
+Wait, this sounds like a conversation with the Mafia:
 
-It was chosen because klibc is a non-dynamic library, and it would
-otherwise be extremely awkward to link proprietary code against it if
-someone would like to do so.  Furthermore, I'm the author of most of the
-code in there, and if someone really wants to rip it off it's not a huge
-deal to me.
+"Pay us protection money."
+"Why do we need to pay you for protection?"
+"So we can protect you from criminals like ourselves."
 
-	-hpa
+I'd rather solve this problem by making standalone spelling fixes and
+other cosmetic changes taboo.  Cosmetic changes combined with actual
+useful code changes are fine with me.  If you're risking breaking the
+build, there should be some benefit that justifies the risk.
 
+Consider this a vote against standalone spelling/typo patches.
 
-
-
+-VAL (normally a total pedant about spelling and grammar)

@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVDFFiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVDFFoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbVDFFiN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 01:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbVDFFiM
+	id S262107AbVDFFoj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 01:44:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVDFFoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 01:38:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43973 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262106AbVDFFh5 (ORCPT
+	Wed, 6 Apr 2005 01:44:39 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:21951 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262107AbVDFFoh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 01:37:57 -0400
-Date: Wed, 6 Apr 2005 01:37:53 -0400
-From: Dave Jones <davej@redhat.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: chelsio build failure
-Message-ID: <20050406053753.GC15168@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
+	Wed, 6 Apr 2005 01:44:37 -0400
+Date: Wed, 6 Apr 2005 07:44:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [patch 1/5] sched: remove degenerate domains
+Message-ID: <20050406054412.GA5853@elte.hu>
+References: <425322E0.9070307@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <425322E0.9070307@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-building this sucker as a module caused grief.
 
-drivers/net/chelsio/cxgb2.c:113: error: `__mod_pci_device_table' aliased
-to external symbol `t1_pci_tbl'.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-This seems to do the trick. (untested beyond compile)
+> This is Suresh's patch with some modifications.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+> Remove degenerate scheduler domains during the sched-domain init.
 
-		Dave
+actually, i'd suggest to not do this patch. The point of booting with a 
+CONFIG_NUMA kernel on a non-NUMA box is mostly for testing, and the 
+'degenerate' toplevel domain exposed conceptual bugs in the 
+sched-domains code. In that sense removing such 'unnecessary' domains 
+inhibits debuggability to a certain degree. If we had this patch earlier 
+we'd not have experienced the wrong decisions taken by the scheduler, 
+only on the much rarer 'really NUMA' boxes.
 
---- 2.6.12rc2mm1/drivers/net/chelsio/cxgb2.c~	2005-04-06 01:30:07.000000000 -0400
-+++ 2.6.12rc2mm1/drivers/net/chelsio/cxgb2.c	2005-04-06 01:30:20.000000000 -0400
-@@ -110,7 +110,6 @@ static char driver_version[] = "2.1.0";
- MODULE_DESCRIPTION(MODULE_DESC);
- MODULE_AUTHOR("Chelsio Communications");
- MODULE_LICENSE("GPL");
--MODULE_DEVICE_TABLE(pci, t1_pci_tbl);
- 
- static int dflt_msg_enable = DFLT_MSG_ENABLE;
- 
---- 2.6.12rc2mm1/drivers/net/chelsio/subr.c~	2005-04-06 01:30:25.000000000 -0400
-+++ 2.6.12rc2mm1/drivers/net/chelsio/subr.c	2005-04-06 01:30:35.000000000 -0400
-@@ -307,6 +307,7 @@ struct pci_device_id t1_pci_tbl[] = {
- 	CH_DEVICE(10, 1, CH_BRD_N210_1F),
- 	{ 0, }
- };
-+MODULE_DEVICE_TABLE(pci, t1_pci_tbl);
- 
- /*
-  * Return the board_info structure with a given index.  Out-of-range indices
+is there any case where we'd want to simplify the domain tree? One more 
+domain level is just one (and very minor) aspect of CONFIG_NUMA - i'd 
+not want to run a CONFIG_NUMA kernel on a non-NUMA box, even if the 
+domain tree got optimized. Hm?
+
+	Ingo

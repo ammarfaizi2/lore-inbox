@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSCAWgd>; Fri, 1 Mar 2002 17:36:33 -0500
+	id <S310255AbSCAIGU>; Fri, 1 Mar 2002 03:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310144AbSCAWgZ>; Fri, 1 Mar 2002 17:36:25 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:53767 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S293457AbSCAWgJ>;
-	Fri, 1 Mar 2002 17:36:09 -0500
-Date: Wed, 20 Feb 2002 12:43:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Giacomo Catenazzi <cate@debian.org>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Michael Elizabeth Chastain <mec@shout.net>, jgarzik@mandrakesoft.com,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020220114352.GB102@elf.ucw.cz>
-In-Reply-To: <fa.i8v9q2v.6g8h03@ifi.uio.no> <fa.hhvfopv.1f70hqv@ifi.uio.no> <3C7206FD.2050306@debian.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C7206FD.2050306@debian.org>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S310389AbSCAIEU>; Fri, 1 Mar 2002 03:04:20 -0500
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:29122 "EHLO
+	stargazer.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S310385AbSCAIED>; Fri, 1 Mar 2002 03:04:03 -0500
+Date: Fri, 1 Mar 2002 00:03:01 -0800 (PST)
+From: Kelsey Hudson <khudson@compendium-tech.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: texas <texas@ludd.luth.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
+In-Reply-To: <E16gbXt-0001s7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0202282353370.18512-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 1 Mar 2002, Alan Cox wrote:
 
-> >>. A Microsoft engineer wrote scripts/Configure.  For three years, I have
-> >> lived in fear that Microsoft would notice this fact and use it to attack
-> >> Linux through public relations channels or legal means.  They haven't 
-> >> yet,
-> >> so I have been wrong so far.
-> >>
-> >
-> >Teehee.  I don't think you have anything to worry about, Microsoft would be
-> >incredibly embarassed to admit they're contributing to 'problem number 1'.
+> > Tried 2.2 again thinking it might work now with the fixed BIOS settings
+> > but no, still getting the "Keyboard: Timeout - AT keyboard not present?"
+> > and "hda: lost interrupt" messages. So I can't even boot 2.2 and I have no
 > 
-> 
-> I agree, but we know some strange 'behaviour' of MS.
-> They have a lot of lawers, they can make us a lot of trouble.
-> (You will notice that there are no copyright statment on that file,
-> only the name of authors).
-> 
-> Remember the RMS (a flame with the word 'ESR' MUST have also the 'RMS' :-))
-> way to include 'free' patches: sign and send to FSF a piece of paper,
-> that the patches CAN be included.
-> I think nobody in Linux have done that, thus we can expect some
-> more troubles and microsoft is a large troubles-maker
+> I guess that box is always assuming PnP or ACPI setup in which case 2.2
+> will never work on it.
 
-FSF is actually doing something completely different, they want to be
-able to change copyrights.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+hmm. I guess this begs the question, is ACPI 100% working and stable now? 
+I've got a similar problem with add-in IDE controllers which add more than 
+8 IDE devices -- the 9th and higher devices are inaccessable with the same 
+"hd?: lost interrupt" messages (beginning with hdi). The machine in 
+question is a dual AthlonXP/MP 1900+ on that new Tyan S2466 mainboard. I 
+figured it was a BIOS issue, but if the BIOS demands that ACPI configure 
+stuff, then perhaps enabling ACPI is the key. I just wihs that BIOS 
+manufacturers would get a fucking clue and realize that not all of us are 
+going to be running that other ACPI-dependent OS on the board, and make a 
+BIOS that configures devices the old-fashioned way: doing the work itself.
+
+Tyan also needs to realize that assigning the same address to two sensors 
+on the I2C bus just isn't a good idea...
+
+Hopefully this fixes my problem. Thanks for the pointer! ;)
+
+ Kelsey Hudson                                           khudson@ctica.com 
+ Associate Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
+==== 0100101101001001010000110100101100100000010010010101010000100001 =====
+
+

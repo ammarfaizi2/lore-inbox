@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261329AbSJYJhx>; Fri, 25 Oct 2002 05:37:53 -0400
+	id <S261327AbSJYJeh>; Fri, 25 Oct 2002 05:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261330AbSJYJhx>; Fri, 25 Oct 2002 05:37:53 -0400
-Received: from babsi.intermeta.de ([212.34.181.3]:37639 "EHLO
+	id <S261328AbSJYJeh>; Fri, 25 Oct 2002 05:34:37 -0400
+Received: from babsi.intermeta.de ([212.34.181.3]:22791 "EHLO
 	mail.intermeta.de") by vger.kernel.org with ESMTP
-	id <S261329AbSJYJhv>; Fri, 25 Oct 2002 05:37:51 -0400
+	id <S261327AbSJYJeg>; Fri, 25 Oct 2002 05:34:36 -0400
 Subject: Re: One for the Security Guru's
 From: Henning Schmiedehausen <hps@intermeta.de>
-To: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Danny Lepage <danny.lepage.bur@enter-net.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1035479086.9935.6.camel@gby.benyossef.com>
+In-Reply-To: <1035496935.19917.106.camel@phantom.enter-net.com>
 References: <1035453664.1035.11.camel@syntax.dstl.gov.uk>
 	<Pine.LNX.4.44.0210241209250.648-100000@innerfire.net> 
 	<ap97nr$h6e$1@forge.intermeta.de> 
-	<1035479086.9935.6.camel@gby.benyossef.com>
+	<1035496935.19917.106.camel@phantom.enter-net.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Oct 2002 11:44:02 +0200
-Message-Id: <1035539042.23977.24.camel@forge>
+Date: 25 Oct 2002 11:40:45 +0200
+Message-Id: <1035538846.23976.19.camel@forge>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-24 at 19:04, Gilad Ben-Yossef wrote:
-> On Thu, 2002-10-24 at 18:39, Henning P. Schmiedehausen wrote:
-> > Gerhard Mack <gmack@innerfire.net> writes: 
-> > >It gets even worse if almost all of your services are encrypted(like you
-> > >would find on an e-commerse site).  https will blind an IDS.  The last
-> > >place I worked only had 3 ports open and 2 of them were encrypted.
-> > 
-> > Nah. Do it right:
-> > 
-> > Internet ----- Firewall ---- SSL Accelerator Box --+---- Webserver
-> >          HTTPS          HTTPS                      | HTTP
-> >                                                    |
-> >                                                   IDS
-> > 
-> 
-> Eh... not really:
-> 
-> A. If there's a buffer overflow in the SSL Accelerator box the firewall
-> wont do you much good (it helps, but only a little). 
+On Fri, 2002-10-25 at 00:02, Danny Lepage wrote:
+> Gee, isn't this a kind of "man in the middle" security breach ?!?! Most
+> of the people on the net, including me, expect that nobody and I mean
+> nobody is sitting between my browser and the web server, seeing
+> unencrypted packets when we use SSL.
 
-This is a hardware device. Hardware as in "silicon". I very much doubt
-that you can run "general purpose programs" on a device specifically
-designed to do crypto. And this is _not_ just an "embedded Linux on ix86
-with a crypto chip". 
+If you don't control the network between the Accelerator and your
+webserver, you're toast anyway.
 
-> B. The firewall in this setup provides very little besides packet
-> filtering anyway.
+> And now your telling me that the SSL Accelerator Box and the IDS is
+> seeing in clear text the traffic I thought only the web server was
+> seeing ?!?! And presumably, the IDS is logging somewhere all the credit
+> card info that I might be sending...
 
-You're right. But if I'd let it off, I'd would have gotten mail with
-"there is no firewall in your setup, it's not secure". Either way I
-lose. :-)
+So what? How many "secure ecommerce sites" just put the information that
+you sent over the secure channel into a database accessible by a tcp
+port? or simply print it out? Send it via unencrypted mail to their
+sales department (presumable to foobar-marketing@aol.com. Yes, I've
+already seen that.). HTTPS is just a gurantee, that your data isn't
+sniffed between your web browser and the device you're talking to. Once
+the data hits the web server, there is nothing that HTTPS can do or you
+can rely on.
+
+> Mind you, I guess nothing prevented somebody to do something behind the
+> Webserver to do some wicked thing but now, your telling me that they are
+> devices, on the open market, specially design to do this!
+
+Of course. Once you hit more than a few https transfers, you can either
+burn your cpu cycles for doing crypto or simply use a device. 
 
 	Regards
 		Henning

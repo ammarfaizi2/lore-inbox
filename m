@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVCaQrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVCaQsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVCaQrf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 11:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVCaQrf
+	id S261565AbVCaQsg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 11:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVCaQsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 11:47:35 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:30620 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261556AbVCaQre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 11:47:34 -0500
-Message-ID: <424C2975.2090009@nortel.com>
-Date: Thu, 31 Mar 2005 10:46:45 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Thu, 31 Mar 2005 11:48:35 -0500
+Received: from ida.rowland.org ([192.131.102.52]:14340 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S261565AbVCaQsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 11:48:15 -0500
+Date: Thu, 31 Mar 2005 11:48:11 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: kus Kusche Klaus <kus@keba.com>
+cc: linux-usb-users@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.11, USB: High latency?
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231CF@MAILIT.keba.co.at>
+Message-ID: <Pine.LNX.4.44L0.0503311138260.1510-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>
-CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: [RFC/PATCH] network configs: disconnect network options from
- drivers
-References: <20050330234709.1868eee5.randy.dunlap@verizon.net>
-In-Reply-To: <20050330234709.1868eee5.randy.dunlap@verizon.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+On Thu, 31 Mar 2005, kus Kusche Klaus wrote:
 
-> A few people dislike that the Networking Options menu is inside
-> the Device Drivers/Networking menu.  This patch moves the
-> Networking Options menu to immediately before the Device Drivers menu,
-> renames it to "Networking options and protocols", & moves most
-> protocols to more logical places (IMHOOC).
+> > The latencies are almost certainly caused by the USB host controller 
+> > driver.  I'm planning improvements to uhci-hcd which should 
+> > help reduce 
+> > the latency, but it will still be on the large side.  And I 
+> > won't have 
+> > time to write the changes to the driver for several months.
+> 
+> Any numbers about the expected "large side"? 
+> We would need <30 microseconds irq latency,
+> and <<1 milliseconds rt application latency.
 
-<snip>
+It's pretty hard to say, considering that: (1) None of the code has been 
+written yet; (2) It's impossible to say how big a difference new code will 
+make just by reading it -- you have to actually test it; and (3) I don't 
+have any hardware suitable for testing latencies.
 
-> Any comments?
+The biggest advantage would come from using a bottom-half handler to do 
+most of the work.  Right now the uhci-hcd driver does everything in its 
+interrupt handler.  This would certainly help IRQ latency; it might not 
+affect application latency very much.
 
-Makes sense to me...
+I'll try adding a bottom half in my next series of patches.  Maybe it will 
+be ready in time to appear in the -mm kernels before 2.6.12-final is 
+released.
 
-Chris
+> > The best solution is to stop using uhci-hcd.  Get a PCI card 
+> > with an OHCI 
+> > or EHCI (high-speed) controller.  They do much more work in hardware, 
+> > reducing the amount of time the driver needs to spend with interrupts 
+> > disabled.
+> 
+> The hardware is invariable. It is an embedded system with no PCI slots.
+> 
+> And it seems to be possible with UHCI, 
+> because vxWorks allows USB stick transfers in operation without
+> missing latency requirements.
+> 
+> I do not require rt on the USB, it may block its own irq as long as
+> it likes, but it should not affect other irqs.
+
+We'll see what happens with the upcoming changes.  Maybe you'll be able to 
+test them for me?
+
+Alan Stern
 

@@ -1,61 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264300AbRF1Ukq>; Thu, 28 Jun 2001 16:40:46 -0400
+	id <S264376AbRF1VAA>; Thu, 28 Jun 2001 17:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264280AbRF1Uk0>; Thu, 28 Jun 2001 16:40:26 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:30099 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264260AbRF1UkP>;
-	Thu, 28 Jun 2001 16:40:15 -0400
-Message-ID: <3B3B9653.A8331780@mandrakesoft.com>
-Date: Thu, 28 Jun 2001 16:40:51 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Cc: ankry@green.mif.pg.gda.pl, elenstev@mesatop.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error
-In-Reply-To: <6121.993725018@ocs3.ocs-net>
+	id <S264371AbRF1U7t>; Thu, 28 Jun 2001 16:59:49 -0400
+Received: from u-234-19.karlsruhe.ipdial.viaginterkom.de ([62.180.19.234]:53236
+	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S264323AbRF1U7c>; Thu, 28 Jun 2001 16:59:32 -0400
+Date: Thu, 28 Jun 2001 22:59:08 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: james bond <difda@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIG PROBLEM
+Message-ID: <20010628225908.A7816@bacchus.dhis.org>
+In-Reply-To: <LAW2-F118HsRsWg8ubZ000077c1@hotmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <LAW2-F118HsRsWg8ubZ000077c1@hotmail.com>; from difda@hotmail.com on Thu, Jun 28, 2001 at 06:49:46PM -0000
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+On Thu, Jun 28, 2001 at 06:49:46PM -0000, james bond wrote:
+
+> 1-systeme hangs when i try ton compile anything
 > 
-> On Thu, 28 Jun 2001 10:45:55 +0200 (MET DST),
-> Andrzej Krzysztofowicz <ankry@pg.gda.pl> wrote:
-> >Keith Owens wrote:
-> >> Index: 6-pre6.1/drivers/net/Config.in
-> >> -   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-> >> +   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
-> 
-> >CONFIG_EISA check in this condition is redundant.
-> 
-> True, but the line is a cut and paste from higher up in
-> drivers/net/Config.in.  Even though it is redundant, it is consistent
-> with the rest of the file.
+> i've  compiled the kernel 2.4.4 , once i finish and boot the first time on 
+> 2.4.4 everything goses ok ,
+> only too problemes
+> 1st-  klogd takes 100%  CPU time
 
-It is not redundant because in theory CONFIG_EISA could exist without
-CONFIG_ISA.
+Some versions of the 3c59x driver emit a NUL character on bootup which makes
+klogd suck CPU.  This is fixed in 2.4.5, dunno about 2.4.4.
 
-> drivers/net/Config.in needs a major cleanup, lots of the if statements
-> can go and be replaced by dep_xxx statements, CONFIG_ETHERTAP is marked
-> obsolete but is tested against experimental, CONFIG_ZNET is marked
-> experimental but is tested against obsolete, etc.
-
-Why not send me an incremental patch for these cleanups, on top of the
-cleanup patch that (I hope!) Andrzej will send, in respond to me last
-reply.
-
-2.4 will be around for quite a while, and Config.in cleanups should
-continue to go in.  Sure work should be directed towards 2.5..... but if
-somebody sends me a 2.4 patch for drivers/net/Config.in cleanup, I sure
-as hell will apply it.
-
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+  Ralf

@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265862AbTL3Qwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 11:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbTL3Qw3
+	id S265846AbTL3Qtz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 11:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265850AbTL3Qtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 11:52:29 -0500
-Received: from holomorphy.com ([199.26.172.102]:43970 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265854AbTL3QwM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 11:52:12 -0500
-Date: Tue, 30 Dec 2003 08:52:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Brian Macy <bmacy@macykids.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 and Starfire NIC
-Message-ID: <20031230165206.GO27687@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Brian Macy <bmacy@macykids.net>, linux-kernel@vger.kernel.org
-References: <3FF1AC4D.9040002@macykids.net>
+	Tue, 30 Dec 2003 11:49:55 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48011 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265846AbTL3Qty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 11:49:54 -0500
+Date: Tue, 30 Dec 2003 17:49:53 +0100
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: ICH5 docs
+Message-ID: <20031230164953.GB4868@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FF1AC4D.9040002@macykids.net>
-Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 08:48:13AM -0800, Brian Macy wrote:
-> When switching to 2.6.0 my Starfire NIC fails to function with an 
-> entertaining message:
-> Dec 23 16:36:45 job kernel: eth0: Something Wicked happened! 0x02018101.
-> Dec 23 16:36:45 job kernel: eth0: Something Wicked happened! 0x02010001.
-> I don't know if this is related but in 2.4 I get PCI bus congestion for 
-> the starfire adapter:
-> eth0: PCI bus congestion, increasing Tx FIFO threshold to 80 bytes
-> eth0: PCI bus congestion, increasing Tx FIFO threshold to 96 bytes
-> eth0: PCI bus congestion, increasing Tx FIFO threshold to 112 bytes
-> eth0: PCI bus congestion, increasing Tx FIFO threshold to 128 bytes
-> eth0: PCI bus congestion, increasing Tx FIFO threshold to 144 bytes
-> eth0: PCI bus congestion, increasing Tx FIFO threshold to 160 bytes
+Where can I learn about ICH5 SATA RAID driver in Linux kernel 2.6.0?  I
+have been looking into Documentation/scsi and found nothing containing
+the word "ICH5" or named *ich5*. Also the help page in make menuconfig
+says nothing. I would like to know the following:
 
-In 2.6, I get the message you got in 2.4.
+1) features supported
+2) interface specification
+3) usage guide
 
-
--- wli
+Cl<

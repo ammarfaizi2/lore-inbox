@@ -1,95 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267333AbSLKWZM>; Wed, 11 Dec 2002 17:25:12 -0500
+	id <S267341AbSLKWcB>; Wed, 11 Dec 2002 17:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267334AbSLKWZM>; Wed, 11 Dec 2002 17:25:12 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:6528 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S267333AbSLKWZF>;
-	Wed, 11 Dec 2002 17:25:05 -0500
-Date: Wed, 11 Dec 2002 14:32:50 -0800
-From: Bob Miller <rem@osdl.org>
-To: davem@redhat.com
+	id <S267344AbSLKWcB>; Wed, 11 Dec 2002 17:32:01 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:6404 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267341AbSLKWb7>;
+	Wed, 11 Dec 2002 17:31:59 -0500
+Date: Tue, 10 Dec 2002 22:34:44 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.51] Remove compile warnings from ipv4/raw.c and ipv4/arp.c
-Message-ID: <20021211223250.GE1067@doc.pdx.osdl.net>
+Subject: Re: PATCH: Four function buttons on DELL Latitude X200
+Message-ID: <20021210213444.GA451@elf.ucw.cz>
+References: <m3d6ocjd81.fsf@Janik.cz> <E18LBeK-00046y-00@calista.inka.de> <at2r5v$fib$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <at2r5v$fib$1@cesium.transmeta.com>
 User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recoded a couple of routines (neigh_get_next()/raw_get_next()) to remove
-goto's jumping back into the middle of do {} while(); loop.  This removes the 
+Hi!
 
-    warning: deprecated use of label at end of compound statement
+> > In article <m3d6ocjd81.fsf@Janik.cz> you wrote:
+> > > this patch add support for four functions key on DELL Latitude X200.
+> > 
+> > we need a more generic appoach to handle those key codes for various
+> > extensions. I think a pure software reconfiguration of the keymaps or a
+> > daemon trakcing the raw codes is fine. Perhaps we can make something like a
+> > hook into the kernel where all untrapped function keys are send to in raw
+> > format?
+> > 
+> 
+> The PC only has so many possible keycodes (with E0 and E1 it's still
+> in the sub-300 range.)  It won't fit within 128, but I would really
+> like an algorithmic mapping from scancodes to keycodes so we don't
+> continue to have this problem.
+> 
+> For example, using a 16-bit keycode model:
+> 
+> 
+> 	Scancode		Keycode (binary)
+> 	mxxxxxxx	 	m0000000 0xxxxxxx
+> 	E0 mxxxxxxx		m0000000 1xxxxxxx
+> 	E1 mxxxxxxx yyyyyyyy	mxxxxxxx yyyyyyyy
+> 
+> m = make/break bit
 
-from these two files.
+Well, nothing prevents keyboard manufacturers from using 0xe2 as a
+prefix, too. I think there are really *weird* keyboards out there.
 
-
-diff -Nru a/net/ipv4/arp.c b/net/ipv4/arp.c
---- a/net/ipv4/arp.c	Wed Dec 11 13:41:51 2002
-+++ b/net/ipv4/arp.c	Wed Dec 11 13:41:51 2002
-@@ -1168,19 +1168,19 @@
- {
- 	struct arp_iter_state* state = seq->private;
- 
--	do {
--		n = n->next;
-+	n = n->next;
-+	while (n != NULL) {
- 		/* Don't confuse "arp -a" w/ magic entries */
--try_again:
--	} while (n && !(n->nud_state & ~NUD_NOARP));
-+		if ((n->nud_state == 0) || (n->nud_state == NUD_NOARP)) {
-+			n = n->next;
-+		} else {
-+			if (++state->bucket > NEIGH_HASHMASK) {
-+				break;
-+			}
-+			n = arp_tbl.hash_buckets[state->bucket];
-+		}
-+	}
- 
--	if (n)
--		goto out;
--	if (++state->bucket > NEIGH_HASHMASK)
--		goto out;
--	n = arp_tbl.hash_buckets[state->bucket];
--	goto try_again;
--out:
- 	return n;
- }
- 
-diff -Nru a/net/ipv4/raw.c b/net/ipv4/raw.c
---- a/net/ipv4/raw.c	Wed Dec 11 13:41:51 2002
-+++ b/net/ipv4/raw.c	Wed Dec 11 13:41:51 2002
-@@ -712,14 +712,17 @@
- {
- 	struct raw_iter_state* state = raw_seq_private(seq);
- 
--	do {
--		sk = sk->next;
--try_again:
--	} while (sk && sk->family != PF_INET);
--
--	if (!sk && ++state->bucket < RAWV4_HTABLE_SIZE) {
--		sk = raw_v4_htable[state->bucket];
--		goto try_again;
-+	sk = sk->next;
-+	while (sk != NULL) {
-+		if (sk->family == PF_INET) {
-+			if (++state->bucket < RAWV4_HTABLE_SIZE) {
-+				sk = raw_v4_htable[state->bucket];
-+			} else {
-+				break;
-+			}
-+		} else {
-+			sk = sk->next;
-+		}
- 	}
- 	return sk;
- }
+								Pavel
 -- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbUBZQIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 11:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbUBZQFm
+	id S262808AbUBZQIm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 11:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbUBZQFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 11:05:42 -0500
-Received: from nevyn.them.org ([66.93.172.17]:11149 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262809AbUBZQCy (ORCPT
+	Thu, 26 Feb 2004 11:05:24 -0500
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:57133 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S262816AbUBZQDx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 11:02:54 -0500
-Date: Thu, 26 Feb 2004 11:02:40 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, kingsley@aurema.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc visibility patch breaks GDB, etc.
-Message-ID: <20040226160240.GA28873@nevyn.them.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Peter Chubb <peter@chubb.wattle.id.au>, kingsley@aurema.com,
-	linux-kernel@vger.kernel.org
-References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au> <20040225224410.3eb21312.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Feb 2004 11:03:53 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Terje Kvernes <terjekv@math.uio.no>
+Subject: Re: Serial ATA (SATA) status report
+Date: Thu, 26 Feb 2004 15:55:46 +0000
+User-Agent: KMail/1.5.3
+Cc: Andre Tomt <andre@tomt.net>, Linux Kernel <linux-kernel@vger.kernel.org>
+References: <403D5B3D.6060804@pobox.com> <200402261423.56448.m.watts@eris.qinetiq.com> <wxxbrnl3lfe.fsf@nommo.uio.no>
+In-Reply-To: <wxxbrnl3lfe.fsf@nommo.uio.no>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20040225224410.3eb21312.akpm@osdl.org>
-User-Agent: Mutt/1.5.1i
+Message-Id: <200402261555.46630.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 10:44:10PM -0800, Andrew Morton wrote:
-> Peter Chubb <peter@chubb.wattle.id.au> wrote:
-> >
-> > 
-> > In fs/proc/base.c:proc_pid_lookup(), the patch
-> > 
-> >         read_unlock(&tasklist_lock); 
-> >         if (!task) 
-> >                 goto out; 
-> > +       if (!thread_group_leader(task)) 
-> > +               goto out_drop_task; 
-> >   
-> >         inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO); 
-> > 
-> > means that threads other than the thread group leader don't appear in
-> > the /proc top-level directory.  Programs that are informed via pid of
-> > events can no longer find the appropriate process -- for example,
-> > using gdb on a multi-threaded process, or profiling using perfmon.
-> > 
-> > The immediate symptom is GDB saying:
-> >     Could not open /proc/757/status
-> > when 757 is a TID not a PID.
-> 
-> What does `ls /proc/757' say?  Presumably no such file or directory?
-> It's fairly bizare behaviour to be able to open files which don't exist
-> according to readdir, which is why we made that change.
-> 
-> The node to tid 757 should appear under its thread group leader's
-> directory: /proc/NNN/757.  That node should be visible to readdir, and that
-> is the node which gdb and perfmon should be looking for.
-> 
-> Of course, we may have burnt our boats with the initial silliness.  It's a
-> shame that gdb and perfmon went and used it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-GDB has used it since long before any of this happened.  LinuxThreads
-didn't use thread groups, remember?
 
-There is no way from GDB to figure out which thread is the thread group
-leader, either, so I don't know how you propose it find the proc
-directory now.
+>   the 3w-xxxx-module works well enough in 32bit mode on AMD64.  sadly
+>   enough, we have had some other issues with 64bit mode, but the
+>   _driver_ seems to load there as well.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Do these 'issues' prevent the cards from being used at all in 64bit mode on 
+AMD-64?
+
+We'd really like to use the 4-port SATA 3Ware card on a Tyan Thunder K8W 
+(S2885) but it'd be a bit of a waste if we can only use it in 32bit mode. (I 
+assume 32bit mode means you compile for i686 instead of AMD-64 ?)
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAPhcCBn4EFUVUIO0RAgYlAKCIdWX36mkFko8kdlyhCtzTcpAgsQCeOCc4
+hZYOYnuFKuZLa5v4KJ7XGjI=
+=M/Ej
+-----END PGP SIGNATURE-----
+

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbUJ1Bns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbUJ1Bsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbUJ1Bns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 21:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUJ1Bns
+	id S262691AbUJ1Bsl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 21:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUJ1Bsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 21:43:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11402 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262686AbUJ1Bnk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 21:43:40 -0400
-Date: Wed, 27 Oct 2004 18:43:39 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] error out on execve with no binfmts
-Message-ID: <20041027184339.M2357@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	Wed, 27 Oct 2004 21:48:41 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:33553 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S262691AbUJ1Bsd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 21:48:33 -0400
+Message-ID: <41804FBC.6000002@snapgear.com>
+Date: Thu, 28 Oct 2004 11:47:40 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH]: linux-2.6.9-uc0 (MMU-less fixups)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Early calls to userspace can invoke an execve() before any binfmt handlers
-are registered.  Properly return an error in this case rather than 0.
-On at least one arch (x86_64) without this patch, the system will double
-fault on early attempts to call_usermodehelper.  Suggestions on a better
-error?
+Hi All,
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+An update of the uClinux (MMU-less) fixups against 2.6.9.
 
-===== fs/exec.c 1.142 vs edited =====
---- 1.142/fs/exec.c	2004-10-22 21:23:42 -07:00
-+++ edited/fs/exec.c	2004-10-27 18:11:54 -07:00
-@@ -984,7 +984,7 @@
-  */
- int search_binary_handler(struct linux_binprm *bprm,struct pt_regs *regs)
- {
--	int try,retval=0;
-+	int try,retval;
- 	struct linux_binfmt *fmt;
- #ifdef __alpha__
- 	/* handle /sbin/loader.. */
-@@ -1028,6 +1028,7 @@
- 	/* kernel module loader fixup */
- 	/* so we don't try to load run modprobe in kernel space. */
- 	set_fs(USER_DS);
-+	retval = -ENOENT;
- 	for (try=0; try<2; try++) {
- 		read_lock(&binfmt_lock);
- 		for (fmt = formats ; fmt ; fmt = fmt->next) {
+Some new things in this. I have done some work to
+support the new Freescale ColdFire 5274/5275 CPU's.
+And quite a few small fixes in there too.
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.9-uc0.patch.gz
+
+
+Change log:
+
+. import of linux-2.6.9                        <gerg@snapgear.com>
+. support Freescale 5274/5275 family           <gerg@snapgear.com>
+. sync m68knommu  system call table with m68k  <geert@linux-m68k.org>
+. clean out m68knommu HZ setup defines         <gerg@snapgear.com>
+. fix time offset calculate for PIT hardware   <gerg@snapgear.com>
+. support 2 devices in FEC ethernet driver     <gerg@snapgear.com>
+. fix coldfire stack unwind on signal exit     <H.Haeberle@pilz.de>
+. fix udelay overflow on fast ColdFire CPU's   <gerg@snapgear.com>
+. cleanup m68knommu signal handling            <gerg@snapgear.com>
+. Sneha platform support (m68knommu)           <jorge.borrego@gmail.com>
+
+Regards
+Greg
+
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbRGXBLA>; Mon, 23 Jul 2001 21:11:00 -0400
+	id <S266567AbRGXBOl>; Mon, 23 Jul 2001 21:14:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266490AbRGXBKu>; Mon, 23 Jul 2001 21:10:50 -0400
-Received: from hibernia.clubi.ie ([212.17.32.129]:37786 "HELO
-	fogarty.jakma.org") by vger.kernel.org with SMTP id <S266417AbRGXBKm>;
-	Mon, 23 Jul 2001 21:10:42 -0400
-Date: Tue, 24 Jul 2001 02:10:33 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>, <sourav@csa.iisc.ernet.in>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Arp problem
-In-Reply-To: <3B5CC947.2E027588@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0107240208460.10839-100000@fogarty.jakma.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-X-Dumb-Filters: aryan marijuiana cocaine heroin hardcore cum pussy porn teen tit sex lesbian group
+	id <S266579AbRGXBOc>; Mon, 23 Jul 2001 21:14:32 -0400
+Received: from [47.129.117.131] ([47.129.117.131]:9601 "HELO
+	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S266567AbRGXBOS>; Mon, 23 Jul 2001 21:14:18 -0400
+Message-ID: <3B5CCBD5.B4833E9E@nortelnetworks.com>
+Date: Mon, 23 Jul 2001 21:13:57 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Arp problem
+In-Reply-To: <Pine.SOL.3.96.1010724011120.10879A-100000@kohinoor.csa.iisc.ernet.in> <3B5C855C.959ABB@nortelnetworks.com> <3B5CC947.2E027588@candelatech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 23 Jul 2001, Ben Greear wrote:
+Ben Greear wrote:
 
 > The arp-filter patch is in the kernel since about 2.4.4, so you just need
 > to turn it on...
 
-on a related note:
+The original poster stated he was using 2.2.14.
 
-if i have 2 logical subnets on the wire, linux listening on both, is
-there any way to get linux to fully route packets between the 2
-subnets?
+Chris
 
-at the moment it just issues a icmp_redirect, which isn't good enough
-for certain hosts (eg win9x at least).
-
-> Ben
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-How come everyone's going so slow if it's called rush hour?
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

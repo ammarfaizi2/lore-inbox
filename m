@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129826AbRABKMZ>; Tue, 2 Jan 2001 05:12:25 -0500
+	id <S130759AbRABKVQ>; Tue, 2 Jan 2001 05:21:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129985AbRABKMQ>; Tue, 2 Jan 2001 05:12:16 -0500
-Received: from smtp5.mail.yahoo.com ([128.11.69.102]:50185 "HELO
-	smtp5.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129826AbRABKMG>; Tue, 2 Jan 2001 05:12:06 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A51A1DB.74540C02@yahoo.com>
-Date: Tue, 02 Jan 2001 04:39:39 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.18 i486)
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: start___kallsyms missing from i386 vmlinux.lds ?
-In-Reply-To: <26475.978421415@kao2.melbourne.sgi.com>
+	id <S130816AbRABKVG>; Tue, 2 Jan 2001 05:21:06 -0500
+Received: from quechua.inka.de ([212.227.14.2]:15406 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S130759AbRABKUt>;
+	Tue, 2 Jan 2001 05:20:49 -0500
+Date: Tue, 2 Jan 2001 10:49:57 +0100
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.0-rerelease] driver/net/Makefile bug (pcmcia)
+Message-ID: <20010102104957.A1949@dungeon.inka.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: aj@dungeon.inka.de (Andreas Jellinghaus)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> On Tue, 02 Jan 2001 01:56:08 -0500,
-> Paul Gortmaker <p_gortmaker@yahoo.com> wrote:
-> >--- linux/arch/i386/vmlinux.lds~       Fri Jul  7 03:47:07 2000
-> >+++ linux/arch/i386/vmlinux.lds        Mon Jan  1 07:55:50 2001
-> >+  __start___kallsyms = .;     /* All kernel symbols */
-> >+  __kallsyms : { *(__kallsyms) }
-> >+  __stop___kallsyms = .;
-> 
-> kernel/module.c defines
-> extern const char __start___kallsyms[] __attribute__ ((weak));
-> extern const char __stop___kallsyms[] __attribute__ ((weak));
-> 
-> The symbols are weak and do not need to be defined.  If gcc is not
-> honouring __attribute__ ((weak)) then you have a broken or obsolete
-> version of gcc.  You need at least gcc 2.91.66 for kernel 2.4.
+modules for pcmcia network cards are not build by the kernel.
 
-Yep, saw the weak part - just noted while scanning test11 diff
-that they were defined like the above patch for arch/sparc* and
-wondered if the inconsistency was intentional.
+subdir-$(CONFIG_PCMCIA) += pcmcia
 
-Thanks,
-Paul.
+should be
 
+ifeq ($(CONFIG_PCMCIA),y)
+  subdir-y += pcmcia
+  subdir-m += pcmcia
+endif
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+because CONFIG_PCMCIA=y but CONFIG_PCMCIA_SOMENETWORKDRIVER=m
+maybe even bett is useing CONFIG_NET_PCMCIA instead of CONFIG_PCMCIA.
+
+regards, andreas
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

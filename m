@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUJWDpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUJWDpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266888AbUJWDpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 23:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUJVTki
+	id S266481AbUJWDpG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 23:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJVTkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:40:38 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:9725 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S267164AbUJVTde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:33:34 -0400
-Message-ID: <4179607A.8030204@nortelnetworks.com>
-Date: Fri, 22 Oct 2004 13:33:14 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+	Fri, 22 Oct 2004 15:40:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64704 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267250AbUJVTdh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:33:37 -0400
+Message-ID: <41796083.9060301@pobox.com>
+Date: Fri, 22 Oct 2004 15:33:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
-CC: root@chaos.analogic.com, andre@tomt.net,
-       Kasper Sandberg <lkml@metanurb.dk>,
-       LKML Mailinglist <linux-kernel@vger.kernel.org>, umbrella@cs.aau.dk
-Subject: Re: Gigantic memory leak in linux-2.6.[789]!
-References: <200410221613.35913.ks@cs.aau.dk> <1098455535.12574.1.camel@localhost> <Pine.LNX.4.61.0410221102300.12605@chaos.analogic.com> <41792C36.4070301@users.sourceforge.net> <Pine.LNX.4.61.0410221208230.17016@chaos.analogic.com> <41795E69.9090909@cs.aau.dk>
-In-Reply-To: <41795E69.9090909@cs.aau.dk>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Timothy Miller <miller@techsource.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com> <4177DF15.8010007@techsource.com> <4177E50F.9030702@sover.net> <200410220238.13071.jk-lkml@sci.fi> <41793C94.3050909@techsource.com> <417955D3.5020206@pobox.com> <41795DEA.8050309@techsource.com>
+In-Reply-To: <41795DEA.8050309@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian Sørensen wrote:
+Timothy Miller wrote:
+> AGP and PCI are very similar in terms of the state machine, although the 
+> signal drivers are different.  I expect we'll come out with PCI and AGP 
+> versions first and then PCIE soon after.  Any "early access" developer 
+> boards would be PCI-only.
 
-> Anyway - How does this work in practice? Does the file system 
-> implementation use a wrapper for kfree or?
+That's certainly quite reasonable.
 
-When an app faults in new memory and there is no unused memory, the system will 
-page out apps and/or filesystem data from the page cache so the memory can be 
-given to the app requesting it.
 
-> Is there any way to force instant free of kernel memory - when freed?
 
-It's not free, it's in use by the page cache.  This is a performance feature--we 
-try and keep around as much stuff as possible that might be needed by running apps.
+> At this moment, I'm taking a cue from the Linux driver ABI and thinking 
+> that standardizing the interface would be more limiting than helpful. 
 
-> Else it is quite hard testing for possible memory leaks in our Umbrella 
-> kernel module ... :-/
+No offense, but I strongly disagree :)
 
-Such is life.  As a crude workaround, on a swapless system you can start one or 
-two memory hogs and they will force the system to free up as much memory as 
-possible.
+Standardizing the hardware interface lowers the cost of doing an OS 
+driver for every chip maker that implements the interface.  The more 
+chip makers that implement the interface, the greater the cost savings.
 
-Chris
+Concrete examples:
+* IDE BMDMA interface on PCI.  Practically every ATA chipset in 
+production supports this interface.  As a consequence, each individual 
+ATA driver mainly involves setting chip-specific timings, and not much else.
+
+* tulip (ethernet MAC).  Its ring and register designs were widely 
+imitated across ethernet NICs; as a result, each ethernet driver is 
+mainly a "paint by numbers" affair.
+
+* the new AHCI SATA interface, which Intel has on all its new 
+motherboards, and SiS soon will as well (as will others, I hope).
+
+
+> While it might be a pain to have to carry around multiple driver 
+> versions, the fact that it's all open source kinda makes it easy to make 
+> drastic changes without hurting anything.
+
+Ever-changing hardware and firmware interfaces are a huge pain.  I've 
+been writing and maintaining drivers for years... I feel this pain every 
+day :)
+
+You want to design a hardware interface that allows you to upgrade and 
+enhance your hardware over time, while keeping the changes to the 
+hardware<->OS interface itself to a _bare minimum_.  That's why I 
+suggested the microcontroller+GPU approach.  The microcontroller's 
+firmware can be used to mask the transition between GPU revisions.
+
+Drivers live for many years, even decades, and long after the hardware 
+they support has been EOL'd.  It's in everybody's best interests to keep 
+the changes to the drivers to a minimum.
+
+
+> Plus, I don't expect to get it perfect the first time.  The first design 
+
+Part of open source is open development.  If you develop the hardware 
+interface in public, actively soliciting feedback during development, 
+you'll wind up with a much better interface.
+
+Regards,
+
+	Jeff
+
+

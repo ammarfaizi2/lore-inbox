@@ -1,73 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbULVQKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbULVQOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbULVQKy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 11:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbULVQKy
+	id S262007AbULVQOM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 11:14:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbULVQOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 11:10:54 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:33959 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262005AbULVQKU
+	Wed, 22 Dec 2004 11:14:12 -0500
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:49284 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262007AbULVQOF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 11:10:20 -0500
-Date: Wed, 22 Dec 2004 08:09:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, willy@debian.org,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH] add legacy resources to sysfs
-Message-ID: <20041222160952.GB9358@kroah.com>
-References: <200412211247.44883.jbarnes@engr.sgi.com> <20041221214623.GB10362@kroah.com> <1103704739.28670.57.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 22 Dec 2004 11:14:05 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] USB: fix Scheduling while atomic warning when resuming.
+Date: Wed, 22 Dec 2004 08:14:17 -0800
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
+References: <200412220103.iBM13wS0002158@hera.kernel.org> <200412212059.15426.david-b@pacbell.net> <41C905C0.9000705@pobox.com>
+In-Reply-To: <41C905C0.9000705@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1103704739.28670.57.camel@gaston>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200412220814.17414.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 09:38:59AM +0100, Benjamin Herrenschmidt wrote:
-> On Tue, 2004-12-21 at 13:46 -0800, Greg KH wrote:
-> > On Tue, Dec 21, 2004 at 12:47:44PM -0800, Jesse Barnes wrote:
-> > > Here's a rediff against Greg's current tree.  It adds legacy_io and legacy_mem 
-> > > files to each PCI bus directory in sysfs for use by applications that want to 
-> > > do old school ISA style programming from userspace.
-> > > 
-> > > I'm not sure I've got the sysfs file creation correct, Greg?  Am I passing the 
-> > > wrong thing around?  The compile warnings in pci-sysfs.c for the new routines 
-> > > seem to indicate that...  Basically I need to get to a pci_bus structure from 
-> > > the read/write/mmap routines, and that should be accessible from the kobject 
-> > > somewhere, right?
-> > 
-> > You are passing the wrong things around :)
-> > 
-> > A struct pci_bus is a struct class_device, not a struct device.  I think
-> > you need to rethink your goal of putting the files into the pci device
-> > directory, or just put the files into the proper /sys/class/pci_bus/*
-> > directory as your code assumes is happening.
+On Tuesday 21 December 2004 9:27 pm, Jeff Garzik wrote:
+> > There's no guarantee that suspend() and resume() methods
+> > are only called during system-wide suspend and resume.
 > 
-> It makes no sense in /sys/class/pci_bus/* since we need the files to be
-> in a bus _instance_ 
+> That is precisely the reason why I am concerned.  If it was only during 
+> system-wide resume, the impact of the very-long mdelay() would be more 
+> difficult to notice.
+> 
+> You also ignored my question :)
 
-Hm, what do you mean by "instance"?  My /sys/class/pci_bus has the
-individual pci busses:
- $ tree /sys/class/pci_bus/
- /sys/class/pci_bus/
- |-- 0000:00
- |   |-- bridge -> ../../../devices/pci0000:00
- |   `-- cpuaffinity
- |-- 0000:01
- |   |-- bridge -> ../../../devices/pci0000:00/0000:00:01.0
- |   `-- cpuaffinity
- `-- 0000:02
-     |-- bridge -> ../../../devices/pci0000:00/0000:00:1e.0
-     `-- cpuaffinity
+I didn't ignore it; I answered it with a question!  If you had
+answered mine, you'd have had the answer to yours ... :)
+
+One way another task can be active during resume is with sysfs:
+"echo -n 0 > /sys/devices/.../power/state", after similar selective
+suspend of the device.  That's uncommon for now, primarily useful
+for unit-testing driver suspend/resume.  Plus, its design is
+currently borked; the pm core code doesn't bother to suspend
+children of the device first.  But I do expect that selective
+suspend/resume should work in Linux; it's not reasonable to design
+the pm framework otherwise.
+
+But in any case, while it'd be difficult to notice that mdelay()
+in current systems (since selective suspend/resume is still rare)
+it'd clearly be wrong to assume that resume() methods don't need
+to have mutual exclusion during their critical sections.
 
 
-We already have the cpuaffinity stuff in there, why not more, pci bus
-specific things?
+> If the PCI layer is calling the resume method for a PCI device while 
+> simultaneously calling the suspend method, that's a PCI layer problem.
 
-thanks,
+I never suggested such a scenario.  Though that would be another
+case where such critical sections matter, like the remove() method.
 
-greg k-h
+
+> Similarly, If the USB layer is calling into your driver while you are 
+> resuming, something is broken and it ain't your locking.
+
+Which gets back to the question I asked you:  if not the lock in
+question, what's ensuring that everything behaves right?
+
+As I said originally, I don't much like long udelays, but
+at least it's clearly correct in terms of mutual exclusion.
+You've not shown any solution that's equivalently correct.
+
+- Dave

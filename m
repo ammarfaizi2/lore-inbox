@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267710AbTASWEw>; Sun, 19 Jan 2003 17:04:52 -0500
+	id <S267698AbTASWDM>; Sun, 19 Jan 2003 17:03:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267711AbTASWEw>; Sun, 19 Jan 2003 17:04:52 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:9410 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id <S267710AbTASWEv>; Sun, 19 Jan 2003 17:04:51 -0500
-Date: Sun, 19 Jan 2003 23:13:51 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-pre3-ac oops
-Message-ID: <20030119221351.GT8325@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0301191347310.2280-100000@localhost.localdomain> <3E2B1833.5060203@bogonomicon.net>
+	id <S267699AbTASWDM>; Sun, 19 Jan 2003 17:03:12 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:56047 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S267698AbTASWDL>; Sun, 19 Jan 2003 17:03:11 -0500
+Subject: Re: 2.4.21pre3 smp_affinity, very strange
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Hans Lambrechts <hans.lambrechts@skynet.be>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200301191645.03034.hans.lambrechts@skynet.be>
+References: <200301191645.03034.hans.lambrechts@skynet.be>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8RR6t+WDlIPggTAC2xiR"
+Organization: Red Hat, Inc.
+Message-Id: <1043002445.1479.8.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E2B1833.5060203@bogonomicon.net>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 19 Jan 2003 19:54:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bryan Andersen <bryan@bogonomicon.net>:
-> Patch looks like it solved the problem.  6 kernel compiles
-> and 6 mke2fs with bad block scans and the system is still
-> up.
 
-Same here. I can actually work using this kernel
+--=-8RR6t+WDlIPggTAC2xiR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> The only thing I'm still seeing that is unusual is this kernel
-> message:
-> 
->   ide: no cache flush required.
 
-Dito
+> Did the APIC or mpparse changes cause this?
++#ifdef CONFIG_X86_CLUSTERED_APIC
++static inline int target_cpus(void)
++{
++       static int cpu;
++       switch(clustered_apic_mode){
++               case CLUSTERED_APIC_NUMAQ:
++                       /* Broadcast intrs to local quad only. */
++                       return APIC_BROADCAST_ID_APIC;
++               case CLUSTERED_APIC_XAPIC:
++                       /*round robin the interrupts*/
++                       cpu =3D (cpu+1)%smp_num_cpus;
++                       return cpu_to_physical_apicid(cpu);
++               default:
++       }
++       return cpu_online_map;
++}
++#else
++#define target_cpus() (0x01)
++#endif
+(2.4.21-pre3)
+that's wrong.....  0x01 -> 0xFF and it should be fixed
+=20
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-Look what sendmail just dragged in: 
-Ah, so if SMTP is a dog, does that imply that sendmail is a cat? It'd
-make sense, given that cats will often drag in nasty little dying
-things & drop them lovingly in front of you.  
-A female cat. Because sometimes, sendmail is a bitch. 
+--=-8RR6t+WDlIPggTAC2xiR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+KvRNxULwo51rQBIRAhmFAJ4x6Egb+voQeRTyfRLAuXW/739GxACdFcGI
+hjVrTToOIGvRrd5E2ZzxnP0=
+=Exws
+-----END PGP SIGNATURE-----
+
+--=-8RR6t+WDlIPggTAC2xiR--

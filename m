@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbUDMJTa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 05:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUDMJTa
+	id S263371AbUDMJUp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 05:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUDMJTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 13 Apr 2004 05:19:35 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:58539 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263370AbUDMJTa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 13 Apr 2004 05:19:30 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:55056 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263084AbUDMJT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 05:19:27 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm5 devpts filesystem doesn't work
-Date: Tue, 13 Apr 2004 11:19:05 +0200
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, helgehaf@aitel.hist.no
-References: <20040412221717.782a4b97.akpm@osdl.org> <20040413011133.2d15a4d6.akpm@osdl.org> <20040413013942.181cb2b5.akpm@osdl.org>
-In-Reply-To: <20040413013942.181cb2b5.akpm@osdl.org>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+From: Duncan Sands <baldrick@free.fr>
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH 3/3] USB speedtouch: bump the version number
+Date: Tue, 13 Apr 2004 11:19:26 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-usb-devel@lists.sf.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404131119.05338@WOLK>
+Message-Id: <200404131119.26807.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 April 2004 10:39, Andrew Morton wrote:
+Hi Greg, this patch bumps the speedtouch driver's version number.
+It also adds the version number to the module description, so people
+can see it with modinfo.  I also added a MODULE_VERSION line (why?
+because it was there...)  The patch is against your 2.6 kernel tree.
 
-Hi Andrew,
+ speedtch.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-> yes, that patch is bust.  And rwsem-scale.patch is oopsing all over the
-> place.  Ho hum.
-> I've trashed 2.6.5-mm5 and am uploading 2.6.5-mm5-1, same place.
 
-where is the announce? Just wondering why at least these:
-
-- devinet-ctl_table-fix.patch
-- ipmi-socket-interface.patch
-
-are missing?
-
-ciao, Marc
+diff -Nru a/drivers/usb/misc/speedtch.c b/drivers/usb/misc/speedtch.c
+--- a/drivers/usb/misc/speedtch.c	Tue Apr 13 10:57:51 2004
++++ b/drivers/usb/misc/speedtch.c	Tue Apr 13 10:57:51 2004
+@@ -106,8 +106,8 @@
+ #endif
+ 
+ #define DRIVER_AUTHOR	"Johan Verrept, Duncan Sands <duncan.sands@free.fr>"
+-#define DRIVER_DESC	"Alcatel SpeedTouch USB driver"
+-#define DRIVER_VERSION	"1.7"
++#define DRIVER_VERSION	"1.8"
++#define DRIVER_DESC	"Alcatel SpeedTouch USB driver version " DRIVER_VERSION
+ 
+ static const char udsl_driver_name [] = "speedtch";
+ 
+@@ -1347,6 +1347,7 @@
+ MODULE_AUTHOR (DRIVER_AUTHOR);
+ MODULE_DESCRIPTION (DRIVER_DESC);
+ MODULE_LICENSE ("GPL");
++MODULE_VERSION (DRIVER_VERSION);
+ 
+ 
+ /************

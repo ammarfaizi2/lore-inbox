@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288949AbSAZHrj>; Sat, 26 Jan 2002 02:47:39 -0500
+	id <S289013AbSAZILY>; Sat, 26 Jan 2002 03:11:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289013AbSAZHra>; Sat, 26 Jan 2002 02:47:30 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:43793 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288949AbSAZHrQ>; Sat, 26 Jan 2002 02:47:16 -0500
-Message-ID: <3C525D7B.EDAC966A@zip.com.au>
-Date: Fri, 25 Jan 2002 23:40:43 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: J Sloan <jjs@pobox.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: stock 2.4.18-pre6 vs low latency
-In-Reply-To: <3C525BA0.1050405@pobox.com>
+	id <S289033AbSAZILI>; Sat, 26 Jan 2002 03:11:08 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:10394 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S289013AbSAZIK4>;
+	Sat, 26 Jan 2002 03:10:56 -0500
+Date: Sat, 26 Jan 2002 09:10:24 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Patrick Mochel <mochel@osdl.org>,
+        Grover Andrew <andrew.grover@intel.com>, "'lwn@lwn.net'" <lwn@lwn.net>,
+        "Acpi-linux (E-mail)" <acpi-devel@lists.sourceforge.net>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: ACPI mentioned on lwn.net/kernel
+Message-ID: <20020126091024.E1735@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.33.0201251019230.800-100000@segfault.osdlab.org> <E16UBRa-0003IA-00@the-village.bc.nu> <20020126033703.E5730@kushida.apsleyroad.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020126033703.E5730@kushida.apsleyroad.org>; from lk@tantalophile.demon.co.uk on Sat, Jan 26, 2002 at 03:37:03AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan wrote:
+On Sat, Jan 26, 2002 at 03:37:03AM +0000, Jamie Lokier wrote:
+> Alan Cox wrote:
+> > > (*) Aside from any potential copyright infringement on the tables 
+> > > themselves. But, it is theoretically possible to override the DSDT with 
+> > 
+> > Criminal liability under the DMCA and five years in jail too, along with
+> > having your SF account pulled and losing your ISP access at the first
+> > suggestion of copyright issues - and since you posted that email you are
+> > clearly not doing so by accident.
 > 
-> 2.4.18-pre6 + lowlat
-> -----------------------
-> 0.0 8580075
-> 0.1 13384
-> 0.2 350
-> 0.3 167
-> 0.4 54
-> 0.5 7
-> 0.6 5
-> 0.7 3
-> 0.8 1
-> 2.7 1
+> Fortunately he was citing a legitimate purpose: to workaround ACPI table
+> bugs.  Perhaps some judges favour legitimacy while other ones favour
+> corruption; choose your judges wisely :-)
 
-OK (ish)
+I doubt that working around bugs is allowed either; one could argue that
+both region-coding and CSS are bugs disabling me from seeing particular
+DVD's and for sure that new CD-protection scheme is a bug, considering
+the "CD":s they produce don't even qualify as such according to
+Phillips(?)
 
-> 33.6 1
 
-Very not OK.  Is this repeatable?
-
--
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

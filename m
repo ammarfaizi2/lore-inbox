@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbTAJOZw>; Fri, 10 Jan 2003 09:25:52 -0500
+	id <S265126AbTAJO3q>; Fri, 10 Jan 2003 09:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265190AbTAJOZw>; Fri, 10 Jan 2003 09:25:52 -0500
-Received: from cnxt10002.conexant.com ([198.62.10.2]:18522 "EHLO
-	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S265177AbTAJOZu>; Fri, 10 Jan 2003 09:25:50 -0500
-Date: Fri, 10 Jan 2003 15:34:29 +0100 (CET)
-From: Rui Sousa <rui.sousa@laposte.net>
-X-X-Sender: rsousa@sophia-sousar2.nice.mindspeed.com
-To: Joshua Stewart <joshua.stewart@comcast.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux network development <netdev@oss.sgi.com>
-Subject: Re: Pushing a stray sk_buff to the NIC
-In-Reply-To: <1042161058.6107.18.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0301101512140.2312-100000@sophia-sousar2.nice.mindspeed.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265097AbTAJO3q>; Fri, 10 Jan 2003 09:29:46 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30703 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S265126AbTAJO3p>; Fri, 10 Jan 2003 09:29:45 -0500
+Date: Fri, 10 Jan 2003 15:38:25 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>, Joachim Martillo <martillo@telfordtools.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21pre3-ac2
+Message-ID: <20030110143825.GN6626@fs.tum.de>
+References: <200301090139.h091d9G26412@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200301090139.h091d9G26412@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, Joshua Stewart wrote:
+On Wed, Jan 08, 2003 at 08:39:09PM -0500, Alan Cox wrote:
 
-Hi,
+>...
+> Linux 2.4.21pre3-ac2
+>...
+> o	Driver for Aurora Sio16 PCI adapter series	(Joachim Martillo)
+> 	(SIO8000P, 16000P, and CPCI)
+> 	| Initial merge
+>...
 
-> I'm trying to take "hand-built" sk_buffs with little more than some data
-> and a dev member and push them to the NIC for transmission.  I would
-> like to simply give them to dev_queue_xmit.  Does anybody know what
-> state I should have them in before handing them to dev_queue_xmit? 
+siolx_cleanup in drivers/char/cd1865/cd1865.c is __exit but called from 
+the __init function siolx_init causing a .text.exit error when compiling 
+this driver statically into the kernel. The following patch that removes 
+the __exit fixes it:
 
-In a driver I wrote I setup (for a newly allocated skb and a 2.4 kernel):
-
-	some_header = (struct some_header *) skb_push(skb, sizeof(struct some_header));
-
-	skb->nh.raw = (unsigned char *) some_header;
-
-	this_eth_hdr = (struct ethhdr *) skb_push(skb, ETH_HLEN);
-
-	this_eth_hdr->h_proto = __constant_htons(ETH_P_SOME_HEADER);
-	memcpy(this_eth_hdr->h_source, dev->dev_addr, ETH_ALEN);
-
-	skb->dev = dev;
-        skb->protocol = __constant_htons(ETH_P_CSM_ENCAPS);
-
-	dev_queue_xmit(skb);
-
-where some_header for you is probably an IP header and dev is the "struct 
-net_device" of the device you are using to send the packet out on the 
-wire.
-
-> Should skb->data point to the start of a MAC header or an IP header?
-
-MAC
+--- linux-2.4.20-ac/drivers/char/cd1865/cd1865.c.old	2003-01-10 15:31:41.000000000 +0100
++++ linux-2.4.20-ac/drivers/char/cd1865/cd1865.c	2003-01-10 15:32:26.000000000 +0100
+@@ -2630,7 +2630,7 @@
+ }
  
-> Also, given an IP address in skb->nh.iph->daddr, what's the easiest way
-> to get the appropriate MAC address?
+ 
+-static void __exit siolx_cleanup(void)
++static void siolx_cleanup(void)
+ {
+ 	siolx_release_drivers();
+ 	siolx_release_memory();
 
-First you need to get the device, then the MAC address is easy. This 
-should be what normal IP routing code does...
 
-> J
-> 
-> 
+cu
+Adrian
 
-Rui
+-- 
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

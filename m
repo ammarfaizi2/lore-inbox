@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVCRR3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVCRRcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbVCRR3c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 12:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVCRR3b
+	id S262021AbVCRRcB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 12:32:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCRRcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 12:29:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:14828 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262001AbVCRR30 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 12:29:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=krnJHdQsQ4/oz5u3PHxp+KJd+sk+NMrryPJJ6lq7TPw42wBNUmjF/Ln3Ue92S1zmEUsaJTnQtc5Q8TtqqZUQM4ogXz1C+QePZRQCmG2kmxyuegBoD6TsHf+CS7gG0qb7AIMJkEMSzdD76VMZ/hO9JNkTTNqCfXhkydF4+nP3Ezs=
-Message-ID: <58cb370e0503180929716ffea3@mail.gmail.com>
-Date: Fri, 18 Mar 2005 18:29:25 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: lkml@think-future.de, Linux Kernel-Liste <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Buffer I/O error on device hdg1, system freeze.
-In-Reply-To: <20050318152952.7657144FBE@service.i-think-future.de>
+	Fri, 18 Mar 2005 12:32:00 -0500
+Received: from metis.extern.pengutronix.de ([83.236.181.26]:22192 "EHLO
+	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
+	id S262010AbVCRRaE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 12:30:04 -0500
+Date: Fri, 18 Mar 2005 18:29:57 +0100
+From: Sascha Hauer <s.hauer@pengutronix.de>
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] DM9000 network driver
+Message-ID: <20050318172956.GB25489@metis.extern.pengutronix.de>
+References: <20050318133143.GA20838@metis.extern.pengutronix.de> <1111162885.9874.13.camel@localhost.localdomain> <20050318165817.GA22545@home.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <20050318152952.7657144FBE@service.i-think-future.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050318165817.GA22545@home.fluff.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005 16:29:45 +0100, lkml@think-future.de
-<lkml@think-future.de> wrote:
+On Fri, Mar 18, 2005 at 04:58:17PM +0000, Ben Dooks wrote:
 > 
+> As the person who did the updates to Sacha's
+> original driver port, he should have really checked
+> with me for up-to-date version first, and to collect
+> a Signed-off-by: line.
 > 
-> One line summary of the problem:
-> Buffer I/O error on device hdg1, system freeze.
-> 
-> Full description of the problem/report:
->  the following error showed up in dmesg today:
-> 
->  hdg: dma_intr: status=0x51 { DriveReady SeekComplete Error }
->  hdg: dma_intr: error=0x40 { UncorrectableError }, LBAsect=262311, high=0, low=262311, sector=262311
->  ide: failed opcode was: unknown
->  end_request: I/O error, dev hdg, sector 262311
->  Buffer I/O error on device hdg1, logical block 131124
-> 
->   fscking this disk freezes the entire system.
-> 
->  The disk was remounted ro afterwards.
->  Disk itself is ok. Is a new one.
 
-I doubt it, you can verify this with:
-http://smartmontools.sf.net
+Sorry, Ben. Of course I should have asked you first, but I had this
+patch lying around for too long, and I felt I had to do something.
+Do you still have updates to the driver? Then we should work them in
+before we go ahead.
+
+Sascha
+

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131458AbQKTINJ>; Mon, 20 Nov 2000 03:13:09 -0500
+	id <S130155AbQKTJDw>; Mon, 20 Nov 2000 04:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131454AbQKTINB>; Mon, 20 Nov 2000 03:13:01 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:26103 "HELO rockhopper")
-	by vger.kernel.org with SMTP id <S131458AbQKTIMr>;
-	Mon, 20 Nov 2000 03:12:47 -0500
-From: Christopher Yeoh <cyeoh@linuxcare.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14872.54811.197665.178878@rockhopper.linuxcare.com.au>
-Date: Mon, 20 Nov 2000 18:43:23 +1100 (EST)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 0 byte writes should not seek even with O_APPEND
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	id <S131396AbQKTJDl>; Mon, 20 Nov 2000 04:03:41 -0500
+Received: from mailhost.opengroup.fr ([62.160.165.1]:65042 "EHLO
+	mailhost.ri.silicomp.fr") by vger.kernel.org with ESMTP
+	id <S130155AbQKTJDZ>; Mon, 20 Nov 2000 04:03:25 -0500
+Message-Id: <200011200832.JAA19770@mailhost.ri.silicomp.fr>
+To: Guest section DW <dwguest@win.tue.nl>, Alexander Viro <viro@math.psu.edu>
+cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Inconsistent behaviour of rmdir 
+In-Reply-To: Your message of Fri, 17 Nov 2000 15:27:31 -0500.
+             <Pine.GSO.4.21.0011171514210.18150-100000@weyl.math.psu.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain
+Date: Mon, 20 Nov 2000 09:32:39 +0100
+From: Eric Paire <paire@ri.silicomp.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+> 
+> On Fri, 17 Nov 2000, Guest section DW wrote:
+> 
+> > I see that an entire discussion has taken place. Let me just remark this,
+> > quoting the Austin draft:
+> > 
+> > If the path argument refers to a path whose final component is either
+> > dot or dot-dot, rmdir( ) shall fail.
+> > 
+> > EINVAL	The path argument contains a last component that is dot.
+> [snip]
+> 
+Then, I don't understand why the EINVAL error condition does not also include
+dot-dot as last component.
 
-Currently when a zero byte write is done on a regular file
-opened with O_APPEND the file offset is set to the end of the
-file. For POSIX compliant behaviour this shouldn't happen.
+> > So, it seems that -EINVAL would be a better return value in case LAST_DOT.
+> 
+> No problems with that... Linus, could you apply the following (cut-and-paste
+> alert)?
+> 
+I think that there is another case where EINVAL (or EBUSY) should be more
+relevant than ENOTEMPTY: consider a process invoking 'rmdir("..")' where "."
+is empty and its current root directory (just because ".." and "." refer
+to the same directory which is actually empty).
 
-The attached patch fixes this.
+Anyway, thanks for your explainations on this special UNIX FS behaviour.
+-Eric
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+ Eric PAIRE
+Web  : http://www.ri.silicomp.com/~paire  | Groupe SILICOMP - Research Institute
+Email: eric.paire@ri.silicomp.com         | 2, avenue de Vignate
+Phone: +33 (0) 476 63 48 71               | F-38610 Gieres
+Fax  : +33 (0) 476 51 05 32               | FRANCE
 
-Chris.
-
---- mm/filemap.c.orig	Mon Nov 20 14:05:38 2000
-+++ mm/filemap.c	Mon Nov 20 18:11:43 2000
-@@ -2458,12 +2458,15 @@
- 		}
- 	}
- 
--	status  = 0;
--	if (count) {
--		remove_suid(inode);
--		inode->i_ctime = inode->i_mtime = CURRENT_TIME;
--		mark_inode_dirty(inode);
-+	if (count == 0) {
-+		err = 0;
-+		goto out;
- 	}
-+
-+	status  = 0;
-+	remove_suid(inode);
-+	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-+	mark_inode_dirty(inode);
- 
- 	while (count) {
- 		unsigned long bytes, index, offset;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

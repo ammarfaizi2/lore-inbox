@@ -1,33 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129305AbRCLAOR>; Sun, 11 Mar 2001 19:14:17 -0500
+	id <S129292AbRCLA2r>; Sun, 11 Mar 2001 19:28:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRCLAOH>; Sun, 11 Mar 2001 19:14:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15119 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129270AbRCLAOD>; Sun, 11 Mar 2001 19:14:03 -0500
-Subject: Re: About DC-315U scsi driver
-To: kurt@garloff.de (Kurt Garloff)
-Date: Mon, 12 Mar 2001 00:15:42 +0000 (GMT)
-Cc: cwz@aic.ee.ndhu.edu.tw (³¯¤ý®i),
-        linux-kernel@vger.kernel.org (Linux kernel list),
-        linux-scsi@vger.kernel.org (Linux SCSI list)
-In-Reply-To: <20010312004401.H2697@garloff.casa-etp.nl> from "Kurt Garloff" at Mar 12, 2001 12:44:01 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129306AbRCLA2h>; Sun, 11 Mar 2001 19:28:37 -0500
+Received: from platan.vc.cvut.cz ([147.32.240.81]:48657 "EHLO
+	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
+	id <S129300AbRCLA2c>; Sun, 11 Mar 2001 19:28:32 -0500
+Date: Mon, 12 Mar 2001 01:27:38 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: ajschrotenboer@lycosmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VMware 2.0.3 & Kernel 2.4.2-ac17
+Message-ID: <20010312012738.A8012@platan.vc.cvut.cz>
+In-Reply-To: <20010312011044.F1530@ppc.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14cG01-0000vN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010312011044.F1530@ppc.vc.cvut.cz>; from vandrove@vc.cvut.cz on Mon, Mar 12, 2001 at 01:10:44AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > when I burn CDRs. Some files burned is different from the origin at HD.
-> > I use 2.2.17 with Tekram's driver,and nothing is wrong.
+> While compiling the vmnet module, there is a warning
 > 
-> Indeed; people report more problems on 2.4 kernels than on 2.2 kernels. I
-> currently have no clue why.
+> make: Entering directory `/tmp/vmware-config2/vmnet-only'
+> bridge.c: In function `VNetBridgeReceiveFromDev':
+> bridge.c:788: warning: implicit declaration of function `skb_datarefp'
+> 
+> and while inserting the module
+> 
+> /tmp/vmware-config2/vmnet.o: unresolved symbol skb_datarefp
+> 
+> I have traced this back to 2.4.2-ac4 by looking for where this function 
+> was removed.
 
-2.4 causes longer continuous I/O requests to be sent to the drive for one
+Try this patch. I believe that there are no other needed changes
+in vmnet code, but as I do not have any scatter-gather checksumming
+hardware around, I'm not 100% sure. But up to now nobody complained 
+about getting 'xxx invoked with paged skb', so I believe that rest
+of code is correct.
+ 
+diff -u vmnet-only.dist/vnetInt.h vmnet-only/vnetInt.h
+--- vmnet-only.dist/vnetInt.h	Thu Nov  2 02:40:20 2000
++++ vmnet-only/vnetInt.h	Mon Mar 12 01:12:00 2001
+@@ -16,9 +16,15 @@
+ #  define KFREE_SKB(skb, type)		kfree_skb(skb)
+ #  define DEV_KFREE_SKB(skb, type)	dev_kfree_skb(skb)
+ #  define SKB_INCREF(skb)		atomic_inc(&(skb)->users)
+-#  define SKB_IS_CLONE_OF(clone, skb)	( \
+-      skb_datarefp(clone) == skb_datarefp(skb) \
+-   )
++#  ifdef skb_shinfo
++#    define SKB_IS_CLONE_OF(clone, skb)	( \
++        skb_shinfo(clone) == skb_shinfo(skb) \
++     )
++#  else
++#    define SKB_IS_CLONE_OF(clone, skb)	( \
++        skb_datarefp(clone) == skb_datarefp(skb) \
++     )
++#  endif
+ #  define SK_ALLOC(pri)			sk_alloc(0, pri, 1)
+ #  define DEV_QUEUE_XMIT(skb, dev, pri)	( \
+       (skb)->dev = (dev), \
 
+> yes, technically this probably is OT, and properly belong on the VMware 
+> list, but I can't access their nntp server.
+
+Is problem on your side or on VMware side? If on VMware one, I'd like to
+know (private pls.).
+						Best regards,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz
 

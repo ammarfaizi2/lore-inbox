@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbULCT4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbULCUAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbULCT4F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 14:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbULCTzZ
+	id S262470AbULCUAA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 15:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbULCTxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 14:55:25 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:17559 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262491AbULCTya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 14:54:30 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Why INSTALL_PATH is not /boot by default?
-Date: Fri, 3 Dec 2004 20:57:54 +0100
-User-Agent: KMail/1.7.1
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200411160127.15471.blaisorblade_spam@yahoo.it> <20041121094308.GA7911@mars.ravnborg.org>
-In-Reply-To: <20041121094308.GA7911@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412032057.54958.blaisorblade_spam@yahoo.it>
+	Fri, 3 Dec 2004 14:53:09 -0500
+Received: from pool-151-203-6-248.bos.east.verizon.net ([151.203.6.248]:15108
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262469AbULCT2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 14:28:02 -0500
+Message-Id: <200412032144.iB3Li3ZW004688@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
+       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Subject: [PATCH] UML - export end_iomem
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 Dec 2004 16:44:03 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 November 2004 10:43, Sam Ravnborg wrote:
-> On Tue, Nov 16, 2004 at 01:27:15AM +0100, Blaisorblade wrote:
-> > This line, in the main Makefile, is commented:
-> >
-> > export  INSTALL_PATH=/boot
-> >
-> > Why? It seems pointless, since almost everything has been for ages
-> > requiring this settings, and distros' versions of installkernel have been
-> > taking an empty INSTALL_PATH as meaning /boot for ages (for instance
-> > Mandrake). It's maybe even mandated by the FHS (dunno).
-> >
-> > Is there any reason I'm missing?
->
-> Changing this may have impact on default behaviour of some versions of
-> installkernel.
-> If /boot is ok for other than just i386 we can give it a try.
-Sorry for not answering to this.
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
 
-What I say is *yes*, let's try it.
+some modules need end_iomem to be exported.
 
-However, I know that ia64 is different because I read that in Fedora 2 kernel 
-RPM specs:
+Signed-off-by: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-#
-# IA64 wants to be different as usual.. sigh.
-#
-%ifarch ia64
-%define image_install_path boot/efi/EFI/redhat
-%else
-%define image_install_path boot
-%endif
+diff -puN arch/um/kernel/ksyms.c~export-end_iomem arch/um/kernel/ksyms.c
+--- linux-2.6.10-rc2/arch/um/kernel/ksyms.c~export-end_iomem	2004-11-25 16:45:34.172945074 +0100
++++ linux-2.6.10-rc2-root/arch/um/kernel/ksyms.c	2004-11-25 16:45:34.177943421 +0100
+@@ -48,6 +48,7 @@ EXPORT_SYMBOL(to_virt);
+ EXPORT_SYMBOL(mode_tt);
+ EXPORT_SYMBOL(handle_page_fault);
+ EXPORT_SYMBOL(find_iomem);
++EXPORT_SYMBOL(end_iomem);
+ 
+ #ifdef CONFIG_MODE_TT
+ EXPORT_SYMBOL(strncpy_from_user_tt);
+_
 
-that should be done with a "ARCH_DEFAULT_INSTALL_PATH" set by archs and the 
-main Makefile taking it by default. (Or even without indirection).
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade

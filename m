@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbQLXRSA>; Sun, 24 Dec 2000 12:18:00 -0500
+	id <S129183AbQLXR6q>; Sun, 24 Dec 2000 12:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130148AbQLXRRu>; Sun, 24 Dec 2000 12:17:50 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:25348 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129759AbQLXRRo>;
-	Sun, 24 Dec 2000 12:17:44 -0500
-Message-ID: <20001223233448.F541@bug.ucw.cz>
-Date: Sat, 23 Dec 2000 23:34:48 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Michael Chen <michaelc@turbolinux.com.cn>, alan@lxorguk.ukuu.org.uk,
-        torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: About Celeron processor memory barrier problem
-In-Reply-To: <4015029078.19991223172443@turbolinux.com.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <4015029078.19991223172443@turbolinux.com.cn>; from michael chen on Thu, Dec 23, 1999 at 05:24:43PM +0800
+	id <S129325AbQLXR6h>; Sun, 24 Dec 2000 12:58:37 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:47116 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129183AbQLXR6R>;
+	Sun, 24 Dec 2000 12:58:17 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200012241727.UAA31711@ms2.inr.ac.ru>
+Subject: Re: test13-pre4 ip defrag oops
+To: mhaque@haque.NET (Mohammad A. Haque)
+Date: Sun, 24 Dec 2000 20:27:25 +0300 (MSK)
+Cc: davem@redhat.com (Dave Miller), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0012232205420.7311-100000@viper.haque.net> from "Mohammad A. Haque" at Dec 24, 0 06:15:00 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-> diff -Nur linux/include/asm-i386/system.h linux.new/include/asm-i386/system.h
-> --- linux/include/asm-i386/system.h     Mon Dec 11 19:26:39 2000
-> +++ linux.new/include/asm-i386/system.h Sat Dec 23 16:06:01 2000
-> @@ -274,7 +274,14 @@
->  #ifndef CONFIG_X86_XMM
->  #define mb()   __asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
->  #else
-> -#define mb()   __asm__ __volatile__ ("sfence": : :"memory")
-> +#define mb()  do { \
-> +       if ( cpu_has_xmm ) { \
-                ~~~~~~~~~~~~~~~~~~
+> eax: 20202037   ebx: d3a406c0   ecx: cf683024   edx: c734a2a0
 
-Cost of test may well be bigger than gain by using sfence...
+Ough... found eventually. skb->dev turns out to be not initialized. 8)8)
 
-Pavel
+This patchlet surely fixes the bug. (plus writes are ordered)
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Alexey
+
+
+
+--- ../vger3-001222/linux/net/core/skbuff.c	Fri Dec 22 19:37:54 2000
++++ linux/net/core/skbuff.c	Sun Dec 24 20:24:20 2000
+@@ -227,15 +227,20 @@
+ {
+ 	struct sk_buff *skb = p;
+ 
+-	skb->destructor = NULL;
+-	skb->pkt_type = PACKET_HOST;	/* Default type */
+-	skb->prev = skb->next = NULL;
++	skb->next = NULL;
++	skb->prev = NULL;
+ 	skb->list = NULL;
+ 	skb->sk = NULL;
+ 	skb->stamp.tv_sec=0;	/* No idea about time */
++	skb->dev = NULL;
++	skb->dst = NULL;
++	memset(skb->cb, 0, sizeof(skb->cb));
++	skb->pkt_type = PACKET_HOST;	/* Default type */
+ 	skb->ip_summed = 0;
++	skb->priority = 0;
+ 	skb->security = 0;	/* By default packets are insecure */
+-	skb->dst = NULL;
++	skb->destructor = NULL;
++
+ #ifdef CONFIG_NETFILTER
+ 	skb->nfmark = skb->nfcache = 0;
+ 	skb->nfct = NULL;
+@@ -246,8 +251,6 @@
+ #ifdef CONFIG_NET_SCHED
+ 	skb->tc_index = 0;
+ #endif
+-	memset(skb->cb, 0, sizeof(skb->cb));
+-	skb->priority = 0;
+ }
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267366AbSKPVfC>; Sat, 16 Nov 2002 16:35:02 -0500
+	id <S267367AbSKPVfy>; Sat, 16 Nov 2002 16:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267367AbSKPVfC>; Sat, 16 Nov 2002 16:35:02 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:12042 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267366AbSKPVfB>; Sat, 16 Nov 2002 16:35:01 -0500
-Date: Sat, 16 Nov 2002 19:41:40 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: linux-kernel@vger.kernel.org, Gerhard Mack <gmack@innerfire.net>,
-       Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021116214140.GP24641@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, Gerhard Mack <gmack@innerfire.net>,
-	Larry McVoy <lm@bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	"David S. Miller" <davem@redhat.com>
-References: <20021115132304.M19291@work.bitmover.com> <Pine.LNX.4.44.0211160209180.18309-100000@innerfire.net> <20021116071750.GR16673@conectiva.com.br> <20021116210831.GA15533@Master.Wizards>
+	id <S267370AbSKPVfy>; Sat, 16 Nov 2002 16:35:54 -0500
+Received: from verein.lst.de ([212.34.181.86]:14607 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S267367AbSKPVfw>;
+	Sat, 16 Nov 2002 16:35:52 -0500
+Date: Sat, 16 Nov 2002 22:42:46 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] nuke some crap from fs.h
+Message-ID: <20021116224246.A26097@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021116210831.GA15533@Master.Wizards>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Nov 16, 2002 at 04:08:31PM -0500, Murray J. Root escreveu:
-> On Sat, Nov 16, 2002 at 05:17:50AM -0200, Arnaldo Carvalho de Melo wrote:
-> > Em Sat, Nov 16, 2002 at 02:10:13AM -0500, Gerhard Mack escreveu:
-> > > On Fri, 15 Nov 2002, Larry McVoy wrote:
-> >  
-> > > > This is not an easy problem space, on the one hand you want to have all
-> > > > bugs tracked, on the other hand, trivial bugs in the bug db just make the
-> > > > bug db unusable.  No engineer is going to put up with 100,000 stupid bug
-> > > > reports.  You need a plan to get rid of those or keep them out of the bugdb
-> > > > or it's unlikely to get used by the people who really need to use it.
-> > 
-> > > Or the bugs could just be assigned to whoever owns the patchset ...
-> > 
-> > or the tickets could just be closed after, say, one month without activity.
-> > 
-> > If it is really a bug it'll be resubmitted after a while, its not as we'll not
-> > have duplicates anyway...
-  
-> Very bad idea. People using unusual hardware do not want to keep
-> re-submitting a bug report. I know when I submit a report I expect that it
-> will remain until the problem is fixed. I do not like to receive multiple
+Remove four dead prototypes and don't include mount.h here - fs.h
+itself doesn't need it at all (just the struct vfsmount forward
+declaration) and gets it through dcache.h anyway.
 
-Oh well, there is _no_ guarantee that it will be fixed, sometimes there is no
-maintainer at all and the ticket will stay there forever lost in the noise...
-And if anybody is interested in fixing the driver or even looking to see if
-somebody submitted a ticket he/she can just search for all tickets, even the
-ones closed because nobody is did any activity in a perior of one month (or any
-other timeout period).
 
-Its not like the ticket will vanish from the database.
-
-- Arnaldo
+--- 1.190/include/linux/fs.h	Thu Nov 14 06:35:31 2002
++++ edited/include/linux/fs.h	Sat Nov 16 20:18:12 2002
+@@ -28,7 +28,7 @@
+ 
+ struct poll_table_struct;
+ struct nameidata;
+-
++struct vfsmount;
+ 
+ /*
+  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
+@@ -271,10 +271,9 @@
+ #define ATTR_FLAG_NODIRATIME	16 	/* Don't update atime for directory */
+ 
+ /*
+- * Includes for diskquotas and mount structures.
++ * Includes for diskquotas.
+  */
+ #include <linux/quota.h>
+-#include <linux/mount.h>
+ 
+ /*
+  * oh the beauties of C type declarations.
+@@ -1340,11 +1339,6 @@
+ #ifdef CONFIG_BLK_DEV_INITRD
+ extern unsigned int real_root_dev;
+ #endif
+-
+-extern ssize_t char_read(struct file *, char *, size_t, loff_t *);
+-extern ssize_t block_read(struct file *, char *, size_t, loff_t *);
+-extern ssize_t char_write(struct file *, const char *, size_t, loff_t *);
+-extern ssize_t block_write(struct file *, const char *, size_t, loff_t *);
+ 
+ extern int inode_change_ok(struct inode *, struct iattr *);
+ extern int inode_setattr(struct inode *, struct iattr *);

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266440AbUALQJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 11:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUALQJR
+	id S266143AbUALQKg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 11:10:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUALQKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 11:09:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:61119 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266440AbUALQJL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 11:09:11 -0500
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-From: Doug Ledford <dledford@redhat.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Jens Axboe <axboe@suse.de>, Martin Peschke3 <MPESCHKE@de.ibm.com>,
-       Arjan Van de Ven <arjanv@redhat.com>, Peter Yao <peter@exavio.com.cn>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>
-In-Reply-To: <1073923459.2186.23.camel@mulgrave>
-References: <OF2581AA2D.BFD408D2-ONC1256E19.004BE052-C1256E19.004E1561@de.ibm.com>
-	 <20040112141330.GH24638@suse.de>
-	 <1073920110.3114.268.camel@compaq.xsintricity.com>
-	 <1073921054.2186.16.camel@mulgrave>  <20040112154345.GE1255@suse.de>
-	 <1073922773.3114.275.camel@compaq.xsintricity.com>
-	 <1073923459.2186.23.camel@mulgrave>
-Content-Type: text/plain
-Message-Id: <1073923538.3114.278.camel@compaq.xsintricity.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 12 Jan 2004 11:05:39 -0500
+	Mon, 12 Jan 2004 11:10:33 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:21983 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S265539AbUALQK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 11:10:29 -0500
+Date: Mon, 12 Jan 2004 08:10:25 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 and irq balancing
+Message-ID: <893140000.1073923824@[10.10.2.4]>
+In-Reply-To: <btt7pt$3m8$1@gatekeeper.tmr.com>
+References: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com> <btt7pt$3m8$1@gatekeeper.tmr.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-12 at 11:04, James Bottomley wrote:
-> On Mon, 2004-01-12 at 10:52, Doug Ledford wrote:
-> > Well, the scsi-dledford-2.4 tree is intended to be someplace I can put
-> > all the stuff I'm having to carry forward in our kernels, so that's
-> > distinctly different than a driver update only tree.  I could do that
-> > separately and I have no problem doing that.
-> 
-> I'll take that as a "yes" then ;-)
-> 
-> Thanks for doing this, beacuse I really wasn't looking forward to trying
-> to sort it all out.
+> How much is significant? The term doesn't really help much. I will say that with one NIC taking 120MB/sec of data to a TB database and copying to two other machine (~220MB)  my interrupts got up in in the 5k-12k range with essentially CPU0 doing the work, some few percent going to CPU2.
 
-No problem.  I'll set up a tree later today and start watching for 2.4
-driver updates.
 
-> I trust your judgement about this, so it sounds like we have the
-> beginnings of a good working model for 2.4
+1010 per second, IIRC. Try this patch:
 
-Cool.  I'm good with that.
+diff -aurpN -X /home/fletch/.diff.exclude 290-gfp_node_strict/arch/i386/kernel/io_apic.c 310-irqbal_fast/arch/i386/kernel/io_apic.c
+--- 290-gfp_node_strict/arch/i386/kernel/io_apic.c	Fri Jan  9 22:25:48 2004
++++ 310-irqbal_fast/arch/i386/kernel/io_apic.c	Fri Jan  9 22:27:55 2004
+@@ -401,7 +401,7 @@ static void do_irq_balance(void)
+ 	unsigned long max_cpu_irq = 0, min_cpu_irq = (~0);
+ 	unsigned long move_this_load = 0;
+ 	int max_loaded = 0, min_loaded = 0;
+-	unsigned long useful_load_threshold = balanced_irq_interval + 10;
++	unsigned long useful_load_threshold = balanced_irq_interval / 10;
+ 	int selected_irq;
+ 	int tmp_loaded, first_attempt = 1;
+ 	unsigned long tmp_cpu_irq;
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc.
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-
+M.
 

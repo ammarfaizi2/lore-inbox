@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262156AbREQAKm>; Wed, 16 May 2001 20:10:42 -0400
+	id <S261357AbREQANm>; Wed, 16 May 2001 20:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262157AbREQAKX>; Wed, 16 May 2001 20:10:23 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:31176 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S262156AbREQAKS>; Wed, 16 May 2001 20:10:18 -0400
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2A7@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'H. Peter Anvin'" <hpa@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	id <S262160AbREQANc>; Wed, 16 May 2001 20:13:32 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34822 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261357AbREQANU>; Wed, 16 May 2001 20:13:20 -0400
+Message-ID: <3B031766.F126904A@transmeta.com>
+Date: Wed, 16 May 2001 17:12:22 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
         Linus Torvalds <torvalds@transmeta.com>,
-        Jonathan Lundell <jlundell@pobox.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Simmons <jsimmons@transvirtual.com>,
         Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         viro@math.psu.edu
-Subject: RE: LANANA: To Pending Device Number Registrants
-Date: Wed, 16 May 2001 17:09:06 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <200105161822.f4GIMo509185@vindaloo.ras.ucalgary.ca>
+		<E150B5B-0004fs-00@the-village.bc.nu> <200105162358.f4GNwll13400@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa wrote:
+Richard Gooch wrote:
 > 
-> Alan Cox wrote:
-> > 
-> > > Are FireWire (and USB) disks always detected in the same 
-> > > order? Or does it
-> > > behave like ADB, where you never know which 
-> > > mouse/keyboard is which mouse/keyboard?
-> > 
-> > USB disks are required (haha etc) to have serial numbers. 
-> > Firewire similarly has unique disk identifiers.
+> Alan Cox writes:
+> > > Argh! What I wrote in text is what I meant to say. The code didn't
+> > > match. No wonder people seemed to be missing the point. So the line of
+> > > code I actually meant was:
+> > >     if (strcmp (buffer + len - 3, "/cd") != 0) {
+> >
+> > drivers/kitchen/bluetooth/vegerack/cd
+> >
+> > its the cabbage dicer still ..
+> 
+> No, because it violates the standard. Just as we can define a major
+> number to have a specific meaning, we can define a name in the devfs
+> namespace to have a specific meaning.
+> 
+> Yes, it's broken if someone writes a cabbage dicer driver and uses
+> "cd" as the leaf node name for devfs.
+> 
+> Yes, it's broken if someone writes a cabbage dicer driver and uses
+> the same major as the IDE CD-ROM or SCSI CD-ROM drivers.
+> 
 
-Bulk-only USB storage is required to have serial numbers.
-E.g., Zip drives, probably USB hard drives and CDs.
-Drives that use CBI (control/bulk/interrupt) transport (mostly
-floppies) are not required to have serial numbers.
-(Cost thing, of course.)
+But unlike the latter case, your case isn't even self-enforcing. 
+Furthermore, it puts a lot of future restrictions on the namespace, and
+take it from me, you don't want to do that.
 
-> How about for other device classes?
+That, of course, is in addition to everything else...
 
-Mice?  no way.  Keyboards?  nope.
-Webcams?  nope.
-Printers?  optional.
-Audio?  no.
-Communication?  not mentioned in the spec.
-Hub?  not mentioned in the spec.
+	-hpa
 
-~Randy
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

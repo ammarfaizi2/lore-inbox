@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265334AbUGAOQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265339AbUGAOXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265334AbUGAOQX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 10:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUGAOQW
+	id S265339AbUGAOXP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 10:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbUGAOXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 10:16:22 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:56794 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S265334AbUGAOQN
+	Thu, 1 Jul 2004 10:23:15 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:50095 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265339AbUGAOXO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 10:16:13 -0400
-Message-ID: <40E41BE1.1010003@pacbell.net>
-Date: Thu, 01 Jul 2004 07:12:49 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Thu, 1 Jul 2004 10:23:14 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
+Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption & lockups & poor performance
+Date: Thu, 1 Jul 2004 16:23:09 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.40.0407010017360.1548-100000@xxx.xxx> <200407010904.39925.baldrick@free.fr> <Pine.LNX.4.58.0407010704570.4677@antonia.sgowdy.org>
+In-Reply-To: <Pine.LNX.4.58.0407010704570.4677@antonia.sgowdy.org>
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@steeleye.com>
-CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [RFC] on-chip coherent memory API for DMA
-References: <1088518868.1862.18.camel@mulgrave>
-In-Reply-To: <1088518868.1862.18.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407011623.09559.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+On Thursday 01 July 2004 16:06, Stephen J. Gowdy wrote:
+> On Thu, 1 Jul 2004, Duncan Sands wrote:
 > 
-> dma_declare_coherent_memory(struct device *dev, dma_addr_t bus_addr,
-> dma_addr_t device_addr, size_t size, int flags)
+> > > First of all, usb2 throughput was disappointing, i only got about
+> > > 5-15MB/s (usually about 8MB/s) while the manufacturer claims sustained
+> > > datarate of 35MB/s.
+> >
+> > Are you sure you plugged your device into a usb 2 port, and not a usb
+> > 1.1 port? Also, some products claim to be usb 2 devices, when they are
+> > in fact only usb 1.1.
 > 
-> ...
-> 
-> The flags is where all the magic is.  They can be or'd together and are
-> 
-> DMA_MEMORY_MAP - request that the memory returned from
-> dma_alloc_coherent() be directly writeable.
-> 
-> DMA_MEMORY_IO - request that the memory returned from
-> dma_alloc_coherent() be addressable using read/write/memcpy_toio etc.
+> 1.1 devices would only get less than 1MB/s.
 
-The API looked OK except this part didn't make sense to me, since
-as I understand things dma_alloc_coherent() is guaranteed to have
-the DMA_MEMORY_MAP semantics at all times ... the CPU virtual address
-returned may always be directly written.  That's certainly how all
-the code I've seen using dma_alloc_coherent() works.
+Ah, I misread it as 8 M bits / s, which is max 1.1 speed.
 
-It'd make more sense if the routine were "dma_declare_memory()", and
-DMA_MEMORY_MAP meant it was OK to return from dma_alloc_coherent(),
-while DMA_MEMORY_IO meant the dma_alloc_coherent() would always fail.
-
-If I understand what you're trying to do, DMA_MEMORY_IO supports a
-new kind of DMA memory, and is necessary to work on those IBM boxes
-you were talking about ... where dma_alloc_coherent() can't work,
-and the "indirectly accessible" memory would need to be allocated
-using some new alloc/free API.  Or were you maybe trying to get at
-that "can be mmapped to userspace" distinction?
-
-
-Also in terms of implementation, I noticed that if there's a
-dev->dma_mem, the GFP_* flags are ignored.  For __GFP_NOFAIL
-that seems buglike, but not critical.  (Just looked at x86.)
-Might be worth just passing the flags down so that behavior
-can be upgraded later.
-
-- Dave
-
-
-
-
+Bye, Duncan.

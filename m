@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUFFBfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUFFBjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUFFBfM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 21:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUFFBfM
+	id S262744AbUFFBjg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 21:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUFFBjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 21:35:12 -0400
-Received: from cantor.suse.de ([195.135.220.2]:36743 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262634AbUFFBfB (ORCPT
+	Sat, 5 Jun 2004 21:39:36 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:26097 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262744AbUFFBjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 21:35:01 -0400
-Date: Sun, 6 Jun 2004 03:32:38 +0200
-From: Andi Kleen <ak@suse.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Disable scheduler debugging
-Message-Id: <20040606033238.4e7d72fc.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jun 2004 21:39:35 -0400
+Date: Sun, 6 Jun 2004 03:39:23 +0200 (MEST)
+Message-Id: <200406060139.i561dNDR018329@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: benh@kernel.crashing.org
+Subject: Re: [BUG] asm-ppc/pgtable.h breakage from 2.6.7-rc1-bk4
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+       paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 05 Jun 2004 17:29:23 -0500, Benjamin Herrenschmidt wrote:
+>On Sat, 2004-06-05 at 14:56, Mikael Pettersson wrote:
+>> The current 2.6.7-rc2 kernel hangs after starting INIT
+>> on my PowerMac 4400. I traced the problem to the
+>> ptep_set_access_flags() patch in 2.6.7-rc1-bk4, which
+>> replaces ptep_establish()'s set_pte();flush_tlb_page()
+>> sequence with a single pte_update() in two places in
+>> mm/memory.c.
+>> 
+>> The patch below disables this change on ppc32, and
+>> allows my 603ev-based PM4400 to finally boot 2.6.7-rc2.
+>
+>Can you try just adding the flush_tlb_page() to
+>ptep_set_access_flags() and let me know if that helps ?
 
-The domain scheduler spews out a lot of information at boot up, but it looks
-mostly redundant because it's just a transformation of what is in /proc/cpuinfo
-anyways. Also it is well tested now. Disable it.
+That (see below) also works and allows 2.6.7-rc2 to
+boot on my PM4400.
 
-diff -u linux/kernel/sched.c-o linux/kernel/sched.c
---- linux/kernel/sched.c-o	2004-06-01 19:19:58.000000000 +0200
-+++ linux/kernel/sched.c	2004-06-01 19:26:56.000000000 +0200
-@@ -3641,7 +3641,7 @@
- #endif /* CONFIG_NUMA_SCHED */
- #endif /* ARCH_HAS_SCHED_DOMAIN */
+/Mikael
+
+--- linux-2.6.7-rc2/include/asm-ppc/pgtable.h.~1~	2004-06-06 03:17:36.000000000 +0200
++++ linux-2.6.7-rc2/include/asm-ppc/pgtable.h	2004-06-06 03:19:59.000000000 +0200
+@@ -556,7 +556,10 @@
+ 	pte_update(ptep, 0, bits);
+ }
+ #define  ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty) \
+-        __ptep_set_access_flags(__ptep, __entry, __dirty)
++do { \
++        __ptep_set_access_flags(__ptep, __entry, __dirty); \
++	flush_tlb_page(__vma, __address); \
++} while(0)
  
--#define SCHED_DOMAIN_DEBUG
-+#undef SCHED_DOMAIN_DEBUG
- #ifdef SCHED_DOMAIN_DEBUG
- void sched_domain_debug(void)
- {
+ /*
+  * Macro to mark a page protection value as "uncacheable".

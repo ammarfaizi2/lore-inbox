@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbTLJVvl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 16:51:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTLJVvA
+	id S264145AbTLJVxk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 16:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264136AbTLJVvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 16:51:00 -0500
-Received: from mail45-s.fg.online.no ([148.122.161.45]:56304 "EHLO
-	mail45.fg.online.no") by vger.kernel.org with ESMTP id S264127AbTLJVt5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 16:49:57 -0500
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Witukind <witukind@nsbm.kicks-ass.org>, linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-References: <200312081536.26022.andrew@walrond.org>
-	<20031208154256.GV19856@holomorphy.com>
-	<3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com>
-	<20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org>
-	<20031209075619.GA1698@kroah.com> <1070960433.869.77.camel@nomade>
-	<20031209090815.GA2681@kroah.com>
-	<buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp> <yw1xd6ayib3f.fsf@kth.se>
-	<20031210202354.7a3c429a.witukind@nsbm.kicks-ass.org>
-	<yw1xd6aw4ge3.fsf@kth.se>
-	<20031210212209.7fce7dae.witukind@nsbm.kicks-ass.org>
-	<3FD78645.9090300@wmich.edu>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 10 Dec 2003 22:49:45 +0100
-In-Reply-To: <3FD78645.9090300@wmich.edu> (Ed Sweetman's message of "Wed, 10
- Dec 2003 15:47:01 -0500")
-Message-ID: <yw1x3cbs2vie.fsf@kth.se>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 10 Dec 2003 16:51:46 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:30426
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263996AbTLJVu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 16:50:56 -0500
+Date: Wed, 10 Dec 2003 22:52:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, rl@hellgate.ch,
+       Con Kolivas <kernel@kolivas.org>,
+       Chris Vine <chris@cvine.freeserve.co.uk>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031210215235.GC11193@dualathlon.random>
+References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <200311031148.40242.kernel@kolivas.org> <200311032113.14462.chris@cvine.freeserve.co.uk> <200311041355.08731.kernel@kolivas.org> <20031208135225.GT19856@holomorphy.com> <20031208194930.GA8667@k3.hellgate.ch> <20031208204817.GA19856@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031208204817.GA19856@holomorphy.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman <ed.sweetman@wmich.edu> writes:
+On Mon, Dec 08, 2003 at 12:48:17PM -0800, William Lee Irwin III wrote:
+> qsbench I'd pretty much ignore except as a control case, since there's
+> nothing to do with a single process but let it thrash.
 
-> the biggest advantage from modules is the ability to enable/disable
-> devices with different initialization configurations without
-> rebooting, including the use of devices that aren't present during
-> boot or may be added to a system that cant be put down to
-> reboot. Embedded systems usually do not change, that's just part of
-> being embedded, modules dont really make sense there unless things
-> like filesystems and non-device modules never get used at the same
-> time and memory is limited such that 100KB actually matters.
-
-An embedded system could still have USB or something like that.  Many
-PDAs do have pluggable hardware modules.
-
--- 
-Måns Rullgård
-mru@kth.se
+this is not the point. If a single process like qsbench trashes twice as
+fast in 2.4, it means 2.6 has some great problem in the core vm, the
+whole point of swap is to trash but to give the task more physical
+virtual memory. I doubt you can solve it with anything returned by
+si_swapinfo.

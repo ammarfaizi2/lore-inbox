@@ -1,77 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276894AbRJKUhn>; Thu, 11 Oct 2001 16:37:43 -0400
+	id <S276907AbRJKUsO>; Thu, 11 Oct 2001 16:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276901AbRJKUhd>; Thu, 11 Oct 2001 16:37:33 -0400
-Received: from pc2-redb4-0-cust130.bre.cable.ntl.com ([213.107.133.130]:22256
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S276891AbRJKUh0>; Thu, 11 Oct 2001 16:37:26 -0400
-Date: Thu, 11 Oct 2001 21:36:55 +0100
-From: Mark Zealey <mark@zealos.org>
-To: linux-kernel@vger.kernel.org
-Subject: Question and patch about spinlocks (x86)
-Message-ID: <20011011213655.D7138@itsolve.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="G4iJoqBmSsgzjUCe"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux sunbeam 2.2.19 
-X-Homepage: http://zealos.org/
+	id <S276912AbRJKUsE>; Thu, 11 Oct 2001 16:48:04 -0400
+Received: from ip240.cvd2.rb1.bel.nwlink.com ([207.202.151.240]:45362 "EHLO
+	zot.localdomain") by vger.kernel.org with ESMTP id <S276911AbRJKUru>;
+	Thu, 11 Oct 2001 16:47:50 -0400
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Module read a file?
+From: Mark Atwood <mra@pobox.com>
+Date: 11 Oct 2001 13:48:18 -0700
+In-Reply-To: Dan Hollis's message of "Thu, 11 Oct 2001 13:16:51 -0700 (PDT)"
+Message-ID: <m38zehucml.fsf@flash.localdomain>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm modifying a PCMCIA driver module so that it can load new firmware
+into the card when it's inserted.
 
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Rather than including the firmware inside the module's binary, I would
+much rather be able to read it out of the filesystem.
 
-Just looking through at the spinlock assembly I noticed a few things which I
-think are bugs:
- 
- 	"js 2f\n" \
- 	".section .text.lock,\"ax\"\n" \
- 	"2:\t" \
-	"cmpb $0,%0\n\t" \
- 	"rep;nop\n\t" \
-	"jle 2b\n\t" \
- 	"jmp 1b\n" \
- 	".previous"
-
-We do the cmp loop as a 'soft' check, as the lock operand locks the whole system
-bus, stopping the system for a while (as much as 70 cycles, I believe). However,
-I don't understand why it was put before the 'rep; nop' which just sets the
-processor to wait for a bit. Surely it would be better to test *after* we have
-waited, as then we have a better chance of it being correct.
-
-Any comments? Attached is a patch to fix it.
+Are their any good examples of kernel code or kernel modules reading a
+file out of the filesystem that I could copy or at least look to for
+inspiration?
 
 -- 
-
-Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)
-
---G4iJoqBmSsgzjUCe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch
-
---- include/asm-i386/spinlock.h.old	Thu Oct 11 21:28:37 2001
-+++ include/asm-i386/spinlock.h	Thu Oct 11 21:35:14 2001
-@@ -58,8 +58,8 @@
- 	"js 2f\n" \
- 	".section .text.lock,\"ax\"\n" \
- 	"2:\t" \
--	"cmpb $0,%0\n\t" \
- 	"rep;nop\n\t" \
-+	"cmpb $0,%0\n\t" \
- 	"jle 2b\n\t" \
- 	"jmp 1b\n" \
- 	".previous"
-
---G4iJoqBmSsgzjUCe--
+Mark Atwood   | I'm wearing black only until I find something darker.
+mra@pobox.com | http://www.pobox.com/~mra

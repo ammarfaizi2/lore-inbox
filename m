@@ -1,27 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261473AbTCGKPI>; Fri, 7 Mar 2003 05:15:08 -0500
+	id <S261496AbTCGKRC>; Fri, 7 Mar 2003 05:17:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261479AbTCGKPI>; Fri, 7 Mar 2003 05:15:08 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:5031 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S261473AbTCGKPH>;
-	Fri, 7 Mar 2003 05:15:07 -0500
-Message-ID: <3E6873A5.91625CDD@namesys.com>
-Date: Fri, 07 Mar 2003 13:25:41 +0300
-From: Edward Shushkin <edward@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S261498AbTCGKRC>; Fri, 7 Mar 2003 05:17:02 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:31902 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S261496AbTCGKRB>;
+	Fri, 7 Mar 2003 05:17:01 -0500
+Date: Fri, 7 Mar 2003 11:27:15 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Robert Love <rml@tech9.net>
+Cc: Martin Waitz <tali@admingilde.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <1046988457.715.37.camel@phantasy.awol.org>
+Message-ID: <Pine.LNX.4.44.0303071126250.8284-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@mit.edu>
-Subject: e2compr
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the current status of ext2 compression port?
-Where is the latest stuff to download?
 
-Thanks,
-Edward.
+On 6 Mar 2003, Robert Love wrote:
+
+> > in addition, timeslices should be shortest for high priority processes
+> > (depending on dynamic prio, not static)
+> 
+> No, they should be longer.  In some cases they should be nearly
+> infinitely long (which is sort of what we do with the reinsertion into
+> the active array for highly interactive tasks). [...]
+
+yes, and in fact tasks with 'infinite timeslice' do exist: RT tasks with 
+SCHED_FIFO/SCHED_RR.
+
+	Ingo
+

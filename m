@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVCKJhR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVCKJeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbVCKJhR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 04:37:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbVCKJhQ
+	id S262648AbVCKJeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 04:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbVCKJeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 04:37:16 -0500
-Received: from gate.crashing.org ([63.228.1.57]:48859 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262654AbVCKJgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 04:36:51 -0500
-Subject: Re: [PATCH] ppc64: Add IDE-pmac support for new "Shasta" chipset
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050310231700.5486ccd4.akpm@osdl.org>
-References: <1110523540.5751.52.camel@gaston>
-	 <20050310231700.5486ccd4.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 11 Mar 2005 20:36:32 +1100
-Message-Id: <1110533792.5751.69.camel@gaston>
+	Fri, 11 Mar 2005 04:34:09 -0500
+Received: from smtp11.wanadoo.fr ([193.252.22.31]:8943 "EHLO smtp11.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262648AbVCKJdI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 04:33:08 -0500
+X-ME-UUID: 20050311093307889.D90611C00082@mwinf1103.wanadoo.fr
+Subject: [TROLL] binary drivers and development
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <423075B7.5080004@comcast.net>
+References: <423075B7.5080004@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Fri, 11 Mar 2005 10:33:00 +0100
+Message-Id: <1110533580.24770.93.camel@bip.parateam.prv>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 23:17 -0800, Andrew Morton wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> >
-> > The iMac G5 and new single CPU PowerMac G5 come with a new revision of
-> >  the K2 ASIC called Shasta. The PATA cell in there now does 133Mhz. This
-> >  patch adds support for it. It also adds some power management bits to
-> >  the old 100MHz cell that was in Intrepid based ppc32 machines.
+Le jeudi 10 mars 2005 à 11:28 -0500, John Richard Moser a écrit :
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Compile fix:
-> 
-> --- 25/drivers/ide/ppc/pmac.c~ppc64-add-ide-pmac-support-for-new-shasta-chipset-fix	2005-03-11 07:12:01.000000000 -0700
-> +++ 25-akpm/drivers/ide/ppc/pmac.c	2005-03-11 07:12:20.000000000 -0700
-> @@ -1301,7 +1301,7 @@ pmac_ide_setup_device(pmac_ide_hwif_t *p
->  	 */
->  	if (device_is_compatible(np, "K2-UATA") ||
->  	    device_is_compatible(np, "shasta-ata"))
-> -		pmid->cable_80 = 1;
-> +		pmif->cable_80 = 1;
->  
->  	/* On Kauai-type controllers, we make sure the FCR is correct */
->  	if (pmif->kauai_fcr)
-> _
-> 
-> (Wonders how well tested this was).
+> I've been looking at the UDI project[1] and thinking about binary
+> drivers and the like, and wondering what most peoples' take on these are
+> and what impact that UDI support would have on the kernel's development.
+[...]
 
-It was tested, sorry about the mistake, I fixed that compile error and
-forgot to run "quilt ref" :)
+Eh, nice troll ! You made a handful people react :)
 
-My bad ...
+Maybe there should be an explicit FAQ entry on what's the take on binary
+modules.
 
-I'll double check that the other patches are indeed the right versions
-tomorrow...
-
-Ben.
+	Xav
 
 

@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUCSAvR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 19:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUCSAvQ
+	id S261158AbUCSA6K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 19:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbUCSA6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 19:51:16 -0500
-Received: from ozlabs.org ([203.10.76.45]:20870 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261187AbUCSAvG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 19:51:06 -0500
+	Thu, 18 Mar 2004 19:58:10 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:10182 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261158AbUCSA6H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 19:58:07 -0500
+Date: Thu, 18 Mar 2004 19:58:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jesse Barnes <jbarnes@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Introduce nodemask_t ADT [0/7]
+In-Reply-To: <9860000.1079653397@flay>
+Message-ID: <Pine.LNX.4.58.0403181956560.28447@montezuma.fsmlabs.com>
+References: <1079651064.8149.158.camel@arrakis> <200403181523.10670.jbarnes@sgi.com>
+ <8090000.1079652747@flay> <200403181537.10060.jbarnes@sgi.com>
+ <9860000.1079653397@flay>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16474.17281.854064.530815@cargo.ozlabs.ibm.com>
-Date: Fri, 19 Mar 2004 11:49:05 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa1
-In-Reply-To: <20040318230628.GA2050@dualathlon.random>
-References: <20040318022201.GE2113@dualathlon.random>
-	<Pine.LNX.4.44.0403181928210.16385-100000@localhost.localdomain>
-	<20040318230628.GA2050@dualathlon.random>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
+On Thu, 18 Mar 2004, Martin J. Bligh wrote:
 
-> On Thu, Mar 18, 2004 at 08:41:45PM +0000, Hugh Dickins wrote:
-> > and ppc64 can manage an early per-cpu increment.  You'll find you've
-> > broken ppc and ppc64, which have grown to use the pgtable rmap stuff
-> > for themselves, you'll probably want to grab some of my arch patches.
-> 
-> Oh well, this is the next blocker now... Where can I find your arch
-> patches? PPC folks comments?
+> >> I/O isn't directly associated with a node, though it should fit into the
+> >> topo infrastructure, to give distances from io buses to nodes (for which
+> >> I think we currently use cpumasks, which is probably wrong in retrospect,
+> >> but then life is tough and flawed ;-))
+> >
+> > It's probably not too late to change this to
+> > pcibus_to_nodemask(pci_bus *), or pci_to_nodemask(pci_dev *), there
+> > aren't that many callers, are there (my grep is still running)?
+>
+> It probably shouldn't have anything to do with PCI directly either,
+> so .... ;-) My former thought was that you might just want the most
+> local memory for DMAing into.
 
-We need page->mapping and page->index set for pages used for pte and
-pmd pages, so that we can get from a pte_t * back to the mm_struct *
-and the address within that mm.  It's just a matter of setting
-page->mapping and page->index in the pte_alloc and pmd_alloc
-functions.
-
-I just looked at Hugh's anobjrmap 6/6 patch and it looks to me that it
-does that correctly.
-
-Regards,
-Paul.
+That knowledge should be in the dma api thing shouldn't it? But in it's
+current incarnation i don't see how that's possible.

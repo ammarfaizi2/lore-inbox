@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbUCJMib (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 07:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbUCJMia
+	id S262584AbUCJMjI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 07:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbUCJMig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 07:38:30 -0500
-Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:47491 "EHLO
-	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
-	id S262600AbUCJMg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 07:36:27 -0500
-Date: Wed, 10 Mar 2004 13:36:17 +0100
-From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
-To: Bruce Allen <ballen@gravity.phys.uwm.edu>
-Cc: Henrik Persson <nix@syndicalist.net>, linux-kernel@vger.kernel.org
-Subject: Re: Strange DMA-errors and system hang with Promise 20268
-Message-ID: <20040310123616.GA31893@darkside.22.kls.lan>
-Mail-Followup-To: Mario 'BitKoenig' Holbe <Mario.Holbe@RZ.TU-Ilmenau.DE>,
-	Bruce Allen <ballen@gravity.phys.uwm.edu>,
-	Henrik Persson <nix@syndicalist.net>, linux-kernel@vger.kernel.org
-References: <1078752642.1239.14.camel@vega> <Pine.GSO.4.21.0403100547430.8400-100000@dirac.phys.uwm.edu>
+	Wed, 10 Mar 2004 07:38:36 -0500
+Received: from colin2.muc.de ([193.149.48.15]:50437 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262596AbUCJMgI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 07:36:08 -0500
+Date: 10 Mar 2004 13:36:05 +0100
+Date: Wed, 10 Mar 2004 13:36:05 +0100
+From: Andi Kleen <ak@muc.de>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Andi Kleen <ak@muc.de>, Tom Rini <trini@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Message-ID: <20040310123605.GA62228@colin2.muc.de>
+References: <1xpyM-2Op-21@gated-at.bofh.it> <1xuS8-83Q-11@gated-at.bofh.it> <m3hdwz9szt.fsf@averell.firstfloor.org> <200403091006.00822.amitkale@emsyssoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0403100547430.8400-100000@dirac.phys.uwm.edu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200403091006.00822.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10, 2004 at 05:50:12AM -0600, Bruce Allen wrote:
-> Does the disk's SMART error log (smartctl -l error) show any entries
-> related to this problem?  If so, please print them with the latest version
+> Yes. But as things stand, gdb 6.0 doesn't show stack traces correctly with esp 
+> and eip got from switch_to and gas 2.14 can't handle i386 dwarf2 CFI. Do we 
+> want to enforce getting a CVS version of gdb _and_ gas to build kgdb? 
+> Certainly not.
 
-No, none at all. This was the first I was looking at, because
-I just thought it was some disk problem.
+binutils 2.15 should be released soon anyways AFAIK. And for x86-64 this all
+works just fine (as demonstrated by Jim's/George's stub), so please get
+rid of it at least for x86-64. I really don't want user_schedule there,
+because it's completely unnecessary.
 
-
-regards,
-   Mario
--- 
-"Why are we hiding from the police, daddy?"      | J. E. Guenther
-"Because we use SuSE son, they use SYSVR4."      | de.alt.sysadmin.recovery
+-Andi

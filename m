@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271214AbTHHBlP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 21:41:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271222AbTHHBlP
+	id S271159AbTHHB5q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 21:57:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271183AbTHHB5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 21:41:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:736 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S271214AbTHHBlN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 21:41:13 -0400
-Message-ID: <3F32FFAD.1050203@pobox.com>
-Date: Thu, 07 Aug 2003 21:41:01 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Thu, 7 Aug 2003 21:57:46 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:14610 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S271159AbTHHB5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 21:57:45 -0400
+Date: Thu, 7 Aug 2003 21:45:47 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ro0tSiEgE LKML <lkml@ro0tsiege.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: no exec after kernel bootup on Elan
+In-Reply-To: <00bc01c35d25$748c22e0$0500000a@bp>
+Message-ID: <Pine.LNX.4.53.0308072145040.12875@montezuma.mastecende.com>
+References: <00bc01c35d25$748c22e0$0500000a@bp>
 MIME-Version: 1.0
-To: William Enck <wenck@wapu.org>
-CC: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [bk patches] 2.6.x net driver updates
-References: <20030808000508.GA4464@gtf.org> <20030808013649.GA20003@chaos.byteworld.com>
-In-Reply-To: <20030808013649.GA20003@chaos.byteworld.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Enck wrote:
-> On Thu, Aug 07, 2003 at 08:05:08PM -0400, Jeff Garzik wrote:
-> 
->>Linus, please do a
->>
->>	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.6
->>
->>Others may download the patch from
->>
->>ftp://ftp.??.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-test2-bk7-netdrvr1.patch.bz2
->>
->>This will update the following files:
-> 
-> ..snip..
-> 
->> drivers/net/wireless/orinoco_cs.c   |   16 -
-> 
-> 
-> dmesg gave the folloing with 2.6.0-test2-bk7
-> 
-> orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> orinoco_cs: RequestIRQ: Unsupported mode
-> 
-> I thought the above patch might fix it, so I patched and recompiled. I
-> still see the following in 2.6.0-test2-bk7-netdrvr1
-> 
-> orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> orinoco_cs: RequestIRQ: Unsupported mode
-> 
-> The module loaded and worked fine in -test2 and -test2-mm4. 
+On Thu, 7 Aug 2003, Ro0tSiEgE LKML wrote:
 
+> I have kernel 2.4.21 on a Soekris net4521 (Elan SC520), and after the kernel
+> finishes booting up, (when it's supposed to exec init or whatever program I
+> specify), nothing happens, I get no output past the line "Freeing unused
+> kernel memory: 120k free".
+> 
+> I get the same results with any program I specify, whether static and
+> dynamically compiled.
 
-Can you test -test2-bk7 (without my patch)?
+Did you try what i asked in my reply to your previous email?
 
-	Jeff
-
-
-
+-- 
+function.linuxpower.ca

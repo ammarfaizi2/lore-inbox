@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268552AbTBOI7c>; Sat, 15 Feb 2003 03:59:32 -0500
+	id <S264715AbTBOJEy>; Sat, 15 Feb 2003 04:04:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268554AbTBOI7b>; Sat, 15 Feb 2003 03:59:31 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49301 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268552AbTBOI7a>;
-	Sat, 15 Feb 2003 03:59:30 -0500
-Date: Sat, 15 Feb 2003 01:09:54 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com
-Subject: Re: problems with 2.5.61-mm1
-Message-Id: <20030215010954.44153675.akpm@digeo.com>
-In-Reply-To: <3E4E0153.3000008@us.ibm.com>
-References: <3E4E0153.3000008@us.ibm.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264724AbTBOJEy>; Sat, 15 Feb 2003 04:04:54 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:10756 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264715AbTBOJEx>;
+	Sat, 15 Feb 2003 04:04:53 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302150913.h1F9Du9q000369@darkstar.example.net>
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
+To: cort@fsmlabs.com (Cort Dougan)
+Date: Sat, 15 Feb 2003 09:13:56 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, rusty@linux.co.intel.com, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, mochel@osdl.org, davej@codemonkey.org.uk,
+       daniel@rimspace.net
+In-Reply-To: <20030215082707.GE13148@host109.fsmlabs.com> from "Cort Dougan" at Feb 15, 2003 01:27:07 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Feb 2003 09:09:19.0601 (UTC) FILETIME=[EC35FE10:01C2D4D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> wrote:
->
-> I've been beating on various versions of 2.5.59 all day long with no
-> problems that I didn't cause.  I started testing 2.5.61-mm1 and rand
-> into a couple problems right away.
+> } > The watchdog infrastructure would just show what ever integer the driver
+> } > provides via the watchdog_ops.get_temperature() function pointer, so it
+> } > would be up to the driver developer to decide if the data is really
+> } > Fahrenheit or whatever.
+> } 
+> } We do need to be sure they all agree about it however 8)
 > 
-> The first I really doubt is -mm specific.  I gets _loads_ of these, and
-> the e1000 isn't working:
-> NETDEV WATCHDOG: eth0: transmit timed out
-> e1000: eth0 NIC Link is Up 1000 Mbps Full Duplex
-> 
-> The e1000 driver hasn't been touched in weeks.
+> Just to make sure no-one is happy except physicists, I suggest
+> Kelvin.
 
-Don't know.
+Degrees C is the best choice, because the range of values that fit in
+to a signed int is then useful (-127 -> 128).  Storing as K or F means
+that you can't store a useful range in a single byte.
 
->  Here's my /proc/interrupts:
-> http://www.sr71.net/linux/interrupts
-> I'm pretty sure we can see the problem here.  Almost all interrupts are
-> going to CPU0.  Is this a summit thing?
+> I also suggest we spell disk/disc as "disck".
 
-No, that's the new irq balancing code.  It only starts distributing
-interrupts to other CPUs when the load gets higher.  See how it
-spread the ethernet interrupts.  Apparently this is as-designed.
- 
-> The other looks a bit more insidious.
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 0000003d
+Magnetic media                       -> disk
+Optical media                        -> disc
+Combination media, (magneto-optical) -> disk
 
-It might be best to test 2.5.61 first.
-
+John.

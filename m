@@ -1,90 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbUCAL0i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 06:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUCAL0i
+	id S261217AbUCAL0N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 06:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbUCAL0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 06:26:38 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:31934 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261207AbUCAL0d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 06:26:33 -0500
-Date: Mon, 1 Mar 2004 12:26:31 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, wrona@mat.uni.torun.pl,
-       golbi@mat.uni.torun.pl
-Subject: posix message queues, was Re: 2.6.4-rc1-mm1
-Message-ID: <20040301112631.GA28526@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	wrona@mat.uni.torun.pl, golbi@mat.uni.torun.pl
-References: <20040229140617.64645e80.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Mar 2004 06:26:13 -0500
+Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:12444 "EHLO
+	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261217AbUCAL0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 06:26:08 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SMT Nice 2.6.4-rc1-mm1
+Date: Mon, 1 Mar 2004 22:25:59 +1100
+User-Agent: KMail/1.6
+Cc: Andrew Morton <akpm@osdl.org>
+References: <200403011752.56600.kernel@kolivas.org>
+In-Reply-To: <200403011752.56600.kernel@kolivas.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040229140617.64645e80.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200403012225.59538.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 29, 2004 at 02:06:17PM -0800, Andrew Morton wrote:
+On Mon, 1 Mar 2004 05:52 pm, Con Kolivas wrote:
+> This patch provides full per-package priority support for SMT processors
+> (aka pentium4 hyperthreading) when combined with CONFIG_SCHED_SMT.
 
-> - Added the POSIX message queue implementation.  We're still stitching
->   together a decent description of all of this.  Reference information is at
-> 	http://www.mat.uni.torun.pl/~wrona/posix_ipc/
->  and
-> 	http://www.opengroup.org/onlinepubs/007904975/basedefs/mqueue.h.html
+And here are some benchmarks to demonstrate what happens. 
+P4 3.06Ghz booted with bios HT off as UP (up), SMP with mm1(mm1), SMP with 
+mm1-smtnice(sn)
 
-I can confirm that basic functionality is there. Both blocking and
-nonblocking operations work as advertised. Queue properly blocks when full
-or empty.
+What would a benchmark from me be if not based on a kernel compile?  These 
+numbers are coarse so the range is about +/- 2 seconds however the results 
+should be clear. Time is in seconds, rounded.
 
-mq_timedsend does not wait, it immediately returns ETIMEOUT with the queue
-is full:
 
-         struct timespec ts;
-         ts.tv_sec=1;
-    	 ts.tv_nsec=0;
-         sprintf(msgptr,"%05d %s",c,stime);
-	 
-         if ( mq_timedsend(mqd,msgptr,msglen,msg_prio, &ts) )
-	 {
-	    perror("mq_send()");
-	      break;
-	 }
+Straight kernel compile: make
+		Time
+up		87
+mm1		88
+sn		88
 
-results in:
 
-$ ./mqreceive /Q32x128
-1: priority 0  len 64 text 00001 Mon Mar  1 12:20:11 2004  
-$ ./mqreceive /Q32x128
-1: priority 0  len 64 text 00001 Mon Mar  1 12:20:11 2004  
-$ ./mqsend  /Q32x128
-$ ./mqsend  /Q32x128
-$ ./mqsend  /Q32x128
-mq_send(): Connection timed out  <- immediately
+Concurrent kernel compiles, one make, the other nice +19 make
+		Nice0	Nice19
+up		183		235
+mm1		208		211
+sn		180		237
 
-Queue is in blocking mode.
 
-I would very much advise Michal and Krzysztof to add some basic examples to
-their page. I had to scour the internet to find some working code.
+Kernel compile with an artifical cpu load running nice +19 (while true ; do 
+a=1 ; done)
+		Time
+up		92
+mm1		129
+sn		104
 
-This is one of the few sites that allow you to test the posix message queue:
-http://www.ac3.edu.au/SGI_Developer/books/T_IRIX_Prog/sgi_html/ch06.html
 
-The examples there add /var/tmp/ to the queuenames, with linux, posix queues
-need to have a name that starts with /.
+Kernel compile with a true distributed computing cache burner running nice +19 
+(mprime www.mersenne.org)
+		Time
+up		96
+mm1		168
+sn		94
 
-Mounting the queuefs works but the fs, confusingly, is called mqueue and not
-mqueuefs.
 
-Otherwise sound work! PowerDNS really wants posix message queues, right now
-we fuddle along with semaphores and locks.
+Clearly the type of load running will influence the balance here depending on 
+how long the task actually runs and how cache intensive it is. Basically for 
+real world loads priority is very poorly preserved by default because of the 
+shared cpu resources, and the worst case is a very common one; running a 
+distributed computing client.
 
-Thanks,
-Bert.
+Note this patch has no demonstrable effect if tasks are run at the same nice 
+value.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Con

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317387AbSIBGHv>; Mon, 2 Sep 2002 02:07:51 -0400
+	id <S317400AbSIBGWX>; Mon, 2 Sep 2002 02:22:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317393AbSIBGHv>; Mon, 2 Sep 2002 02:07:51 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:32743 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S317387AbSIBGHu>;
-	Mon, 2 Sep 2002 02:07:50 -0400
-Date: Sun, 1 Sep 2002 23:12:20 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Ralf Baechle <ralf@uni-koblenz.de>,
-       dirty boy <slashdotcommacolon@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux ELF Implementation
-Message-ID: <20020902061220.GA24947@tapu.f00f.org>
-References: <20020902060749.A6109@bacchus.dhis.org> <Pine.LNX.4.44.0209012256500.3234-100000@hawkeye.luckynet.adm>
+	id <S317402AbSIBGWX>; Mon, 2 Sep 2002 02:22:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5065 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317400AbSIBGWX>;
+	Mon, 2 Sep 2002 02:22:23 -0400
+Date: Sun, 01 Sep 2002 23:20:21 -0700 (PDT)
+Message-Id: <20020901.232021.00308364.davem@redhat.com>
+To: wli@holomorphy.com
+Cc: rml@tech9.net, rusty@rustcorp.com.au, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020902060257.GO888@holomorphy.com>
+References: <20020902003318.7CB682C092@lists.samba.org>
+	<1030945918.939.3143.camel@phantasy>
+	<20020902060257.GO888@holomorphy.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209012256500.3234-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 01, 2002 at 10:57:59PM -0600, Thunder from the hill wrote:
+   From: William Lee Irwin III <wli@holomorphy.com>
+   Date: Sun, 1 Sep 2002 23:02:57 -0700
+   
+   On Mon, Sep 02, 2002 at 01:51:54AM -0400, Robert Love wrote:
+   > I am all for your cleanup here, but two nits:
+   > Why not rename list_head while at it?  I would vote for just "struct
+   > list" ... the name is long, and I like my lines to fit 80 columns.
+   
+   Seconded. Throw the whole frog in the blender, please, not just half.
 
-    ...and yes if you write a program which concatenates half-based
-    characters to a full base, the only thing that hurts is that you
-    have to write at least twice as much...
-
-uudecode doesn't count
-
-the answer is no
-
-
-  --cw
+The problem is, it isn't a "list", it's a "list header" or "list
+marker", ie. a list_head.

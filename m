@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269590AbRHABIy>; Tue, 31 Jul 2001 21:08:54 -0400
+	id <S269587AbRHABKE>; Tue, 31 Jul 2001 21:10:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269587AbRHABIf>; Tue, 31 Jul 2001 21:08:35 -0400
-Received: from gear.torque.net ([204.138.244.1]:33032 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S269586AbRHABId>;
-	Tue, 31 Jul 2001 21:08:33 -0400
-Message-ID: <3B6755E7.B63FA6D5@torque.net>
-Date: Tue, 31 Jul 2001 21:05:43 -0400
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+	id <S269586AbRHABJy>; Tue, 31 Jul 2001 21:09:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5616 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S269588AbRHABJl>; Tue, 31 Jul 2001 21:09:41 -0400
+Message-ID: <3B675682.3CE51A3D@mvista.com>
+Date: Tue, 31 Jul 2001 18:08:18 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFT] Support for ~2144 SCSI discs
-In-Reply-To: <200107310030.f6V0UeJ13558@mobilix.ras.ucalgary.ca>
-		<rgooch@ras.ucalgary.ca>
-		<10107310041.ZM233282@classic.engr.sgi.com>
-		<200107311225.f6VCPj003249@mobilix.ras.ucalgary.ca>
-		<20010731125926.B10914@us.ibm.com> <200108010048.f710miA05150@mobilix.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        high-res-timers-discourse@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        David Schleef <ds@schleef.org>, Mark Salisbury <mbs@mc.com>,
+        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org, Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <20010410193521.A21133@pcep-jamie.cern.ch> <E14n2hi-0004ma-00@the-village.bc.nu> <20010410202416.A21512@pcep-jamie.cern.ch> <3AD35EFB.40ED7810@mvista.com>
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Richard Gooch wrote:
-> 
-> Mike Anderson writes:
-> > In previous experiments trying to connect up to 512 devices we
-> > switched to vmalloc because the static nature of sd.c's allocation
-> > exceeds 128k which I assumed was the max for kmalloc YMMV.
-> 
-> Yes, I figure on switching to vmalloc() and putting in an
-> in_interrupt() test in sd_init() to make sure the vmalloc() is safe.
-> 
-> Eric: do you happen to know why there are these GFP_ATOMIC flags?
-> To my knowledge, nothing calls sd_init() outside of process context.
+I have just posted a patch on sourceforge:
+ http://sourceforge.net/projects/high-res-timers
 
-Richard,
-I've seen GFP_KERNEL take 10 minutes in lk 2.4.6 . The 
-mm gets tweaked pretty often so it is difficult to know 
-exactly how it will react when memory is tight. A time 
-bound would be useful on GFP_KERNEL.
+to the 2.4.7 kernel with both ticked and tick less options, switch able
+at any time via a /proc interface.  The system is instrumented with
+Andrew Mortons time pegs with a couple of enhancements so you can easily
+see your clock/ timer overhead (thanks Andrew).
 
-<opinion> It is best to find out quickly there is 
-not enough memory and have some alternate strategy 
-to cope with that problem. GFP_KERNEL in its current 
-form should be taken out and shot. </opinion>
+Please take a look at this system and let me know if a tick less system
+is worth further effort.  
 
-Doug Gilbert
+The testing I have done seems to indicate a lower overhead on a lightly
+loaded system, about the same overhead with some load, and much more
+overhead with a heavy load.  To me this seems like the wrong thing to
+do.  We would like as nearly a flat overhead to load curve as we can get
+and the ticked system seems to be much better in this regard.  Still
+there may be applications where this works.
+
+comments?  RESULTS?
+
+George

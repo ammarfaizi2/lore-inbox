@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269386AbTGJPwG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:52:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269388AbTGJPwG
+	id S269446AbTGJPmk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 11:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbTGJPlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:52:06 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:1028 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S269386AbTGJPwE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:52:04 -0400
-Date: Thu, 10 Jul 2003 18:06:33 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: green@namesys.com, mason@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre3 and reiserfs boot problem
-Message-Id: <20030710180633.2c7085d9.skraw@ithnet.com>
-In-Reply-To: <E19adfc-000Cax-00.ia6432-inbox-ru@f9.mail.ru>
-References: <E19adfc-000Cax-00.ia6432-inbox-ru@f9.mail.ru>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 10 Jul 2003 11:41:14 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:6162 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269379AbTGJPjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 11:39:08 -0400
+Date: Thu, 10 Jul 2003 16:53:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, jack@suse.cz
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_QFMT_V2 vs. `VFS v0 quota format support'
+Message-ID: <20030710165346.A28322@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>, jack@suse.cz,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0307101748020.3972-100000@vervain.sonytel.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0307101748020.3972-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Thu, Jul 10, 2003 at 05:50:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jul 2003 19:49:20 +0400
-"Peter Lojkin" <ia6432@inbox.ru> wrote:
-
-> Hello,
+On Thu, Jul 10, 2003 at 05:50:33PM +0200, Geert Uytterhoeven wrote:
 > 
-> I am not on the list so please CC me if replying...
-> 
-> I've found the problem, it's patch with description:
-> 
-> Fix potential IO hangs and increase interactiveness during heavy IO
-> 
-> http://linux.bkbits.net:8080/linux-2.4/user=mason/cset@1.1024?nav=!-|index.html|stats|!+|index.html|ChangeSet@-7d
-> 
-> After removing all changes from this cset, a had no problems
-> mounting big reiserfs volumes...
+> Why does the help text for CONFIG_QFMT_V2 say `VFS v0 quota format support' and
+> not `VFS v2 quota format support'?
 
-Hello Marcelo,
+Ask Jan, that's the name he's been using all through the development of
+the patch and in the quota tools.
 
-can you please send me a separated patch for reversal to verify this.
-
-Hello Chris,
-
-if this is true I am willing to test other versions of the questionable patch
-to solve the issue.
-
-Thank you.
-Stephan

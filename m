@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbTFMJi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 05:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFMJi4
+	id S261265AbTFMJoa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 05:44:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265323AbTFMJoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 05:38:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17166 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261196AbTFMJiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 05:38:55 -0400
-Date: Fri, 13 Jun 2003 10:52:38 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matt Porter <mporter@kernel.crashing.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] early_port_register
-Message-ID: <20030613105238.A29723@flint.arm.linux.org.uk>
-Mail-Followup-To: Matt Porter <mporter@kernel.crashing.org>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <20030612132001.A4693@home.com> <20030612212723.A15400@infradead.org> <20030612134113.B4693@home.com> <20030612225310.G3348@flint.arm.linux.org.uk>
+	Fri, 13 Jun 2003 05:44:30 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:20484 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261265AbTFMJoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 05:44:30 -0400
+Date: Fri, 13 Jun 2003 19:57:59 +1000
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext[23]/lilo/2.5.{68,69,70} -- blkdev_put() problem?
+Message-ID: <20030613095759.GA15003@gondor.apana.org.au>
+References: <1052513725.15923.45.camel@andyp.pdx.osdl.net> <1055369326.1158.252.camel@andyp.pdx.osdl.net> <1055373692.16483.8.camel@chtephan.cs.pocnet.net> <1055377253.1222.8.camel@andyp.pdx.osdl.net> <20030611172958.5e4d3500.akpm@digeo.com> <1055438856.1202.6.camel@andyp.pdx.osdl.net> <20030612105347.6ea644b7.akpm@digeo.com> <1055441028.1202.11.camel@andyp.pdx.osdl.net> <1055442331.1225.11.camel@andyp.pdx.osdl.net> <20030613010149.359cb4dd.akpm@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030612225310.G3348@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Jun 12, 2003 at 10:53:10PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030613010149.359cb4dd.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 10:53:10PM +0100, Russell King wrote:
-> Sigh, there seems to be one cset still pending in my serial BK tree:
+On Fri, Jun 13, 2003 at 01:01:49AM -0700, Andrew Morton wrote:
 > 
-> ChangeSet@1.1113.2.1, 2003-05-14 16:50:47+02:00, hch@lab343.munich.sgi.com
->   acpi serial stuff
-> 
-> I'll request Linus pulls this tonight.
+> Fix this by just leaving the inode dirty and moving on to inspect the other
+> blockdev inodes on sb->s_io.
 
-FYI, its still sitting here...
-
+This fixes it for me.  Thanks Andrew.
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

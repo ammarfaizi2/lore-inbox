@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268182AbUHFRn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265977AbUHFRrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268182AbUHFRn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 13:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268218AbUHFRko
+	id S265977AbUHFRrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 13:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268220AbUHFRoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 13:40:44 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:46496 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268182AbUHFR3v (ORCPT
+	Fri, 6 Aug 2004 13:44:30 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:34977 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268206AbUHFRnw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 13:29:51 -0400
-Date: Fri, 06 Aug 2004 10:28:44 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Albert Cahalan <albert@users.sourceforge.net>,
-       Roger Luethi <rl@hellgate.ch>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, wli@holomorphy.com
-Subject: Re: [proc.txt] Fix /proc/pid/statm documentation
-Message-ID: <276140000.1091813324@flay>
-In-Reply-To: <1091803883.1231.2502.camel@cube>
-References: <1091754711.1231.2388.camel@cube> <20040806094037.GB11358@k3.hellgate.ch> <1091797122.1231.2452.camel@cube> <20040806163428.GA31285@k3.hellgate.ch> <1091803883.1231.2502.camel@cube>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 6 Aug 2004 13:43:52 -0400
+Date: Fri, 6 Aug 2004 11:02:33 -0700 (PDT)
+From: Ram Pai <linuxram@us.ibm.com>
+X-X-Sender: ram@dyn319181.beaverton.ibm.com
+Reply-To: linuxram@us.ibm.com
+To: Phillip Lougher <phillip@lougher.demon.co.uk>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, <linuxram@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+In-Reply-To: <4113BA65.8050901@lougher.demon.co.uk>
+Message-ID: <Pine.LNX.4.44.0408061059010.12642-100000@dyn319181.beaverton.ibm.com>
+Organization: IBM Linux Technology Center
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 Aug 2004, Phillip Lougher wrote:
 
-
---On Friday, August 06, 2004 10:51:24 -0400 Albert Cahalan <albert@users.sourceforge.net> wrote:
-
-> On Fri, 2004-08-06 at 12:34, Roger Luethi wrote:
->> On Fri, 06 Aug 2004 08:58:43 -0400, Albert Cahalan wrote:
->> > > Hardly. All I was asking this time was to have a documentation fix
->> > > merged, though.
->> > 
->> > Just delete the documentation. I certainly never use it.
->> 
->> It wasn't written for you.
+> Nick Piggin wrote:
+> > Ram Pai wrote:
+> > 
+> >>
+> >> there is a check in __do_page_cache_readahead()  that validates this.
+> >> But it is still not guaranteed to work correctly against races.
+> >> The filesystem has to handle such out-of-bound requests gracefully.
+> >>
+> >> However with Nick's fix in do_generic_mapping_read() the filesystem is 
+> >> gauranteed to be called with out-of-bound index, if the file size is a 
+> >> multiple of 4k. Without the fix, the filesystem might get
+> >> called with out-of-bound index only in racy conditions.
+> >>
+> > 
+> > How's this?
+> > 
 > 
-> OK, but the statm file was. (well, for the maintainer
-> of procps a decade ago)
+> It doesn't work.  It correctly handles the case where *ppos is equal
+> to i_size on entry to the function (and this does work for files 0, 4k
+> and n * 4k in length), but it doesn't handle readahead inside the for
+> loop.  The check needs to be in the for loop.
+
+
+Thinking of it more.. Is it not right to leave the code as is now?
+
+That way all filesystems that cannot handle out-of-bound index access
+are forcefully made to fix it.  The filesystems anyway are not guaranteed
+non-out-of-bound index access by the VFS.
+
+RP
 > 
-> Everybody else can parse ps output.
-
-I don't think that's necessarily a good idea - access to lower level
-data would be nice. What's the harm in fixing the docs, anyway?
-
-M.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

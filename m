@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265575AbUAIAYN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 19:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265625AbUAIAYM
+	id S266269AbUAIA3K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 19:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUAIA3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 19:24:12 -0500
-Received: from ozlabs.org ([203.10.76.45]:7084 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S265575AbUAIAYK (ORCPT
+	Thu, 8 Jan 2004 19:29:10 -0500
+Received: from [130.57.169.10] ([130.57.169.10]:23688 "EHLO peabody.ximian.com")
+	by vger.kernel.org with ESMTP id S266269AbUAIA3H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 19:24:10 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Jan 2004 19:29:07 -0500
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+From: Robert Love <rml@ximian.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Greg KH <greg@kroah.com>,
+       Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
+References: <200401012333.04930.arvidjaar@mail.ru>
+	 <20040103055847.GC5306@kroah.com>
+	 <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
+	 <20040108031357.A1396@pclin040.win.tue.nl>
+	 <Pine.LNX.4.58.0401071815320.12602@home.osdl.org>
+	 <20040108034906.A1409@pclin040.win.tue.nl>
+	 <Pine.LNX.4.58.0401071854500.2131@home.osdl.org>
+	 <20040108043506.A1555@pclin040.win.tue.nl>
+	 <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1073608126.1228.16.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Thu, 08 Jan 2004 19:28:47 -0500
 Content-Transfer-Encoding: 7bit
-Message-ID: <16381.61618.275775.487768@cargo.ozlabs.ibm.com>
-Date: Fri, 9 Jan 2004 11:07:14 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: joe.korty@ccur.com
-Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-In-Reply-To: <20040108225929.GA24089@tsunami.ccur.com>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-	<20040108051111.4ae36b58.pj@sgi.com>
-	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
-	<20040108225929.GA24089@tsunami.ccur.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty writes:
+On Wed, 2004-01-07 at 22:43, Linus Torvalds wrote:
 
-> I believe he wants the commas to group the digits by at most eight
-> irrespective of architecture.  Which seems reasonable.
+> Yes. We _could_ do that, by just making a "we noticed the disk change" be
+> a hotplug event. However, I'm loath to do that, because some devices
+> literally don't even have an easily read disk change signal, so what they
+> do is
 
-Ah, ok, that makes sense.  I guess we need a BITMAP_WORD macro which
-looks like this on big-endian 64-bit systems:
+I like the idea of a hotplug event on media change (basically, a hotplug
+event for partitions).  And, in fact, I am loath not to do it.
 
-#define BITMAP_WORD(p, n)	(((u32 *)(p))[(n) ^ 1])
+The current direction with the kernel and udev is letting us move _away_
+from polling.  Projects such as HAL are helping to finally integrate
+hardware management throughout the system.  But HAL is going to be very
+confused by some of the alternative solutions for partitions: requiring
+that all of the partition device nodes preexist is going to really
+complicate things, and I really do not want to have to poll on all of
+them in order for HAL to have an idea of what partitions are valid.
 
-and this on other systems:
+But I hear you loud and clear about dumb devices that cannot detect
+media change.  They pose a problem.
 
-#define BITMAP_WORD(p, n)	(((u32 *)(p))[(n)])
+I want a proper solution, too... ideas?
 
-or something like that...
+	Robert Love
 
-Paul.
+

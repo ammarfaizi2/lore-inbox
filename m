@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264983AbSLLSOB>; Thu, 12 Dec 2002 13:14:01 -0500
+	id <S267471AbSLLS1K>; Thu, 12 Dec 2002 13:27:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265019AbSLLSMR>; Thu, 12 Dec 2002 13:12:17 -0500
-Received: from [195.212.29.5] ([195.212.29.5]:62665 "EHLO
-	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S264983AbSLLSHk> convert rfc822-to-8bit; Thu, 12 Dec 2002 13:07:40 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390: latest and greates for 2.5.51.
-Date: Thu, 12 Dec 2002 19:12:09 +0100
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212121905.20679.schwidefsky@de.ibm.com>
+	id <S267476AbSLLS1K>; Thu, 12 Dec 2002 13:27:10 -0500
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:58635 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267471AbSLLS1J>; Thu, 12 Dec 2002 13:27:09 -0500
+Subject: Re: "bio too big" error
+From: Wil Reichert <wilreichert@yahoo.com>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021212120836.GA5717@reti>
+References: <1039572597.459.82.camel@darwin>  <20021212120836.GA5717@reti>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1039718098.433.13.camel@darwin>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 12 Dec 2002 13:34:59 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-some small s390 patches for 2.5.51. 
+Yeah, ditching patch 5 makes my lvm functional again.  Things are
+definately better now.  I haven't attempted to stress it, but the entire
+hanging console / zombie process bit has gone away.  Everything appears
+to work normally.  A couple test cp's shows nothing abnormal, but
+playing an ogg still results in the following.
 
-The patch overview:
+Dec 12 13:32:20 darwin kernel: bio too big device ide2(33,0) (256 > 255)
+Dec 12 13:32:51 darwin last message repeated 3 times
+Dec 12 13:33:55 darwin last message repeated 6 times
 
-01: Makefile changes as proposed by Sam Ravnborg.
-02: sys_restart_syscall for s390/s390x. Following your suggestion I used
-    a thread flag (TIF_RESTART_SVC) to indicate the restart condition
-    to entry.S.
-03: Fixes for the common i/o layer. Among other things I found the race
-    condition in do_IRQ that has been plagueing me the last few days.
-04: Another uaccess bug. __put_user_asm_8 doesn't return 0 for success.
-05: Remove last remaining file of the old tape driver.
-06: Arnd scanned through the device drivers and found some variables/functions
-    that should better be declared static.
-07: Some warnings fixes.
-08: Make sys_wait4 available to modules.
+Any other tests I should do?
 
-blue skies,
-  Martin.
+Wil
 
+On Thu, 2002-12-12 at 07:08, Joe Thornber wrote:
+> On Tue, Dec 10, 2002 at 09:17:45PM -0500, Wil Reichert wrote:
+> > Hi,
+> > 
+> > I'm getting a "bio too big" error with 2.5.50.  I've got a 330G lvm2
+> > partition formatted with ext3 using the -T largefile4 parameter. 
+> > Everything seems ok at first, but any sort of access will die very
+> > unhappily with said error messsage after about 10 seconds of operation
+> > or so.  The only google search results are the patch submission.  Eeek.
+> 
+> Could you try the patchset below please ?  (you may need to knock out
+> patch 5 until we get to the bottom of that particular bug).
+> 
+> http://people.sistina.com/~thornber/patches/2.5-stable/2.5.51/2.5.51-dm-2.tar.bz2
+> 
+> - Joe
+-- 
+Wil Reichert <wilreichert@yahoo.com>
 

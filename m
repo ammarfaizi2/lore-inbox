@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269303AbUI3Pwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269310AbUI3P4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269303AbUI3Pwp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 11:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269313AbUI3Pwp
+	id S269310AbUI3P4z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 11:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269312AbUI3P4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 11:52:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5338 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269303AbUI3Pwb
+	Thu, 30 Sep 2004 11:56:24 -0400
+Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:13051 "EHLO
+	mail.inostor.com") by vger.kernel.org with ESMTP id S269310AbUI3Pyf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 11:52:31 -0400
-Date: Thu, 30 Sep 2004 16:52:28 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: linux-kernel@vger.kernel.org, bbpetkov@yahoo.de
-Subject: Re: [PATCH] 2.6.9-rc3 fix warnings in sound/drivers/opl3/opl3_lib.c
-Message-ID: <20040930155228.GE23987@parcelfarce.linux.theplanet.co.uk>
-References: <20040930122853.GA28332@none> <20040930152544.GD23987@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040930152544.GD23987@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 30 Sep 2004 11:54:35 -0400
+Message-ID: <415C2C25.7030807@inostor.com>
+Date: Thu, 30 Sep 2004 08:54:13 -0700
+From: Tom Dickson <tdickson@inostor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Why doesn't memchr appear in ksyms?
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 04:25:44PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Thu, Sep 30, 2004 at 02:28:53PM +0200, Borislav Petkov wrote:
-> > Hi there,
-> >    I get these warnings while compiling 2.6.9-rc3:
-> >    sound/drivers/opl3/opl3_lib.c: In function `snd_opl3_cs4281_command':   
-> >    sound/drivers/opl3/opl3_lib.c:101: warning: passing arg 2 of `writel'  makes pointer from integer without a cast   
-> >    sound/drivers/opl3/opl3_lib.c:104: warning: passing arg 2 of `writel'  makes pointer from integer without a cast
-> >    
-> >    Hope this fix is correct.
-> 
-> It looks very odd.  At the very least we don't want to overload the
-> fields in question (->r_port and ->l_port) that way.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-*Yuck*
+According to
+http://kernelnewbies.org/documents/kdoc/kernel-api/r1708.html I should
+be able to use memchr in a module, however, when I try to load the
+module insmod complains that memchr is not available; a grep memchr
+/proc/ksyms shows that it doesn't exist.
 
-ALSA code, as pretty as ever.  No, that's not a fix; it's only shutting the
-rightfully complaining compiler up.
+Is there some special kernel option I have to set to enable it? memcpy
+and other mem* externs are there.
 
-What happens there is a dirty kludge created for the benefit of a single
-driver (sound/pci/cs4281.c).  Said driver has a bunch of registers
-memory-mapped, while its relatives use port IO instead.  Driver does
-(correctly) ioremap(); then it overloads the arguments of snd_opl3_create()
-normally used for port numbers and shoves *address obtained from ioremap
-and divided by 4* in them.
+Thank you (for answering a simple question)
 
-Sigh...  At the very least that kind of abuse should stop.  FWIW, I would
-suggest having cs4281.c set the ->command() directly and killing that crap
-with ->l_port/->r_port overloading.
+Kernel 2.4.26 on a Pentium 3 system
+
+- -Tom
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBXCwl2dxAfYNwANIRAm/RAJ0ab0hJH/8IaV9gOW7cTWe6z5E6agCgm2hu
+F20XzDvW3Ah5LJ/2foMxfMw=
+=0qgy
+-----END PGP SIGNATURE-----

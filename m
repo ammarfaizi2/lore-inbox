@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313448AbSDQIim>; Wed, 17 Apr 2002 04:38:42 -0400
+	id <S313746AbSDQIlO>; Wed, 17 Apr 2002 04:41:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313939AbSDQIim>; Wed, 17 Apr 2002 04:38:42 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:531 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S313448AbSDQIil>;
-	Wed, 17 Apr 2002 04:38:41 -0400
-Message-ID: <3CBD25E2.2050404@evision-ventures.com>
-Date: Wed, 17 Apr 2002 09:36:02 +0200
+	id <S313771AbSDQIlN>; Wed, 17 Apr 2002 04:41:13 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:4371 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S313746AbSDQIlM>;
+	Wed, 17 Apr 2002 04:41:12 -0400
+Message-ID: <3CBD2686.9080505@evision-ventures.com>
+Date: Wed, 17 Apr 2002 09:38:46 +0200
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
 X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
         David Lang <david.lang@digitalinsight.com>,
         Vojtech Pavlik <vojtech@suse.cz>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <E16xVSi-0000FN-00@the-village.bc.nu>
+In-Reply-To: <Pine.LNX.4.33.0204160902570.1319-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>Doing it with a loopback like interface at a higher level is the much 
->>saner operation - I understand why Martin removed the byteswap support, 
->>and agree with it 100%. It just didn't make any sense from a driver 
->>standpoint.
+Linus Torvalds wrote:
+> 
+> On Tue, 16 Apr 2002, Richard Gooch wrote:
+> 
+>>What I object to is the removal of a feature that people depend on,
+>>*without a replacement being made available prior to removal*. If you
+>>want to remove a feature, build the replacement *first*. Don't remove
+>>the feature and say "the rest of you can pick up the pieces".
 > 
 > 
-> We need to support partitioning on loopback devices in that case.
-> 
-> 
->>The only reason byteswapping exists is a rather historical one: Linux did 
->>the wrong thing for "insw/outsw" on big-endian architectures at one point 
->>(it byteswapped the data).
-> 
-> 
-> A small number of other setups people wired the IDE the quick and easy
-> way and their native format is indeed ass backwards - some M68K disks and
-> the Tivo are examples of that. Interworking requires byteswapping and the
-> ability to handle byteswapped partition tables.
+> Hey, that happens all the time - look how many times VFS changes have made
+> various filesystems unusable (including yours ;)
 
-I said it already multiple times Alan - please note that the byte-swapping code
-for *physically* crosswired systems is *still there*. OK?
+Another example from the real world: Do you always have to elect democratically
+a new president, before you assult the bad dictator?
+
 

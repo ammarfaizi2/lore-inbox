@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291086AbSCDDLB>; Sun, 3 Mar 2002 22:11:01 -0500
+	id <S291102AbSCDDOK>; Sun, 3 Mar 2002 22:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291088AbSCDDKk>; Sun, 3 Mar 2002 22:10:40 -0500
-Received: from tapu.f00f.org ([66.60.186.129]:49805 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S291086AbSCDDK3>;
-	Sun, 3 Mar 2002 22:10:29 -0500
-Date: Sun, 3 Mar 2002 19:10:23 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [bkpatch] add sys_sendfile64
-Message-ID: <20020304031023.GA14757@tapu.f00f.org>
-In-Reply-To: <20020303161818.A18187@redhat.com>
+	id <S291110AbSCDDOC>; Sun, 3 Mar 2002 22:14:02 -0500
+Received: from mnh-1-19.mv.com ([207.22.10.51]:35850 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S291102AbSCDDNy>;
+	Sun, 3 Mar 2002 22:13:54 -0500
+Message-Id: <200203040316.WAA04739@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Sun, 03 Mar 2002 23:48:56 GMT."
+             <E16hfiq-0005qg-00@the-village.bc.nu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020303161818.A18187@redhat.com>
-User-Agent: Mutt/1.3.27i
-X-No-Archive: Yes
+Date: Sun, 03 Mar 2002 22:16:40 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 03, 2002 at 04:18:18PM -0500, Benjamin LaHaise wrote:
+alan@lxorguk.ukuu.org.uk said:
+> Like randomly killing another process off ? If you want to dirty the
+> pages pray and catch the sigbus then see memset(3). If you want to be
+> told "sorry you can't have that" and write a simple loop to pick a
+> good memory size, you need the address space accounting.
 
-    The below bitkeeper patch can be pulled from
-    	bk://bcrlbits.bkbits.net/linux-2.5
+OK, this sounds right if the machine is short of memory.  Random
+hacks to do something reasonable if a SIGBUS manages to gets through aren't
+the way to go when random process deaths are what happen if it doesn't.
 
-    and adds a sys_sendfile64 call.  Arch maintainers should 
-    probably add the entry to their syscall tables if it is 
-    appropriate.
+However, the host wasn't under a global memory shortage.  The UML hit the 
+tmpfs size limit.
 
-Neat.  I made something similar last night but messed it up originally
-so never sent it.
+Does address space accounting enforce tmpfs limits (and other limits, like
+RSS, when it happens)?  Or is it enforcing a global limit?
 
-    +
-    +asmlinkage ssize_t sys_sendfile(int out_fd, int in_fd, off_t *offset, size_t count)
-    +{
-    +	loff_t pos, *ppos = NULL;
-    +	ssize_t ret;
-    +	if (offset) {
-    +		off_t off;
-    +		if (unlikely(get_user(off, offset)))
-    +			return -EFAULT;
-    +		pos = off;
-    +		ppos = &pos;
+When the host isn't in a memory shortage and UML is running under a sub-limit
+(as with tmpfs), either of those gives me worse behavior than I get by being
+able to trap the SIGBUS.  It will arrive reliably without accompanying process
+deaths.  The first case means that the UML won't get off the ground even
+though it would be able to deal semi-gracefully with tmpfs running out of room.
+The second means that the mmap will succeed and I'm back to SIGBUS anyway.
 
-We have a problem if off + count >= 2^32 here.
+> Nothing of the sort. Sitting in a gnome desktop I'm showing a 41200Kb
+> worst case swap requirement, but it appears under half of that is
+> used. 
 
-Ideally i think we need to check for 32-bit (31-bit?) overflow here
-and return -EOVERFLOW.  I made a similar patch last night for
-sendfile64 which included this check (although I was tired and the
-patch was slightly wrong).  Actually, I think wew are missing
-EOVERFLOW checks in a number of paths, ideally I'd like to make one
-function to check and have all other functions reference that if
-people agree that makes sense.
+This I don't get.  I'm assuming that the vast majority of the time when a
+set of pages is returned by __alloc_pages, they all are going to be written
+pretty soon.  This being the case, how can it possibly affect anything to
+touch them at the end of __alloc_pages?
 
-    +	}
-    +	ret = common_sendfile(out_fd, in_fd, ppos, count);
-    +	if (offset)
-    +		put_user((off_t)pos, offset);
-    +	return ret;
+				Jeff
 
-What is another thread unmapped 'offset' during the system call?  Do
-we want to check the result of put_user here and return -EFAULT?
-(If so, there are other system calls to consider such as select).
-
-
-
-
-  --cw

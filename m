@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264890AbTLZIPj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 03:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLZIPj
+	id S264971AbTLZIWI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 03:22:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLZIWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 03:15:39 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:59332
+	Fri, 26 Dec 2003 03:22:08 -0500
+Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:28888
 	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S264890AbTLZIPh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 03:15:37 -0500
-Date: Fri, 26 Dec 2003 00:15:35 -0800
+	id S264971AbTLZIWE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 03:22:04 -0500
+Date: Fri, 26 Dec 2003 00:22:01 -0800
 To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: vojtech@suse.cz
-Subject: Can't eject a previously mounted CD?
-Message-ID: <20031226081535.GB12871@triplehelix.org>
+Subject: Re: 2.6.0-mm1 oops from khubd
+Message-ID: <20031226082201.GA2853@firesong>
 Mail-Followup-To: joshk@triplehelix.org,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	vojtech@suse.cz
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20031223071327.GG7522@triplehelix.org> <20031224175130.GA30182@kroah.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
+	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
 Content-Disposition: inline
+In-Reply-To: <20031224175130.GA30182@kroah.com>
 User-Agent: Mutt/1.5.4i
-From: joshk@triplehelix.org (Joshua Kwan)
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---5I6of5zJg18YgZEa
+--zYM0uCDKw75PZbzx
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Vojtech,
+On Wed, Dec 24, 2003 at 09:51:30AM -0800, Greg KH wrote:
+> Ick, I thought we had fixed this...
+>=20
+> Can you try the patch below?  It should apply on top of the -mm1 tree
+> you are using.  Let me know if this fixes the problem or not.
 
-I suspect this problem has something to do with my nForce2 motherboard.
-When I mount a CD, unmount it, and try to eject it from my drive, the
-drive flashes the red 'busy / locked' light and refuses to let me eject
-it. I'm using the AMD / nVidia IDE kernel support and the obvious
-conclusion is that it's failing to release the device or something. Is
-this true?
-
-I suspect the fix would be a one liner.
+Well, I can no longer reproduce this problem on my end, even with the
+old kernel. I've applied it though and I'll buzz you if it happens
+again.
 
 --=20
 Joshua Kwan
 
---5I6of5zJg18YgZEa
-Content-Type: application/pgp-signature
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iQIVAwUBP+vuJaOILr94RG8mAQK5JQ/+PuD/FvdWQp/IN09QzyxpQncbTOB722EP
-vv0Y3f5vQpWuNbrFXGvISX6rLNa/NUJhAiouMEZ++vNG6iP7m39MpOAjU04sqCVo
-TXqYFRUe40KScyVRBxWiQ1dotk2w2S449nFgaGQt9Rec6ODBK+zxwZ5+w3RH5Q6N
-maXwI0m4w5iGWiatfXjqnTBsiLii6V0+S5DbzFaHQuE4lckKfzrRg2Xx80CgzG5V
-pUk3/nRLPYf5IXMNFj7f3CUVN1dhY+DibcTYE2cCNrI+w2HxO7EuLkvRY1nI+I6E
-R26ql2LMLEKCumHpLrUAept0XfLgBInUsh28oTHDvGBRltfbLAbhCfm8fvkmY+kx
-H27CaZcaBySbquz+aTwMGF2MHEqFWAE83Om/deeuaCOr5cavfJyNvRK6AhZzUwBt
-KBO0XXXq8sw4zOcmqM9GiR41QZIQPs1qpgvfT3refVMt3rrlYjNum7j4HWeNFJl0
-wJix3213G+wmIMJ6MKQFanmPLbDWD/ThUBrtu9itrlYGRLs7BO5WyYupapDCpOtG
-fk9DYFQWFekmpa5k1OSQgVyfJGKgqbsav+hgWg6TtrOyoPh1jtHMfhbRNuMJcfWc
-mNry8aIsU9UWQG5mMV9t1BHVrWlwjmdV3vVHE3inlC/FEOfhLVPiY7No3NNvl48z
-aGrgiw2ssXY=
-=TS0s
+iQIVAwUBP+vvqaOILr94RG8mAQIhEBAAkAWkLiZn3VftV1bPVu9xGMm1N+mSHZyz
+zWc+5ysupKwTMhYvSRQ1WHYaGw7NzUUwCnM+uqp+FhXmqofOfxXSSnRwRe5+AC9s
+cfFJs4B0bVNyrxnVOnc/8XLyG6/w6hSA5Qxow35thPxjJHetkZWEfQeYVg0Al9Yg
+NQ5XnxxFB8u1oKbL46Wl8gLexf8DPb6xzB3bQ+8MwGSEuo1g9marF5PVIpn+6si6
+XY5zeUlftwj4VVbmURv2haLp488D/YR4RnuYkcHnVe/pVy/YG3l/0/trlJPj++KZ
+UwTwVFAi6gDUB09A2g9cN2uavJ3vIJZw+RWjdXtxVYo7R8POCcoJXzNJXWl7c/TN
+OrHn3K4D7mTF+uAsH7o+RHCnl2QOv+Quz1Yn5/ijaiue7NdIK1c1opipWrlNaRhA
+9rTiL5oa28Bni5lY1aUdZXGf0Hu09zL+1kUXHc+Kyx0tawalP4/GL4Z/KXwPva2e
+Ofhk6QYu0S/stA+SdtGWjJpQgxnj4+00e5ACioAr6R+b6WygxBnhkwSvjMqZx088
+/ut7Z9xW/ZhnkAhgV+5M5oiDJRGewP4ZGh4LVqvq0Y1VEPAOEA0M6QS7khiIKdGi
+pMFsX/Z70ueuuq/P1tWRiR/S4D0dR7BkjyYlmBsCb8t2qfgqmZqCGtkWlEg9Vkkd
+Szf/L27XY60=
+=Ppb4
 -----END PGP SIGNATURE-----
 
---5I6of5zJg18YgZEa--
+--zYM0uCDKw75PZbzx--

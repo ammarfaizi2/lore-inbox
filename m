@@ -1,60 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267495AbSKTHrU>; Wed, 20 Nov 2002 02:47:20 -0500
+	id <S267654AbSKTHil>; Wed, 20 Nov 2002 02:38:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267553AbSKTHrU>; Wed, 20 Nov 2002 02:47:20 -0500
-Received: from adedition.com ([216.209.85.42]:59140 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267495AbSKTHrS>;
-	Wed, 20 Nov 2002 02:47:18 -0500
-Date: Wed, 20 Nov 2002 03:01:53 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Message-ID: <20021120080153.GB26018@mark.mielke.cc>
-References: <20021120030919.GA9007@bjl1.asuk.net> <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211191957370.1107-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+	id <S267656AbSKTHil>; Wed, 20 Nov 2002 02:38:41 -0500
+Received: from dp.samba.org ([66.70.73.150]:52193 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267654AbSKTHij>;
+	Wed, 20 Nov 2002 02:38:39 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Juan M. de la Torre" <jmtorre@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sys_init_module refuses to load module without init code/data sections 
+In-reply-to: Your message of "Tue, 19 Nov 2002 20:38:57 BST."
+             <20021119193857.GA406@apocalipsis> 
+Date: Wed, 20 Nov 2002 18:35:36 +1100
+Message-Id: <20021120074545.285F02C05C@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 08:04:33PM -0800, Davide Libenzi wrote:
-> On Wed, 20 Nov 2002, Jamie Lokier wrote:
-> > The `fd' field, on the other hand, is not guaranteed to correspond
-> > with the correct file descriptor number.  So.... perhaps the structure
-> > should contain an `obj' field and _no_ `fd' field?
-> > ...
-> It's OK. I agree. We can remove the fd from inside the structure and have :
->     struct epoll_event {
->         unsigned short events;
->         unsigned short revents;
->         __uint64_t obj;
->     };
+In message <20021119193857.GA406@apocalipsis> you write:
+> 
+>   load_module() stores in mod->init_size the size of init data and init
+>  code sections, and later allocs (using module_alloc()) mod->init_size
+>  bytes. 
 
-Forget any argument I had against removing 'fd'. This sounds good.
+Yep, fix already sent to Linus.
 
-Perhaps 'obj' should be named 'userdata'?
-
-     struct epoll_event {
-         unsigned short   events;
-         unsigned short   revents;
-         __uint64_t       userdata;
-     };
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

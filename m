@@ -1,78 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263676AbTF3HZW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 03:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTF3HZW
+	id S263394AbTF3Hej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 03:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTF3Hej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 03:25:22 -0400
-Received: from imhotep.hursley.ibm.com ([194.196.110.14]:9273 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S263676AbTF3HZO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 03:25:14 -0400
-Subject: RE: Dell vs. GPL
-From: Anders Karlsson <anders@trudheim.com>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.NEB.4.44.0306292354100.7687-100000@slick.sigje.org>
-References: <Pine.NEB.4.44.0306292354100.7687-100000@slick.sigje.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OSuXdwM8PpHyhYlUPQ9G"
-Organization: Trudheim Technology Limited
-Message-Id: <1056958773.2080.14.camel@tor.trudheim.com>
+	Mon, 30 Jun 2003 03:34:39 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:45557 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263394AbTF3Hei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 03:34:38 -0400
+Date: Mon, 30 Jun 2003 00:49:08 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, felipe_alfaro@linuxmail.org,
+       zwane@linuxpower.ca
+Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
+Message-Id: <20030630004908.3a6569ad.akpm@digeo.com>
+In-Reply-To: <200306301535.49732.kernel@kolivas.org>
+References: <200306281516.12975.kernel@kolivas.org>
+	<200306291132.49068.kernel@kolivas.org>
+	<200306291457.40524.kernel@kolivas.org>
+	<200306301535.49732.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
-Date: 30 Jun 2003 08:39:33 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jun 2003 07:48:58.0446 (UTC) FILETIME=[10585EE0:01C33EDC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> It's looking seriously like I'm talking to myelf here
 
---=-OSuXdwM8PpHyhYlUPQ9G
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Let me know when it is sufficiently cooked and I'll give it a run
+in -mm.
 
-On Mon, 2003-06-30 at 07:57, ahorn@deorth.org wrote:
-[snip]
-> I'm still not seeing any evidence of anyone being blocked from obtaining
-> the source code (although I haven't followed the whole thread)
-
-=46rom what I gathered, people were irritated because Dell only supplied a
-patch of what modifications they had made, against a known RedHat
-kernel.
-
-IANAL, but I think they have matched what the GPL required them to by
-doing so. There is a relatively easy way to recreate exactly what they
-did. A correctly worded request to the right place inside Dell should
-perhaps even yield the SPM they used.
-
-> I repeat, did anyone ask dell for source code for this supposed violation=
-?
-> They are not bound to _distribute_ the source code with their software
-> only to make it available in a reasonable fashion upon request.
-
-It was not clear, but it appeared that the source was not asked for.
-There was a whole lot of complaining that it wasn't distributed without
-being asked for though.
-
-> Or am I missing something here ?
->=20
-> (not being argumentative here by the way, this is really interesting
-> discussion)
-
-It is interesting, but it would be nice to have a professional legal
-opinion on the matter.
-
-/A
-
-
---=-OSuXdwM8PpHyhYlUPQ9G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+/+k1LYywqksgYBoRAjehAKCxLIQGQ9iWxcnDomVJru3MZo94egCeJs9L
-6/5IftPgft5EnhB0zJhn8ic=
-=6CBY
------END PGP SIGNATURE-----
-
---=-OSuXdwM8PpHyhYlUPQ9G--
+We obviously have issues in there still, and it is good that you
+guys are working it.
 

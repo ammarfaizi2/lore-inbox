@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316610AbSGBEqp>; Tue, 2 Jul 2002 00:46:45 -0400
+	id <S316615AbSGBEye>; Tue, 2 Jul 2002 00:54:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316611AbSGBEqo>; Tue, 2 Jul 2002 00:46:44 -0400
-Received: from mta05ps.bigpond.com ([144.135.25.137]:60609 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S316610AbSGBEqn>; Tue, 2 Jul 2002 00:46:43 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Happy Hacking Keyboard Lite Mk 2 USB Problems with 2.4.18.
-Date: Tue, 2 Jul 2002 14:45:55 +1000
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org
-References: <200207011647.g61GlNx14474@blake.inputplus.co.uk> <200207021416.42616.bhards@bigpond.net.au> <20020702002629.A22148@devserv.devel.redhat.com>
-In-Reply-To: <20020702002629.A22148@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S316616AbSGBEyd>; Tue, 2 Jul 2002 00:54:33 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:16795 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S316615AbSGBEyc>; Tue, 2 Jul 2002 00:54:32 -0400
+Date: Tue, 2 Jul 2002 06:50:53 +0200
+From: Ulrich Wiederhold <U.Wiederhold@gmx.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HPT370 + ACPI -> freeze (doesn't boot)
+Message-ID: <20020702045053.GA9522@sky.net>
+References: <Pine.GSO.4.30.0207012214430.15254-200000@balu> <20020701221651.10653.qmail@nextgeneration.speedroad.net> <1025563853.27901.56.camel@bip>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Message-Id: <200207021445.55603.bhards@bigpond.net.au>
+In-Reply-To: <1025563853.27901.56.camel@bip>
+User-Agent: Mutt/1.4i
+X-Operating-System: Debian GNU/Linux 3.0 (Kernel 2.4.17-rc2)
+Organization: Using Linux Only
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jul 2002 14:26, Pete Zaitcev wrote:
-> > From: Brad Hards <bhards@bigpond.net.au>
-> > Date: Tue, 2 Jul 2002 14:16:42 +1000
-> >
-> > > > I have an idea: remove usbkbd or make it extremely hard for newbies
-> > > > to build (e.g. drop CONFIG_USB_KBD from config.in, so it would need
-> > > > to be added manually if you want usbkbd).
-> >
-> > Unfortunately, removal has been vetoed by the USB Maintainer based on
-> > the code size issue.
->
-> Was it during the Randy's, JE's or Greg's reign? Their ideas
-> about a direction of development were sometimes different.
-Here is the latest (from Greg):
+Hi,
 
-http://marc.theaimsgroup.com/?l=linux-usb-users&m=101531496915989&w=2
+my kernel (still 2.4.17-rc2) boots from hde and finds hde and hdg during
+bootup.
+After the boot-prozess is finished, I can't access the drives anymore.
+(I have only /boot on hde1, the rest on scsi-disks).
 
-I may have proposed removal before - it is a bit of a pet topic. So far all I 
-have done is got some strongly worded (if unread) Config.help entries in.
+I will try 2.4.19 if it's finish.
 
-Brad
+If you find a solution, pls msg me as well, thanks.
+
+Uli
+
 -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+'The box said, 'Requires Windows 95 or better', so i installed Linux - TKK 5

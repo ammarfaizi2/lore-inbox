@@ -1,82 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbSKTMBo>; Wed, 20 Nov 2002 07:01:44 -0500
+	id <S266006AbSKTMSb>; Wed, 20 Nov 2002 07:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266006AbSKTMBn>; Wed, 20 Nov 2002 07:01:43 -0500
-Received: from cm19173.red.mundo-r.com ([213.60.19.173]:41098 "EHLO
-	demo.mitica") by vger.kernel.org with ESMTP id <S265987AbSKTMBm>;
-	Wed, 20 Nov 2002 07:01:42 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH]: fixing journal-api.tmpl tags
-X-Url: http://people.mandrakesoft.com/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-Date: 20 Nov 2002 13:12:11 +0100
-Message-ID: <m2zns430f8.fsf@demo.mitica>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266020AbSKTMSb>; Wed, 20 Nov 2002 07:18:31 -0500
+Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:5326 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266006AbSKTMSa>; Wed, 20 Nov 2002 07:18:30 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 20 Nov 2002 04:25:28 -0800
+Message-Id: <200211201225.EAA12462@adam.yggdrasil.com>
+To: rusty@rustcorp.com.au
+Subject: Re: Module Refcount & Stuff mini-FAQ
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Although Rusty Russell sent me a preliminary response without cc'ing
+linux-kernel (I think because it was so preliminary), but I'm
+re-cc'ing linux-kernel because my response explains a bit more about
+my proposal to eliminate most or all try_module_get's racelessly,
+which is something others might find informative or might want to
+comment on.  There is obviously nothing particularly private in this
+message.
 
-Hi
+Rusty Russell wrote:
+>In message <200211191918.LAA11641@adam.yggdrasil.com> you [Adam Richter] write:
+>> On November 18, 2002, Rusty Russell wrote:
+[...]
+>> 	1. try_module_get() introduces new error legs that will get
+>> little testing.
 
-        journal-API don't have the xml tags right, and make imposible
-        to compile the docs.  Trivial patch included, basically you
-        need to close every tag  that you open :)
+>try_module_get() is exactly equivalent to try_inc_mod_count().  It's
+>not actually a new thing: deprecating the other module refcount
+>methods is the new thing.
 
-Later, Juan.
+	OK, s/try_module_get/try_inc_mod_count/.
 
-diff -uNp c2/Documentation/DocBook/journal-api.tmpl.orig c2/Documentation/DocBook/journal-api.tmpl
---- c2/Documentation/DocBook/journal-api.tmpl.orig	2002-11-18 16:47:05.000000000 +0100
-+++ c2/Documentation/DocBook/journal-api.tmpl	2002-11-19 10:47:05.000000000 +0100
-@@ -196,6 +196,8 @@ listed against them. Ext3 does this in e
- Lock is also providing through journal_{un,}lock_updates(),
- ext3 uses this when it wants a window with a clean and stable fs for a moment.
- eg. 
-+</para>
-+
- <programlisting>
- 
- 	journal_lock_updates() //stop new stuff happening..
-@@ -204,11 +206,12 @@ eg. 
- 	journal_unlock_updates() // carry on with filesystem use.
- </programlisting>
- 
-+<para>
- The opportunities for abuse and DOS attacks with this should be obvious,
- if you allow unprivileged userspace to trigger codepaths containing these
- calls.
- 
--<para>
-+</para>
- </sect1>
- <sect1>
- <title>Summary</title>
-@@ -216,9 +219,13 @@ calls.
- Using the journal is a matter of wrapping the different context changes,
- being each mount, each modification (transaction) and each changed buffer
- to tell the journalling layer about them.
-+</para>
- 
-+<para>
- Here is a some pseudo code to give you an idea of how it works, as
- an example.
-+</para>
-+
- <programlisting>
-   journal_t* my_jnrl = journal_create();
-   journal_init_{dev,inode}(jnrl,...)
-@@ -244,6 +251,7 @@ an example.
-    }
-    journal_destroy(my_jrnl);
- </programlisting>
-+</sect1>
- 
- </chapter>
- 
+	Same issue.
 
+>I've only glanced over your locking proposal, but the most obvious
+>things to me are that grabbing a rwlock strikes me as a little heavy
+>for a fundmantal primitive that might be used anywhere, and secondly I
+>want to grab it in a bh handler so I can modularize IPv4.
 
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+	It appears that there already is an appropriate mutex to use
+in ipv4: rtnl_sem.  My code currently uses an rw_semaphore instead of
+a semaphore, but it could either be changed to call a list of
+arbirtrary locking functions, or, probably simpler, rtnl_sem could be
+changed to an rw_semaphore.  The latter is particularly appealing,
+because there already is code in the net subdirectory that seems to be
+written to take advantage of this change (there are already distinct
+rtnl_shlock and rtnl_exlock macros).  So, the using a locking primitive
+that can lock rather than spin has already been solved apparently in ipv4.
+
+	I run modularized ipv4 already, so it should be easy for me to
+check if your module loader gets to the point where it works enough
+for me to complete a boot (or I could try to patch to Keith Owen's
+module system).
+
+	As far as the "strikes me as a little heavy" phrase goes,
+that's obviously not a clear identification of a cost, so I can only
+try guess what costs you might be referring to talk about them.  The
+memory usage of struct rwsem_chain would be 3 pointers (12 or 24
+bytes) per detected device (net, char, block, etc.), file_system_type
+and perhaps some other resources of which there are usually a handful
+of each.  My guess is that you'd probably have under 100 allocated on
+a typical computer: one for each detected network interface, one for
+each detected block device, one for each detected character device,
+and some elsewhere, perhaps an average of 2-3 per loaded module,
+probably as much space will be saved from eliminating error paths.
+The locks themselves generally generally already exist, and these
+amount to one lock per type of device (per "bus_type" from a generic
+driver standpoint): one lock for network devices, one lock for file
+system types, etc.  It's a very small number and the locks already
+exist in every case that I've seen anyhow.  So the net memory costs
+should be approximately zero and it may even be a net memory savings.
+
+	If by "a little heavy" you were referring to lock contention,
+it's important to realize that this proposal sets up lists of locks,
+it does not introduce new attempts to grab these locks or attempts to
+hold them much longer, with the exception of the module's unload
+function.  Even there, these are locks that would be taken at some
+point in the unload function anyhow.  Also, these are not spin locks
+and attempts to block with these rw_semaphore's held will be rare to
+nonexistant.  So, the waiting on the locks should cause the CPU to
+switch to something useful, not just spin.
+
+	This change will likely eliminate bugs, simplify testing and
+code walk throughs (fewer untested branches), and, more importantly,
+eliminate flakey behavior that is not considered a bug from the
+try_inc_mod_count perspective, but is a bug from a functional
+standpoint.  For example, if you do "mount -t iso9660 /dev/cdrom
+/mnt", a try_inc_mod_count implementation can generate a result like
+"iso9660: unknown filesystem" on a system that has iso9660 just
+because of a timing fluke, whereas under my scheme you will reliably
+get the iso9660 filesystem every time.
+
+	It is also important to realize that this change can be done
+incrementally.  Under this scheme, try_inc_mod_count will just succeed
+all the time for users of this facility.  Note that the restored
+unconditional __MOD_INC_USE_COUNT routine could have an optional
+debugging feature: it would call BUG() if the caller does not have at
+least a shared lock on one of the rw_semaphore's in the module's list.
+__MOD_INC_USE_COUNT is generally not called in IO paths, so it
+wouldn't be that costly to turn that check on.
+
+	If we are able to eliminate all calls to try_inc_mod_count,
+then that "lock the entire computer" code can be deleted, as well as
+try_inc_mod_count.  In the unlikely even that try_inc_mod_count cannot
+be eliminated, I think the reliability that this change would bring to
+those places that can use this facility would still be enough to
+warrant keeping this facility.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

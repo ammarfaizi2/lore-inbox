@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpHw6vY/xE+xRQtSXNEKlTruR6g==
+thread-index: AcQVpIJ/1FpWBS+yS7qXzZPo/kmpig==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 14:58:22 +0000
-Message-ID: <01f601c415a4$7c3a9390$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft CDO for Exchange 2000
-Date: Mon, 29 Mar 2004 16:42:47 +0100
-From: "Pavel Machek" <pavel@ucw.cz>
+Delivery-date: Sun, 04 Jan 2004 16:34:47 +0000
+Message-ID: <021301c415a4$827f09c0$d100000a@sbs2003.local>
+Subject: Re: Pentium M config option for 2.6
 Content-Class: urn:content-classes:message
-To: <Administrator@smtp.paston.co.uk>
+From: "Rob Love" <rml@ximian.com>
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Cc: "Srivatsa Vaddagiri" <vatsa@in.ibm.com>,
-        "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-        <manfred@colorfullife.com>, <rusty@au1.ibm.com>,
-        "Andrew Morton" <akpm@osdl.org>
-Subject: Re: BUG in x86 do_page_fault?  [was Re: in_atomic doesn't count local_irq_disable?]
-References: <3FF044A2.3050503@colorfullife.com> <20031230185615.A9292@in.ibm.com> <20031231185959.A9041@in.ibm.com> <Pine.LNX.4.58.0312311104180.2065@home.osdl.org>
-MIME-Version: 1.0
+To: <Administrator@smtp.paston.co.uk>
+Cc: "Mikael Pettersson" <mikpe@csd.uu.se>, <szepe@pinerecords.com>,
+        <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040104162516.GB31585@redhat.com>
+References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur>  <20040104162516.GB31585@redhat.com>
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312311104180.2065@home.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	charset="iso-8859-1"
+MIME-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Mon, 29 Mar 2004 16:42:58 +0100
+Content-Transfer-Encoding: 7bit
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:48.0828 (UTC) FILETIME=[7CF223C0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:58.0359 (UTC) FILETIME=[82A07470:01C415A4]
 
-Hi!
+On Sun, 2004-01-04 at 11:25, Dave Jones wrote:
 
-> > 	in_atomic() doesn't seem to return true
-> > in code sections where IRQ's have been disabled (using 
-> > local_irq_disable).
-> > 
-> > As a result, I think do_page_fault() on x86 needs to 
-> > be updated to note this fact:
+> Regardless, Tomas's patch changed CONFIG_X86_L1_CACHE_SHIFT for
+> that CPU, and CONFIG_X86_L1_CACHE_SHIFT shouldn't affect this.
+> The cacheline size is determined at boottime using the code in
+> pcibios_init() and set using pci_generic_prep_mwi().
 > 
-> NO. 
-> 
-> Please don't do this, it will result in some _really_ nasty problems with 
-> X and other programs that potentially disable interrupts in user
-> space.
+> The config option is the default that pci_cache_line_size starts at,
+> but this gets overridden when the CPU type is determined.
 
-If user program causes page fault with interrupts disabled, it is
-certainly buggy, right?
+Yah.  I was just answering in the abstract to the "does cache line
+matter on non-SMP" question.
 
-Either the user program does not really need irq disabled or it does
-need that but page fault just broke its guarantees (=> severe problems
-ahead).
+I actually like this patch (perhaps since I have a P-M :) and think it
+ought to go in, although I agree with others that the P-M is more of a
+super-P3 than a scaled down P4.
 
-In both cases there's user program that needs fixing.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+	Rob Love
+
+

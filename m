@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265611AbRF1Jxz>; Thu, 28 Jun 2001 05:53:55 -0400
+	id <S265620AbRF1Jvy>; Thu, 28 Jun 2001 05:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265614AbRF1Jxo>; Thu, 28 Jun 2001 05:53:44 -0400
-Received: from core.devicen.de ([62.159.186.206]:33294 "EHLO core.devicen.de")
-	by vger.kernel.org with ESMTP id <S265611AbRF1Jxb>;
-	Thu, 28 Jun 2001 05:53:31 -0400
-Date: Thu, 28 Jun 2001 11:52:28 +0200
-From: Oliver Teuber <teuber@core.devicen.de>
-To: Adam <adam@eax.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.x series and mm
-Message-ID: <20010628115103.C12685@core.devicen.de>
-In-Reply-To: <Pine.LNX.4.33.0106271008010.16671-100000@eax.student.umd.edu> <E15FI9n-0005Qz-00@the-village.bc.nu> <20010628083303.A27891@dev.sportingbet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010628083303.A27891@dev.sportingbet.com>; from sean@dev.sportingbet.com on Thu, Jun 28, 2001 at 08:33:03AM +0100
+	id <S265617AbRF1Jvo>; Thu, 28 Jun 2001 05:51:44 -0400
+Received: from koala.ichpw.zabrze.pl ([195.82.164.33]:21775 "EHLO
+	koala.ichpw.zabrze.pl") by vger.kernel.org with ESMTP
+	id <S265583AbRF1Jvh>; Thu, 28 Jun 2001 05:51:37 -0400
+Message-Id: <200106280957.f5S9v3c11696@koala.ichpw.zabrze.pl>
+From: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 28 Jun 2001 11:52:51 -0400 (EDT)
+Reply-To: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
+X-Mailer: (Demonstration) PMMail 2.00.1500 for OS/2 Warp 3.00
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Subject: error compiling 2.2.20pre5, pre6 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
 
-> > a)	Add more RAM - that is the real optimal approach
-> > b)	Make the processes smaller (eg switch to thttpd from www.acme.com)
-> > c)	Speed up the I/O throughput relative to CPU speed
-> > 	- eg the 2.2 IDE UDMA patches
-> d)	Reduce the number of Apache processes so they fit nicely in RAM
-e) Set KeepAlive to Off
+Compiling kernel 2.20pre5, pre6 :
 
-yours, oliver teuber 
+drivers/net/net.a(8139too.o): In function `rtl8139_thread':
+8139too.o(.text+0x10ff): undefined reference to `lock_kernel'
+8139too.o(.text+0x1116): undefined reference to `unlock_kernel'
+make: *** [vmlinux] Error 1
+
+lack of 
+     #include <linux/smp_lock.h>
+  in  8139too.c ?
+--------------------------------------------------------
+ Marek Mentel  mmark@koala.ichpw.zabrze.pl  2:484/3.8          
+ INSTITUTE FOR CHEMICAL PROCESSING OF COAL , Zabrze , POLAND
+ NOTE: my opinions are strictly my own and not those of my employer
+
+
 

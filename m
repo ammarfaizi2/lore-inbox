@@ -1,68 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVBHXeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVBHXgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVBHXeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 18:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVBHXdu
+	id S261692AbVBHXgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 18:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVBHXgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 18:33:50 -0500
-Received: from fire.osdl.org ([65.172.181.4]:63619 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261691AbVBHXcs (ORCPT
+	Tue, 8 Feb 2005 18:36:10 -0500
+Received: from hera.kernel.org ([209.128.68.125]:30898 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261692AbVBHXfD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 18:32:48 -0500
-Date: Tue, 8 Feb 2005 15:32:43 -0800
-From: cliff white <cliffw@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: prezeroing V6 [2/3]: ScrubD
-Message-ID: <20050208153243.13dd20de@es175>
-In-Reply-To: <Pine.LNX.4.58.0502081249220.5796@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
-	<1106828124.19262.45.camel@hades.cambridge.redhat.com>
-	<20050202153256.GA19615@logos.cnet>
-	<Pine.LNX.4.58.0502071127470.27951@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0502071131260.27951@schroedinger.engr.sgi.com>
-	<20050207163035.7596e4dd.akpm@osdl.org>
-	<Pine.LNX.4.58.0502071646170.29971@schroedinger.engr.sgi.com>
-	<20050207170947.239f8696.akpm@osdl.org>
-	<Pine.LNX.4.58.0502071710580.30068@schroedinger.engr.sgi.com>
-	<20050207173559.68ce30e3.akpm@osdl.org>
-	<Pine.LNX.4.58.0502080807410.3169@schroedinger.engr.sgi.com>
-	<20050208122758.5c669281.akpm@osdl.org>
-	<Pine.LNX.4.58.0502081249220.5796@schroedinger.engr.sgi.com>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 8 Feb 2005 18:35:03 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: 3TB disk hassles
+Date: Tue, 8 Feb 2005 23:33:51 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cubi8v$3mg$1@terminus.zytor.com>
+References: <20050206105958.42872.qmail@web26501.mail.ukl.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1107905631 3793 127.0.0.1 (8 Feb 2005 23:33:51 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 8 Feb 2005 23:33:51 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Feb 2005 12:51:05 -0800 (PST)
-Christoph Lameter <clameter@sgi.com> wrote:
-
-> On Tue, 8 Feb 2005, Andrew Morton wrote:
+Followup to:  <20050206105958.42872.qmail@web26501.mail.ukl.yahoo.com>
+By author:    Neil Conway <nconway_kernel@yahoo.co.uk>
+In newsgroup: linux.dev.kernel
 > 
-> > We also need to try to identify workloads whcih might experience a
-> > regression and test them too.  It isn't very hard.
+> Since writing the above, I've been searching for more info.  I
+> downloaded four different versions of grub (GNU Grub Legacy, GNU Grub2,
+> gentoo and Fedora Core 3).  NONE of these showed any evidence of GPT
+> support (I was in a hurry, so I searched for strings EFI, GUID, GPT,
+> TB).
 > 
-> I'd be glad if you could provide some instructions on how exactly to do
-> that. I have run lmbench, aim9, aim7, unixbench, ubench for a couple of
-> configurations. But which configurations do you want?
-
-If we can run some tests for you on STP let me know.
-( we do 1,2,4,8 CPU x86 boxes )
-cliffw
-
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Mucho confused puppy here.
+> 
+> I fail to see how grub can work on a GPT boot device if it can't parse
+> the partition table.  I conclude that I'm still missing something. 
+> Perhaps a layer before grub is supposed to parse the GPT instead?  If
+> so, isn't that getting us straight back to a GPT-aware BIOS?
+> 
+> Tell me if this logic is broken: even if a special boot sector is used,
+> which IS GPT-aware (though fitting that into the boot sector would be a
+> challenge ;-)), once grub loads, it's still going to have to figure out
+> how to find the root(hdX,Y) partition from which to load the kernel
+> image.  This surely means it has to have either a GPT-parser
+> internally, or rely on a pre-parsed list.  No?
+> 
+> Perhaps one of the other several distros (that I didn't check) has a
+> GPT-aware grub.  But Tomas Carnecky said early in this thread that
+> gentoo had allowed him to set up a GPT-booting system on x86.  I guess
+> it's possible that a cheat was used - maybe an old-style partition
+> table in the MBR was used to define the first (boot) partition, but
+> surely that's forbidden by the whole EFI spec anyway?
 > 
 
+No, it's encouraged.
 
--- 
-"Ive always gone through periods where I bolt upright at four in the morning; 
-now at least theres a reason." -Michael Feldman
+> 
+> Andries Brouwer kindly wrote a patch which I haven't had time to test
+> yet (see earlier in thread).  While it would be nice to find a way
+> around the problem which didn't require deviations from vanilla
+> distros, I think Andries' patch is looking like the only sane fix right
+> now.
+> 
+
+Note that Andries' patch does *EXACTLY* the same thing as the GPT/EFI
+spec does (by using an old-style partition table for the first 2 TB.)
+
+It should be pretty easy to add native support for this in EXTLINUX;
+the big problem is supporting true access > 2 TB, which I currently
+don't have any way to test.
+
+I'll put that on my todo list.
+
+	-hpa

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbTAGABE>; Mon, 6 Jan 2003 19:01:04 -0500
+	id <S267239AbTAFXw4>; Mon, 6 Jan 2003 18:52:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267254AbTAGABE>; Mon, 6 Jan 2003 19:01:04 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:44677 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267248AbTAGABC>;
-	Mon, 6 Jan 2003 19:01:02 -0500
-Date: Mon, 6 Jan 2003 19:12:20 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Kaleb Pederson <kibab@icehouse.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: windows=stable, linux=5 reboots/50 min
-Message-ID: <20030106191220.GD23277@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Kaleb Pederson <kibab@icehouse.net>, linux-kernel@vger.kernel.org
-References: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
-User-Agent: Mutt/1.4i
+	id <S267243AbTAFXwt>; Mon, 6 Jan 2003 18:52:49 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:20694 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S267239AbTAFXwh>;
+	Mon, 6 Jan 2003 18:52:37 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 7 Jan 2003 01:00:47 +0100 (MET)
+Message-Id: <UTC200301070000.h0700lx20735.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, patmans@us.ibm.com
+Subject: IDs
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, mdharm-kernel@one-eyed-alien.net,
+       zwane@holomorphy.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 10:57:03PM -0800, Kaleb Pederson wrote:
-> After a recent hard drive crash, I re-installed Linux to a new hard drive.
-> After about 2 weeks, my system now spontaneously reboots about once per 10
-> minutes (on avg.).  I'm assuming I messed up something in my kernel
-> configuration as Windows is still stable. To verify that it wasn't the new
-> hard drive (or use of different controller) I formatted a segment of it
-> under Windows and copied 7+ gb of data onto it while doing other things
-> without problem.
-> 
-> The system will reboot as early as after detecting the hard drives and
-> before loading the root filesystem or anytime thereafter - sometimes in
-> logging into the console, sometimes in X.
-> 
+> Instead of truncating the id, we need a new scsi_uid field allocated
+> to whatever size required.
 
-Hmm, I've observed this behavior with apm on certian buggy systems, though
-it was several versions ago.  Are you using apm, acpi, or neither?
-Considering both control power management, I would try disabling them as a
-test.
+> And, a descriptive string put in the name, rather than the id, such as:
+> scsi disk
 
-Regards,
-Adam
+[I changed the Subject line "Re: inquiry in scsi_scan.c" since people
+are still discussing devices with a buggy INQUIRY response;
+maybe unnecessarily - all details are well understood, and
+patches fixing all problems have been posted, but in any case
+it is best to separate both threads.]
+
+Maybe I should ask you to explain more in detail what purpose
+you have in mind. If I read your code and hear you talking
+it sounds like you would like to have a string identifying
+the device. But in many cases no such string exists.
+
+Moreover, what precisely is "the device"?
+If I have a Compact Flash card reader and read CF cards,
+is the device the reader? Or the card? Or the combination?
+If I have an Imation FlashGo! reader, and insert a SmartMedia
+adapter, and read a SmartMedia card, is the device the reader,
+the reader plus adapter, the card?
+
+If the device is the reader, then it will have a different size,
+partitioning and contents each time we see it.
+If the device is the card, then we need a different driver
+each time we see it.
+
+What do you want to recognize with this ID, and why?
+
+
+Andries

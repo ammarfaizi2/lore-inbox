@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVCFUBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVCFUGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVCFUBw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 15:01:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVCFUBw
+	id S261485AbVCFUGk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 15:06:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVCFUGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 15:01:52 -0500
-Received: from fire.osdl.org ([65.172.181.4]:22455 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261484AbVCFUBt (ORCPT
+	Sun, 6 Mar 2005 15:06:40 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:47541 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261485AbVCFUGh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 15:01:49 -0500
-Date: Sun, 6 Mar 2005 12:03:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Daniel Jacobowitz <dan@debian.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Cagney <cagney@redhat.com>, Roland McGrath <roland@redhat.com>
-Subject: Re: More trouble with i386 EFLAGS and ptrace
-In-Reply-To: <20050306193840.GA26114@nevyn.them.org>
-Message-ID: <Pine.LNX.4.58.0503061155280.2304@ppc970.osdl.org>
-References: <20050306193840.GA26114@nevyn.them.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 6 Mar 2005 15:06:37 -0500
+Date: Sun, 6 Mar 2005 21:06:36 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unsupported PM cap regs version 1
+Message-ID: <20050306200636.GA5340@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Lee Revell <rlrevell@joe-job.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1110053135.12513.7.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110053135.12513.7.camel@mindpipe>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 6 Mar 2005, Daniel Jacobowitz wrote:
+On Sat, Mar 05, 2005 at 03:05:35PM -0500, Lee Revell wrote:
+> Every time I load the driver for my SBLive Platinum I get this log
+> message:
 > 
-> The reason this happens is that when the inferior hits a breakpoint, the
-> first thing GDB will do is remove the breakpoint, single-step past it, and
-> reinsert it.  So GDB does a PTRACE_SINGLESTEP, and the kernel invokes the
-> signal handler (without single-step - good so far).
+> PCI: 0000:00:0f.0 has unsupported PM cap regs version (1)
 
-No, not good so far.
+PM cap regs version 1 is handled in 2.6.11 yet again, the message should be
+gone for this case by now.
 
-Yes, it cleared TF, but it saved eflags with TF set on-stack, even though 
-the TF was due to a TIF_SINGLESTEP (and was thus "temporary", not a real 
-flag). That's why you see the bogus SIGTRAP after returning from the 
-signal handler.
+> even though CONFIG_PM is not set.
 
-Now, we actually get this _right_ if the signal is due to a single-step, 
-because do_debug() will do:
+PM caps are needed to activate devices, even if CONFIG_PM is not set.
 
-                if (likely(tsk->ptrace & PT_DTRACE)) {
-                        tsk->ptrace &= ~PT_DTRACE;
-                        regs->eflags &= ~TF_MASK;
-                }
-
-but that's the only place we do that. So any _other_ signal won't do this, 
-and we'll enter the signal handler without checking the PT_DTRACE flag to 
-see if TF was a temporary thing from debugger rather than something the 
-program actually did on its own.
-
-I _think_ your test-case would work right if you just moved that code from
-the special-case in do_debug(), and moved it to the top of
-setup_sigcontext() instead. I've not tested it, though, and haven't really 
-given it any "deep thought". Maybe somebody smarter can say "yeah, that's 
-obviously the right thing to do" or "no, that won't work because.."
-
-		Linus
+	Dominik

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265325AbSJXGH5>; Thu, 24 Oct 2002 02:07:57 -0400
+	id <S265323AbSJXGGo>; Thu, 24 Oct 2002 02:06:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265326AbSJXGH5>; Thu, 24 Oct 2002 02:07:57 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53519 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265325AbSJXGHz>;
-	Thu, 24 Oct 2002 02:07:55 -0400
-Date: Wed, 23 Oct 2002 23:12:36 -0700
-From: Greg KH <greg@kroah.com>
-To: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-Cc: jung-ik.lee@intel.com, tony.luck@intel.com,
-       pcihpd-discuss@lists.sourceforge.net, linux-ia64@linuxia64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI Hotplug Drivers for 2.5
-Message-ID: <20021024061236.GJ19557@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF3F@orsmsx102.jf.intel.com> <20021024051008.GA19557@kroah.com> <20021024145839.OAHRC0A82654.59A07363@mvf.biglobe.ne.jp>
+	id <S265325AbSJXGGo>; Thu, 24 Oct 2002 02:06:44 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:63365 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S265323AbSJXGGn>; Thu, 24 Oct 2002 02:06:43 -0400
+Subject: Re: One for the Security Guru's
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: James Stevenson <james@stev.org>
+Cc: jamesclv@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1035411422.5377.11.camel@god.stev.org>
+References: <20021023130251.GF25422@rdlg.net>
+	<1035380716.4323.50.camel@irongate.swansea.linux.org.uk>
+	<1035381547.4182.65.camel@klendathu.telaviv.sgi.com> 
+	<200210231514.07192.jamesclv@us.ibm.com> 
+	<1035411422.5377.11.camel@god.stev.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 24 Oct 2002 08:12:44 +0200
+Message-Id: <1035439965.9144.19.camel@gby.benyossef.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021024145839.OAHRC0A82654.59A07363@mvf.biglobe.ne.jp>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 10:59:34PM -0700, KOCHI, Takayoshi wrote:
-> Hi,
+On Thu, 2002-10-24 at 00:17, James Stevenson wrote:
 > 
-> On Wed, 23 Oct 2002 22:10:08 -0700
-> Greg KH <greg@kroah.com> wrote:
+> > Be surprised:  I run "gpg --verify foo.tgz.sign foo.tgz" every time I download 
+> > from kernel.org.  And, "rpm --checksig *.rpm" on stuff from redhat.com too.
 > 
-> > Also, why doesn't the ACPI PCI hotplug driver work for your machines?
-> > I've seen it work on a very wide range of processors (i386 and ia64),
-> > and manufacturers, and any specific issues with your hardware would
-> > probably be better addressed with patches to the existing ACPI driver.
-> 
-> The ACPI spec provides very limited control of actual hardware
-> (With ACPI, we don't have common method for controlling such as Bus
-> speed, LED etc.).
-> So if a hardware comes with well-documented hotplug controller, we
-> can achieve finer control over the hardware.
+> and when an attacker looks into your .bash_history see this and modifies
+> gpg and rpm ?
 
-Ah, I didn't realize this.  So for some machines (like IBM's x440), we
-should stick with using the hotplug controller driver, instead of using
-the ACPI driver.  Sounds reasonable to me.
+When the attacker can look into the .bash_history of root he has already
+taken over the box. As Alan already stated before on this thread, when
+the attacker has root, the game is over anyway - what happens next only
+effects how long it will take you to find out you have 'guests'.
 
-> The SHPC specification defines it still depends on ACPI for managing
-> resources, etc.  So resource management portion can be and *should be*
-> shared with all PCI hotplug drivers that use ACPI for resource
-> management.
-> 
-> I think the most important thing is everyone agree on the direction
-> in which we should go before we code anything, in order not to waste
-> our time.
+The purpose of the GPG spiel is to stop (read: make it harder) from the
+attacker becoming root in the first place, for example by replacing
+packages you download (either on the ftp site or in trnasit) with
+trojaned copies. 
 
-I think we now all agree that resource management should move into a
-place where it can be shared by all pci hotplug drivers, right?
+Gilad.
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com
 
-If so, anyone want to propose some common code?  I think the stuff in
-the ACPI driver that was pulled from the Compaq driver is a great start.
-I can try to pull this into the core myself, but if the Intel developers
-have the time, and energy, I would greatly appreciate their help (or
-anyone else who wants to join in.)
+ "Geeks rock bands cool name #8192: RAID against the machine"
 
-thanks,
-
-greg k-h

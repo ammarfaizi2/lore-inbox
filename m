@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132642AbRDOU7f>; Sun, 15 Apr 2001 16:59:35 -0400
+	id <S132801AbRDOVdf>; Sun, 15 Apr 2001 17:33:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132553AbRDOU7Z>; Sun, 15 Apr 2001 16:59:25 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:18330 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S132326AbRDOU7N>; Sun, 15 Apr 2001 16:59:13 -0400
-Message-ID: <3ADA0B50.8030301@muppetlabs.com>
-Date: Sun, 15 Apr 2001 13:57:52 -0700
-From: Amit D Chaudhary <amit@muppetlabs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; 0.8.1) Gecko/20010326
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S132731AbRDOVd0>; Sun, 15 Apr 2001 17:33:26 -0400
+Received: from quechua.inka.de ([212.227.14.2]:27660 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S132801AbRDOVdN>;
+	Sun, 15 Apr 2001 17:33:13 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: Can't free the ramdisk (initrd, pivot_root)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: CML2 1.1.1, wiuth experimental fast mode
+In-Reply-To: <200104150345.f3F3jxG16241@snark.thyrsus.com> <3AD91B0E.8EAF5049@mandrakesoft.com>
+Date: Sun, 15 Apr 2001 22:55:17 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14otYD-0000Tv-00@hunte.bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the same topic, I have not found any change in free memory reported before 
-and after the ioctl call. Though umount /initrd does free around 2 MB.
+[Warning: historical reference ahead.]
 
+> > I'd appreciate it if some of you with slow machines would try running
+> > with fast mode on and seeing if that addresses the sluggishness.
+>
+> I assume that, eventually there will be no slow mode or fast mode
+> distinction... just a single fast mode.  Right?  :)
 
-Amit
+Perhaps not, if fast mode won't display on the screen while running,
+or such things... ;-)
+
+Olaf
 

@@ -1,37 +1,214 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278800AbRKOHlL>; Thu, 15 Nov 2001 02:41:11 -0500
+	id <S280738AbRKOHfM>; Thu, 15 Nov 2001 02:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278911AbRKOHlB>; Thu, 15 Nov 2001 02:41:01 -0500
-Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:30383 "EHLO
-	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
-	id <S278800AbRKOHkz>; Thu, 15 Nov 2001 02:40:55 -0500
-Date: Thu, 15 Nov 2001 08:39:30 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Q: straced processes don't go away
-Message-ID: <Pine.LNX.4.33.0111150836290.20276-100000@schoen3.schoen.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280768AbRKOHfC>; Thu, 15 Nov 2001 02:35:02 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:6272
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S280738AbRKOHez>; Thu, 15 Nov 2001 02:34:55 -0500
+Date: Thu, 15 Nov 2001 02:33:37 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Symbols missing help
+Message-ID: <20011115023337.A1724@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+The following configuration symbols are missing help entries.  If you can
+supply a help entry for one or more of these, please send it to me for
+incorporation in the master Configure.help file.
 
-In my attempts to find the problem with the tun device I did
-a couple of strace sessions.
+Yes, some of these are choice symbols that don't strictly need entries in CML1.
+Please send entries in anyway; in CML2, choice symbols will have their own
+help entries.
 
-My processlist now shows a couple of unkillable (kill -KILL )
-processes:
+ALPHA_EV67
+ARCH_ANAKIN
+ARCH_CAMELOT
+ARCH_CDB89712
+ARCH_CLEP7312
+ARCH_CLPS711X
+ARCH_CLPS7500
+ARCH_CO285
+ARCH_EDB7211
+ARCH_FOOTBRIDGE
+ARCH_INTEGRATOR
+ARCH_SA1100
+ARCH_SHARK
+ARC_CONSOLE
+ATM_IDT77252
+ATM_IDT77252_RCV_ALL
+ATM_LANAI
+AU1000_SERIAL_CONSOLE
+AU1000_UART
+BLK_DEV_IT8172
+BLK_DEV_Q40IDE
+CF_AREA6
+CF_BASE_ADDR
+CPU_ARM1020_D_CACHE_ON
+CPU_ARM1020_FORCE_WRITE_THROUGH
+CPU_ARM1020_I_CACHE_ON
+CPU_ARM1020_ROUND_ROBIN
+CPU_ARM920_CPU_IDLE
+CPU_ARM920_D_CACHE_ON
+CPU_ARM920_I_CACHE_ON
+CPU_ARM920_WRITETHROUGH
+CPU_ARM926T
+CPU_ARM926_CPU_IDLE
+CPU_ARM926_D_CACHE_ON
+CPU_ARM926_I_CACHE_ON
+CPU_ARM926_ROUND_ROBIN
+CPU_ARM926_WRITETHROUGH
+CPU_FREQ
+DASD_AUTO_DIAG
+DASD_AUTO_ECKD
+DASD_AUTO_FBA
+EFI_VARS
+EP7211_IR
+EP72XX_ROM_BOOT
+ETRAX_ETHERNET_LPSLAVE
+ETRAX_ETHERNET_LPSLAVE_HAS_LEDS
+ETRAX_NETWORK_LED_ON_WHEN_ACTIVITY
+ETRAX_NETWORK_LED_ON_WHEN_LINK
+ETRAX_POWERBUTTON_BIT
+ETRAX_ROOT_DEVICE
+ETRAX_SERIAL_PORT0
+ETRAX_SHUTDOWN_BIT
+ETRAX_SOFT_SHUTDOWN
+EUROTECH_WDT
+EVB_PCI1
+FB_TX3912
+FORWARD_KEYBOARD
+GEN_RTC
+GSC_DINO
+HWC_CPI
+I2C_ALGO8XX
+I2C_PPC405_ADAP
+I2C_PPC405_ALGO
+I2C_RPXLITE
+I82092
+IA64_GRANULE_16MB
+IA64_GRANULE_64MB
+IA64_SGI_SN_DEBUG
+IA64_SGI_SN_SIM
+IP6_NF_MATCH_MULTIPORT
+IP6_NF_MATCH_OWNER
+IP6_NF_TARGET_LOG
+IT8172_REVC
+IT8172_SCR0
+IT8172_SCR1
+IT8172_TUNING
+ITE_I2C_ADAP
+ITE_I2C_ALGO
+JFFS_PROC_FS
+LASI_82596
+LP486E
+MAPLE_KEYBOARD
+MAPLE_MOUSE
+MEMORY_SET
+MEMORY_SIZE
+MIPS_AU1000_ENET
+MTD_ABSENT
+MTD_ARM_INTEGRATOR
+MTD_BLKMTD
+MTD_CDB89712
+MTD_JEDECPROBE
+MTD_L440GX
+MTD_LART
+MTD_OBSOLETE_CHIPS
+MTD_SOLUTIONENGINE
+MTD_TQM8XXL
+PCIBA
+PCI_PERMEDIA
+PCMCIA_AXNET
+PCMCIA_XIRCOM
+PFAULT
+PHONE_IXJ_PCMCIA
+PPPOATM
+PROFILE
+PROFILE_SHIFT
+SA1100_ADSBITSY
+SA1100_CERF_16MB
+SA1100_CERF_32MB
+SA1100_CERF_64MB
+SA1100_CERF_8MB
+SA1100_CERF_CPLD
+SA1100_CERF_FLASH_16MB
+SA1100_CERF_FLASH_32MB
+SA1100_CERF_FLASH_8MB
+SA1100_EXTENEX1
+SA1100_EXTENEX1_16MB
+SA1100_FIR
+SA1100_FLEXANET
+SA1100_FREEBIRD
+SA1100_GRAPHICSMASTER
+SA1100_HUW_WEBPANEL
+SA1100_ITSY
+SA1100_JORNADA720
+SA1100_OMNIMETER
+SA1100_PFS168
+SA1100_PLEB
+SA1100_SHERMAN
+SA1100_SIMPAD
+SA1100_YOPY
+SCSI_DECSII
+SCSI_LASI
+SCSI_QLOGIC_FC_FIRMWARE
+SCSI_SIM
+SERIAL_21285_OLD
+SERIAL_SGI_L1_PROTOCOL
+SERIAL_TX3912
+SERIAL_TX3912_CONSOLE
+SGIWD93_SCSI
+SHARED_KERNEL
+SH_ADX
+SH_PCIDMA_NONCOHERENT
+SIMETH
+SIM_SERIAL
+SOUND_CMPCI_FM
+SOUND_CMPCI_FMIO
+SOUND_CMPCI_LINE_BASS
+SOUND_CMPCI_LINE_REAR
+SOUND_CMPCI_MIDI
+SOUND_CMPCI_MPUIO
+SOUND_CMPCI_SPDIFINVERSE
+SOUND_VRC5477
+ST40_LMI_MEMORY
+SYSCLK_100
+SYSCLK_75
+SYSCLK_83
+TN3215
+TN3215_CONSOLE
+TN3270
+TN3270_CONSOLE
+TULIP_MMIO
+UCODE_PATCH
+USB_SERIAL_IR
+USB_STORAGE_DATAFAB
+USB_STORAGE_HP8200e
+USB_STORAGE_JUMPSHOT
+USERIAL
+VETH
+VIDEO_ZORAN_BUZ
+VIDEO_ZORAN_DC10
+VIDEO_ZORAN_LML33
+VLAN_8021Q
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-444     0 24239     1   9   0     0    0 do_exi RW   ?          0:00
-[vtund]
-444     0 24305     1   8   0     0    0 do_exi RW   ?          0:00
-[vtund]
-444     0 24880     1   9   0     0    0 do_exi RW   ?          0:00
-[vtund]
-
-kernel 2.4.14 with 2.4.15-pre3 applied
-
-Kees
-
+Question with boldness even the existence of a God; because, if there
+be one, he must more approve the homage of reason, than that of
+blindfolded fear.... Do not be frightened from this inquiry from any
+fear of its consequences. If it ends in the belief that there is no
+God, you will find incitements to virtue in the comfort and
+pleasantness you feel in its exercise...
+	-- Thomas Jefferson, in a 1787 letter to his nephew

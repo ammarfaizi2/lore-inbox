@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVCNKTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVCNKW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVCNKTU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 05:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVCNKTU
+	id S262100AbVCNKW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 05:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVCNKW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 05:19:20 -0500
-Received: from [194.109.195.176] ([194.109.195.176]:47077 "EHLO
-	scrub.xs4all.nl") by vger.kernel.org with ESMTP id S262104AbVCNKTK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 05:19:10 -0500
-Date: Mon, 14 Mar 2005 11:18:49 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Matt Mackall <mpm@selenic.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serious problems with HFS+
-In-Reply-To: <20050313203604.GF3163@waste.org>
-Message-ID: <Pine.LNX.4.61.0503141103210.25131@scrub.home>
-References: <20050313203604.GF3163@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Mar 2005 05:22:28 -0500
+Received: from rev.193.226.232.162.euroweb.hu ([193.226.232.162]:53639 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262100AbVCNKWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 05:22:25 -0500
+To: mrmacman_g4@mac.com
+CC: yjf@stanford.edu, linux-kernel@vger.kernel.org,
+       fuse-devel@lists.sourceforge.net, mc@cs.stanford.edu
+In-reply-to: <0EFE5EBF-93C7-11D9-A59F-000393ACC76E@mac.com> (message from Kyle
+	Moffett on Sun, 13 Mar 2005 08:51:54 -0500)
+Subject: Re: [MC] [CHECKER] Need help on mmap on FUSE (linux user-land file system)
+References: <Pine.GSO.4.44.0503122327090.7685-100000@elaine24.Stanford.EDU> <0EFE5EBF-93C7-11D9-A59F-000393ACC76E@mac.com>
+Message-Id: <E1DAmi5-0001OI-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 14 Mar 2005 11:22:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 13 Mar 2005, Matt Mackall wrote:
-
-> I've noticed a few problems with HFS+ support in recent kernels on
-> another user's machine running Ubuntu (Warty) running
-> 2.6.8.1-3-powerpc. I'm not in a position to extensively test or fix
-> either of these problem because of the fs tools situation so I'm just
-> passing this on.
+> > Forget to mention, we are checking linux 2.6.  It appears to us
+> > that mmap doesnt' work for FUSE in linux 2.6.
 > 
-> First, it reports inappropriate blocks to stat(2). It uses 4096 byte
-> blocks rather than 512 byte blocks which stat callers are expecting.
-> This seriously confuses du(1) (and me, for a bit). Looks like it may
-> be forgetting to set s_blocksize_bits.
+> IIRC, the reason mmap doesn't work on FUSE is because when it
+> dirties pages they cannot be flushed reliably, because writing them
+> out involves calling a userspace process which may allocate RAM,
+> etc.
 
-This should be fixed since 2.6.10.
+Yes.  To be precise this only affects writable shared mmap(), which is
+not used by the great majority of applications.  Any other kind of
+memory mapping should work OK.
 
-> Second, if an HFS+ filesystem mounted via Firewire or USB becomes
-> detached, the filesystem appears to continue working just fine. I can
-> find on the entire tree, despite memory pressure. I can even create
-> new files that continue to appear in directory listings! Writes to
-> such files succeed (they're async, of course) and the typical app is
-> none the wiser. It's only when apps attempt to read later that they
-> encounter problems. It turns out that various apps including scp
-> ignore IO errors on read and silently copy zero-filled files to the
-> destination. So I got this report as "why aren't the pictures I took
-> off my camera visible on my website?"
-
-HFS+ metadata is also in the page cache, so as long as everything is 
-cached, HFS+ won't notice a problem.
-
-> This is obviously a really nasty failure mode. At the very least, open
-> of new files should fail with -EIO. Preferably the fs should force a
-> read-only remount on IO errors. Given that the vast majority of HFS+
-> filesystems Linux is likely to be used with are on hotpluggable media,
-> I think this FS should be marked EXPERIMENTAL until such integrity
-> problems are addressed.
-
-Currently nobody tells fs about such events, so even if I check for 
-write errors, it can still take a while until the error is detected.
-I acknowledge that this is a problem, but I don't think it's a HFS+ 
-specific problem, there is currently no standard procedure for fs what to 
-do in such situations, so I didn't implement anything.
-It would be nice if the fs would be tould about plug/unplug events, e.g. 
-HFS+ could check the mount count to see if it was connected to a different 
-host in the meantime and react appropriately.
-
-> Having the whole directory tree seemingly pinned in memory is probably
-> something that wants addressing as well.
-
-This actually might be a real HFS+ problem :), I have to look into it.
-
-bye, Roman
+Thanks,
+Miklos

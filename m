@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbTEZRpE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTEZRpE
+	id S261919AbTEZRq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTEZRq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:45:04 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:32529 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261918AbTEZRpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:45:02 -0400
-Subject: OUPS 2.5.69-bk19 coda-inode.c/slab.c
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: jaharkes@cs.cmu.edu, codalist@TELEMANN.coda.cs.cmu.edu
-Content-Type: text/plain
-Organization: K4 labs
-Message-Id: <1053971135.1968.6.camel@nalesnik.localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 26 May 2003 18:45:40 +0100
+	Mon, 26 May 2003 13:46:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17080 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261919AbTEZRqZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:46:25 -0400
+Message-ID: <3ED255FE.10609@pobox.com>
+Date: Mon, 26 May 2003 13:59:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+References: <3ED1B261.8030708@pobox.com> <Pine.LNX.4.44.0305260956590.11328-100000@home.transmeta.com> <20030526172405.GJ845@suse.de>
+In-Reply-To: <20030526172405.GJ845@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-following BUG() is started when coda is included into kernel. I have not
-tried module, but i bet it will couse the same error.
+Jens Axboe wrote:
+> On Mon, May 26 2003, Linus Torvalds wrote:
+> 
+>>>What does the block layer need, that it doesn't have now?
+>>
+>>Exactly. I'd _love_ for people to really think about this.
+> 
+> 
+> In discussion with Jeff, it seems most of what he wants is already
+> there. He just doesn't know it yet :-)
 
-coda_init_inodecache runs kmem_cache_create which couses oups.
-Removing following lines from slab.c renders system stable.
-But this is not a cure. As i am not using coda it self, i really don't
-know if it is running stable.
 
-slab.c snip:
+Another important point is time.
+
+I continue to agree that a native block driver is the best direction.
+
+But with 2.6.0 looming, I think it's best to evolve my ATA driver to be 
+a native block driver from a scsi one.   Not start out as a native 
+driver.  That's significant pre-2.6 churn.
+
+Or, it lives out-of-tree until 2.7 and people with SATA hardware have to 
+go out-of-tree for their driver for months and months, until the working 
+driver is deemed sufficiently native :)  In the meantime, distros 
+wanting working SATA will just ship the SCSI driver as-is.  :(
+
+	Jeff
 
 
-        /*
-         * Always checks flags, a caller might be expecting debug
-         * support which isn't available.
-         */
-         /*
-        if (flags & ~CREATE_MASK){
-                        printk("dupa2\n");
-                        _BUG();
-                BUG();
-        }
-
-this is in kmem_cache_create fn.
-
- 
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
 

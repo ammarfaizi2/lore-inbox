@@ -1,40 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261353AbTADT4L>; Sat, 4 Jan 2003 14:56:11 -0500
+	id <S261356AbTADUAD>; Sat, 4 Jan 2003 15:00:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbTADT4L>; Sat, 4 Jan 2003 14:56:11 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63872
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261353AbTADT4K>; Sat, 4 Jan 2003 14:56:10 -0500
-Subject: Re: [PATCH] Make ide-probe more robust to non-ready devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1041672876.1346.23.camel@zion.wanadoo.fr>
-References: <1041672876.1346.23.camel@zion.wanadoo.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041713307.2036.10.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 04 Jan 2003 20:48:27 +0000
+	id <S261364AbTADUAD>; Sat, 4 Jan 2003 15:00:03 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:47597 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261356AbTADUAC>;
+	Sat, 4 Jan 2003 15:00:02 -0500
+Date: Sat, 4 Jan 2003 21:07:42 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, parisc-linux@parisc-linux.org
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PATCH: add hwclock ioctls used in 2.4 for pa and in 2.5
+In-Reply-To: <200301030232.h032WuM30725@hera.kernel.org>
+Message-ID: <Pine.GSO.4.21.0301042101070.10261-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-04 at 09:34, Benjamin Herrenschmidt wrote:
-> I don't expect this patch to break any existing working configuration,
-> so please send to Linus for 2.5. If you accept it, I'll then send a 2.4
-> version to Marcelo as well. This have been around for some time and,
-> imho, should really get in now.
+On Thu, 2 Jan 2003, Linux Kernel Mailing List wrote:
+> ChangeSet 1.925, 2003/01/02 21:03:29-02:00, alan@lxorguk.ukuu.org.uk
+> 
+> 	[PATCH] PATCH: add hwclock ioctls used in 2.4 for pa and in 2.5
+> 	
+> 
+> 
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.924   -> 1.925  
+> #	  include/linux/kd.h	1.3     -> 1.4    
+> #
+> 
+>  kd.h |   13 +++++++++++++
+>  1 files changed, 13 insertions(+)
+> 
+> 
+> diff -Nru a/include/linux/kd.h b/include/linux/kd.h
+> --- a/include/linux/kd.h	Thu Jan  2 18:32:57 2003
+> +++ b/include/linux/kd.h	Thu Jan  2 18:32:57 2003
+> @@ -132,6 +132,19 @@
+>  
+>  #define KDSIGACCEPT	0x4B4E	/* accept kbd generated signals */
+>  
+> +struct hwclk_time {
+> +	unsigned	sec;	/* 0..59 */
+> +	unsigned	min;	/* 0..59 */
+> +	unsigned	hour;	/* 0..23 */
+> +	unsigned	day;	/* 1..31 */
+> +	unsigned	mon;	/* 0..11 */
+> +	unsigned	year;	/* 70... */
+> +	int		wday;	/* 0..6, 0 is Sunday, -1 means unknown/don't set */
+> +};
+> +
+> +#define KDGHWCLK        0x4B50	/* get hardware clock */
+> +#define KDSHWCLK        0x4B51  /* set hardware clock */
+> +
+>  struct kbd_repeat {
+>  	int delay;	/* in msec; <= 0: don't change */
+>  	int rate;	/* in msec; <= 0: don't change */
 
-There is a ton of stuff pending for 2.5 IDE. Unfortunately 2.5 isn't in
-a state I can do any usable testing so it will have to wait. The Marcelo
-2.4 tree is current and I'm doing the work in 2.4 first now.
+Ugh, and I was so happy to have them removed in 2.4.19 :-(
+BTW, they were removed from 2.5.x in 2.5.15 as well.
 
-Rusty seems to have a lot of the module stuff in hand so hopefully I'll
-get back onto 2.5 after LCA
+ChangeSet log was:
+| - Kill m68k-specific struct hwclk_time in favor of common struct rtc_time
+| - Kill m68k-specific KD[GS]HWCLK ioctls() (the code for them was removed a
+|   long time ago)
 
+Wouldn't it be better to convert PA-RISC to use struct rtc_time as well?
 
-Alan
+And the KD[GS]HWCLK ioctl()s are obsolete anyway, use /dev/rtc to access the
+hardware clock. On PA-RISC that should be done through genrtc, which I'm in the
+process of cleaning up for submission to marcelo.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
 

@@ -1,58 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVDBXrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVDBXzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVDBXrS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 18:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVDBXrR
+	id S261374AbVDBXzW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 18:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDBXzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 18:47:17 -0500
-Received: from mail48-s.fg.online.no ([148.122.161.48]:2286 "EHLO
-	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S261370AbVDBXrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 18:47:06 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
-	<87zmylaenr.fsf@quasar.esben-stien.name>
-	<20050204195410.GA5279@ucw.cz>
-	<873bvyfsvs.fsf@quasar.esben-stien.name>
-	<87zmxil0g8.fsf@quasar.esben-stien.name>
-	<1110056942.16541.4.camel@localhost>
-	<87sm37vfre.fsf@quasar.esben-stien.name>
-	<87wtsjtii6.fsf@quasar.esben-stien.name>
-	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
-From: Esben Stien <b0ef@esben-stien.name>
-X-Home-Page: http://www.esben-stien.name
-Date: Sun, 03 Apr 2005 01:44:25 +0200
-In-Reply-To: <1112083646.12986.3.camel@localhost> (Jeremy Nickurak's message
- of "Tue, 29 Mar 2005 01:07:26 -0700")
-Message-ID: <87psxcsq06.fsf@quasar.esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+	Sat, 2 Apr 2005 18:55:22 -0500
+Received: from mail.dif.dk ([193.138.115.101]:35748 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261374AbVDBXzI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Apr 2005 18:55:08 -0500
+Date: Sun, 3 Apr 2005 01:57:24 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Yum Rayan <yum.rayan@gmail.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel/module.c - fix warning and reduce stack usage -
+ reintroduction of mistakenly dropped patch 
+Message-ID: <Pine.LNX.4.62.0504030139090.2525@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Nickurak <atrus@rifetech.com> writes:
 
-> I'm playing with this under 2.6.11.4 
+Hi Andrew,
 
-I got 2.6.12-rc1 
+Reading your 2.6.12-rc1-mm4 announce text I see
 
-> The vertical cruise control buttons work properly, with the
-> exception of the extra button press.
+...
+-figure-out-who-is-inserting-bogus-modules-warning-fix.patch
 
-Yup, nice, I see the same
+ Folded into figure-out-who-is-inserting-bogus-modules.patch
+...
+figure-out-who-is-inserting-bogus-modules.patch
+  Figure out who is inserting bogus modules
+...
 
-> But the horizontal buttons are mapping to 6/7 as non-repeat buttons,
-> and adding simulateously the 4/5 events auto-repeated for as long as
-> the button is down. That is to say, pressing the the horizontal
-> scroll in a 2d scrolling area will scroll *diagonally* one step,
-> then vertically until the button is released.
+However, it seems you did *not* roll 
+figure-out-who-is-inserting-bogus-modules-warning-fix.patch into 
+figure-out-who-is-inserting-bogus-modules.patch but instead just dropped 
+the patch.
 
-Yup, seeing exactly the same here. 
+It also turns out I had a small boundary error (off-by-one) in my original 
+patch which Yum Rayan spotted and fixed in a patch he wrote that also 
+reduces the stack usage of the function (by dynamically allocating the 
+needed mem for 'args' instead of using a static 512 byte array - see the 
+LKML thread with subject "[PATCH] Reduce stack usage in module.c"), so 
+below you'll find an updated patch that reintroduce 
+figure-out-who-is-inserting-bogus-modules-warning-fix.patch on top of 
+2.6.12-rc1-mm4 and includes Yum Rayan's fix for the off-by-one and also 
+adopts his use of kmalloc() instead of large static array.
 
--- 
-Esben Stien is b0ef@esben-stien.name
-http://www.esben-stien.name
-irc://irc.esben-stien.name/%23contact
-[sip|iax]:esben-stien.name
+Yum Rayan's patch does more than what I've included below, I've only 
+included his changes to the who_is_doing_it() function, if you want the 
+rest of his changes then please see the original thread for his full 
+patch.
+
+Here's the updated figure-out-who-is-inserting-bogus-modules-warning-fix.patch
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+--- linux-2.6.12-rc1-mm4-orig/kernel/module.c	2005-03-31 21:20:07.000000000 +0200
++++ linux-2.6.12-rc1-mm4/kernel/module.c	2005-04-03 01:54:30.000000000 +0200
+@@ -1399,10 +1399,19 @@ static inline void add_kallsyms(struct m
+ static void who_is_doing_it(void)
+ {
+ 	/* Print out all the args. */
+-	char args[512];
+-	unsigned int i, len = current->mm->arg_end - current->mm->arg_start;
++	char *args;
++	unsigned long i, len = current->mm->arg_end - current->mm->arg_start;
+ 
+-	copy_from_user(args, (void *)current->mm->arg_start, len);
++	if (len > 512)
++		len = 512;
++
++	args = kmalloc(len + 1, GFP_KERNEL);
++	if (!args) {
++		printk(KERN_WARNING "Unable to allocate memory, can't print who's inserting bogus modules\n");
++		return;
++	}
++
++	len -= copy_from_user(args, (void *)current->mm->arg_start, len);
+ 
+ 	for (i = 0; i < len; i++) {
+ 		if (args[i] == '\0')
+@@ -1410,6 +1419,7 @@ static void who_is_doing_it(void)
+ 	}
+ 	args[i] = 0;
+ 	printk("ARGS: %s\n", args);
++	kfree(args);
+ }
+ 
+ /* Allocate and load the module: note that size of section 0 is always
+
+

@@ -1,130 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUKGDTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbUKGDno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbUKGDTo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 22:19:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUKGDTn
+	id S261532AbUKGDno (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 22:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbUKGDnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 22:19:43 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:7860 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S261531AbUKGDTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 22:19:37 -0500
-Date: Sun, 7 Nov 2004 02:16:38 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Jesse Barnes <jbarnes@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
-Message-ID: <20041107011638.GJ3851@dualathlon.random>
-References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com> <20041106012018.GT8229@dualathlon.random> <418C2861.6030501@cyberone.com.au> <20041106015051.GU8229@dualathlon.random> <16780.46945.925271.26168@thebsh.namesys.com> <20041106153209.GC3851@dualathlon.random> <16781.436.710721.667909@gargle.gargle.HOWL> <20041106174444.GF3851@dualathlon.random> <16781.9482.821680.375843@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16781.9482.821680.375843@gargle.gargle.HOWL>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Sat, 6 Nov 2004 22:43:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48025 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261532AbUKGDnl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 22:43:41 -0500
+Date: Sat, 6 Nov 2004 19:43:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+cc: linux-aio@kvack.org, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Oops in aio_free_ring on 2.6.9
+In-Reply-To: <1099683260.12365.348.camel@bluebox>
+Message-ID: <Pine.LNX.4.58.0411061938150.2223@ppc970.osdl.org>
+References: <1099683260.12365.348.camel@bluebox>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 06, 2004 at 10:24:58PM +0300, Nikita Danilov wrote:
-> This means breaking all layering and passing mempool pointer all the way
-> down to the lowest layer allocators (like bio and drivers). The only
 
-bio and drivers already have their own mempools.  the blkdev layer is
-guaranteed to succeed and it can only try GFP_NOIO allocations (if those
-fails it'll fallback in the reserved mempool).
 
-> practical way to do this, is to put mempool pointer into current
-> task_struct. At which point it's no different from having per-thread
-> list of pages that __alloc_pages() looks into before falling back to
-> per-cpu page-sets and buddy. _Except_ in the latter case, reservation is
-> handled transparently in __alloc_pages() and code shouldn't be adjusted
-> to check for mempool in zillion of places.
-
-that's sure reasonable to avoid changing lots of code.
-
-> I think you are confusing "file system" and "ext2". I definitely know
-> from experience that with some file system types, system can be oommed
-> without any significant user-level allocation activity. Now, one can say
-> that either such file-systems are broken, or Linux MM lacks support for
-> features (like reservation) they need.
-
-the latter is true, I agree.
-
->  > that's the PF_MEMALLOC path. A reservation already exists, or it would
->  > never work since 2.2. PF_MEMALLOC and the min/2 watermark are meant to
->  > allow writepage to allocate ram. however the amount reserved is limited,
+On Fri, 5 Nov 2004, Darrick J. Wong wrote:
 > 
-> low-mem watermark is mostly useless in the face of direct reclaim, when
-> unbounded number of threads enter try_to_free_pages() and call
-> ->writepage() simultaneously.
-
-agreed.
-
->  > so it's not perfect. The only way to make it perfect I believe is to
->  > reserve the stuff inside the fs with mempools as described above.
+> Next, the aio_setup_ring function tries to mmap a bunch of pages and
+> fails, because in step 1 we used up all the address space. 
+> aio_setup_ring then calls aio_free_ring to tear all of this down.
+> (fs/aio.c:143)
 > 
-> I don't see what advantages mempools have over page reservation handled
-> directly by page allocator, like in
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/reiser4-perthread-pages.patch
+> aio_free_ring sees the block of struct page pointers and calls free_page
+> (fs/aio.c:88) on the pointers without checking that they're not NULL. 
+> Unfortunately, they _are_ NULL and *oops*!  My patch amends the function
+> to include a null pointer check.
 
-guess what, that patch is running in my kernel right now. However I
-believe this approch is very wasteful. I agree it'll work right, but
-you're wasting loads of ram and you're as well less efficient.
+I don't disagree with the bug, but I disagree with the fix. 
 
-The efficient fix for your problem, is to have a global pool, protected
-by a global semaphore (definitely not per-thread), so that when you hit
-oom (and when you hit true oom the last thing you can care about is
-paralleism or the scalability on such a global semaphore), the VM will
-trasparently take the semaphore and start using the pool. This will
-still require you to mark the start and end of your critical section
-like this:
+In my opinion, the problem is that "info->nr_pages" is _wrong_. It's wrong 
+because it has been initialized to a bogus value. 
 
-reiserf4_writepage()
-{
-	enable_reserved_pages_pool();
+I'd much prefer this alternate appended patch. Can you verify that it also 
+fixes the problem (we can drop the bogus info->nr_pages initialization, 
+because the context - including the info part - has been cleared when it 
+was allocated, so nr_pages should already have the _correct_ value of zero 
+at this point).
 
-	find_or_create_page()
-	journal something
-	getblk
-	biowhatever
+		Linus
 
-	disable_reserved_pages_pool();
-}
-
-disable_reserved_pages_pool has to check a per-thread flag that the VM
-will set if it has used the reserved pool and taken the semaphore, but
-by that time the I/O can be guaranteed to complete and the memory will
-be guaranteed to be unlocked eventually when the bio I/O completes. So
-you can freely alloc_pages to refill the pool inside
-disable_reserved_pages_pool and then drop the semaphore.
-enable_reserved_pages_pool is only needed to set a per-thread flag to
-tell the VM it's allowed to fallback in the global pool by blocking in
-the global semaphore if the box is oom (instead of returning NULL).
-
-in disable_reserved_pages_pool you'll also have to clear the pre-thread
-flag before calling alloc_pages again to avoid deadlock on the semaphore
-if another oom condition happens of course.
-
-then you need an create_reserved_pages_pool(nr_pages) while you mount the
-fs, and destroy_unreserve_pages_pool(nr_pages) when you unmont it. where
-many different users (i.e. different fs) will be allowed to reserve a
-different size for the global pool. They all will share the same pool,
-you've only need to track each user nr_pages to know which is the max
-reservation you need.
-
-That's still enterely transparent, it'll work in the thread context
-thanks to the global semaphore, but it'll avoid the waste of ram where
-every different task has to pin the ram into the task before starting
-the writepage I/O.
-
-I mean, I understand the only point of the perthread-pages patch is
-deadlock avoidance during OOM. So you definitely don't need a per-thread
-reservation, the global pool methods I described above should be more
-than enough and they'll save ram and make your system faster as well.
-
-I agree PF_MEMALLOC has nothing to do with this.
+-----
+===== fs/aio.c 1.60 vs edited =====
+--- 1.60/fs/aio.c	2004-10-20 01:12:10 -07:00
++++ edited/fs/aio.c	2004-11-06 19:41:45 -08:00
+@@ -118,8 +118,6 @@
+ 	if (nr_pages < 0)
+ 		return -EINVAL;
+ 
+-	info->nr_pages = nr_pages;
+-
+ 	nr_events = (PAGE_SIZE * nr_pages - sizeof(struct aio_ring)) / sizeof(struct io_event);
+ 
+ 	info->nr = 0;

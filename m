@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVC3Fxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVC3Fzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbVC3Fxp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 00:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVC3Fxo
+	id S261557AbVC3Fzk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 00:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVC3Fzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 00:53:44 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:38910 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261472AbVC3Fxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 00:53:30 -0500
-Date: Wed, 30 Mar 2005 00:53:28 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [PATCH] embarassing typo
-In-reply-to: <200503292040.55933.dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <200503300053.28553.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-Content-disposition: inline
-References: <1112128584.25954.6.camel@tux.lan> <4249CFA1.7050907@tls.msk.ru>
- <200503292040.55933.dtor_core@ameritech.net>
-User-Agent: KMail/1.7
+	Wed, 30 Mar 2005 00:55:40 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:47550 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261557AbVC3Fyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 00:54:35 -0500
+From: "Yu, Luming" <luming.yu@intel.com>
+Reply-To: luming.yu@intel.com
+Organization: Intel
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] 2.6.12-rc1-mm[1-3]: ACPI battery monitor does not work
+Date: Wed, 30 Mar 2005 13:53:25 +0800
+User-Agent: KMail/1.6.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
+References: <200503291156.19112.rjw@sisk.pl>
+In-Reply-To: <200503291156.19112.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="gb18030"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200503301353.25492.luming.yu@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 March 2005 20:40, Dmitry Torokhov wrote:
->On Tuesday 29 March 2005 16:58, Michael Tokarev wrote:
->> Well, it's a matter of readability mostly.  For now at least, when
->> char is always 8 bytes...
+On Tuesday 29 March 2005 17:56, Rafael J. Wysocki wrote:
+> Hi,
 >
->Wow, that's one huge char you have there ;)
+> There is a problem on my box (Asus L5D, x86-64 kernel) with the ACPI
+> battery driver in the 2.6.12-rc1-mm[1-3] kernels.  Namely, the battery
+> monitor that I use (the kpowersave applet from SUSE 9.2) is no longer able
+> to report the battery status (ie how much % it is loaded).  It can only
+> check if the AC power is connected (if it is connected, kpowersave behaves
+> as though there was no battery in the box, and if it is not connected,
+> kpowersave always shows that the battery is 1% loaded).
+>
+> Also, there are big latencies on loading and accessing the battery module,
+> but the module loads successfully and there's nothing suspicious in dmesg.
+>
+> Please let me know if you need any additional information.
+>
+> Greets,
+> Rafael
 
-Yeah, I was gonna ask what language is so complex as to need an 8 byte 
-char?
-
-Certainly not an earthly one I'd think ;)
-
+Could you just revert ec-mode patch, then retest? 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Thanks,
+Luming

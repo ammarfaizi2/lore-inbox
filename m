@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUEBXlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUECAAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263366AbUEBXlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 19:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEBXlm
+	id S263370AbUECAAP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 20:00:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbUECAAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 19:41:42 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:8584 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S263366AbUEBXll
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 19:41:41 -0400
-Date: Mon, 3 May 2004 00:41:21 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6 and diskless swap (nbd? nfs?)
-Message-ID: <Pine.LNX.4.58.0405030037490.22749@fogarty.jakma.org>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 2 May 2004 20:00:15 -0400
+Received: from firewall.conet.cz ([213.175.54.250]:5548 "EHLO conet.cz")
+	by vger.kernel.org with ESMTP id S263370AbUECAAL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 20:00:11 -0400
+Date: Mon, 3 May 2004 02:00:04 +0200
+From: Libor Vanek <libor@conet.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Read from file fails
+Message-ID: <20040503000004.GA26707@Loki>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+can anybody help me with reading from file? I've got this code in my module for 2.6.5-mm6:
 
-Just curious, what is one supposed to do for swap for diskless 
-machines? Swap on NFS files refuses to work. Is swap on NBD possible 
-(googling suggests patches were required - did these make it in to 
-the kernel?). If not, is there any way at all to sanely do swap for 
-diskless machines with 2.6?
+char buffer[4096];
+ssize_t read;
+file *f;
+f = filp_open("/some/file",O_RDONLY | O_LARGEFILE,0);
+f->f_pos = 0;
+read = vfs_read(f,(char __user *) buffer,4096,&f->f_pos);
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-	warning: do not ever send email to spam@dishone.st
-Fortune:
-HAL 9000: Dave. Put down those Windows disks, Dave. DAVE! 
+
+but here read value is "-14" :-((( any hints?
+
+It seems that file is opened OK (I've tested: 
+if (f->f_op->read) {
+	read = f->f_op->read(file, buf, count, pos);
+}
+and result was the same - so I assume that file is opened OK and structure "file f" is filled correctly.
+
+I need to copy files (yes - I know that kernel shouldn't do this but I REALLY need) and  there is nothing like "sys_copy" and "sys_sendfile" is not exported (which seems strange to me but there is nothing like EXPORT_SYMBOL(sys_sendfile) in fs/read_write.c
+
+
+Thanks,
+Libor Vanek
+

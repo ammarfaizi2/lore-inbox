@@ -1,37 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312925AbSC0ByW>; Tue, 26 Mar 2002 20:54:22 -0500
+	id <S312953AbSC0CFU>; Tue, 26 Mar 2002 21:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312953AbSC0ByN>; Tue, 26 Mar 2002 20:54:13 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25868 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312925AbSC0Bx7>; Tue, 26 Mar 2002 20:53:59 -0500
-Subject: Re: Linux 2.4.19-pre4-ac2
-To: davis@jdhouse.org (Jonathan A. Davis)
-Date: Wed, 27 Mar 2002 02:10:33 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <1017193625.1435.18.camel@bacchus.jdhouse.org> from "Jonathan A. Davis" at Mar 26, 2002 07:47:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312955AbSC0CFL>; Tue, 26 Mar 2002 21:05:11 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:19335 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S312953AbSC0CE5>; Tue, 26 Mar 2002 21:04:57 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Anders Peter Fugmann <afu@fugmann.dhs.org>
+Date: Wed, 27 Mar 2002 13:07:00 +1100 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16q2tV-0004VQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-ID: <15521.10564.475227.372522@notabene.cse.unsw.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19pre4-ac1
+In-Reply-To: message from Anders Peter Fugmann on Wednesday March 27
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> By chance I was culling through my boot log and noticed the following:
+On Wednesday March 27, afu@fugmann.dhs.org wrote:
+> Thanks.
 > 
-> Initializing CPU#0
-> Detected 8132.282 MHz processor.
+> It seems that there is some more problems.
+> I have not verified the lookup (since I just booted right away with the patch), but
+> I have found that:
+> 
+> Mar 26 23:56:58 gw kernel: nfsd: LOOKUP(3)   24: 03000001 03000900 00000002 0000106d 0000106c 0000070d WMRootMenu
+> Mar 26 23:56:58 gw kernel: RPC request reserved 240 but used 244
+> 
+> Mar 27 00:30:09 gw kernel: nfsd: CREATE(3)   24: 03000001 03000900 00000002 00000003 00000002 00000000 test
+> Mar 27 00:30:09 gw kernel: RPC request reserved 272 but used 276
+> 
+> Mar 27 00:30:21 gw kernel: nfsd: SYMLINK(3)  24: 03000001 03000900 00000002 00000003 00000002 00000000 test1 -> test
+> Mar 27 00:30:21 gw kernel: RPC request reserved 272 but used 276
+> 
+> And there might be others.
 
-Fascinating - that suggest timer interrupts are going missing (the alternative
-would involve clouds of smoke from your PC)
+I bet you're using reisferfs ???
 
-> Looking through my boot logs, this problem seems to start somewhere
-> between 2.4.19-pre2-ac4 and 2.4.19-pre4-ac1 (I didn't run any of the
-> intervening releases).
+It occasionaly uses filehandles longer than 32 bytes (the max for
+NFSv2) and my calculations forgot that nfsv3 allows for 64 bytes.
+So "9" (8 longs and a count) should be "17" (16 longs and a count).
 
-I would suspect APIC/IRQ routing changes.
+Thanks again,
+NeilBrown
 
-Do you see the same break between 2.4.19-pre2 and 2.4.19-pre4 vanilla releases ?
+--- fs/nfsd/nfs3proc.c	2002/03/18 01:44:00	1.3
++++ fs/nfsd/nfs3proc.c	2002/03/27 02:04:30
+@@ -662,15 +662,15 @@
+   PROC(null,	 void,		void,		void,	 RC_NOCACHE, 1),
+   PROC(getattr,	 fhandle,	attrstat,	fhandle, RC_NOCACHE, 1+21),
+   PROC(setattr,  sattr,		wccstat,	fhandle,  RC_REPLBUFF, 1+7+22),
+-  PROC(lookup,	 dirop,		dirop,		fhandle2, RC_NOCACHE, 1+9+22+22),
++  PROC(lookup,	 dirop,		dirop,		fhandle2, RC_NOCACHE, 1+17+22+22),
+   PROC(access,	 access,	access,		fhandle,  RC_NOCACHE, 1+22+1),
+   PROC(readlink, fhandle,	readlink,	fhandle,  RC_NOCACHE, 1+22+1+256),
+   PROC(read,	 read,		read,		fhandle, RC_NOCACHE, 1+22+4+NFSSVC_MAXBLKSIZE),
+   PROC(write,	 write,		write,		fhandle,  RC_REPLBUFF, 1+7+22+4),
+-  PROC(create,	 create,	create,		fhandle2, RC_REPLBUFF, 1+(1+9+22)+7+22),
+-  PROC(mkdir,	 mkdir,		create,		fhandle2, RC_REPLBUFF, 1+(1+9+22)+7+22),
+-  PROC(symlink,	 symlink,	create,		fhandle2, RC_REPLBUFF, 1+(1+9+22)+7+22),
+-  PROC(mknod,	 mknod,		create,		fhandle2, RC_REPLBUFF, 1+(1+9+22)+7+22),
++  PROC(create,	 create,	create,		fhandle2, RC_REPLBUFF, 1+(1+17+22)+7+22),
++  PROC(mkdir,	 mkdir,		create,		fhandle2, RC_REPLBUFF, 1+(1+17+22)+7+22),
++  PROC(symlink,	 symlink,	create,		fhandle2, RC_REPLBUFF, 1+(1+17+22)+7+22),
++  PROC(mknod,	 mknod,		create,		fhandle2, RC_REPLBUFF, 1+(1+17+22)+7+22),
+   PROC(remove,	 dirop,		wccstat,	fhandle,  RC_REPLBUFF, 1+7+22),
+   PROC(rmdir,	 dirop,		wccstat,	fhandle,  RC_REPLBUFF, 1+7+22),
+   PROC(rename,	 rename,	rename,		fhandle2, RC_REPLBUFF, 1+7+22+7+22),
+@@ -679,6 +679,6 @@
+   PROC(readdirplus,readdirplus,	readdir,	fhandle,  RC_NOCACHE, 0),
+   PROC(fsstat,	 fhandle,	fsstat,		void,     RC_NOCACHE, 1+14),
+   PROC(fsinfo,   fhandle,	fsinfo,		void,     RC_NOCACHE, 1+13),
+-  PROC(pathconf, fhandle,	pathconf,	void,     RC_NOCACHE, 1+6),
++  PROC(pathconf, fhandle,	pathconf,	void,     RC_NOCACHE, 1+7),
+   PROC(commit,	 commit,	commit,		fhandle,  RC_NOCACHE, 1+7+22+2),
+ };

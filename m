@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129067AbRBBElr>; Thu, 1 Feb 2001 23:41:47 -0500
+	id <S129197AbRBBEm6>; Thu, 1 Feb 2001 23:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129197AbRBBElh>; Thu, 1 Feb 2001 23:41:37 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15367 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129067AbRBBElb>; Thu, 1 Feb 2001 23:41:31 -0500
-Date: Fri, 2 Feb 2001 00:51:59 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: sard on kernel 2.4
-Message-ID: <Pine.LNX.4.21.0102012322560.18665-100000@freak.distro.conectiva>
+	id <S129838AbRBBEms>; Thu, 1 Feb 2001 23:42:48 -0500
+Received: from blackdog.wirespeed.com ([208.170.106.25]:9988 "EHLO
+	blackdog.wirespeed.com") by vger.kernel.org with ESMTP
+	id <S129197AbRBBEma>; Thu, 1 Feb 2001 23:42:30 -0500
+Message-ID: <3A7A34EA.7060503@redhat.com>
+Date: Thu, 01 Feb 2001 22:17:46 -0600
+From: Joe deBlaquiere <jadb@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <Pine.LNX.4.30.0102012202040.1102-100000@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Linus,
 
-There is a significative amount of people who use sard's additional block
-layer statistics (I'm one of them). It would be nice to have it in the
-official free.
+David Woodhouse wrote:
 
-The available sard code is not optional, which I believe is a valid reason
-for not merging it in.
+> On Thu, 1 Feb 2001, Pavel Machek wrote:
+> 
+> 
+>> I thought that Vtech Helio folks already have XIP supported...
+> 
+> 
+> Plenty of people are doing XIP of the kernel. I'm not aware of anyone 
+> doing XIP of userspace pages. 
 
-If so, I can make it optional and documented in Configure.help so the
-this problem is gone.
+uClinux does XIP (readonly) for userspace programs in the Dragonball 
+port. Of course it's a different executable format than Linux, so there 
+are some hooks for it.
 
-Any other reason why you would not merge it in the official tree ?
-
-If no, I can send you the proposed patch.
+-- 
+Joe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

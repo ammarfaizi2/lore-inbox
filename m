@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUFQTMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUFQTPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUFQTMq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 15:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUFQTMp
+	id S261832AbUFQTPb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 15:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUFQTPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 15:12:45 -0400
-Received: from zero.aec.at ([193.170.194.10]:64517 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261875AbUFQTKv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 15:10:51 -0400
-To: Anton Blanchard <anton@samba.org>
-cc: mark_salyzyn@adaptec.com, Christoph Hellwig <hch@infradead.org>,
-       Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: PATCH: Further aacraid work
-References: <286GI-5y3-11@gated-at.bofh.it> <286Qp-5EU-19@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 17 Jun 2004 21:10:43 +0200
-In-Reply-To: <286Qp-5EU-19@gated-at.bofh.it> (Anton Blanchard's message of
- "Thu, 17 Jun 2004 17:20:09 +0200")
-Message-ID: <m3smcut2z0.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 17 Jun 2004 15:15:30 -0400
+Received: from lakermmtao09.cox.net ([68.230.240.30]:60587 "EHLO
+	lakermmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261832AbUFQTOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 15:14:44 -0400
+In-Reply-To: <20040617100930.A9108@adam>
+References: <200406180629.i5I6Ttn04674@freya.yggdrasil.com> <87n032xk82.fsf@sanosuke.troilus.org> <20040617100930.A9108@adam>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <96BD7BAE-C092-11D8-8574-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: hch@lst.de, greg@kroah.com, linux-kernel@vger.kernel.org,
+       Michael Poole <mdpoole@troilus.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: more files with licenses that aren't GPL-compatible
+Date: Thu, 17 Jun 2004 15:14:43 -0400
+To: "Adam J. Richter" <adam@yggdrasil.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> writes:
+On Jun 17, 2004, at 13:09, Adam J. Richter wrote:
+> 	I do not believe that when one contributes to Linux that
+> one is promising not to pursue other copyright problems anywhere
+> elsewhere in the code.  If you can point to a court decision or law
+> that says something analogous, I would be interesting in hearing
+> about it.
 
-> Please divert some of your anger towards your manufacturer of dodgy
-> hardware. Any sane hardware with an IOMMU handles this just fine.
-> eg on ppc64 running a disk test:
->
-> sg size    in        out
-> 1           3      47569
-> 2           0       2591
-> 3           0       1123
-> 4           0        447
-> 5           0        429
-> ...
-> 62       5095          0
-> 64      47061          0
->
-> The IOMMU is taking 62-64 entry SG lists and producing 1-5 entry lists.
+If someone distributes _on_their_own_ (site, CDs, whatever) copies
+of Linux with their copyrighted code in it, or contributes copyrighted
+code _that_they_own_, they are giving someone a license to use
+against them.  That is actually one of the difficulties SCO is facing
+right now in court; _they_ distributed copies of Linux _including_ any
+code that they may claim is copyrighted.  Since they have the right to
+license such code, any license that appears to be associated with it
+when they distribute it becomes valid even if it was not before.  If you
+distribute a copy of Linux under the GPL that contains code you
+claim is violating your copyright, then I don't believe you have a leg
+to stand on, legally.
 
-The AMD64 IOMMU could do it too (and the code to do it exists in
-2.6). But the problem is that the current IO layer doesn't provide a
-sufficient fallback path when this fails. You have to promise in
-advance that you can merge and then later it's too late to change your
-mind without signalling an IO error.
+> 	I believe the pre-exising condition, if it was pre-existing,
+> of the firmware being present in a few infringing drivers among many
+> non-infringing drivers would not mean that permission was granted
+> to produce a derivative work comingling the few illegal drivers
+> (or even prove prior knowledge of the few illegal drivers).
 
-This is a real problem on AMD64, because IOMMU aperture is relatively
-small and can fragment. 
+I'm not sure what you mean here, could you rephrase it?
 
-I had a chat with James about this at last year's OLS. The Consensus
-was iirc that it needs driver interface changes at least.
+> 	Again, I'm not a lawyer, so please do not use my layman's
+> opinions as legal advice.
 
-If there was a sane fallback path for this I would enable merging
-always (and add some fragmentation avoidance algorithms to the 
-bitmap allocator to make failure less likely)
+Same here!
 
-It's also a balancing act in terms of performance. The IOMMU setup
-is relatively slow (it has to do an PCI config space write and 
-an uncached memory access), and it depends on the device if it's 
-actually faster to go through the IOMMU. I did some benchmarks
-and it seems to help on MPT Fusion controllers, but slows down
-ethernet. Most probably we need an driver function call where
-the driver can tell the IOMMU layer "I am slow at merging; 
-give me merged sg lists and i can handle errors by falling back"
+Cheers,
+Kyle Moffett
 
-Also of course when the merging is used you will always get
-addresses <32bit and can potentially use smaller descriptors.
-But again you need fallback, because on AMD64 the IOMMus 
-can be quite small and it's possible to overflow them 
-in extreme traffic situations.
-
--Andi
 

@@ -1,105 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbTHTMxs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 08:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbTHTMxr
+	id S261947AbTHTMzP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 08:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTHTMzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 08:53:47 -0400
-Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:35484
-	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
-	with ESMTP id S261922AbTHTMxm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 08:53:42 -0400
-X-Mailbox-Line: From galia@st-peter.stw.uni-erlangen.de  Wed Aug 20 14:53:39 2003
-Message-ID: <1061384019.3f436f531a333@secure.st-peter.stw.uni-erlangen.de>
-Date: Wed, 20 Aug 2003 14:53:39 +0200
-From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.6 test3-bk7 & -mm3 : HPT374 - cable missdetection, lock-ups
+	Wed, 20 Aug 2003 08:55:15 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:13462 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261934AbTHTMzF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 08:55:05 -0400
+Message-ID: <3F436EF9.1040502@us.ibm.com>
+Date: Wed, 20 Aug 2003 08:52:09 -0400
+From: Harley Stenzel <hstenzel@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030625
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+To: "David S. Miller" <davem@redhat.com>
+Cc: Richard Underwood <richard@aspectgroup.co.uk>, skraw@ithnet.com,
+       willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
+       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+References: <353568DCBAE06148B70767C1B1A93E625EAB5D@post.pc.aspectgroup.co.uk> <20030819112103.373fce27.davem@redhat.com>
+In-Reply-To: <20030819112103.373fce27.davem@redhat.com>
+X-MIMETrack: Itemize by SMTP Server on D03NM118/03/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 08/20/2003 06:52:10,
+	Serialize by Router on D03NM118/03/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 08/20/2003 06:52:50,
+	Serialize complete at 08/20/2003 06:52:50
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+David S. Miller wrote:
+> On Tue, 19 Aug 2003 19:05:13 +0100
+> Richard Underwood <richard@aspectgroup.co.uk> wrote:
+> 
+>>	The ARP request represents all FUTURE
+>>packets being sent out that interface, not just the one single packet that
+>>happened to kick of this ARP request.
+> 
+> That's RIGHT!  And by your own argument the source address
+> in the ARP request IS IRRELEVANT and is to be ignored!
+> 
 
-first test run of 2.6 on Epox 8k9a3+ VIA KT400 VT8235, 
-HPT374 and 4 IBM Deskstar GXP120 80Gb on each chanel as master
-Mandrake-cooker gcc-3.3.1
+The source address in the ARP request is not irrelevant, because a 
+broadcast arp request causes all recipients of that broadcast request to 
+update their arp cache entry (if they have a cache entry for that IP) 
+for the IP specified in the source with the MAC specified in the request.
 
-the 3rd and the 4th chanel of the HPT374 are saying that the used cable
-is 40 wires, so it forces the drives in UDMA33 which i think causes the lock-
-ups several seconds after booting in runlevel 1
+So, in an environment where a single address is aliased in multiple 
+places, such as tunnel endpoints and loopback aliases, and in 
+multi-homed same-segment configs, it is unpredictable asto which IP will 
+be bound to which MAC for every machine (or arp cache) on the network.
 
-tried  enabling "ignore word94 validation bits", didn't change anything
-
-any hints ?
-
-
-no dmesg or logs available because of the hard lock-ups
-
-.configs from test3-bk7 & test3-mm3
-cp -a /proc/ide & /sys 
-are at http://varna.demon.co.uk/~svetlio/2.6test3bk7/
-
-svetljo
-
-PS.
-
-please CC me as i'm not subscribed to the list
-
-/proc/ide/hpt366 2.4.22rc2
--------------------------
-Controller: 0
-Chipset: HPT374
---------------- Primary Channel --------------- Secondary Channel --------------
-Enabled:        yes                             yes
-Cable:          ATA-66                          ATA-66
-
---------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
-DMA capable:    yes              no             yes               no 
-Mode:           UDMA             off            UDMA              off 
-
-Controller: 1
-Chipset: HPT374
---------------- Primary Channel --------------- Secondary Channel --------------
-Enabled:        yes                             yes
-Cable:          ATA-66                          ATA-66
-
---------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
-DMA capable:    yes              no             yes               no 
-Mode:           UDMA             off            UDMA              off 
+--Harley
 
 
-/proc/ide/hpt366 2.6 test3-bk7
-----------------------------------
-
-Controller: 0
-Chipset: HPT374
---------------- Primary Channel --------------- Secondary Channel --------------
-Enabled:        yes                             yes
-Cable:          ATA-66                          ATA-66
-
---------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
-DMA capable:    yes              no             yes               no 
-Mode:           UDMA             off            UDMA              off 
-
-Controller: 1
-Chipset: HPT374
---------------- Primary Channel --------------- Secondary Channel --------------
-Enabled:        yes                             yes
-Cable:          ATA-33                          ATA-33
-
---------------- drive0 --------- drive1 ------- drive0 ---------- drive1 -------
-DMA capable:    yes              no             yes               no 
-Mode:           UDMA             off            UDMA              off 
-
-
-
-
-
--- 
 
 

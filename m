@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVAUIjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262318AbVAUIlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVAUIjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 03:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVAUIjJ
+	id S262318AbVAUIlS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 03:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVAUIlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 03:39:09 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41967 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262316AbVAUIjD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 03:39:03 -0500
-Message-ID: <41F0BFA4.5030107@mvista.com>
-Date: Fri, 21 Jan 2005 00:39:00 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH] to fix xtime lock for in the RT kernel patch
-References: <41F04573.7070508@mvista.com> <20050121063519.GA19954@elte.hu> <41F0BA56.9000605@mvista.com> <20050121082125.GA28267@elte.hu>
-In-Reply-To: <20050121082125.GA28267@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 Jan 2005 03:41:18 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15207
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262318AbVAUIlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 03:41:11 -0500
+Date: Fri, 21 Jan 2005 09:41:11 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: oom killer gone nuts
+Message-ID: <20050121084111.GB7703@dualathlon.random>
+References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl> <20050120171544.GN12647@dualathlon.random> <20050121074203.GH2755@suse.de> <20050121080520.GA7703@dualathlon.random> <20050121080940.GA2763@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050121080940.GA2763@suse.de>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * George Anzinger <george@mvista.com> wrote:
-> 
-> 
->>>how about the patch below? One of the important benefits of the 
->>>threaded timer IRQ is the ability to make xtime_lock a mutex.
->>
->>The problem is that that removes the
->>	cur_timer->mark_offset();
->>	do_timer(regs);
->>in time. [...]
-> 
-> 
-> i'm not sure i understand what you mean. My change does:
-> 
-> | @@ -294,6 +313,7 @@ irqreturn_t timer_interrupt(int irq, voi
-> |         write_seqlock(&xtime_lock);
-> |
-> |         cur_timer->mark_offset();
-> | +       do_timer(regs);
-> |
-> |         do_timer_interrupt(irq, NULL, regs);
-> 
-> so ->mark_offset and do_timer() go together, and happen under
-> xtime_lock. What problem is there if we do this?
+On Fri, Jan 21, 2005 at 09:09:41AM +0100, Jens Axboe wrote:
+> Jan 20 13:22:15 wiggum kernel: oom-killer: gfp_mask=0xd1
 
-We are trying to get an accurate picture of when, exactly in time, jiffies 
-changes.  We then want to have that marked (mark_offset) with a TCS (or other 
-clock) so we can tell how many nanoseconds past that time any given point of 
-time is.  This is used by gettimeofday.  So if we wait till the thread gets 
-control, we have a lot of variability in when, exactly, the event took place. 
-We already have interrupt latency in the mix, but, by moving it to a thread, we 
-also add scheduling delays due to other RT threads (the actual intent of making 
-it a thread, right).
+This was a GFP_KERNEL|GFP_DMA allocation triggering this. However it
+didn't look so much out of DMA zone, there's 4M of ram free. Could be
+the ram was relased by another CPU in the meantime if this was SMP (or
+even by an interrupt in UP too).
 
-We can handle (do today) some variability in this area, but, at least for RT 
-systems, we would like to get this down to a small a window as possible.  The 
-changes I am suggesting are aimed at getting a good a handle on the current time 
-as possible.  They say nothing about how accurate we are in expiring a timer, 
-for example.
-> 
-> 	Ingo
-> 
+Could very well be you'll get things fixed by the lowmem_reserve patch,
+that will reserve part of the dma zone, so with it you're sure it
+couldn't have gone below 4M due slab allocs like skb.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+I recommend trying again with the patches applied, the oom stuff is so
+buggy right now that it's better you apply the fixes and try again, and
+if it still happens we know it's a regression.
 
+Thanks!

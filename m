@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290770AbSBFTgE>; Wed, 6 Feb 2002 14:36:04 -0500
+	id <S290769AbSBFTfy>; Wed, 6 Feb 2002 14:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290767AbSBFTfy>; Wed, 6 Feb 2002 14:35:54 -0500
-Received: from ns.caldera.de ([212.34.180.1]:31380 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S290753AbSBFTfs>;
-	Wed, 6 Feb 2002 14:35:48 -0500
-Date: Wed, 6 Feb 2002 20:35:21 +0100
-Message-Id: <200202061935.g16JZLh18377@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: lm@bitmover.com (Larry McVoy)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20020206000343.I14622@work.bitmover.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
+	id <S290767AbSBFTfp>; Wed, 6 Feb 2002 14:35:45 -0500
+Received: from chmls20.ne.ipsvc.net ([24.147.1.156]:8928 "EHLO
+	chmls20.mediaone.net") by vger.kernel.org with ESMTP
+	id <S290753AbSBFTfd>; Wed, 6 Feb 2002 14:35:33 -0500
+From: "Guillaume Boissiere" <boissiere@mediaone.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Date: Wed, 6 Feb 2002 14:35:03 -0500
+MIME-Version: 1.0
+Subject: Re: [STATUS 2.5]  February 6, 2002
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3C613F17.9147.31A2FD6@localhost>
+In-Reply-To: <3C60FAE5.19451.20FCF5E@localhost>
+In-Reply-To: <Pine.LNX.4.40.0202061006430.1590-100000@blue1.dev.mcafeelabs.com>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020206000343.I14622@work.bitmover.com> you wrote:
->> I second that. Maybe however we can have it both ways -- I have no
->> experience with bk, but can't this same info be made available elsewhere
->> like a public web interface or some such thing?
->
-> I've put up read-only clones on 
->
-> 	http://linux.bkbits.net
->
-> you can go there and get the changelogs in web form.  I just figured out
-> what a bad choice 8088 was for a port and we'll be moving stuff over to
-> 8080 since that seems to go through more firewalls.
+Thanks, I will update the list for next week to keep you out of 
+trouble ;-)
 
-Btw, is there a generic way to move repos cloned from Ted's (now
-orphaned?) 2.4 tree to Linus' official one?
+-- Guillaume
 
-	Christoph
 
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+On 6 Feb 2002 at 11:13, Davide Libenzi wrote:
+
+> On Wed, 6 Feb 2002, Guillaume Boissiere wrote:
+> 
+> > o Merged     New scheduler for improved scalability          (Ingo Molnar, Davide Libenzi)
+> 
+> Ingo did most of the job, it's not right for me to be here.
+> And my Co. might think that since i've too much spare time, they'll be
+> able to push me more :-)
+> 
+> 
+> 
+> 
+> - Davide
+> 
+> 
+> 
+
+

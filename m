@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317540AbSHLJF1>; Mon, 12 Aug 2002 05:05:27 -0400
+	id <S317639AbSHLJMd>; Mon, 12 Aug 2002 05:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317571AbSHLJF1>; Mon, 12 Aug 2002 05:05:27 -0400
-Received: from india-msg-core-1.cisco.com ([64.104.129.221]:6390 "EHLO
-	india-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S317540AbSHLJF0>; Mon, 12 Aug 2002 05:05:26 -0400
-Message-ID: <3D577B3C.D8BAD82C@cisco.com>
-Date: Mon, 12 Aug 2002 14:39:16 +0530
-From: Manik Raina <manik@cisco.com>
-Organization: Cisco
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Jim Roland <jroland@roland.net>, linux-kernel@vger.kernel.org
-Subject: [OT] Re: The spam problem.
-References: <027104643010c82DTVMAIL11@smtp.cwctv.net> <003701c241ba$94f8a1c0$2102a8c0@gespl2k1> <20020812084732.GA6421@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii
+	id <S317640AbSHLJMd>; Mon, 12 Aug 2002 05:12:33 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:27640 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317639AbSHLJMc>; Mon, 12 Aug 2002 05:12:32 -0400
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Padraig Brady <padraig.brady@corvil.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D57782E.5090009@corvil.com>
+References: <Pine.LNX.4.33.0208091459010.1283-100000@penguin.transmeta.com>
+	 <3D57782E.5090009@corvil.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Aug 2002 11:37:47 +0100
+Message-Id: <1029148667.16424.144.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-08-12 at 09:56, Padraig Brady wrote:
+> Anyone care to clarify which filesystems don't
+> have unique inode numbers. I always thought you
+> could uniquely identify any file using a device,inode
+> tuple? Fair enough proc is "special" but can/should
+> you not assume unique inodes within all other filesystems?
 
-> > I'm getting damn tired of getting 50-75 spams per day in my inbox and I
-> > don't even use my email address on websites to post.
+2.4 functions correctly here in all the stuff I've looked at. I can't
+speak for 2.5. In the 2.4 case you must be holding the files open during
+the comparison. Some file systems like MSDOS invent inodes as they go,
+never issuing the same one to two objects at the same time but happily
+reissuing different inode numbers the next time around.
 
-	I'm pretty satisfied with the spam filtering, though i have
-	a *specific* observation about some fellows who claim to be 
-	related to related to big people (or former big people) in 
-	Africa and want us to transfer some money for them. 
+That breaks NFS but not much else
 
-	Now , these mails keep making rounds on this list, though
-	they've improved my knowlege of African power politics 
-	somewhat, and improved my who's who in Africa, i would 
-	really like it if we could shut the spammer up.
+

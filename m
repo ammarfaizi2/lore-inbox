@@ -1,84 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268932AbTGJF0o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 01:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268934AbTGJF0o
+	id S268934AbTGJFab (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 01:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268937AbTGJFaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 01:26:44 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:51858 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S268932AbTGJF0n
+	Thu, 10 Jul 2003 01:30:30 -0400
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:44162
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP id S268934AbTGJFa2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 01:26:43 -0400
-Date: Thu, 10 Jul 2003 06:41:21 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-Subject: NFS client errors with 2.5.74?
-Message-ID: <20030710054121.GB27038@mail.jlokier.co.uk>
+	Thu, 10 Jul 2003 01:30:28 -0400
+Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
+From: Piet Delaney <piet@www.piet.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Schlichter <schlicht@uni-mannheim.de>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+In-Reply-To: <20030709021849.31eb3aec.akpm@osdl.org>
+References: <20030708223548.791247f5.akpm@osdl.org>
+	<200307091106.00781.schlicht@uni-mannheim.de> 
+	<20030709021849.31eb3aec.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Jul 2003 22:44:50 -0700
+Message-Id: <1057815890.22772.19.camel@www.piet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing quite a lot of NFS client errors with 2.5.74, connected to
-a server running 2.4.20-18.9 (Red Hat 9's current kernel).
+On Wed, 2003-07-09 at 02:18, Andrew Morton wrote:
+> Thomas Schlichter <schlicht@uni-mannheim.de> wrote:
+.
+.
+. 
+> Seems complex.  I just have this:
+> 
+> 
+> diff -puN arch/i386/kernel/apm.c~cpumask-apm-fix-2 arch/i386/kernel/apm.c
+> --- 25/arch/i386/kernel/apm.c~cpumask-apm-fix-2	2003-07-08 23:09:23.000000000 -0700
+> +++ 25-akpm/arch/i386/kernel/apm.c	2003-07-08 23:28:50.000000000 -0700
+> @@ -528,7 +528,7 @@ static inline void apm_restore_cpus(cpum
+>   *	No CPU lockdown needed on a uniprocessor
+>   */
+>   
+> -#define apm_save_cpus()	0
+> +#define apm_save_cpus()		CPU_MASK_NONE
+>  #define apm_restore_cpus(x)	(void)(x)
 
-All of the errors that I've observed the form of a write() or close()
-returning EIO.  rsync seeems to have a particularly tough time -
-could the unusual size of blocks which rsync writes be relevant?
+I tried this and got a parse error. So I assumed perhaps I
+needed to upgrade to the latest C compiler to be able
+to handle the assignment of a inline static initializer:
 
-There are some read errors too, as Mozilla failed to find my profile
-claiming it couldn't read the file (when I restarted Mozilla, it found
-it the second time), and Gnome Terminal was unable to read its
-preferences file, but I didn't catch any specific read() errors.
+      #define CPU_MASK_NONE   { {[0 ... CPU_ARRAY_SIZE-1] =  0UL} }
 
-I tried this command to see if the is a protocol error while running
-Ethereal:
+I was disappointed that using gcc 3.3 didn't fix the problem:
+----------------------------------------------------------------------
+  CC      arch/i386/kernel/apm.o
+arch/i386/kernel/apm.c: In function `apm_bios_call':
+arch/i386/kernel/apm.c:599: error: parse error before '{' token
+arch/i386/kernel/apm.c: In function `apm_bios_call_simple':
+arch/i386/kernel/apm.c:642: error: parse error before '{' token
+arch/i386/kernel/apm.c: In function `apm_power_off':
+arch/i386/kernel/apm.c:920: warning: braces around scalar initializer
+arch/i386/kernel/apm.c:920: warning: (near initialization for
+`(anonymous)')
+arch/i386/kernel/apm.c:920: error: array index in non-array initializer
+arch/i386/kernel/apm.c:920: error: (near initialization for
+`(anonymous)')
+arch/i386/kernel/apm.c:920: error: invalid initializer
+arch/i386/kernel/apm.c:920: error: (near initialization for
+`(anonymous)')
+------------------------------------------------------------------------------
 
-[jamie@dual jamie]$ cp .mirMail.bjl1/INBOX .mirMail.bjl1/JBOX
-cp: closing `.mirMail.bjl1/JBOX': Input/output error
+I'll settle for Matt Mackall <mpm@selenic.com> fix for now:
 
-Ethereal shows a long series of NFS WRITEs followed by a single COMMIT
-(as expected), and nothing after that.  All of those replies had
-status 0, OK - including the reply to the final COMMIT.
+    +#define apm_save_cpus()        (current->cpus_allowed)
 
-Using "md5sum" I checked on both the client and server, and the
-contents of "JBOX" have been written correctly despite the
-"Input/output error" from "cp".
+I wonder why other, like Thomas Schlichter <schlicht@uni-mannheim.de>,
+had no problem with the CPU_MASK_NONE fix.
 
-When I looked at the packets from rsync commands that I saw getting
-EIO from write(), I saw that all requests except LOOKUP returned with
-status 0 as well, and the LOOKUPs that failed were simply checking
-whether a ".nfs..." name exists before renaming another file to that
-name.
+I tried adding the #include <linux/cpumask.h> that Marc-Christian
+Petersen <m.c.p@wolk-project.de> sugested but it didn't help. Looks
+like Jan De Luyck <lkml@kcore.org> had a similar result. 
 
-So as far as I can tell, there is no problem with the packets being
-sent and received.  There is, however, a big problem with error
-reporting on the client side.
+-piet
+ 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>
+-- 
+piet@www.piet.net
 
-A few extra notes:
-
-  - Running NFS v3.
-  - Kernel is vanilla 2.5.74, dual Athlon 1800MP, 768MB RAM
-  - Chipset: AMD-760MP/AMD-768.  Board: Asus A7M266-D.
-
-  - I _think_ I noticed this problem once when running 2.4.20-18.9 on
-    the client, but generally it is not a problem.  I have been
-    mounting my home directory over NFS for weeks with 2.4.20-18.9 as
-    client, so I would have noticed networking or server problems.
-
-  - Every so often, the client's kernel log gets:
-      kernel: nfs: server 192.168.1.1 not responding, timed out
-    I haven't caught one of those with Ethereal to find out what's
-    going on the wire.  There are no other regular kernel messages.
-
-    Note!  These are all logged at different times to the EIOs,
-    differet as in minutes away.  The EIOs, btw, are reported
-    immediately; there is no pause waiting for a response from the
-    server.
-
-Any idea about this?  Is it a known problem?
-
-Cheers,
--- Jamie

@@ -1,143 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265950AbUAEWhU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 17:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUAEWft
+	id S265984AbUAEWdp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 17:33:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbUAEWcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 17:35:49 -0500
-Received: from elpis.telenet-ops.be ([195.130.132.40]:1213 "EHLO
-	elpis.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S265985AbUAEWdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 17:33:51 -0500
-Date: Mon, 5 Jan 2004 23:33:13 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.0-rc1 - Watchdog patches (part 2)
-Message-ID: <20040105233313.A19985@infomag.infomag.iguana.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 Jan 2004 17:32:14 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4074 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265983AbUAEWad
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 17:30:33 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>, wrlk@riede.org
+Subject: Re: The survival of ide-scsi in 2.6.x
+Date: Mon, 5 Jan 2004 23:33:26 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+References: <200401052201.i05M1her002460@harpo.it.uu.se>
+In-Reply-To: <200401052201.i05M1her002460@harpo.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Message-Id: <200401052333.26085.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, Andrew,
+On Monday 05 of January 2004 23:01, Mikael Pettersson wrote:
+> On Mon, 29 Dec 2003 08:07:28 -0500, Willem Riede wrote:
+> >> Based on my expirience with ide-tape, I would rather have it
+> >> killed instead. One neat trick to appease enemies of ide-scsi
+> >> might be to rename it into ide-scsi into ide-tape-bis.
+> >> Might even add DSC bit handling... But the ide-tape is too
+> >> ugly to live for sure.
+> >
+> >I would agree, but would that get any people in trouble? That is,
+> >are there any IDE tape drives currently supported by ide-tape,
+> >that are not compatble with ide-scsi plus st?
+>
+> My Seagate STT8000A works better with ide-scsi+st than with ide-tape.
+> As long as a working ide-scsi is around, I couldn't care less about
+> the ide-tape abomination.
 
-please do a
+>From your previous mail:
+"I use ide-scsi + st for my Seagate ATAPI tape drive, so I welcome
+your initiative. ide-tape has had many reliability problems in the
+2.4 kernels, and the 2.5 bio changes left it broken from 2.5.12 or
+so to 2.6.0-test<late>. It may have been repaired lately, but I for
+one don't trust that code base any more."
 
-	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
+So how do you know that ide-scsi+st is better? ;-)
 
-This will update the following files:
+Both ide-tape and ide-scsi are to stay in 2.6.x and die in 2.7.x.
 
- drivers/char/watchdog/acquirewdt.c   |    2 +-
- drivers/char/watchdog/alim1535_wdt.c |    4 ++--
- drivers/char/watchdog/amd7xx_tco.c   |    2 +-
- drivers/char/watchdog/sbc60xxwdt.c   |    2 +-
- drivers/char/watchdog/w83877f_wdt.c  |    2 +-
- drivers/char/watchdog/wafer5823wdt.c |    2 +-
- 6 files changed, 7 insertions(+), 7 deletions(-)
+--bart
 
-through these ChangeSets:
-
-<wim@iguana.be> (04/01/03 1.1577)
-   [WATCHDOG] 2.6.0-rc1 spelling-fixes-whether.patch
-   
-   Spelling fixes - whether
-
-<akpm@osdl.org> (04/01/05 1.1578)
-   [WATCHDOG] 2.6.0-rc1 amd7xx_tco.c-nowayout.patch
-   
-   Fix compile error in amd7xx_tco.c after latest nowayout change
-
-
-The ChangeSets can also be looked at on:
-	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
-
-For completeness, I added the patches below.
-
-Greetings,
-Wim.
-
-================================================================================
-diff -Nru a/drivers/char/watchdog/acquirewdt.c b/drivers/char/watchdog/acquirewdt.c
---- a/drivers/char/watchdog/acquirewdt.c	Mon Jan  5 23:25:17 2004
-+++ b/drivers/char/watchdog/acquirewdt.c	Mon Jan  5 23:25:17 2004
-@@ -100,7 +100,7 @@
- 			 * five months ago... */
- 			expect_close = 0;
- 
--			/* scan to see wether or not we got the magic character */
-+			/* scan to see whether or not we got the magic character */
- 			for (i = 0; i != count; i++) {
- 				char c;
- 				if (get_user(c, buf + i))
-diff -Nru a/drivers/char/watchdog/alim1535_wdt.c b/drivers/char/watchdog/alim1535_wdt.c
---- a/drivers/char/watchdog/alim1535_wdt.c	Mon Jan  5 23:25:17 2004
-+++ b/drivers/char/watchdog/alim1535_wdt.c	Mon Jan  5 23:25:17 2004
-@@ -153,7 +153,7 @@
- 			 * five months ago... */
- 			ali_expect_release = 0;
- 
--			/* scan to see wether or not we got the magic character */
-+			/* scan to see whether or not we got the magic character */
- 			for (i = 0; i != len; i++) {
- 				char c;
- 				if(get_user(c, data+i))
-@@ -402,7 +402,7 @@
- 
- 	spin_lock_init(&ali_lock);
- 
--	/* Check wether or not the hardware watchdog is there */
-+	/* Check whether or not the hardware watchdog is there */
- 	if (ali_find_watchdog() != 0) {
- 		return -ENODEV;
- 	}
-diff -Nru a/drivers/char/watchdog/sbc60xxwdt.c b/drivers/char/watchdog/sbc60xxwdt.c
---- a/drivers/char/watchdog/sbc60xxwdt.c	Mon Jan  5 23:25:17 2004
-+++ b/drivers/char/watchdog/sbc60xxwdt.c	Mon Jan  5 23:25:17 2004
-@@ -183,7 +183,7 @@
- 			 * five months ago... */
- 			wdt_expect_close = 0;
- 
--			/* scan to see wether or not we got the magic character */
-+			/* scan to see whether or not we got the magic character */
- 			for(ofs = 0; ofs != count; ofs++)
- 			{
- 				char c;
-diff -Nru a/drivers/char/watchdog/w83877f_wdt.c b/drivers/char/watchdog/w83877f_wdt.c
---- a/drivers/char/watchdog/w83877f_wdt.c	Mon Jan  5 23:25:17 2004
-+++ b/drivers/char/watchdog/w83877f_wdt.c	Mon Jan  5 23:25:17 2004
-@@ -205,7 +205,7 @@
- 			 * five months ago... */
- 			wdt_expect_close = 0;
- 
--			/* scan to see wether or not we got the magic character */
-+			/* scan to see whether or not we got the magic character */
- 			for(ofs = 0; ofs != count; ofs++)
- 			{
- 				char c;
-diff -Nru a/drivers/char/watchdog/wafer5823wdt.c b/drivers/char/watchdog/wafer5823wdt.c
---- a/drivers/char/watchdog/wafer5823wdt.c	Mon Jan  5 23:25:17 2004
-+++ b/drivers/char/watchdog/wafer5823wdt.c	Mon Jan  5 23:25:17 2004
-@@ -109,7 +109,7 @@
- 			/* In case it was set long ago */
- 			expect_close = 0;
- 
--			/* scan to see wether or not we got the magic character */
-+			/* scan to see whether or not we got the magic character */
- 			for (i = 0; i != count; i++) {
- 				char c;
- 				if (get_user(c, buf + i))
-diff -Nru a/drivers/char/watchdog/amd7xx_tco.c b/drivers/char/watchdog/amd7xx_tco.c
---- a/drivers/char/watchdog/amd7xx_tco.c	Mon Jan  5 23:25:38 2004
-+++ b/drivers/char/watchdog/amd7xx_tco.c	Mon Jan  5 23:25:38 2004
-@@ -253,7 +253,7 @@
- 		return -ESPIPE;
- 
- 	if (len) {
--		if (!nowayout)
-+		if (!nowayout) {
- 			size_t i;
- 			char c;
- 			expect_close = 0;

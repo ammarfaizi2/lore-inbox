@@ -1,121 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVC1BZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVC1BjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVC1BZj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 20:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbVC1BZj
+	id S261650AbVC1BjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 20:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVC1BjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 20:25:39 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:47241 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261646AbVC1BZY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 20:25:24 -0500
-Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while
-	resuming device drivers
-From: Li Shaohua <shaohua.li@intel.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>
-In-Reply-To: <200503261923.52020.rjw@sisk.pl>
-References: <16A54BF5D6E14E4D916CE26C9AD30575017EDC38@pdsmsx402.ccr.corp.intel.com>
-	 <200503251519.22680.rjw@sisk.pl>  <200503261923.52020.rjw@sisk.pl>
-Content-Type: text/plain
-Message-Id: <1111972933.28620.7.camel@sli10-desk.sh.intel.com>
+	Sun, 27 Mar 2005 20:39:11 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29202 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261650AbVC1BjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 20:39:04 -0500
+Date: Mon, 28 Mar 2005 03:39:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Greg KH <greg@kroah.com>, Lee Revell <rlrevell@joe-job.com>,
+       Mark Fortescue <mark@mtfhpc.demon.co.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-ID: <20050328013902.GK4285@stusta.de>
+References: <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe> <20050327004801.GA610@kroah.com> <1111885480.1312.9.camel@mindpipe> <20050327032059.GA31389@kroah.com> <1111894220.1312.29.camel@mindpipe> <20050327181056.GA14502@kroah.com> <1111948631.27594.14.camel@localhost.localdomain> <20050327220139.GI4285@stusta.de> <1111967692.27381.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 28 Mar 2005 09:22:13 +0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111967692.27381.8.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-03-27 at 02:23, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Friday, 25 of March 2005 15:19, Rafael J. Wysocki wrote: 
-> > On Friday, 25 of March 2005 13:54, you wrote:
-> > ]--snip--[
-> > > >My box is still hanged solid on resume (swsusp) by the drivers:
-> > > >
-> > > >ohci_hcd
-> > > >ehci_hcd
-> > > >yenta_socket
-> > > >
-> > > >possibly others, too.  To avoid this, I had to revert the following
-> > > patch from the Len's tree:
-> > > >
-> > > >diff -Naru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
-> > > >--- a/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
-> > > >+++ b/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
-> > > >@@ -72,10 +72,12 @@
-> > > > 	u8			active;			/* Current IRQ
-> > > */
-> > > > 	u8			edge_level;		/* All IRQs */
-> > > > 	u8			active_high_low;	/* All IRQs */
-> > > >-	u8			initialized;
-> > > > 	u8			resource_type;
-> > > > 	u8			possible_count;
-> > > > 	u8			possible[ACPI_PCI_LINK_MAX_POSSIBLE];
-> > > >+	u8			initialized:1;
-> > > >+	u8			suspend_resume:1;
-> > > >+	u8			reserved:6;
-> > > > };
-> > > >
-> > > > struct acpi_pci_link {
-> > > >@@ -530,6 +532,10 @@
-> > > >
-> > > > 	ACPI_FUNCTION_TRACE("acpi_pci_link_allocate");
-> > > >
-> > > >+	if (link->irq.suspend_resume) {
-> > > >+		acpi_pci_link_set(link, link->irq.active);
-> > > >+		link->irq.suspend_resume = 0;
-> > > >+	}
-> > > > 	if (link->irq.initialized)
-> > > > 		return_VALUE(0);
-> > > 
-> > > How about just remove below line:
-> > > >+		acpi_pci_link_set(link, link->irq.active);
+On Sun, Mar 27, 2005 at 06:54:52PM -0500, Steven Rostedt wrote:
+> On Mon, 2005-03-28 at 00:01 +0200, Adrian Bunk wrote:
 > > 
-> > You mean apply the patch again and remove just the single
-> > line?  No effect (ie hangs).
+> > How do you define "proven in court"?
+> > 
+> > Decided by an US judge based on US laws?
+> > Decided by a German judge based on German laws?
+> > Decided by a Chinese judge based on Chinese laws?
+> > ...
+> > 
 > 
-> It looks like removing this line couldn't help.
+> OK, I was talking about US courts since that case was done in the US.
+> But this is all what I remember about reading some 10 years ago. So I
+> could be all wrong about what happened. I don't have any references and
+> I'm too busy now to look them up. So I may be just speaking out of my
+> ass. :-)
 > 
-> Apparently, acpi_pci_link_set(link, link->irq.active) must be called
-> _before_ the call to pci_write_config_word() in
-> drivers/pci/pci.c:pci_set_power_state(), because the box hangs
-> otherwise.  However, with the patch applied,
-> acpi_pci_link_set(link, link->irq.active) is only called through
-> pcibios_enable_irq() in pcibios_enable_device(), which is _after_
-> the call to pci_set_power_state() in pci_enable_device_bars(),
-> so it's too late.
+> > If you distribute software you can be sued in every country you 
+> > distribute it.
+> > 
+> > E.g. Harald Welte is currently quite successful with legal actions in 
+> > Germany against companies that distribute Linux-based routers in Germany 
+> > without offering the source of the GPL'ed software they use.
 > 
-> Hence, it seems, if you really want to get rid of the
-> irqrouter_resume(), whatever the reason, the simplest fix
-> seems to be to change the order of calls to pci_set_power_state()
-> and pcibios_enable_device() in pci_enable_device_bars():
-> 
-> --- old/drivers/pci/pci.c	2005-03-26 19:10:09.000000000 +0100
-> +++ linux-2.6.12-rc1-mm2/drivers/pci/pci.c	2005-03-26 19:10:54.000000000 +0100
-> @@ -442,9 +442,9 @@ pci_enable_device_bars(struct pci_dev *d
->  {
->  	int err;
->  
-> -	pci_set_power_state(dev, PCI_D0);
->  	if ((err = pcibios_enable_device(dev, bars)) < 0)
->  		return err;
-> +	pci_set_power_state(dev, PCI_D0);
->  	return 0;
->  }
->  
-> though I'm not sure if that's legal.
-Hmm, no, pci_set_power_state should be called before
-pcibios_enable_device, otherwise enable_device may fail. This is very
-strange. In boot time, there also are uninitialized link devices, I'm
-wonder why the call of pci_enable_device_bars doesn't fail in boot time.
-Did you find the bug only in specific system?
+> Your talking about something completely different.  Yes, it is quite
+> explicit if you modify the source, and distribute it in binary only
+> form.  I'm talking about writing a separate module that links with the
+> GPL code dynamically.  So that the code is compiled different from the
+> GPL code. So the only common part is the API. Now is this a derived
+> work? 
+>...
 
-Could you please file a bug in bugzilla? I don't want to lose the
-context of thread. And please attach your acpidmp output in the bug.
+My point was a bit different:
 
-Thanks,
-Shaohua
+Harald's action was meant as an example, that such things can be brought 
+to court in virtually every country in the world.
+
+And a court decision in e.g. the USA might not have any influence on a 
+court decision in e.g. Germany.
+
+Some people seem to think that it was enough if something was OK 
+according to US law - but that's simply wrong.
+
+> -- Steve
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,139 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbQKTTh7>; Mon, 20 Nov 2000 14:37:59 -0500
+	id <S130307AbQKTTsM>; Mon, 20 Nov 2000 14:48:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129511AbQKTThu>; Mon, 20 Nov 2000 14:37:50 -0500
-Received: from cx838204-a.alsv1.occa.home.com ([24.16.83.66]:28145 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129534AbQKTThh>; Mon, 20 Nov 2000 14:37:37 -0500
-To: linux-kernel@vger.kernel.org
-Subject: ide_dma_timeout w/2.2.16 (redhat) and PIIX3
-From: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
-Mail-Copies-To: never
-Date: 20 Nov 2000 11:07:55 -0800
-Message-ID: <m3bsvatqb8.fsf@localhost.localdomain>
-User-Agent: Gnus/5.0805 (Gnus v5.8.5) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S130299AbQKTTsD>; Mon, 20 Nov 2000 14:48:03 -0500
+Received: from tepid.osl.fast.no ([213.188.9.130]:17418 "EHLO
+	tepid.osl.fast.no") by vger.kernel.org with ESMTP
+	id <S130307AbQKTTrq>; Mon, 20 Nov 2000 14:47:46 -0500
+Date: Mon, 20 Nov 2000 19:17:57 GMT
+Message-Id: <200011201917.TAA52799@tepid.osl.fast.no>
+Subject: Re: [Linux-IrDA]IrDA broken on pre-5/6 and stock 2.4.0-test11
+X-Mailer: Pygmy (v0.4.4)
+In-Reply-To: %s: <Pine.LNX.4.30.0011201653050.6790-100000@core>
+Cc: linux-kernel@vger.kernel.org
+From: Dag Brattli <dagb@fast.no>
+To: linux-irda@PASTA.cs.uit.no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got an older HP E40 that I'm having problems getting to work with
-DMA turned on.
+Hi,
 
-Specifically, I get the following errors when I do a
-"hdparm -d 1 /dev/hda" and the same for hdc.  If I boot into single
-user mode I can't seem to generate the problem, but after booting into
-multi user mode I can cause all kinds of errors just by doing a bunch
-of disk activity.  (Start oracle, copy filesystems, compile kernel,
-etc)
+I also get this kernel panic with the latest kernel (test11-pre5/6) 
+but I didn't get  it with any earlier kernels. I don't think this has anything to do
+with Linux-IrDA but maybe I'm wrong.
 
+-- Dag
 
-I get this with the "standard" Redhat 2.2.16 kernel (that is with
-their patches applied).  I also tried applying Andre's IDE patches for
-2.2.16 and didn't get any success.
-
-The drives are Maxtor 45G 7200 RPM IDE drives.  I'm using 80pin IDE
-cables -- though the PIIX3 only supports DMA, not UDMA.
-
-I was going to get a UDMA controller, but the only one I could find
-that seemed to have linux support (Promise) would break when I enabled
-DMA.  Figured I'd not bother working on that until I got the base
-stuff working.
-
-====
-
-Question about hdparm.  If I enable dma (-d1) and then experience
-errors.  I can't seem to just turn off dma support (-d0) and get on
-with life.  I continue to get the DMA errors and must reboot to get
-into non-dma mode.  Is this correct?
-
-====
-
-Log entries example:
-
-Nov 17 17:57:01 gw kernel: hdc: timeout waiting for DMA 
-Nov 17 17:57:01 gw kernel: hdc: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest } 
-Nov 17 18:25:28 gw kernel: hda: timeout waiting for DMA 
-Nov 17 18:25:28 gw kernel: hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest } 
-Nov 17 18:25:38 gw kernel: hda: timeout waiting for DMA 
-Nov 17 18:25:38 gw kernel: hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest } 
-Nov 17 18:25:48 gw kernel: hda: timeout waiting for DMA 
-Nov 17 18:25:48 gw kernel: hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest } 
-Nov 17 18:25:58 gw kernel: hda: timeout waiting for DMA 
-Nov 17 18:25:58 gw kernel: hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest } 
-Nov 17 18:25:58 gw kernel: ide0: reset: success 
-Nov 17 18:26:12 gw kernel: hda: timeout waiting for DMA 
-Nov 17 18:26:12 gw kernel: hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest } 
-
-====
-
-# hdparm -iI /dev/hda
-
-/dev/hda:
-
- Model=Maxtor 54610H6, FwRev=JAC61HU0, SerialNo=F605M4KC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes
- LBA CHS=1023/256/63 Remapping, LBA=yes, LBAsects=90045648
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2 
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4 
- UDMA modes: mode0 mode1 mode2
-
-
- Model=aMtxro5 64016H                          , FwRev=AJ6CH10U, SerialNo=6F504MCK            
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
- DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes
- LBA CHS=1023/256/63 Remapping, LBA=yes, LBAsects=90045648
- tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2 
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4 
- UDMA modes: mode0 mode1 mode2
-
-====
-
->From /proc/pci:
-
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Intel 82441FX Natoma (rev 2).
-      Medium devsel.  Fast back-to-back capable.  Master Capable.  Latency=32.  
-  Bus  0, device   4, function  0:
-    ISA bridge: Intel 82371SB PIIX3 ISA (rev 1).
-      Medium devsel.  Fast back-to-back capable.  Master Capable.  No bursts.  
-  Bus  0, device   4, function  1:
-    IDE interface: Intel 82371SB PIIX3 IDE (rev 0).
-      Medium devsel.  Fast back-to-back capable.  Master Capable.  Latency=32.  
-      I/O at 0x500 [0x501].
-  Bus  0, device   6, function  0:
-    Ethernet controller: Intel 82557 (rev 1).
-      Medium devsel.  Fast back-to-back capable.  IRQ 9.  Master Capable.  Latency=66.  Min Gnt=8.Max Lat=56.
-      Prefetchable 32 bit memory at 0xfecfe000 [0xfecfe008].
-      I/O at 0xf8e0 [0xf8e1].
-      Non-prefetchable 32 bit memory at 0xfed00000 [0xfed00000].
-  Bus  0, device  10, function  0:
-    Ethernet controller: Intel 82557 (rev 5).
-      Medium devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  Latency=66.  Min Gnt=8.Max Lat=56.
-      Prefetchable 32 bit memory at 0xfecfd000 [0xfecfd008].
-      I/O at 0xf8c0 [0xf8c1].
-      Non-prefetchable 32 bit memory at 0xfeb00000 [0xfeb00000].
-  Bus  0, device   7, function  0:
-    SCSI storage controller: Adaptec AIC-7850 (rev 1).
-      Medium devsel.  Fast back-to-back capable.  IRQ 11.  Master Capable.  Latency=64.  Min Gnt=4.Max Lat=4.
-      I/O at 0xfc00 [0xfc01].
-      Non-prefetchable 32 bit memory at 0xfecff000 [0xfecff000].
-  Bus  0, device  13, function  0:
-    VGA compatible controller: Cirrus Logic GD 5446 (rev 0).
-      Medium devsel.  
-      Prefetchable 32 bit memory at 0xfd000000 [0xfd000008].
-
--- 
--rupa
+On Mon, 20 Nov 2000 16:57:30 +0400 (GMT-4), you wrote:
+> Guys,
+> 
+> can someone confirm the following. I can reliably get my
+> kernel to panic if i kill irattach. I use SIR mode on my
+> laptop. Looks like lack of NULL checking in the kernel
+> code, but someone please try it out.  Don't worry the
+> panic is not fatal - i.e. it won't crash your machine or
+> at least it doesn't mine..
+> 
+> So just a
+> 	kill <PID of irattach>
+> will kernel core. Look in your 'dmesg' output.
+> 
+> Thanx
+> Mitch
+> 
+> Here is my traceback
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000008
+> c011578c
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c011578c>]
+> EFLAGS: 00210246
+> eax: c2124a64   ebx: c1414000   ecx: c35c01e0   edx: 00000000
+> esi: 00000006   edi: 00000000   ebp: c3fcb3a0   esp: c1415fb8
+> ds: 0018   es: 0018   ss: 0018
+> Process irattach (pid: 5497, stackpage=c1415000)
+> Stack: 00000100 c357bdc0 c357bdf0 c3498000 c35c01e0 c3fcb3a0 c3f9ca40 c3f9ca40
+>        c3f9ca40 c3f9ca40 c0115a80 c025c620 c357be80 c357be6c c0108914 c357bdf0
+>        00000078 c357be80
+> Call Trace: [<c0115a80>] [<c0108914>]
+> Code: 8b 4f 08 39 ca 7d 22 8b 47 14 83 3c 90 00 74 14 89 f0 89 d3
+> Warning: trailing garbage ignored on Code: line
+>   Text: 'Code: 8b 4f 08 39 ca 7d 22 8b 47 14 83 3c 90 00 74 14 89 f0 89 d3 '
+>   Garbage: ' '
+> 
+> >>EIP: c011578c <exec_usermodehelper+29c/368>
+> Trace: c0115a80 <exec_helper+14/18>
+> Trace: c0108914 <kernel_thread+28/38>
+> Code:  c011578c <exec_usermodehelper+29c/368>  00000000 <_EIP>: <===
+> Code:  c011578c <exec_usermodehelper+29c/368>     0:    8b 4f 08               mov    0x8(%edi),%ecx <===
+> Code:  c011578f <exec_usermodehelper+29f/368>     3:    39 ca                  cmp    %ecx,%edx
+> Code:  c0115791 <exec_usermodehelper+2a1/368>     5:    7d 22                  jge     c01157b5 <exec_usermodehelper+2c5/368>
+> Code:  c0115793 <exec_usermodehelper+2a3/368>     7:    8b 47 14               mov    0x14(%edi),%eax
+> Code:  c0115796 <exec_usermodehelper+2a6/368>     a:    83 3c 90 00            cmpl   $0x0,(%eax,%edx,4)
+> Code:  c011579a <exec_usermodehelper+2aa/368>     e:    74 14                  je      c01157b0 <exec_usermodehelper+2c0/368>
+> Code:  c011579c <exec_usermodehelper+2ac/368>    10:    89 f0                  mov    %esi,%eax
+> Code:  c011579e <exec_usermodehelper+2ae/368>    12:    89 d3                  mov    %edx,%ebx
+> 
+> _______________________________________________
+> Linux-IrDA mailing list  -  Linux-IrDA@pasta.cs.UiT.No
+> http://www.pasta.cs.UiT.No/mailman/listinfo/linux-irda
+> 
+> 
+> 
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262244AbVDFRKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVDFRLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262244AbVDFRKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 13:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVDFRKC
+	id S262224AbVDFRLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 13:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVDFRLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 13:10:02 -0400
-Received: from graphe.net ([209.204.138.32]:62217 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262224AbVDFRJo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 13:09:44 -0400
-Date: Wed, 6 Apr 2005 10:09:38 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Kumar Gala <kumar.gala@freescale.com>,
-       LKML list <linux-kernel@vger.kernel.org>
-Subject: Re: return value of ptep_get_and_clear
-In-Reply-To: <425412FB.7030209@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0504061006120.4635@graphe.net>
-References: <a0b2cb42ff815dcf964b7a728f638b87@freescale.com>
- <425412FB.7030209@yahoo.com.au>
+	Wed, 6 Apr 2005 13:11:49 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:9086 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262224AbVDFRLU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 13:11:20 -0400
+Message-ID: <42541830.1010201@yahoo.com.au>
+Date: Thu, 07 Apr 2005 03:11:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.12-rc2-mm1
+References: <20050405000524.592fc125.akpm@osdl.org> <42523F5D.7020201@yahoo.com.au> <20050405115113.A17809@unix-os.sc.intel.com>
+In-Reply-To: <20050405115113.A17809@unix-os.sc.intel.com>
+Content-Type: multipart/mixed;
+ boundary="------------080901040907000806030302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005, Nick Piggin wrote:
+This is a multi-part message in MIME format.
+--------------080901040907000806030302
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Kumar Gala wrote:
-> > ptep_get_and_clear has a signature that looks something like:
-> >
-> > static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned
-> > long addr,
-> >                                        pte_t *ptep)
-> >
-> > It appears that its suppose to return the pte_t pointed to by ptep
-> > before its modified.  Why do we bother doing this?  The caller seems
-> > perfectly able to dereference ptep and hold on to it.  Am I missing
-> > something here?
-> >
->
-> You need to be able to *atomically* clear the pte and retrieve the
-> old value.
+Siddha, Suresh B wrote:
+> On Tue, Apr 05, 2005 at 05:33:49PM +1000, Nick Piggin wrote:
+> 
 
-The effect of the clearing is that the present bit is cleared which makes
-the CPU generate a fault if this pte is referenced.
+>>Lastly, I'd like to be a bit less intrusive with pinned task
+>>handling improvements. I think we can do this while still being
+>>effective in preventing livelocks.
+> 
+> 
+> We want to see this fixed. Please post your patch and I can let you know
+> the test results.
+> 
 
-The problem with replacing pte values is that the code executing is racing
-with cpu mmu access to the pte (which may set bits on i386 I believe). So
-if you would access the pte and then clear it later then there would be a
-small window where the MMU could modify the pte. These changes would not
-be detected since you later overwrite the pte.
+Using the attached patch, a puny dual PIII-650 with ~400MB RAM swapped
+itself to death after 20000 infinite loop tasks had been pinned to one
+of the CPUs. See how you go.
 
-Using ptep_get_and_clear insures that this does not happen...
+-- 
+SUSE Labs, Novell Inc.
+
+--------------080901040907000806030302
+Content-Type: text/plain;
+ name="sched-relax-pinned-balancing.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched-relax-pinned-balancing.patch"
+
+Index: linux-2.6/kernel/sched.c
+===================================================================
+--- linux-2.6.orig/kernel/sched.c	2005-04-07 02:39:22.000000000 +1000
++++ linux-2.6/kernel/sched.c	2005-04-07 02:45:26.000000000 +1000
+@@ -2041,6 +2041,12 @@ static runqueue_t *find_busiest_queue(st
+ }
+ 
+ /*
++ * Max backoff if we encounter pinned tasks. Pretty arbitrary value, but
++ * so long as it is large enough.
++ */
++#define MAX_PINNED_INTERVAL	1024
++
++/*
+  * Check this_cpu to ensure it is balanced within domain. Attempt to move
+  * tasks if there is an imbalance.
+  *
+@@ -2052,7 +2058,7 @@ static int load_balance(int this_cpu, ru
+ 	struct sched_group *group;
+ 	runqueue_t *busiest;
+ 	unsigned long imbalance;
+-	int nr_moved, all_pinned;
++	int nr_moved, all_pinned = 0;
+ 	int active_balance = 0;
+ 
+ 	spin_lock(&this_rq->lock);
+@@ -2143,7 +2149,8 @@ out_balanced:
+ 
+ 	sd->nr_balance_failed = 0;
+ 	/* tune up the balancing interval */
+-	if (sd->balance_interval < sd->max_interval)
++	if ((all_pinned && sd->balance_interval < MAX_PINNED_INTERVAL) ||
++			(sd->balance_interval < sd->max_interval))
+ 		sd->balance_interval *= 2;
+ 
+ 	return 0;
+
+--------------080901040907000806030302--
+

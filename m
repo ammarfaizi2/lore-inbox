@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265051AbTAXT72>; Fri, 24 Jan 2003 14:59:28 -0500
+	id <S265008AbTAXT6T>; Fri, 24 Jan 2003 14:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265077AbTAXT72>; Fri, 24 Jan 2003 14:59:28 -0500
-Received: from comtv.ru ([217.10.32.4]:27372 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S265051AbTAXT7Z>;
-	Fri, 24 Jan 2003 14:59:25 -0500
-X-Comment-To: Andrew Morton
-To: Andrew Morton <akpm@digeo.com>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@alex.org.uk,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.59-mm5
-References: <20030123195044.47c51d39.akpm@digeo.com>
-	<946253340.1043406208@[192.168.100.5]>
-	<20030124031632.7e28055f.akpm@digeo.com>
-	<m3d6mmvlip.fsf@lexa.home.net>
-	<20030124035017.6276002f.akpm@digeo.com>
-	<m3lm1au51v.fsf@lexa.home.net>
-	<20030124111249.227a40d6.akpm@digeo.com>
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 24 Jan 2003 22:58:13 +0300
-In-Reply-To: <20030124111249.227a40d6.akpm@digeo.com>
-Message-ID: <m34r7ys4kq.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S265051AbTAXT6S>; Fri, 24 Jan 2003 14:58:18 -0500
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:16141 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S265008AbTAXT6L>; Fri, 24 Jan 2003 14:58:11 -0500
+Date: Fri, 24 Jan 2003 15:04:59 -0500
+From: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: jgarzik@pobox.com, ink@jurassic.park.msu.ru, willy@debian.org,
+       linux-kernel@vger.kernel.org, Jeff Wiedemeier <Jeff.Wiedemeier@hp.com>
+Subject: Re: [patch 2.5] tg3.c: pci_{save,restore}_extended_state
+Message-ID: <20030124150459.A3123@dsnt25.mro.cpqcorp.net>
+References: <20030124212748.C25285@jurassic.park.msu.ru> <20030124193135.GA30884@gtf.org> <20030124150006.A2882@dsnt25.mro.cpqcorp.net> <20030124.115355.51751971.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030124.115355.51751971.davem@redhat.com>; from davem@redhat.com on Fri, Jan 24, 2003 at 11:53:55AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton (AM) writes:
+On Fri, Jan 24, 2003 at 11:53:55AM -0800, David S. Miller wrote:
+>    From: "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>
+>    Date: Fri, 24 Jan 2003 15:00:06 -0500
+> 
+>    The problem is that if the chip is configured for MSI (through config
+>    space) and the platform's irq mapping code therefore filled in
+>    pci_dev->irq with an appropriate vector for the MSI interrupt the chip
+>    is assigned instead of the LSI interrupt it may also be assigned, then
+>    unless MSGINT_MODE matches PCI_MSI_FLAGS_ENABLE, the driver will grab
+>    wrong interrupt.
+>    
+> Why isn't it enabled at the point where we save the extended state?
 
- AM> We cannot free disk blocks until I/O against them has completed.
- AM> Otherwise the block could be reused for something else, then the
- AM> old IO will scribble on the new data.
+It was (in config space) and that's why PCI_MSI_FLAGS_ENABLE is still
+enabled after the restore of extended state. MSGINT_MODE is a
+tigon3-specific register (not config space) and it's state does not
+follow PCI_MSI_FLAGS_ENABLE in the MSI capability.
 
- AM> What we _can_ do is to defer the waiting - only wait on the I/O
- AM> when someone reuses the disk blocks.  So there are actually
- AM> unused blocks with I/O in flight against them.
-
- AM> We do that for metadata (the wait happens in
- AM> unmap_underlying_metadata()) but for file data blocks there is no
- AM> mechanism in place to look them up
-
-yeah! indeed. my stupid mistake ...
-
-
-
-
+/jeff

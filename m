@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130730AbRBATdU>; Thu, 1 Feb 2001 14:33:20 -0500
+	id <S130535AbRBATeK>; Thu, 1 Feb 2001 14:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130640AbRBATdL>; Thu, 1 Feb 2001 14:33:11 -0500
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:64013 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S130535AbRBATc4>;
-	Thu, 1 Feb 2001 14:32:56 -0500
-Date: Thu, 1 Feb 2001 19:32:50 +0000
-From: Michael Pacey <michael@wd21.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 3Com 3c523 in IBM PS/2 9585: Can't load module in kernel 2.4.1
-Message-ID: <20010201193250.B340@kermit.wd21.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.pre5
+	id <S131135AbRBATeA>; Thu, 1 Feb 2001 14:34:00 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:9830 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S130535AbRBATdm>; Thu, 1 Feb 2001 14:33:42 -0500
+Date: Thu, 1 Feb 2001 11:30:35 -0500 (EST)
+From: Chaitanya Tumuluri <chait@getafix.engr.sgi.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: bsuparna@in.ibm.com, lord@sgi.com, linux-kernel@vger.kernel.org,
+        kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+ /notify + callback chains
+In-Reply-To: <20010201121907.M11607@redhat.com>
+Message-ID: <Pine.LNX.4.21.0102011122020.11759-100000@getafix.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My first linux bug report :)
+On Thu, 1 Feb 2001, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Thu, Feb 01, 2001 at 10:25:22AM +0530, bsuparna@in.ibm.com wrote:
+> > 
+> > Being able to track the children of a kiobuf would help with I/O
+> > cancellation (e.g. to pull sub-ios off their request queues if I/O
+> > cancellation for the parent kiobuf was issued). Not essential, I guess, in
+> > general, but useful in some situations.
+> 
+> What exactly is the justification for IO cancellation?  It really
+> upsets the normal flow of control through the IO stack to have
+> voluntary cancellation semantics.
+> 
+XFS does something called a "forced shutdown" of the filesystem in which
+it requires outstanding I/Os issued against file data to be cancelled. 
+This is triggered by (among other things) errors in writing out file 
+metadata. I'm cc'ing Steve Lord so he can provide more information.
 
-As some may have noticed I have been struggling with an MCA machine of the
-above type (see subject) for the last couple of days. I installed 2.4.1 to
-take advantage of devfs and potentially ReiserFS.
+Of course, I was thinking along the lines of an API flushing the requests
+out of the elevator at that time .... didn't get too far with it though.
 
-The machine has a 3Com 3c523 Etherlink/MC card installed. It worked under
-2.2.17 but I can't load the module in 2.4.1.
-
-When I modprobe 3c523 I get:
-
-eth0: 3c523 adapter found in slot 3
-eth0: 3Com 3c523 Rev 0xe at 0x1300
-eth0: memprobe, Can't find memory at 0xc0000!
-3c523.c: No 3c523 cards found
-
-I also tried changing the 'Pack Buffer RAM Address Range' setting of the
-card, in the BIOS, to 0D8000-0DDFFF; I get the same error, but the 'Can't
-find memory at ...' error changes to 0xd8000.
-
-cat /proc/mca/slot3 produces a segfault, I think it was Invalid EAP, but
-not sure as I am trying to fix the machine now so can't reproduce...
-
---
-Michael Pacey
-michael@wd21.co.uk
-ICQ: 105498469
-
-wd21 ltd - world domination in the 21st century
+Cheers,
+-Chait.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

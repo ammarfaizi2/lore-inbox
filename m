@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbRCFGjP>; Tue, 6 Mar 2001 01:39:15 -0500
+	id <S129191AbRCFGri>; Tue, 6 Mar 2001 01:47:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129191AbRCFGjF>; Tue, 6 Mar 2001 01:39:05 -0500
-Received: from [200.222.192.170] ([200.222.192.170]:58240 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S129190AbRCFGis>; Tue, 6 Mar 2001 01:38:48 -0500
-Date: Mon, 5 Mar 2001 03:37:35 -0300
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No such file or directory))
-Message-ID: <20010305033735.D103@pervalidus>
+	id <S129232AbRCFGr3>; Tue, 6 Mar 2001 01:47:29 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:3818 "EHLO zooty.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id <S129191AbRCFGrU>;
+	Tue, 6 Mar 2001 01:47:20 -0500
+Message-Id: <l03130308b6ca353ffb51@[192.168.239.101]>
+In-Reply-To: <Pine.LNX.4.10.10103052136580.1011-100000@penguin.transmeta.com>
+In-Reply-To: <3AA47557.1DC03D6@torque.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.16i
-X-Mailer: Mutt/1.3.16i - Linux 2.4.2
-X-URL: http://www.pervalidus.net/
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 6 Mar 2001 06:43:05 +0000
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Douglas Gilbert <dougg@torque.net>
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: scsi vs ide performance on fsync's
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maybe I should give details about my hardware. The system was
-installed 5 months ago, and this is the first problem.
+>I don't know if there is any way to turn of a write buffer on an IDE disk.
 
-I used 2.2.16 stock Kernel from Slackware 7.1
-2.2.17
-2.2.18
-2.4.0
-2.4.1
+hdparm has an option of this nature, but it makes no difference (as I
+reported).  It's worth noting that even turning off UDMA to the disk on my
+machine doesn't help the situation - although it does slow things down a
+little, it's not "slow enough" to indicate that the drive is behaving
+properly.  Might be worth running the test on some of my other machines,
+with their diverse collection of IDE controllers (mostly non-UDMA) and
+disks.
 
-And the only problem was with 2.4.2.
+>Of course, whether you should even trust the harddisk is another question.
 
-FYI, I'm not using hdparm or changing the BIOS to use UDMA 66.
-It'd fail with 2.4.1 and 2.4.2 (CRC errors), so the setting
-is AUTO and it's using UDMA 33.
+I think this result in itself would lead me *not* to trust the hard disk,
+especially an IDE one.  Has anybody tried running this test with a recent
+IBM DeskStar - one of the ones that is the same mech as the equivalent
+UltraStar but with IDE controller?  I only have SCSI and laptop IBMs here -
+all my desktop IDE drives are Seagate.  However I do have one SCSI Seagate,
+which might be worth firing up for the occasion...
 
-And please note that this machine is fine, but I actually only
-open 2 consoles and run GNU screen. No XFree86, and only a few
-applications running.
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
+big-mail: chromatix@penguinpowered.com
+uni-mail: j.d.morton@lancaster.ac.uk
 
-If needed, my /var/log/dmesg is at
-http://members.nbci.com/pervalidus/dmesg-2.4.2.txt
+The key to knowledge is not to rely on people to teach you it.
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+
+-----BEGIN GEEK CODE BLOCK-----
+Version 3.12
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
+-----END GEEK CODE BLOCK-----
+
+

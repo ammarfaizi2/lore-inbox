@@ -1,87 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132373AbRDCR3d>; Tue, 3 Apr 2001 13:29:33 -0400
+	id <S132385AbRDCRbn>; Tue, 3 Apr 2001 13:31:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132385AbRDCR3X>; Tue, 3 Apr 2001 13:29:23 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:63465 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S132373AbRDCR3M>; Tue, 3 Apr 2001 13:29:12 -0400
-Date: Tue, 3 Apr 2001 18:16:19 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Stefan Linnemann <mazur@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sandisk flashcard reader on 2.4.2.  It works.  Sort of.
-Message-ID: <20010403181619.J9355@redhat.com>
-In-Reply-To: <01040302081301.00789@mazur.xs4all.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="dMdWWqg3F2Dv/qfw"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01040302081301.00789@mazur.xs4all.nl>; from mazur@xs4all.nl on Tue, Apr 03, 2001 at 02:08:13AM +0200
+	id <S132389AbRDCRbd>; Tue, 3 Apr 2001 13:31:33 -0400
+Received: from platan.vc.cvut.cz ([147.32.240.81]:24326 "EHLO
+	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
+	id <S132385AbRDCRbU>; Tue, 3 Apr 2001 13:31:20 -0400
+Message-ID: <3ACA08AD.1928A4E9@vc.cvut.cz>
+Date: Tue, 03 Apr 2001 10:30:21 -0700
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac28-4g i686)
+X-Accept-Language: cz, cs, en
+MIME-Version: 1.0
+To: xcp <xcp@brewt.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: what is pci=biosirq
+In-Reply-To: <Pine.LNX.4.30.0104022339450.20793-100000@stinky.brewt.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+xcp wrote:
 
---dMdWWqg3F2Dv/qfw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Here is the output of lspci -vx -s 0:f.0
+> 
+> 00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
+> (prog-if 8a [Master SecP PriP])
+>         Flags: bus master, medium devsel, latency 32
+>         I/O ports at b000 [size=16]
+> 00: b9 10 29 52 05 00 80 02 c1 8a 01 01 00 20 00 00
+> 10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 20: 01 b0 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 02 04
+> 
+> I'm not sure what to make of it.  At this time I am unable to
+> append="pci=biosirq" as I don't use lilo.  Is there a way to put this
+> arguement directly into the kernel image?
 
-On Tue, Apr 03, 2001 at 02:08:13AM +0200, Stefan Linnemann wrote:
-
-> the necessary features.  I copied .config from the 2.2.17, superficially=
-=20
-> checked the config, and remade and rebooted.
->=20
-> This was where I noted, that the parport, paride, epat and pd modules did=
-n't=20
-> get installed as modules at all.  I havnet dug into the why of that, let=
-=20
-> those familiar with the processes and Makefiles do that.=20
-
-It'll be because of the block device directory reorganisation I
-expect, or something similar.  Double-check your config.
-
-> So I reconfigured to get those into the kernel, and remade and
-> rebooted.  No dice, so I succesfully again applied the same patch,
-> configured it into the kernel and remade and rebooted.  No
-> SanDisk. For some reason or another I rebooted again, and lo and
-> behold, we have a SanDisk.
-
-So the kernel you run which can see the SanDisk is with, or without,
-the C7/8 patch?
-
-> I mount it ok, cd=20
-> /sandisk/dir/, mv * elsewhere, my system hangs.  Reset.=20
-
-Enable magic-sysrq and see if Alt-SysRq-B reboots the machine or not.
-Or, even better, jot down what Alt-SysRq-T says.
-
-> So the message is: Yes, it could work, but with the patch from=20
-> http://www.electricgod.net/~moomonk/epat/ it's slightly better working th=
-an=20
-> without it.
-
-This patch is in the queue, but behind the bug-fixes.
-
-You might want to try fiddling with the BIOS options for the parallel
-port and see if that makes any difference.
-
-Tim.
-*/
-
---dMdWWqg3F2Dv/qfw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6ygVdONXnILZ4yVIRApHAAJ91grPlyutRUswJMZaSK3JzmBtv8gCfWwVW
-2om7K27wHBFccGMDjYotD+U=
-=zugX
------END PGP SIGNATURE-----
-
---dMdWWqg3F2Dv/qfw--
+You probably can modify pci code to do that, but there is no reason for
+you
+to do it. Just ignore that message - your M5229 IDE reports that it
+needs
+some interrupt allocated to INTA. Fortunately IDE driver decided that
+it should use IRQ 14 & 15 for this interface. So as long as it works, do
+not pay any attention to biosirq message.
+							Petr

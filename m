@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132146AbRCaDmQ>; Fri, 30 Mar 2001 22:42:16 -0500
+	id <S131979AbRCaCjp>; Fri, 30 Mar 2001 21:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132152AbRCaDmH>; Fri, 30 Mar 2001 22:42:07 -0500
-Received: from 200-191-139-24-as.acessonet.com.br ([200.191.139.24]:12160 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S132146AbRCaDlw>; Fri, 30 Mar 2001 22:41:52 -0500
-Date: Sat, 31 Mar 2001 00:41:32 -0300
-From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: VIA IDE driver status ?
-Message-ID: <20010331004132.D111@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.16i
-X-Mailer: Mutt/1.3.16i - Linux 2.4.3
-X-URL: http://www.pervalidus.net/
+	id <S132005AbRCaCjf>; Fri, 30 Mar 2001 21:39:35 -0500
+Received: from [210.107.128.31] ([210.107.128.31]:13953 "EHLO mail.icu.ac.kr")
+	by vger.kernel.org with ESMTP id <S131979AbRCaCjT>;
+	Fri, 30 Mar 2001 21:39:19 -0500
+Message-ID: <015f01c0b98a$2857c500$46846bd2@pcroom.sice.icu>
+From: =?ks_c_5601-1987?B?s6q787/B?= <nso@icu.ac.kr>
+To: <linux-kernel@vger.kernel.org>
+Subject: 3c905B(cyclone) DHCP delay on boot time
+Date: Sat, 31 Mar 2001 11:27:37 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ks_c_5601-1987"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I really can't get UDMA66 with the VIA driver. I tried
-everything, also a new motherboard (ASUS A7Pro) with a
-ATA100/ATA66 cable (using both ends...)!
+Hello everyone,
 
-All I get are the usual CRC error messages.
+I recently upgraded kernel to 2.4.2 on 3 machines.
+These machines use DHCP.
+2 machines have 3c905B(cyclone) and
+1 machine has 3c905c(Tornado).
+At boot time, there are over 1 minute delay
+to bring up network interface eth0 at 3c905B machines.
+There is no problems when booting with kernel 2.2.x
+or booting with kernel 2.4.2 on 3c905C machine.
 
-So, there's no UDMA66 for any vt82c686a ? I'm using 2.4.3.
+Please CC any replies to my email address
+becausen I am not subscribed to linux-kernel
 
-If there's no UDMA66, what are the advantages using this
-driver ?
+- nso
+---
+SangOg Na
 
-TIA.
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)

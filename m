@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbTBKPzw>; Tue, 11 Feb 2003 10:55:52 -0500
+	id <S262806AbTBKQCv>; Tue, 11 Feb 2003 11:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265532AbTBKPzw>; Tue, 11 Feb 2003 10:55:52 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:3846 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265196AbTBKPzv>; Tue, 11 Feb 2003 10:55:51 -0500
-Date: Tue, 11 Feb 2003 16:05:38 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Peter Leif Rasmussen (PLR)" <PLR@tt.dk>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: A change to scsi.h
-Message-ID: <20030211160538.A14675@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Peter Leif Rasmussen (PLR)" <PLR@tt.dk>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <E8F83D6D2A6AD3118E0300902786A2050249961F@ntex.tt.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E8F83D6D2A6AD3118E0300902786A2050249961F@ntex.tt.dk>; from PLR@tt.dk on Tue, Feb 11, 2003 at 04:54:16PM +0100
+	id <S265532AbTBKQCv>; Tue, 11 Feb 2003 11:02:51 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:7847 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S262806AbTBKQCt>; Tue, 11 Feb 2003 11:02:49 -0500
+Date: Tue, 11 Feb 2003 10:12:27 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 337] New: build breakage for module versioning support 
+In-Reply-To: <83000000.1044979297@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0302111010370.26687-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 04:54:16PM +0100, Peter Leif Rasmussen (PLR) wrote:
-> When looking into:
-> 
-> /usr/src/linux/include/scsi/scsi.h
-> 
-> in kernel revision 2.5.60 I find this in line 200 - 205:
-> 
-> /*
->  * ScsiLun: 8 byte LUN.
->  */
-> typedef struct scsi_lun {
->         u8 scsi_lun[8];
-> } ScsiLun;
-> 
-> This produces problems when compiling a package that doesn't know about
-> 'u8'.
+On Tue, 11 Feb 2003, Martin J. Bligh wrote:
 
-Userland code is not supposed to include kernel headers.
+> http://bugme.osdl.org/show_bug.cgi?id=337
+> 
+>            Summary: build breakage for module versioning support
+>     Kernel Version: 2.5.60, 2.5.60-bk1
+>             Status: NEW
+>           Severity: normal
+>              Owner: bugme-janitors@lists.osdl.org
+>          Submitter: john@larvalstage.com
+> 
+> 
+> Problem Description:
+> 
+> Enabling module versioning support causes build breakage.
+> 
+>   gcc -Wp,-MD,arch/i386/kernel/.time.o.d -D__KERNEL__ -Iinclude -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+> -pipe -mpreferred-stack-boundary=2 -march=athlon
+> -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include
+> -DKBUILD_BASENAME=time -DKBUILD_MODNAME=time -c -o
+> arch/i386/kernel/.tmp_time.o arch/i386/kernel/time.c
+> ld:arch/i386/kernel/.tmp_time.ver:1: parse error
+> make[1]: *** [arch/i386/kernel/time.o] Error 1
+> make: *** [arch/i386/kernel] Error 2
+
+That's caused by a sed incompatibility.
+Fix already posted on l-k: (I'll submit it to Linus)
+
+===== scripts/Makefile.build 1.27 vs edited =====
+--- 1.27/scripts/Makefile.build	Sat Feb  8 14:30:33 2003
++++ edited/scripts/Makefile.build	Mon Feb 10 15:25:44 2003
+@@ -94,7 +94,7 @@
+ 	else								      \
+ 		$(CPP) -D__GENKSYMS__ $(c_flags) $<			      \
+ 		| $(GENKSYMS) -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)	      \
+-		| sed -n 's/\#define __ver_\(\w*\)\W*\(\w*\)/__crc_\1 = 0x\2 ;/gp' \
++		| sed -n 's/\#define __ver_\([^ 	]*\)[ 	]*\([^ 	]*\)/__crc_\1 = 0x\2 ;/gp' \
+ 		> $(@D)/.tmp_$(@F:.o=.ver);				      \
+ 									      \
+ 		$(LD) $(LDFLAGS) -r -o $@ $(@D)/.tmp_$(@F) 		      \
 

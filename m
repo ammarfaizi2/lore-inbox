@@ -1,79 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314446AbSHRMI0>; Sun, 18 Aug 2002 08:08:26 -0400
+	id <S314459AbSHRMNi>; Sun, 18 Aug 2002 08:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSHRMI0>; Sun, 18 Aug 2002 08:08:26 -0400
-Received: from adsl-161-92.barak.net.il ([62.90.161.92]:5133 "EHLO
-	hirame.qlusters.com") by vger.kernel.org with ESMTP
-	id <S314446AbSHRMIZ>; Sun, 18 Aug 2002 08:08:25 -0400
-Subject: Re: Alloc and lock down large amounts of memory
-From: Gilad Ben-Yossef <gilad@benyossef.com>
-To: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <23B25974812ED411B48200D0B774071701248520@exchusa03.intense3d.com>
-References: <23B25974812ED411B48200D0B774071701248520@exchusa03.intense3d.com>
+	id <S314529AbSHRMNi>; Sun, 18 Aug 2002 08:13:38 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30964 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S314459AbSHRMNi>; Sun, 18 Aug 2002 08:13:38 -0400
+Subject: Re: IDE?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Anton Altaparmakov <aia21@cantab.net>, alan@lxorguk.ukuu.org,
+       Andre Hedrick <andre@linux-ide.org>, axboe@suse.de, bkz@linux-ide.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020818131515.A15547@ucw.cz>
+References: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk>
+	<Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com> 
+	<20020818131515.A15547@ucw.cz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Aug 2002 15:09:44 +0300
-Message-Id: <1029672587.12504.88.camel@sake>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 18 Aug 2002 13:16:04 +0100
+Message-Id: <1029672964.15858.17.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-16 at 17:38, Bhavana Nagendra wrote:
-> Hi,
+On Sun, 2002-08-18 at 12:15, Vojtech Pavlik wrote:
+> I'll make patches for 2.5 to bring the low-level driver cleanups back.
+> Not just piix.c - also aec62xx.c and amd74xx.c - the last one was in 2.5
+> for a LONG time already and I'm not particularly happy it got lost.
 > 
-> I have a few questions with regards to alloc'ing and locking down memory.
-> An example 
-> would be very useful.  Please CC me on any responses.
-> 
-> 1. Is there a mechanism to lock down large amounts of memory (>128M, upto
-> 256M).
+> If desirable (What's your opinion, Alan?) I can make equivalent patches
+> for 2.4 as well.
 
->From user space? kernel space? The answer is yes to both but the
-mechnism is different.
+Look at 2.4.20-pre2-ac3 before you start doing that. A lot of cleanup
+has been done, although there is plenty more left. A starter is to fix
+the the ratemask/ratefilter stuff to not use silly while loops on the
+aec/amd drivers if you are hacking on those, stick in the static
+variables and document anything relevant looking.
 
->     Can 256M be allocated using vmalloc, if so is it swappable?
+Simple stuff first.
 
-It can be alloacted via vmalloc and AFAIK it is not swappable by
-default. This doesn't sound like a very good idea though.
-
-> 2. Is it possible for a user process and kernel to access the same shared
-> memory?
-
-Yes. See /proc/kcore for a very obvious example. Also "Linux device
-drivers second edition" has many good exmaple on the subject in the
-chapter devoted to mmap.
-
-> 3. Can a shared memory have visibility across processes, i.e. can process A
-> access 
-> memory that was allocated by process B?
-
-Of course. This is the definition of shared memeory...
-Just one thing to keep in mind - 'allocating' memory really doesn't do
-that much as you might think. Until the memory is *accessed* for the
-first time, all you got for the most part are some entries in a table
-somwehere...
-
-> 4. When a process exits will it cause a close to occur on the device?
-
-Depends how you got the shared memeory. With mmap() it's yes (for
-regular files at least), with shmget/shmat it's no by default. For mmap
-of non regulat files (e.g. device files) anything the device file writer
-had in mind is the answer.
-
-man shmget, shmat, shmat and finally mmap will help you a lot.
-
-Gilad.
-
--- 
-Gilad Ben-Yossef <gilad@benyossef.com>
-Code mangler, senior coffee drinker and VP SIGSEGV
-Qlusters ltd.
-
-"You got an EMP device in the server room? That is so cool."
-      -- from a hackers-il thread on paranoia
-
-
+Alan
 

@@ -1,78 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266391AbUHBKDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266435AbUHBKH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266391AbUHBKDm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 06:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266425AbUHBKDm
+	id S266435AbUHBKH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 06:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266436AbUHBKH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 06:03:42 -0400
-Received: from posti6.jyu.fi ([130.234.4.43]:30881 "EHLO posti6.jyu.fi")
-	by vger.kernel.org with ESMTP id S266391AbUHBKDh (ORCPT
+	Mon, 2 Aug 2004 06:07:27 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:47552 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266435AbUHBKHW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 06:03:37 -0400
-Date: Mon, 2 Aug 2004 13:03:15 +0300 (EEST)
-From: Pasi Sjoholm <ptsjohol@cc.jyu.fi>
-X-X-Sender: ptsjohol@silmu.st.jyu.fi
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-       H?ctor Mart?n <hector@marcansoft.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <netdev@oss.sgi.com>, <brad@brad-x.com>, <shemminger@osdl.org>
-Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe
- RLT-8139 related)
-In-Reply-To: <Pine.LNX.4.44.0408021234290.15888-100000@silmu.st.jyu.fi>
-Message-ID: <Pine.LNX.4.44.0408021301030.17420-100000@silmu.st.jyu.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Checked: by miltrassassin
-	at posti6.jyu.fi; Mon, 02 Aug 2004 13:03:19 +0300
+	Mon, 2 Aug 2004 06:07:22 -0400
+Date: Mon, 2 Aug 2004 12:08:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] preempt-timing-on-2.6.8-rc2-O2
+Message-ID: <20040802100815.GA18349@elte.hu>
+References: <1091141622.30033.3.camel@mindpipe> <20040730064431.GA17777@elte.hu> <1091228074.805.6.camel@mindpipe> <1091234100.1677.41.camel@mindpipe> <Pine.LNX.4.58.0408010725030.23711@devserv.devel.redhat.com> <1091403477.862.4.camel@mindpipe> <1091407585.862.40.camel@mindpipe> <20040802073938.GA8332@elte.hu> <1091435237.3024.9.camel@mindpipe> <20040802092855.GA15894@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040802092855.GA15894@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I forgot to mention that it was quite hard to crash the driver with that 
-/* Clear out errors and receive interrupts */-patch. Took about 15minutes 
-everytime, when normally it takes about 2mins.
 
-On Mon, 2 Aug 2004, Pasi Sjoholm wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> With both patch applied and RTL8139DEBUG = 1 I couldn't make the driver 
-> crash but without DEBUG it did crash. I assume that it has something to 
-> with fact that syslog did take so much io-bandwidth. (a couple of minutes log 
-> was ~1GB =))
+> i've uploaded the preempt-timing patch (relative to -O2):
 > 
-> But without: 
+>    http://redhat.com/~mingo/voluntary-preempt/preempt-timing-on-2.6.8-rc2-O2
 > 
-> --
-> @@ -2024,17 +2024,17 @@ static int rtl8139_rx(struct net_device
+> QuickStart for those who havent used it yet: enable PREEMPT_TIMING in
+> .config and add preempt_thresh=1000 [== 1000 usec threshold] to the
+> kernel's boot options. 
 > 
->                 cur_rx = (cur_rx + rx_size + 4 + 3) & ~3;
->                 RTL_W16 (RxBufPtr, (u16) (cur_rx - 16));
-> +       }
-> 
-> -               /* Clear out errors and receive interrupts */
-> -               status = RTL_R16 (IntrStatus) & RxAckBits;
-> -               if (likely(status != 0)) {
-> -                       if (unlikely(status & (RxFIFOOver | RxOverflow))) 
-> {
-> -                               tp->stats.rx_errors++;
->  -                               if (status & RxFIFOOver)
-> -                                       tp->stats.rx_fifo_errors++;
-> -                       }
-> -                       RTL_W16_F (IntrStatus, RxAckBits);
-> +       /* Clear out errors and receive interrupts */
-> +       status = RTL_R16 (IntrStatus) & RxAckBits;
-> +       if (likely(status != 0)) {
-> +               if (unlikely(status & (RxFIFOOver | RxOverflow))) {
-> +                       tp->stats.rx_errors++;
-> +                       if (status & RxFIFOOver)
-> +                               tp->stats.rx_fifo_errors++;
->                 }
-> +               RTL_W16_F (IntrStatus, RxAckBits);
->         }
-> 
->   done:
-> --
-> 
-> the driver crashed... even with debug-option was turned on.
-> Everytime the ksoftirqd started to take cpu-time there were this line in 
-> the logs:
+> i changed the original patch to make it a bit more usable - the
+> threshold can be changed runtime via /proc/sys/kernel/preempt_thresh,
+> and the units are microseconds not milliseconds.
 
+i've uploaded a new version of the patch, this solves a problem when
+using a smaller than 1000 usecs threshold: idle time got accounted as
+delay too which flooded the log. The new patch makes idle=poll the
+default and that function calls touch_preempt_timing().
+
+	Ingo

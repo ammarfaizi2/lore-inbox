@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbTFDOiO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 10:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTFDOiO
+	id S263023AbTFDOol (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 10:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTFDOol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 10:38:14 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:17351 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263322AbTFDOiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 10:38:13 -0400
-Message-Id: <5.1.0.14.2.20030604163948.00af3d28@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 04 Jun 2003 16:51:30 +0200
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: I2C/Sensors 2.5.70
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Seen: false
-X-ID: TzhGKUZO8eHKChZKWqTH87XKREI5N6kI5fUCKERyD+ft0bmUH1g2cy@t-dialin.net
+	Wed, 4 Jun 2003 10:44:41 -0400
+Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:24023 "EHLO
+	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S263023AbTFDOok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 10:44:40 -0400
+Date: Wed, 4 Jun 2003 15:58:06 +0100 (BST)
+From: "P. Benie" <pjb1008@eng.cam.ac.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] Non-blocking write can block
+In-Reply-To: <Pine.LNX.4.44.0306040732470.13753-100000@home.transmeta.com>
+Message-ID: <Pine.HPX.4.33L.0306041546190.15504-100000@punch.eng.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anybody looking at getting $Subject working ?
-At the moment i2c-sensor.c never gets compiled which is bad as
-it contains i2c_detect needed by all the sensors.
-And (assuming sensors works) where does the sensor info(fan, temp etc.)
-get put?
+On Wed, 4 Jun 2003, Linus Torvalds wrote:
 
-Margit
+> No no no, it's wrong.
+>
+> If you do something like this, then you also have to teach "select()"
+> about this, otherwise you just get busy looping in applications.
+>
+> In general, we shouldn't do this, unless somebody can show an application
+> where it really matters.
+
+I wrote the patch to solve a real-world problem with wall(1), which
+occasionally gets stuck writing to somebody's tty. I think it's reasonable
+for wall to assume that non-blocking writes are non-blocking.
+
+I'll think about how to do the patch correctly.
+
+Peter
 

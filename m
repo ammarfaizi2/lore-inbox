@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265663AbUFVTxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265058AbUFVTwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265663AbUFVTxr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265109AbUFVTxG
+	id S265058AbUFVTwm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:52:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUFVTtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:53:06 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:65409 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S265678AbUFVTw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:52:29 -0400
-Date: Tue, 22 Jun 2004 21:52:19 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: jbglaw@lug-owl.de
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040622195219.GA18743@vana.vc.cvut.cz>
-References: <A095D7F069C@vcnet.vc.cvut.cz> <20040622151236.GE20632@lug-owl.de> <20040622173215.GA6300@infradead.org> <20040622184220.GF20632@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040622184220.GF20632@lug-owl.de>
-User-Agent: Mutt/1.5.6+20040523i
+	Tue, 22 Jun 2004 15:49:24 -0400
+Received: from cfcafw.SGI.COM ([198.149.23.1]:40604 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S265058AbUFVTp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 15:45:57 -0400
+Date: Tue, 22 Jun 2004 14:45:36 -0500
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Albert Cahalan <albert@users.sourceforge.net>
+cc: Andrew Morton OSDL <akpm@osdl.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@suse.de
+Subject: Re: [PATCH] Add kallsyms_lookup() result cache
+In-Reply-To: <1087650315.8188.915.camel@cube>
+Message-ID: <Pine.SGI.4.58.0406221426580.27967@kzerza.americas.sgi.com>
+References: <1087605785.8188.834.camel@cube>  <20040619030637.5580b25e.akpm@osdl.org>
+ <1087650315.8188.915.camel@cube>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 08:42:20PM +0200, Jan-Benedict Glaw wrote:
-> On Tue, 2004-06-22 18:32:15 +0100, Christoph Hellwig <hch@infradead.org>
-> wrote in message <20040622173215.GA6300@infradead.org>:
-> > On Tue, Jun 22, 2004 at 05:12:36PM +0200, Jan-Benedict Glaw wrote:
-> > > Just merge the vmware modules upstream. Then, such breakage will be
-> > > detected early and probably fixed without putting a lot of work into it
-> > > (from your point of view).
-> > 
-> > a) vmware modules themselves aren't under a free license
-> 
-> That can be changed.
+On Sat, 19 Jun 2004, Albert Cahalan wrote:
 
-Yes.
- 
-> > b) even if they were there's not really much interest in modules that can't
-> >    work with non-free userspace
-> 
-> ...as well as this issue. They'd get some (limited but sufficient) free
-> maintainence for their software back. See? No technical issues 8^P The
-> very same could be said about 4Front's OSS drivers.
+> I'm not so sure anything needs to be fixed, save for SGI upgrading
+> to a more modern procps. There are many more important things:
 
-I doubt. I emailed with Alan Cox back in 2000 (when VMware 2.0 was to be
-released), and he told me that there is no way vmmon & vmnet could find
-its way into kernel, regardless of license we'll pick. 
+OK, I looked into this more closely, and gave procps 3.2.1 a spin.
+This gives us a similar speedup (top now only consumes 60% of a CPU)
+to that which I obtained by cacheing symbol lookups and using an old
+procps.  This difference is certainly explainable by top now only
+obtaining wchan information for displayed processes.
 
-We do not have to go for examples very far - bochs currently does not
-provide any networking backend which would work like real network card,
-without any restrictions on MAC addresses, host-guest or guest-guest
-communications. Patch to get it to work over vmnet's interface was task
-for half of one afternoon. Would that change opinion of peoples who accept
-only free software? I doubt...
+60% is far better than 800%, so this is certainly progress.  However
+60% is also still quite a bit of CPU time.  I'll spend some cycles
+trying to whittle it down some more, but I'm not all that hopeful.
 
-So for now it will probably stay way it is - updates are semi-regullary
-distributed from my site, some distros picks them up and repackage for
-their customers, and everybody is happy that it more or less works.
+Thanks for the discussion, it was certainly enlightening.
 
-						Best regards,
-							Petr Vandrovec
+Brent
 
+-- 
+Brent Casavant             bcasavan@sgi.com        Forget bright-eyed and
+Operating System Engineer  http://www.sgi.com/     bushy-tailed; I'm red-
+Silicon Graphics, Inc.     44.8562N 93.1355W 860F  eyed and bushy-haired.

@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbULCDBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbULCDAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbULCDBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 22:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULCDBI
+	id S261903AbULCDAo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 22:00:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbULCDAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 22:01:08 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2295 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261907AbULCDAn (ORCPT
+	Thu, 2 Dec 2004 22:00:44 -0500
+Received: from [61.48.52.229] ([61.48.52.229]:495 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261903AbULCDAT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 22:00:43 -0500
-Subject: Re: do_posix_clock_monotonic_gettime() returns negative nsec
-From: john stultz <johnstul@us.ibm.com>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       george anzinger <george@mvista.com>
-In-Reply-To: <20041203020357.GA28468@mail.13thfloor.at>
-References: <20041203020357.GA28468@mail.13thfloor.at>
-Content-Type: text/plain
-Message-Id: <1102042850.13294.43.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 02 Dec 2004 19:00:51 -0800
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 22:00:19 -0500
+Date: Thu, 2 Dec 2004 18:50:35 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412030250.iB32oZQ02969@adam.yggdrasil.com>
+To: maneesh@in.ibm.com
+Subject: [PATCH 2.6.10-rc2-bk15] sysfs_dir_close memory leak
+Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-02 at 18:03, Herbert Poetzl wrote:
-> recent kernels (tested 2.6.10-rc2 and 2.6.10-rc2-bk15)
-> produce funny output in /proc/uptime like this:
-> 
-> 	# cat /proc/uptime
-> 	  12.4294967218 9.05
-> 	# cat /proc/uptime
-> 	  13.4294967251 10.33
-> 	# cat /proc/uptime
-> 	  14.4294967295 11.73
-> 
-> a short investigation of the issue, ended at
-> do_posix_clock_monotonic_gettime() which can (and 
-> often does) return negative nsec values (within
-> one second), so while the actual 'time' returned
-> is correct, some parts of the kernel assume that
-> those part is within the range (0 - NSEC_PER_SEC)
-> 
->         len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
->                         (unsigned long) uptime.tv_sec,
->                         (uptime.tv_nsec / (NSEC_PER_SEC / 100)),
-> 
-> as the function itself corrects overflows, it would
-> make sense to me to correct underflows too, for 
-> example with the following patch:
-> 
-> --- ./kernel/posix-timers.c.orig	2004-11-19 21:11:05.000000000 +0100
-> +++ ./kernel/posix-timers.c	2004-12-03 02:23:56.000000000 +0100
-> @@ -1208,7 +1208,10 @@ int do_posix_clock_monotonic_gettime(str
->  	tp->tv_sec += wall_to_mono.tv_sec;
->  	tp->tv_nsec += wall_to_mono.tv_nsec;
->  
-> -	if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
-> +	if (tp->tv_nsec < 0) {
-> +		tp->tv_nsec += NSEC_PER_SEC;
-> +		tp->tv_sec--;
-> +	} else if ((tp->tv_nsec - NSEC_PER_SEC) > 0) {
->  		tp->tv_nsec -= NSEC_PER_SEC;
->  		tp->tv_sec++;
->  	}
+	sysfs_dir_close did not free the "cursor" sysfs_dirent
+used for keeping track of position in the list of sysfs_dirent nodes.
+Consequently, doing a "find /sys" would leak a sysfs_dirent for
+each of the 1140 directories in my /sys tree, or about 36kB
+each time.
 
-Sounds like its a good fix to me. 
+	This patch was generated against a sysfs tree with a
+bunch of other changes, but should apply to the stock Linux tree
+with the appropriate line number adjustments.
 
-George: You have any comment?
+	If this patch looks OK, I would appreciate it if someone
+would forward it downstream for integration.
 
-thanks
--john
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l
 
 
+diff -u9 linux.prev/fs/sysfs/dir.c linux.noleak/fs/sysfs/dir.c
+--- linux.prev/fs/sysfs/dir.c	2004-12-02 14:51:01.000000000 +0800
++++ linux.noleak/fs/sysfs/dir.c	2004-12-03 10:42:06.000000000 +0800
+@@ -346,18 +346,21 @@
+ static int sysfs_dir_close(struct inode *inode, struct file *file)
+ {
+ 	struct dentry * dentry = file->f_dentry;
+ 	struct sysfs_dirent * cursor = file->private_data;
+ 
+ 	down(&dentry->d_inode->i_sem);
+ 	list_del_init(&cursor->s_sibling);
+ 	up(&dentry->d_inode->i_sem);
+ 
++	BUG_ON(cursor->s_dentry != NULL);
++	release_sysfs_dirent(cursor);
++
+ 	return 0;
+ }
+ 
+ /* Relationship between s_mode and the DT_xxx types */
+ static inline unsigned char dt_type(struct sysfs_dirent *sd)
+ {
+ 	return (sd->s_mode >> 12) & 15;
+ }
+ 

@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbUD2OYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264601AbUD2OZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbUD2OYT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 10:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUD2OYT
+	id S264601AbUD2OZA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 10:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUD2OY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 10:24:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8114 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262273AbUD2OYS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 10:24:18 -0400
-Date: Thu, 29 Apr 2004 11:25:28 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Cc: wichert@wiggy.net
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <20040429142528.GH18474@logos.cnet>
-References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org> <20040429022944.GA24000@buici.com> <20040428193541.1e2cf489.akpm@osdl.org> <20040429031059.GA26060@buici.com> <20040429080219.GF4437@wiggy.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040429080219.GF4437@wiggy.net>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 29 Apr 2004 10:24:59 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:54940 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S264601AbUD2OYy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 10:24:54 -0400
+Message-ID: <40911034.4040404@tomt.net>
+Date: Thu, 29 Apr 2004 16:24:52 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [sata] new driver -- AHCI
+References: <408C1F41.3060206@pobox.com> <40905997.9020107@tomt.net> <409073B1.1020901@pobox.com>
+In-Reply-To: <409073B1.1020901@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 10:02:19AM +0200, Wichert Akkerman wrote:
-> Previously Marc Singer wrote:
-> > I'm thinking that the problem is that the page cache is greedier that
-> > most people expect.  For example, if I could hold the page cache to be
-> > under a specific size, then I could do some performance measurements.
+Jeff Garzik wrote:
+>> Quick questions:
+>>
+>> Is the Intel 6300ESB ("Hence Rapids") AHCI based? So far this looks 
+>> like ICH6 too me, but I may be mistaken.
 > 
-> It is actually greedy enough that when my nightly cron starts I suddenly
-> see apache and pdns_recursor being killed consistently every day. 
+> The only Hance Rapids stuff I've seen was ICH5-R, but maybe it's carried 
+> forward to the ICH6-R as well.
+> 
+> I don't know, I mainly know the underlying chipsets not the boards they 
+> wind up being shipped on...
 
-Which kernel is that? 
+Ahh, ok. I'll try to dig a bit deeper, but finding such details on 
+vendor websites is not always easy. Anyway, the board I'm looking at has 
+a 64bit 66Mhz PCI-X bus & slot (it's a low-end server/workstation board, 
+Intel E7210 Canterwood ES/MCH+6300ESB+FWH chipset), so the controller 
+can easily be replaced with something else without losing out to much on 
+the performance side of things. Like the Marvell, wich is on the PCI-X 
+bus, onboard.
 
-They are getting killed because there is no more swap available.
-Otherwise its a bug.
+>> What about the Marvell 88SX5040 PCI-X SATA Controller?
+> 
+> Coming RSN.  That's my next priority, but I'm not as thrilled because 
+> Marvell isn't an open design like AHCI.  I'm much more happy to promote 
+> AHCI's sane, open design.
 
+Sounds like a plan :-)

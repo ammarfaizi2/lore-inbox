@@ -1,89 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316900AbSHBTao>; Fri, 2 Aug 2002 15:30:44 -0400
+	id <S316886AbSHBTdV>; Fri, 2 Aug 2002 15:33:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316903AbSHBTao>; Fri, 2 Aug 2002 15:30:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25873 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316900AbSHBTan>; Fri, 2 Aug 2002 15:30:43 -0400
-Date: Fri, 2 Aug 2002 12:34:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-cc: Hubertus Franke <frankeh@watson.ibm.com>, <Martin.Bligh@us.ibm.com>,
-       <wli@holomorpy.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd) 
-In-Reply-To: <E17ahdi-0001RC-00@w-gerrit2>
-Message-ID: <Pine.LNX.4.33.0208021219160.2229-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317059AbSHBTdV>; Fri, 2 Aug 2002 15:33:21 -0400
+Received: from noose.gt.owl.de ([62.52.19.4]:526 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S316886AbSHBTdU>;
+	Fri, 2 Aug 2002 15:33:20 -0400
+Date: Fri, 2 Aug 2002 21:36:10 +0200
+From: Florian Lohoff <flo@rfc822.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 sparc ipv6 over ipv4 broken ?
+Message-ID: <20020802193610.GB30824@paradigm.rfc822.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[ linux-kernel cc'd, simply because I don't want to write the same thing 
-  over and over again ]
+--eJnRUKwClWJh1Khz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[ Executive summary: the current large-page-patch is nothing but a magic 
-  interface to the TLB. Don't view it as anything else, or you'll just be
-  confused by all the smoke and mirrors. ]
 
-On Fri, 2 Aug 2002, Gerrit Huizenga wrote:
-> > Because _none_ of the large-page codepaths are shared with _any_ of the
-> > normal cases.
-> 
-> Isn't that currently an implementation detail?
+Hi,
+i am having trouble to get a ipv6 over ipv4 tunnel to work
+on a linux/sparc with a vanilla 2.4.18 kernel - It seems
+there is something broken. The same setup works on i386.=20
 
-Yes and no.
+wise:~# ip -V  =20
+ip utility, iproute2-ss010824
+wise:~# ip tunnel add sit1 mode sit
+ioctl: Invalid argument
+wise:~# dmesg | grep IPv6
+IPv6 v0.8 for NET4.0
+IPv6 over IPv4 tunneling driver
 
-We may well expand the FS layer to bigger pages, but "bigger" is almost
-certainly not going to include things like 256MB pages - if for no other
-reason than the fact that memory fragmentation really means that the limit
-on page sizes in practice is somewhere around 128kB for any reasonable
-usage patterns even with gigabytes of RAM. 
+strace gets to this point:
+[...]
+socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) =3D 3
+ioctl(3, 0x89f1, 0xeffffb98)            =3D -1 EINVAL (Invalid argument)
+dup(2)                                  =3D 4
+[...]
 
-And _maybe_ we might get to the single-digit megabytes. I doubt it, simply
-because even with a good buddy allocator and a memory manager that
-actively frees pages to get large contiguous chunks of RAM, it's basically
-impossible to have something that can reliably give you that big chunks
-without making normal performance go totally down the toiled.
+After trying around a bit this showed up:
 
-(Yeah, once you have terabytes of memory, that worry probably ends up
-largely going away. I don't think that is going to be a common enough
-platform for Linux to care about in the next ten years, though).
+sys32_ioctl(ip:379): Unknown cmd fd(3) cmd(000089f3) arg(effffb88)
+sys32_ioctl(ip:382): Unknown cmd fd(3) cmd(000089f3) arg(effffb88)
 
-So there are implementation issues, yes. In particular, there _is_ a push 
-for larger pages in the FS and generic MM layers too, but the issues there 
-are very different and have no basically no generality with the TLB and 
-page table mapping issues of the current push.
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+                        Heisenberg may have been here.
 
-What this VM/VFS push means is that we may actually have a _different_ 
-"large page" support on that level, where the most likely implementation 
-is that the "struct address_space" will at some point have a new member 
-that specifies the "page allocation order" for that address space. This 
-will allow us to do per-file allocations, so that some files (or some 
-filesystems) migth want to do all IO in 64kB chunks, and they'd just make 
-the address_space specify a page allocation order that matches that.
+--eJnRUKwClWJh1Khz
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-This is in fact one of the reasons I explicitly _want_ to keep the
-interfaces separate - because there are two totally different issues at
-play, and I suspect that we'll end up implementing _both_ of them, but
-that they will _still_ have no commonalities.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-The current largepage patch is really nothing but an interface to the TLB.  
-Please view it as that - a direct TLB interface that has zero impact on
-the VFS or VM layers, and that is meant _purely_ as a way to expose hw 
-capabilities to the few applications that really really want them.
+iD8DBQE9St8qUaz2rXW+gJcRAoEPAJ9uAqDGIPViH15clz1a/OJzTgldUQCghDQv
+XF2o1Mzqzwkf5R9oNheG+gY=
+=RxPC
+-----END PGP SIGNATURE-----
 
-The important thing to take away from this is that _even_ if we could
-change the FS and VM layers to know about a per-address_space variable-
-sized PAGE_CACHE_SIZE (which I think it the long-term goal), that doesn't 
-impact the fact that we _also_ want to have the TLB interface. 
-
-Maybe the largepage patch could be improved upon by just renaming it, and
-making clear that it's a "TLB_hugepage" thing. That's what a CPU designer
-thinks of when you say "largepage" to him. Some of the confusion is 
-probably because a VM/FS person in an OS group does _not_ necessarily 
-think the same way, but thinks about doing big-granularity IO.
-
-			Linus
-
+--eJnRUKwClWJh1Khz--

@@ -1,101 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272399AbRIOR0L>; Sat, 15 Sep 2001 13:26:11 -0400
+	id <S272420AbRIORTV>; Sat, 15 Sep 2001 13:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272421AbRIOR0B>; Sat, 15 Sep 2001 13:26:01 -0400
-Received: from [209.250.53.105] ([209.250.53.105]:49671 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S272399AbRIOR0A>; Sat, 15 Sep 2001 13:26:00 -0400
-Date: Sat, 15 Sep 2001 12:25:42 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Joseph Cheek <joseph@cheek.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ide-]scsi timeouts while writing cdrom
-Message-ID: <20010915122542.A23825@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Joseph Cheek <joseph@cheek.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10109142131030.28176-100000@forge.redmondlinux.org>
+	id <S272421AbRIORTM>; Sat, 15 Sep 2001 13:19:12 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:13703 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S272420AbRIORS5>; Sat, 15 Sep 2001 13:18:57 -0400
+Date: Sat, 15 Sep 2001 10:19:14 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext2fs corruption again
+Message-ID: <20010915101914.A11845@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3BA3156C.9050704@korseby.net> <20010915144236.V26627@khan.acc.umu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10109142131030.28176-100000@forge.redmondlinux.org>; from joseph@cheek.com on Fri, Sep 14, 2001 at 09:36:26PM -0700
-X-Uptime: 12:20pm  up 2 days, 16:55,  0 users,  load average: 1.00, 1.00, 1.00
+In-Reply-To: <20010915144236.V26627@khan.acc.umu.se>; from tao@acc.umu.se on Sat, Sep 15, 2001 at 02:42:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With what drive chipset is this?
+On Sat, Sep 15, 2001 at 02:42:36PM +0200, David Weinehall wrote:
+> On Sat, Sep 15, 2001 at 10:46:36AM +0200, Kristian wrote:
+> > Hello.
+> > 
+> > For about 3 weeks I sent a report that I've got very strange kernel
+> > error messages.
+> > 
+> > I changed my harddrive to IBM 75 GB because someone said that IBM's 40 GB 
+> > harddisks are not very stable.
+> 
+> Just to get it out of the way, can you open your computer and check
+> what country the disk is manufactured in? There has been some complaints
+> on this list about IBM-disks fabricated in Hungary.
 
-In any event, try doing an 'hdparm -d0 /dev/hdd' and see if that fixes
-it.  That will turn off DMA on the CD-RW, which is probably causing the
-trouble.  If not, see if turning off DMA on /all/ the drives fixes it.
+It's not just the disks made in Hungary, I've had 3 IBM drives go bad on me
+in the last week after 3-4 months of operation 2 15GB 75GXPs made in
+Thailand (bad sectors), 1 40GB 40GV also made in Thailand (started making
+bad scratching noise, BIOS wouldn't detect it after that).  Still have a
+number of the 75GXPs in service, but I'm keeping my eye on them.
 
-I had a problem similar to this on my system, with an AMD-751 ide
-controller.  To fix it, all I had to do was turn on CONFIG_EXPERIMENTAL
-and then "AMD Viper ATA-66 Override (WIP)".  After that, the problem
-went away.
+Kristian's problem looks like it could be hardware problems of some sort
+leading to corruption.
 
-On Fri, Sep 14, 2001 at 09:36:26PM -0700, Joseph Cheek wrote:
-> hello all,
-> 
-> my shiny new cdrw hangs the system when i try to burn a cdrom.  i've got a
-> a completely IDE system.  hda and hdb are hard drives while hdc is a
-> standard cdrom and hdd is a cdrw.
-> 
-> while burning cdrecord writes a couple of tracks and then the whole system
-> freezes [i need to hard power off].  i can blank cdrw's in the drive just
-> fine, however.  i'm running 2.4.9-ac10 SMP [on a single-proc system] and
-> all partitions are ext3.  ide-scsi is loaded as a module at boot.
-> 
-> here's what /var/log/messages shows:
-> 
-> Sep 14 21:12:45 sanfrancisco kernel: scsi : aborting command due to
-> timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
-> Sep 14 21:12:54 sanfrancisco kernel: Device not ready.  Make sure there is
-> a disc in the drive.
-> Sep 14 21:12:55 sanfrancisco last message repeated 2 times
-> Sep 14 21:13:20 sanfrancisco kernel: hdb: timeout waiting for DMA
-> Sep 14 21:13:20 sanfrancisco kernel: ide_dmaproc: chipset supported
-> ide_dma_timeout func only: 14
-> Sep 14 21:13:26 sanfrancisco kernel: scsi : aborting command due to
-> timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x43 00 00 00 00 00 00 00
-> 0c 00
-> Sep 14 21:13:37 sanfrancisco kernel: scsi : aborting command due to
-> timeout : pid 0, scsi0, channel 0, id 0, lun 0 0x2a 00 00 00 05 92 00 00
-> 1f 00
-> Sep 14 21:13:37 sanfrancisco kernel: hdc: timeout waiting for DMA
-> Sep 14 21:13:37 sanfrancisco kernel: ide_dmaproc: chipset supported
-> ide_dma_timeout func only: 14
-> Sep 14 21:13:37 sanfrancisco kernel: hdd: status timeout: status=0xd8 {
-> Busy }
-> Sep 14 21:13:37 sanfrancisco kernel: hdd: DMA disabled
-> Sep 14 21:13:37 sanfrancisco kernel: hdd: drive not ready for command
-> Sep 14 21:13:41 sanfrancisco kernel: hdd: ATAPI reset complete
-> Sep 14 21:13:41 sanfrancisco kernel: hdd: irq timeout: status=0xd0 { Busy
-> }
-> Sep 14 21:13:42 sanfrancisco kernel: hdd: ATAPI reset complete
-> Sep 14 21:13:42 sanfrancisco kernel: hdd: irq timeout: status=0x80 { Busy
-> }
-> Sep 14 21:13:42 sanfrancisco kernel: scsi0 channel 0 : resetting for
-> second half of retries.
-> Sep 14 21:13:42 sanfrancisco kernel: SCSI bus is being reset for host 0
-> channel 0.
-> 
-> any guesses?
-> 
-> thanks!
-> 
-> joe
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-Freedom is slavery. Ignorance is strength. War is peace.
-			-- George Orwell
+-Dave

@@ -1,24 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315455AbSEGXoJ>; Tue, 7 May 2002 19:44:09 -0400
+	id <S315456AbSEGXqD>; Tue, 7 May 2002 19:46:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315458AbSEGXoG>; Tue, 7 May 2002 19:44:06 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:39074 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315455AbSEGXoF>;
-	Tue, 7 May 2002 19:44:05 -0400
-Date: Tue, 07 May 2002 16:32:24 -0700 (PDT)
-Message-Id: <20020507.163224.81608488.davem@redhat.com>
-To: thunder@ngforever.de
-Cc: linux-kernel@vger.kernel.org
+	id <S315457AbSEGXqC>; Tue, 7 May 2002 19:46:02 -0400
+Received: from pD952A78A.dip.t-dialin.net ([217.82.167.138]:29091 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315456AbSEGXqB>; Tue, 7 May 2002 19:46:01 -0400
+Date: Tue, 7 May 2002 17:45:59 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: HCIRESETSTAT, HCIGETINFO on sparc64, ppc64
-From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <Pine.LNX.4.44.0205071703490.15559-100000@hawkeye.luckynet.adm>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.44.0205071745230.19544-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> COMPATIBLE_IOCTL(HCIRESETSTAT)
+> COMPATIBLE_IOCTL(HCIGETINFO)
 
-I sent Linus this fix 30 minutes ago on the sparc64 side.
+Sorry, I didn't realize it was patched. The patch isn't yet in the tree...
+
+Regards,
+Thunder
+--
+if (errno == ENOTAVAIL)
+    fprintf(stderr, "Error: Talking to Microsoft server!\n");
+

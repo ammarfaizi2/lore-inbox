@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbUKVPlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUKVPlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262133AbUKVPlH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 10:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUKVPiZ
+	id S261476AbUKVPlG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 10:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbUKVPiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 10:38:25 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:1455 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262126AbUKVPbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 10:31:49 -0500
-Date: Mon, 22 Nov 2004 15:31:44 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH][RFC/v1][11/12] Add InfiniBand Documentation files
-Message-ID: <20041122153144.GA4821@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-	openib-general@openib.org, netdev@oss.sgi.com
-References: <20041122714.taTI3zcdWo5JfuMd@topspin.com> <20041122714.AyIOvRY195EGFTaO@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Nov 2004 10:38:12 -0500
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:56831 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S261451AbUKVPPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 10:15:11 -0500
+From: Marc Dietrich <Marc.Dietrich@ap.physik.uni-giessen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6: drivers/video/aty/xlinit.c unused
+Date: Mon, 22 Nov 2004 16:15:00 +0100
+User-Agent: KMail/1.7.1
+References: <20041121020636.GH2829@stusta.de> <200411220821.22620.adaplas@hotpop.com>
+In-Reply-To: <200411220821.22620.adaplas@hotpop.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041122714.AyIOvRY195EGFTaO@topspin.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200411221615.00477.marc.dietrich@ap.physik.uni-giessen.de>
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +  When the IPoIB driver is loaded, it creates one interface for each
-> +  port using the P_Key at index 0.  To create an interface with a
-> +  different P_Key, write the desired P_Key into the main interface's
-> +  /sys/class/net/<intf name>/create_child file.  For example:
-> +
-> +    echo 0x8001 > /sys/class/net/ib0/create_child
-> +
-> +  This will create an interface named ib0.8001 with P_Key 0x8001.  To
-> +  remove a subinterface, use the "delete_child" file:
-> +
-> +    echo 0x8001 > /sys/class/net/ib0/delete_child
-> +
-> +  The P_Key for any interface is given by the "pkey" file, and the
-> +  main interface for a subinterface is in "parent."
 
-Any reason this doesn't use an interface similar to the normal vlan code?
+Hi,
 
-And what is a P_Key?
+Am Montag, 22. November 2004 01:21 schrieb Antonino A. Daplas:
+> On Sunday 21 November 2004 10:06, Adrian Bunk wrote:
+> > It seems drivers/video/aty/xlinit.c should be used with
+> > CONFIG_FB_ATY_XL_INIT, but currently, it's under no circumstances
+> > compiled...
+>
+> It's supposed to boot XL cards without using the BIOS.
+>
+> If nobody complains, I'll remove it.
+
+why not making it work? I have some of these cards here that I never got 
+working in my Mac or my Powerstack (both PPC).
+Or should it be removed to make room for a "general early boot video 
+initialisation infrastructure", which was discussed here some weeks ago?
+
+Greetings
+
+Marc
+

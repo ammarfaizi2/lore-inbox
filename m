@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbUL0PR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbUL0PUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbUL0PR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 10:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUL0PR6
+	id S261902AbUL0PUu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 10:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbUL0PUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 10:17:58 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:39067 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261898AbUL0PRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 10:17:44 -0500
-Subject: PATCH: (Discussion) Stop IDE legacy ISA probes on PCI systems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1104156823.20898.21.camel@localhost.localdomain>
+	Mon, 27 Dec 2004 10:20:50 -0500
+Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:29863 "EHLO
+	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
+	id S261902AbUL0PUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 10:20:46 -0500
+Date: Mon, 27 Dec 2004 23:20:37 +0800
+From: Bernard Blackham <bernard@blackham.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sched-fix-scheduling-latencies-in-mttrc reenables interrupts
+Message-ID: <20041227152037.GA4646@blackham.com.au>
+References: <20041227062828.GE7415@blackham.com.au> <20041227013653.67965d46.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 27 Dec 2004 14:13:45 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041227013653.67965d46.akpm@osdl.org>
+Organization: Dagobah Systems
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We don't generally want to poke around legacy ISA ide2..ide5 on a system
-with PCI , it tends to cause long delays. 
+On Mon, Dec 27, 2004 at 01:36:53AM -0800, Andrew Morton wrote:
+> Not OK.  That global `sal_flags' is not protected by the spinlock
+> because spin_lock_irqsave() saves the flags before taking the
+> lock.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/include/asm-i386/ide.h linux-2.6.10/include/asm-i386/ide.h
---- linux.vanilla-2.6.10/include/asm-i386/ide.h	2004-12-25 21:13:51.000000000 +0000
-+++ linux-2.6.10/include/asm-i386/ide.h	2004-12-26 17:08:27.541915144 +0000
-@@ -44,10 +44,14 @@
- 	switch (index) {
- 		case 0:	return 0x1f0;
- 		case 1:	return 0x170;
--		case 2: return 0x1e8;
--		case 3: return 0x168;
--		case 4: return 0x1e0;
--		case 5: return 0x160;
-+		
-+		if(pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) == NULL) {
-+			case 2: return 0x1e8;
-+			case 3: return 0x168;
-+			case 4: return 0x1e0;
-+			case 5: return 0x160;
-+		}
-+
- 		default:
- 			return 0;
- 	}
+Ahh, d'oh.
 
+> How about this?
+> 
+> diff -puN arch/i386/kernel/cpu/mtrr/generic.c~sched-fix-scheduling-latencies-in-mttrc-reenables-interrupts arch/i386/kernel/cpu/mtrr/generic.c
+
+Won't object here.
+
+Thanks,
+
+Bernard.
+
+-- 
+ Bernard Blackham <bernard at blackham dot com dot au>

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267610AbSKQVs3>; Sun, 17 Nov 2002 16:48:29 -0500
+	id <S267617AbSKQVx3>; Sun, 17 Nov 2002 16:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267607AbSKQVs3>; Sun, 17 Nov 2002 16:48:29 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:46214 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266959AbSKQVs1>;
-	Sun, 17 Nov 2002 16:48:27 -0500
-Date: Sun, 17 Nov 2002 16:55:26 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Doug Ledford <dledford@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Several Misc SCSI updates...
-In-Reply-To: <Pine.LNX.4.44.0211171338570.12975-100000@home.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0211171653391.23400-100000@steklov.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267619AbSKQVx3>; Sun, 17 Nov 2002 16:53:29 -0500
+Received: from c3po.skynet.be ([195.238.3.237]:60197 "EHLO c3po.skynet.be")
+	by vger.kernel.org with ESMTP id <S267617AbSKQVx2>;
+	Sun, 17 Nov 2002 16:53:28 -0500
+Subject: Re: APIC problem on 2.5.47 SMP noapic
+From: Pedro Mullor <mullor@belgacom.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0211171617560.19447-100000@coffee.psychology.mcmaster.ca>
+References: <Pine.LNX.4.44.0211171617560.19447-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 17 Nov 2002 23:00:18 +0100
+Message-Id: <1037570418.1953.6.camel@nova3>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+well... it doesn't change anything apparently, for everytime I change it
+before running "make dep" or "make bzImage" it ends changing the
+parameters back to "y".
 
+I even tried to change CONFIG_X86_GOOD_APIC to y but it was changed too.
 
-On Sun, 17 Nov 2002, Linus Torvalds wrote:
+Pedro
 
-> 
-> On Sun, 17 Nov 2002, Doug Ledford wrote:
-> > 
-> > Won't work.  module->live is what Rusty uses to indicate that the module 
-> > is in the process of unloading, which is when we *do* want the attempt to 
-> > module_get() to fail.
-> 
-> That's fine, as long as "module_get()" is the only thing that cares. Just 
-> make it go "live" early as you indicate, and everybody should be happy. I 
-> certainly agree that it should be illegal to do more module_get()'s once 
-> we've already started unloading..
-
-On the unload side it's OK.  module_get() also breaks during _init_ and that's
-the problem.  IOW, you'll need to make every block device driver to set ->live
-manually.  Smells like a wrong API...
+On Sun, 2002-11-17 at 22:19, Mark Hahn wrote:
+    > CONFIG_X86_LOCAL_APIC=y
+    > CONFIG_X86_IO_APIC=y
+    
+    what happens if you turn those off?
+    
+    
+    
+    
 

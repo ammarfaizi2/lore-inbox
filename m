@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUH3Ina@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUH3IxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267494AbUH3Ina (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 04:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267497AbUH3Ina
+	id S267497AbUH3IxX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 04:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267504AbUH3IxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 04:43:30 -0400
-Received: from codepoet.org ([166.70.99.138]:61104 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S267494AbUH3In2 (ORCPT
+	Mon, 30 Aug 2004 04:53:23 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:21188 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267497AbUH3IxV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 04:43:28 -0400
-Date: Mon, 30 Aug 2004 02:43:27 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       "David S. Miller" <davem@davemloft.net>, mmazur@kernel.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.8.1
-Message-ID: <20040830084327.GB12963@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@davemloft.net>, mmazur@kernel.pl,
-	linux-kernel@vger.kernel.org
-References: <200408292232.14446.mmazur@kernel.pl> <20040830062856.GA10475@codepoet.org> <20040830002422.4b634c6c.davem@davemloft.net> <20040830074835.GA12963@codepoet.org> <20040830080757.GD5492@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040830080757.GD5492@holomorphy.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 30 Aug 2004 04:53:21 -0400
+Date: Mon, 30 Aug 2004 10:53:16 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       "Christian T. Steigies" <cts@debian.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: kernel-image-2.6.7
+In-Reply-To: <20040829121153.GA30301@mars.ravnborg.org>
+Message-ID: <Pine.GSO.4.58.0408301049330.3353@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0408221129590.25793@anakin>
+ <Pine.LNX.4.58.0408221145090.25793@anakin> <20040822101914.GA7480@skeeve>
+ <Pine.GSO.4.58.0408221224310.12638@waterleaf.sonytel.be>
+ <Pine.LNX.4.58.0408221333460.13834@anakin> <4128C3F4.6070507@linux-m68k.org>
+ <Pine.GSO.4.58.0408230947190.29370@waterleaf.sonytel.be>
+ <Pine.GSO.4.58.0408252214080.28854@waterleaf.sonytel.be>
+ <20040826195643.GI9539@mars.ravnborg.org> <Pine.GSO.4.58.0408291324020.10903@teasel.sonytel.be>
+ <20040829121153.GA30301@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Aug 30, 2004 at 01:07:57AM -0700, William Lee Irwin III wrote:
-> On Mon Aug 30, 2004 at 12:24:22AM -0700, David S. Miller wrote:
-> >> It has never been a constant, and any portable piece of
-> >> software needs to evaluate it not at compile time.
-> >> When I first did the sparc64 port, the biggest source of
-> >> portability problems was of the "uses PAGE_SIZE in some way"
-> >> nature.
-> >> This is a positive change, we should break the build of these
-> >> apps and thus get them fixed.
-> 
-> On Mon, Aug 30, 2004 at 01:48:35AM -0600, Erik Andersen wrote:
-> > There is no question that using PAGE_SIZE should be considered
-> > harmful.  But this particular change to the linux-libc-headers
-> > makes it easy for the common case (bog standard x86) folk to keep
-> > using a fixed PAGE_SIZE value, and keep writing crap code which
-> > is now _guaranteed_ to blow chunks on mips, x86_64, etc.
-> > I think outright removal of PAGE_SIZE from user space may be a
-> > much better choice, with some sortof #error perhaps...  Wouldn't
-> > it be better for the whole world if people would get errors like
-> >     foo.c:10:2: #error "Don't use PAGE_SIZE, use sysconf(_SC_PAGESIZE)"
-> > making people actually fix their code?
-> 
-> In general people #define PAGE_SIZE (getpagesize()) or some such.
+On Sun, 29 Aug 2004, Sam Ravnborg wrote:
+> On Sun, Aug 29, 2004 at 01:38:02PM +0200, Geert Uytterhoeven wrote:
+> > Conclusions: gcc 2.95.2 and binutils 2.9.5 are fine for compiling 2.6.x kernels
+> > for m68k, but:
+> >   - You need a newer binutils for building initramfs (make usr/)
+> >   - You need a newer binutils for building modular kernels with
+> >     CONFIG_MODVERSIONS=y
+>
+> Is this something you can make a check for in arch/m68k/Makefile?
+> Just so others don't hit the same trap..
 
-Then perhaps the right thing is for linux-libc-headers to always
-provide such a define for PAGE_SIZE for _all_ architectures, not
-just for those that happen to have variable PAGE_SIZE values.
+Probably. But please note that the first item doesn't need an explicit check,
+since as will just error out when not recognizing the .incbin keyword.
 
- -Erik
+About the second item, I don't know whether there are binutils versions that
+have the ld bug, but do implement .incbin in as. If these don't exist, no such
+test is necessary.
+
+So it's just the people (like me :-) who work around installing a new version
+of binutils that got hit...
+
+The reason I'm still using gcc 2.95.2 is that 3.2 gives ICEs on some source
+files.
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

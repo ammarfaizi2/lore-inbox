@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUGJIXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUGJIXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUGJIXU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 04:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266191AbUGJIXU
+	id S266188AbUGJIXK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 04:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUGJIXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 04:23:20 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43677 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266189AbUGJIXR (ORCPT
+	Sat, 10 Jul 2004 04:23:10 -0400
+Received: from mail.enyo.de ([212.9.189.167]:23568 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S266188AbUGJIXI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 04:23:17 -0400
-Date: Sat, 10 Jul 2004 10:23:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Torrey Hoffman <thoffman@arnor.net>
-Cc: Linux-Kernel List <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710082355.GA28569@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <1089409011.2738.19.camel@rohan.arnor.net>
-Mime-Version: 1.0
+	Sat, 10 Jul 2004 04:23:08 -0400
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Martin Zwickel <martin.zwickel@technotrend.de>, root@chaos.analogic.com,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<200407081328.40545.mbuesch@freenet.de>
+	<20040708134459.6970a20b@phoebee>
+	<200407081406.23831.mbuesch@freenet.de>
+From: Florian Weimer <fw@deneb.enyo.de>
+Date: Sat, 10 Jul 2004 10:22:57 +0200
+In-Reply-To: <200407081406.23831.mbuesch@freenet.de> (Michael Buesch's
+ message of "Thu, 8 Jul 2004 14:06:22 +0200")
+Message-ID: <87hdsgp8ym.fsf@deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1089409011.2738.19.camel@rohan.arnor.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Michael Buesch:
 
-* Torrey Hoffman <thoffman@arnor.net> wrote:
+> Yes, I never understood the reason for this ugly
+> #if defined(__cplusplus) here.
+> It works, but is IMHO unneccessary.
 
-> This looks great - one small problem: when compiling with ext3 as a
-> module, I get:
-> 
-> WARNING: /lib/modules/2.6.7-bk20-vp/kernel/fs/jbd/jbd.ko needs unknown
-> symbol voluntary_preemption
+It's necessary because in C++, (void *)0 is not implicitly converted
+to other pointer types.  Having to write static_cast<T*>(NULL) is
+certainly a bit too verbose.
 
-ok, i fixed this bug in -H3:
+There's also a C++ DR about this topic because people feel that there
+should be a 0/NULL distinction for overloading.  But this is
+completely irrelevant to C code.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.7-bk20-H3
-
-(-H3 also fixes another bug when enabling CONFIG_PREEMPT.)
-
-	Ingo

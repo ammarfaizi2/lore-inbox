@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264230AbTIIQhP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 12:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTIIQhP
+	id S262487AbTIIQnf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 12:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTIIQnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 12:37:15 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:34197 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S264230AbTIIQhK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 12:37:10 -0400
-Message-ID: <3F5E01B4.3050507@terra.com.br>
-Date: Tue, 09 Sep 2003 13:37:08 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kill unneeded include in net/sched
-Content-Type: multipart/mixed;
- boundary="------------000909010606030501090604"
+	Tue, 9 Sep 2003 12:43:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46824 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262487AbTIIQne (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 12:43:34 -0400
+Date: Tue, 9 Sep 2003 09:44:11 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Badness in as_completed_request warning
+Message-ID: <20030909164411.GA16913@osdl.org>
+References: <20030908164802.GA13441@osdl.org> <3F5D4BC9.6020708@cyberone.com.au> <20030909061214.GA15840@osdl.org> <3F5D7B6A.70703@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F5D7B6A.70703@cyberone.com.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000909010606030501090604
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-	Hi Andrew,
+On Tue, Sep 09, 2003 at 05:04:10PM +1000, Nick Piggin wrote:
+> 
+> Thanks Dave,
+> Can you try this one? I can't reproduce the problem here as I don't have
+> enough disks unfortunately. Thanks
+> 
+> Nick
 
-	This patch (against 2.6-test5) kills all the remaining code that 
-Randy's checkversion.pl said was using linux/version.h unnecessary on 
-net/sched.
+One of OSDL's reasons for existance is to arrange for Linux developers
+to have access to larger hardware configurations.  I'm sure you could
+get a project machine here at OSDL to do testing of I/O scheduler
+modifications, or other testing on a larger machine.  Several other
+kernel developers have project machines here at OSDL.
 
-	Please apply.
+Look at the web page
 
-	Cheers,
+	http://www.osdl.org/lab_activities/be_an_associate.html
 
-Felipe
+Fill out the web page form to get a login.  send email to Cliffw@osdl.org
+and me, and we'll see that it gets handled quickly.
 
---------------000909010606030501090604
-Content-Type: text/plain;
- name="net_sched-checkversion.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="net_sched-checkversion.patch"
+You'd be able to ssh into a front-end machine here at OSDL. It would
+give you serial console access to a test machine.  You'd also be able
+to power on/power off and reset the test machine, and ssh into the
+test machine from that front-end.
 
-diff -u -rN linux-2.6.0-test5/net/sched/sch_htb.c linux-2.6.0-test5-fwd/net/sched/sch_htb.c
---- linux-2.6.0-test5/net/sched/sch_htb.c	Mon Sep  8 16:50:08 2003
-+++ linux-2.6.0-test5-fwd/net/sched/sch_htb.c	Tue Sep  9 11:58:01 2003
-@@ -32,7 +32,6 @@
- #include <asm/bitops.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
--#include <linux/version.h>
- #include <linux/sched.h>
- #include <linux/string.h>
- #include <linux/mm.h>
-
---------------000909010606030501090604--
-
+Dave

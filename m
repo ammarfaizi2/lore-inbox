@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130473AbQLRUP2>; Mon, 18 Dec 2000 15:15:28 -0500
+	id <S129557AbQLRUSi>; Mon, 18 Dec 2000 15:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129944AbQLRUPT>; Mon, 18 Dec 2000 15:15:19 -0500
-Received: from uucp.nl.uu.net ([193.79.237.146]:26497 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S129604AbQLRUPI>;
-	Mon, 18 Dec 2000 15:15:08 -0500
-Date: Mon, 18 Dec 2000 20:30:16 +0100 (CET)
-From: kees <kees@schoen.nl>
+	id <S129684AbQLRUS2>; Mon, 18 Dec 2000 15:18:28 -0500
+Received: from mauve.demon.co.uk ([158.152.209.66]:35340 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129557AbQLRUSL>; Mon, 18 Dec 2000 15:18:11 -0500
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200012181946.TAA06870@mauve.demon.co.uk>
+Subject: User based routing?
 To: linux-kernel@vger.kernel.org
-Subject: old binary works not with 2.2.18
-Message-ID: <Pine.LNX.4.21.0012182026170.8049-100000@schoen3.schoen.nl>
+Date: Mon, 18 Dec 2000 19:46:51 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I have an old 4GL application (from SCO3.2v4) that is a neat database
-tool. Under 2.2.17 with iBCS this works well:
-
-kees@renske1:~ > cat /proc/version
-Linux version 2.2.17 (root@renske1) (gcc version 2.95.2 19991024
-(release)) #10
-Wed Dec 6 20:16:39 CET 2000
-kees@renske1:~ > sage
- 
-sage : Screen language interpreter
- 
-SCULPTOR 4GL + SQL
-Release 2.0b (30 May 1990)
-(C) 1984-1990 Microprocessor Developments Ltd.
-All rights reserved
-   
-However under 2.2.18 I get:
-
-kees@schoen3:~ > cat /proc/version
-Linux version 2.2.18 (root@schoen3) (gcc version 2.95.2 19991024
-(release)) #1 SMP Mon Dec 18 00:48:04 CET 2000
-kees@schoen3:~ > sage
-Segmentation fault
-
-schoen3:~ #  file /usr/SCULPTOR/bin/sage
-/usr/SCULPTOR/bin/sage: Microsoft a.out separate pure segmented
-word-swapped V2.3 V3.0 386 small model executable  
-
-Hints?
-
-Kees
-
-
+Are there any patches floating around?
+Basically to allow for example a server to dial out to ISP's on behalf
+of users, and give them full control over that interface.
+I know about UML, and it's not quite suited.
+I've not found anything searching archives, but maybe it's out there.
+Thanks.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

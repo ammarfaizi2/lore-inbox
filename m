@@ -1,80 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbTE2KgI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 06:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbTE2KgH
+	id S262138AbTE2Kzu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 06:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbTE2Kzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 06:36:07 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:55483 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262127AbTE2KgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 06:36:06 -0400
-Date: Thu, 29 May 2003 12:49:21 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+	Thu, 29 May 2003 06:55:50 -0400
+Received: from web11804.mail.yahoo.com ([216.136.172.158]:11921 "HELO
+	web11804.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262138AbTE2Kzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 06:55:45 -0400
+Message-ID: <20030529110903.79026.qmail@web11804.mail.yahoo.com>
+Date: Thu, 29 May 2003 13:09:03 +0200 (CEST)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: IDE kernel parameter (was: 2.4.20 SMP, a PDC20269, and a huge Maxtor disk)
 To: linux-kernel@vger.kernel.org
-Cc: chas@cmf.nrl.navy.mil
-Subject: top stack users for 2.5.70
-Message-ID: <20030529104921.GB17252@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
+Cc: phil@jaj.com
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-44 functions for 2.5.67.
-45 functions for 2.5.68
-41 functions for 2.5.69
-36 functions for 2.5.70
+Phil Edwards wrote (edited):
+> ... I've installed a 200GB Maxtor drive, and a Promise Ultra133
+> TX2 card to let me actually use all of it.
+> 
+> The mobo BIOS doesn't speak 48-bit LBA, so it sees a 137 GB drive.
+> That's fine, I'm guessing, since (I'm told) Linux doesn't get its
+> information from the BIOS.
+> 
+> Windows 2000 sees the whole drive, and uses it with no problems.  (Using
+> Promise's supplied drivers.)  I mention this only to point out that there
+> doesn't /seem/ to be anything physically wrong with the drive, the card,
+> the cable, etc.
+> 
+> Booting 2.4.20 with "ide2=0x10d8,0x10d2" lets me see the new drive, along
+> with a smaller drive on the same channel as slave:
 
-Things have improved again, but we have one newcomer:
-0xc170fd38 he_init_cs_block_rcm:                         sub    $0x42c,%esp
+  I am not sure about your problem, but maybe I can add my £0.02...
 
-Chas, the 1k array should be ok for an init function, but you might
-want to give it another thought anyway.  Maybe make it static
-__init_data, that way it will remain simple and and doesn't waste any
-ram.
+  the second parameter of "ide2=0x10d8,0x10d2", i.e. 0x10d2, is the address
+ of an (only one) IDE register which is used for two things:
+ - If you write to it, you can enable the interrupt bit of the IDE
+ interface. Most of the time the IDE interface is used with its default
+ of "interrupt enabled" - so if this second address is false you will
+ not notice it there (you are writing to an invalid address, but that
+ does not usually trigger an error, and the default value of the register
+ is what you wanted to write anyways).
+ - Some software can decide to read this register because it is the
+ copy of the IDE status register - but unlike the real IDE status register
+ reading the copy does not acknowledge an IDE interrupt. One possible use
+ of this register is for the power saving drivers to know the state of
+ the disk without interfering with data read/written, for tools like
+ hdparm to get some information (special read polling modes)...
 
-P 0xc022cba6 presto_get_fileid:                            sub    $0x1198,%esp
-P 0xc022b396 presto_copy_kml_tail:                         sub    $0x1028,%esp
-0xc0920538 ide_unregister:                               sub    $0x96c,%esp
-0xc0e7a483 snd_emu10k1_fx8010_ioctl:                     sub    $0x830,%esp
-0xc086dc86 w9966_v4l_read:                               sub    $0x828,%esp
-0xc0e0ac0b snd_cmipci_ac3_copy:                          sub    $0x7c0,%esp
-0xc0e0b22b snd_cmipci_ac3_silence:                       sub    $0x7c0,%esp
-P 0xc0acd878 amd_flash_probe:                              sub    $0x72c,%esp
-0xc0105650 huft_build:                                   sub    $0x59c,%esp
-0xc01073d0 huft_build:                                   sub    $0x59c,%esp
-0xc02e94f6 dohash:                                       sub    $0x594,%esp
-0xc0108256 inflate_dynamic:                              sub    $0x554,%esp
-P 0xc05f54e3 ida_ioctl:                                    sub    $0x550,%esp
-0xc01064a6 inflate_dynamic:                              sub    $0x538,%esp
-0xc0221586 presto_ioctl:                                 sub    $0x508,%esp
-0xc0e74748 snd_emu10k1_add_controls:                     sub    $0x4dc,%esp
-0xc0e9c2b6 snd_trident_mixer:                            sub    $0x4c0,%esp
-0xc0106307 inflate_fixed:                                sub    $0x4ac,%esp
-0xc01080b7 inflate_fixed:                                sub    $0x4ac,%esp
-0xc0937df1 ide_config:                                   sub    $0x4a8,%esp
-0xc05d9a4c parport_config:                               sub    $0x490,%esp
-0xc0c3f4b3 ixj_config:                                   sub    $0x484,%esp
-0xc1084bc3 gss_pipe_downcall:                            sub    $0x450,%esp
-0xc170fd38 he_init_cs_block_rcm:                         sub    $0x42c,%esp
-0xc03c4d28 ciGetLeafPrefixKey:                           sub    $0x428,%esp
-0xc046baf3 befs_error:                                   sub    $0x418,%esp
-0xc046bb63 befs_warning:                                 sub    $0x418,%esp
-0xc046bbd3 befs_debug:                                   sub    $0x418,%esp
-0xc07ca0d6 wv_hw_reset:                                  sub    $0x418,%esp
-0xc16c9215 root_nfs_name:                                sub    $0x414,%esp
-0xc0c63612 bt3c_config:                                  sub    $0x410,%esp
-0xc0c67722 btuart_config:                                sub    $0x410,%esp
-0xc0336757 jffs2_rtime_compress:                         sub    $0x408,%esp
-0xc0c61bdf dtl1_config:                                  sub    $0x408,%esp
-0xc0c659f6 bluecard_config:                              sub    $0x408,%esp
-0xc0336855 jffs2_rtime_decompress:                       sub    $0x404,%esp
+  Unfortunately, most of the so-called IDE PCI boards (I am talking
+ here of my SIIG PCI card, maybe not yours) do not get this register
+ right (this SIIG returns 0 when you read this register, not the copy),
+ or implement an "upgraded" IDE interface to support RAID in an
+ undocumented way (writing another bit to this register?).
 
-Jörn
+  Testing on Redmond with their own driver doesn't prove that it is
+ a real IDE interface - the driver may volumtary never read the
+ copy register (to not acknowledge an interrupt from another request).
+ Also the driver may not care about power saving.
+  IMNSHO this copy register is absolutely needed in some cases
+ under Linux.
 
--- 
-The only real mistake is the one from which we learn nothing.
--- John Powell
+  Unfortunately also, when this second parameter is completely wrong,
+ Linux continues to work approximately correctly.
+
+  What I can propose you is:
+  - to first double check with your documentation that you typed in
+ the right address 0x10d2 (I have also seen wrong documentation).
+  - to check under Redmond that the reserved I/O address for this
+ board is the documented one.
+  - to check under Linux the PCI description of reserved I/O address
+  - to check what the BIOS is thinking - not so easy...
+ Download Gujin:
+http://sourceforge.net/projects/gujin
+ i.e.:
+http://prdownloads.sourceforge.net/gujin/install-0.7.tgz?download
+ untar and and install it on a floppy:
+./instboot boot.bin /dev/fd0 --full
+ (you need read/write access to /dev/fd0 if not root, read install.txt)
+ If you boot this floppy, it will display what is the address
+ reported by the Promise Ultra133 TX2 BIOS on the startup screen,
+ for the HD drive connected. Note that Gujin does not display an
+ IDE interface if no HD are connected.
+
+  As an extra information, my SIIG PCI card does not appear on this
+ screen, so I booted a very simple DOS to run dbgdisk.exe
+ (in standard.tgz) and it is easy to see the extra register always
+ reads as 0 on the "DBG" file created by dbgdisk.exe (read doc).
+
+  What a long £0.02!
+  Etienne.
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

@@ -1,87 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264464AbUADIt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 03:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUADItz
+	id S264473AbUADIkK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 03:40:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUADIkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 03:49:55 -0500
-Received: from c211-28-147-198.thoms1.vic.optusnet.com.au ([211.28.147.198]:22977
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S264464AbUADItx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 03:49:53 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-Date: Sun, 4 Jan 2004 19:49:27 +1100
-User-Agent: KMail/1.5.3
-Cc: Willy Tarreau <willy@w.ods.org>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
-References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca> <200401041242.47410.kernel@kolivas.org> <1073203762.9851.394.camel@localhost>
-In-Reply-To: <1073203762.9851.394.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Jan 2004 03:40:09 -0500
+Received: from waste.org ([209.173.204.2]:20700 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264473AbUADIkG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 03:40:06 -0500
+Date: Sun, 4 Jan 2004 02:40:05 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1-tiny1 tree for small systems
+Message-ID: <20040104084005.GU18208@waste.org>
+References: <20040103030814.GG18208@waste.org> <m13cawi2h8.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401041949.27408.kernel@kolivas.org>
+In-Reply-To: <m13cawi2h8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Jan 2004 19:09, Soeren Sonnenburg wrote:
-> On Sun, 2004-01-04 at 02:42, Con Kolivas wrote:
-> > Not quite. The scheduler retains high priority for X for longer so it's
-> > no new dynamic adjustment of any sort, just better cpu usage by X (which
-> > is why it's smoother now at nice 0 than previously).
->
-> But why is i.e. running the command a second or third time much faster
-> compared with the first run ? Does X get less priority then ?
+On Sun, Jan 04, 2004 at 12:42:43AM -0700, Eric W. Biederman wrote:
+> Matt Mackall <mpm@selenic.com> writes:
+> 
+> > Contributions and suggestions are encouraged. In particular, it would
+> > be helpful if people with non-x86 hardware could take a stab at
+> > extending some of the stuff that's currently only been done for X86 to
+> > other architectures.
+> 
+> I just tried a kernel build with as much as possible turned off.  This
+> uncovered a couple of bugs, which I fixed with the attached diff.  But
+> it looks like there finally is a light at the end of the rainbow.
 
-Yes. X retains high priority for longer than previous scheduler designs.
+Thanks. I actually cleaned up all this stuff earlier today, will
+probably do another release shortly.
+ 
+> 220K compressed and 371K uncompressed.  This is a serious reduction from
+> previous versions.  There is still a huge amount of code I can't compile
+> out but this is certainly progress.  Thank you.
 
-> > > If either the scheduler or xterm was a bit smarter or
-> > > used different thresholds, the problem would go away. It would also
-> > > explain why there are people who cannot reproduce it. Perhaps a
-> > > somewhat faster or slower system makes the problem go away. Honnestly,
-> > > it's the first time that I notice that my xterms are jump-scrolling, it
-> > > was so much fluid anyway.
-> >
-> > Very thorough but not a scheduler problem as far as I'm concerned. Can
-> > you not disable smooth scrolling and force jump scrolling?
->
-> I think it is a schedulers problem as it works if you run the program in
-> question often enough (dmesg/find/whatever). Suddenly it comes back to
-> full scrolling speed.
->
-> Judging from the xfree4.3 xterm sources this is the function that gets
-> called when there is something to scroll. And it looks perfectly ok to
-> *me* as it scrolls amount lines at once. So the output of (dmesg/...)
-> seems to be received slower or xterm updates more often than in 2.4.
-> leading to fewer lines to scroll (== amount). It cannot be xterm
-> updating more often as it would a) be faster than and b) amount would be
+Suggestions? I'm rapidly exhausting a lot of the obvious candidates.
+My target build at the moment is ide + ext2 + proc + ipv4 + console, and
+that's currently at around 800K uncompressed, booting in a little less
+than 2.5MB. Hoping to get that under 2.
 
-It's a timing issue. X gets more priority for longer than previously so X gets 
-to do more work.
-
-> >>> 1 on later on which would lead to high scrolling speed again.
->
-> So IMHO it must be the output of the program that is coming in slowly.
->
-> I added a fprintf(stderr, "%d\n", amount); to that code and indeed
-> amount was *always* 1 no matter what I did (it even was 1 when the
-> (dmesg/...) output came in fast). And jump scrolling would take place if
-> amount > 59 in my case... can this still be not a schedulers issue ?
->
-
-> Looking at that how can it not be a scheduling problem ....
-
-Scheduling problem, yes; of a sort.
-
-Solution by altering the scheduler, no. 
-
-My guess is that turning the xterm graphic candy up or down will change the 
-balance. Trying to be both gui intensive and a console is where it's 
-happening. On some hardware you are falling on both sides of the fence with 
-2.6 where previously you would be on one side.
-
-Con
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

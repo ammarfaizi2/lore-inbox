@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263762AbTKRS7S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 13:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbTKRS7S
+	id S263768AbTKRTHz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 14:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTKRTHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 13:59:18 -0500
-Received: from natsmtp01.rzone.de ([81.169.145.166]:12738 "EHLO
-	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263762AbTKRS7Q
+	Tue, 18 Nov 2003 14:07:55 -0500
+Received: from smtp04.web.de ([217.72.192.208]:8483 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263768AbTKRTHw convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 13:59:16 -0500
-Date: Tue, 18 Nov 2003 19:56:41 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>
-Cc: "Ronny V. Vindenes" <s864@ii.uib.no>, linux-kernel@vger.kernel.org
-Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
-Message-ID: <20031118185641.GA6001@brodo.de>
-References: <1069071092.3238.5.camel@localhost.localdomain> <20031117113650.67968a26.akpm@osdl.org> <1069097751.11437.1941.camel@cog.beaverton.ibm.com> <1069071092.3238.5.camel@localhost.localdomain> <20031117113650.67968a26.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Nov 2003 14:07:52 -0500
+From: dodger <shoxx@web.de>
+Reply-To: shoxx@web.de
+Organization: none.org
+To: linux-kernel@vger.kernel.org
+Subject: Re: problem with suspend to disk on linux2.6-t9
+Date: Tue, 18 Nov 2003 19:38:59 +0100
+User-Agent: KMail/1.5.4
+References: <200311172327.24418.shoxx@web.de> <200311180718.00059.rob@landley.net>
+In-Reply-To: <200311180718.00059.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <1069097751.11437.1941.camel@cog.beaverton.ibm.com> <20031117113650.67968a26.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311181939.09727.shoxx@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 17, 2003 at 11:36:50AM -0800, Andrew Morton wrote:
-> "Ronny V. Vindenes" <s864@ii.uib.no> wrote:
-> >
-> > > Your report has totally confused me.  Are you saying that the
-> > jerkiness is
-> > > caused by linus.patch?  Or not?  Pleas try again ;)
-> > > 
-> > 
-> > I've found that neither linus.patch nor
-> > context-switch-accounting-fix.patch is causing the problem, but rather
-> > acpi-pm-timer-fixes.patch & acpi-pm-timer.patch
-> > 
-> > With these applied my cpu (athlon64) is detected as 0.0Mhz, bogomips
-> > drops to 50% and anything cpu intensive destroys interactivity. Revert
-> > them and performance is back at -mm2 level.
-> 
-> ah hah.  Thank you!
-> 
-> Probably the interactivity problems are due to the CPU scheduler thinking
-> that the CPU runs at 0Hz.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Is this in "plain" test9 as well? can't find any reference to either
-bogomips or to cpu_khz in any scheduler-related code in
-2.6.0-test9-bk-as-of-yesterday.
+On Tuesday 18 November 2003 14:18, Rob Landley wrote:
+> Did you specify a default resume partition (CONFIG_PM_DISK_PARTITION) in
+> your .config?  (Or provide it with the kernel parameter
+> pmdisk=/dev/blah)...
 
->  If we can work out why the PM timer patch has
-> broken the CPU clock speed detection then all should be well.
+yes i did.
+i tried to suspend with disabled hdb write cache ( hdparm -W0 /dev/hdb ) and 
+it suspended and resumed fine.
+exept for my network device wasnt running...is there a way to fix this?
+i`ll try to do   ifdown before suspending and ifup after resuming, but is 
+there a way to resume properly without that?
 
-cpu_khz is done during init_tsc. The code is basically:
+dodger
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-unsigned long eax=0, edx=1000, tsc_quotient;
-tsc_quotient = calibrate_tsc();
-if (tsc_quotient) {
-	__asm__("divl %2" 
-	:"=a" (cpu_khz), "=d" (edx)
-	:"r" (tsc_quotient),
-	"0" (eax), "1" (edx));
-}
+iD8DBQE/umdKN+skZni2ETYRAnP9AJ9BgIfL5vwar1xJP1HqcjKkXezOcgCfSplv
+7Vhwik+TieywXjgO2NWnXUQ=
+=4Db2
+-----END PGP SIGNATURE-----
 
-cpu_khz is only available (so far) if the TSC or HPET time sources are used,
-and not when the PIT time source is used. So the scheduler tweak should have 
-some sort of fall-back mechanism anyway, IMHO.
-
-As for the bogomips question: I see different bogomips values for 
-	tsc (~1.200)
-	pit (~600) 
-and	pmtmr (~8)
-on my 600 MHz PIII Coppermine.
-
-	Dominik

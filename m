@@ -1,73 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267779AbUIJUjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267776AbUIJUld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267779AbUIJUjN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 16:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUIJUjM
+	id S267776AbUIJUld (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 16:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267777AbUIJUlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 16:39:12 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50831 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267779AbUIJUiu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 16:38:50 -0400
-Date: Fri, 10 Sep 2004 13:30:46 -0700
-From: Greg KH <greg@kroah.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev: udevd shall inform us abot trouble
-Message-ID: <20040910203046.GA19655@kroah.com>
-References: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 10 Sep 2004 16:41:09 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:34820 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267776AbUIJUkt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 16:40:49 -0400
+Date: Fri, 10 Sep 2004 22:36:35 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Alan Modra <amodra@bigpond.net.au>, Ulrich Drepper <drepper@redhat.com>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: vDSO for ppc64 : Preliminary release #4
+Message-ID: <20040910203635.GB11338@mars.ravnborg.org>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>,
+	linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+	Alan Modra <amodra@bigpond.net.au>,
+	Ulrich Drepper <drepper@redhat.com>, Sam Ravnborg <sam@ravnborg.org>
+References: <1094799101.2664.144.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <1094799101.2664.144.camel@gaston>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 10:18:43AM +0300, Denis Vlasenko wrote:
-> Hi Greg,
-> 
-> I found out why udev didn't work for me.
-> At first I compiled it with wrong install path ($DESTDIR).
-> On subsequent recompiles with corrected DESTDIR binaries
-> were still compiled with old DESTDIR hardcoded into them.
-> 
-> I think this Make rule is generating a udev_version.h:
-> 
-> # Rules on how to create the generated header files
-> udev_version.h:
->         @echo \#define UDEV_VERSION             \"$(VERSION)\" > $@
->         @echo \#define UDEV_ROOT                \"$(udevdir)/\" >> $@
->         @echo \#define UDEV_DB                  \"$(udevdir)/.udev.tdb\" >> $@
->         @echo \#define UDEV_CONFIG_DIR          \"$(configdir)\" >> $@
->         @echo \#define UDEV_CONFIG_FILE         \"$(configdir)/udev.conf\" >> $@
->         @echo \#define UDEV_RULES_FILE          \"$(configdir)/rules.d\" >> $@
->         @echo \#define UDEV_PERMISSION_FILE     \"$(configdir)/permissions.d\" >> $@
->         @echo \#define UDEV_LOG_DEFAULT         \"yes\" >> $@
->         @echo \#define UDEV_BIN                 \"$(DESTDIR)$(sbindir)/udev\" >> $@
->         @echo \#define UDEVD_BIN                \"$(DESTDIR)$(sbindir)/udevd\" >> $@
-> 
-> which is not re-created even if DESTDIR has changed.
-> 
-> As a result, udevd was trying to exec udev with wrong path.
+Hi Ben.
 
-Ick, not nice.
+I would prefer to use a bit more core kbuild stuff.
+Could you please try my version below (needs to be applied manually).
 
-> I built udev with:
-> 
-> USE_LOG = true
-> DEBUG = false
-> 
-> but udevd does not log anything under such setting (all
-> udevd messages are coded as debug messages).
-> 
-> This patch improves situation by changing some dbg()'s
-> into info()'s.
+Let me know how it turns out.
 
-No, I don't like this change, as it increases the size of udevd pretty
-unnecessarily (errors like what happened to you are very rare, and we
-could blame them on pilot error...)
+	Sam
 
-thanks,
 
-greg k-h
+On Fri, Sep 10, 2004 at 04:51:42PM +1000, Benjamin Herrenschmidt wrote:
+> diff -urN linux-2.5/arch/ppc64/kernel/vdso32/Makefile linux-vdso/arch/ppc64/kernel/vdso32/Makefile
+> --- /dev/null	2004-09-01 15:26:22.000000000 +1000
+> +++ linux-vdso/arch/ppc64/kernel/vdso32/Makefile	2004-09-07 18:25:44.000000000 +1000
+> @@ -0,0 +1,51 @@
+> +# Choose compiler
+
+> +#
+> +# XXX FIXME: We probably want to enforce using a biarch compiler by default
+> +#             and thus use (CC) with -m64, while letting the user pass a
+> +#             CROSS32_COMPILE prefix if wanted. Same goes for the zImage
+> +#             wrappers
+> +#
+> +
+> +CROSS32_COMPILE ?=
+> +
+> +CROSS32CC		:= $(CROSS32_COMPILE)gcc
+> +CROSS32AS		:= $(CROSS32_COMPILE)as
+> +
+> +# List of files in the vdso, has to be asm only for now
+> +
+> +src-vdso32 = sigtramp.S gettimeofday.S datapage.S
+> +
+> +# Build rules
+> +
+> +obj-vdso32 := $(addsuffix .o, $(basename $(src-vdso32))
+targets := $(obj-vdso32)
+-> So they get removed by make clean
+
+> +obj-vdso32 := $(addprefix $(obj)/, $(obj-vdso32))
+> +src-vdso32 := $(addprefix $(src)/, $(src-vdso32))
+OK.
+
+> +
+> +VDSO32_CFLAGS := -shared -s -fno-common -Iinclude -fno-builtin -nostdlib
+> +VDSO32_CFLAGS += -Wl,-soname=linux-vdso32.so.1
+> +VDSO32_AFLAGS := -D__ASSEMBLY__ -D__KERNEL__ -D__VDSO32__ -s -nostdinc -Iinclude
+
+Replace with:
+EXTRA_CFLAGS := -shared -s -fno-common -fno-builtin 
+EXTRA_CFLAGS += -nostdlib -Wl,-soname=linux-vdso32.so.1
+
+EXTRA_AFLAGS := -D__VDSO32__ -s
+
+> +obj-y += vdso32_wrapper.o
+-> This causes built-in.o to be generated, which is fine.
+
+> +extra-y += vdso32.lds
+> +CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+OK
+
+> +# Force dependency (incbin is bad)
+> +$(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
+OK
+
+> +# link rule for the .so file, .lds has to be first
+> +$(obj)/vdso32.so: $(src)/vdso32.lds $(obj-vdso32)
+> +	$(call if_changed,vdso32ld)
+OK
+
+> +
+> +# assembly rules for the .S files
+> +# This is probably wrong with split src & obj trees
+> +$(obj-vdso32): %.o: %.S
+> +	$(call if_changed_dep,vdso32as)
+OK - but see below
+
+
+> +# actual build commands
+> +quiet_cmd_vdso32ld = VDSO32L $@
+
+      cmd_vdso32ld = $(CROSS32CC) $(cflags) -Wl,-T $^ -o $@
+Utilising $(cflags) gives:
+-> Correct $(depfile)
+-> Expanded include paths
+
+> +quiet_cmd_vdso32as = VDSO32A $@
+> +      cmd_vdso32as = $(CROSS32CC) $(aflags) -c -o $@ $^
+Same here.
+
+> +
+> +targets += vdso32.so
+OK - but put it closer to the rule that generates it.
+
+

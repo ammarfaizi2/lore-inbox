@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289489AbSAJPMr>; Thu, 10 Jan 2002 10:12:47 -0500
+	id <S289491AbSAJPPR>; Thu, 10 Jan 2002 10:15:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289488AbSAJPMh>; Thu, 10 Jan 2002 10:12:37 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:45316 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S289489AbSAJPM0>;
-	Thu, 10 Jan 2002 10:12:26 -0500
-Date: Thu, 10 Jan 2002 13:12:13 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Oliver Feiler <kiza@gmx.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: HPT370 controller set wrong udma mode
-In-Reply-To: <20020110160718.A296@gmxpro.net>
-Message-ID: <Pine.LNX.4.33L.0201101307480.2985-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S289488AbSAJPO6>; Thu, 10 Jan 2002 10:14:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:64896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S289491AbSAJPOq>; Thu, 10 Jan 2002 10:14:46 -0500
+Date: Thu, 10 Jan 2002 10:16:38 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "David S. Miller" <davem@redhat.com>
+cc: david.balazic@uni-mb.si, matthias.andree@stud.uni-dortmund.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: Simple local DOS
+In-Reply-To: <20020110.065819.41634244.davem@redhat.com>
+Message-ID: <Pine.LNX.3.95.1020110100953.5851A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Oliver Feiler wrote:
+On Thu, 10 Jan 2002, David S. Miller wrote:
 
-> 	My onboard (Epox 8KTA3+) HPT370 controller seems to set the
-> wrong udma transfer mode for the attached drive. Resulting in BadCRC
-> errors. The drive attached is an IBM DJSA-205 2.5" drive. It can do
-> udma4 max.
+>    From: "Richard B. Johnson" <root@chaos.analogic.com>
+>    Date: Thu, 10 Jan 2002 09:07:51 -0500 (EST)
+>    
+>    Ctrl-ALT-F12 selects VT mode from a locked X-window, ALT-F1 gets you
+>    to the first VT, ALT-F2, next, etc.
+>    No problem at all.
+> 
+> Only if X services the keypress, in his case X is blocked on
+> stdout/stderr output so it won't.
+> 
 
-> Kernel is 2.4.16
+I tried it before I answered the query. It works fine here. The
+only problem I found is the VT that X was using ended up with
+strange non-usable characteristics in graphics mode. The others
+are fine and X can be killed, releasing its resources. Also,
+CTL-Alt-Backspace works at least 50 percent of the time when
+an attempt is made to lock it up as reported.
 
-I've heard this problem is fixed with Andre Hedrik's new
-IDE drivers, available from:
-	http://www.linuxdiskcert.org/
+Cheers,
+Dick Johnson
 
-cheers,
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-http://www.surriel.com/		http://distro.conectiva.com/
 

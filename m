@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129848AbRBYFgF>; Sun, 25 Feb 2001 00:36:05 -0500
+	id <S129851AbRBYFhG>; Sun, 25 Feb 2001 00:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129851AbRBYFfz>; Sun, 25 Feb 2001 00:35:55 -0500
-Received: from comunit.de ([195.21.213.33]:27739 "HELO comunit.de")
-	by vger.kernel.org with SMTP id <S129848AbRBYFfo>;
-	Sun, 25 Feb 2001 00:35:44 -0500
-Date: Sun, 25 Feb 2001 06:35:42 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: <haegar@space.comunit.de>
-To: <linux-kernel@vger.kernel.org>
-cc: Andre Hedrick <andre@linux-ide.org>
-Subject: 2.4.2-ac3 IDE-Module-Deadlock on DEC Alpha
-Message-ID: <Pine.LNX.4.32.0102250626340.24260-100000@space.comunit.de>
+	id <S129859AbRBYFg4>; Sun, 25 Feb 2001 00:36:56 -0500
+Received: from www.wen-online.de ([212.223.88.39]:3858 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129851AbRBYFgp>;
+	Sun, 25 Feb 2001 00:36:45 -0500
+Date: Sun, 25 Feb 2001 06:36:40 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Shawn Starr <spstarr@sh0n.net>
+cc: lkm <linux-kernel@vger.kernel.org>
+Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Patch failed
+In-Reply-To: <3A9719FE.D84B70FB@sh0n.net>
+Message-ID: <Pine.LNX.4.33.0102250624001.1656-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi...
+On Fri, 23 Feb 2001, Shawn Starr wrote:
 
-Machine: DEC Alpha XL300 (Alcor/XLT)
-         boots from scsi, and ide is used modular
-IDE-Controller: Promise ATA100 controller (PCI card)
-                bios knows absolutely nothing about IDE
-                (there aren't even options to set drive geometry etc)
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 2-order allocation failed.
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 1-order allocation failed.
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 3-order allocation failed.
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 2-order allocation failed.
+> Feb 23 21:17:47 coredump kernel: __alloc_pages: 1-order allocation failed.
+>
+> didnt, work, still causing this..
 
-Deadlocks on loading the ide-modules with
+What does free output look like after abort?  (is someone leaking or
+is all memory just temporarily tied up?)
 
-        modprobe ide-probe-mod  || return=$rc_failed
-        modprobe ide-disk || return=$rc_failed
-
-(Nothing in the logs, no visible output on the screen)
-
-Applying Andre Hedrick's ide.2.4.1-p8.all.01172001.patch.gz fixes it -
-with this patch ide works like a charm - thanks for your good work Andre!
-
-more info's available on request
-
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+	-Mike
 

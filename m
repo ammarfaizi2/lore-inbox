@@ -1,98 +1,313 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316897AbSGNPfc>; Sun, 14 Jul 2002 11:35:32 -0400
+	id <S316898AbSGNPfn>; Sun, 14 Jul 2002 11:35:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316898AbSGNPfb>; Sun, 14 Jul 2002 11:35:31 -0400
-Received: from pl1527.nas911.n-yokohama.nttpc.ne.jp ([210.139.44.247]:46019
-	"EHLO standard.erephon") by vger.kernel.org with ESMTP
-	id <S316897AbSGNPf3>; Sun, 14 Jul 2002 11:35:29 -0400
-Message-ID: <3D319AEA.10F6611D@yk.rim.or.jp>
-Date: Mon, 15 Jul 2002 00:38:18 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Q: boot time memory region recognition and clearing.
-References: <3D303700.5030002@yk.rim.or.jp> <m14rf2ra95.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	id <S316899AbSGNPfn>; Sun, 14 Jul 2002 11:35:43 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:47633 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316898AbSGNPfg>; Sun, 14 Jul 2002 11:35:36 -0400
+Date: Sun, 14 Jul 2002 17:38:05 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [sparc32] reserve nocache based on RAM size
+Message-ID: <20020714153804.GA8783@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 40 days, 56 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
+Hi Marcelo,
 
-> Note.  The hardware ECC support in memtest86 3.0
-> is limited, so I would check to make certain your chipset
-> is supported..
-> 
+Since there's no official sparc32 maintainer, I'm sending this patch
+directly to you. It has now been tested in various configurations
+(released in the default Aurora 0.3 kernel) and appears to be causing
+no undesired side effects.
 
-Well,  I read controller.c source file, and
-found that amd751 is supported according to the info
-in AMD751 documentation.
-(This is the same documentatin I used when I hacked
-early ecc.c source file.)
+Please apply.
 
-I ran memtest v3 on the motherboard, and
-it didn't find any errors when I ran it overnight.
-
-> Your objective is misguided.  Even with a bios that
-> is slightly buggy in initializing the ECC bits, what you want is
-> scrubbing.  Then if the error disappears after 5 minutes of uptime
-> you can ignore it.  
-
-I see. Then the problem would boil down whether
-AMD751 supports scrubbingat the hardware level.
-It reports that it saw correctable single bit error,
-and I take it to mean that the chip itself
-has fixed the single bit error.
-Am I too optimistic to expect this?
-
-The problem, though, is this.
-According to the AMD751 documentation, we
-can clear the memory error info in the chip register,
-by writing to a certain location of the PCI space.
-However, when one error get reported on my motherboard,
-it would NOT go away and I think there is something amiss
-about this.
-I am not sure if the AMD doc is correct about this now.
-from controller.c of memtest86.
-
-                /* Clear the error status */
-                pci_conf_write(ctrl.bus, ctrl.dev, ctrl.fn, 0x58, 2, 0);
-
->From locally hacked ecc.c:
-             /*
-                 * clear error flag bits that were set by writing 0 to
-them
-                 * we hope the error was a fluke or something :)
-                 */
-                /* int value = eccstat & 0xFCFF; */
-                /* pci_write_config_word(bridge, 0x58, value); */
-                pci_write_config_byte(bridge, 0x58, 0x0);
-                pci_write_config_byte(bridge, 0x59, 0x0);
+-Tomas
 
 
-BTW, I tried both the byte and word write to 0x58, but
-it never seemd to clear the error status.
-(It is possible that the error is real, but again
-the error is reported always in the first bank even if
-I rotate the memry sticks...)
+fw:
+Date: Mon, 10 Jun 2002 16:59:27 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] sparc32: reserve nocache acc. to the amount of system RAM
 
-> And if it comes back you know you really have
-> something to worry about.  At least for single bit errors this should
-> fix the whole problem with something that is useful for other
-> purposes.
-> 
-> Eric
+The following patch settles Anton Blanchard's FIXME from
+asm-sparc/vaddrs.h. For sparc32 systems, it makes the kernel
+allocate nocache memory based on the amount of system RAM,
+abandoning the old behavior of always reserving 256 pages.
 
-Thank you for your feedback. I noticed that you 
-contributed to linuxBIOS and memtest86.
-Please keep the good work going!
+Together with Colin Gibb's patches that made it into -pre9,
+this should make 2.4 perform just ok on sparc32s. Sure, it's
+still possible to run out of nocache mem, but the unfortunate
+event should more likely only happen when the machine is
+running out of system RAM too.
 
-Chiaki
+I've set the allocation ratio to "let's have 256 pages
+of nocache per 64MB of system RAM," see SRMMU_NOCACHE_ALCRATIO
+in vaddrs.h. Might have to be tuned somewhat for systems with
+very little RAM. (256 pages is often insufficient.)
 
-PS: I am wondering when we can have a reasonably good
-ECC support on desktop PC...
-(A la Sun pizza boxes, that is.)
+The patch applies to 2.4.19-pre9, pre10, and rc1.
+
+-Tomas
+
+
+diff -urN linux-2.4.19-pre9/arch/sparc/mm/init.c linux-2.4.19-pre9.n/arch/sparc/mm/init.c
+--- linux-2.4.19-pre9/arch/sparc/mm/init.c	Fri May  3 02:06:52 2002
++++ linux-2.4.19-pre9.n/arch/sparc/mm/init.c	Sat Jun  1 15:03:25 2002
+@@ -61,13 +61,15 @@
+ pte_t *kmap_pte;
+ pgprot_t kmap_prot;
+ 
++extern unsigned long fix_kmap_begin;	/* calculated in srmmu.c */
++
+ #define kmap_get_fixed_pte(vaddr) \
+ 	pte_offset(pmd_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr))
+ 
+ void __init kmap_init(void)
+ {
+ 	/* cache the first kmap pte */
+-	kmap_pte = kmap_get_fixed_pte(FIX_KMAP_BEGIN);
++	kmap_pte = kmap_get_fixed_pte(fix_kmap_begin);
+ 	kmap_prot = __pgprot(SRMMU_ET_PTE | SRMMU_PRIV | SRMMU_CACHE);
+ }
+ 
+diff -urN linux-2.4.19-pre9/arch/sparc/mm/srmmu.c linux-2.4.19-pre9.n/arch/sparc/mm/srmmu.c
+--- linux-2.4.19-pre9/arch/sparc/mm/srmmu.c	Wed May 29 08:37:28 2002
++++ linux-2.4.19-pre9.n/arch/sparc/mm/srmmu.c	Sat Jun  1 15:18:02 2002
+@@ -114,8 +114,16 @@
+ 
+ int srmmu_cache_pagetables;
+ 
+-/* XXX Make this dynamic based on ram size - Anton */
+-#define SRMMU_NOCACHE_BITMAP_SIZE (SRMMU_NOCACHE_NPAGES * 16)
++/* these will be initialized in srmmu_nocache_calcsize() */
++int srmmu_nocache_npages;
++unsigned long srmmu_nocache_size;
++unsigned long srmmu_nocache_end;
++unsigned long fix_kmap_begin;
++unsigned long fix_kmap_end;
++unsigned long pkmap_base;
++unsigned long pkmap_base_end;
++unsigned long srmmu_nocache_bitmap_size;
++
+ #define SRMMU_NOCACHE_BITMAP_SHIFT (PAGE_SHIFT - 4)
+ 
+ void *srmmu_nocache_pool;
+@@ -248,7 +256,7 @@
+ 	spin_lock(&srmmu_nocache_spinlock);
+ 
+ repeat:
+-	offset = find_next_zero_bit(srmmu_nocache_bitmap, SRMMU_NOCACHE_BITMAP_SIZE, offset);
++	offset = find_next_zero_bit(srmmu_nocache_bitmap, srmmu_nocache_bitmap_size, offset);
+ 
+ 	/* we align on physical address */
+ 	if (align) {
+@@ -258,7 +266,7 @@
+ 		offset = (va_tmp - SRMMU_NOCACHE_VADDR) >> SRMMU_NOCACHE_BITMAP_SHIFT;
+ 	}
+ 
+-	if ((SRMMU_NOCACHE_BITMAP_SIZE - offset) < size) {
++	if ((srmmu_nocache_bitmap_size - offset) < size) {
+ 		printk("Run out of nocached RAM!\n");
+ 		spin_unlock(&srmmu_nocache_spinlock);
+ 		return 0;
+@@ -322,6 +330,35 @@
+ 
+ void srmmu_early_allocate_ptable_skeleton(unsigned long start, unsigned long end);
+ 
++extern unsigned long probe_memory(void);	/* in fault.c */
++
++/* Reserve nocache dynamically proportionally to the amount of
++ * system RAM. -- Tomas Szepe <szepe@pinerecords.com>, June 2002
++ */
++void srmmu_nocache_calcsize(void)
++{
++	unsigned long sysmemavail = probe_memory() / 1024;
++
++	srmmu_nocache_npages =
++		sysmemavail / SRMMU_NOCACHE_ALCRATIO / 1024 * 256;
++	if (sysmemavail % (SRMMU_NOCACHE_ALCRATIO * 1024))
++		srmmu_nocache_npages += 256;
++
++	/* anything above 1280 blows up */
++	if (srmmu_nocache_npages > 1280) srmmu_nocache_npages = 1280;
++
++	srmmu_nocache_size = srmmu_nocache_npages * PAGE_SIZE;
++	srmmu_nocache_bitmap_size = srmmu_nocache_npages * 16;
++	srmmu_nocache_end = SRMMU_NOCACHE_VADDR + srmmu_nocache_size;
++	fix_kmap_begin = srmmu_nocache_end;
++	fix_kmap_end = fix_kmap_begin + (KM_TYPE_NR * NR_CPUS - 1) * PAGE_SIZE;
++	pkmap_base = SRMMU_NOCACHE_VADDR + srmmu_nocache_size + 0x40000;
++	pkmap_base_end = pkmap_base + LAST_PKMAP * PAGE_SIZE;
++
++	/* printk("system memory available = %luk\nnocache ram size = %luk\n",
++		sysmemavail, srmmu_nocache_size / 1024); */
++}
++
+ void srmmu_nocache_init(void)
+ {
+ 	pgd_t *pgd;
+@@ -330,24 +367,24 @@
+ 	unsigned long paddr, vaddr;
+ 	unsigned long pteval;
+ 
+-	srmmu_nocache_pool = __alloc_bootmem(SRMMU_NOCACHE_SIZE, PAGE_SIZE, 0UL);
+-	memset(srmmu_nocache_pool, 0, SRMMU_NOCACHE_SIZE);
++	srmmu_nocache_pool = __alloc_bootmem(srmmu_nocache_size, PAGE_SIZE, 0UL);
++	memset(srmmu_nocache_pool, 0, srmmu_nocache_size);
+ 
+-	srmmu_nocache_bitmap = __alloc_bootmem(SRMMU_NOCACHE_BITMAP_SIZE, SMP_CACHE_BYTES, 0UL);
+-	memset(srmmu_nocache_bitmap, 0, SRMMU_NOCACHE_BITMAP_SIZE);
++	srmmu_nocache_bitmap = __alloc_bootmem(srmmu_nocache_bitmap_size, SMP_CACHE_BYTES, 0UL);
++	memset(srmmu_nocache_bitmap, 0, srmmu_nocache_bitmap_size);
+ 
+ 	srmmu_swapper_pg_dir = (pgd_t *)__srmmu_get_nocache(SRMMU_PGD_TABLE_SIZE, SRMMU_PGD_TABLE_SIZE);
+ 	memset(__nocache_fix(srmmu_swapper_pg_dir), 0, SRMMU_PGD_TABLE_SIZE);
+ 	init_mm.pgd = srmmu_swapper_pg_dir;
+ 
+-	srmmu_early_allocate_ptable_skeleton(SRMMU_NOCACHE_VADDR, SRMMU_NOCACHE_END);
++	srmmu_early_allocate_ptable_skeleton(SRMMU_NOCACHE_VADDR, srmmu_nocache_end);
+ 
+ 	spin_lock_init(&srmmu_nocache_spinlock);
+ 
+ 	paddr = __pa((unsigned long)srmmu_nocache_pool);
+ 	vaddr = SRMMU_NOCACHE_VADDR;
+ 
+-	while (vaddr < SRMMU_NOCACHE_END) {
++	while (vaddr < srmmu_nocache_end) {
+ 		pgd = pgd_offset_k(vaddr);
+ 		pmd = srmmu_pmd_offset(__nocache_fix(pgd), vaddr);
+ 		pte = srmmu_pte_offset(__nocache_fix(pmd), vaddr);
+@@ -1144,6 +1181,7 @@
+ 	pages_avail = 0;
+ 	last_valid_pfn = bootmem_init(&pages_avail);
+ 
++	srmmu_nocache_calcsize();
+ 	srmmu_nocache_init();
+         srmmu_inherit_prom_mappings(0xfe400000,(LINUX_OPPROM_ENDVM-PAGE_SIZE));
+ 	map_kernel();
+@@ -1165,12 +1203,12 @@
+ 	srmmu_allocate_ptable_skeleton(DVMA_VADDR, DVMA_END);
+ #endif
+ 
+-	srmmu_allocate_ptable_skeleton(FIX_KMAP_BEGIN, FIX_KMAP_END);
+-	srmmu_allocate_ptable_skeleton(PKMAP_BASE, PKMAP_BASE_END);
++	srmmu_allocate_ptable_skeleton(fix_kmap_begin, fix_kmap_end);
++	srmmu_allocate_ptable_skeleton(pkmap_base, pkmap_base_end);
+ 
+-	pgd = pgd_offset_k(PKMAP_BASE);
+-	pmd = pmd_offset(pgd, PKMAP_BASE);
+-	pte = pte_offset(pmd, PKMAP_BASE);
++	pgd = pgd_offset_k(pkmap_base);
++	pmd = pmd_offset(pgd, pkmap_base);
++	pte = pte_offset(pmd, pkmap_base);
+ 	pkmap_page_table = pte;
+ 
+ 	flush_cache_all();
+@@ -1219,7 +1257,7 @@
+ 		   "nocache used\t: %d\n",
+ 		   srmmu_name,
+ 		   num_contexts,
+-		   SRMMU_NOCACHE_SIZE,
++		   srmmu_nocache_size,
+ 		   (srmmu_nocache_used << SRMMU_NOCACHE_BITMAP_SHIFT));
+ }
+ 
+diff -urN linux-2.4.19-pre9/include/asm-sparc/highmem.h linux-2.4.19-pre9.n/include/asm-sparc/highmem.h
+--- linux-2.4.19-pre9/include/asm-sparc/highmem.h	Thu Oct 25 03:17:21 2001
++++ linux-2.4.19-pre9.n/include/asm-sparc/highmem.h	Sat Jun  1 15:03:25 2002
+@@ -36,6 +36,10 @@
+ extern pgprot_t kmap_prot;
+ extern pte_t *pkmap_page_table;
+ 
++/* these two get calculated in arch/sparc/mm/srmmu.c */
++extern unsigned long fix_kmap_begin;
++extern unsigned long pkmap_base;
++
+ extern void kmap_init(void) __init;
+ 
+ /*
+@@ -45,9 +49,9 @@
+  */
+ #define LAST_PKMAP 1024
+ 
+-#define LAST_PKMAP_MASK (LAST_PKMAP-1)
+-#define PKMAP_NR(virt)  ((virt-PKMAP_BASE) >> PAGE_SHIFT)
+-#define PKMAP_ADDR(nr)  (PKMAP_BASE + ((nr) << PAGE_SHIFT))
++#define LAST_PKMAP_MASK (LAST_PKMAP - 1)
++#define PKMAP_NR(virt)  ((virt - pkmap_base) >> PAGE_SHIFT)
++#define PKMAP_ADDR(nr)  (pkmap_base + ((nr) << PAGE_SHIFT))
+ 
+ extern void *kmap_high(struct page *page);
+ extern void kunmap_high(struct page *page);
+@@ -85,7 +89,7 @@
+ 		return page_address(page);
+ 
+ 	idx = type + KM_TYPE_NR*smp_processor_id();
+-	vaddr = FIX_KMAP_BEGIN + idx * PAGE_SIZE;
++	vaddr = fix_kmap_begin + idx * PAGE_SIZE;
+ 
+ /* XXX Fix - Anton */
+ #if 0
+@@ -114,10 +118,10 @@
+ 	unsigned long vaddr = (unsigned long) kvaddr;
+ 	unsigned long idx = type + KM_TYPE_NR*smp_processor_id();
+ 
+-	if (vaddr < FIX_KMAP_BEGIN) // FIXME
++	if (vaddr < fix_kmap_begin) // FIXME
+ 		return;
+ 
+-	if (vaddr != FIX_KMAP_BEGIN + idx * PAGE_SIZE)
++	if (vaddr != fix_kmap_begin + idx * PAGE_SIZE)
+ 		BUG();
+ 
+ /* XXX Fix - Anton */
+diff -urN linux-2.4.19-pre9/include/asm-sparc/vaddrs.h linux-2.4.19-pre9.n/include/asm-sparc/vaddrs.h
+--- linux-2.4.19-pre9/include/asm-sparc/vaddrs.h	Mon Jul 30 01:13:30 2001
++++ linux-2.4.19-pre9.n/include/asm-sparc/vaddrs.h	Sat Jun  1 15:07:17 2002
+@@ -14,23 +14,26 @@
+ 
+ #define SRMMU_MAXMEM		0x0c000000
+ 
+-#define SRMMU_NOCACHE_VADDR	0xfc000000	/* KERNBASE + SRMMU_MAXMEM */
+-/* XXX Make this dynamic based on ram size - Anton */
+-#define SRMMU_NOCACHE_NPAGES	256
+-#define SRMMU_NOCACHE_SIZE	(SRMMU_NOCACHE_NPAGES * PAGE_SIZE)
+-#define SRMMU_NOCACHE_END	(SRMMU_NOCACHE_VADDR + SRMMU_NOCACHE_SIZE)
++#define SRMMU_NOCACHE_VADDR	(KERNBASE + SRMMU_MAXMEM)
++				/* = 0x0fc000000 */
+ 
+-#define FIX_KMAP_BEGIN		0xfc100000
+-#define FIX_KMAP_END (FIX_KMAP_BEGIN + ((KM_TYPE_NR*NR_CPUS)-1)*PAGE_SIZE)
+-
+-#define PKMAP_BASE		0xfc140000
+-#define PKMAP_BASE_END		(PKMAP_BASE+LAST_PKMAP*PAGE_SIZE)
++/* The following constant is used in mm/srmmu.c::srmmu_nocache_calcsize()
++ * to determine the amount of memory that will be reserved as nocache:
++ *
++ * 256 pages will be taken as nocache per each
++ * SRMMU_NOCACHE_ALCRATIO MB of system memory.
++ *
++ * limits enforced:	nocache minimum = 256 pages
++ *			nocache maximum = 1280 pages
++ */
++#define SRMMU_NOCACHE_ALCRATIO	64	/* 256 pages per 64MB of system RAM */
+ 
+ #define SUN4M_IOBASE_VADDR	0xfd000000 /* Base for mapping pages */
+ #define IOBASE_VADDR		0xfe000000
+ #define IOBASE_END		0xfe300000
+ 
+ #define VMALLOC_START		0xfe300000
++
+ /* XXX Alter this when I get around to fixing sun4c - Anton */
+ #define VMALLOC_END		0xffc00000
+ 

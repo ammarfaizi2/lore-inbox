@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262027AbREYXcC>; Fri, 25 May 2001 19:32:02 -0400
+	id <S262050AbREYXky>; Fri, 25 May 2001 19:40:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262050AbREYXbv>; Fri, 25 May 2001 19:31:51 -0400
-Received: from smtp6vepub.gte.net ([206.46.170.27]:17435 "EHLO
-	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
-	id <S262027AbREYXbj>; Fri, 25 May 2001 19:31:39 -0400
-From: George France <france@handhelds.org>
-Date: Fri, 25 May 2001 19:31:21 -0400
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-To: Jay Thorne <Yohimbe@userfriendly.org>
-In-Reply-To: <990827407.27355.2.camel@gracie.userfriendly.org> <01052518523300.28075@shadowfax.middleearth> <990831934.27357.4.camel@gracie.userfriendly.org>
-In-Reply-To: <990831934.27357.4.camel@gracie.userfriendly.org>
-Subject: Re: PROBLEM: Alpha SMP Low Outbound Bandwidth
-MIME-Version: 1.0
-Message-Id: <01052519312101.28075@shadowfax.middleearth>
-Content-Transfer-Encoding: 7BIT
+	id <S262058AbREYXko>; Fri, 25 May 2001 19:40:44 -0400
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:21508 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S262050AbREYXkf>; Fri, 25 May 2001 19:40:35 -0400
+Date: Fri, 25 May 2001 17:40:31 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.4-ac17 - missing in exports simple_strtol symbol 
+Message-ID: <20010525174031.A7661@mail.harddata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 25 May 2001 19:05, Jay Thorne wrote:
-> On 25 May 2001 18:52:33 -0400, George France wrote:
-> > Hello Jay,
-> >
-> > I see that you are using the tulip driver.  Could you try the de4x5
-> > driver??
->
-> Its worse: reports 3.1 MBs and 1.6 MBs
+Patches to drivers/scsi/sg.c included in 2.4.4-ac17 require for
+'sg.o' module to use 'simple_strtol' which is not exported in
+kernel/ksyms.c.  Is this is an oversight or 'sg.o' should be actually
+using something like 'simple_strtoul' - which is already exported?
+In either case patches are obvious.
 
-wuftp is not exactly a performance benchmark, have you tried 'netperf'?
+BTW - is tulip supposed to already work in this version?  Because
+it does not.
 
---George
+  Michal
+  michal@harddata.com

@@ -1,129 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbULGRHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbULGRLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbULGRHz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 12:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbULGRHz
+	id S261849AbULGRLk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 12:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbULGRLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 12:07:55 -0500
-Received: from eth0-0.arisu.projectdream.org ([194.158.4.191]:53440 "EHLO
-	b.mx.projectdream.org") by vger.kernel.org with ESMTP
-	id S261868AbULGRHc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 12:07:32 -0500
-Date: Tue, 7 Dec 2004 18:07:48 +0100
-From: Thomas Graf <tgraf@suug.ch>
-To: Patrick McHardy <kaber@trash.net>
-Cc: hadi@cyberus.ca, Andrew Morton <akpm@osdl.org>,
-       Thomas Cataldo <tomc@compaqnet.fr>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>
-Subject: Re: Hard freeze with 2.6.10-rc3 and QoS, worked fine with 2.6.9
-Message-ID: <20041207170748.GF1371@postel.suug.ch>
-References: <1102380430.6103.6.camel@buffy> <20041206224441.628e7885.akpm@osdl.org> <1102422544.1088.98.camel@jzny.localdomain> <41B5E188.5050800@trash.net>
+	Tue, 7 Dec 2004 12:11:39 -0500
+Received: from mail.tmr.com ([216.238.38.203]:25608 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261849AbULGRLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 12:11:22 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: growisofs / system load / dma setting
+Date: Tue, 07 Dec 2004 12:12:13 -0500
+Organization: TMR Associates, Inc
+Message-ID: <41B5E46D.5020204@tmr.com>
+References: <33560.194.39.131.40.1101824878.squirrel@noto.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41B5E188.5050800@trash.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1102438924 30611 192.168.12.100 (7 Dec 2004 17:02:04 GMT)
+X-Complaints-To: abuse@tmr.com
+Cc: linux-kernel@vger.kernel.org
+To: Thomas Fritzsche <tf@noto.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+In-Reply-To: <33560.194.39.131.40.1101824878.squirrel@noto.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Patrick McHardy <41B5E188.5050800@trash.net> 2004-12-07 17:59
-> jamal wrote:
+Thomas Fritzsche wrote:
+> Hi Linux-Hackers,
 > 
-> >Can you do a: 
-> >tc -V
-> >
-> >This seems to point to probably be a backward compat issue which was
-> >overlooked in the stats.
-> >
-> That's also what I thought at first. But the problem is in
-> tcf_action_copy_stats, it assumes a->priv has the same layout as
-> struct tcf_act_hdr, which is not true for struct tcf_police. This
-> patch rearranges struct tcf_police to match tcf_act_hdr.
+> I posted this message first to the cdwriter mailing list (
+> http://www.mail-archive.com/cdwrite%40other.debian.org/msg07041.html )
+> but they told me this is a kernel problem, thus I post it here again.
+> Because I had this DVD-Device running without problem in 2.6.8 I can
+> exclude that it's a cabel/hw-problem.
+> 
+> Thanks and regards,
+>  Thomas Fritzsche
+> ---------------------------------------
+> Hi all,
+> 
+> I'm using growisofs -Z /dev/hdc=/link/to/iso.iso to burn DVD-Video's. This
+> works, BUT the system load is very high while burning. I'l checked DMA
+> setting but DMA is on (and 32 bit). I googled around but can not find a
+> solution. I tried again and found that after burning dma is off!? I
+> checked dmesg and found message:
+> --------------------------------------
+> hdc: irq timeout: status=0xd0 { Busy }
+> hdc: irq timeout: error=0xd0LastFailedSense 0x0d
+> hdc: DMA disabled
+> hdc: ATAPI reset complete
+> --------------------------------------
+> I tested a few times and sometimes only the system load is very high but
+> DMA  is still set after the run, but often DMA setting is disabled and I
+> get the message above.
+> 
+> My system configuration is:
+> 
+> uname -a
+> Linux vdr.noto.de 2.4.27-ctvdr-1 #1 Fri Oct 15 18:38:29 UTC 2004 i686
+> GNU/Linux
+> 
+> hdparm -i /dev/hdc
+> 
+> 
+> /dev/hdc:
+> 
+>  Model=_NEC DVD_RW ND-3500AG, FwRev=2.16, SerialNo=
+>  Config={ Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+>  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+>  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+>  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+>  IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 *udma2
+>  AdvancedPM=no
+> 
+>  * signifies the current active mode
+> 
+> ------------------------------
+> 
+> Is this a growisofs problem or a kernel problem? What causes this trouble?
+> What can I do to avoid this problems.
 
-Hehe, see my post a few minutes back. I came up with nearly the same
-solution ;-> The only difference to my patch is that I don't touch
-tcf_police if the action code isn't compiled.
+Do you have any automounter daemon running? All the window managers are 
+really bad about this, even when told not to do that, they do (under 
+some conditions I haven't isolated).
 
+Try it running with X down (console mode). If the problem goes away you 
+have a start, if not track the system with "vmstat 1" and post a screen 
+or two.
 
---- linux-2.6.10-rc2-bk13.orig/include/net/act_api.h	2004-11-30 14:01:11.000000000 +0100
-+++ linux-2.6.10-rc2-bk13/include/net/act_api.h	2004-12-07 17:49:50.000000000 +0100
-@@ -8,15 +8,42 @@
- #include <net/sch_generic.h>
- #include <net/pkt_sched.h>
- 
-+#ifdef CONFIG_NET_CLS_ACT
-+
-+#define ACT_P_CREATED 1
-+#define ACT_P_DELETED 1
-+#define tca_gen(name) \
-+struct tcf_##name *next; \
-+	u32 index; \
-+	int refcnt; \
-+	int bindcnt; \
-+	u32 capab; \
-+	int action; \
-+	struct tcf_t tm; \
-+	struct gnet_stats_basic bstats; \
-+	struct gnet_stats_queue qstats; \
-+	struct gnet_stats_rate_est rate_est; \
-+	spinlock_t *stats_lock; \
-+	spinlock_t lock
-+
-+#endif
-+
- struct tcf_police
- {
-+#ifdef CONFIG_NET_CLS_ACT
-+	tca_gen(police);
-+#else
- 	struct tcf_police *next;
- 	int		refcnt;
--#ifdef CONFIG_NET_CLS_ACT
--	int		bindcnt;
--#endif
- 	u32		index;
- 	int		action;
-+	spinlock_t	lock;
-+	struct gnet_stats_basic bstats;
-+	struct gnet_stats_queue qstats;
-+	struct gnet_stats_rate_est rate_est;
-+	spinlock_t	*stats_lock;
-+#endif
-+
- 	int		result;
- 	u32		ewma_rate;
- 	u32		burst;
-@@ -24,34 +51,12 @@
- 	u32		toks;
- 	u32		ptoks;
- 	psched_time_t	t_c;
--	spinlock_t	lock;
- 	struct qdisc_rate_table *R_tab;
- 	struct qdisc_rate_table *P_tab;
--
--	struct gnet_stats_basic bstats;
--	struct gnet_stats_queue qstats;
--	struct gnet_stats_rate_est rate_est;
--	spinlock_t	*stats_lock;
- };
- 
- #ifdef CONFIG_NET_CLS_ACT
- 
--#define ACT_P_CREATED 1
--#define ACT_P_DELETED 1
--#define tca_gen(name) \
--struct tcf_##name *next; \
--	u32 index; \
--	int refcnt; \
--	int bindcnt; \
--	u32 capab; \
--	int action; \
--	struct tcf_t tm; \
--	struct gnet_stats_basic bstats; \
--	struct gnet_stats_queue qstats; \
--	struct gnet_stats_rate_est rate_est; \
--	spinlock_t *stats_lock; \
--	spinlock_t lock
--
- struct tcf_act_hdr
- {
- 	tca_gen(act_hdr);
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

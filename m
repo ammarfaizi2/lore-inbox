@@ -1,88 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317030AbSIILNI>; Mon, 9 Sep 2002 07:13:08 -0400
+	id <S317063AbSIILT6>; Mon, 9 Sep 2002 07:19:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317063AbSIILNI>; Mon, 9 Sep 2002 07:13:08 -0400
-Received: from ppp-217-133-216-23.dialup.tiscali.it ([217.133.216.23]:2501
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S317030AbSIILNH>; Mon, 9 Sep 2002 07:13:07 -0400
-Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020909062223.GA19766@ravel.coda.cs.cmu.edu>
-References: <15730.8121.554630.859558@charged.uio.no>
-	<1030890022.2145.52.camel@ldb> <15730.17171.162970.367575@charged.uio.no>
-	<1030906488.2145.104.camel@ldb> <15730.27952.29723.552617@charged.uio.no>
-	<1030916061.2145.344.camel@ldb> <15730.36080.987645.452664@charged.uio.no>
-	<1030920630.1993.420.camel@ldb>
-	<20020903034607.GF29452@ravel.coda.cs.cmu.edu>
-	<1031522643.3025.279.camel@ldb> 
-	<20020909062223.GA19766@ravel.coda.cs.cmu.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-s/zgS+SVcQgdh7Su1IXc"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Sep 2002 13:17:45 +0200
-Message-Id: <1031570265.16159.130.camel@ldb>
+	id <S317073AbSIILT6>; Mon, 9 Sep 2002 07:19:58 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:24826 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317063AbSIILT5>; Mon, 9 Sep 2002 07:19:57 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020909121348.B4855@redhat.com> 
+References: <20020909121348.B4855@redhat.com>  <2653.1031563253@redhat.com> 
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] On paging of kernel VM. 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 09 Sep 2002 12:24:40 +0100
+Message-ID: <28099.1031570680@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-s/zgS+SVcQgdh7Su1IXc
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+sct@redhat.com said:
+>  The alternative is a kmap-style mechanism for temporarily mapping
+> pages beyond physical memory on demand.
 
-On Mon, 2002-09-09 at 08:22, Jan Harkes wrote: 
-> On Mon, Sep 09, 2002 at 12:04:03AM +0200, Luca Barbieri wrote:
-> > > Now if this is a multithreaded application that does this in one thread
-> > > and another thread happens to open a completely unrelated file around
-> > > the time that the first thread drops this application's setuid
-> > > permissions. If we don't use a copy during the open upcall, but copy it
-> > > after the fact, we don't have the correct permissions around the time
-> > > the file is closed.
-> > You would copy them during the filesystem open.
-> > My point was that in the generic vfs open there is no need to use copied
-> > credentials so credentials copying can be restricted to network
-> > filesystems with not-very-good designs.
-> > 
-> > > > BTW, imho a correctly designed network filesystem should have a single
-> > > > stateful encrypted connection (or a pool of equally authenticated ones)
-> > > > and credentials (i.e. passwords) should only be passed when the user
-> > > > makes the first filesystem access. After that the server should do
-> > > > authentication with the OR of all credentials received and the client
-> > > > kernel should further decide whether it can give access to a particular
-> > > > user.
-> > > 
-> > > Right, which is pretty close to what Coda does.
-> > This is in contradiction with your statement about credentials sent
-> > during close.
-> 
-> How so, Coda has a pool of authenticated connections per user. But the
-> userspace cachemanager still needs to know which user performed the
-> operation in order to pick the right connection to send the message.
-> 
-> If user A opens a file and then user B writes/closes it, should it send
-> the write/close message over the authenticated connection of user B?
-> Ofcourse not, so we need to store the credentials of the opener with the
-> file.
-My point is that all users should be authenticated on all connections.
-You may have to remember which connection was used to open the file, but
-it's probably much better to design the protocol so that this isn't
-necessary: this would allow efficient load balancing with per-cpu or
-per-nic connections.
+That's a possibility I'd considered, but in this case there are problems
+with explicitly mapping and unmapping the pages. The locking of the chip is
+a detail I was hoping to avoid exposing to the users of the device. 
+
+With mapping/unmapping done explicitly, not only does an active mapping
+prevent all other users from writing to the same device, hence requiring a
+'cond_temporarily_unmap()' kind of function, but you also get deadlock if a
+user of the device tries to write while they have a mapping active. The
+answer "don't do that then" is workable but not preferable. 
+
+Given that all the logic to mark pages present on read and then invalidate
+them on write access is going to have to be there for userspace _anyway_,
+being able to keep the API nice and simple by using that in kernelspace too
+would be far better, if we can justify the change to the slow path of the 
+vmalloc fault case.
+
+But yes, what you suggest is the current API for the flash stuff, sans the 
+'cond_temporarily_unmap_if_people_are_waiting()' bit. And that's why I've 
+avoided actually _using_ it, preferring to put up with the overhead of 
+reading into a RAM buffer until we can fix it.
+
+--
+dwmw2
 
 
---=-s/zgS+SVcQgdh7Su1IXc
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9fINZdjkty3ft5+cRAiSaAJ94Yv033bd+qVzuRloG3tUIqHuE3QCdHx/3
-mSAOSPx/iu5Az4shwoUTs2Q=
-=Cx5Q
------END PGP SIGNATURE-----
-
---=-s/zgS+SVcQgdh7Su1IXc--

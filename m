@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268413AbVBEONh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269000AbVBEOUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268413AbVBEONh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 09:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268126AbVBEONe
+	id S269000AbVBEOUS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 09:20:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbVBEOUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 09:13:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62220 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S268380AbVBEON2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 09:13:28 -0500
-Date: Sat, 5 Feb 2005 15:13:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove drivers/char/tpqic02.c
-Message-ID: <20050205141326.GF3129@stusta.de>
-References: <20050205114047.GA3129@stusta.de> <200502051508.18813.oliver@neukum.org>
+	Sat, 5 Feb 2005 09:20:17 -0500
+Received: from news.suse.de ([195.135.220.2]:2994 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269000AbVBEOUK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 09:20:10 -0500
+Subject: Re: ext3 extended attributes refcounting wrong?
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+In-Reply-To: <200502051239.j15CdJc8020766@harpo.it.uu.se>
+References: <200502051239.j15CdJc8020766@harpo.it.uu.se>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1107613200.27797.5.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502051508.18813.oliver@neukum.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 05 Feb 2005 15:20:00 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 05, 2005 at 03:08:18PM +0100, Oliver Neukum wrote:
-> Am Samstag, 5. Februar 2005 12:40 schrieb Adrian Bunk:
-> > Since at about half a year, this driver was no longer selectable via
-> > Kconfig.
+On Sat, 2005-02-05 at 13:39, Mikael Pettersson wrote:
+> [...] It does not explain why 2.6 allocated
+> the xattr blocks in the first place; as I wrote initially, I
+> have disabled the xattrs stuff:
 > 
-> What happened when you ran oldconfig with a .config that had it set?
+> CONFIG_EXT3_FS=y
+> # CONFIG_EXT3_FS_XATTR is not set
 
-CONFIG_QIC02_TAPE is not set in the new .config .
+The filesystem in question must have been used with a kernel that was
+xattr aware once. You could also have been using ext2. Maybe you ran
+selinux at some point, or similar. Can you boot into a kernel with
+CONFIG_EXT3_FS_XATTR enabled, and ``getfattr -m- -d -R .'' on the
+filesystem in question? This gives you a full xattr dump.
 
-oldconfig only uses the old .config to answer Kconfig questions that 
-are actually asked.
-
-> 	Regards
-> 		Oliver
-
-cu
-Adrian
-
+Regards,
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
 

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271667AbRINTJO>; Fri, 14 Sep 2001 15:09:14 -0400
+	id <S267852AbRINTOZ>; Fri, 14 Sep 2001 15:14:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270495AbRINTJE>; Fri, 14 Sep 2001 15:09:04 -0400
-Received: from fe030.worldonline.dk ([212.54.64.197]:48645 "HELO
-	fe030.worldonline.dk") by vger.kernel.org with SMTP
-	id <S267852AbRINTIw>; Fri, 14 Sep 2001 15:08:52 -0400
-Date: Fri, 14 Sep 2001 21:09:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: kelley eicher <keicher@nws.gov>
-Cc: J <jack@i2net.com>, linux-kernel@vger.kernel.org
-Subject: Re: 0-order allocation failed in 2.4.10-pre8
-Message-ID: <20010914210903.E806@suse.de>
-In-Reply-To: <3BA24EB0.5000402@i2net.com> <Pine.LNX.4.33.0109141342340.14906-100000@home.nohrsc.nws.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109141342340.14906-100000@home.nohrsc.nws.gov>
+	id <S268702AbRINTOP>; Fri, 14 Sep 2001 15:14:15 -0400
+Received: from winds.org ([209.115.81.9]:46345 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S267852AbRINTOF>;
+	Fri, 14 Sep 2001 15:14:05 -0400
+Date: Fri, 14 Sep 2001 15:14:27 -0400 (EDT)
+From: Byron Stanoszek <gandalf@winds.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Strange /dev/loop behavior
+Message-ID: <Pine.LNX.4.33.0109141505530.29038-100000@winds.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 14 2001, kelley eicher wrote:
-> On Fri, 14 Sep 2001, J wrote:
-> 
-> > Hello,
-> >     I am reporting the same problem that kelley eicher
-> > has, "0-order allocation failed (gfp=0x70/1)", hopefully
-> > my info is helpfull. I added BUG() after the printk's in
-> > "mm/page_alloc.c:505". I am able to get this message
-> > when ever I copy a large (2+ gig) file from one XFS filesystem
-> > to another on the same disk controller. I have attached klogd -p output
-> > and an output of /proc/slabinfo from <= 1 second before the
-> > Oops. If anyone would like more info, or for me to apply dangerous
-> > patches, or to shut up even, let me know.
-> >
-> > Jack
-> >
-> > Machine:
-> > Kernel Version 2.4.10-pre8 with SGI-XFS patches and IBM-JFS patches.
-> > compiled with egcs 2.91-66 ;) (Some more info @ http://whatevr.i2net.com)
-> > SMP P3 Box with 2 Gig of memory
-> 
-> after spending a few dayz trying to figure out where this is happening, i
-> noticed that the alloc_pages() errors only occur after used memory goes
-> above 899MB. this is the limit of physical memory unless you enable the
-> himem option. the machines i had been seeing this on all had 1G+ memory
-> and i had enabled the 4G himem option on each of them. so turn that option
-> off and you will no longer see alloc_pages errors. you'll have to suffer
-> through only having 900MB of memory to play with though. ;>
+Over the months using kernels 2.2 and 2.4, I've seen some inconsistencies with
+the behavior of syncing data to filesystems mounted via loopback.
 
-Use the
+Say I mounted a 32MB 'diskimage' file as ext2fs. My goal is to be able to make
+changes to this filesystem, 'sync' these changes, and then copy a compressed
+version of the filesystem via the network for a diskless machine to boot. This
+has to take place without unmounting the filesystem.
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.9/block-highmem-all
+When we started with Linux 2.2 in June 1999, I was able to use this script to
+accomplish the task:
 
-patch and you can use highmem without having to worry about failed
-0-order bounce pages allocations.
+# cat diskimage | gzip > diskimage.gz
+
+Starting with 2.2.17, it became evident that the file 'diskimage' in cache was
+not equivalent to the filesystem mounted loopback. The script was changed to
+the following to reflect that it was the device data itself that needed to be
+compressed:
+
+# cat /dev/loop0 | gzip > diskimage.gz
+
+Now last week we've upgraded these servers to 2.4 (2.4.9-ac7 specifically) and
+it appears that /dev/loop0 is inconsistent with the actual loopback filesystem
+contents (even after a 'sync'). The inconsistency is intermittent. Sometimes
+the script works, sometimes the data in the modified files on the diskless
+machine is corrupt, and it requires a second cat|gzip to fix.
+
+I've changed the script to use 'cat diskimage' again for the meantime, but I
+don't know if it's the absolute fix.
+
+
+Is there any known method of copying/compressing the loopback-mounted file-
+system that always guarantees consistency after a sync, without requiring the
+fs to be unmounted first?
+
+Thanks,
+ Byron
 
 -- 
-Jens Axboe
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: byron@comtime.com
 

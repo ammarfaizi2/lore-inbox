@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264752AbTFLNgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 09:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264761AbTFLNgZ
+	id S264792AbTFLNlj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 09:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264796AbTFLNlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 09:36:25 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60043 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264752AbTFLNgX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 09:36:23 -0400
-Date: Thu, 12 Jun 2003 19:22:54 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: 2.5.70-bk16: nfs crash
-Message-ID: <20030612135254.GA2482@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030612125630.GA19842@butterfly.hjsoft.com>
+	Thu, 12 Jun 2003 09:41:39 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:37132 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S264792AbTFLNli (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 09:41:38 -0400
+Date: Thu, 12 Jun 2003 15:54:45 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel@vger.kernel.org
+Cc: gibbs@scsiguy.com, willy@w.ods.org, marcelo@conectiva.com.br,
+       green@namesys.com
+Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
+Message-Id: <20030612155445.7a023a04.skraw@ithnet.com>
+In-Reply-To: <20030611222346.0a26729e.skraw@ithnet.com>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<41560000.1055306361@caspian.scsiguy.com>
+	<20030611222346.0a26729e.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030612125630.GA19842@butterfly.hjsoft.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 12:57:26PM +0000, John M Flinchbaugh wrote:
-> running 2.5.70-bk16, i got this error and hang.  sysrq worked for
-> reboot, etc.
-> 
-> it apparently crashed when it mounted an nfs export from a 2.4.18 box,
-> and tried to mv a file.  i doubt it matters, but the nic is an
-> orinoco_cs wireless card.  thanks.
-> 
-> Jun 12 02:00:04 density kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> Jun 12 02:00:04 density kernel: printing eip:
-> Jun 12 02:00:04 density kernel: c0169ef1
-> Jun 12 02:00:04 density kernel: *pde = 00000000
-> Jun 12 02:00:04 density kernel: Oops: 0002 [#1]
-> Jun 12 02:00:04 density kernel: CPU:    0
-> Jun 12 02:00:04 density kernel: EIP:    0060:[<c0169ef1>]    Not tainted
-> Jun 12 02:00:04 density kernel: EFLAGS: 00010246
-> Jun 12 02:00:04 density kernel: EIP is at d_move+0x51/0x250
-> Jun 12 02:00:04 density kernel: eax: 00000000   ebx: cd5e6960   ecx: cd5e69d0   edx: 00000000
+On Wed, 11 Jun 2003 22:23:46 +0200
+Stephan von Krawczynski <skraw@ithnet.com> wrote:
 
-I am not supprised at all by this, I can see two csets in Linus' tree 
-that will definitely break dcache -
+> Hello,
+> [...]
+> Anyway it looks like failures have gotten fewer since rc8. I will try an
+> overnight stress test now to see if I get it freezing again.
 
-1. http://linux.bkbits.net:8080/linux-2.5/cset@1.1215.104.2?nav=index.html|ChangeSet@-2d
+Interestingly it does not freeze. One file shows data corruption, but the
+system looks stable. None of the older rc's made it up to this point. Looks
+like something in rc8 got better and I am in fact experiencing a set of bugs
+and not only one.
 
-__d_drop() *must not* initialize d_hash fields. Lockfree lookup depends on
-that. If __d_drop() needs to be allowed on an unhashed dentry, the right
-thing to do would be to check for DCACHE_UNHASHED before unhashing. I will
-submit a patch a little later to do this.
+Regards,
+Stephan
 
-
-2. http://linux.bkbits.net:8080/linux-2.5/cset@1.1215.104.1?nav=index.html|ChangeSet@-2d
-
-hlist poison patch is broken. list_del_rcu() and hlist_del_rcu() 
-*must not* re-initialize the pointers. Maneesh submitted a patch
-earlier today that corrects this -
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105541206017154&w=2
-
-
-Thanks
-Dipankar

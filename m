@@ -1,69 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbUDHRmd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 13:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbUDHRmd
+	id S262077AbUDHRsi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 13:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDHRsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 13:42:33 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:11921 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262005AbUDHRmb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 13:42:31 -0400
-Subject: Re: setgid - its current use
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: gami@d10systems.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1081446055.1587.172.camel@cube>
+	Thu, 8 Apr 2004 13:48:38 -0400
+Received: from 213-0-217-98.dialup.nuria.telefonica-data.net ([213.0.217.98]:41352
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S262077AbUDHRsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 13:48:35 -0400
+Date: Thu, 8 Apr 2004 19:48:23 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Cc: Nick.Holloway@pyrites.org.uk
+Subject: [PATCH 2.6] Add missing MODULE_PARAM to dummy.c (and MAINTAINERShip)
+Message-ID: <20040408174823.GA13335@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Nick.Holloway@pyrites.org.uk
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 08 Apr 2004 13:40:55 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dhruv Gami writes:
-> On Thu, 8 Apr 2004, Denis Vlasenko wrote:
->> On Thursday 08 April 2004 04:46, Dhruv Gami wrote:
+Hello:
 
->>> I'd like to know the possibility of using setgid for users
->>> to switch their groups and work as a member of a particular
->>> group. Essentially, if i want one user, who belongs to
->>> groups X, Y and Z to create a file as a member of group Y
->>> while he's logged on as a member of group X, would it be
->>> possible through setgid() ?
->>
->> it is possible through chmod
->
-> but that would be an explicit way of doing it, right ?
-> I'm looking for doing this via some system calls or something
-> transparent to the user. At  most I'd like to query the user
-> for the group as which he wants to work. Which would
-> essentially be a question I ask at login or beginning of a 
-> session.
+It seems the "dummy" network interface driver is missing some MODULE_*
+macros, needed with kernel 2.6.x and module-init-tools to show
+information about the module (parameters, author, description, etc).
 
-I think you need user-private groups and setgid directories.
+A patch follows to (hopefully) correct this. Another patch includes an
+entry in the MAINTAINERS file for the "dummy" module. However, I suppose 
+the module author (Nick Holloway) will come up and say if he should
+still be considered as the module maintainer, so to add the correct
+information to the MAINTAINERS file.
 
-First of all, ensure that each user has a group of
-their own. Do NOT put all users into a "users" group.
-So user "gami" would be in group "gami", or maybe
-a "gami_group" group if you prefer. Have the home
-directories owned by these groups.
+Hope the patchs are correct, or at least useful to note the missing bits
+I was trying to "patch" and someone else does the "technical" work :-)
 
-Second, set the umask to allow group write access.
-(this is why you need the user-private groups)
+Greetings.
 
-Now suppose you have two users, bill and tom,
-who need to work together on the spamming project.
-Create a group called "spamming". Create a project
-directory /projects/spamming owned by root and
-in the spamming group. Make this directory setgid
-and group writable. Any files created in this
-directory will be owned by the spamming group.
-Due to the umask setting, permissions on these
-new files will allow access by all group members.
-The setgid bit will propagate to any newly created
-directories, but not to newly created files.
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.5)
 
 
+diff -Nrup linux-2.6.5/drivers/net/dummy.c linux-2.6.5-new/drivers/net/dummy.c
+--- linux-2.6.5/drivers/net/dummy.c	2004-04-04 17:45:54.000000000 +0200
++++ linux-2.6.5-new/drivers/net/dummy.c	2004-04-08 19:23:23.000000000 +0200
+@@ -89,7 +89,8 @@ static struct net_device_stats *dummy_ge
+ static struct net_device **dummies;
+ 
+ /* Number of dummy devices to be set up by this module. */
+-module_param(numdummies, int, 0);
++MODULE_PARM(numdummies, "i");
++MODULE_PARM_DESC(numdummies, "Maximum number of dummy devices (defaults to one)");
+ 
+ static int __init dummy_init_one(int index)
+ {
+@@ -144,3 +145,5 @@ static void __exit dummy_cleanup_module(
+ module_init(dummy_init_module);
+ module_exit(dummy_cleanup_module);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Dummy network interface driver");
++MODULE_AUTHOR("Nick Holloway <Nick.Holloway@pyrites.org.uk>");
+
+diff -Nrup linux-2.6.5/MAINTAINERS linux-2.6.5-new/MAINTAINERS
+--- linux-2.6.5/MAINTAINERS	2004-04-04 17:49:26.000000000 +0200
++++ linux-2.6.5-new/MAINTAINERS	2004-04-08 19:22:01.000000000 +0200
+@@ -707,6 +707,12 @@ M:	romieu@cogenit.fr
+ M:	romieu@ensta.fr
+ S:	Maintained
+ 
++DUMMY NETWORK INTERFACE DRIVER
++P:	Nick Holloway
++M:	Nick.Holloway@pyrites.org.uk
++L:	linux-kernel@vger.kernel.org
++S:	Supported
++
+ DVB SUBSYSTEM AND DRIVERS
+ P:	LinuxTV.org Project
+ M: 	linux-dvb-maintainer@linuxtv.org

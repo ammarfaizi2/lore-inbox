@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265125AbSKNRTe>; Thu, 14 Nov 2002 12:19:34 -0500
+	id <S265098AbSKNRgc>; Thu, 14 Nov 2002 12:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265126AbSKNRTe>; Thu, 14 Nov 2002 12:19:34 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:49105 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265125AbSKNRTd>; Thu, 14 Nov 2002 12:19:33 -0500
-Date: Thu, 14 Nov 2002 10:21:07 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, ftpadmin@kernel.org,
-       "Timothy D. Witham" <wookie@osdl.org>
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <237150000.1037298067@flay>
-In-Reply-To: <3DD3D7BB.2040207@pobox.com>
-References: <225710000.1037241209@flay> <3DD3D7BB.2040207@pobox.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S265099AbSKNRgb>; Thu, 14 Nov 2002 12:36:31 -0500
+Received: from dp.samba.org ([66.70.73.150]:58092 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265098AbSKNRgQ>;
+	Thu, 14 Nov 2002 12:36:16 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Matthew Wilcox <willy@debian.org>
+Cc: jgarzik@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module parameters reimplementation 0/4 
+In-reply-to: Your message of "Thu, 14 Nov 2002 12:39:40 -0000."
+             <20021114123940.U30392@parcelfarce.linux.theplanet.co.uk> 
+Date: Fri, 15 Nov 2002 04:33:37 +1100
+Message-Id: <20021114174310.9DD642C2A7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> The bugzilla database we proposed earlier is now available for
->> use, hosted by OSDL.
->> 
->> http://bugme.osdl.org
+In message <20021114123940.U30392@parcelfarce.linux.theplanet.co.uk> you write:
+> Rusty wrote:
+> > Jgarzik wrote:
+> > > Let's be more friendly to the namespace and call it something less
+> > > ambiguous, like MODULE_PARAM, even if that might not be strictly true in
+> > > 1% of the cases. IMO there are certainly valid local uses of 'PARAM' in
+> > > kernel code.
+> > 
+> > I disagree. It's a param, subsuming both __setup and MODULE_PARAM.
+> > The fact that it is implemented for modules is not something for the
+> > driver author to be concerned about (finally).
 > 
-> I forgot to mention, it would IMO speed acceptance and increase usage 
-> if this was a vendor-neutral URL, like 'bugzilla.kernel.org'...
+> You're both wrong ;-)  `module' != `loadable module'.
 
-Though OSDL may be funded by a group of large companies, in practice 
-they're vendor neutral for this sort of thing. I suspect any requests 
-to Tim to remove all hardware categories that wasn't from vendor X, 
-or anything equally ridiculous would just result in a hefty poke in 
-the eye ;-) Also, I think it's polite to give them the recognition they
-deserve for hosting the site, and providing the machine in runs on.
+Now we're descending into sophistry.  But PARAM() is useful in (say)
+init/main.c, as well, and it's a stretch to call it a module...
 
-I believe we have a common goal here ... to get 2.6 to be released in
-a timely fashion, and to be as stable as possible.
-
-M.
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,120 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVCRQKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVCRQP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVCRQKl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 11:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVCRQJz
+	id S261702AbVCRQP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 11:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVCRQOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 11:09:55 -0500
-Received: from alog0363.analogic.com ([208.224.222.139]:27875 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261675AbVCRQHK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 11:07:10 -0500
-Date: Fri, 18 Mar 2005 11:04:40 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: lsorense@csclub.uwaterloo.ca
-cc: Hong Kong Phoey <hongkongphoey@gmail.com>,
-       Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DM9000 network driver
-In-Reply-To: <20050318152554.GH17865@csclub.uwaterloo.ca>
-Message-ID: <Pine.LNX.4.61.0503181046020.26420@chaos.analogic.com>
-References: <20050318133143.GA20838@metis.extern.pengutronix.de>
- <4f6c1bdf0503180711148b8f02@mail.gmail.com> <20050318152554.GH17865@csclub.uwaterloo.ca>
+	Fri, 18 Mar 2005 11:14:15 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:14732 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261680AbVCRQNb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 11:13:31 -0500
+Message-ID: <423AFE25.1060403@acm.org>
+Date: Fri, 18 Mar 2005 10:13:25 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Greg KH <greg@kroah.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@stimpy.netroedge.com>
+Subject: Re: [PATCH] Add a non-blocking interface to the I2C code, part 1
+References: <42261AFB.40001@acm.org> <20050317070940.GA15508@kroah.com>
+In-Reply-To: <20050317070940.GA15508@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005 lsorense@csclub.uwaterloo.ca wrote:
+Greg KH wrote:
 
-> On Fri, Mar 18, 2005 at 08:41:52PM +0530, Hong Kong Phoey wrote:
->> Sacrificing readibility a little bit, you could do something useful.
->> Instead of those ugly switch statements you could define function
->> pointer arrays and call appropriate function
->>
->> switch(foo) {
->>
->>   case 1:
->>              f1();
->>   case2 :
->>              f2();
->> };
->>
->> could well become
->>
->> void (*func)[] = { f1, f2 };
->>
->> func(i);
+>On Wed, Mar 02, 2005 at 01:58:51PM -0600, Corey Minyard wrote:
+>  
 >
-> Ewww!
+>>This patch reorganizes the I2C SMBus formatting code to make it more
+>>suitable for the upcoming non-blocking changes.
+>>    
+>>
 >
-> How about sticking with obvious readable code rather than trying to save
-> a couple of conditional branches.  If it is an obvious good
-> optimization, let the compiler do it.  of course if you ever needed to
-> pass different parameters to f1 and/or f2 it would have to be rewritten
-> back to the original again.
+>You are changing too much stuff here to claim it's just a
+>reorganization:
+>	- variable name changes for no reason
+>  
 >
-> Len Sorensen
+Well, yes.  Both "adap" and "adapter" are used to refer to the same 
+thing in the file; "adap" seemed to be the most common usage so I chose 
+that for the new functions I added. In one place I changed adapter to 
+adap.  I also changed "res" to "result".  I can fix those.  Or I can 
+submit a patch first that renames the adap and adapter to make the usage 
+consistent (I would prefer adapter).
 
-Also, those "ugly" switch-statements are not ugly and are
-most efficient if the case(s) are enumerated types in
-automatically-generated incrementing order. I see a lot
-of values assigned to enumerated types which destroys their
-usefulness. They might just as well be "#defined" values
-if you do this.
+>	- coding style changes (improper ones at that)
+>  
+>
+I don't see that.  The ugliest thing about this is the functions that 
+take the massive numbers of parameters, but that goes away in the next 
+patch which puts all the data into a single data structure and passes it 
+around.  The code here was also very inconsistent about use of spaces, 
+like x(a,b,c) vs x(a, b, c), "struct a *b" vs "struct a * b", "a=b" vs 
+"a = b".  It's hard to know what was right.  The changes I made in these 
+respects was to try to make it use the usage most common in the file.
 
-Code that does:
+If you like, I can do a pass and make everything consistent in the file 
+as part of the previous patch I talked about.
 
-enum {
-    one,
-    two,
-    three };
+>	- logic changes.
+>  
+>
+I tried very hard not to make logic changes.  Now I see there were two 
+places where the function checked client->adapter->algo->master_xfer 
+then called i2c_transfer(), which did the same check and returned the 
+same error if it was NULL.  I removed the redundant check.  That belongs 
+in a separate patch.  I couldn't find any others.
 
-    switch(val)
-    {
-    case one:
-    case two:
-    case three:
-    ....
-    }
-... calculates the offset of each of those case(s) and branches
-directly.
- 	movl	(val), %ebx
- 	shll	$2, %ebx	# Size of table entries
- 	jmp	*table(%ebx)	# Table contains a list of switch offsets
+>What exactly are you doing with this patch, and why?
+>  
+>
+The i2c main functions do the following:
 
-If somebody does:
-enum {
-    one = 1234,
-    two = 4321,
-    three = 8765
-    };
+  Format the data for transmission
+  Send the data to the next layer down for handling
+  Clean up the results
 
-.. no such calculation is possible and the compiler output must
-devolve to:
+The original code did all this in single big functions.  This patch 
+breaks the formatting and cleanup operations into separate functions.  
+Beyond one big function being ugly, the non-blocking code needs this 
+because it needs to perform these separately.  When you start the 
+operation, the non-blocking code needs to do the format then return.  
+Later on, when the operation is complete, the thread of execution 
+handling the completion will do the cleanup.
 
- 	movl	(val), %eax
-         cmpl    $1235, %eax
-         jz      one
-         cmpl    $4321, %eax
-         jz      two
-         cmpl    $8765, %eax
-         jz      three
-         jmp     none
-one:
-
-.... a bunch of comparisons. So, you make switches efficient
-by using enumerated types without fixed values. Of course
-some switches, such as found in ioctl() function numbers
-must be hard-coded because they must correspond to whatever
-the 'C' runtime library and its headers expect. In this
-case, you can make them efficient by having no holes
-in the allocated numbers and putting the cases in sorted
-order. This gives the 'C' compiler a chance to optimize.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-Corey

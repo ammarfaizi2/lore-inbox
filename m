@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129879AbRBAAZf>; Wed, 31 Jan 2001 19:25:35 -0500
+	id <S129851AbRBAA2d>; Wed, 31 Jan 2001 19:28:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129876AbRBAAZZ>; Wed, 31 Jan 2001 19:25:25 -0500
-Received: from mserv1d.vianw.co.uk ([195.102.240.96]:50865 "EHLO
-	mserv1d.vianw.co.uk") by vger.kernel.org with ESMTP
-	id <S129365AbRBAAZN>; Wed, 31 Jan 2001 19:25:13 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
+	id <S129815AbRBAA2X>; Wed, 31 Jan 2001 19:28:23 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:16904 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S129851AbRBAA2I>; Wed, 31 Jan 2001 19:28:08 -0500
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Netzwerkadministrator WH8/DD
 To: linux-kernel@vger.kernel.org
-Subject: spelling of disc (disk) in /devfs
-Date: Thu, 01 Feb 2001 00:19:56 +0000
-Organization: [private individual]
-Message-ID: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
+Subject: Problems compiling hdparm with string.h (2.4.x)
+Date: Thu, 1 Feb 2001 01:28:07 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01020101280700.16535@backfire>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I accidentally built my 2.4.1 kernel with /devfs so had a interesting
-few minutes looking round it to see what it was doing.
+I've just tried to compile hdparm v3.9 with a vanilla 2.4.1 tree.
+Gcc complained about serveral parse errors in /usr/include/linux/string.h.
+Compiling with an >=ac6 release works fine.
+Why isn't the little string.h fix not included in 2.4.1?
 
-The thing that struck me most was the spelling of disc with a 'c'.  As
-an Englishman this is the correct spelling for me most of the time,
-but I have come to accept "as a technical term" disk (as in American)
-is the right name for these devices.
+Regards, Gregor
 
-I now find myself confused with the new approach.
-
-
-Alan
-
-alan@chandlerfamily.org.uk
-http://www.chandler.u-net.com
+PS: Is this normal: (ac-12, 1xPIII, iBX , IO-, UP- and LOCAL-APIC=y)
+/proc/interrupts
+           CPU0
+  0:    9997185          XT-PIC  timer
+  1:      51952          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  7:     482976          XT-PIC  parport0
+  9:    8270642          XT-PIC  eth0, EMU10K1
+ 10:     932284          XT-PIC  bttv
+ 12:     930300          XT-PIC  PS/2 Mouse
+ 14:      77025          XT-PIC  ide0
+ 15:          4          XT-PIC  ide1
+NMI:    9995269
+LOC:    9996969
+ERR:          0
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

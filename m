@@ -1,483 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbULFJGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbULFJNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbULFJGj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 04:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbULFJGj
+	id S261419AbULFJNG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 04:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbULFJNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 04:06:39 -0500
-Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:18692 "EHLO
-	globaledgesoft.com") by vger.kernel.org with ESMTP id S261463AbULFJDe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 04:03:34 -0500
-Message-ID: <41B41FDA.1030702@globaledgesoft.com>
-Date: Mon, 06 Dec 2004 14:31:14 +0530
-From: krishna <krishna.c@globaledgesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: UML debugging session
-Content-Type: multipart/mixed;
- boundary="------------050607050408050605070100"
-X-MDRemoteIP: 172.16.6.42
-X-Return-Path: krishna.c@globaledgesoft.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+	Mon, 6 Dec 2004 04:13:06 -0500
+Received: from hamlet.e18.physik.tu-muenchen.de ([129.187.154.223]:27577 "EHLO
+	hamlet.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S261419AbULFJMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 04:12:52 -0500
+In-Reply-To: <200412051846.45496.quanten.sprung@gmx.net>
+References: <200412051846.45496.quanten.sprung@gmx.net>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-1--537968551"
+Message-Id: <7898B13E-4764-11D9-960E-000A9567DDDE@e18.physik.tu-muenchen.de>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+Subject: Re: [usb] device not accepting address / timeout
+Date: Mon, 6 Dec 2004 09:54:42 +0100
+To: Alexander Dressler <quanten.sprung@gmx.net>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050607050408050605070100
-Content-Type: text/plain; charset=us-ascii; format=flowed
+
+--Apple-Mail-1--537968551
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-Hi ,
+Hi Alexander!
 
-I have a problem running gdb in UML:
-I hereby attaching the .config.
+I have the same problem with Debian unstable, kernel 2.6.10-rc2-mm3 and 
+uhci-hcd (usb1). It affects my keyboard and mouse :-(
 
+pci=noacpi solved the problem for me. Else the interrupt count on 
+IRQ#10 stayed at zero and nothing worked. pci=routeirq did not help.
 
-root@linux-2.4.26# ./linux debug
-Checking for the skas3 patch in the host...not found
-Checking for /proc/mm...not found
-tracing thread pid = 1959
+On Dec 5, 2004, at 6:46 PM, Alexander Dressler wrote:
 
-I got a xtem terminal:
-GNU gdb 5.3
-Copyright 2002 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain
-conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "i386-slackware-linux"...
-(no debugging symbols found)...
-0xa01848f1 in ?? ()
-/tmp/gdb_init-7WILNC:2: Error in sourced command file:
-No symbol table is loaded.  Use the "file" command.
-(gdb)
+> hi,
+>
+> I encountered some problems connecting a usb-scanner (usb2). Since I 
+> found
+> only postings in newgroups that report similar problems but no 
+> solution, I
+> hope someone here can help.
+>
+> OS: Debian Sarge
+> Tested Kernels:  2.6.9, 2.6.10-rc1, 2.6.10-rc3
+>
+> Usb output of dmesg:
+>
+> ehci_hcd 0000:00:10.3: VIA Technologies, Inc. USB 2.0
+> ehci_hcd 0000:00:10.3: reset hcs_params 0x2204 dbg=0 cc=2 pcc=2 
+> ordered !ppc
+> ports=4
+> ehci_hcd 0000:00:10.3: reset hcc_params 6872 thresh 7 uframes 
+> 256/512/1024
+> ehci_hcd 0000:00:10.3: capability 0001 at 68
+> ehci_hcd 0000:00:10.3: irq 21, pci mem 0xdfffff00
+> ehci_hcd 0000:00:10.3: new USB bus registered, assigned bus number 1
+> ehci_hcd 0000:00:10.3: reset command 080002 (park)=0 ithresh=8 
+> period=1024
+> Reset HALT
+> ehci_hcd 0000:00:10.3: init command 010009 (park)=0 ithresh=1 
+> period=256 RUN
+> ehci_hcd 0000:00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
+> ehci_hcd 0000:00:10.3: supports USB remote wakeup
+> usb usb1: new device strings: Mfr=3, Product=2, SerialNumber=1
+> usb usb1: default language 0x0409
+> usb usb1: Product: VIA Technologies, Inc. USB 2.0
+> usb usb1: Manufacturer: Linux 2.6.10-rc1 ehci_hcd
+> usb usb1: SerialNumber: 0000:00:10.3
+> usb usb1: hotplug
+> usb usb1: adding 1-0:1.0 (config #1, interface 0)
+> usb 1-0:1.0: hotplug
+> hub 1-0:1.0: usb_probe_interface
+> hub 1-0:1.0: usb_probe_interface - got id
+> hub 1-0:1.0: USB hub found
+> hub 1-0:1.0: 4 ports detected
+> hub 1-0:1.0: standalone hub
+> hub 1-0:1.0: ganged power switching
+> hub 1-0:1.0: individual port over-current protection
+> hub 1-0:1.0: Single TT
+> hub 1-0:1.0: TT requires at most 8 FS bit times
+> hub 1-0:1.0: power on to power good time: 20ms
+> hub 1-0:1.0: local power source is good
+> hub 1-0:1.0: enabling power on all ports
+> ehci_hcd 0000:00:10.3: GetStatus port 4 status 001803 POWER sig=j  CSC 
+> CONNECT
+> hub 1-0:1.0: port 4, status 0501, change 0001, 480 Mb/s
+> hub 1-0:1.0: debounce: port 4: total 100ms stable 100ms status 0x501
+> ehci_hcd 0000:00:10.3: port 4 high speed
+> ehci_hcd 0000:00:10.3: GetStatus port 4 status 001005 POWER sig=se0  PE
+> CONNECT
+> usb 1-4: new high speed USB device using address 2
+> USB Universal Host Controller Interface driver v2.2
+> ACPI: PCI interrupt 0000:00:10.0[A] -> GSI 21 (level, low) -> IRQ 21
+> PCI: Via IRQ fixup for 0000:00:10.0, from 11 to 5
+> uhci_hcd 0000:00:10.0: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
+> Controller
+> uhci_hcd 0000:00:10.0: irq 21, io base 0xe800
+> uhci_hcd 0000:00:10.0: new USB bus registered, assigned bus number 2
+> uhci_hcd 0000:00:10.0: detected 2 ports
+> [....]
+> usb usb3: new device strings: Mfr=3, Product=2, SerialNumber=1
+> usb usb3: default language 0x0409
+> usb usb3: Product: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
+> Controller
+> (#2)
+> usb usb3: Manufacturer: Linux 2.6.10-rc1 uhci_hcd
+> usb usb3: SerialNumber: 0000:00:10.1
+> usb usb3: hotplug
+> usb usb3: adding 3-0:1.0 (config #1, interface 0)
+> usb 3-0:1.0: hotplug
+> hub 3-0:1.0: usb_probe_interface
+> hub 3-0:1.0: usb_probe_interface - got id
+> hub 3-0:1.0: USB hub found
+> hub 3-0:1.0: 2 ports detected
+> hub 3-0:1.0: standalone hub
+> hub 3-0:1.0: no power switching (usb 1.0)
+> hub 3-0:1.0: individual port over-current protection
+> hub 3-0:1.0: power on to power good time: 2ms
+> hub 3-0:1.0: local power source is good
+> uhci_hcd 0000:00:10.0: suspend_hc
+> uhci_hcd 0000:00:10.1: suspend_hc
+> usb 1-4: control timeout on ep0in
+> ehci_hcd 0000:00:10.3: devpath 4 ep0out 3strikes
+> ehci_hcd 0000:00:10.3: devpath 4 ep0out 3strikes
+> usb 1-4: device not accepting address 2, error -71
+> hub 1-0:1.0: port 4 not reset yet, waiting 50ms
+> ehci_hcd 0000:00:10.3: port 4 high speed
+> ehci_hcd 0000:00:10.3: GetStatus port 4 status 001005 POWER sig=se0  PE
+> CONNECT
+> usb 1-4: new high speed USB device using address 3
+> usb 1-4: control timeout on ep0in       <------------------------
+> ehci_hcd 0000:00:10.3: devpath 4 ep0out 3strikes
+> ehci_hcd 0000:00:10.3: devpath 4 ep0out 3strikes
+> usb 1-4: device not accepting address 3, error -71     <--------
+> uhci_hcd 0000:00:10.0: port 1 portsc 008a,00
+> hub 2-0:1.0: port 1, status 0100, change 0003, 12 Mb/s
+> hub 2-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x100
+> uhci_hcd 0000:00:10.0: port 2 portsc 008a,00
+> hub 2-0:1.0: port 2, status 0100, change 0003, 12 Mb/s
+> hub 2-0:1.0: debounce: port 2: total 100ms stable 100ms status 0x100
+> uhci_hcd 0000:00:10.1: port 1 portsc 008a,00
+> hub 3-0:1.0: port 1, status 0100, change 0003, 12 Mb/s
+> hub 3-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x100
+> uhci_hcd 0000:00:10.1: port 2 portsc 009a,00
+> hub 3-0:1.0: port 2, status 0100, change 0003, 12 Mb/s
+> hub 3-0:1.0: debounce: port 2: total 100ms stable 100ms status 0x100
+> ehci_hcd 0000:00:10.3: GetStatus port 4 status 001803 POWER sig=j  CSC 
+> CONNECT
+> hub 1-0:1.0: port 4, status 0501, change 0001, 480 Mb/s
+> hub 1-0:1.0: debounce: port 4: total 100ms stable 100ms status 0x501
+> hub 1-0:1.0: port 4 not reset yet, waiting 50ms
+> ehci_hcd 0000:00:10.3: port 4 high speed
+> ehci_hcd 0000:00:10.3: GetStatus port 4 status 001005 POWER sig=se0  PE
+> CONNECT
+> usb 1-4: new high speed USB device using address 4
+> [.....]
+>
+>
+>
+> lsusb reports:
+> Bus 003 Device 001: ID 0000:0000
+> Bus 002 Device 001: ID 0000:0000
+> Bus 001 Device 001: ID 0000:0000
+> although the scanner is connected.
+>
+> Other usb-devices such as memory sticks work normaly. I tried to 
+> disable ehci
+> but this didn't improve the situation. And the scanner already worked
+> successfully with a 2.4 kernel a year ago.
+>
+>
+> Hope someone can clear up.
+>
+> TIA.
+>
+> Alex
+>
+>
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Regards,
-Krishna Chaitanya
+Ciao,
+					Roland
 
+--
+TU Muenchen, Physik-Department E18, James-Franck-Str. 85747 Garching
+Telefon 089/289-12592; Telefax 089/289-12570
+--
+A mouse is a device used to point at
+the xterm you want to type in.
+Kim Alm on a.s.r.
 
+--Apple-Mail-1--537968551
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
---------------050607050408050605070100
-Content-Type: text/plain;
- name=".config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename=".config"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_USERMODE=y
-# CONFIG_ISA is not set
-# CONFIG_SBUS is not set
-# CONFIG_PCI is not set
-CONFIG_UID16=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+iD8DBQFBtB5XI4MWO8QIRP0RArHnAJ0fkTiZtVXN9WPrJ2V5VvOP1AZJhwCgh6jm
+rb2RQ7ZGQT1cEgfJGaFWOmo=
+=xih9
+-----END PGP SIGNATURE-----
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# General Setup
-#
-CONFIG_MODE_SKAS=y
-CONFIG_MODE_TT=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_HOSTFS=y
-CONFIG_HUMFS=y
-CONFIG_EXTERNFS=y
-CONFIG_HPPFS=y
-CONFIG_MCONSOLE=y
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_HOST_2G_2G is not set
-# CONFIG_UML_SMP is not set
-# CONFIG_SMP is not set
-CONFIG_NEST_LEVEL=0
-CONFIG_KERNEL_HALF_GIGS=1
-# CONFIG_HIGHMEM is not set
-CONFIG_PROC_MM=y
-CONFIG_KERNEL_STACK_ORDER=2
-CONFIG_UML_REAL_TIME_CLOCK=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-# CONFIG_KMOD is not set
-
-#
-# Character Devices
-#
-CONFIG_STDIO_CONSOLE=y
-CONFIG_SSL=y
-CONFIG_FD_CHAN=y
-CONFIG_NULL_CHAN=y
-CONFIG_PORT_CHAN=y
-CONFIG_PTY_CHAN=y
-CONFIG_TTY_CHAN=y
-CONFIG_XTERM_CHAN=y
-CONFIG_CON_ZERO_CHAN="fd:0,fd:1"
-CONFIG_CON_CHAN="xterm"
-CONFIG_SSL_CHAN="pty"
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-# CONFIG_WATCHDOG is not set
-# CONFIG_WATCHDOG_NOWAYOUT is not set
-# CONFIG_SOFT_WATCHDOG is not set
-# CONFIG_UML_WATCHDOG is not set
-CONFIG_UML_SOUND=y
-CONFIG_SOUND=y
-CONFIG_HOSTAUDIO=y
-# CONFIG_TTY_LOG is not set
-
-#
-# Block Devices
-#
-CONFIG_BLK_DEV_UBD=y
-# CONFIG_BLK_DEV_UBD_SYNC is not set
-# CONFIG_COW is not set
-CONFIG_COW_COMMON=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-# CONFIG_MMAPPER is not set
-CONFIG_NETDEVICES=y
-
-#
-# Network Devices
-#
-CONFIG_UML_NET=y
-CONFIG_UML_NET_ETHERTAP=y
-CONFIG_UML_NET_TUNTAP=y
-CONFIG_UML_NET_SLIP=y
-CONFIG_UML_NET_SLIRP=y
-CONFIG_UML_NET_DAEMON=y
-CONFIG_UML_NET_MCAST=y
-# CONFIG_UML_NET_PCAP is not set
-CONFIG_DUMMY=y
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-CONFIG_TUN=y
-CONFIG_PPP=y
-# CONFIG_PPP_MULTILINK is not set
-# CONFIG_PPP_FILTER is not set
-# CONFIG_PPP_ASYNC is not set
-# CONFIG_PPP_SYNC_TTY is not set
-# CONFIG_PPP_DEFLATE is not set
-# CONFIG_PPP_BSDCOMP is not set
-# CONFIG_PPPOE is not set
-# CONFIG_PPP_MPPE is not set
-CONFIG_SLIP=y
-# CONFIG_SLIP_COMPRESSED is not set
-# CONFIG_SLIP_SMART is not set
-# CONFIG_SLIP_MODE_SLIP6 is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-# CONFIG_NETLINK_DEV is not set
-# CONFIG_NETFILTER is not set
-# CONFIG_FILTER is not set
-CONFIG_UNIX=y
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_IPV6 is not set
-# CONFIG_KHTTPD is not set
-
-#
-#    SCTP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-
-#
-# Appletalk devices
-#
-# CONFIG_DEV_APPLETALK is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-
-#
-# File systems
-#
-CONFIG_QUOTA=y
-# CONFIG_QFMT_V2 is not set
-CONFIG_AUTOFS_FS=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BEFS_DEBUG is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_UMSDOS_FS=y
-CONFIG_VFAT_FS=y
-# CONFIG_EFS_FS is not set
-CONFIG_JFFS_FS=y
-CONFIG_JFFS_FS_VERBOSE=0
-CONFIG_JFFS_PROC_FS=y
-CONFIG_JFFS2_FS=y
-CONFIG_JFFS2_FS_DEBUG=0
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-# CONFIG_JOLIET is not set
-# CONFIG_ZISOFS is not set
-# CONFIG_JFS_FS is not set
-# CONFIG_JFS_DEBUG is not set
-# CONFIG_JFS_STATISTICS is not set
-CONFIG_MINIX_FS=y
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-# CONFIG_UDF_FS is not set
-# CONFIG_UDF_RW is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_UFS_FS_WRITE is not set
-# CONFIG_XFS_FS is not set
-# CONFIG_XFS_QUOTA is not set
-# CONFIG_XFS_RT is not set
-# CONFIG_XFS_TRACE is not set
-# CONFIG_XFS_DEBUG is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_NFS_FS is not set
-# CONFIG_NFS_V3 is not set
-# CONFIG_NFS_DIRECTIO is not set
-# CONFIG_ROOT_NFS is not set
-# CONFIG_NFSD is not set
-# CONFIG_NFSD_V3 is not set
-# CONFIG_NFSD_TCP is not set
-# CONFIG_SUNRPC is not set
-# CONFIG_LOCKD is not set
-# CONFIG_SMB_FS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-# CONFIG_ZISOFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_SMB_NLS is not set
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-# CONFIG_NLS_CODEPAGE_437 is not set
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-# CONFIG_NLS_ISO8859_1 is not set
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-# CONFIG_BLK_DEV_SD is not set
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_BLK_DEV_SR is not set
-# CONFIG_CHR_DEV_SG is not set
-# CONFIG_SCSI_DEBUG_QUEUES is not set
-# CONFIG_SCSI_MULTI_LUN is not set
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-CONFIG_SCSI_DEBUG=y
-
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_BLK_DEV_LVM is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-CONFIG_MTD=y
-# CONFIG_MTD_DEBUG is not set
-# CONFIG_MTD_PARTITIONS is not set
-# CONFIG_MTD_CONCAT is not set
-# CONFIG_MTD_REDBOOT_PARTS is not set
-# CONFIG_MTD_CMDLINE_PARTS is not set
-CONFIG_MTD_CHAR=y
-CONFIG_MTD_BLOCK=y
-# CONFIG_FTL is not set
-# CONFIG_NFTL is not set
-
-#
-# RAM/ROM/Flash chip drivers
-#
-# CONFIG_MTD_CFI is not set
-# CONFIG_MTD_JEDECPROBE is not set
-# CONFIG_MTD_GEN_PROBE is not set
-# CONFIG_MTD_CFI_INTELEXT is not set
-# CONFIG_MTD_CFI_AMDSTD is not set
-# CONFIG_MTD_CFI_STAA is not set
-# CONFIG_MTD_RAM is not set
-# CONFIG_MTD_ROM is not set
-# CONFIG_MTD_ABSENT is not set
-# CONFIG_MTD_OBSOLETE_CHIPS is not set
-# CONFIG_MTD_AMDSTD is not set
-# CONFIG_MTD_SHARP is not set
-# CONFIG_MTD_JEDEC is not set
-
-#
-# Mapping drivers for chip access
-#
-# CONFIG_MTD_PHYSMAP is not set
-# CONFIG_MTD_PCI is not set
-# CONFIG_MTD_PCMCIA is not set
-
-#
-# Self-contained MTD device drivers
-#
-# CONFIG_MTD_PMC551 is not set
-# CONFIG_MTD_SLRAM is not set
-# CONFIG_MTD_MTDRAM is not set
-CONFIG_MTD_BLKMTD=y
-# CONFIG_MTD_DOC1000 is not set
-# CONFIG_MTD_DOC2000 is not set
-# CONFIG_MTD_DOC2001 is not set
-# CONFIG_MTD_DOCPROBE is not set
-
-#
-# NAND Flash Device Drivers
-#
-# CONFIG_MTD_NAND is not set
-
-#
-# Library routines
-#
-# CONFIG_CRC32 is not set
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_SLAB is not set
-CONFIG_DEBUGSYM=y
-CONFIG_PT_PROXY=y
-# CONFIG_GCOV is not set
-
-
---------------050607050408050605070100--
+--Apple-Mail-1--537968551--
 

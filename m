@@ -1,38 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbUL0MKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbUL0NBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbUL0MKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 07:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbUL0MKZ
+	id S261885AbUL0NBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 08:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUL0NBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 07:10:25 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:31703 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261877AbUL0MKW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 07:10:22 -0500
-Date: Mon, 27 Dec 2004 13:10:21 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Binary Chen <binch@mobilesoft.com.cn>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 802.11 in kernel
-Message-ID: <20041227121021.GB17127@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Binary Chen <binch@mobilesoft.com.cn>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20041227043341.385331A61C@mail.mobilesoft.com.cn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041227043341.385331A61C@mail.mobilesoft.com.cn>
-User-Agent: Mutt/1.3.28i
+	Mon, 27 Dec 2004 08:01:08 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:40647 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261882AbUL0NA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 08:00:59 -0500
+Message-ID: <41D00772.1050600@grupopie.com>
+Date: Mon, 27 Dec 2004 13:00:34 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Keith Owens <kaos@sgi.com>
+Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.10
+References: <18921.1103977059@ocs3.ocs.com.au>
+In-Reply-To: <18921.1103977059@ocs3.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.34; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 12:19:17PM +0800, Binary Chen wrote:
-> Is 802.11 protocol stack available in current Linux kernel? Or any free stack for Linux?
+Keith Owens wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> KDB (Linux Kernel Debugger) has been updated.
 
-Work is being done, you can read about this on the archive of
-netdev@oss.sgi.com
+Hi,
+
+I browsed the patch quickly to check for kallsyms uses, and validate 
+them, and it generally seems correct.
+
+There is however one comment that makes me wonder:
+*2.6 kallsyms has a "feature" where it unpacks the name into a string.
+*If that string is reused before the caller expects it then the caller
+*sees its string change without warning.
+
+kallsyms_lookup always uses the buffer passed to it in the case the 
+symbol is a kernel symbol, as opposed to a module symbol, and so it is 
+not responsible for the buffer.
+
+So this probably only happens when a module symbol is returned directly 
+from its symbol table, and then the module is unloaded (or something 
+like that).
+
+Later there is another comment:
+* Another 2.6 kallsyms "feature".  Sometimes the sym_name is
+* set but the buffer passed into kallsyms_lookup is not used,
+* so it contains garbage.
+
+It seems to be the same problem. If we modify kallsyms_lookup to always 
+use the buffer passed, even if the symbol comes from a module, maybe we 
+could solve both problems with just one change.
+
+On the downside, a caller that just wants to print the name, would pay 
+an unnecessary string copy.
+
+On the upside, this would make the interface more coherent with standard 
+C functions like strcpy, where the buffer passed is always the buffer 
+returned.
+
+So, is it worth the change?
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Paulo Marques - www.grupopie.com
+
+"A journey of a thousand miles begins with a single step."
+Lao-tzu, The Way of Lao-tzu
+

@@ -1,94 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbUD3WVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUD3WXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbUD3WVF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUD3WVF
+	id S261654AbUD3WXv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbUD3WXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:21:05 -0400
-Received: from outmx013.isp.belgacom.be ([195.238.3.64]:958 "EHLO
-	outmx013.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261654AbUD3WU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:20:58 -0400
-Subject: [PATCH 2.6.6-rc3-mm1] Add maxthinktime to sysfs
-From: FabF <Fabian.Frederick@skynet.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-MV0GVh2ZnxVHGGGezb6t"
-Message-Id: <1083364002.6303.9.camel@bluerhyme.real3>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 01 May 2004 00:26:42 +0200
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx013.isp.belgacom.be)
+	Fri, 30 Apr 2004 18:23:51 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:33758 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S261654AbUD3WXr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 18:23:47 -0400
+Date: Fri, 30 Apr 2004 15:23:00 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       <mc@cs.Stanford.EDU>, Madanlal S Musuvathi <madan@stanford.edu>,
+       "David L. Dill" <dill@cs.Stanford.EDU>
+Subject: [CHECKER] Return Error code gets treated as dir_table index, resulting
+ losses of other dir entries (JFS2.4, kernel 2.4.19)
+In-Reply-To: <1083353278.14140.52.camel@shaggy.austin.ibm.com>
+Message-ID: <Pine.GSO.4.44.0404301521130.14155-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-MV0GVh2ZnxVHGGGezb6t
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+static function add_index can fail by return -EPERM (and it is declared to
+return a unsigned 4-byte integer).  This error gets ignored by the caller,
+dtInsertEntry, which will treat the returned error code (u32)(-EPERM) as
+an index to dir_table.  This causes losses of directory entries in the
+same parent directory.
 
-Andrew,
+static u32 add_index(tid_t tid, struct inode *ip, s64 bn, int slot)
+{
+...
+		if ((mp = get_index_page(ip, 0)) == 0) {
+			jfs_err("add_index: get_metapage failed!");
+			xtTruncate(tid, ip, 0, COMMIT_PWMAP);
+Return -->		return -EPERM;
+...
+}
 
-	Here's a patch to add the asio maxthinktime to sysfs.
-Could you apply ?
 
-Regards,
-Fabian
+static void dtInsertEntry(dtpage_t * p, int index, struct component_name * key,
+			  ddata_t * data, struct dt_lock ** dtlock)
+{
+...
+Error -->		  lh->index = cpu_to_le32(add_index(data->leaf.tid,
+							  data->leaf.ip,
+							  bn, index));
+...
+}
 
---=-MV0GVh2ZnxVHGGGezb6t
-Content-Disposition: attachment; filename=maxthinktime1.diff
-Content-Type: text/x-patch; name=maxthinktime1.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-diff -Naur orig/drivers/block/as-iosched.c edited/drivers/block/as-iosched.c
---- orig/drivers/block/as-iosched.c	2004-04-30 20:10:43.000000000 +0200
-+++ edited/drivers/block/as-iosched.c	2004-05-01 00:02:59.000000000 +0200
-@@ -65,7 +65,7 @@
-  * or doing a lengthy computation. A small penalty can be justified there, and
-  * will still catch out those processes that constantly have large thinktimes.
-  */
--#define MAX_THINKTIME (HZ/50UL)
-+unsigned long maxthinktime=(HZ/50UL);
- 
- /* Bits in as_io_context.state */
- enum as_io_states {
-@@ -869,7 +869,7 @@
- 			if (test_bit(AS_TASK_IORUNNING, &aic->state)
- 							&& in_flight == 0) {
- 				thinktime = jiffies - aic->last_end_request;
--				thinktime = min(thinktime, MAX_THINKTIME-1);
-+				thinktime = min(thinktime, maxthinktime-1);
- 			} else
- 				thinktime = 0;
- 			as_update_thinktime(ad, aic, thinktime);
-@@ -1951,6 +1951,7 @@
- {									\
- 	return as_var_show(__VAR, (page));			\
- }
-+SHOW_FUNCTION(as_maxthinktime_show, maxthinktime);
- SHOW_FUNCTION(as_readexpire_show, ad->fifo_expire[REQ_SYNC]);
- SHOW_FUNCTION(as_writeexpire_show, ad->fifo_expire[REQ_ASYNC]);
- SHOW_FUNCTION(as_anticexpire_show, ad->antic_expire);
-@@ -1968,6 +1969,7 @@
- 		*(__PTR) = (MAX);					\
- 	return ret;							\
- }
-+STORE_FUNCTION(as_maxthinktime_store, &maxthinktime, 0, LONG_MAX);
- STORE_FUNCTION(as_readexpire_store, &ad->fifo_expire[REQ_SYNC], 0, INT_MAX);
- STORE_FUNCTION(as_writeexpire_store, &ad->fifo_expire[REQ_ASYNC], 0, INT_MAX);
- STORE_FUNCTION(as_anticexpire_store, &ad->antic_expire, 0, INT_MAX);
-@@ -1977,6 +1979,11 @@
- 			&ad->batch_expire[REQ_ASYNC], 0, INT_MAX);
- #undef STORE_FUNCTION
- 
-+static struct as_fs_entry as_maxthinktime = {
-+	.attr = {.name = "maxthinktime", .mode = S_IRUGO | S_IWUSR },
-+	.show = as_maxthinktime_show,
-+	.store = as_maxthinktime_store,
-+};
- static struct as_fs_entry as_est_entry = {
- 	.attr = {.name = "est_time", .mode = S_IRUGO },
- 	.show = as_est_show,
+Here is a trace:
 
---=-MV0GVh2ZnxVHGGGezb6t--
+============ Filesystem Image Before System Call ===================
+4 files, 1 dirs, 6 nodes
+[0:D]
+  [1:F:1073741824]
+  [2:F:0]
+  [3:F:0]
+  [4:D]
+
+create file 5 succeeded.
+can't get dir entry Input/output error
+ERROR: Filesystem images differ
+
+============= Filesystem Image After System Call ===================
+3 files, 0 dirs, 4 nodes
+[0:D]
+  [1:F:1073741824]
+  [2:F:0]
+  [3:F:0]
 

@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132434AbRCZNEi>; Mon, 26 Mar 2001 08:04:38 -0500
+	id <S132435AbRCZNT2>; Mon, 26 Mar 2001 08:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132435AbRCZNE2>; Mon, 26 Mar 2001 08:04:28 -0500
-Received: from snark.tuxedo.org ([207.106.50.26]:40711 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132434AbRCZNEP>;
-	Mon, 26 Mar 2001 08:04:15 -0500
-Date: Mon, 26 Mar 2001 08:06:58 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Bjorn Wesen <bjorn@sparta.lu.se>
-Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk, trini@kernel.crashing.org,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML1 cleanup patch, take 2
-Message-ID: <20010326080658.A16485@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Bjorn Wesen <bjorn@sparta.lu.se>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-	alan@lxorguk.ukuu.org.uk, trini@kernel.crashing.org,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <200103260955.f2Q9tfo14568@snark.thyrsus.com> <Pine.LNX.3.96.1010326133257.7071A-100000@medusa.sparta.lu.se>
+	id <S132436AbRCZNTS>; Mon, 26 Mar 2001 08:19:18 -0500
+Received: from danielle.hinet.hr ([195.29.254.157]:36875 "EHLO
+	danielle.hinet.hr") by vger.kernel.org with ESMTP
+	id <S132435AbRCZNTL>; Mon, 26 Mar 2001 08:19:11 -0500
+Date: Mon, 26 Mar 2001 15:22:43 +0200
+From: Mario Mikocevic <mozgy@hinet.hr>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 243p8 problems
+Message-ID: <20010326152243.A10386@danielle.hinet.hr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1010326133257.7071A-100000@medusa.sparta.lu.se>; from bjorn@sparta.lu.se on Mon, Mar 26, 2001 at 01:39:07PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bjorn Wesen <bjorn@sparta.lu.se>:
-> On Mon, 26 Mar 2001, Eric S. Raymond wrote:
-> > (2) Fix up 20 cris-architecture configuration symbols lacking a CONFIG_
-> >     prefix, so they obey CML1/CML2 conventions and can be detected by
-> >     `make dep', also static-analysis tools and consistency checkers.
-> >     This is a BUG FIX in CML1.
-> 
-> No need for you to fret on this; it's partly fixed in the version in
-> Alan's tree and the rest will be cleaned up in our next update.
+Hi,
 
-Good!  That will simplify my life a lot.  Assuming Linus takes that ac patch.
+1st :
 
-Greg Banks may have suggested a tolerable solution to the other problem.
-I'm working on it now.
+# depmod -a 2.4.3-pre8
+depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre8/kernel/drivers/net/dummy.o
+depmod: *** Unresolved symbols in /lib/modules/2.4.3-pre8/kernel/drivers/net/eepro100.o
+
+the rest :
+
+it's Compaq PL 6500 with 4 penguins and 2 gig RAM
+Compaq SMART2 hardware RAID and DLT are also bundled ! :)
+
+Well, there is a problem with cpqarray driver. If I boot without noapic
+it hangs right after
+
+cpqarray: Device e11 has been found at 5 0
+Compaq SMART2 Driver (v 2.4.2)
+Found 1 controller(s)
+cpqarray: Finding drives on ida0 (Smart Array 3200)
+cpqarray ida/c0d0: blksz=512 nr_blks=17764320
+cpqarray ida/c0d1: blksz=512 nr_blks=17764320
+Partition check:
+ ida/c0d0
+
+but if I put noapic I get only _one_ CPU usable ->
+
+]# cat /proc/interrupts 
+           CPU0       CPU1       CPU2       CPU3       
+  0:     926630          0          0          0          XT-PIC  timer
+  1:         11          0          0          0          XT-PIC  keyboard
+  2:          0          0          0          0          XT-PIC  cascade
+  8:          1          0          0          0          XT-PIC  rtc
+  9:         34          0          0          0          XT-PIC  sym53c8xx
+ 10:         30          0          0          0          XT-PIC  sym53c8xx
+ 11:       2522          0          0          0          XT-PIC  ida0
+ 14:          3          0          0          0          XT-PIC  ide0
+ 15:       7547          0          0          0          XT-PIC  eth1
+NMI:          0          0          0          0 
+LOC:     926548     926547     926546     926545 
+ERR:          0
+
+
+any patches to take/patch/slap !?
+
+ps
+	any other required info available on request
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-There's a truism that the road to Hell is often paved with good intentions.
-The corollary is that evil is best known not by its motives but by its
-*methods*.
+Mario Mikoèeviæ (Mozgy)
+My favourite FUBAR ...

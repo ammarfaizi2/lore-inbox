@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbUKLO5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbUKLPCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbUKLO5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 09:57:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUKLO5w
+	id S262540AbUKLPCF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 10:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbUKLPCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 09:57:52 -0500
-Received: from nevyn.them.org ([66.93.172.17]:38867 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262537AbUKLO5m (ORCPT
+	Fri, 12 Nov 2004 10:02:05 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:37511 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S262540AbUKLPCC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 09:57:42 -0500
-Date: Fri, 12 Nov 2004 09:57:33 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 12/14] FRV: Generate more useful debug info
-Message-ID: <20041112145733.GA26482@nevyn.them.org>
-Mail-Followup-To: David Howells <dhowells@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20041101162929.63af1d0d.akpm@osdl.org> <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> <200411011930.iA1JUMgs023243@warthog.cambridge.redhat.com> <5109.1099394496@redhat.com>
+	Fri, 12 Nov 2004 10:02:02 -0500
+Date: Fri, 12 Nov 2004 15:02:01 +0000
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] trivial docfix i2c
+Message-ID: <20041112150201.GA20007@beton.cybernet.src>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5109.1099394496@redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.4.2.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 11:21:36AM +0000, David Howells wrote:
-> 
-> > Generates rejects against Sam's tree and appears to be unrelated to FRV,
-> > yes?
-> 
-> I know not Sam's tree.
-> 
-> It's a generic thing. "gcc -g" does not cause compiled .S files to include
-> debugging information, and -O1 optimised code is more debuggable than -O2
-> optimised code.
-
-FYI, "gcc -g" _should_ cause .S files to include assembler debugging
-information.  If it doesn't, that's a bug in your port.
-
-*asm_debug:
-%{gstabs*:--gstabs}%{!gstabs*:%{g*:--gdwarf2}}
-
--- 
-Daniel Jacobowitz
+diff -Pur linux-2.6.8.1/Documentation/i2c/dev-interface linux-2.6.8.1-patched/Documentation/i2c/dev-interface
+--- linux-2.6.8.1/Documentation/i2c/dev-interface	2004-08-14 12:54:50.000000000 +0200
++++ linux-2.6.8.1-patched/Documentation/i2c/dev-interface	2004-11-12 15:55:40.703334026 +0100
+@@ -3,7 +3,7 @@
+ the /dev interface. You need to load module i2c-dev for this.
+ 
+ Each registered i2c adapter gets a number, counting from 0. You can
+-examine /proc/bus/i2c to see what number corresponds to which adapter.
++examine /sys/bus/i2c to see what number corresponds to which adapter.
+ I2C device files are character device files with major device number 89
+ and a minor device number corresponding to the number assigned as 
+ explained above. They should be called "i2c-%d" (i2c-0, i2c-1, ..., 
+@@ -19,7 +19,7 @@
+ knows about i2c, there is not much choice.
+ 
+ Now, you have to decide which adapter you want to access. You should
+-inspect /proc/bus/i2c to decide this. Adapter numbers are assigned
++inspect /sys/bus/i2c to decide this. Adapter numbers are assigned
+ somewhat dynamically, so you can not even assume /dev/i2c-0 is the
+ first adapter.
+ 

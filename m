@@ -1,73 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267671AbTAMAM6>; Sun, 12 Jan 2003 19:12:58 -0500
+	id <S267697AbTAMA0X>; Sun, 12 Jan 2003 19:26:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267670AbTAMAMh>; Sun, 12 Jan 2003 19:12:37 -0500
-Received: from smtp.terra.es ([213.4.129.129]:39060 "EHLO tsmtp3.ldap.isp")
-	by vger.kernel.org with ESMTP id <S267671AbTAMAKg>;
-	Sun, 12 Jan 2003 19:10:36 -0500
-Date: Mon, 13 Jan 2003 01:19:23 +0100
-From: Arador <diegocg@teleline.es>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Moderated forum for linux-kernel
-Message-Id: <20030113011923.11a7b127.diegocg@teleline.es>
-In-Reply-To: <3E21ECC2.1040404@walrond.org>
-References: <3E21ECC2.1040404@walrond.org>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S267696AbTAMA0V>; Sun, 12 Jan 2003 19:26:21 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:6418 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267688AbTAMAY7>; Sun, 12 Jan 2003 19:24:59 -0500
+Message-ID: <3E220770.734F8553@linux-m68k.org>
+Date: Mon, 13 Jan 2003 01:25:20 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Clean up refcounting on filesystems
+References: <20030111110623.08E2B2C0BC@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jan 2003 22:31:30 +0000
-Andrew Walrond <andrew@walrond.org> wrote:
+Hi,
 
-<Just my opinion; because as the Hell.surfers troll treads, it's free>
+Rusty Russell wrote:
 
-> I can think of advantages;
-> 
-> Better Thread organisation and seperate topic areas for drivers, 
-> patches, ide, ...
-> Being able to cheery pick threads of interest, and completely ignore others
-> Not having to dump your inbox after a week away just to catch up
-> Moderated forums (Off-topic threads policed and deleted)
+>         This gets rid of the hacky module count reentry, by holding a
+> reference count per mount, rather than per superblock.  The additional
+> field to struct vfsmount is slightly gratuitous, but nice and
+> explicit.  Minor collateral cleanups.
 
-Not posible. You can't firewall all the mail ; and you can't delete
-it after (There's always someone reading a post sec after it's sent to people)
+I hoped Al would answer, but so I have to ask again.
+What are you trying to fix with this? AFAICT module init races are still
+there, how do you want to fix them and how will this patch help?
+Rusty, could I please, please, please (with sugar on top) get an answer
+to any of my questions from you?
 
-> Read only forums (write for registered/invited members)
-marc.theaimsgroup.com
-
-Better thread organization is indeed something good. Linux has like
-·&$%=%)=& differents mailing lists. It'd be much nicer to have
-kernel-sound@domain.com, kernel-smp@domain.com...
-A project could ask a mailing list (even space for web and patches;
-if someone plans to support it). Just because one can imagine a
-kernel-sound@domain.com list. But whatever the alsa mailing list is;
-it's harder to remember. You can forward kernel-sound@domain.com to 
-the true malinign list if you want.
-
-Mixing always 2.4 and 2.5 stuff it isn't a good idea either
-
-The everything-in-linux-kernel@vger.kernel.org just doesn't work as well as
-one would want. Yes, you've [RFC], [PATCHES], [BENCHMARK] to filter.
-But what the hell is the [RFC] mail about? net? vm?
-
-*nobody* reads all the mails (well, there's Alan Cox, but he isn't human)
-Some good posts indeed are lost between the noise. We have marc.theaimsgroup.com.
-But do you really think it's enought? BK has given us some degree of
-organization (you can search who and when touched something, what files were 
-touched in the patch, etc). The bugzilla database tries to give us
-some degree of organization in the bugs field, just because the 
-all-in-linux-kernel@vger.kernel.org approach is a *true hell* in that sense.
-
-What we need to address that? Resources. No, that's not the first thing. We need
-that people think that we need it, and we need that people *wants* it. 
-
-After that we need resources: Which is a difficult point. But it's more
-important that some of the nice features that have been merged in 2.5 IMHO
-(as it's a long-term benefit)
-
-Diego Calleja.
+bye, Roman

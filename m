@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVDERpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVDERpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbVDERpu (ORCPT <rfc822;willy@w.ods.org>);
+	id S261862AbVDERpu (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 5 Apr 2005 13:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbVDERnx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVDERnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:43:53 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:20115 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261833AbVDERTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:19:07 -0400
-Subject: Re: [PATCH 2.6.12-rc1-mm3] [1/2]  kprobes += function-return
-From: Jim Keniston <jkenisto@us.ibm.com>
-To: prasanna@in.ibm.com
-Cc: Hien Nguyen <hien@us.ibm.com>, SystemTAP <systemtap@sources.redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050404081538.GF1715@in.ibm.com>
-References: <20050404081538.GF1715@in.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1112721545.2293.36.camel@dyn9047018078.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 05 Apr 2005 10:19:05 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 13:43:42 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:49606 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261846AbVDERS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:18:59 -0400
+To: Christopher Allen Wing <wingc@engin.umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+	<Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 05 Apr 2005 19:18:56 +0200
+In-Reply-To: <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> (Christopher
+ Allen Wing's message of "Mon, 4 Apr 2005 10:53:39 -0400 (EDT)")
+Message-ID: <m18y3x16rj.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-04 at 01:15, Prasanna S Panchamukhi wrote:
-> Hi Hien,
-> 
-> This patch looks good to me, but I have some comments on this patch.
-> 
-> >int register_kretprobe(struct kprobe *kp, struct rprobe *rp);
-...
-> >int register_jretprobe(struct jprobe *jp, struct rprobe *rp);
-...
-> 
-> Why two interfaces for the same feature?
-> You can provide a simple interface like
-...
-> int register_returnprobe(struct rprobe *rp) {
-...
+Christopher Allen Wing <wingc@engin.umich.edu> writes:
 
-> independent of kprobe and jprobe.
-> This routine should take care to register entry handler internally if not 
-> present. This routine can check if there are already entry point kprobe/jprobe
-> and use some flags internally to say if the entry jprobe/kprobe already exists.
-> 
-...
-> 
-> make unregister exitprobes independent of kprobe/jprobe.
-> 
-...
-> 
-> Please let me know if you need more information.
-> 
-> Thanks
-> Prasanna
+> On Sun, 3 Apr 2005, Mikael Pettersson wrote:
+>
+>> Well, first step is to try w/o ACPI. ACPI is inherently fragile
+>> and bugs there can easily explain your timer problems. Either
+>> recompile with CONFIG_ACPI=n, or boot with "acpi=off pci=noacpi".
+>
+>
+> When I boot without ACPI (I used 'acpi=off pci=noacpi') the system fails
+> to come up all the way; it hangs after loading the SATA driver. (but
+> before the SATA driver finishes probing the disks)
+>
+> I'm guessing that the interrupt from the SATA controller is not getting
+> through? Anyway, I assumed that ACPI was basically required for x86_64
+> systems to work, is this not really the case?
 
-We thought about that.  It is a nicer interface.  But I'm concerned that
-if the user has to do
-	register_kprobe(&foo_entry_probe);
-	register_retprobe(&foo_return_probe);
-then he/she has to be prepared to handle calls to foo that happen
-between register_kprobe and register_retprobe -- i.e., calls where the
-entry probe fires but the return probe doesn't.  Similarly on
-unregistration.
+Alternatively you can try to boot with noapic. Does that help?
 
-Here are a couple of things we could do to support registration and
-unregistration of retprobes that can be either dependent on or
-independent of the corresponding j/kprobes, as the user wants:
-
-1. When you call register_j/kprobe(), if kprobe->rp is non-null, it is
-assumed to point to a retprobe that will be registered and unregistered
-along with the kprobe.  (But this may make trouble for existing kprobes
-applications that didn't need to initialize the (nonexistent) rp
-pointer.  Probably not a huge deal.)
-
-OR
-
-2. Create the ability to (a) register kprobes, jprobes, and/or retprobes
-in a disabled state; and (b) enable a group of probes in an atomic
-operation.  Then you could register the entry and return probes
-independently, but enable them together.  We may need to do something
-like that for SystemTap anyway.
-
-Jim Keniston
-IBM Linux Technology Center
-
+-Andi

@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVCEV6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVCEWBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbVCEV6V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 16:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCEV6U
+	id S261212AbVCEWBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCEWBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 16:58:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52386 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261205AbVCEV6R (ORCPT
+	Sat, 5 Mar 2005 17:01:25 -0500
+Received: from mail.suse.de ([195.135.220.2]:65410 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261212AbVCEWBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 16:58:17 -0500
-Date: Sat, 5 Mar 2005 22:58:06 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: swsusp memory freeing [was Re: swsusp: allow resume from initramfs]
-Message-ID: <20050305215806.GB14823@elf.ucw.cz>
-References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org> <20050304175038.GE9796@ip68-4-98-123.oc.oc.cox.net> <1109971327.3772.280.camel@desktop.cunningham.myip.net.au> <20050304214329.GD2385@elf.ucw.cz> <1109973035.3772.291.camel@desktop.cunningham.myip.net.au> <20050304220709.GE2385@elf.ucw.cz> <1109975474.3772.305.camel@desktop.cunningham.myip.net.au> <20050304225556.GA2647@elf.ucw.cz> <1109984867.3772.322.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1109984867.3772.322.camel@desktop.cunningham.myip.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 5 Mar 2005 17:01:21 -0500
+Message-ID: <422A2C29.8070209@suse.de>
+Date: Sat, 05 Mar 2005 23:01:13 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: s4bios: does anyone use it?
+References: <20050305191405.GA1463@elf.ucw.cz> <422A1FB6.3000504@ens-lyon.org>
+In-Reply-To: <422A1FB6.3000504@ens-lyon.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Brice Goglin wrote:
 
-> > > By the way, did you see the effect of the memory eating patch? I didn't
-> > > think about it until someone emailed me, but the improvement was 50x
-> > > speed in the best case!
-> > 
-> > Well, more interesting was that you actually freed much more memory
-> > with your patch. *You actually made memory freeing to work*. So yes, I
-> > like that one.
-> 
-> You might be misreading me. When you set the image size limit setting in
-> Suspend2, it's a soft limit. The image size wouldn't actually get down
-> to 2 meg; Suspend would just aim for that and eat memory until it saw it
-> wasn't getting anywhere.
+>  From what I remember, I didn't see any difference between S4 and S4Bios in
+> recent vanilla kernels.
 
-Well, numbers looked like with same 2MB soft limit, "new" version
-actually freed more memory. Perhaps that's not the case...
-								Pavel
+I have seen exactly the same thing and concluded that S4bios is broken.
+Since it is tricky to set up (you usually need a special hibernation
+partition or a special file in a FAT partition) and probably slow as
+hell (at least if it has anything to do with the APM BIOS suspend to
+disk routines, and i assume it does), i'd shed no tears if it would go
+away ;-)
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX Nürnberg.
+
+"Any ideas, John?"
+"Well, surrounding them's out."

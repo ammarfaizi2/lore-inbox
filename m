@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267560AbTBKKxP>; Tue, 11 Feb 2003 05:53:15 -0500
+	id <S267507AbTBKLBq>; Tue, 11 Feb 2003 06:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267597AbTBKKw4>; Tue, 11 Feb 2003 05:52:56 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:12036 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267560AbTBKKwJ>;
-	Tue, 11 Feb 2003 05:52:09 -0500
-Date: Mon, 10 Feb 2003 17:40:33 +0100
+	id <S267594AbTBKKwt>; Tue, 11 Feb 2003 05:52:49 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:11268 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267507AbTBKKwZ>;
+	Tue, 11 Feb 2003 05:52:25 -0500
+Date: Mon, 10 Feb 2003 18:11:24 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Grover <andrew.grover@intel.com>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Coding style in acpi/scan.c
-Message-ID: <20030210164033.GA1142@elf.ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Explanation of sleep levels for swsusp
+Message-ID: <20030210171124.GA10734@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,31 +22,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This should fix whitespace, please apply,
+This might be usefull to people, please apply.
 								Pavel
 
---- clean/drivers/acpi/scan.c	2003-01-17 23:09:34.000000000 +0100
-+++ linux-swsusp/drivers/acpi/scan.c	2003-02-03 18:27:40.000000000 +0100
-@@ -295,15 +295,15 @@
- 	ACPI_FUNCTION_TRACE("acpi_driver_attach");
+--- clean/Documentation/swsusp.txt	2002-10-08 21:25:16.000000000 +0200
++++ linux/Documentation/swsusp.txt	2002-12-15 21:54:46.000000000 +0100
+@@ -156,6 +156,20 @@
+ - do IDE cdroms need some kind of support?
+ - IDE CD-RW -- how to deal with that?
  
- 	spin_lock(&acpi_device_lock);
--	list_for_each_safe(node,next,&acpi_device_list) {
--		struct acpi_device * dev = container_of(node,struct acpi_device,g_list);
-+	list_for_each_safe(node, next, &acpi_device_list) {
-+		struct acpi_device * dev = container_of(node, struct acpi_device, g_list);
++Sleep states summary (thanx, Ducrot)
++====================================
++
++In a really perfect world:
++echo 1 > /proc/acpi/sleep       # for standby
++echo 2 > /proc/acpi/sleep       # for suspend to ram
++echo 3 > /proc/acpi/sleep       # for suspend to ram, but with more power conservative
++echo 4 > /proc/acpi/sleep       # for suspend to disk
++echo 5 > /proc/acpi/sleep       # for shutdown unfriendly the system
++
++and perhaps
++echo 4b > /proc/acpi/sleep      # for suspend to disk via s4bios
++
++
+ FAQ:
  
- 		if (dev->driver || !dev->status.present)
- 			continue;
- 		spin_unlock(&acpi_device_lock);
- 
--		if (!acpi_bus_match(dev,drv)) {
--			if (!acpi_bus_driver_init(dev,drv)) {
-+		if (!acpi_bus_match(dev, drv)) {
-+			if (!acpi_bus_driver_init(dev, drv)) {
- 				atomic_inc(&drv->references);
- 				ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Found driver [%s] for device [%s]\n",
- 						  drv->name, dev->pnp.bus_id));
+ Q: well, suspending a server is IMHO a really stupid thing,
 
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.

@@ -1,51 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVCJOxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVCJO6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbVCJOxb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 09:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVCJOxb
+	id S262622AbVCJO6u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 09:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262629AbVCJO6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 09:53:31 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:47247 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262628AbVCJOx2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 09:53:28 -0500
-Subject: Re: ITE8212
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: CaT <cat@zip.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050310122824.GX1811@zip.com.au>
-References: <20050310122824.GX1811@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110466294.28860.287.camel@localhost.localdomain>
+	Thu, 10 Mar 2005 09:58:50 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:35561 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262622AbVCJO6L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 09:58:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=AGsKmpa5Kg/VqftH6JHZVoIEK8d0fGeezsR0ar7iAQNCw8BvfCzJrd8qLiKkeDe+uKYwOEY7ssh7Cs+1bG0ier8guMUHtq9CdCa99PYHnVzYXSMYepK1drWmQ8s89YU+fJgN9C6KCmpt7fjWIMWb/er464gptRPDZK81+0qJZN4=
+Message-ID: <9e4733910503100658ff440e3@mail.gmail.com>
+Date: Thu, 10 Mar 2005 09:58:10 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: current linus bk, error mounting root
+Cc: Jeff Garzik <jgarzik@pobox.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050310075049.GA30243@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 10 Mar 2005 14:51:35 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9e47339105030909031486744f@mail.gmail.com>
+	 <422F2F7C.3010605@pobox.com>
+	 <9e4733910503091023474eb377@mail.gmail.com>
+	 <422F5D0E.7020004@pobox.com>
+	 <9e473391050309125118f2e979@mail.gmail.com>
+	 <20050309210926.GZ28855@suse.de>
+	 <9e473391050309171643733a12@mail.gmail.com>
+	 <20050310075049.GA30243@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-03-10 at 12:28, CaT wrote:
-> hda: max request size: 128KiB
-> hda: 390721968 sectors (200049 MB) w/8192KiB Cache, CHS=24321/255/63, BUG
-> hda: cache flushes not supported
->  hda:hda: recal_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: recal_intr: error=0x04 { DriveStatusError }
+LABEL=/                 /                       ext3    defaults        1 1
+label / is on /dev/sda6
 
-Ooh great stuff, definitely want to know more. A couple of folks report
-that and mine won't do it.
+Creating root device
+Mounting root filesystem
+mount: error 6 mounting ext3
+mount: error 2 mounting none
+Switching to new root
+Switchroot: mount failed 22
+umount /initrd/dev failed: 2
 
-> /dev/hdc:
+This is what is left on the screen when the boot fails. There is a
+another line about failed to mount root machine halted.
+
+I am still broken with using the Linus bk tree as of when I wrote this
+mail. That should be all of bk6 plus anything that came in this
+morning.
+
+
+
+On Thu, 10 Mar 2005 08:50:53 +0100, Jens Axboe <axboe@suse.de> wrote:
+> On Wed, Mar 09 2005, Jon Smirl wrote:
+> > On Wed, 9 Mar 2005 22:09:26 +0100, Jens Axboe <axboe@suse.de> wrote:
+> > > probably not worth the bother, looks like barrier problems. get the
+> > > serial console running instead and send the full output, I'll take a
+> > > look in the morning.
+> >
+> > serial console boot output attached.
 > 
->  Model=IC35L060AVV207-0, FwRev=V22OA63A, SerialNo=VNVB01G2RAK8XH
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
->  BuffType=DualPortCache, BuffSize=1821kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=120103200
->  IORDY=on/off
->  PIO modes:  pio0 pio1 pio2 
->  DMA modes:  mdma0 mdma1 mdma2 
+> Hmm ok, nothing of interest there. What does the mount error 6 and 2
+> from  your original mail mean? I need some more info on what fails
+> specifically. What mount options are used? What partition is mounted (is
+> it md or hdaX)?
+> 
+> I'm not sure -bk5 had the follow up fix patch for the barrier rework,
+> you should probably just retry with -bk6 first.
+> 
+> --
+> Jens Axboe
+> 
+> 
 
-Ok its correctly trimmed the modes, but not it seems the current mode.
-I'll send you a tweak to avoid multisect being played with.
 
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269498AbUJFVUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269471AbUJFVYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269498AbUJFVUd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 17:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269380AbUJFUrM
+	id S269471AbUJFVYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269507AbUJFUqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:47:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32153 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269485AbUJFUmH (ORCPT
+	Wed, 6 Oct 2004 16:46:09 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:31941 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269501AbUJFUpM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:42:07 -0400
-Message-ID: <41645892.9060105@redhat.com>
-Date: Wed, 06 Oct 2004 16:41:54 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
+	Wed, 6 Oct 2004 16:45:12 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Patrick Gefre <pfg@sgi.com>
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Date: Wed, 6 Oct 2004 13:44:38 -0700
+User-Agent: KMail/1.7
+Cc: Grant Grundler <iod00d@hp.com>, Colin Ngam <cngam@sgi.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <20041006195424.GF25773@cup.hp.com> <41645150.6020608@sgi.com>
+In-Reply-To: <41645150.6020608@sgi.com>
 MIME-Version: 1.0
-To: hzhong@cisco.com
-CC: "'Andries Brouwer'" <aebr@win.tue.nl>,
-       "'Joris van Rantwijk'" <joris@eljakim.nl>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <003301c4abdc$c043f350$b83147ab@amer.cisco.com>
-In-Reply-To: <003301c4abdc$c043f350$b83147ab@amer.cisco.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410061344.38265.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hua Zhong wrote:
->>It may need fixing in the sense that it must point out that 
->>the Linux kernel
->>might not conform to POSIX in its handling of select on sockets.
-> 
-> 
-> Agreed.
-> 
-> 
->>We now not only have "man 2 select", but also "man 3p select".
->>This is the POSIX text:
->>
->>       A  descriptor shall be considered ready for reading when a
->>       call to an input function with O_NONBLOCK clear would  not
->>       block,  whether  or  not  the function would transfer data
->>       successfully. (The function might return data, an  end-of-
->>       file  indication,  or  an  error other than one indicating
->>       that it is  blocked,  and  in  each  of  these  cases  the
->>       descriptor shall be considered ready for reading.)
->>
->>As far as I can interpret these sentences, Linux does not conform.
-> 
+On Wednesday, October 6, 2004 1:10 pm, Patrick Gefre wrote:
+> I don't plan on respinning the large patches (unless of course they get out
+> of date). It would be great to get the kill, add and qla patch in so we can
+> move forward and address some these other smaller issues - rather than
+> holding up the larger mods for them.
 
-Again, shouldn't this just mean that recvfrom should not be called 
-without the MSG_ERRQUEUE flag set?  From the above description, I read 
-that select returning with an indication that a descriptor is ready for 
-reading could mean that it has an error message queued to it, rather 
-than in-band data.  If you then call recvfrom/recv/recvmsg without 
-indicating that you want to receive the error indications as well, then 
-isn't that just another example of improper coding, since recvfrom would 
-have returned immeidately, as select indicated, had the appropriate read 
-flags been set?
+I agree, but could you please just 'vi' the 002-add-files patch and remove 
+these?
 
-Neil
-> 
-> How hard is it to treat the next read to the fd as NON_BLOCKING, even if
-> it's not set?
-> 
-> 
->>Andries
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ drivers/char/mmtimer.c                          |    1
+ drivers/char/snsc.c                             |   25
+ drivers/ide/pci/sgiioc4.c                       |   23
+ drivers/serial/sn_console.c                     |  214
 
+They should each be separate cleanup patches.  What I've done in the past is 
+make copies (in this case 5) of the big patch.  Then I edit all of them to 
+include only the hunks I want there.  Hopefully that'll minimize the pain of 
+respinning the big patch (i.e. no respin).  Also, Tony doesn't want to deal 
+with the above files, patches for them should be sent to Andrew as separate 
+mails with lkml in the cc list.
 
--- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+Other than that, I'm all for getting these into the tree.  Thanks for all the 
+work you've put into this!
+
+Thanks,
+Jesse

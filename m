@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUFWWAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUFWWB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUFWWAm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 18:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbUFWVxm
+	id S261300AbUFWWB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 18:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUFWWBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 17:53:42 -0400
-Received: from ool-44c1e325.dyn.optonline.net ([68.193.227.37]:8584 "HELO
-	dyn.galis.org") by vger.kernel.org with SMTP id S261907AbUFWVuU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 17:50:20 -0400
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-  fabian.fenaut@free.fr
-MBOX-Line: From george@galis.org  Wed Jun 23 17:50:16 2004
-Date: Wed, 23 Jun 2004 17:50:16 -0400
-From: George Georgalis <george@galis.org>
-To: Fabian Fenaut <fabian.fenaut@free.fr>
-Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: SIIMAGE and sata_sil with 2.6.7-bk
-Message-ID: <20040623215016.GD3537@trot.local>
-References: <20040623163505.GA1068@trot.local> <Pine.GSO.4.33.0406231327060.25702-100000@sweetums.bluetronic.net> <20040623202539.GB3537@trot.local> <40D9F4D9.1060002@free.fr>
+	Wed, 23 Jun 2004 18:01:11 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:2314 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261300AbUFWV6Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 17:58:16 -0400
+Date: Wed, 23 Jun 2004 23:58:12 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alphabet of kernel source
+Message-ID: <20040623215812.GD3072@pclin040.win.tue.nl>
+References: <20040623140628.3f1abfe9@lembas.zaitcev.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40D9F4D9.1060002@free.fr>
-X-Time: trot.local; @951; Wed, 23 Jun 2004 17:50:16 -0400
+In-Reply-To: <20040623140628.3f1abfe9@lembas.zaitcev.lan>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 11:23:37PM +0200, Fabian Fenaut wrote:
->I think you need CONFIG_BLK_DEV_INITRD, otherwise libata and sata_sil
->won't be loaded at boot.
+On Wed, Jun 23, 2004 at 02:06:28PM -0700, Pete Zaitcev wrote:
 
-Since this is a monolithic kernel, that shouldn't be required.
+> Anyhow, long story short, this got me thinking... What is the charset
+> and the encoding of the actual source? I saw quite a discussion about
+> the filenames, but this is different. I am sorry if this was discussed
+> previously.
 
-I now have the box up on an ATA disk, root=/dev/hda1
-but I don't see the sata drive or any scsi devices in
-/proc/sys/dev/scsi/
+This has come up repeatedly. As far as I recall, Linus has never said
+anything. The de facto situation can be seen by just inspecting the
+MAINTAINERS file. Kai Makisara has a diaeresis on the first vowel of
+his last name. Today (2.6.6) that is still coded in ISO 8859-1.
 
-This seems to indicate "sata_sil" which is more than lspci
+In old discussions people who disliked 8859-1 expressed strong preference
+for plain ASCII (possibly with TeX-like escape sequences for non-ASCII).
+These days it seems that, if anything is changed, the only reasonable action
+would be to switch to UTF-8.
 
-# cat /proc/bus/pci/devices | grep sata
-00a0    10953112        f       0000dc01        0000e001        0000e401        0000e801    0000ec01 e4400000        00000000        00000008        00000004        00000008        00000004     00000010        00000200        00080000        sata_sil
-
-
-do I need to change my partition types to md or something? (...oh, atm I
-can't.) Why isn't the controler in /proc/sys/dev/scsi/?
-
-// George
-
--- 
-George Georgalis, Architect and administrator, Linux services. IXOYE
-http://galis.org/george/  cell:646-331-2027  mailto:george@galis.org
-Key fingerprint = 5415 2738 61CF 6AE1 E9A7  9EF0 0186 503B 9831 1631
-
+Andries

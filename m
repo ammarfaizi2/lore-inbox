@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271213AbRIGFV1>; Fri, 7 Sep 2001 01:21:27 -0400
+	id <S271200AbRIGF27>; Fri, 7 Sep 2001 01:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271207AbRIGFVS>; Fri, 7 Sep 2001 01:21:18 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:43973 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S271186AbRIGFU5>;
-	Fri, 7 Sep 2001 01:20:57 -0400
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S271186AbRIGF2u>; Fri, 7 Sep 2001 01:28:50 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:28943 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271207AbRIGF2h>; Fri, 7 Sep 2001 01:28:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Robert Love <rml@tech9.net>
+Subject: Re: Linux Preemptive patch success 2.4.10-pre4 + lots of other patches
+Date: Fri, 7 Sep 2001 07:35:52 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109062135280.1643-100000@devel.office> <20010907051231Z16200-26183+114@humbolt.nl.linux.org> <999840042.1164.14.camel@phantasy>
+In-Reply-To: <999840042.1164.14.camel@phantasy>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15256.22858.57091.769101@napali.hpl.hp.com>
-Date: Thu, 6 Sep 2001 22:21:14 -0700
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] proposed fix for ptrace() SMP race
-In-Reply-To: <20010907032801.N11329@athlon.random>
-In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com>
-	<20010907021900.L11329@athlon.random>
-	<15256.6038.599811.557582@napali.hpl.hp.com>
-	<20010907032801.N11329@athlon.random>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010907052850Z16200-26183+115@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 7 Sep 2001 03:28:01 +0200, Andrea Arcangeli <andrea@suse.de> said:
+On September 7, 2001 07:20 am, Robert Love wrote:
+> On Fri, 2001-09-07 at 01:19, Daniel Phillips wrote:
+> > On September 7, 2001 06:45 am, Robert Love wrote:
+> > > On Fri, 2001-09-07 at 00:36, Christoph Lameter wrote:
+> > > > Given the minimal nature of the patch I would suggest that it become part
+> > > > of 2.4.10 or 11
+> > > 
+> > > Are you kidding?  We will be lucky to see this in during 2.5.
+> > > Its a pretty big change.  It makes the Linux kernel preemptible.
+> > 
+> > CONFIG_PREEMPT
+> 
+> and... ?
 
-  Andrea> For making sure the task isn't wakenup while it's under
-  Andrea> ptrace we should just do that in
-  Andrea> kernel/signal.c::ignored_signal() as far I can tell.
+Sorry, I thought that was self-evident.  It's not a change, it's an option.
 
-This doesn't make sense: ignored_signal() is too late as
-handle_stop_signal() will already have woken up the task in response
-to a SIGCONT.  Also, if you're suggesting to ignore SIGCONT while a
-PT_PTRACED is set, that certainly wouldn't be right.  We only want to
-*delay* the wakeup while the ptrace() system call is running (which is
-much shorter than the period of time PT_PTRACED is set).  So, as far
-as I can tell, you'd have to add more locking to the signal path,
-which doesn't look attractive to me. Also, if pursuing approach, we'd
-have to prove that we cover all possible paths that could wake up the
-task.  E.g., PTRACE_SYSCALL and PTRACE_CONT are other ways the task
-could be woken up.  These particular cases should be fine, because
-they'll already be serialized by the BKL acquired during ptrace(), but
-I'm not so sure there aren't any other cases.
+> What different conclusion? What are you even arguing with me about? 
+> 
+> Do you think I am against a preemptible kernel?  I _posted_ the damn
+> patch, of course I am not.
+> 
+> I probably agree with whatever you are thinking.
 
-So, I still think cpus_allowed is a safer and better approach at least
-for 2.4.  Yes, we'd have to add locking for writing cpus_allowed, but
-I'd say that makes sense anyhow given that it is being manipulated by
-other tasks.
+Yes, violent agreement.  OK, I disagree with your assessment that it's 
+a huge change.  Big in effect yes, but not in structural impact.
 
-Hmmh, looking at ptrace() more closely, the entire locking situation
-seems to be a bit confused.  For example, what's stopping wait4() from
-releasing the task structure just after ptrace() released the
-tasklist_lock and before it checked child->state?
+And you're right, I did think you were arguing against your own patch.
 
-	--david
+--
+Daniel

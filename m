@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVBVVRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVBVVU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVBVVRS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 16:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVBVVRR
+	id S261253AbVBVVU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 16:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBVVU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 16:17:17 -0500
-Received: from gate.crashing.org ([63.228.1.57]:6623 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261249AbVBVVRI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 16:17:08 -0500
+	Tue, 22 Feb 2005 16:20:27 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:7907 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261253AbVBVVUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 16:20:17 -0500
+Message-ID: <421BA1FD.8030108@nortel.com>
+Date: Tue, 22 Feb 2005 15:19:57 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: Andrew Morton <akpm@osdl.org>, Olof Johansson <olof@austin.ibm.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, rusty@rustcorp.com.au
 Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Olof Johansson <olof@austin.ibm.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, jamie@shareable.org,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org>
-References: <20050222190646.GA7079@austin.ibm.com>
-	 <Pine.LNX.4.58.0502221123540.2378@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 08:16:09 +1100
-Message-Id: <1109106969.5412.138.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org>
+In-Reply-To: <20050222210752.GG22555@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-22 at 11:36 -0800, Linus Torvalds wrote:
+Jamie Lokier wrote:
 
-> DavidH - what's the word on nested read-semaphores like this? Are they 
-> supposed to work (like nested read-spinlocks), or do we need to do the 
-> things Olof does?
+> In futex.c:
+> 
+> 	down_read(&current->mm->mmap_sem);
+> 	get_futex_key(...) etc.
+> 	queue_me(...) etc.
+> 	current->flags |= PF_MMAP_SEM;             <- new
+> 	ret = get_user(...);
+> 	current->flags &= PF_MMAP_SEM;             <- new
+> 	/* the rest */
 
-Isn't Olof scheme racy ? Can't the stuff get swapped out between the
-first get_user() and the "real" one ?
+Should the second new line be this (with the inverse)?
 
-Ben.
+	current->flags &= ~PF_MMAP_SEM;
 
 
+Chris

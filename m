@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290770AbSAYSmd>; Fri, 25 Jan 2002 13:42:33 -0500
+	id <S290776AbSAYSnf>; Fri, 25 Jan 2002 13:43:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290776AbSAYSmN>; Fri, 25 Jan 2002 13:42:13 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9740 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290770AbSAYSmL>; Fri, 25 Jan 2002 13:42:11 -0500
-Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 25 Jan 2002 18:54:39 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Martin.Wilck@fujitsu-siemens.com (Martin Wilck),
-        linux-kernel@vger.kernel.org (Linux Kernel mailing list),
-        rgooch@atnf.csiro.au (Richard Gooch),
-        marcelo@conectiva.com.br (Marcelo Tosatti)
-In-Reply-To: <Pine.LNX.4.33.0201251009300.1632-100000@penguin.transmeta.com> from "Linus Torvalds" at Jan 25, 2002 10:14:53 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S290783AbSAYSnV>; Fri, 25 Jan 2002 13:43:21 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:17932 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290776AbSAYSnF>; Fri, 25 Jan 2002 13:43:05 -0500
+Date: Fri, 25 Jan 2002 13:42:48 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, Rainer Krienke <krienke@uni-koblenz.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Message-ID: <20020125134248.B16106@devserv.devel.redhat.com>
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201240858.g0O8wnH03603@bliss.uni-koblenz.de> <20020124121649.A7722@devserv.devel.redhat.com> <200201250728.g0P7SDH26738@bliss.uni-koblenz.de> <20020125124110.A357@devserv.devel.redhat.com> <200201251834.g0PIYxj02545@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16UBUl-0003J9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200201251834.g0PIYxj02545@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Fri, Jan 25, 2002 at 11:34:59AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As Dave pointed out I was mixing them
+> Date: Fri, 25 Jan 2002 11:34:59 -0700
+> From: Richard Gooch <rgooch@ras.ucalgary.ca>
 
-> just not do it on the right CPU (you're _not_ supposed to read to see if
-> you are writing the same value: MTRR's can at least in theory have
-> side-effects, so it's not the same check as for the microcode update).
+> The allocation function should be safe, since it only gives majors
+> which are not assigned in devices.txt. [...]
 
-So why not just set it twice - surely that is harmless ? Why add complex
-code ?
+Oh, that changes it, I should have looked closer.
+I am not sure the "1200 NFS mounts" case warrants the
+change though, so far we have only one active user (Rainer) :)
+If ISPs and universities clamour for my patch, then sure,
+we may improve it with devfs_alloc_major() in 2.4, too.
+Otherwise, whatever... Thanks for the explanation, Richard,
+I'll keep it in my notes.
+
+-- Pete

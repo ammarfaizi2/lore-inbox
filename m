@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130440AbQLaXJL>; Sun, 31 Dec 2000 18:09:11 -0500
+	id <S129431AbQLaXMl>; Sun, 31 Dec 2000 18:12:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130508AbQLaXJB>; Sun, 31 Dec 2000 18:09:01 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:2944 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S130468AbQLaXIr>;
-	Sun, 31 Dec 2000 18:08:47 -0500
-Message-ID: <3A4FB558.688EFE01@pobox.com>
-Date: Sun, 31 Dec 2000 14:38:16 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: Mirai Consulting
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
+	id <S130177AbQLaXMb>; Sun, 31 Dec 2000 18:12:31 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51725 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129431AbQLaXMN>; Sun, 31 Dec 2000 18:12:13 -0500
+Subject: Re: tdfx.o and -test13
+To: tmh@magenta-netlogic.com (Tony Hoyle)
+Date: Sun, 31 Dec 2000 22:43:48 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jjs@pobox.com (J Sloan),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3A4FB514.67F0EA39@magenta-netlogic.com> from "Tony Hoyle" at Dec 31, 2000 10:37:08 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-prerelease
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14CrCg-00009m-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks good here in most respects, but still needs makefile fixes -
+> Possibly something in the auto-dependencies?  Unfortunately I don't have
+> the info files for gcc so
+> I can't work out why the '-include' directive would be
+> overridden/ignored.
 
-# modprobe tdfx
-/lib/modules/2.4.0-prerelease/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol remap_page_range
-/lib/modules/2.4.0-prerelease/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol __wake_up
-/lib/modules/2.4.0-prerelease/kernel/drivers/char/drm/tdfx.o: unresolved
-symbol mtrr_add
-.... etc, etc
-
-Of course, adding
-
-#include <linux/modversions.h>
-
-to drivers/char/drm/drmP.h makes it all work....
-
-jjs
-
-
-
+Im wondering if it is make dependant. It seems to be working here
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264515AbRFPDiC>; Fri, 15 Jun 2001 23:38:02 -0400
+	id <S264579AbRFPDxn>; Fri, 15 Jun 2001 23:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264579AbRFPDhw>; Fri, 15 Jun 2001 23:37:52 -0400
-Received: from 1-084.ctame701-2.telepar.net.br ([200.181.138.84]:4083 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S264515AbRFPDhm>; Fri, 15 Jun 2001 23:37:42 -0400
-Date: Sat, 16 Jun 2001 00:35:57 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Michael Peddemors <michael@linuxmagic.com>
-Cc: J Sloan <jjs@toyota.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Snowhite and the Seven Dwarfs - The REAL story!
-Message-ID: <20010616003557.A964@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Michael Peddemors <michael@linuxmagic.com>, J Sloan <jjs@toyota.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106160127050.10814-100000@boris.prodako.se> <3B2AA1FD.4F7EAD49@lexus.com> <992661095.4884.59.camel@mistress>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <992661095.4884.59.camel@mistress>; from michael@linuxmagic.com on Fri, Jun 15, 2001 at 08:11:35PM -0700
-X-Url: http://advogato.org/person/acme
+	id <S264580AbRFPDxX>; Fri, 15 Jun 2001 23:53:23 -0400
+Received: from www.wen-online.de ([212.223.88.39]:33553 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S264579AbRFPDxW>;
+	Fri, 15 Jun 2001 23:53:22 -0400
+Date: Sat, 16 Jun 2001 05:52:39 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Leon Breedt <ljb@devco.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] nonblinking VGA block cursor
+In-Reply-To: <200106151921.f5FJLsc03635@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.33.0106160546100.408-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jun 15, 2001 at 08:11:35PM -0700, Michael Peddemors escreveu:
-> Or even better.. Rik? Are you using Microsoft again?
-> Now we get em in Spanish too.. Even Virus's sound better in Spanish..
-> Or is that Portugese?
+On Fri, 15 Jun 2001, Albert D. Cahalan wrote:
 
-yup, portuguese, I already got this damn virus in portuguese, english,
-spanish, french... ;(
+> Of course FreeBSD has a block cursor. It was easy to program,
+> and it seems nice to the pot-smoking hippies out in Berkeley.
+> FreeBSD doesn't define standards. FreeBSD breaks standards.
+> (zombie creation, "ps -ef", partition tables, pty allocation...)
+> Gee, kind of like Microsoft, except Microsoft got the cursor right!
+>
+> Ever wonder why IBM supports Linux instead of FreeBSD? Hmmm?
 
-- Arnaldo
+I bet it has more to do with growth curves than cursor style :)
+
+	-Mike
+

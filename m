@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265965AbUFTWRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265963AbUFTWRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265965AbUFTWRz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUFTWRz
+	id S265963AbUFTWRf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265965AbUFTWRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:17:55 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41941 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265965AbUFTWRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:17:44 -0400
-Date: Mon, 21 Jun 2004 00:17:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: chas@cmf.nrl.navy.mil, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.4 patch] add ATM_FORE200E_USE_TASKLET Configure.help entry
-Message-ID: <20040620221733.GC27822@fs.tum.de>
+	Sun, 20 Jun 2004 18:17:35 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:20957 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265963AbUFTWRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 18:17:32 -0400
+Date: Sun, 20 Jun 2004 23:17:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix typos in ATM_FORE200E_USE_TASKLET help text
+Message-ID: <20040620221713.GA9238@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@fs.tum.de>, chas@cmf.nrl.navy.mil,
+	linux-atm-general@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20040620220752.GB27822@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040620220752.GB27822@fs.tum.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below adds the missing Configure.help entry for 
-CONFIG_ATM_FORE200E_USE_TASKLET (text stolen from 2.6.7).
+On Mon, Jun 21, 2004 at 12:07:52AM +0200, Adrian Bunk wrote:
+> The trivial patch below fixes two typos in the ATM_FORE200E_USE_TASKLET 
+> help text.
+> 
+> Please apply
+> Adrian
+> 
+> --- linux-2.6.7/drivers/atm/Kconfig.old	2004-06-21 00:03:30.000000000 +0200
+> +++ linux-2.6.7/drivers/atm/Kconfig	2004-06-21 00:07:29.000000000 +0200
+> @@ -391,8 +391,8 @@
+>  	default n
+>  	help
+>  	  This defers work to be done by the interrupt handler to a
+> -	  tasklet instead of hanlding everything at interrupt time.  This
+> -	  may improve the responsive of the host.
+> +	  tasklet instead of handling everything at interrupt time.  This
+> +	  may improve the responsiveness of the host.
 
-Please apply
-Adrian
+Btw, this isn't exactly something that should be a config option.  Either
+it's an improvement and should always be on or not.  But the arm drivers
+seem to like gazillions of options for just about everything..
 
---- linux-2.4.27-rc1-full/Documentation/Configure.help.old	2004-06-21 00:01:56.000000000 +0200
-+++ linux-2.4.27-rc1-full/Documentation/Configure.help	2004-06-21 00:09:09.000000000 +0200
-@@ -7584,6 +7584,11 @@
-   not have to supply an alternative one. They just say Y to "Use
-   default SBA-200E firmware", above.
- 
-+CONFIG_ATM_FORE200E_USE_TASKLET
-+  This defers work to be done by the interrupt handler to a
-+  tasklet instead of handling everything at interrupt time.  This
-+  may improve the responsiveness of the host.
-+
- Maximum number of tx retries
- CONFIG_ATM_FORE200E_TX_RETRY
-   Specifies the number of times the driver attempts to transmit

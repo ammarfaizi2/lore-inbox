@@ -1,35 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264779AbRGCPg5>; Tue, 3 Jul 2001 11:36:57 -0400
+	id <S264802AbRGCP7w>; Tue, 3 Jul 2001 11:59:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264784AbRGCPgi>; Tue, 3 Jul 2001 11:36:38 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51207 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264779AbRGCPgd>; Tue, 3 Jul 2001 11:36:33 -0400
-Subject: Re: Memory access
-To: guillaumelancelin@yahoo.es (=?iso-8859-1?q?Guillaume=20Lancelin?=)
-Date: Tue, 3 Jul 2001 16:33:35 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010703144532.11007.qmail@web4201.mail.yahoo.com> from "=?iso-8859-1?q?Guillaume=20Lancelin?=" at Jul 03, 2001 04:45:32 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S264804AbRGCP7m>; Tue, 3 Jul 2001 11:59:42 -0400
+Received: from cop.Informatik.TU-Cottbus.DE ([141.43.3.1]:43704 "EHLO
+	cop.Informatik.TU-Cottbus.DE") by vger.kernel.org with ESMTP
+	id <S264802AbRGCP73>; Tue, 3 Jul 2001 11:59:29 -0400
+Date: Tue, 3 Jul 2001 17:59:22 +0200
+From: Guenter Millahn <Guenter.Millahn@Informatik.TU-Cottbus.DE>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Aaron Lehmann <aaronl@vitelus.com>, linux-kernel@vger.kernel.org,
+        jakub@redhat.com
+Subject: Re: Linux speed on sun4c
+Message-ID: <20010703175922.A7970@pt.Informatik.TU-Cottbus.DE>
+Reply-To: Guenter.Millahn@Informatik.TU-Cottbus.DE (Guenter Millahn)
+In-Reply-To: <20010630220612.C14361@vitelus.com> <15166.50418.583094.554723@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15HSBD-0007s3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <15166.50418.583094.554723@pizda.ninka.net>
+Organization: Brandenburg University of Technology, DB & IS Group, Cottbus
+X-Phone: +49 (355) 69-2272 or -2700
+X-Fax: +49 (355) 69-2766
+X-Business-Email: Guenter.Millahn@Informatik.TU-Cottbus.DE
+X-Private-Email: Guenter.Millahn@Web.DE
+X-URL: http://WWW.Informatik.TU-Cottbus.DE/~gm/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My question: is the kernel using or protecting this area of the memory,
-> and is there a way to deprotect it??? (how dangerous!)
+On Sat, 30 Jun 2001, David S. Miller wrote:
 
-The kernel maps ISA space at different addresses. What address and how it is
-accessed depends on the CPU and system
+> Aaron Lehmann writes:
+>  > NetBSD/Sparc's FAQ asserts:
+>  > 
+>  >     Why is NetBSD so much faster than SparcLinux on sun4c (top) 
+>  > 
+>  >         The memory management hardware on sun4c machines (SPARCStation
+>  >         1, 1+, 2, IPC, IPX, SLC, ELC and clones) is not handled particularly
+>  >         well by Linux. Until Linux reworks their MMU code NetBSD will be very
+>  >         much faster on this hardware. 
+>  > 
+>  > Was there ever any truth to this statement? It seems to be light on
+>  > technical details. Have these purported issues ever been fixed?
+>  > 
+>  > I don't want to be scared into running NetBSD on my SparcStation 2 :D.
 
-	isa_readb/readw/readl(addr)
-	isa/writeb/writew/writel(value,addr)
 
-to read/write 8,16,32 bit values 
+What about OpenBSD?  Same as NetBSD?
 
 
-	
+
+> It's totally true, use *BSD on your sun4c systems if top performance
+> is your desire. :-)
+> 
+> I know how to fix it but frankly I have no desire to work on
+> that platform any more.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+
+
+David, can you publish your idea for a fix? Possibly anybody elese can make
+the patch?
+
+Thanks, Guenter
+
+-- 
+Dipl.-Ing. Guenter Millahn         Brandenburg University of Technology
+Systems, Network & DB Admin        CS Dept / DB & IS Research Group
+Voice: +49 (355) 69-2272/2700      P.O. Box: 10 13 44
+Fax:   +49 (355) 69-2766           D-03013 Cottbus              GERMANY
+
+"The real world is still far away from be led ad absurdum by the virtual
+one."    (Hal Faber, newsreel "What happened, what will be", 08/13/2000)

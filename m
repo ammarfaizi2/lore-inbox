@@ -1,40 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUJVUqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUJVUL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUJVUqA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 16:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUJVUmi
+	id S267543AbUJVUL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 16:11:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267507AbUJVULJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 16:42:38 -0400
-Received: from spc1-cosh5-3-0-cust149.cosh.broadband.ntl.com ([81.102.80.149]:5610
-	"EHLO central.regress.homelinux.org") by vger.kernel.org with ESMTP
-	id S267502AbUJVUjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 16:39:39 -0400
-From: Grahame White <grahame@regress.homelinux.org>
-Reply-To: grahame@regress.homelinux.org
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Date: Fri, 22 Oct 2004 21:46:16 +0100
-User-Agent: KMail/1.7
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       David Weinehall <tao@acc.umu.se>, Dax Kelson <dax@gurulabs.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417941C7.1030207@drdos.com> <41796178.7010006@drdos.com>
-In-Reply-To: <41796178.7010006@drdos.com>
+	Fri, 22 Oct 2004 16:11:09 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:20101 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267543AbUJVUKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 16:10:41 -0400
+Date: Fri, 22 Oct 2004 22:10:30 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Adrian Cox <adrian@humboldt.co.uk>
+cc: Kendall Bennett <KendallB@scitechsoft.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+In-Reply-To: <1098434942.5755.34.camel@newt>
+Message-ID: <Pine.GSO.4.61.0410222210130.11567@waterleaf.sonytel.be>
+References: <4176E08B.2050706@techsource.com> <4177ABC9.8291.20E9CB7A@localhost>
+ <1098434942.5755.34.camel@newt>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410222146.16822.grahame@regress.homelinux.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you guys want the specific line numbers and filenames, I will ask
-> them to post the specific filenames/line numbers they claim
-> are theirs. They stated we can ship Linux with fear of being sued if we
-> comply with their Linux Certification Program.
+On Fri, 22 Oct 2004, Adrian Cox wrote:
+> On Thu, 2004-10-21 at 20:30, Kendall Bennett wrote:
+> > Most embedded customers care less about overall performance of the 
+> > graphics hardware but more about low cost, low power and longevity. That 
+> > is the reason that ATI committed to continue production of the Radeon 
+> > Mobility M1 for many years to come. That is also the reason the Chips & 
+> > Tech (now Asiliant) 6900 chipset is so popular for embedded customers, 
+> > because they have been using the same hardware for years (but now that 
+> > the 69000 is winding down, many are moving to the Mobility M1).
+> 
+> Also consider the Fujitsu Coral parts for embedded use:
+> http://www.fme.gsdc.de/gsdc.htm?macrofam/mb86295.htm
+> 
+> They have a large manual, though I can't vouch for completeness. They
+> have 3D and alpha blending. They don't have legacy VGA registers, and
+> they don't have a VGA BIOS. In an embedded system, that's a bonus.
+> 
+> This is the competition facing a new open source graphics chip in the
+> embedded segment. 
 
-Looking at the previous actions of SCO I 100% believe that.
+And the embedded solutions from Silicon Motion.
 
-Grahame
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

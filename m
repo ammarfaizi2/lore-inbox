@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264236AbUE2UsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUE2UxC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264236AbUE2UsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 16:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbUE2UsN
+	id S264373AbUE2UxC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 16:53:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUE2UxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 16:48:13 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:63982 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S264236AbUE2UsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 16:48:07 -0400
-Date: Sat, 29 May 2004 16:42:54 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Steve Lord <lord@xfs.org>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
-       XFS List <linux-xfs@oss.sgi.com>
-Subject: Re: xfs partition refuses to mount
-In-Reply-To: <40B8EC02.3050506@xfs.org>
-Message-ID: <Pine.GSO.4.33.0405291630110.14297-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 May 2004 16:53:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59353 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264373AbUE2UxA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 16:53:00 -0400
+Date: Sat, 29 May 2004 21:52:59 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Netdev <netdev@oss.sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH] remove net driver ugliness that sparse complains about
+Message-ID: <20040529205259.GJ12308@parcelfarce.linux.theplanet.co.uk>
+References: <40B8D2F8.6090905@pobox.com> <Pine.LNX.4.58.0405291117511.1648@ppc970.osdl.org> <20040529204230.GG12308@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040529204230.GG12308@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 May 2004, Steve Lord wrote:
->Yes, xfs_repair will not replay a log, and if it finds dirty metadata in
->the log it wants you to replay it via mount. Having xfs_repair able to
->replay the log would be handy, but if mount cannot replay it, then
->repair will not either.
+On Sat, May 29, 2004 at 09:42:30PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> The rest of patchset (~360Kb right now, and it will grow more) does include
+> several splittings of structs, BTW.  It removes pretty much all noise on
+> my alpha / amd64 / x86 builds; the rest is real issues.
 
-Except xfs_repair can be a lot smarter in the process.  I would never
-suggest putting 3MB worth of log recovery code in the kernel when it's
-likely to very be used.  Such "fogiving" log recovery belongs in userland.
-
->The whole reason for -L was customers who automatically ran xfs_repair
->after a crash, and hence threw away anything which was in the log. So
->it is more of a stop and think what you are doing option.
-
-"Don't do that." *grin*
-
->> There should be a way to instruct the kernel's rootfs mount to not look
->> at the log.  I don't know if one can pass any generic mount options at
->> boot. ("ro"/"rw" and rootfs type, but I don't know of any others.)  This
->> would be handy for more than just xfs, btw.
->
->You can mount norecovery,ro - but no guarantees that it will stay up
->long. See Documentation/filesystems/xfs.txt for a list of xfs mount
->options.
-
-I know I can tell the userland mount (/sbin/mount) to not replay the log.
-But I'm looking for a way to tell the kernel, at boot, to not replay the
-log.  (digs through kernel) Ahh... 'rootflags=...' is what I'm looking for.
-
---Ricky
-
-
+BTW, could you hold on with fs/compat_ioctl.c patches?  I've got a pile
+in that area and it would be really painful to untangle in case of
+conflicts ;-/

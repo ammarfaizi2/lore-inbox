@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312314AbSCYG7a>; Mon, 25 Mar 2002 01:59:30 -0500
+	id <S312326AbSCYHEM>; Mon, 25 Mar 2002 02:04:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312322AbSCYG7U>; Mon, 25 Mar 2002 01:59:20 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43907 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S312327AbSCYG7K>; Mon, 25 Mar 2002 01:59:10 -0500
-Date: Sun, 24 Mar 2002 23:58:45 -0700
-Message-Id: <200203250658.g2P6wjt23915@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: devfsd-v1.3.25 available
+	id <S312322AbSCYHEC>; Mon, 25 Mar 2002 02:04:02 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:63758 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S312325AbSCYHDw>; Mon, 25 Mar 2002 02:03:52 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: bit ops on unsigned long? 
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: Your message of "Sun, 24 Mar 2002 23:21:16 PDT."
+             <200203250621.g2P6LG023329@vindaloo.ras.ucalgary.ca> 
+Date: Mon, 25 Mar 2002 18:07:07 +1100
+Message-Id: <E16pOZP-00043F-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.25 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
+In message <200203250621.g2P6LG023329@vindaloo.ras.ucalgary.ca> you write:
+> > These changed are required because otherwise you try to do set_bit on
+> > something not aligned as a long on all archs.
+> 
+> But of course. I'm not denying that. Naturally the type should be
+> changed. I thought that was obvious so I didn't bother agreeing. But
+> in fact, it already *is* aligned on a long boundary. Better, in
+> fact. It's aligned on a 16 byte boundary. Even though the type was
+> __u32.
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+I'm confused:
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+@@ -212,7 +212,7 @@
+ struct minor_list
+ {
+     int major;
+-    __u32 bits[8];
++    unsigned long bits[256 / BITS_PER_LONG];
+     struct minor_list *next;
+ };
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+How, exactly, did "bits" end up on a 16-bute boundary before this
+patch?
 
-The main changes are:
-
-- Minor GNUmakefile tweak for newer versions of sort(1)
-
-- Added signal handler for SIGUSR1 (re-read config but don't generate
-  synthetic events)
-
-- Make /lib/devfsd the default directory for shared objects
-
-- Set close-on-exec flag for .devfsd control file
-
-- Set umask so that mknod(2) open(2) and mkdir(2) have complete
-  control over permissions
-
-- Added sample entries to devfsd.conf for USB mouse
-
-- Added ide-floppy to modules.devfs list for /dev/discs
-
-- Added /dev/pg and /dev/pg* to modules.devfs list for SCSI generic
-  driver
-
-- Added entry to modules.devfs for AGPGART driver
-
-- Added entry to modules.devfs for raw I/O driver.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265364AbUAZATt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 19:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbUAZATt
+	id S265367AbUAZAJe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 19:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265403AbUAZAJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 19:19:49 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31644 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265366AbUAZATr (ORCPT
+	Sun, 25 Jan 2004 19:09:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:35295 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265367AbUAZAJd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 19:19:47 -0500
-Date: Sun, 25 Jan 2004 16:19:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jonathan Kamens <jik@kamens.brookline.ma.us>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: MD Oops on boot with 2.6.2-rc1-mm3
-Message-Id: <20040125161955.060d42bc.akpm@osdl.org>
-In-Reply-To: <16403.57499.905471.768545@jik.kamens.brookline.ma.us>
-References: <16403.57499.905471.768545@jik.kamens.brookline.ma.us>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 25 Jan 2004 19:09:33 -0500
+Subject: Re: pmdisk working on ppc (WAS: Help port swsusp to ppc)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Colin Leroy <colin@colino.net>
+Cc: Hugang <hugang@soulinfo.com>, Patrick Mochel <mochel@digitalimplant.org>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       ncunningham@clear.net.nz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>
+In-Reply-To: <20040125190832.619e3225@jack.colino.net>
+References: <20040119105237.62a43f65@localhost>
+	 <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
+	 <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
+	 <1074549790.10595.55.camel@gaston> <20040122211746.3ec1018c@localhost>
+	 <1074841973.974.217.camel@gaston> <20040123183030.02fd16d6@localhost>
+	 <1074912854.834.61.camel@gaston> <20040124172800.43495cf3@jack.colino.net>
+	 <1074988008.1262.125.camel@gaston>
+	 <20040125190832.619e3225@jack.colino.net>
+Content-Type: text/plain
+Message-Id: <1075075706.848.32.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 26 Jan 2004 11:08:27 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Kamens <jik@kamens.brookline.ma.us> wrote:
->
-> I get an Oops on boot with 2.6.2-rc1-mm3, trying to boot from a RAID1
-> MD root partition with two disks in the array; the Oops apparently
-> causes the raid array not to be assembled, so the boot stops.
 
-There appears to be a dud raid patch in -mm.  It'll be one of the md-*
-patches.
+> Thanks - I wasn't sure about it.
+> The kernel now builds. However, after doing
+> 	echo disk > /sys/power/state
+> or "hda14" or "/dev/hda14" (which is my swap partition) instead of "disk",
+> nothing happens (and nothing gets logged).
 
-If you have time, could you work out which one?  Ones to start with might be
+Hrm... It tends to do that when it's not happy with something,
+but I did get it working... Ah yes, do
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm3/broken-out/md-02-preferred_minor-fix.patch
+echo -n "disk" instead :) It doesn't like the trailing \n
 
-and
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm3/broken-out/md-06-allow-partitioning.patch
+Ben.
 
 

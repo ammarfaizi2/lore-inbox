@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267074AbRGJSo0>; Tue, 10 Jul 2001 14:44:26 -0400
+	id <S267082AbRGJSsG>; Tue, 10 Jul 2001 14:48:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267078AbRGJSoH>; Tue, 10 Jul 2001 14:44:07 -0400
-Received: from weta.f00f.org ([203.167.249.89]:49282 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267074AbRGJSoB>;
-	Tue, 10 Jul 2001 14:44:01 -0400
-Date: Wed, 11 Jul 2001 06:43:55 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>, ttabi@interactivesi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: What is the truth about Linux 2.4's RAM limitations?
-Message-ID: <20010711064355.F32421@weta.f00f.org>
-In-Reply-To: <200107101812.NAA01171@tomcat.admin.navo.hpc.mil> <3B4B4966.996DD91E@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3B4B4966.996DD91E@didntduck.org>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S267086AbRGJSrr>; Tue, 10 Jul 2001 14:47:47 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38925 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267082AbRGJSri>; Tue, 10 Jul 2001 14:47:38 -0400
+Date: Tue, 10 Jul 2001 11:46:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@conectiva.com.br>, Mike Galbraith <mikeg@wen-online.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <20010710165637.B15734@athlon.random>
+Message-ID: <Pine.LNX.4.33.0107101144520.11830-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 02:28:54PM -0400, Brian Gerst wrote:
 
-    Jesse Pollard wrote:
+On Tue, 10 Jul 2001, Andrea Arcangeli wrote:
+>
+> another issue is that I don't see any value in defining the
+> unlock_buffer() with the get_bh/put_bh in it.
 
-        > If the entire page table were given to a user, then a full cache
-        > flush would have to be done on every context switch and system
-        > call. That would be very slow, but would allow a full 4G address
-        > for the user.
+Ahh, I forgot about that.
 
-    A full cache flush would be needed at every entry into the kernel,
-    including hardware interrupts.  Very poor for performance.
+That's just a remnant of my original fix (which looked very much like
+yours, and had the same bug), and I just hadn't cleaned up after I did the
+real fix. Thanks for reminding me - done.
 
-Why would a cache flush be necessary at all? I assume ia32 caches
-where physically not virtually mapped?
+I also did the end_buffer_io_sync() cleanup.
 
+		Linus
 
-
-
-   --cw

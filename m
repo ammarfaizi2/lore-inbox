@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319269AbSIFRU0>; Fri, 6 Sep 2002 13:20:26 -0400
+	id <S319290AbSIFR2b>; Fri, 6 Sep 2002 13:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319270AbSIFRU0>; Fri, 6 Sep 2002 13:20:26 -0400
-Received: from pc-80-195-6-65-ed.blueyonder.co.uk ([80.195.6.65]:6788 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S319269AbSIFRUZ>; Fri, 6 Sep 2002 13:20:25 -0400
-Date: Fri, 6 Sep 2002 18:24:57 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Aaron Lehmann <aaronl@vitelus.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
-Message-ID: <20020906182457.F3029@redhat.com>
-References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15736.57972.202889.872554@laputa.namesys.com>; from Nikita@Namesys.COM on Fri, Sep 06, 2002 at 09:14:28PM +0400
+	id <S319292AbSIFR2b>; Fri, 6 Sep 2002 13:28:31 -0400
+Received: from dsl-213-023-039-069.arcor-ip.net ([213.23.39.69]:26800 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319290AbSIFR16>;
+	Fri, 6 Sep 2002 13:27:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Anton Altaparmakov <aia21@cantab.net>, "Peter T. Breuer" <ptb@it.uc3m.es>
+Subject: Re: (fwd) Re: [RFC] mount flag "direct"
+Date: Fri, 6 Sep 2002 19:33:55 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Alexander Viro <viro@math.psu.edu>, Xavier Bestel <xavier.bestel@free.fr>,
+       david.lang@digitalinsight.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.SOL.3.96.1020906164920.7282A-100000@virgo.cus.cam.ac.uk>
+In-Reply-To: <Pine.SOL.3.96.1020906164920.7282A-100000@virgo.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17nMzU-0006I3-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 06 September 2002 19:20, Anton Altaparmakov wrote:
+> As of very recently, Andrew Morton introduced an optimization to this with
+> the get_blocks() interface in 2.5 kernels. Now the file system, when doing
+> direct_IO at least, returns to the VFS the requested block position _and_
+> the size of the block. So the VFS now gains in power in that it only needs
+> to ask for each block once as it is now aware of the size of the block.
+> 
+> But still, even with this optimization, the VFS still asks the FS for each
+> block, and then the FS has to lookup each block.
 
-On Fri, Sep 06, 2002 at 09:14:28PM +0400, Nikita Danilov wrote:
+Well, it takes no great imagination to see the progression: get_blocks
+acts on extents instead of arrays of blocks.  Expect to see that around
+the 2.7 timeframe.
 
-> Another possible solution is to try to "defer" allocation. For example,
-> in reiser4 (and XFS, I believe) extents are allocated on the transaction
-> commit and as a result, if file was created by several writes, it will
-> still be allocated as one extent.
-
-Ext2 has a preallocation mechanism so that if you have multiple
-writes, they get dealt with to some extent as a single allocation.
-However, that doesn't work over close(): the preallocated blocks are
-discarded wheneven we close the file.
-
-The problem with mail files, though, is that they tend to grow quite
-slowly, so the writes span very many transactions and we don't have
-that opportunity for coalescing the writes.  Actively defragmenting on
-writes is an alternative in that case.
-
-Cheers,
- Stephen
+-- 
+Daniel

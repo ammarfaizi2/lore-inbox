@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264800AbUELAwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUELAwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264800AbUELAwo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 20:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUELAwn
+	id S264914AbUELAwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 20:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUELAv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 20:52:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34510 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265080AbUELAsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 20:48:31 -0400
-Date: Tue, 11 May 2004 17:51:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH} H8/300 update (2/9) ldscripts fix
-Message-Id: <20040511175105.7d669535.akpm@osdl.org>
-In-Reply-To: <m2zn8erkdv.wl%ysato@users.sourceforge.jp>
-References: <m2zn8erkdv.wl%ysato@users.sourceforge.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 20:51:58 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:56235 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265014AbUELAmu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 20:42:50 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 11 May 2004 17:42:42 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Fabiano Ramos <ramos_fabiano@yahoo.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] really-ptrace-single-step
+In-Reply-To: <20040511171740.6aa32cd1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405111740020.1160@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0405111007440.25232@bigblue.dev.mdolabs.com>
+ <1084296680.2912.8.camel@slack.domain.invalid> <20040511171740.6aa32cd1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yoshinori Sato <ysato@users.sourceforge.jp> wrote:
->
-> +#if defined(CONFIG_H8300) || defined(CONFIG_V850)
-> +#define SYMBOL(_sym_) _##_sym_
-> +#else
-> +#define SYMBOL(_sym_) _sym_
-> +#endif
-> +
+On Tue, 11 May 2004, Andrew Morton wrote:
 
-Adding arch-specific stuff to an include/asm-generic/ header file is
-not nice.
+> Fabiano Ramos <ramos_fabiano@yahoo.com.br> wrote:
+> >
+> > Still not getting the desired result.
+> > Which kernel is the patch based on?
+> > 
+> > On Tue, 2004-05-11 at 14:12, Davide Libenzi wrote:
+> > > This patch lets a ptrace process on x86 to "see" the instruction 
+> > > following the INT #80h op.
+> 
+> Please.  Don't edit people out of email headers.  Just do reply-to-all.  I
+> didn't see your "it doesn't work" email for many hours after having merged
+> the patch.
 
-However, having to create an arch-specific version of the header
-just becasue you need this wrapper is also not nice.
-
-And "SYMBOL" is a too generic identifier: it may clash with other things.
-
-
-Could I suggest that you change asm-generic/vmlinux.lds.h to do:
-
-#ifndef VMLINUX_SYMBOL
-#define VMLINUX_SYMBOL(_sym_) _sym_
-#endif
-
-	...
-
--		__start___ksymtab = .;					\
-+		VMLINUX_SYMBOL(__start___ksymtab) = .;			\
+Sorry Andrew, it's my fault. I should have told you when I received the 
+message, but today I had about 25000 meetings. Hold about the new patch, 
+since I want to see it running a little bit more on my machine. I will 
+send you the final ack later.
 
 
-Then, in some h8300-specific file, do:
 
-	#define VMLINUX_SYMBOL(_sym_) _##_sym_
-	#include <asm-generic/vmlinux.lds.h>
-
-and include that file instead of asm-generic/vmlinux.lds.h?
-
-(I am unable to find where h8300 actually includes vmlinux.lds.h. 
-Confused).
+- Davide
 

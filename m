@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275650AbSIUBr2>; Fri, 20 Sep 2002 21:47:28 -0400
+	id <S275716AbSIUCJq>; Fri, 20 Sep 2002 22:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275654AbSIUBr2>; Fri, 20 Sep 2002 21:47:28 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:21439 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S275650AbSIUBr2>; Fri, 20 Sep 2002 21:47:28 -0400
-Date: Fri, 20 Sep 2002 18:50:20 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: colpatch@us.ibm.com, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>,
-       James Cleverdon <cleverdj@us.ibm.com>
-Subject: Re: CONFIG_MULTIQUAD has got to go...
-Message-ID: <544886755.1032547819@[10.10.2.3]>
-In-Reply-To: <3D8BC45F.5050007@us.ibm.com>
-References: <3D8BC45F.5050007@us.ibm.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S275752AbSIUCJq>; Fri, 20 Sep 2002 22:09:46 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43616 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S275716AbSIUCJp>; Fri, 20 Sep 2002 22:09:45 -0400
+Date: Fri, 20 Sep 2002 22:14:15 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200209210214.g8L2EFE18681@devserv.devel.redhat.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux Hardened Device Drivers Project
+In-Reply-To: <mailman.1032570840.22498.linux-kernel2news@redhat.com>
+References: <mailman.1032570840.22498.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus,
-> 	The CONFIG_MULTIQUAD option has bothered me for a while now.  It actually covers the jobs of 3 config options, 2 of which exist.
-> 
-> This patch splits the use of CONFIG_MULTIQUAD into the 3 config options that it really means:
-> CONFIG_X86_NUMA: General X86 NUMA code (already exists)
-> CONFIG_X86_NUMAQ: Code specific to just the NUMA-Q platform (already exists)
-> CONFIG_CLUSTERED_APIC: Code that specifically deals with clustered APIC mode (new option)
-> 
-> The patch replaces every occurence of CONFIG_MULTIQUAD in the kernel, save 1 (arch/i386/pci/Makefile), which is remedied by the patch I will send momentarily.
-> 
-> Please apply.
+> Obvious this is a way for the telecom folks to get something for free that
+> really should be paid for by funding the project with CASH.  Or funding
+> (a) startup(s) related to generating such support.
 
-As the person who put this in there in the first place ... then 
-extended it beyond any sane use ... I agree this should die ;-)
-The new naming scheme makes much more sense ...
+Andre, if I read you right, you are articulating the following
+idea: "Those guys collect drivers written by students and try
+to run them in production. Of course, it cannot work. If paid
+professionals wrote them, there would be no problem."
 
-M.
+If this is what you are saying here, it is very misguided.
+I had a chance to examine some of drivers written by paid
+professionals, and the picture was pretty bleak. Also, the
+problem of hardening is not unique to Linux or Open Source,
+I had runs with it before.
 
+So, I do not think there's a budgetary issue here. I talked to
+the C-G Linux folks at OLS, and they do have funding. But I do
+not think the hardening is going to fly the way they push it,
+for two technical reasons.
+
+ First, you cannot race crappy driver writers. As soon as you
+harden and qualify something, technology changes and brings
+a whole bunch of crappy drivers.
+
+ Second, the resulting "hardened" system is no less fragile than
+it was before.
+
+If I was going the C-G Linux, I would abandon the "hardening"
+efforts as they are now, and shift in-house hackers to work on
+clusters and UML (including a cluster or UMLs).
+
+As far as giving goes, the C-G people expended a lot of effort
+on documentation of their wishes (again, judging by their OLS
+performance). And I mean *A F. LOT* of effort. If they
+coded as much as they wrote reports and reviews, we'd probably
+have something working by now.
+
+-- Pete

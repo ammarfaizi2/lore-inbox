@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272280AbRIKFaY>; Tue, 11 Sep 2001 01:30:24 -0400
+	id <S272295AbRIKG0B>; Tue, 11 Sep 2001 02:26:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272282AbRIKFaN>; Tue, 11 Sep 2001 01:30:13 -0400
-Received: from wire.cadcamlab.org ([156.26.20.181]:21511 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S272280AbRIKF3z>; Tue, 11 Sep 2001 01:29:55 -0400
-Date: Tue, 11 Sep 2001 00:29:57 -0500
-To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
+	id <S272298AbRIKGZv>; Tue, 11 Sep 2001 02:25:51 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:48396 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S272295AbRIKGZi>;
+	Tue, 11 Sep 2001 02:25:38 -0400
+Date: Mon, 10 Sep 2001 21:53:06 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: linux-2.4.10-pre5
-Message-ID: <20010911002956.D582@cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88a0nPmXw-B@khms.westfalen.de>
-User-Agent: Mutt/1.3.20i
-From: Peter Samuelson <peter@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.33.0109101611450.1034-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0109102151581.30234-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I see two possible atime uses:
+On Mon, 10 Sep 2001, Linus Torvalds wrote:
+> > On September 11, 2001 12:39 am, Rik van Riel wrote:
+
+> > > This suggests we may want to do agressive readahead on the
+> > > inode blocks.
+
+> So it' snot just about preloading. It's also about knowing about access
+> patterns beforehand - something that the kernel really cannot do.
 >
-> 1. Cleaning up /tmp (mtime is *not* a good indicator that a file is no
-> longer used)
-> 2. Swapping out files to slower storage
->
-> Essentially, both use the "do we still need this thing" aspect.
+> Pre-loading your cache always depends on some limited portion of
+> prescience.
 
-The Debian 'popularity-contest' package has an interesting use for
-atime.  It runs weekly (if you install it, of course -- nobody *has* to
-do this!) and determines when each of your installed packages was last
-referenced -- then mails this anonymously to a drop box somewhere.  The
-Higher Purpose here is to determine what the "most useful" Debian
-packages are.  These go on the first volume of the Debian CD set, to
-make a one-volume Debian CD as useful as possible.
+OTOH, agressively pre-loading metadata should be ok in a lot
+of cases, because metadata is very small, but wastes about
+half of our disk time because of the seeks ...
 
-The Windows 2000 install subsystem seems to collect similar data.
-Heaven only knows whether *that* data ever makes it back to its
-owners....
+regards,
 
-Peter
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUGPP7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266573AbUGPQZx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266561AbUGPP7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 11:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUGPP7Q
+	id S266573AbUGPQZx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 12:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266575AbUGPQZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 11:59:16 -0400
-Received: from tartu.cyber.ee ([193.40.6.68]:44554 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S266561AbUGPP7O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 11:59:14 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: schu@schu.net, linux-kernel@vger.kernel.org
-Subject: Re: Possible bug with kernel decompressor.
-In-Reply-To: <40F490B6.6000106@schu.net>
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.7 (i686))
-Message-Id: <E1BlV5r-0003Pc-JJ@rhn.tartu-labor>
-Date: Fri, 16 Jul 2004 18:57:51 +0300
+	Fri, 16 Jul 2004 12:25:53 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:28158 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266573AbUGPQZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 12:25:52 -0400
+Date: Fri, 16 Jul 2004 09:25:45 -0700
+From: Deepak Saxena <dsaxena@plexity.net>
+To: jamal <hadi@cyberus.ca>
+Cc: jgarkzik@pobox.om, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add IXDP2x01 board support to CS89x0 driver
+Message-ID: <20040716162545.GA4351@plexity.net>
+Reply-To: dsaxena@plexity.net
+References: <20040716092859.GA16849@plexity.net> <1089983382.1060.1332.camel@jzny.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089983382.1060.1332.camel@jzny.localdomain>
+Organization: Plexity Networks
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MS> invalid compressed format (err=2)
-MS> 
-MS>    --System halted
+On Jul 16 2004, at 09:09, jamal was caught saying:
+> On Fri, 2004-07-16 at 05:28, Deepak Saxena wrote:
+> > Jeff,
+> > 
+> > The following patch modifies the CS89x0 driver to work on Intel's IXDP2401 
+> > and IXDP2801 (Intel ARm/XScale based) platforms: 
+> > 
+> 
+> cool. Do you need anything else that is not in the kernel to boot either
+> board? 
 
-I had the same on Digital Celebris 5133. One debian Woody boot floppy I
-tried (don't remember which flavour) gave exactly this. Debian Sarge
-boot floppies worked fine.
+I have a patch I will be releasing today or monday (see linux-arm-announce 
+list) that contains the arm-specific bits. Unfortunately since rmk is 
+travelling for about 3 weeks it won't go upstream for atleast that time 
+period.
 
-Additionally, lilo didn't work, just hung.
-
-Grub does work but something (BIOS?) garbles some of the kernel command
-line. I used the following kernel command line as a workaround:
-abrakadabra my_real_options...
-and this became
-PAMSkadabra my_real_options...
-
-Other than that it worked fine - Pentium 133, 64M RAM, onboard Adaptec
-SCSI, onboard Matrox video.
+~Deepak
 
 -- 
-Meelis Roos
+Deepak Saxena - dsaxena at plexity dot net - http://www.plexity.net/
+
+"Unlike me, many of you have accepted the situation of your imprisonment and
+ will die here like rotten cabbages." - Number 6

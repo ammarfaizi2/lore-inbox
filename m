@@ -1,69 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbTJJHyh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 03:54:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTJJHyh
+	id S262574AbTJJIBP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 04:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbTJJIBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 03:54:37 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:61893 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S262474AbTJJHyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 03:54:35 -0400
-Message-ID: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
-From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: [2.7 "thoughts"] V0.3
-Date: Fri, 10 Oct 2003 09:54:12 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-2"
+	Fri, 10 Oct 2003 04:01:15 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45067 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262574AbTJJIBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 04:01:08 -0400
+Date: Fri, 10 Oct 2003 09:01:04 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Patrick Mochel <mochel@osdl.org>
+Subject: Re: bug in init_i82365 wrt sysfs
+Message-ID: <20031010090104.A23806@flint.arm.linux.org.uk>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Patrick Mochel <mochel@osdl.org>
+References: <20031010035940.GA9668@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031010035940.GA9668@conectiva.com.br>; from acme@conectiva.com.br on Fri, Oct 10, 2003 at 12:59:40AM -0300
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.7 "thoughts"
-Thanks to Gabor, Stuart, Stephan and others
-Don't hesitate to send me more or comment.
+On Fri, Oct 10, 2003 at 12:59:40AM -0300, Arnaldo Carvalho de Melo wrote:
+> Call Trace:
+>  [<c01dbf4c>] class_device_create_file+0x1c/0x30
+>  [<c2805188>] init_i82365+0xe8/0x1e8 [i82365]
+>  [<c0139cff>] sys_init_module+0x15f/0x2f0
+>  [<c0109897>] syscall_call+0x7/0xb
 
-Regards,
-Fabian
+This oops has been caused by the need to register the class before
+registering any objects against it.  Unfortunately, the class needs
+to be registered asynchronously in a separate thread to avoid driver
+model deadlock with yenta with cardbus cards inserted or standard
+PCMCIA cards not being detected correctly due to a race.
 
-* slab allocation quota
-* ntfs full support
-* kernel web server (Interfaced to Roman config tool)
-* ipc to sysfs
-* complete user quota centralization
-* Add _responsibilities_ for virtual process tree and possible
-relation in oops cases
-* Does the whole proc vm stuff root/box relevant ?I don't think
-so....Hence, those proc entries deserve security relevant attributes
-* Devices should be limited as well against bad usage(floppy defect),
-viral activity(netcard rush)...
-* Improve kobject model for security, quota rendering
-* bind mount support for all general mount options (nodev,ro,noexec etc)
-  with SECURE implementation with any (maybe even future) filesystems?
-* union mount (possible with option to declare on what fs a new file
-  should be created: on fixed ones, random algorithm, on fs with the
-  largest free space available etc ...)
-* guaranteed i/o bandwidth allocation?
-* netfilter's ability to do tricks which OpenBSD can do now with its
-  packet filter
-* ENBD support in official kernel with enterprise-class 'through the
-  network' volume management
-* Standard kernel output (Minimum, Full options ...)
-* Virtual machine support
-* /proc interface alternative to modutils/module-init-tools.
-                That is, to have a directory of virtual nodes in /proc
-                to provide the functionality of insmod, rmmod, lsmod &
-                modprobe would be great -- especially from the viewpoint
-                of recue disk images, etc.
-* Software RAID 0+1 perhaps?
-                A lot of hardware RAID cards support it, why not the
-                kernel?  By RAID 0+1 I mean mirror-RAIDing two (or more)
-                stripe-RAID arrays.  (Or can this be done already?)
-* Transparent Software-RAID for IDE RAID cards...
-                This could be done by using the Software RAID
-                functionality of the kernel, but making the RAID
-                interface transparent, so you only see a /dev/md?
-                device, rather than multiple /dev/?da* entries.
-* hotplug RAM
+I think the only real solution is to remove the class_device_create_file
+calls from all socket drivers.  This is just a simple commenting out of
+the calls, and should be suitable for the remainder of the -test kernels.
+
+Due to the number of cases that we're encountering with PCMCIA, I'm
+beginning to wonder if the driver model could be fixed to be more kind
+to PCMCIA by avoiding some of these ordering dependencies.  None of this
+would be a problem if the driver model would allow PCI device drivers to
+register PCI devices while their probe or remove functions were executing.
+
+Below is a completely untested patch.  Arnaldo - please test whether this
+fixes your problem.
+
+===== drivers/pcmcia/i82365.c 1.46 vs edited =====
+--- 1.46/drivers/pcmcia/i82365.c	Sun Sep 28 00:04:09 2003
++++ edited/drivers/pcmcia/i82365.c	Fri Oct 10 08:59:26 2003
+@@ -1211,6 +1211,7 @@
+     return 0;
+ } /* i365_set_mem_map */
+ 
++#if 0 /* driver model ordering issue */
+ /*======================================================================
+ 
+     Routines for accessing socket information and register dumps via
+@@ -1250,6 +1251,7 @@
+ 
+ static CLASS_DEVICE_ATTR(exca, S_IRUGO, show_exca, NULL);
+ static CLASS_DEVICE_ATTR(info, S_IRUGO, show_info, NULL);
++#endif
+ 
+ /*====================================================================*/
+ 
+@@ -1414,10 +1416,12 @@
+ 			    pcmcia_unregister_socket(&socket[i].socket);
+ 		    break;
+ 	    }
++#if 0 /* driver model ordering issue */
+ 	   class_device_create_file(&socket[i].socket.dev,
+ 			   	    &class_device_attr_info);
+ 	   class_device_create_file(&socket[i].socket.dev,
+ 			   	    &class_device_attr_exca);
++#endif
+     }
+ 
+     /* Finally, schedule a polling interrupt */
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

@@ -1,74 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317858AbSHaR6m>; Sat, 31 Aug 2002 13:58:42 -0400
+	id <S317852AbSHaSLL>; Sat, 31 Aug 2002 14:11:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317859AbSHaR6m>; Sat, 31 Aug 2002 13:58:42 -0400
-Received: from ns.mpi-sb.mpg.de ([139.19.1.1]:65258 "EHLO
-	interferon.mpi-sb.mpg.de") by vger.kernel.org with ESMTP
-	id <S317858AbSHaR6l>; Sat, 31 Aug 2002 13:58:41 -0400
-Message-ID: <3D7104D5.8AD2086B@mpi-sb.mpg.de>
-Date: Sat, 31 Aug 2002 20:03:01 +0200
-From: Roman Dementiev <dementiev@mpi-sb.mpg.de>
-Reply-To: dementiev@mpi-sb.mpg.de
-Organization: MPI for Computer Science
-X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.8 sun4u)
+	id <S317855AbSHaSLL>; Sat, 31 Aug 2002 14:11:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31244 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317852AbSHaSLJ>;
+	Sat, 31 Aug 2002 14:11:09 -0400
+Message-ID: <3D710A93.729F3026@zip.com.au>
+Date: Sat, 31 Aug 2002 11:27:31 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Multi disk performance (8 disks), limit 230 MB/s
-Content-Type: text/plain; charset=koi8-r
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.32-mm4
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.32/2.5.32-mm4/
 
-I have been doing some benchmarking experiments on kernel 2.4.19 with 8
-IDE disks. Due to poor performance of 2 disks at 1 IDE channels we have
-bought 4 Promise Ultra 100 TX2 (32-bit 66 Mhz) controllers and to avoid
-bus saturation Supermicro P4PDE motherboard with multiple PCI buses
-(64-bit 66 Mhz) and 2-Xeons. I submitted already PCI slot placing
-problems to the mailing list. But theoretically I can live with the
-current IDE condrollers->PCI slots assighnment.
+Since -mm2:
 
-The assignment is the following: 3 IDE controllers are connected to the
-one PCI 64-bit Hub with bandwidth 1 GByte/s and  4th controller is on
-another hub with the same characteristics.
+- Linus has merged a bunch of things.  Of which O_DIRECT support for ext3
+  is the only interesting part.
 
-Theoretically with 6 IBM disks (47 MB/s from the first cylinders) I
-should achieve a number about  266 MB/s (32 bit X 66 Mhz) < 6*47. AND
-2*47 = 94 MB/s < 266 MB/s from the last two disks. Thus the rate should
-be 94 + 266 = 360 MB/s.
+- mm3 was a temp syncup with wli.  mm4 has survived an overnight deathtest
+  and looks pretty good.
 
-BUT no matter from which set of the disks I read or write I have got the
++ the block-highmem scsi fix has been changed: we now allow block-highmem
+  for all scsi devices, not just disks.
 
-following parallel read/write rates (raw access):
++ added a patch to move the rmap locking functions into their own
+  header file.
 
++ highpte is now working.
 
-         write (MB/s) read (MB/s) systime (top)  real/user/sys(time) (s)
+  There is no evidence that non-ia32 people have tried to compile this
+  code yet.
 
-1 disk :        48    45          3  %           3.0 / 0.1 / 0.4
-2 disks:        83    94          10 %           3.5 / 0.1 / 0.6
-4 disks:        131   189         21 %           4.3 / 0.4 / 2.8
-5 disks:        172   233                        4.5 / 0.5 / 4.5
-6 disks:        197   234 ?       30 %           5.2 / 0.6 / 6.6
-7 disks:        209 ? 230 ?                      5.9 / 0.6 / 8.8
-8 disks:        214 ? 229 ?       40 %           6.7 / 0.8 /10.8
++ a race in slablru has been fixed.  slablru seems to keep the slabs
+  under control quite nicely.
 
-The method of the measurement:
-1. Prespawn thread for every disk
-2. signal threads to start write of 64 Mb of data
-3. wait until all threads finished, measure time
-4. signal threads to start read of 64 Mb of data
-5. wait until all threads finished, measure time
++ added rml's low-latency-zap_page_range patch
 
-All disks are in UDMA 100 mode
++ reinstated buffermem acounting in /proc/meminfo.  This is useful,
+  but the implementation's walk across the inode_unused list will
+  probably be very costly in some situations.  May need to change it so
+  that the inode walk only works correctly for blockdevs, or make
+  the inode_unused list (and inode_lock!) per-superblock.
 
-Has anyone else seen similar problems?
-What limits the performance: IDE disk driver, bottleneck in the kernel
-I/O subsystem?
-How to improve?
++ The configurable kernel/userspace split patch is back.
+
++ Added Rohit's ia32 huge tlb page patch.  We don't have any tools
+  to test this with at present, which is a bit of a problem.
+
++ Added Jani Monoses' EXT3_SB cleanup.
 
 
-Roman
 
+linus.patch
+  cset-1.508.1.15-to-1.567.txt.gz
+
+scsi_hack.patch
+  Fix block-highmem for scsi
+
+ext3-htree.patch
+  Indexed directories for ext3
+
+rmap-locking-move.patch
+  move rmap locking inlines into their own header file.
+
+discontig-paddr_to_pfn.patch
+  Convert page pointers into pfns for i386 NUMA
+
+discontig-setup_arch.patch
+  Rework setup_arch() for i386 NUMA
+
+discontig-mem_init.patch
+  Restructure mem_init for i386 NUMA
+
+discontig-i386-numa.patch
+  discontigmem support for i386 NUMA
+
+cleanup-mem_map-1.patch
+  Clean up lots of open-coded uese of mem_map[].  For ia32 NUMA
+
+zone-pages-reporting.patch
+  Fix the boot-time reporting of each zone's available pages
+
+enospc-recovery-fix.patch
+  Fix the __block_write_full_page() error path.
+
+fix-faults.patch
+  Back out the initial work for atomic copy_*_user()
+
+spin-lock-check.patch
+  spinlock/rwlock checking infrastructure
+
+refill-rate.patch
+  refill the inactive list more quickly
+
+copy_user_atomic.patch
+
+kmap_atomic_reads.patch
+  Use kmap_atomic() for generic_file_read()
+
+kmap_atomic_writes.patch
+  Use kmap_atomic() for generic_file_write()
+
+throttling-fix.patch
+  Fix throttling of heavy write()rs.
+
+dirty-state-accounting.patch
+  Make the global dirty memory accounting more accurate
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+discontig-cleanup-1.patch
+  i386 discontigmem coding cleanups
+
+discontig-cleanup-2.patch
+  i386 discontigmem cleanups
+
+writeback-thresholds.patch
+  Downward adjustments to the default dirtymemory thresholds
+
+buffer-strip.patch
+  Limit the consumption of ZONE_NORMAL by buffer_heads
+
+rmap-speedup.patch
+  rmap pte_chain space and CPU reductions
+
+wli-highpte.patch
+  Resurrect CONFIG_HIGHPTE - ia32 pagetables in highmem
+
+readv-writev.patch
+  O_DIRECT support for readv/writev
+
+slablru.patch
+  age slab pages on the LRU
+
+llzpr.patch
+  Reduce scheduling latency across zap_page_range
+
+buffermem.patch
+  Resurrect buffermem accounting
+
+config-PAGE_OFFSET.patch
+  Configurable kenrel/user memory split
+
+lpp.patch
+  ia32 huge tlb pages
+
+ext3-sb.patch
+  u.ext3_sb -> generic_sbp

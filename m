@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbUCBBu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 20:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUCBBu3
+	id S261534AbUCBBuD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 20:50:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUCBBuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 20:50:29 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:55175 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261537AbUCBBuY (ORCPT
+	Mon, 1 Mar 2004 20:50:03 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:49031 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261534AbUCBBuA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 20:50:24 -0500
-Date: Tue, 2 Mar 2004 02:50:22 +0100 (MET)
-Message-Id: <200403020150.i221oMpr024937@harpo.it.uu.se>
+	Mon, 1 Mar 2004 20:50:00 -0500
+Date: Tue, 2 Mar 2004 02:49:40 +0100 (MET)
+Message-Id: <200403020149.i221nelX024890@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: gf435@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: GigaBit Netdriver instability
+To: ak@suse.de, davej@redhat.com
+Subject: Re: [start_kernel] Suggest to move parse_args() before trap_init()
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, yi.zhu@intel.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Feb 2004 18:57:32 +0100, Otto Meier wrote:
->I try to run a Dlink DGE-550T 64bit PCI Gigabit Card
->with the driver dl2k and kernel 2.6.3-mm4. on a dual
->athlon-MP MSI 6501 board.
+On Mon, 1 Mar 2004 20:54:26 +0000, Dave Jones wrote:
+>On Mon, Mar 01, 2004 at 09:46:38PM +0100, Andi Kleen wrote:
 >
->With some heavier load on the net (transfering 2 1-Gbyte files to 2 
->different clients on the net
->2 100Mbit connections)
+> > > I think the only problem with this is if we get a fault during
+> > > parse_args(), the kernel flies off into outer space.  So you lose some
+> > > debuggability when using an early console.
+> > > 
+> > > But 2.4 does trap_init() after parse_args() and nobody has complained, as
+> > > did 2.6 until recently.  So the change is probably OK.
+> > 
+> > The standard way to fix this is to add an explicit check for lapic
+> > to the early argument parsing in setup.c (but keep the __setup so that
+> > no unknown argument is reported).
 >
->I get following messages in syslog
+>This just got me thinking of a sort-of related problem.
+>Some laptops hang when local apic is enabled, and we couldn't
+>blacklist them in 2.4 due to us not doing the dmi scan early enough.
 >
->APIC error on CPU0: 02(02)
->Feb 28 16:23:33 gate2 kernel: APIC error on CPU1: 02(02)
->Feb 28 16:23:38 gate2 kernel: eth0: Transmit error, TxStatus 400270f, 
->FrameId 67108864
->
->after some several of these messages the network connection stops.
+>Did that get fixed in 2.6 ?
 
-02 is "receive checksum error". Your mainboard is
-corrupting messages on the APIC bus. That's extremely bad.
+My patch for early DMI scan and local APIC blacklisting
+was included in 2.5.6 and 2.4.19. This was done mainly
+to handle all those broken Dell laptops.
 
-Many people have had problems with older dual-Athlon boards.
-Ensure that the power supply and cooling solution are adequate,
-and that the memory modules are certified.
-
-Failing that, try the "noapic" kernel parameter.
+/Mikael

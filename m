@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbUCXVct (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 16:32:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUCXVct
+	id S261991AbUCXVhL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 16:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbUCXVhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 16:32:49 -0500
-Received: from ns.suse.de ([195.135.220.2]:50622 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261980AbUCXVcr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 16:32:47 -0500
-Date: Wed, 24 Mar 2004 22:32:45 +0100
-From: Olaf Hering <olh@suse.de>
-To: Andreas Happe <news_0403@flatline.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm2
-Message-ID: <20040324213245.GA11608@suse.de>
-References: <20040323232511.1346842a.akpm@osdl.org> <slrnc63mc2.18m.news_0403@flatline.ath.cx>
+	Wed, 24 Mar 2004 16:37:11 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:59349 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261991AbUCXVhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 16:37:01 -0500
+Date: Wed, 24 Mar 2004 22:36:48 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, matthias.andree@gmx.de, andrea@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25 SMP - BUG at page_alloc.c:105
+Message-ID: <20040324213648.GA17896@merlin.emma.line.org>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Andrew Morton <akpm@osdl.org>, andrea@suse.de,
+	linux-kernel@vger.kernel.org
+References: <20040324205811.GB6572@logos.cnet> <20040324122806.4015d3d6.akpm@osdl.org> <20040324215112.GA6931@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <slrnc63mc2.18m.news_0403@flatline.ath.cx>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+In-Reply-To: <20040324215112.GA6931@logos.cnet>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Mar 24, Andreas Happe wrote:
+On Wed, 24 Mar 2004, Marcelo Tosatti wrote:
 
-> On 2004-03-24, Andrew Morton <akpm@osdl.org> wrote:
-> > -initramfs-search-for-init.patch
-> > -initramfs-search-for-init-zombie-fix.patch
-> > +initramfs-search-for-init-orig.patch
-> >
-> >  Go back to the original, simple version of this patch.
-> 
-> 2.6.5-rc2-mm2 still hangs after:
-> | VFS: mounted root (ext3 filesystem) readonly
-> | Freeing unused kernel memory: 140kB
-> 
-> SysRq still works, what information would you need to solve that
-> problem?
+> This should work. Matthias, please apply and try to reproduce.
 
-you really have this code now?
+Didn't compile. I have changed that line 119 to bad_page(__FUNCTION__,
+page); instead. If the first argument must be something else, let me
+know. It doesn't immedately make sense with just one caller, but I know
+nothing better right now.
 
-+       if (sys_access("/init", 0) == 0)
-+               execute_command = "/init";
-+       else
-        prepare_namespace();
+As I don't know a specific scenario to reproduce the crash, it may take
+longer (possibly weeks) until I can come up with results.
 
-sysrq t would help.
+Here's the error:
+
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.25/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -nostdinc -iwithprefix include -DKBUILD_BASENAME=page_alloc -DEXPORT_SYMTAB -c page_alloc.c
+page_alloc.c: In function `__free_pages_ok':
+page_alloc.c:119: warning: passing arg 1 of `bad_page' from incompatible pointer type
+page_alloc.c:119: error: too few arguments to function `bad_page'
+make[2]: *** [page_alloc.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.4.25/mm'
+
+The relevant parts of the patch were:
+
+> --- mm/page_alloc.c.orig	2004-03-24 18:42:53.693251224 -0300
+> +++ mm/page_alloc.c	2004-03-24 18:47:52.484828000 -0300
+> @@ -81,6 +81,20 @@
+>   * -- wli
+>   */
+>  
+> +static void bad_page(const char *function, struct page *page)
+> +{
+> +        printk("Bad page state at %s\n", function);
+...
+> @@ -101,8 +115,8 @@
+>  
+>  	if (page->buffers)
+>  		BUG();
+> -	if (page->mapping)
+> -		BUG();
+> +	if (page->mapping) 
+> +		bad_page(page);
+>  	if (!VALID_PAGE(page))
+>  		BUG();
+>  	if (PageLocked(page))
 
 -- 
-USB is for mice, FireWire is for men!
+Matthias Andree
 
-sUse lINUX ag, nÜRNBERG
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

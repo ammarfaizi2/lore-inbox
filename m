@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262823AbSJJCi5>; Wed, 9 Oct 2002 22:38:57 -0400
+	id <S262828AbSJJCpV>; Wed, 9 Oct 2002 22:45:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262828AbSJJCi5>; Wed, 9 Oct 2002 22:38:57 -0400
-Received: from mnh-1-27.mv.com ([207.22.10.59]:18949 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S262823AbSJJCi5>;
-	Wed, 9 Oct 2002 22:38:57 -0400
-Message-Id: <200210100348.WAA05793@ccure.karaya.com>
+	id <S262841AbSJJCpV>; Wed, 9 Oct 2002 22:45:21 -0400
+Received: from mnh-1-27.mv.com ([207.22.10.59]:23557 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S262828AbSJJCpU>;
+	Wed, 9 Oct 2002 22:45:20 -0400
+Message-Id: <200210100355.WAA06063@ccure.karaya.com>
 X-Mailer: exmh version 2.0.2
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-       Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
-Subject: Re: [PATCH] export __do_copy_to_user 
-In-Reply-To: Your message of "Tue, 08 Oct 2002 15:07:18 +0400."
-             <15778.48230.397957.681553@laputa.namesys.com> 
+To: Dan Kegel <dank@kegel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1 
+In-Reply-To: Your message of "Wed, 09 Oct 2002 17:50:30 MST."
+             <3DA4CED6.1BD30A2F@kegel.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 09 Oct 2002 22:48:47 -0500
+Date: Wed, 09 Oct 2002 22:55:52 -0500
 From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita@Namesys.COM said:
-> this patch exports __do_copy_to_user() in arch/um/kernel/ksyms.c. This
-> is necessary to build any file-system as module in the UML. 
+dank@kegel.com said:
+> George's approach would work a lot better when doing lots of UML VM's
+> on a single box, too, wouldn't it? 
 
-Applied, thanks.
+My thinking on this is that I'll have UML do the on-demand ticks.  So, on
+a host with n UMLs, we will no longer have n * HZ timer deliveries/sec.
 
-		Jeff
+I haven't thought a lot about it, but this seems largely unconnected to how 
+the host does its timers.
+
+The one connection I can think of is that any generic support for on-demand
+ticks would be re-used by UML.  And if UML required generic changes for this,
+then that would obviously affect the other ports somehow.
+
+				Jeff
 

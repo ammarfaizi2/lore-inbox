@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSKKHPK>; Mon, 11 Nov 2002 02:15:10 -0500
+	id <S265633AbSKKHXl>; Mon, 11 Nov 2002 02:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265631AbSKKHPJ>; Mon, 11 Nov 2002 02:15:09 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:4480 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S265628AbSKKHPI>; Mon, 11 Nov 2002 02:15:08 -0500
-Date: Mon, 11 Nov 2002 18:21:41 +1100
-From: CaT <cat@zip.com.au>
+	id <S265631AbSKKHXl>; Mon, 11 Nov 2002 02:23:41 -0500
+Received: from bbned239-32-100.dsl.hccnet.nl ([80.100.32.239]:30212 "EHLO
+	vanvergehaald.nl") by vger.kernel.org with ESMTP id <S265633AbSKKHXk>;
+	Mon, 11 Nov 2002 02:23:40 -0500
+Date: Mon, 11 Nov 2002 00:10:17 +0100
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.47 / pcmcia xircom eth oops
-Message-ID: <20021111072141.GA584@zip.com.au>
+Subject: Re: 2.5.46-mm2
+Message-ID: <20021111001017.J10769@vdpas.vanvergehaald.nl>
+References: <3DCDD9AC.C3FB30D9@digeo.com> <20021110143208.GJ31134@suse.de> <20021110145203.GH23425@holomorphy.com> <20021110145757.GK31134@suse.de> <20021110150626.GI23425@holomorphy.com> <3DCE9034.6F833C31@digeo.com> <20021110171130.GJ23425@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021110171130.GJ23425@holomorphy.com>; from wli@holomorphy.com on Sun, Nov 10, 2002 at 09:11:30AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a dual eth+ser 16bit xircom card. it's detected ok and ttyS15 and
-eth1 are created by the kernel just fine. On ejection though I get an
-oops:
+On Sun, Nov 10, 2002 at 09:11:30AM -0800, William Lee Irwin III wrote:
+> William Lee Irwin III wrote:
+> >> Go for it, I'm just trying to get tiobench to actually run (seems to
+> >> have new/different "die from too many threads" behavior wrt. --threads).
+> >> Dropping me a fresh kernel shouldn't slow anything down.
+> 
+> On Sun, Nov 10, 2002 at 08:58:28AM -0800, Andrew Morton wrote:
+> > It could be the procps thing?  `tiobench --threads 256' shows up as a
+> > single process in top and ps due to the new thread consolidation feature.
+> > If you run `ps auxm' or hit 'H' in top, all is revealed.  Not my fave
+> > feature that.
+> 
+> Turns out monitoring things via /proc/ slowed it down by some ridiculous
+> factor while it was trying to spawn threads. 9 hours became less than 1s
+> when I stopped looking.
 
-Badness in put_device at drivers/base/core.c:211
-Call Trace:
- [<c022e8a8>] put_device+0x9c/0xbc
- [<c01e80e6>] pci_remove_device+0xe/0x38
- [<c02850d7>] cb_free+0x27/0x5c
- [<c028258a>] shutdown_socket+0x76/0xe0
- [<c02828b5>] do_shutdown+0x5d/0x64
- [<c02828f6>] parse_events+0x3a/0xd8
- [<c028705e>] yenta_bh+0x3e/0x44
- [<c0127cb1>] worker_thread+0x1e9/0x2cc
- [<c0127ac8>] worker_thread+0x0/0x2cc
- [<c0287020>] yenta_bh+0x0/0x44
- [<c0117a30>] default_wake_function+0x0/0x34
- [<c0117a30>] default_wake_function+0x0/0x34
- [<c0106e59>] kernel_thread_helper+0x5/0xc
+Ah!
+You just rediscovered the strange world of quantum physics:
+the result of your experiment depends on wether you're looking or not.
 
-Badness in put_device at drivers/base/core.c:211
-Call Trace:
- [<c022e8a8>] put_device+0x9c/0xbc
- [<c01e80e6>] pci_remove_device+0xe/0x38
- [<c02850d7>] cb_free+0x27/0x5c
- [<c028258a>] shutdown_socket+0x76/0xe0
- [<c02828b5>] do_shutdown+0x5d/0x64
- [<c02828f6>] parse_events+0x3a/0xd8
- [<c028705e>] yenta_bh+0x3e/0x44
- [<c0127cb1>] worker_thread+0x1e9/0x2cc
- [<c0127ac8>] worker_thread+0x0/0x2cc
- [<c0287020>] yenta_bh+0x0/0x44
- [<c0117a30>] default_wake_function+0x0/0x34
- [<c0117a30>] default_wake_function+0x0/0x34
- [<c0106e59>] kernel_thread_helper+0x5/0xc
-
-cs: cb_free(bus 2)
-
-this is with the new tulip xircom driver. I received no oopses when I
-wasn't using the xircom eth drivers. the eth1 interface was not defined
-at the time.
-
-if you need more info, holler.
+:-)
 
 -- 
-        All people are equal,
-        But some are more equal then others.
-            - George W. Bush Jr, President of the United States
-              September 21, 2002 (Abridged version of security speech)
+ /"\                             | "I never much liked Macs.
+ \ /     ASCII RIBBON CAMPAIGN   |  All the interesting stuff is hidden away."
+  X        AGAINST HTML MAIL     |    --  Linus Torvalds (at the Geek Cruise)
+ / \

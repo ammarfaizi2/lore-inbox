@@ -1,110 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261992AbSIYOoH>; Wed, 25 Sep 2002 10:44:07 -0400
+	id <S261986AbSIYOrq>; Wed, 25 Sep 2002 10:47:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261993AbSIYOoH>; Wed, 25 Sep 2002 10:44:07 -0400
-Received: from h24-68-71-10.vc.shawcable.net ([24.68.71.10]:39948 "EHLO
-	kruhftwerk.dyndns.org") by vger.kernel.org with ESMTP
-	id <S261992AbSIYOoF>; Wed, 25 Sep 2002 10:44:05 -0400
-Date: Wed, 25 Sep 2002 07:49:20 -0700
-From: Burton Samograd <kruhft@kruhft.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Some questions about Linux Framebuffer programming
-Message-ID: <20020925144920.GA4398@kruhft.dyndns.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020925141906.78323.qmail@web12302.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
-Content-Disposition: inline
-In-Reply-To: <20020925141906.78323.qmail@web12302.mail.yahoo.com>
-X-GPG-key: http://kruhftwerk.dyndns.org/kruhft.pubkey.asc
-X-Operating-System: Linux kruhft.dyndns.org 2.4.19-gentoo-r9 
-User-Agent: Mutt/1.5.1i
+	id <S261990AbSIYOrq>; Wed, 25 Sep 2002 10:47:46 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:18887 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261986AbSIYOrp>; Wed, 25 Sep 2002 10:47:45 -0400
+Date: Wed, 25 Sep 2002 11:52:35 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Con Kolivas <conman@kolivas.net>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] fork_load module tested for contest
+In-Reply-To: <1032964936.3d91cb48b1cca@kolivas.net>
+Message-ID: <Pine.LNX.4.44L.0209251151220.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Sep 2002, Con Kolivas wrote:
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I've been trialling a new load module for the contest benchmark
+> (http://contest.kolivas.net) which simply forks a process that does
+> nothing, waits for it to die, then repeats. Here are the results I have
+> obtained so far:
 
-On Wed, Sep 25, 2002 at 07:19:06AM -0700, Eric Miao wrote:
->=20
-> 1. How can I switch to another virtual terminal by
-> normal user process?
-> VT_ACTIVATE ioctl can only be called by processes
-> having root rights.
+> fork_load:
+> Kernel                  Time            CPU             Ratio
+> 2.4.19                  100.05          69%             1.37
+> 2.4.19-ck7              74.65           95%             1.02
+> 2.5.38                  77.35           95%             1.06
+> 2.5.38-mm2              76.99           95%             1.06
 >
+> ck7 uses O1, preempt, low latency
 
-This is a snippet of a little program I wrote called vtswitch that
-shows how to use the VT_ACTIVATE ioctl.  This works as a normal user,
-so you might be using it wrong.  I can send the whole program if you
-want to see how the whole thing works but this is the guts:
+Looks like the O(1) scheduler has a problem, then.  The continuous
+fork() loop should get 20% of the CPU, not 5%.
 
-<--- begin code block ---->
+regards,
 
-int vtfd;
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-#define VT_DEVICE_FILE "/dev/tty"
-vtfd =3D open(VT_DEVICE_FILE, O_RDWR, 0);
-  if(vtfd < 0)
-    {
-      printf("*error* Could not open /dev/tty\n");
-    }
+http://www.surriel.com/		http://distro.conectiva.com/
 
-  /* Save the current vt index to the history file */
-  save_cur_vt_index(vtfd);
+Spamtraps of the month:  september@surriel.com trac@trac.org
 
-  /* Switch to the terminal if there wasn't an error looking up the
-  alias */
-  if(ioctl(vtfd, VT_ACTIVATE, terminal))
-    {
-      printf("*error* Error switching to terminal %s (%d)\n", vt,
-  terminal);
-      return -1;
-    }
-
-<-- end code block -->
-
-
-> 2. When I switch away from and again back to the
-> virtual terminal where I do frame buffer drawing,
-> screen content is destroyed and replaced by original
-> console text?
-> How can I avoid this problem?
-
-You can save the framebuffer contents to a program array and then poll
-the current vt every once and a while (using VT_GETSTATE and
-vt_stat.vt_active), check to see if your program is on the visible vt
-and then copy it back to restore it.  This could also keep your
-program from drawing to the framebuffer when it's not visible.
-
->=20
-> 3. What is FBIOPUT_CON2FBMAP? What does it do?
-
-Not sure.
-
->=20
-> 4. How can I do flipping between primary frame and
-> secondary frame?
-
-Create an offscreen surface using malloc and do your rendering to that
-and then do a memcpy (simple way) or hardware accellerated blt (faster
-but harder to setup).
-
-burton
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9kczvLq/0KC7fYbURAtT4AKCy9ipJIVqNFZfeuJ/qG7NQH9UZPgCgs29Z
-/aAlaZ08kmnmj9oU2GQK3dk=
-=p1Vt
------END PGP SIGNATURE-----
-
---IJpNTDwzlM2Ie8A6--

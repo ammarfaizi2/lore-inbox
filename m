@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTIEAwu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 20:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTIEAwu
+	id S261151AbTIEAuH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 20:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTIEAuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 20:52:50 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:16647 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261566AbTIEAwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 20:52:49 -0400
-Subject: Re: [PATCH] fix remap of shared read only mappings
-From: James Bottomley <James.Bottomley@steeleye.com>
+	Thu, 4 Sep 2003 20:50:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63373 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261151AbTIEAuD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 20:50:03 -0400
+Date: Thu, 4 Sep 2003 17:49:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
 To: Daniel Phillips <phillips@arcor.de>
-Cc: Jamie Lokier <jamie@shareable.org>, Linus Torvalds <torvalds@osdl.org>,
+cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Jamie Lokier <jamie@shareable.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix remap of shared read only mappings
 In-Reply-To: <200309050249.21152.phillips@arcor.de>
-References: <1062686960.1829.11.camel@mulgrave>
-	<20030904214810.GG31590@mail.jlokier.co.uk>
-	<1062714829.2161.384.camel@mulgrave>  <200309050249.21152.phillips@arcor.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 04 Sep 2003 20:52:36 -0400
-Message-Id: <1062723158.1829.541.camel@mulgrave>
-Mime-Version: 1.0
+Message-ID: <Pine.LNX.4.44.0309041748290.13736-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-04 at 20:49, Daniel Phillips wrote:
+
+On Fri, 5 Sep 2003, Daniel Phillips wrote:
+>
 > This an interesting tidbit, as I'm busy working on a DFS mmap for OpenGFS, and 
-> I want to be sure I'm implementing true-blue Posix semantics.  But trawling 
-> through the Posix/SUS specification at:
-> 
->    http://www.unix-systems.org/version3/online.html
-> 
-> all it says is that for MAP_SHARED "write references shall change the 
-> underlying object."  I don't see anything about when those changes become 
-> visible to other mappers, much less any discussion of local caching.  Am I 
-> looking at the wrong document?
+> I want to be sure I'm implementing true-blue Posix semantics.
 
-Not sure which is "correct", but the one I'm looking at is the POSIX
-update from the open group:
+Please don't.
 
-http://www.opengroup.org/onlinepubs/007904975/functions/mmap.html
+POSIX semantics are weak enough not to be interesting. Exactly because a 
+number of old hardware platforms simply _cannot_ give you good coherency. 
+And a number of old UNIXes couldn't either, for that matter.
 
-And that's where I was quoting from.
+What really matters is that mmap() under Linux is 100% coherent, as far as 
+the hardware just allows. We haven't taken the easy way out. We shouldn't 
+start now.
 
-James
-
+		Linus
 

@@ -1,37 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132565AbRCZTKX>; Mon, 26 Mar 2001 14:10:23 -0500
+	id <S132562AbRCZTKx>; Mon, 26 Mar 2001 14:10:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132563AbRCZTKP>; Mon, 26 Mar 2001 14:10:15 -0500
-Received: from [213.96.224.204] ([213.96.224.204]:6149 "HELO man.beta.es")
-	by vger.kernel.org with SMTP id <S132562AbRCZTKF>;
-	Mon, 26 Mar 2001 14:10:05 -0500
-Date: Mon, 26 Mar 2001 21:08:46 +0200
-From: Santiago Garcia Mantinan <manty@udc.es>
-To: linux-kernel@vger.kernel.org
-Subject: Problems with Wake on LAN
-Message-ID: <20010326210846.A1182@manty.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S132563AbRCZTKo>; Mon, 26 Mar 2001 14:10:44 -0500
+Received: from code.and.org ([63.113.167.33]:44514 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S132562AbRCZTKf>;
+	Mon, 26 Mar 2001 14:10:35 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Guest section DW <dwguest@win.tue.nl>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Stephen Clouse <stephenc@theiqgroup.com>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <Pine.LNX.4.33.0103222033220.24040-100000@duckman.distro.conectiva>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 26 Mar 2001 14:04:04 -0500
+In-Reply-To: Rik van Riel's message of "Thu, 22 Mar 2001 20:37:11 -0300 (BRST)"
+Message-ID: <nn66gwnyhn.fsf@code.and.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+  Rik van Riel <riel@conectiva.com.br> writes:
 
-I've been trying to get Wake on LAN working under kernel 2.4.2 with a 3COM
-3c905C-TX card, standard 2.4.2 drivers, I have manage to get it working, but
-only if I don't compile ACPI and I don't load the network card driver, as
-any of this things make the Wake on LAN not work. APM and other features
-don't seem to affect the card waking, but this two really break it.
+> On Fri, 23 Mar 2001, Guest section DW wrote:
+> > On Thu, Mar 22, 2001 at 10:52:09PM +0000, Alan Cox wrote:
+> >
+> > > You can do overcommit avoidance in Linux if you are bored enough to try it.
+> >
+> > Would you accept it as the default? Would Linus?
+> 
+> It wouldn't help.  Suppose you run without overcommit and you
+> fill up RAM and swap to the last page.
+> 
+> Then you change the size of one of the windows on your desktop
+> and a program gets sent -SIGWINCH.
 
-Is there any plan on solving any of this for the future?
+ Ignoring the fact that most people don't use a tty based desktop, and
+that I'm pretty happy having my desktop die in flames when OOM (my DNS
+or smtp server on the other hand...).
 
-Is there anything I can do to help get this working?
+>                                    In order to process this
+> signal, the program needs to allocate some variables on its
+> stack, possibly needing a new page to be allocated for its
+> stack ...
 
-PS: cc me as I'm not on the list.
+man sigaltstack
 
-Regards..
+> ... and since this is something which could happen to any program
+> on the system, the result of non-overcommit would be getting a
+> random process killed (though not completely random, syslogd and
+> klogd would get killed more often than the others).
+
+ I fail to see why, stack usage can be limited (and possibly cleanly
+handled by having a prctl() to say make sure X pages are available on
+the stack).
+
+ If you want overcommit great, and I think it's a valid default
+... but it'd be nice if I could say I don't want it for apps that
+aren't written using glib etc.
+
 -- 
-Manty/BestiaTester -> http://manty.net
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

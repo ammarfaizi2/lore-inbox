@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVAMHg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVAMHzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVAMHg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 02:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVAMHg0
+	id S261191AbVAMHzy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 02:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVAMHzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 02:36:26 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:19464 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261181AbVAMHgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 02:36:17 -0500
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-From: Arjan van de Ven <arjan@infradead.org>
-To: paulmck@us.ibm.com
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com, gregkh@us.ibm.com,
-       tytso@us.ibm.com, suparna@in.ibm.com
-In-Reply-To: <20050113025157.GA2849@us.ibm.com>
-References: <20050106190538.GB1618@us.ibm.com>
-	 <1105039259.4468.9.camel@laptopd505.fenrus.org>
-	 <20050106201531.GJ1292@us.ibm.com>
-	 <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
-	 <20050106210408.GM1292@us.ibm.com>
-	 <20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-	 <20050107010119.GS1292@us.ibm.com>  <20050113025157.GA2849@us.ibm.com>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 08:35:58 +0100
-Message-Id: <1105601758.6031.6.camel@laptopd505.fenrus.org>
+	Thu, 13 Jan 2005 02:55:54 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:49935 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261191AbVAMHzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 02:55:49 -0500
+Date: Thu, 13 Jan 2005 08:42:34 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113074234.GJ7048@alpha.home.local>
+References: <20050112185133.GA10687@kroah.com> <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112205350.GM24518@redhat.com> <Pine.LNX.4.58.0501121750470.2310@ppc970.osdl.org> <20050112182838.2aa7eec2.akpm@osdl.org> <20050113033542.GC1212@redhat.com> <Pine.LNX.4.58.0501122025140.2310@ppc970.osdl.org> <20050113072851.GN2995@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113072851.GN2995@waste.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-12 at 18:51 -0800, Paul E. McKenney wrote:
-> On Thu, Jan 06, 2005 at 05:01:19PM -0800, Paul E. McKenney wrote:
-> > On Thu, Jan 06, 2005 at 09:24:17PM +0000, Al Viro wrote:
-> > > "Use recursive bindings instead of trying to take over the entire mount tree
-> > > and mirroring it within your fs code.  And do that explicitly from userland".
+On Wed, Jan 12, 2005 at 11:28:51PM -0800, Matt Mackall wrote:
+> On Wed, Jan 12, 2005 at 08:48:57PM -0800, Linus Torvalds wrote:
 > > 
-> > Thank you for the pointer!  By this, you mean do mount operations in
-> > conjunction with namespaces, right?
 > > 
-> > I will follow up with more detail as I learn more.  The current issue
-> > seems to be with removeable devices.  Their users want to be accessing
-> > a particular version, but still see a memory stick that was subsequently
-> > mounted outside of the view.  Straightforward use of mounts and namespaces
-> > would prevent the memory stick from being visible to users that were
-> > already in view.
+> > On Wed, 12 Jan 2005, Dave Jones wrote:
+> > > 
+> > > For us thankfully, exec-shield has trapped quite a few remotely
+> > > exploitable holes, preventing the above.
+> > 
+> > One thing worth considering, but may be abit _too_ draconian, is a
+> > capability that says "can execute ELF binaries that you can write to".
+> > 
+> > Without that capability set, you can only execute binaries that you cannot
+> > write to, and that you cannot _get_ write permission to (ie you can't be
+> > the owner of them either - possibly only binaries where the owner is
+> > root).
 > 
-> OK, after much thrashing, here is what the ClearCase users need.
-> Sorry for the length -- the first few paragraphs gives the flavor of
-> it and the rest goes into more detail with examples.
-> 
-> Thoughts?
-> 
+> We can do that now with a combination of read-only and no-exec mounts.
 
-Interesting; so clearcase mvfs currently extends the linux VFS to do all
-this.... It would be very interesting to get these extensions to linux
-posted on this mailing list in patch form, since it could well be a nice
-generic enhancement of linux. (Assuming Al doesn't go WTF over the code
-of course :-)
+That's why some hardened distros ship with everything R/O (except var) and
+/var non-exec.
 
+Willy
 

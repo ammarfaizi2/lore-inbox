@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUJNNrc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUJNNs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUJNNrc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 09:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUJNNrb
+	id S264997AbUJNNs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 09:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUJNNs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 09:47:31 -0400
-Received: from modemcable166.48-200-24.mc.videotron.ca ([24.200.48.166]:36485
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP id S264980AbUJNNrY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 09:47:24 -0400
-Date: Thu, 14 Oct 2004 09:46:57 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Andrew Morton <akpm@osdl.org>,
-       Hirokazu Takata <takata.hirokazu@renesas.com>, jgarzik@pobox.com,
-       takata@linux-m32r.org, linux-kernel@vger.kernel.org,
-       paul.mundt@nokia.com, netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-In-Reply-To: <20041014113044.A5076@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0410140946340.17226@xanadu.home>
-References: <416BFD79.1010306@pobox.com> <20041013.105243.511706221.takata.hirokazu@renesas.com>
- <416C8E0B.4030409@pobox.com> <20041013.121547.863739114.takata.hirokazu@renesas.com>
- <20041012223227.45a62301.akpm@osdl.org> <20041014113044.A5076@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Oct 2004 09:48:56 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.105]:4111 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S264984AbUJNNsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 09:48:52 -0400
+Date: Thu, 14 Oct 2004 08:48:29 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, axboe@suse.de,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: cciss update [2/2] fixes for Steeleye Lifekeeper
+Message-ID: <20041014134829.GA21960@beardog.cca.cpqcorp.net>
+References: <20041013212253.GB9866@beardog.cca.cpqcorp.net> <20041014083900.GB7747@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014083900.GB7747@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Oct 2004, Russell King wrote:
-
-> On Tue, Oct 12, 2004 at 10:32:27PM -0700, Andrew Morton wrote:
-> > smc91x-assorted-minor-cleanups.patch
+On Thu, Oct 14, 2004 at 09:39:00AM +0100, Christoph Hellwig wrote:
+> On Wed, Oct 13, 2004 at 04:22:53PM -0500, mike.miller@hp.com wrote:
+> > This patch addresses a problem with clustering software and also some of our utilies. We had to modify the modify the open specifically for clustering. This is the same as was done for 2.4. We also have to register the reserved volumes with the OS so when the backup server breaks the reservations he can call BLKRRPART to set the volume to the correct size.
+> > We also have to register a controller that may not have any logical volumes configured. This is for the online utils as well as clustering.
+> > 
+> > Patch applies to 2.6.9-rc4. Please apply in order.
+> > Please consider this for inclusion.
 > 
-> This patch removes a comment I added to satisfy Jeff's review which
-> explains how the link state is initialised - it probably isn't a good
-> idea to remove this.
+> No, this is bogus.  Never call add_disk on a volume that hasn't been
+> configured and full set up.  If you need to talk to our driver without
+> online volumes add a character device.
+> 
+This is the way we've done it since the 2.2 kernel. We have legacy applications
+in the field that expect to open c?d0 as the controller. Creating a character
+device would require all these apps to change.
 
-It was just moved elsewhere.
-
-
-Nicolas
+mikem

@@ -1,98 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265111AbUBIMht (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 07:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbUBIMht
+	id S265105AbUBIMfi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 07:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUBIMfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 07:37:49 -0500
-Received: from [217.157.19.70] ([217.157.19.70]:13072 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S265111AbUBIMh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 07:37:27 -0500
-Date: Mon, 9 Feb 2004 12:37:25 +0000 (GMT)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: linux-kernel@vger.kernel.org, <linux-raid@vger.kernel.org>
-Subject: Re: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.)
- BIOS RAID development
-In-Reply-To: <20040209121144.GA24503@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.40.0402091220130.8715-100000@jehova.dsm.dk>
+	Mon, 9 Feb 2004 07:35:38 -0500
+Received: from smtp.vnoc.murphx.net ([217.148.32.26]:56047 "HELO
+	smtp.vnoc.murphx.net") by vger.kernel.org with SMTP id S265105AbUBIMf1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 07:35:27 -0500
+Message-ID: <40277FAA.5040804@gadsdon.giointernet.co.uk>
+Date: Mon, 09 Feb 2004 12:40:10 +0000
+From: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040206
+X-Accept-Language: en-gb, en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Newsgroups: fa.linux.kernel
+To: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>
+CC: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown symbol _exit when compiling VMware vmmon.o module - problem
+ with 2.6.3-rc1
+References: <fa.h2vc33f.192ajhf@ifi.uio.no> <fa.j0on9f7.13he7o9@ifi.uio.no>
+In-Reply-To: <fa.j0on9f7.13he7o9@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Feb 2004, Arjan van de Ven wrote:
+The latest VMware update -
+http://ftp.cvut.cz/vmware/vmware-any-any-update50.tar.gz
+fixes this problem, without the need to mess around with the contents of
+...include/asm-i386/unistd.h
 
-> On Mon, Feb 09, 2004 at 12:01:55PM +0000, Thomas Horsten wrote:
-> > Ideally I'd want something like the MD autodetect code, so that the whole
-> > thing can be set up by the kernel at boot-time if the necessary drivers
-> > are compiled in (by reading the Medley superblock the same way it's done
-> > for 0xfe partitions).
->
-> I (and I suspect a lot of other folks) rather get rid of such autodetect and
-> move it to userspace. Either via initrd or initramfs.
+Robert Gadsdon
 
-The question is, where do we draw the line between kernel and userspace
-setup of devices. For example, why is the frame buffer device detected in
-the kernel, it could just as well be done in the initrd.
 
-My gut feeling is that if it is provided by the BIOS and reliable
-autodetection is possible, it should be autodetected. Why require the user
-to discover and supply information that the kernel could easily and
-reliably find out by itself? Besides, if there is no autodetection, the
-drive will come up with an invalid partition table (since the partition
-tables for these arrays are stored as the first block of the first disk in
-the array). If there is an extended partition, the kernel may try to read
-past the end of the disk, causing a lot of spurious error messages that
-confuse the user.
 
-If the user tries to mount any of these partitions, or edit the partition
-table, they will probably corrupt the disk.
 
-What I have in mind currently is a solution that uses the md and dm
-frameworks. Basically an option that adds support for reading and parsing
-the Medley superblock, and create an md raiddev based on it (using the
-standard RAID0/RAID1 personalities). Then a dm drive needs to be
-registered, to support the partition table on the whole disk array.
-
-For the autodetection to work, when compiled into the kernel I would put a
-call into gendisk.c, just before it calls add_disk to parse the partition
-table. That way, if the Medley superblock is detected it will not try to
-parse the partition table.
-
-The only thing I don't like about this solution is that we are relying on
-both the md and dm framework. I can't see an easy way around this, since
-we need to parse the partition table on the RAID. If we just create a
-separate md device for each partition, the user won't be able to change
-the partition table.
-
-> > Having autodetection at kernel level would make it possible to boot from a
-> > kernel on a floppy disk without initrd support, and in general make a
-> > system easier to set up.
->
-> initrd/initramfs is increasingly becoming mandatory sort of, and it's
-> actually easy if not even default to set up. (Eg on Fedora / Red Hat even
-> just typing make install will auto-create this for you)
-
-It's sort of mandatory for generic systems like distro installer disks,
-livecd's etc. But I've never needed to use it on any of my own systems
-after I compile a cutom kernel. I guess a lot of people are like me, and
-prefer to keep it simple with the essential drivers to get my specific
-system running compiled in, and the rest as modules.
-
-> > But the reason I wanted this discussion is to figure out the best way to
-> > go about it, and if there are some good arguments against autodetecting in
-> > the kernel I'll listen to them.
->
-> It doesn't really belong there.
-
-But where to draw the line?
-
-I think if it can be implemented cleanly (as cleanly as the current md
-detection at least), and if it can be nearly 100% reliable, it doesn't add
-much complexity to the kernel and removes a lot from userspace.
-
-// Thomas
+Robert Gadsdon wrote:
+> I had this problem when recompiling VMware WS 4.0.5 with kernel 
+> 2.6.3-rc1 (x86 system).   2.6.2 and earlier had been OK..
+> 
+> I found the following reference relating a similar problem with 2.6.1-mm5:
+> 
+> http://www.vmware.com/community/thread.jspa?threadID=1976&messageID=8243
+> 
+> Re-inserting
+> #define __NR__exit __NR_exit
+> and
+> static inline _syscall1(void,_exit,int,exitcode)
+> in ...include/asm-i386/unistd.h fixed the problem for me.   I do _not_ 
+> know if this is an acceptable solution, as there may be other 
+> implications for the removal of this code in 2.6.3-rc1...
+> 
+> Robert Gadsdon.
+> 
+> Felipe Alfaro Solana wrote:
+> 
+>> Hi!
+>>
+>> After installing VMware Workstation 4.5.0-7174 and running
+>> vmware-config.pl, I get the following error when trying to insert
+>> vmmon.ko into the kernel:
+>>
+>> vmmon: Unknown symbol _exit
+>>
+>> What can I use instead of _exit(code) inside a module?
+>> Thanks!
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

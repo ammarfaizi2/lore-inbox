@@ -1,86 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbUB0NNg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 08:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbUB0NNg
+	id S262851AbUB0NO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 08:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbUB0NO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 08:13:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:58810 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262850AbUB0NN2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 08:13:28 -0500
-Subject: Re: [PATCH] ppc64 iommu rewrite part 4/5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <p73oerk4ree.fsf@verdi.suse.de>
-References: <1077884018.22925.371.camel@gaston.suse.lists.linux.kernel>
-	 <p73oerk4ree.fsf@verdi.suse.de>
-Content-Type: text/plain
-Message-Id: <1077887067.22954.1.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 28 Feb 2004 00:04:28 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 08:14:27 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:3268 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262851AbUB0NOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 08:14:19 -0500
+Date: Fri, 27 Feb 2004 08:14:08 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Bob Dobbs <bob_dobbs@linuxmail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Mobile Intel Pentium(R) 4 - M CPU 2.60GHz - kernel 2.6.3
+In-Reply-To: <20040227004631.31D663982E7@ws5-1.us4.outblaze.com>
+Message-ID: <Pine.LNX.4.58.0402270724530.17504@montezuma.fsmlabs.com>
+References: <20040227004631.31D663982E7@ws5-1.us4.outblaze.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-27 at 23:51, Andi Kleen wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
-> 
-> > +#if !defined(CONFIG_PCI) || PCI_DMA_BUS_IS_PHYS
-> 
-> Can you make that a run time test? On x86-64 PCI_DMA_BUS_IS_PHYS is 
-> defined to a variable.
+On Fri, 27 Feb 2004, Bob Dobbs wrote:
 
-Sure, here's a revised version:
+> I am currently running kernel 2.6.3 on my Dell Inspiron 8500 laptop.
+> I disabled all the ACPI and APM options in the kernel.
+>
+> I have upgraded my bios
+> I have tried from kernel 2.4.23 up to mm and love-sources and my current kernel 2.6.3.
+>
+> What happens is during heavy loads my cpu drops from 2.60GHz down to
+> 1.20GHz, this happens for a few minutes, say 5 - 10 at the most. But
+> performance while running a game, puts the game into slow motion. (Which
+> is weird because 1.20GHz should be more than enough to run all of the
+> games I currently have). I have read up on the documentation in
+> /usr/src/linux/Documentation, under the "power" and "cpu-freq" but after
+> disabling ACPI and such, those options do not seem to work anymore.
 
-diff -urN linux-2.5/drivers/ide/ide-probe.c linux-iommu/drivers/ide/ide-probe.c
---- linux-2.5/drivers/ide/ide-probe.c	2004-02-28 00:02:30.971890984 +1100
-+++ linux-iommu/drivers/ide/ide-probe.c	2004-02-28 00:02:07.145513144 +1100
-@@ -50,6 +50,7 @@
- #include <linux/spinlock.h>
- #include <linux/pci.h>
- #include <linux/kmod.h>
-+#include <linux/pci.h>
- 
- #include <asm/byteorder.h>
- #include <asm/irq.h>
-@@ -904,6 +905,7 @@
- 	request_queue_t *q;
- 	ide_hwif_t *hwif = HWIF(drive);
- 	int max_sectors = 256;
-+	int max_sg_entries = PRD_ENTRIES;
- 
- 	/*
- 	 *	Our default set up assumes the normal IDE case,
-@@ -926,11 +928,22 @@
- 		max_sectors = hwif->rqsize;
- 	blk_queue_max_sectors(q, max_sectors);
- 
--	/* IDE DMA can do PRD_ENTRIES number of segments. */
--	blk_queue_max_hw_segments(q, PRD_ENTRIES);
-+#ifdef CONFIG_PCI
-+	/* When we have an IOMMU, we may have a problem where pci_map_sg()
-+	 * creates segments that don't completely match our boundary
-+	 * requirements and thus need to be broken up again. Because it
-+	 * doesn't align properly neither, we may actually have to break up
-+	 * to more segments than what was we got in the first place, a max
-+	 * worst case is twice as many.
-+	 * This will be fixed once we teach pci_map_sg() about our boundary
-+	 * requirements, hopefully soon
-+	 */
-+	if (!PCI_DMA_BUS_IS_PHYS)
-+		max_sg_entries >>= 1;
-+#endif /* CONFIG_PCI */
- 
--	/* This is a driver limit and could be eliminated. */
--	blk_queue_max_phys_segments(q, PRD_ENTRIES);
-+	blk_queue_max_hw_segments(q, max_sg_entries);
-+	blk_queue_max_phys_segments(q, max_sg_entries);
- 
- 	/* assign drive and gendisk queue */
- 	drive->queue = q;
+Just to clarify, the cpu-freq driver does not operate normally when ACPI
+is disabled? Which cpu-freq driver are you using?
 
+> I have also tried running a program called "cpufreqd" which launches at
+> boot time, but once again without ACPI enabled in the kernel this seems
+> not to work either. Also /sys/devices/system/cpu/cpu0/cpufreq/ has the
+> following files.
 
+Out of interest do you have CONFIG_X86_MCE_P4THERMAL enabled?
+
+> cpuinfo_min_freq
+> cpuinfo_max_freq
+> scaling_min_freq
+> scaling_max_freq
+>
+> I even tried to echo the options at bootup:
+>
+> echo 2600000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq &
+> echo 2000000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq &
+>
+> I tried to make those files set at: 2.00GHz min and 2.60GHz max, but
+> something changes them right back to 1.20GHZ no matter what I do.
+>
+> I am sure I am missing something, but atm I am totally lost.. and I
+> could surely be doing everything wrong to begin with... that is why I am
+> asking for help.
+>
+> Is there a patch or anything to force the cpu to run at 2.60GHz all the time?

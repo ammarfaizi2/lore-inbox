@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315540AbSIDWRK>; Wed, 4 Sep 2002 18:17:10 -0400
+	id <S315717AbSIDWQt>; Wed, 4 Sep 2002 18:16:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSIDWRK>; Wed, 4 Sep 2002 18:17:10 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:11904 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315540AbSIDWRI>;
-	Wed, 4 Sep 2002 18:17:08 -0400
-Date: Wed, 4 Sep 2002 15:21:35 -0700
-From: Bob Miller <rem@osdl.org>
-To: "Juan M. de la Torre" <jmtorre@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions on semaphores
-Message-ID: <20020904152135.A2047@doc.pdx.osdl.net>
-References: <20020904212931.GA2014@apocalipsis>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020904212931.GA2014@apocalipsis>; from jmtorre@gmx.net on Wed, Sep 04, 2002 at 11:29:31PM +0200
+	id <S315720AbSIDWQs>; Wed, 4 Sep 2002 18:16:48 -0400
+Received: from zmamail05.zma.compaq.com ([161.114.64.105]:11534 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S315717AbSIDWQs> convert rfc822-to-8bit; Wed, 4 Sep 2002 18:16:48 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Problem on a kernel driver(SuSE, SMP)
+Date: Wed, 4 Sep 2002 15:20:43 -0700
+Message-ID: <8C18139EDEBC274AAD8F2671105F0E8E012704DA@cacexc02.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem on a kernel driver(SuSE, SMP)
+Thread-Index: AcJUWzXNapCLDshkSEiOqpQ6vzviIQABbzNA
+From: "Libershteyn, Vladimir" <vladimir.libershteyn@hp.com>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Sep 2002 22:20:43.0770 (UTC) FILETIME=[4F3C2DA0:01C25461]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 11:29:31PM +0200, Juan M. de la Torre wrote:
+Hi, Cristoph.
+
+It does work fine on a plain 2.4.7 and on any Red Hat kernel versions.
+
+Regards,
+Vlad
+
+> -----Original Message-----
+> From: Christoph Hellwig [mailto:hch@infradead.org]
+> Sent: Wednesday, September 04, 2002 2:37 PM
+> To: Libershteyn, Vladimir
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Problem on a kernel driver(SuSE, SMP)
 > 
->  Hi people, I have two question regarding the i386 semaphore implementation
->  in kernel 2.4.19. 
->  
->  Please dont blame me if they are too obvius; i'm a newbie in kernel hacking
->  :)
 > 
->  The functions __down, __down_interruptible and __down_trylock (defined
->  in arch/i386/kernel/semaphore.c) use the global spinlock
->  'semaphore_lock' to access some fields of the semaphore they are
->  working on:
->  
->  1) Is there any reason to do this?
-
-It was easy to do.
-
->  2) Wouldn't it be more scalable to use a per-semaphore lock instead a
->     global spinlock?
+> On Wed, Sep 04, 2002 at 10:56:00AM -0700, Libershteyn, Vladimir wrote:
+> > Hi, Cristoph
+> > Attached are two related functions,
+> > I don't know if I can attach the files to the message,
+> > but I can place them in a message body.
+> > Please, let me know
 > 
-
-Yes it would be more scalable, but not as much as you would think.
-The __down, __down_interruptible and __down_trylock code only gets
-invoked when the semaphore is contended  for.
-
->  The function __down_trylock try to get the spinlock using
->  spin_lock_irqsave, instead of using spin_lock_irq:
+> Except of your failure to handle the return value of 
+> down_interruptible
+> I can't find any obvious bugs.  Does it work on plain 2.4.7 or redhats
+> 2.4.7 rpm?  If so I'd fill a bug report against suses patch 
+> collection.
 > 
->  1) why? :)
 > 
-
-The __down_trylock() code can be called with another lock held.  The
-spin_lock_irqsave()/spin_lock_irqrestore() interface is used to restore
-the irq value for the lock that may already be held.
-
->  Thanks in advance,
->  Juanma
-> 
-The code in the 2.5 tree was changed a while back to use the spinlock in
-the wait_queue_head_t to replace the global semaphore spin lock.  So, this
-has been "FIXED" in 2.5.
-
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17

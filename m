@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S319847AbSINDOu>; Fri, 13 Sep 2002 23:14:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S319848AbSINDOu>; Fri, 13 Sep 2002 23:14:50 -0400
-Received: from web40505.mail.yahoo.com ([66.218.78.122]:53088 "HELO web40505.mail.yahoo.com") by vger.kernel.org with SMTP id <S319847AbSINDOt>; Fri, 13 Sep 2002 23:14:49 -0400
-Message-ID: <20020914031937.11413.qmail@web40505.mail.yahoo.com>
-Date: Fri, 13 Sep 2002 20:19:37 -0700 (PDT)
-From: edmund edmund <edmund20023@yahoo.com>
-Subject: INVESTMENT / RELPY
+Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S261474AbSJAEEs>; Tue, 1 Oct 2002 00:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S261475AbSJAEEr>; Tue, 1 Oct 2002 00:04:47 -0400
+Received: from thunk.org ([140.239.227.29]:63398 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id <S261474AbSJAEEr>;
+	Tue, 1 Oct 2002 00:04:47 -0400
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: New set of code snapshots for ext3-dxdir (kernel and userspace)
+From: tytso@mit.edu
+Phone: (781) 391-3464
+Message-Id: <E17wELv-00028q-00@think.thunk.org>
+Date: Tue, 01 Oct 2002 00:09:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-Spam-Flag: YES
-X-Spam-Report: 14.4 hits, 5 required; * -1.0 -- Found a X-Mailing-List header *  0.4 -- From: ends in numbers *  3.1 -- BODY: How dear can you be if you don't know my name? *  4.5 -- BODY: Nigerian scam key phrase *  2.3 -- BODY: Nigerian scam key phrase ($NN,NNN,NNN.NN) *  1.0 -- BODY: What a deal! *  0.2 -- BODY: Nigerian scam key phrase ($NNN.N m/USDNNN.N m) *  4.0 -- BODY: Says: "to be removed, reply via email" or similar * -0.0 -- BODY: A WHOLE LINE OF YELLING DETECTED * -0.1 -- Subject is all capitals
-
-Dear sir,PRISDENT/CEO
-
-INVESTMENT PROPOSAL OF FIFTEEN MILLION US DOLLARS 
-US$15,000,000 IN YOUR COMPANY.
-
-I am pleased to write you in order to inform you of my
-good intention to invest or form a joint partnership
-business with you. I am one of the directors in
-security and exchange commission in charge of payment
-of dividends of stock market. 
-
->We have investors both local and foreign who
-deposited Millions of Dollars in stock market. By
-virtue of my position as director incharge of payment
-of dividend to investors, I discovered that one of our
-clients a (foreigner)who deposited fifteen million
-dollars with the commission (stock market) died two
-years ago and no records to show that he had a
-relation or next
-of kin to claim this dividends. All effort to trace
-his relative proof
-abortive. 
-
-Now, we have initiated an arrangement to transfer
-Fifteen Million Dollars(US$15,000,000) accrued as
-dividends and interest on deposit of Fifteen Million
-Dollars in reliable foreigner who is willing and able
-to receive this money as a bonafide next of kin, or
-relations to the late investor.
-
-We have concluded arrangement to support and prove
-that whoever receive this fund is a bonafide relation
-or next of kin to the late investor, this is why I
-have decided to contact you for assistance to receive
-this money (US$15M) and invest it in your company for
-a period of one year or more as may be subject to
-negotiation. I strongly believe this is an opportunity
-for you to increase your capital base of your company.
-
-If this proposal is accepted by you, kindly forward
-you honest response to the email address above for
-more information and of cause your opinion shall be
-welcomed concerning this transaction.
-
-Please treat us urgent and confidential.
-
-Regards.
-
-MR EDMUND JOHN
 
 
+On Sun, Sep 29, 2002 at 07:46:57PM -0700, Ryan Cumming wrote:
+> On September 29, 2002 01:16, Ryan Cumming wrote:  
+> > Case 1:
+> > "Problem in HTREE directory inode 2 (/): bad block 3223649"
 
+This turned out to actually be an e2fsprogs bug, not a kernel bug.
+E2fsck was getting confused in some cases and interpreting a completely
+empty directory block as a HTREE interior node, and thus incorrectly
+flagging a valid HTREE directory as being corrupt.  Your test case tends
+to generate the empty directory blocks because it does a large amounts
+of creates and deletes.
 
+Anyway, let's try to synchronize on a common set of kernel patches and
+userspace utilities, and see whether or not we've managed to get all of
+the problems fixed.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com
+For the kernel patches, I've created a patches against 2.4.19 and 2.5.39
+that include the Andreas' kernel stack usage patch and Chrisl' empty
+directory entry split patch, which can be found here: 
+
+        http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.4.19-3
+        http://thunk.org/tytso/linux/ext3-dxdir/patch-ext3-dxdir-2.5.39   
+
+In addition, I've released new e2fsprogs test release, which you can
+obtain from sourceforge:
+
+http://prdownloads.sourceforge.net/e2fsprogs/e2fsprogs-1.30-WIP-0930.tar.gz
+
+With these code base, and using a freshly created filesystem, I haven't
+been able to reproduce any problems using Ryan's fs-ream.c stress
+tester.  So I'm pretty confident about its stability, although there
+might possibly be some race conditions lurking about under extreme load.
+
+Ryan, you care to give it a go, and see what you can find?   
+
+                                                - Ted

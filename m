@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287348AbSA2XkY>; Tue, 29 Jan 2002 18:40:24 -0500
+	id <S286904AbSA2Xi4>; Tue, 29 Jan 2002 18:38:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287254AbSA2Xi6>; Tue, 29 Jan 2002 18:38:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13828 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S287109AbSA2Xhu>; Tue, 29 Jan 2002 18:37:50 -0500
-Date: Tue, 29 Jan 2002 15:36:57 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
-In-Reply-To: <Pine.LNX.4.44.0201291713090.25443-100000@waste.org>
-Message-ID: <Pine.LNX.4.33.0201291535120.1747-100000@penguin.transmeta.com>
+	id <S286871AbSA2Xhe>; Tue, 29 Jan 2002 18:37:34 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:26117 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287109AbSA2XgA>;
+	Tue, 29 Jan 2002 18:36:00 -0500
+Date: Tue, 29 Jan 2002 21:35:38 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <E16VhjU-0005Vb-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33L.0201292133400.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 29 Jan 2002, Alan Cox wrote:
 
-On Tue, 29 Jan 2002, Oliver Xymoron wrote:
+> > We can let oracle shared memory segments use 4 MB pages,
+> > but still use the normal page cache code to look up the
+> > pages.
 >
-> Seems like we could do slightly better to have these local areas mapped to
-> the same virtual address on each processor, which does away with the need
-> for an entire level of indirection.
+> That has some potential big wins beyond oracle. Some of the big number
+> crunching algorithms also benefit heavily from 4Mb pages even when you
+> try and minimise tlb misses.
 
-No no no.
+Note that I'm not sure whether the complexity of using
+4 MB pages is worth it or not ... I just like the fact
+that the radix tree page cache gives us the opportunity
+to easily implement and try it.
 
-That is a really stupid idea, even though every single OS developer has at
-some time thought that it was the great idea (and it shows up in a lot of
-OS's).
+I like radix trees for making our design more flexible
+and opening doors to possible new functionality.
 
-The reason it is a stupid idea is that if you do it, you can no longer
-share page tables between CPU's (unless all CPU's you support have TLB
-fill in software).
+It could even be a CONFIG option for the embedded folks,
+if we can keep the code isolated enough ;)
 
-		Linus
+cheers,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

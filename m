@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTDXDKI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 23:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264240AbTDXDKH
+	id S264304AbTDXD1L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 23:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTDXD1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 23:10:07 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:55469 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263628AbTDXDKG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 23:10:06 -0400
-Date: Thu, 24 Apr 2003 15:17:26 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: Fix SWSUSP & !SWAP
-In-reply-to: <1605730000.1051145146@flay>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Pavel Machek <pavel@ucw.cz>, "Grover, Andrew" <andrew.grover@intel.com>,
-       Marc Giger <gigerstyle@gmx.ch>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Message-id: <1051152437.2453.26.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <F760B14C9561B941B89469F59BA3A847E96E0E@orsmsx401.jf.intel.com>
- <20030424000344.GC32577@atrey.karlin.mff.cuni.cz>
- <1051142550.4306.10.camel@laptop-linux> <1605730000.1051145146@flay>
+	Wed, 23 Apr 2003 23:27:10 -0400
+Received: from litaipig.ucr.edu ([138.23.89.48]:32692 "EHLO
+	mail-infomine.ucr.edu") by vger.kernel.org with ESMTP
+	id S264304AbTDXD1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 23:27:08 -0400
+Date: Wed, 23 Apr 2003 20:39:13 -0700
+To: Steven Cole <elenstev@mesatop.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: How did the Spelling Police miss this one?
+Message-ID: <20030424033913.GA32423@mail-infomine.ucr.edu>
+References: <200304230936_MC3-1-35AA-864B@compuserve.com> <1051109635.29423.20.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1051109635.29423.20.camel@spc9.esa.lanl.gov>
+User-Agent: Mutt/1.3.28i
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+X-BeenThere: crackmonkey@crackmonkey.org
+From: ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-04-24 at 12:45, Martin J. Bligh wrote:
-> > I don't believer I've ever seen things get OOM killed. Instead, page
-> > cache is discarded until things do fit.
+Also sprach Steven Cole:
+>... 
+> The fix.canon script used was this:
 > 
-> What happens if user allocated pages are filling up all the space,
-> not page cache? Trust me, it happens ;-)
+> #!/bin/sh
+> find . -name "*" | xargs grep -l cannonicalize | awk '{print "ex - ",$1," -c \"%s/cannonicalize/canonicalize/g|x\""}' | sh
+> ...
+Hi Steve,
 
-Yep, just because I haven't seen it, doesn't mean a thing. :>. In that
-case, there are two issues: memory to work in to start with and how to
-save the image without corrupting it.
-
-Regarding #1, there must still be some memory available, mustn't there?
-swsusp only approx (nrpages in use/256) pages to do its work. Surely
-we'd always be able to get .4% of the number of pages? Even if we can't
-get that many, we should be able to adjust the algorithm to be able to
-suspend a machine with only 10 or so pages available to start with (no,
-I'm not volunteering to do it! I want to merge with 2.5 and get on to
-other projects!).
-
-Regarding #2, my algorithm (ie not the version in 2.5 at the mo)
-separates pages to be saved into 2 types. Pageset1 are pages we expect
-to be needed during suspend. Pageset2 is those that will definitely not
-be needed. My algorithm for saving the data goes: Save pageset2 pages to
-disk then (as per the original/current method) make a copy of pageset1
-pages (using the pageset2 locations + extra allocated memory if needsbe)
-and save the copy. Loading the image is the reverse process. Pageset 2
-currently only consists of all highmem pages + active and inactive list
-pages. If we refined the algorithm, perhaps that would address your
-issue. The other point here is that since we have to be able to make a
-copy of pageset1 pages, and since I haven't inlined kmap/unmap in the
-routine to copy pageset1 pages back on resume (Pavel will say whew to
-that, I'm sure!), pageset1 has a miximum size of half normal memory. I
-reckon refining the algoritm so that pageset1 can be [nearly] guaranteed
-to always be smaller is the better area to focus on, and I'm perfectly
-happy to try suggestions, particularly when they come in the form of a
-code fragment that include a call to SetPagePageset2(struct page * page)
-for the relevant targets :>
-
-Regards,
-
-Nigel
+As far as I know there is no such words as "canonicalize" in the English
+language.  The proper word seems to be "canonize".  Since I'm not a native
+speaker please take my comment with a grain of salt.
 -- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+Johannes
+--
+Dr. Johannes Ruscheinski
+EMail:    ruschein_AT_infomine.ucr.edu ***          Linux                  ***
+Location: science library, room G40    *** The Choice Of A GNU Generation! ***
+Phone:    (XXX) YYY-ZZZZ
 
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
-
+"Perennial nuisance Charlton Heston pops up to declare that there are "too
+ many people on the Earth as it is" and one realizes instantly that as
+ president of the NRA, he is doing his best to correct that."
+               -- Tom Shales, The Washington Post

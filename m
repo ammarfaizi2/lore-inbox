@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVBAIwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVBAIwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbVBAIwW (ORCPT <rfc822;willy@w.ods.org>);
+	id S261873AbVBAIwW (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 1 Feb 2005 03:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVBAIvM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVBAIvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 03:51:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12473 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261868AbVBAIvA (ORCPT
+	Tue, 1 Feb 2005 03:51:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:12985 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261870AbVBAIvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 03:51:00 -0500
-Date: Tue, 1 Feb 2005 00:22:41 -0800
+	Tue, 1 Feb 2005 03:51:01 -0500
+Date: Tue, 1 Feb 2005 00:41:18 -0800
 From: Greg KH <greg@kroah.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: [PATCH 2.6] I2C: Prevent buffer overflow on SMBus block read in i2c-viapro
-Message-ID: <20050201082241.GA22023@kroah.com>
-References: <20050125224258.GA18228@kroah.com> <btE2IXvS.1106731047.5606340.khali@localhost>
+To: Kumar Gala <kumar.gala@freescale.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: serial8250_init and platform_device
+Message-ID: <20050201084117.GA22229@kroah.com>
+References: <20050120154420.D13242@flint.arm.linux.org.uk> <736677C2-6B16-11D9-BD44-000393DBC2E8@freescale.com> <20050120193845.H13242@flint.arm.linux.org.uk> <20050120195058.GA8835@kroah.com> <20050120201059.I13242@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <btE2IXvS.1106731047.5606340.khali@localhost>
+In-Reply-To: <20050120201059.I13242@flint.arm.linux.org.uk>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 10:17:27AM +0100, Jean Delvare wrote:
+On Thu, Jan 20, 2005 at 08:10:59PM +0000, Russell King wrote:
+> On Thu, Jan 20, 2005 at 11:50:58AM -0800, Greg KH wrote:
+> > On Thu, Jan 20, 2005 at 07:38:45PM +0000, Russell King wrote:
+> > > 
+> > > Greg - the name is constructed from "name" + "id num" thusly:
+> > > 
+> > > 	serial8250
+> > > 	serial82500
+> > > 	serial82501
+> > > 	serial82502
+> > > 
+> > > When "name" ends in a number, it gets rather confusing.  Can we have
+> > > an optional delimiter in there when we append the ID number, maybe
+> > > something like a '.' or ':' ?
+> > 
+> > Sure, that's fine with me.  Someone send me a patch :)
 > 
-> Hi Greg, all,
+> Like this?
+> -
 > 
-> > Hm, all distros leave the i2c-dev /dev nodes writable only by root, so
-> > this isn't that "big" of an issue.
+> Separate platform device name from platform device number such that
+> names ending with numbers aren't confusing.
 > 
-> Agreed. Non-root write access to these devices would probably be a
-> security issue per se anyway, buffer overflow or not. However, I can't
-> tell if e.g. some embedded systems wouldn't set a particular group on
-> these device files and allow write access to this group, so as to allow
-> some daemon to write data to an EEPROM or something similar. This is why
-> I thought I better warn and push the patch upstream. I wasn't exactly
-> requesting 2.6.10.1 to be released ;)
-> 
-> On second thought, I doubt that embedded designs would rely on a VIA Pro
-> chip anyway. But you never know.
-> 
-> > > @@ -268,6 +268,8 @@
-> > >  		break;
-> > >  	case VT596_BLOCK_DATA:
-> > >  		data->block[0] = inb_p(SMBHSTDAT0);
-> > > +		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
-> > > +			data->block[0] = I2C_SMBUS_BLOCK_MAX;
-> >
-> > But data->block[0] just came from the hardware, right?  Not from a user.
-> 
-> True, except that with a write access to the device file and depending on
-> the client chip, the user might have just programmed the chip for it to
-> answer with this specific value. See right below.
-> 
-> > Now if we have broken hardware, then we might have a problem here, but
-> > otherwise I don't see it as a security issue right now.
-> 
-> It doesn't take broken hardware.
-> 
-> (Warning: I am going technical at this point, people not interested in
-> the gory details of the I2C and SMBus protocols should better stop here
-> ;))
+> Signed-off-by: Russell King <rmk@arm.linux.org.uk>
 
-<snip>
-
-Thanks for the good description.  I've applied your patch to my trees
-and will push it upward soon.
+Looks good to me, applied.
 
 thanks,
 

@@ -1,108 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265531AbSJSEKn>; Sat, 19 Oct 2002 00:10:43 -0400
+	id <S265506AbSJSELI>; Sat, 19 Oct 2002 00:11:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265532AbSJSEKn>; Sat, 19 Oct 2002 00:10:43 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:30861 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S265531AbSJSEKi>; Sat, 19 Oct 2002 00:10:38 -0400
-Message-ID: <3DB0DCBD.7060008@quark.didntduck.org>
-Date: Sat, 19 Oct 2002 00:17:01 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] remove __verify_write from sh arch
-Content-Type: multipart/mixed;
- boundary="------------000008080109050909010206"
+	id <S265518AbSJSELI>; Sat, 19 Oct 2002 00:11:08 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:11382 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265506AbSJSELE>; Sat, 19 Oct 2002 00:11:04 -0400
+Date: Sat, 19 Oct 2002 06:16:59 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Dike <jdike@karaya.com>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>, discuss@x86-64.org, aj@suse.de
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+Message-ID: <20021019041659.GK23930@dualathlon.random>
+References: <20021019031002.GA16404@averell> <200210190450.XAA06161@ccure.karaya.com> <20021019040238.GA21914@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021019040238.GA21914@averell>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000008080109050909010206
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Oct 19, 2002 at 06:02:38AM +0200, Andi Kleen wrote:
+> [full quote for context]
+> 
+> On Sat, Oct 19, 2002 at 06:49:59AM +0200, Jeff Dike wrote:
+> > ak@muc.de said:
+> > > Guess you'll have some problems then with UML on x86-64, which always
+> > > uses vgettimeofday. But it's only used for gettimeofday() currently,
+> > > perhaps it's  not that bad when the UML child runs with the host's
+> > > time.
+> > 
+> > It's not horrible, but it's still broken.  There are people who depend
+> > on UML being able to keep its own time separately from the host.
+> > 
+> > > I guess it would be possible to add some support for UML to map own
+> > > code over the vsyscall reserved locations. UML would need to use the
+> > > syscalls then. But it'll be likely ugly. 
+> > 
+> > Yeah, it would be.
+> > 
+> > My preferred solution would be for libc to ask the kernel where the vsyscall
+> > area is.  That's reasonably clean and virtualizable.  Andrea doesn't like it
+> > because it adds a few instructions to the vsyscall address calculation.
+> 
+> I would have no problems with adding that to the x86-64 kernel. It could
+> be passed in by the ELF environment vector and added to the ABI. 
+> Overhead should be negligible, it just needs a single table lookup.  
+> Andreas, what do you think ? 
 
-(Resend)
+see my last email. And I think he needed it as an additional syscall
+after execve that he could trap and revirtualize with ptrace as usual
+and that would return variable addresses of pointer to functions (that
+would be revirtualized inside the uml kernel of course), not an ELF
+information that should be valid for both UML and host kernel.
 
-It was copied from i386 and is unused.
-
---
-				Brian Gerst
-
-
---------------000008080109050909010206
-Content-Type: text/plain;
- name="sh-verify_write-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sh-verify_write-1"
-
-diff -urN linux-2.5.42/arch/sh/mm/fault.c linux/arch/sh/mm/fault.c
---- linux-2.5.42/arch/sh/mm/fault.c	Sun Sep 15 22:18:24 2002
-+++ linux/arch/sh/mm/fault.c	Sat Oct 12 10:39:38 2002
-@@ -30,58 +30,6 @@
- extern void die(const char *,struct pt_regs *,long);
- 
- /*
-- * Ugly, ugly, but the goto's result in better assembly..
-- */
--int __verify_write(const void * addr, unsigned long size)
--{
--	struct vm_area_struct * vma;
--	unsigned long start = (unsigned long) addr;
--
--	if (!size)
--		return 1;
--
--	vma = find_vma(current->mm, start);
--	if (!vma)
--		goto bad_area;
--	if (vma->vm_start > start)
--		goto check_stack;
--
--good_area:
--	if (!(vma->vm_flags & VM_WRITE))
--		goto bad_area;
--	size--;
--	size += start & ~PAGE_MASK;
--	size >>= PAGE_SHIFT;
--	start &= PAGE_MASK;
--
--	for (;;) {
--		if (handle_mm_fault(current->mm, vma, start, 1) <= 0)
--			goto bad_area;
--		if (!size)
--			break;
--		size--;
--		start += PAGE_SIZE;
--		if (start < vma->vm_end)
--			continue;
--		vma = vma->vm_next;
--		if (!vma || vma->vm_start != start)
--			goto bad_area;
--		if (!(vma->vm_flags & VM_WRITE))
--			goto bad_area;;
--	}
--	return 1;
--
--check_stack:
--	if (!(vma->vm_flags & VM_GROWSDOWN))
--		goto bad_area;
--	if (expand_stack(vma, start) == 0)
--		goto good_area;
--
--bad_area:
--	return 0;
--}
--
--/*
-  * This routine handles page faults.  It determines the address,
-  * and the problem, and then passes it off to one of the appropriate
-  * routines.
-
-
---------------000008080109050909010206--
-
+Andrea

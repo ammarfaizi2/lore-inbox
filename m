@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272341AbRH3RID>; Thu, 30 Aug 2001 13:08:03 -0400
+	id <S272342AbRH3RMN>; Thu, 30 Aug 2001 13:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272342AbRH3RHx>; Thu, 30 Aug 2001 13:07:53 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:37087 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S272341AbRH3RHj>; Thu, 30 Aug 2001 13:07:39 -0400
-Importance: Normal
-Subject: Re: lcs ethernet driver source
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFD37F6EF4.433973B0-ONC1256AB8.005BE510@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Thu, 30 Aug 2001 18:58:53 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 30/08/2001 18:58:56
+	id <S272344AbRH3RMD>; Thu, 30 Aug 2001 13:12:03 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:52897 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S272342AbRH3RLu>; Thu, 30 Aug 2001 13:11:50 -0400
+Date: Thu, 30 Aug 2001 13:12:07 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: Michael E Brown <michael_e_brown@dell.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blkgetsize64 ioctl
+In-Reply-To: <Pine.LNX.4.33.0108301150460.1213-100000@blap.linuxdev.us.dell.com>
+Message-ID: <Pine.LNX.4.33.0108301306300.12593-100000@toomuch.toronto.redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 30 Aug 2001, Michael E Brown wrote:
 
-David Woodhouse wrote:
+> And your response to the rest of the points I raised would be?
 
->Erm, Linux on S/390 runs as a virtual machine, doesn't it? Does a lack of
->network drivers not render it completely useless?
+fs/block_dev.c is not a hot spot in the kernel.  It's been patched maybe 3
+or 4 times over the last year, so I don't buy the argument that it would
+have been difficult to maintain.  (Think if (offset >=
+last_block_start(dev) return read_last_block(offset, buf, len);)
 
-Well, you're right that without network connection, there's not much
-useful you can do.  However, LCS and QETH are not the only options;
-you can also use a CTC or IUCV network interface (and those drivers *are*
-open source and in the tree); there's also a third-party open source driver
-to access CLAW network devices (not in the official tree, but e.g. part of
-the SuSE kernel).
+> I'm sorry about e2fsprogs. If I had known a bit better (this was my first
+> kernel patch), I would have added a magic number to the struct you pass
+> in, and that would have prevented this little bit of braindamage.
 
-Especially in a virtual machine, you can simply define a virtual CTC or
-IUCV
-connection and access your network via those devices.
+No, that's not what's got me miffed.  What is a problem here is that an
+obvious next to use ioctl number in a *CORE* kernel api was used without
+reserving it.  AND PEOPLE SHIPPED IT!  I for one don't go about shipping
+new ABIs without reserving at least a placeholder for it in the main
+kernel (or stating that the code is not bearing a fixed ABI).  If the
+ioctl # was in the main kernel, this mess would never have happened even
+with the accidental shipping of the patch in e2fsprogs.  I just hope
+people will remember this in the future.  ABI compatibility is not that
+hard if it's thought about.
 
-If you are running Linux native on the S/390 (not in a virtual machine)
-and have *only* physical LCS or QETH devices, you must use the binary-only
-modules; but this doesn't appear to be fundamentally different from other
-devices where only binary drivers exist ...
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+		-ben
 

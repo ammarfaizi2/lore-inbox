@@ -1,85 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbUAYSKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 13:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUAYSKK
+	id S265163AbUAYSVv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 13:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265167AbUAYSVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 13:10:10 -0500
-Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:20885 "EHLO
-	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
-	id S264974AbUAYSJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 13:09:58 -0500
-Message-ID: <401406CA.5000107@quark.didntduck.org>
-Date: Sun, 25 Jan 2004 13:11:22 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Sun, 25 Jan 2004 13:21:51 -0500
+Received: from APastourelles-108-2-1-3.w80-14.abo.wanadoo.fr ([80.14.139.3]:29701
+	"EHLO samwise.two-towers.net") by vger.kernel.org with ESMTP
+	id S265163AbUAYSVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 13:21:50 -0500
+Message-ID: <4014091D.1060509@two-towers.net>
+Date: Sun, 25 Jan 2004 19:21:17 +0100
+From: Philip Dodd <phil.lists@two-towers.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: WHarms@bfs.de
-CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: mm/slab.c: linux 2.6.1 fix 2 unguarded kmalloc and a PAGE_SHIFT
-References: <S264257AbUAYOAm/20040125140042Z+37462@vger.kernel.org>
-In-Reply-To: <S264257AbUAYOAm/20040125140042Z+37462@vger.kernel.org>
+To: Marc Mongenet <Marc.Mongenet@freesurf.ch>
+CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25pre7 - cannot mount 128MB vfat fs on Minolta camera
+References: <4013D155.3080900@freesurf.ch> <87y8rw2eyy.fsf@devron.myhome.or.jp> <40140221.40901@freesurf.ch>
+In-Reply-To: <40140221.40901@freesurf.ch>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Charter-MailScanner-Information: 
-X-Charter-MailScanner: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  (Walter Harms) wrote:
-> Hi list,
-> this fixes catches 2 unguarded kmallocs() and changes a statement so that PAGE_SHIFT >20 causes a warning. 
-> At least sparc64 is prepared for a  PAGE_SHIFT >20.
-> 
-> hope that helps,
-> walter
-> 
-> 
-> --- mm/slab.c.org       2004-01-25 08:18:25.243165360 +0100
-> +++ mm/slab.c   2004-01-25 08:33:05.135401408 +0100
-> @@ -666,7 +666,7 @@
->          * Fragmentation resistance on low memory - only use bigger
->          * page orders on machines with more than 32MB of memory.
->          */
-> -       if (num_physpages > (32 << 20) >> PAGE_SHIFT)
-> +       if (num_physpages > (32 << (20-PAGE_SHIFT) )
->                 slab_break_gfp_order = BREAK_GFP_ORDER_HI;
->  
->  
-> @@ -737,6 +737,10 @@
->                 void * ptr;
->  
->                 ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
-> +
-> +               if (!ptr)
-> +                 BUG();
-> +
->                 local_irq_disable();
->                 BUG_ON(ac_data(&cache_cache) != &initarray_cache.cache);
->                 memcpy(ptr, ac_data(&cache_cache), sizeof(struct arraycache_init
-> ));
-> @@ -744,6 +748,10 @@
->                 local_irq_enable();
->  
->                 ptr = kmalloc(sizeof(struct arraycache_init), GFP_KERNEL);
-> +
-> +               if (!ptr)
-> +                 BUG();
-> +
->                 local_irq_disable();
->                 BUG_ON(ac_data(malloc_sizes[0].cs_cachep) != &initarray_generic.
-> cache);
->                 memcpy(ptr, ac_data(malloc_sizes[0].cs_cachep),
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Marc Mongenet wrote:
+8<
+ >
+ > Well, 10 minutes after finally reporting the problem, I discovered that
+ > it is different than described above...
+ >
+ > So, I can mount the 16 MB card or the 128 MB card with any kernel,
+ > BUT I have to reboot the system when I change the cards. Example:
+8<
 
-BUG_ON(!ptr) would be better.
+I have some faint recollections of when I was using USB mass storage 
+camera media.  Look into a package called scsiadd; which can be used to 
+rescan the bus and add/remove devices on the fly.
 
---
-				Brian Gerst
+http://llg.cubic.org/tools/ is what google brings me up.
+
+I think this will help you - you'll need to rescan the USB mass-storage 
+bus - remove/add devices when you change the parameters of a device. 
+It's quite easy, I cobbled together a little shell script that would 
+remove add the device then mount it.  I used that script to mount the 
+USB card instead of mount - meant that I was sure the scsiadd stuff was 
+handled if needed.
+
+I think this will help you work around having to reboot.
+
+rgds,
+
+Phil
+
+-- 
+()  ascii ribbon campaign - against html mail
+/\                        - against microsoft attachments
+

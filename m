@@ -1,73 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265020AbTFWJGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 05:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265177AbTFWJGP
+	id S265395AbTFWJGY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 05:06:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265397AbTFWJGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 05:06:15 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:35537 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S265020AbTFWJGO (ORCPT
+	Mon, 23 Jun 2003 05:06:24 -0400
+Received: from dp.samba.org ([66.70.73.150]:11185 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265395AbTFWJGV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 05:06:14 -0400
-Date: Mon, 23 Jun 2003 11:05:00 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] nbd driver for 2.5.72
-Message-ID: <20030623090500.GG26081@marowsky-bree.de>
-References: <3EF3F08B.5060305@aros.net> <E19Tbyp-0004mi-00@calista.inka.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
-In-Reply-To: <E19Tbyp-0004mi-00@calista.inka.de>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	Mon, 23 Jun 2003 05:06:21 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, akpm@zip.com.au, davem@redhat.com
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: [PATCH 2/3] Eliminate unused functions for gcc 3.3+
+Date: Mon, 23 Jun 2003 19:12:15 +1000
+Message-Id: <20030623092028.03F9A2C2E7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Name: Eliminate Unused Functions
+Author: Rusty Russell
+Status: Tested on 2.5.70-bk16
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+D: GCC 3.3 has the ability to eliminate unused static functions.  This includes
+D: code like this:
+D:
+D: static int unusedfunc(void) { ... };
+D: int otherfunc(void)
+D: {
+D:         (void)unusedfunc;
+D: ...
+D: 
+D: This means that macros can suppress the "unused" warning on functions
+D: without preventing the function elimination.  This should allow us to
+D: remove a number of #ifdefs around unused functions.
+D:
+D: Unfortunately, this elimination is only performed if
+D: -finline-functions is used.  In order to prevent GCC automatically
+D: inlining anything, we also specify "--param max-inline-insns-auto=0".
+D:
+D: Earlier compilers don't understand this parameter, so we test for
+D: it at build time.
+D:
+D: Results:
+D:   gcc 3.3 without patch:
+D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 09:17 vmlinux
+D:   gcc 3.3 with patch:
+D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 09:58 vmlinux
+D:   gcc 3.3 without patch (small unused function added):
+D:       -rwxrwxr-x    1 rusty    rusty     5115195 Jun 13 10:14 vmlinux
+D:   gcc 3.3 with patch (small unused function added):
+D:       -rwxrwxr-x    1 rusty    rusty     5115166 Jun 13 10:15 vmlinux
 
-On 2003-06-21T08:36:07,
-   Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net> said:
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.70-bk16-check_region/Makefile working-2.5.70-bk16-check_region-inline/Makefile
+--- working-2.5.70-bk16-check_region/Makefile	2003-06-12 09:57:39.000000000 +1000
++++ working-2.5.70-bk16-check_region-inline/Makefile	2003-06-12 21:34:40.000000000 +1000
+@@ -213,10 +213,12 @@ CFLAGS_KERNEL	=
+ AFLAGS_KERNEL	=
+ 
+ NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
++# Needs gcc 3.3 or above to understand max-inline-insns-auto.
++INLINE_OPTS	:= $(shell $(CC) -o /non/existent/file -c --param max-inline-insns-auto=0 -xc /dev/null 2>&1 | grep /non/existent/file >/dev/null && echo -finline-functions --param max-inline-insns-auto=0)
+ 
+ CPPFLAGS	:= -D__KERNEL__ -Iinclude
+ CFLAGS 		:= $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+-	  	   -fno-strict-aliasing -fno-common
++	  	   $(INLINE_OPTS) -fno-strict-aliasing -fno-common
+ AFLAGS		:= -D__ASSEMBLY__ $(CPPFLAGS)
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
 
-> Is anybody aware of a journalling nbd, which keeps track of unsynced
-> changes, so a fast reintegration is possible?
-
-drbd does that, port to 2.5 is in progress.
-
-> Well perhaps this is a property of the md device, instead... hmm. Is there
-> such a function available? Could be some left over from snapshot code.
-
-Peter T. Breuer has also been working on intent logging for md, which
-will also achieve largely the same thing, just with slightly different
-properties. I'm not fully aware on the current status of this
-implementation.
-
-
-Sincerely,
-    Lars Marowsky-Br=E9e <lmb@suse.de>
-
---=20
-SuSE Labs - Research & Development, SuSE Linux AG
- =20
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
-
---HlL+5n6rz5pIUxbD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+9sK8udf3XQV4S2cRAl1CAJ9Raeg/i8T1YgNVdCHbf2ou7NBuSwCffdGz
-TuLRunDHWep5cm7ehwKHTfw=
-=eIIC
------END PGP SIGNATURE-----
-
---HlL+5n6rz5pIUxbD--
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

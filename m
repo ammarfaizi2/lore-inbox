@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136146AbREGOj2>; Mon, 7 May 2001 10:39:28 -0400
+	id <S136145AbREGOm6>; Mon, 7 May 2001 10:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136145AbREGOjS>; Mon, 7 May 2001 10:39:18 -0400
-Received: from atlante.atlas-iap.es ([194.224.1.3]:57359 "EHLO
-	atlante.atlas-iap.es") by vger.kernel.org with ESMTP
-	id <S136136AbREGOjB>; Mon, 7 May 2001 10:39:01 -0400
-From: "Ricardo Galli" <gallir@uib.es>
+	id <S136148AbREGOms>; Mon, 7 May 2001 10:42:48 -0400
+Received: from www.sinfopragma.it ([213.26.181.2]:30728 "EHLO
+	sinfo-www-01.sinfopragma.it") by vger.kernel.org with ESMTP
+	id <S136145AbREGOmj>; Mon, 7 May 2001 10:42:39 -0400
+Date: Mon, 7 May 2001 16:46:46 +0200 (W. Europe Daylight Time)
+From: Lorenzo Marcantonio <lorenzo.marcantonio@sinfopragma.it>
 To: <linux-kernel@vger.kernel.org>
-Subject: RE: what causes Machine Check exception? revisited (2.2.18)
-Date: Mon, 7 May 2001 16:38:58 +0200
-Message-ID: <LOEGIBFACGNBNCDJMJMOAEDCCIAA.gallir@uib.es>
+Subject: SCSI Tape corruption - update
+Message-ID: <Pine.WNT.4.31.0105071638470.346-100000@pc209.sinfopragma.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Definitely not caused by:
->> Bad Rams, mb-chipset.
->
-> Erm, it was bad RAM everytime it happened to me. On standard PCs, you
-> don't see those because you don't have ECC and the error is simply not
-> detected.
 
-I did have the same problem with an SMP Intel 440LX which run without any
-problem since 1998. When I installed 2.2.18 it could run for more than 5
-minutes (Alan suggested me it was .
+As of my latest build [2.4.5-pre1] I've STILL got the tape corruption
+problem. Some new facts:
 
-I am not sure it's a RAM poblem, because it never gave/gives a SEGFAULT
-compiling the kernel. I brought it back to 2.2.16 and it's running happy.
+(1) It happens only writing the tape (tried exchanging tapes with a
+brand new Alpha Digital Tru64 box). I can read her tape, she can't read
+my tape. Tried with GNU tar and gzip.
 
-Could be some SMP/BIOS related problem? If it's the RAM or chipset, I am
-scared how we could use it for three years and suddenly it hangs with a new
-version of the kernel... Blame to Intel?
+(2) I suppose it isn't fault of AIC7xxx driver (tried both new and old)
 
+(3) Playing with block size doesn't help (even tried variable block
+size)
 
---ricardo
-http://m3d.uib.es/~gallir/
+What can I do? Can I set some kind of trace to pinpoint the problem (in
+st.c, maybe?)
+
+				-- Lorenzo Marcantonio
+
 

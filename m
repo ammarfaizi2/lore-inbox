@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271414AbTHRMAa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 08:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271418AbTHRMAa
+	id S271410AbTHRMI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 08:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271407AbTHRMI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 08:00:30 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:56704 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S271414AbTHRMA2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 08:00:28 -0400
-Date: Mon, 18 Aug 2003 12:59:54 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>, tytso@mit.edu, jmorris@intercode.com.au,
-       linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030818115954.GA7147@mail.jlokier.co.uk>
-References: <20030818004313.T3708@schatzie.adilger.int> <Pine.LNX.4.44.0308172352470.20433-100000@dlang.diginsite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308172352470.20433-100000@dlang.diginsite.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 18 Aug 2003 08:08:58 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:1042 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S271384AbTHRMI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 08:08:56 -0400
+Message-ID: <012b01c36581$6fd1c1b0$c801a8c0@llewella>
+From: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <willy@w.ods.org>, <alan@lxorguk.ukuu.org.uk>, <carlosev@newipnet.com>,
+       <lamont@scriptkiddie.org>, <davidsen@tmr.com>,
+       <marcelo@conectiva.com.br>, <netdev@oss.sgi.com>,
+       <linux-net@vger.kernel.org>, <layes@loran.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+References: <20030728213933.F81299@coredump.scriptkiddie.org><200308171509570955.003E4FEC@192.168.128.16><200308171516090038.0043F977@192.168.128.16><1061127715.21885.35.camel@dhcp23.swansea.linux.org.uk><200308171555280781.0067FB36@192.168.128.16><1061134091.21886.40.camel@dhcp23.swansea.linux.org.uk><200308171759540391.00AA8CAB@192.168.128.16><1061137577.21885.50.camel@dhcp23.swansea.linux.org.uk><200308171827130739.00C3905F@192.168.128.16><1061141045.21885.74.camel@dhcp23.swansea.linux.org.uk><20030817224849.GB734@alpha.home.local><20030817223118.3cbc497c.davem@redhat.com> <20030818133957.3d3d51d2.skraw@ithnet.com>
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Mon, 18 Aug 2003 14:08:05 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> > It wasn't even vanishingly small...  We had a problem in our code where
-> > two readers got the same 64-bit value calling get_random_bytes(), and
-> > we were depending on this 64-bit value being unique.  This problem was
-> > fixed by putting a spinlock around the call to get_random_bytes().
-> 
-> if the number is truely random then there should be a (small but finite)
-> chance that any two reads will return the same data. counting on a random
-> number to be unique is not a good idea.
+> > Replying again... Alan does mention in the paragraph you've quoted
+> > to use arpfilter, which works for every case imaginable.
+No it doesn't. When I have two nics on DHCP on the same ethernet segment, it
+cannot be made to work. I don't know the ip addresses beforehand. And if if
+I would get them with scripting and crafted some rules on the fly, there's
+no way I can be sure I'll get the same IP's on a renew, so I'd have to check
+often.
 
-The whole field of modern cryptography is based on things with a small
-but finite chance of failure.  The point is to mathematically engineer
-that chance to be _vanishingly_ small, such as probabilities like 2^-256.
+Regards,
+Bas
 
-When the "random" number is 64 bits wide, the probability is so small
-that if you _do_ see two numbers the same you should be very
-suspicious.  But it is not so small to be out of the question.
 
-When you fetch 128 bits or more and see two numbers the same, then you
-should be very suspicious indeed.  But even that is not out of the
-question if you have many machines generating numbers night and day.
-
-At 256 bits, there is a real fault in your random number generator if
-you manage to generate two numbers the same.
-
-> now if you can repeatably get the same number then you probably have a bug
-> in the random number code, but if you need uniqueness you need something
-> else.
-
-Can you think of another, reliable, source of uniqueness?
-
--- Jamie

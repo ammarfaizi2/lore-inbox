@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUHHA2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUHHAda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264884AbUHHA2T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 20:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUHHA2T
+	id S264256AbUHHAda (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 20:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUHHAda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 20:28:19 -0400
-Received: from ozlabs.org ([203.10.76.45]:41659 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264884AbUHHA2R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 20:28:17 -0400
-Date: Sun, 8 Aug 2004 10:23:55 +1000
-From: Anton Blanchard <anton@samba.org>
-To: linux-kernel@vger.kernel.org
-Cc: chrisw@osdl.org, sds@epoch.ncsc.mil, jmorris@redhat.com
-Subject: SELINUX performance issues
-Message-ID: <20040808002355.GA24690@krispykreme>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 7 Aug 2004 20:33:30 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:33008 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S264256AbUHHAd2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 20:33:28 -0400
+Date: Sat, 7 Aug 2004 20:37:19 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: carbonated beverage <ramune@net-ronin.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI/Panic 2.6.8-rc3
+In-Reply-To: <20040805003426.GA18820@net-ronin.org>
+Message-ID: <Pine.LNX.4.58.0408072036280.19619@montezuma.fsmlabs.com>
+References: <20040805003426.GA18820@net-ronin.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 4 Aug 2004, carbonated beverage wrote:
 
-Hi,
+> Reported this a while ago, but tried it again, still getting oops
+> when doing an rmmod of the ACPI processor module.
+>
+> Hardware: IBM T30, P4 2.4GHz, 256MiB, Debian/stable, did an rmmod processor.
+>
+> Note: Oops below was copied by hand, so may not be fully reliable.  Also,
+> EIP was screwy, so no idea what was executing.
 
-During SLES9 testing we noticed SELINUX caused rather large performance
-regressions in network benchmarks. To retest this, I fired up
-2.6.8-rc3-BK on a small POWER5 box (3 CPUs).
+It should be fixed before 2.6.8, a patch has already been sent to the big
+wigs.
 
-I enabled a bunch of stuff in my .config:
+Index: linux-2.6.8-rc1-mm1/drivers/acpi/processor.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.8-rc1-mm1/drivers/acpi/processor.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 processor.c
+--- linux-2.6.8-rc1-mm1/drivers/acpi/processor.c	14 Jul 2004 04:56:25 -0000	1.1.1.1
++++ linux-2.6.8-rc1-mm1/drivers/acpi/processor.c	20 Jul 2004 15:31:46 -0000
+@@ -2372,8 +2372,10 @@ acpi_processor_remove (
+ 	pr = (struct acpi_processor *) acpi_driver_data(device);
 
-CONFIG_SECURITY=y
-CONFIG_SECURITY_NETWORK=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_SECURITY_ROOTPLUG=y
-CONFIG_SECURITY_SELINUX=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-CONFIG_SECURITY_SELINUX_DISABLE=y
-CONFIG_SECURITY_SELINUX_DEVELOP=y
-CONFIG_SECURITY_SELINUX_MLS=y
+ 	/* Unregister the idle handler when processor #0 is removed. */
+-	if (pr->id == 0)
++	if (pr->id == 0) {
+ 		pm_idle = pm_idle_save;
++		synchronize_kernel();
++	}
 
-I then ran a number of copies of socklib to localhost. Socklib is a tool
-from tridge which just pumps bytes down a TCP stream. Very simple stuff.
-I found just over a 15% regression between enabling and disabling
-selinux (using the same kernel, just specifying the selinux=off boot
-option).
-
-Oprofile shows where the problems are:
-
-%       function
-3.0880  avc_has_perm_noaudit
-1.7677  selinux_socket_sock_rcv_skb
-0.8400  avc_has_perm
-0.5687  security_node_sid
-0.5324  security_port_sid
-0.5164  sel_netif_lookup
-0.5141  avc_lookup
-0.5003  sel_netif_put
-0.3001  sel_netif_find
-0.2899  selinux_file_permission
-
-The biggest problem is the global lock:
-
-avc_has_perm_noaudit:
-        spin_lock_irqsave(&avc_lock, flags);
-
-Any chance we can get rid of it? Maybe with RCU?
-
-Anton
+ 	status = acpi_remove_notify_handler(pr->handle, ACPI_DEVICE_NOTIFY,
+ 		acpi_processor_notify);

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282993AbRLDAUu>; Mon, 3 Dec 2001 19:20:50 -0500
+	id <S281877AbRLDAUt>; Mon, 3 Dec 2001 19:20:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284903AbRLDASV>; Mon, 3 Dec 2001 19:18:21 -0500
-Received: from four.malevolentminds.com ([216.177.76.238]:34058 "EHLO
-	four.malevolentminds.com") by vger.kernel.org with ESMTP
-	id <S285254AbRLCW2a>; Mon, 3 Dec 2001 17:28:30 -0500
-Date: Mon, 3 Dec 2001 22:28:44 +0000 (GMT)
-From: Khyron <khyron@khyron.com>
-To: LKML - Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Kernel test suites (was Re: Coding style - a non-issue)
-Message-ID: <Pine.BSF.4.33.0112032202420.98724-100000@four.malevolentminds.com>
+	id <S284927AbRLDAS0>; Mon, 3 Dec 2001 19:18:26 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35849 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S284759AbRLCQU4>; Mon, 3 Dec 2001 11:20:56 -0500
+Date: Mon, 3 Dec 2001 11:14:23 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Slow start -- Linux vs. NT -- it's time to acknowledge the problem!
+In-Reply-To: <20011130.142843.31639840.davem@redhat.com>
+Message-ID: <Pine.LNX.3.96.1011203110304.21357A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would be interested in seeing this test suite as well.
+>    From: Jessica Blank <jessica@twu.net>
+>    Date: Fri, 30 Nov 2001 08:35:35 -0600 (CST)
+> 
+>    	It is high time this problem is acknowledged and FIXED. I am
+>    forced to share a network with a bunch of NT servers, some of which get
+>    plenty of traffic-- enough so that they manage to crowd out my machine to
+>    the tune of 600ish ms ping times to the Linux box versus only **70**
+>    (!!!!!!) to the Windows box.
 
-Also, if anyone with any background on the subject can
-chime in on the RH test suite and how the Linux Test Project
-compare/overlap/differ, that would be good to know too.
+Okay, I acknowledge the problem and admit you don't understand networking.
+You have confused the slowstart feature (TCP) with ping (ICMP). TCP and
+ICMP are what are called protocols. Slowstart has nothing to do with ICMP.
 
-Alan Cox previously replied to Stanislav Meduna saying:
+I will add that if you do an ifconfig I suspect you will see collisions on
+your interface, resulting in poor performance. This is caused by running
+the interface half duplex, and should not be used unless you are connected
+to a type of obsolete hardware known as a hub, instead of a switch. If you
+connect to a switch you should see zero collisions.
 
-> Is the test suite (or at least part of it) public, or is it
-> considered to be a trade-secret of Red Hat? I see there
-> is a "Red Hat Ready Test Suite" - is this a part of it?
+Finally, even 70ms is really poor ping time, I get better than that
+between Albany NY and San Jose CA! Local ping time, even between Pentium
+class utility machines on a thinnet (10Mbit half duplex technology) is
+70-1400us on a somewhat loaded network.
 
-The main Red Hat test suite is a version of Cerberus (originally from VA
-and much extended), its all free software and its available somewhere
-although I don't have the URL to hand, Arjan ?
-
-
-"Everyone's got a story to tell, and everyone's got some pain.
- And so do you. Do you think you are invisble?
- And everyone's got a story to sell, and everyone is strange.
- And so are you. Did you think you were invincible?"
- 	- "Invisible", Majik Alex
-
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

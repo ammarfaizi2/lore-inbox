@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbTEMT0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 15:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTEMT0J
+	id S262328AbTEMTjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 15:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbTEMTjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 15:26:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:5820 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262263AbTEMT0I (ORCPT
+	Tue, 13 May 2003 15:39:05 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:60924 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262328AbTEMTjE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 15:26:08 -0400
-Date: Tue, 13 May 2003 12:38:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, alexh@ihatent.com
-Subject: Re: [PATCH] Re: 2.5.69-mm4 undefined active_load_balance
-Message-ID: <20030513193847.GP8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, alexh@ihatent.com
-References: <20030512225504.4baca409.akpm@digeo.com> <87vfwf8h2n.fsf@lapper.ihatent.com> <20030513001135.2395860a.akpm@digeo.com> <87n0hr8edh.fsf@lapper.ihatent.com> <20030513085525.GA7730@hh.idb.hist.no> <20030513020414.5ca41817.akpm@digeo.com> <3EC0FB9E.8030305@aitel.hist.no> <20030513162711.GA30804@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030513162711.GA30804@hh.idb.hist.no>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 13 May 2003 15:39:04 -0400
+Date: Tue, 13 May 2003 21:51:06 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <20030513163854.A27407@infradead.org>
+Message-ID: <Pine.GSO.4.21.0305132140200.13355-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 06:27:11PM +0200, Helge Hafting wrote:
-> --- sched.h.orig        2003-05-13 15:45:17.000000000 +0200
-> +++ sched.h     2003-05-13 18:07:01.000000000 +0200
-> @@ -158,10 +158,8 @@
->  # define CONFIG_NR_SIBLINGS 0
->  #endif
-> -#ifdef CONFIG_NR_SIBLINGS
-> +#if CONFIG_NR_SIBLINGS
->  # define CONFIG_SHARE_RUNQUEUE 1
-> -#else
-> -# define CONFIG_SHARE_RUNQUEUE 0
->  #endif
->  extern void sched_map_runqueue(int cpu1, int cpu2);
+On Tue, 13 May 2003, Christoph Hellwig wrote:
+> On Tue, May 13, 2003 at 02:57:08PM +0100, Alan Cox wrote:
+> > SH3/SH3-64 need resynching, as do some other ports. No impact on
+> > mainstream platforms hopefully
+> 
+> That brings up another issue:  what ports do regularly work with 2.5
+> mainline?  I've been working with David to get all those core changes ia64
+> needs (and there's still a lot) sorted out so maybe 2.6 will work out of
+> the box.  I guess some other arches (parisc, mips?) will need similar
+> work.
 
-Linus just committed a patch to eliminate such offenders.
+Just FYI... For the m68k port, I have ca. 150 KiB of patches in Linus' INBOX
+(if they're still there, mainly irqreturn_t stuff), and about 100 KiB of
+postponed stuff I'm not gonna send (i.e. things that are not ready for
+submission yet, or that are too controversial).
 
-Do you mean #if CONFIG_NR_SIBLINGS != 0 or #ifdef CONFIG_NR_SIBLINGS?
+Amiga (non-SCSI) and Q40/Q60 should work fairly well in 2.5.x, except that
+early userspace (launching of /sbin/init) got broken in 2.5.67 or 2.5.68.
 
+For comparison, 2.4.x has no stuff in Marcelo's INBOX, and about the same 100
+KiB of postponed stuff. Not counting Michael Müller's new TekXpress port, which
+is not even in Linux/m68k CVS (http://linux-m68k-cvs.apia.dhs.org/) yet.
 
--- wli
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

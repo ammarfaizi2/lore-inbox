@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQLKDrM>; Sun, 10 Dec 2000 22:47:12 -0500
+	id <S129450AbQLKDwn>; Sun, 10 Dec 2000 22:52:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129450AbQLKDrC>; Sun, 10 Dec 2000 22:47:02 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:51882 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129392AbQLKDqx>;
-	Sun, 10 Dec 2000 22:46:53 -0500
-Date: Sun, 10 Dec 2000 19:16:20 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-cc: Anton Altaparmakov <aia21@cam.ac.uk>, Andrey Savochkin <saw@saw.sw.com.sg>,
-        linux-kernel@vger.kernel.org
-Subject: Re: eepro100 driver update for 2.4
-In-Reply-To: <3A341B3F.B5D962A8@Hell.WH8.TU-Dresden.De>
-Message-ID: <Pine.LNX.4.21.0012101901030.5164-100000@age.cs.columbia.edu>
+	id <S129801AbQLKDwe>; Sun, 10 Dec 2000 22:52:34 -0500
+Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:7146 "EHLO
+	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S129450AbQLKDwb>; Sun, 10 Dec 2000 22:52:31 -0500
+Message-ID: <3A344858.2E710636@haque.net>
+Date: Sun, 10 Dec 2000 22:22:00 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org
+Subject: Re: INIT_LIST_HEAD marco audit
+In-Reply-To: <390158470.976495326591.JavaMail.root@web346-wra.mail.com> <3A3441FC.28A2D2CA@haque.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000, Udo A. Steinberg wrote:
+Add drivers/i2o/i2o_lan.c to the list. My patch does patch this file but
+I did a copy paste and didn't replace run_task_queue with
+i2o_lan_receive_post.
 
-> Anton Altaparmakov wrote:
+"Mohammad A. Haque" wrote:
 > 
-> The problem here only ever happens at initialisation/first packets. Once the
-> network interface has been initialised properly it never produces those
-> messages anymore. Usually it helps to shut the NIC down with ifconfig and
-> bringing it back up afterwards to properly initialise it.
-
-Actually I'm beginning to suspect that you might have a different problem
-after all.
-
-Bear with me for another couple of days, until I get near my Linux boxes
-and can actually look more closely at things..
-
-Anton Altaparmakov wrote:
-
-> > My card is an Ether Express Pro 100, lcpci says: Intel Corporation 82557
-> > [Ethernet Pro 100] (rev 04) 
-
-So it's an i82558 A-step. That's interesting, the patch shouldn't have
-made any difference on an i82558, at least according to the documentation.
-
-Also according to the documentation (which I only realized later on), the
-bit I'm turning off in the advertising word is supposed to be read-only..
-
-This shows how much one can trust the docs, I guess. :)
-
-> > and lspci -n gives: class 0200: 10b7:9004
-
-Umm.. I don't think so. :) This a 3Com 3c900B. You probably got the wrong
-entry, in case you have multiple cards in that box.
-
-> Mine's a rev 08.
+> The follwing files probably need to be patched to use the
+> DECLARE_TASK_QUEUE() macro and new tq_struct, but I don't have time
+> right now to go through them.
 > 
-> 00:0d.0 Class 0200: 8086:1229 (rev 08)
-
-This is an i82559 C-step. What kind of switch is it attached to?
-
-Also, if you feel like experimenting, edit speedo_interrupt() and change
-	outw(status & 0xfc00, ioaddr + SCBStatus);
-to
-	outw(status & 0xff00, ioaddr + SCBStatus); 
-
-and see if the complete hangs when disconnecting the cable go away. The
-docs say that the device deasserts the interrupt line only when all
-interrupt sources have been acked -- so if we don't ack the FCP interrupt
-but do somehow get one, we end up with an un-ending stream of interrupts.
-
-You could also try to make the printk() right next to that line *not*
-depend on the debug level, and see what you get when the card barfs. Be
-aware though that it will print one log line for each interrupt received,
-so at the very least make your syslogd log kernel messages asynchronously
-(without sync'ing after each line). On the other hand, since your problem
-occurs as soon as the device is initialized, it shouldn't be too much of a
-flood -- I hope.
-
-Thanks,
-Ion
+> (grep for "static struct tq_struct.*=")
+> 
+> drivers/net/wan/sdlamain.c
+> drivers/block/paride/pseudo.h
+> drivers/scsi/atari_NCR5380.c
+> drivers/scsi/mac_NCR5380.c
+> drivers/scsi/oktagon_esp.c
+> drivers/scsi/sun3_NCR5380.c
+> drivers/isdn/hisax/foreign.c
+> drivers/isdn/hisax/foreign.c
+> drivers/isdn/hisax/foreign.c
+> drivers/acorn/block/mfmhd.c
+> drivers/pcmcia/i82365.c
+> drivers/pcmcia/tcic.c
+> drivers/s390/block/dasd.c
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
 
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

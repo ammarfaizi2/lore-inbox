@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316621AbSHGC0F>; Tue, 6 Aug 2002 22:26:05 -0400
+	id <S316682AbSHGC1i>; Tue, 6 Aug 2002 22:27:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316623AbSHGC0F>; Tue, 6 Aug 2002 22:26:05 -0400
-Received: from dsl-213-023-062-078.arcor-ip.net ([213.23.62.78]:8709 "EHLO
-	spot.local") by vger.kernel.org with ESMTP id <S316621AbSHGC0F>;
-	Tue, 6 Aug 2002 22:26:05 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Noticable improvements with DVD-RAM (slow devices) in 2.4.19
-Date: Wed, 7 Aug 2002 04:30:21 +0200
-User-Agent: KMail/1.4.1
-X-PGP-KeyID: 0x561D4FD2
-X-PGP-Key: http://www.lionking.org/~kiza/pgpkey.shtml
-X-Species: Snow Leopard
-X-Operating-System: Linux i686
+	id <S316683AbSHGC1i>; Tue, 6 Aug 2002 22:27:38 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:38793 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316682AbSHGC1h>; Tue, 6 Aug 2002 22:27:37 -0400
+Date: Tue, 6 Aug 2002 21:28:58 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] automatic module_init ordering 
+In-Reply-To: <20020807020259.4CAED417A@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0208062117180.12314-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208070430.55809.kiza@gmx.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 7 Aug 2002, Rusty Russell wrote:
 
-Hi,
+> > I'm not sure we should go this way. My main problem is that it only solves
+> > a single ordering problem - boot time ordering. What about suspend/wakeup?
+> > We have more of these ordering problems and driverfs is supposed to help
+> > with them, so I'd rather first would like to see how much we can fix this
+> > way.
+> 
+> suspend/wakeup is a device issue, solved well by devicefs.  This is
+> completely independent from the subtleties of initialization order in
+> the core kernel code: devices are not the problem.
+> 
+> Look at how many places have explicit initializers with #ifdef
+> CONFIG_XXX around them, because initialization order problems were too
+> hard before.  These can now be fixed as desired.
+> 
+> I really want *one* place where you can see what order things are
+> initalized.  If that means one big file with #ifdef's, fine.  But the
+> current approach of using link order, initializer levels and explicit
+> initializers is really hard to debug and modify.
 
-some long time ago I posted this on linux kernel 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0102.0/0880.html. Short 
-description: writing huge amounts of data to the DVD-RAM will slow down/hang 
-the system for up to some minutes while transferring data. This problem got 
-slightly better with the 2.4 series but was still a problem most of the time.
+Since I'm still CC'ed, I thought I could add in my 2 cents, too ;)
 
-Now with 2.4.19 this has improved _significantly_. The system probably slows 
-down for a couple of seconds during the data transfer, but that's all. It's 
-almost perfectly usable otherwise. Thank you everyone. 2.4.19 is probably the 
-best kernel until now... at least for me. :)
+I agree with Rusty, his ordered initcalls are really needed most at early 
+points during the system initialization, way before device discovery and 
+initialization. They allow for a lot of cleanup and clarification in that 
+area, so I definitely think they should go in.
 
-Bye
+Those initcalls that only do pci_register_driver() and the like are
+typically the module_init() functions and are taken care of by Roman's
+patch. Also, inserting devices into the device tree and handling them can
+only happen after the kernel knows about the drivers, which it only does
+after the corresponding initcall has run. The place where to insert them
+is however an entirely different story, and that's handled by the device
+tree just fine.
 
-- -- 
-Oliver Feiler  <kiza@(gmx(pro).net|lionking.org|claws-and-paws.com)>
-http://www.lionking.org/~kiza/  <--   homepage
-PGP-key ID 0x561D4FD2    --> /pgpkey.shtml
-http://www.lionking.org/~kiza/journal/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+--Kai
 
-iD8DBQE9UIZfOpifZVYdT9IRAnGGAJ4jQFjObvoZsZ1/qHyeC4M7SXf7vACgvJ8H
-xQEg66pd3umXzCd2mEkQb2Y=
-=VcB4
------END PGP SIGNATURE-----
+
 

@@ -1,47 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbULIPst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbULIPts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbULIPst (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbULIPst
+	id S261529AbULIPts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbULIPts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:48:49 -0500
-Received: from main.gmane.org ([80.91.229.2]:46003 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261532AbULIPsp (ORCPT
+	Thu, 9 Dec 2004 10:49:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9703 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261529AbULIPtd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 10:48:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-Date: Thu, 09 Dec 2004 10:48:43 -0500
-Message-ID: <87oeh35v6s.fsf@coraid.com>
-References: <87acsrqval.fsf@coraid.com> <20041206215456.GB10499@kroah.com>
+	Thu, 9 Dec 2004 10:49:33 -0500
+Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, sailer@watson.ibm.com,
+       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
+       tpmdd-devel@lists.sourceforge.net
+In-Reply-To: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
+References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1102607309.2784.40.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:Qv/HVtbkccNPySi34XAus83ObD8=
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Thu, 09 Dec 2004 10:48:29 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+On Thu, 2004-12-09 at 09:25 -0600, Kylene Hall wrote:
+> +	/* wait for status */
+> +	add_timer(&status_timer);
+> +	do {
+> +		schedule();
+> +		*data = inb(chip->base + 1);
+> +		if ((*data & mask) == val) {
+> +			del_singleshot_timer_sync(&status_timer);
+> +			return 0;
+> +		}
+> +	} while (!expired);
 
-...
->> +	printk(KERN_INFO "aoe: aoeblk_ioctl: unknown ioctl %d\n", cmd);
->
-> So I can flood the syslog by sending improper ioctls to the driver?
-> That's not nice...
+this is busy waiting. Can't you do it with msleep() or some such ?
+Or like 100 iterations without delays (in case the chip returns fast),
+and then start sleeping, but please do sleep for a real time, not just
+yield the cpu. Powermanagement and lots of other things really like to
+see that.
+> +	/* wait for status */
+> +	add_timer(&status_timer);
+> +	do {
+> +		schedule();
+> +		status = inb(chip->base + NSC_STATUS);
+> +		if (status & NSC_STATUS_OBF)
+> +			status = inb(chip->base + NSC_DATA);
+> +		if (status & NSC_STATUS_RDY) {
+> +			del_singleshot_timer_sync(&status_timer);
+> +			return 0;
+> +		}
+> +	} while (!expired);
 
-Wouldn't root be the only user who could do that?  When would this
-happen?  
+same comment. Also the timer handling looks suspect... can you guarantee
+100% sure that the timer is gone when the while falls through ?
 
-If it's happening by accident, then something's wrong, and it's
-helpful to make it known that something's wrong.  If it's on purpose,
-then somebody has root and is doing malicious things, in which case
-syslog flooding is the least of our worries.  They could do the same
-thing using "logger" anyway.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+> +	chip->userspace_buffer =
+> +	    kmalloc(TPM_BUFSIZE * sizeof(u8), GFP_KERNEL);
+
+that sounds like a really deceptive name to me ... since it's kernel
+memory ;)
+
+> +static int tpm_release(struct inode *inode, struct file *file)
+> +{
+> +	struct tpm_chip *chip = file->private_data;
+> +
+> +	if (chip == NULL)
+> +		return -ENODEV;
+> +
+> +	spin_lock(&driver_lock);
+> +	chip->num_opens--;
+
+why do you need to keep track of the number of openers? Can't you have
+the kernel fs layer keep track of this ?
+> +	chip->user_read_timer.function = user_reader_timeout;
+> +	chip->user_read_timer.data = (unsigned long) chip;
+> +	chip->user_read_timer.expires = jiffies + (60 * HZ);
+> +	add_timer(&chip->user_read_timer);
+> +
+> +	atomic_set(&chip->data_pending, out_size);
+> +
+> +	return size;
+
+what prevents the module from being unloaded ?
+(eg user calls write(); close(); and then does rmmod before the timer
+expires )
+
+> +/*
+> + * Resume from a power safe. The BIOS already restored
+> + * the TPM state.
+> + */
+
+are there any special security things needed after resume ?
+Or maybe at suspend time, to wipe secrets from the TPM or somesuch..
+
+
+
 

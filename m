@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272788AbTG3GhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 02:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272785AbTG3Gfs
+	id S272783AbTG3GhU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 02:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272786AbTG3GhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 02:35:48 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:21173 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S272783AbTG3Gfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 02:35:44 -0400
-Date: Wed, 30 Jul 2003 16:36:57 +1000
-From: CaT <cat@zip.com.au>
-To: Philip Graham Willoughby <pgw99@doc.ic.ac.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 30 Jul 2003 02:37:19 -0400
+Received: from pop.gmx.net ([213.165.64.20]:39552 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272783AbTG3GgI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 02:36:08 -0400
+From: Helge Deller <deller@gmx.de>
+To: Eli Carter <eli.carter@inet.com>, John Bradford <john@grabjohn.com>
 Subject: Re: PATCH : LEDs - possibly the most pointless kernel subsystem ever
-Message-ID: <20030730063657.GH1395@zip.com.au>
-References: <20030729151701.GA6795@bodmin.doc.ic.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 30 Jul 2003 08:37:09 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org, pgw99@doc.ic.ac.uk
+References: <200307292038.h6TKcqlu000338@81-2-122-30.bradfords.org.uk> <3F26DC68.3010000@inet.com>
+In-Reply-To: <3F26DC68.3010000@inet.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030729151701.GA6795@bodmin.doc.ic.ac.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Message-Id: <200307300835.49142.deller@gmx.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 04:17:03PM +0100, Philip Graham Willoughby wrote:
-> Hi all,
-> 
-> This patch adds an abstraction layer for programmable LED devices,
+On Tuesday 29 July 2003 22:43, Eli Carter wrote:
+> Maybe also:
+>   * 100% CPU usage
+>   * Toggle each jiffie (help detect interrupts disabled)
+>   * User control for things like cpu/harddrive temp...
+>   * and of course, Morse code ;)
 
-Would this (now or in the future) by any chance let one use the keyboard
-leds for stuff without activating their num lock, caps lock and scroll
-lock functionality? I'd like to use one of them (at least) as a network
-traffic indicator but so far I get the sideffects of the functionality
-being on also. Most annoying when typing. :/
+Older PA-RISC machines have at the front panel a LED
+which shows machine load (4 LEDs), heartbeat (1 LED), 
+SCSI activity (1 LED) and network RX/TX (1 LED each).
+This panel is programmable via software and a nice and 
+consistent linux kernel and userspace API  across the 
+architectures is IMHO a good thing.
 
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo
+Helge

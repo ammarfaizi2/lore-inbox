@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316883AbSGWXcg>; Tue, 23 Jul 2002 19:32:36 -0400
+	id <S315285AbSGWXgW>; Tue, 23 Jul 2002 19:36:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318238AbSGWXcg>; Tue, 23 Jul 2002 19:32:36 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:47816 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id <S316883AbSGWXcf>;
-	Tue, 23 Jul 2002 19:32:35 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Jan-Benedict Glaw'" <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: kbuild 2.5.26 - arch/alpha
-Date: Wed, 24 Jul 2002 01:34:19 +0200
-Organization: =?US-ASCII?Q?UPtime_Systemlosungen?=
-Message-ID: <002801c232a1$7894db20$1211a8c0@pitzeier.priv.at>
+	id <S316614AbSGWXgW>; Tue, 23 Jul 2002 19:36:22 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:33032 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S315285AbSGWXgU>; Tue, 23 Jul 2002 19:36:20 -0400
+Date: Tue, 23 Jul 2002 19:46:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Eero Volotinen <ev@kernel.ping-viini.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: crash 2.4.19-rc3 on smp machine.
+In-Reply-To: <000b01c23005$fef760f0$0200a8c0@eero>
+Message-ID: <Pine.LNX.4.44.0207231945500.30493-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <20020723132811.GX8891@lug-owl.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-X-MailScanner: Nothing found, baby
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw wrote:
-> On Tue, 2002-07-23 14:42:03 +0200, Martin Brulisauer 
-> <martin@uceb.org> wrote in message 
-> <3D3D6B3B.25754.1392D3FD@localhost>:
-> > On 21 Jul 2002, at 18:57, Oliver Pitzeier wrote:
-> > > Oh... I did... :o( :o) But it's currently a mission 
-> impossible. The 
-> > > last kernel running fine for my alpha is 2.5.18 (with a lot of 
-> > > patches...)
-> 
-> There was a quite good patch sent to l-k some weeks ago which
-> (basically) still applies. I'm using this one (with watering 
-> eyes waiting for a compileable Linus-Kernel...).
 
-I go and search it...
- 
-> > Is there anybody who is willing to test such a patch
-> > on different alpha's (I only have some XLT's, an AS800
-> > and one AS250, so all alcor based systems with
-> > ISA and PCI but without EISA and all are using 
-> sys_alcor.c)? Further I 
-> > can't test SMP with this _very_ old hardware.
-> 
-> I cannot test SMP either (I've not got a SMP alpha), but I 
-> can test on Miata, Avanit and NoName.
+Could you decode the oops with ksymoops please?
 
-I've got a AS1000. Noritake. But I do only have _one_ processor.
-I don't believe that anybody buys me a second... :o(
+On Sat, 20 Jul 2002, Eero Volotinen wrote:
 
-Our Dual-Processor Machine (a DS20e) has been moved back to
-Compaq a few month ago... On our seconds DS20e are running postgresql
-databases which cannot be stopped. Not even for a few minutes while
-rebooting...
-
--Oliver 
-
+> Jul 20 15:02:06 gw kernel: kernel BUG at page_alloc.c:220!
+> Jul 20 15:02:06 gw kernel: invalid operand: 0000
+> Jul 20 15:02:06 gw kernel: CPU:    1
+> Jul 20 15:02:06 gw kernel: EIP:    0010:[<c013147e>]    Not tainted
+> Jul 20 15:02:06 gw kernel: EFLAGS: 00010202
+> Jul 20 15:02:06 gw kernel: eax: 00000040   ebx: c149d2f8   ecx: 00001000
+> edx: 0001ad85
+> Jul 20 15:02:06 gw kernel: esi: c02968d4   edi: 0001effd   ebp: 0001effd
+> esp: dad8fe3c
+> Jul 20 15:02:06 gw kernel: ds: 0018   es: 0018   ss: 0018
+> Jul 20 15:02:06 gw kernel: Process run (pid: 30135, stackpage=dad8f000)
+> Jul 20 15:02:06 gw kernel: Stack: 00001000 00019d85 00000296 00000000
+> c02968d4 c0296a60 000001ff 00000000
+> Jul 20 15:02:06 gw kernel:        c149d63c c0131711 c02968d4 c0296a5c
+> 000001d2 dad8e000 00000000 00000000
+> Jul 20 15:02:06 gw kernel:        00000001 c149d63c c0126602 c0126c1d
+> dcdffd40 08074000 00000000 dbae76c0
+> Jul 20 15:02:06 gw kernel: Call Trace:    [<c0131711>] [<c0126602>]
+> [<c0126c1d>] [<c0126e0d>] [<c01211e6>]
+> Jul 20 15:02:06 gw kernel:   [<c0113a6a>] [<c01272ca>] [<c01138b0>]
+> [<c0108c0c>]
+> Jul 20 15:02:06 gw kernel:
+> Jul 20 15:02:06 gw kernel: Code: 0f 0b dc 00 e3 84 25 c0 8b 43 18 a9 80 00
+> 00 00 74 08 0f 0b
+> Jul 20 15:02:07 gw kernel:  kernel BUG at page_alloc.c:220!
+> Jul 20 15:02:07 gw kernel: invalid operand: 0000
+> Jul 20 15:02:07 gw kernel: CPU:    1
+> Jul 20 15:02:07 gw kernel: EIP:    0010:[<c013147e>]    Not tainted
+> Jul 20 15:02:07 gw kernel: EFLAGS: 00010202
+>
+> ..
+>
+> --
+> Eero
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

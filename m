@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTF0QEI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 12:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTF0QEG
+	id S264201AbTF0QPV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 12:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTF0QPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 12:04:06 -0400
-Received: from smtp1.clb.oleane.net ([213.56.31.17]:56780 "EHLO
-	smtp1.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S264465AbTF0QEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 12:04:01 -0400
-Subject: Re: networking bugs and bugme.osdl.org
-From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tCx0W1NhJ+S9BRP/ow/r"
-Organization: Adresse personelle
-Message-Id: <1056730694.572.22.camel@ulysse.olympe.o2t>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 27 Jun 2003 18:18:15 +0200
+	Fri, 27 Jun 2003 12:15:21 -0400
+Received: from snowman.net ([66.93.83.236]:41221 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S264201AbTF0QPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 12:15:17 -0400
+From: nick@snowman.net
+Date: Fri, 27 Jun 2003 12:28:50 -0400 (EDT)
+To: Larry McVoy <lm@bitmover.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+In-Reply-To: <20030627145727.GB18676@work.bitmover.com>
+Message-ID: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've always had very good luck with 3ware hardware.  As I understand it
+Serverworks officially says only to use their IDE for CDRom drives &
+similar.
+	Nick
 
---=-tCx0W1NhJ+S9BRP/ow/r
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Fri, 27 Jun 2003, Larry McVoy wrote:
 
-Hi,
-
-	Some people have already written part of what I'll say but I'll give a
-quick POV anyway.
-
-1. a single centralised database is *good*. This allows bugs to be
-reassigned at need without loosing history (eg networking does not work
-and investigation reveals its because of broken irq routing...). The
-easiest way right now to kill a report is to ask to move it to another
-mailing list.
-
-2. bugs are never lost/ignored. They might move from maintainer to
-maintainer but at least no one can feel "it involves x y z - I maintain
-x but y or z maintainer are better suited to handle it, let them do it"
-
-3. single human point-of-failure is a false problem - using a mailing
-list as default assignee can help spread the load (one could say this
-negates 2. but a small group of QA can insure no bug is left sleeping
-overlong)
-
-4. bugzilla is well known - it might have its warts but they are less
-annoying for the average user that to have to learn rt... interface.
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-tCx0W1NhJ+S9BRP/ow/r
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+/G5GI2bVKDsp8g0RAi1WAKDgBW1Xqbkt/kd2yUv29FYMbiwi5wCg3UDR
-4YEhAPX403ZEJS9xffutSaQ=
-=IEGa
------END PGP SIGNATURE-----
-
---=-tCx0W1NhJ+S9BRP/ow/r--
+> On Fri, Jun 27, 2003 at 11:53:20AM +0100, Alan Cox wrote:
+> > On Iau, 2003-06-26 at 22:21, Larry McVoy wrote:
+> > > > Eek. Serverworks IDE. I don't think they ever got that bit of their
+> > > > chipset right.
+> > > 
+> > > Hmm.  I could shove in a promise card and put at least the repos on that,
+> > > would that be better?
+> > 
+> > Serverworks OSB4 IDE had a few problems that we now deal with.
+> > Serverworks CSB5/CSB6 (Ie anything vaguely current) is great and hasn't
+> > had many problems at all.
+> > 
+> > There are some small updates from Duncan in the 2.4.21 tree but nothing
+> > "wrong" has been fixed for quite some time.
+> 
+> Is there a PCI EIDE card that you could suggest that would be ultra stable?
+> Or should I just toss this box and go build up another one?
+> -- 
+> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

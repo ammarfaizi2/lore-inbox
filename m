@@ -1,64 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbUKQUX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUKQU2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbUKQUX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 15:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKQUWQ
+	id S262406AbUKQU2s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbUKQU1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 15:22:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:1254 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262442AbUKQUVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:21:45 -0500
-Date: Wed, 17 Nov 2004 12:21:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: ak@suse.de, 76306.1226@compuserve.com, andrea@novell.com,
+	Wed, 17 Nov 2004 15:27:00 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:20182 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262406AbUKQUZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 15:25:46 -0500
+Date: Wed, 17 Nov 2004 15:25:26 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [patch] inotify: use permission not vfs_permission
+In-reply-to: <1100722624.4981.49.camel@betsy.boston.ximian.com>
+To: Robert Love <rml@novell.com>
+Cc: Christoph Hellwig <hch@infradead.org>, ttb@tentacle.dhs.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Dropped patch: mm/mempolicy.c:sp_lookup()
-Message-Id: <20041117122123.6162fa70.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0411171938210.1809-100000@localhost.localdomain>
-References: <20041117111336.608409ef.akpm@osdl.org>
-	<Pine.LNX.4.44.0411171938210.1809-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-id: <419BB3B6.40703@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+ <1100714560.6280.7.camel@betsy.boston.ximian.com>
+ <20041117190850.GA11682@infradead.org>
+ <1100718601.4981.2.camel@betsy.boston.ximian.com>
+ <20041117191803.GA11830@infradead.org>
+ <1100719052.4981.4.camel@betsy.boston.ximian.com> <419BAFE1.7030500@sun.com>
+ <1100722624.4981.49.camel@betsy.boston.ximian.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> On Wed, 17 Nov 2004, Andrew Morton wrote:
-> > Andi Kleen <ak@suse.de> wrote:
-> > > On Tue, Nov 16, 2004 at 10:54:09PM -0500, Chuck Ebbert wrote:
-> > > > On Wed, 17 Nov 2004 at 02:00:20 +0100, Andi Kleen wrote:
-> > > > > On Mon, Nov 15, 2004 at 11:15:51PM -0500, Chuck Ebbert wrote:
-> > > > > > Andrea posted this one-liner a while ago as part of a larger patch.  He said
-> > > > > > it fixed return of the wrong policy in some conditions.  Was this a valid fix?
-> > > > >
-> > > > > Yes it was.
-> > > > 
-> > > >   At least it wasn't dropped -- it's in -mm as part of
-> > > > fix-for-mpol-mm-corruption-on-tmpfs, though it's unrelated to tmpfs.
-> > > > (That patch contains three separate changes...)
-> > > > 
-> > > >   Should just this part, which changes '<' to '<=', be pushed upstream?
-> > > 
-> > > Yes. I'm sure Andrea will take care of that himself. 
-> > 
-> > That fix is contained within fix-for-mpol-mm-corruption-on-tmpfs.patch
-> > anyway, isn't it?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Robert Love wrote:
+> On Wed, 2004-11-17 at 15:09 -0500, Mike Waychison wrote:
 > 
-> Yes; and Chuck is right that it's three patches not one.
-
-Always a source of hassles, that.
-
-> I think at the least you should split it by file into mm/shmem.c
-> and mm/mempolicy.c parts, they're entirely independent.
 > 
-> I've seen Andi's ack on the '<=' fix,
-> I've not seen his ack on the mempolicy optimizations.
+>>use permission()
+> 
+> 
+> I appreciate the constructive comment.
+> 
+> John, attached patch replaces vfs_permission() with permission().
+> 
+> Thanks, Mike.
+> 
+> 	Robert Love
+> 
+> 
+> Use permission() instead of generic_permission().
+> 
+> Signed-Off-By: Robert Love <rml@novell.com>
+> 
+> diff -u linux/drivers/char/inotify.c linux/drivers/char/inotify.c
+> --- linux/drivers/char/inotify.c	2004-11-17 12:28:27.921136656 -0500
+> +++ linux/drivers/char/inotify.c	2004-11-17 12:28:27.921136656 -0500
+> @@ -166,7 +166,7 @@
+>  	inode = nd.dentry->d_inode;
+>  
+>  	/* you can only watch an inode if you have read permissions on it */
+> -	error = generic_permission(inode, MAY_READ, NULL);
+> +	error = permission(inode, MAY_READ);
+>  	if (error) {
+>  		inode = ERR_PTR(error);
+>  		goto release_and_out;
+> 
+> 
 
-Sigh.  OK, I'll split the patch into three and will feed the `<=' fix and
-the symlink fix into 2.6.10.  The mempolicy optimisation can await 2.6.11.
+permission() still takes 3 arguments though.  I think it is safe to pass
+NULL for the nameidata.
 
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBm7O2dQs4kOxk3/MRApYgAJ0c1XGD99i8Yir2LYTAtosJrOtvIACfT5BE
+C3T8DDq+L9NskVe1sI47IKM=
+=BZA8
+-----END PGP SIGNATURE-----

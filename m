@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbTJRNbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 09:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbTJRNbR
+	id S261585AbTJROTe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 10:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbTJROTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 09:31:17 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:7074 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261602AbTJRNbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 09:31:15 -0400
-Date: Sat, 18 Oct 2003 09:27:41 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Kristian H?gsberg <krh@bitplanet.net>
-Cc: Andrew Morton <akpm@osdl.org>, kakadu_croc@yahoo.com,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test7-mm1
-Message-ID: <20031018132741.GV866@phunnypharm.org>
-References: <20031015032215.58d832c1.akpm@osdl.org> <20031015123444.46223.qmail@web40904.mail.yahoo.com> <20031015102810.4017950f.akpm@osdl.org> <20031015174047.GE971@phunnypharm.org> <20031015105359.31c016c3.akpm@osdl.org> <20031016022547.GA615@phunnypharm.org> <3F91348B.5080102@bitplanet.net>
+	Sat, 18 Oct 2003 10:19:34 -0400
+Received: from 217-124-33-102.dialup.nuria.telefonica-data.net ([217.124.33.102]:17547
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S261585AbTJROTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 10:19:33 -0400
+Date: Sat, 18 Oct 2003 16:19:16 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Intel Pro/Wireless 2100
+Message-ID: <20031018141916.GA24711@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031018111122.GA29975@skynet.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F91348B.5080102@bitplanet.net>
+In-Reply-To: <20031018111122.GA29975@skynet.ie>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>nodemgr_add_host() looks like the hard one.  Maybe make hl_drivers_lock a
-> >>sleeping lock?
-> >
-> >
-> >Problem is, things like bus resets happen in interrupt, and while I can
-> >push off some things to occur in the nodemgr thread, a lot of other
-> >stuff has to happen in the interrupt, and they require the same lock.
-> 
-> I was looking briefly at this too, and as you say, the problem is that 
-> some things have to happen in interrupt, others happen in process 
-> context.  I've attached a patch that implements one way to fix it: 
-> double book-keeping - we maintain two lists of the highlevel drivers, 
-> one protected by a semaphore another protected by the rw spinlock. The 
-> lists are identical, except between the two list_add_tail()'s (and the 
-> two list_del()'s), but that doesn't allow any harmful race conditions.
-> 
-> A more radical approach would be to split the highlevel interface into 
-> two interfaces add_host() + remove_host() in a hpsb_host_notification 
-> interface and the rest in another interface.  The driver would have to 
-> register both interfaces if it needs them. Some drivers only use 
-> add_host() and remove_host(), so they could register only the 
-> hpsb_host_notification interface.
+On Saturday, 18 October 2003, at 12:11:22 +0100,
+John Madden wrote:
 
-Actually I'm leaning toward getting rid of our internal locking and
-reference counting and relying heavily on the device model's reference
-counting and such. Take some of the work load off of our code.
+> I've already posted his question to the linux-net mailing list but got
+> no reply, so apologies for anyone who sees it twice.
+> 
+It doesn't surprise me, as this subject has been discussed several times
+before. Check linux-kernel archives for detailed information, but in
+short, it seems Intel doesn't have plans to provide Linux drivers for
+this particular wireless adapter by now.
 
-Each host already has a device associated with it, so it just requires a
-revamp of some internals.
+Hope it helps.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test6-mm4-lirc)

@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310298AbSCBDdU>; Fri, 1 Mar 2002 22:33:20 -0500
+	id <S310299AbSCBDo7>; Fri, 1 Mar 2002 22:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310299AbSCBDdA>; Fri, 1 Mar 2002 22:33:00 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:4446 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S310298AbSCBDc6>; Fri, 1 Mar 2002 22:32:58 -0500
-Date: Sat, 2 Mar 2002 04:30:25 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre1aa1
-Message-ID: <20020302043025.R4431@inspiron.random>
-In-Reply-To: <20020302030615.G4431@inspiron.random> <E16gzG0-0005qt-00@the-village.bc.nu>
+	id <S310301AbSCBDou>; Fri, 1 Mar 2002 22:44:50 -0500
+Received: from crusoe.degler.net ([66.114.64.229]:40198 "EHLO degler.net")
+	by vger.kernel.org with ESMTP id <S310299AbSCBDod>;
+	Fri, 1 Mar 2002 22:44:33 -0500
+Date: Fri, 1 Mar 2002 22:43:52 -0500
+From: Stephen Degler <sdegler@degler.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Congrats Marcelo,
+Message-ID: <20020301224352.B6570@crusoe.degler.net>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <Pine.LNX.4.21.0202281849450.2391-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16gzG0-0005qt-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0202281849450.2391-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 28, 2002 at 06:52:25PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 02, 2002 at 02:28:20AM +0000, Alan Cox wrote:
-> > On a very lowmem machine the rmap design shouldn't really make a sensible
-> > difference, the smaller the amount of mapped VM, the less rmap can make
-> > differences, period.
+Hi,
+
+FYI crypto is included in (Net|Free|Open)BSD source releases and I don't
+believe it is an issue for them.
+
+skd
+
+On Thu, Feb 28, 2002 at 06:52:25PM -0300, Marcelo Tosatti wrote:
 > 
-> It makes a big big difference on a low memory box. Try running xfce on
-> a 24Mb box with the base 2.4.18, 2.4.18 + rmap12f and 2.4.18+aa. Thats
-> a case where aa definitely loses and without other I/O patches being
-
-hmm to fully evaluate this I'd need to have access to the exact two kernel
-source tarballs that you compared (a diff against a known vanilla kernel
-tree would be fine) and to know the way you measured the difference of
-them while xfce was running (nominal performance/responsiveness/whatever?).
-
-Andrea
+> On Tue, 26 Feb 2002, Dennis, Jim wrote:
+> 
+> > Marcelo,
+> > 
+> >  Contratulations on your first "official" kernel release.  It seems to
+> > have gone
+> >  well (except for some complaints on slashdot about -rc4 SPARC patches
+> > missing from
+> >  the patch, but apparently in the full tarball).
+> > 
+> >  Now I need to know about the status of several unofficial patches:
+> > 
+> > 	XFS
+> 
+> Want to see stable in -ac first.
+> 
+> > 	LVM
+> 
+> Its on 2.4 already.
+> 
+> > 	i2c
+> > 	Crypto
+> > 	FreeS/WAN KLIPS
+> > 	LIDS
+> 
+> I think its not possible to distribute crypto stuff in the stock kernel.
+> 
+> Am I wrong? 
+> 
+> > 	rmap
+> 
+> I need to see it running in production for more time.
+> 
+> >  Marcelo, there were some i2c updates included in the lmsensors package,
+> > have they
+> >  submitted those to you for integration into 2.4.19?
+> 
+> Nope. I could well integrate lm_sensors in the future.
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSJVObt>; Tue, 22 Oct 2002 10:31:49 -0400
+	id <S262681AbSJVO3i>; Tue, 22 Oct 2002 10:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSJVObs>; Tue, 22 Oct 2002 10:31:48 -0400
-Received: from adsl-66-125-254-44.dsl.sntc01.pacbell.net ([66.125.254.44]:38564
-	"EHLO fiorano.interclypse.net") by vger.kernel.org with ESMTP
-	id <S262859AbSJVObq>; Tue, 22 Oct 2002 10:31:46 -0400
-Subject: Re: 3COM 3C990 NIC
-From: Christopher Keller <cnkeller@interclypse.net>
-To: David Dillow <dillowd@y12.doe.gov>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DB4D9F8.F86ABA4@y12.doe.gov>
-References: <1035002976.3086.4.camel@maranello.interclypse.net> 
-	<3DB4D9F8.F86ABA4@y12.doe.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-UXm2KZIkvWcBLUSyMkOv"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 07:37:13 -0700
-Message-Id: <1035297441.21068.2.camel@c_keller.beamreachnetworks.com>
-Mime-Version: 1.0
+	id <S262721AbSJVO3i>; Tue, 22 Oct 2002 10:29:38 -0400
+Received: from 3E6B24DD.aarh.stofanet.dk ([62.107.36.221]:9891 "EHLO
+	snorke.stavtrup-st.dk") by vger.kernel.org with ESMTP
+	id <S262681AbSJVO3g> convert rfc822-to-8bit; Tue, 22 Oct 2002 10:29:36 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: David Nielsen <Lovechild@foolclan.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.44-mm(1|2) compile error
+Date: Tue, 22 Oct 2002 16:35:43 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210221635.43309.Lovechild@foolclan.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's a little error that's been bothering me in the lastest two -mm kernels.
 
---=-UXm2KZIkvWcBLUSyMkOv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+gcc -Wp,-MD,kernel/.softirq.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=athlon  -Iarch/i386/mach-generic 
+-fomit-frame-pointer -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=softirq   -c -o kernel/softirq.o kernel/softirq.c
+kernel/softirq.c:353: cpu_nfb causes a section type conflict
+make[2]: *** [kernel/softirq.o] Error 1
+make[1]: *** [kernel] Error 2
+make: *** [vmlinux] Error 2
 
-On Mon, 2002-10-21 at 21:54, David Dillow wrote:
+Regards
+David Nielsen
 
-> I have a completely reworked version that I expect to be able to release =
-RSN.
-> (I know, I know, some of you have heard that before... it just takes time=
- to
-> get people around here to sign off on these things. :/)
->=20
-> It will support zero-copy TCP, TCP segmentation offload, and when DaveM's
-> IPSEC is in, I'll be able to do hardware offload for that as well.
->=20
-> D
->
-
-I'd be interested in testing it if you are looking for feedback.
-
---Chris
-
---=20
-Homepage: http://interclypse.net
-Registered Linux user #215241 (http://counter.li.org/)
-
---=-UXm2KZIkvWcBLUSyMkOv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9tWKZR6ATq7AtBW4RAg/3AJ9cSK3PIgBjBqqRg/QAHpdlaDbcdACfYi9u
-UYmasgC1GDPLmNV5pqRLlLQ=
-=R3j6
------END PGP SIGNATURE-----
-
---=-UXm2KZIkvWcBLUSyMkOv--
-
+please CC me, I'm not on lkml.

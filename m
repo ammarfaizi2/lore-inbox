@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270550AbRHISvX>; Thu, 9 Aug 2001 14:51:23 -0400
+	id <S270549AbRHISyD>; Thu, 9 Aug 2001 14:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270549AbRHISvO>; Thu, 9 Aug 2001 14:51:14 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:26630 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270552AbRHISvH>; Thu, 9 Aug 2001 14:51:07 -0400
-Message-ID: <3B72DB90.5060502@zytor.com>
-Date: Thu, 09 Aug 2001 11:50:56 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en, sv
+	id <S270552AbRHISxx>; Thu, 9 Aug 2001 14:53:53 -0400
+Received: from [200.10.161.32] ([200.10.161.32]:54499 "EHLO lila.inti.gov.ar")
+	by vger.kernel.org with ESMTP id <S270549AbRHISxk>;
+	Thu, 9 Aug 2001 14:53:40 -0400
+Message-ID: <3B72DC28.D0ED99B2@inti.gov.ar>
+Date: Thu, 09 Aug 2001 15:53:28 -0300
+From: salvador <salvador@inti.gov.ar>
+Reply-To: salvador@inti.gov.ar
+Organization: INTI
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: es-AR, en, es
 MIME-Version: 1.0
-To: Tim Walberg <twalberg@mindspring.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Setting up MTRRs for 4096MB RAM
-In-Reply-To: <Pine.LNX.4.21.0108091306550.18150-100000@willow.commerce.uk.net> <9kuils$q67$1@cesium.transmeta.com> <20010809130641.B10425@mindspring.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [RFC] Get selection to buffer addition
+In-Reply-To: <3B66A90D.789A90A8@inti.gov.ar> <3B66DDEB.1EA1FEC@inti.gov.ar> <20000101012446.B27@(none)> <20010808222106.C22093@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Walberg wrote:
-> On 08/09/2001 10:53 -0700, H. Peter Anvin wrote:
-> 
->>>	
->>>	Intel MTRRs have to be a multiple of 2, so you'd need 2 MTRRs if you
->>>	wanted to cover 3 GB.  0x80000000 is a multiple of 2; 0xC0000000
->>>	isn't, and 0xFFFFFFFF definitely isn't, although 0x100000000 is.
->>>
-> 
-> Since when? Seems to me bit 0 of 0xC0000000 is 0, therefore it is
-> a multiple of two. Perhaps you meant "power of 2" (i.e. only one bit
-> set in the binary representation)?
-> 
+Russell King wrote:
 
-Yes, power of 2.
+> On Sat, Jan 01, 2000 at 01:24:46AM +0000, Pavel Machek wrote:
 
-	-hpa
+[snip]
+
+> > > What I'm looking for:
+> > >   I'm looking for comments and approval for a small addition to the console
+> > > driver (drivers/char/console.c).
+
+[snip]
+
+> > Looks good to me. Now, all I want is utility to share clipboard between
+> > X and text console...
+>
+> Umm, silly question, but why not put this stuff into something similar to
+> gpm, rather than have unswappable kernel memory sucked up just for cut and
+> paste (possibly very large cut and paste under X).
+
+According to James Simmons (he is maintaining a console development CVS tree in
+Sourge Force) the selection stuff will go away in 2.5.x series and the code will
+be moved to user space (gpm) as Russell sugest.
+As things will be changing in 2.5.x I don't think we should introduce my change.
+My idea was towards what Pavel says: adding some kind of clipboard facility, after
+all it was already there but not accesible. I sent this patch first and already
+designed the IOCTL calls for the reverse: set the selection buffer.
+When I started it I thinked this was part of gpm. I was very surprised when I
+discovered the kernel was doing the real job.
+As the 2.5.x code will remove it I don't know if we should add features that will
+go away. The only problem for me is how many time I'll must wait before 2.6.x is
+released and the users of my text editor will enjoy this facility (a clipboard
+between consoles and different applications).
+
+SET
+
+--
+Salvador Eduardo Tropea (SET). (Electronics Engineer)
+Visit my home page: http://welcome.to/SetSoft or
+http://www.geocities.com/SiliconValley/Vista/6552/
+Alternative e-mail: set-soft@bigfoot.com set@computer.org
+                    set@ieee.org
+Address: Curapaligue 2124, Caseros, 3 de Febrero
+Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
+
+
 

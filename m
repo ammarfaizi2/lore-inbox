@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbTJJKEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 06:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbTJJKEJ
+	id S262004AbTJJKOq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 06:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbTJJKOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 06:04:09 -0400
-Received: from gprs148-28.eurotel.cz ([160.218.148.28]:40320 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262770AbTJJKEH (ORCPT
+	Fri, 10 Oct 2003 06:14:46 -0400
+Received: from gprs148-28.eurotel.cz ([160.218.148.28]:43648 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262004AbTJJKOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 06:04:07 -0400
-Date: Fri, 10 Oct 2003 12:03:53 +0200
+	Fri, 10 Oct 2003 06:14:45 -0400
+Date: Fri, 10 Oct 2003 12:14:35 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: failing unregister_ioctl32 is pretty fatal condition -- fix up message level
-Message-ID: <20031010100353.GA5481@elf.ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: [pm] Better method of getting rid of signals
+Message-ID: <20031010101435.GA5536@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,23 +25,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-AFAICS, kernel is likely to crash if someone does said ioctl after
-failed unregister. Please apply,
-							Pavel
+recalc_sigpending() seems like better idea, since it does not have
+potential to kill some signal. Now with proper locking. Please apply,
 
-Index: linux/drivers/ieee1394/video1394.c
-===================================================================
---- linux.orig/drivers/ieee1394/video1394.c	2003-10-09 00:40:50.000000000 +0200
-+++ linux/drivers/ieee1394/video1394.c	2003-09-09 12:59:48.000000000 +0200
-@@ -1424,7 +1424,7 @@
- 	ret |= unregister_ioctl32_conversion(VIDEO1394_IOC32_TALK_WAIT_BUFFER);
- 	ret |= unregister_ioctl32_conversion(VIDEO1394_IOC32_LISTEN_POLL_BUFFER);
- 	if (ret)
--		PRINT_G(KERN_INFO, "Error unregistering ioctl32 translations");
-+		PRINT_G(KERN_CRIT, "Error unregistering ioctl32 translations");
- #endif
- 
- 	hpsb_unregister_protocol(&video1394_driver);
+								Pavel
+
+--- tmp/linux/kernel/power/process.c	2003-08-27 12:00:53.000000000 +0200
++++ linux/kernel/power/process.c	2003-10-09 11:21:14.000000000 +0200
+@@ -49,10 +49,11 @@
+ 	pr_debug("%s entered refrigerator\n", current->comm);
+ 	printk("=");
+ 	current->flags &= ~PF_FREEZE;
+-	if (flag)
+-		flush_signals(current); /* We have signaled a kernel thread, which isn't normal behaviour
+-					   and that may lead to 100%CPU sucking because those threads
+-					   just don't manage signals. */
++
++	spin_lock_irq(&current->sighand->siglock);
++	recalc_sigpending(); /* We sent fake signal, clean it up */
++	spin_unlock_irq(&current->sighand->siglock);
++
+ 	current->flags |= PF_FROZEN;
+ 	while (current->flags & PF_FROZEN)
+ 		schedule();
 
 -- 
 When do you have a heart between your knees?

@@ -1,105 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272128AbTGYOdF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 10:33:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272132AbTGYOdF
+	id S272129AbTGYOdc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 10:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272131AbTGYOdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 10:33:05 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:59777 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S272128AbTGYOc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 10:32:59 -0400
-Date: Fri, 25 Jul 2003 15:58:10 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307251458.h6PEwAMD001065@81-2-122-30.bradfords.org.uk>
-To: ecki-lkm@lina.inka.de, Fabian.Frederick@prov-liege.be,
-       rpjday@mindspring.com
-Subject: RE: why the current kernel config menu layout is a mess
-Cc: linux-kernel@vger.kernel.org
+	Fri, 25 Jul 2003 10:33:32 -0400
+Received: from monarch.prairienet.org ([192.17.3.5]:32743 "HELO
+	mail.prairienet.org") by vger.kernel.org with SMTP id S272129AbTGYOd3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 10:33:29 -0400
+Message-ID: <3F2142CE.4090608@prairienet.org>
+Date: Fri, 25 Jul 2003 10:46:38 -0400
+From: John Belmonte <jvb@prairienet.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Ben Collins" <bcollins@debian.org>, "Linus Torvalds" <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       "Michael Wawrzyniak" <gan@planetlaz.com>
+Subject: [PATCH] bad strlcpy conversion breaks toshiba_acpi
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> from my poking around in the whole Kconfig structure, it seems that the
-> menu structure is tied awfully closely to the underlying directory
-> structure.  this would make it overly difficult to shift parts of
-> the config menu around without dragging the corresponding directories
-> around as well.
-> <Sources are located regarding programming hierarchy _but_
-> <relevant Kconfig can tune situation using 'depends' feature
-> <at ease so that menuconfig, kernelserver ... have an optimized view
-> <over kernel tree.OTOH a major problem resides in lack of functionnalities
-> <especially when you don't know where to look at (ie.alphabetical order,
-> <search engine....I'm adding those functions to kernelServer (wconf) ASAP.
+Please revert the following item from Ben Collins' "drivers/* strlcpy 
+conversions" patch dated 2003-May-26.
 
-KernelServer is cool, but it would be even nicer if it had a gopher
-interface, because then you could make interfaces to very simple
-devices indeed that can't handle HMTL, such as wristwatches, so that
-you could, in theory, administer your boxes from anywhere in the
-world.
+The strlcpy function requires a zero-terminated string, which is not a 
+valid assumption for the code in question.  I suggest that Ben review 
+all such modifications he made to the kernel for similar errors.  It's 
+quite annoying to have someone add bugs to your driver while you're not 
+looking.  Either notify the maintainer of your patch or don't make mistakes.
 
-Anyway, going back to the re-design of the kernel configurator, maybe
-we have simply reached the practical limit of the simple menu based
-system?
+Another gripe I have is that bitkeeper user "bcollins" does not have a 
+valid email address.
 
-There are now so many options that you either have a lot of options
-under vague headings, (which I prefer because I think that once you're
-used to it, it's quicker and simpler), or, (in my opinion), excessive
-levels of abstraction, and options deep within submenus, like:
-
-Buses -> Internal -> Legacy -> ISA
-
-There are also complications with taking configurations from old
-kernel versions, and using them with later kernels - a 2.4 config
-typically won't work simply by using make oldconfig on a 2.6 tree.
-
-Maybe a completely new, out of kernel tree configurator would be worth
-thinking about, leaving the in-kernel configurator as a legacy option.
-I know the config system underwent a major overhaul during 2.5, but I
-think we could go even further.
-
-Ultimately, any configurator generates a plain text .config file with
-various options set.  There is no reason why we couldn't have a
-modular system:
+-John Belmonte
 
 
-----------------------    ----------------
-| Kernel .config     |    | Out of tree  |    ----------------
-| options description|--->| configurator |--->| .config file |
-| file               |    |              |    ----------------
-----------------------    ----------------
-                          / /   |  |   \ \
-                         / /    |  |    \ \
-                        ^ v     ^  v     ^ v
-                       / /      |  |      \ \
-                      / /       |  |       \ \
-        ----------------  ----------------  ----------------
-        |   MODULE 1   |  |   MODULE 2   |  |   MODULE 3   | 
-        ----------------  ----------------  ----------------
+Item to be REVERTED:
 
-The out of tree configurator on it's own would simply display all the
-options in the kernel .config options description file, with their
-descriptions, and allow them to be set to specific values.  The
-display could be colour coded for yes/no values.
+--- 1.9/drivers/acpi/toshiba_acpi.c	Mon May 19 10:57:16 2003
++++ 1.10/drivers/acpi/toshiba_acpi.c	Sun May 25 17:00:00 2003
+@@ -108,8 +108,7 @@
+  	int result;
+  	char* str2 = kmalloc(n + 1, GFP_KERNEL);
+  	if (str2 == 0) return 0;
+-	strncpy(str2, str, n);
+-	str2[n] = 0;
++	strlcpy(str2, str, n);
+  	va_start(args, format);
+  	result = vsscanf(str2, format, args);
+  	va_end(args);
 
-The modules could allow things like:
 
-* Creating a config file using an existing config file - similar to
-make oldconfig
+References:
 
-* Turning groups of options on and off - similar to the existing make
-menuconfig, but more flexible - you could just load a 'bus options'
-module, which would provide verbose prompting for bus options, allow
-the turning on and off of groups of .config options, and hide advanced
-options, but which would leave the raw .config options editable for
-everything that wasn't to do with 'bus options'.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/0267.html
+http://linux-acpi.bkbits.net:8080/linux-acpi/diffs/drivers/acpi/toshiba_acpi.c@1.10?nav=index.html|src/|src/drivers|src/drivers/acpi|hist/drivers/acpi/toshiba_acpi.c
 
-* Creating a minimal .config file from the output of boottime dmesg
-output - similar to the adjustkernel perl script that works with
-NetBSD:
 
-http://www.feyrer.de/Misc/adjustkernel
+-- 
+http:// if   l .o  /
 
-Distributions could create their own modules to customise the
-configurator however they wanted to.
-
-John.

@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310426AbSCGRbE>; Thu, 7 Mar 2002 12:31:04 -0500
+	id <S310431AbSCGRce>; Thu, 7 Mar 2002 12:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310425AbSCGRa7>; Thu, 7 Mar 2002 12:30:59 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:32781 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S310426AbSCGRap>;
-	Thu, 7 Mar 2002 12:30:45 -0500
-Date: Thu, 7 Mar 2002 12:26:40 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020307122640.A813@mark.mielke.cc>
-In-Reply-To: <Pine.GSO.4.21.0203061424190.14695-100000@vervain.sonytel.be> <Pine.LNX.4.21.0203061525160.6899-100000@serv> <20020306090011.G15303@work.bitmover.com> <a685rc$v4$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <a685rc$v4$1@forge.intermeta.de>; from hps@intermeta.de on Thu, Mar 07, 2002 at 04:51:56PM +0000
+	id <S310430AbSCGRc0>; Thu, 7 Mar 2002 12:32:26 -0500
+Received: from gra-lx1.iram.es ([150.214.224.41]:34564 "EHLO gra-lx1.iram.es")
+	by vger.kernel.org with ESMTP id <S310425AbSCGRcJ>;
+	Thu, 7 Mar 2002 12:32:09 -0500
+Date: Thu, 7 Mar 2002 18:31:49 +0100 (CET)
+From: Gabriel Paubert <paubert@iram.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: FPU precision & signal handlers (bug?)
+In-Reply-To: <E16iOx5-0004oK-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0203071820450.17751-100000@gra-lx1.iram.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 04:51:56PM +0000, Henning P. Schmiedehausen wrote:
-> Larry McVoy <lm@bitmover.com> writes:
-> >	# extract all the patches from 2.5.0 onward.
-> >	bk prs -hrv2.5.0.. |  while read x
-> >	do	bk export -tpatch -r$i > ~ftp/patches/patch-$i
-> >	done
-> [henning@henning henning]$ bk prs -hrv2.5.0.. |  while read x
-> while: Expression Syntax.
-> You obviously just _underlined_ the point, Larry.
-> ...
-> It's tcsh; before you ask.
 
-If you know that the above works only with [zk(ba)]sh, I don't know
-what point you would be making by stating that it doesn't work with
-tcsh. Put it in a script, and put #!/bin/bash on the top. Now wasn't
-that fun?
 
-mark
+On 6 Mar 2002, Alan Cox wrote:
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+> > > Think about MMX and hopefully it makes sense then.
+> >
+> > AFAIR MMX only mucks with tag and status words (and the exponent fields of
+> > the stack elements), but never depends on or modifies the control word.
+>
+> Right but you don't want to end up in MMX mode by suprise in a
+> signal handler in library code. By the same argument you don't want to end
+> up in a weird maths more.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+I agree with the second part, but actually what you want is to start with
+an empty stack. Whether the contents are FP or MMX is irrelevant.
+Actually the support of applications using MMX did not require any change
+to the kernel (Intel carefully designed it that way).
 
-                           http://mark.mielke.cc/
+> I don't think its a bug. I think its correct (but seriously underdocumented)
+> behaviour
+
+Indeed.
+
+	Gabriel.
 

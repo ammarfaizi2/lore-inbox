@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263325AbUEGIoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263366AbUEGInR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263325AbUEGIoL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 04:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEGIng
+	id S263366AbUEGInR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 04:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUEGImn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 04:43:36 -0400
-Received: from S01060050bfec5d4e.cg.shawcable.net ([68.144.57.107]:10368 "EHLO
-	eviltron.local.lan") by vger.kernel.org with ESMTP id S263325AbUEGImy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 04:42:54 -0400
-Date: Fri, 7 May 2004 02:42:42 -0600
-From: Steve Young <sdyoung@vt220.org>
+	Fri, 7 May 2004 04:42:43 -0400
+Received: from madrid10.amenworld.com ([62.193.203.32]:16144 "EHLO
+	madrid10.amenworld.com") by vger.kernel.org with ESMTP
+	id S263325AbUEGIiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 04:38:09 -0400
+Date: Thu, 6 May 2004 23:34:50 +0200
+From: DervishD <raul@pleyades.net>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH] change pts allocation behaviour in
-Message-ID: <20040507084242.GA11389@eviltron.local.lan>
-Mail-Followup-To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: events kthread gone crazy
+Message-ID: <20040506213450.GA11761@DervishD>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040506211934.GA1452@fargo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040506211934.GA1452@fargo>
+User-Agent: Mutt/1.4.2.1i
+Organization: Pleyades
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+    Hi David :)
 
-  Here is a patch to change the way ptses are allocated.  It applies against
-2.6.6-rc3.  Basically it tries to humour old glibc by always obtaining a pts
-in the range of 0-255 first.  However, if that fails, then it will search the
-higher ranges.  The net effect should be that old glibc users won't notice
-problems until they try and get more than 256 concurrent ptses (which would
-break under the first-fit scheme anyway), yet we reduce the average number of 
-iterations required to find a new pts when a lot are in use.  In the very
-worst case of only one pts available, this still performs no worse than
-the either the old or more recent allocation schemes.
+ * Davilín <david@pleyades.net> dixit:
+> I'm running kernel 2.6.5. I had running aMule and decided to preview
+> a file, using xine. Then, suddenly, xine opened but hanged and the
+> machine started to feel unresponsive and sluggish. I guessed that
+> the xine process was in D state, so i did a 'ps' and found this mess:
+[...]
+> 11569 ?        SW<    0:00  \_ [events/0]
+> 11570 ?        S<     0:00  |   \_ /sbin/modprobe -q -- char_major_116_0
+> 11571 ?        D<     0:00  |       \_ /usr/sbin/alsactl restore
+[Ad infinitum]
 
-  Thanks,
-  Steve.
+    It seems that ALSA is screwing something. Maybe you need to
+recompile ALSA binaries or something like that :???
 
-diff -ur linux-2.6.5-virgin/drivers/char/tty_io.c linux-2.6.5-deflowered/drivers/char/tty_io.c
---- linux-2.6.5-virgin/drivers/char/tty_io.c	2004-05-07 02:07:45.486690184 -0600
-+++ linux-2.6.5-deflowered/drivers/char/tty_io.c	2004-05-07 01:57:19.447753528 -0600
-@@ -1362,14 +1362,24 @@
- #ifdef CONFIG_UNIX98_PTYS
- 	if (device == MKDEV(TTYAUX_MAJOR,2)) {
- 		/* find a device that is not in use. */
--		static int next_ptmx_dev = 0;
-+		static int next_ptmx_dev = MAX_PREFERRED_PTY;
- 		retval = -1;
- 		driver = ptm_driver;
-+		/* first, try for a pty < 256 for old glibc that doesn't support
-+		 * larger pts numbers */
-+		for (index = 0; index < MAX_PREFERRED_PTY && driver->refcount < pty_limit; index++) {
-+			if (!init_dev(driver, index, &tty)) 
-+				goto ptmx_found;
-+		}
-+		/* nothing below MAX_PREFERRED_PTY, try something higher */
- 		while (driver->refcount < pty_limit) {
- 			index = next_ptmx_dev;
- 			next_ptmx_dev = (next_ptmx_dev+1) % driver->num;
--			if (!init_dev(driver, index, &tty))
-+			if (!next_ptmx_dev) 
-+				next_ptmx_dev = MAX_PREFERRED_PTY;
-+			if (!init_dev(driver, index, &tty)) {
- 				goto ptmx_found; /* ok! */
-+			}
- 		}
- 		return -EIO; /* no free ptys */
- 	ptmx_found:
-diff -ur linux-2.6.5-virgin/include/linux/tty.h linux-2.6.5-deflowered/include/linux/tty.h
---- linux-2.6.5-virgin/include/linux/tty.h	2004-05-07 02:07:47.386401384 -0600
-+++ linux-2.6.5-deflowered/include/linux/tty.h	2004-05-07 01:43:55.000000000 -0600
-@@ -35,6 +35,7 @@
- #define NR_UNIX98_PTY_DEFAULT	4096      /* Default maximum for Unix98 ptys */
- #define NR_UNIX98_PTY_MAX	(1 << MINORBITS) /* Absolute limit */
- #define NR_LDISCS		16
-+#define MAX_PREFERRED_PTY	256			/* we prefer to allocate ptys beneath this number */
- 
- /*
-  * These are set up by the setup-routine at boot-time:
+>    85 tty3     S      0:00 into           
+
+    What the hell is that crap? X''DDDD
+
+> 11560 tty1     D      0:01 xine /home/huma/.aMule/Temp/006.part
+
+    Have you seen where xine is disk sleeping. It should not matter
+to the sound problem, but...
+
+> Any ideas about the cause of this problem?
+
+    Apart from the ALSA cause, I don't have the slightest idea :(
+    Good luck.
+
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262087AbTCHR3k>; Sat, 8 Mar 2003 12:29:40 -0500
+	id <S262092AbTCHRdg>; Sat, 8 Mar 2003 12:33:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262092AbTCHR3k>; Sat, 8 Mar 2003 12:29:40 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63154
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262087AbTCHR3j>; Sat, 8 Mar 2003 12:29:39 -0500
-Subject: Re: hm, page 000f0000 reserved twice ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030308181817.31247f93.skraw@ithnet.com>
-References: <20030308181817.31247f93.skraw@ithnet.com>
-Content-Type: text/plain
+	id <S262096AbTCHRdg>; Sat, 8 Mar 2003 12:33:36 -0500
+Received: from pop.gmx.net ([213.165.64.20]:12372 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262092AbTCHRdf>;
+	Sat, 8 Mar 2003 12:33:35 -0500
+Message-ID: <3E6A2A28.9070504@gmx.net>
+Date: Sat, 08 Mar 2003 18:36:40 +0100
+From: Christian <evilninja@gmx.net>
+Reply-To: evilninja@gmx.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030210
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_ALPHA_SRM not compiling on 2.5
+References: <3E6538EF.3060602@gmx.net> <20030305005309.GM27794@lug-owl.de> <3E692DEB.2030207@gmx.net> <20030308175301.A736@localhost.park.msu.ru>
+In-Reply-To: <20030308175301.A736@localhost.park.msu.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047149182.26644.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 08 Mar 2003 18:46:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-03-08 at 17:18, Stephan von Krawczynski wrote:
-> Hello all,
+Ivan Kokshaysky schrieb:
+> On Sat, Mar 08, 2003 at 12:40:27AM +0100, Christian wrote:
 > 
-> Can any kind soul please tell me what "hm, page xxxx reserved twice" means? And
-> additionally: is there any magic involved in getting a serial console working?
-> There seems no way to make it work on below system. All "echo >/dev/ttyS0 test"
-> do work, but no console output whatsoever visible...
+>>Linux version 2.5.63 #7 Wed Mar 05 [...]
+>>
+>>halt code = 7
+>>machine check while inPAL mode
+>>PC = 14a0c
+>>
+> 
+> This has been fixed in 2.5.64.
+> 
 
-The page reserved twice is just a warning, in this case its harmless and really
-its code that wants tidying up
+oh, thanks, i'll give it a try.
+since the problem resists over some versions of 2.5.5x up to 2.5.63 i 
+thought it has not been noticed.
+
+i'll post my results,
+Christian.
+
+-- 
+c_kujau@web.de
 

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbTEIGrv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 02:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTEIGrv
+	id S262310AbTEIGmg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 02:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTEIGmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 02:47:51 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26325 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262312AbTEIGru (ORCPT
+	Fri, 9 May 2003 02:42:36 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:33706 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id S262310AbTEIGmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 02:47:50 -0400
-Date: Fri, 9 May 2003 09:00:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@rustcorp.com.au, laforge@netfilter.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: kernel BUG at net/core/skbuff.c:1028!
-Message-ID: <20030509070007.GU20941@suse.de>
-References: <20030507.042003.26512841.davem@redhat.com> <20030508012101.36E012C01B@lists.samba.org> <20030508.102010.90804594.davem@redhat.com>
+	Fri, 9 May 2003 02:42:33 -0400
+Date: Fri, 9 May 2003 08:55:10 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc2
+Message-ID: <20030509065510.GA21381@ulima.unil.ch>
+References: <fa.m0c9ksl.1ijqph1@ifi.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030508.102010.90804594.davem@redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fa.m0c9ksl.1ijqph1@ifi.uio.no>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08 2003, David S. Miller wrote:
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Thu, 08 May 2003 11:20:27 +1000
+In fa.linux.kernel, you wrote:
 > 
->    Yep, culprit is obvious stupid bug.  This indicates a serious lack of
->    testing on my part 8(
->    
->    Jens, does this help?
+> Hi,
 > 
-> There were two cases of the same bug, you fixed only one
-> instance :-)
-> 
-> Jens, try this patch instead.
+> Here goes release canditate 2. The aic7xxx problems should be fixed.
 
-I went to apply it to bk-current as of this morning, but I see it's
-already in. And bk-current does indeed boot and (appears to :) work,
-thanks Dave!
+Hello,
 
--- 
-Jens Axboe
+does it "only" correct the aic7xxx probolems, or does it also include
+some other changes?
+My main interest is the XFS merge that is in 2.4.21-rc1-ac3 ;-)
 
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

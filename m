@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281550AbRKMI0W>; Tue, 13 Nov 2001 03:26:22 -0500
+	id <S281555AbRKMJDw>; Tue, 13 Nov 2001 04:03:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281551AbRKMI0M>; Tue, 13 Nov 2001 03:26:12 -0500
-Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:24988
-	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
-	id <S281550AbRKMI0B>; Tue, 13 Nov 2001 03:26:01 -0500
-From: arjan@fenrus.demon.nl
-To: Jordan <ledzep37@home.com>, Jordan Breeding <jordan.breeding@inet.com>
-Subject: Re: Weird boot messages using acpismp=force with 2.4.15-pre4
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BF08B26.D31563C4@home.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
-Message-Id: <E163Yrv-0004Qa-00@fenrus.demon.nl>
-Date: Tue, 13 Nov 2001 08:24:31 +0000
+	id <S281556AbRKMJDk>; Tue, 13 Nov 2001 04:03:40 -0500
+Received: from 75.ppp1-8.hob.worldonline.dk ([213.237.85.75]:53378 "EHLO
+	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S281555AbRKMJDc>; Tue, 13 Nov 2001 04:03:32 -0500
+Date: Tue, 13 Nov 2001 10:02:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Christoph Hellwig <hch@caldera.de>, Mark Peloquin <peloquin@us.ibm.com>,
+        dalecki@evision.ag, linux-kernel@vger.kernel.org,
+        evms-devel@lists.sourceforge.net
+Subject: Re: [Evms-devel] Re: Re: Hardsector size support in 2.4 and 2.5
+Message-ID: <20011113100230.A15827@suse.de>
+In-Reply-To: <OF9F38B076.0F9781F3-ON85256B02.006D5DFE@raleigh.ibm.com> <20011112212735.A28486@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011112212735.A28486@caldera.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BF08B26.D31563C4@home.com> you wrote:
-> Around a week ago I decided to test the acpismp=force boot time option
-> of the current -ac kernels, it worked great and I got the following
-> messages upon boot:
+On Mon, Nov 12 2001, Christoph Hellwig wrote:
+> On Mon, Nov 12, 2001 at 02:05:19PM -0600, Mark Peloquin wrote:
+> > So any block device, can always expect to receive buffer heads
+> > whose b_rsector value represents the offset from the beginning
+> > of that device in 512 byte multiples? And this will continue
+> > to hold true in 2.5 as well?
+> 
+> There is a good chance that no 2.5 block driver will ever see a buffer_head,
+> take a look at http://www.kernel.org/pub/linux/kernel/people/axboe/v2.5/ for
+> details.
 
-> Nov 12 20:15:14 ledzep kernel: init.c:147: bad pte 3fff3163.
+To expand on the specific point -- in 2.5, what will change is that
+b_rsector (or equiv field, bi_sector in bio) will be offset from the
+beginning of the disk, not the beginning of the partition. This moves
+toe partion remaps out of the driver itself.
 
-Yes known problem; I'm figuring out how to fix this properly instead of with
-the hack that is currently used...
+-- 
+Jens Axboe
+

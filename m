@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132046AbRDJUHY>; Tue, 10 Apr 2001 16:07:24 -0400
+	id <S132118AbRDJUJO>; Tue, 10 Apr 2001 16:09:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132056AbRDJUHK>; Tue, 10 Apr 2001 16:07:10 -0400
-Received: from ns.suse.de ([213.95.15.193]:39177 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132046AbRDJUFx>;
-	Tue, 10 Apr 2001 16:05:53 -0400
-Date: Tue, 10 Apr 2001 22:05:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Howells <dhowells@cambridge.redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix
-Message-ID: <20010410220551.A24251@gruyere.muc.suse.de>
-In-Reply-To: <11851.986925762@warthog.cambridge.redhat.com> <Pine.LNX.4.31.0104101229150.13071-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0104101229150.13071-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Apr 10, 2001 at 12:42:07PM -0700
+	id <S132056AbRDJUJF>; Tue, 10 Apr 2001 16:09:05 -0400
+Received: from [212.18.191.177] ([212.18.191.177]:18693 "EHLO smtp.netc.pt")
+	by vger.kernel.org with ESMTP id <S132118AbRDJUIt>;
+	Tue, 10 Apr 2001 16:08:49 -0400
+Message-ID: <002601c0c1fa$0da9f200$1d081ed5@fabi>
+From: "Andre Manuel Rocha Lourenco" <andyrock50@netc.pt>
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel 2.4.3
+Date: Tue, 10 Apr 2001 21:08:43 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 10, 2001 at 12:42:07PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 10 Apr 2001, David Howells wrote:
-> >
-> > Here's a patch that fixes RW semaphores on the i386 architecture. It is very
-> > simple in the way it works.
-> 
-> XADD only works on Pentium+.
+ Hi!
+I downloaded the patch to kernel 2.4.3 but it just doesn't compile on my
+system! I have been using kernel 2.4 since 2.4.0-test8 without problems...
+Here are the last lines of the compilation output: (in Portuguese)
 
-My Intel manual says it 486+:
 
-``
-XADD-Exchange and Add
-[...]
-Intel Architecture Compatibility
-Intel Architecture processors earlier than the Intel486TM processor do not recognize this instruc-
-tion. If this instruction is used, you should provide an equivalent code sequence that runs on
-earlier processors.
-''
+make[2]: Saindo do diretório `/usr/src/linux/arch/i386/lib'
+make[1]: Saindo do diretório `/usr/src/linux/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
+fs/fs.o ipc/ipc.o \
+        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o  drivers/char/agp/agp.o
+drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/ide/idedriver.o
+drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
+drivers/mtd/mtdlink.o drivers/pnp/pnp.o drivers/video/video.o
+drivers/usb/usbdrv.o drivers/input/inputdrv.o drivers/i2o/i2o.o
+drivers/i2c/i2c.o drivers/md/mddev.o \
+        net/network.o \
+        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
+/usr/src/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+net/network.o(.data+0x2d84): undefined reference to
+`sysctl_ipx_pprop_broadcasting'
+make: ** [vmlinux] Erro 1
+[root@localhost linux]#
 
-I guess 386 could live with an exception handler that emulates it.
 
-(BTW an generic exception handler for CMPXCHG would also be very useful
-for glibc -- currently it has special checking code for 386 in its mutexes) 
-The 386 are so slow that nobody would probably notice a bit more slowness
-by a few exceptions.
 
--Andi
+It you reply to this message please reply also to andrelourenco@yahoo.com ,
+'cause I am not receiving the kernel mailing list. Thanks,
+
+Andre Lourenco
+

@@ -1,31 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129422AbQKERMB>; Sun, 5 Nov 2000 12:12:01 -0500
+	id <S129228AbQKEROV>; Sun, 5 Nov 2000 12:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129596AbQKERLw>; Sun, 5 Nov 2000 12:11:52 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:60685
+	id <S129260AbQKEROL>; Sun, 5 Nov 2000 12:14:11 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:61453
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129422AbQKERLd>; Sun, 5 Nov 2000 12:11:33 -0500
-Date: Sun, 5 Nov 2000 09:11:20 -0800 (PST)
+	id <S129228AbQKEROC>; Sun, 5 Nov 2000 12:14:02 -0500
+Date: Sun, 5 Nov 2000 09:13:36 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Rob Andrews <newsgate@impure.org.uk>
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE (hpt370) and DMA mode switching (again)...
-In-Reply-To: <slrn90arhj.ne3.rob@deviant.impure.org.uk>
-Message-ID: <Pine.LNX.4.10.10011050909340.12463-100000@master.linux-ide.org>
+Subject: Re: 440FX and DMA on 2.2.18pre18
+In-Reply-To: <20001105184736.J1248@niksula.cs.hut.fi>
+Message-ID: <Pine.LNX.4.10.10011050912140.12463-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Rob,
+It looks like you have a P6DNE and yes it doesn, but the patches are
+required to downgrade the drive to the host limits.
 
-Not to worry I will make a permanent fix to require Chipset code for
-funtionallity; therefore, the confusion of modes will be completely
-removed.
+Cheers,
 
-Regards,
+
+On Sun, 5 Nov 2000, Ville Herva wrote:
+
+> I have a dual Ppro200 with 440FX chipset and an IBM 30GB ide disk. The
+> kernel is 2.2.18pre18 with no additional patches. DMA appears not to work
+> with this combination.
+> 
+> lspci:
+> 
+> 00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC [Natoma] (rev 02)
+> 00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+> 00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
+> 00:07.2 USB Controller: Intel Corporation 82371SB PIIX3 USB [Natoma/Triton II] (rev 01)
+> 00:0c.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 02)
+> 00:0d.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II]
+> 00:0e.0 SCSI storage controller: Adaptec AHA-294x / AIC-7871
+> 
+> hdparm -i /dev/hda:
+> 
+> /dev/hda:
+> 
+>  Model=IBM-DTLA-305030, FwRev=TW3OA60A, SerialNo=YG0YG017000
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+>  BuffType=DualPortCache, BuffSize=380kB, MaxMultSect=16, MultSect=off
+>  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=60036480
+>  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes: pio0 pio1 pio2 pio3 pio4 
+>  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
+> 
+> hdparm /dev/hda:
+> 
+> /dev/hda:
+>  multcount    =  0 (off)
+>  I/O support  =  0 (default 16-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  0 (off)
+>  keepsettings =  0 (off)
+>  nowerr       =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    =  8 (on)
+>  geometry     = 3737/255/63, sectors = 60036480, start = 0
+> 
+> If I do hdparm -d1; hdparm -tT /dev/hda
+> 
+> hda: timeout waiting for DMA
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> VFS: Disk change detected on device ide0(3,64)
+> hda: timeout waiting for DMA
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: timeout waiting for DMA
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: timeout waiting for DMA
+> hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+> hda: DMA disabled
+> ide0: reset: success
+> 
+> On another box with a single PPro200 and 440FX chipset, DMA works just
+> fine. That box also has IBM disk (30GB) but runs 2.0.37.
+> 
+> Should I try the IDE-patch or suspect the cable? Can anybody confirm that
+> DMA works with 440FX and a recent 2.2.x?
+> 
+> 
+> -- v --
+> 
+> v@iki.fi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
 Andre Hedrick
 CTO Timpanogas Research Group

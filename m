@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbSLQSui>; Tue, 17 Dec 2002 13:50:38 -0500
+	id <S265285AbSLQS4R>; Tue, 17 Dec 2002 13:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbSLQSui>; Tue, 17 Dec 2002 13:50:38 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:55476
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S265508AbSLQSuh>; Tue, 17 Dec 2002 13:50:37 -0500
-Message-ID: <3DFF7399.40708@redhat.com>
-Date: Tue, 17 Dec 2002 10:57:29 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hpa@transmeta.com
+	id <S265361AbSLQS4R>; Tue, 17 Dec 2002 13:56:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16132 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265285AbSLQS4Q>; Tue, 17 Dec 2002 13:56:16 -0500
+Date: Tue, 17 Dec 2002 11:04:51 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>, Hugh Dickins <hugh@veritas.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
 Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212170948380.2702-100000@home.transmeta.com> 	<3DFF6D4B.3060107@redhat.com> <1040153186.20780.11.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1040153186.20780.11.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3DFF6D4B.3060107@redhat.com>
+Message-ID: <Pine.LNX.4.44.0212171050470.1095-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
 
-> getppid changes and so I think has to go to kernel (unless we go around
-> patching user pages on process exit [ick]).
 
-But this is exactly what I expect to happen.  If you want to implement
-gettimeofday() at user-level you need to modify the page.  Some of the
-information the kernel has to keep for the thread group can be stored in
-this place and eventually be used by some uerlevel code  executed by
-jumping to 0xfffff000 or whatever the address is.
+On Tue, 17 Dec 2002, Ulrich Drepper wrote:
+>
+> But it will eliminate the problem.  Remember: the x86 (unlike x86-64)
+> has no PC-relative data addressing mode.  I.e., in a DSO to find a
+> memory location with an address I need a base register which isn't
+> available anymore at the time the call is made.
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+Actually, I see a more serious problem with the current "syscall"
+interface: it doesn't allow six-argument system calls AT ALL, since it
+needed %ebp to keep the stack pointer.
+
+So a six-argument system call _has_ to use "int $0x80" anyway, which to
+some degree simplifies your problem: you can only use the indirect call
+approach for things where %ebp will be free for use anyway.
+
+So then you can use %ebp as the indirection, and the code will look
+something like
+
+games, since that is guaranteed not to be ever used by a system call (it
+wasn't guaranteed before, but since the sysenter really needs something to
+hold the stack pointer I made %ebp do that, so there's no way we can ever
+use %ebp for system calls on x86).
+
+So you _can_ do something like this:
+
+	syscall_with_5_args:
+		pushl %ebx
+		pushl %esi
+		pushl %edi
+		pushl %ebp
+		movl syscall_ptr + GOT,%ebp	// uses DSO ptr in %ebx or whatever
+		movl $__NR_xxxxxx,%eax
+		movl 20(%esp),%ebx
+		movl 24(%esp),%ecx
+		movl 28(%esp),%edx
+		movl 32(%esp),%esi
+		movl 36(%esp),%edi
+		call *%ebp
+		.. test for errno if needed ..
+		popl %ebp
+		popl %edi
+		popl %esi
+		popl %ebx
+		ret
+
+> You have to assume that all the registers, including %ebp, are used at
+> the time of the call.
+
+See why this isn't possible right now anyway.
+
+Hmm.. Which system calls have all six parameters? I'll have to see if I
+can find any way to make those use the new interface too.
+
+In the meantime, I do agree with you that the TLS approach should work
+too, and might be better. It will allow all six arguments to be used if we
+just find a good calling conventions (too bad sysenter is such a pig of an
+instruction, it's really not very well designed since it loses
+information).
+
+			Linus
 

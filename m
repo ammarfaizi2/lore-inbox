@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314887AbSDVWvf>; Mon, 22 Apr 2002 18:51:35 -0400
+	id <S314889AbSDVWx0>; Mon, 22 Apr 2002 18:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314889AbSDVWvc>; Mon, 22 Apr 2002 18:51:32 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:62642 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314887AbSDVWvW>; Mon, 22 Apr 2002 18:51:22 -0400
-To: "Saxena, Sunil" <sunil.saxena@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Initial process CPU state was Re: SSE related security hole
-In-Reply-To: <9287DC1579B0D411AA2F009027F44C3F171C1A9E@FMSMSX41>
-From: Andi Kleen <ak@muc.de>
-Date: 23 Apr 2002 00:51:09 +0200
-Message-ID: <m3ofgbcppe.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
+	id <S314895AbSDVWxZ>; Mon, 22 Apr 2002 18:53:25 -0400
+Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:56224 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314889AbSDVWw2>;
+	Mon, 22 Apr 2002 18:52:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [OFF TOPIC] BK license change
+Date: Mon, 22 Apr 2002 00:52:48 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020421095715.A10525@work.bitmover.com> <E16zPbZ-0001NE-00@starship> <20020422222922.GM3017@turbolinux.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16zQCP-0001NN-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Saxena, Sunil" <sunil.saxena@intel.com> writes:
+On Tuesday 23 April 2002 00:29, Andreas Dilger wrote:
+> On Apr 22, 2002  00:14 +0200, Daniel Phillips wrote:
+> > On Monday 22 April 2002 23:35, Larry McVoy wrote:
+> > > So that leaves a more selective approach.  We can add a clause that says
+> > > we reserve the right to insist you either
+> > > 
+> > >     a) maintain your changes in public within 90 days of making them, or
+> > 
+> > That's going beyond what the gpl requires.  Nobody needs to share their
+> > changes unless they distribute the binaries.
+> 
+> But according to the license under which they use BK, they _do_ need to
+> make them public.
+> 
+> > > If you have a better idea on how to shut down the abusers without scaring
+> > > the legit users, I'm all ears.
+> > 
+> > No need to play mall cop.
+> 
+> Isn't that you calling the kettle black? ;-)
 
-Hallo Sunil,
+Larry's proposing to turn BitKeeper into an automated GPL enforcement machine, 
+even poking it's nose into areas the GPL isn't concerned about.  This is a
+horribly broken reason for adding let more t&c's do the license.
 
-> We recognized that there is a discrepancy in the individual instruction
-> descriptions in Vol 2 where it is indicated that the instruction would
-> generate a UD#. We will be rectifying this discrepancy in the next revision
-> of Vol 2 as well as via the monthly Specification Updates.
+Frankly, I'm finding the whole BitKeeper experience something of a turn-off.
+This is clearly not 'just for fun'.  OK, I'll make a very serious effort to
+stay out of this now.
 
-Could you quickly describe what the Intel recommended way is to clear
-the whole CPU at the beginning of a process? Is there a better way
-than "save state with fxsave at bootup and restore into each
-new process"? After all it would be a bit unfortunate to have
-instructions which are transparently tolerant to new CPU state (fxsave/fxrstor 
-for context switching), but no matching way to clear the same state for 
-security reasons.  Using the bootup FXSAVE image would make linux
-depend on the BIOS for this (so in the worst case when the bios 
-doesn't clear e.g. the XMM registers or some future registers each 
-process could see the state of some previous boot after a warm boot) 
+When I came into this I had a high regard for BitKeeper and every intention
+of using/supporting it.  That's changed, now that I have a feeling for the
+mob mentality behind it.
 
-Another way would be to do a fxsave after clearing of known state (x87,MMX,
-SSE) at OS bootup and then afterwards set all the so far reserved parts of the 
-FXSAVE image to zero. Then restore this image later into each new process.
-This would avoid any BIOS/direct warmboot dependencies.  It would work 
-assuming that all future IA32 state can be safely initialized with zeroes
-via FXRSTOR. Is this a safe assumption?
-
-Thanks, 
--Andi
-
+-- 
+Daniel

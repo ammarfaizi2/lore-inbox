@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281088AbRKTO6j>; Tue, 20 Nov 2001 09:58:39 -0500
+	id <S281105AbRKTPKn>; Tue, 20 Nov 2001 10:10:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281093AbRKTO6a>; Tue, 20 Nov 2001 09:58:30 -0500
-Received: from zero.tech9.net ([209.61.188.187]:35079 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S281088AbRKTO6P>;
-	Tue, 20 Nov 2001 09:58:15 -0500
-Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
-From: Robert Love <rml@tech9.net>
-To: Duncan Sands <duncan.sands@math.u-psud.fr>
-Cc: Kilobug <kilobug@freesurf.fr>, linux-kernel@vger.kernel.org
-In-Reply-To: <E166A9X-0000Co-00@baldrick>
-In-Reply-To: <E165lQB-0001DZ-00@baldrick> <1006204883.826.0.camel@phantasy> 
-	<E166A9X-0000Co-00@baldrick>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
-Date: 20 Nov 2001 09:58:10 -0500
-Message-Id: <1006268291.5448.2.camel@phantasy>
+	id <S281116AbRKTPK1>; Tue, 20 Nov 2001 10:10:27 -0500
+Received: from t2.redhat.com ([199.183.24.243]:24564 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S281105AbRKTPKP>; Tue, 20 Nov 2001 10:10:15 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011120095018.A25289@thyrsus.com> 
+In-Reply-To: <20011120095018.A25289@thyrsus.com> 
+To: esr@thyrsus.com
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help missing entries list 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 20 Nov 2001 15:10:07 +0000
+Message-ID: <25065.1006269007@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-11-20 at 07:37, Duncan Sands wrote:
-> By the way, I find the preemptible kernel patch
-> very helpful for debugging SMP problems on a
-> uniprocessor machine.
-> 
-> I'm trying to debug the speedtouch kernel module
-> crashes with SMP using it: the module oopses
-> nicely with preempt too!
 
-This is a nice unintended benefit of the preemptible kernel patch, eh? 
-It also helps in your SMP debugging because you can see the lock depth
-(how many locks are held) via current->preempt_count.  The preempt patch
-will also prevent you from infinite looping in the kernel, assuming the
-system is able to preempt itself.
+esr@thyrsus.com said:
+> It's down to 145 entries from 167 last week, thanks mostly to David
+> Woodhouse documenting the new MTD symbols.  Please do what you can to
+> empty this list by sending me help entries. 
 
-	Robert Love
+You missed three that I sent you before. If you don't like my version of 
+CONFIG_MEMORY_SET I'm sure you can come up with a new one - but the other 
+two ought to be acceptable.
+
+
+Physical memory size
+CONFIG_MEMORY_SIZE
+  This sets the default memory size assumed by your SH kernel. It can 
+  be overridden as normal by the 'mem=' argument on the kernel command
+  line. If unsure, consult your board specifications or just leave it
+  as 0x00400000 which was the default value before this became
+  configurable.
+
+Darkness
+CONFIG_MEMORY_SET
+  This is an option about which you will never be asked a question. 
+  Therefore, I conclude that you do not exist - go away.
+
+  There is a grue here.
+
+Cache and PCI noncoherent
+CONFIG_SH_PCIDMA_NONCOHERENT
+  Enable this option if your platform does not have a CPU cache which
+  remains coherent with PCI DMA. It is safest to say 'Y', although you
+  will see better performance if you can say 'N', because the PCI DMA 
+  code will not have to flush the CPU's caches. If you have a PCI host
+  bridge integrated with your SH CPU, refer carefully to the chip specs
+  to see if you can say 'N' here. Otherwise, leave it as 'Y'.
+
+
+
+--
+dwmw2
+
 

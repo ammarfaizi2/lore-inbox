@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264698AbSJUCbz>; Sun, 20 Oct 2002 22:31:55 -0400
+	id <S264695AbSJUC3y>; Sun, 20 Oct 2002 22:29:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSJUCby>; Sun, 20 Oct 2002 22:31:54 -0400
-Received: from services.cam.org ([198.73.180.252]:1738 "EHLO mail.cam.org")
-	by vger.kernel.org with ESMTP id <S264696AbSJUCbx>;
-	Sun, 20 Oct 2002 22:31:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.44-mm1
-Date: Sun, 20 Oct 2002 22:32:47 -0400
-User-Agent: KMail/1.4.3
-References: <3DB2FFEA.4048E82@digeo.com>
-In-Reply-To: <3DB2FFEA.4048E82@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210202232.47601.tomlins@cam.org>
+	id <S264696AbSJUC3y>; Sun, 20 Oct 2002 22:29:54 -0400
+Received: from waste.org ([209.173.204.2]:47791 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S264695AbSJUC3u>;
+	Sun, 20 Oct 2002 22:29:50 -0400
+Date: Sun, 20 Oct 2002 21:35:46 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: patch management scripts
+Message-ID: <20021021023546.GK26443@waste.org>
+References: <3DB30283.5CEEE032@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB30283.5CEEE032@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Oct 20, 2002 at 12:22:43PM -0700, Andrew Morton wrote:
+> 
+> I finally got around to documenting the scripts which I use
+> for managing kernel patches.  See
+> 
+> http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.1/
+> 
+> These scripts are designed for managing a "stack" of patches against
+> a rapidly-changing base tree. Because that's what I use them for.
+> 
+> I've been using and evolving them over about six months.  They're
+> pretty fast, and simple to use.  They can be used for non-kernel
+> source trees.
 
-Looks like something was missed (UP config):
+Thanks for posting these - hopefully it will generate some discussion.
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.44-mm1; fi
-depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/drivers/char/agp/agpgart.o
-depmod:         page_states__per_cpu
-depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/drivers/char/drm/mga.o
-depmod:         page_states__per_cpu
-depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/fs/ext3/ext3.o
-depmod:         posix_acl_create_masq
-depmod:         posix_acl_permission
-depmod:         posix_acl_clone
-depmod:         posix_acl_alloc
-depmod:         posix_acl_chmod_masq
-depmod:         posix_acl_valid
-depmod:         posix_acl_equiv_mode
-depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/net/packet/af_packet.o
-depmod:         page_states__per_cpu
-depmod: *** Unresolved symbols in /lib/modules/2.5.44-mm1/kernel/sound/core/snd.o
-depmod:         page_states__per_cpu
+My own personal scripts (while obviously not getting nearly the
+workout yours are) make at least one part noticeably simpler - I use a
+complete 'cp -al' for the current "top of the applied stack" rather
+than your foo.c~bar files. This means I don't have to explicitly keep
+track of which files I'm touching and just let diff compare the entire
+tree (which is fast as diff apparently recognizes hard links). My
+equivalent of refpatch spews out a diffstat so that I can easily
+notice if I touched something I didn't mean to.
 
-Hope this helps
-Ed
+My "apply patches up to x" script does some tricks so it generally
+only does one 'cp -al', so the overhead is generally only a second or
+two. The error handling got a little tedious in bash, so I rewrote
+mine in Python..
 
+I also have all my secondary directories outside of the source tree
+proper, so it's easy to keep a completely pristine base tree and a
+couple "branches".
 
+What I'd really like is if someone were industrious enough to post a
+"grab all patches to upgrade to current {release, bk, mm, ac}" script.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

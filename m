@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264628AbUEEMLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUEEMPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264628AbUEEMLg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 08:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264625AbUEEMLg
+	id S264627AbUEEMPp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 08:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbUEEMPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 08:11:36 -0400
-Received: from smtpq1.home.nl ([213.51.128.196]:51947 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S264628AbUEEML0 (ORCPT
+	Wed, 5 May 2004 08:15:45 -0400
+Received: from niit.caravan.ru ([217.23.131.158]:8453 "EHLO mail.tv-sign.ru")
+	by vger.kernel.org with ESMTP id S264627AbUEEMPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 08:11:26 -0400
-Message-ID: <4098D994.8040007@keyaccess.nl>
-Date: Wed, 05 May 2004 14:09:56 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
+	Wed, 5 May 2004 08:15:44 -0400
+Message-ID: <4098DB41.1A7FC5DF@tv-sign.ru>
+Date: Wed, 05 May 2004 16:17:05 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-References: <20040505013135.7689e38d.akpm@osdl.org>	<200405051312.30626.dominik.karall@gmx.net> <20040505043002.2f787285.akpm@osdl.org>
-In-Reply-To: <20040505043002.2f787285.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------020102080704040707000304"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+To: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.6-rc3-mm2
+References: <4098CFEB.468E6326@tv-sign.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020102080704040707000304
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello.
 
-Andrew Morton wrote:
+> This way only waiters must be modified, and we can use
+> page_waitqueue(page) for nonfiltered wait too.
 
-> We need to push this issue along quickly.  The single-page stack generally
-> gives us a better kernel and having the stack size configurable creates
-> pain.
+also, exclusive wakeups have no problems, and process
+waiting in wait_on_page_writeback() won't be waken
+by unlock_page(). it will be waken _only_ when that
+bit will be cleared.
 
-Hi. No idea if you want this. Not seeing 4KSTACKS in there made me recheck.
+> +wake-one-pg_locked-bh_lock-semantics.patch
+>
+> +static void *page_key(struct page *page, unsigned long bit)
+> +{
+> + 	return (void *)(page_to_pfn(page) | bit << PAGE_KEY_SHIFT);
+> }
 
-Rene.
+become unneeded as well.
 
---------------020102080704040707000304
-Content-Type: text/plain;
- name="linux-2.6.6-rc3-mm2_vermagic-4kstacks.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.6-rc3-mm2_vermagic-4kstacks.diff"
-
-# restore 4KSTACKS to VERMAGIC
-
---- linux-2.6.6-rc3-mm2/include/asm-i386/module.h.orig	2004-05-05 13:51:29.000000000 +0200
-+++ linux-2.6.6-rc3-mm2/include/asm-i386/module.h	2004-05-05 13:52:26.000000000 +0200
-@@ -60,11 +60,7 @@
- #define MODULE_REGPARM ""
- #endif
- 
--#ifdef CONFIG_4KSTACKS
- #define MODULE_STACKSIZE "4KSTACKS "
--#else
--#define MODULE_STACKSIZE ""
--#endif
- 
- #define MODULE_ARCH_VERMAGIC MODULE_PROC_FAMILY MODULE_REGPARM MODULE_STACKSIZE
- 
-
---------------020102080704040707000304--
+Oleg.

@@ -1,37 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265281AbTF1Qiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 12:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265284AbTF1Qiw
+	id S265285AbTF1QwL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 12:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbTF1QwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 12:38:52 -0400
-Received: from granite.he.net ([216.218.226.66]:30224 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265281AbTF1Qiv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 12:38:51 -0400
-Date: Sat, 28 Jun 2003 09:46:34 -0700
-From: Greg KH <greg@kroah.com>
-To: cb-lkml@fish.zetnet.co.uk
+	Sat, 28 Jun 2003 12:52:11 -0400
+Received: from mail47-s.fg.online.no ([148.122.161.47]:8169 "EHLO
+	mail47.fg.online.no") by vger.kernel.org with ESMTP id S265285AbTF1QwI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 12:52:08 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
+To: Mika Liljeberg <mika.liljeberg@welho.com>
+Subject: Re: TCP send behaviour leads to cable modem woes
+Date: Sat, 28 Jun 2003 19:06:19 +0200
+User-Agent: KMail/1.5.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [USB] [2.5.73-mm1] /etc/init.d/hotplug stop (rmmod uhci-hcd) never returns
-Message-ID: <20030628164634.GA1619@kroah.com>
-References: <20030628082441.GA1979@fish.zetnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200306272020.57502.svein.ove@aas.no> <200306281604.52876.svein.ove@aas.no> <1056813724.668.23.camel@hades>
+In-Reply-To: <1056813724.668.23.camel@hades>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030628082441.GA1979@fish.zetnet.co.uk>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200306281906.20222.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 28, 2003 at 09:24:41AM +0100, cb-lkml@fish.zetnet.co.uk wrote:
-> 
-> Following suspend/resume with a USB mouse connected, I found thousands of:
-> drivers/usb/host/uhci-hcd.c: fca0: host controller halted. very bad
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Try unloading the uhci-hcd driver before suspending.  I think most
-people have reported success that way.
+lørdag 28. juni 2003, 17:22, skrev Mika Liljeberg:
+> On Sat, 2003-06-28 at 17:04, Svein Ove Aas wrote:
+> > Well, it doesn't appear to have any effect.
+> > (What is it *supposed* to do? Something about spurious retransmission
+> > timeouts, was it?)
+>
+> Yeah, frto should help if you're seeing unnecessary retransmission
+> timeouts caused by delay spikes. It won't do much good if you're also
+> losing packets, e.g., due to overflowing the modem buffers. From what I
+> gathered from your explanation, the cable link might also be bunching up
+> the incoming ACK packets into bursts, each of which causes the sending
+> TCP to inject a corresponding burst of new segments into the network. If
+> that's what is happening, rate capping is probably more effective. Even
+> if you set the rate cap a little high it should mitigate the effects of
+> the bursts.
+>
+> 	MikaL
 
-thanks,
+That Has Been Tried.
 
-greg k-h
+Didn't Work (tm).
+
+
+At this point I'm starting to suspect there's a problem with my ISP. They keep 
+saying there isn't, but...
+
+Incidentally, capping the upload speed should be enough, shouldn't it? If it 
+isn't then I should probably try that again.
+
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+/csL9OlFkai3rMARAobHAKCVxOQLk8u7ivgGO7M7mjQPbjKiRACeJU8s
+9AGfL1lSeZ4tXxSnjHYNEwc=
+=Do92
+-----END PGP SIGNATURE-----
+

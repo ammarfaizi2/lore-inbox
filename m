@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUG0DIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266227AbUG0CwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266199AbUG0DIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 23:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUG0DIJ
+	id S266227AbUG0CwA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 22:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUG0CwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 23:08:09 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:53253 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S266199AbUG0DH5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 23:07:57 -0400
-Date: Tue, 27 Jul 2004 13:02:32 +1000 (EST)
-From: Tim Connors <tconnors+linuxkml@astro.swin.edu.au>
-X-X-Sender: tconnors@tellurium.ssi.swin.edu.au
-To: Con Kolivas <kernel@kolivas.org>
-cc: Clemens Schwaighofer <cs@tequila.co.jp>, Andrew Morton <akpm@osdl.org>,
-       Joel.Becker@oracle.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Autotune swappiness01
-In-Reply-To: <cone.1090896213.276247.20693.502@pc.kolivas.org>
-Message-ID: <Pine.LNX.4.53.0407271250210.23847@tellurium.ssi.swin.edu.au>
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org>
- <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org>
- <20040726202946.GD26075@ca-server1.us.oracle.com> <20040726134258.37531648.akpm@osdl.org>
- <cone.1090882721.156452.20693.502@pc.kolivas.org> <4105A761.9090905@tequila.co.jp>
- <20040726180943.4c871e4f.akpm@osdl.org> <4105AD1C.2050507@tequila.co.jp>
- <slrn-0.9.7.4-15175-21673-200407271159-tc@hexane.ssi.swin.edu.au>
- <cone.1090896213.276247.20693.502@pc.kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Jul 2004 22:52:00 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:18333 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266227AbUG0Cv6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 22:51:58 -0400
+Subject: Re: bug with multiple mounts of filesystems in 2.6
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Mike Waychison <Michael.Waychison@sun.com>
+Cc: John S J Anderson <jacobs@genehack.org>, linux-kernel@vger.kernel.org,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Herbert Poetzl <herbert@13thfloor.at>
+In-Reply-To: <4105A858.7090209@sun.com>
+References: <86oem2hgv8.fsf@mendel.genehack.org>
+	 <1090870651.6809.62.camel@lade.trondhjem.org> <41057893.1030006@sun.com>
+	 <1090881327.6809.111.camel@lade.trondhjem.org>  <4105A858.7090209@sun.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1090896712.6809.171.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 26 Jul 2004 22:51:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004, Con Kolivas wrote:
+På må , 26/07/2004 klokka 20:56, skreiv Mike Waychison:
 
-> Tim Connors writes:
->
-> > Clemens Schwaighofer <cs@tequila.co.jp> said on Tue, 27 Jul 2004 10:17:16 +0900:
-> >>
-> >> Andrew Morton wrote:
-> >> | It may appear to be better, but you now have 100, maybe 200 megabytes less
-> >> | pagecache available across the entire working day.
-> >>
-> >> which might slow down overall working speed? or responsness of programs?
-> >
-> > Depends on what you do. Do you compile kernels regularly? In
-> > particular, do you have to wait for them, or do you just let them sit
-> > in the background, and come back to them when you rememeber, since
-> > you've been busy doing real work for the past 5 hours? If you wait,
-> > then I guess you want high swapiness.
->
-> Well I'm tired of this discussion which comes up every month or so and I
-> brought it up! Clearly my patch is not considered adequate so I promise
-> never to bring it up again.
+> As an example where sharing the super_block is wrong (albeit probably
+> just an oversight) is that the protocols (udp vs tcp) are not compared
+> in nfs_compare_super.  You could argue that the client fhandles should
+> be different though, I'm not sure..
 
-I am not trying to say anything bad about your work - I am trying to
-caution Andrew that not everyone cares so much that they lose 200 megs of
-pagecache. It doesn't affect everyone equally - I'm just trying to put the
-voice of those of us who care more about responsiveness than throughput,
-if I may borrow the argument from upthread.
+Not an oversight. It's just that we don't really have a model for
+trunking a single cache over several different RPC connections.
+Basically, it all boils down to the problem that inodes and dentries
+have no idea of which namespace you used to access them, and hence even
+if you did have space in the vfsmount in which to store an rpc_client
+struct and perhaps rsize/wsize ... you still have a reconstruction job
+to do.
 
-I often fear that a lot of benchmarking is done one-sided, and does not
-reflect the usage patterns of a typical Linux user.
+> Another 'bind mount extension' that would be nice to change at the
+> vfsmount level may be w/rsize, but that is probably a very intrusive
+> change for nfs and probably not possible.  Thoughts?
 
-Then there's the relative importance of subjective "feel", vs hard
-numbers. Maybe some people prefer that their system feels nicer, even if
-it doesn't compile kernels so fast. And I think this decision is best left
-to at least one of those knobs (hey, all you know, people might even
-adjust the knob in a crontab).
+The "struct nfs_open_context" I introduce in the latest NFS4_ALL patches
+could probably be modified to include vfsmount information.
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-Usage: fortune -P [-f] -a [xsz] Q: file [rKe9] -v6[+] file1 ...
+My question is why do people need to do this? What problems does it
+solve?
+Normally, rsize/wsize are per-server parameters. Their optimal value
+depends above all upon the quality of the network link between client
+and server. Ditto for the choice of UDP vs TCP: why would you want to
+choose to use both options against a given server?
+
+> [1] - I haven't tested mounting nfs ro, and then mounting nfs rw using
+> the bind extensions.  Does nfs make any assumptions about the mount
+> being ro?
+
+Nope, however the VFS support for this is missing. That was part of what
+Herbert was doing in his patches.
+
+Cheers,
+  Trond

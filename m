@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316915AbSFVV4b>; Sat, 22 Jun 2002 17:56:31 -0400
+	id <S316982AbSFWKPj>; Sun, 23 Jun 2002 06:15:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316919AbSFVV4a>; Sat, 22 Jun 2002 17:56:30 -0400
-Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:19636 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316915AbSFVV43>; Sat, 22 Jun 2002 17:56:29 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 22 Jun 2002 14:56:23 -0700
-Message-Id: <200206222156.OAA00651@baldur.yggdrasil.com>
-To: henning@makholm.net
-Subject: Re: make-3.79.1 bug breaks linux-2.5.24/drivers/net/hamradio/soundmodem
-Cc: bug-make@gnu.org, linux-hams@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sailer@ife.ee.ethz.ch
+	id <S317004AbSFWKPi>; Sun, 23 Jun 2002 06:15:38 -0400
+Received: from node-c-3d3f.a2000.nl ([62.194.61.63]:33030 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id <S316982AbSFWKPh>;
+	Sun, 23 Jun 2002 06:15:37 -0400
+From: "PARTHY MACARTHY" <macpar5@email.com>
+Date: Sun, 23 Jun 2002 12:15:36
+To: linux-kernel@vger.kernel.org
+Subject: URGENT RESPONSE NEEDED
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020623101537Z316982-22020+9048@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-enning Makholm wrote:
->Scripsit "Adam J. Richter" <adam@yggdrasil.com>
->> 	Until the make bug is fixed, I have worked around the problem
->> by replacing the rule with:
+STRICTLY CONFIDENTIAL & URGENT.
 
->> $(obj)/sm_tbl_%: $(obj)/gentbl
->>         PATH=$(obj):$$PATH $<
+I am Mr, PARTHY MACARTHY  a native of Cape Town in
+South Africa and I am an Executive Accountant with
+the South Africa  DEPARTMENT OF MINERAL RESOURCES AND ENERGY 
 
->That looks like an excessively complicated workaround. Why not just
+First and foremost, I apologized using this medium to
+reach you for a transaction/business of this
+magnitude, but this is due to
+Confidentiality and prompt access reposed on this
+medium. 
 
->$(obj)/sm_tbl_%: $(obj)/gentbl
->	$(obj)/gentbl
+I have decided to seek a confidential
+co-operation with you in the execution of the deal
+described Hereunder for the benefit of all parties
+and hope you will keep it as a top secret because of the nature of this transaction.
 
-	Thanks.  That is a cleaner workaround.
+Within the Department of Mining & Natural Resources
+where I work as an Executive Accountant and with the
+cooperation of four other top officials, we have in
+our possession as overdue payment bills totaling
+Twenty - One Million, Five Hundred Thousand U. S.
+Dollars ($21,500,000.) which we want to transfer
+abroad with the assistance and cooperation of a
+foreign company/individual to receive the said fund
+on
+our behalf or a reliable foreign non-company account
+to receive such funds. More so, we are handicapped in
+the circumstances, as the South Africa Civil Service
+Code of Conduct does not allow us to operate offshore
+account hence your importance in the whole
+transaction.
+This amount $21.5m represents the balance of the
+total contract value executed on behalf of my Department by a foreign contracting firm, which we the officials over-invoiced deliberately. Though the actual
+contract cost have been paid to the original contractor,leaving the balance in the Tune of the said amount which we have in principles gotten approval to remit by Key tested Telegraphic Transfer (K.T.T) to any
+foreign bank account you will provide by filing in an
+application through the Justice Ministry here in
+South Africa for the transfer of rights and privileges of the former contractor to you.
 
+I have the authority of my partners involved to
+propose that should you be willing to assist us in
+the transaction, your share of the sum will be 25% of the $21.5 million, 70% for us and 5% for taxation and
+miscellaneous expenses. The business itself is 100%
+safe, on your part provided you treat it with utmost
+secrecy and confidentiality. Also your area of
+specialization is not a hindrance to the successful
+execution of this transaction. I have reposed my
+confidence in you and hope that you will not
+disappoint me. Endeavor to contact me immediately my
+e-mail address  whether or not you are
+interested in this deal. If you are not, it will enable me scout for another foreign partner to carry out this deal I want to assure you that my partners and myself are in a position to make the payment of this claim possible provided you can give us a very strong Assurance and guarantee that our share will be secured and please remember to treat this matter as very confidential matter, because we will not comprehend with any form of exposure as we are still in active Government Service and remember once again that time is of the essence in this business.
+I wait in anticipation of your fullest co-operation.
 
-
->I'm not sure this is really a bug either. It is a Good Thing that make
->tries to normalize the names of targets and dependencies internally,
->lest the build may be incomplete or redundant if make does not realize
->that foo.bar and ./foo.bar is the same file. It is quite reasonable
->for $< to unfold to the *canonical* name of the file in question, I
->think.
-
-	That just makes the behavior of make less predictable.
-Whatever make does with the file names internally is its own business.
-Rewriting the file names passed to commands unnecessarily is
-potentially a big problem.  Suppose, for example, that this was a
-command that wanted to chop up the directory prefix and that the
-bottom level directory was a symbolic link (for example, maybe I have
-/usr/netscape/bin as a symlink to /usr/local/bin, but I want the
-installation command to record the path name as /usr/netscape/bin).
-
-
-
->If one absolutely wants the command to use the exact form of the
->dependency that's used in the dependency list, it's easy to simply
->reproduce that form, replacing the % by $*
-
-	Sorry, I do not understand what you mean.  If you want to
-explain it to me, you may have to write the rule out.
-
-	Thanks for the better workaround and the advice.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Yours faithfully,
+ 
+PARTHY MACARTHY.

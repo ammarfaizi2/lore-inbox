@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKBRvh>; Thu, 2 Nov 2000 12:51:37 -0500
+	id <S129118AbQKBRwh>; Thu, 2 Nov 2000 12:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129118AbQKBRv1>; Thu, 2 Nov 2000 12:51:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:24386 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129050AbQKBRvL>; Thu, 2 Nov 2000 12:51:11 -0500
-Subject: Re: so vesafb doesn't work in i815
-To: narancs1@externet.hu (Narancs 1)
-Date: Thu, 2 Nov 2000 17:51:56 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.02.10011021714550.9875-100000@prins.externet.hu> from "Narancs 1" at Nov 02, 2000 05:20:07 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13rOWr-0001ik-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129213AbQKBRw1>; Thu, 2 Nov 2000 12:52:27 -0500
+Received: from 134-VALL-X10.libre.retevision.es ([62.83.210.134]:21120 "EHLO
+	looping.es") by vger.kernel.org with ESMTP id <S129118AbQKBRwV>;
+	Thu, 2 Nov 2000 12:52:21 -0500
+Date: Thu, 2 Nov 2000 18:57:06 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: "M.H.VanLeeuwen" <vanl@megsinet.net>
+Cc: "CRADOCK, Christopher" <cradockc@oup.co.uk>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: Linux-2.4.0-test10
+Message-ID: <20001102185706.A984@macula.net>
+In-Reply-To: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk> <3A00B8E9.D5FD12B0@megsinet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.6i
+In-Reply-To: <3A00B8E9.D5FD12B0@megsinet.net>; from M.H.VanLeeuwen on Wed, Nov 01, 2000 at 06:44:25PM -0600
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://maculaisdeadsoimmovingit/lightside
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The i810 hardware only has limited support for old style linear video modes
-> > so that is quite possible.
-> 
-> Wow! So then I just cannot use this motherboard at all!
-> xfree 3.3.6 , also with the driver that can be downloaded from intel - I
-> could run it only at 320x200x4.
-> xfree 4.0.1d supports it, but the screen flicker so hard, that is is
-> unusable. 
+On Wed, Nov 01, 2000 at 06:44:25PM -0600, M.H.VanLeeuwen wrote:
+> "CRADOCK, Christopher" wrote:
+> > I have a similar hardware list and I don't observe any of these problems on
+> > 2.4.0-test10x. Is it possibly a hardware conflict somewhere?
+> > 
+> > What I do see occasionally is if X was ever heavy on the memory usage (say
+> > I've run GIMP for a couple of hours) then the text console's font set gets
+> > trashed until the next reboot. Console driver failing to reset something?
 
-Ah there is a trick to that bit. If you have some i810 stuff then XFree does
-funnies if you have DRM enabled. 
+> Never had the trashed fonts before.
 
-The following combination I know works
+Well, here never did until today :)   With test9, I had left the box idle
+downloading stuff over ppp for like 6h under X.  While wget was running,
+switched to a vc and with each dot wget printed, the font map got screwed
+up more and more.
 
-2.2.18pre18
-XFree 4.0 rpms from Red Hat (not 100% sure which 4.0 set they match sorry)
-DRM disabled in the XF86Config.
+Not a particular useful report, but I thought I'd mention it in case it
+rings a bell somewhere .. UP instead of your SMP, VIA instead of PIIX.
+-- 
+____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
+\ o.O|                                                   2F0D27DE025BE2302C
+ =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
+   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
 
-On my i810 the DRM/flicker problem isnt present but I have seen other folks with
-it and disabling the direct 3d stuff cured it.
-
-2.2.18pre18 also supports the i810 audio reasonably well. For full UDMA ide you
-want 2.4test or 2.2.18pre18 + ide patch
-
+Handle via comment channels only.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

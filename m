@@ -1,140 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261581AbTADWYS>; Sat, 4 Jan 2003 17:24:18 -0500
+	id <S261640AbTADWel>; Sat, 4 Jan 2003 17:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbTADWYR>; Sat, 4 Jan 2003 17:24:17 -0500
-Received: from pD9EC209A.dip.t-dialin.net ([217.236.32.154]:25216 "HELO
-	schottelius.net") by vger.kernel.org with SMTP id <S261581AbTADWYQ>;
-	Sat, 4 Jan 2003 17:24:16 -0500
-Date: Sat, 4 Jan 2003 12:39:01 +0100
-From: Nico Schottelius <schottelius@wdt.de>
-To: "Alfred M. Szmidt" <ams@kemisten.nu>
-Cc: bug-fileutils@gnu.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bugs in df [problem of fileutils or kernel?]
-Message-ID: <20030104113901.GB255@schottelius.org>
-References: <20021231141036.GA494@schottelius.org> <E18TRt6-0004wx-00@lgh163a.kemisten.nu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
-Content-Disposition: inline
-In-Reply-To: <E18TRt6-0004wx-00@lgh163a.kemisten.nu>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.5.53
+	id <S261642AbTADWel>; Sat, 4 Jan 2003 17:34:41 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17727 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261640AbTADWek>; Sat, 4 Jan 2003 17:34:40 -0500
+To: suparna@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Andy Pfiffer <andyp@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       wa@almesberger.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: [PATCH][CFT] kexec (rewrite) for 2.5.52
+References: <m1smwql3av.fsf@frodo.biederman.org>
+	<20021231200519.A2110@in.ibm.com> <m11y3uldt9.fsf@frodo.biederman.org>
+	<20030103181100.A10924@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Jan 2003 15:42:00 -0700
+In-Reply-To: <20030103181100.A10924@in.ibm.com>
+Message-ID: <m1k7hkk05j.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Suparna Bhattacharya <suparna@in.ibm.com> writes:
 
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Fri, Jan 03, 2003 at 03:37:06AM -0700, Eric W. Biederman wrote:
+> > A dump question.  Why doesn't the lkcd stuff use the normal ELF core
+> > dump format?  allowing ``gdb vmlinux core'' to work?
 
-Alfred M. Szmidt [Tue, Dec 31, 2002 at 08:17:16PM +0100]:
->    I am using 2.5.53,ext3 on /dev/root,isofs on /mnt/dvd and df is
->=20
-> 2.5.53 of what exactly?
+Digesting....  Of the pieces I have no problem if a valid
+ELF core dump is written but gdb does not know what to do with it out
+of the box.  The piece that disturbed me most is that the file format
+seemed to be mutating from release to release.
 
-the kernel. I will try 2.5.54 soon,too.
+An ELF core dump consists of:
+ELF header
+ELF Program header
+ELF Note segment
+Data Segments...
 
->    flapp:/home/user/nico # df --version
->    df (GNU fileutils) 4.0.35
->=20
-> Could you try and see if this still presists in GNU Fileutils 4.1 [1]?
+All of the weird processor specific information can be stored as
+various ELF note types.
 
-nico@flapp:~/fileutils-4.1/src $ ./df  -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/root              18G   19G  136M 100% /
-/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
-nico@flapp:~/fileutils-4.1/src $ ./df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/root             19228276  19088984    139292 100% /
-/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
-nico@flapp:~/fileutils-4.1/src $ ./du /mnt/dvd/ -sh
-505M    /mnt/dvd
+Compression of pages that are zero can be handled by treating
+them as BSS pages and not putting them in the image. 
 
+I do admit it would likely take an extra pass to generate the ELF
+program header if anything non-trivial like zero removal or
+compression was going on.   But at the same time that should also
+quite dramatically reduce the per page overhead.  A pure dump of ram
+on x86 should take only 2 or 3 segments.
 
-yes, it does.
+Using physical addresses is no problem in an ELF core dump.  The ELF
+program header has both physical and virtual addresses, and you just
+fill in the physical addresses.
 
-> Or if you feel brave GNU Coreutils (an merge of Fileutils, Shutils and
-> Textutils) [2]?=20
-
-nico@flapp:~/coreutils-4.5.4/src $ ./df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/root             19228276  19080532    147744 100% /
-/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
-nico@flapp:~/coreutils-4.5.4/src $ ./df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/root              19G   19G  145M 100% /
-/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
-nico@flapp:~/coreutils-4.5.4/src $ ./du /mnt/dvd/ -sh
-505M    /mnt/dvd/
-
-yes, it does. but at least is the size now correct in -h.
-
-=3D=3D=3D=3D> now trying with 2.5.54 <=3D=3D=3D=3D
-nico@flapp:~ $ df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/root             19228276  19086992    141284 100% /
-/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
-nico@flapp:~ $ df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/root              18G   19G  137M 100% /
-/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
-nico@flapp:~ $ df --version
-df (fileutils) 4.1
-
-and the cdrom is again 505 MB big...
-
-nico@flapp:~/coreutils-4.5.4/src $ ./df
-Filesystem           1K-blocks      Used Available Use% Mounted on
-/dev/root             19228276  19087008    141268 100% /
-/dev/cdroms/cdrom0       72434     72434         0 100% /mnt/dvd
-nico@flapp:~/coreutils-4.5.4/src $ ./df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/root              19G   19G  138M 100% /
-/dev/cdroms/cdrom0     71M   71M     0 100% /mnt/dvd
-nico@flapp:~/coreutils-4.5.4/src $ ./du /mnt/dvd/ -sh
-505M    /mnt/dvd/
+I keep asking and thinking about ELF images, because they are 
+simple, clean, extensible, and well documented.  With an added bonus
+that using the allows a large degree of code reuse with existing
+tools.
 
 
-=3D=3D> so coreutils at least prints correct human values...
-    I am still thinking it could be a kernel bug..so I am rebooting to
-    2.4.21-pre2.
+[snip a good description of the usefulness of the existing core dump format]
 
-But this does not make a difference...
+> Am cc'ing lkcd-devel on this one - there are experts who can
+> add to this or answer this question better than I can. 
 
-> If it still exists in those, could you try debugging
-> it?
+Thanks,
 
-nice,1002 lines of code in df.c.. okay, let's have a look into it...
-(currently I think it _could_ be a kernel bug, so I will pass this message
-alon to lkml)
-
-I had a quick view at the code, but didn't have the time to look into
-it closely. Perhaps the next days!
-
-Am I the only one where df reports wrong disk space?
-
-Nico
-
-
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---3lcZGd9BuhuYXNfi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE+FsfVtnlUggLJsX0RAqhlAJ0axIQS1suUXAK+zbXdweU0+PCH/ACfb3F1
-YEPU4hPZgNgWVb3LwLZQFGo=
-=lUZw
------END PGP SIGNATURE-----
-
---3lcZGd9BuhuYXNfi--
+Eric

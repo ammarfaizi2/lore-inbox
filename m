@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUBWSQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 13:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUBWSQ7
+	id S261988AbUBWSSt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 13:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUBWSSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 13:16:59 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:3742 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261984AbUBWSPc (ORCPT
+	Mon, 23 Feb 2004 13:18:49 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:8856 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261988AbUBWSSi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 13:15:32 -0500
-Message-ID: <403A4328.5010302@colorfullife.com>
-Date: Mon, 23 Feb 2004 19:15:04 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
+	Mon, 23 Feb 2004 13:18:38 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: piggin@cyberone.com.au
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org
-Subject: Re: [PATCH] fix shmat
-References: <E1AvBNO-0004QF-00@bkwatch.colorfullife.com>
-In-Reply-To: <E1AvBNO-0004QF-00@bkwatch.colorfullife.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16442.17401.767305.656013@napali.hpl.hp.com>
+Date: Mon, 23 Feb 2004 10:18:33 -0800
+To: markw@osdl.org
+Cc: pgsql-hackers@postgresql.org, linux-kernel@vger.kernel.org,
+       linux-lvm@redhat.com, osdldbt-general@lists.sourceforge.net
+Subject: dbt-2 tests & profiling on ia64
+In-Reply-To: <200402231742.i1NHgcE17332@mail.osdl.org>
+References: <200402231742.i1NHgcE17332@mail.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From the bitkeeper commit message queue:
+Mark,
 
->	
->	sys_shmat() need to be declared asmlinkage.  This causes breakage when we
->	actually get the proper prototypes into caller's scope.
->  
->
-Why? sys_shmat is not a system call. Or at least there is a comment just 
-before the implementation that this is not a syscall.
-I think either the asmlinkage or the comment are wrong:
-/*
- * Fix shmaddr, allocate descriptor, map shm, add attach descriptor to 
-lists.
- *
- * NOTE! Despite the name, this is NOT a direct system call entrypoint. The
+>>>>> On Mon, 23 Feb 2004 09:42:34 -0800 (PST), markw@osdl.org said:
 
->  * "raddr" thing points to kernel space, and there has to be a wrapper around
->  * this.
->  */
->-long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
->+asmlinkage long sys_shmat(int shmid, char __user *shmaddr, int shmflg, ulong *raddr)
-> {
-> 	struct shmid_kernel *shp;
-> 	unsigned long addr;
->
+  Mark> http://developer.osdl.org/markw/ia64/dbt2/
+  Mark> I have a summary of intial results from our DBT-2 workload with
+  Mark> PostgreSQL 7.4.1 on a 4-way Itanium2 system with 16GB of memory and 56
+  Mark> drives using LVM2 and linux-2.6.3.  There's readprofile
+  Mark> and oprofile data, but oprofile is seg faulting when it's trying to
+  Mark> generate the annotated assembly source.
 
-I'd propose to remove the asmlinkage and to move the prototype (without 
-asmlinkage) back from syscalls.h to shm.h - what do you think?
---
-    Manfred
+You could try q-tools, see the announcement here:
 
+ http://marc.theaimsgroup.com/?l=linux-ia64&m=107075994721581
+
+Besides the flat profile, it will also give you call-counts.  (It
+would be nice if this feature could be added to oprofile some day.)
+
+	--david

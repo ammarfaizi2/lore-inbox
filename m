@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263899AbSJ3FSt>; Wed, 30 Oct 2002 00:18:49 -0500
+	id <S264004AbSJ3Fdo>; Wed, 30 Oct 2002 00:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263979AbSJ3FSt>; Wed, 30 Oct 2002 00:18:49 -0500
-Received: from adsl-63-197-69-248.dsl.snfc21.pacbell.net ([63.197.69.248]:55322
-	"EHLO ipx.esperanza") by vger.kernel.org with ESMTP
-	id <S263899AbSJ3FSr>; Wed, 30 Oct 2002 00:18:47 -0500
-Date: Tue, 29 Oct 2002 21:19:45 -0800
-From: "Nicolas S. Dade" <ndade@adsl-63-197-69-248.dsl.snfc21.pacbell.net>
+	id <S264010AbSJ3Fdo>; Wed, 30 Oct 2002 00:33:44 -0500
+Received: from pacific.moreton.com.au ([203.143.238.4]:25040 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S264004AbSJ3Fdn>; Wed, 30 Oct 2002 00:33:43 -0500
+Message-ID: <3DBF7115.8000002@snapgear.com>
+Date: Wed, 30 Oct 2002 15:41:41 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: BUG in 2.2.22 skb_realloc_headroom()
-Message-ID: <20021029211945.A17657@ipx.esperanza>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: [PATCH]: linux-2.5.45-uc0 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi All,
 
-Kernel: 2.2.22
-File: net/core/skbuff.c
+The latest set of MMU-less support patches are up. You can
+get the all-in-one patch at:
 
-skb_realloc_headroom() panics when new headroom is smaller
-than existing headroom. Specifically the skb_put() fails
-and calls skb_over_panic() because the new buffer is too
-small.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0.patch.gz
 
-When skb_realloc_headroom() is called from skb_cow(), it
-can be called when the existing headroom size is >=
-the desired headroom but the packet in question is cloned.
+Change log:
+1. patch against 2.5.45
+2. move arch/m68knommu/platform/5307/bios32.c
 
-Then skb_realloc_headroom() allocates
 
- skb_alloc( skb->truesize + new_headroom - old_headroom )
+You can get smaller patches here:
 
-but if the old_headroom > new_headroom then the resulting
-buffer is too small to hold new_headroom + skb->len.
+. FEC (5272) and 68360 ethernet drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-fec.patch.gz
 
-I found this when running tethereal (thus causing the packets
-to be cloned for libpcap) and passing data from an acenic,
-which allocates 48 bytes of headroom in its skbuff's, to
-another ethernet device, which needs only 14 (rounded to 16)
-bytes of headroom for the ethernet header.
+. 68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-serial.patch.gz
 
-Here's how I think it should be fixed:
+. 68328 frame buffer driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-fb.patch.gz
 
--- 
--- Nicolas Dade    http://nsd.dyndns.org/
+. FLAT file loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-binflat.patch.gz
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="skb_realloc_headroom.diff"
+. m68knommu architecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-m68knommu.patch.gz
 
---- linux-2.2.22/net/core/skbuff.c.orig	Tue Oct 29 21:13:24 2002
-+++ linux-2.2.22/net/core/skbuff.c	Tue Oct 29 21:15:14 2002
-@@ -7,6 +7,7 @@
-  *	Version:	$Id: skbuff.c,v 1.55 1999/02/23 08:12:27 davem Exp $
-  *
-  *	Fixes:	
-+ *              Nicolas Dade    :       Fixed skb_realloc_headroom to smaller headroom
-  *		Alan Cox	:	Fixed the worst of the load balancer bugs.
-  *		Dave Platt	:	Interrupt stacking fix.
-  *	Richard Kooijman	:	Timestamp fixes.
-@@ -316,13 +317,12 @@
- {
- 	struct sk_buff *n;
- 	unsigned long offset;
--	int headroom = skb_headroom(skb);
- 
- 	/*
- 	 *	Allocate the copy buffer
- 	 */
-  	 
--	n=alloc_skb(skb->truesize+newheadroom-headroom, GFP_ATOMIC);
-+	n=alloc_skb(skb->len+newheadroom, GFP_ATOMIC);
- 	if(n==NULL)
- 		return NULL;
- 
+. v850 architecture support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-v850.patch.gz
 
---opJtzjQTFsWo+cga--
+. no VM memory support
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.45-uc0-mm.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
+

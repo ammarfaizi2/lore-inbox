@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263014AbUJ1Rcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbUJ1Rdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbUJ1Rcv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbUJ1Rcu
+	id S263005AbUJ1Rdm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbUJ1RdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:32:50 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:43998 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263014AbUJ1RcM (ORCPT
+	Thu, 28 Oct 2004 13:33:15 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:48046 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263005AbUJ1RbC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:32:12 -0400
-Message-ID: <41812D09.4060601@colorfullife.com>
-Date: Thu, 28 Oct 2004 19:31:53 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 28 Oct 2004 13:31:02 -0400
+Date: Thu, 28 Oct 2004 19:30:55 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
+Subject: Re: New kbuild filename: Kbuild
+In-Reply-To: <20041028190020.GB9004@mars.ravnborg.org>
+Message-ID: <Pine.GSO.4.61.0410281930250.4228@waterleaf.sonytel.be>
+References: <20041028185917.GA9004@mars.ravnborg.org> <20041028190020.GB9004@mars.ravnborg.org>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: slab errors
-References: <20041028091204.GB1618@wotan.suse.de>
-In-Reply-To: <20041028091204.GB1618@wotan.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-
->Hi,
->
->I get this when booting 2.6.10rc1-bk6 on x86-64. slab doesn't seem
->to like its own initialization.
->
+On Thu, 28 Oct 2004, Sam Ravnborg wrote:
+> --- a/Documentation/kbuild/makefiles.txt	2004-10-28 20:46:24 +02:00
+> +++ b/Documentation/kbuild/makefiles.txt	2004-10-28 20:46:24 +02:00
+>  This document is aimed towards normal developers and arch developers.
 >  
->
-I'm not aware of any slab changes. Were there any changes to the memset 
-function? I think slab debug is the only codepath that uses memset to 
-nonzero values.
-
->       
->0000010001102450: redzone 1: 0x5a2cf071, redzone 2: 0x5a2c5a5a.
 >  
->
-Extremely odd: a byte in the middle no overwritten?
-
->       
->0000010001102868: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf05a.
+> -=== 3 The kbuild Makefiles
+> +=== 3 The kbuild files
 >  
->
-Two bytes not overwritten.
-
->0000010001103098: redzone 1: 0x5a2cf071, redzone 2: 0x5a5a5a5a5a5a5a.
+>  Most Makefiles within the kernel are kbuild Makefiles that use the
+>  kbuild infrastructure. This chapter introduce the syntax used in the
+>  kbuild makefiles.
+> +The preferred name for the kbuild files is 'Kbuild' but 'Makefile' will
+> +continue to be supported. All new developmen is expected to use the
+                                     ^^^^^^^^^^
+				     development
+> +Kbuild filename.
 >  
->
-Everything overwritten.
+>  Section 3.1 "Goal definitions" is a quick intro, further chapters provide
+>  more details, with real examples.
+
+Gr{oetje,eeting}s,
+
+						Geert
 
 --
-    Manfred
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVCZTwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVCZUPl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVCZTwv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 14:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVCZTwv
+	id S261245AbVCZUPl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 15:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCZUPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 14:52:51 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:35559 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261239AbVCZTwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 14:52:49 -0500
-Message-Id: <200503261952.j2QJq1g27569@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Oleg Nesterov'" <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "Christoph Lameter" <christoph@lameter.com>,
-       "Andrew Morton" <akpm@osdl.org>
-Subject: RE: [PATCH 0/5] timers: description
-Date: Sat, 26 Mar 2005 11:52:01 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUuF8zyfnQnWiW7TWOFdI1wfRtqHgEI3EdA
-In-Reply-To: <423ED7E4.2A1F0970@tv-sign.ru>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Sat, 26 Mar 2005 15:15:41 -0500
+Received: from mail.europlex.ie ([83.141.76.10]:54961 "EHLO
+	eurodubx.europlex.local") by vger.kernel.org with ESMTP
+	id S261245AbVCZUPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 15:15:34 -0500
+Message-ID: <4245C711.2040304@eircom.net>
+Date: Sat, 26 Mar 2005 20:33:21 +0000
+From: "Bryan O'Donoghue" <typedef@eircom.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: arc/arm/config.in still broken 2.4.19-2.4.29 ?
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Mar 2005 20:22:12.0890 (UTC) FILETIME=[7EA47FA0:01C53241]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote on March 19, 2005 17:28:48
-> These patches are updated version of 'del_timer_sync: proof of
-> concept' 2 patches.
+Greetings list.
 
-I changed schedule_timeout() to call the new del_timer_sync instead of
-currently del_singleshot_timer_sync in attempt to stress these set of
-patches a bit more and I just observed a kernel hang.
+arch/arm/config.in has an error which breaks make.
 
-The symptom starts with lost network connectivity.  It looks like the
-entire ethernet connections were gone, followed by blank screen on the
-console.  I'm not sure whether it is a hard or soft hang, but system
-is inaccessible (blank screen and no network connection). I'm forced
-to do a reboot when that happens.
+I've googled this a bit just by searching for drivers/ssi/Config.in and the 
+first reference I find to this breakage is in 2002 !
+
+For completeness shouldn't this really be removed once and for all?
+
+I'm not clear on what the procedure is for submitting a patch, but, I've 
+included one to save somebody else the bother.
+
+Best
+Bryan
 
 
+diff -puN linux-2.4.29/arch/arm/config.in linux-2.4.30-rc2/arch/arm/config.in
+
+--- linux-2.4.29/arch/arm/config.in     2004-11-17 11:54:21.000000000 +0000
++++ linux-2.4.30-rc2/arch/arm/config.in 2005-03-26 20:11:54.000000000 +0000
+@@ -599,11 +599,6 @@ if [ "$CONFIG_SCSI" != "n" ]; then
+  fi
+  endmenu
+
+-if [ "$CONFIG_ARCH_CLPS711X" = "y" ]; then
+-   # This is _meant_ to be ssi _not_ scsi.  It is not a spelling error.
+-   source drivers/ssi/Config.in
+-fi
+-
+  source drivers/ieee1394/Config.in
+
+  source drivers/message/i2o/Config.in

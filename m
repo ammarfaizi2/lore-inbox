@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVBSIg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVBSIkk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVBSIg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 03:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVBSIg2
+	id S261654AbVBSIkk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 03:40:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVBSIkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 03:36:28 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9742 "HELO
+	Sat, 19 Feb 2005 03:40:40 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15630 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261631AbVBSIgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 03:36:20 -0500
-Date: Sat, 19 Feb 2005 09:36:18 +0100
+	id S261654AbVBSIiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 03:38:02 -0500
+Date: Sat, 19 Feb 2005 09:38:00 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: davem@davemloft.net
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/net/sunhme.c: make a struct static
-Message-ID: <20050219083618.GO4337@stusta.de>
+To: mikep@linuxtr.net
+Cc: linux-tr@linuxtr.net, jgarzik@pobox.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/tokenring/: make some code static
+Message-ID: <20050219083800.GP4337@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,26 +23,171 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global struct static.
+This patch makes some needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.11-rc3-mm2-full/drivers/net/sunhme.c.old	2005-02-16 18:48:13.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/net/sunhme.c	2005-02-16 19:04:48.000000000 +0100
-@@ -175,13 +175,13 @@
- #define DEFAULT_IPG2       4 /* For all modes */
- #define DEFAULT_JAMSIZE    4 /* Toe jam */
+---
+
+ drivers/net/tokenring/3c359.c           |    2 +-
+ drivers/net/tokenring/3c359_microcode.h |    2 +-
+ drivers/net/tokenring/ibmtr.c           |   24 ++++++++++++------------
+ drivers/net/tokenring/madgemc.c         |    2 +-
+ drivers/net/tokenring/smctr.c           |    2 +-
+ drivers/net/tokenring/smctr_firmware.h  |    2 +-
+ 6 files changed, 17 insertions(+), 17 deletions(-)
+
+--- linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/3c359_microcode.h.old	2005-02-16 18:49:26.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/3c359_microcode.h	2005-02-16 18:49:32.000000000 +0100
+@@ -22,7 +22,7 @@
  
--#ifdef CONFIG_PCI
-+#if defined(CONFIG_PCI) && defined(MODULE)
- /* This happy_pci_ids is declared __initdata because it is only used
-    as an advisory to depmod.  If this is ported to the new PCI interface
-    where it could be referenced at any time due to hot plugging,
-    the __initdata reference should be removed. */
+ static int mc_size = 24880 ; 
  
--struct pci_device_id happymeal_pci_ids[] = {
-+static struct pci_device_id happymeal_pci_ids[] = {
- 	{
- 	  .vendor	= PCI_VENDOR_ID_SUN,
- 	  .device	= PCI_DEVICE_ID_SUN_HAPPYMEAL,
+-u8 microcode[] = { 
++static u8 microcode[] = { 
+  0xfe,0x3a,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+ ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+ ,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
+--- linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/3c359.c.old	2005-02-16 18:48:55.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/3c359.c	2005-02-16 18:49:45.000000000 +0100
+@@ -276,7 +276,7 @@
+ 	return ; 
+ }
+  
+-int __devinit xl_probe(struct pci_dev *pdev, const struct pci_device_id *ent) 
++static int __devinit xl_probe(struct pci_dev *pdev, const struct pci_device_id *ent) 
+ {
+ 	struct net_device *dev ; 
+ 	struct xl_private *xl_priv ; 
+--- linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/ibmtr.c.old	2005-02-16 18:50:03.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/ibmtr.c	2005-02-16 18:52:43.000000000 +0100
+@@ -151,7 +151,7 @@
+ 
+ /* this allows displaying full adapter information */
+ 
+-char *channel_def[] __devinitdata = { "ISA", "MCA", "ISA P&P" };
++static char *channel_def[] __devinitdata = { "ISA", "MCA", "ISA P&P" };
+ 
+ static char pcchannelid[] __devinitdata = {
+ 	0x05, 0x00, 0x04, 0x09,
+@@ -171,7 +171,7 @@
+ 	0x03, 0x08, 0x02, 0x00
+ };
+ 
+-char __devinit *adapter_def(char type)
++static char __devinit *adapter_def(char type)
+ {
+ 	switch (type) {
+ 	case 0xF: return "PC Adapter | PC Adapter II | Adapter/A";
+@@ -184,7 +184,7 @@
+ 
+ #define TRC_INIT 0x01		/*  Trace initialization & PROBEs */
+ #define TRC_INITV 0x02		/*  verbose init trace points     */
+-unsigned char ibmtr_debug_trace = 0;
++static unsigned char ibmtr_debug_trace = 0;
+ 
+ static int 	ibmtr_probe(struct net_device *dev);
+ static int	ibmtr_probe1(struct net_device *dev, int ioaddr);
+@@ -192,7 +192,7 @@
+ static int 	trdev_init(struct net_device *dev);
+ static int 	tok_open(struct net_device *dev);
+ static int 	tok_init_card(struct net_device *dev);
+-void 		tok_open_adapter(unsigned long dev_addr);
++static void 	tok_open_adapter(unsigned long dev_addr);
+ static void 	open_sap(unsigned char type, struct net_device *dev);
+ static void 	tok_set_multicast_list(struct net_device *dev);
+ static int 	tok_send_packet(struct sk_buff *skb, struct net_device *dev);
+@@ -201,11 +201,11 @@
+ static void 	initial_tok_int(struct net_device *dev);
+ static void 	tr_tx(struct net_device *dev);
+ static void 	tr_rx(struct net_device *dev);
+-void 		ibmtr_reset_timer(struct timer_list*tmr,struct net_device *dev);
++static void	ibmtr_reset_timer(struct timer_list*tmr,struct net_device *dev);
+ static void	tok_rerun(unsigned long dev_addr);
+-void 		ibmtr_readlog(struct net_device *dev);
++static void	ibmtr_readlog(struct net_device *dev);
+ static struct 	net_device_stats *tok_get_stats(struct net_device *dev);
+-int 		ibmtr_change_mtu(struct net_device *dev, int mtu);
++static int	ibmtr_change_mtu(struct net_device *dev, int mtu);
+ static void	find_turbo_adapters(int *iolist);
+ 
+ static int ibmtr_portlist[IBMTR_MAX_ADAPTERS+1] __devinitdata = {
+@@ -933,7 +933,7 @@
+ #define DLC_MAX_SAP_OFST        32
+ #define DLC_MAX_STA_OFST        33
+ 
+-void tok_open_adapter(unsigned long dev_addr)
++static void tok_open_adapter(unsigned long dev_addr)
+ {
+ 	struct net_device *dev = (struct net_device *) dev_addr;
+ 	struct tok_info *ti;
+@@ -1104,7 +1104,7 @@
+ 	return ti->sram_virt + index;
+ }
+ 
+-void dir_open_adapter (struct net_device *dev)
++static void dir_open_adapter (struct net_device *dev)
+ {
+         struct tok_info *ti = (struct tok_info *) dev->priv;
+         unsigned char ret_code;
+@@ -1845,7 +1845,7 @@
+ 
+ /*****************************************************************************/
+ 
+-void ibmtr_reset_timer(struct timer_list *tmr, struct net_device *dev)
++static void ibmtr_reset_timer(struct timer_list *tmr, struct net_device *dev)
+ {
+ 	tmr->expires = jiffies + TR_RETRY_INTERVAL;
+ 	tmr->data = (unsigned long) dev;
+@@ -1877,7 +1877,7 @@
+ 
+ /*****************************************************************************/
+ 
+-void ibmtr_readlog(struct net_device *dev)
++static void ibmtr_readlog(struct net_device *dev)
+ {
+ 	struct tok_info *ti;
+ 
+@@ -1910,7 +1910,7 @@
+ 
+ /*****************************************************************************/
+ 
+-int ibmtr_change_mtu(struct net_device *dev, int mtu)
++static int ibmtr_change_mtu(struct net_device *dev, int mtu)
+ {
+ 	struct tok_info *ti = (struct tok_info *) dev->priv;
+ 
+--- linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/madgemc.c.old	2005-02-16 18:52:55.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/madgemc.c	2005-02-16 18:53:04.000000000 +0100
+@@ -625,7 +625,7 @@
+ /*
+  * Disable the board, and put back into power-up state.
+  */
+-void madgemc_chipset_close(struct net_device *dev)
++static void madgemc_chipset_close(struct net_device *dev)
+ {
+ 	/* disable interrupts */
+ 	madgemc_setint(dev, 0);
+--- linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/smctr_firmware.h.old	2005-02-16 18:53:18.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/smctr_firmware.h	2005-02-16 18:53:31.000000000 +0100
+@@ -21,7 +21,7 @@
+ 
+ #if defined(CONFIG_SMCTR) || defined(CONFIG_SMCTR_MODULE)
+ 
+-unsigned char smctr_code[] = {
++static unsigned char smctr_code[] = {
+ 	0x0BC, 0x01D, 0x012, 0x03B, 0x063, 0x0B4, 0x0E9, 0x000,
+ 	0x000, 0x01F, 0x000, 0x001, 0x001, 0x000, 0x002, 0x005,
+ 	0x001, 0x000, 0x006, 0x003, 0x001, 0x000, 0x004, 0x009,
+--- linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/smctr.c.old	2005-02-16 18:54:13.000000000 +0100
++++ linux-2.6.11-rc3-mm2-full/drivers/net/tokenring/smctr.c	2005-02-16 18:54:20.000000000 +0100
+@@ -77,7 +77,7 @@
+ 
+ /* SMC Name of the Adapter. */
+ static char smctr_name[] = "SMC TokenCard";
+-char *smctr_model = "Unknown";
++static char *smctr_model = "Unknown";
+ 
+ /* Use 0 for production, 1 for verification, 2 for debug, and
+  * 3 for very verbose debug.
 

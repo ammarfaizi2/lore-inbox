@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269297AbUHaXGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269270AbUHaXbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269297AbUHaXGU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 19:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268664AbUHaWz2
+	id S269270AbUHaXbe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 19:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269171AbUHaX3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:55:28 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:50404 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S268568AbUHaWxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:53:42 -0400
-Date: Wed, 01 Sep 2004 07:58:53 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [Lhms-devel] Re: [RFC] buddy allocator withou bitmap(2) [3/3]
-In-reply-to: <1093970154.26660.4829.camel@nighthawk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       lhms <lhms-devel@lists.sourceforge.net>, linux-mm <linux-mm@kvack.org>
-Message-id: <413502AD.90000@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
-References: <4134573F.6060006@jp.fujitsu.com>
- <1093970154.26660.4829.camel@nighthawk>
+	Tue, 31 Aug 2004 19:29:53 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:64222 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S269328AbUHaXVM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 19:21:12 -0400
+Date: Wed, 1 Sep 2004 01:20:58 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <875639874.20040901012058@tnonline.net>
+To: Christer Weinigel <christer@weinigel.se>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <m3eklm9ain.fsf@zoo.weinigel.se>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
+ <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
+ <m3eklm9ain.fsf@zoo.weinigel.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
 
-> On Tue, 2004-08-31 at 03:47, Hiroyuki KAMEZAWA wrote:
-> 
->>"Does a page's buddy page exist or not ?" is checked by following.
->>------------------------
->>if ((address of buddy is smaller than that of page) &&
->>    (page->flags & PG_buddyend))
->>    this page has no buddy in this order.
->>------------------------
-> 
-> 
-> What about the top-of-the-zone buddyend pages?  Are those covered
-> elsewhere?
+  
 
-If zone is not aligned to MAX_ORDER, the top-of-the-zone buddyend pages
-are marked as PG_buddyend.
-I forget something ?
+> Linus Torvalds <torvalds@osdl.org> writes:
 
+>> In a graphical environment, the "icon" stream is a good example of this.
+>> It literally has _nothing_ to do with the data in the main stream. The
+>> only linkage is a totally non-technical one, where the user wanted to
+>> associate a secondary stream with the main stream _without_ altering the
+>> main one. THAT is where named streams make sense.
 
+> I think that the "icon" argument for named streams is a silly
+> argument, since different users may want to have different icons for
+> the same file.  Say that I want /usr/bin/emacs to have the enterprise
+> icon and someone else wants the gnu head icon.  And besides, root owns
+> the file anyways, so neither of us mortal users should be able to add
+> a stream to it.
 
->>+static inline int page_is_buddy(struct page *page, int order)
->>+{
->>+	if (PagePrivate(page) &&
->>+	    (page_order(page) == order) &&
->>+	    !(page->flags & (1 << PG_reserved)) &&
-> 
-> 
-> Please use a macro.
-my mistake.
+  Yet again are we thinking in blocking ways. Firstly this was an
+  example. Usually, though, most users accept the default icon for a
+  file. If they do not they can still change the icon for the link
+  they make on their start-menu/home folder/etc.
 
-> 
->> 	if (order)
->> 		destroy_compound_page(page, order);
->>+
->> 	mask = (~0UL) << order;
->> 	page_idx = page - base;
-> 
-> 
-> Repeat after me: No whitespace changes.  No whitespace changes.  No
-> whitespace changes.
-> 
-very sorry ;(
+> Another reason for named streams that usually crops up is the ability
+> set a "preferred application" for a certain file, so that when I
+> double click on a document I want to open it with antiword instead of
+> openoffice.  But the same contra-argument applies here, different
+> users have different preferences.
 
+  I can make the same argument as for the icons.
 
--- 
---the clue is these footmarks leading to the door.--
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> I can see the argument for having the equivalent of Content-type or
+> Content-transfer-encoding as a named stream though.
+
+  That would be a nice thing.
+
+>   /Christer
+
 

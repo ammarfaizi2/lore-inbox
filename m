@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266759AbUFYPUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266766AbUFYPZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266759AbUFYPUU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 11:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266762AbUFYPUU
+	id S266766AbUFYPZh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 11:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUFYPZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 11:20:20 -0400
-Received: from nevyn.them.org ([66.93.172.17]:43175 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S266759AbUFYPTL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 11:19:11 -0400
-Date: Fri, 25 Jun 2004 11:18:58 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: swsusp.S: meaningfull assembly labels
-Message-ID: <20040625151858.GA27013@nevyn.them.org>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	Patrick Mochel <mochel@digitalimplant.org>
-References: <20040625115936.GA2849@elf.ucw.cz> <Pine.LNX.4.53.0406250827250.28070@chaos>
+	Fri, 25 Jun 2004 11:25:35 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:15549 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S266765AbUFYPZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 11:25:30 -0400
+Subject: [PATCH] dma_get_required_mask()
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 25 Jun 2004 10:25:33 -0500
+Message-Id: <1088177133.1940.26.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0406250827250.28070@chaos>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 25, 2004 at 08:37:45AM -0400, Richard B. Johnson wrote:
-> NO! You just made those labels public! The LOCAL symbols need to
-> begin with ".L".  Now, if you have a 'copy_loop' in another module,
-> linked with this, anywhere in the kernel, they will share the
-> same address -- not what you expected, I'm sure! The assembler
-> has some strange rules you need to understand. Use `nm` and you
-> will find that your new labels are in the object file!
+Following the discussion, this is a patch implementing
+dma_get_required_mask().  The default implementation simply works out
+the largest mask covering all of memory and returns the and of that with
+the current dma_mask.  If this looks OK, I'll send out another patch
+including the documentation updates as well.
 
-Er, no.  They'll show up in the object file.  That doesn't mean they're
-global; static symbols also show up in the object file.
+I've put the implementation in linux/dma-mapping.h with a
+ARCH_HAS_DMA_GET_REQUIRED_MASK override for those architectures that
+would like to do something different.
 
--- 
-Daniel Jacobowitz
+Any opinions on whether I should also make linux/dma-mapping.h include
+linux/bitops.h now since it requires fls() from there?
+
+James
+
+===== include/linux/dma-mapping.h 1.3 vs edited =====
+--- 1.3/include/linux/dma-mapping.h	2004-03-30 20:53:54 -05:00
++++ edited/include/linux/dma-mapping.h	2004-06-25 11:12:30 -04:00
+@@ -19,6 +19,29 @@
+ #define dma_sync_single		dma_sync_single_for_cpu
+ #define dma_sync_sg		dma_sync_sg_for_cpu
+ 
++#ifndef ARCH_HAS_DMA_GET_REQUIRED_MASK
++static inline u64 dma_get_required_mask(struct device *dev)
++{
++	extern unsigned long max_pfn; /* defined in bootmem.h but may
++					 not be included */
++	u32 low_totalram = ((max_pfn - 1) << PAGE_SHIFT);
++	u32 high_totalram = ((max_pfn - 1) >> (32 - PAGE_SHIFT));
++	u64 mask;
++
++	if (!high_totalram) {
++		/* convert to mask just covering totalram */
++		low_totalram = (1 << (fls(low_totalram) - 1));
++		low_totalram += low_totalram - 1;
++		mask = low_totalram;
++	} else {
++		high_totalram = (1 << (fls(high_totalram) - 1));
++		high_totalram += high_totalram - 1;
++		mask = (((u64)high_totalram) << 32) + 0xffffffff;
++	}
++	return mask & *dev->dma_mask;
++}
++#endif
++		
+ #endif
+ 
+
+

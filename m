@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130826AbQKCT3A>; Fri, 3 Nov 2000 14:29:00 -0500
+	id <S131420AbQKCTeL>; Fri, 3 Nov 2000 14:34:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131202AbQKCT2v>; Fri, 3 Nov 2000 14:28:51 -0500
-Received: from neuron.moberg.com ([209.152.208.195]:57870 "EHLO
-	neuron.moberg.com") by vger.kernel.org with ESMTP
-	id <S130826AbQKCT2n>; Fri, 3 Nov 2000 14:28:43 -0500
-Message-ID: <3A03120A.DFC62AD5@moberg.com>
-Date: Fri, 03 Nov 2000 14:29:14 -0500
-From: george@moberg.com
-Organization: Moberg Research, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131443AbQKCTeB>; Fri, 3 Nov 2000 14:34:01 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36882 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131420AbQKCTdl>; Fri, 3 Nov 2000 14:33:41 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Can EINTR be handled the way BSD handles it? -- a plea from a user-land 
- programmer...
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: ext3 vs. JFS file locations...
+Date: 3 Nov 2000 11:33:10 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8tv3tm$iqg$1@cesium.transmeta.com>
+In-Reply-To: <3A02D150.E7E87398@usa.net> <200011031725.eA3HPwP12932@webber.adilger.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Considering that the threading library for Linux uses signals to make it
-work, would it be possible to change the Linux kernel to operate the way
-BSD does--instead of returning EINTR, just restart the interrupted
-primitive?
+Followup to:  <200011031725.eA3HPwP12932@webber.adilger.net>
+By author:    Andreas Dilger <adilger@turbolinux.com>
+In newsgroup: linux.dev.kernel
+>
+> Michael Boman writes:
+> > It seems like both IBM's JFS and ext3 wants to use fs/jfs .. IMHO that
+> > is like asking for problem.. A more logic location for ext3 should be
+> > fs/ext3, no?
+> 
+> Actually, if you would look in linux/fs, you will see that ext3 IS in
+> linux/fs/ext3.  However, there is a second component to ext3, which is
+> a generic block journalling layer which is called jfs.  This journal
+> layer is designed so that it isn't ext3 specific, so it would be
+> _possible_ for other journalling filesystems to use it.  Whether non-ext3
+> filesystems will actually use it is another question (actually the
+> InterMezzo distributed filesystem uses the ext3-jfs functionality to
+> do compound transactions on disk to ensure cluster coherency).
+> 
+> I think that Stephen at one time said he would change the name, but I
+> guess he has not done so yet.
+> 
 
-For example, if I'm using read(2) to read data from a file descriptor,
-and a signal happens, the signal handler runs, and read(2) returns EINTR
-after the system call finishes.  Then I'm supposed to catch this and
-re-try the system call.
+How about naming it something that doesn't end in -fs, such as
+"journal" or "jfsl" (Journaling Filesystem Layer?)
 
-I assume that this is true for _any_ system call which makes the process
-block, right?
-
-Can we _PLEASE_PLEASE_PLEASE_ not do this anymore and have the kernel do
-what BSD does:  re-start the interrupted call?
-
-Please?  If this is something that would be acceptable for integration
-into a mainline kernel, I would do my best to help with a patch.
-
-If I'm wrong about this, please enlighten me.  Also, please cc: me off
-the list, as I don't get the list directly.
-
-Thank you for your consideration.
---
-George T. Talbot
-<george at moberg dot com>
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

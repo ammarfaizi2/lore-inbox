@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282231AbRKWUeo>; Fri, 23 Nov 2001 15:34:44 -0500
+	id <S282229AbRKWUhX>; Fri, 23 Nov 2001 15:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282233AbRKWUee>; Fri, 23 Nov 2001 15:34:34 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:48892 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S282231AbRKWUeY>;
-	Fri, 23 Nov 2001 15:34:24 -0500
-Date: Fri, 23 Nov 2001 15:34:11 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: J Sloan <jjs@pobox.com>
-cc: <lgb@lgb.hu>, Arjan van de Ven <arjanv@redhat.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Which gcc version?
-In-Reply-To: <3BFEA873.46325BEB@pobox.com>
-Message-ID: <Pine.SGI.4.31L.02.0111231532000.13038141-100000@irix2.gl.umbc.edu>
+	id <S282235AbRKWUhP>; Fri, 23 Nov 2001 15:37:15 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:3013 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S282229AbRKWUhB>; Fri, 23 Nov 2001 15:37:01 -0500
+Message-ID: <3BFEB2DC.6040208@antefacto.com>
+Date: Fri, 23 Nov 2001 20:34:36 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] remove trailing whitespace
+In-Reply-To: <Pine.LNX.4.10.10111231440260.1920-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Nov 2001, J Sloan wrote:
+I used sed, but yes the following does
+the same as downloading and applying the patch:
+find linux -type f | xargs perl -wi -pe 's/[<space><tab>]+$//'
+(obviously replace <space> & <tab> with the appropriate chars).
 
-> This is all silly FUD - time for the pointer again -
->
-> http://www.bero.org/gcc296.html
+Note also that after (bz2) compression the space saving drops
+from 224,654 to 139,669 bytes, which is still good.
 
-Redhat apologists are given the due they deserve.
+Padraig.
 
-Their first cut at a released 2.96 should never have made it out of the
-labs alive, and for that matter, neither should have 7.0.
+Mark Hahn wrote:
 
-That said, the versions in 7.1, and the patches available have done
-reasonably well for everything that I've tried to compile (kernels
-included).
+> 	find linux -type f | xargs perl -pe 's/\s+$/\n/'
+> wouldn't something like this work?  seems generally easier,
+> more compact, and probably more Linus-appetizing...
+> 
+> 
+>>This (23MB! (5Mb compressed)) patch removes trailing whitespace from
+>>all files in the kernel, thereby reducing size from 121,865,495 to
+>>121,640,841. I.E. reducing size by 224,654 bytes. I don't know if it's
+>>of any use, but it should be applied now if it is going to be done
+>>at all.
+>>
+>>http://www.iol.ie/~padraiga/linux-2.5.0-strip-ws.diff.gz
+>>
+>>cheers,
+>>Padraig.
 
-What are they going to do about gcc 3.0.x? It'll be amusing to watch.
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
 

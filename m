@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268840AbUHLW2D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268836AbUHLWYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268840AbUHLW2D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:28:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268837AbUHLW2C
+	id S268836AbUHLWYN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268840AbUHLWYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:28:02 -0400
-Received: from mail.gmx.de ([213.165.64.20]:22947 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268845AbUHLW01 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:26:27 -0400
-X-Authenticated: #1725425
-Date: Fri, 13 Aug 2004 00:44:56 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-Id: <20040813004456.09b0841b.Ballarin.Marc@gmx.de>
-In-Reply-To: <411BDD11.8070400@tmr.com>
-References: <20040807001427.GA10890@ucw.cz>
-	<200408070001.i7701PSa006663@burner.fokus.fraunhofer.de>
-	<1091899593.20043.14.camel@kryten.internal.splhi.com>
-	<411BDD11.8070400@tmr.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 18:24:13 -0400
+Received: from [213.154.87.58] ([213.154.87.58]:58886 "HELO emztd2501.com")
+	by vger.kernel.org with SMTP id S268836AbUHLWWX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:22:23 -0400
+From: "Ann camara" <ann_camara2002@yahoo.co.uk>
+Reply-To: ann_camara2002@yahoo.co.uk
+Date: Thu, 12 Aug 2004 22:22:05 +0000
+Subject: I NEED YOUR HELP.
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S268836AbUHLWWX/20040812222351Z+86@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004 17:11:45 -0400
-Bill Davidsen <davidsen@tmr.com> wrote:
+Dear.Sir/madam,
+ 
+I know that this proposal  might be a surprise to you
+but do consider it as an emmergency. In a nutshell,I
+am Miss Ann Camara 20 years old from the republic of
+Sierria-Leone in west Africa,now seeking for refuge in
+Dakar Senegal under the(UNHCR).
+ 
+I got your contact from where i was searching a good
+penpal for a possible transaction. My (late) father
+Dr. Lamine Camara ,was the managing director of
+Rainbow Gold and Diamond Mine company
+in(KENEMA)Sierra-Leone.But he was killed along side
+with my mother during the longing civil war and all
+his properties was totally destroyed.
+ 
+However, after their death I managed to escape with
+with a very important document (DEPOSIT
+CERTIFICATE)(US$10.5m)Ten million Five hundred
+thousand U.S Dollars deposited by my late father in a
+security company ) as a family treasure which I am the
+next of kin.The money was deposited in security
+company here in senegal.
+ 
+Meanwhile,I am saddled with the problem of securing a
+trust worthy foriegn personality to help me transfer
+the money over to his country and into his possession
+pending my arrival to meet with him.
+ 
+Furthermore,you can  contact the security and finance
+company for confirmation and i will issue a letter of
+Authorisation on your name,that will enable the
+security and finance company to deal with you on my
+behalf.
+ 
+I am giving you this offers as mentioned with every
+confidence on your acceptance to assist me.
+Conclusively,I wish you send me a reply immediately as
+soon as you recieve this proposal.
 
-> 
-> But they *don't* map to consistent device names. All hot pluggable 
-> devices seem to map to the next available name. Looking at one of my 
-> utility systems, it has IDE drives mapped by Redhat with ide-scsi, real 
-> SCSI drives, a couple of flash card slots mapped to SCSI, and a USB 
-> device, all in the /dev/sdX namespace. And in the order in which they 
-> were detected (connected, in other words).
-> 
-> Joerg hasn't made it any better, but it isn't great anyway. I recommend 
-> a script to do discovery and make symlinks somewhere to names which 
-> always match the same device.
-> 
+Until then,
+I remain with the best regards.
+Miss Ann camara.
 
-That's exactly what udev allows you to do (among a lot of other things).
 
-Marc
+

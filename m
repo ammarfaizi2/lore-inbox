@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADOVq>; Thu, 4 Jan 2001 09:21:46 -0500
+	id <S130356AbRADOc7>; Thu, 4 Jan 2001 09:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbRADOVf>; Thu, 4 Jan 2001 09:21:35 -0500
-Received: from [209.58.33.70] ([209.58.33.70]:59148 "EHLO ns1.sdnpk.org")
-	by vger.kernel.org with ESMTP id <S129348AbRADOV1>;
-	Thu, 4 Jan 2001 09:21:27 -0500
-Message-ID: <3A548636.27C231BA@khi.sdnpk.org>
-Date: Thu, 04 Jan 2001 19:18:30 +0500
-From: Mike <mike@khi.sdnpk.org>
-X-Mailer: Mozilla 4.61 [en] (Win95; I)
-X-Accept-Language: en
+	id <S129477AbRADOct>; Thu, 4 Jan 2001 09:32:49 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:18926 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129572AbRADOch>; Thu, 4 Jan 2001 09:32:37 -0500
+Date: Thu, 4 Jan 2001 12:32:23 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: try_to_swap_out() return value problem?
+In-Reply-To: <Pine.LNX.4.21.0101040308450.1174-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101041225140.1188-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-irda@pasta.cs.UiT.No" <linux-irda@pasta.cs.UiT.No>
-Subject: INIT: No inittab file found
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 4 Jan 2001, Marcelo Tosatti wrote:
 
-I am unable to boot my linux. I got the following message during boot.
+> Your latest changes to try_to_swap_out() does not seem to be
+> obviously correct.
 
-====================================================
-INIT: No inittab file found
-INIT: Can't open(/etc/ioctl.save, O_WRONLY): No such file or directory
+> Now refill_inactive() relies on the assumption that swap_out()
+> returning 1 means we successfully freed a page:
 
-Enter Runlevel:
-=====================================================
+The changes try_to_swap_out() has seen in recent
+months indeed have the potential to really disturb
+the balance between refill_inactive_scan() and
+swap_out() ...
 
-Can anyone help me to boot my linux box.
+Looking into changing/fixing/... this balance may
+have some influence on performance, but now that
+aging has been reintroduced tweaking the balance no
+longer seems to have the huge influence it had in
+2.2.
 
+Having said that, it may be good to re-balance the
+VM a bit for 2.4.1...
 
-Regards,
-Mike
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288060AbSANH6Z>; Mon, 14 Jan 2002 02:58:25 -0500
+	id <S288090AbSANIFF>; Mon, 14 Jan 2002 03:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288090AbSANH6Q>; Mon, 14 Jan 2002 02:58:16 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:6027 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288060AbSANH6N>;
-	Mon, 14 Jan 2002 02:58:13 -0500
-Date: Mon, 14 Jan 2002 10:55:37 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Jeff Dike <jdike@karaya.com>, Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The O(1) scheduler breaks UML
-In-Reply-To: <Pine.LNX.4.40.0201131853550.937-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.33.0201141043320.2248-100000@localhost.localdomain>
+	id <S288102AbSANIEz>; Mon, 14 Jan 2002 03:04:55 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:61071 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S288090AbSANIEu>; Mon, 14 Jan 2002 03:04:50 -0500
+Date: Mon, 14 Jan 2002 10:03:34 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ISA hardware discovery -- the elegant solution
+Message-ID: <Pine.LNX.4.33.0201141003190.28735-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You haven't taken into consideration that not many distributions have
+drivers in kernel, and in particular ISA device drivers. Namely because
+ISA probes are ugly and require frobbing of memory in the vague hopes of
+finding said device there. These probes may put ye old ISA device in a bad
+state sometimes even hard locking your box, so chances are if the ISA
+probe is in dmesg, the user explicitely decided to load the device. In
+which case they already know what they have...
 
-On Sun, 13 Jan 2002, Davide Libenzi wrote:
+As an aside, i try not to use ISA and elegant in the same sentence ;)
 
-> > So, is it possible to enable IRQs across the call to _switch_to?
->
-> Yes, this should work :
->
->     if (likely(prev != next)) {
->         rq->nr_switches++;
->         rq->curr = next;
->         next->cpu = prev->cpu;
->         spin_unlock_irq(&rq->lock);
->         context_switch(prev, next);
->     } else
->         spin_unlock_irq(&rq->lock);
+Regards,
+	Zwane Mwaikambo
 
-this change is incredibly broken on SMP - eg. what protects 'prev' from
-being executed on another CPU prematurely. It's even broken on UP:
-interrupt context that changes current->need_resched needs to be aware of
-nonatomic context switches. See my previous mail.
 
-> and there's no need for barrier() and rq reload in this way.
-
-we can remove the barrier(), but for a different reason: the asm volatile
-definition of the switch_to macro is a compilation barrier in itself
-already. I've removed the barrier() from my tree, the change will be in
-the -H8 patch. The rq = this_rq() reload is still necessery.
-
-	Ingo
 

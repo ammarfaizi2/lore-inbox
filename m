@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264857AbSJVUIx>; Tue, 22 Oct 2002 16:08:53 -0400
+	id <S264886AbSJVUKG>; Tue, 22 Oct 2002 16:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264852AbSJVUH5>; Tue, 22 Oct 2002 16:07:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7095 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S264829AbSJVUHp>;
-	Tue, 22 Oct 2002 16:07:45 -0400
-Date: Tue, 22 Oct 2002 22:27:00 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
-In-Reply-To: <3DB5A5BD.D3E00B4A@digeo.com>
-Message-ID: <Pine.LNX.4.44.0210222220480.22282-100000@localhost.localdomain>
+	id <S264852AbSJVUJA>; Tue, 22 Oct 2002 16:09:00 -0400
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:34709 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264853AbSJVUIS> convert rfc822-to-8bit; Tue, 22 Oct 2002 16:08:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Mike Touloumtzis <miket@bluemug.com>
+Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
+Date: Tue, 22 Oct 2002 15:13:41 -0500
+User-Agent: KMail/1.4.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200210220036.g9M0aP831358@scl2.sfbay.sun.com> <200210221303.47488.pollard@admin.navo.hpc.mil> <20021022194512.GA18955@bluemug.com>
+In-Reply-To: <20021022194512.GA18955@bluemug.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210221513.41729.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 22 October 2002 02:45 pm, Mike Touloumtzis wrote:
+> On Tue, Oct 22, 2002 at 01:03:47PM -0500, Jesse Pollard wrote:
+> > And I really doubt that anybody has 10000 unique groups (or even
+> > close to that) running under any system. The center I'm at has
+> > some of the largest UNIX systems ever made, and there are only
+> > about 600 unique groups over the entire center. The largest number
+> > of groups a user can be in is 32. And nobody even comes close.
+>
+> Large CVS hosting operations like GNU Savannah have historically used
+> patches to increase NGROUPS.  Using one group per project in CVS is the
+> sanest way to manage a big repository with complex permissions.
 
-On Tue, 22 Oct 2002, Andrew Morton wrote:
+OK, I'll bite..
 
-> We seem to have lost a pte_page_unlock() from fremap.c:zap_pte()? I
-> fixed up the ifdef tangle in there within the shpte-ng patch and then
-> put the pte_page_unlock() back.
+Why is this?
 
-ok. I too fixed up the shpte #ifdef tangle in there as well, and it was
-complex for no good reason, so i suspected that it was missing a line or
-two.
+I saw the post about having to have access to a lock directory by a
+cvsuser, but how is that different than having that directory with an
+ACL entry that includes the cvsuser? Or an ACL that includes the
+group that the cvsuser is a member of?
 
-> I also added a page_cache_release() to the error path in
-> filemap_populate(), if install_page() failed.
+Granted, each project repository would have such a directory for
+locks belonging to the project, but that seems to already be the
+case. Setting up the ACL would just be one additional step in
+setting up a project.
 
-hm, i somehow missed to add this, this was reported once already.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-> The 2TB file size limit for mmap on non-PAE is a little worrisome. [...]
-
-the limit is only there for 32-bit ptes on 32-bit platforms. 64-bit ptes
-(both true 64-bit architectures and x86-PAE) has a ~64 zetabyte filesize
-limit. I do not realistically believe that any 32-bit x86 box that is
-connected to a larger than 2 TB disk array cannot possibly run a PAE
-kernel. Just like you need PAE for more than 4 GB physical RAM. I find it
-a bit worrisome that 32-bit x86 ptes can only support up to 4 GB of
-physical RAM, but such is life :-)
-
-	Ingo
-
+Any opinions expressed are solely my own.

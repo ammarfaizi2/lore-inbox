@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVDDTdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVDDTkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVDDTdG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 15:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVDDTdG
+	id S261351AbVDDTkR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 15:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVDDTkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 15:33:06 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:34663 "EHLO smtp5.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261349AbVDDTc5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 15:32:57 -0400
-X-ME-UUID: 20050404193255809.C5A691C0015A@mwinf0504.wanadoo.fr
-Date: Mon, 4 Apr 2005 21:29:45 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Michael Poole <mdpoole@troilus.org>,
-       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050404192945.GB1829@pegasos>
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050404191745.GB12141@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Mon, 4 Apr 2005 15:40:16 -0400
+Received: from 71-33-33-84.albq.qwest.net ([71.33.33.84]:24715 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261351AbVDDTkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 15:40:07 -0400
+Date: Mon, 4 Apr 2005 13:42:04 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Nigel Cunningham <ncunningham@cyclades.com>, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       len.brown@intel.com
+Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+In-Reply-To: <20050404113129.GA7120@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.61.0504041322490.30273@montezuma.fsmlabs.com>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
+ <20050403193750.40cdabb2.akpm@osdl.org> <1112608444.3757.17.camel@desktop.cunningham.myip.net.au>
+ <20050404113129.GA7120@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 12:17:46PM -0700, Greg KH wrote:
-> On Mon, Apr 04, 2005 at 08:27:53PM +0200, Sven Luther wrote:
-> > Mmm, probably that 2001 discussion about the keyspan firmware, right ?
+Hi Pavel!
+
+On Mon, 4 Apr 2005, Pavel Machek wrote:
+
+> > > > The patches are against 2.6.11-rc1 with Zwane's CPU hotplug patch in -mm
+> > > >  tree.
+> > > 
+> > > Should I merge that thing into mainline?  It seems that a few people are
+> > > needing it.
 > > 
-> >   http://lists.debian.org/debian-legal/2001/04/msg00145.html
+> > Perhaps we should address the MTRR issue first.
 > > 
-> > Can you summarize the conclusion of the thread, or what you did get from it,
-> > please ? 
+> > I've had code in Suspend2 for quite a while (6 months+) that removes the
+> > sysdev support for MTRRs and saves and restores them with CPU context,
+> > thereby avoiding the smp_call-while-interrupts-disabled issue. Perhaps
+> > it would be helpful here?
 > 
-> That people didn't like the inclusion of firmware, I posted how you can
-> fix it by moving it outside of the kernel, and asked for patches.
-
-Yeah, that is a solution to it, and i also deplore that none has done the job
-to make it loadable from userland. For now, debian is satisfied by moving the
-whole modules involved to non-free, and this has already happened in part.
-
-> None have come.
+> This seems like separate issue... I'd prefer not to block this patch.
 > 
-> So I refuse to listen to talk about this, as obviously, no one cares
-> enough about this to actually fix the issue.
+> MTRRs should be probably handled by some kind of "cpu is going down"
+> and "cpu is going up" callbacks... Zwane, do you have any ideas?
+> Linklist of handlers should be enough...
 
-Well, i disagree with the above analysis. The problem is not so much that the
-firmware violate the GPL, as it constitutes mere agregation, but that the
-actual copyright statement of the files containing the firmware blobs place
-them de-facto under the GPL, which i doubt is what was intented originally,
-don't you think.
+Hmm, it seems to me that we if we're bringing up additional processors we 
+only need to update the processor coming online (using mtrrs from an 
+online processor) and hold a lock stopping any other updates. So for that, 
+we definitely need online and offline callbacks.
 
-And *I* do care about this issue, and will follow up this issue with mails to
-the individual copyright holders of the file, to clarify the situation.
-
-> People drag this up about once a year, so you are just following the
-> trend...
-
-Nope, i am aiming to clarify this issue with regard to the debian kernel, so
-that we may be clear with ourselves, and actually ship something which is not
-of dubious legal standing, and that we could get sued over for GPL violation.
-
-> This is my last reply to this thread, unless it contains code.
-
-Ok, but i hope that not only code, but patches clarifying the legal situation
-will make you happy.
-
-Friendly,
-
-Sven Luther
+Thanks,
+	Zwane
 

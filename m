@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261584AbTCKT44>; Tue, 11 Mar 2003 14:56:56 -0500
+	id <S261568AbTCKTy3>; Tue, 11 Mar 2003 14:54:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261585AbTCKT44>; Tue, 11 Mar 2003 14:56:56 -0500
-Received: from packet.digeo.com ([12.110.80.53]:6792 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261584AbTCKT4z>;
-	Tue, 11 Mar 2003 14:56:55 -0500
-Date: Tue, 11 Mar 2003 12:08:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: phillips@arcor.de, zbrown@tumblerings.org, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-Id: <20030311120824.2f5a7374.akpm@digeo.com>
-In-Reply-To: <24360000.1047411221@flay>
-References: <200303020011.QAA13450@adam.yggdrasil.com>
-	<20030311184043.GA24925@renegade>
-	<22230000.1047408397@flay>
-	<20030311192639.E72163C5BE@mx01.nexgo.de>
-	<24360000.1047411221@flay>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261570AbTCKTy3>; Tue, 11 Mar 2003 14:54:29 -0500
+Received: from citi.umich.edu ([141.211.92.141]:4410 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S261568AbTCKTy1>;
+	Tue, 11 Mar 2003 14:54:27 -0500
+Date: Tue, 11 Mar 2003 15:04:58 -0500
+From: Niels Provos <provos@citi.umich.edu>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hanna Linder <hannal@us.ibm.com>, Janet Morgan <janetmor@us.ibm.com>,
+       Marius Aamodt Eriksen <marius@citi.umich.edu>,
+       Shailabh Nagar <nagar@watson.ibm.com>
+Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
+Message-ID: <20030311200457.GE9975@citi.citi.umich.edu>
+References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com> <20030311043202.GK2225@citi.citi.umich.edu> <Pine.LNX.4.50.0303111013020.1855-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Mar 2003 20:07:31.0132 (UTC) FILETIME=[D8E967C0:01C2E809]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0303111013020.1855-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> >> At the moment, I slap the patches back on top of every new version
-> >> seperately, which works well, but is a PITA.
-> > 
-> > Tell me about it.
-> 
-> Well, it normally only takes me an hour per release.
+On Tue, Mar 11, 2003 at 10:15:10AM -0800, Davide Libenzi wrote:
+> Niels, can you publish inside the libevent web site the library that has
+> epoll inside ( possibly with the changes I made to epoll_create() ) ? I'm
+> including the test application, so other can repeat tests if they want.
+I just put up a snapshot at
 
-Whoa.  You need better tools.
+  http://naughty.monkey.org/~provos/libevent-snapshot.tar.gz
 
-A bunch of fine people took patch-tools and turned them into a real project. 
-They have .deb's and .rpm's, but it looks like they're a bit old and a `cvs co'
-is needed.  I'm still using the old stuff, but I'm sure theirs is better.
+that includes the benchmark.
 
-See http://savannah.nongnu.org/projects/quilt/
-
-
+Niels.

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbUCHRII (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 12:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbUCHRII
+	id S262253AbUCHRSe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 12:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUCHRSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 12:08:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59264 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262301AbUCHRIF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 12:08:05 -0500
-Date: Mon, 8 Mar 2004 09:06:40 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Kliment Yanev <Kliment.Yanev@helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-Message-Id: <20040308090640.2d557f9e.rddunlap@osdl.org>
-In-Reply-To: <404C8A35.3020308@helsinki.fi>
-References: <40408852.8040608@helsinki.fi>
-	<20040228104105.5a699d32.rddunlap@osdl.org>
-	<40419A1C.5070103@helsinki.fi>
-	<20040301101706.3a606d35.rddunlap@osdl.org>
-	<404C8A35.3020308@helsinki.fi>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 8 Mar 2004 12:18:34 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:43694 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S262253AbUCHRSd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 12:18:33 -0500
+Date: Mon, 8 Mar 2004 10:18:31 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       george@mvista.com, pavel@ucw.cz,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
+Message-ID: <20040308171831.GF15065@smtp.west.cox.net>
+References: <1xpyM-2Op-21@gated-at.bofh.it> <1xqXN-44F-13@gated-at.bofh.it> <1xr7w-4c4-9@gated-at.bofh.it> <1xrqW-4rh-51@gated-at.bofh.it> <1xuS8-83Q-11@gated-at.bofh.it> <m3hdwz9szt.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3hdwz9szt.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 08 Mar 2004 16:59:01 +0200 Kliment Yanev wrote:
+On Mon, Mar 08, 2004 at 05:57:26PM +0100, Andi Kleen wrote:
+> Tom Rini <trini@kernel.crashing.org> writes:
+> >
+> > Here's where what Andi said about being able to get the pt_regs stuff
+> > off the stack (I think that's what he said at least) started to confuse
+> > me slightly.  But if I understand it right (and I never got around to
+> > testing this) we can replace the do_schedule() stuffs at least with
+> > something like kgdb_get_pt_regs(), since (and I lost my notes on this,
+> > so it's probably not quite right) (thread_info->esp0)-1
+> 
+> No, that's the user space registers.
+> 
+> You don't need these registers really as long as you have the 
+> correct dwarf2 CFI description of all the code involved. gdb
+> is then able to reconstruct them using the C stack by itself.
+> 
+> All it needs for that is esp and eip.
 
-| -----BEGIN PGP SIGNED MESSAGE-----
-| Hash: SHA1
-| 
-| 
-| 
-| Randy.Dunlap wrote:
-| 
-| | All of the kernel interface functions to PCMCIA Card Services have
-| | changed in 2.6 so quite a bit of code will have to be changed here.
-| | You can ask Nokia for a 2.6 update since it is now released, or
-| | you can ask for help from the linux-wlan (or wlan-ng) project people,
-| | or you can compare a 2.4 PCMCIA kernel driver to a 2.6 PCMCIA kernel
-| | driver to see what changes are required.
-| |
-| 
-| I compared the orinoco_cs drivers in 2.4 and 2.6 and I updated the nokia
-| driver source. However now I get "-1 unknown symbol in module" when I
-| try to insmod the module... where should I start troubleshooting?
+Ah, OK.  Amit, how about for the expanded T-packet thing, we do what you
+suggested, except call it kgdb_arch_extra_regs() and let the arch fill
+out whatever regs it needs to.  ESP/EIP for x86_64/i386, PC/SP for
+ppc32, etc, etc?
 
-Set the console loglevel to 9 so that you can see all of the
-kernel messages and then try to reload the module.  Some explanatory
-error message should appear to indicate the problem area.
-
---
-~Randy
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

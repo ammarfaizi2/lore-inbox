@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265177AbTGCRnH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 13:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbTGCRnH
+	id S265163AbTGCRmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 13:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbTGCRmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 13:43:07 -0400
-Received: from granite.he.net ([216.218.226.66]:25095 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265177AbTGCRmz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 13:42:55 -0400
-Date: Thu, 3 Jul 2003 10:56:53 -0700
-From: Greg KH <greg@kroah.com>
+	Thu, 3 Jul 2003 13:42:43 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:49145 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id S265163AbTGCRmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 13:42:35 -0400
+Date: Thu, 3 Jul 2003 10:55:07 -0700
+From: Chris Wright <chris@wirex.com>
 To: Jeff Garzik <jgarzik@pobox.com>
 Cc: Stephen Smalley <sds@epoch.ncsc.mil>, Linus Torvalds <torvalds@osdl.org>,
        Andrew Morton <akpm@osdl.org>,
        Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Chris Wright <chris@wirex.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, Chris Wright <chris@wirex.com>,
        James Morris <jmorris@intercode.com.au>,
        lkml <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Add SELinux module to 2.5.74-bk1
-Message-ID: <20030703175653.GA1896@kroah.com>
+Message-ID: <20030703105507.F8208@figure1.int.wirex.com>
 References: <1057254295.1110.1016.camel@moss-huskers.epoch.ncsc.mil> <20030703175153.GC27556@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030703175153.GC27556@gtf.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030703175153.GC27556@gtf.org>; from jgarzik@pobox.com on Thu, Jul 03, 2003 at 01:51:53PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 01:51:53PM -0400, Jeff Garzik wrote:
-> On Thu, Jul 03, 2003 at 01:44:55PM -0400, Stephen Smalley wrote:
-> > The patch against 2.5.74-bk1 available from
-> > http://www.nsa.gov/selinux/lk/2.5.74-bk1-selinux.patch.gz adds the
-> > SELinux module to the tree and modifies the security/Makefile and
-> > security/KConfig files for SELinux.  The last dependency for SELinux,
-> > the vm_enough_memory security hook, was included in -bk1.  Please
-> > consider applying.  Thanks.  diffstat output is below.  
-> 
+* Jeff Garzik (jgarzik@pobox.com) wrote:
 > nitpicks:
 > 
 > 1) "selinux" is a poor toplevel directory.  We already have the toplevel
 > "security" directory, this code should go in there.
 
-Stephen forgot to use the '-p1' flag on diffstat, the correct output is:
+the diffstat is misleading.  actual diffstat output (relative to top level):
  security/Kconfig                                 |    2 
  security/Makefile                                |    6 
  security/selinux/Kconfig                         |   34 
@@ -85,10 +78,9 @@ Stephen forgot to use the '-p1' flag on diffstat, the correct output is:
  security/selinux/ss/sidtab.h                     |   71 
  security/selinux/ss/symtab.c                     |   48 
  security/selinux/ss/symtab.h                     |   28 
- 40 files changed, 12538 insertions(+)
+ 40 files changed, 12538 insertions
 
-That shows that everything is in the security directory.
-
-Now to wade through 12 thousand lines of code...
-
-greg k-h
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUAaSt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 13:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbUAaSt2
+	id S265146AbUAaTJh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 14:09:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbUAaTJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 13:49:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:9925 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265117AbUAaSt1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 13:49:27 -0500
-Date: Sat, 31 Jan 2004 19:49:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: David Ford <david+challenge-response@blue-labs.org>
-Cc: linux-kernel@vger.kernel.org, Mans Matulewicz <cybermans@xs4all.nl>
-Subject: Re: ide-cdrom / atapi burning bug - 2.6.1
-Message-ID: <20040131184923.GD11683@suse.de>
-References: <1075511134.5412.59.camel@localhost> <20040131093438.GS11683@suse.de> <401BF122.2090709@blue-labs.org>
+	Sat, 31 Jan 2004 14:09:37 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:51381 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S265146AbUAaTJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 14:09:36 -0500
+Subject: Re: 2.6.1 Speaker
+From: Matthias Hentges <mailinglisten@hentges.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040131081439.GA440@ucw.cz>
+References: <20040131022540.04278a4a.backblue@netcabo.pt>
+	 <20040131081439.GA440@ucw.cz>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075576173.2753.24.camel@mhcln02>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <401BF122.2090709@blue-labs.org>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 31 Jan 2004 20:09:35 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 31 2004, David Ford wrote:
-> I don't have an RW, but when my cdrom fixates, it stalls everything 
-> while it's fixating.  I have an nForce chipset.  (2.6.x)
+Am Sa, 2004-01-31 um 09.14 schrieb Vojtech Pavlik:
+> On Sat, Jan 31, 2004 at 02:25:40AM +0000, backblue wrote:
+> 
+> > I'm using 2.6.1 kernel, and my speakers stop's working with 2.6.1,
+> > anyone know why? this dont append to me, a couple of friends have the
+> > same problem, how can i solve this... 
+> 
+> You need to enable it. Drivers->Input->Misc->PC-Speaker
 
-Does "everything" mean everything on that ide channel? If so, then
-that's a hardware limitation.
+Wouldn't it make sense to enable them by default?
+I know few people how would want to turn the "beeper" off.
 
+Just a thought.
 -- 
-Jens Axboe
+
+Matthias Hentges 
+Cologne / Germany
+
+[www.hentges.net] -> PGP welcome, HTML tolerated
+ICQ: 97 26 97 4   -> No files, no URL's
+
+My OS: Debian Woody. Geek by Nature, Linux by Choice
 

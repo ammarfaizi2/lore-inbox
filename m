@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265801AbUAFFEs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 00:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbUAFFEr
+	id S266064AbUAFFVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 00:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbUAFFVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 00:04:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20193 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265801AbUAFFEq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 00:04:46 -0500
-Date: Mon, 5 Jan 2004 21:04:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@colin2.muc.de>
-cc: Andi Kleen <ak@muc.de>, David Hinds <dhinds@sonic.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-In-Reply-To: <20040106040546.GA77287@colin2.muc.de>
-Message-ID: <Pine.LNX.4.58.0401052100380.2653@home.osdl.org>
-References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org>
- <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de>
+	Tue, 6 Jan 2004 00:21:11 -0500
+Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:13139 "HELO
+	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266064AbUAFFVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 00:21:08 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] psmouse info in 2.6.1-rc1
+Date: Tue, 6 Jan 2004 00:21:02 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0401051711170.23750@student.dei.uc.pt> <200401051317.23795.dtor_core@ameritech.net> <Pine.LNX.4.58.0401051827120.23750@student.dei.uc.pt>
+In-Reply-To: <Pine.LNX.4.58.0401051827120.23750@student.dei.uc.pt>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401060021.02081.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 05 January 2004 01:29 pm, Marcos D. Marado Torres wrote:
+> > It is psmouse.proto=imps if psmouse is built in the kernel and
+> > proto=imps if psmouse is compiled as a module. I mentioned only the
+> > first form because I assumed that most people have it built-in.
+>
+> Weird: I have it built in the kernel and need to do proto=imps and not
+> psmouse.proto=imps ...
+>
 
+Oh, i see it now... The -mm tree has one obsolete patch that screws up
+psmouse module and drops the prefix.
 
-On Mon, 6 Jan 2004, Andi Kleen wrote:
-> > 
-> > You literally can't do that: the RAM addresses are decoded by the 
-> > northbridge before they ever hit the PCI bus, so it's impossible to "map 
-> > over" RAM in general. 
-> 
-> Are you sure? I have a doc from AMD somewhere on the memory ordering
-> on K8 and it gives this order: (highest to lowest) 
-> 
-> AGP aperture, TSEG, ASEG, IORR, Fixed MTRR, TOP_MEM
+Andrew,
 
-Those are all in the CPU or northbridge (well, on the opteron, the 
-northbridge is integrated so it all boils down to the CPU).
+could you please drop the psmouse-parameter-parsing-fix.patch from your
+tree as with Vojtech's blessing we are now going into other direction
+(modulename.option=value for built-in components and option=value for
+modules).
 
-So yes, I'm sure. You have to have northbridge-specific code to punch a 
-"hole" in the RAM decoder, and some of them are "bios-locked", ie they 
-have registers that become read-only after the first time they are written 
-(or after a special lock-bit has been written). 
-
-So in some cases you can't do it at all.
-
-> I have successfully mapped the AGP aperture
-> over RAM and also seen it shadowing PCI mappings. I admit I haven't tried
-> it with PCI mappings.  
-
-The AGP aperture is generally done in the northbridge, so it all depends 
-on what the decode priority is for the northbridge chip. That's 
-implementation-dependent.
-
-> But can you suggest a reliable way to find a memory hole in e820?
-> I haven't one figured out and AFAIK there isn't even any guarantee 
-> by the BIOS that there is any. e.g. Opteron BIOS tend to use all
-> the precious space < 4GB up for existing mappings and I would expect
-> other i386 BIOS to behave the same.
-
-If you ahve a proper e820 map, then it should work correctly, with 
-anything that is RAM being marked as such (or being marked as "reserved").
-
-The problems happen when you do _not_ have a proper e820 map, either due 
-to bootloader bugs or BIOS problems, or because the user overrode the 
-values with a "mem=xxxx" thing.
-
-		Linus
+Dmitry

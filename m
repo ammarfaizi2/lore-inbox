@@ -1,70 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263457AbUFBQH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbUFBQPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263457AbUFBQH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUFBQH4
+	id S263271AbUFBQPp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:15:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUFBQPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:07:56 -0400
-Received: from nimbus19.internetters.co.uk ([209.61.216.65]:51906 "HELO
-	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
-	id S263457AbUFBQFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:05:30 -0400
-Subject: Why does local_bh_enable warn of disabled IRQ's with the Tulip
-	Driver.
-From: Alex Bennee <kernel-hacker@bennee.com>
-To: "LinuxSH (sf)" <linuxsh-dev@lists.sourceforge.net>,
-       "Linux-SH (m17n)" <linux-sh@m17n.org>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Hackers Inc
-Message-Id: <1086192323.7714.25.camel@cambridge.braddahead.com>
+	Wed, 2 Jun 2004 12:15:45 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:3309 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S263271AbUFBQPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 12:15:43 -0400
+Date: Wed, 2 Jun 2004 10:15:41 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Alasdair G Kergon <agk@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
+Message-ID: <20040602161541.GB15785@schnapps.adilger.int>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040602154129.GO6302@agk.surrey.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 02 Jun 2004 17:05:23 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kXdP64Ggrk/fb43R"
+Content-Disposition: inline
+In-Reply-To: <20040602154129.GO6302@agk.surrey.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Well I seemed to of merged the ST40 PCI stuff with better success that
-my last attempt at a forward port. However I'm confused by the failure
-to start up the ethernet properly. As you see with the trace I get a
-warning about the failure to enable irqs:
+--kXdP64Ggrk/fb43R
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-...
-NET: Registered protocol family 2
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 2048 bind 4096)
-NET: Registered protocol family 1
-eth0: tulip_up(), irq==4.
-eth0: Done tulip_up(), CSR0 fff94800, CSR5 fc675414 CSR6 ff972117.
-Badness in local_bh_enable at kernel/softirq.c:136
- 
-Call trace:
-[<880185f4>] local_bh_enable+0x74/0xa0
-[<8810bcec>] dev_open+0xac/0x160
-[<8810d6e8>] dev_change_flags+0x48/0x140
-[<88111720>] dev_mc_upload+0x0/0x40
-[<8802ad20>] __print_symbol+0x0/0x140
-[<88014600>] printk+0x0/0x1e0
-[<88014600>] printk+0x0/0x1e0
-[<88002102>] init+0x22/0x140
-[<88173378>] __func__.4+0x1f4/0x16748
-[<88004264>] kernel_thread_helper+0x4/0x20
+On Jun 02, 2004  16:41 +0100, Alasdair G Kergon wrote:
+> kcopyd
+>=20
+> --- diff/drivers/md/kcopyd.c	1969-12-31 18:00:00.000000000 -0600
+> +++ source/drivers/md/kcopyd.c	2004-06-01 19:51:31.000000000 -0500
+> @@ -0,0 +1,667 @@
+> +/*
+> + * Copyright (C) 2002 Sistina Software (UK) Limited.
+> + *
+> + * This file is released under the GPL.
+> + */
 
-What I can't figure out is what:
+It might be nice to have a brief comment here explaining what this is
+and how it is supposed to be used.
 
-#define __local_bh_enable() \
-		do { barrier(); preempt_count() -= SOFTIRQ_OFFSET; } while (0)
+Cheers, Andreas
 
-Is aiming to do. Seeing as I haven't enabled PREEMPT yet it seems
-pointless messing with the preempt count. Why is it considered bad to
-have irqs enabled when enabling the bh handler? Is it just the tulip
-driver isn't following the correct 2.6 IRQ semantics?
+PS - It isn't really nice to exclude yourself from the reply-to list.
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
--- 
-Alex, Kernel Hacker: http://www.bennee.com/~alex/
 
-Mommy, what happens to your files when you die?
+--kXdP64Ggrk/fb43R
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAvf0tpIg59Q01vtYRAmVOAJ4xRy+fM9c/pWUBONIJwieSD+Q80wCdEeIA
+4sw9WmhBkCbGKNp25knA9QU=
+=Q+3K
+-----END PGP SIGNATURE-----
+
+--kXdP64Ggrk/fb43R--

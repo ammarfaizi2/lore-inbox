@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUBTLFy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 06:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbUBTLFy
+	id S261166AbUBTLcF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 06:32:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUBTLcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 06:05:54 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:22988 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261160AbUBTLFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 06:05:53 -0500
-Date: Fri, 20 Feb 2004 03:06:49 -0800
+	Fri, 20 Feb 2004 06:32:05 -0500
+Received: from piro.phys2.uniroma1.it ([151.100.123.25]:58243 "EHLO
+	piro.phys2.uniroma1.it") by vger.kernel.org with ESMTP
+	id S261166AbUBTLcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 06:32:02 -0500
+Subject: laptop mode in 2.4.24
+From: Cristiano De Michele <demichel@na.infn.it>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Hot kernel change
-Message-ID: <20040220110649.GA24361@hockwold.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org> <Pine.LNX.4.53.0402190845440.30037@chaos> <20040219200449.GC5916@hockwold.net> <30562.62.229.71.110.1077222343.squirrel@webmail.r3pek.homelinux.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Department of Physics, University of Naples "Federico II"
+Message-Id: <1077276719.6533.16.camel@piro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <30562.62.229.71.110.1077222343.squirrel@webmail.r3pek.homelinux.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Jim Richardson <warlock@eskimo.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 12:32:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 08:25:43PM -0000, Carlos Silva wrote:
+Hi,
+I had kernel 2.4.22-ac4 + laptop mode patch 
+and it worked perfectly.
+Now I'm on a 2.4.24 kernel where the aforementioned
+patch has been merged in, but it seems
+that it does not work properly,
+I've set bdflush as follows:
 
-<snip>
+cat /proc/sys/vm/bdflush
+30 500 0 0 60000 60000 60 20 0
 
+cat /proc/sys/vm/laptop_mode
+1
 
->well, that's what i had in mind... if this could be possible under x86
->would be great. i say x86 'cause for what a read, MkLinux looks like a
->MacLinux Distribution, correct me if i am wrong.
->like i said in the first place, i don't program for the kernel (yet, i
->intend to), so i don't know what are the big/small changes that have to be
->made for somthing like this to work. but i would really like to see this
->working :D
+and using
+echo "1" > cat /proc/sys/vm/block_dump
 
-MkLinux was available for x86, but I have no idea if it is still in
-development. To be clear, it doesn't allow you to simply replace a
-kernel, but to add a second one, and possibly, to start transferring
-over tasks to it. 
+in syslog there are only such messages:
 
-You can do much the same thing with user mode linux also. Again, not a
-kernel replacement in that sense, but something similar, sort of. 
+.
+.
+.
+Feb 20 11:31:17 piro kernel: kjournald: WRITE block 46640/8 on 03:05
+Feb 20 11:31:17 piro kernel: kjournald: WRITE block 46648/8 on 03:05
+.
+.
+.
 
+that is only journaling is writing to my HD
+and anyway every minute more or less something
+gets written to HD preventing it from being spinned down
 
+thx Cristiano
+
+  
 -- 
-Jim Richardson     http://www.eskimo.com/~warlock
-RFC 882 put the dot in .com.
+Cristiano De Michele <demichel@na.infn.it>
+Department of Physics, University of Naples "Federico II"

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277721AbRJMKCE>; Sat, 13 Oct 2001 06:02:04 -0400
+	id <S277260AbRJMKFf>; Sat, 13 Oct 2001 06:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277693AbRJMKBz>; Sat, 13 Oct 2001 06:01:55 -0400
-Received: from zero.aec.at ([195.3.98.22]:58385 "HELO zero.aec.at")
-	by vger.kernel.org with SMTP id <S277656AbRJMKBr>;
-	Sat, 13 Oct 2001 06:01:47 -0400
-To: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
-cc: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com
-Subject: Re: crc32 cleanups
-In-Reply-To: <Pine.LNX.4.30.0110131131200.32076-100000@stud.fbi.fh-darmstadt.de>
-From: Andi Kleen <ak@muc.de>
-Date: 13 Oct 2001 12:02:16 +0200
-In-Reply-To: Jan-Marek Glogowski's message of "Sat, 13 Oct 2001 11:48:11 +0200 (CEST)"
-Message-ID: <k2het3luxj.fsf@zero.aec.at>
-User-Agent: Gnus/5.0700000000000003 (Pterodactyl Gnus v0.83) Emacs/20.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277756AbRJMKFZ>; Sat, 13 Oct 2001 06:05:25 -0400
+Received: from nyx.poczta.fm ([217.74.65.51]:59140 "HELO nyx.poczta.fm")
+	by vger.kernel.org with SMTP id <S277728AbRJMKFM> convert rfc822-to-8bit;
+	Sat, 13 Oct 2001 06:05:12 -0400
+Message-ID: <200110131207180020.0025C69E@www.poczta.fm>
+In-Reply-To: <200110121736540000.0004B986@www.poczta.fm>
+ <200110131134270130.0007B2AE@www.poczta.fm>
+ <200110131159150340.001E68EB@www.poczta.fm>
+X-Mailer: Calypso Version 3.10.03.02 (3)
+Date: Sat, 13 Oct 2001 12:07:18 +0200
+From: "Kamil Kompa" <kklinux@poczta.fm>
+To: linux-kernel@vger.kernel.org
+Subject: APM trouble
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-EMID: f5750138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.30.0110131131200.32076-100000@stud.fbi.fh-darmstadt.de>,
-Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de> writes:
-> Comments
+Hi !
 
-Just use the existing linker features. Link the crc code as an .a library.
-If some code needs it it'll get included. If it needs initialization 
-use the existing __initcall() setup. It'll generate a call to the 
-initialization function when it is linked in, and none if it is not.
+I have a trouble with apmd. I have Red Hat Linux 7.1. My laptop is Pentium3, 32MB RAM, ATI Rage, (if You need more information please let me know). I wanted to recompile my kernel to add some USB devices.
+My usb devices work properly on my new kernel, but system hangs when apmd is starting. I have configured apm in many diferrent ways, but always I have the same problem. There is no such problem when I use kernel that is made after Linux installation as a "workstation", so Im sure that apmd can work properly on my computer. Also when I install Lin uxas "laptop" or "custom system" system hangs when apmd is starting.
+Do You knoiw what schould I do? Perhaps You know kernel configurations for "workstation", "laptop", and "custom system". I think it would help me.
 
-[Note that __initcall may be a bit tricky here if some other __initcall
-user like an ethernet driver needs crc32 too; there is unfortunately no
-priority mechanism in __initcall to enforce that the crc32 init runs before
-the other initcalls. best would probably just to use a static table to avoid 
-this issue] 
+Thank You for all answers.
 
--Andi
+Kamil Kompa
+ 
+
+
+----------------------------------------------------------------------
+Pliki wideo za jednym kliknieciem. Wyszukiwarka multimediow.
+Nowe Centrum Wyszukiwania >> http://szukaj.interia.pl/
+

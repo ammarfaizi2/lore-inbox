@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269042AbTBWX1X>; Sun, 23 Feb 2003 18:27:23 -0500
+	id <S269008AbTBWXXk>; Sun, 23 Feb 2003 18:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269044AbTBWX1X>; Sun, 23 Feb 2003 18:27:23 -0500
-Received: from ppp59-net2.boo.net ([216.200.67.189]:48051 "EHLO kaneda.boo.net")
-	by vger.kernel.org with ESMTP id <S269042AbTBWX1V>;
-	Sun, 23 Feb 2003 18:27:21 -0500
-Message-Id: <3.0.6.32.20030223184931.00825e30@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Sun, 23 Feb 2003 18:49:31 -0500
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: [PATCH] page coloring for 2.5.62 kernel, version 1
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S269012AbTBWXXk>; Sun, 23 Feb 2003 18:23:40 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18187 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S269008AbTBWXXi>; Sun, 23 Feb 2003 18:23:38 -0500
+Date: Sun, 23 Feb 2003 18:29:18 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+In-Reply-To: <3E57FD42.7030606@candelatech.com>
+Message-ID: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 22 Feb 2003, Ben Greear wrote:
 
-Hello again. This version of the page coloring patch implements
-"stealth mode", i.e. is as minimal as possible. There are many
-cleanups, and a few mods for the 2.5 series kernel.
+> Mark Hahn wrote:
 
-The biggest change is that the hot/cold per-cpu lists are individually
-colored now, and the patch has the effect of randomizing the cache
-colors of pages pumped into the per-cpu lists. The lists are still lifo
-and still favor pages just freed.
+> > oh, come on.  the issue is whether memory is fast and flat.
+> > most "scalability" efforts are mainly trying to code around the fact
+> > that any ccNUMA (and most 4-ways) is going to be slow/bumpy.
+> > it is reasonable to worry that optimizations for imbalanced machines
+> > will hurt "normal" ones.  is it worth hurting uni by 5% to give
+> > a 50% speedup to IBM's 32-way?  I think not, simply because 
+> > low-end machines are more important to Linux.
+> > 
+> > the best way to kill Linux is to turn it into an OS best suited 
+> > for $6+-digit machines.
+> 
+> Linux has a key feature that most other OS's lack:  It can (easily, and by all)
+> be recompiled for a particular architecture.  So, there is no particular reason why
+> optimizing for a high-end system has to kill performance on uni-processor
+> machines.
 
-No difference in kernel compile time on the K7 system I have; I suspect
-that decoupling allocation of pages from allocation of pages to processes
-dilutes the effectiveness of page coloring, but all of the schemes I can
-think of to enforce page coloring to processes are much more complicated
-than the one used by this patch.
+This is exactly correct, although build just the optimal kernel for a
+machine is still somewhat art rather than science. You have to choose the
+trade-offs carefully.
 
-Patch with /proc output:
+> For instance, don't locks simply get compiled away to nothing on
+> uni-processor machines?
 
-www.boo.net/~jasonp/page_color-2.5.62-20030223.patch
+Preempt causes most of the issues of SMP with few of the benefits. There
+are loads for which it's ideal, but for general use it may not be the
+right feature, and I ran it during the time when it was just a patch, but
+lately I'm convinced it's for special occasions.
 
-and without:
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-www.boo.net/~jasonp/page_color-2.5.62-20030223a.patch
-
-Feedback of any sort welcome.
-jasonp

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315106AbSDWIcI>; Tue, 23 Apr 2002 04:32:08 -0400
+	id <S315111AbSDWIeI>; Tue, 23 Apr 2002 04:34:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315109AbSDWIcH>; Tue, 23 Apr 2002 04:32:07 -0400
-Received: from relay.dera.gov.uk ([192.5.29.49]:45317 "HELO relay.dera.gov.uk")
-	by vger.kernel.org with SMTP id <S315106AbSDWIcG>;
-	Tue, 23 Apr 2002 04:32:06 -0400
-Subject: Re: XFS in the main kernel
-From: Tony Gale <gale@taz.dstl.gov.uk>
-To: Wichert Akkerman <wichert@wiggy.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020422234419.GQ2470@dstl.gov.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 23 Apr 2002 09:31:58 +0100
-Message-Id: <1019550718.17000.1.camel@syntax.dstl.gov.uk>
+	id <S315113AbSDWIeH>; Tue, 23 Apr 2002 04:34:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62689 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315111AbSDWIeG>;
+	Tue, 23 Apr 2002 04:34:06 -0400
+Date: Tue, 23 Apr 2002 01:14:32 -0700 (PDT)
+Message-Id: <20020423.011432.86512016.davem@redhat.com>
+To: paulus@samba.org
+Cc: peterson@austin.ibm.com, anton@au.ibm.com, mj@suse.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: PowerPC Linux and PCI
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15557.5295.921549.964163@argo.ozlabs.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-23 at 00:44, Wichert Akkerman wrote:
-> If memory serves me corrrectly one of the problems was that rename(2)
-> returned an error in rare cases that should not be possible (might have
-> been ENOENT even though both we have verified in advance that can't be
-> true).
-> 
+   From: Paul Mackerras <paulus@samba.org>
+   Date: Tue, 23 Apr 2002 18:00:47 +1000 (EST)
+   
+   Doesn't the fact that people have been successfully using PCI devices
+   in PowerPC machines since 1995 or 1996 suggest to you that it might be
+   your understanding that is faulty rather than the code? :)
 
-That may be related to the accented character handling bug that appeared
-for a short period of time, which was fixed a couple of months ago.
+And sparc64 :-)
 
--tony
+An important point to mention is that big endian systems need to do
+byte twisting in the PCI controller for all the byte-lane issues to
+work out properly.
 
-
+Maybe this guys box has a broken PCI host bridge implementation that
+doesn't do the byte-twisting and we should consider that in our
+analysis of his problems :-)

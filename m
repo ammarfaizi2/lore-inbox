@@ -1,68 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbTBKUXp>; Tue, 11 Feb 2003 15:23:45 -0500
+	id <S266233AbTBKUcq>; Tue, 11 Feb 2003 15:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266091AbTBKUXo>; Tue, 11 Feb 2003 15:23:44 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51120 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266161AbTBKUXl>;
-	Tue, 11 Feb 2003 15:23:41 -0500
-Date: Tue, 11 Feb 2003 12:32:23 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Re: [PATCH] Extended attribute fixes, etc.
-Message-Id: <20030211123223.1d95ad72.akpm@digeo.com>
-In-Reply-To: <200302112018.58862.agruen@suse.de>
-References: <200302112018.58862.agruen@suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Feb 2003 20:33:23.0670 (UTC) FILETIME=[D2BAE760:01C2D20C]
+	id <S266243AbTBKUcq>; Tue, 11 Feb 2003 15:32:46 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:50564 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266233AbTBKUco>; Tue, 11 Feb 2003 15:32:44 -0500
+Message-Id: <200302112042.h1BKgTPu014960@eeyore.valparaiso.cl>
+To: David Schwartz <davids@webmaster.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Monta Vista software license terms 
+In-Reply-To: Your message of "Tue, 11 Feb 2003 11:39:57 PST."
+             <20030211193959.AAA14852@shell.webmaster.com@whenever> 
+Date: Tue, 11 Feb 2003 21:42:29 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Gruenbacher <agruen@suse.de> wrote:
->
-> Hi Andrew,
+David Schwartz <davids@webmaster.com> said:
+> On Tue, 11 Feb 2003 08:42:26 +0100, Horst von Brand wrote:
+> >>On Mon, 10 Feb 2003 11:42:45 -0600, Oliver Xymoron wrote:
+
+> >>>I certainly agree, but the problem is the NDA puts the shoe on the
+> >>>other foot and now it's the customer that has to consult a lawyer
+> >>>or risk a nuisance suit before proceeding. So while it may not
+> >>>forbid, it certainly discourages and impedes. Let me point out that
+> >>>I never saw the NDA in question but said coworker was sufficiently
+> >>>intimidated by it that he was unwilling to give me a copy of the
+> >>>kernel and gcc sources because of it.
+
+> >> I believe such a provision would, unfortunately, by considered
+> >>legally enforceable. The rationale would be that the rights you (the
+> >>recipient of the derived work) have under the GPL would only apply if
+> >>the distributor were bound by the GPL. The only way the distributor
+> >>could be bound by the GPL was if he or she did something that he
+> >>didn't have the right to do without the GPL to give him or her such a
+> >>right.
+
+> >The GPL gives me the right to distribute modified versions _only if >I
+> >comply with the GPL_. And GPL forbids further restrictions when
+> >distributing.
+
+> 	I realize that. But that has nothing to do with what I said, which 
+> analyzes only those rights you have without agreeing to the GPL by 
+> virtue of the fact that you possess the work and were not subject to 
+> any restrictions in the process of acquiring and using it.
+
+I just don't get it. If I get sources to foo under the GPL, I can spindle
+and mutilate them to my heart's content at home. But as soon as I do
+distribute it, the GPL is in force. There is no "not bound by the GPL
+because I'm not doing ..." and then distributing "and I wasn't bound by
+GPL, so..."
+
+> >If your bizarre interpretation was right, no software licence at all
+> >would have any validity. In particular, I'd be more than very surprised
+> >if the GPL was so sloppily written. It was written with the input of
+> >eminent lawyers, after all.
+
+> 	Your generalization doesn't apply because of several major 
+> differences between most software licenses and the GPL:
 > 
-> here are five patches against 2.5.60. Each file contains a brief 
-> description of what it does.
-> 
+> 	1) Most software licenses do not grant everyone the right to use the 
+> work covered.
 
-Minor point:
+Irrelevant.
 
-> int
-> ext3_xattr_set(struct inode *inode, int name_index, const char *name,
-> 	       const void *value, size_t value_len, int flags)
-> {
-> 	handle_t *handle;
-> 	int error;
-> 
-> 	lock_kernel();
-> 	handle = ext3_journal_start(inode, EXT3_XATTR_TRANS_BLOCKS);
-> 	if (IS_ERR(handle))
-> 		error = PTR_ERR(handle);
-> 	else
-> 		error = ext3_xattr_set_handle(handle, inode, name_index, name,
-> 					      value, value_len, flags);
-> 	ext3_journal_stop(handle, inode);
+> 	2) Most software licenses do not grant anyone the right to create 
+> derived works.
 
-ext3_journal_stop() can return an error code - most notable -EIO if it was a
-synchronous transaction, or the filesystem has detected corruption.
+Irrelevant.
 
-> The third to fifth are all steps towards trusted extended attributes, 
-> which are useful for privileged processes (mostly daemons). One use for 
-> this is Hierarchical Storage Management, in which a user space daemon 
-> stores online/offline information for files in trusted EA's, and the 
-> kernel communicates requests to bring files online to that daemon. This 
-> class of EA's will also find its way into XFS and ReiserFS, and 
-> expectedly also into JFS in this form. (Trusted EAs are included in the 
-> 2.4.19/2.4.20 patches as well.)
+> 	3) Most software licenses require your assent before you can use the 
+> covered work, in fact, most require your assent before you have the 
+> right to possess the covered work.
 
-So is this new code actually functional yet?  As in: something in-kernel
-using it?
+Don't see the relevance here. Besides, you never "possess" anything, you
+are just given permision to use.
 
-If not, what is involved in completing the kernel side of trusted EA's?
+> 	However, one sticky point is that the GPL talks about 'modifying' a 
+> work. You can create derived works without modifying the original 
+> work and the GPL is unclear in this respect.
 
-
+Right. If I take gcc and make a C# compiler based on it, it is also GPL as
+far as it is derived (i.e., a substantial ammount of code was pilfered from
+gcc). No change to gcc needed, just what constitutes a derivative work.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

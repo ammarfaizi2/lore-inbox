@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275115AbRJOGfk>; Mon, 15 Oct 2001 02:35:40 -0400
+	id <S275265AbRJOGhu>; Mon, 15 Oct 2001 02:37:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRJOGfb>; Mon, 15 Oct 2001 02:35:31 -0400
-Received: from [213.45.102.230] ([213.45.102.230]:41483 "EHLO
-	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
-	id <S275115AbRJOGfV>; Mon, 15 Oct 2001 02:35:21 -0400
-To: linux-kernel@vger.kernel.org
-Subject: IBM advertizes Linux support
-Reply-To: Pierfrancesco Caci <p.caci@tin.it>
-From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
-Date: 15 Oct 2001 08:35:47 +0200
-Message-ID: <87ofn9pfzw.fsf@penny.ik5pvx.ampr.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275381AbRJOGha>; Mon, 15 Oct 2001 02:37:30 -0400
+Received: from adsl-63-207-97-74.dsl.snfc21.pacbell.net ([63.207.97.74]:46068
+	"EHLO nova.botz.org") by vger.kernel.org with ESMTP
+	id <S275265AbRJOGhT> convert rfc822-to-8bit; Mon, 15 Oct 2001 02:37:19 -0400
+Message-Id: <200110150637.f9F6bek14014@nova.botz.org>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: Thomas Hood <jdthood@mail.com>
+cc: linux-kernel@vger.kernel.org, stelian.pop@fr.alcove.com,
+        ion@cs.columbia.edu, sduchene@mindspring.com, jurgen@botz.org
+Subject: Re: [PATCH] PnP BIOS -- bugfix; update devlist on setpnp 
+In-Reply-To: Message from Thomas Hood <jdthood@mail.com> 
+   of "13 Oct 2001 11:40:10 EDT." <1002987648.764.23.camel@thanatos> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Sun, 14 Oct 2001 23:37:39 -0700
+From: Jurgen Botz <jurgen@botz.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thomas Hood wrote:
+> Okay, here's a new major patch to the PnP BIOS driver
+> which needs some testing before it's integrated.
+>[...] 
+> Vaio users: Please make sure that this doesn't oops.
 
-Hi,
-this may make some of you happy :-)
+Patched against 2.4.12-ac1, it works and doesn't oops my
+VAIO PCG-N505VE.  
 
-IBM is advertising Linux support on their servers on the major Italian
-TV channels.
+-j
 
-Ciao
-
-Pf
 
 -- 
+Jürgen Botz                       | While differing widely in the various
+jurgen@botz.org                   | little bits we know, in our infinite
+                                  | ignorance we are all equal. -Karl Popper
 
--------------------------------------------------------------------------------
- Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
-  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
-     Linux penny 2.4.7 #1 Thu Jul 26 14:48:56 CEST 2001 i686 unknown
+

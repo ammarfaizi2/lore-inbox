@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUE0VSh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265015AbUE0VZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265261AbUE0VSh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 17:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUE0VSh
+	id S265015AbUE0VZf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 17:25:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUE0VZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 17:18:37 -0400
-Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:25752 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S265261AbUE0VSf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 17:18:35 -0400
-Message-ID: <40B65B0F.9090106@zytor.com>
-Date: Thu, 27 May 2004 14:18:07 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 27 May 2004 17:25:35 -0400
+Received: from hera.kernel.org ([63.209.29.2]:61630 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S265015AbUE0VZd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 17:25:33 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
 Subject: Re: mem= handling mess.
-References: <20040527200320.GR22630@redhat.com>
-In-Reply-To: <20040527200320.GR22630@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Thu, 27 May 2004 21:24:50 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c95mb2$622$1@terminus.zytor.com>
+References: <20040527200320.GR22630@redhat.com> <40B65B0F.9090106@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1085693090 6211 127.0.0.1 (27 May 2004 21:24:50 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Thu, 27 May 2004 21:24:50 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> At some point in time during 2.4, parse_cmdline_early() changed
-> so that it handled such boot command lines as..
+Followup to:  <40B65B0F.9090106@zytor.com>
+By author:    "H. Peter Anvin" <hpa@zytor.com>
+In newsgroup: linux.dev.kernel
+>
+> Dave Jones wrote:
+> > mem=exactmap mem=640k@0 mem=511m@1m
 > 
-> mem=exactmap mem=640k@0 mem=511m@1m
-> 
-> And all was good.  This change propagated forward into 2.5,
-> where it sat for a while, until hpa freaked out and
-> Randy Dunlap sent in cset 1.889.364.25
-> 
-> ChangeSet 1.889.364.25 2003/03/16 23:22:16 akpm@digeo.com
->   [PATCH] Fix mem= options
->   
->   Patch from "Randy.Dunlap" <rddunlap@osdl.org>
->   
->   Reverts the recent alteration of the format of the `mem=' option.  This is
->   because `mem=' is interpreted by bootloaders and may not be freely changed.
->   
->   Instead, the new functionality to set specific memory region usages is
->   provided via the new "memmap=" option.
->   
->   The documentation for memmap= is added, and the documentation for mem= is
->   updated.
-> 
-> This is all well and good, but 2.4 never got the same treatment.
-> Result ? Now users are upgrading their 2.4 systems to 2.6,
-> and finding that they don't boot any more.
-> (See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=124312
->  for example).
-> 
-> The "`mem=' is interpreted by bootloaders and may not be freely changed."
-> obviously hasn't broken the however many users of this we have in 2.4
-> so I don't buy that it'll break in 2.6 either.  As its now in 2.4
-> (and has been there for some time), this is something that bootloaders
-> will just have to live with.
+> It was changed to memmap= I thought.  The command line suggested above, for 
+> example, WILL NOT boot with any correctly operating boot loader. 
+> Unfortunately, given its history I suspect GRUB is nowhere in that category.
 > 
 
-It was changed to memmap= I thought.  The command line suggested above, for 
-example, WILL NOT boot with any correctly operating boot loader. 
-Unfortunately, given its history I suspect GRUB is nowhere in that category.
+I take that back.  It works by pure accident: since "mem=511m@1m"
+comes last most bootloaders will read it as "mem=511m" which is safe
+given this particular memory map.
 
-I think telling people to use memmap= instead of mem= is the only sane way to 
-deal with this.
+In other words, this and stuff like this work by pure accident if they
+work at all, which is to some degree even worse -- partially because
+it let people be lazy about it and thus the wrong thing was allowed to
+simmer, as evidenced above.  The "right thing", if there is such a
+thing, is probably to detect entries of this form and report an error
+to the user ("use memmap= instead.")
 
-What is even more puzzling is that the command line used by the user in that 
-question is bogus, and should be *exactly* identical to "mem=512M", but the 
-bug report indicates that doesn't work on that machine.  Thus, there is 
-something more seriously wrong.
+The only other sane alternative is worse in terms of incompatibility:
+completely throw away the old initrd protocol and design a better
+one.  The initrd loading protocol is horrible, but it's been around
+for a long time and it's not likely to go away.
 
 	-hpa
-

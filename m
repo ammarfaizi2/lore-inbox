@@ -1,65 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUBZUM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbUBZUM5
+	id S262976AbUBZUQn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbUBZUNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:12:57 -0500
-Received: from pat.uio.no ([129.240.130.16]:2782 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262960AbUBZULh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:11:37 -0500
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: Andre Tomt <andre@tomt.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Serial ATA (SATA) status report
-References: <403D5B3D.6060804@pobox.com>
-	<200402261423.56448.m.watts@eris.qinetiq.com>
-	<wxxbrnl3lfe.fsf@nommo.uio.no>
-	<200402261555.46630.m.watts@eris.qinetiq.com>
-From: Terje Kvernes <terjekv@math.uio.no>
-Organization: The friends of mr. Tux
-X-URL: http://terje.kvernes.no/
-Date: Thu, 26 Feb 2004 21:11:30 +0100
-In-Reply-To: <200402261555.46630.m.watts@eris.qinetiq.com> (Mark Watts's
- message of "Thu, 26 Feb 2004 15:55:46 +0000")
-Message-ID: <wxxsmgxbnyl.fsf@nommo.uio.no>
-User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
+	Thu, 26 Feb 2004 15:13:22 -0500
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:28045 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262977AbUBZUMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 15:12:32 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Transfer-Encoding: 7bit
+Message-ID: <16446.21156.906300.266465@wombat.chubb.wattle.id.au>
+Date: Fri, 27 Feb 2004 07:10:12 +1100
+To: davidm@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, Peter Chubb <peter@chubb.wattle.id.au>,
+       kingsley@aurema.com, linux-kernel@vger.kernel.org
+Subject: Re: /proc visibility patch breaks GDB, etc.
+In-Reply-To: <16446.19305.637880.99704@napali.hpl.hp.com>
+References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
+	<20040225224410.3eb21312.akpm@osdl.org>
+	<16446.19305.637880.99704@napali.hpl.hp.com>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Watts <m.watts@eris.qinetiq.com> writes:
+>>>>> "David" == David Mosberger <davidm@napali.hpl.hp.com> writes:
 
-> > the 3w-xxxx-module works well enough in 32bit mode on AMD64.
-> > sadly enough, we have had some other issues with 64bit mode, but
-> > the _driver_ seems to load there as well.
-> 
-> Do these 'issues' prevent the cards from being used at all in 64bit
-> mode on AMD-64?
+>>>>> On Wed, 25 Feb 2004 22:44:10 -0800, Andrew Morton <akpm@osdl.org> said:
+Andrew> Peter Chubb <peter@chubb.wattle.id.au> wrote:
+  >> 
+  >> The immediate symptom is GDB saying: Could not open
+  >> /proc/757/status when 757 is a TID not a PID.
 
-  our issues are mostly related to getting X up and running.  we've
-  been looking at keeping most of the userland as 32bit, but still
-  running a 64bit kernel.  this works fine, except for the nVidia
-  kernel module and its attempt to talk to nVidias openGL libraries.
-  it's a very long story.  but, as far as I remember, the 3ware card
-  worked fine.
- 
-> We'd really like to use the 4-port SATA 3Ware card on a Tyan Thunder
-> K8W (S2885) but it'd be a bit of a waste if we can only use it in
-> 32bit mode. (I assume 32bit mode means you compile for i686 instead
-> of AMD-64 ?)
+Andrew> What does `ls /proc/757' say?  Presumably no such file or
+Andrew> directory?  It's fairly bizare behaviour to be able to open
+Andrew> files which don't exist according to readdir, which is why
+Andrew> we made that change.
 
-  correct, the kernels on our AMD64-boxes are currently built for
-  i686.  I _might_ be able to use one of our FX-51-boxes to test 64bit
-  usage of a 3ware PATA controller if you feel you can't take the
-  slight gamble.  I'm not quite sure _when_ I can get this done
-  though, maybe within a week or two?  but, since you really need to
-  test SATA as well, I'd advice you to get a card and test it
-  yourself.  I'd be very surprised if it didn't work.
+David> Excuse, but this seems seriously FOOBAR.  I understand that
+David> it's interesting to see the thread-leader/thread relationship,
+David> but surely that's no reason to break backwards compatibility
+David> and the ability to look up _any_ task's info via /proc/PID/.  A
+David> program that only wants to show "processes" (thread-group
+David> leaders) can simply read /proc/PID/status and ignore the
+David> entries for which Tgid != PPid.
 
--- 
-Terje
+Think of scanning /proc on a large SMP machine (e.g., Altix with >512
+processors) running lots and lots of multithreaded processes to find
+all processes --- like ps(1) does --- and you can see why not
+cluttering up /proc with threads is a good idea.
+
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

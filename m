@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268598AbUH3RX6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUH3R1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268598AbUH3RX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:23:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUH3RWL
+	id S268578AbUH3R1T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268593AbUH3R1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:22:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:54150 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S268594AbUH3RUq
+	Mon, 30 Aug 2004 13:27:19 -0400
+Received: from puzzle.sasl.smtp.pobox.com ([207.8.226.4]:5031 "EHLO
+	sasl.smtp.pobox.com") by vger.kernel.org with ESMTP id S268578AbUH3R0H
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:20:46 -0400
-Date: Mon, 30 Aug 2004 13:20:31 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andi Kleen <ak@muc.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       mark.langsdorf@amd.com
-Subject: Re: Celistica with AMD chip-set
-In-Reply-To: <m34qmktzlk.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.53.0408301318290.22149@chaos>
-References: <2yV1c-29L-7@gated-at.bofh.it> <2yVb1-2ft-57@gated-at.bofh.it>
- <m34qmktzlk.fsf@averell.firstfloor.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Aug 2004 13:26:07 -0400
+Date: Mon, 30 Aug 2004 22:55:57 +0530
+From: Joshua N Pritikin <jpritikin@pobox.com>
+To: coreteam@netfilter.org
+Cc: netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: an oops possibly due to an SMP related bug in netfilter
+Message-ID: <20040830172557.GD1029@always.joy.eth.net>
+References: <20040830120809.GB1029@always.joy.eth.net> <20040830165753.GA22979@sch.bme.hu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0H629O+sVkh21xTi"
+Content-Disposition: inline
+In-Reply-To: <20040830165753.GA22979@sch.bme.hu>
+X-PGP-Key: 06E3 3D22 D307 AAE6 ACB4  6B44 A9CA A794 A4A6 0BBD
+X-Request-PGP: http://openheartlogic.org/personal/pubkey.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2004, Andi Kleen wrote:
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
->
-> > On Llu, 2004-08-30 at 15:02, Richard B. Johnson wrote:
-> >> Hello all,
-> >>
-> >> The Celistica server with the AMD chip-set has very poor
-> >> PCI performance with Linux (and probably W$ too).
-> >>
-> >> The problem was traced to incorrect bridge configuration
-> >> in the HyperTransport(tm) chips that connect up pairs
-> >> of slots.
->
-> >    while((pdev = pci_find_device(0x1022, 0x7450, pdev)) != NULL)
-> >        pci_write_config_dword(pdev,  0x4c, 0x2ec1);
->
->
-> > Can you get Celestica to mail me their PCI subvendor
-> > id/devid's for the problem configuration or DMI strings
-> > and then we can do a PCI quirk properly for this.
->
-> Celistica is just the contract manufacturer for the AMD
-> reference design, they're really AMD designs. 0122/7450
-> is the AMD 8131 PCI-X bridge.
->
-> I doubt it is a good idea to blindly change the configuration of the
-> bridge like this in the kernel.  It is probably better to wait for an
-> BIOS update or if you really need an urgent fix to do it from user
-> space. Any fix should probably read/change bit/write the register, not
-> blindly overwrite.
->
-> -Andi
->
-It is NOT "blindly" overwritten. We know what was in that register
-(0x2c01).
+--0H629O+sVkh21xTi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Also, it is a "fix" for those who are getting crappy performance
-from their boxes. Hopefully a new BIOS will be out with more
-permanent fixes.
+On Mon, Aug 30, 2004 at 06:57:53PM +0200, KOVACS Krisztian wrote:
+> On Mon, Aug 30, 2004 at 05:38:09PM +0530, Joshua N Pritikin wrote:
+> > (Perhaps I am one of the few people crazy enough to run a firewall on
+> > an SMP machine.  ;-)
+> > =20
+> > CPU:    0=20
+> > EIP:    0060:[<c8895955>]    Not tainted=20
+> > EFLAGS: 00010246   (2.6.7) =20
+> > EIP is at __ip_conntrack_find+0x179/0x1a0 [ip_conntrack]=20
+> > eax: 00000001   ebx: 00000000   ecx: c0353cc0   edx: 00000000=20
+> > esi: 00000000   edi: 00000000   ebp: c0353c88   esp: c0353c6c=20
+> > ds: 007b   es: 007b   ss: 0068=20
+> > Process swapper (pid: 0, threadinfo=3Dc0352000 task=3Dc0300980)
+>=20
+>   I don't think you're the only one running iptables on SMP... This looks
+> like a conntrack hash table corruption, so the first thing you should
+> check is your memory, of course. Are you 100 percent sure that it is ok?
 
+Fair enough.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Memtest86 doesn't spot anything BUT it could be due to voltage
+fluctuation.  I guess I can't run this motherboard without a UPS.
 
+--=20
+A new cognitive theory of emotion, http://openheartlogic.org
+
+--0H629O+sVkh21xTi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBM2MlqcqnlKSmC70RAot0AKC+6YYtmVS+2DRxoXFMhxFQLGGDvACffDqg
+k0inR5jU6YzdM7BXo/TFLzc=
+=JUSB
+-----END PGP SIGNATURE-----
+
+--0H629O+sVkh21xTi--

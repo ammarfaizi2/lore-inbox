@@ -1,94 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVBXVyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVBXVyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbVBXVyN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 16:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVBXVxP
+	id S262522AbVBXVyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 16:54:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVBXVxB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 16:53:15 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:63573 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S262509AbVBXVwZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 16:52:25 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] aoe: fix abuse of arrays and sparse warnings
-Date: Fri, 25 Feb 2005 00:52:17 +0200
-User-Agent: KMail/1.6.2
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org
-References: <200502240318.23155.adobriyan@mail.ru> <87k6oxan3a.fsf@coraid.com>
-In-Reply-To: <87k6oxan3a.fsf@coraid.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 24 Feb 2005 16:53:01 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:41999 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262506AbVBXVto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 16:49:44 -0500
+Date: Thu, 24 Feb 2005 22:49:57 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Stefan Eletzhofer <Stefan.Eletzhofer@eletztrick.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: [PATCH 2.6] Remove NULL client checks in rtc8564 driver
+Message-Id: <20050224224957.278cdcd8.khali@linux-fr.org>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200502250052.17919.adobriyan@mail.ru>
-X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 February 2005 19:23, Ed L Cashin wrote:
+Hi Stefan,
 
-> Have you tested it?
+Several functions in your rtc8564 driver verify the non-NULLity of the
+i2c client that is passed to them. It doesn't seem to be necessary, as I
+can't think of any case where these functions could possibly be called
+with a NULL i2c client. As a matter of fact, I couldn't find any similar
+driver doing such checks.
 
-Not yet.
+My attention was brought on this by Coverity's SWAT which correctly
+noticed that three of these functions contain explicit or hidden
+dereferences of the i2c client pointer *before* the NULL check. I guess
+it wasn't a problem because the NULL case cannot happen (unless I miss
+something), but this still is confusing code.
 
-> If you don't have any 
-> ATA over Ethernet hardware, you can using the alpha vblade program for
-> testing.
+Thus I propose the following changes:
 
-OK. Will try.
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
-> I was trying to determine what sparse warnings you see, so I got
-> sparse from bk://sparse.bkbits.net/sparse and ran it.  Your patch cuts
-> down significantly on the complaints, but there are some that persist.
-> Maybe you're using an older version of sparse?
+--- linux-2.6.11-rc4/drivers/i2c/chips/rtc8564.c.orig	Fri Dec 24 22:33:49 2004
++++ linux-2.6.11-rc4/drivers/i2c/chips/rtc8564.c	Thu Feb 24 10:56:52 2005
+@@ -89,7 +89,7 @@ static int rtc8564_read(struct i2c_clien
+ 
+ 	_DBG(1, "client=%p, adr=%d, buf=%p, len=%d", client, adr, buf, len);
+ 
+-	if (!buf || !client) {
++	if (!buf) {
+ 		ret = -EINVAL;
+ 		goto done;
+ 	}
+@@ -111,7 +111,7 @@ static int rtc8564_write(struct i2c_clie
+ 	struct i2c_msg wr;
+ 	int i;
+ 
+-	if (!client || !data || len > 15) {
++	if (!data || len > 15) {
+ 		ret = -EINVAL;
+ 		goto done;
+ 	}
+@@ -222,7 +222,7 @@ static int rtc8564_get_datetime(struct i
+ 
+ 	_DBG(1, "client=%p, dt=%p", client, dt);
+ 
+-	if (!dt || !client)
++	if (!dt)
+ 		return -EINVAL;
+ 
+ 	memset(buf, 0, sizeof(buf));
+@@ -256,7 +256,7 @@ rtc8564_set_datetime(struct i2c_client *
+ 
+ 	_DBG(1, "client=%p, dt=%p", client, dt);
+ 
+-	if (!dt || !client)
++	if (!dt)
+ 		return -EINVAL;
+ 
+ 	_DBGRTCTM(2, *dt);
+@@ -295,7 +295,7 @@ static int rtc8564_get_ctrl(struct i2c_c
+ {
+ 	struct rtc8564_data *data = i2c_get_clientdata(client);
+ 
+-	if (!ctrl || !client)
++	if (!ctrl)
+ 		return -1;
+ 
+ 	*ctrl = data->ctrl;
+@@ -307,7 +307,7 @@ static int rtc8564_set_ctrl(struct i2c_c
+ 	struct rtc8564_data *data = i2c_get_clientdata(client);
+ 	unsigned char buf[2];
+ 
+-	if (!ctrl || !client)
++	if (!ctrl)
+ 		return -1;
+ 
+ 	buf[0] = *ctrl & 0xff;
+@@ -320,7 +320,7 @@
+ static int rtc8564_read_mem(struct i2c_client *client, struct mem *mem)
+ {
+ 
+-	if (!mem || !client)
++	if (!mem)
+ 		return -EINVAL;
+ 
+ 	return rtc8564_read(client, mem->loc, mem->data, mem->nr);
+@@ -329,7 +329,7 @@
+ static int rtc8564_write_mem(struct i2c_client *client, struct mem *mem)
+ {
+ 
+-	if (!mem || !client)
++	if (!mem)
+ 		return -EINVAL;
+ 
+ 	return rtc8564_write(client, mem->loc, mem->data, mem->nr);
 
-No. Those three were deliberately left as is because they aren't local to
-AOE.
 
-> drivers/block/aoe/aoechr.c:236:24: warning: symbol 'aoe_fops' was not declared. Should it be static?
+Side question: how/when is rtc8564_command called exactly? I think I
+understand it has to do with ioctls, but besides that I'm kind of lost.
+Can someone explain to me how it works?
 
-> drivers/block/aoe/aoecmd.c:27:17: warning: incorrect type in assignment (different base types)
-> drivers/block/aoe/aoecmd.c:27:17:    expected unsigned short [unsigned] protocol
-> drivers/block/aoe/aoecmd.c:27:17:    got restricted unsigned short [usertype] [force] <noident>
-
-> drivers/block/aoe/aoenet.c:156:10: warning: incorrect type in initializer (different base types)
-> drivers/block/aoe/aoenet.c:156:10:    expected unsigned short [unsigned] type
-> drivers/block/aoe/aoenet.c:156:10:    got restricted unsigned short [usertype] [force] <noident>
-
-> The "array abuse" is something that I'm not all that enthusiastic
-> about changing,
-
-I am.
-
-> since it's mostly a style issue,
-
-It isn't. 
-
-	struct aoe_hdr {
-		unsigned char tag[4];
-	};
-	struct aoe_hdr *h;
-	u32 net_tag;
-
-	net_tag = __cpu_to_be32(n);
-	memcpy(h->tag, &net_tag, sizeof net_tag);
-
-This code is plain ugly. When AOE was merged there were _plenty_ of examples
-of LE and BE fields in structs. 
-
-> and last time I 
-> changed it the way your patch does, the original author of the patch
-> changed it back.
-
-Please, show him include/linux/ext2_fs.h::struct ext2_group_desc{} and
-fs/ext2/super.c::ext2_check_descriptors(), for example.
-
-> But you've figured out how to make sparse happy, and 
-> for that I'm grateful!  :)
-
-:)
-
-	Alexey
+Thanks,
+-- 
+Jean Delvare

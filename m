@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262876AbSJLJbb>; Sat, 12 Oct 2002 05:31:31 -0400
+	id <S262883AbSJLJiK>; Sat, 12 Oct 2002 05:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262878AbSJLJbb>; Sat, 12 Oct 2002 05:31:31 -0400
-Received: from port-212-202-157-216.reverse.qsc.de ([212.202.157.216]:30995
-	"EHLO kiff.netgen.de") by vger.kernel.org with ESMTP
-	id <S262876AbSJLJba>; Sat, 12 Oct 2002 05:31:30 -0400
-Message-ID: <1034422647.3da8097797dd3@smartmail.portrix.net>
-Date: Sat, 12 Oct 2002 13:37:27 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: harddisk corruption with 2.5.41bk and tcq enabled
-References: <200210121050.01471.jan@jandittmer.de> <20021012091653.GD26719@suse.de>
-In-Reply-To: <20021012091653.GD26719@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
+	id <S262884AbSJLJiJ>; Sat, 12 Oct 2002 05:38:09 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:64783 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S262883AbSJLJiJ>;
+	Sat, 12 Oct 2002 05:38:09 -0400
+Date: Sat, 12 Oct 2002 11:41:17 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Mitchell Blank Jr <mitch@sfgoth.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Linux v2.5.42
+Message-ID: <20021012114117.A5374@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Mitchell Blank Jr <mitch@sfgoth.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Christoph Hellwig <hch@infradead.org>
+References: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com> <Pine.NEB.4.44.0210121121150.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.NEB.4.44.0210121121150.8340-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Sat, Oct 12, 2002 at 11:24:48AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > attempt to access beyond end of device
-> > ide0(3,2): rw=0, want=1076371720, limit=19535040
->
-At least not ide related. Just ext3 moaning.
-I'm just reinstalling debian, e2fsck just killed most of my filesystem :-(
-(including old dmesg/config).
-I'll give 2.4.42 a try on a fresh install with ext_2_. But I think there
-were no changes with respect to ext3 lately?!
+On Sat, Oct 12, 2002 at 11:24:48AM +0200, Adrian Bunk wrote:
+> This patch fixed part of the kbuild breakage in drivers/atm/Makefile, the
+> following patch fixes the rest:
+Small adjustment:
 
-jan
-
-> Any messages _before_ these??
-> 
-> -- 
-> Jens Axboe
-> 
-
-
---
-portrix.net GmbH
-j.dittmer@portrix.net
+	Sam
+ 
+--- linux-2.5.42-full/drivers/atm/Makefile.old	2002-10-12 11:13:48.000000000 +0200
++++ linux-2.5.42-full/drivers/atm/Makefile	2002-10-12 11:20:15.000000000 +0200
+ @@ -36,7 +36,7 @@
+    fore_200e-objs		+= fore200e_pca_fw.o
+    # guess the target endianess to choose the right PCA-200E firmware image
+    ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
+ -    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo pca200e.bin; else echo pca200e_ecd.bin2; fi)
+ +    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo $(obj)/pca200e.bin; else echo $(obj)/pca200e_ecd.bin2; fi)
+    endif
+  endif
+ 
+ 
+ 

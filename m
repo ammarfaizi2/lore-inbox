@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262902AbUERKVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUERKby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbUERKVh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 06:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUERKVh
+	id S262906AbUERKby (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 06:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUERKbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 06:21:37 -0400
-Received: from smtp6.idctelecomitalia.biz ([217.169.125.103]:32492 "EHLO
-	dtcmfe04.dtc.swing.com") by vger.kernel.org with ESMTP
-	id S262902AbUERKVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 06:21:32 -0400
-From: "Eduard Roccatello" <lilo@roccatello.it>
-To: <arjanv@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: R: 2.6.6 issues on IDE and GemTek Radio
-Date: Tue, 18 May 2004 11:39:52 +0200
-Organization: Novacomp Technology
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAAC4AAAAAAAAAl7tkcaWqPUW2mjQuSvWqZAEAKqodSdQVOEaR9VOf9kh0aQAAAAGXGwAAEAAAAIW6h1QHZvJKk2jz6kCqAzQBAAAAAA==@roccatello.it>
+	Tue, 18 May 2004 06:31:53 -0400
+Received: from web90109.mail.scd.yahoo.com ([66.218.94.80]:49284 "HELO
+	web90109.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S262906AbUERKbw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 06:31:52 -0400
+Message-ID: <20040518062857.80216.qmail@web90109.mail.scd.yahoo.com>
+Date: Mon, 17 May 2004 23:28:57 -0700 (PDT)
+From: linux lover <linux_lover2004@yahoo.com>
+Subject: tracing calls of output(skb)
+To: linuxkernel <linux-kernel@vger.kernel.org>
+Cc: netdev <netdev@oss.sgi.com>,
+       netfilter <netfilter-devel@lists.netfilter.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcQ8ukhu7sXM/Z5uSHymyMw4dRjewwAAVLog
-In-Reply-To: <1084872281.2781.3.camel@laptop.fenrus.com>
-X-OriginalArrivalTime: 18 May 2004 09:48:28.0312 (UTC) FILETIME=[45585980:01C43CBD]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Anjanv@redhar.com wrote:
->> VP_IDE: User given PCI clock speed impossible (66000), using 33 MHz
-instead.
->> VP_IDE: Use ide0=ata66 if you want to assume 80-wire cable.
->
->you pass idebus=66 which I suspect is really really wrong....
->
-Older kernel haven't had no problem with it. I'll try to remove it but
-i think that's not the problem.
+hello friends,
+          can anybody knows where does this
+skb->dst->output(skb) call goes? it is written in
+output_maybe_reroute function call in ip_output.c?
+also let me know whether following two calls also
+point to same destination funcaion as above function?
+   hh->hh_output(skb);
+   return dst->neighbour->output(skb);
+if yes to which function they point (dev_queue_xmit)?
 
-Thank you,
-Eduard
+Thanking you.
+linux_lover
 
+
+
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! - Internet access at a great low price.
+http://promo.yahoo.com/sbc/

@@ -1,119 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267377AbSLLEwn>; Wed, 11 Dec 2002 23:52:43 -0500
+	id <S267418AbSLLE6N>; Wed, 11 Dec 2002 23:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267396AbSLLEwn>; Wed, 11 Dec 2002 23:52:43 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:45279 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S267377AbSLLEwl>; Wed, 11 Dec 2002 23:52:41 -0500
-Date: Wed, 11 Dec 2002 21:04:51 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.5.51] add wait_event() to <linux/completion.h>
-To: linux-kernel@vger.kernel.org
-Message-id: <3DF818F3.6050308@pacbell.net>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_YeqJ5GjQU34PMJZ5Hxdh2w)"
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S267419AbSLLE6N>; Wed, 11 Dec 2002 23:58:13 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:27647 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S267418AbSLLE6M>; Wed, 11 Dec 2002 23:58:12 -0500
+Date: Wed, 11 Dec 2002 21:03:15 -0800
+From: Joshua Kwan <joshk@mspencer.net>
+To: linux-kernsl@vger.kernel.org
+Message-Id: <20021211210315.03f90653.joshk@mspencer.net>
+In-Reply-To: <3457.210.8.93.34.1039665245.squirrel@www.csn.ul.ie>
+References: <3457.210.8.93.34.1039665245.squirrel@www.csn.ul.ie>
+X-Mailer: Sylpheed version 0.8.6cvs15 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="6Rb1ygcS0sfv?N=."
+Subject: Re: 2.4.20-ac2 and i810 drm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+--6Rb1ygcS0sfv?N=.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
---Boundary_(ID_YeqJ5GjQU34PMJZ5Hxdh2w)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+The DRM updates are causing a lot of problems like this for software
+that needs hardware support. The updates were merged into Alan's tree
+after 2.4.20-rc2-ac2 and are still somewhat present in 2.4.20-ac2. On my
+Radeon Mobility, GL-based apps wouldn't even start.
 
-Folk periodically talk about evolving the "struct completion"
-support ... here's one:
+Arjan was fixing DRM all over the place a while ago, but not
+lately. Notably the Rage 128 support was fixed by him, and the Radeon
+support to some extent.
 
-   int wait_event (struct completion *x, signed long timeout_jiffies);
+-Josh
 
-Returns zero if the event happened, nonzero if it timed out.
-An example timeout action might be to cancel a request then
-use wait_for_completion(x) to synchronize with that.
+Rabid cheeseburgers forced"Dave Airlie"<airlied@linux.ie> to
+write this on Thu, 12 Dec 2002 03:54:05-0000(GMT):	
 
-It's been behaving for me so far.  Questions from me:
+> 
+> I've been running 2.4.20-rc4 up to now with DRM enabled for my i810
+> chipset and XFree86 4.2 from RH 7.3.
+> 
+> When I run my OpenGL application (internal app) under 2.4.20-ac2 with
+> the same .config when I ctrl-c the application the machine hangs hard.
+> 
+> It is the only application running on the X server so the X server
+> restarts when I exit the app.. under 2.4.20-rc4 this works fine...
+> 
+> Dave.
+> 
+> -- 
+> David Airlie, Software Engineer
+> http://www.skynet.ie/~airlied / airlied@skynet.ie
+> pam_smb / Linux DecStation / Linux VAX / ILUG person
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-- Is this appropriate to merge as-is?  The tradeoff I'm
-   thinking of is code duplication; this patch avoids it
-   ("smaller==better" rule-of-thumb) but maybe someone has
-   real tuning knowledge, or a "standard" lk policy applies.
-   Or there might be bugs or api transgressions.
 
-- One routine was unavailable to modules; now exported.
-   That seemed to just be an oversight.
-
-This doesn't add an "interruptible wait" api mode, which
-I'd expect some others might find a use for.  This patch
-will let us clean up some dubious code in usbcore which
-is more or less trying to do a wait_event().
-
-Thanks in advance for any comments.
-
-- Dave
-
---Boundary_(ID_YeqJ5GjQU34PMJZ5Hxdh2w)
-Content-type: text/plain; name=sched.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=sched.patch
-
---- ./include/linux-dist/completion.h	Sun Dec  8 10:57:47 2002
-+++ ./include/linux/completion.h	Mon Dec  9 15:11:51 2002
-@@ -28,6 +28,7 @@
- }
+-- 
+=====
+Joshua Kwan
+joshk@mspencer.net
+pgp public key at http://ludicrus.ath.cx/pubkey_gpg.asc
  
- extern void FASTCALL(wait_for_completion(struct completion *));
-+extern int FASTCALL(wait_timeout(struct completion *, signed long jiffies));
- extern void FASTCALL(complete(struct completion *));
- extern void FASTCALL(complete_all(struct completion *));
- 
---- ./kernel-dist/ksyms.c	Sun Dec  8 10:57:48 2002
-+++ ./kernel/ksyms.c	Mon Dec  9 15:13:47 2002
-@@ -404,7 +404,9 @@ EXPORT_SYMBOL(autoremove_wake_function);
- 
- /* completion handling */
- EXPORT_SYMBOL(wait_for_completion);
-+EXPORT_SYMBOL(wait_timeout);
- EXPORT_SYMBOL(complete);
-+EXPORT_SYMBOL(complete_all);
- 
- /* The notion of irq probe/assignment is foreign to S/390 */
- 
---- ./kernel-dist/sched.c	Sun Dec  8 10:57:48 2002
-+++ ./kernel/sched.c	Mon Dec  9 15:34:36 2002
-@@ -1204,6 +1204,11 @@ void complete_all(struct completion *x)
- 
- void wait_for_completion(struct completion *x)
- {
-+	wait_timeout (x, MAX_SCHEDULE_TIMEOUT);
-+}
-+
-+int wait_timeout(struct completion *x, signed long timeout_jiffies)
-+{
- 	might_sleep();
- 	spin_lock_irq(&x->wait.lock);
- 	if (!x->done) {
-@@ -1214,13 +1219,19 @@ void wait_for_completion(struct completi
- 		do {
- 			__set_current_state(TASK_UNINTERRUPTIBLE);
- 			spin_unlock_irq(&x->wait.lock);
--			schedule();
-+			timeout_jiffies = schedule_timeout(timeout_jiffies);
-+			if (timeout_jiffies == 0) {
-+				__remove_wait_queue(&x->wait, &wait);
-+				/* caller should wait again */
-+				return 1;
-+			}
- 			spin_lock_irq(&x->wait.lock);
- 		} while (!x->done);
- 		__remove_wait_queue(&x->wait, &wait);
- 	}
- 	x->done--;
- 	spin_unlock_irq(&x->wait.lock);
-+	return 0;
- }
- 
- #define	SLEEP_ON_VAR				\
+Money can't buy love, but it improves your bargaining position.
+		-- Christopher Marlowe
 
---Boundary_(ID_YeqJ5GjQU34PMJZ5Hxdh2w)--
+--6Rb1ygcS0sfv?N=.
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9+BiV6TRUxq22Mx4RAu5cAKC5QAe+GS2aXo+flkLrN5J4OgZkIgCeKqH3
+0rXvQqpSFyk4ax+o9w/RTVc=
+=2VvP
+-----END PGP SIGNATURE-----
+
+--6Rb1ygcS0sfv?N=.--

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263400AbTJZSwC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 13:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263401AbTJZSwC
+	id S263402AbTJZS6d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 13:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263404AbTJZS6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 13:52:02 -0500
-Received: from [62.38.242.140] ([62.38.242.140]:61577 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id S263400AbTJZSwA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 13:52:00 -0500
-From: "P. Christeas" <p_christ@hol.gr>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test9
-Date: Sun, 26 Oct 2003 21:51:32 +0300
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>, Andries.Brouwer@cwi.nl
+	Sun, 26 Oct 2003 13:58:33 -0500
+Received: from nameserver1.brainwerkz.net ([209.251.159.130]:1158 "EHLO
+	nameserver1.mcve.com") by vger.kernel.org with ESMTP
+	id S263402AbTJZS6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 13:58:32 -0500
+Message-ID: <33134.68.105.173.45.1067195366.squirrel@mail.mainstreetsoftworks.com>
+Date: Sun, 26 Oct 2003 14:09:26 -0500 (EST)
+Subject: Re: [patch 2.6.0-test9] enable pci id for promise pdc20378 in new libata driver
+From: "Brad House" <brad_mssw@gentoo.org>
+To: <jgarzik@pobox.com>
+In-Reply-To: <3F9C14C9.3090400@pobox.com>
+References: <33092.68.105.173.45.1067192069.squirrel@mail.mainstreetsoftworks.com>
+        <3F9C14C9.3090400@pobox.com>
+X-Priority: 3
+Importance: Normal
+Cc: <brad_mssw@gentoo.org>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200310262051.32801.p_christ@hol.gr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Andries.Brouwer:
-> Three things:
-> 
-> 2.6.0t9 still can leave the user with a dead keyboard
-> If Vojtech does not provide a better patch I suppose
-> you should apply my patch of a few days ago.
-> 
-> Within a few days two people have reported that they cannot
-> mount a FAT fs that 2.4 and Windows handle fine.
-> Probably also that should be fixed, for example with
-> my patch from yesterday.
 
-One more, (as reported a few weeks ago):
-rmmod aic7xxx 
-will fail, as this module uses some wrong locks. This will also block sleeping 
-(tested w. ACPI) if the module is there.
-IMHO this module is crucial to many systems.
+>
+> You should CC the maintainer of libata :)
+>
 
-I'm just repeating this issue, as I cannot see any patch for that. Justin has 
-not replied (I will need to be CC'ed). Andrew, who's the maintainer? I wish I 
-could help myself solve that, but fixing SMP-safe locks seems the hardest 
-thing I could do here. Somebody has to help here.
+ok, I'll figure out who that is...
+
+>
+>> The patch can be found here:
+>> http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/2.6.0-test9-promise20378.patch
+>>
+>> Patch/Testing done by Caleb Shay <caleb@webninja.com>
+>
+> Tested in 32-bit mode or 64-bit mode?
+>
+> I've gotten a report "works in 32-bit, fails in 64-bit".
+
+It was tested in 64bit mode.  Though this particular patch should
+have no bearing on 32/64bit, as it just updates the IDs, to allow
+the PDC20378 to work.
+
+-Brad
 
 

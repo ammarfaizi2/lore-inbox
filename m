@@ -1,42 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbUATEib (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 23:38:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUATEib
+	id S263996AbUATEp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 23:45:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUATEp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 23:38:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:25246 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262827AbUATEia (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 23:38:30 -0500
-Date: Mon, 19 Jan 2004 20:38:45 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: markw@osdl.org
-Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org
-Subject: Re: DBT-2 anticipatory scheduler and filesystem results with 2.6.1
-Message-Id: <20040119203845.332cd5df.akpm@osdl.org>
-In-Reply-To: <200401200005.i0K05do05666@mail.osdl.org>
-References: <200401200005.i0K05do05666@mail.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 19 Jan 2004 23:45:27 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:7829 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263475AbUATEpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 23:45:22 -0500
+Subject: Re: AIC7xxx kernel problem with 2.4.2[234] kernels
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Xose Vazquez Perez <xose@wanadoo.es>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <3942145408.1074564149@aslan.btc.adaptec.com>
+References: <400BDC85.8040907@wanadoo.es>	<1074532919.1895.32.camel@mulgrave>
+		<3747775408.1074537497@aslan.btc.adaptec.com>
+	<1074559838.2078.1.camel@mulgrave> 
+	<3942145408.1074564149@aslan.btc.adaptec.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 19 Jan 2004 23:45:10 -0500
+Message-Id: <1074573912.2081.81.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-markw@osdl.org wrote:
->
->  I ran some dbt-2 tests against 5 filesystems with 2.6.1-mm4 and 2.6.1. I
->  see a degradation from 0 to 7% in throughput. 
+On Mon, 2004-01-19 at 21:02, Justin T. Gibbs wrote:
+> Does the maintainer have the ability to veto changes that harm the
+> code they maintain?  In otherwords, you claim that I am the maintainer
+> of the drivers in the kernel.org tree.  This has not prevented changes
+> from being made to these drivers without adequate review.  Even your last
+> update to the driver threw away all of the changelog state and left at
+> least the aic79xx driver in a worse state than it was in before (see
+> changelog entries for the driver versions after the one that you imported
+> for details - this was exactly why I didn't submit that particular revision).
 
--mm4 also had readahead changes which will adversely impact database-style
-workloads.  I'd suggest that you revert
+I said "works with the kernel community".  It's not about control, it's
+about co-operation.  The control you seek simply does not exist in the
+kernel development process.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/broken-out/readahead-revert-lazy-readahead.patch
+> You didn't even bother to ask me if importing 1.3.11 was appropriate.  This
+> is why I say I don't feel like a maintainer.  I'm not given adequate control
+> over the end product yet I'm supposed to take the blame when it doesn't work.
 
-and retest.
+In the previous thread about the driver you said "You can integrate the
+driver at whatever revision suits you.", so I took you at your word; if
+that wasn't what you meant, it's a little late to whine about it now. 
+Small bug fixes, would, as ever, be welcome...
 
-We reverted lazy readahead because it broke NFS linear reads and was doing
-the wrong thing anyway.  We need to come up with something else for
-database-style workloads.
+As for blame, apart from the occasional flamewar, the community seems
+generally welcoming of anyone who provides fixes.  We tend to be more
+interested in fixing things than assigning blame.
+
+> That proposal was to allow the timeout handler to be redirected.  This
+> is different than an early notification.  Allowing the timeout handler
+> to be redirected is a required step toward making the recovery code
+> work.
+
+The recovery code does work.  You may want it to work differently, and
+that may make it work better, but that's an enhancement not a bug fix.
+
+> In this case, the bug is that the mid-layer tries to handle watchdog
+> recovery on its own.  It will never, in my opinion, having reviewed
+> lots of systems that have tried to do it in a centralized way, work well.
+> The mid-layer just doesn't have the necessary state to make intelligent
+> decisions and exporting that state will always be cumbersome and incomplete.
+
+But it does do it successfully.  Something that currently works but
+could work better is an enhancement not a bug.
+
+> How does the mid-layer know that the "bus is free".  What transports even
+> have this concept?  If one drive has lost a command, and the transport
+> is functioning normally, why are you penalizing the other devices attached
+> to the HBA while you "sort this out"?  There is no need to do that.
+
+Again, this is could do better not required bug fix.
+
+I'm not against enhancements, even at this late stage in the
+stabilisation process.  However, they have to be small, self contained
+and obviously correct.  If you have them, send them to the list and
+they'll get reviewed.
+
+James
+
 

@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265071AbTIDPy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 11:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265075AbTIDPy4
+	id S265084AbTIDQJP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbTIDQJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 11:54:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25068 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265071AbTIDPyz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 11:54:55 -0400
-Date: Thu, 4 Sep 2003 08:55:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hans Reiser <reiser@namesys.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-Message-Id: <20030904085537.78c251b3.akpm@osdl.org>
-In-Reply-To: <3F574A49.7040900@namesys.com>
-References: <3F574A49.7040900@namesys.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 4 Sep 2003 12:09:15 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17927 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265084AbTIDQJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 12:09:10 -0400
+Date: Thu, 4 Sep 2003 17:09:07 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@ftp.uk.linux.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Don't #ifdef prototypes
+Message-ID: <20030904170907.D8414@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Al Viro <viro@ftp.uk.linux.org>, Linus Torvalds <torvalds@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> wrote:
->
-> Is it correct to say of ext3 that it guarantees and only guarantees 
-> atomicity of writes that do not cross page boundaries?
+It seems that changing CONFIG_BLK_DEV_INITRD causes the whole kernel to
+rebuild due to an inappropriate ifdef in linux/fs.h - we should not
+conditionalise prototypes.
 
-Yes.
+In addition, real_root_dev is only used by two files (kernel/sysctl.c
+and init/do_mounts_initrd.c) so it makes even less sense that it was in
+linux/fs.h
 
->     By contrast, ext3 only guarantees the atomicity of a single write 
-> that does not span a page boundary, and it guarantees that its internal 
-> metadata will not be corrupted even if your applications data is 
-> corrupted after the crash.
+--- orig/include/linux/fs.h	Thu Sep  4 16:37:56 2003
++++ linux/include/linux/fs.h	Thu Sep  4 16:34:09 2003
+@@ -1372,10 +1372,6 @@
+ extern int simple_pin_fs(char *name, struct vfsmount **mount, int *count);
+ extern void simple_release_fs(struct vfsmount **mount, int *count);
+ 
+-#ifdef CONFIG_BLK_DEV_INITRD
+-extern unsigned int real_root_dev;
+-#endif
+-
+ extern int inode_change_ok(struct inode *, struct iattr *);
+ extern int inode_setattr(struct inode *, struct iattr *);
+ 
+--- orig/include/linux/initrd.h	Mon May  5 17:40:12 2003
++++ linux/include/linux/initrd.h	Thu Sep  4 16:34:31 2003
+@@ -16,3 +16,5 @@
+ /* free_initrd_mem always gets called with the next two as arguments.. */
+ extern unsigned long initrd_start, initrd_end;
+ extern void free_initrd_mem(unsigned long, unsigned long);
++
++extern unsigned int real_root_dev;
+--- orig/kernel/sysctl.c	Wed Aug 13 10:33:59 2003
++++ linux/kernel/sysctl.c	Thu Sep  4 16:34:00 2003
+@@ -35,6 +35,7 @@
+ #include <linux/writeback.h>
+ #include <linux/hugetlb.h>
+ #include <linux/security.h>
++#include <linux/initrd.h>
+ #include <asm/uaccess.h>
+ 
+ #ifdef CONFIG_ROOT_NFS
 
-Not sure that I understand this.  In data=writeback mode, metadata
-integrity is preserved but data writes may be lost.  In data=journal and
-data=ordered modes the data and the metadata which refers to it are always
-in sync on-disk.
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core
+
 

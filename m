@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUJHWsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUJHWte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266115AbUJHWsB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 18:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUJHWsB
+	id S266163AbUJHWte (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 18:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUJHWte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 18:48:01 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65469 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266115AbUJHWr6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 18:47:58 -0400
-Message-ID: <41671900.3070408@redhat.com>
-Date: Fri, 08 Oct 2004 15:47:28 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041003
-X-Accept-Language: en-us, en
+	Fri, 8 Oct 2004 18:49:34 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:33081 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S266163AbUJHWtS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 18:49:18 -0400
+To: Greg KH <greg@kroah.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+References: <20041008202247.GA9653@kroah.com>
+From: ebiederman@lnxi.com (Eric W. Biederman)
+Date: 08 Oct 2004 16:49:16 -0600
+In-Reply-To: <20041008202247.GA9653@kroah.com>
+Message-ID: <m3d5zs966r.fsf@maxwell.lnxi.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG] ia32 ptrace on x86-64 broken for syscalls with 6 parameters
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Greg KH <greg@kroah.com> writes:
 
-Running an ia32 strace on x86-64 to look at an ia32 application which
-uses syscalls which have six parameters (e.g., mmap2, fadvise64_64)
-shows that the values reported to strace are bogus.  The very same
-program, strace, and glibc binaries on an ia32 machine show the correct
-result.  The system call (I tried mmap2) is also correctly executed.
-I.e., it is the ptrace interface.
+> [2] Sure, any person who has a copy of the kernel source tree could be a
+> target for any of a zillion other potential claims, nothing new there,
+> but the point here is they are explicitly stating that they will go
+> after non-IBTA members who touch IB code[3].
 
-This happens with both, em64t and amd64 machines.  In both cases the
-vsyscall DSO was used.
+Greg I see nothing to back up the idea that IBTA intends to go after
+non-members.  I simply see a disclaimer of warranty, and I see wording
+by your anonymous source that restates a disclaimer of warranty.
 
-This is with the current FC kernel which corresponds to rc3-bk6.
+Until I see something more to back this up I do not see a problem.  In
+fact I see infiniband prices dropping, and competition increasing.
+The drivers off of openib.org look like they are a good start at
+making a sane linux implementation.
 
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+Even the PCI-SIG requires you to pay for the spec.
 
-iD8DBQFBZxkA2ijCOnn/RHQRAsKdAJ4klGY2WV4S1866evJWzOcqM8yhLQCeLN5S
-9Jfk40pOpd7rW7ncJ1i51Ek=
-=1O9f
------END PGP SIGNATURE-----
+I agree it would be suicidally insane for the infiniband trade
+association to go after a linux stack, as it appears that a large
+portion of the infiniband users are currently running linux.
+
+Given the vendors I have seen working on hardware and the vendors
+who are a part of the infiniband trade association there does appear
+to be a certain amount of disconnect between the two.  So this
+may be an attempt to bring all of the interested parties together.
+
+
+Eric
+
+
+
+

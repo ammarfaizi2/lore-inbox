@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290349AbSAPEGZ>; Tue, 15 Jan 2002 23:06:25 -0500
+	id <S290350AbSAPEOg>; Tue, 15 Jan 2002 23:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290346AbSAPEGP>; Tue, 15 Jan 2002 23:06:15 -0500
-Received: from mercury.mv.net ([199.125.85.40]:16604 "EHLO mercury.mv.net")
-	by vger.kernel.org with ESMTP id <S290347AbSAPEGH>;
-	Tue, 15 Jan 2002 23:06:07 -0500
-Message-Id: <200201160406.XAA28995@mercury.mv.net>
-Content-Type: text/plain; charset=US-ASCII
-From: jeff millar <jeff@wa1hco.mv.com>
-Organization: me? organized?
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: cml2-2.1.3 bug report
-Date: Tue, 15 Jan 2002 23:06:08 -0500
-X-Mailer: KMail [version 1.3.1]
+	id <S290353AbSAPEO1>; Tue, 15 Jan 2002 23:14:27 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:24032 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S290346AbSAPEOW>; Tue, 15 Jan 2002 23:14:22 -0500
+Message-ID: <3C44FE0E.9010604@nyc.rr.com>
+Date: Tue, 15 Jan 2002 23:14:06 -0500
+From: John Weber <weber@nyc.rr.com>
+Organization: WorldWideWeber
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, grant@torque.net
+Subject: linux 2.5 and ppa.c
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sent this to Eric privately with a lot of data, but maybe someone else can
-jump in with an opinion about they way make oldconfig _should_ work.
+This is one of those drivers still broken due to the BIO changes
+(it still calls io_request_lock()).
 
-Several items...
+Unfortunately, I only know enough to
+s/io_request_lock/host->host_lock/g.
 
-1. Make oldconfig doesn't behave like cml1.  With cml1, we would patch the
-kernel or copy in a backup .config file and run make oldconfig.  It would do
-its thing for 30 seconds and be done...no (or few) questions asked.  With
-CML2, I get an endless series of questions about each possible configuration
-item...much like "make config" does.
+I am afraid this requires a little more than this.
 
-I just want make oldconfig to get ready for make dep with the minimum of
-fuss. It's ok to ask about new configuration items but not a bunch of stuff
-already set.
+What's the status on this?
+Just a heads up...
 
-2. Something triggers the building of "everything" modular, like _all_ the
-network cards, I2O, IEEE1394, etc.  You implied in an earlier email that
-selecting modules leads to this.  But, I just want to build a few modules
-because it takes less time and disk space and it easier to audit
-/lib/modules/2.4.x/ results.   Besides with bleeding edge kernels, often lots
-of drivers don't compile correctly. My original .config has m where I want it
-and setting m a bunch more places means I just have to go around and shut off
-hundreds of things.

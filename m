@@ -1,85 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbULLUoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbULLVLn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbULLUoD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 15:44:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbULLUoC
+	id S262119AbULLVLn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 16:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbULLVLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 15:44:02 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:13540 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S262102AbULLUnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 15:43:32 -0500
-Message-ID: <41BCAD6F.50007@dgreaves.com>
-Date: Sun, 12 Dec 2004 20:43:27 +0000
-From: David Greaves <david@dgreaves.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eldad Zack <eldad@stoneshaft.ath.cx>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: kernel boot hang, SATA_VIA compiled without APIC_IO
-References: <200412030345.45282.eldad@stoneshaft.ath.cx>
-In-Reply-To: <200412030345.45282.eldad@stoneshaft.ath.cx>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Dec 2004 16:11:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45574 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262119AbULLVLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 16:11:38 -0500
+Date: Sun, 12 Dec 2004 22:11:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: acme@conectiva.com.br
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/appletalk/: make some code static
+Message-ID: <20041212211128.GW22324@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for posting this Eldad, I had the same problem and this saved 
-lots of trial and error!!
+The patch below makes some needlessly global code static.
 
-As an FYI all I did was exchange my ASUS A7V600 with an ASUS A7V600-X. 
-Maybe the BIOS changed version, maybe the chipset is different - not 
-easy to tell.
-Since I boot from my SATA drive this was quite troubling. Luckily I 
-still had an old 2.6.6 kernel.
 
-I had to revert back to a 2.6.6 kernel, 2.6.7 wouldn't work.
+diffstat output:
+ include/linux/atalk.h      |    2 --
+ net/appletalk/aarp.c       |    4 ++--
+ net/appletalk/atalk_proc.c |    6 +++---
+ net/appletalk/ddp.c        |    6 +++---
+ 4 files changed, 8 insertions(+), 10 deletions(-)
 
-Jeff (or whoever) I too would be happy to help debug if there's anything 
-I can do.
 
-I can't check the exact failure point for a week (away from the machine) 
-but here's the relevant bit of the dmesg (admitedley from a good booting 
-kernel with APIC_IO set) showing (simulated) the point where the failure 
-occured:
-libata version 1.02 loaded.
-sata_via version 0.20
-ACPI: PCI interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 20
-sata_via(0000:00:0f.0): routed to hard irq line 0
-ata1: SATA max UDMA/133 cmd 0xB400 ctl 0xB002 bmdma 0xA000 irq 20
-ata2: SATA max UDMA/133 cmd 0xA800 ctl 0xA402 bmdma 0xA008 irq 20
-ata1: dev 0
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-After I get back on 19th Dec I'll be happy to try additional tests, 
-provide additional info etc if anyone asks.
-
-HTH
-
-David
-
-Eldad Zack wrote:
-
->Hello,
->
->I've recently got a SATA capable machine (Via chipset) and I've exprienced a 
->nasty hang at boottime, using kernel 2.6.9.
->After some recompiling different parameters it boiled down to APIC_IO being 
->not selected (this is a UP machine).
->
->Without APIC_IO selected the system would hang while loading SATA.
->
->I've only tried 2.6.5 to notice it would not hang but would emit messeges as 
->"hde: lost interrupt", and eventually go on with the boot, the sata being 
->unusable.
->
->Out of curiousity, I'd like to know if APIC_IO is absolutly needed when 
->dealing with SATA, and also, I'd like to help debug this problem so that a 
->kernel compiled without APIC_IO would at the very least not hang...
->
->
->  
->
+--- linux-2.6.10-rc2-mm4-full/include/linux/atalk.h.old	2004-12-12 18:21:46.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/atalk.h	2004-12-12 18:21:53.000000000 +0100
+@@ -188,8 +188,6 @@
+ extern int		 aarp_send_ddp(struct net_device *dev,
+ 				       struct sk_buff *skb,
+ 				       struct atalk_addr *sa, void *hwaddr);
+-extern void		 aarp_send_probe(struct net_device *dev,
+-					 struct atalk_addr *addr);
+ extern void		 aarp_device_down(struct net_device *dev);
+ extern void		 aarp_probe_network(struct atalk_iface *atif);
+ extern int 		 aarp_proxy_probe_network(struct atalk_iface *atif,
+--- linux-2.6.10-rc2-mm4-full/net/appletalk/aarp.c.old	2004-12-12 18:22:02.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/net/appletalk/aarp.c	2004-12-12 18:22:12.000000000 +0100
+@@ -199,7 +199,7 @@
+  *	aarp_proxy_probe_network.
+  */
+ 
+-void aarp_send_probe(struct net_device *dev, struct atalk_addr *us)
++static void aarp_send_probe(struct net_device *dev, struct atalk_addr *us)
+ {
+ 	struct elapaarp *eah;
+ 	int len = dev->hard_header_len + sizeof(*eah) + aarp_dl->header_length;
+@@ -429,7 +429,7 @@
+  * Probe a Phase 1 device or a device that requires its Net:Node to
+  * be set via an ioctl.
+  */
+-void aarp_send_probe_phase1(struct atalk_iface *iface)
++static void aarp_send_probe_phase1(struct atalk_iface *iface)
+ {
+ 	struct ifreq atreq;
+ 	struct sockaddr_at *sa = (struct sockaddr_at *)&atreq.ifr_addr;
+--- linux-2.6.10-rc2-mm4-full/net/appletalk/atalk_proc.c.old	2004-12-12 18:22:28.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/net/appletalk/atalk_proc.c	2004-12-12 18:23:02.000000000 +0100
+@@ -205,21 +205,21 @@
+ 	return 0;
+ }
+ 
+-struct seq_operations atalk_seq_interface_ops = {
++static struct seq_operations atalk_seq_interface_ops = {
+ 	.start  = atalk_seq_interface_start,
+ 	.next   = atalk_seq_interface_next,
+ 	.stop   = atalk_seq_interface_stop,
+ 	.show   = atalk_seq_interface_show,
+ };
+ 
+-struct seq_operations atalk_seq_route_ops = {
++static struct seq_operations atalk_seq_route_ops = {
+ 	.start  = atalk_seq_route_start,
+ 	.next   = atalk_seq_route_next,
+ 	.stop   = atalk_seq_route_stop,
+ 	.show   = atalk_seq_route_show,
+ };
+ 
+-struct seq_operations atalk_seq_socket_ops = {
++static struct seq_operations atalk_seq_socket_ops = {
+ 	.start  = atalk_seq_socket_start,
+ 	.next   = atalk_seq_socket_next,
+ 	.stop   = atalk_seq_socket_stop,
+--- linux-2.6.10-rc2-mm4-full/net/appletalk/ddp.c.old	2004-12-12 18:23:35.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/net/appletalk/ddp.c	2004-12-12 18:24:11.000000000 +0100
+@@ -612,7 +612,7 @@
+  * Called when a device is downed. Just throw away any routes
+  * via it.
+  */
+-void atrtr_device_down(struct net_device *dev)
++static void atrtr_device_down(struct net_device *dev)
+ {
+ 	struct atalk_route **r = &atalk_routes;
+ 	struct atalk_route *tmp;
+@@ -1854,12 +1854,12 @@
+ 	.notifier_call	= ddp_device_event,
+ };
+ 
+-struct packet_type ltalk_packet_type = {
++static struct packet_type ltalk_packet_type = {
+ 	.type		= __constant_htons(ETH_P_LOCALTALK),
+ 	.func		= ltalk_rcv,
+ };
+ 
+-struct packet_type ppptalk_packet_type = {
++static struct packet_type ppptalk_packet_type = {
+ 	.type		= __constant_htons(ETH_P_PPPTALK),
+ 	.func		= atalk_rcv,
+ };
 

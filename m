@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317809AbSFSICe>; Wed, 19 Jun 2002 04:02:34 -0400
+	id <S317810AbSFSICl>; Wed, 19 Jun 2002 04:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317810AbSFSICd>; Wed, 19 Jun 2002 04:02:33 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:39826 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317809AbSFSICc>;
-	Wed, 19 Jun 2002 04:02:32 -0400
-Date: Wed, 19 Jun 2002 10:02:26 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] tsc-disable_A6
-Message-ID: <20020619100226.A19442@ucw.cz>
-References: <1024448124.3030.139.camel@cog>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1024448124.3030.139.camel@cog>; from johnstul@us.ibm.com on Tue, Jun 18, 2002 at 05:55:19PM -0700
+	id <S317811AbSFSICk>; Wed, 19 Jun 2002 04:02:40 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:5901 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317810AbSFSICi> convert rfc822-to-8bit;
+	Wed, 19 Jun 2002 04:02:38 -0400
+Message-ID: <3D103A88.2050007@evision-ventures.com>
+Date: Wed, 19 Jun 2002 10:02:16 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
+MIME-Version: 1.0
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Various kbuild problems in 2.5.22
+References: <Pine.LNX.4.44.0206181056090.5695-100000@chaos.physics.uiowa.edu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 05:55:19PM -0700, john stultz wrote:
-
-> 	Here is the next revision of my tsc-disable patch. Thanks to everyone
-> for providing feedback. I will re-submit this for the 2.4.20pre series,
-> but wanted to get this out for additional comments as well as warn folks
-> who might be trying this or my previous patch. This version reverts to
-> the earlier implementation, which only changes config.in. I feel that
-> defining CONFIG_X86_HAS_TSC gives one the ability to discern between
-> just having a TSC and having a usable TSC, and all the current code that
-> uses CONFIG_X86_TSC assumes that it is usable. This way seems cleaner
-> and has all the benefits of the last method. Additionally I added the
-> previously forgotten Configure.help documentation, for which I should no
-> doubt receive a ruler across the knuckles.
+U¿ytkownik Kai Germaschewski napisa³:
+> On Tue, 18 Jun 2002, Adam J. Richter wrote:
 > 
+> 
+>>	No, "make -k" still will not build bzImage if a module
+>>fails to compile.
+>>
+>>	Also, I do not understand why this is "intentional."  Normally,
+>>if one does a "make" of a file in a source tree, build problems with
+>>unneeded files do not effect it.
+> 
+> 
+> Yes, but they are not unneeded files, otherwise we wouldn't even try to 
+> build them. The point is, the semantics of bzImage changed: It now means 
+> "build bzImage and modules". That's the common case. If you really only 
 
-This patch looks OK.
+It is very inconenient if you are working only on some things
+which don't affect any thing you are compiling as a module
+during the edit/compile cycle or if you don't care to update
+some modules you have just in case configured during developement.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+How does one build the sole non modularized part of the kernel
+nowadays? (Note: it is inconvenient now, but I'm not insisting.)
+
+> want bzImage and no modules, you have to tell make by using
+> "make KBUILD_MODULES= bzImage" (I could allow for phrasing the latter as
+> "make bzImage nomodules", but that's only cosmetical)
+

@@ -1,170 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318155AbSHUJvh>; Wed, 21 Aug 2002 05:51:37 -0400
+	id <S318184AbSHUKSb>; Wed, 21 Aug 2002 06:18:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318168AbSHUJvh>; Wed, 21 Aug 2002 05:51:37 -0400
-Received: from lmail.actcom.co.il ([192.114.47.13]:44190 "EHLO
-	lmail.actcom.co.il") by vger.kernel.org with ESMTP
-	id <S318155AbSHUJvf>; Wed, 21 Aug 2002 05:51:35 -0400
-Date: Wed, 21 Aug 2002 12:50:28 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] include/linux/smp_lock.h cleanup 2.5.31 (latest bk)
-Message-ID: <20020821095027.GB7661@alhambra.actcom.co.il>
+	id <S318182AbSHUKSb>; Wed, 21 Aug 2002 06:18:31 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:41146 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318184AbSHUKSa>;
+	Wed, 21 Aug 2002 06:18:30 -0400
+Date: Wed, 21 Aug 2002 12:17:47 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
+       Anton Altaparmakov <aia21@cantab.net>, alan@lxorguk.ukuu.org,
+       Andre Hedrick <andre@linux-ide.org>, axboe@suse.de, bkz@linux-ide.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020821121747.A3801@ucw.cz>
+References: <Pine.SOL.3.96.1020817004411.25629B-100000@draco.cus.cam.ac.uk> <Pine.LNX.4.44.0208161706390.1674-100000@home.transmeta.com> <20020818131515.A15547@ucw.cz> <1029672964.15858.17.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1029672964.15858.17.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Aug 18, 2002 at 01:16:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 18, 2002 at 01:16:04PM +0100, Alan Cox wrote:
+> On Sun, 2002-08-18 at 12:15, Vojtech Pavlik wrote:
+> > I'll make patches for 2.5 to bring the low-level driver cleanups back.
+> > Not just piix.c - also aec62xx.c and amd74xx.c - the last one was in 2.5
+> > for a LONG time already and I'm not particularly happy it got lost.
+> > 
+> > If desirable (What's your opinion, Alan?) I can make equivalent patches
+> > for 2.4 as well.
+> 
+> Look at 2.4.20-pre2-ac3 before you start doing that. A lot of cleanup
+> has been done, although there is plenty more left. A starter is to fix
+> the the ratemask/ratefilter stuff to not use silly while loops on the
+> aec/amd drivers if you are hacking on those, stick in the static
+> variables and document anything relevant looking.
+> 
+> Simple stuff first.
 
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have completely rewritten (and very well tested) versions of the amd
+and piix pci ide drivers.
 
-This is a resend of a patch to cleanup include/linux/smp_lock.h, based
-on a patch to do roughly the same to include/asm-i386/smplock.h from
-last week.=20
+I'm now looking through 2.4.20-pre2-ac5 and your version of via82cxxx.c,
+and all looks quite good to me, except for some of the indentation
+changes which seem to make the code fit into 78 columns at the loss of
+readability. Was the file run through indent?
 
-It's only a cleanup patch, not executable bits were changed. Patch is
-against latest bitkeeper (2.5.31+), compiles fine.=20
+I'm planning to adapt the amd and piix driver to the new framework for
+IDE drivers and then send you a patch.
 
-  - move various defines to static inline functions for type safety of
-parameters.
-  - change  __inline__ to inline.=20
-  - add kernel_locked_for_task(task) which was implicit before
-    explicit, and make kernel_locked() use it.=20
-  - add do { } while (0) to macros
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.502   -> 1.503 =20
-#	include/linux/smp_lock.h	1.4     -> 1.5   =20
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/08/21	mulix@alhambra.merseine.nu	1.503
-# cleanups for smp_lock.h
-# --------------------------------------------
-#
-diff -Nru a/include/linux/smp_lock.h b/include/linux/smp_lock.h
---- a/include/linux/smp_lock.h	Wed Aug 21 12:44:06 2002
-+++ b/include/linux/smp_lock.h	Wed Aug 21 12:44:06 2002
-@@ -9,9 +9,10 @@
- #define unlock_kernel()				do { } while(0)
- #define release_kernel_lock(task)		do { } while(0)
- #define reacquire_kernel_lock(task)		do { } while(0)
--#define kernel_locked() 1
-+#define kernel_locked()                         (1)
-+#define kernel_locked_for_task(task)            (1)
-=20
--#else
-+#else /* defined(CONFIG_SMP) || defined(CONFIG_PREEMPT) */=20
-=20
- #include <linux/interrupt.h>
- #include <linux/spinlock.h>
-@@ -20,29 +21,36 @@
-=20
- extern spinlock_t kernel_flag;
-=20
--#define kernel_locked()		(current->lock_depth >=3D 0)
-+static inline int kernel_locked_for_task(struct task_struct* task)
-+{
-+	return (task->lock_depth >=3D 0);=20
-+}
-+
-+static inline int kernel_locked(void)
-+{
-+	return kernel_locked_for_task(current);=20
-+}
-=20
--#define get_kernel_lock()	spin_lock(&kernel_flag)
--#define put_kernel_lock()	spin_unlock(&kernel_flag)
-+#define get_kernel_lock()	do { spin_lock(&kernel_flag); } while (0)
-+#define put_kernel_lock()	do { spin_unlock(&kernel_flag); } while (0)
-=20
- /*
-  * Release global kernel lock and global interrupt lock
-  */
--#define release_kernel_lock(task)		\
--do {						\
--	if (unlikely(task->lock_depth >=3D 0))	\
--		put_kernel_lock();		\
--} while (0)
-+static inline void release_kernel_lock(struct task_struct* task)
-+{
-+	if (unlikely(kernel_locked_for_task(task)))
-+		put_kernel_lock();
-+}
-=20
- /*
-  * Re-acquire the kernel lock
-  */
--#define reacquire_kernel_lock(task)		\
--do {						\
--	if (unlikely(task->lock_depth >=3D 0))	\
--		get_kernel_lock();		\
--} while (0)
--
-+static inline void reacquire_kernel_lock(struct task_struct* task)
-+{
-+	if (unlikely(kernel_locked_for_task(task)))
-+		get_kernel_lock();=20
-+}
-=20
- /*
-  * Getting the big kernel lock.
-@@ -51,7 +59,7 @@
-  * so we only need to worry about other
-  * CPU's.
-  */
--static __inline__ void lock_kernel(void)
-+static inline void lock_kernel(void)
- {
- 	int depth =3D current->lock_depth+1;
- 	if (!depth)
-@@ -59,14 +67,14 @@
- 	current->lock_depth =3D depth;
- }
-=20
--static __inline__ void unlock_kernel(void)
-+static inline void unlock_kernel(void)
- {
--	if (current->lock_depth < 0)
-+	if (!kernel_locked())
- 		BUG();
- 	if (--current->lock_depth < 0)
- 		put_kernel_lock();
- }
-=20
--#endif /* CONFIG_SMP */
-+#endif /* CONFIG_SMP || CONFIG_PREEMPT*/
-=20
--#endif
-+#endif /* __LINUX_SMPLOCK_H */=20
-
---=20
-calm down, it's *only* ones and zeros.=20
-
-http://syscalltrack.sf.net/
-http://vipe.technion.ac.il/~mulix/
-
---oC1+HKm2/end4ao3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9Y2JjKRs727/VN8sRAlneAKC0Km/e/YIK+gQh/vqhYm31CSYGaQCgjjrY
-nAg6ndEEnUP0n5I3dpBKXvY=
-=WozP
------END PGP SIGNATURE-----
-
---oC1+HKm2/end4ao3--
+-- 
+Vojtech Pavlik
+SuSE Labs

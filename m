@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288994AbSAFSyo>; Sun, 6 Jan 2002 13:54:44 -0500
+	id <S289009AbSAFTR1>; Sun, 6 Jan 2002 14:17:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289006AbSAFSyf>; Sun, 6 Jan 2002 13:54:35 -0500
-Received: from sm13.texas.rr.com ([24.93.35.40]:19132 "EHLO sm13.texas.rr.com")
-	by vger.kernel.org with ESMTP id <S288994AbSAFSyO>;
-	Sun, 6 Jan 2002 13:54:14 -0500
-Message-Id: <200201061856.g06IuXma007731@sm13.texas.rr.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Marvin Justice <mjustice@austin.rr.com>
-Reply-To: mjustice@austin.rr.com
-To: Daniel Freedman <freedman@ccmr.cornell.edu>, linux-kernel@vger.kernel.org
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-Date: Sun, 6 Jan 2002 12:59:12 -0600
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20020106133939.A6408@ccmr.cornell.edu>
-In-Reply-To: <20020106133939.A6408@ccmr.cornell.edu>
+	id <S289010AbSAFTRR>; Sun, 6 Jan 2002 14:17:17 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:48394 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S289009AbSAFTRD>; Sun, 6 Jan 2002 14:17:03 -0500
+Date: Sun, 6 Jan 2002 11:16:59 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: "vda@port.imtp.ilyichevsk.odessa.ua" 
+	<vda@port.imtp.ilyichevsk.odessa.ua>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <200201061151.g06BpvE04632@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33.0201061101370.5442-100000@shell1.aracnet.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this what your looking for? Just below the definition of PAGE_OFFSET in 
-page.h:
+On Sun, 6 Jan 2002, vda@port.imtp.ilyichevsk.odessa.ua wrote:
 
-/*
- * This much address space is reserved for vmalloc() and iomap()
- * as well as fixmap mappings.
- */
-#define __VMALLOC_RESERVE	(128 << 20)
- 
+> Like dd if=/dev/zero of=/tmp/file bs=... count=... ?
+>
+That would do it, but I was trying to give a real-world example from
+image processing, like copying a large image file.
 
-On Sunday 06 January 2002 12:39 pm, Daniel Freedman wrote:
-> On Jan 01 2002, H. Peter Anvin (hpa@zytor.com) wrote:
-> > By author: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> >
-> > > > 2. Isn't the boundary at 2^30 really irrelevant and the three
-> > > > "correct" zones are (0 - 2^24-1), (2^24 - 2^32-1) and (2^32 -
-> > > > 2^36-1)?
-> > >
-> > > Nope. The limit for directly mapped memory is 2^30.
-> >
-> > 2^30-2^27 to be exact (assuming a 3:1 split and 128MB vmalloc zone.)
-> >
-> >         -hpa
+> > # perform a 2D in-place FFT of total size at least "MemTotal/2" but less
+> > # than "MemTotal"
 >
-> For my better understanding, where's the 128MB vmalloc zone assumption
-> defined, please?
->
-> I'm pretty sure I understand that the 3:1 split you refer to is
-> defined by PAGE_OFFSET in asm-i386/page.h
->
-> But when I tried to find the answer in the source for the vmalloc
-> zone, I looked in linux/mm.h, linux/mmzone.h, linux/vmalloc.h, and
-> mm/vmalloc.c, but couldn't find anything there or in O'Reilly's kernel
-> book that I could follow/understand.
->
-> Thanks for any pointers.
->
-> Take care,
->
-> Daniel
+> I'm willing to try. What program can I use for FFT?
+
+I use FFTW from http://www.fftw.org.
+
+> Can you describe FFT memory access pattern in more detail?
+> I'd like to write a simple testcase with similar 'bad' pattern.
+
+
+Imagine a 16384 by 16384 array of double complex values. That's a 4
+GByte image. Scale down to fit your machine, of course :). The first
+pass will do an FFT on every row (column) if your language is C
+(FORTRAN). The "stride" is 16 bytes (one complex value) in the inner
+loop. Each row (column) is 16384*16 = 262144 bytes long, which works out
+to 64 pages if the page size is 4096 bytes.
+
+Then the second pass will do an FFT on every column (row). The stride is
+16384*16 = 262144 bytes. This is a new page for each 16-byte complex
+value you process :-). That is, all 16384 pages have to be in memory, or
+swapped into memory if you've run out of real memory and the kernel has
+swapped them out.
+
+Please ... *don't* try to do this on a 512 MB machine and think that an
+efficient VM is gonna make it work :),
+--
+M. Edward Borasky
+
+znmeb@borasky-research.net
+http://www.borasky-research.net
+
+What phrase will you *never* hear Miss Piggy use?
+"You can't make a silk purse out of a sow's ear!"
+

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTE2UKG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTE2UKG
+	id S262627AbTE2ULx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTE2ULx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:10:06 -0400
-Received: from smtp-out-01.utu.fi ([130.232.202.171]:60810 "EHLO
-	smtp-out-01.utu.fi") by vger.kernel.org with ESMTP id S262598AbTE2UKF
+	Thu, 29 May 2003 16:11:53 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:43937 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262627AbTE2ULw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:10:05 -0400
-Date: Thu, 29 May 2003 23:23:22 +0300
-From: =?iso-8859-1?Q?Tero_J=E4nk=E4?= <tesaja@utu.fi>
-Subject: Generic PCI IDE Chipset Support in 2.4.21-rc6
-To: linux-kernel@vger.kernel.org
-Message-id: <20030529202322.GA6441@tron.yok.utu.fi>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-Content-disposition: inline
-User-Agent: Mutt/1.3.28i
+	Thu, 29 May 2003 16:11:52 -0400
+Date: Thu, 29 May 2003 13:24:39 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Hugh Dickins <hugh@veritas.com>, akpm@digeo.com, hch@infradead.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Avoid vmtruncate/mmap-page-fault race
+Message-ID: <20030529202439.GA1515@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <Pine.LNX.4.44.0305291723310.1800-100000@localhost.localdomain> <200305291915.22235.phillips@arcor.de> <200305291939.47451.phillips@arcor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305291939.47451.phillips@arcor.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A possible bug here. At least a 'bug' in the documentation if nothing else.
+On Thu, May 29, 2003 at 07:39:47PM +0200, Daniel Phillips wrote:
+> On Thursday 29 May 2003 19:15, Daniel Phillips wrote:
+> > On Thursday 29 May 2003 18:33, you wrote:
+> > > Me?  I much preferred your original, much sparer, nopagedone patch
+> > > (labelled "uglyh as hell" by hch).
+> >
+> > "me too".
+> 
+> Oh wait, I mispoke... there is another formulation of the patch that hasn't 
+> yet been posted for review.  Instead of having the nopagedone hook, it turns 
+> the entire do_no_page into a hook, per hch's suggestion, but leaves in the 
+> ->nopage hook, which makes the patch small and obviously right.  I need to 
+> post that version for comparison, please bear with me.
+> 
+> IMHO, it's nicer than the ->nopagedone form.
 
-In menuconfig there are the following two entries:
+I put together something like this, but the problem with it is that
+do_anonymous_page() needs the mm->page_table_lock held, but the
+->nopage functions want this lock not to be held.  One could require
+that all the lock be held on entry to all ->nopage functions, but
+this would require almost all ->nopage functions to drop the lock
+immediately upon entry.  This seemed error-prone to me, but could
+certainly be done...
 
-[*]   PCI IDE chipset support
-[ ]     Generic PCI IDE Chipset Support (NEW)
+Thoughts?  Me, I don't care as long as there is some reasonable
+way for distributed filesystems to safely resolve the race between
+page faults and invalidation requests from other nodes.  ;-)
 
-The help (?) for "PCI IDE chipset support" in menuconfig shows:
-
-CONFIG_BLK_DEV_IDEPCI:
-
-Say Y here for PCI systems which use IDE drive(s).
-This option helps the IDE driver to automatically detect and
-configure all PCI-based IDE interfaces in your system.
-
-
-However in Documentation/Configure.help it says about CONFIG_BLK_DEV_IDEPCI:
-
-Generic PCI IDE chipset support
-CONFIG_BLK_DEV_IDEPCI
-  Say Y here for PCI systems which use IDE drive(s).
-  This option helps the IDE driver to automatically detect and
-  configure all PCI-based IDE interfaces in your system.
-
-
-Notice the first line, "Generic PCI IDE chipset support", and this was
-supposed to be help for "PCI IDE chipset support" (at least if menuconfig is
-to be trusted).
-
-There is no help (?) available for "Generic PCI IDE Chipset Support" at all
-in menuconfig. And no references to CONFIG_BLK_DEV_GENERIC in
-Documentation/Configure.help.
-
-What is the purpose of "Generic PCI IDE Chipset Support" (CONFIG_BLK_DEV_GENERIC)?
-When should it be enabled and when not?
-
-When upgrading from 2.4.20, CONFIG_BLK_DEV_GENERIC is disabled by default,
-even though CONFIG_BLK_DEV_IDEPCI is enabled. Is this how it should be?
-
-I'd appreciate if any responses are cc:ed to me, since I'm not in the lkml.
-
--- 
-Tero Jänkä
+						Thanx, Paul

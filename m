@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132702AbRDIH7e>; Mon, 9 Apr 2001 03:59:34 -0400
+	id <S132701AbRDIH4d>; Mon, 9 Apr 2001 03:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132704AbRDIH7Y>; Mon, 9 Apr 2001 03:59:24 -0400
-Received: from [195.224.53.219] ([195.224.53.219]:18560 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S132702AbRDIH7O>;
-	Mon, 9 Apr 2001 03:59:14 -0400
-Date: Mon, 09 Apr 2001 08:59:07 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Cc: linux-kernel@vger.kernel.org,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: Sources of entropy - /dev/random problem for network servers
-Message-ID: <1490543406.986806747@[195.224.237.69]>
-In-Reply-To: <3AD0F553.BE6BBF71@mandrakesoft.com>
-In-Reply-To: <3AD0F553.BE6BBF71@mandrakesoft.com>
-X-Mailer: Mulberry/2.1.0a4 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132702AbRDIH4Y>; Mon, 9 Apr 2001 03:56:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10765 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S132701AbRDIH4N>;
+	Mon, 9 Apr 2001 03:56:13 -0400
+Date: Mon, 9 Apr 2001 09:56:07 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ian Eure <ieure@insynq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: loop problems continue in 2.4.3
+Message-ID: <20010409095607.A432@suse.de>
+In-Reply-To: <15055.36597.353681.125824@pyramid.insynq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <15055.36597.353681.125824@pyramid.insynq.com>; from ieure@insynq.com on Sat, Apr 07, 2001 at 03:04:37PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff et al.,
+On Sat, Apr 07 2001, Ian Eure wrote:
+> i'm still having loopback problems with linux 2.4.3, even though they
+> were supposed to be fixed. it doesn't deadlock my maching right away
+> anymore, but instead causes a kernel panic after 4-6 uses of the loop
+> device.
+> 
+> the message i get is: "Kernel panic: Invalid blocksize passed to
+> set_blocksize"
+> 
+> 100% reproducable. has anyone else seen this?
+> 
+> i did compile with gcc 2.92.3, and i have hedrick's ide patches
+> applied.
+> 
+> anyone else see this?
 
->> However, only 3 drivers in drivers/net actually set
->> SA_SAMPLE_RANDOM when calling request_irq(). I believe
->> all of them should.
->
-> No, because an attacker can potentially control input and make it
-> non-random.
+Nope, please add a printk like before set_blocksize in
+drivers/block/loop.c and print the bs info, like so
 
-Point taken but:
-1. In that case, if we follow your logic, no drivers (rather than 3
-   arbitrary ones) should set SA_SAMPLE_RANDOM
-2. Given that otherwise in at least my application (and machine
-   without keyboard and mouse can't be too uncommon) there is *no*
-   entropy otherwise, which is rather easier for a hacker. At least
-   with entropy from a (albeit predictable) network, his attack
-   is going to shift the state of the seed (in an albeit predictable
-   manner), though he's going to have to make some accurate guesses
-   each time about the forwarding delay of the router in front of it,
-   and the stream of other packets hitting the server. I'd rather rely
-   on this, than rely on cron (which is effectively what is driving
-   any disk entropy every few minutes and is extremely predictable).
+        printk("loop: setting %d bs for %s\n", bs, kdevname(inode->i_rdev));
+        set_blocksize(dev, bs);
 
---
-Alex Bligh
+-- 
+Jens Axboe
+

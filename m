@@ -1,47 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280275AbRJaPyu>; Wed, 31 Oct 2001 10:54:50 -0500
+	id <S280245AbRJaQB2>; Wed, 31 Oct 2001 11:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280247AbRJaPy3>; Wed, 31 Oct 2001 10:54:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4360 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280245AbRJaPy0>; Wed, 31 Oct 2001 10:54:26 -0500
-Date: Wed, 31 Oct 2001 07:52:43 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>
-Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
-In-Reply-To: <Pine.LNX.4.33L.0110311259570.2963-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0110310744070.32330-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280247AbRJaQBU>; Wed, 31 Oct 2001 11:01:20 -0500
+Received: from jalon.able.es ([212.97.163.2]:9637 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S280245AbRJaQBL>;
+	Wed, 31 Oct 2001 11:01:11 -0500
+Date: Wed, 31 Oct 2001 15:59:34 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdrecord from ext3
+Message-ID: <20011031155934.A18608@werewolf.able.es>
+In-Reply-To: <20011031001846.A1840@werewolf.able.es> <3BDF576F.3A797933@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3BDF576F.3A797933@zip.com.au>; from akpm@zip.com.au on Wed, Oct 31, 2001 at 02:44:15 +0100
+X-Mailer: Balsa 1.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 31 Oct 2001, Rik van Riel wrote:
+On 20011031 Andrew Morton wrote:
+>"J . A . Magallon" wrote:
 >
-> Linus, it seems Lorenzo's test program gets killed due
-> to the new out_of_memory() heuristic ...
+>> Kernel: 2.4.13-ac5+bproc, controller is an Adaptec
+>> 
+>
+>bproc?   scyld distributed process thing, or something else?
+>
 
-Hmm.. The oom killer really only gets invoced if we're really down to zero
-swapspace (that's the _only_ non-rate-based heuristic in the whole thing).
+Yep.
 
-Lorenzo, can you do a "vmstat 1" and show the output of it during the
-interesting part of the test (ie around the kill).
+>Something strange is happening.  Could you please investigate
+>further?  For example:
+>
+>	dd if=/dev/zero of=foo bs-1024k count=600
+>	time cat foo > /dev/null
+>
+>How long does the `cat' take on ext2 and ext3?
+>
 
-I could probably argue that the machine really _is_ out of memory at this
-point: no swap, and it obviously has to work very hard to free any pages.
-Read the "out_of_memory()" code (which is _really_ simple), with the
-realization that it only gets called when "try_to_free_pages()" fails and
-I think you'll agree.
+Tried several times. Basic script is:
 
-That said, it may be "try_to_free_pages()" itself that just gives up way
-too easily - it simply didn't matter before, because all callers just
-looped around and asked for more memory if it failed. So the code could
-still trigger too easily not because the oom() logic itself is all that
-bad, but simply because it makes the assumption that try_to_free_pages()
-only fails in bad situations.
+	rm -f foo
+	echo ext2 create:
+	time dd if=/dev/zero of=foo bs=1024k count=600
+	sync
+	echo ext2 read:
+	time cat foo > /dev/null
+	rm -f foo
 
-		Linus
+and results a similar to this (but read below..):
 
+ext2 create:
+600+0 records in
+600+0 records out
+0.02user 5.73system 0:27.43elapsed 20%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (119major+18minor)pagefaults 0swaps
+
+ext2 read:
+0.24user 4.85system 0:27.57elapsed 18%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (100major+17minor)pagefaults 0swaps
+
+ext3 create:
+600+0 records in
+600+0 records out
+0.00user 12.20system 1:12.28elapsed 16%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (119major+18minor)pagefaults 0swaps
+
+ext3 read:
+0.19user 6.30system 1:21.73elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (100major+17minor)pagefaults 0swaps
+
+Did you noticed that the ext3 was at 20MHz, and ext2 was at 40MHz ? I
+will reformat the 20MHz drive and make 2 slices, one ext2 and one ext3
+to be sure not to compare apples and oranges...
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.13-ac5-beo #1 SMP Tue Oct 30 00:10:00 CET 2001 i686

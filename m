@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264740AbTE1QTq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 12:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264793AbTE1QTq
+	id S264738AbTE1QWa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 12:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264793AbTE1QWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 12:19:46 -0400
-Received: from [193.112.238.6] ([193.112.238.6]:50053 "EHLO caveman.xisl.com")
-	by vger.kernel.org with ESMTP id S264740AbTE1QTp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 12:19:45 -0400
-Message-ID: <3ED4E4BB.10806@xisl.com>
-Date: Wed, 28 May 2003 17:32:59 +0100
-From: John M Collins <jmc@xisl.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en, en-us
+	Wed, 28 May 2003 12:22:30 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:25609 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S264738AbTE1QW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 12:22:29 -0400
+Date: Wed, 28 May 2003 18:35:15 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "David S. Miller" <davem@redhat.com>
+cc: mika.penttila@kolumbus.fi, <rmk@arm.linux.org.uk>,
+       Andrew Morton <akpm@digeo.com>, <hugh@veritas.com>,
+       <LW@karo-electronics.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at
+ least))
+In-Reply-To: <20030527.142233.71088632.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0305281827290.5042-100000@serv>
+References: <Pine.LNX.4.44.0305261414060.12110-100000@serv>
+ <20030526.153415.41663121.davem@redhat.com> <Pine.LNX.4.44.0305270111370.5042-100000@serv>
+ <20030527.142233.71088632.davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Question about memory-mapped files
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc me (jmc@removespam.xisl.com) in any reply as I'm not subscribed.
+Hi,
 
-Could someone advise me on the answer to the following question:
+On Tue, 27 May 2003, David S. Miller wrote:
 
-If I invoke mmap to map a file to memory, and it succeeds, can I safely 
-close the original file descriptor and rely on the memory still being 
-mapped and the file still updated (possibly with mysnc)?
+>    The point I don't like about update_mmu_cache() is that it's called 
+>    _after_ set_pte(). Practically it's maybe not a problem right now, but 
+>    the cache synchronization should happen before set_pte().
+> 
+> update_mmu_cache() is specifically supposed to always occur before
+> anyone could try to use the mapping created.
+> 
+> If this is ever violated, it will be fixed because it is a BUG().
 
-I've looked through the kernel (2.4) source and it seems I can. I've 
-tried a test program on my machine and also Solaris and HP and it works 
-OK the file getting updated.
+set_pte() establishes the mapping, this means another cpu can get the pte 
+and start reading the data e.g. into the instruction cache, but if that 
+cpu still has dirty data in the data cache (e.g. a write() or a disk 
+read), the following update_mmu_cache() might be too late.
 
-On the Linux machine /proc/<pid>/maps seems to have all the right stuff 
-in after the file is closed.
-
-The only thing that doesn't happen is that the file mod time doesn't get 
-changed (on any machine).
-
-Of course "munmap" and "mremap" don't oblige you to pass an fd so it 
-would seem logical. But no manual page actually seems to say it.
-
-Could anyone advise? Thanks.
-
--- 
-John Collins Xi Software Ltd www.xisl.com
-
+bye, Roman
 

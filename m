@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317805AbSGVVLc>; Mon, 22 Jul 2002 17:11:32 -0400
+	id <S317804AbSGVVJr>; Mon, 22 Jul 2002 17:09:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317807AbSGVVLc>; Mon, 22 Jul 2002 17:11:32 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:14133 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317805AbSGVVLa>; Mon, 22 Jul 2002 17:11:30 -0400
-Date: Mon, 22 Jul 2002 17:14:38 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.27: s390 fixes.
-Message-ID: <20020722171438.A11295@devserv.devel.redhat.com>
-References: <mailman.1027363500.9793.linux-kernel2news@redhat.com> <200207222100.g6ML0UN08293@devserv.devel.redhat.com> <20020722220413.A12952@infradead.org>
+	id <S317805AbSGVVJr>; Mon, 22 Jul 2002 17:09:47 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:14898 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S317804AbSGVVJo>; Mon, 22 Jul 2002 17:09:44 -0400
+Date: Mon, 22 Jul 2002 23:12:52 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Pete Zaitcev <zaitcev@redhat.com>,
+       Kurt Garloff <garloff@suse.de>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Patch for 256 disks in 2.4
+Message-ID: <20020722211252.GM19587@nbkurt.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Christoph Hellwig <hch@infradead.org>,
+	Pete Zaitcev <zaitcev@redhat.com>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+References: <20020720195729.C20953@devserv.devel.redhat.com> <20020722170840.GB19587@nbkurt.etpnet.phys.tue.nl> <20020722164856.D19904@devserv.devel.redhat.com> <20020722215700.A12813@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wmhq21yAGFMoSpeN"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020722220413.A12952@infradead.org>; from hch@infradead.org on Mon, Jul 22, 2002 at 10:04:13PM +0100
+In-Reply-To: <20020722215700.A12813@infradead.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Mon, 22 Jul 2002 22:04:13 +0100
-> From: Christoph Hellwig <hch@infradead.org>
 
-> > > * add sys_security system call
-> > 
-> > I do not see the body of the call in the attached patch.
-> 
-> Does need to.  Is yet another magic dispatcher that has randomly changing
-> behaviour depending on the linux crap^H^H^H^Hsecurity module loaded.
+--wmhq21yAGFMoSpeN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I just realized that it comes from the LSM. Sorry.
+On Mon, Jul 22, 2002 at 09:57:00PM +0100, Christoph Hellwig wrote:
+> I might be stupid, but it looks to me like we want both the new majors
+> and the kernel structs dynamically allocated when they get actually used..
 
-Why does it need to be added into the architecture and
-not kept together with the patch-2.5.27-lsm1.gz or such?
-I am afraid that precludes compilation of architectures
-without LSM applied.
+Sure. The sd dynamic major allocation uses the registered block majors firs=
+t.
 
--- Pete
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+
+--wmhq21yAGFMoSpeN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9PHVTxmLh6hyYd04RAlZ+AJ0dmx0gx/KarV3JXhiZ229Dp4kYugCgy/DF
+Dm83CXjG8zbSVJxMoZjvaF4=
+=5RTx
+-----END PGP SIGNATURE-----
+
+--wmhq21yAGFMoSpeN--

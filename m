@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266363AbUGJTqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUGJTti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266363AbUGJTqi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 15:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUGJTqi
+	id S266365AbUGJTti (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 15:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266370AbUGJTti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 15:46:38 -0400
-Received: from host84.200-117-131.telecom.net.ar ([200.117.131.84]:1195 "EHLO
-	smtp.bensa.ar") by vger.kernel.org with ESMTP id S266363AbUGJTqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 15:46:37 -0400
-From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-To: Andreas Schwab <schwab@suse.de>
-Subject: Re: XFS: how to NOT null files on fsck?
-Date: Sat, 10 Jul 2004 16:46:27 -0300
-User-Agent: KMail/1.6.2
-Cc: Chris Wedgwood <cw@f00f.org>, Jan Knutar <jk-lkml@sci.fi>,
-       L A Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org
-References: <200407050247.53743.norberto+linux-kernel@bensa.ath.cx> <200407101555.27278.norberto+linux-kernel@bensa.ath.cx> <je658vwtbl.fsf@sykes.suse.de>
-In-Reply-To: <je658vwtbl.fsf@sykes.suse.de>
-MIME-Version: 1.0
+	Sat, 10 Jul 2004 15:49:38 -0400
+Received: from mail.gmx.de ([213.165.64.20]:21193 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266365AbUGJTtd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 15:49:33 -0400
+X-Authenticated: #5374206
+Date: Sat, 10 Jul 2004 21:50:01 +0200
+From: Thomas Moestl <moestl@ibr.cs.tu-bs.de>
+To: raven@themaw.net
+Cc: autofs mailing list <autofs@linux.kernel.org>, nfs@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: umount() and NFS races in 2.4.26
+Message-ID: <20040710195001.GC800@timesink.dyndns.org>
+References: <20040708180709.GA7704@timesink.dyndns.org> <Pine.LNX.4.58.0407101419210.1378@donald.themaw.net> <20040710181912.GA800@timesink.dyndns.org> <Pine.LNX.4.58.0407110323480.20439@donald.themaw.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407101646.27067.norberto+linux-kernel@bensa.ath.cx>
+In-Reply-To: <Pine.LNX.4.58.0407110323480.20439@donald.themaw.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
-> Norberto Bensa <norberto+linux-kernel@bensa.ath.cx> writes:
-> > Chris Wedgwood wrote:
-> >> XFS does not journal data.
-> >
-> > I think we all know that. The point, why the hell does it null files?
->
-> Security.  You don't want old contents of /etc/shadow appear in random
-> files after a crash.
+On Sun, 2004/07/11 at 03:25:34 +0800, raven@themaw.net wrote:
+> On Sat, 10 Jul 2004, Thomas Moestl wrote:
+> > The system in question still uses autofs3. While I believe that the
+> > waitq race is also present there (it could probably cause directory
+> > lookups to hang, if I understand it correctly), I do not think that
+> > any autofs3 code could cause exactly those symptoms that I have
+> > observed. For that, it would have to obtain dentries of the file
+> > systems that it has mounted, but the old code never does that.
+> 
+> All autofs has to do is not delete a directory before exiting for this 
+> error to occur.
 
-Wow. You're telling me that XFS doesn't know if a given piece of the log is 
-from file-a or file-b and just in case it zeroes its contents? 
+But in that case, the left-over dentry would be an autofs one, would
+it not? In our case, the dentries were verified to belong to a NFS
+mount that was unmounted by the automounter (that was one of the
+symptoms I was referring to). The automounter itself was still
+running, and the autofs still mounted.
 
-If that's true, XFS has moved to my never-ever-use-it-again list.
-
-Thanks,
-Norberto
+	- Thomas

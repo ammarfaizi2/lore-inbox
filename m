@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270103AbTGPDam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 23:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270104AbTGPDam
+	id S270104AbTGPDco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 23:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270108AbTGPDco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 23:30:42 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:63250 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S270103AbTGPDal
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 23:30:41 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: 2.5.75-mm1 yenta-socket lsPCI IRQ reads incorrect
-Date: Wed, 16 Jul 2003 11:16:21 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@suse.cz>,
-       John Belmonte <jvb@prairienet.org>
-References: <200307141333.03911.mflt1@micrologica.com.hk> <200307151734.46616.mflt1@micrologica.com.hk> <200307160009.08605.mflt1@micrologica.com.hk>
-In-Reply-To: <200307160009.08605.mflt1@micrologica.com.hk>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
+	Tue, 15 Jul 2003 23:32:44 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:55545 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S270104AbTGPDcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 23:32:43 -0400
+Date: Tue, 15 Jul 2003 20:47:17 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trongd Myklebust <trond.myklebust@fys.uio.no>, torvalds@osdl.org
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] rpcsec_gss compatibility
+Message-ID: <20030715204717.A9016@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307161110.50725.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 July 2003 00:09, Michael Frank wrote:
-> Should we save all registers? - it has 128
+Just as a data point, Solaris 9 client uses initial seq. no. 2.
 
-Did that, no effect, the controller remains inaccessible
+/fc
 
->
-> It sits on the same bus with ide, e100 which work, so it won't
-> be pci related - OK?.
+	start gss seq no at 1; netapp doesn't accept seq no 0.
 
-Tested the driver by unloading/reloading it several times.
-Before resume OK. After resume the controller is inaccessible as if "removed"
-
-What other state info could have been lost?
-
-Others: There is no matching kfree for the kmalloc of the socket
-
-
-Regards
-Michael
-
--- 
-Powered by linux-2.5.75-mm1. Compiled with gcc-2.95-3 - mature and rock solid
-
-My current linux related activities:
-- 2.5 yenta_socket testing
-- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
-- Everyday usage of 2.5 kernel
-
-More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-More info on swsusp: http://sourceforge.net/projects/swsusp/
-
+--- linux-2.5.75.0/net/sunrpc/auth_gss/auth_gss.c
++++ linux-2.5.75.1/net/sunrpc/auth_gss/auth_gss.c
+@@ -236,7 +236,7 @@
+ 		goto err;
+ 	}
+ 	ctx->gc_proc = RPC_GSS_PROC_DATA;
+-	ctx->gc_seq = 0;
++	ctx->gc_seq = 1;	/* NetApp 6.4R1 doesn't accept seq. no. 0 */
+ 	spin_lock_init(&ctx->gc_seq_lock);
+ 	atomic_set(&ctx->count,1);
+ 

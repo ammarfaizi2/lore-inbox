@@ -1,78 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263293AbTECLix (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 07:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbTECLix
+	id S263298AbTECMel (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 08:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbTECMel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 07:38:53 -0400
-Received: from pc3-cmbg5-6-cust177.cmbg.cable.ntl.com ([81.104.203.177]:31735
-	"EHLO flat") by vger.kernel.org with ESMTP id S263293AbTECLiv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 07:38:51 -0400
-Date: Sat, 3 May 2003 12:52:04 +0100
-From: cb-lkml@fish.zetnet.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-mm4
-Message-ID: <20030503115204.GA822@fish.zetnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 May 2003 08:34:41 -0400
+Received: from mbox2.netikka.net ([213.250.81.203]:151 "EHLO mbox2.netikka.net")
+	by vger.kernel.org with ESMTP id S263298AbTECMek convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 08:34:40 -0400
+From: Thomas Backlund <tmb@iki.fi>
+To: Willy Tarreau <willy@w.ods.org>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Date: Sat, 3 May 2003 15:46:57 +0300
+User-Agent: KMail/1.5.1
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EB0413D.2050200@superonline.com> <200305020314.01875.tmb@iki.fi> <20030502130331.GA1803@alpha.home.local>
+In-Reply-To: <20030502130331.GA1803@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Message-Id: <200305031546.57631.tmb@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Viestissä Perjantai 2. Toukokuuta 2003 16:03, Willy Tarreau kirjoitti:
+> On Fri, May 02, 2003 at 03:14:01AM +0300, Thomas Backlund wrote:
+> > And here are the results...
+>
+> [snip]
+>
+> Hi Thomas,
+>
+> With this patch, vesafb doesn't work anymore on my vaio notebook in
+> 1400x1050 nor 1280x1024, because scree_info.lfb_size is reported to be
+> 127, while it should be 175 and 160 instead ! So I modified your patch a
+> little bit to get it right :
+>
+> - video_size          = screen_info.lfb_size * screen_info.lfb_height *
+> video_bpp; + video_size          = screen_info.lfb_width/8 *
+> screen_info.lfb_height * video_bpp;
+>
+> and it now works again.
+> Maybe I have a broken bios, but other people might have the problem too.
+>
+> Cheers,
+> Willy
 
-Hi
+Oh man...
+I must have been sleeping when I posted that patch...
 
-2.5.68-mm4 fixes APM suspend on my Vaio (problem reported with 2.5.68-mm2) but
-my PCMCIA ethernet is still broken after suspend and requires ifconfig eth0
-down; cardctl eject; cardctl insert before it will come to life (it took two
-goes at that the first time, only one the second)
+the correct line should AFAIK be:
+video_size = screen_info.lfb_width * screen_info.lfb_height * video_bpp;
 
-As before, I get thousands of "eth0: command 0x5800 did not complete!" after
-resume, and I got the following backtrace after resume (possibly triggered by
-the cardctl commands).
+(AFAIK we are calculating bits here, not bytes so the '/8' you used is 
+wrong... could you try without it, and let me know...)
 
-As before, Sony Vaio, pre-empt, APM, combined ethernet/modem PCMCIA using
-3c574_cs.
+or even shorter:
 
-Any more info required?
+video_size = video_width * video_height * video_bpp;
 
-Charlie
 
-irq 11: nobody cared!
-Call Trace:
- [<c010b640>] handle_IRQ_event+0x90/0x100
- [<c010b897>] do_IRQ+0x97/0x120
- [<c0109c68>] common_interrupt+0x18/0x20
- [<c01ab1e3>] pci_bus_write_config_word+0x73/0x90
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c88a7890>] dead_socket+0x0/0xc [pcmcia_core]
- [<c882984a>] yenta_set_socket+0xba/0x1b0 [yenta_socket]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c882a027>] yenta_clear_maps+0x57/0x90 [yenta_socket]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c88a7890>] dead_socket+0x0/0xc [pcmcia_core]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c882a20b>] yenta_init+0x1b/0x30 [yenta_socket]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c882aa70>] ricoh_init+0x10/0xe0 [yenta_socket]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c8829036>] +0x36/0x40 [yenta_socket]
- [<c882c180>] +0x0/0x840 [yenta_socket]
- [<c889dada>] init_socket+0x2a/0x30 [pcmcia_core]
- [<c889df25>] shutdown_socket+0x15/0x100 [pcmcia_core]
- [<c889e16a>] socket_shutdown+0x4a/0x60 [pcmcia_core]
- [<c889e47a>] socket_insert+0x7a/0x80 [pcmcia_core]
- [<c889da1a>] get_socket_status+0x1a/0x20 [pcmcia_core]
- [<c889e6ad>] pccardd+0x13d/0x1f0 [pcmcia_core]
- [<c0119df0>] default_wake_function+0x0/0x20
- [<c01091d2>] ret_from_fork+0x6/0x14
- [<c0119df0>] default_wake_function+0x0/0x20
- [<c889e570>] pccardd+0x0/0x1f0 [pcmcia_core]
- [<c010722d>] kernel_thread_helper+0x5/0x18
+I'll be rebuilding and retesting my system today or tommorrow,
+but I wuold like to hear if it works for you...
 
-handlers:
-[<c8862410>] (el3_interrupt+0x0/0x260 [3c574_cs])
+
+-- 
+Thomas Backlund
+
+tmb@iki.fi
+www.iki.fi/tmb
 

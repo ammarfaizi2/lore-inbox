@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289004AbSANURN>; Mon, 14 Jan 2002 15:17:13 -0500
+	id <S289014AbSANUS0>; Mon, 14 Jan 2002 15:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288959AbSANUPu>; Mon, 14 Jan 2002 15:15:50 -0500
-Received: from zero.tech9.net ([209.61.188.187]:57092 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289012AbSANUI0>;
-	Mon, 14 Jan 2002 15:08:26 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Oliver.Neukum@lrz.uni-muenchen.de
-Cc: Momchil Velikov <velco@fadata.bg>, yodaiken@fsmlabs.com,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <16QBTc-1er7D6C@fwd03.sul.t-online.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
-	<16Q6V6-207eimC@fwd06.sul.t-online.com> <87d70c51wk.fsf@fadata.bg> 
-	<16QBTc-1er7D6C@fwd03.sul.t-online.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 14 Jan 2002 15:09:31 -0500
-Message-Id: <1011039031.4603.15.camel@phantasy>
-Mime-Version: 1.0
+	id <S288959AbSANURO>; Mon, 14 Jan 2002 15:17:14 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:17928 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S288992AbSANUQr>;
+	Mon, 14 Jan 2002 15:16:47 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200201142016.XAA10180@ms2.inr.ac.ru>
+Subject: Re: Multicast fails when interface changed
+To: cjames@berkeley.INnomedia.COM (Christopher James)
+Date: Mon, 14 Jan 2002 23:16:23 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C3E3AAB.749B1D51@berkeley.innomedia.com> from "Christopher James" at Jan 11, 2 04:15:02 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-14 at 13:04, Oliver Neukum wrote:
+Hello!
 
-> It can happen if you sleep with a lock held.
-> It can not happen at random points in the code.
-> Thus there is a relation to preemption in kernel mode.
-> 
-> To cure that problem tasks holding a lock would have to be given
-> the highest priority of all tasks blocking on that lock. The semaphore
-> code would get much more complex, even in the succesful code path,
-> which would hurt a lot.
+> the app (vocal 1.2) does not use INADDR_ANY for imr_interface when
+> joining the multicast group
 
-No, this isn't needed.  This same problem would occur without
-preemption.  Our semaphores now have locking rules such that we aren't
-going to have blatant priority inversion like this (1 holds A needs B, 2
-holds B needs A).
+Hmm... and what does it use?
 
-When priority inversion begins to become a problem is if we intend to
-start turning existing spinlocks into semaphores.  There the locking
-rules are weaker, and thus we would need to do priority inheriting.  But
-that's not now.
+As soon as /proc/net/dev_mcast does not show membership on the second
+interface, it is not difficult to conclude that the applciation just forgot to
+request mmembership on it.
 
-	Robert Love
-
+Alexey

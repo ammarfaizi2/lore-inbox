@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267750AbUHPPYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUHPP2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267750AbUHPPYc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 11:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267711AbUHPPU3
+	id S267725AbUHPP2S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267775AbUHPP2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:20:29 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:49586 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267713AbUHPPTG (ORCPT
+	Mon, 16 Aug 2004 11:28:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2538 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267721AbUHPP1z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:19:06 -0400
-Date: Mon, 16 Aug 2004 08:18:11 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Ray Bryant <raybry@sgi.com>
-cc: "David S. Miller" <davem@redhat.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
- pte locks?
-In-Reply-To: <41205BAA.9030800@sgi.com>
-Message-ID: <Pine.LNX.4.58.0408160817210.8293@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
- <20040815130919.44769735.davem@redhat.com> <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
- <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
- <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
- <41205BAA.9030800@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 11:27:55 -0400
+Date: Mon, 16 Aug 2004 11:26:57 -0400
+From: Alan Cox <alan@redhat.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: PATCH: header updates for IDE changes
+Message-ID: <20040816152657.GB10279@devserv.devel.redhat.com>
+References: <20040815145515.GA9993@devserv.devel.redhat.com> <200408161708.04376.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408161708.04376.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Ray Bryant wrote:
+On Mon, Aug 16, 2004 at 05:08:04PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> These changes belong to the patches making actual use of them...
 
-> Something else to worry about here is mm->rss.  Previously, this was updated
-> only with the page_table_lock held, so concurrent increments were not a
-> problem.  rss may need to converted be an atomic_t if you use pte_locks.
-> It may be that an approximate value for rss is good enough, but I'm not sure
-> how to bound the error that could be introduced by a couple of hundred
-> processers handling page faults in parallel and updating rss without locking
-> it or making it an atomic_t.
+They just don't split along those lines and compile sanely. I did the entire
+thing as one operation because for a lot of it there are no middle grounds.
 
-Correct. There are a number of issues that may have to be addressed but
-first we need to agree on a general idea how to proceed.
+> BTW What is the ordering in which your patches should be applied?
+
+Time order of message sending. I guess I should have added a PATCH n of m
+to it but didn't realise in time. While I've split them up for ease of
+understanding its likely a few steps along the way don't yield working
+IDE because of the interdependancies.
+
+Alan
 

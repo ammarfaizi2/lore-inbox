@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbTDKRGd (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTDKRGc (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 13:06:32 -0400
-Received: from dp.samba.org ([66.70.73.150]:42682 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261359AbTDKRG3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 13:06:29 -0400
-Date: Sat, 12 Apr 2003 03:15:06 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Randolph Chung <tausq@parisc-linux.org>
-Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][COMPAT] {get,set}affinity unification
-Message-ID: <20030411171506.GA657@krispykreme>
-References: <20030411062110.GS12993@tausq.org>
+	id S261358AbTDKRGg (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 13:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTDKRGf (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 13:06:35 -0400
+Received: from [212.18.235.100] ([212.18.235.100]:25358 "EHLO
+	tench.street-vision.com") by vger.kernel.org with ESMTP
+	id S261358AbTDKRGc (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 13:06:32 -0400
+Subject: Re: [ANNOUNCE] udev 0.1 release
+From: Justin Cormack <justin@street-vision.com>
+To: Jeremy Jackson <jerj@coplanar.net>
+Cc: Greg KH <greg@kroah.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-hotplug-devel@lists.sourceforge.net
+In-Reply-To: <1050081047.1252.4.camel@contact.skynet.coplanar.net>
+References: <20030411032424.GA3688@kroah.com> 
+	<1050081047.1252.4.camel@contact.skynet.coplanar.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 11 Apr 2003 18:18:09 +0100
+Message-Id: <1050081489.1363.114.camel@lotte>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030411062110.GS12993@tausq.org>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-04-11 at 18:10, Jeremy Jackson wrote:
+> What about read-only root fs? 
 
-Hi,
+run it on a tmpfs partition mounted at /dev
 
-> +extern asmlinkage long sys_sched_getaffinity(pid_t pid, unsigned int len,
-> +					    unsigned long *user_mask_ptr);
-> +
-> +asmlinkage int compat_sys_sched_getaffinity(compat_pid_t pid, unsigned int len,
-> +					    compat_ulong_t *user_mask_ptr)
-> +{
-> +	unsigned long kernel_mask;
-> +	mm_segment_t old_fs;
-> +	int ret;
-> +
-> +	old_fs = get_fs();
-> +	set_fs(KERNEL_DS);
-> +	ret = sys_sched_getaffinity(pid,
-> +				    sizeof(kernel_mask),
-> +				    &kernel_mask);
-> +	set_fs(old_fs);
-> +
-> +	if (ret == 0) {
-> +		if (put_user(kernel_mask, user_mask_ptr))
-> +			ret = -EFAULT;
-> +	}
-> +
-> +	return ret;
-> +}
 
-We should really return sizeof(compat_ulong_t) here. Can you check over
-the ppc64 and sparc64 versions of these, I think there are some other
-problems (getaffinity returns > 0 on success but you check for 0).
+Justin
 
-Anton
+

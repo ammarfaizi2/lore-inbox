@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVADV3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVADVaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262102AbVADV3a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVADV3T
+	id S262150AbVADVaC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:30:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbVADV3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:29:19 -0500
-Received: from hera.kernel.org ([209.128.68.125]:53470 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262102AbVADV1g (ORCPT
+	Tue, 4 Jan 2005 16:29:36 -0500
+Received: from gprs215-128.eurotel.cz ([160.218.215.128]:14976 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261847AbVADV1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:27:36 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [PATCH] get/set FAT filesystem attribute bits
-Date: Tue, 4 Jan 2005 21:26:54 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <crf1mu$elj$1@terminus.zytor.com>
-References: <fa.ea9o20r.kje5qn@ifi.uio.no> <fa.lub44op.a2ec2d@ifi.uio.no> <E1ClnK3-0000TB-00@be1.7eggert.dyndns.org>
+	Tue, 4 Jan 2005 16:27:16 -0500
+Date: Tue, 4 Jan 2005 22:27:02 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: kernel list <linux-kernel@vger.kernel.org>, alsa-devel@alsa-project.org
+Subject: Re: 2.6.10-mm1: oops during swsusp in ac97 support
+Message-ID: <20050104212702.GA1456@elf.ucw.cz>
+References: <20050103182842.GA1420@elf.ucw.cz> <s5h4qhxgnl9.wl@alsa2.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1104874014 15028 127.0.0.1 (4 Jan 2005 21:26:54 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 4 Jan 2005 21:26:54 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5h4qhxgnl9.wl@alsa2.suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E1ClnK3-0000TB-00@be1.7eggert.dyndns.org>
-By author:    Bodo Eggert <7eggert@gmx.de>
-In newsgroup: linux.dev.kernel
+Hi!
+
+> > I have via82xx soundcard, and since 2.6.10-mm1, I get an oops in
+> > snd_ac97_resume. Does 
 > 
-> > a = archive
-> 
-> Should be the "dump" attribute
-> 
+> What happened exactly? :)
 
-What dump attribute?
+During suspend, at one point devices are resumed. I get NULL pointer
+dereference during that phase.
 
-> > h = hidden
-> > r = read only
-> 
-> Should be reflected by the write bits. (Maybe there should be an option to
-> set the file mode for "read only" files to something different than
-> $rw_mode and not 0222.)
+I'll mail you a screenshot in a private mail. I just hope you'll be
+able to decipher it, it is pretty hard to read. (If not let me know, I
+think I can read most of it but no numbers).
 
-It is.
+2.6.10-mm1 is broken, 2.6.10-currentbk is not.
 
-> > s = system
-> 
-> Should be made "immutable", IMO
-
-This is a filesystem mount option, but it's really unpleasant to set
-it.  It's one of those things that seems to make sense, but really
-doesn't.
-
-	-hpa
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

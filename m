@@ -1,39 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265620AbRF1Jvy>; Thu, 28 Jun 2001 05:51:54 -0400
+	id <S265624AbRF1J5e>; Thu, 28 Jun 2001 05:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265617AbRF1Jvo>; Thu, 28 Jun 2001 05:51:44 -0400
-Received: from koala.ichpw.zabrze.pl ([195.82.164.33]:21775 "EHLO
-	koala.ichpw.zabrze.pl") by vger.kernel.org with ESMTP
-	id <S265583AbRF1Jvh>; Thu, 28 Jun 2001 05:51:37 -0400
-Message-Id: <200106280957.f5S9v3c11696@koala.ichpw.zabrze.pl>
-From: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 28 Jun 2001 11:52:51 -0400 (EDT)
-Reply-To: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
-X-Mailer: (Demonstration) PMMail 2.00.1500 for OS/2 Warp 3.00
+	id <S265621AbRF1J5Y>; Thu, 28 Jun 2001 05:57:24 -0400
+Received: from shiva.jussieu.fr ([134.157.0.129]:4883 "EHLO shiva.jussieu.fr")
+	by vger.kernel.org with ESMTP id <S265618AbRF1J5M>;
+	Thu, 28 Jun 2001 05:57:12 -0400
+Message-ID: <3B3AFFDE.2763D18F@qosmos.net>
+Date: Thu, 28 Jun 2001 11:58:54 +0200
+From: Gautier Harmel <Gautier.Harmel@qosmos.net>
+Reply-To: Gautier.Harmel@qosmos.net
+Organization: QOSMOS.NET
+X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.2-2smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-2"
+To: linux-kernel@vger.kernel.org
+Subject: How to pass packets up to protocols layer ?
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Subject: error compiling 2.2.20pre5, pre6 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm writing a module on Kernel 2.4. A part of this module can be view as
+a firewall.
+My module is logically located between the IP layer and the link layer.
+In fact, the binding is done on NF_IP_POST_ROUTING for packets outgoing,
+and on NF_IP_PRE_ROUTING for packets incoming.
 
-Compiling kernel 2.20pre5, pre6 :
+I'd like my firewall to respond by an TCP/RST packet when a packet is
+forbidden.
 
-drivers/net/net.a(8139too.o): In function `rtl8139_thread':
-8139too.o(.text+0x10ff): undefined reference to `lock_kernel'
-8139too.o(.text+0x1116): undefined reference to `unlock_kernel'
-make: *** [vmlinux] Error 1
+There is no problem with that when I send this packet over the network.
+To do that :
+    - I created a new skbuff, that I properly fill with TCP/IP headers.
 
-lack of 
-     #include <linux/smp_lock.h>
-  in  8139too.c ?
---------------------------------------------------------
- Marek Mentel  mmark@koala.ichpw.zabrze.pl  2:484/3.8          
- INSTITUTE FOR CHEMICAL PROCESSING OF COAL , Zabrze , POLAND
- NOTE: my opinions are strictly my own and not those of my employer
+    - I find the route by calling something like :
+             if (ip_route_output(&rt, iph->daddr, iph->saddr,
+RT_TOS(iph->tos), 0) != 0)
+                  return NULL;
+             dev = rt->u.dst.dev;
 
+    -Then I fill properly my sk_buff,
+
+    -Later I send the packet with a code  like that:
+            static inline int output_maybe_reroute(struct sk_buff *skb)
+{
+                 return  skb->dst->output(skb);
+            }
+
+            NF_HOOK(PF_INET, NF_IP_LOCAL_OUT,  skb,  NULL, skb->dev,
+output_maybe_reroute);
+
+There is no problem with that, it work fine in that way !
+
+My problem is that sometimes, I'd like to pass those RST packets UP to
+the protocol layer.
+Instead of sending packets on the network, I'd like to pass them up.
+As it works for the sending way, I'm trying to do the same and just
+modifying the last step by something like :
+
+    - Pass my packet up to the protocol layer
+            static inline int input_maybe_reroute(struct sk_buff *skb) {
+
+                 return  skb->dst->input(skb);
+            }
+
+            NF_HOOK(PF_INET, NF_IP_LOCAL_IN  skb,  skb->dev, NULL,
+input_maybe_reroute);
+
+But of course it fails, (in fact I don't even know what should do the
+skb->dst->input() function) !
+Anyone has an idea on how to do something like that or where to find
+doc. ?
+When do we have to call ip_route_input() ?
+
+Thank you for help
+
+Gautier Harmel
+
+PS : As I've not subscribe to the mailing list, could you, please, put
+my email adress in CC
+Gautier.Harmel@qosmos.net
 
 

@@ -1,258 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264660AbTGKRvF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 13:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTGKRvE
+	id S264728AbTGKRwC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 13:52:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTGKRvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 13:51:04 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63107
+	Fri, 11 Jul 2003 13:51:17 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:64643
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264660AbTGKRuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:50:23 -0400
-Date: Fri, 11 Jul 2003 19:04:10 +0100
+	id S264678AbTGKRu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:50:59 -0400
+Date: Fri, 11 Jul 2003 19:04:47 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307111804.h6BI4Av4017200@hraefn.swansea.linux.org.uk>
+Message-Id: <200307111804.h6BI4lcr017212@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: Add Kahlua audio from 2.4
+Subject: PATCH: clean up floppy98 a bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is slightly weird. Its a legacy sound blaster device living
-in non PCI space driven by SMM magic glue controlling real invisible
-hardware.
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/kahlua.c linux-2.5.75-ac1/sound/oss/kahlua.c
---- linux-2.5.75/sound/oss/kahlua.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.75-ac1/sound/oss/kahlua.c	2003-07-11 16:47:05.000000000 +0100
-@@ -0,0 +1,230 @@
-+/*
-+ *	Initialisation code for Cyrix/NatSemi VSA1 softaudio
-+ *
-+ *	(C) Copyright 2003 Red Hat Inc <alan@redhat.com>
-+ *
-+ * XpressAudio(tm) is used on the Cyrix MediaGX (now NatSemi Geode) systems.
-+ * The older version (VSA1) provides fairly good soundblaster emulation
-+ * although there are a couple of bugs: large DMA buffers break record,
-+ * and the MPU event handling seems suspect. VSA2 allows the native driver
-+ * to control the AC97 audio engine directly and requires a different driver.
-+ *
-+ * Thanks to National Semiconductor for providing the needed information
-+ * on the XpressAudio(tm) internals.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2, or (at your option) any
-+ * later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ * General Public License for more details.
-+ *
-+ * For the avoidance of doubt the "preferred form" of this code is one which
-+ * is in an open non patent encumbered format. Where cryptographic key signing
-+ * forms part of the process of creating an executable the information
-+ * including keys needed to generate an equivalently functional executable
-+ * are deemed to be part of the source code.
-+ *
-+ * TO DO:
-+ *	Investigate whether we can portably support Cognac (5520) in the
-+ *	same manner.
-+ */
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/drivers/block/floppy98.c linux-2.5.75-ac1/drivers/block/floppy98.c
+--- linux-2.5.75/drivers/block/floppy98.c	2003-07-10 21:08:10.000000000 +0100
++++ linux-2.5.75-ac1/drivers/block/floppy98.c	2003-07-11 14:33:22.000000000 +0100
+@@ -4064,21 +4064,32 @@
+ static char *table[] =
+ {"",
+ #if 0
+-"d360", 
++	"d360", 
+ #else
+-"h1232",
++	"h1232",
+ #endif
+-"h1200", "u360", "u720", "h360", "h720",
+-"u1440", "u2880", "CompaQ", "h1440", "u1680", "h410",
+-"u820", "h1476", "u1722", "h420", "u830", "h1494", "u1743",
+-"h880", "u1040", "u1120", "h1600", "u1760", "u1920",
+-"u3200", "u3520", "u3840", "u1840", "u800", "u1600",
++	"h1200", "u360", "u720", "h360", "h720",
++	"u1440", "u2880", "CompaQ", "h1440", "u1680", "h410",
++	"u820", "h1476", "u1722", "h420", "u830", "h1494", "u1743",
++	"h880", "u1040", "u1120", "h1600", "u1760", "u1920",
++	"u3200", "u3520", "u3840", "u1840", "u800", "u1600",
+ NULL
+ };
+-static int t360[] = {1,0}, t1200[] = {2,5,6,10,12,14,16,18,20,23,0},
+-t3in[] = {8,9,26,27,28, 7,11,15,19,24,25,29,31, 3,4,13,17,21,22,30,0};
+-static int *table_sup[] = 
+-{NULL, t360, t1200, t3in+5+8, t3in+5, t3in, t3in};
 +
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+
-+#include "sound_config.h"
-+
-+#include "sb.h"
-+
-+/*
-+ *	Read a soundblaster compatible mixer register.
-+ *	In this case we are actually reading an SMI trap
-+ *	not real hardware.
-+ */
-+
-+static u8 __devinit mixer_read(unsigned long io, u8 reg)
-+{
-+	outb(reg, io + 4);
-+	udelay(20);
-+	reg = inb(io + 5);
-+	udelay(20);
-+	return reg;
-+}
-+
-+static int __devinit probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
-+{
-+	struct address_info *hw_config;
-+	unsigned long base;
-+	void *mem;
-+	unsigned long io;
-+	u16 map;
-+	u8 irq, dma8, dma16;
-+	int oldquiet;
-+	extern int sb_be_quiet;
-+		
-+	base = pci_resource_start(pdev, 0);
-+	if(base == 0UL)
-+		return 1;
-+	
-+	mem = ioremap(base, 128);
-+	if(mem == 0UL)
-+		return 1;
-+	map = readw(mem + 0x18);	/* Read the SMI enables */
-+	iounmap(mem);
-+	
-+	/* Map bits
-+		0:1	* 0x20 + 0x200 = sb base
-+		2	sb enable
-+		3	adlib enable
-+		5	MPU enable 0x330
-+		6	MPU enable 0x300
-+		
-+	   The other bits may be used internally so must be masked */
-+
-+	io = 0x220 + 0x20 * (map & 3);	   
-+	
-+	if(map & (1<<2))
-+		printk(KERN_INFO "kahlua: XpressAudio at 0x%lx\n", io);
-+	else
-+		return 1;
-+		
-+	if(map & (1<<5))
-+		printk(KERN_INFO "kahlua: MPU at 0x300\n");
-+	else if(map & (1<<6))
-+		printk(KERN_INFO "kahlua: MPU at 0x330\n");
-+	
-+	irq = mixer_read(io, 0x80) & 0x0F;
-+	dma8 = mixer_read(io, 0x81);
-+
-+	// printk("IRQ=%x MAP=%x DMA=%x\n", irq, map, dma8);
-+	
-+	if(dma8 & 0x20)
-+		dma16 = 5;
-+	else if(dma8 & 0x40)
-+		dma16 = 6;
-+	else if(dma8 & 0x80)
-+		dma16 = 7;
-+	else
-+	{
-+		printk(KERN_ERR "kahlua: No 16bit DMA enabled.\n");
-+		return 1;
-+	}
-+		
-+	if(dma8 & 0x01)
-+		dma8 = 0;
-+	else if(dma8 & 0x02)
-+		dma8 = 1;
-+	else if(dma8 & 0x08)
-+		dma8 = 3;
-+	else
-+	{
-+		printk(KERN_ERR "kahlua: No 8bit DMA enabled.\n");
-+		return 1;
-+	}
-+	
-+	if(irq & 1)
-+		irq = 9;
-+	else if(irq & 2)
-+		irq = 5;
-+	else if(irq & 4)
-+		irq = 7;
-+	else if(irq & 8)
-+		irq = 10;
-+	else
-+	{
-+		printk(KERN_ERR "kahlua: SB IRQ not set.\n");
-+		return 1;
-+	}
-+	
-+	printk(KERN_INFO "kahlua: XpressAudio on IRQ %d, DMA %d, %d\n",
-+		irq, dma8, dma16);
-+	
-+	hw_config = kmalloc(sizeof(struct address_info), GFP_KERNEL);
-+	if(hw_config == NULL)
-+	{
-+		printk(KERN_ERR "kahlua: out of memory.\n");
-+		return 1;
-+	}
-+	memset(hw_config, 0, sizeof(*hw_config));
-+	
-+	pci_set_drvdata(pdev, hw_config);
-+	
-+	hw_config->io_base = io;
-+	hw_config->irq = irq;
-+	hw_config->dma = dma8;
-+	hw_config->dma2 = dma16;
-+	hw_config->name = "Cyrix XpressAudio";
-+	hw_config->driver_use_1 = SB_NO_MIDI | SB_PCI_IRQ;
-+	
-+	if(sb_dsp_detect(hw_config, 0, 0, NULL)==0)
-+	{
-+		printk(KERN_ERR "kahlua: audio not responding.\n");
-+		return 1;
-+	}
-+
-+	oldquiet = sb_be_quiet;	
-+	sb_be_quiet = 1;
-+	if(sb_dsp_init(hw_config, THIS_MODULE))
-+	{
-+		sb_be_quiet = oldquiet;
-+		pci_set_drvdata(pdev, NULL);
-+		kfree(hw_config);
-+		return 1;
-+	}
-+	sb_be_quiet = oldquiet;
-+	
-+	return 0;
-+}
-+
-+static void __devexit remove_one(struct pci_dev *pdev)
-+{
-+	struct address_info *hw_config = pci_get_drvdata(pdev);
-+	sb_dsp_unload(hw_config, 0);
-+	pci_set_drvdata(pdev, NULL);
-+	kfree(hw_config);
-+}
-+
-+MODULE_AUTHOR("Alan Cox");
-+MODULE_DESCRIPTION("Kahlua VSA1 PCI Audio");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ *	5530 only. The 5510/5520 decode is different.
-+ */
-+
-+static struct pci_device_id id_tbl[] __devinitdata = {
-+	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_AUDIO, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
-+	{ }
++static int t360[] = {
++	1,0
++};
++static int t1200[] = {
++	2,5,6,10,12,14,16,18,20,23,0
++};
++static int t3in[] = {
++	 8, 9,26,27,28, 7,11,15,19,24,25,
++	29,31, 3, 4,13,17,21,22,30, 0
 +};
 +
-+MODULE_DEVICE_TABLE(pci, id_tbl);
-+
-+static struct pci_driver kahlua_driver = {
-+	name:		"kahlua",
-+	id_table:	id_tbl,
-+	probe:		probe_one,
-+	remove:         __devexit_p(remove_one),
++static int *table_sup[] = {
++	NULL, t360, t1200, t3in+5+8, t3in+5, t3in, t3in
 +};
-+
-+
-+static int __init kahlua_init_module(void)
-+{
-+	printk(KERN_INFO "Cyrix Kahlua VSA1 XpressAudio support (c) Copyright 2003 Red Hat Inc\n");
-+	return pci_module_init(&kahlua_driver);
-+}
-+
-+static void __devexit kahlua_cleanup_module(void)
-+{
-+	return pci_unregister_driver(&kahlua_driver);
-+}
-+
-+
-+module_init(kahlua_init_module);
-+module_exit(kahlua_cleanup_module);
-+
+ 
+ static void __init register_devfs_entries (int drive)
+ {
+@@ -4402,7 +4413,7 @@
+ 	return 0;
+ 
+ out1:
+-	del_timer(&fd_timeout);
++	del_timer_sync(&fd_timeout);
+ out2:
+ 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
+ 	unregister_blkdev(FLOPPY_MAJOR,"fd");
+@@ -4430,11 +4441,9 @@
+ 		return 0;
+ 	}
+ 	spin_unlock_irqrestore(&floppy_usage_lock, flags);
+-	MOD_INC_USE_COUNT;
+ 	if (fd_request_irq()) {
+ 		DPRINT("Unable to grab IRQ%d for the floppy driver\n",
+ 			FLOPPY_IRQ);
+-		MOD_DEC_USE_COUNT;
+ 		spin_lock_irqsave(&floppy_usage_lock, flags);
+ 		usage_count--;
+ 		spin_unlock_irqrestore(&floppy_usage_lock, flags);
+@@ -4444,7 +4453,6 @@
+ 		DPRINT("Unable to grab DMA%d for the floppy driver\n",
+ 			FLOPPY_DMA);
+ 		fd_free_irq();
+-		MOD_DEC_USE_COUNT;
+ 		spin_lock_irqsave(&floppy_usage_lock, flags);
+ 		usage_count--;
+ 		spin_unlock_irqrestore(&floppy_usage_lock, flags);
+@@ -4521,7 +4529,6 @@
+ 			release_region(0x04be, 1);
+ 		}
+ 	}
+-	MOD_DEC_USE_COUNT;
+ 	spin_lock_irqsave(&floppy_usage_lock, flags);
+ 	usage_count--;
+ 	spin_unlock_irqrestore(&floppy_usage_lock, flags);
+@@ -4587,7 +4594,6 @@
+ 			}
+ 		}
+ 	fdc = old_fdc;
+-	MOD_DEC_USE_COUNT;
+ }
+ 
+ 

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVDCJvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVDCKBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261635AbVDCJvx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 05:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVDCJvx
+	id S261644AbVDCKBn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 06:01:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDCKBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 05:51:53 -0400
-Received: from host207-193-149-62.serverdedicati.aruba.it ([62.149.193.207]:6086
-	"EHLO chernobyl.investici.org") by vger.kernel.org with ESMTP
-	id S261635AbVDCJvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 05:51:51 -0400
-Subject: Re: Problem mounting dvd if the drive spin down
-From: Nate Grey <nate@paranoici.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20050402113012.6a1b3880.akpm@osdl.org>
-References: <1112459636.15372.18.camel@maggot.MetalZone.lan>
-	 <20050402113012.6a1b3880.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 03 Apr 2005 11:51:46 +0200
-Message-Id: <1112521906.3809.10.camel@maggot.MetalZone.lan>
+	Sun, 3 Apr 2005 06:01:43 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:43273 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261638AbVDCKBi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 06:01:38 -0400
+Date: Sun, 3 Apr 2005 20:00:43 +1000
+To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [RFC] CryptoAPI & Compression
+Message-ID: <20050403100043.GA20768@gondor.apana.org.au>
+References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au> <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org> <20050401152325.GB4150@gondor.apana.org.au> <Pine.LNX.4.58.0504011640340.9305@phoenix.infradead.org> <20050401221303.GA6557@gondor.apana.org.au> <424FA7B4.6050008@yandex.ru> <20050403084415.GA20326@gondor.apana.org.au> <424FB06B.3060607@yandex.ru> <20050403093044.GA20608@gondor.apana.org.au> <424FBB56.5090503@yandex.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 Dropline GNOME 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424FBB56.5090503@yandex.ru>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-02 at 11:30 -0800, Andrew Morton wrote:
+On Sun, Apr 03, 2005 at 01:45:58PM +0400, Artem B. Bityuckiy wrote:
+> 
+> Here is a cite from RFC-1951 (page 4):
+> 
+>    A compressed data set consists of a series of blocks, corresponding
+>    to successive blocks of input data.  The block sizes are arbitrary,
+>    except that non-compressible blocks are limited to 65,535 bytes.
+> 
+> Thus,
+> 
+> 1. 64K is only applied to non-compressible data, in which case zlib just 
+> copies it as it is, adding a 1-byte header and a 1-byte EOB marker.
 
-> Did it work OK under any other kernel versions?  If so, which?
+I think the overhead could be higher.  But even if it is 2 bytes
+per block, then for 1M of incompressible input the total overhead is
 
-At least it works in 2.6.7, I jump from .7 to .9 then .10 and
-finally .11, I notice this problem in 2.6.10 firstly.
+2 * 1048576 / 65536 = 32
 
-If you need addictional info about the drive just ask.
+bytes.
 
-I forgot to say that at boot time hdparm is run on the device:
+Also I'm not certain if it will actually create 64K blocks.  It might
+be as low as 16K according to the zlib documentation.
 
-hdparm -c1 -d1 -u1 -X66 /dev/hdc
+> 3. If zlib compressed data (i.e., applied LZ77 & Huffman), blocks may 
+> have arbitrary length.
 
+Actually there is a limit on that too but that's not relevant to
+this discussion.
 
-Thank you.
-
-
-P.S.
-
-hdc: cdrom_decode_status: status=0x51 { DriveReady SeekComplete Error }
-hdc: cdrom_decode_status: error=0x40 { LastFailedSense=0x04 }
-ide: failed opcode was: unknown
-hdc: ide_intr: huh? expected NULL handler on exit
-hdc: ATAPI reset complete
-end_request: I/O error, dev hdc, sector 64
-isofs_fill_super: bread failed, dev=hdc, iso_blknum=16, block=16
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

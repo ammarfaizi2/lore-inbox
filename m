@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269671AbUISEHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269583AbUISEjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269671AbUISEHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 00:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269677AbUISEHN
+	id S269583AbUISEjI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 00:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269587AbUISEjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 00:07:13 -0400
-Received: from undl.funcitec.rct-sc.br ([200.135.30.197]:3970 "HELO
-	mail.undl.org.br") by vger.kernel.org with SMTP id S269671AbUISEHJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 00:07:09 -0400
-Message-ID: <414D05A8.3080208@undl.org.br>
-Date: Sun, 19 Sep 2004 01:06:00 -0300
-From: Carlos Eduardo Medaglia Dyonisio <medaglia@undl.org.br>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-bk4 Unknown symbol __VMALLOC_RESERVE
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAvNyRn41Uu0yDWG5tHRPqegEAAAAA@syphir.sytes.net>
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAvNyRn41Uu0yDWG5tHRPqegEAAAAA@syphir.sytes.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 19 Sep 2004 00:39:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:30391 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269583AbUISEjE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 00:39:04 -0400
+Subject: Re: udev is too slow creating devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Greg KH <greg@kroah.com>, Linux Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <414C9003.9070707@softhome.net>
+References: <414C9003.9070707@softhome.net>
+Content-Type: text/plain
+Message-Id: <1095568704.6545.17.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 19 Sep 2004 14:38:24 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-C.Y.M. wrote:
-> After testing 2.6.9-rc2-bk4 today, I am getting the following error when I
-> attempt to load my Nvidia module:
+
+>    You need to change your attitude for first. For second - come up with 
+> a way for user space to block until device is here, and if it is not 
+> here/error detected - fail.
 > 
-> Sep 18 15:31:36 poseidon kernel: nvidia: module license 'NVIDIA' taints
-> kernel.
-> Sep 18 15:31:36 poseidon kernel: nvidia: Unknown symbol __VMALLOC_RESERVE
+>    As it was said before - /all/ we need, is to be able to tell 
+> discovery phase from idle state of driver. "/All/" is quite much here - 
+> but it must be a goal.
+> 
+>    I'm absolutely sure, that for PCI devices it is implementable quite 
+> easy - probing is already done outside of modules. And we know precisely 
+> are we Ok, or are we not. And we know when we are done. If it is not so 
+> for USB yet - then it is bug which must be fixed.
 
-I've had this problem too. Try to use bk3. It is working for me. :)
+Nope, Greg is right. Drivers themselves won't necessarily provide
+you with the device interface in a synchronous way after they are
+loaded, and some will certainly never. It is all an asynchronous process
+and there is simply no way to ask for any kind of enforced synchronicity
+here without major bloatage.
 
-Regards,
-Cadu
+Ben.
+

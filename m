@@ -1,337 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262714AbVAVNSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVAVNgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbVAVNSF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 08:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbVAVNSF
+	id S262715AbVAVNgm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 08:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262716AbVAVNgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 08:18:05 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:2240 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262714AbVAVNRr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 08:17:47 -0500
-Message-ID: <41F25279.4040307@tiscali.de>
-Date: Sat, 22 Jan 2005 14:17:45 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
+	Sat, 22 Jan 2005 08:36:42 -0500
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:52985 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S262715AbVAVNgi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 08:36:38 -0500
+Message-ID: <313680C9A886D511A06000204840E1CF0A647550@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: saving & follow-up analyzing (by the bootloader) the  kernel boo
+	t log buffer on "vanilla"Linux (2.6)  usable for all architecture platfor
+	ms
+Date: Sat, 22 Jan 2005 08:35:34 -0500
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: nvidia driver and Kernel 2.6.11-rc2: compilation error
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-If I try to compile the nvidia driver (version: 6629) module I get this:
+Could such examination be made available (as a debug option)
+in the simple bootloader's load_kernel(),
+before "unzipping" kernel ?
 
-NVIDIA: calling KBUILD...
-   make CC=cc  KBUILD_VERBOSE=1 -C /lib/modules/2.6.11-rc2-ott/build 
-SUBDIRS=/t
-   mp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv modules
-   mkdir -p 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/.tmp_vers
-   ions
-   make -f scripts/Makefile.build 
-obj=/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629
-   -pkg1/usr/src/nv
-   echo \#define NV_COMPILER \"`cc -v 2>&1 | tail -n 1`\" > 
-/tmp/selfgz7663/NVI
-   DIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv_compiler.h
-     cc 
--Wp,-MD,/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/.nv.o
-   .d -nostdinc -isystem /usr/lib/gcc/i686-pc-linux-gnu/3.4.3/include 
--D__KERNE
-   L__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs 
--fno-strict-aliasing
-   -fno-common -ffreestanding -O2     -fomit-frame-pointer -pipe 
--msoft-float -
-   mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=i686 
--mtune=pentium4
-   -Iinclude/asm-i386/mach-default -Wdeclaration-after-statement  
--I/tmp/selfgz
-   7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv -Wall -Wimplicit 
--Wreturn-typ
-   e -Wswitch -Wformat
-   -Wchar-subscripts -Wparentheses -Wpointer-arith  -Wno-multichar  
--Werror -O
-   -fno-common -MD   -Wno-cast-qual -Wno-error -D_LOOSE_KERNEL_NAMES 
--D__KERNEL
-   __ -DMODULE  -DNTRM -D_GNU_SOURCE -D_LOOSE_KERNEL_NAMES -D__KERNEL__ 
--DMODUL
-   E  -DNV_MAJOR_VERSION=1 -DNV_MINOR_VERSION=0 -DNV_PATCHLEVEL=6629  
--DNV_UNIX
-     -DNV_LINUX   -DNV_INT64_OK   -DNVCPU_X86      -UDEBUG -U_DEBUG 
--DNDEBUG -D
-   NV_REMAP_PFN_RANGE_PRESENT -DNV_CHANGE_PAGE_ATTR_PRESENT 
--DNV_PCI_DISABLE_DE
-   VICE_PRESENT -DNV_CLASS_SIMPLE_CREATE_PRESENT 
--DNV_PCI_GET_CLASS_PRESENT  -D
-   MODULE -DKBUILD_BASENAME=nv -DKBUILD_MODNAME=nvidia -c -o 
-/tmp/selfgz7663/NV
-   IDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/.tmp_nv.o 
-/tmp/selfgz7663/NVIDIA-Lin
-   ux-x86-1.0-6629-pkg1/usr/src/nv/nv.c
-   In file included from include/linux/list.h:7,
-                    from include/linux/wait.h:23,
-                    from include/asm/semaphore.h:41,
-                    from include/linux/sched.h:19,
-                    from include/linux/module.h:10,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-linux.h:52,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv.c:14:
-   include/linux/prefetch.h: In function `prefetch_range':
-   include/linux/prefetch.h:62: warning: pointer of type `void *' used 
-in arith
-   metic
-   In file included from include/linux/dmapool.h:14,
-                    from include/linux/pci.h:863,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-linux.h:75,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv.c:14:
-   include/asm/io.h: In function `check_signature':
-   include/asm/io.h:242: warning: wrong type argument to increment
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv.c: In 
-function
-   `_get_phys_address':
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv.c:2509: 
-warning
-   : passing arg 1 of `pmd_offset' from incompatible pointer type
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv.c: In 
-function
-   `nv_agp_init':
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv.c:2992: 
-warning
-   : `inter_module_put' is deprecated (declared at 
-include/linux/module.h:578)
-     cc 
--Wp,-MD,/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/.nv-v
-   m.o.d -nostdinc -isystem /usr/lib/gcc/i686-pc-linux-gnu/3.4.3/include 
--D__KE
-   RNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs 
--fno-strict-alias
-   ing -fno-common -ffreestanding -O2     -fomit-frame-pointer -pipe 
--msoft-flo
-   at -mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=i686 
--mtune=penti
-   um4 -Iinclude/asm-i386/mach-default -Wdeclaration-after-statement  
--I/tmp/se
-   lfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv -Wall -Wimplicit 
--Wreturn
-   -type -Wswitch -Wformat -Wchar-subscripts -Wparentheses 
--Wpointer-arith  -Wn
-   o-multichar  -Werror -O -fno-common -MD   -Wno-cast-qual -Wno-error 
--D_LOOSE
-   _KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNTRM -D_GNU_SOURCE 
--D_LOOSE_KERNEL_NA
-   MES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1 -DNV_MINOR_VERSION=0 
--DNV_PA
-   TCHLEVEL=6629  -DNV_UNIX   -DNV_LINUX   -DNV_INT64_OK   
--DNVCPU_X86      -UD
-   EBU
-   G -U_DEBUG -DNDEBUG -DNV_REMAP_PFN_RANGE_PRESENT 
--DNV_CHANGE_PAGE_ATTR_PRESE
-   NT -DNV_PCI_DISABLE_DEVICE_PRESENT -DNV_CLASS_SIMPLE_CREATE_PRESENT 
--DNV_PCI
-   _GET_CLASS_PRESENT  -DMODULE -DKBUILD_BASENAME=nv_vm 
--DKBUILD_MODNAME=nvidia
-   -c -o 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/.tmp_nv-vm.o
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv-vm.c
-   In file included from include/linux/list.h:7,
-                    from include/linux/wait.h:23,
-                    from include/asm/semaphore.h:41,
-                    from include/linux/sched.h:19,
-                    from include/linux/module.h:10,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-linux.h:52,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-vm.c:14:
-   include/linux/prefetch.h: In function `prefetch_range':
-   include/linux/prefetch.h:62: warning: pointer of type `void *' used 
-in arith
-   metic
-   In file included from include/linux/dmapool.h:14,
-                    from include/linux/pci.h:863,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-linux.h:75,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-vm.c:14:
-   include/asm/io.h: In function `check_signature':
-   include/asm/io.h:242: warning: wrong type argument to increment
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv-vm.c: At 
-top le
-   vel:
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/nv-vm.c:59: 
-warnin
-   g: 'cache_flush' defined but not used
-     cc 
--Wp,-MD,/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/.os-a
-   gp.o.d -nostdinc -isystem 
-/usr/lib/gcc/i686-pc-linux-gnu/3.4.3/include -D__K
-   ERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs 
--fno-strict-alia
-   sing -fno-common -ffreestanding -O2     -fomit-frame-pointer -pipe 
--msoft-fl
-   oat -mpreferred-stack-boundary=2 -fno-unit-at-a-time -march=i686 
--mtune=pent
-   ium4 -Iinclude/asm-i386/mach-default -Wdeclaration-after-statement  
--I/tmp/s
-   elfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv -Wall -Wimp
-   licit -Wreturn-type -Wswitch -Wformat -Wchar-subscripts -Wparentheses 
--Wpoin
-   ter-arith  -Wno-multichar  -Werror -O -fno-common -MD   
--Wno-cast-qual -Wno-
-   error -D_LOOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNTRM 
--D_GNU_SOURCE -D_L
-   OOSE_KERNEL_NAMES -D__KERNEL__ -DMODULE  -DNV_MAJOR_VERSION=1 
--DNV_MINOR_VER
-   SION=0 -DNV_PATCHLEVEL=6629  -DNV_UNIX   -DNV_LINUX   -DNV_INT64_OK   
--DNVCP
-   U_X86      -UDEBUG -U_DEBUG -DNDEBUG -DNV_REMAP_PFN_RANGE_PRESENT 
--DNV_CHANG
-   E_PAGE_ATTR_PRESENT -DNV_PCI_DISABLE_DEVICE_PRESENT 
--DNV_CLASS_SIMPLE_CREATE
-   _PRESENT -DNV_PCI_GET_CLASS_PRESENT  -DMODULE 
--DKBUILD_BASENAME=os_agp -DKBU
-   ILD_MODNAME=nvidia -c -o 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/
-   src/nv/.tmp_os-agp.o 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/
-   nv/os-agp.c
-   In file included from include/linux/list.h:7,
-                    from include/linux/wait.h:23,
-                    from include/asm/semaphore.h:41,
-                    from include/linux/sched.h:19,
-                    from include/linux/module.h:10,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-linux.h:52,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/os-agp.c:24:
-   include/linux/prefetch.h: In function `prefetch_range':
-   include/linux/prefetch.h:62: warning: pointer of type `void *' used 
-in arith
-   metic
-   In file included from include/linux/dmapool.h:14,
-                    from include/linux/pci.h:863,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/nv-linux.h:75,
-                    from 
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv/os-agp.c:24:
-   include/asm/io.h: In function `check_signature':
-   include/asm/io.h:242: warning: wrong type argument to increment
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c: 
-At top l
-   evel:
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:48: error
-   : parse error before '*' token
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:48: warni
-   ng: type defaults to `int' in declaration of `drm_agp_p'
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:48: warni
-   ng: data definition has no type or storage class
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c: 
-In funct
-   ion `KernInitAGP':
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:76: warni
-   ng: assignment discards qualifiers from pointer target type
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:85: error
-   : request for member `acquire' in something not a structure or union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:88: warni
-   ng: `inter_module_put' is deprecated (declared at 
-include/linux/module.h:578
-   )
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:113: erro
-   r: request for member `copy_info' in something not a structure or union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:173: erro
-   r: request for member `enable' in something not a structure or union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:185: erro
-   r: request for member `release' in something not a structure or union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:186: warn
-   ing: `inter_module_put' is deprecated (declared at 
-include/linux/module.h:57
-   8)
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c: 
-In funct
-   ion `KernTeardownAGP':
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:216: erro
-   r: request for member `release' in something not a structure or union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:218: warn
-   ing: `inter_module_put' is deprecated (declared at 
-include/linux/module.h:57
-   8)
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c: 
-In funct
-   ion `KernAllocAGPPages':
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:265: erro
-   r: request for member `allocate_memory' in something not a structure 
-or unio
-   n
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:273: erro
-   r: request for member `bind_memory' in something not a structure or union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:290: erro
-   r: request for member `unbind_memory' in something not a structure or 
-union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:305: erro
-   r: request for member `free_memory' in something not a structure or union
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c: 
-In funct
-   ion `KernMapAGPPages':
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:345: erro
-   r: request for member `unbind_memory' in something not a structure or 
-union
-   /tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c: 
-In funct
-   ion `KernFreeAGPPages':
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:444: erro
-   r: request for member `unbind_memory' in something not a structure or 
-union
-   
-/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-agp.c:445: erro
-   r: request for member `free_memory' in something not a structure or union
-   make[3]: *** 
-[/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/os-a
-   gp.o] Error 1
-   make[2]: *** 
-[_module_/tmp/selfgz7663/NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src
-   /nv] Error 2
-   NVIDIA: left KBUILD.
-   nvidia.ko failed to build!
-   make[1]: *** [module] Error 1
-   make: *** [module] Error 2
--> Error.
+I presume that the code for outputting log buffer,
+currently executed during the kernel booting (after console_init()),
+could be placed in the library
+and thus be available for simple boot loader ?
 
-Howto fix this?
+That would require adding some sort of testable bit pattern
+being stored at the header and tail of the log_buf,
+so it could be checked for corruption upon reading 
+(may be checksum too ?)
 
-Matthias-Christian Ott
+Who among Linux kernel maintainers would be interested in doing so ?
+
+PS 
+-----Original Message-----
+From: Tom Rini [mailto:trini@kernel.crashing.org]
+Sent: Friday, January 21, 2005 6:49 PM
+To: Povolotsky, Alexander
+Subject: Re: where in the (simple ?) bootloader I could examine the
+preser ved (in the memory) content of the log buffer
+
+
+On Fri, Jan 21, 2005 at 05:39:19PM -0500, Povolotsky, Alexander wrote:
+
+> But the issue at question is to pass saved (in memory) content of the
+> log_buf, filled by unsuccessful kernel boot,
+> via soft reboot to the bootloader for follow-up examination ...
+
+I suppose so long as the firmware doesn't erase or otherwise overwrite
+things, you should be able to find log_buf by looking at System.map and
+subtracing 0xc0000000.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/
+
+
+>  -----Original Message-----
+> From: 	Povolotsky, Alexander  
+> Sent:	Saturday, January 22, 2005 6:27 AM
+> To:	'Linas Vepstas'
+> Cc:	'Andi Kleen (E-mail)'; 'Anton Blanchard (E-mail)'; 'Randy Dunlap
+> (E-mail)'; 'Andrew Morton (E-mail)'; 'Alan Cox (E-mail)'; 'Keith Owens
+> (E-mail)'
+> Subject:	RE:  saving & analyzing (by the bootloader)   kernel boot
+> log buffer on "vanilla"Linux (2.6)  usable for for 8xx ppc 
+> 
+> I would suggest CONSIDER implementing - it would help for early debugging
+> when serial console 
+> is not working and no "live"output is available - I am in such situation
+> right now !
+> 
+> -----Original Message-----
+> From: Olaf Hering [mailto:olh@suse.de]
+> Sent: Saturday, January 22, 2005 4:16 AM
+> To: Povolotsky, Alexander
+> Subject: Re: saving & analyzing (by the bootloader) kernel boot logbuffer
+> on "vanilla"Linux (2.6) usable for for 8xx ppc
+> 
+>  On Sat, Jan 22, Povolotsky, Alexander wrote:
+> 
+> > > Hi,
+> > > 
+> > > Is there a project for Linux for creating the functionality to move
+> > > the log_buf content into some designated (by the address) memory
+> > > buffer during the kernel boot as well as functionality
+> > > (to be included into "any" bootloader) for examining
+> > > (after the soft reboot ) saved into the memory content of the log_buf
+> > >  (filled by the unsuccessful kernel boot) ?
+> 
+> I dont think there is such functionality. pseries save the panic string
+> into some RTAS buffer, but thats all.
+> 
+> 
+> 

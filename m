@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265879AbTGIJUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 05:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbTGIJUO
+	id S265893AbTGIJYf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 05:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265915AbTGIJYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 05:20:14 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:34003 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S265879AbTGIJUK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 05:20:10 -0400
-Subject: Re: 2.4.21 IDE and IEEE1394+SBP2 regressions, orinoco_pci progress
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Zygo Blaxell <uixjjji1@umail.furryterror.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <pan.2003.07.08.22.25.12.249185.15455@umail.hungrycats.org>
-References: <pan.2003.07.08.22.25.12.249185.15455@umail.hungrycats.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1057743274.506.4.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 09 Jul 2003 11:34:34 +0200
+	Wed, 9 Jul 2003 05:24:35 -0400
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:60342 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265893AbTGIJYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 05:24:31 -0400
+From: Nathaniel Russell <reddog83@sbcglobal.net>
+Reply-To: reddog83@sbcglobal.net
+Organization: RedDog GNu/Linux
+To: reddoglinux04@aol.com
+Subject: [PATCH] ver_linux kernel 2.5-bk1 
+Date: Wed, 9 Jul 2003 05:41:25 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_FN+C/jA3tY5oiLV"
+Message-Id: <200307090541.25483.reddog83@sbcglobal.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-09 at 04:49, Zygo Blaxell wrote:
-> Previously on kernels up to 2.4.20, an IDE disk I/O request that was in
-> progress at suspend time would trigger a DMA reset upon resume, after a
-> short delay while waiting for the timeout.  2.4.20 looked like this:
-> 
->         ide_dmaproc: chipset supported ide_dma_lostirq func only: 13 hda:
->         lost interrupt
-> 
-> After this, the machine happily resumes whatever it was doing.  There is a
-> delay of a few seconds while this happens.
-> 
-> Now in 2.4.21, the kernel prints the following message:
-> 
->         hda: dma_timer_expiry: dma status == 0x04
-> 
-> and that's the last thing it ever does--the kernel locks up hard.
 
-Whatever happens, you shouldn't let the machine suspend while ongoing
-disk IOs are in progress. A lot of bad things could result from that.
+--Boundary-00=_FN+C/jA3tY5oiLV
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Actually, the proper fix is to implement some working suspend/resume
-handlers in the IDE layer like we did in 2.5, though the problem here
-is that 2.4 lacks proper infrastructure for doing that in a properly
-ordered way.
+This patch correctly identifies the current version level of Modutils / 
+Mod-Init Utils for Current 2.5 kernels.
+It's a cosmetic change which wouldn't allow me to see the version of Mod Init 
+with out this patch applied.
+Please Apply 
 
-> Note that in order to see this you need to be doing a lot of I/O at
-> suspend time, e.g. 'cp -a /usr /tmp' or some such thing.
-> 
-> Also in 2.4.21, a filesystem mounted from a CD-ROM via ide-scsi will start
-> to get I/O errors if it is accessed during the suspend/resume sequence. 
-> In 2.4.20, there were no ill effects when this happens.
+Nathaniel Russell
+--Boundary-00=_FN+C/jA3tY5oiLV
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ver_linux.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="ver_linux.patch"
 
-Same thing. You need the driver to block requests during that sequence,
-and to complete any pending one before suspend is entered.
+diff -urN scripts/ver_linux.old scripts/ver_linux
+--- scripts/ver_linux.old	2003-07-09 05:35:09.000000000 -0400
++++ scripts/ver_linux	2003-07-09 05:35:31.000000000 -0400
+@@ -28,7 +28,7 @@
+ 
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
+ 
+-depmod -V  2>&1 | grep version | awk 'NR==1 {print "module-init-tools     ",$NF}'
++depmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
+ 
+ tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
+ 'NR==1 {print "e2fsprogs             ", $2}'
 
+--Boundary-00=_FN+C/jA3tY5oiLV--
 

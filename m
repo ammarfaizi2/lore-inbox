@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129706AbQKZLyn>; Sun, 26 Nov 2000 06:54:43 -0500
+        id <S129818AbQKZMf3>; Sun, 26 Nov 2000 07:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129818AbQKZLyd>; Sun, 26 Nov 2000 06:54:33 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:772 "EHLO bug.ucw.cz")
-        by vger.kernel.org with ESMTP id <S129706AbQKZLyR>;
-        Sun, 26 Nov 2000 06:54:17 -0500
-Message-ID: <20001124205247.A141@bug.ucw.cz>
-Date: Fri, 24 Nov 2000 20:52:47 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel_thread bogosity
-In-Reply-To: <20001123232333.A6426@bug.ucw.cz> <20001124014830.I1461@athlon.random>
+        id <S129819AbQKZMfU>; Sun, 26 Nov 2000 07:35:20 -0500
+Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:8708
+        "HELO metastasis.f00f.org") by vger.kernel.org with SMTP
+        id <S129818AbQKZMfN>; Sun, 26 Nov 2000 07:35:13 -0500
+Date: Mon, 27 Nov 2000 01:05:08 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Andrew Park <apark@cdf.toronto.edu>,
+        Linux-KERNEL <linux-kernel@vger.kernel.org>
+Subject: Re: changing BIOS setting
+Message-ID: <20001127010508.A1523@metastasis.f00f.org>
+In-Reply-To: <Pine.LNX.4.21.0011241758500.12040-100000@blue.cdf.utoronto.ca> <3A1EF2D0.991EBFFB@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20001124014830.I1461@athlon.random>; from Andrea Arcangeli on Fri, Nov 24, 2000 at 01:48:30AM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A1EF2D0.991EBFFB@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Nov 24, 2000 at 05:59:28PM -0500
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+However , this won't change boot sequence at that is store in the
+CMOS on your RTC chip... if you really wanted though; you could mess
+with that via /dev/nvram or whatever it's called.
 
-> > Plus, can someone explain me why it does not need to setup %%ecx with
-> > either zero or address of stack?
-> 
-> Not necessary because a kernel thread never exit from kernel.
+Not that I suggest this is a good idea, most likely you will corrupt
+it and the BIOS will get a checksum error and reinitialize the nvram
+to defaults.
 
-How can that work? restore_args ends with iret, anyway, and iret does
-reload esp afaics...
-								Pavel
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+
+
+  --cw
+
+On Fri, Nov 24, 2000 at 05:59:28PM -0500, Jeff Garzik wrote:
+
+    Andrew Park wrote:
+
+    > Is there a way to change BIOS setting (like boot sequence) from
+    > the kernel space?  Any pointers would be appreciated.
+    
+    Yes.  All the BIOS does is configure your hardware.  Get docs on
+    your hardware, and you can do anything that BIOS does.  For
+    example, if your parallel port is disabled in BIOS, and you have
+    the datasheet for your southbridge, then you can "manually"
+    enable the parallel port by writing certain values to certain PCI
+    config registers.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

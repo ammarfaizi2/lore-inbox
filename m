@@ -1,182 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbUKHEXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbUKHE2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbUKHEXV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 23:23:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUKHEVJ
+	id S261725AbUKHE2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 23:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUKHE2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 23:21:09 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:58026 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261742AbUKHERh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 23:17:37 -0500
-Subject: [PATCH/RFC 4/4]An experimental implementation for IDE bus
-From: Li Shaohua <shaohua.li@intel.com>
-To: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Cc: Len Brown <len.brown@intel.com>, Greg <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Content-Type: multipart/mixed; boundary="=-8INMQSGffGGf3EYOjTVV"
-Message-Id: <1099887081.1750.249.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 08 Nov 2004 12:11:47 +0800
+	Sun, 7 Nov 2004 23:28:52 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:63450 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S261725AbUKHE2u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 23:28:50 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: makeing a loadable module
+Date: Sun, 7 Nov 2004 23:28:48 -0500
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411072328.48785.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.60.181] at Sun, 7 Nov 2004 22:28:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings;
 
---=-8INMQSGffGGf3EYOjTVV
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I found some code I can play with/hack/etc, in the form of a loadable 
+module and some testing driver programs, in 'dpci8255.tar.gz'.
 
-Hi,
-A sample patch to bind IDE devices. I'm not familar with IDE driver, so
-the patch possibly is completely wrong, though it can show correct ACPI
-path in my laptop. This test case just shows the framework works, please
-don't apply it.
+Unforch its for a slightly different card than the one I have, and 
+once I've hacked the code to suit, I need to rebuild it.
 
-Thanks,
-Shaohua
----
+So whats the gcc command line to make just a bare, loadable module for 
+say a 2.4.25 kernel?   Obviously I'm missing something when it 
+complains and quits, claiming there is no 'main' defined, which I 
+don't think modules actually have one of those?
 
- 2.6-root/drivers/ide/ide.c |   43
-+++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+)
+What I'm trying to do (hey, no big dummy jokes please :)
 
-diff -puN drivers/ide/ide.c~ide-bind-acpi drivers/ide/ide.c
---- 2.6/drivers/ide/ide.c~ide-bind-acpi	2004-11-08 11:09:12.625009440
-+0800
-+++ 2.6-root/drivers/ide/ide.c	2004-11-08 11:10:04.477126720 +0800
-@@ -2412,10 +2412,53 @@ EXPORT_SYMBOL(ide_fops);
- 
- EXPORT_SYMBOL(ide_lock);
- 
-+#ifdef CONFIG_ACPI
-+#include <linux/acpi.h>
-+int generic_ide_platform_bind(struct device *dev)
-+{
-+	acpi_handle parent_handle = NULL;
-+	acpi_integer address;
-+	int i;
-+
-+	/* Seems dev->parent->parent is the PCI IDE controller */
-+        if (dev->parent && dev->parent->parent)
-+                parent_handle = dev->parent->parent->handle;
-+
-+	if (!parent_handle) {
-+		printk("Can't find parent handle \n");
-+		return -1;
-+	}
-+	/* Please ref to ACPI spec for syntax of _ADR */
-+	sscanf(dev->bus_id, "%d", &i);
-+	address = i;
-+	dev->handle = acpi_get_child(parent_handle, address);
-+
-+#if 1
-+       {/* For debug */
-+               char            name[80] = {'?','\0'};
-+               struct acpi_buffer      buffer = {sizeof(name), name};
-+
-+               printk("IDE device %d:", i);
-+               if (dev->handle) {
-+                       acpi_get_name(dev->handle, ACPI_FULL_PATHNAME,
-&buffer);
-+                       printk("%s", name);
-+               }
-+               printk("\n");
-+       }
-+#endif
-+	return 0;
-+}
-+#else
-+int generic_ide_platform_bind(struct device *dev)
-+{
-+	return 0;
-+}
-+#endif
- struct bus_type ide_bus_type = {
- 	.name		= "ide",
- 	.suspend	= generic_ide_suspend,
- 	.resume		= generic_ide_resume,
-+	.platform_bind	= generic_ide_platform_bind,
- };
- 
- /*
-_
+[root@coyote dist]# cc -o dpci8255.o dpci8255lib.c
+/usr/lib/gcc-lib/i386-redhat-linux/3.3.3/../../../crt1.o(.text+0x18): 
+In function `_start':
+: undefined reference to `main'
+collect2: ld returned 1 exit status
 
+The gcc manpage isn't that helpfull and I've now read thru it twice.
 
---=-8INMQSGffGGf3EYOjTVV
-Content-Disposition: attachment; filename=p00004_ide-bind-acpi.patch
-Content-Type: text/x-patch; name=p00004_ide-bind-acpi.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-
-A sample patch to bind IDE devices. I'm not familar with IDE driver, so the
-patch possibly is completely wrong, though it can show correct ACPI path in
-my laptop. This test case just shows the framework works, please don't apply.
-
----
-
- 2.6-root/drivers/ide/ide.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+)
-
-diff -puN drivers/ide/ide.c~ide-bind-acpi drivers/ide/ide.c
---- 2.6/drivers/ide/ide.c~ide-bind-acpi	2004-11-08 11:09:12.625009440 +0800
-+++ 2.6-root/drivers/ide/ide.c	2004-11-08 11:10:04.477126720 +0800
-@@ -2412,10 +2412,53 @@ EXPORT_SYMBOL(ide_fops);
- 
- EXPORT_SYMBOL(ide_lock);
- 
-+#ifdef CONFIG_ACPI
-+#include <linux/acpi.h>
-+int generic_ide_platform_bind(struct device *dev)
-+{
-+	acpi_handle parent_handle = NULL;
-+	acpi_integer address;
-+	int i;
-+
-+	/* Seems dev->parent->parent is the PCI IDE controller */
-+        if (dev->parent && dev->parent->parent)
-+                parent_handle = dev->parent->parent->handle;
-+
-+	if (!parent_handle) {
-+		printk("Can't find parent handle \n");
-+		return -1;
-+	}
-+	/* Please ref to ACPI spec for syntax of _ADR */
-+	sscanf(dev->bus_id, "%d", &i);
-+	address = i;
-+	dev->handle = acpi_get_child(parent_handle, address);
-+
-+#if 1
-+       {/* For debug */
-+               char            name[80] = {'?','\0'};
-+               struct acpi_buffer      buffer = {sizeof(name), name};
-+
-+               printk("IDE device %d:", i);
-+               if (dev->handle) {
-+                       acpi_get_name(dev->handle, ACPI_FULL_PATHNAME, &buffer);
-+                       printk("%s", name);
-+               }
-+               printk("\n");
-+       }
-+#endif
-+	return 0;
-+}
-+#else
-+int generic_ide_platform_bind(struct device *dev)
-+{
-+	return 0;
-+}
-+#endif
- struct bus_type ide_bus_type = {
- 	.name		= "ide",
- 	.suspend	= generic_ide_suspend,
- 	.resume		= generic_ide_resume,
-+	.platform_bind	= generic_ide_platform_bind,
- };
- 
- /*
-_
-
---=-8INMQSGffGGf3EYOjTVV--
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

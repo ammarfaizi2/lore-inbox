@@ -1,48 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265270AbTLaW1o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 17:27:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbTLaW1o
+	id S265267AbTLaWdH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 17:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265269AbTLaWdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 17:27:44 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:57124 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S265270AbTLaW1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 17:27:42 -0500
-Message-ID: <3FF34B09.9040302@myrealbox.com>
-Date: Wed, 31 Dec 2003 14:17:45 -0800
-From: walt <wa1ter@myrealbox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20031231
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-References: <fa.af64864.ugabhg@ifi.uio.no> <fa.de7jae9.1jk0pjt@ifi.uio.no>
-In-Reply-To: <fa.de7jae9.1jk0pjt@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Wed, 31 Dec 2003 17:33:07 -0500
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:30864 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S265267AbTLaWdC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 17:33:02 -0500
+Date: Wed, 31 Dec 2003 23:32:44 +0100
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Message-ID: <20031231223244.GO24577@ranty.pantax.net>
+Reply-To: ranty@debian.org
+References: <200312210137.41343.dtor_core@ameritech.net> <20031222093759.GB30235@kroah.com> <200312222229.17991.dtor_core@ameritech.net> <1072169289.2876.57.camel@pegasus>
+Mime-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <1072169289.2876.57.camel@pegasus>
+User-Agent: Mutt/1.5.4i
+X-SA-Exim-Mail-From: ranty@ranty.pantax.net
+Subject: Re: [2.6 PATCH/RFC] Firmware loader - fix races and resource dealloocation problems
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 3.1 (built Wed Nov 26 20:40:04 CET 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Tue, Dec 23, 2003 at 09:48:09AM +0100, Marcel Holtmann wrote:
+> Hi Dmitry,
+> 
+> > > > It seems that implementation of the firmware loader is racy as it
+> > > > relies on kobject hotplug handler. Unfortunately that handler runs
+> > > > too early, before firmware class attributes controlling the loading
+> > > > process, are created. This causes firmware loading fail at least half
+> > > > of the times on my laptop.
+> > >
+> > > Um, why not have your script wait until the files are present?  That
+> > > will remove any race conditions you will have.
+> > 
+> > How long should the userspace wait? One second as Manuel suggested?
+> > Indefinitely? Or should the firmware agent have some timeout? If userspace
+> > uses a timeout how should it correlate with the timeout on the kernel side?
+> 
+> the timeout of the kernel (which can be set from userspace) is for the
+> whole firmware loading process. What we talk about is waiting a little
+> bit before the files become visible for the firmware.agent.
+> 
+> > I am sorry but I have to disagree with you. Kernel should not call user
+> > space until it has all infrastructure in place and is ready. Anything
+> > else is just a sloppy practice.
+> 
+> The firmware.agent script has 3 extra lines to check for the visibility
+> of the "loading" file and if it is not present it will sleep one second.
+> This is a actual good practice compared to adding much more code to the
+> kernel and have an own way of running hotplug.
 
-> In fact, now that I know Gentoo works without devfs, I'm considering
-> putting it on an old laptop I have around here...
+ I would say that we will get into this with other issues.
 
-That would be ideal.  I'm sure you will like the 'portage' system as
-much as we (the gentoo hordes) do.
+ Maybe some generic mechanism could be implemented to make the hotplug
+ event wait for the files.
 
-Note that the portage system already includes 'hotplug' and 'udev'
-but possibly lagging behind a bit:  hotplug-20030805-r3 and udev-011.
+ The least intrusive solution, although it doesn't sound quite clean could be:
 
-I have installed them both but just have not been able to get udev
-working yet -- I don't yet understand the problems well enough to tell
-you why, unfortutately.  (udev is still marked 'experimental' so I'm
-probably omitting important steps somewhere.)
+ - Kernel side:
+ 	- sysfs_hotplug_frezze()
+ 		- Creates a dummy file /sys/.hotplug_frozen
+ 	- sysfs_hotplug_thaw()
+ 		- Removes /sys/.hotplug_frozen
+ - Userspace:
+	- Main hotplug script waits "while [ -f /sys/.hotplug_frozen ]".
 
-If you could get udev working in gentoo you would become an instant
-hero rather than the target of nasty emails.  Think of how great
-that would be for your New Year!  We would become the wind beneath
-your wings instead of the rotten tomatoes in your mailbox  ;0)
+ sysfs_hotplug_[frezze|thaw]() should be treated almost like spinlocks,
+ so the system's behabiour doesn't get afected.
+
+ Dmitry's patch is probably cleaner, but since I already had written the
+ email when I noticed ...
+
+ Happy new year everyone
+
+ 	Manuel
+ 
+	
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132434AbQK0Cgd>; Sun, 26 Nov 2000 21:36:33 -0500
+        id <S135321AbQK0Cly>; Sun, 26 Nov 2000 21:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S135321AbQK0CgY>; Sun, 26 Nov 2000 21:36:24 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:15623 "EHLO
-        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-        id <S132434AbQK0CgM>; Sun, 26 Nov 2000 21:36:12 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: initdata for modules? 
-In-Reply-To: Your message of "Sun, 26 Nov 2000 19:49:43 PDT."
-             <20001126194943.F2265@vger.timpanogas.org> 
-Mime-Version: 1.0
+        id <S135372AbQK0Clo>; Sun, 26 Nov 2000 21:41:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14688 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S135321AbQK0Clb>; Sun, 26 Nov 2000 21:41:31 -0500
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+To: david@linux.com (David Ford)
+Date: Mon, 27 Nov 2000 02:11:49 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (LKML),
+        jmerkey@vger.timpanogas.org (Jeff V. Merkey)
+In-Reply-To: <3A21A720.75A4EEB1@linux.com> from "David Ford" at Nov 26, 2000 04:13:20 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 27 Nov 2000 13:06:04 +1100
-Message-ID: <3478.975290764@kao2.melbourne.sgi.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E140Dlm-0002bT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Nov 2000 19:49:43 -0700, 
-"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
->Microsoft drivers have an .INIT code section that is initialization 
->ccode that get's chunked after it's loaded.  Their model allows 
->memory segments to be defined as DISCARDABLE, which tells the loader
->to chunk them after they get loaded in portable executable format.  
+> > Anaconda will barf and require over 850+ changes to the scripts without
+> > it.  If you look at the patch, you will note that it's a silent switch
+> > that's only there to avoid a noisy error message from depmod.  It
+> > actually does nothing other than set a flag that also does nothing.
+> > -m simply maps to -F.
+> 
+> It's still a bad precedent.  Anaconda should have been written correctly in
+> the first place.
 
-The loader is insmod, which does all its own reloaction and loading.
-The problem is that ancillary tools like ksymoops, gdb, kdb and
-possibly others do not expect sections to be discarded after load.
-Adding the feature to insmod is fairly easy, fixing the ancillary tools
-to understand that some sections are discarded after load is a bit
-harder.  Debugging is particularly messy, when an oops occurs how do we
-tell if the __init data been discarded yet or not?
-
-I have added this to my investigation list for modutils, ksymoops and
-kdb 2.5, no promises.
+I don't know if its an Anaconda issue or a limitation in the tools. Keith is
+the modutils maintainer and its up to the Anaconda hackers to prove to him that
+he has a problem so I think he is absolutely right in refusing to change it
+until that is proven
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

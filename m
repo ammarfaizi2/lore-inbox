@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317264AbSFLAJg>; Tue, 11 Jun 2002 20:09:36 -0400
+	id <S317271AbSFLAWb>; Tue, 11 Jun 2002 20:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317265AbSFLAJf>; Tue, 11 Jun 2002 20:09:35 -0400
-Received: from p50886B65.dip.t-dialin.net ([80.136.107.101]:7301 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317264AbSFLAJe>; Tue, 11 Jun 2002 20:09:34 -0400
-Date: Tue, 11 Jun 2002 18:09:19 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Roland Dreier <roland@topspin.com>
-cc: Thunder from the hill <thunder@ngforever.de>,
-        "David S. Miller" <davem@redhat.com>, <oliver@neukum.name>,
-        <wjhun@ayrnetworks.com>, <paulus@samba.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-In-Reply-To: <52d6ux5q01.fsf@topspin.com>
-Message-ID: <Pine.LNX.4.44.0206111808190.24261-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317277AbSFLAWa>; Tue, 11 Jun 2002 20:22:30 -0400
+Received: from 04-195.088.popsite.net ([64.24.84.195]:11392 "EHLO perl")
+	by vger.kernel.org with ESMTP id <S317271AbSFLAWa>;
+	Tue, 11 Jun 2002 20:22:30 -0400
+Date: Wed, 12 Jun 2002 00:22:29 +0000
+To: linux-kernel@vger.kernel.org
+Cc: xsdg@mangalore.zipworld.com.au
+Subject: computer reboots before "Uncompressing Linux..." with 2.5.19-xfs
+Message-ID: <20020612002229.A27386@216.254.117.126>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: xsdg <xsdg@openprojects.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hola...
+I'm trying to get kernel 2.5.19-xfs working on one of my boxes...  The box is
+a P200-MMX, currently running 2.5.7-xfs and using grub as the bootloader.  Each
+time I try to boot the kernel, grub tells me...
 
-On 11 Jun 2002, Roland Dreier wrote:
-> I left out the error checking for the allocations everywhere in my
-> email.  It wasn't real code and I thought that testing for NULL all
-> over the place would obscure the real point.
+root (hd0,0)
+ Filesystem type is ext2fs, partition type 0x83
+kernel /boot/kernels/19.5.2k-xfs single
+ [Linux-bzImage, setup=0x1400, size=0x134aff]
 
-Sure thing. It was just my newly introduced paranoia, I have some things 
-like them to fix.
+Then, after a small pause, the box reboots (note: it does _not_ print
+"Uncompressing Linux...").  I have tried the following:
+1) Compile the kernel, optimized for P-MMX, on another box (PII-350 Deschutes)
+   using gcc 2.95.4
+2) Recompile bzImage
+3) Recompile bzImage
+4) Remove framebuffer support.  Remove vid mode selection support.  Optimize
+   for Pentium-Classic.  Recompile with everything else the same
+5) Recompile on target box (gcc 2.95.4 also) with options the same as after #4
 
-Regards,
-Thunder
+All of my boxes are running Debian SID (not necessarily up-to-date).  I asked a
+number of times in #kernelnewbies on OPN, to no avail.  Any and all
+help would be greatly appreciated. (Please CC me in replies)
+
+	--xsdg
 -- 
-German attitude becoming        |	Thunder from the hill at ngforever
-rightaway popular:		|
-       "Get outa my way,  	|	free inhabitant not directly
-    for I got a mobile phone!"	|	belonging anywhere
-
+|---------------------------------------------------|
+| It's not the fall that kills you, it's the        |
+|   landing.                                        |
+|---------------------------------------------------|
+| http://xsdg.hypermart.net   xsdg@openprojects.net |
+|---------------------------------------------------|

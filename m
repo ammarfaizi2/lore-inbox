@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265116AbUADVvs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 16:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUADVvs
+	id S264392AbUADVst (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 16:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUADVst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 16:51:48 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:6632 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265116AbUADVvr (ORCPT
+	Sun, 4 Jan 2004 16:48:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8845 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264392AbUADVsr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 16:51:47 -0500
-Date: Sun, 4 Jan 2004 22:51:28 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dave Jones <davej@redhat.com>, Rob Love <rml@ximian.com>,
-       Mikael Pettersson <mikpe@csd.uu.se>, szepe@pinerecords.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Pentium M config option for 2.6
-Message-ID: <20040104215128.GA14982@ucw.cz>
-References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur> <20040104162516.GB31585@redhat.com> <1073233988.5225.9.camel@fur> <20040104165028.GC31585@redhat.com>
+	Sun, 4 Jan 2004 16:48:47 -0500
+Date: Sun, 4 Jan 2004 13:48:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org, proski@gnu.org, kpfleming@cox.net
+Subject: Re: [PATCH]: Fw: [Bugme-new] [Bug 1242] New: devfs oops with SMP
+ kernel (not in UP mode)
+Message-Id: <20040104134844.1aa69452.akpm@osdl.org>
+In-Reply-To: <200401041932.40960.arvidjaar@mail.ru>
+References: <20030915212755.5017acc7.akpm@osdl.org>
+	<200401041932.40960.arvidjaar@mail.ru>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040104165028.GC31585@redhat.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 04:50:28PM +0000, Dave Jones wrote:
-> On Sun, Jan 04, 2004 at 11:33:08AM -0500, Rob Love wrote:
+Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+>
+> On Tuesday 16 September 2003 08:27, Andrew Morton wrote:
+>  > Andrey,
+>  >
+>  > didn't we fix this?
+>  >
+>  >
 > 
->  > Yah.  I was just answering in the abstract to the "does cache line
->  > matter on non-SMP" question.
->  > 
->  > I actually like this patch (perhaps since I have a P-M :) and think it
->  > ought to go in, although I agree with others that the P-M is more of a
->  > super-P3 than a scaled down P4.
-> 
-> FWIW, I agree with it too on the grounds that its non obvious the optimal
-> setting is CONFIG_MPENTIUMIII. This seems cleaner IMO than changing the
-> helptext to read...
-> 
->  "Pentium II"
->  "Pentium III / Pentium 4M"
->  "Pentium 4"
-> 
-> My other mail may have sounded like I objected to the patch per se, I don't.
+>  Sorry for delay. Oops is due to concurrent d_instantiate on the same dentry; 
+>  the bug was unfortunately quite ugly to fix inside devfs itself.
 
-Pentium M and Pentium 4M are two different beasts, by the way.
+Andrey, thanks for working on this.  It is good to have a go-to guy for
+devfs problems.  They all seem to be nasty nowadays.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+>  The attached patch makes sure d_revalidate is always called under parent i_sem 
+>  allowing it to drop and reacquire semaphore before going to wait. It provides 
+>  both mutual exclusion with devfs_lookup and between d_revalidate, fixing
+
+Alas, people will have a heart-attack over the fs/namei.c changes.  Is it
+not possible to add an additional semaphore into devfs to provide this
+exclusion?  Are there any alternatives you can think of?
+
+
+

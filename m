@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTIHQJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 12:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTIHQJ7
+	id S263049AbTIHQN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 12:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbTIHQNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 12:09:59 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:12163 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262690AbTIHQJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 12:09:56 -0400
-Subject: Re: Hardware supported by the kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: DervishD <raul@pleyades.net>
-Cc: Dave Jones <davej@redhat.com>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030908145617.GF11936@DervishD>
-References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD>
-	 <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD>
-	 <20030908095357.GD10358@redhat.com>
-	 <1063026380.21084.24.camel@dhcp23.swansea.linux.org.uk>
-	 <20030908145617.GF11936@DervishD>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 8 Sep 2003 12:13:02 -0400
+Received: from mail.kroah.org ([65.200.24.183]:7634 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262942AbTIHQMm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 12:12:42 -0400
+Date: Mon, 8 Sep 2003 09:06:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Jamie Lokier <jamie@shareable.org>, David Brownell <david-b@pacbell.net>,
+       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Linux usb mailing list 
+	<linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: USB modem no longer detected in -test4
+Message-ID: <20030908160631.GC10969@kroah.com>
+References: <20030903191701.GA2798@elf.ucw.cz> <20030903223936.GA7418@kroah.com> <20030903224412.GA6822@atrey.karlin.mff.cuni.cz> <20030903233602.GA1416@kroah.com> <20030904212417.GF31590@mail.jlokier.co.uk> <3F57C951.8030606@pacbell.net> <20030906160200.GA10723@mail.jlokier.co.uk> <20030906174418.GA22620@kroah.com> <20030908062028.GJ19041@matchmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 16:10:59 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030908062028.GJ19041@matchmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-08 at 15:56, DervishD wrote:
->  * Alan Cox <alan@lxorguk.ukuu.org.uk> dixit:
-> > > who did I miss ?
-> > Trident - documentation is public, nobody has tackled a driver
+On Sun, Sep 07, 2003 at 11:20:28PM -0700, Mike Fedyk wrote:
+> On Sat, Sep 06, 2003 at 10:44:18AM -0700, Greg KH wrote:
+> > On Sat, Sep 06, 2003 at 05:02:00PM +0100, Jamie Lokier wrote:
+> > > 
+> > > So many other things don't work automatically for me in 2.6 that one
+> > > little echo for cdc_acm is a little thing.  Besides, hotplug doesn't
+> > > work either - something about the arguments to /sbin/hotplug has
+> > > changed since 2.4 and I am in no rush to install a new version.
+> > 
+> > Sorry, but if you want hotplug to work in 2.6, you will have to install
+> > a new version due to some changes to the network arguments, and due to a
+> > bug in the older versions of the scripts.
 > 
->     Trident cards are still sold? Here in Spain is difficult to get
-> one (except a second-hand maybe).
+> What release date should the hotplug scripts be?  I still have that hotplug
+> related oops that I told you about a while ago...
 
-Trident appears in the EPIA (but not EPIA-M) onboard video for one. So
-its still around as an embedded item.
+Try the latest :)
 
-> > Intel - older stuff is slow, newer onboard video is actually pretty good
-> > and Intel support this stuff seriously. Its not a radeon but it players
-> > cube perfectly well 8) Presumably intel will eventually fuse the CPU and
-> > graphics into one chip.
-> 
->     I tested the 810 a time ago. It was not slow (2D at least, didn't
-> check 3D), but it was buggy (even in Windows, so Linux drivers
-> weren't blame of this).
+But that oops should have nothing to do with the scripts, that's a
+kernel oops that I could never duplicate :(
 
-With XFree 4.3 810 seems pretty solid 2D/3D nowdays, and the later stuff
-830/845/... is also a fair bit faster.
+thanks,
 
+greg k-h

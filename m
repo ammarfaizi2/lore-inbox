@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVBHUFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVBHUHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbVBHUFT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 15:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVBHUFT
+	id S261651AbVBHUHK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 15:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVBHUHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 15:05:19 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55568 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261649AbVBHUFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 15:05:07 -0500
-Date: Tue, 8 Feb 2005 20:05:01 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ARM undefined symbols.  Again.
-Message-ID: <20050208200501.B3544@flint.arm.linux.org.uk>
-Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20050124154326.A5541@flint.arm.linux.org.uk> <20050131161753.GA15674@mars.ravnborg.org> <20050207114359.A32277@flint.arm.linux.org.uk> <20050208194243.GA8505@mars.ravnborg.org>
+	Tue, 8 Feb 2005 15:07:09 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:36725 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261651AbVBHUHA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 15:07:00 -0500
+Date: Tue, 8 Feb 2005 21:07:03 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Martin Hicks <mort@wildopensource.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix ACPI_BOOT for ia64 (2.6.11-rc3-mm1)
+Message-ID: <20050208200703.GC8505@mars.ravnborg.org>
+Mail-Followup-To: Martin Hicks <mort@wildopensource.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050208200338.GF11310@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050208194243.GA8505@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Feb 08, 2005 at 08:42:43PM +0100
+In-Reply-To: <20050208200338.GF11310@localhost>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 08:42:43PM +0100, Sam Ravnborg wrote:
-> On Mon, Feb 07, 2005 at 11:43:59AM +0000, Russell King wrote:
-> > 
-> > Maybe we need an architecture hook or something for post-processing
-> > vmlinux?
-> Makes sense.
-> For now arm can provide an arm specific cmd_vmlinux__ like um does.
+On Tue, Feb 08, 2005 at 03:03:38PM -0500, Martin Hicks wrote:
 > 
-> The ?= used in Makefile snippet below allows an ARCH to override the
-> definition of quiet_cmd_vmlinux__ and cmd_vmlinux__
+> Hi Andrew,
+> 
+> One of your patches in 2.6.11-rc3-mm1 breaks ACPI_BOOT for ia64.  It
+> removes the dependence on CONFIG_ACPI and makes it exclusively depend on
+> X86_HT, which is wrong.
 
-Great - I'll merge your previous idea with this one and throw a patch
-here.
+Thanks for the patch.
+Already fixed in my kconfig tree that Andrew pulls.
 
-Thanks.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+	Sam

@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbTDQTpL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 15:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbTDQTpL
+	id S262047AbTDQTuP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 15:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTDQTuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 15:45:11 -0400
-Received: from smtp0.libero.it ([193.70.192.33]:43409 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S261921AbTDQTpK (ORCPT
+	Thu, 17 Apr 2003 15:50:15 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:51926 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262047AbTDQTuO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 15:45:10 -0400
-Date: Thu, 17 Apr 2003 21:56:48 +0200
-From: "Antonio G. - Geotronix" <antonio@sunstone.it>
-To: linux-kernel@vger.kernel.org
-Subject: understanding and tuning the bonnie++ benchmarks.
-Message-ID: <20030417195648.GB1723@geolandia.home>
-Reply-To: antonio@sunstone.it
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux gaia.geolandia.home 2.4.19omosix i686
-X-Disclaimer: Linux - The choice for freedom!
-User-Agent: Mutt 1.4i (2002-05-29)
+	Thu, 17 Apr 2003 15:50:14 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780C26308F@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Kristofer T. Karas'" <ktk@enterprise.bidmc.harvard.edu>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'steve.cameron@hp.com'" <steve.cameron@hp.com>
+Subject: RE: How to identify contents of /lib/modules/*
+Date: Thu, 17 Apr 2003 13:02:01 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> From: Kristofer T. Karas [mailto:ktk@enterprise.bidmc.harvard.edu]
+>
+> I have a worse problem.  :-)   I often run several instances of the
+> identically version-numbered kernel, all available from the LILO boot
+> menu, each instance having a different .config or perhaps compiled with
+> a different gcc.  If each instance wants to share
+> /lib/modules/[sameversion]/... then I've got a problem.
 
-I've tried running a few bonnie++ benchmarks but I'm not understaning
-how to tune the options. Nor can I figure out much form the output
-because I don't understand what the options do... 
-I went to the programs homepage but theres no info on this.
+I solve that appending to EXTRAVERSION ... 2.5.66.5.2-rtfutex is the
+latest build of the 20+ 2.5.66 slightly different kernels I have 
+installed in the same machine for testing. And they all have different
+module directories.
 
-This is the string I used to measure my single HD throughput. This
-because I want to compare it with the RAID system I will soon implement.
-
-bonnie++ -d /mnt/download/hd_tests/ -s:1024:32k -m Gaia -r 512 -x 2 -u
-antonio -f | bon_csv2txt
-
-And this is the output:
-
-Version  1.02b      ------Sequential Output------ --Sequential Input- --Random-
-                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-Gaia         1G:32k           26895  41 10177  13           25450  16 145.5   3
-Gaia         1G:32k           26636  42  9849  12           25920  17 146.4   3
-                    ------Sequential Create------ --------Random Create--------
-                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
-files:max:min        /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
-Gaia             16   340  97 +++++ +++ 16450  79   340  97 +++++ +++  1861  96
-Gaia             16   267  77 +++++ +++ 12301  62   240  69 +++++ +++  1339  69
-
-----------------end of first test-------------------
-
-If my filesys is ext3 with 4K blocks must I use a 4K chunk-size? Is this
-what the chunk-size is for?? 
-Why is the "sequential create --> read" empty? I would like to
-understand how fast is my HD in reading but can't get it from the
-above...
-
-Would be greatfull if someone could help me with this stuff. A nice link
-to some www page would do fine. I tried with google but can't find much
-that is helpfull.
-
-Thanks
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

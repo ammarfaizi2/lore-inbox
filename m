@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263695AbTKFUbl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 15:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTKFUbl
+	id S263828AbTKFUl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 15:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263830AbTKFUl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 15:31:41 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:46050 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id S263695AbTKFUbi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 15:31:38 -0500
-Date: Thu, 6 Nov 2003 14:31:14 -0600
-From: Robin Holt <holt@sgi.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Jesse Barnes <jbarnes@sgi.com>, Matthew Wilcox <willy@debian.org>
-Subject: Re: [DMESG] cpumask_t in action
-Message-ID: <20031106203114.GA22338@mandrake.americas.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0F3751@scsmsx401.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0F3751@scsmsx401.sc.intel.com>
-User-Agent: Mutt/1.4i
+	Thu, 6 Nov 2003 15:41:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6663 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263828AbTKFUl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 15:41:27 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+	defined (trivial)
+Date: 6 Nov 2003 12:40:55 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <boebkn$pmv$1@cesium.transmeta.com>
+References: <1068140199.12287.246.camel@nosferatu.lan> <1068149368.12287.331.camel@nosferatu.lan> <20031106120548.097ccc7c.davem@redhat.com> <1068150552.12287.349.camel@nosferatu.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 06, 2003 at 10:56:55AM -0800, Luck, Tony wrote:
-> > That'd cut us down to:
-> > 
-> > > CPU 3: 61 virtual and 50 physical address bits
-> > > CPU 3: nasid 2, slice 2, cnode 1
-> > > CPU 3: base freq=200.000MHz, ITC ratio=15/2, ITC freq=1500.000MHz+/--1ppm
-> > > Calibrating delay loop... 2241.08 BogoMIPS
-> > > CPU3: CPU has booted.
-> > > Starting migration thread for cpu 3
+Followup to:  <1068150552.12287.349.camel@nosferatu.lan>
+By author:    Martin Schlemmer <azarah@gentoo.org>
+In newsgroup: linux.dev.kernel
 > 
-> Perhaps we could drop printing the number of virtual/physical address
-> bits, and the frequency&ratio information (or maybe just print if they
-> are different from the boot cpu ... which would most likely surprise
-> the kernel in bad ways, and thus be worthy of printing).  That would
-> cut another two lines for all bar one cpu.
+> If you look at asm/types.h, u64 is kernel only namespace, so in
+> theory that code will not be in userspace.  Also, the whole idea
+> of this patch (the first one that touched byteorder.h, and not the
+> second that touched types.h), was to encase everything that used
+> __u64 that _is_ in userspace in __STRICT_ANSI__.  If there thus
+> was another place that did use __u64 outside a ifdef __STRICT_ANSI__,
+> the compile would anyhow stop with -ansi.
+> 
 
-Do we need the CPU has booted message?  If it fails to boot, we get
-notified.  Can we leave it at that?
+Note that "long long" (the underlying type) is valid
+standards-compliant C99.  gcc can handle it when in C89 mode if
+defined as __extension__ long long IIRC.
 
-As far as I can tell, the nasid and slice is fairly useless.  It might
-be helpful, but there should be more user accessible ways of determining
-the topology than using boot messages.
-
-The BogoMIPS is another which I would think could be eliminated unless
-it is significantly different from the boot cpu.  Maybe say greater
-than 10% different.
-
-With these, the boot has been reduced to one migration thread message
-when a cpu starts and I believe two lines when one fails to start.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,88 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268617AbRGZSH1>; Thu, 26 Jul 2001 14:07:27 -0400
+	id <S268631AbRGZSWM>; Thu, 26 Jul 2001 14:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268621AbRGZSHR>; Thu, 26 Jul 2001 14:07:17 -0400
-Received: from mail.myrio.com ([63.109.146.2]:49909 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S268617AbRGZSHL>;
-	Thu, 26 Jul 2001 14:07:11 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0214A6CB@mail0.myrio.com>
-From: Nat Ersoz <nat.ersoz@myrio.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: IGMP join/leave time variability
-Date: Thu, 26 Jul 2001 11:07:05 -0700
+	id <S268634AbRGZSWB>; Thu, 26 Jul 2001 14:22:01 -0400
+Received: from congress199.linuxsymposium.org ([209.151.18.199]:17157 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S268631AbRGZSVu>;
+	Thu, 26 Jul 2001 14:21:50 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107261821.f6QIL4017990@lynx.adilger.int>
+Subject: Re: Weird ext2fs immortal directory bug (all-in-one)
+To: wingc@engin.umich.edu (Christopher Allen Wing)
+Date: Thu, 26 Jul 2001 12:21:04 -0600 (MDT)
+Cc: sentry21@cdslash.net, linux-kernel@vger.kernel.org,
+        tytso@mit.edu (Theodore Y. Ts'o), alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.33.0107261312450.6405-100000@bayarea.engin.umich.edu> from "Christopher Allen Wing" at Jul 26, 2001 01:21:01 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This morning, after dealing with other bugs, I was able to verify (using
-tcpdump) that
+Chris Wing writes:
+> I am assuming that the problem here was that fsck restored a lost inode to
+> lost+found, but the inode had been corrupted and had the immutable bit
+> set.
+> 
+> At the very least, ext2 fsck should complain about ext2 attributes set for
+> symlinks or device files... I have had this same problem myself many times
+> on machines with bad SCSI termination- I end up with unremovable device
+> files thanks to a bogus immutable bit and have to use debugfs to get rid
+> of them.
 
-#define  IGMP_Initial_Report_Delay	5
+It should actually assume that such inodes are corrupt, and either just
+delete them at e2fsck time, or at least clear the "bad" parts of the inode
+before sticking it in lost+found.
 
-fixed the "long" (1 sec) variable delay associated with the first igmp join
-message.  This resolves a specific bug in our application (excessive IGMP
-join delay as compared to an NT client).
+Cheers, Andreas
 
-Can we get something like this moved into future versions of ipv4/igmp.c?
-
-Thanks,
-
-Nat
-
------Original Message-----
-From: Torrey Hoffman [mailto:torrey.hoffman@myrio.com]
-Sent: Thursday, July 26, 2001 10:47 AM
-To: 'Alan Cox'; Nat Ersoz
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: IGMP join/leave time variability
-
-
-
-Alan Cox wrote:
- 
-> Read the IGMP RFC documents they discuss in detail the cases 
-> where time delays and randomness are needed and important. 
-
-I'm one of Nat's co-workers, also looking at this problem.
-
-RFC 2236, the IGMPv2 spec, states:
-"
-   When a host joins a multicast group, it should immediately transmit
-   an unsolicited Version 2 Membership Report for that group, in case it
-   is the first member of that group on the network.  To cover the
-   possibility of the initial Membership Report being lost or damaged,
-   it is recommended that it be repeated once or twice after short
-   delays [Unsolicited Report Interval].  
-"
-
->From this, I infer that there should be _no_ initial delay on sending 
-the IGMP join.  In fact, a quick peek at the source confirms this: 
-(net/ipv4/igmp.c):
-
-#define IGMP_Initial_Report_Delay               (1*HZ)
-
-/* IGMP_Initial_Report_Delay is not from IGMP specs!
- * IGMP specs require to report membership immediately after
- * joining a group, but we delay the first report by a
- * small interval. It seems more natural and still does not
- * contradict to specs provided this delay is small enough.
- */
-
-But this "small interval" is actually very noticeable in our application.
-
-I think we'll take it out of our version, and I believe it should be 
-removed from the standard kernel.
-
-Regards,
-
-Torrey Hoffman
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+PS - I CC'd Ted on this, as he can probably fix this a lot faster than I
+     (I may be able to fix it during another OLS presentation today or
+     tomorrow).
+-- 
+Andreas Dilger                               Turbolinux filesystem development
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/

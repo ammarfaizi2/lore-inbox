@@ -1,90 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTKKSYv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 13:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTKKSYv
+	id S263680AbTKKSY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 13:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTKKSY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 13:24:51 -0500
-Received: from viriato2.servicios.retecal.es ([212.89.0.45]:50662 "EHLO
-	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S263653AbTKKSYq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 13:24:46 -0500
-Subject: Re: [2.6.0-test9-mm2] Error trying to read a cdrom disc
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1068574968.1450.6.camel@debian>
-References: <1068574968.1450.6.camel@debian>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PnTJiZXXDqokkoE28JhR"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1068575082.1450.7.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 11 Nov 2003 19:24:43 +0100
+	Tue, 11 Nov 2003 13:24:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28803 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263680AbTKKSYw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 13:24:52 -0500
+Date: Tue, 11 Nov 2003 10:24:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 /proc/interrupts fails on systems with many CPUs
+In-Reply-To: <9710000.1068573723@flay>
+Message-ID: <Pine.LNX.4.44.0311111019210.30657-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-PnTJiZXXDqokkoE28JhR
-Content-Type: multipart/mixed; boundary="=-qhiwokTjRpkJEormRCfS"
+On Tue, 11 Nov 2003, Martin J. Bligh wrote:
+> 
+> I think it'd make more sense to only use vmalloc when it's explicitly 
+> too big for kmalloc - or simply switch on num_online_cpus > 100 or 
+> whatever a sensible cutoff is (ie nobody but you would ever see this ;-))
 
+No, please please please don't do these things.
 
---=-qhiwokTjRpkJEormRCfS
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+vmalloc() is NOT SOMETHING YOU SHOULD EVER USE! It's only valid for when
+you _need_ a big array, and you don't have any choice. It's slow, and it's
+a very restricted resource: it's a global resource that is literally
+restricted to a few tens of megabytes. It should be _very_ carefully used.
 
-Sorry, the info about my ide controller
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
+There are basically no valid new uses of it. There's a few valid legacy
+users (I think the file descriptor array), and there are some drivers that
+use it (which is crap, but drivers are drivers), and it's _really_ valid
+only for modules. Nothing else.
 
---=-qhiwokTjRpkJEormRCfS
-Content-Disposition: inline; filename=via_controller_info
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=via_controller_info; charset=iso-8859-15
+Basically: if you think you need more memory than a kmalloc() can give,
+you need to re-organize your data structures. To either not need a big 
+area, or to be able to allocate it in chunks.
 
-LS0tLS0tLS0tLVZJQSBCdXNNYXN0ZXJpbmcgSURFIENvbmZpZ3VyYXRpb24tLS0tLS0tLS0tLS0t
-LS0tDQpEcml2ZXIgVmVyc2lvbjogICAgICAgICAgICAgICAgICAgICAzLjM4DQpTb3V0aCBCcmlk
-Z2U6ICAgICAgICAgICAgICAgICAgICAgICBWSUEgdnQ4MmM1ODZiDQpSZXZpc2lvbjogICAgICAg
-ICAgICAgICAgICAgICAgICAgICBJU0EgMHg0NyBJREUgMHg2DQpIaWdoZXN0IERNQSByYXRlOiAg
-ICAgICAgICAgICAgICAgICBVRE1BMzMNCkJNLURNQSBiYXNlOiAgICAgICAgICAgICAgICAgICAg
-ICAgIDB4ZTAwMA0KUENJIGNsb2NrOiAgICAgICAgICAgICAgICAgICAgICAgICAgMzMuM01Ieg0K
-TWFzdGVyIFJlYWQgIEN5Y2xlIElSRFk6ICAgICAgICAgICAgMXdzDQpNYXN0ZXIgV3JpdGUgQ3lj
-bGUgSVJEWTogICAgICAgICAgICAxd3MNCkJNIElERSBTdGF0dXMgUmVnaXN0ZXIgUmVhZCBSZXRy
-eTogIHllcw0KTWF4IERSRFkgUHVsc2UgV2lkdGg6ICAgICAgICAgICAgICAgTm8gbGltaXQNCi0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tUHJpbWFyeSBJREUtLS0tLS0tU2Vjb25kYXJ5IElERS0tLS0t
-LQ0KUmVhZCBETUEgRklGTyBmbHVzaDogICAgICAgICAgeWVzICAgICAgICAgICAgICAgICB5ZXMN
-CkVuZCBTZWN0b3IgRklGTyBmbHVzaDogICAgICAgICBubyAgICAgICAgICAgICAgICAgIG5vDQpQ
-cmVmZXRjaCBCdWZmZXI6ICAgICAgICAgICAgICB5ZXMgICAgICAgICAgICAgICAgIHllcw0KUG9z
-dCBXcml0ZSBCdWZmZXI6ICAgICAgICAgICAgeWVzICAgICAgICAgICAgICAgICAgbm8NCkVuYWJs
-ZWQ6ICAgICAgICAgICAgICAgICAgICAgIHllcyAgICAgICAgICAgICAgICAgeWVzDQpTaW1wbGV4
-IG9ubHk6ICAgICAgICAgICAgICAgICAgbm8gICAgICAgICAgICAgICAgICBubw0KQ2FibGUgVHlw
-ZTogICAgICAgICAgICAgICAgICAgNDB3ICAgICAgICAgICAgICAgICA0MHcNCi0tLS0tLS0tLS0t
-LS0tLS0tLS1kcml2ZTAtLS0tZHJpdmUxLS0tLWRyaXZlMi0tLS1kcml2ZTMtLS0tLQ0KVHJhbnNm
-ZXIgTW9kZTogICAgICAgVURNQSAgICAgIFVETUEgICAgICAgUElPICAgICAgIERNQQ0KQWRkcmVz
-cyBTZXR1cDogICAgICAgMzBucyAgICAgIDMwbnMgICAgICAzMG5zICAgICAgMzBucw0KQ21kIEFj
-dGl2ZTogICAgICAgICAgOTBucyAgICAgIDkwbnMgICAgICA5MG5zICAgICAgOTBucw0KQ21kIFJl
-Y292ZXJ5OiAgICAgICAgMzBucyAgICAgIDMwbnMgICAgICAzMG5zICAgICAgMzBucw0KRGF0YSBB
-Y3RpdmU6ICAgICAgICAgOTBucyAgICAgIDkwbnMgICAgICA5MG5zICAgICAgOTBucw0KRGF0YSBS
-ZWNvdmVyeTogICAgICAgMzBucyAgICAgIDMwbnMgICAgICAzMG5zICAgICAgMzBucw0KQ3ljbGUg
-VGltZTogICAgICAgICAgNjBucyAgICAgIDYwbnMgICAgIDEyMG5zICAgICAxMjBucw0KVHJhbnNm
-ZXIgUmF0ZTogICAzMy4zTUIvcyAgMzMuM01CL3MgIDE2LjZNQi9zICAxNi42TUIvcw0K
-
---=-qhiwokTjRpkJEormRCfS--
-
---=-PnTJiZXXDqokkoE28JhR
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/sSlqRGk68b69cdURAicBAKCAEomqS9uT7sIz3d5gyHyggPFbuQCaAyXl
-g9+AlIWiNY29VxFaQ/YIbsg=
-=hpUt
------END PGP SIGNATURE-----
-
---=-PnTJiZXXDqokkoE28JhR--
+		Linus
 

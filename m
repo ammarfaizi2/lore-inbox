@@ -1,176 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVCPPEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVCPPIN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbVCPPEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 10:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVCPPEt
+	id S262614AbVCPPIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 10:08:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVCPPFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 10:04:49 -0500
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:22685 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S262620AbVCPPDb
+	Wed, 16 Mar 2005 10:05:50 -0500
+Received: from hoemail1.lucent.com ([192.11.226.161]:46041 "EHLO
+	hoemail1.lucent.com") by vger.kernel.org with ESMTP id S262614AbVCPPFA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 10:03:31 -0500
-Message-ID: <42384AB9.1080905@ribosome.natur.cuni.cz>
-Date: Wed, 16 Mar 2005 16:03:21 +0100
-From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050304
+	Wed, 16 Mar 2005 10:05:00 -0500
+Message-ID: <B99995113B318D44BBE87DC50092EDA913E1BC98@nj7460exch006u.ho.lucent.com>
+From: "Balasaygun, Oray (Oray)" <oray@lucent.com>
+To: "'Tom Rini'" <trini@kernel.crashing.org>,
+       Bastos Fernandez Alexandre <ALEBAS@televes.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Leo Li <leoli@freescale.com>,
+       "Balasaygun, Oray (Oray)" <oray@lucent.com>
+Subject: RE: [PATCH] ppc32: Update 8260_io/fcc_enet.c to function again
+Date: Wed, 16 Mar 2005 10:04:39 -0500
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Unresolved symbols in /lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
-Content-Type: multipart/mixed;
- boundary="------------050103030607050805060509"
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050103030607050805060509
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+I concur, the two essential things in my patch (2.6 API change and fix for bug 4310) are already picked up in your patch. I could have replied earlier but I thought I would take an hour or two to run with your patch on my board. But that can wait since you guys seem to be in a hurry with a decision on this.
 
-Hi,
-  does anyone still use 2.4 series kernel? ;)
-# make dep; make bzImage; make modules
-[cut]
-# make modules_install
-[cut]
-cd /lib/modules/2.4.30-pre3-bk2; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.30-pre3-bk2; fi
-depmod: *** Unresolved symbols in /lib/modules/2.4.28-pre2/xfree-drm/via_drv.o
-depmod:         via_fb_init
-depmod:         via_mem_free
-depmod:         viadrv_driver_register_fns
-depmod:         via_agp_init
-depmod:         via_mem_alloc
-#
+Oray
 
-.config attached
 
-Please cc: me in replies. ;)
-Martin
 
---------------050103030607050805060509
-Content-Type: application/x-tar;
- name=".config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename=".config.gz"
+-----Original Message-----
+From: Tom Rini [mailto:trini@kernel.crashing.org]
+Sent: Wednesday, March 16, 2005 9:55 AM
+To: Bastos Fernandez Alexandre
+Cc: 'Andrew Morton'; linux-kernel@vger.kernel.org; Leo Li; Balasaygun,
+Oray (Oray)
+Subject: Re: [PATCH] ppc32: Update 8260_io/fcc_enet.c to function again
 
-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
-AA==
---------------050103030607050805060509--
+
+On Wed, Mar 16, 2005 at 09:00:51AM +0100, Bastos Fernandez Alexandre wrote:
+
+> What can we do?
+> Has Oray's patch been commited? Or not yet?
+> 
+> I suggest commiting all the changes in this driver from linuxppc tree to
+> linux tree
+> and after this ask Oray to test again the driver and submmit new patch.
+> Or ask Oray to submmit changes patch to linuxppc 
+
+So, Oray's patch has two things in it, it looks like.  The basic
+re-porting to 2.6 APIs, and support for the EON8260.  The EON8260
+changes should be a bit cleaner to redo after the patch I sent goes in
+as some of the other cleanups will help there.  But I'd also like to see
+the full EON8260 changes :)  The 2.6 API parts look close, but I went
+and expanded a good bit more on them.
+
+I'd like to drop Oray's patch for now, and have the EON8260 work be
+resubmitted to lkml/linuxppc-embedded@ozlabs.org.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

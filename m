@@ -1,121 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVC3HDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVC3HEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVC3HDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 02:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVC3HDQ
+	id S261780AbVC3HEN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 02:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVC3HEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 02:03:16 -0500
-Received: from redpine-92-161-hyd.redpinesignals.com ([203.196.161.92]:31698
-	"EHLO redpinesignals.com") by vger.kernel.org with ESMTP
-	id S261777AbVC3HDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 02:03:06 -0500
-Message-ID: <424A51F5.1050501@redpinesignals.com>
-Date: Wed, 30 Mar 2005 12:45:01 +0530
-From: P Lavin <lavin.p@redpinesignals.com>
-Reply-To: lavin.p@redpinesignals.com
-Organization: www.redpinesignals.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>            <1111825958.6293.28.camel@laptopd505.fenrus.org>            <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>            <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>            <1111881955.957.11.camel@mindpipe>            <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>            <20050327065655.6474d5d6.pj@engr.sgi.com>            <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>            <20050327174026.GA708@redhat.com>            <1112064777.19014.17.camel@mindpipe>            <84144f02050328223017b17746@mail.gmail.com>            <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>            <courier.42490293.000032B0@courier.cs.helsinki.fi>            <20050329184411.1faa71eb.pj@engr.sgi.com> <courier.424A43A5.00002305@courier.cs.helsinki.fi>
-In-Reply-To: <courier.424A43A5.00002305@courier.cs.helsinki.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Mar 2005 02:04:13 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:36840 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261784AbVC3HDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 02:03:48 -0500
+To: Paul Jackson <pj@engr.sgi.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       ckrm-tech@lists.sourceforge.net, kashyapv@us.ibm.com
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [patch 0/8] CKRM: Core patch set 
+In-reply-to: Your message of Tue, 29 Mar 2005 22:05:30 PST.
+             <20050329220530.4a5639c8.pj@engr.sgi.com> 
+Date: Tue, 29 Mar 2005 23:03:42 -0800
+Message-Id: <E1DGXEs-0003KX-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-In my wlan driver module, i allocated some memory using kmalloc in 
-interrupt context, this one failed but its not returning NULL , so i was 
-proceeding further everything was going wrong... & finally the kernel 
-crahed. Can any one of you tell me why this is happening ? i cannot use 
-GFP_KERNEL because i'm calling this function from interrupt context & it 
-may block. Any other solution for this ?? I'm concerned abt why kmalloc 
-is not returning null if its not a success ??
 
-Is it not necessary to check for NULL before calling kfree() ??
-Regards,
-Lavin
+On Tue, 29 Mar 2005 22:05:30 PST, Paul Jackson wrote:
+> gerrit wrote:
+> > This is the core patch set for CKRM
+> 
+> Welcome.
+ 
+ Hi Paul.
 
-Pekka J Enberg wrote:
+> Newcomers to CKRM might want to start reading these patches with "[patch
+> 8/8] CKRM:  Documentation".  Starting with patch 0/8 or 1/8 will be
+> difficult, at least if you're as dimm witted as I am.
+> 
+> Even the documentation included in patch 8/8 is missing the motivation
+> and context essential to understanding this patch set.  It might have
+> helped if the Introduction text at http://ckrm.sourceforge.net/ had been
+> included in some form, as part of patch 0/8.  I'm just a little penguin
+> here (lkml), but from what I can tell by watching how things work,
+> you're going to have to "make the case" -- explain what this is, how
+> it's put togeher, and why it's needed.  This is a sizable patch, in
+> lines of code, in hooks in critical places, and in amount of "new
+> concepts."  I presume (unless you've managed to bribe or blackmail some
+> big penguin) you're going to have convince some others that this is
+> worth having.  I for one am a CKRM skeptic, so won't be much help to you
+> in that quest.  Good luck.
+ 
+ Good point on including the pointer to the web site.  As you probably
+ noticed, there is a history of the design, papers presented, etc.
+ Also, Jonathan Corbet did a nice write up from the discussion at the
+ 2004 Kernel summit which is archived here: http://lwn.net/Articles/94573/
+ which may be of use.
 
-> Hi,
-> Paul Jackson writes:
->
->> Even such obvious changes as removing redundant checks doesn't
->> seem to ensure a performance improvement.  Jesper Juhl posted
->> performance data for such changes in his microbenchmark a couple
->> of days ago.
->
->
-> It is not a performance issue, it's an API issue. Please note that 
-> kfree() is analogous libc free() in terms of NULL checking. People are 
-> checking NULL twice now because they're confused whether kfree() deals 
-> it or not.
-> Paul Jackson writes:
->
->> Maybe we should be following your good advice:
->> > You don't know that until you profile! 
->> instead of continuing to make these code changes.
->
->
-> I am all for profiling but it should not stop us from merging the 
-> patches because we can restore the generated code with the included 
-> (totally untested) patch.
->            Pekka
-> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
-> ---
-> Index: 2.6/include/linux/slab.h
-> ===================================================================
-> --- 2.6.orig/include/linux/slab.h       2005-03-22 14:31:30.000000000 
-> +0200
-> +++ 2.6/include/linux/slab.h    2005-03-30 09:08:13.000000000 +0300
-> @@ -105,8 +105,14 @@
->       return __kmalloc(size, flags);
-> }
-> +static inline void kfree(const void * p)
-> +{
-> +       if (!p)
-> +               return;
-> +       __kfree(p);
-> +}
-> +
-> extern void *kcalloc(size_t, size_t, int);
-> -extern void kfree(const void *);
-> extern unsigned int ksize(const void *);
-> extern int FASTCALL(kmem_cache_reap(int));
-> Index: 2.6/mm/slab.c
-> ===================================================================
-> --- 2.6.orig/mm/slab.c  2005-03-22 14:31:31.000000000 +0200
-> +++ 2.6/mm/slab.c       2005-03-30 09:08:45.000000000 +0300
-> @@ -2567,13 +2567,11 @@
-> * Don't free memory not originally allocated by kmalloc()
-> * or you will run into trouble.
-> */
-> -void kfree (const void *objp)
-> +void __kfree (const void *objp)
-> {
->       kmem_cache_t *c;
->       unsigned long flags;
-> -       if (!objp)
-> -               return;
->       local_irq_save(flags);
->       kfree_debugcheck(objp);
->       c = GET_PAGE_CACHE(virt_to_page(objp));
-> @@ -2581,7 +2579,7 @@
->       local_irq_restore(flags);
-> }
-> -EXPORT_SYMBOL(kfree);
-> +EXPORT_SYMBOL(__kfree);
-> #ifdef CONFIG_SMP
-> /**
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ The OLS and LinuxTag papers are archived at the site that you pointed
+ to and there will be a tutorial on configuring, using and writing
+ controllers for CKRM at OLS this year.  You may also want to see the
+ previous postings of this code to LKML for more background.
 
+ In short, CKRM provides very basic desktop to server workload management
+ capabilities similar to those provided by most of the old fashioned
+ operating systems.  The code provides a fairly simple mechanism for
+ adding controllers for any resource type and the code is currently
+ widely deployed by PlanetLab, a part of Novell/SuSE's distro, and
+ the capabilities are requested by a fair number of Linux users and
+ customers.
 
+> I don't see any performance numbers, either on small systems, or
+> scalability on large systems.  Certainly this patch does not fall under
+> the "obviously no performance impact" exclusion.
+
+ Fair point.  We have been running some of the smaller benchmarks but
+ have not yet had a chance to do any kind of performance comparison
+ based on the current code.  However, when configured out, it will
+ have zero impact.  We do have some performance analysis of the code
+ with CONFIG_CKRM set to y but no rules configured planned for the
+ very near future.
+ 
+> A couple of nits:
+> 
+>  1) Instead of disabling routines with #defines:
+>          #define numtasks_put_ref(core_class)  do {} while (0)
+>     one can do it with static inlines, preserving more compiler
+>     checking.
+ 
+ Yeah - that works well in some cases but it turns out to not do so
+ well when an argument to a function refers to a structure element
+ which is not configured in.  In that case, the compiler emits a
+ reference to an undefined structure value in the case of the static
+ inline, where otherwise the entire set of code is pre-processed
+ away.  I think we've gone through the code and used the correct
+ balance of static inlines and #define constructs as appropriate.
+ If we've missed any, I'm more than willing to accept a patch to
+ correct a specific instance.
+
+>  2) I take it that the following constitutes the 'documentation'
+>     for what is in /proc/<pid>/delay.  Perhaps I missed something.
+> 
+> 	+	res  = sprintf(buffer,"%u %llu %llu %u %llu %u %llu\n",
+> 	+		       (unsigned int) get_delay(task,runs),
+> 	+		       (uint64_t) get_delay(task,runcpu_total),
+> 	+		       (uint64_t) get_delay(task,waitcpu_total),
+> 	+		       (unsigned int) get_delay(task,num_iowaits),
+> 	+		       (uint64_t) get_delay(task,iowait_total),
+> 	+		       (unsigned int) get_delay(task,num_memwaits),
+> 	+		       (uint64_t) get_delay(task,mem_iowait_total)
+ 
+ The code is the documentation?  :)
+
+ There is probably some documentation on /proc/<pid>/ in general and
+ we'll see if we can get it updated appropriately.  Vivek?
+
+>  3) Typo in init/Kconfig "atleast":
+> 
+>     If you say Y here, enable the Resource Class File System and atleast
+
+ Got it - thanks!  Someone liked the new word "atleast" - at least
+ three occurences removed.
+
+ Oh - and uniformly updated diffstats - I probably missed some when
+ I was playing with quilt originally.
+
+gerrit

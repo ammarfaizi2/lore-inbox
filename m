@@ -1,74 +1,150 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318404AbSGSAZq>; Thu, 18 Jul 2002 20:25:46 -0400
+	id <S318407AbSGSAea>; Thu, 18 Jul 2002 20:34:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318405AbSGSAZq>; Thu, 18 Jul 2002 20:25:46 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:52240 "EHLO
-	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S318404AbSGSAZp>; Thu, 18 Jul 2002 20:25:45 -0400
-Date: Thu, 18 Jul 2002 17:27:39 -0700 (PDT)
-From: Kelsey Hudson <khudson@compendium.us>
-X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Kurt Garloff <kurt@garloff.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Tyan s2466 stability
-In-Reply-To: <1026857446.1688.76.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0207181712050.2065-100000@betelgeuse.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318411AbSGSAe3>; Thu, 18 Jul 2002 20:34:29 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:36357 "EHLO
+	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
+	id <S318407AbSGSAe2>; Thu, 18 Jul 2002 20:34:28 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: more thoughts on a new jail() system call
+Date: 19 Jul 2002 00:21:47 GMT
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <ah7m2r$3cr$1@abraham.cs.berkeley.edu>
+References: <1026959170.14737.102.camel@zaphod>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1027038107 3483 128.32.153.211 (19 Jul 2002 00:21:47 GMT)
+X-Complaints-To: news@abraham.cs.berkeley.edu
+NNTP-Posting-Date: 19 Jul 2002 00:21:47 GMT
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jul 2002, Alan Cox wrote:
+Shaya Potter  wrote:
+>sys_mknod) J - Need FIFO ability, everything else not.
 
-> On Tue, 2002-07-16 at 21:51, Kurt Garloff wrote:
-> > > I've seen it with IDE burners too. I don't know what the cause is
-> > 
-> > Strange SMI stuff, maybe?
-> > Bugs with PCI arbitration that are recovered from but take time?
-> > 
-> > You've probably already looked into those, though.
-> 
-> I've read the errata but thats not given me any clues. The box is fast,
-> including PCI bandwidth measurements but neither PCI card or SCSI
-> streaming to tape or CD-R works well. The motherboard IDE works a treat
-> and the 64bit slots give me excellent performance (but thats a raid card
-> so I can't yet use it for tape)
+Beware the ability to pass file descriptors across Unix
+domain sockets.  This should probably be restricted somehow.
+Along similar lines, you didn't mention sendmsg() and
+recvmsg(), but the fd-passing parts should probably be
+restricted.
 
-according to the amd760mpx datasheet, stuff on the 32/33MHz bus isn't 
-allowed to busmaster while the 64/66MHz bus is operating at 66MHz. so that 
-means the 66MHz bus needs to be throttled to 33MHz either via a 3.3V 33MHz 
-card stuck in it, or that pretty blue jumper stuffed on the appropriate 
-FORCE 33MHz header on the board.
+>sys_setuid16) ^J - since jail is secure, can setuid all you want.
 
-these kind of problems will cause things like loss of streaming due to the 
-inability to busmaster. both of my dual athlon systems here at cti have 
-that jumper shorted. sure, i still run into problems, but then again, what 
-chipset for amd processors doesn't have a whole load of issues? overall, i 
-can't say i'm satisfied with any athlon chipset on the market right now. 
-but, the 760mpx has far fewer issues than, say, any garden variety via 
-board. (no comments from the peanut gallery -- my mind is made up and in 
-this respect, your opinion means nothing to me. via sucks. end of story). 
-but, i digress.
+I'd look very carefully at whether root can bypass any
+of the access controls you're relying on.  For instance,
+with root, one can bind to ports below 1024.
 
-aside from these rather annoying pci quirks and a sensors issue (who in 
-their right mind assigns the same i2c address for two different chips?!) 
-the board works quite well in the configuration i've got it in (beowulf 
-cluster).
+>sys_ioctl) J - disallowed, but perhaps if devices recognize jails and
+>filter commands based on that... 
 
-oh and all the devices on this board are fully acpi controlled. let it be 
-known that i hate acpi, and especially the headaches that it causes me. 
-the stock bios also sucks quite vigorously and should be avoided at all 
-costs (read: upgrade to the latest bios rev immediately).
+In my experience building jails (see Janus), this will
+be a problem.  There are a small number of ioctl()s that
+are widely used by applications.  To give some examples,
+I find that we needed to allow TIOCGPGRP, FIONBIO, and
+FIONREAD (they seem safe).  Also, I found that lots of
+real apps use TCGETS, TCSETS, and TIOCSPGRP; unfortunately,
+I'm not too sure whether these are safe.
 
-if you need help integrating one of these boards into your system i may be 
-able to provide some insight.
+However, I agree that most ioctl()s are probably dangerous.
+Maybe a reasonable stance is to deny all ioctl()s by default,
+and have a few exceptions for known-safe ioctl()s to be allowed.
 
-good luck.
+>sys_fcntl) F
 
- Kelsey Hudson                                       khudson@compendium.us
- Software Engineer/UNIX Systems Administrator
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+Some fcntl() calls are unsafe.  For instance, F_SETOWN may
+give a backdoor way to send signals to processes outside
+the jail.
 
+>sys_olduname) - P
+
+I'd argue that this should be restricted, on general
+principles.  (General principle: A jailed process shouldn't
+be able to learn anything about the host it's running on.)
+
+>sys_getcwd) C
+>sys_ustat) J - Do we want a jailed process getting this info?
+>sys_statfs) NOT SURE - should a jail process be able to get info on system?
+>sys_fstatfs) same as statfs
+>sys_sysfs) J - info on local system?
+
+It's probably not critical, but I'd argue that these should
+be denied, on general principles, unless there is some
+reason to think it will be very useful.  getcwd() is probably
+the most critical to deny, as it can give away detailed
+information in some cases.
+
+(General principle: If you're in a jail, you shouldn't be
+able to learn any information about where that jail resides
+on the filesystem.)
+
+>sys_stat) C
+
+Similarly, I'd argue that st_dev maybe should be restricted.
+
+>sys_getppid) P
+>sys_getpgid) P
+
+What if the parent process is outside the jail?  Does it
+cause any harm to disclose the parent pid?  I'm not sure...
+
+>sys_setsid) NOT SURE - no clue what this really does
+
+I think it's probably ok, but I'm not 100% sure, either.
+
+>sys_socketcall) J - Bind seems to be the only problem. jail() includes
+>an ip address, and a jailed process can only bind to that address. so
+>do we force the addr to be this address, or does one allow INADDR_ANY
+>and translate that to the jail'd ip address?
+
+The most interesting part is whether connect()
+and sendto() should also be restricted.  I think
+restrictions on access to the network are going
+to be critical to security: it is the #1 easiest
+way to escape from a jail, if there are no restrictions
+on connect() and the like.  In principle, we could
+use IP Chains for this, though in practice, I suspect
+most callers to jail() will forget to set up appropriate
+IP filtering.  I wonder if there is any way to
+reduce the likelihood of this failure mode and keep
+programmers honest?
+
+Also, socket() should probably be restricted to
+prevent creation of raw IP and PF_PACKET sockets
+and the like (sending forged traffic, sniffing
+on local traffic).
+
+The SO_BINDTODEVICE and IP_HDRINCL socket option
+should probably be restricted.
+
+Also, are there any implications of SO_PASSCRED,
+SO_PEERCRED, SCM_RIGHTS, SCM_CREDENTIALS, SO_DEBUG,
+SO_REUSEADDR, IP_OPTIONS, IP_PKTINFO?
+
+See also sendmsg() and recvmsg() fd-passing.
+
+>sys_syslog) NOT SURE (probably jailed away)
+
+sys_syslog touches a global shared resource, hence
+should probably be denied to jailed processes.
+
+>sys_vhangup) NOT SURE -  Should be fine, right?
+
+Seems ok to me.
+
+>sys_fsync) NOT SURE - same as sync
+>sys_fdatasync) NOT SURE - probably same as other syncs.
+
+The *sync*() calls seem ok to me.
+
+>sys_getsid) NOT SURE - whats it for?
+
+You shouldn't be able to call getsid() on some other
+process outside the jail.  Also, calling getsid() on
+yourself might reveal information about your parent,
+like getppid() or getpgid() (minor).

@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271903AbTHKFe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 01:34:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271924AbTHKFe5
+	id S272052AbTHKFfr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 01:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272057AbTHKFfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 01:34:57 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:11271 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S271903AbTHKFey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 01:34:54 -0400
-Date: Mon, 11 Aug 2003 07:34:37 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: gaxt@rogers.com, henrik@fangorn.dk, romieu@fr.zoreil.com,
-       linux-kernel@vger.kernel.org, felipe_alfaro@linuxmail.org,
-       babydr@baby-dragons.com, len.brown@intel.com
-Subject: Re: 2.6.0-test3 cannot mount root fs
-Message-ID: <20030811053437.GA19040@gamma.logic.tuwien.ac.at>
-References: <3F34D0EA.8040006@rogers.com> <20030809104024.GA12316@gamma.logic.tuwien.ac.at> <20030809115656.GC27013@www.13thfloor.at> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <20030809130641.A8174@electric-eye.fr.zoreil.com> <20030809090718.GA10360@gamma.logic.tuwien.ac.at> <01a201c35e65$0536ef60$ee52a450@theoden> <3F34D0EA.8040006@rogers.com> <20030810211745.GA5327@gamma.logic.tuwien.ac.at> <20030810154343.351aa69d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030810154343.351aa69d.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Mon, 11 Aug 2003 01:35:47 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:3599 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S272052AbTHKFfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 01:35:41 -0400
+Date: Mon, 11 Aug 2003 01:23:51 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Robert Love <rml@tech9.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, cmrivera@ufl.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: /proc/stat's intr field looks odd, although /proc/interrupts
+ seems correct
+In-Reply-To: <1060577118.684.52.camel@localhost>
+Message-ID: <Pine.LNX.4.53.0308110121090.19193@montezuma.mastecende.com>
+References: <1060572792.1113.10.camel@boobies.awol.org> 
+ <34161.4.4.25.4.1060573727.squirrel@www.osdl.org>  <1060574873.684.41.camel@localhost>
+  <34253.4.4.25.4.1060576385.squirrel@www.osdl.org>  <1060576517.684.47.camel@localhost>
+  <34268.4.4.25.4.1060576870.squirrel@www.osdl.org> <1060577118.684.52.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Son, 10 Aug 2003, Andrew Morton wrote:
-> > I tried as boot cmd line:
-> >  	s root=03:41 acpi=off
-> >  and still it didn't work. Same problem.
+On Sun, 10 Aug 2003, Robert Love wrote:
+
+> On Sun, 2003-08-10 at 21:41, Randy.Dunlap wrote:
 > 
-> It is decimal.  You want 03:65.
+> > Um, your turn.
+> 
+> Hahaha. I don't know, Randy. :)
 
-Still no success. With acpi=off and without.
+On i386 you can find out the last irq line number during MP table parsing 
+(ACPI bits are also in mpparse.c), for the hotplug case i suppose the 
+hotplug code could bump this up as devices get attached. But unless we do 
+dynamic NR_IRQs its all just too much effort.
 
-
-> Could you test this patch?  It should put things back to the way
-> they were before this mini-fisaco. root=0341 should work as well.
-
-Also no success.
-
-Maybe I am stupid, but 
-	make mrproper
-	make distclean
-	make config deb bzImage modules modules_install
-should be enough to make a clean kernel? And, AFAIK, I compiled in ext3
-and all other necessary stuff. Soon I give up.
-
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-BEAULIEU HILL
-The optimum vantage point from which one to view people undressing in
-the bedroom across the street.
-			--- Douglas Adams, The Meaning of Liff

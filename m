@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVALUBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVALULZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVALUBm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 15:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVALUAK
+	id S261295AbVALULZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVALT7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 15:00:10 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:1229 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261331AbVALTup
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:50:45 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 12 Jan 2005 11:50:42 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
- than
-In-Reply-To: <Pine.LNX.4.58.0501091830120.2373@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0501121148330.28987@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.44.0501091946020.3620-100000@localhost.localdomain>
- <Pine.LNX.4.58.0501091713300.2373@ppc970.osdl.org>
- <Pine.LNX.4.58.0501091830120.2373@ppc970.osdl.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 12 Jan 2005 14:59:34 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38809 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261332AbVALTqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 14:46:55 -0500
+Date: Wed, 12 Jan 2005 20:44:08 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: kinema@gmail.com, fuse-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [fuse-devel] Merging?
+Message-ID: <20050112194408.GB1464@openzaurus.ucw.cz>
+References: <loom.20041231T155940-548@post.gmane.org> <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu> <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Jan 2005, Linus Torvalds wrote:
+Hi!
 
-> On Sun, 9 Jan 2005, Linus Torvalds wrote:
+> > > How goes the attempt to get FUSE merged into Andrew or Linus' tree?
+> > > I saw that an attempt was made about three weeks ago on the LKML.
 > > 
-> > Since you guys stupidly showed interest, here's a very first-order
-> > approximation of filling the pipe from some other source.
+> > I made some changes to the kernel code since the last submission
+> > (related to being able to interrupt requests), and some problems still
+> > need to be ironed out.  Then I'll submit again, hopefully this time
+> > with more success :)
 > 
-> Here's a somewhat fixed and tested version, which actually does something 
-> on x86.
+> Well, there doesn't seem to be a great rush to include FUSE in the
+> kernel.  Maybe they just don't realize what they are missing out on ;)
+> 
+> So if any of you would like to support this motion, you can mail the
+> linux-kernel list and maybe Linus and Andrew, to generate a little
+> discussion on why (or why not) inclusion is a good idea.
 
-Question. How do you think to splice() skb pages, or any other non page-based
-format?
+I like fuse, but I do not think Linus and Akpm have enough mails already. Getting it merged to some distribution might
+do the trick....
 
-
-
-- Davide
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

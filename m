@@ -1,127 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVBUIgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVBUIia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVBUIgg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 03:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVBUIgg
+	id S261921AbVBUIia (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 03:38:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVBUIi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 03:36:36 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:44731 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S261920AbVBUIga (ORCPT
+	Mon, 21 Feb 2005 03:38:29 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:19847 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261921AbVBUIhx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 03:36:30 -0500
-Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Erich Focht <efocht@hpce.nec.com>
-In-Reply-To: <1108969656.8418.59.camel@frecb000711.frec.bull.fr>
-References: <1108652114.21392.144.camel@frecb000711.frec.bull.fr>
-	 <1108655454.14089.105.camel@uganda>
-	 <1108969656.8418.59.camel@frecb000711.frec.bull.fr>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TppS0kdnAgGMWIHUXMRx"
-Organization: MIPT
-Date: Mon, 21 Feb 2005 11:41:32 +0300
-Message-Id: <1108975292.6728.13.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Mon, 21 Feb 2005 11:35:31 +0300 (MSK)
+	Mon, 21 Feb 2005 03:37:53 -0500
+Message-ID: <42199EE8.9090101@sgi.com>
+Date: Mon, 21 Feb 2005 02:42:16 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>
+CC: ak@muc.de, raybry@austin.rr.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
+ II
+References: <20050215121404.GB25815@muc.de> <421241A2.8040407@sgi.com> <20050215214831.GC7345@wotan.suse.de> <4212C1A9.1050903@sgi.com> <20050217235437.GA31591@wotan.suse.de> <4215A992.80400@sgi.com> <20050218130232.GB13953@wotan.suse.de> <42168FF0.30700@sgi.com> <20050220214922.GA14486@wotan.suse.de> <20050220143023.3d64252b.pj@sgi.com> <20050220223510.GB14486@wotan.suse.de>
+In-Reply-To: <20050220223510.GB14486@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+All,
 
---=-TppS0kdnAgGMWIHUXMRx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Just an update on the idea of migrating a process without suspending
+it.
 
-On Mon, 2005-02-21 at 08:07 +0100, Guillaume Thouvenin wrote:
-> On Thu, 2005-02-17 at 18:50 +0300, Evgeniy Polyakov wrote:
-> > On Thu, 2005-02-17 at 15:55 +0100, Guillaume Thouvenin wrote:
-> > >     It's a new patch that implements a fork connector in the
-> > > kernel/fork.c:do_fork() routine. The connector sends information abou=
-t
-> > > parent PID and child PID over a netlink interface. It allows to sever=
-al
-> > > user space applications to be alerted when a fork occurs in the kerne=
-l.
-> > > The main drawback is that even if nobody listens, a message is send. =
-I
-> > > don't know how to avoid that. I added an option (FORK_CONNECTOR) to
-> > > enable the fork connector (or disable) when compiling the kernel. To
-> > > work, connector must be compiled as built-in (CONFIG_CONNECTOR=3Dy). =
-It
-> > > has been tested on a 2.6.11-rc3-mm2 kernel with two user space
-> > > applications connected.=20
-> > >=20
-> > >     It is used by ELSA to manage group of processes in user space. In
-> > > conjunction with a per-process accounting information, like BSD or CS=
-A,
-> > > ELSA provides a per-group of processes accounting.
-> >=20
-> > I think people will complain here...
-> > ... [cut here] ...
-> > I still think that lsm with all calls logging is the best way to
-> > achieve this goal.
->=20
-> I agree with you. My first implementation was with LSM but Chris Wright
-> (I think it was him) notice that it's not the right framework (and it
-> seems true). So I looked for another solution. I though about kobject
-> but it was too "big" and finally, Greg KH spoke about connectors. It's
-> small and efficient.
+The hard part of the problem here is to make sure that the page_migrate()
+system call sees all of the pages to migrate.  If the process that is
+being migrated can still allocate pages, then the page_migrate() call
+may miss some of the pages.
 
-Your do_fork() change really looks like either audit addon(but it is
-really
-not the case) or LSM logging facility.
-I think adding cn_netlink_send() in every function in security/dummy.c
-and renaming it to security/cn_logger.c or something is not such a bad
-idea...
-Or even wait in each function until userspace replies with the decision
-to
-allow or not such call.
-Although it can create a lock (need to recheck security hooks in
-send/recv pathes).
+One way to solve this problem is to force the process to start allocating
+pages on the new nodes before calling page_migrate().  There are a couple
+of subcases:
 
-> > from the other side why only fork is monitored in this way?
->=20
-> The problem is the following: I have a user space daemon that manages
-> group of processes. The main idea is, if a parent belongs to a group
-> then its child belongs to the same group. To achieve this I need to know
-> when a fork occurs and which processes are involved. I don't see how to
-> do this without a hook in the do_fork() routine... Any ideas are
-> welcome.
+(1)  For memory mapped files with a non-DEFAULT associated memory policy,
+      one can use mbind() to fixup the memory policy.  (This assumes the
+      Steve Longerbeam patches are applied, as I understand things).
 
-Now I begin to understand Chris Wright - LSM are designed not for
-monitoring,=20
-but only for initialisation path - i.e. LSM will say only if something
-is allowed or not,
-but not if it was performed.
+(2)  For anonymous pages and memory mapped files with DEFAULT policy,
+      the allocation depends on which node the process is running.  So
+      after doing the above, you need to migrate the task to a cpu
+      associated with one of the nodes.
 
-So, for exactly your setup there is no any other way then to patch
-do_fork().
+The problem with (1) is that it is racy, there is no guarenteed way to get the
+list of mapped files for the process while it is still running.  A process
+can do it for itself, so one way to do this would be to write the set of
+new nodes to a /proc/pid file, then send the process a SIG_MIGRATE
+signal.  Ugly....  (For multithreaded programs, all of the threads have
+to be signalled to keep them from mmap()ing new files during the migration.)
 
-> Thank you Evgeniy for all your comments about the code, it helps and I
-> will modify the patch.
->=20
-> Regards,
-> Guillaume
---=20
-        Evgeniy Polyakov
+(1) could be handled as part of the page_migrate() system call --
+make one pass through the address space searching for mempolicy()
+data structures, and updating them as necessary.  Then make a second
+pass through and do the migrations.  Any new allocations will then
+be done under the new mempolicy, so they won't be missed.  But this
+still gets us into trouble if the old and new node lists are not
+disjoint.
 
-Crash is better than data corruption -- Arthur Grabowski
+This doesn't handle anonymous memory or mapped files associated with
+the DEFAULT policy.  A way around that would be to add a target cpu_id
+to the page_migrate() system call.  Then before doing the first pass
+described above, one would do the equivalenet of set_sched_affinity()
+for the target pid, moving it to the indicated cpu.  Once it is known
+the pid has moved (how to do that?), we now know anonymous memory and
+DEFAULT mempolicy mapped files will be allocated on the nodes associated
+with the new cpu.  Then we can proceed as discussed in the last paragraph.
+Also ugly, due to the extra parameter.
 
---=-TppS0kdnAgGMWIHUXMRx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Alternatively, we can just require, for correct execution, the invoking
+code to do the set_sched_affinity() first, in those cases where
+migrating a running task is important.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCGZ68IKTPhE+8wY0RAv6wAJ0TD2JkWttRqnstMOfLJZIliyiV4ACfQOGw
-pbXm1W2VY2TkIwmNDB/mzSI=
-=tIYa
------END PGP SIGNATURE-----
-
---=-TppS0kdnAgGMWIHUXMRx--
-
+Anyway, how important is this, really for acceptance of a page_migrate()
+system call in the community?  (that is, how important is it to be
+able to migrate a process without suspending it?)
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

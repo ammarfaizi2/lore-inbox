@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318315AbSHEFs7>; Mon, 5 Aug 2002 01:48:59 -0400
+	id <S318310AbSHEFwR>; Mon, 5 Aug 2002 01:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318319AbSHEFs6>; Mon, 5 Aug 2002 01:48:58 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:17625 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S318315AbSHEFs4>;
-	Mon, 5 Aug 2002 01:48:56 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] 2.4.19 warnings cleanup
-References: <m3znw3k8qq.fsf@defiant.pm.waw.pl>
-	<1028470583.14196.29.camel@irongate.swansea.linux.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 05 Aug 2002 01:28:48 +0200
-In-Reply-To: <1028470583.14196.29.camel@irongate.swansea.linux.org.uk>
-Message-ID: <m3ofcitd8v.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318312AbSHEFwR>; Mon, 5 Aug 2002 01:52:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:29375 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318310AbSHEFwQ>;
+	Mon, 5 Aug 2002 01:52:16 -0400
+Date: Sun, 04 Aug 2002 22:42:20 -0700 (PDT)
+Message-Id: <20020804.224220.41027416.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: akpm@zip.com.au, frankeh@watson.ibm.com, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
+       wli@holomorpy.com, linux-kernel@vger.kernel.org
+Subject: Re: large page patch (fwd) (fwd)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0208041225180.10314-100000@home.transmeta.com>
+References: <3D4D7F24.10AC4BDB@zip.com.au>
+	<Pine.LNX.4.44.0208041225180.10314-100000@home.transmeta.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Sun, 4 Aug 2002 12:28:54 -0700 (PDT)
+   
+   I suspect that there is some non-zero order-X (probably 2 or 3), where you 
+   just win more than you lose. Even for small programs. 
 
-> > --- linux/drivers/net/ppp_generic.c.orig	Sat Aug  3 17:13:58 2002
-> > +++ linux/drivers/net/ppp_generic.c	Sat Aug  3 19:11:54 2002
-> > @@ -378,7 +378,7 @@
-> >  {
-> >  	struct ppp_file *pf = file->private_data;
-> >  	DECLARE_WAITQUEUE(wait, current);
-> > -	ssize_t ret;
-> > +	ssize_t ret = 0; /* suppress compiler warning */
-> >  	struct sk_buff *skb = 0;
-> >  
-> >  	if (pf == 0)
-> 
-> 
-> Please don't do this. I'm regularly having to fix drivers where people
-> hid bugs this way rather than working out if it was a real problem. If
-> it is genuinely a compiler corner case then let the gcc folks know and
-> comment it but leave the warning.
-
-Ok.
--- 
-Krzysztof Halasa
-Network Administrator
+Furthermore it would obviously help to enhance the clear_user_page()
+interface to handle multiple pages because that would nullify the
+startup/finish overhead of the copy loop.  (read as: things like TLB
+loads and FPU save/restore on some platforms)

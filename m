@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316544AbSGLO1U>; Fri, 12 Jul 2002 10:27:20 -0400
+	id <S316512AbSGLOeI>; Fri, 12 Jul 2002 10:34:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSGLO1T>; Fri, 12 Jul 2002 10:27:19 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62954 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S316544AbSGLO1O>;
-	Fri, 12 Jul 2002 10:27:14 -0400
-Date: Fri, 12 Jul 2002 10:29:53 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Maneesh Soni <maneesh@in.ibm.com>
-cc: LKML <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [RFC] dcache scalability patch (2.4.17)
-In-Reply-To: <20020712193935.B13618@in.ibm.com>
-Message-ID: <Pine.GSO.4.21.0207121021430.11261-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316545AbSGLOeH>; Fri, 12 Jul 2002 10:34:07 -0400
+Received: from mail.clsp.jhu.edu ([128.220.34.27]:22521 "EHLO
+	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
+	id <S316512AbSGLOeG>; Fri, 12 Jul 2002 10:34:06 -0400
+Date: Fri, 12 Jul 2002 14:39:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Erich Focht <efocht@ess.nec.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ia64 <linux-ia64@linuxia64.org>
+Subject: Re: O(1) scheduler "complex" macros
+Message-ID: <20020712123915.GA108@elf.ucw.cz>
+References: <Pine.LNX.4.44.0207111111280.6835-100000@localhost.localdomain> <Pine.LNX.4.44.0207111137460.7442-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207111137460.7442-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> >  #define task_running(rq, p) \
+> > 	((rq)->curr == (p)) && !spin_is_locked(&(p)->switch_lock)
+> 
+> one more implementational note: the above test is not 'sharp' in the sense
+> that on SMP it's only correct (the test has no barriers) if the runqueue
+> lock is held. This is true for all the critical task_running() uses in
+> sched.c - and the cases that use it outside the runqueue lock are
+> optimizations so they dont need an exact test.
 
-On Fri, 12 Jul 2002, Maneesh Soni wrote:
-
-> Here is the dcache scalability patch (cleaned up) as disscussed in 
-> the previous post to lkml by Dipankar. The patch uses RCU for doing fast
-> dcache lookup. It also does lazy updates to lru list of dentries to
-> avoid doing write operations while doing lookup.
-
-Where is
-	* version for 2.5.<current>
-	* analysis of benefits in real-world situations for 2.5 version?
-
-Patch adds complexity and unless you can show that it gives significant
-benefits outside of pathological situations, it's not going in.
-
-Note: measurements on 2.4 do not make sense; reduction of cacheline
-bouncing between 2.4 and 2.5 will change the results anyway and
-if any of these patches are going to be applied to 2.4, reduction of
-cacheline bouncing on ->d_count is going to go in before that one.
-
+I believe this is worth a *big fat* comment.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

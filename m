@@ -1,117 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262150AbTHUWp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 18:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbTHUWpZ
+	id S262923AbTHUWoO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 18:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTHUWoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 18:45:25 -0400
-Received: from holomorphy.com ([66.224.33.161]:64912 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262150AbTHUWpM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 18:45:12 -0400
-Date: Thu, 21 Aug 2003 15:45:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Theurer <habanero@us.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: CPU boot problem on 2.6.0-test3-bk8
-Message-ID: <20030821224543.GL4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Theurer <habanero@us.ibm.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>
-References: <200308201658.05433.habanero@us.ibm.com> <200308211056.29876.habanero@us.ibm.com> <1061482159.19036.1716.camel@nighthawk> <200308211202.02871.habanero@us.ibm.com> <20030821213350.GJ4306@holomorphy.com> <20030821221744.GK4306@holomorphy.com>
+	Thu, 21 Aug 2003 18:44:14 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18885
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262923AbTHUWoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 18:44:11 -0400
+Date: Fri, 22 Aug 2003 00:44:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: manfred@colorfullife.com, tejun@aratech.co.kr,
+       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+Subject: Re: Possible race condition in i386 global_irq_lock handling.
+Message-ID: <20030821224411.GK29612@dualathlon.random>
+References: <3F44FAF3.8020707@colorfullife.com> <20030821172721.GI29612@dualathlon.random> <20030821234824.37497c08.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030821221744.GK4306@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030821234824.37497c08.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 02:33:50PM -0700, William Lee Irwin III wrote:
->> cpu_present_to_apicid() needs a similar treatment to dhansen's prior
->> bits. diff incoming shortly.
+On Thu, Aug 21, 2003 at 11:48:24PM +0200, Stephan von Krawczynski wrote:
+> 
+> > smb_rmb is enough in practice for x86 (in asm-i386), but not the right
+> > barrier in general because rmb only serializes reads against reads, so
+> > it would also make little sense while reading the i386 code. here you've
+> > to serialize a write against a read so it would be misleading unless you
+> > know exactly the lowlevel implementations of those barriers.
+> > 
+> > smp_mb() before the while loop should be the correct barrier for all
+> > archs and the asm generated on x86 will be the same.
+> > 
+> > alpha, ia64 and x86-64 (and probably others) needs it too.
+> 
+> Can some kind soul please provide me with the needed mini-patch. I would like
+> to try that on my constantly crashing SMP test box...
 
-On Thu, Aug 21, 2003 at 03:17:44PM -0700, William Lee Irwin III wrote:
-> Could one of you two try this out on a Summit machine in addition to
-> Dave's prior patch (or hook me up to one)?
-
-That broke sparse APIC ID's on several subarches. This is a bit less
-indiscriminate about who it updates (and should replace the prior patch
-wrt. sending anything upstream):
-
-
--- wli
-
-
-===== include/asm-i386/mach-bigsmp/mach_apic.h 1.16 vs edited =====
---- 1.16/include/asm-i386/mach-bigsmp/mach_apic.h	Wed Aug 20 22:32:06 2003
-+++ edited/include/asm-i386/mach-bigsmp/mach_apic.h	Thu Aug 21 15:07:42 2003
-@@ -86,7 +86,10 @@
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
+--- 2.4.22pre7aa1/include/asm-i386/hardirq.h.~1~	2003-07-20 18:39:04.000000000 +0200
++++ 2.4.22pre7aa1/include/asm-i386/hardirq.h	2003-08-22 00:24:08.000000000 +0200
+@@ -71,6 +71,8 @@ static inline void irq_enter(int cpu, in
  {
--	return (int) bios_cpu_apicid[mps_cpu];
-+	if (mps_cpu < NR_CPUS)
-+		return (int)bios_cpu_apicid[mps_cpu];
-+	else
-+		return BAD_APICID;
- }
+ 	++local_irq_count(cpu);
  
- static inline physid_mask_t apicid_to_cpu_present(int phys_apicid)
-===== include/asm-i386/mach-es7000/mach_apic.h 1.3 vs edited =====
---- 1.3/include/asm-i386/mach-es7000/mach_apic.h	Wed Aug 20 22:32:06 2003
-+++ edited/include/asm-i386/mach-es7000/mach_apic.h	Thu Aug 21 15:08:41 2003
-@@ -106,8 +106,10 @@
- {
- 	if (!mps_cpu)
- 		return boot_cpu_physical_apicid;
--	else
-+	else if (mps_cpu < NR_CPUS)
- 		return (int) bios_cpu_apicid[mps_cpu];
-+	else
-+		return BAD_APICID;
- }
- 
- static inline physid_mask_t apicid_to_cpu_present(int phys_apicid)
-===== include/asm-i386/mach-numaq/mach_apic.h 1.22 vs edited =====
---- 1.22/include/asm-i386/mach-numaq/mach_apic.h	Wed Aug 20 22:32:06 2003
-+++ edited/include/asm-i386/mach-numaq/mach_apic.h	Thu Aug 21 15:10:31 2003
-@@ -65,9 +65,17 @@
- 	return (int)cpu_2_logical_apicid[cpu];
- }
- 
-+/*
-+ * Supporting over 60 cpus on NUMA-Q requires a locality-dependent
-+ * cpu to APIC ID relation to properly interact with the intelligent
-+ * mode of the cluster controller.
-+ */
- static inline int cpu_present_to_apicid(int mps_cpu)
- {
--	return ((mps_cpu >> 2) << 4) | (1 << (mps_cpu & 0x3));
-+	if (mps_cpu < 60)
-+		return ((mps_cpu >> 2) << 4) | (1 << (mps_cpu & 0x3));
-+	else
-+		return BAD_APICID;
- }
- 
- static inline int generate_logical_apicid(int quad, int phys_apicid)
-===== include/asm-i386/mach-summit/mach_apic.h 1.31 vs edited =====
---- 1.31/include/asm-i386/mach-summit/mach_apic.h	Wed Aug 20 22:32:06 2003
-+++ edited/include/asm-i386/mach-summit/mach_apic.h	Thu Aug 21 15:10:57 2003
-@@ -87,7 +87,10 @@
- 
- static inline int cpu_present_to_apicid(int mps_cpu)
- {
--	return (int) bios_cpu_apicid[mps_cpu];
-+	if (mps_cpu < NR_CPUS)
-+		return (int)bios_cpu_apicid[mps_cpu];
-+	else
-+		return BAD_APICID;
- }
- 
- static inline physid_mask_t ioapic_phys_id_map(physid_mask_t phys_id_map)
++	smp_mb();
++
+ 	while (test_bit(0,&global_irq_lock)) {
+ 		cpu_relax();
+ 	}
+
+Andrea

@@ -1,58 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286971AbRL1ShG>; Fri, 28 Dec 2001 13:37:06 -0500
+	id <S286973AbRL1Sfq>; Fri, 28 Dec 2001 13:35:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286981AbRL1Sg6>; Fri, 28 Dec 2001 13:36:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28679 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286980AbRL1Sgx>; Fri, 28 Dec 2001 13:36:53 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: zImage not supported for 2.2.20?
-Date: 28 Dec 2001 10:36:44 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a0ie3s$s71$1@cesium.transmeta.com>
-In-Reply-To: <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <20011228121228.GA9920@emma1.emma.line.org> <4.3.2.7.2.20011228124704.00abba70@192.168.124.1> <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1>
+	id <S286971AbRL1Sf1>; Fri, 28 Dec 2001 13:35:27 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:26980 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S286980AbRL1SfY>; Fri, 28 Dec 2001 13:35:24 -0500
+Posted-Date: Fri, 28 Dec 2001 18:34:17 GMT
+Date: Fri, 28 Dec 2001 18:34:16 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+In-Reply-To: <20011227163130.N12868@lynx.no>
+Message-ID: <Pine.LNX.4.21.0112281810330.3044-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <4.3.2.7.2.20011228173505.00aa3da0@192.168.124.1>
-By author:    Roy Hills <linux-kernel-l@nta-monitor.com>
-In newsgroup: linux.dev.kernel
-> 
-> Unfortunately, I need to use zImage on my Tecra.  I know that zImage is
-> old, and I've heard that support for it will eventually be withdrawn, but I
-> don't really have much alternative right now unless there is a patch which
-> works around the Tecra's buggy A20 handling.
-> 
+Hi Andreas.
 
-I believe this is now a myth.  Toshiba's weird A20 problems should
-have been worked around for a long, long time; and I believe the
-latest set of changes in 2.4 should make that thouroughly complete.
-In fact, if your bzImages don't work either, I suspect your problems
-isn't at all one of zImage vs bzImage but that there is a separate bug
-that's biting you independently.
+>> Someone (Alan?) suggested having something like a web interface
+>> allowing anyone interested in any particular file to register their
+>> interest, and get added to the cclist for that file. Which is also
+>> a cool idea.
 
-> Does anyone know the status of zImage format in modern kernels?
-> Is it _supposed_ to be supported under 2.2.recent?  How about 2.4.recent?
-> 
-> I guess that, if zImage is supposed to be supported, then I have a
-> genuine bug.  However, if zImage support has officially been
-> dropped, then it's a different matter - in this case, the only bug
-> would be that the Makefile should issue a sensible message when you
-> try to "make zImage" rather than producing a kernel that won't work.
+> Well, in the past I had suggested to ESR (and he agreed) that it
+> would be nice to split up the MAINTAINERS file (and maybe even
+> Configure.help) to be more heirarchical in nature, so that there
+> would be a MAINTAINER file in each directory, and maybe even
+> MAINTAINER.<file> for files in common directories like
+> drivers/net/foo.c. In the top-level MAINTAINER file would only be
+> something like "Marcello Tosatti" to cover the entire tree, and e.g.
+> "David Miller" in the net/MAINTAINER, "Al Viro" in the
+> fs/MAINTAINER, "Stephen Tweedie" in fs/ext3/MAINTAINER, etc.
 
-zImage format will probably be removed in the 2.5 series.  It's
-virtually impossible to fit a practical 2.4 kernel within the zImage
-size limits.
+Can I suggest an alternative: Retain the MAINTAINERS file as it
+currently is, but add a PATCHES-TO file in each subdirectory that
+states how to handle patches relating to that directory, and have
+these files follow a strict format, possibly...
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+===8<=== CUT ===>8===
+
+HomeDir = linux/subsystem/
+List = subsystem@server.site
+Maintainer = Guess Who <uessWho@hear.thou.me>
+Watch * = Interested <interested@private.site>
+Watch PATCHES-TO = John Doa <administrator@linux.org>
+
+===8<=== CUT ===>8===
+
+...where the lines are as follows...
+
+	HOMEDIR = relative-path
+
+		The directory in the tree that this PATCHES-TO
+		file belongs in. Must occur exactly once, and
+		must start with linux/ to indicate the base
+		directory this tree has been installed in.
+
+	LIST = mailing-list-email-address
+
+		A mailing list dealing with this part of the
+		kernel tree. Can be repeated if multiple lists
+		need to be specified, or omitted if there is no
+		specific mailing list for this subsystem.
+
+	NEWS = newsgroup
+
+		A newsgroup dealing with this part of the kernel
+		tree. Can be repeated if multiple newsgroups need
+		to be specified, or omitted if no newsgroups are
+		relevant to this section of the tree.
+
+	MAINTAINER = name <email-address>
+
+		The name and email address of the primary maintainer
+		for files in this directory. Can be repeated if
+		multiple maintainers need to be specified. Must
+		occur in the file in the base directory, but can
+		be omitted in any subdirectory in which case it
+		indicates that the maintainer of the parent also
+		maintains this subdirectory.
+
+	WATCH filespec = name <email-address>
+
+		Specifies that the email address specified is also
+		interested in patches relating to the specified
+		files, and should be CC'd patches relating to just
+		the files specified. Files of interest are selected
+		using ls style wildcards. Can be repeated as often
+		as required for either the same or different files.
+		The filespec can not contain / characters, and only
+		matches files in the current directory.
+
+...and all unrecognised lines are taken to be valid comments and are
+ignored by all tools.
+
+Comments?
+
+Best wishes from Riley.
+

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318264AbSIBKS7>; Mon, 2 Sep 2002 06:18:59 -0400
+	id <S318165AbSIBKZl>; Mon, 2 Sep 2002 06:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318265AbSIBKS7>; Mon, 2 Sep 2002 06:18:59 -0400
-Received: from dsl-213-023-021-067.arcor-ip.net ([213.23.21.67]:26248 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318264AbSIBKS7>;
-	Mon, 2 Sep 2002 06:18:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
+	id <S318265AbSIBKZl>; Mon, 2 Sep 2002 06:25:41 -0400
+Received: from holomorphy.com ([66.224.33.161]:32409 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318165AbSIBKZk>;
+	Mon, 2 Sep 2002 06:25:40 -0400
+Date: Mon, 2 Sep 2002 03:24:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
-Date: Mon, 2 Sep 2002 12:25:13 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: wli@holomorphy.com, rml@tech9.net, rusty@rustcorp.com.au,
+Cc: phillips@arcor.de, rml@tech9.net, rusty@rustcorp.com.au,
        torvalds@transmeta.com, linux-kernel@vger.kernel.org, akpm@zip.com.au
-References: <E17loBW-0004gM-00@starship> <E17loGE-0004gS-00@starship> <20020902.031123.04737167.davem@redhat.com>
-In-Reply-To: <20020902.031123.04737167.davem@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17loOP-0004gZ-00@starship>
+Subject: Re: [TRIVIAL PATCH] Remove list_t infection.
+Message-ID: <20020902102432.GQ888@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, phillips@arcor.de,
+	rml@tech9.net, rusty@rustcorp.com.au, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, akpm@zip.com.au
+References: <20020902060257.GO888@holomorphy.com> <20020901.232021.00308364.davem@redhat.com> <E17loBW-0004gM-00@starship> <20020902.030553.14354294.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020902.030553.14354294.davem@redhat.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 September 2002 12:11, David S. Miller wrote:
->    From: Daniel Phillips <phillips@arcor.de>
->    Date: Mon, 2 Sep 2002 12:16:45 +0200
->    
->    Admit it, you never wrote a line of lisp ;-)
->    
-> Oh contraire:
+On Mon, Sep 02, 2002 at 03:05:53AM -0700, David S. Miller wrote:
+> A list node is markably different from "the list" itself.
+> A "list" is the whole of all the nodes on the list, not just one
+> of them.
 
-[lots of irritating silly parentheses]
+Linus will be the final arbiter of taste here. I've largely said my
+peace, but will step forth from the shadows long enough to say the
+decision here (and dear gawd, this is a trivial issue) hinges on this:
+(1) one may describe the data structure as accurately as possible, so
+	struct list_marker, struct list_node, or (gawd forbid)
+	struct list_head is the proper name in this context.
+(2) brevity is the soul of wit, and the rest may be assumed to be the
+	burden of knowing how to program, so struct list must be
+	twisted a very small bit so it's understood this is a list node
+	and/or head when the abbreviated name is used.
+At this point, I beg of you all, defer to Linus and produce useful
+things instead of debating this kind of issue endlessly. It's basic.
+It's fundamental. It's trivial. And it's his kernel. Yes, I'm
+authoritarian, and no, I'm not in charge. These simple things are too
+easy to debate. The real coding lies elsewhere. Now let's move on please.
 
-Great!  Now we can communicate.  (cdr from-location) is:
-
-  a) a list
-
-or
-
-  b) a list marker?
-
--- 
-Daniel
+Thanks,
+Bill

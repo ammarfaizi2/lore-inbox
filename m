@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263399AbTC2ICl>; Sat, 29 Mar 2003 03:02:41 -0500
+	id <S263400AbTC2JNT>; Sat, 29 Mar 2003 04:13:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263400AbTC2ICl>; Sat, 29 Mar 2003 03:02:41 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:22741 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S263399AbTC2ICX>;
-	Sat, 29 Mar 2003 03:02:23 -0500
-Date: Sat, 29 Mar 2003 09:13:11 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: David Mansfield <lkml@dm.cobite.com>
-Cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: very poor performance in 2.5.66[-mm1]
-In-Reply-To: <Pine.LNX.4.44.0303281641320.11928-100000@admin>
-Message-ID: <Pine.LNX.4.44.0303290911500.3834-100000@localhost.localdomain>
+	id <S263401AbTC2JNT>; Sat, 29 Mar 2003 04:13:19 -0500
+Received: from lopsy-lu.misterjones.org ([62.4.18.26]:12041 "EHLO
+	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
+	id <S263400AbTC2JNS>; Sat, 29 Mar 2003 04:13:18 -0500
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       aeb@cwi.nl
+Subject: Re: NICs trading places ?
+References: <20030328221037.GB25846@suse.de>
+	<20030328224843.GA11980@win.tue.nl>
+Organization: Metropolis -- Nowhere
+X-Attribution: maz
+Reply-to: mzyngier@freesurf.fr
+From: Marc Zyngier <mzyngier@freesurf.fr>
+Date: 29 Mar 2003 10:20:39 +0100
+Message-ID: <wrpisu21qc8.fsf@hina.wild-wind.fr.eu.org>
+In-Reply-To: <20030328224843.GA11980@win.tue.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Andries" == Andries Brouwer <aebr@win.tue.nl> writes:
 
-On Fri, 28 Mar 2003, David Mansfield wrote:
+Andries> I am not quite sure, apologies in case I misremember, but
+Andries> maybe the most recent breakage was caused by Marc Zyngier
+Andries> with EISA bus changes.
 
-> Yes. gnome-terminal is godawful slow on RHAT 8.0 (it does Xrender
-> alpha-channel crap for every character to get the anti-aliasing).  But I
-> think the problem has to do with the pipe/pty wakeups.  After 'ls'
-> writes a line to the pty, it seems as though the gnome-terminal is being
-> woken up (even though 'ls' has more to write), it's generating the
-> Xrender X-command and sending it to X.  X is waking up and rendering it
-> (which forces a complete update of the screen).
+Well, it is not exactly related to EISA bus, although part of the same
+patch.
 
-this is a known bug in vte, fixed in the rawhide vte package. (you might
-need to upgrade other packages as well.) Eg. try another, non-gnome-vte
-based terminal, such as xterm or konsole, it wont show this problem.
+The real problem is that some old drivers are still initialized from
+Space.c (they simply do not know about init_etherdev (NULL, ...),
+after all these years). So yes, I broke 3c509 in this respect. I also
+broke znet if that matters. Oh, and the EISA part of depca in the AC
+tree.
 
-	Ingo
+So the questions are :
+- Should Space.c die ? I think so.
+- Should 2.5 be the place and time to kill it ? I also think so.
 
+I know it is a pain for most of us to have interfaces being
+renumbered. But relying on something as static as Space.c is the wrong
+answer IMHO.
+
+        M.
+-- 
+Places change, faces change. Life is so very strange.

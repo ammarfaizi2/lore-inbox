@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135449AbRAVWG2>; Mon, 22 Jan 2001 17:06:28 -0500
+	id <S129742AbRAVWUi>; Mon, 22 Jan 2001 17:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135482AbRAVWGS>; Mon, 22 Jan 2001 17:06:18 -0500
-Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:22535 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S135449AbRAVWGH>; Mon, 22 Jan 2001 17:06:07 -0500
-Date: Mon, 22 Jan 2001 14:04:35 -0800
-Message-Id: <200101222204.f0MM4Zv09976@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: David Lang <dlang@diginsite.com>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Val Henson <vhenson@esscom.com>
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.31.0101221159120.29530-100000@dlang.diginsite.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
+	id <S130536AbRAVWUZ>; Mon, 22 Jan 2001 17:20:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54796 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129742AbRAVWUR>;
+	Mon, 22 Jan 2001 17:20:17 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200101222202.f0MM24s01811@flint.arm.linux.org.uk>
+Subject: Re: Running "make install" runs lilo on my Athlon but not my Pentium II.
+To: miles@megapathdsl.net
+Date: Mon, 22 Jan 2001 22:02:04 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A6BED1D.86D5B597@megapathdsl.net> from "Miles Lane" at Jan 22, 2001 12:19:41 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jan 2001 12:01:23 -0800 (PST), David Lang <dlang@diginsite.com> wrote:
-> how about always_defragment (or whatever the option is now called) so that
-> your routing box always reassembles packets and then fragments them to the
-> correct size for the next segment? wouldn't this do the job?
+Miles Lane writes:
+> When I run "make install" on my Pentium II machine, lilo gets
+> run after vmlinuz is built.  When I do the same thing on my Athlon,
+> vmlinuz gets built, but lilo does get run.
 
-It doesn't help with TCP, because the negotiated MSS will always be 1500
-and thus there won't be any fragments to re-assemble.
+Have you checked for the existance of a /sbin/installkernel file on either
+machine?
 
->  On Mon, 22 Jan 2001, Val Henson wrote:
->
->> Well, there is a (real-world) case where your TCP proxy doesn't want
->> to look at the data and you can't use IP forwarding.  If you have TCP
->> connections between networks that have very different MTU's, using IP
->> forwarding will result in tiny packets on the large MTU networks.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-There is another real-world case: a load-balancing proxy. socket->socket
-sendfile would allow the proxy to open a non-keepalive connection to the
-backend server, send the request, and then just link the two sockets
-together using sendfile.
-
-Of course, some changes would have to be made to the API. An asynchronous
-sendsocket()/sendfile() system call would be just lovely, in fact. :-)
-
-
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbTEFT14 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 15:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTEFT14
+	id S261182AbTEFT3W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 15:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbTEFT3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 15:27:56 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8461 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261199AbTEFT1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 15:27:55 -0400
-Date: Tue, 6 May 2003 21:40:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, linux-serial@vger.kernel.org,
-       rmk@arm.linux.org.uk
-Subject: Re: serial ioctl emulation done right
-Message-ID: <20030506194027.GA5727@atrey.karlin.mff.cuni.cz>
-References: <20030506184731.GA5419@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030506184731.GA5419@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+	Tue, 6 May 2003 15:29:18 -0400
+Received: from lakemtao02.cox.net ([68.1.17.243]:41435 "EHLO
+	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S261161AbTEFT3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 15:29:07 -0400
+Message-ID: <3EB80FE0.4040707@cox.net>
+Date: Tue, 06 May 2003 14:41:20 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [2.5.69-bk1] Modprobe error with agpgart
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I get the following with modprobe when I try to probe agpgart with the 
+following lines in my modprobe.conf.
 
-> What about this one? This makes it possible to kill copy from
-> x86-64/ia32/ia32_ioctl.c, and adds support for setserial on all
-> architectures...
+Entries in /etc/modprobe.conf:
+alias char-major-10-175 agpgart
+options agpgart agp_try_unsupported=1
 
-It actually introduces very ugly warnings, I'm working ont that.
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Error in dmesg:
+agpgart: Unknown parameter `agp_try_unsupported'
+
+Is this a problem in modprobe or in the agpgart driver?
+
+Thanks,
+David
+

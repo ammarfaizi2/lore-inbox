@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268856AbRIDUEp>; Tue, 4 Sep 2001 16:04:45 -0400
+	id <S268896AbRIDUHP>; Tue, 4 Sep 2001 16:07:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268896AbRIDUEc>; Tue, 4 Sep 2001 16:04:32 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:22532 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S268856AbRIDUEY>; Tue, 4 Sep 2001 16:04:24 -0400
-Date: Tue, 4 Sep 2001 16:04:43 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@portland.hansa.lan>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] G450 help text again
-Message-ID: <Pine.LNX.4.33.0109041558470.8901-100000@portland.hansa.lan>
+	id <S268899AbRIDUHF>; Tue, 4 Sep 2001 16:07:05 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:54183 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S268896AbRIDUGu>;
+	Tue, 4 Sep 2001 16:06:50 -0400
+Date: Tue, 4 Sep 2001 15:36:02 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: page_launder() on 2.4.9/10 issue
+In-Reply-To: <20010904215449.S699@athlon.random>
+Message-ID: <Pine.LNX.4.21.0109041534281.2112-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-Andrzej M. Krzysztofowicz has noticed that my patch applied to 2.4.9-ac7
-in incomplete.  There are still places where G450 was missing and G400 was
-written as g400.
 
-Sorry that I couldn't get this thivial thing right the first time.
-Here's the patch against 2.4.9-ac7.
+On Tue, 4 Sep 2001, Andrea Arcangeli wrote:
 
----------------------------------------------
---- linux.orig/Documentation/Configure.help
-+++ linux/Documentation/Configure.help
-@@ -16350,9 +16350,9 @@
+> On Tue, Sep 04, 2001 at 01:54:27PM -0400, Jan Harkes wrote:
+> > Now for the past _9_ stable kernel releases, page aging hasn't worked
+> > at all!! Nobody seems to even have bothered to check. I send in a patch
+> 
+> All I can say is that I hope you will get your problem fixed with one of
+> the next -aa, I incidentally started working on it yesterday. So far
+> it's a one thousand diff very far from compiling, so it will grow
+> further, but it shouldn't take too long to finish the rewrite. Once
+> finished the benchmarks and the reproducible 2.4 deadlocks will tell me
+> if I'm right.
 
- Matrox G200/G400/G450
- CONFIG_DRM_MGA
--  Choose this option if you have a Matrox g200 or g400 graphics card.
--  If M is selected, the module will be called mga.o.  AGP support is
--  required for this driver to work.
-+  Choose this option if you have a Matrox G200, G400 or G450 graphics
-+  card.  If M is selected, the module will be called mga.o.  AGP
-+  support is required for this driver to work.
+Andrea, 
 
- 3dfx Banshee/Voodoo3+
- CONFIG_DRM40_TDFX
-@@ -16386,9 +16386,9 @@
+Could you please describe how you're trying to fix the "anon pages not
+being added to the active list at do_no_page()" problem Jan described ?
 
- Matrox G200/G400/G450
- CONFIG_DRM40_MGA
--  Choose this option if you have a Matrox g200 or g400 graphics card.
--  If M is selected, the module will be called mga.o.  AGP support is
--  required for this driver to work.
-+  Choose this option if you have a Matrox G200, G400 or G450 graphics
-+  card.  If M is selected, the module will be called mga.o.  AGP
-+  support is required for this driver to work.
-
- Creator/Creator3D/Elite3D
- CONFIG_DRM_FFB
---- linux.orig/drivers/char/drm-4.0/Config.in
-+++ linux/drivers/char/drm-4.0/Config.in
-@@ -10,4 +10,4 @@
- dep_tristate '  ATI Rage 128' CONFIG_DRM40_R128 $CONFIG_AGP
- dep_tristate '  ATI Radeon' CONFIG_DRM40_RADEON $CONFIG_AGP
- dep_tristate '  Intel I810' CONFIG_DRM40_I810 $CONFIG_AGP
--dep_tristate '  Matrox G200/G400' CONFIG_DRM40_MGA $CONFIG_AGP
-+dep_tristate '  Matrox G200/G400/G450' CONFIG_DRM40_MGA $CONFIG_AGP
----------------------------------------------
-
-By the way, I confirm that G450 works with CONFIG_DRM40_MGA and
-XFree86-4.0.3 on VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-
--- 
-Regards,
-Pavel Roskin
+Thanks!
 

@@ -1,52 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbULKWCl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbULKWC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbULKWCl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 17:02:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbULKWCk
+	id S262027AbULKWC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 17:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbULKWC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 17:02:40 -0500
-Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:26073
-	"HELO fargo") by vger.kernel.org with SMTP id S262024AbULKWCb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 17:02:31 -0500
-Date: Sat, 11 Dec 2004 23:01:38 +0100
-From: David =?iso-8859-15?Q?G=F3mez?= <david@pleyades.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Simos Xenitellis <simos74@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: Improved console UTF-8 support for the Linux kernel?
-Message-ID: <20041211220138.GE14168@fargo>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Simos Xenitellis <simos74@gmx.net>, linux-kernel@vger.kernel.org
-References: <1102784797.4410.8.camel@kl> <20041211173032.GA13208@fargo> <Pine.LNX.4.53.0412112002020.30929@yvahk01.tjqt.qr> <20041211212533.GA13739@fargo> <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
+	Sat, 11 Dec 2004 17:02:59 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35336 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262027AbULKWCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 17:02:38 -0500
+Date: Sat, 11 Dec 2004 23:02:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christer Weinigel <wingel@nano-system.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] i386 scx200.c: small cleanups
+Message-ID: <20041211220229.GE22324@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0412112234550.2492@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan ;),
+The patch below contains the following changes:
+- make two needlessly global functions static
+- remove the EXPORT_SYMBOL'ed but completely unused spinlock 
+  scx200_gpio_lock and function scx200_gpio_dump
 
-On Dec 11 at 10:39:55, Jan Engelhardt wrote:
-> Yes it does generate 0xC3B6 (otherwise it would show up as garbage, because it
-> would not be utf8-compliant if it only output 0xF6)
-> 
-> >I'm using kernel 2.6.9 + Chris patch
-> 
-> I am using SUSE's KOTD 20041202 (2.6.8 + 2.6.9-rc2)
 
-Maybe the patch or a fix has already been included in rc2/rc3, or in
-SUSE's version :??
+diffstat output:
+ arch/i386/kernel/scx200.c   |    9 ++++-----
+ include/linux/scx200_gpio.h |    2 --
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
-> >method. I've used it with anthy, just have to check it with skk.
-> 
-> Have not seen it. What is it? Some sort of xterm?
 
-Just an input system. To be able to write Japanese all over the place ;))
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-regards,
+--- linux-2.6.10-rc2-mm4-full/include/linux/scx200_gpio.h.old	2004-12-11 20:44:17.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/include/linux/scx200_gpio.h	2004-12-11 20:44:31.000000000 +0100
+@@ -1,10 +1,8 @@
+ #include <linux/spinlock.h>
+ 
+ u32 scx200_gpio_configure(int index, u32 set, u32 clear);
+-void scx200_gpio_dump(unsigned index);
+ 
+ extern unsigned scx200_gpio_base;
+-extern spinlock_t scx200_gpio_lock;
+ extern long scx200_gpio_shadow[2];
+ 
+ #define scx200_gpio_present() (scx200_gpio_base!=0)
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/scx200.c.old	2004-12-11 20:44:39.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/scx200.c	2004-12-11 20:46:39.000000000 +0100
+@@ -37,7 +37,6 @@
+ 	.probe = scx200_probe,
+ };
+ 
+-spinlock_t scx200_gpio_lock = SPIN_LOCK_UNLOCKED;
+ static spinlock_t scx200_gpio_config_lock = SPIN_LOCK_UNLOCKED;
+ 
+ static int __devinit scx200_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+@@ -81,6 +80,7 @@
+ 	return config;
+ }
+ 
++#if 0
+ void scx200_gpio_dump(unsigned index)
+ {
+ 	u32 config = scx200_gpio_configure(index, ~0, 0);
+@@ -112,15 +112,16 @@
+ 		printk(" DEBOUNCE"); /* debounce */
+ 	printk("\n");
+ }
++#endif  /*  0  */
+ 
+-int __init scx200_init(void)
++static int __init scx200_init(void)
+ {
+ 	printk(KERN_INFO NAME ": NatSemi SCx200 Driver\n");
+ 
+ 	return pci_module_init(&scx200_pci_driver);
+ }
+ 
+-void __exit scx200_cleanup(void)
++static void __exit scx200_cleanup(void)
+ {
+ 	pci_unregister_driver(&scx200_pci_driver);
+ 	release_region(scx200_gpio_base, SCx200_GPIO_SIZE);
+@@ -131,9 +132,7 @@
+ 
+ EXPORT_SYMBOL(scx200_gpio_base);
+ EXPORT_SYMBOL(scx200_gpio_shadow);
+-EXPORT_SYMBOL(scx200_gpio_lock);
+ EXPORT_SYMBOL(scx200_gpio_configure);
+-EXPORT_SYMBOL(scx200_gpio_dump);
+ 
+ /*
+     Local variables:
 
--- 
-David Gómez                                      Jabber ID: davidge@jabber.org

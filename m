@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317749AbSGKD1d>; Wed, 10 Jul 2002 23:27:33 -0400
+	id <S317752AbSGKDuu>; Wed, 10 Jul 2002 23:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317751AbSGKD1d>; Wed, 10 Jul 2002 23:27:33 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:39114 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317749AbSGKD1b>;
-	Wed, 10 Jul 2002 23:27:31 -0400
-Date: Wed, 10 Jul 2002 23:30:12 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: rusty@rustcorp.com.au, adam@yggdrasil.com, R.E.Wolff@BitWizard.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit
-In-Reply-To: <20020710.194555.88475708.davem@redhat.com>
-Message-ID: <Pine.GSO.4.21.0207102311290.6250-100000@weyl.math.psu.edu>
+	id <S317753AbSGKDut>; Wed, 10 Jul 2002 23:50:49 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:61691 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317752AbSGKDus>; Wed, 10 Jul 2002 23:50:48 -0400
+Date: Wed, 10 Jul 2002 21:53:25 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Keith Owens <kaos@ocs.com.au>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.5.25 net/core/Makefile
+Message-ID: <Pine.LNX.4.44.0207102147400.5067-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Jul 9, 2002 02:13:30, Keith Owens wrote:
+> +# See p8022 in net/802/Makefile for config options to check
+> +ifneq ($(subst n,,$(CONFIG_LLC)$(CONFIG_TR)$(CONFIG_IPX)$(CONFIG_ATALK)),)
+>  obj-y += ext8022.o
+>  endif
 
-On Wed, 10 Jul 2002, David S. Miller wrote:
+Make's response:
 
->    From: Rusty Russell <rusty@rustcorp.com.au>
->    Date: Thu, 11 Jul 2002 12:48:30 +1000
-> 
->    For God's sake, WHY?  Look at what you're doing to your TLB (and if you
->    made IPv4 a removable module, I'll bet real money you have a bug unless
->    you are *very* *very* clever).
-> 
-> Modules can be mapped using a large PTE mapping.
-> I've been meaning to do this on sparc64 for a long
-> time.
-> 
-> So this TLB argument alone is not sufficient :-)
-> I do concur on the "ipv4 as module is difficult to
-> get correct" argument however.
+make[4]: Entering directory `/home/thunder/tmp/thunder-2.5-kb24/net/core'
+Makefile:20: *** missing separator.  Stop.
+make[4]: Leaving directory `/home/thunder/tmp/thunder-2.5-kb24/net/core'
+make[3]: *** [core] Error 2
 
-Sure, but consider the amount of tricky modules and amount of easy ones.
-net/ipv4/*.c _is_ tricky; so much that having system with many parts of
-such complexity would be extremely painful.
+Ideas?
 
-IOW, yes, we have some very tricky interfaces between the parts of kernel;
-and their trickiness alone guarantees that we don't want to have them
-breeding.  Stuff that genuinely needs complex interfaces is *not* something
-you want to be mass-produced.
-
-Do we need to disable rmmod when
-	a) 90-odd percents of modules can be handled safely and
-	b) any module that wants to prevent rmmod on itself can do that
-with one line in its init_module() (add MOD_INC_USE_COUNT; and that's it)?
-
-Notice that generic netfilter module and, say it, driver that provides
-a character device are very different beasts.  The latter can be easily
-handled in safe way; it has simple use model and very few places in
-core code that need to take care of the things - at once for all such
-modules.  The former is much trickier.  The thing being, there are
-hundreds of simple modules and a dozen or so tricky ones.  And as the
-time goes the ratio will only increase, presuming that we want some
-sanity for the tree.  With complex interfaces .text is not the only
-thing that needs nontrivial protection, to put it mildly.
-
-I'd rather get the simple (== large) classes into decent shape and then
-deal with what's left.  FVO "deal" possibly including "no rmmod for these
-guys".
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

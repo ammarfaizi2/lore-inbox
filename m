@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263298AbSITR1c>; Fri, 20 Sep 2002 13:27:32 -0400
+	id <S263269AbSITRhJ>; Fri, 20 Sep 2002 13:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263310AbSITR1b>; Fri, 20 Sep 2002 13:27:31 -0400
-Received: from waste.org ([209.173.204.2]:57032 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S263298AbSITR02>;
-	Fri, 20 Sep 2002 13:26:28 -0400
-Date: Fri, 20 Sep 2002 12:31:32 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.37
-Message-ID: <20020920173132.GE15627@waste.org>
-References: <Pine.LNX.4.33.0209200840320.2721-100000@penguin.transmeta.com>
+	id <S263274AbSITRhJ>; Fri, 20 Sep 2002 13:37:09 -0400
+Received: from f123.pav1.hotmail.com ([64.4.31.123]:61457 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263269AbSITRhI>;
+	Fri, 20 Sep 2002 13:37:08 -0400
+X-Originating-IP: [12.9.24.195]
+From: "Mehdi Hashemian" <mhashemian@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: PTE question
+Date: Fri, 20 Sep 2002 10:42:09 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0209200840320.2721-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; format=flowed
+Message-ID: <F123RKjvsnBHQTnRLew000032e1@hotmail.com>
+X-OriginalArrivalTime: 20 Sep 2002 17:42:09.0508 (UTC) FILETIME=[0B5E3240:01C260CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 08:45:04AM -0700, Linus Torvalds wrote:
-> 
-> Lots of stuff all over the map.  Arch updates (ppc*, sparc*, x86 machine
-> reorg), VM merges from Andrew, ACPI updates, BIO layer updates,
-> networking, driverfs, build process, pid hash, you name it it's there.
+Hello,
 
-Something with APIC handling went south. 
+I posted this question a few days ago but I did not get any response back. 
+If I sent my question on the wrong email list, I appreciate if someone gives 
+me some hints on what email list I should send my email to.
 
-# CONFIG_SMP is not set
-CONFIG_PREEMPT=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
+Thanks
+Mehdi
 
-  ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group -o vmlinux
-arch/i386/kernel/built-in.o: In function `disconnect_bsp_APIC':
-arch/i386/kernel/built-in.o(.text+0xd4b2): undefined reference to `pic_mode'
-arch/i386/kernel/built-in.o: In function `clear_IO_APIC':
-arch/i386/kernel/built-in.o(.text+0xe213): undefined reference to `nr_ioapics'
-arch/i386/kernel/built-in.o(.text+0xe254): undefined reference to `nr_ioapics'
-arch/i386/kernel/built-in.o: In function `IO_APIC_get_PCI_irq_vector':
-arch/i386/kernel/built-in.o(.text+0xe315): undefined reference to `mp_bus_id_to_pci_bus'
-arch/i386/kernel/built-in.o(.text+0xe32a): undefined reference to `mp_irq_entries'
+----Original Message Follows----
+From: "Mehdi Hashemian" <mhashemian@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: PTE question
+Date: Wed, 18 Sep 2002 18:52:25 -0700
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+Hello,
+
+Appreciate if someone checks this piece of code. I try to diable cache and 
+write-through bits in PTE but somehow PTE address is within first 16MB of 
+memory (DMA_ZONE) and later when Kernel tries to allocate more pages, it 
+chooses the same address range and this piece of code corrupts memory by 
+ORing these bits. Any help appreciated!
+
+    {
+        addr = __get_dma_pages(priority, order);
+
+        int npages = __get_npages(order);
+	unsigned long addr2 = addr;
+	pgd_t *pgd;
+	pmd_t *pmd;
+	pte_t *pte;
+	int i;
+
+	for (i = 0; i < npages; i++)
+	{
+	    pgd = pgd_offset(&init_mm, addr2);
+	    pmd = pmd_offset(pgd, addr2);
+	    pte = pte_offset(pmd, addr2);
+	    pte_val(*pte) |= (_PAGE_PCD | _PAGE_PWT);
+
+	    addr2 += PAGE_SIZE;
+	}
+	__flush_tlb_all();
+    }
+
+Mehdi
+
+_________________________________________________________________
+Join the world’s largest e-mail service with MSN Hotmail. 
+http://www.hotmail.com
+

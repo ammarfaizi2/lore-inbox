@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131974AbRDTTjG>; Fri, 20 Apr 2001 15:39:06 -0400
+	id <S131979AbRDTTo0>; Fri, 20 Apr 2001 15:44:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131979AbRDTTi4>; Fri, 20 Apr 2001 15:38:56 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:27264 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131974AbRDTTim>; Fri, 20 Apr 2001 15:38:42 -0400
-Date: Fri, 20 Apr 2001 15:37:07 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Ulrich Drepper <drepper@cygnus.com>
-cc: Victor Zandy <zandy@cs.wisc.edu>, linux-kernel@vger.kernel.org,
-        pcroth@cs.wisc.edu, epaulson@cs.wisc.edu
-Subject: Re: BUG: Global FPU corruption in 2.2
-In-Reply-To: <m3n19bs7dn.fsf@otr.mynet.cygnus.com>
-Message-ID: <Pine.LNX.3.95.1010420153006.12968A-100000@chaos.analogic.com>
+	id <S135996AbRDTToI>; Fri, 20 Apr 2001 15:44:08 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:19979 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131979AbRDTTnr>;
+	Fri, 20 Apr 2001 15:43:47 -0400
+Date: Fri, 20 Apr 2001 20:42:23 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Fabio Riccardi <fabio@chromium.com>
+Cc: Zach Brown <zab@zabbo.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: numbers?
+In-Reply-To: <3AE08F8E.643FDC63@chromium.com>
+Message-ID: <Pine.LNX.4.30.0104202033160.2706-100000@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Apr 2001, Ulrich Drepper wrote:
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> 
-> > If it "fixes" it, there is no problem with the FPU, but with the
-> > 'C' runtime library which doesn't initialize the FPU to a known
-> > state before it uses it.
-> 
-> It's the kernel which initializes the FPU.  This was always the case
-> and necessary to implement the fast lazy FPU saving/restoring.
-> Processes which never use the FPU never initialize it.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The kernel doesn't know if a process is going to use the FPU when
-a new process is created. Only the user's code, i.e., the 'C' runtime
-library knows. If the user is using 'asm' or whatever, the user must
-initialize the FPU before using it, otherwise, the user doesn't know
-anything about its state and the results ... (let's see, what was at
-TOS, errm, is this a NAN?). The results are indeterminate.
+On Fri, 20 Apr 2001, Fabio Riccardi wrote:
 
-Cheers,
-Dick Johnson
+> X15 is the server I was referring to and as far as I can measure I get
+> very much the same performance as TUX.
+>
+> On a Dell 4400 (933 MHz PIII, 2G of RAM, 5 9G disks) I get 2450
+> connections/second.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+(the unit is not "connections/second" but "connections")
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+> On a Dell PowerEdge 1550/1000 the published TUX 2 result is 2765.
+>
+> If you take into account the fact that the 1550 has a faster processor
+> (1GHz) and a more modern bus architecture (Serverworks HE with memory
+> interleaving and a triple PCI bus), the performance is roughly the
+> same.
 
+the system was IO-limited (given that a ~9 GB fileset was running on a 2
+GB RAM system), so CPU speed has not a big impact. I'd say it makes no
+sense to compare different systems.
+
+> The static pages work fine, the dynamic module gets executed, but for
+> some reason it fails to open the postlog file and to spawn the spec
+> utility tasks at reset time.
+
+the newest TUX code chroots into docroot, so you should either use "/" as
+the docroot, or put /lib libraries into your docroot.
+
+> I'll make an alpha release of X15 available for download by the end of
+> next week, so people will be able to test it independently.
+
+(will source code be available so we can see whether it's an apples to
+apples thing?)
+
+	Ingo
 

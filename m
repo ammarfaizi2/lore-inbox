@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVDASvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVDASva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbVDASvc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVDAS0f
+	id S262784AbVDASva (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbVDAStT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:26:35 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:34971 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262841AbVDASYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:24:54 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][1/6] IB: Keep MAD work completion valid
-In-Reply-To: 
-X-Mailer: Roland's Patchbomber
-Date: Fri, 1 Apr 2005 10:23:50 -0800
-Message-Id: <2005411023.BIKgS4OLfFzZN9qI@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 18:23:51.0097 (UTC) FILETIME=[F41F6290:01C536E7]
+	Fri, 1 Apr 2005 13:49:19 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:27568 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262856AbVDASpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 13:45:09 -0500
+Message-Id: <200504011844.j31IiNg01909@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>
+Cc: <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>, <mingo@elte.hu>,
+       <christoph@lameter.com>
+Subject: RE: [RFC][PATCH] timers fixes/improvements
+Date: Fri, 1 Apr 2005 10:44:23 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU26TfIV2xSWrNQRxyjKxy7untfrwAAVSnw
+In-Reply-To: <20050401103235.1fcea9f0.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Sean Hefty <sean.hefty@intel.com>
+Linus Torvalds <torvalds@osdl.org> wrote:
+> On Fri, 1 Apr 2005, Oleg Nesterov wrote:
+> >
+> > This patch replaces and updates 6 timer patches which are currently
+> > in -mm tree. This version does not play games with __TIMER_PENDING
+> > bit, so incremental patch is not suitable. It is against 2.6.12-rc1.
+> > Please comment. I am sending pseudo code in a separate message for
+> > easier review.
+>
+> Looks ok by me. Andrew, should we let it cook in -mm, or what?
+>
 
-Replace the *wc field in ib_mad_recv_wc from pointing to a structure
-on the stack to one allocated with the received MAD buffer.  This
-allows a client to access the *wc field after their receive completion
-handler has returned.
+Andrew Morton wrote on Friday, April 01, 2005 10:33 AM
+> Sure.  Christoph and (I think) Ken have been seeing mysterious misbehaviour
+> which _might_ be due to Oleg's first round of timer patches.  I assume C&K
+> will test this new patch?
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Yes, we saw kernel hang with previous timer patches.  I will give this one
+a try.
 
-
---- linux-export.orig/drivers/infiniband/core/mad.c	2005-03-31 19:07:01.000000000 -0800
-+++ linux-export/drivers/infiniband/core/mad.c	2005-04-01 10:08:54.939957801 -0800
-@@ -1600,7 +1600,8 @@
- 			 DMA_FROM_DEVICE);
- 
- 	/* Setup MAD receive work completion from "normal" work completion */
--	recv->header.recv_wc.wc = wc;
-+	recv->header.wc = *wc;
-+	recv->header.recv_wc.wc = &recv->header.wc;
- 	recv->header.recv_wc.mad_len = sizeof(struct ib_mad);
- 	recv->header.recv_wc.recv_buf.mad = &recv->mad.mad;
- 	recv->header.recv_wc.recv_buf.grh = &recv->grh;
---- linux-export.orig/drivers/infiniband/core/mad_priv.h	2005-03-31 19:07:14.000000000 -0800
-+++ linux-export/drivers/infiniband/core/mad_priv.h	2005-04-01 10:08:54.961953027 -0800
-@@ -69,6 +69,7 @@
- struct ib_mad_private_header {
- 	struct ib_mad_list_head mad_list;
- 	struct ib_mad_recv_wc recv_wc;
-+	struct ib_wc wc;
- 	DECLARE_PCI_UNMAP_ADDR(mapping)
- } __attribute__ ((packed));
- 
 

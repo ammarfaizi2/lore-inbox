@@ -1,77 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269059AbUIMX2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUIMX27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269059AbUIMX2m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 19:28:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269060AbUIMX2m
+	id S269060AbUIMX27 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 19:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269063AbUIMX26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 19:28:42 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:44742 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S269059AbUIMX2i (ORCPT
+	Mon, 13 Sep 2004 19:28:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64415 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269060AbUIMX2x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 19:28:38 -0400
-Date: Tue, 14 Sep 2004 00:28:36 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: dri-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Evan Paul Fletcher <evanpaul@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DRM: add missing pci_enable_device()
-In-Reply-To: <200409131651.05059.bjorn.helgaas@hp.com>
-Message-ID: <Pine.LNX.4.58.0409140026430.15167@skynet>
-References: <200409131651.05059.bjorn.helgaas@hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 13 Sep 2004 19:28:53 -0400
+Date: Mon, 13 Sep 2004 16:26:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] exec: fix posix-timers leak and pending signal loss
+Message-Id: <20040913162645.448e6131.akpm@osdl.org>
+In-Reply-To: <200409110759.i8B7x5OH019867@magilla.sf.frob.com>
+References: <200409110759.i8B7x5OH019867@magilla.sf.frob.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This causes problems when DRI and fb are loaded and you unload dri.. guess
-what happens your fb??, or it does in theory I might have time to practice
-later,
-
-now the quick fix is to take the stealth/non-stealth code from CVS which
-we know works or we wait for Alan to finish his vga device code and we fix
-up the DRM and fb to use it ... this patch won't help anyways...
-
-Dave.
-
-On Mon, 13 Sep 2004, Bjorn Helgaas wrote:
-
-> Add pci_enable_device()/pci_disable_device.  In the past, drivers often worked
-> without this, but it is now required in order to route PCI interrupts
-> correctly.
+Roland McGrath <roland@redhat.com> wrote:
 >
-> Evan Paul Fletcher found this problem with 2.6.9-rc1-mm4 and X.org 6.8.0
-> and verified that this patch fixes it.
->
-> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
->
-> ===== drivers/char/drm/drm_drv.h 1.47 vs edited =====
-> --- 1.47/drivers/char/drm/drm_drv.h	2004-09-08 03:41:23 -06:00
-> +++ edited/drivers/char/drm/drm_drv.h	2004-09-13 12:27:16 -06:00
-> @@ -443,6 +443,8 @@
->  	}
->  	up( &dev->struct_sem );
->
-> +	pci_disable_device( dev->pdev );
-> +
->  	return 0;
->  }
->
-> @@ -492,6 +494,9 @@
->  		return -EPERM;
->  	dev->device = MKDEV(DRM_MAJOR, dev->minor );
->  	dev->name   = DRIVER_NAME;
-> +
-> +	if ((retcode = pci_enable_device(pdev)))
-> +		return retcode;
->
->  	dev->pdev   = pdev;
->  #ifdef __alpha__
->
+> I've found some problems with exec and fixed them with this patch to de_thread.
+> 
+>  The first problem is that exec fails to clean up posix-timers.  This
+>  manifests itself in two ways, one worse than the other.  In the
+>  single-threaded case, it just fails to clear out the timers on exec.
+>  POSIX says that exec clears out the timers from timer_create (though not
+>  the setitimer ones), so it's wrong that a lingering timer could fire after
+>  exec and kill the process with a signal it's not expecting.  In the
+>  multi-threaded case, it not only leaves lingering timers, but it leaks
+>  them entirely when it replaces signal_struct, so they will never be freed
+>  by the process exiting after that exec.  The new per-user
+>  RLIMIT_SIGPENDING actually limits the damage here, because a UID will fill
+>  up its quota with leaked timers and then never be able to use timer_create
+>  again (that's what my test program does).  But if you have many many
+>  untrusted UIDs, this leak could be considered a DoS risk.
+> 
+>  The second problem is that a multithreaded exec loses all pending signals.
+>  This is violation of POSIX rules.  But a moment's thought will show it's
+>  also just not desireable: if you send a process a SIGTERM while it's in
+>  the middle of calling exec, you expect either the original program in that
+>  process or the new program being exec'd to handle that signal or be killed
+>  by it.  As it stands now, you can try to kill a process and have that
+>  signal just evaporate if it's multithreaded and calls exec just then.  
+>  I really don't know what the rationale was behind the de_thread code that
+>  allocates a new signal_struct.  It doesn't make any sense now.  The other
+>  code there ensures that the old signal_struct is no longer shared.  Except
+>  for posix-timers, all the state there is stuff you want to keep.  So my
+>  changes just keep the old structs when they are no longer shared, and all
+>  the right state is retained (after clearing out posix-timers).
+> 
+>  The final bug is that the cumulative statistics of dead threads and dead
+>  child processes are lost in the abandoned signal_struct.  This is also
+>  fixed by holding on to it instead of replacing it.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+The patch comes at an awkward time - I'd prefer that the leak fix be merged
+up immediately, but the rest appears less serious.  And you're playing in
+an area which likes to explode in our faces.
 
+Had you not rolled three distinct patches into one (hint) I'd have
+forwarded along the leak fix and sat on the rest for post-2.6.9.
+
+What can we do about this?

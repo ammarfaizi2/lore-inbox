@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317712AbSFLOkn>; Wed, 12 Jun 2002 10:40:43 -0400
+	id <S317713AbSFLOuA>; Wed, 12 Jun 2002 10:50:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317713AbSFLOkm>; Wed, 12 Jun 2002 10:40:42 -0400
-Received: from gold.he.net ([216.218.149.2]:10512 "EHLO gold.he.net")
-	by vger.kernel.org with ESMTP id <S317712AbSFLOkm>;
-	Wed, 12 Jun 2002 10:40:42 -0400
-Message-Id: <200206121440.HAA21382@gold.he.net>
-Content-Type: text/plain; charset=US-ASCII
-From: "J.S.Souza" <jssouza@pacbell.net>
-Reply-To: jssouza@pacbell.net
-To: xsdg <xsdg@openprojects.net>
-Subject: Re: computer reboots before "Uncompressing Linux..." with 2.5.19-xfs
-Date: Wed, 12 Jun 2002 07:40:14 -0700
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020612002229.A27386@216.254.117.126>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S317714AbSFLOt7>; Wed, 12 Jun 2002 10:49:59 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:2576 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S317713AbSFLOt6>; Wed, 12 Jun 2002 10:49:58 -0400
+Date: Thu, 13 Jun 2002 00:52:13 +1000
+From: john slee <indigoid@higherplane.net>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+Message-ID: <20020612145212.GF27429@higherplane.net>
+In-Reply-To: <greearb@candelatech.com> <3D06E9A0.5060801@candelatech.com> <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the exact same problem and few were able to help.  However, here's what 
-I found was _my_ problem.  I wasn't enabling the x86 options in the kernel 
-(duh!).  Make sure that when you compile, you enable "Intel IA32 CPU 
-Microcode Support" and "Model Specific Register Support".  What I ended up 
-doing was taking a stock RedHat .config file for i386 and looking at what 
-they did for their options and started to delete things from there that I 
-don't use or need.  Eventually, I just learned what was necessary for a basic 
-i386 kernel.  Although I was compiling for 2.4.17 kernel.  Good luck, hope 
-this was of some help.
+[ trimmed cc ]
 
-			J.S.Souza
+On Wed, Jun 12, 2002 at 10:28:15PM +1000, Lincoln Dale wrote:
+> right now, those bills are anywhere between 10% to 25% incorrect.
 
-On Tuesday 11 June 2002 05:22 pm, xsdg wrote:
-> Hola...
-> I'm trying to get kernel 2.5.19-xfs working on one of my boxes...  The box
-> is a P200-MMX, currently running 2.5.7-xfs and using grub as the
-> bootloader.  Each time I try to boot the kernel, grub tells me...
->
-> root (hd0,0)
->  Filesystem type is ext2fs, partition type 0x83
-> kernel /boot/kernels/19.5.2k-xfs single
->  [Linux-bzImage, setup=0x1400, size=0x134aff]
->
-> Then, after a small pause, the box reboots (note: it does _not_ print
-> "Uncompressing Linux...").  I have tried the following:
-> 1) Compile the kernel, optimized for P-MMX, on another box (PII-350
-> Deschutes) using gcc 2.95.4
-> 2) Recompile bzImage
-> 3) Recompile bzImage
-> 4) Remove framebuffer support.  Remove vid mode selection support. 
-> Optimize for Pentium-Classic.  Recompile with everything else the same
-> 5) Recompile on target box (gcc 2.95.4 also) with options the same as after
-> #4
->
-> All of my boxes are running Debian SID (not necessarily up-to-date).  I
-> asked a number of times in #kernelnewbies on OPN, to no avail.  Any and all
-> help would be greatly appreciated. (Please CC me in replies)
->
-> 	--xsdg
+10-25% is roughly equivalent to the hit rates i've seen on my web caches
+in real life, with MANY users.  i can't believe people are actually
+using this for data accounting.
+
+i also can't think of many decent "free" (whatever your interpretation
+of that is) ways to do it either.  interface packet counters wrap
+around, most commercial firewalls i've used have inaccurate or
+incomplete logging (to put it lightly), and packet sniffers sometimes
+can't keep up.
+
+surely if profit (or just keeping your head above the water) is the goal
+you can justify the necessary resources to use something like netflow, a
+product designed to do exactly what you seem to want, among other
+things.  (search cisco.com, and no, i'm not a cisco employee)
+
+fiddling the network stack so that you can do dubious hacks in an
+allegedly apparently dubious aspect of squid just doesn't seem to be the
+ideal way to fix this problem.
+
+regards,
+
+j.
+
+-- 
+toyota power: http://indigoid.net/

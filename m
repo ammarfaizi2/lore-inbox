@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267207AbTAGBQB>; Mon, 6 Jan 2003 20:16:01 -0500
+	id <S267241AbTAGBSJ>; Mon, 6 Jan 2003 20:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267244AbTAGBQB>; Mon, 6 Jan 2003 20:16:01 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:62480 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267207AbTAGBQA>; Mon, 6 Jan 2003 20:16:00 -0500
-Date: Tue, 7 Jan 2003 02:24:29 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-Message-ID: <20030107012429.GA12944@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200301041809.KAA06893@adam.yggdrasil.com> <avaa2r$ggr$1@forge.intermeta.de> <3E18B76B.8050803@cox.net> <avae9i$gv1$1@forge.intermeta.de> <3E18CC4D.1020604@cox.net> <20030106234116.GH10752@merlin.emma.line.org> <3E1A1A2C.2000409@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E1A1A2C.2000409@walrond.org>
-User-Agent: Mutt/1.5.1i
+	id <S267244AbTAGBSJ>; Mon, 6 Jan 2003 20:18:09 -0500
+Received: from trained-monkey.org ([209.217.122.11]:65298 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S267241AbTAGBSI>; Mon, 6 Jan 2003 20:18:08 -0500
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK FBDEV updates]
+References: <Pine.LNX.4.33.0301061753120.2196-100000@maxwell.earthlink.net>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 06 Jan 2003 20:26:44 -0500
+In-Reply-To: James Simmons's message of "Mon, 6 Jan 2003 17:55:26 -0800 (PST)"
+Message-ID: <m3heclagx7.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Jan 2003, Andrew Walrond wrote:
+>>>>> "James" == James Simmons <jsimmons@infradead.org> writes:
 
-> Matthias Andree wrote:
-> >You're at the author's mercy if you need to upgrade your kernel or if
-> >the driver doesn't work for you. I'd rather know before buying a product
-> >(modem, GFX board, ...) if there's either non-NDA'd documentation or
-> >better an OpenSource driver or at least support for such.
-> 
-> Fine for us developers, but 99.5% of users wouldn't recognise a c 
-> function if it jumped up and bit them on the ass. If it doesn't say 
-> "linux supported" on the box, they won't buy it. Google? Source Forge? 
-> ./configure? WTFIT?. Where is their freedom?
+James> Linus, please do a
+James> 	bk pull http://fbdev.bkbits.net:8080/fbdev-2.5
+James> This will update the following files:
 
-> Until the manufacturers start providing good quality supported drivers 
-> for their hardware, binary or source, linux will stay exactly where it 
-> is now; a server room tool and a hobbyists playground.
+James,
 
-> I for one think thats a real shame
+You seem to have forgotten to include the unified diff in your posting
+posting to the list. Would you mind putting it somewhere.
 
-Only that you can't trust in the el-cheapo vendors claiming Linux
-support, and an independent certification is needed (not only for Linux,
-for the *BSDs as well). Without a trusted certification, some crooks may
-try to claim Linux support and it won't quite work out.
+Thanks,
+Jes
+
+

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263356AbTC0Rtj>; Thu, 27 Mar 2003 12:49:39 -0500
+	id <S263366AbTC0SBI>; Thu, 27 Mar 2003 13:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263359AbTC0RtX>; Thu, 27 Mar 2003 12:49:23 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:50581 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S263356AbTC0Rst>; Thu, 27 Mar 2003 12:48:49 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 27 Mar 2003 10:11:07 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "David S. Miller" <davem@redhat.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Obsolete messages ...
-In-Reply-To: <1048774874.19677.0.camel@rth.ninka.net>
-Message-ID: <Pine.LNX.4.50.0303271008330.2009-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.50.0303261857290.970-100000@blue1.dev.mcafeelabs.com>
- <1048774874.19677.0.camel@rth.ninka.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263368AbTC0SBI>; Thu, 27 Mar 2003 13:01:08 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44517 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263366AbTC0SBF>;
+	Thu, 27 Mar 2003 13:01:05 -0500
+Date: Thu, 27 Mar 2003 10:07:00 -0800 (PST)
+Message-Id: <20030327.100700.23575723.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: shmulik.hen@intel.com, dane@aiinet.com,
+       bonding-devel@lists.sourceforge.net,
+       bonding-announce@lists.sourceforge.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       mingo@redhat.com, kuznet@ms2.inr.ac.ru
+Subject: Re: BUG or not? GFP_KERNEL with interrupts disabled.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0303271002420.29205-100000@home.transmeta.com>
+References: <20030327.095537.26269606.davem@redhat.com>
+	<Pine.LNX.4.44.0303271002420.29205-100000@home.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003, David S. Miller wrote:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Thu, 27 Mar 2003 10:04:52 -0800 (PST)
 
-> On Wed, 2003-03-26 at 18:57, Davide Libenzi wrote:
-> > Any CONFIG_DROP_FREAKIN_OBSOLETE_MSGS (SO_BSDCOMPAT,bdflush,...) anywhere
-> > soon in 2.5.67 ? :)
->
-> If you fix the apps, the messages go away.  In fact, you want to know
-> that you have unfixed apps on your box when you run these kernels so
-> I'd say the messages should stay even well into early 2.6.x
+   I'd suggest making it a counting warning (with a static counter per
+   local-bh-enable macro expansion) and adding it to local_bh_enable() -
+   otherwise it will only BUG()  when the (potentially rare) condition
+   happens - instead of always giving a nice backtrace of exact problem 
+   spots.
 
-I know David, I already did ( named and /etc/inittab in my case ). My idea
-was to have something like warn_obsolete(char *) to be used in all places
-where necessary, and have a config option ( on by default ) that chop
-messages in off case.
-
-
-
-- Davide
-
+Ok, maybe it's time to move local_bh_enable() out of line, it's
+getting large and it's expanded in hundreds of places.

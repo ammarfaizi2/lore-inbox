@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286240AbRLJMKv>; Mon, 10 Dec 2001 07:10:51 -0500
+	id <S286242AbRLJMHU>; Mon, 10 Dec 2001 07:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286245AbRLJMKm>; Mon, 10 Dec 2001 07:10:42 -0500
-Received: from workplace.tp1.ruhr-uni-bochum.de ([134.147.240.2]:1284 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S286240AbRLJMK2>; Mon, 10 Dec 2001 07:10:28 -0500
-Date: Sun, 9 Dec 2001 20:37:05 +0100 (CET)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: <kai@vaio>
-To: skidley <skidley@crrstv.net>
-cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for ymfpci in pre5
-In-Reply-To: <Pine.LNX.4.33L2.0112071213500.2253-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0112081652460.1300-100000@vaio>
+	id <S286244AbRLJMHL>; Mon, 10 Dec 2001 07:07:11 -0500
+Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:60855
+	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
+	id <S286242AbRLJMG6>; Mon, 10 Dec 2001 07:06:58 -0500
+Message-ID: <3C14A560.1020501@fugmann.dhs.org>
+Date: Mon, 10 Dec 2001 13:06:56 +0100
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Freedman <freedman@ccmr.cornell.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS stale mount after chroot...
+In-Reply-To: <20011209205707.A13073@ccmr.cornell.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Dec 2001, skidley wrote:
+I see the same, though I have not tried to chroot.
 
-> Should this ymfpci work with my ymf740C. I have never been able to get
-> ymfpci support to work directly from the kernel. I've always used alsa.
+It happens when I have run mozilla from a NFS mounted fs.
 
-If you're using ALSA's ymfpci.o, yes. The in-kernel ymfpci driver is 
-heavily based upon the ALSA driver and should therefore support the same 
-hardware (and it explicitly mentions the 740C). What problem do you have?
+Both client and server is 2.4.16, but I have had this problem with older 
+kernels. NFSv3 support is compiled in both kernels.
 
---Kai
+lsof and fuser reports that no files are in use, but I'm unable to 
+unmount the filesystem. Btw. The filesystem is mounted ro. (and exported 
+ro). The exported filesystem is a reiser-fs.
 
+I would really be greatfull if this issue was to be resolved.
+
+Thanks in advance
+
+Anders Fugmann
+
+On 12/10/2001 02:57 AM, Daniel Freedman wrote:
+
+> Hi,
+> 
+> It seems like I can generate reproducible stale NFS mounts by mounting
+> a partition, chroot'ing into that mount, immediately exiting the
+> chroot, and then finding myself unable to unmount the NFS partition.
+> I'm pretty sure I've confirmed that nothing is using the partition
+> (both with fuser and lsof) and even tried to force umount the
+> partition (which seems like it should definitely umount it, rather
+> than returning with the same "device is busy" errors), to no avail.
+> The only method which I've used that seems to be able to get rid of
+> this NFS mount, is to reboot the NFS client, and clearly that's not a
+> good one at all.  If I'm missing something obvious here, my apologies
+> in advance.  Also, if there's any further information I can provide,
+> I'd be happy to help.  The dump of my procedure follows this message.
+> 
+> Thanks again and take care,
+> Daniel
+> 
+> 
 
 

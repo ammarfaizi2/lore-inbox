@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265292AbRF0IFm>; Wed, 27 Jun 2001 04:05:42 -0400
+	id <S265299AbRF0IHb>; Wed, 27 Jun 2001 04:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265295AbRF0IFb>; Wed, 27 Jun 2001 04:05:31 -0400
-Received: from pD951F985.dip.t-dialin.net ([217.81.249.133]:47108 "EHLO
-	emma1.emma.line.org") by vger.kernel.org with ESMTP
-	id <S265292AbRF0IFX>; Wed, 27 Jun 2001 04:05:23 -0400
-Date: Wed, 27 Jun 2001 10:05:20 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Silviu Marin-Caea <silviu@delrom.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Realtek 8139 driver or sucky hardware?
-Message-ID: <20010627100520.B18183@emma1.emma.line.org>
-Mail-Followup-To: Silviu Marin-Caea <silviu@delrom.ro>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010627105256.2e75fdca.silviu@delrom.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20010627105256.2e75fdca.silviu@delrom.ro>
-User-Agent: Mutt/1.3.19i
+	id <S265298AbRF0IHV>; Wed, 27 Jun 2001 04:07:21 -0400
+Received: from mail.fbab.net ([212.75.83.8]:24078 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S265295AbRF0IHF>;
+	Wed, 27 Jun 2001 04:07:05 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 8.631607 secs)
+Message-ID: <002b01c0fee0$6429bc00$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Maximum mountpoints + chrooted login
+Date: Wed, 27 Jun 2001 10:08:47 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Jun 2001, Silviu Marin-Caea wrote:
+I was thinking of doing a chrooted login for some ssh accounts.
+The plan is this:
 
-> No matter what stupid things I do on it, I shouldn't be able to take the
-> kernel down, right?
-> 
-> After I replaced the Realtek with a 3com, I could see all of the 60
-> instances fighting like worms in shit, but the server survived.
+put stuff in
+/home/u_dev
+/home/u_etc
+/home/u_bin
 
-Did the card share IRQs with another card?
+Then at login time mount them to
+/home/user/dev
+/home/user/etc
+/home/user/bin
+as readonly
 
-What driver did you use? 8129/8139 or 8139too?
+chroot to /home/user
+
+...
+
+And then unmount them at logout time.
+
+Does this seem like a bad idea?
+(then please tell me why :))
+
+One problem could be the _massive_ mounts, 3*online_users.
+Are there any limits/drawbacks doing it like this?
+Should i hardlink stuff instead? (worse maintainability).
+
+Just a funny idea i have...
+Hit me.
+
+Magnus
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+

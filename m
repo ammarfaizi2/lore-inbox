@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSFDRno>; Tue, 4 Jun 2002 13:43:44 -0400
+	id <S315282AbSFDRoe>; Tue, 4 Jun 2002 13:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315260AbSFDRnn>; Tue, 4 Jun 2002 13:43:43 -0400
-Received: from cube.magx.net ([64.53.98.77]:6662 "EHLO cube.magx.net")
-	by vger.kernel.org with ESMTP id <S313190AbSFDRnn>;
-	Tue, 4 Jun 2002 13:43:43 -0400
-Subject: 2.5.20 and Nvidia's Offical Drivers
-From: Robert Jameson <rj@open-net.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 04 Jun 2002 13:43:59 -0400
-Message-Id: <1023212639.18123.2.camel@pbx.magx.net>
-Mime-Version: 1.0
+	id <S315293AbSFDRod>; Tue, 4 Jun 2002 13:44:33 -0400
+Received: from air-2.osdl.org ([65.201.151.6]:33414 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S315282AbSFDRob>;
+	Tue, 4 Jun 2002 13:44:31 -0400
+Date: Tue, 4 Jun 2002 10:40:31 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: device model documentation 1/3
+In-Reply-To: <3CFCE09B.6090007@evision-ventures.com>
+Message-ID: <Pine.LNX.4.33.0206041040090.654-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is probably a dumb question, but has anyone managed to hack
-together a patch to get nvidias 2960 kernel module to compile with
-2.5.20?
 
-Please CC: me, i'a not on the mailing list.
+> > 	int	(*bind)		(struct device * dev, struct device_driver * drv);
+> > };
+> > 
+> 
+> Please - Why do you call it bind? Does it have something with
+> netowrking to do? Please just name it attach. This way the old UNIX
+> guys among us won't have to drag a too big
+> "UNIX to Linux translation dictionary" around with them.
+> As an "added bonus" you will stay consistent with -
+> 
+> PCMCIA code base in kernel
+> USB code base in kernel
+> IDE code base (well recently)
 
--cheers
+Ok, I can live with that.
 
-
-
+	-pat
 

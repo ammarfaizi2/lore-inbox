@@ -1,82 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUFSF0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUFSGP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbUFSF0R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 01:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFSF0R
+	id S264795AbUFSGP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 02:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265233AbUFSGP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 01:26:17 -0400
-Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:448 "EHLO
-	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261907AbUFSF0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 01:26:14 -0400
-Message-ID: <40D3CE68.2000403@kolivas.org>
-Date: Sat, 19 Jun 2004 15:26:00 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7a (X11/20040614)
-X-Accept-Language: en-us, en
+	Sat, 19 Jun 2004 02:15:57 -0400
+Received: from babyruth.hotpop.com ([38.113.3.61]:21713 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S264795AbUFSGPz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 02:15:55 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Jakub Bogusz <qboosh@pld-linux.org>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] 2.6.7 fbcon: set_con2fb on current console = crash
+Date: Sat, 19 Jun 2004 14:13:44 +0800
+User-Agent: KMail/1.5.4
+Cc: pld-kernel@pld-linux.org
+References: <20040618215047.GA4723@satan.blackhosts>
+In-Reply-To: <20040618215047.GA4723@satan.blackhosts>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Grzegorz Kulewski <kangur@polcom.net>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-ck1
-References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com> <Pine.LNX.4.58.0406182004370.32121@alpha.polcom.net> <200406191406.45750.kernel@kolivas.org>
-In-Reply-To: <200406191406.45750.kernel@kolivas.org>
-Content-Type: multipart/mixed;
- boundary="------------040403060900080007010103"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406191413.44439.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040403060900080007010103
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Saturday 19 June 2004 05:50, Jakub Bogusz wrote:
+> After upgrade from 2.6.4 to 2.6.7 I noticed that calling set_con2fb
+> (through FBIOPUT_CON2FBMAP ioctl) on current console (already attached
+> to fb using this ioctl) causes crash (oops and then recursive oops when
+> trying to printk on console) and makes console unusable.
+>
+> That's because take_over_console() calls fbcon_deinit(vc_num)
+> (which calls fbcon_free_font() on that console display) and then
+> fbcon_init(vc_num, ...), which copies font data from current fb console.
+> If current console was just deinit()ed, its fontdata is NULL - and this
+> pointer is "copied" to the same place, leaving current console with
+> fontdata==NULL (which leads to oops on nearest putc/putcs).
+>
+> Attached patch restores 2.6.4 behaviour on set_con2fb (to set font if
+> it's not set already) - but it's not perfect solution as user font is
+> still lost (unline on 2.4.x kernels).
+> Any idea how to preserve user font on set_con2fb() called on current
+> console?
 
-Con Kolivas wrote:
-> On Sat, 19 Jun 2004 04:35, Grzegorz Kulewski wrote:
-> 
->>Hi Con,
->>
->>I have two problems with 2.6.7-ck1. My distribution is Gentoo Linux
->>unstable with all latest updates. Oh, yes, both 2.6.7-ck1 and 2.6.7-rc3
->>I tested have vesafb-tng applied from http://dev.gentoo.org/~spock/, but
->>it should not cause any problems because it is very non-intrusive patch I
->>think. Maybe you should include this in your patchset?
->>
->>1. When booting init script freezes after starting input hotplugging (it
->>is udev system). The only way to make it run is to press Ctrl-Alt-SysRQ
->>and various keys to display kernel state several times. After that system
->>starts normally. I do not know if it is only -ck problem because I had
->>no time to test 2.6.7 vanilla, but 2.6.7-rc3 worked fine. (Log included.)
-> 
-> 
-> Yes I have a sneaking suspicion it's related to the fact kernel threads are 
-> fixed priority at the moment in staircase (they dont descend priority like 
-> normal tasks so act like relatively low priority real time tasks). I'm 
-> addressing that for the next version so hopefully that will fix it.
+Thanks.  Actually there's still a critical flaw in the set_con2fbmap code.  
+For one, con2fb_map is never initialized.  It's just fortunate that this 
+array happens to be  filled with zeroes so con2fb_map[n] will always return 
+zero and registered_fb[0] happens to contain a valid info.  So it works, by 
+accident. 
 
-Here's a diff for -ck1 which brings you up to staircase7.1
-Can you try that?
+Secondly, if you load fbdev1, load fbdev2, unload fbdev1, load fbcon, the 
+console will freeze. This is because fbdev1, which is originally in 
+registered_fb[0], is now unloaded, and fbdev2, which is in registered_fb[1] 
+is still loaded.  However, fbcon looks at registered_fb[0] during init.
 
-Con
+Also, I really don't like the take_over_console part in set_con2fbmap.  Too 
+many unknowns. 
 
---------------040403060900080007010103
-Content-Type: text/x-troff-man;
- name="from-2.6.7-ck1_to_staircase7.1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="from-2.6.7-ck1_to_staircase7.1"
+There are still lot more problems which I won't mention. I'll try to fix some 
+of them over this weekend.
 
---- linux-2.6.7-ck2pre/kernel/sched.c	2004-06-19 15:12:15.280924354 +1000
-+++ linux-2.6.7-ck1/kernel/sched.c	2004-06-19 14:58:08.000000000 +1000
-@@ -334,8 +334,7 @@ static int effective_prio(task_t *p)
- 
- 	if (used_slice < first_slice)
- 		return prio;
--	if (p->mm)
--		prio += 1 + (used_slice - first_slice) / rr;
-+	prio += 1 + (used_slice - first_slice) / rr;
- 	if (prio > MAX_PRIO - 2)
- 		prio = MAX_PRIO - 2;
- 	return prio;
+Tony
 
---------------040403060900080007010103--
+

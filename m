@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261368AbSIWW0j>; Mon, 23 Sep 2002 18:26:39 -0400
+	id <S261288AbSIWWYc>; Mon, 23 Sep 2002 18:24:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbSIWW0j>; Mon, 23 Sep 2002 18:26:39 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:4583 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S261368AbSIWW0i>; Mon, 23 Sep 2002 18:26:38 -0400
-Date: Tue, 24 Sep 2002 00:01:34 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE janitoring comments
-Message-ID: <20020924000134.A210@linux-m68k.org>
-References: <20020824150917.20045@192.168.4.1>
+	id <S261426AbSIWWYc>; Mon, 23 Sep 2002 18:24:32 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:47119 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261288AbSIWWYb>; Mon, 23 Sep 2002 18:24:31 -0400
+Date: Mon, 23 Sep 2002 23:29:33 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: linux-kernel@vger.kernel.org
+Cc: bobm@fc.hp.com, phil.el@wanadoo.fr, torvalds@transmeta.com
+Subject: [PATCH][RFC] oprofile 2.5.38 patch
+Message-ID: <20020923222933.GA33523@compsoc.man.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020824150917.20045@192.168.4.1>; from benh@kernel.crashing.org on Sat, Aug 24, 2002 at 05:09:16PM +0200
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 24, 2002 at 05:09:16PM +0200, Benjamin Herrenschmidt wrote:
 
->  - In ide-iops, the insw, insl, outsw, outsl functions are
-> broken for big endian. They should not do byteswap on these,
-> however, implemeting them with a loop of IN/OUT_BYTE/WORD
-> will cause byteswapped access on archs like PPC.
-> The problem is that the macros IN/OUT_BYTE/WORD don't define
-> non-swapping equivalents that would allow us to correctly
-> implement the "s" versions. 
+At :
 
-we have one special problem on m68k, on some machines the IDE
-bus is byteswapped (unrelated to cpu endianness). For historical 
-and performance reasons data to the HD is by default read and 
-written in this "wrong" order (thus the bswap/swapdata option)
-and special fixup code is used in ide_fix_driveid (see 
-M68K_IDE_SWAPW). However data returned by IDE_DRIVE_CMD is not 
-treated in any way, so that eg WIN_SMART data end up in the 
-wrong order on those machines and this is something I would 
-like to fix properly.
-I figure I would define ata_*_{control,data} to handle special
-data resp raw HD data and modify ide_handler_parser to return
-specialised interrupt handlers or set some additional flag.
+http://oprofile.sourceforge.net/oprofile-2.5.html
 
-Any thoughts?
+You can find a very early patch against 2.5.38 (87k) and userspace
+tools for the new oprofile stuff. I've split it up into smaller chunks
+at http://oprofile.sourceforge.net/oprofile-2.5/ (only for easier
+reading).
 
-Richard
+I would appreciate people's comments. I'm not exactly happy with
+buffer_sync.c in particular, so I'd love to find a better way.
+
+The code has been lightly tested on a 2-way PII-400 box, which showed
+some quirks, but it seems to work.
+
+Note that you must use the new userspace tools at the URL (and they will
+conflict with any existing oprofile stuff, so please don't mix the two).
+
+A short summary of how it works (mostly thought out by Linus ;) :
+
+Each cpu has a linear buffer for capturing EIP/event values. Events such
+as munmaps trigger a buffer sync, where the EIP values are converted
+into cookie/offset pairs and stored in the global buffer. The cookies
+are accessible by the userspace daemon which uses the binary path to
+create the sample files. Context switches also need to go in the cpu
+buffer. release_task() needs similar tracking in order to prevent
+task_struct * accesses after it has been freed.
+
+regards
+john

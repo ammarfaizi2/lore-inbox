@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270600AbRHYT3G>; Sat, 25 Aug 2001 15:29:06 -0400
+	id <S270988AbRHYTgH>; Sat, 25 Aug 2001 15:36:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270988AbRHYT24>; Sat, 25 Aug 2001 15:28:56 -0400
-Received: from mailf.telia.com ([194.22.194.25]:39115 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S270600AbRHYT2v>;
-	Sat, 25 Aug 2001 15:28:51 -0400
-Message-Id: <200108251929.f7PJT5Q06766@mailf.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: [PATCH][RFC] simpler __alloc_pages{_limit}
-Date: Sat, 25 Aug 2001 21:24:40 +0200
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200108242253.f7OMrbQ20401@mailf.telia.com> <200108250055.f7P0tGh28170@mailg.telia.com> <20010825135508.5afe1988.skraw@ithnet.com>
-In-Reply-To: <20010825135508.5afe1988.skraw@ithnet.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S271054AbRHYTf7>; Sat, 25 Aug 2001 15:35:59 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:51120 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S270988AbRHYTfn>;
+	Sat, 25 Aug 2001 15:35:43 -0400
+Date: Sat, 25 Aug 2001 21:35:36 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Message-ID: <20010825213536.D18523@cerebro.laendle>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010825163648Z16186-32383+1334@humbolt.nl.linux.org> <E15aiuG-000821-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <E15aiuG-000821-00@the-village.bc.nu>
+X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturdayen den 25 August 2001 13:55, Stephan von Krawczynski wrote:
-> On Sat, 25 Aug 2001 02:48:28 +0200
->
-> 2) It does not really work around the basic problem of too
-> many cached pages in case of heavy filesystem action, I do get the already
-> known "kernel: __alloc_pages: 2-order allocation failed." by simply copying
-> files a lot. 
+On Sat, Aug 25, 2001 at 08:15:44PM +0100, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> How much disk and bandwidth can you afford. With vsftpd its certainly over
+> 1000 parallal downloads on a decent PII box
 
-Hi again,
+exactly this is a point: my disk can do 5mb/s with almost random seeks,
+and linux indeed reads 5mb/s from it. but the userpsace process doing
+read() only ever sees 2mb/s because the kernel throes away all the nice
+pages.
 
-I would like to see from were these higher order allocs comes from.
-Please insert something like this:
+I doubt vsftpd would help at all.
 
-                printk("pid=%d; __alloc_pages(gfp=0x%x, order=%ld, ...)\n", 
-current->pid, gfp_mask, order);
-                show_trace(NULL);
-
-(You have something resembling the first line - I added this in the beginning
- of __alloc_pages, you may add it together with the error message)
-If everything is ok (correct Symbols.map) you should be able to get
-a symbolic call trace in /var/logs/messages
-(some are false positives, but they can be filtered out manually)
-
-/RogerL
+(one can easily get 2000 or more parallel downloads, if you are willing to
+go with 1kb/s).
 
 -- 
-Roger Larsson
-Skellefteå
-Sweden
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

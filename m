@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265861AbTFSRbd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265862AbTFSRbd
+	id S265864AbTFSRfS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265865AbTFSRfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:31:33 -0400
-Received: from munk.apl.washington.edu ([128.95.96.184]:40903 "EHLO
-	munk.apl.washington.edu") by vger.kernel.org with ESMTP
-	id S265861AbTFSRbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:31:25 -0400
-Date: Thu, 19 Jun 2003 11:04:53 -0700 (PDT)
-From: Brian Dushaw <dushaw@apl.washington.edu>
-To: linux-kernel@vger.kernel.org, <linux-arm-kernel@vger.kernel.org>
-cc: "psilinux.org" <linux-7110-psion@lists.sourceforge.net>
-Subject: Help Wanted:  A request for kernel developers for the Psion netBook
- PDA/subnotebook
-Message-ID: <Pine.LNX.4.44.0306191058580.11532-100000@munk.apl.washington.edu>
+	Thu, 19 Jun 2003 13:35:18 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:39596 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S265864AbTFSRfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 13:35:12 -0400
+Date: Thu, 19 Jun 2003 12:48:49 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Joshua Kwan <joshk@triplehelix.org>
+cc: Magnus Solvang <magnus@solvang.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       <kkeil@suse.de>
+Subject: Re: isdn compile-errors (Linux 2.5.72)
+In-Reply-To: <20030619173019.GA30548@triplehelix.org>
+Message-ID: <Pine.LNX.4.44.0306191247210.23441-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Development of linux on various Psion PDA's is a going concern at
-http://www.psilinux.org/
+On Thu, 19 Jun 2003, Joshua Kwan wrote:
 
-Some of us recently got a kernel to work for the Psion netBook, a subnotebook
-type of PDA.  The netbook uses an Intel SA-1100 StrongARM 190 Mhz CPU.
+> On Thu, Jun 19, 2003 at 01:48:07PM +0200, Magnus Solvang wrote:
+> > drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_write':
+> > drivers/isdn/i4l/isdn_tty.c:1198: warning: unused variable `m'
+> *snip*
+> > drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_init':
+> > drivers/isdn/i4l/isdn_tty.c:2099: invalid type argument of `->'
+> > drivers/isdn/i4l/isdn_tty.c:2101: invalid type argument of `->'
+> > drivers/isdn/i4l/isdn_tty.c:2102: invalid type argument of `->'
+> *snip*
+> > drivers/isdn/i4l/isdn_tty.c: In function `isdn_tty_exit':
+> > drivers/isdn/i4l/isdn_tty.c:2121: invalid type argument of `->'
+> > drivers/isdn/i4l/isdn_tty.c:2122: invalid type argument of `->'
+> > drivers/isdn/i4l/isdn_tty.c:2123: invalid type argument of `->'
+> 
+> Attached patch should fix these, though I've not tested it.
+> (I hope I CC'd the right people.) Should apply against 2.5.72
+> vanilla.
 
-We are looking for a few good kernel developers to work
-on ETNA/compactflash support, the touch screen support, PCMCIA support,
-sound support, etc.  A preliminary HOWTO for linux on the netBook, including
-a wishlist for the kernel can be found at
-http://linux-7110.sourceforge.net/cgi-bin/index.cgi?url=howtos/netbook/netHOWTO.htm
+I already sent an update which fixes those errors and a couple of other 
+bits to Linus. Thanks, though.
 
-Debian ARM binary distributions are ready to be plugged in, if we can
-get things like touch screen and compactflash support working.  Kernel
-development is rather challenging because of the paucity of documentation
-from Psion Ltd., but some documentation is available.  We have some 
-documents that can be made available 'to bona-fide kernel developers' - 
-no non-disclosure agreement is required, but you can't pass them around 
-wily-nily either.  It's probably worth making clear that at the moment the 
-need is not for people who can hack given the docs, but for those who can 
-hack despite the absence of docs (a much harder task).  We have hopes of 
-eventually getting more documentation, but no joy yet.
-
-
-(Support for the very similar Series 5MX PDA hardware is fairly complete.)
-
-You may post inquiries at: linux-7110-psion at lists dot sourceforge dot net
-
-No pay or benefits, and it is doubtful that anyone will provide you with
-a free netBook for development.  But this is a challenging project, and the
-netBook would be a sweet machine with Debian linux on it.  Retail netBooks
-are fairly pricey, but machines appear on e-bay at regular intervals,
-selling in the $300-500 range.
-
-B.D.
+--Kai
 
 

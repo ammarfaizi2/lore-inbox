@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269724AbUJSTEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269574AbUJSTEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269724AbUJSTEq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269618AbUJSTBb
+	id S269574AbUJSTEp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:04:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269724AbUJSTBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:01:31 -0400
-Received: from brown.brainfood.com ([146.82.138.61]:8576 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S269645AbUJSSyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 14:54:04 -0400
-Date: Tue, 19 Oct 2004 13:54:02 -0500 (CDT)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-In-Reply-To: <20041019124605.GA28896@elte.hu>
-Message-ID: <Pine.LNX.4.58.0410191353300.1219@gradall.private.brainfood.com>
-References: <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu>
- <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu>
- <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu>
- <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
- <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu>
- <20041019124605.GA28896@elte.hu>
+	Tue, 19 Oct 2004 15:01:44 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:51890 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S269574AbUJSSTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 14:19:36 -0400
+Message-ID: <41755A94.8030207@nortelnetworks.com>
+Date: Tue, 19 Oct 2004 12:19:00 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: question on memory map cleanup stuff
+References: <41744A50.3030700@nortelnetworks.com> <20041018231432.GI5607@holomorphy.com>
+In-Reply-To: <20041018231432.GI5607@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004, Ingo Molnar wrote:
+William Lee Irwin III wrote:
+> On Mon, Oct 18, 2004 at 04:57:20PM -0600, Chris Friesen wrote:
+> 
+>>I've got a small feature that maps a page of kernel memory to userspace via 
+>>a syscall, then uses that page for various things.
+>>Currently, I'm marking the page reserved, then exporting it via 
+>>remap_page_range().  This means that I need to clean up my mapping whenever 
+>>the memory map is destroyed (process death, exec(), daemonize, etc.).
 
-> i have released the -U6 Real-Time Preemption patch:
+> vma->vm_ops->close() often suffices for such without disturbing the core.
 
-(xterm/1219/CPU#0): new 39188 us maximum-latency critical section.
- => started at timestamp 71898423: <call_console_drivers+0x76/0x140>
- =>   ended at timestamp 71937611: <finish_task_switch+0x43/0xb0>
- [<c01327f0>] sub_preempt_count+0x60/0x90
- [<c01324de>] check_preempt_timing+0x15e/0x270
- [<c0117ca3>] finish_task_switch+0x43/0xb0
- [<c01327f0>] sub_preempt_count+0x60/0x90
- [<c0117ca3>] finish_task_switch+0x43/0xb0
- [<c0117ca3>] finish_task_switch+0x43/0xb0
- [<c02a5717>] __sched_text_start+0x2d7/0x5d0
- [<c02a684f>] down_write+0x12f/0x1e0
- [<c0113104>] mcount+0x14/0x18
- [<c02a684f>] down_write+0x12f/0x1e0
- [<c014dd45>] remove_vm_struct+0x45/0xb0
- [<c014fde2>] exit_mmap+0xf2/0x120
- [<c0119b96>] mmput+0x46/0xf0
- [<c0166d8f>] exec_mmap+0xaf/0x140
- [<c0166ffd>] flush_old_exec+0xfd/0x7f0
- [<c015b917>] vfs_read+0xe7/0x140
- [<c0113104>] mcount+0x14/0x18
- [<c0185d7f>] load_elf_binary+0x30f/0xbd0
- [<c01327f0>] sub_preempt_count+0x60/0x90
- [<c01db739>] up_read+0xf9/0x140
- [<c01323d8>] check_preempt_timing+0x58/0x270
- [<c01327f0>] sub_preempt_count+0x60/0x90
- [<c0131c6d>] __mcount+0x1d/0x20
- [<c0185a70>] load_elf_binary+0x0/0xbd0
- [<c0167aba>] search_binary_handler+0x19a/0x2e0
- [<c0167dac>] do_execve+0x1ac/0x260
- [<c0104b07>] sys_execve+0x47/0xd0
- [<c0106013>] syscall_call+0x7/0xb
-preempt count: 00000002
-. 2-level deep critical section nesting:
-.. entry 1: __sched_text_start+0x3b/0x5d0 / (down_write+0x12f/0x1e0)
-.. entry 2: print_traces+0x1d/0x80 / (dump_stack+0x23/0x30)
+I'm running into a problem.
 
- =>   dump-end timestamp 71938197
+At the time of close(), I need to figure out which page to unreserve and free. 
+However, when I call
+
+follow_page(vma->vm_mm, vma->vm_start, 0);
+
+it returns zero. How do I go from vma to page?
+
+Chris

@@ -1,69 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289496AbSBENRn>; Tue, 5 Feb 2002 08:17:43 -0500
+	id <S289380AbSBENRD>; Tue, 5 Feb 2002 08:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289507AbSBENRe>; Tue, 5 Feb 2002 08:17:34 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:30479 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S289496AbSBENRY>;
-	Tue, 5 Feb 2002 08:17:24 -0500
-Date: Tue, 05 Feb 2002 14:17:21 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Asynchronous CDROM Events in Userland
-To: hpa@zytor.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3C5FDB61.70FDD1FA@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en
+	id <S289496AbSBENQy>; Tue, 5 Feb 2002 08:16:54 -0500
+Received: from mailhost.cs.tamu.edu ([128.194.130.106]:60140 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S289380AbSBENQq>;
+	Tue, 5 Feb 2002 08:16:46 -0500
+Date: Tue, 5 Feb 2002 07:16:44 -0600 (CST)
+From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: IP fragment
+Message-ID: <Pine.SOL.4.10.10202050628350.24459-100000@dogbert>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin (hpa@zytor.com) wrote :
+Hi, All,
+	One night!!!
 
->Calin A. Culianu wrote:
->
-> >>>
-> >>Does it spin up the CD-ROM doing so?
-> >>
-> >
-> > Probably it doesn't, but just having the cpu be non-idle when it could
-> > otherwise be idle does add up over time. In linux, polling the cdrom
-> > *seems* inexpensive enough, but if you look at 'top' it seems to average
-> > out to like 1-2% cpu time! (Ok, these stats aren't super-accurate,
-> > they're just from running 'top' with the kde autorun tool running).
-> >
-> > [Admitedly, the autorun tool is written kind of strangely (it does one
-> > redundant ioctl, plus it wait()s on its children constantly rather than
-> > installing a signal handler), but still.. it would be nice to get those
-> > extra cycles for quake3 or wolfenstein...]
-> >
-> 
-> That just indicates a bullsh*t program. It's also pretty certain that
+	I use linux-2.4.17 and iptables is os integrated. But no rules
+are set. So iptables should not influence the following
+experiments (don't know ??).
+	
+	This whole night I tried to use 
+socket(AF_INET,SOCK_RAW,IPPROTO_RAW) socket to generate artificial
+fragment packets: 
 
-Oh, you didn't see magicdev yet ? :-)
-( it is the GNOME counterpart of autorun, only worse )
+1. In my first experiment, I generated a UDP packet whose data length was
+61 bytes, not including
+ip header and udp header and this packet can be sent out. I used Ethereal
+and saw it.
 
-> these kinds of things don't belong in the GUI; one of the things I'd
-> like to do at some point is to write a daemon to mount things on insert
-> (vold).
+2. In the second experiment, the construted UDP packet will not
+be sent out. When the UDP
+packet is ready, I fragmented it into two packets. The data length (not
+including ip header) of the first packet was 24. And the second packet was
+45 bytes long (not including ip header). Of course I tried to set "more
+fragment" bit in the first packet and the second packet had no such
+setting. But I never sent these two packets out and ethereal could not see
+either of them.
 
-Pleeeeeaaaase do this soon !
-Removable media handling in linux just sux. And the key linux developers
-looking the other way doesn't help at all.
-Maybe the work could be combined somehow with the hotplug system, as there seem
-to be some similarities ?
+3. In the third experiment, I reset the "more fragment" bit of the first
+packet of these two fragments to 0. This time, I can see this packet, but
+still never saw the second packet. Of couse the first packet had a wrong
+udp checksum.
 
-Oh, BTW , did you in your test find any ATAPI device ( CD-ROM and/or writer )
-that supports overlapped commands ( the ATA counterpart of disconnect/reconnect ) ?
+So what's the problem?
 
->
->         -hpa
+1. Does (SOCK_RAW,IPPROTO_RAW) socket allow me to do fragments in suer
+sapce?
+2. Or does my program have some problem?
+
+Thanks! 
+ 
+I attached my fragmentation code below and hope someone can help me.
+
+Xinwen Fu
+
+/*
+
+  Fragment the ip packet "srcip" into "num_frag" fragments, the size of
+each fragment (ip payload not including ip header) is
+  specified in table "each_frag", the fragments are returned by "frags"
+
+**************************************************************************
+Function: make_fragment
+Description: fragment IP packets.
+Status: 
+***************************************************************************
+ */
+
+int make_fragment(struct ip *srcip, u16 num_frag, u16 *each_frag, struct ip *frags[]) {
+
+  u16 i,total_size=0;
+  u16 frag_offset=0;
+
+  /*************************************
+  check if the fragment size is correct
+  **************************************/
+  for (i=0; i<num_frag; i++) {
+    total_size+=each_frag[i];
+  }
+
+  if ( ntohs(srcip->ip_len) - sizeof(struct ip)  != total_size) {
+    return -1;
+  }
+
+  /**************************************
+    fragment the packet
+  **************************************/
+  for (i=0; i<num_frag; i++) {
+
+    frags[i]=(struct ip *)calloc(sizeof(struct ip) + each_frag[i], sizeof(char)); /* allocate enough memory */
+    
+    /****************************************
+      create a fragment
+     ****************************************/
+    memcpy((char *) frags[i]+ sizeof(struct ip), (char *)srcip + sizeof(struct ip) + frag_offset, each_frag[i]); /* first copy data -payload to payload */
+    
+    /****************************************
+      form the header
+    ********************************************/
+    frags[i]->ip_hl         = srcip->ip_hl;   /* Headerlength with no options ???????????????????  */
+    frags[i]->ip_v          = srcip->ip_v;
+    frags[i]->ip_tos        = srcip->ip_tos;
+    frags[i]->ip_len        = htons(each_frag[i] + sizeof(struct ip));
+    frags[i]->ip_id         = srcip->ip_id;
+    frags[i]->ip_off        = frag_offset >> 3;
+ 
+    if (i < num_frag-1) {
+      frags[i]->ip_off = frags[i]->ip_off | IP_MF;
+    }
+
+    frags[i]->ip_ttl        = srcip->ip_ttl ;
+    frags[i]->ip_p          = srcip->ip_p;
+    frags[i]->ip_sum        = 0;   /* Fill in later */
+    frags[i]->ip_src.s_addr = srcip->ip_src.s_addr;
+    frags[i]->ip_dst.s_addr = srcip->ip_dst.s_addr;
+    frags[i]->ip_sum        = ip_sum_calc(sizeof(struct ip), (u16 *)frags[i]);
+
+    frag_offset+=each_frag[i];
+  }
+
+  return 0;
+
+}
 
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

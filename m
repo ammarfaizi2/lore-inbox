@@ -1,21 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266507AbRGYEIh>; Wed, 25 Jul 2001 00:08:37 -0400
+	id <S268474AbRGYEO6>; Wed, 25 Jul 2001 00:14:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266519AbRGYEIR>; Wed, 25 Jul 2001 00:08:17 -0400
-Received: from alto.i-cable.com ([210.80.60.4]:47527 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S266507AbRGYEIO>;
-	Wed, 25 Jul 2001 00:08:14 -0400
-Date: Wed, 25 Jul 2001 12:08:16 +0800 (HKT)
-From: lkthomas@hkicable.com
-Message-Id: <200107250408.MAA25673@alto.i-cable.com>
-To: linux-kernel@vger.kernel.org
-Subject: Tekram DC395/315 driver problem:
-X-Mailer: Gmail 0.7.0 (http://gmail.linuxpower.org)
+	id <S268469AbRGYEOs>; Wed, 25 Jul 2001 00:14:48 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:30170 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S266519AbRGYEOl>; Wed, 25 Jul 2001 00:14:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+        Damien TOURAINE <damien.touraine@limsi.fr>
+Subject: Re: Call to the scheduler...
+Date: Tue, 24 Jul 2001 15:12:19 -0400
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1010724134717.32263A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1010724134717.32263A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Message-Id: <01072415121901.00631@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Tuesday 24 July 2001 13:54, Richard B. Johnson wrote:
 
+> Try sched_yield(). Accounting may still be messed up so the process
+> may be 'charged' for CPU time that it gave up. Also, usleep(n) works
+> very well with accounting working.
+>
+> This works, does not seem to load the system, but `top` shows
+> 99+ CPU time usage:
+>
+> main()
+> {
+>     for(;;) sched_yield();
+>
+> }
 
-Hi, I am using Tekram driver over 2 years, never reach such not stable before, first, I reach can not blank CD-RW disc when I run cdrecord, but next time work, I forget what error is it, but it's showed something will happen later, after 1-2weeks, after write a CD, and insert to my SCSI CD-ROM again , linux was hang, do not know why, but I can be sure that problem is in SCSI driver, because it's work fine in windows, also, hang time is my insert CDs time, I think they must have related, please help to fix this problem, I am using new version of Tekram driver so reach this problem, Thanks 
+This may not be an accounting problem.  If the system has nothing else to do, 
+it'll just re-schedule your yielding thread.
+
+How much of that 99% cpu usage is user and how much of it is system?  
+Basically what the above does is beat the scheduler to death...
+
+> This works and `top` shows nothing being used:
+>
+> main()
+> {
+>
+>     for(;;) usleep(1);
+>
+> }
+
+And here you DO block for a bit without getting called back immediately.
+
+I don't think that's an accounting thing, I think it's different behavior.  
+(Could be wrong, as always...)
+
+>
+> Cheers,
+> Dick Johnson
+
+Rob

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132898AbRDPJnn>; Mon, 16 Apr 2001 05:43:43 -0400
+	id <S129242AbRDPKHN>; Mon, 16 Apr 2001 06:07:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132900AbRDPJne>; Mon, 16 Apr 2001 05:43:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20749 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132898AbRDPJnQ>;
-	Mon, 16 Apr 2001 05:43:16 -0400
-Date: Mon, 16 Apr 2001 10:43:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Manfred Bartz <md-linux-kernel@logi.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IP Acounting Idea for 2.5
-Message-ID: <20010416104310.A29075@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop> <20010416020732.30431.qmail@logi.cc>
-Mime-Version: 1.0
+	id <S129381AbRDPKHD>; Mon, 16 Apr 2001 06:07:03 -0400
+Received: from colorfullife.com ([216.156.138.34]:54279 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129242AbRDPKGs>;
+	Mon, 16 Apr 2001 06:06:48 -0400
+Message-ID: <3ADAC46B.7105E631@colorfullife.com>
+Date: Mon, 16 Apr 2001 12:07:39 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: linas@backlot.linas.org, linux-kernel@vger.kernel.org
+Subject: Re: fsck, raid reconstruction 
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010416020732.30431.qmail@logi.cc>; from md-linux-kernel@logi.cc on Mon, Apr 16, 2001 at 12:07:31PM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 16, 2001 at 12:07:31PM +1000, Manfred Bartz wrote:
-> There is another issue with logging in general:
+The first 2 problems aren't real problems (modify /etc/fstab, perhaps a
+special ioctl could be added to raid and fsck stops the reconstruction)
+- at most anoying, but clearly no bugs.
+
+But the third one could be a bug:
 > 
->                 *COUNTERS MUST NOT BE RESETABLE!!!*
+> Third problem: 
+> 
+> I just tried boot 2.4.3 today. (after an unclean shutdown) fsck runs 
+> at a crawl on my RAID-1 volume. It would take all day (!! literally) 
+> to fsck. The disk-drive activity light flashes about once a second, 
+> maybe once every two seconds. (with a corresponding click from the 
+> drive). 
 
-Umm, no.  Counters can be resetable - you just specify that accounting
-programs should not reset them, ever.
+Can you boot without the raid-1 volume?
+Run top/vmstat during the fsck+reconstruction - I assume the system runs
+out of memory and bdflush/kswapd are looping.
 
-The ability to reset counters is extremely useful if you're a human
-looking at the output of iptables -L -v.  (I thus far know of no one
-who can memorise the counter values for around 40 rules).
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+--	
+	Manfred

@@ -1,153 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269504AbUIZHwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267720AbUIZJcb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269504AbUIZHwA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 03:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269503AbUIZHwA
+	id S267720AbUIZJcb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 05:32:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268525AbUIZJca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 03:52:00 -0400
-Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:1929 "EHLO
-	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S269504AbUIZHvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 03:51:45 -0400
-Date: Sun, 26 Sep 2004 08:51:42 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [PATCH 8/10] Re: [2.6-BK-URL] NTFS: 2.1.19 sparse annotation,
- cleanups and a bugfix
-In-Reply-To: <Pine.LNX.4.60.0409260828200.18239@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.60.0409260850410.18239@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.60.0409241707370.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241711400.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241712320.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241712490.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713070.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713220.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713380.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241713540.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.60.0409241714190.19983@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.58.0409240926580.32117@ppc970.osdl.org>
- <Pine.LNX.4.60.0409242059420.5443@hermes-1.csi.cam.ac.uk>
- <Pine.LNX.4.58.0409241930510.2317@ppc970.osdl.org>
- <Pine.LNX.4.60.0409260828200.18239@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Sun, 26 Sep 2004 05:32:30 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:64012 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S267720AbUIZJc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 05:32:28 -0400
+Date: Sun, 26 Sep 2004 10:32:54 +0100
+From: Colin Phipps <cph@cph.demon.co.uk>
+To: Maurice Volaski <mvolaski@aecom.yu.edu>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       davem@nuts.davemloft.net, mchan@broadcom.com
+Subject: Re: 2.68.rc4 affected by tg3 [Was Re: tg3 module in kernel 2.6.5 panics ]
+Message-ID: <20040926093254.GA2593@cph.demon.co.uk>
+Mail-Followup-To: Maurice Volaski <mvolaski@aecom.yu.edu>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+	davem@nuts.davemloft.net, mchan@broadcom.com
+References: <a06100547bcd3f33b5b73@[129.98.90.227]> <40AE4DDC.7050508@pobox.com> <a06100577bd7bc87d92ee@[129.98.90.227]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a06100577bd7bc87d92ee@[129.98.90.227]>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Sep 2004, Anton Altaparmakov wrote:
+On Sat, Sep 25, 2004 at 09:26:07PM -0400, Maurice Volaski wrote:
+> I just tested with 2.68.rc4 from gentoo and although it doesn't panic 
+> and the driver even appears to load, the kernel spews out a crash 
+> message in the log similar to before. The eth0 interface doesn't show 
+> up in ifconfig.
 
-> On Fri, 24 Sep 2004, Linus Torvalds wrote:
-> > On Fri, 24 Sep 2004, Anton Altaparmakov wrote:
-> > > On Fri, 24 Sep 2004, Linus Torvalds wrote:
-> > > > 
-> > > > Btw, Al is fixing this. We'll make enum's properly typed, rather than just 
-> > > > plain integers. It's not traditional C behaviour, but it gives you better 
-> > > > type safety, and Al points out that other C compilers (the Plan 9 one, to 
-> > > > be specific) have done the same thing for similar reasons.
-> > 
-> > Well, when I said "Al is fixing this", I lied.
-> > 
-> > I just fixed it myself. 
-> 
-> Great.  (-:
-> 
-> > > This is good news.  Once that is done I will be very happy to go back to 
-> > > using enums as I also agree that they can and in this case do look a 
-> > > lot nicer...
-> > 
-> > Try the current sparse, I think it should work for you.
-> > 
-> > So if you make an enum where the initializer expression is a little-endian 
-> > expression, the type of that (single) enumerator will be little-endian.
-> > 
-> > HOWEVER, the type of an enum _variable_ will still be just "int". So
-> > 
-> > 	enum myenum {
-> > 		one = 1ULL,
-> > 		two = 2,
-> > 	};
-> > 
-> > has the strange behaviour that if you use "one" in an expression, it will
-> > have the type "unsigned long long", but if you use a "enum myenum" entry
-> > (even if it has the value "1"), it will be an "int":
-> > 
-> > 	sizeof(one) == 8
-> > 	sizeof(enum myenum) == 4
-> > 
-> > So I would stronly suggest (and I may make sparse warn) against using
-> > non-integertyped enum values with any enum that actually has any backing
-> > store (ie if you ever use a variable of type "enum myenum", that would
-> > result in a warning - you can really just use the values "one" and "two"
-> > directly).
-> 
-> Ah, I was using them for backing store as well and I was using the 
-> __attribute__((packed)) gcc extension to make them the bit-width I wanted 
-> in combination with a "filler element" at the end of the enum.
-> 
-> So for example to get a 16-bit enum type I was using:
-> 
-> typedef enum {
-> 	RESTART_VOLUME_IS_CLEAN = const_cpu_to_le16(0x0002),
-> 	REST_AREA_SPACE_FILLER  = 0xffff	/* Just to make flags 
-> 16-bit. */
-> } __attribute__ ((__packed__)) RESTART_AREA_FLAGS;
-> 
-> And then when defining the structure containing these flags I would just 
-> do:
-> 
-> typedef struct {
-> 	...
-> 	RESTART_AREA_FLAGS flags;
-> 	...
-> } __attribute__ ((__packed__)) RESTART_AREA;
-> 
-> Also I use the enum type as parameters to functions, for example in the 
-> above case I might have:
-> 	int blah(RESTART_AREA_FLAGS flags);
-> 
-> So this use doesn't work with the sparse update either.  At the moment I 
-> have changed everything to just a bunch of #defines followed by a:
-> 
-> typedef le16 RESTART_AREA_FLAGS;
-> 
-> So I guess with your sparse update I can now go to a point in between the 
-> old one and the new one:
-> 
-> enum {
-> 	RESTART_VOLUME_IS_CLEAN = const_cpu_to_le16(0x0002),
-> } __attribute__ ((__packed__)) RESTART_AREA_FLAGS;
+Going back to your original oops
 
-Silly cut'n'paste error.  I meant:
+> RIP <ffffffff802ad048>{kobject_add+120}
+> call trace: <ffffffff802ad0c8>{kobject_register+40}<ffffffff80306676>{bus_add_driver+86} <ffffffff802380e0{pci_register_driver+128}<ffffffffa00c06010>{:tg3:tg3_init +16} <ffffffff80157404>{sys_init_module+436}<ffffffff80110e24>{system_call+124>
 
-> } __attribute__ ((__packed__));
+this looks similar to one I saw with 2.6.8.1 on a machine here on its
+first upgrade to 2.6.x - except it was with totally different modules
+(oops in kobject_add reached via pnp_register_driver loading ns558).
 
-> 
-> typedef le16 RESTART_AREA_FLAGS;
-> 
-> So I get the enum rather than bunch of defines and I get my proper types 
-> as well.
-> 
-> That only looses the ability for the compiler to warn if people use the 
-> wrong constant when trying to set such a variable or pass a wrong constant 
-> into a function but that is not nearly as useful a warning as the wrong 
-> endianness bitwise warnings we have now gained so I am not going to worry 
-> about losing it.
-> 
-> Best regards,
-> 
-> 	Anton
-> 
+: EIP; c01a432f <kobject_add+6f/100>
+: Call Trace: [<c01a43e8>] kobject_register+0x28/0x60 [<c01f5fe0>] bus_add_driver+0x50/0xb0  [<c01f65cf>] driver_register+0x2f/0x40   [<c01ced5d>] pnp_register_driver+0x2d/0x70    [<d0825030>] ns558_init+0x30/0x50 [ns558]     [<c0133030>] sys_init_module+0x100/0x210      [<c010603b>] syscall_call+0x7/0xb
 
-Best regards,
+It turned out to be due to hotplug loading a buggy module earlier in the
+boot, which did a pnp_register_driver and then aborted the module load
+when it found nothing, without unregistering itself. The problem went
+away with 2.6.9-rc2 for me, the offending module (cs4232) seems to be
+fixed.  So it's worth looking for any modules that failed to load
+earlier in the boot, they could be leaving junk in pci_bus_type.drivers
+.
 
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Colin Phipps <cph@cph.demon.co.uk>

@@ -1,92 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313479AbSDLJrR>; Fri, 12 Apr 2002 05:47:17 -0400
+	id <S313480AbSDLJzi>; Fri, 12 Apr 2002 05:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313480AbSDLJrQ>; Fri, 12 Apr 2002 05:47:16 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20243 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313479AbSDLJrP>; Fri, 12 Apr 2002 05:47:15 -0400
-Message-Id: <200204120944.g3C9i8X13441@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: New IDE code and DMA failures
-Date: Fri, 12 Apr 2002 12:47:14 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Martin Dalecki <dalecki@evision-ventures.com>, Jens Axboe <axboe@suse.de>,
-        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua> <200204111341.g3BDfJX10546@Port.imtp.ilyichevsk.odessa.ua> <20020411174827.C14999@ucw.cz>
+	id <S313483AbSDLJzh>; Fri, 12 Apr 2002 05:55:37 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:16659 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313480AbSDLJzg>; Fri, 12 Apr 2002 05:55:36 -0400
+Message-ID: <3CB6A083.3090501@evision-ventures.com>
+Date: Fri, 12 Apr 2002 10:53:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VIA, 32bit PIO and 2.5.x kernel
+In-Reply-To: <Pine.LNX.4.10.10204120154480.489-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 April 2002 13:48, Vojtech Pavlik wrote:
-> > lspci:
-> > 00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev
-> > 03) 00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev
-> > 03) 00:04.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 01)
-> > 00:04.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
-> > 00:04.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
-> > 00:04.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 01)
-> > 00:06.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone]
-> > (rev 24) 00:0a.0 VGA compatible controller: Matrox Graphics, Inc. MGA
-> > 2164W [Millennium II] 00:0c.0 Ethernet controller: Realtek Semiconductor
-> > Co., Ltd. RTL-8029(AS)
-> >
-> > /boot/2.4.7/config:
-> > CONFIG_BLK_DEV_PIIX=y
->
-> There's new PIIX code by me in the 2.5 kernels. Can you provide
-> /proc/ide/piix data (and lspci -vvxxx) as well?
+Andre Hedrick wrote:
+> On Fri, 12 Apr 2002, Jens Axboe wrote:
+> 
+> 
+>>On Fri, Apr 12 2002, Petr Vandrovec wrote:
+>>
+>>>I believe that there must be some reason for doing that... And 
+>>>do not ask me why it worked in 2.4.x, as it cleared io_32bit
+>>>in task_out_intr too.
+>>
+>>Because 2.4 doesn't use that path for fs requests. And be glad that it
+>>doesn't otherwise _everybody_ would have much worse problems than you
+>>are currently seeing.
+> 
+> 
+> Maybe if everyone ever bothered to look at the code base and not assume
+> they know everything ... and enjoying feable attempts to cast me as a
+> fool.  Better yet maybe understand the hardware ...
+> 
+> ata_input_data
+> 
+>         io_32bit = drive->io_32bit;
+> 
+>         if (io_32bit)
+> 		insl(IDE_DATA_REG, buffer, wcount);
+> 	else
+>                 insw(IDE_DATA_REG, buffer, wcount<<1);
+> 
+> or 
+> 
+> ata_output_data
+> 
+>         io_32bit = drive->io_32bit;
+> 
+>         if (io_32bit)
+>                 outsl(IDE_DATA_REG, buffer, wcount);
+>         else
+>                 outsw(IDE_DATA_REG, buffer, wcount<<1);
+> 
+> 
+> WHOA is it not obvious it is the total number of calls to the same damn
+> DATA-TASKFILE-REGISTER-PORT
+> 
+> Which is only SIXTEEN BITS WIDE!
+> 
+> So please contine to write 32 bits to a 16 bit wide address...
+> Legacy or not the physical layer to the device, so please go look there.
+> Why do I even bother, all of you are so much smarter than me.
 
-lspci -vvxxx:
-00:04.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Region 4: I/O ports at fcb0 [size=16]
-00: 86 80 11 71 05 00 80 02 01 80 01 01 00 40 00 00
-10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-20: b1 fc 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-40: 77 e3 47 e3 0b 00 00 00 01 00 02 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 28 0f 00 00 00 00 00 00
+The physical register on the side of the device may very well be
+only 16 bit's wide. Most propably it's simple implementation dependant.
+I saw many 68000 derivatives on IDE controllers but those days there
+are many 32 bit controllers there as well.
 
-/proc/ide/piix:
-----------PIIX BusMastering IDE Configuration---------------
-Driver Version:                     1.2
-South Bridge:                       PCI device 8086:7111
-Revision:                           IDE 0x1
-Highest DMA rate:                   UDMA33
-BM-DMA base:                        0xfcb0
-PCI clock:                          33.3MHz
------------------------Primary IDE-------Secondary IDE------
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Prefetch+Post:        yes       yes       yes       yes
-Transfer Mode:       UDMA       DMA       DMA       PIO
-Address Setup:       90ns      90ns      90ns      90ns
-Cmd Active:         360ns     360ns     360ns     360ns
-Cmd Recovery:       540ns     540ns     540ns     540ns
-Data Active:         90ns      90ns      90ns     360ns
-Data Recovery:       30ns      30ns      30ns     540ns
-Cycle Time:          60ns     120ns     120ns     900ns
-Transfer Rate:   33.3MB/s  16.6MB/s  16.6MB/s   2.2MB/s
+But please note that the ata host-chip xor the CPU (think 386sx)
+is multiplexing the access to it. Otherwise it wouldn't be possible to do 32 bit
+transfers over a cable with only 16 data lines at all.
 
---
-vda
+Apparently you don't even understand the physical transport layer,
+which explains the presence of the bug in question.
+

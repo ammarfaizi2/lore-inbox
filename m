@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVAVBIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVAVBIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbVAVBIK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 20:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVAVBIK
+	id S262643AbVAVBIP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 20:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVAVBIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 20:08:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:36058 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262630AbVAVBIJ (ORCPT
+	Fri, 21 Jan 2005 20:08:15 -0500
+Received: from ozlabs.org ([203.10.76.45]:57322 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262633AbVAVBIM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 20:08:09 -0500
-Date: Fri, 21 Jan 2005 17:08:05 -0800 (PST)
-From: Bryce Harrington <bryce@osdl.org>
-To: Chris Wright <chrisw@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, <dev@osdl.org>,
-       <ltp-list@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <stp-devel@lists.sourceforge.net>
-Subject: Re: [Dev] Re: Kernel Panic with LTP on 2.6.11-rc1 (was Re: LTP
- Results for 2.6.x and 2.4.x)
-In-Reply-To: <20050121153308.I24171@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0501211706430.32650-100000@osdlab.pdx.osdl.net>
+	Fri, 21 Jan 2005 20:08:12 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16881.42871.346498.568098@cargo.ozlabs.ibm.com>
+Date: Sat, 22 Jan 2005 12:08:07 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: clameter@sgi.com, davem@davemloft.net, hugh@veritas.com,
+       linux-ia64@vger.kernel.org, torvalds@osdl.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Extend clear_page by an order parameter
+In-Reply-To: <20050121164353.6f205fbc.akpm@osdl.org>
+References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
+	<20050108135636.6796419a.davem@davemloft.net>
+	<Pine.LNX.4.58.0501211210220.25925@schroedinger.engr.sgi.com>
+	<16881.33367.660452.55933@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0501211545080.27045@schroedinger.engr.sgi.com>
+	<16881.40893.35593.458777@cargo.ozlabs.ibm.com>
+	<20050121164353.6f205fbc.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Jan 2005, Chris Wright wrote:
-> * Andrew Morton (akpm@osdl.org) wrote:
-> > Bryce Harrington <bryce@osdl.org> wrote:
-> > I am unable to find the oops trace amongst all that stuff.  Help?
-> >
-> > (It would have been handy to include it in the bug report, actually)
->
-> Yes, it would.  Or at least some better granularity leading up to the
-> problem.  I ran growfiles locally on 2.6.11-rc-bk and didn't have any
-> problem.  Could you strace growfiles and see what it was doing when it
-> killed the machine?
+Andrew Morton writes:
 
-Okay, I'll set up another run and try collecting that info.  Is there
-any other data that would be useful to collect while I'm at it?
+> It is, actually, from the POV of the page allocator.  It's a "higher order
+> page" and is controlled by a struct page*, just like a zero-order page...
 
-Bryce
+OK.  I still reckon it's confusing terminology for the rest of us who
+don't have our heads deep in the page allocator code.
 
+Paul.

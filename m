@@ -1,46 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbTIZRrc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 13:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbTIZRrc
+	id S261460AbTIZRkS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 13:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbTIZRkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 13:47:32 -0400
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:8454 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S261491AbTIZRra
+	Fri, 26 Sep 2003 13:40:18 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:28040 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S261460AbTIZRkJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 13:47:30 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Michael Frank <mhf@linuxmail.org>, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG?] SIS IDE DMA errors
-References: <yw1x7k3vlokf.fsf@users.sourceforge.net>
-	<200309262208.30582.mhf@linuxmail.org>
-	<yw1x3cejlk34.fsf@users.sourceforge.net>
-	<200309262332.30091.mhf@linuxmail.org> <20030926165957.GA11150@ucw.cz>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Fri, 26 Sep 2003 19:27:35 +0200
-In-Reply-To: <20030926165957.GA11150@ucw.cz> (Vojtech Pavlik's message of
- "Fri, 26 Sep 2003 18:59:57 +0200")
-Message-ID: <yw1x7k3vjw8o.fsf@users.sourceforge.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 26 Sep 2003 13:40:09 -0400
+Subject: Re: HT not working by default since 2.4.22
+From: Len Brown <len.brown@intel.com>
+To: Jan Evert van Grootheest <j.grootheest@euronext.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, marcelo@parcelfarce.linux.theplanet.co.uk,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+In-Reply-To: <3F73EE77.3000906@euronext.nl>
+References: <BF1FE1855350A0479097B3A0D2A80EE0CC8718@hdsmsx402.hd.intel.com>
+	 <3F73EE77.3000906@euronext.nl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1064597917.2559.77.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 26 Sep 2003 13:38:37 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+I'm thinking now that 2.4.21 had right:
 
-> Actually, it's me who wrote the 961 and 963 support. It works fine for
-> most people. Did you check you cabling?
+CONFIG_ACPI == ACPI
+!CONFIG_ACPI == !ACPI
 
-I'm dealing with a laptop, but I suppose I could wiggle the cables a
-bit.  I still doubt it's a cable problem, since reading works
-flawlessly.
+No special config option to include/exclude HT.
 
-It appears to me that during heavy IO load, some DMA interrupts get
-lost, for some reason.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+Internally, the table parsing code will be included if (CONFIG_SMP ||
+CONFIG_ACPI) -- since that code doesn't even know about HT, it just
+knows about parsing ACPI tables and enumerating processors etc.  This
+makes sense as this code is needed, for example, by an SMP system that
+doesn't implement HT, and also by uni-processor ACPI-enabled systems. 
+Inventing an "HT-something" config option to describe this code was
+probably a mistake.
+
+So at the config option level, we'll be compatible with 2.4.21.  Under
+the covers we'll be different as 2.4.21 erroneously made acpitables
+depend on the IOAPIC -- which didn't support HT on IO-APIC-less boxes
+(eg the volume P4 desktops we see today).
+
+thanks,
+-Len
+
+ps. Thanks for emphasizsing the "config selects a feature concept".  I
+really do agree.  Indeed, I implemented it this summer, but I got hung
+up on the fact that when I was done, in the CONFIG_ACPI case, CONFIG_HT
+== !CONFIG_HT so I discarded that scheme.
+
+> Len,
+> 
+> I think you're missing Jeffs point.
+> He's really saying that the user want to select features. The user 
+> doesn't really care how it is implemented. And there is no requirement 
+> (I think) that some source files match one on one with a configuration 
+> option.
+> 
+> As a user I like Jeffs proposal very much. It allows me to indicate what 
+> I want without bothering about the implementation.
+> I think it would be wise to indicate in the help that HT does include 
+> parts of ACPI.
+> 
+> As a programmer, I can understand your point too. But perhaps you should 
+> do something like this (in the Makefile):
+> if CONFIG_HT
+> 	include part of ACPI needed for HT
+> endif
+> if CONFIG_ACPI
+> 	include all of acpi
+> endif
+> And let make fix things up.
+> 
+> -- Jan Evert
+> 
+> Brown, Len wrote:
+> >>Now that I've thought of it (aren't I humble), I rather like 
+> >>CONFIG_HT.
+> >>It's simple and it's effects should be obvious to both developer and
+> >>user:
+> >>
+> >>	CONFIG_HT, CONFIG_ACPI == ACPI
+> >>	!CONFIG_HT, CONFIG_ACPI == ACPI
+> >>	CONFIG_HT, !CONFIG_ACPI == HT-only ACPI
+> >>	!CONFIG_HT, !CONFIG_ACPI == no ACPI
+> >>
+> >>Following the "autoconf model", what we really want to be testing with
+> >>CONFIG_xxx is _features_, where possible. "hyperthreading: yes/no" is
+> >>IMO more clear than "do I want ht-only ACPI or full ACPI", 
+> >>while at the
+> >>same time being more fine-grained and future-proof.
+> > 
+> > 
+> > I like positive logic too.
+> > I went so far as to try to implement this back when I deleted "noht".
+> > 
+> > The problem is that "!CONFIG_HT" is meaningless.  It implies that
+> > you can have CONFIG_ACPI but still "config-out" HT, which you can't.
+> > 
+> > Ie. The 2nd row above says to give me ACPI w/o HT.
+> > If you delete that row and reverse the polarity you get:
+> > 
+> > !CONFIG_ACPI_HT_ONLY, CONFIG_ACPI == ACPI
+> > CONFIG_ACPI_HT_ONLY, !CONFIG_ACPI == HT-only ACPI
+> > !CONFIG_ACPI_HT_ONLY, !CONFIG_ACPI == no ACPI
+> > 
+> > Here we can use config to emphasize that it is not possible to select
+> > CONFIG_ACPI and CONFIG_ACPI_HT_ONLY at the same time.
+> > 
+> > Cheers,
+> > -Len
+> > 
+> > Ps. Note that in 2.6 CONFIG_X86_HT exists and covers the sibling code.
+> > It depends on CONFIG_SMP, and CONFIG_ACPI_HT_ONLY depends on it. (in the
+> > ACPI patch)
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+

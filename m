@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267510AbUHDXhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUHDXiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267510AbUHDXhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 19:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267514AbUHDXhX
+	id S267515AbUHDXiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 19:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267512AbUHDXiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 19:37:23 -0400
-Received: from ozlabs.org ([203.10.76.45]:59545 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267510AbUHDXgz (ORCPT
+	Wed, 4 Aug 2004 19:38:01 -0400
+Received: from ozlabs.org ([203.10.76.45]:59289 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267515AbUHDXgz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 4 Aug 2004 19:36:55 -0400
-Date: Thu, 5 Aug 2004 09:34:06 +1000
+Date: Thu, 5 Aug 2004 09:35:55 +1000
 From: Anton Blanchard <anton@samba.org>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, paulus@samba.org
-Subject: [PATCH] [ppc64] Set SMT thread priority to medium for all exceptions
-Message-ID: <20040804233406.GC30253@krispykreme>
+Subject: [PATCH] [ppc64] Fix chrp_progress mismerge
+Message-ID: <20040804233555.GD30253@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,90 +23,124 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-We need to set the thread priority to medium when entering all exceptions.
-We may have been executing in low priority (eg the idle loop), but
-definitely do not want to remain in that priority for the duration of
-the exception (eg a device interrupt).
+Due to a mismerge, some code in chrp_progress appears twice. While here,
+clean up some formatting issues.
 
 Signed-off-by: Anton Blanchard <anton@samba.org>
 
-diff -puN arch/ppc64/kernel/head.S~add_r2_to_exceptions arch/ppc64/kernel/head.S
---- linux-2.6.8-rc2-mm2/arch/ppc64/kernel/head.S~add_r2_to_exceptions	2004-08-04 17:46:43.497877597 -0500
-+++ linux-2.6.8-rc2-mm2-anton/arch/ppc64/kernel/head.S	2004-08-04 18:22:57.642084383 -0500
-@@ -303,12 +303,14 @@ exception_marker:
- 	. = n;						\
- 	.globl label##_Pseries;				\
- label##_Pseries:					\
-+	HMT_MEDIUM;					\
- 	mtspr	SPRG1,r13;		/* save r13 */	\
- 	EXCEPTION_PROLOG_PSERIES(PACA_EXGEN, label##_common)
+diff -puN arch/ppc64/kernel/chrp_setup.c~progress-fix arch/ppc64/kernel/chrp_setup.c
+--- linux-2.6.8-rc2-mm2/arch/ppc64/kernel/chrp_setup.c~progress-fix	2004-08-04 17:46:44.258756677 -0500
++++ linux-2.6.8-rc2-mm2-anton/arch/ppc64/kernel/chrp_setup.c	2004-08-04 17:46:44.270754770 -0500
+@@ -298,8 +298,7 @@ chrp_init(unsigned long r3, unsigned lon
+ 	       cur_cpu_spec->firmware_features);
+ }
  
- #define STD_EXCEPTION_ISERIES(n, label, area)		\
- 	.globl label##_Iseries;				\
- label##_Iseries:					\
-+	HMT_MEDIUM;					\
- 	mtspr	SPRG1,r13;		/* save r13 */	\
- 	EXCEPTION_PROLOG_ISERIES_1(area);		\
- 	EXCEPTION_PROLOG_ISERIES_2;			\
-@@ -317,6 +319,7 @@ label##_Iseries:					\
- #define MASKABLE_EXCEPTION_ISERIES(n, label)				\
- 	.globl label##_Iseries;						\
- label##_Iseries:							\
-+	HMT_MEDIUM;							\
- 	mtspr	SPRG1,r13;		/* save r13 */			\
- 	EXCEPTION_PROLOG_ISERIES_1(PACA_EXGEN);				\
- 	lbz	r10,PACAPROFENABLED(r13);				\
-@@ -410,12 +413,14 @@ __start_interrupts:
+-void
+-chrp_progress(char *s, unsigned short hex)
++void chrp_progress(char *s, unsigned short hex)
+ {
+ 	struct device_node *root;
+ 	int width, *p;
+@@ -313,60 +312,55 @@ chrp_progress(char *s, unsigned short he
+ 		return;
  
- 	. = 0x200
- _MachineCheckPseries:
-+	HMT_MEDIUM
- 	mtspr	SPRG1,r13		/* save r13 */
- 	EXCEPTION_PROLOG_PSERIES(PACA_EXMC, MachineCheck_common)
+ 	if (max_width == 0) {
+-		if ( (root = find_path_device("/rtas")) &&
++		if ((root = find_path_device("/rtas")) &&
+ 		     (p = (unsigned int *)get_property(root,
+ 						       "ibm,display-line-length",
+-						       NULL)) )
++						       NULL)))
+ 			max_width = *p;
+ 		else
+ 			max_width = 0x10;
+ 		display_character = rtas_token("display-character");
+ 		set_indicator = rtas_token("set-indicator");
+ 	}
+-	if (display_character == RTAS_UNKNOWN_SERVICE) {
+-		/* use hex display */
+-		if (set_indicator == RTAS_UNKNOWN_SERVICE)
+-			return;
+-		rtas_call(set_indicator, 3, 1, NULL, 6, 0, hex);
+-		return;
+-	}
  
- 	. = 0x300
- 	.globl DataAccess_Pseries
- DataAccess_Pseries:
-+	HMT_MEDIUM
- 	mtspr	SPRG1,r13
- BEGIN_FTR_SECTION
- 	mtspr	SPRG2,r12
-@@ -434,6 +439,7 @@ END_FTR_SECTION_IFCLR(CPU_FTR_SLB)
- 	. = 0x380
- 	.globl DataAccessSLB_Pseries
- DataAccessSLB_Pseries:
-+	HMT_MEDIUM
- 	mtspr	SPRG1,r13
- 	mfspr	r13,SPRG3		/* get paca address into r13 */
- 	std	r9,PACA_EXSLB+EX_R9(r13)	/* save r9 - r12 */
-@@ -461,6 +467,7 @@ DataAccessSLB_Pseries:
- 	. = 0x480
- 	.globl InstructionAccessSLB_Pseries
- InstructionAccessSLB_Pseries:
-+	HMT_MEDIUM
- 	mtspr	SPRG1,r13
- 	mfspr	r13,SPRG3		/* get paca address into r13 */
- 	std	r9,PACA_EXSLB+EX_R9(r13)	/* save r9 - r12 */
-@@ -494,6 +501,7 @@ InstructionAccessSLB_Pseries:
- 	. = 0xc00
- 	.globl	SystemCall_Pseries
- SystemCall_Pseries:
-+	HMT_MEDIUM
- 	mr	r9,r13
- 	mfmsr	r10
- 	mfspr	r13,SPRG3
-@@ -747,10 +755,12 @@ fwnmi_data_area:
- 	. = 0x8000
- 	.globl SystemReset_FWNMI
- SystemReset_FWNMI:
-+	HMT_MEDIUM
- 	mtspr	SPRG1,r13		/* save r13 */
- 	EXCEPTION_PROLOG_PSERIES(PACA_EXGEN, SystemReset_common)
- 	.globl MachineCheck_FWNMI
- MachineCheck_FWNMI:
-+	HMT_MEDIUM
- 	mtspr	SPRG1,r13		/* save r13 */
- 	EXCEPTION_PROLOG_PSERIES(PACA_EXMC, MachineCheck_common)
+-	if(display_character == RTAS_UNKNOWN_SERVICE) {
++	if (display_character == RTAS_UNKNOWN_SERVICE) {
+ 		/* use hex display if available */
+-		if(set_indicator != RTAS_UNKNOWN_SERVICE)
++		if (set_indicator != RTAS_UNKNOWN_SERVICE)
+ 			rtas_call(set_indicator, 3, 1, NULL, 6, 0, hex);
+ 		return;
+ 	}
  
+ 	spin_lock(&progress_lock);
+ 
+-	/* Last write ended with newline, but we didn't print it since
++	/*
++	 * Last write ended with newline, but we didn't print it since
+ 	 * it would just clear the bottom line of output. Print it now
+ 	 * instead.
+ 	 *
+ 	 * If no newline is pending, print a CR to start output at the
+ 	 * beginning of the line.
+ 	 */
+-	if(pending_newline) {
++	if (pending_newline) {
+ 		rtas_call(display_character, 1, 1, NULL, '\r');
+ 		rtas_call(display_character, 1, 1, NULL, '\n');
+ 		pending_newline = 0;
+-	} else
++	} else {
+ 		rtas_call(display_character, 1, 1, NULL, '\r');
++	}
+  
+ 	width = max_width;
+ 	os = s;
+ 	while (*os) {
+-		if(*os == '\n' || *os == '\r') {
++		if (*os == '\n' || *os == '\r') {
+ 			/* Blank to end of line. */
+-			while(width-- > 0)
++			while (width-- > 0)
+ 				rtas_call(display_character, 1, 1, NULL, ' ');
+  
+ 			/* If newline is the last character, save it
+ 			 * until next call to avoid bumping up the
+ 			 * display output.
+ 			 */
+-			if(*os == '\n' && !os[1]) {
++			if (*os == '\n' && !os[1]) {
+ 				pending_newline = 1;
+ 				spin_unlock(&progress_lock);
+ 				return;
+@@ -374,7 +368,7 @@ chrp_progress(char *s, unsigned short he
+  
+ 			/* RTAS wants CR-LF, not just LF */
+  
+-			if(*os == '\n') {
++			if (*os == '\n') {
+ 				rtas_call(display_character, 1, 1, NULL, '\r');
+ 				rtas_call(display_character, 1, 1, NULL, '\n');
+ 			} else {
+@@ -393,14 +387,14 @@ chrp_progress(char *s, unsigned short he
+ 		os++;
+  
+ 		/* if we overwrite the screen length */
+-		if ( width <= 0 )
+-			while ( (*os != 0) && (*os != '\n') && (*os != '\r') )
++		if (width <= 0)
++			while ((*os != 0) && (*os != '\n') && (*os != '\r'))
+ 				os++;
+ 	}
+  
+ 	/* Blank to end of line. */
+-	while ( width-- > 0 )
+-		rtas_call(display_character, 1, 1, NULL, ' ' );
++	while (width-- > 0)
++		rtas_call(display_character, 1, 1, NULL, ' ');
+ 
+ 	spin_unlock(&progress_lock);
+ }
 
 _

@@ -1,67 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317396AbSHCBDW>; Fri, 2 Aug 2002 21:03:22 -0400
+	id <S317400AbSHCBNx>; Fri, 2 Aug 2002 21:13:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317399AbSHCBDW>; Fri, 2 Aug 2002 21:03:22 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:50624 "EHLO
+	id <S317405AbSHCBNx>; Fri, 2 Aug 2002 21:13:53 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:52928 "EHLO
 	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S317396AbSHCBDU>; Fri, 2 Aug 2002 21:03:20 -0400
-Date: Fri, 2 Aug 2002 20:05:42 -0500 (CDT)
+	id <S317400AbSHCBNw>; Fri, 2 Aug 2002 21:13:52 -0400
+Date: Fri, 2 Aug 2002 20:17:17 -0500 (CDT)
 From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Russell King <rmk@arm.linux.org.uk>
-cc: "Adam J. Richter" <adam@yggdrasil.com>, <tytso@mit.edu>,
-       <linux-serial@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <axel@hh59.org>
-Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
-In-Reply-To: <20020803005626.D16963@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208021954170.24984-100000@chaos.physics.uiowa.edu>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] automatic module_init ordering
+In-Reply-To: <20020802232232.A25583@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0208022011490.24984-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Aug 2002, Russell King wrote:
+On Fri, 2 Aug 2002, Sam Ravnborg wrote:
 
-> When I build 8250.c into the kernel, linux/module.h doesn't include
-> linux/version.h, so when we include linux/serialP.h, the compiler
-> assumes that LINUX_VERSION_CODE is zero.  So we end up including
-> linux/serial.h.
-> 
-> However, when building as a module, linux/module.h does include
-> linux/version.h, so when we don't include linux/serial.h.
-> 
-> Oh, the problems of trying to reduce the includes...  I think we should
-> re-include linux/serial.h and eliminate linux/serialP.h.
-> 
-> Hmm, I wonder how many other oddities like this are in the tree today.
-> It sounds like we want to create a rule similar to the one for using
-> CONFIG_* symbols.  Does this sound reasonable: if you use
-> LINUX_VERSION_CODE, you must include linux/version.h into that very
-> same file to guarantee that it is defined.
-> 
-> Well, I took checkconfig.pl and created checkversion.pl (attached).
-> Oh god, can I please put the worms back in the can?  Now?  I think
-> there's lots of work to do here; lots of stuff including linux/version.h
-> for the hell of it, and a comparitively small number not including it
-> when they use LINUX_VERSION_CODE.
-> 
-> (No, I'm just off to zzz, so this must be a nightmare, maybe it'll go
-> away by the time I wake up later today.) 8/
+	> On Thu, Aug 01, 2002 at 10:19:04PM -0500, Kai Germaschewski wrote:
+> > and the like, since otherwise my shell (bash) would complain about an
+> > empty "for o in ; do". Maybe there's a less hacky way to handle that? 
+> Found what I consider less hacky way to handle it.
+> Test for non-empty string before executing the for loop.
 
-Hmmh, note that checkconfig.pl is actually not necessary anymore, it could 
-be replaced by just including config.h unconditionally, or even include 
-the macros from the commandline (-imacro include/linux/autoconf.h, I think 
-you yourself did suggest that ;). The old build system relied on
-#include <linux/config.h> to get "make dep" right, but that's not 
-necessary anymore.
+Yeah. Still not exactly clean. Another suggestion I got was
 
-So I'm not sure introducing such a kind-of-weird rule for "version.h" is
-the right way to go. An alternative would be to follow kaos' suggestion
-and split version.h into uts_release.h (for the UTS_RELEASE macro) and
-version.h for the numeric version. Then just include version.h from
-kernel.h and be done with it.
++     objs="$(sort $(local-objs-y))"; for o in $$objs; do \
+
+from Alex Riesen. This one looks the nicest to me.
+
+> diff -Nru a/scripts/build-initcalls b/scripts/build-initcalls
+> --- a/scripts/build-initcalls	Fri Aug  2 23:15:54 2002
+> +++ b/scripts/build-initcalls	Fri Aug  2 23:15:54 2002
+> @@ -7,7 +7,10 @@
+>  
+>  # get all global defined/undefined symbols and sort them into the right files
+>  while read obj; do
+> -  $NM $obj | sed -n "s,^[0-9a-f ]*\([UTD] .*\),\1 $(echo $obj | sed s/,/\\\\,/),p"
+> +  if [ -f $obj ]; then
+> +    $NM $obj |\
+> +      sed -n "s,^[0-9a-f ]*\([UTD] .*\),\1 $(echo $obj | sed s/,/\\\\,/),p"
+> +  fi
+>  done < $list |
+>  awk '/^U/ { print $2 " " $3 | "sort -u > .undefined.tmp" }
+>       /^[TD]/ { print $2 " " $3 | "sort -u > .defined.tmp" }'
+
+I think these should really not be necessary (didn't try, though). I would 
+really hope that the body won't get executed when the file is empty, and 
+I'd rather have it error out when one of the listed files magically 
+disappeared instead of silently skipping some initcalls ;)
+
+>  # finally write it
+> -echo "#include <linux/init.h>" > $initsrc
+> -echo $defs >> $initsrc
+> -echo 'initcall_t generated_initcalls[] = {' >> $initsrc
+> -echo $arr >> $initsrc
+> -echo '0 };' >> $initsrc
+> +(
+> +echo "#include <linux/init.h>"
+> +for i in $arr; do
+> +  echo "extern int $i(void);"
+> +done
+> +echo
+> +echo 'initcall_t generated_initcalls[] = {'
+> +for i in $arr; do
+> +  echo "$i, "
+> +done
+> +echo '0 };'
+> +) > $initsrc
+
+Looks good to me...
+
+>  # clean up
+> -rm .undefined.tmp .defined.tmp .sorted.tmp .other.tmp
+> +#rm .undefined.tmp .defined.tmp .sorted.tmp .other.tmp
+
+I guess you meant to remove that part before making the patch ;)
 
 --Kai
+
 
 

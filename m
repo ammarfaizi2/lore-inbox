@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261854AbSJQT6G>; Thu, 17 Oct 2002 15:58:06 -0400
+	id <S262042AbSJQUIy>; Thu, 17 Oct 2002 16:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262003AbSJQT6G>; Thu, 17 Oct 2002 15:58:06 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:31495 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261854AbSJQT6F>; Thu, 17 Oct 2002 15:58:05 -0400
-Date: Thu, 17 Oct 2002 21:04:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017210402.A7741@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021017190723.GB32537@kroah.com>; from greg@kroah.com on Thu, Oct 17, 2002 at 12:07:23PM -0700
+	id <S262060AbSJQUIy>; Thu, 17 Oct 2002 16:08:54 -0400
+Received: from netcore.fi ([193.94.160.1]:8966 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id <S262042AbSJQUIw>;
+	Thu, 17 Oct 2002 16:08:52 -0400
+Date: Thu, 17 Oct 2002 23:14:32 +0300 (EEST)
+From: Pekka Savola <pekkas@netcore.fi>
+To: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
+cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>, <yoshfuji@wide.ad.jp>,
+       <torvalds@transmeta.com>, <jagana@us.ibm.com>
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
+In-Reply-To: <20021017162624.GC16370@morphine.tml.hut.fi>
+Message-ID: <Pine.LNX.4.44.0210172309160.28084-100000@netcore.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 12:07:23PM -0700, Greg KH wrote:
-> But this will require every security module project to petition for a
-> syscall, which would be a pain, and is the whole point of having this
-> sys_security call.
+On Thu, 17 Oct 2002, Antti Tuominen wrote:
+> Intermediate revision of the specification "Draft 18++" appeared a few
+> days ago, which addressed most of the issues with earlier drafts (16,
+> 17, 18).  This made it possible to update our code to something usable
+> (later than 15).  This patch set has support for most of it.
 
-And the whole point of the reemoval is to not make adding syscalls
-easy.  Adding a syscall needs review and most often you actually want
-a saner interface.
-
-> How would they be done differently now?  Multiple different syscalls?
-
-Yes.
-
+Sounds great.  Hopefully it slows down a bit from being a moving target.
+ 
+> To Alexey, (and everyone else)
 > 
-> I do know that Dave Miller has also complained about the sys_security
-> call in the past, and the difficulties along the same lines as the
-> ioctl 32bit problem.  If we were to go to individual syscalls for every
-> security function, this would go away.
+> The patch has been split for easier reading as follows:
+> 
+> ipv6_tunnel.patch	6over6 tunneling
+> network_mods.patch	Modifications to network code and hooks
+> mipv6_cn_support.patch	Correspondent node support (+common code)
+> mipv6_mn_support.patch	Mobile node support (+common code with HA)
+> mipv6_ha_support.patch	Home agent support
 
-Yes, doing the 32bit translation for a call where you don't actually
-know what the arguments mean is impossible.  See the 32bit ioctl
-compatiblity mess.
+I didn't look at these that much, but I'll make two generic observations:
+
+ 1) current tunneling (including sanity checks which are, I believe, a bit
+non-existant at the moment) should be generalized to handle v6-in-v6 and
+v6-in-v4 tunneling anyway.  Not sure if this is the right way, but that's
+IMO one priority item.
+
+ 2) without IPSEC, there is no way to secure MN-HA traffic.  Therefore I 
+think the first priority is being able to support Correspondent Node 
+behaviour.
+
+I belive Alexey, Davem et al are best to justify whether this feels like a 
+right approach.
+
+Having IPSEC + MIPv6 in 2.6 series would be Really Cool, though :-)
+
+-- 
+Pekka Savola                 "Tell me of difficulties surmounted,
+Netcore Oy                   not those you stumble over and fall"
+Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
 

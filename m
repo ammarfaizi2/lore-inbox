@@ -1,103 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262351AbSI1X4t>; Sat, 28 Sep 2002 19:56:49 -0400
+	id <S262349AbSI1X4K>; Sat, 28 Sep 2002 19:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262352AbSI1X4t>; Sat, 28 Sep 2002 19:56:49 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:58120 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262351AbSI1X4o>; Sat, 28 Sep 2002 19:56:44 -0400
-Date: Sun, 29 Sep 2002 02:00:50 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel@vger.kernel.org,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.7
-In-Reply-To: <20020929004821.A11497@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0209290133380.338-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262351AbSI1X4K>; Sat, 28 Sep 2002 19:56:10 -0400
+Received: from mail.eskimo.com ([204.122.16.4]:26374 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S262349AbSI1X4I>;
+	Sat, 28 Sep 2002 19:56:08 -0400
+Date: Sat, 28 Sep 2002 17:00:57 -0700
+To: Michael Clark <michael@metaparadigm.com>
+Cc: felix.seeger@gmx.de, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: System very unstable
+Message-ID: <20020929000056.GB19765@eskimo.com>
+References: <200209281155.32668.felix.seeger@gmx.de> <20020928.025900.58828001.davem@redhat.com> <200209281233.21897.felix.seeger@gmx.de> <20020928.033510.40857147.davem@redhat.com> <3D958EF5.7080300@metaparadigm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D958EF5.7080300@metaparadigm.com>
+User-Agent: Mutt/1.4i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Sep 28, 2002 at 07:13:57PM +0800, Michael Clark wrote:
+> On 09/28/02 18:35, David S. Miller wrote:
+> >   From: Felix Seeger <felix.seeger@gmx.de>
+> >   Date: Sat, 28 Sep 2002 12:33:21 +0200
+> >   
+> >   What card is good (performance for games and 
+> >   a acceptable licenze for kernel developers)?
+> >
+> >ATI Radeon is pretty fast and all except the very latest chips have
+> >opensource drivers.
+> 
+> Radeon 7500 is currently the fastest board with an opensource
+> driver that supports 3D. 8500 XFree support is currently 2D only,
+> although apparently work on the opensource GL driver is underway.
 
-On Sun, 29 Sep 2002, Sam Ravnborg wrote:
+Unfortunately, in my experience the open source Radeon 7500 drivers are
+so unstable as to be basically unusable.  Plus, they seem to still be
+basically incompatible with a lot of 3d software.
 
-> 1) Old tools zapped <file:> tags around filenames.
+I tried to get them to work for about 3 months this year, but finally
+gave up when it became clear that I'd need to buy another computer, put
+the Radeon in it, and start debugging the Radeon driver myself to get it
+working (lest you get the wrong impression, I mean here that I'd have to
+do it myself because other people seemed to be seeing them crash
+somewhat less often than I did, thus I had the best repro.  Plus, to get
+particular software to work, I'd have to trace it myself since other
+people wouldn't have it)  Which would mean, I'd still need to buy a
+graphics card to use in the meantime for my real machine.  Not being
+able to justify the expense of a new, identical computer, I decided to
+simply buy the graphics card and forego debugging the Radeon for the
+time being.  I know, I'm a wuss.
 
-Ok.
+The only reasonable option seemed to be to replace it with an NVidia
+card, which has turned out to be about five orders of magnitude more
+stable than the Radeon was even with the horrible closed-source NVidia
+drivers.  (The MTBF for the Radeon was about 12 seconds, for the NVidia,
+it seems to be about 3 days)
 
-> > An issue (which was also mentioned by Jeff Garzik) is the help text
-> > format. Jeff likes to have an endhelp, where I think it's redundant.
-> 2) The current way forces the layout of the help text. I would prefer a way
-> that allowed the tools to use the space available instead.
-> Then a "." followed by newline could be interpreted as "forced-new-line"
-> or similar.
-> If endhelp is needed for that I vote for this as well.
+On the other hand, my old Matrox G400 card had stable open source
+drivers which didn't appear to crash at all, so if stability is most
+important, I'd say go with one of those.  Unfortunately, the card itself
+is rather slow.  (Though strangely enough, in realistic tests, it was
+pretty much equal or better than the Radeon...  For the short time the
+Radeon could go without hard-locking the computer, that is.  This was
+partly because the rendering quality was so much better, the Radeon had
+to be run in 32 bit mode to compare with 16-bit rendering on the Matrox
+in terms of output.)
 
-The problem is that the Config.help format has almost no restrictions, so
-somehow I have to avoid messing up the content (at least for the
-majority of options), so far I tried to avoid to reformat all the help
-text.
-Another possibility might to use html tags.
+If you need to avoid NVidia, I'd say go for a Matrox G400, or maybe some
+sort of older Radeon which might be more stable.
 
-> 3) The syntax seems to be:
-> config SYMBOL
-> 	type-of-symbol optional-text
-> I would like "optional-text" to become mandatory. Then you could bail out
-> with an error when it does not exist.
-
-Why should it be an error? Symbols without a text are used for derived
-symbols.
-
-> 4) Did not find the documentation you mentioned, but on the other hand I
-> applied only the 2.3.39 diff.
-
-It's on the web. :)
-
-> 5) Show All intuitively is a shortcut for selecting all the three
-> possibilities {NAME, RANGE, DATA}, but is about showing all symbols.
-> 6) The ARCH specific options does not fit well into the tree.
-> GENERIC_ISA_DMA in top of tree, X86_SMP in bottom of tree.
-> Visible only with SHOW ALL enabled.
-
-"Show All" is mostly only a debug option, so what you see here isn't
-important to the normal user.
-
-> 7) I can step down in the tree but I need to select each sibling in the tree
-> induvidially. I expected to be able to select Cirrus logic under ALSA, and
-> let the selection boil up to the top.
-
-This is a planned feature, first I want to have a replacement for the old
-tools, new features come later.
-I suppose you use QT2 and "Show All" was active? Then it can be a bit
-confusing since the usually not visible items are not specially marked.
-
-> 8) File|Save followed by File|Quit. Still it ask if I want to save, even
-> no changes made inbetween.
-
-Simple to do.
-
-> 9) Renames a file in a source statement:
-> [sam@mars lkc-2.5.39]$ make xconfig
-> make[1]: `qconf' is up to date.
-> ./scripts/lkc/qconf arch/i386/Build.conf
-> can't find file ssound/arm/Build.conf
-> make: *** [xconfig] Error 1
->
-> Error shall tell where the file is sourced. [.../Build.conf:27]
->
-> 10) Deleted endmenu tag in sound/Build.conf:
-> [sam@mars lkc-2.5.39]$ make xconfig
-> make[1]: `qconf' is up to date.
-> ./scripts/lkc/qconf arch/i386/Build.conf
-> <none>:0:parse error, unexpected $
-> make: *** [xconfig] Error 1
->
-> Some errorhandling needs to be improved a little.
-
-I know and it slowly moves to the top of the TODO list. :)
-
-bye, Roman
-
+-J

@@ -1,83 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbTFSVoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 17:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTFSVoK
+	id S261222AbTFSVuH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 17:50:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbTFSVuH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 17:44:10 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:64901 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S261153AbTFSVoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 17:44:07 -0400
-Subject: Re: matroxfb console oops in 2.4.2x
-From: David Woodhouse <dwmw2@infradead.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org
-In-Reply-To: <4E2D2240020@vcnet.vc.cvut.cz>
-References: <4E2D2240020@vcnet.vc.cvut.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056059885.2282.38.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Thu, 19 Jun 2003 22:58:05 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: VANDROVE@vc.cvut.cz, linux-kernel@vger.kernel.org, jsimmons@infradead.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+	Thu, 19 Jun 2003 17:50:07 -0400
+Received: from user-vc8fdp3.biz.mindspring.com ([216.135.183.35]:36878 "EHLO
+	mail.nateng.com") by vger.kernel.org with ESMTP id S261222AbTFSVuB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 17:50:01 -0400
+X-RAV-AntiVirus: This e-mail has been scanned for viruses on host: mail.nateng.com
+Date: Thu, 19 Jun 2003 15:04:38 -0700 (PDT)
+From: Sir Ace <chandler@nateng.com>
+X-X-Sender: chandler@jordan.eng.nateng.com
+To: linux-kernel@vger.kernel.org
+Subject: IRQ Issues:
+Message-ID: <Pine.LNX.4.53.0306191445020.10241@jordan.eng.nateng.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-06-19 at 20:45, Petr Vandrovec wrote:
-> On 19 Jun 03 at 14:47, David Woodhouse wrote:
-> > On Thu, 2003-06-19 at 13:21, Petr Vandrovec wrote:
-> 
-> > take_over_console() attempts to redraw the screen.
-> 
-> It is not take_over_console... It does init first. 
 
-Hmm. OK. For some reason my two-year-old GDB and KGDB between them
-aren't giving me a sensible backtrace today so I can't see precisely
-what's happening. I accused take_over_console because my vague memory of
-a debugging printk session the other day led me to believe that was the
-case.
+I sent this to both the video, and normal lists, because my issue is video
+but it seems to be a problem outside of the video sub-system:
 
-take_over_console (actually update_region()) is definitely doing
-_something_ bizarre... there have been 34 lines of printk output since
-boot, and it's rendering the 34th line 34 times, one on each of the top
-34 lines of the new console.
+2.5.72 yeilds these:
 
-> > >  
-> > matroxfb: Pixel PLL not locked after 5 secs
->   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->   
-> This one is culprit. If you'll comment this message out, it will not
-> crash.
+PCI: Probing PCI hardware
+PCI: Probing PCI hardware (bus 00)
+PCI: Using IRQ router VIA [1106/3147] at 00:11.0
+PCI: IRQ 0 for device 00:05.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: IRQ 0 for device 00:09.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: IRQ 0 for device 00:09.1 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: Found IRQ 11 for device 00:09.1
+PCI: Sharing IRQ 11 with 00:0d.0
+PCI: Sharing IRQ 11 with 01:00.0
+PCI: IRQ 0 for device 00:09.2 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: IRQ 0 for device 00:0c.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: IRQ 0 for device 00:0e.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: IRQ 0 for device 00:0f.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: IRQ 0 for device 00:10.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: Enabling device 00:0c.0 (0004 -> 0007)
+PCI: IRQ 0 for device 00:0c.0 doesn't match PIRQ mask - try pci=usepirqmask
+PCI: Assigned IRQ 5 for device 00:0c.0
+PCI: Sharing IRQ 5 with 00:09.0
 
-OK; I'll try that in the morning.
+What I have is 4 Osprey 100 Vid cap cards. {Bt848}
+I've done a lot of work to tear through this so, please forgive the length
+of this mail...
 
-> > Console: switching to colour frame buffer device 160x64
-> > fb0: MATROX VGA frame buffer device
-> > 
-> > If I call matrox_init_putc() earlier as you suggest, then it seems to
-> > end up busy-waiting in mga_fifo()...
-> 
-> Ok. It means that hardware is completely uninitialized when this happens.
-> Probably accelerator clocks are stopped (== message about pixclocks was
-> right...) Bad.
-> 
-> Does driver work with your change without problems? 
+Kernel linux-2.4.18-17.7.x {puke, redhat yes I know}
+with bt support built in, I got {or similar}:
 
-Yes, it's fine. The hardware just seems to take a few seconds to
-initialise after printing the console/matroxfb-related messages.
+bttv1: irq: SCERR risc_count=3530a82c
+bttv1: irq: SCERR risc_count=3530a834
+bttv1: irq: SCERR risc_count=3530a82c
+bttv1: irq: SCERR risc_count=3530a834
+bttv1: irq: SCERR risc_count=3530a82c
+bttv1: aiee: error loops
 
-> It looks strange to me that PLL did not stabilized in 5 seconds. Do
-> you get same message when you change videomode with fbset, or happens
-> this only once during boot, and never again?
+bttv1: irq: SCERR risc_count=3530a82c
+bttv1: aiee: error loops
+bttv1: resetting chip
 
-Answering that question will require compiling/obtaining fbset for SH3.
-Tomorrow.
+Since I am recording live video streams from these inputs, I am screwed
+when the chip resets, because in that instant the device dissappears.
+It does come back once the IC reset is done, but that is too long to save
+the app that is useing it.
 
--- 
-dwmw2
+Anyway:
+2.4.21 Stock with compiled in bt support does the same
+2.4.21 Stock with bt as a module is the same:
+2.4.21 with no bt support, but using bttv standalone drivers 0.7.97 is the same:
+2.4.21 with no bt support, but using bttv standalone drivers 0.7.106 is thesame:
 
+2.4.21 with no bt support, but using bttv standalone drivers 0.9.10 yields:
+bttv0: timeout: risc=34a6d03c, bits: HSYNC OFLOW
+bttv0: reset, reinitialize
+bttv3: timeout: risc=358a203c, bits: HSYNC OFLOW
+bttv3: reset, reinitialize
+bttv1: timeout: risc=34a6c03c, bits: HSYNC OFLOW
+bttv1: reset, reinitialize
+
+2.5.72 when detecting the cards shows the output at the top of this mail:
+and this latre on:
+bttv0: timeout: risc=37cd803c, bits: HSYNC OFLOW
+bttv0: reset, reinitialize
+warning: process `update' used the obsolete bdflush system call
+Fix your initscripts?
+bttv3: timeout: risc=37cc903c, bits: HSYNC OFLOW
+bttv3: reset, reinitialize
+
+I have no alternative to fixing it because I am not putting windows on the
+machine.....  So please help ;)  I'll send whatever info anyone wants, but
+I need to know what you need to figure out what's up.....   I don't know
+enough to help fix it other than giving info.
+
+  --Sir Ace
 

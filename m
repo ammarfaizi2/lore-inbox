@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUKIA45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUKIAz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbUKIA45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 19:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUKIA4d
+	id S261322AbUKIAz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 19:55:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUKIAz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 19:56:33 -0500
-Received: from rydia.net ([209.123.232.170]:33920 "EHLO locke.rydia.net")
-	by vger.kernel.org with ESMTP id S261318AbUKIAzc (ORCPT
+	Mon, 8 Nov 2004 19:55:58 -0500
+Received: from mail.kroah.org ([69.55.234.183]:9653 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261322AbUKIAvm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 19:55:32 -0500
-From: Alistair John Strachan <alistair@devzero.co.uk>
-Reply-To: alistair@devzero.co.uk
-To: linux-kernel@vger.kernel.org
-Subject: Kernel or failing harddisc?
-Date: Tue, 9 Nov 2004 00:54:48 +0000
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Nov 2004 19:51:42 -0500
+Date: Mon, 8 Nov 2004 16:49:38 -0800
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: phil@netroedge.com, sensors@stimpy.netroedge.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i2c/busses/ : make some code static
+Message-ID: <20041109004938.GC25651@kroah.com>
+References: <20041107023333.GB14308@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411090054.48164.alistair@devzero.co.uk>
+In-Reply-To: <20041107023333.GB14308@stusta.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Nov 07, 2004 at 03:33:33AM +0100, Adrian Bunk wrote:
+> The patch below makes some needlessly global code under i2c/busses/ 
+> static.
+> 
+> 
+> diffstat output:
+>  drivers/i2c/busses/i2c-ali1535.c |    4 ++--
+>  drivers/i2c/busses/i2c-amd8111.c |   12 ++++++------
+>  drivers/i2c/busses/scx200_acb.c  |    4 ++--
+>  drivers/i2c/busses/scx200_i2c.c  |    4 ++--
+>  4 files changed, 12 insertions(+), 12 deletions(-)
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Periodically, especially while playing large files with Xine (~1.4GB OGMs), 
-playback will pause for up to 10 seconds. I see the following in dmesg;
+Applied, thanks.
 
-hda: dma_timer_expiry: dma status == 0x64
-hda: DMA interrupt recovery
-hda: lost interrupt
+greg k-h
 
-The drive then recovers and playback resumes, no problem.
-
-Is this likely to be the first signs of a faulty HD, or is it some known 
-problem? In the event that it's the HD, has anybody been able to successfully 
-RMA a Maxtor which has this, albeit minor, problem?
-
--- 
-Cheers,
-Alistair.
-
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/AI Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.

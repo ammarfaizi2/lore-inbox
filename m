@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUIJG2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268348AbUIJGdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268280AbUIJG2y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 02:28:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268286AbUIJG2y
+	id S268348AbUIJGdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268286AbUIJGdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 02:28:54 -0400
-Received: from gizmo12bw.bigpond.com ([144.140.70.43]:53122 "HELO
-	gizmo12bw.bigpond.com") by vger.kernel.org with SMTP
-	id S268280AbUIJG2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 02:28:52 -0400
-Message-ID: <414149A0.1050006@bigpond.net.au>
-Date: Fri, 10 Sep 2004 16:28:48 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
-References: <413FA9AE.90304@bigpond.net.au> <20040909010610.28ca50e1.akpm@osdl.org> <4140EE3E.5040602@bigpond.net.au> <20040909171450.6546ee7a.akpm@osdl.org> <4141092B.2090608@bigpond.net.au> <20040909200650.787001fc.akpm@osdl.org> <41413F64.40504@bigpond.net.au> <20040909231858.770ab381.akpm@osdl.org>
-In-Reply-To: <20040909231858.770ab381.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Sep 2004 02:33:33 -0400
+Received: from smtp.e7even.com ([83.151.192.5]:25820 "HELO smtp.e7even.com")
+	by vger.kernel.org with SMTP id S268316AbUIJGdb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 02:33:31 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Timothy Miller <miller@techsource.com>, Jamie Lokier <jamie@shareable.org>,
+       Adrian Bunk <bunk@fs.tum.de>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <41413A2B.9020405@namesys.com>
+References: <20040825200859.GA16345@lst.de>
+	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+	 <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk>
+	 <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
+	 <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826001152.GB23423@mail.shareable.org>
+	 <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com>
+	 <20040826140500.GA29965@fs.tum.de>
+	 <20040826150202.GE5733@mail.shareable.org>
+	 <41410DE7.3090100@techsource.com>  <41413A2B.9020405@namesys.com>
+Content-Type: text/plain
+Message-Id: <1094797973.4838.4.camel@almond.st-and.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 07:32:54 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Peter Williams <pwil3058@bigpond.net.au> wrote:
-> 
->>>Grab the latest Linus snapshot and apply them in this order:
->>>
->>>1-1911-3-2.patch
->>
->>Still there with this one PLUS I now get a whole bunch of "scheduling 
->>while atomic" errors when I do "make install" which fails due to a 
->>segmentation fault while doing the mkinitrd bit.
-> 
-> 
-> Yup, one or two of these patches are "fix up the previous patch" things.
-> 
-> 
->>>1-1901-1-17.patch
->>>1-1860-1-29.patch
->>>1-1860-1-28.patch
-> 
-> 
-> Please keep going ;)
-> 
+On Fri, 2004-09-10 at 06:22, Hans Reiser wrote:
+> He asked me, why not just access a filename's size as filename/size?
 
-All the way through and it's still occurring.  After the second patch 
-the symptoms changed slightly and it was a different gdm program that 
-triggered the oops.  But with all patches applied it's back to the 
-original symptoms.
+I now understand that you need a way to distinguish between something
+like
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+shoe/size
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+and
+
+shoe/.../size   (or shoe/..size)
+
+The first one is the size of the shoe, the second is the automatically
+generated size of the file (object). You would get into trouble if you
+would not allow the user to use shoe/size for shoe size. Peter
+
 

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282328AbRKZTFe>; Mon, 26 Nov 2001 14:05:34 -0500
+	id <S282329AbRKZTI5>; Mon, 26 Nov 2001 14:08:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282341AbRKZTDu>; Mon, 26 Nov 2001 14:03:50 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4833 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282262AbRKZTCp>;
-	Mon, 26 Nov 2001 14:02:45 -0500
-Date: Mon, 26 Nov 2001 22:00:28 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Momchil Velikov <velco@fadata.bg>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <Pine.LNX.4.33.0111262133140.17709-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0111262153440.18592-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282050AbRKZTHF>; Mon, 26 Nov 2001 14:07:05 -0500
+Received: from mail.coastside.net ([207.213.212.6]:64197 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S282381AbRKZTGK>; Mon, 26 Nov 2001 14:06:10 -0500
+Mime-Version: 1.0
+Message-Id: <p05100307b82842b5492a@[207.213.214.37]>
+In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0111261524560.13976-100000@freak.distro.conectiva>
+Date: Mon, 26 Nov 2001 11:06:04 -0800
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Release Policy [was: Linux 2.4.16  ]
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 3:25 PM -0200 11/26/01, Marcelo Tosatti wrote:
+>  > Consistency is a Very Good Thing[TM] (says the one who tries to teach
+>>  scripts to understand the naming.)  The advantage with the -rc naming is
+>>  that it avoids the -pre5, -pre6, -pre-final, -pre-final-really,
+>>  -pre-final-really-i-mean-it-this-time phenomenon when the release
+>>  candidate wasn't quite worthy, you just go -rc1, -rc2, -rc3.  There is no
+>>  shame in needing more than one release candidate.
+>
+>Agreed. I stick with the -rc naming convention for 2.4+...
 
-there is a case where the binary tree has less cache footprint than the
-hash - when big continuous areas of files are cached, *and* the access
-patterns are linear. In this case the binary tree uses only the continuous
-mem_map[] area for its data structures - while the hash uses the hash
-table as well. (which is +12% or +25%, in the stock/buckets variant.)
-
-	Ingo
-
+A quibble: "release" seems an odd word to choose for a Linux kernel. 
+Since we're calling the target kernel "final", how about -fc1, 
+-fc2...?
+-- 
+/Jonathan Lundell.

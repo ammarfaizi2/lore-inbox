@@ -1,70 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbTL2HCn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 02:02:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTL2HCm
+	id S262792AbTL2Hlp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 02:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbTL2Hlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 02:02:42 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:916 "HELO mail.iinet.net.au")
-	by vger.kernel.org with SMTP id S262784AbTL2HCl (ORCPT
+	Mon, 29 Dec 2003 02:41:45 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:395 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S262792AbTL2Hlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 02:02:41 -0500
-Message-ID: <3FEFD18D.3070608@cyberone.com.au>
-Date: Mon, 29 Dec 2003 18:02:37 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+	Mon, 29 Dec 2003 02:41:40 -0500
+Message-ID: <3FEFDAB1.2050202@wmich.edu>
+Date: Mon, 29 Dec 2003 02:41:37 -0500
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
-References: <200312231138.21734.kernel@kolivas.org> <20031226225652.GE197@elf.ucw.cz> <200312271042.55989.kernel@kolivas.org> <20031227110903.GA1413@elf.ucw.cz>
-In-Reply-To: <20031227110903.GA1413@elf.ucw.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Walt H <waltabbyh@comcast.net>
+Subject: Re: Can't eject a previously mounted CD?
+References: <3FEF89D5.4090103@comcast.net> <3FEF8BB1.6090704@wmich.edu> <3FEFA36A.5050307@comcast.net> <3FEFC86E.9050307@wmich.edu>
+In-Reply-To: <3FEFC86E.9050307@wmich.edu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Just to add to my previous post about the problem with the ide-cd 
+driver. It appears that loading and unloading it and loading it again a 
+couple times causes the driver to mess up it's interrupts. Now i get a 
+recurring "lost interrupt to hdc" message and the device is 
+non-responsive, causing any attempt to rmmod or modprobe ide-cd to hang, 
+and the /dev entry is missing according to hdparm.
 
 
-Pavel Machek wrote:
 
->Hi!
->
->
->>>BTW this is going to be an issue even on normal (non-HT)
->>>systems. Imagine memory-bound scientific task on CPU0 and nice -20
->>>memory-bound seti&home at CPU1. Even without hyperthreading, your
->>>scientific task is going to run at 50% of speed and seti&home is going
->>>to get second half. Oops.
->>>
->>>Something similar can happen with disk, but we are moving out of
->>>cpu-scheduler arena with that.
->>>
->>>[I do not have SMP nearby to demonstrate it, anybody wanting to
->>>benchmark a bit?]
->>>
->>This is definitely the case but there is one huge difference. If you have 
->>2x1Ghz non HT processors then the fastest a single threaded task can run is 
->>at 1Ghz. If you have 1x2Ghz HT processor the fastest a single threaded task 
->>can run is 2Ghz. 
+
+Ed Sweetman wrote:
+> Walt H wrote:
+> 
+>> Ed Sweetman wrote:
 >>
->
->Well, gigaherz is not the *only* important thing.
->
->On 2x1GHz, 2GB/sec RAM bandwidth, fastest a single threaded task can
->run is 1GHz, 2GB/sec. If you run two of them, it is 1GHz,
->*1*GB/sec. So you still have effect similar to hyperthreading. And
->yes, it can be measured.
->
-
-Hi Pavel,
-Sure this might be a real problem sometimes, but I don't see the
-CPU scheduler ever handling it unless we want to add a few kitchen
-sinks to its nice lean code as well.
-
-If the need really arises, then probably a userspace daemon could
-do it.
-
+>>> I'd have to say the december 17th listed changes are the culprit here.
+>>> I'm definitely not up to figuring out what change is the bad one.  If
+>>> any of the cdrom/ide-cd people wanna have me get some data from them
+>>> then just tell me how.  I've tried viewing the debug output from the
+>>> modules with no success in figuring out the problem.
+>>>
+>>>
+> 
+>>
+>> Luckily for me, I built my cdrom drivers as modules, so I could play :)
+> 
+> 
+> so did i. I looked at the debugging output and noticed the increments 
+> increasing. This had no effect on me unloading the module so i didn't 
+> care. It also should have nothing to do with not being able to eject it 
+> since being unable to eject would imply that the door is locked, in 
+> which case the command "eject" should also fail but it does not. I think 
+> the kernel is really really fubarred since the dec 17th patches dealing 
+> with ide-cd.  My cd writer is no longer able to write in atapi direct 
+> mode because the driver isn't giving it the capabalities it should have. 
+> It's being shown as a simple cdrom as far as the kernel is concerned. 
+> Also, the drive throws errors about being unable to access sector 0, as 
+> many others have pointed out. This is an error that should be caught 
+> prior to actually sending such a command since media is not in the drive 
+> in the first place.
+> 
+> It's definitely not up to me but i would roll back the cdrom and ide-cd 
+> changes from dec 17th and re-add them much more carefully because 
+> something is really messed up.
+> 
+> cdrecord is showing the TOC as just CdRom and reports the drive as 
+> readonly.  That's about all the irregular information i can find on my 
+> own. I dont know where to look for anything else, the cdrom debugging 
+> output doesn't report anything irregular except for the behavior 
+> described below and that really doesn't help me with anything except to 
+> prove that the patches that went in last are the cause of the problem, 
+> not necessarily famd's hackish behavior or hardware.
+> 
+>> I turned on debugging, and noticed that cdi->use_count continues to 
+>> increment by
+>> 2 for each access. In cdrom_release, only one cdi->use_count-- exists, 
+>> so the
+>> driver never gets to 0 use count and releases. I noticed in
+>> drivers/cdrom/cdrom.c line 753:
+>>
+>>         if (!ret) cdi->use_count++;
+>>
+>> Which is our second increment, but I can't find two decrements, 
+>> because the
+>> check further down won't ever be true if the above is true. Hence, two
+>> increments and only 1 dec when we reach cdrom_release. What I did, was 
+>> add a
+>> conditional decrement right before the open_for_data call, which makes 
+>> the value
+>> of use_count like it used to be prior to the Mt. Rainier patches. 
+>> Seems kinda
+>> hacky :)
+>>
 

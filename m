@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbUBVPIN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 10:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbUBVPIN
+	id S261465AbUBVPNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 10:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbUBVPNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 10:08:13 -0500
-Received: from mail.shareable.org ([81.29.64.88]:64641 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261519AbUBVPIK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 10:08:10 -0500
-Date: Sun, 22 Feb 2004 15:07:53 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-       Tridge <tridge@samba.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
-Message-ID: <20040222150753.GB25664@mail.shareable.org>
-References: <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <m3vfm1trj8.fsf@zoo.weinigel.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3vfm1trj8.fsf@zoo.weinigel.se>
-User-Agent: Mutt/1.4.1i
+	Sun, 22 Feb 2004 10:13:08 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:38804 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261465AbUBVPNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 10:13:05 -0500
+Message-ID: <4038C6F5.1070309@colorfullife.com>
+Date: Sun, 22 Feb 2004 16:12:53 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-kernel@vger.kernel.org,
+       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
+Subject: Re: [RFC][PATCH] 2/6 POSIX message queues
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christer Weinigel wrote:
-> > 	long sys_mark_dir_clean(dirfd);
-> > 
-> > the syscall returns whether the directory was valid/clean already.
-> 
-> Isn't this rather bad, it's only possible to have one process that
-> does this magic clean bit thing.  Other applications such as Wine or
-> a DOS emulator might want to get the same speedups.
+Arnd wrote:
 
-No.  The magic clean bit is associated with dirfd - different file
-descriptors have separate magic clean bits.
+>Nothing difficult here, but slow and avoidable if you have the
+>structures laid out properly.
+>
+I thought about using s32 for the kernel mq_attr structure, and didn't 
+like it: It would mean that 64-bit archs running native 64-bit apps must 
+do a conversion - glibc must expose a structure with long values.
+Additionally, the posix message queue API uses 3 structures with long 
+values, and only one of them is new - we'll need wrappers anyway.
+The actual values in the mq_attr structure would fit into s32:
+- mq_flags is 0 or O_NONBLOCK
+- mq_maxmsg is less than 32k (kmalloc'ed array of pointers)
+- mq_msgsize is theoretically unlimited, but the current implementation 
+arbitrarily limits the value to 1 MB.
 
-> Add a new create syscall with the same idea as your one bit syscall,
-> which checks that the generation number matches.  If the generation
-> number doesn't match the create call fails.
-> 
->     int create_synchronized(name, mode, generation);
+--
+    Manfred
 
-Hmm.  That's an interesting idea.
 
--- Jamie

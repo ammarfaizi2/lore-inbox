@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbULMOmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbULMOvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbULMOmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 09:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbULMOmL
+	id S261226AbULMOvY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 09:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbULMOvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 09:42:11 -0500
-Received: from fsmlabs.com ([168.103.115.128]:40139 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261223AbULMOmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 09:42:05 -0500
-Date: Mon, 13 Dec 2004 07:38:03 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Hans Kristian Rosbach <hk@isphuset.no>
-cc: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
-       andrea@suse.de, pavel@suse.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic-hz
-In-Reply-To: <1102936790.17227.24.camel@linux.local>
-Message-ID: <Pine.LNX.4.61.0412130737330.22212@montezuma.fsmlabs.com>
-References: <20041211142317.GF16322@dualathlon.random>  <20041212163547.GB6286@elf.ucw.cz>
-  <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> 
- <20041213030237.5b6f6178.akpm@osdl.org> <1102936790.17227.24.camel@linux.local>
+	Mon, 13 Dec 2004 09:51:24 -0500
+Received: from cpe-66-27-170-242.socal.rr.com ([66.27.170.242]:14516 "EHLO
+	bsd.clones.net") by vger.kernel.org with ESMTP id S261226AbULMOvR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 09:51:17 -0500
+Date: Mon, 13 Dec 2004 06:51:32 -0800 (PST)
+From: Glendon Gross <gross@clones.net>
+To: krishna <krishna.c@globaledgesoft.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to enable sysrq feature
+In-Reply-To: <41BD24EB.8000502@globaledgesoft.com>
+Message-ID: <Pine.NEB.4.44.0412130651180.18413-100000@bsd.clones.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Dec 2004, Hans Kristian Rosbach wrote:
+It works on the 2.6.9 kernel I just built.
 
-> Is there any recommended lower bound setting?
-> Would there be a point in recommending lower settings for desktops
-> running only text consoles opposed to X desktops?
+Regards,
 
-You could probably go as low as 50 without noticing anything on text only 
-consoles.
+Glendon Gross
+
+
+On Mon, 13 Dec 2004, krishna wrote:
+
+> Date: Mon, 13 Dec 2004 10:43:15 +0530
+> From: krishna <krishna.c@globaledgesoft.com>
+> To: Linux Kernel <linux-kernel@vger.kernel.org>
+> Subject: How to enable sysrq feature
+>
+> Hi all,
+>
+> I have installed a 2.6.9 linux box with sysrq enabled. But Alt +
+> printscreen + h is not working. And there is no /proc/sys/kernel/sysrq in
+> the proc directory.
+>
+> Regards,
+> Krishna Chaitanya
+>
+
 

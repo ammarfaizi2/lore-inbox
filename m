@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbULCMKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbULCMML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbULCMKx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 07:10:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbULCMKx
+	id S262178AbULCMML (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 07:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbULCMML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 07:10:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19114 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262177AbULCMKu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 07:10:50 -0500
-Date: Fri, 3 Dec 2004 13:10:08 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Rahul Karnik <deathdruid@gmail.com>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cdrecord dev=ATA cannont scanbus as non-root [u]
-Message-ID: <20041203121008.GO10492@suse.de>
-References: <1101763996l.13519l.0l@werewolf.able.es> <20041130071638.GC10450@suse.de> <1101935773.11949.86.camel@nosferatu.lan> <200412021723.48883.astralstorm@gorzow.mm.pl> <Pine.LNX.4.53.0412030834330.26749@yvahk01.tjqt.qr> <5b64f7f041203035133c53d10@mail.gmail.com> <Pine.LNX.4.53.0412031306080.1932@yvahk01.tjqt.qr>
+	Fri, 3 Dec 2004 07:12:11 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:29633 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262178AbULCMMC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 07:12:02 -0500
+Date: Fri, 3 Dec 2004 13:11:30 +0100
+From: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>, zaphodb@zaphods.net,
+       marcelo.tosatti@cyclades.com, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041203121129.GC27716@mail.muni.cz>
+References: <20041116170527.GA3525@mail.muni.cz> <20041121014350.GJ4999@zaphods.net> <20041121024226.GK4999@zaphods.net> <20041202195422.GA20771@mail.muni.cz> <20041202122546.59ff814f.akpm@osdl.org> <20041202210348.GD20771@mail.muni.cz> <20041202223146.GA31508@zaphods.net> <20041202145610.49e27b49.akpm@osdl.org> <20041202231837.GB15185@mail.muni.cz> <20041202161839.736352c2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0412031306080.1932@yvahk01.tjqt.qr>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041202161839.736352c2.akpm@osdl.org>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03 2004, Jan Engelhardt wrote:
-> >> > Ok, so I am a bit confused here.  We basically have 3 ways to use
-> >> >> cdrecord on linux-2.6 without ide-scsi:
-> >> >>
-> >> >> 1) cdrecord dev=/dev/hdx
-> >> >> 2) cdrecord dev=ATA
-> >> >> 3) cdrecord dev=ATAPI
-> >> >>
-> >> >> Now, if I run all three and grep for '^Warning', I get:
-> >>
-> >> Worse, yet, there is no DMA for any of these three :-(
-> >
-> >Not true in 2.6. 1 definitely uses DMA now (disregard the damn
-> >warning). And why would anyone use 2 or 3?
+On Thu, Dec 02, 2004 at 04:18:39PM -0800, Andrew Morton wrote:
+> All I can say is "experiment with it".
 > 
-> Right, forgot to add. Read as "no DMA for any that does not give a cdrecord
-> warning".
+> It might be useful to renice kswapd so that userspace processes do not
+> increase its latency.
 
-They all use DMA, whenever possible.
+Hmm, increasing the min free kb to 64MB and renicing kswapd to -8 seems to 
+solve the issue. However, for me it seems as not so good solution mainly because
+2.6.6-bk4 kernel is just ok without any tweeks.
 
 -- 
-Jens Axboe
-
+Luká¹ Hejtmánek

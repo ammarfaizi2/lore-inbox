@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266311AbUGVPI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266560AbUGVPKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266311AbUGVPI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 11:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbUGVPHf
+	id S266560AbUGVPKp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 11:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUGVPKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 11:07:35 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40414 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266311AbUGVPGv (ORCPT
+	Thu, 22 Jul 2004 11:10:44 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:3782 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266560AbUGVPKU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 11:06:51 -0400
-Date: Thu, 22 Jul 2004 10:54:50 -0200
-From: Jens Axboe <axboe@suse.de>
-To: Ed Sweetman <safemode@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: audio cd writing causes massive swap and crash
-Message-ID: <20040722125450.GC3987@suse.de>
-References: <40F9854D.2000408@comcast.net> <20040718071830.GA29753@suse.de> <40FBBAAE.5060405@comcast.net> <40FC2E60.2030101@comcast.net> <40FF4563.5070407@comcast.net>
+	Thu, 22 Jul 2004 11:10:20 -0400
+Subject: Re: pci_bus_lock question
+From: John Rose <johnrose@austin.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Mike Wortman <wortman@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040722070830.GB21907@kroah.com>
+References: <1090447841.544.7.camel@sinatra.austin.ibm.com>
+	 <1090448467.544.10.camel@sinatra.austin.ibm.com>
+	 <20040722070830.GB21907@kroah.com>
+Content-Type: text/plain
+Message-Id: <1090509081.1648.5.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FF4563.5070407@comcast.net>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 22 Jul 2004 10:11:21 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22 2004, Ed Sweetman wrote:
-> I've had other people test writing.  It appears that scsi-emu is not 
-> effected by this memory leak when writing audio cds.  So it would appear 
-> that ide-cd along with any of the dependent ide source files is the 
-> culprit. But I cannot find anywhere in ide-cd that is apparent to being 
-> a mem leak.  There are various conditions in ide_do_drive_cmd that state 
-> that the cdrom driver has to be very careful about handling but without 
-> intimate knowledge of the driver, I can't be sure that it's sufficiently 
-> handling those situations.  
+I need to remove a bus from the pci_root_buses() list, and I need to do
+so from a module.  Would it be preferable to export the pci_bus_lock
+symbol or create wrappers in the PCI core that safely add/remove buses
+to/from this list?
+
+I'm guessing the latter :)
+
+Thanks-
+John
+
+On Thu, 2004-07-22 at 02:08, Greg KH wrote:
+> On Wed, Jul 21, 2004 at 05:21:08PM -0500, John Rose wrote:
+> > But then, most of these violations are in __init functions.  I think I
+> > just answered my own question :)
 > 
-> Surprisingly, it's very hard to find anyone who's used the native atapi 
-> mode to write an audio cd in 2.6.  Which is partly why this problem 
-> hasn't generated more mail traffic here I would guess. 
-
-That's not true, lots of people use it. But, oddly, the leak isn't
-reproducable on any machine I've tested.
-
--- 
-Jens Axboe
+> Yes, we don't protect the lists in those __init functions, as it isn't
+> needed at that point in time.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 

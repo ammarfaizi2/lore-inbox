@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130548AbQLGXLo>; Thu, 7 Dec 2000 18:11:44 -0500
+	id <S131181AbQLGXNY>; Thu, 7 Dec 2000 18:13:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131195AbQLGXLf>; Thu, 7 Dec 2000 18:11:35 -0500
-Received: from natmail2.webmailer.de ([192.67.198.65]:36809 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S130548AbQLGXLX>; Thu, 7 Dec 2000 18:11:23 -0500
-From: Florian Schmitt <florian@galois.de>
-Date: Thu, 7 Dec 2000 23:36:23 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: oops in 2.4.0test12-pre5+reiserfs+crypto
+	id <S131195AbQLGXNO>; Thu, 7 Dec 2000 18:13:14 -0500
+Received: from chicago.cheek.com ([207.202.196.154]:53262 "EHLO
+	chicago.cheek.com") by vger.kernel.org with ESMTP
+	id <S131181AbQLGXNF>; Thu, 7 Dec 2000 18:13:05 -0500
+Message-ID: <3A30125D.5F71110D@cheek.com>
+Date: Thu, 07 Dec 2000 14:42:38 -0800
+From: Joseph Cheek <joseph@cheek.com>
+Organization: LinuxCare, Inc.
+X-Mailer: Mozilla 4.72C-CCK-MCD Caldera Systems OpenLinux [en] (X11; U; Linux 2.2.15 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00120723362300.00357@phoenix>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at buffer.c:827 in test12-pre6 and 7
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the following oops while doing a "find -name" and playing mp3s on 
-my SB live:
+copying files off a loopback-mounted vfat filesystem exposes this bug.
+test11 worked fine.
 
-Dec  7 14:16:50 phoenix kernel: Unable to handle kernel paging request at 
-virtual address 00010f08
-Dec  7 14:16:50 phoenix kernel:  printing eip:
-Dec  7 14:16:50 phoenix kernel: d084a3e5
-Dec  7 14:16:50 phoenix kernel: *pde = 00000000
-Dec  7 14:16:50 phoenix kernel: Oops: 0000
-Dec  7 14:16:50 phoenix kernel: CPU:    0
-Dec  7 14:16:50 phoenix kernel: EIP:    
-0010:[ne2k-pci:__insmod_ne2k-pci_O/lib/modules/2.4.0-test12/kernel/drivers+-2386971/96]
-Dec  7 14:16:50 phoenix kernel: EFLAGS: 00010207
-Dec  7 14:16:50 phoenix kernel: eax: 00000004   ebx: 00010f00   ecx: 
-00000a45   edx: d084a3e0
-Dec  7 14:16:50 phoenix kernel: esi: c1176934   edi: 00000000   ebp: 
-00000308   esp: c147ff8c
-Dec  7 14:16:50 phoenix kernel: ds: 0018   es: 0018   ss: 0018
-Dec  7 14:16:50 phoenix kernel: Process kswapd (pid: 4, 
-stackpage=c147f000)
-Dec  7 14:16:50 phoenix kernel: Stack: c1176918 c0129ef4 c1176918 
-00010f00 00000004 00000000 00000000 00000001
-Dec  7 14:16:50 phoenix kernel:        00000004 00000000 0000004e 
-00000000 c012a854 00000004 00000000 00010f00
-Dec  7 14:16:50 phoenix kernel:        c01e0377 c147e239 0008e000 
-c012a92d 00000004 00000000 00010f00 c1449fb8
-Dec  7 14:16:50 phoenix kernel: Call Trace: [rw_swap_page+148/160] 
-[__get_free_pages+36/48] [stext_lock+7687/12848] [nr_free_pages+61/64] 
-[Dec  7 14:16:50 phoenix kernel: Code: 8b 43 08 8b 40 10 8b 80 8c 00 00 
-00 50 e8 c9 1b 01 00 53 e8 
+loop.o built as module.  this hard crashes the machine, every time
+[PIII-450].  i don't know how to debug this, is there a FAQ?
 
-It seems strange that the oops occured in ne2k-pci, since no network was 
-connected at that time.
+[transcribed by hand]:
+
+# mount -o loop /tmp/cdboot.288 /mnt/cd
+# cd /mnt/cd
+# cp menu.lst /tmp
+kernel BUG at buffer.c:827!
+invalid operand: 0000
+CPU: 0
+EIP: 0010:[<c013660c>]
+EFLAGS: 00010082
+eax: 0000001c ebx: c1d8fc60 ecx: 00000000 edx: 00000001
+esi: c10658e4 edi: 00000002 ebp: c1d8fca8 esp: c1793dc0
+ds: 0018 es: 0018 ss: 0018
+Process cp (pid 762, stackpage=c1793000)
+Stack: c01fe484 c01fe95a 0000033b c1d8fc60 c1cef420 00000001 00000001
+c01610e1
+       c1d8fc60 00000001 c1cef420 00000000 c1cef420 c02c8ed8 c88df91c
+c1cef420
+       00000001 c88e0986 00000007 00000000 00000001 c02c8ed8 c02c8ee8
+c4f18800
+Call Trace: [<c01fe484>] [<c01fe95a>] [<c0130703>] [<c8895de3>]
+[<c88df91c>] [<c8894494>] [<c0160d2f>] [<c0160ead>]
+       [<c0161011>] [<c0137a49>] [<c0130703>] [<c8895de3>] [<c8894494>]
+[<c01284d3>] [<c012887b>] [c0128720>]
+       [<c889448d>] [<c01349a7>] [c010b56b>]
+Code: 0f 0b 83 c4 0c 8d 5e 28 8d 46 2c 39 46 2c 74 24 b9 01 00 00
+
+as soon as i reboot i will look what's at buffer.c:827
+
+
+
+--
+thanks!
+
+joe
+
+--
+Joseph Cheek, Sr Linux Consultant, Linuxcare | http://www.linuxcare.com/
+Linuxcare.  Support for the Revolution.      | joseph@linuxcare.com
+CTO / Acting PM, Redmond Linux Project       | joseph@redmondlinux.org
+425 990-1072 vox [1074 fax] 206 679-6838 pcs | joseph@cheek.com
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

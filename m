@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281735AbRLBSDQ>; Sun, 2 Dec 2001 13:03:16 -0500
+	id <S281748AbRLBSPs>; Sun, 2 Dec 2001 13:15:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284265AbRLBSDG>; Sun, 2 Dec 2001 13:03:06 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:62398 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S281678AbRLBSCw>; Sun, 2 Dec 2001 13:02:52 -0500
-Date: Sun, 2 Dec 2001 11:02:44 -0700
-Message-Id: <200112021802.fB2I2iE10476@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: viro@math.psu.edu (Alexander Viro),
-        pierre.rousselet@wanadoo.fr (Pierre Rousselet),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre5 not easy to boot with devfs
-In-Reply-To: <E16AaCR-0003wy-00@the-village.bc.nu>
-In-Reply-To: <Pine.GSO.4.21.0112021150310.12801-100000@binet.math.psu.edu>
-	<E16AaCR-0003wy-00@the-village.bc.nu>
+	id <S281739AbRLBSPi>; Sun, 2 Dec 2001 13:15:38 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:65183 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S276591AbRLBSPV>;
+	Sun, 2 Dec 2001 13:15:21 -0500
+Date: Sun, 2 Dec 2001 21:12:58 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Victor Yodaiken <yodaiken@fsmlabs.com>,
+        Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Coding style - a non-issue
+In-Reply-To: <Pine.LNX.4.33L.0112021528300.4079-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > > Here is the final (i hope) verdict of my devfs testbox :
-> > > 
-> > > 2.4.16 with devfsd-1.3.18/1.3.20 : OK
-> > > 2.4.17-pre1         "            : Broken
-> > > 2.5.1-pre1          "            : OK
-> 
-> Sounds like the new devfs code should be backed out of 2.4 until
-> fixed in 2.5
 
-Hey! It's a pre-patch. There's time before 2.4.17-rc is released.
-Having it in a pre-patch is the only way to get decent testing,
-unfortunately. Not enough people bother downloading extra patches.
-All known issues were resolved before the merge.
+On Sun, 2 Dec 2001, Rik van Riel wrote:
 
-And 2.5 isn't going to get a lot of testing until the breakage caused
-by the bio changes is fixed. At the moment, I can't even test it
-myself.
+> Note that this screams for some minimal kind of modularity on the
+> source level, trying to limit the "magic" to as small a portion of the
+> code base as possible.
 
-				Regards,
+Linux is pretty modular. It's not dogmatically so, nor does it attempt to
+guarantee absolute or externally visible modularity, but most parts of it
+are pretty modular.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> Also, natural selection tends to favour the best return/effort ratio,
+> not the best end result. [...]
+
+there is no 'effort' involved in evolution. Nature does not select along
+the path we went. It's exactly this property why it took 5 billion years
+to get here, while Linux took just 10 years to be built from grounds up.
+The fact is that bacteria took pretty random paths for 2 billion years to
+get to the next level. That's alot of 'effort'. So *once* we have
+something that is better, it does not matter how long it took to get
+there.
+
+( This kind of 'development effort' is not the same as 'robustness', ie.
+the amount of effort needed to keep it at the complexity level it is,
+against small perturbations in the environment - but that is a different
+kind of effort. )
+
+> [...] Letting a kernel take shape due to natural selection pressure
+> could well result in a system which is relatively simple, works well
+> for 95% of the population, has the old cruft level at the upper limit
+> of what's deemed acceptable and completely breaks for the last 5% of
+> the population.
+
+no. An insect that is 95.1% effective digesting banana leafs in the jungle
+will completely eradicate a competing insect that is 95.0% effective
+digesting banana leaves, within a few hundred generations. (provided both
+insects have exactly the same parameters otherwise.) And it does not
+matter whether it took 100 million years to get to 95.1%, or just one
+lucky set of alpha particles hitting a specific DNA part of the original
+insect.
+
+	Ingo
+

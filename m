@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316723AbSGBKuT>; Tue, 2 Jul 2002 06:50:19 -0400
+	id <S316705AbSGBKsN>; Tue, 2 Jul 2002 06:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316728AbSGBKuT>; Tue, 2 Jul 2002 06:50:19 -0400
-Received: from samar.sasken.com ([164.164.56.2]:35716 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S316723AbSGBKuR>;
-	Tue, 2 Jul 2002 06:50:17 -0400
-Date: Tue, 2 Jul 2002 16:24:19 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: IPv6 routing table implementation
-Message-ID: <Pine.LNX.4.33.0207021615250.2254-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316709AbSGBKsM>; Tue, 2 Jul 2002 06:48:12 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:17924 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S316705AbSGBKsL>; Tue, 2 Jul 2002 06:48:11 -0400
+Date: Tue, 2 Jul 2002 03:50:36 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: hd_geometry question.
+Message-ID: <20020702035036.E28771@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <OF25B15FAC.FE67359D-ONC1256BEA.0032B6AA@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <OF25B15FAC.FE67359D-ONC1256BEA.0032B6AA@de.ibm.com>; from schwidefsky@de.ibm.com on Tue, Jul 02, 2002 at 11:16:06AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 02, 2002 at 11:16:06AM +0200, Martin Schwidefsky wrote:
+> 
+> >About a partition one wants to know start and length.
+> >About a full disk one wants to know size, and perhaps a (fake) geometry.
+> >
+> >The vital partition data cannot depend on obscure hardware info.
+> >So, the units used must be well-known. Earlier, everything was in
+> >512-byte sectors, but there are a few places where that is inconvenient
+> >or unnatural, and now that one has more than 2^32 sectors and 64 bits
+> >are needed anyway, things are measured in bytes.
+> >
+> >That the start field comes with the HDIO_GETGEO ioctl and the size with
+> >the BLKGETSIZE ioctl is due to history. Both are given in 512-byte sectors.
+> >BLKGETSIZE64 gives bytes.
+> 
+> Just to make sure I got that right, HDIO_GETGEO delivers a FAKE geometry
+> based on the assumption that the sector size is 512 bytes ?
 
-Hi
+Fake because almost all non-removable disks made in the last
+decade have not had a fixed number of sectors per track.  If
+the disk accepts positioning based on head,cylinder,sector
+it has to be translated by the controller (the circuit board
+attached to the drive) into a linear address and then into
+the real h,c,s values.
 
-While going through the routing table implementation for linux-ipv6, I
-found this piece of code.
+Geometry info is mostly a relic from before zone recording
+when filesystems were tuned for geometry and when drives
+didn't accept linear addressing.  Andre will probably come
+back with a list of drives that still don't accept linear
+addresses ;-).
 
-struct fib6_node * fib6_lookup(struct fib6_node *root, struct in6_addr
-			*daddr, struct in6_addr *saddr)
-{
-        struct lookup_args args[2];
-        struct rt6_info *rt = NULL;
-        struct fib6_node *fn;
+More on this fakeness of geometry belongs offline as it is OT.
 
-        args[0].offset = (u8*) &rt->rt6i_dst - (u8*) rt;
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        args[0].addr = daddr;
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-#ifdef CONFIG_IPV6_SUBTREES
-        args[1].offset = (u8*) &rt->rt6i_src - (u8*) rt;
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        args[1].addr = saddr;
-#endif
-
-.
-.
-.
-.
-}
-
-I found out that this code is called from inet6_route_input() which will
-always be called on the receiving end for IPv6 packets (ip6_rcv_finish()).
-
-The underlined lines will be creating a kernel panic ALWAYS.
-
-I am using 2.4.16 kernel. I have checked version 2.4.18 also and no
-change in this part. Aren't these versions supposed to include a working
-IPv6 implementation? Am I missing something?
-
-regards
-Madhavi.
-
+		Remember Cernan and Schmitt

@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263681AbTEEQuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTEEQus
+	id S263695AbTEEQxI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263693AbTEEQvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:50:48 -0400
-Received: from verein.lst.de ([212.34.181.86]:42503 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id S263760AbTEEQsS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:48:18 -0400
-Date: Mon, 5 May 2003 19:00:45 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com
+	Mon, 5 May 2003 12:51:45 -0400
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:40429 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id S263650AbTEEQvE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 12:51:04 -0400
+Date: Mon, 5 May 2003 19:15:01 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: S-n-e-a-k-e-r@gmx.net
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove unused funcion proc_mknod
-Message-ID: <20030505190045.A22238@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
+Subject: Re: questions regarding arch/i386/boot/setup.S
+Message-ID: <20030505171501.GL1074@wind.cocodriloo.com>
+References: <23912.1052135086@www4.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <23912.1052135086@www4.gmx.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not used currently and a rather bad idea in general..
+On Mon, May 05, 2003 at 01:44:46PM +0200, S-n-e-a-k-e-r@gmx.net wrote:
+> I write this to the kernel mailing list, because my question couldn't be
+> answered on irc (eg. irc.kernelnewbie.org):
+> ____________________________________________________________________________
+> arch/i386/boot/setup.S:
+> 
+> 164 trampoline:     call    start_of_setup
+> 165                 .space  1024
+> 166 # End of setup header
+> #####################################################
+> 167 
+> 168 start_of_setup:
+> 169 # Bootlin depends on this being done early
+> 170         movw    $0x01500, %ax
+> ____________________________________________________________________________
+> my questions are:
+> 
+> -)    Why is there a call on line 164 and not a jmp?
+> -)    Why does line 165 reserve 1024 bytes? what is it for?
+> -)    On line 170: Why $0x01500 and not $0x1500?
+> 
+> I would appreciate if someone could answer this mail, or if someone can
+> provide ressources where I can find detailed description of the kernel code
+> (didn't find anything, just overall information)
 
+Andy, "call" pushes �"eip" into the stack, so later on
+you can do "mov [esp],edx" and use edx as a pointer
+to this 1024-bytes space.
 
+This is a way to perform pc-relative addressing on
+architectures which don't allow it directly such as
+i386 (if I remember correctly).
 
---- 1.21/fs/proc/generic.c	Fri Apr 25 17:46:19 2003
-+++ edited/fs/proc/generic.c	Mon May  5 17:26:34 2003
-@@ -566,22 +566,6 @@
- 	return ent;
- }
- 
--struct proc_dir_entry *proc_mknod(const char *name, mode_t mode,
--		struct proc_dir_entry *parent, kdev_t rdev)
--{
--	struct proc_dir_entry *ent;
--
--	ent = proc_create(&parent,name,mode,1);
--	if (ent) {
--		ent->rdev = rdev;
--		if (proc_register(parent, ent) < 0) {
--			kfree(ent);
--			ent = NULL;
--		}
--	}
--	return ent;
--}
--
- struct proc_dir_entry *proc_mkdir(const char *name, struct proc_dir_entry *parent)
- {
- 	struct proc_dir_entry *ent;
-===== fs/proc/root.c 1.11 vs edited =====
---- 1.11/fs/proc/root.c	Sat Sep 28 17:36:29 2002
-+++ edited/fs/proc/root.c	Mon May  5 17:26:26 2003
-@@ -151,7 +151,6 @@
- EXPORT_SYMBOL(proc_sys_root);
- #endif
- EXPORT_SYMBOL(proc_symlink);
--EXPORT_SYMBOL(proc_mknod);
- EXPORT_SYMBOL(proc_mkdir);
- EXPORT_SYMBOL(create_proc_entry);
- EXPORT_SYMBOL(remove_proc_entry);
-===== include/linux/proc_fs.h 1.15 vs edited =====
---- 1.15/include/linux/proc_fs.h	Tue Aug 13 01:20:00 2002
-+++ edited/include/linux/proc_fs.h	Mon May  5 17:26:44 2003
-@@ -133,8 +133,6 @@
- 
- extern struct proc_dir_entry *proc_symlink(const char *,
- 		struct proc_dir_entry *, const char *);
--extern struct proc_dir_entry *proc_mknod(const char *,mode_t,
--		struct proc_dir_entry *,kdev_t);
- extern struct proc_dir_entry *proc_mkdir(const char *,struct proc_dir_entry *);
- 
- static inline struct proc_dir_entry *create_proc_read_entry(const char *name,
-@@ -182,8 +180,6 @@
- static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
- static inline struct proc_dir_entry *proc_symlink(const char *name,
- 		struct proc_dir_entry *parent,char *dest) {return NULL;}
--static inline struct proc_dir_entry *proc_mknod(const char *name,mode_t mode,
--		struct proc_dir_entry *parent,kdev_t rdev) {return NULL;}
- static inline struct proc_dir_entry *proc_mkdir(const char *name,
- 	struct proc_dir_entry *parent) {return NULL;}
- 
+Compare this to, for example, m68k, where
+you can do "move label(pc),d0" to perform pc-relative
+addressing if "label" is located near the current pc.
+
+Greetz, Antonio.
+

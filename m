@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269520AbUICQsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269518AbUICQt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269520AbUICQsk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269456AbUICQrH
+	id S269518AbUICQt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 12:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUICQtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:47:07 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:11934 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269416AbUICQpg
+	Fri, 3 Sep 2004 12:49:20 -0400
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:391 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S269436AbUICQrE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:45:36 -0400
-Date: Fri, 3 Sep 2004 17:43:11 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Spam <spam@tnonline.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jamie Lokier <jamie@shareable.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
+	Fri, 3 Sep 2004 12:47:04 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg Stark <gsstark@mit.edu>, Brad Campbell <brad@wasp.net.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent
- semantic changes with reiser4)
-In-Reply-To: <142794710.20040903023906@tnonline.net>
-Message-ID: <Pine.LNX.4.61.0409031730000.23011@fogarty.jakma.org>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain> <20040902161130.GA24932@mail.shareable.org>
- <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org> <1835526621.20040903014915@tnonline.net>
- <1094165736.6170.19.camel@localhost.localdomain> <32810200.20040903020308@tnonline.net>
- <Pine.LNX.4.61.0409030112080.23011@fogarty.jakma.org> <142794710.20040903023906@tnonline.net>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
+	<87u0ugt0ml.fsf@stark.xeocode.com>
+	<1094209696.7533.24.camel@localhost.localdomain>
+	<87d613tol4.fsf@stark.xeocode.com>
+	<1094219609.7923.0.camel@localhost.localdomain>
+	<877jrbtkds.fsf@stark.xeocode.com>
+	<1094224166.8102.7.camel@localhost.localdomain>
+In-Reply-To: <1094224166.8102.7.camel@localhost.localdomain>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 03 Sep 2004 12:47:00 -0400
+Message-ID: <871xhjti4b.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, Spam wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->  Indeed. I hope I didn't say otherwise :).
+> On Gwe, 2004-09-03 at 16:58, Greg Stark wrote:
+> > I've even unmounted the filesystem and tried mounting it again. Now I can't
+> > even mount it without generating the error.
+> 
+> You may well need to reset or powercycle the drive to get it back from
+> such a state.
 
-Sure.
+Certainly I know power cycling fixes it. That's what I've been doing so far.
 
->  Just that I think it  will
->  be very difficult to have this transparency in all apps. Just
->  thinking of "nano file.jpg/description.txt" or "ls
->  file.tar/untar/*.doc". Sure in some environments like Gnome it could
->  work, but it still doesn't for the rest of the flora of Linux
->  programs.
+> > Sep  3 11:48:39 stark kernel: ata1: command 0x25 timeout, stat 0x59 host_stat 0x21
+> > Sep  3 11:48:39 stark kernel: ata1: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> > Sep  3 11:48:39 stark kernel: ata1: error=0x01 { AddrMarkNotFound }
+> 
+> "Its dead Jim". Once you get a drive that dies totally (or just keeps
+> posting up a hardware fail) after the error you are into forensics
+> (and/or backup) land. 
 
-"will it be transparent for all apps?", whether that's worth doing 
-depends on the technical implications. Thankfully we have Al and 
-Linus to make the judgement call on that ;)
+There's nothing the driver can do to reset the drive or get back to a known
+good protocol state?
 
-Personally, I think that if GNOME can provide transparency for GNOME 
-users, I think that's probably enough - unless there are literally no 
-issues in adding some kind of VFS support.
+The "ATA: abnormal status 0x59 on port 0xEFE7" makes me think it's just the
+driver getting out of sync with the drive. But i guess that would be hard to
+distinguish from the drive just going south.
 
-The nano / ls /tar user is likely a very different user to the GNOME 
-user. That user is also likely to appreciate the problems with 
-backups and such more.
+Certainly if I had backups I would long since have given up on this. And I've
+already managed to recover the most important stuff from the drive. At this
+point I'm still missing some stuff I would like to be able to recover as much
+as I can from.
 
-Anyway, userspace transparency is sufficient for most classes of 
-users. Only reason to provide some kernel support is if it makes 
-sense ("but not all apps can use GNOME transparency" not being one of 
-those reasons).
+But I'm mostly just interested in helping ensure the driver handles this case
+as well as it can. Ideally it should printk errors and return i/o errors to
+user-space but reset as necessary and still allow reading good blocks as much
+as possible.
 
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Beat your son every day; you may not know why, but he will.
+greg
+

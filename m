@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUHUXzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUHUX4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUHUXzn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 19:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUHUXzn
+	id S261602AbUHUX4B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 19:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUHUX4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 19:55:43 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:7574 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261474AbUHUXzl convert rfc822-to-8bit
+	Sat, 21 Aug 2004 19:56:01 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:40465 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261602AbUHUXz4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 19:55:41 -0400
-From: Andrew Miklas <public@mikl.as>
-Reply-To: public@mikl.as
-To: Wakko Warner <wakko@animx.eu.org>
-Subject: Re: Linux Incompatibility List
-Date: Sat, 21 Aug 2004 19:53:03 -0400
-User-Agent: KMail/1.6.2
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <87r7q0th2n.fsf@dedasys.com> <1093120274.854.145.camel@krustophenia.net> <20040821205157.GA9300@animx.eu.org>
-In-Reply-To: <20040821205157.GA9300@animx.eu.org>
-MIME-Version: 1.0
+	Sat, 21 Aug 2004 19:55:56 -0400
+Date: Sun, 22 Aug 2004 00:55:56 +0100
+From: John Levon <levon@movementarian.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: oprofile-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       jbarnes@sgi.com, anton@samba.org, phil.el@wanadoo.fr
+Subject: Re: [PATCH] improve OProfile on many-way systems
+Message-ID: <20040821235556.GA22619@compsoc.man.ac.uk>
+References: <20040821192630.GA9501@compsoc.man.ac.uk> <20040821135833.6b1774a8.akpm@osdl.org> <20040821232206.GC20175@compsoc.man.ac.uk> <20040821163628.10cfa049.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408211955.44914.public@mikl.as>
+In-Reply-To: <20040821163628.10cfa049.akpm@osdl.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1ByfiG-000HyD-6n*tJljmT3NoG.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, Aug 21, 2004 at 04:36:28PM -0700, Andrew Morton wrote:
 
-Hi,
+> Well yes, but it's not magic.
 
-On August 21, 2004 04:51 pm, Wakko Warner wrote:
-<snip>
-> Does any broadcom
-> wireless chip work on linux (ndis wrapper or that piece of junk from
-> linuxant doesn't count)
+Absolutely. But since the vast majority of the bugs in oprofile kernel
+code are either identified or reported by kernel developers, it's really
+that audience that need to do testing beyond what I'm outfitted for.
 
-Yeah, their wireless chips work fine on Linux if you are running just about 
-any wireless access point / router that makes use of Broadcom's hardware.  
+For example a while ago wli walked right into an obvious bug on one of
+his machines that hadn't shown up during /any/ of my testing since the
+code was merged.
 
-That probably seems like a pointless nitpick, but I think that makes their 
-non-support of Linux on general-purpose hardware even worse.  They've already 
-written wireless drivers for Linux, but simply refuse to work with anyone to 
-get their hardware running under Linux for other architectures.  They even 
-refuse to simply recompile their driver for i386 and release it binary-only.  
-For that matter, they won't even respond to e-mail on the subject.  (The most 
-I've ever got from them was a few engineers responding 'off the record'.)
+> One of my mental checkpoints before sending a patch to Linus is "has this
+> been sufficiently tested".  I don't know how to answer that in this case.
 
-Even more annoying is the way their Linux/MIPSel binaries are tied to a 
-particular kernel version.  (They've got the inlines from skbuff.h scattered 
-all over their module --- at least they did in the driver included with the 
-Linksys WAP54G v. 1.08 which was the one I carefully looked at.)  This 
-creates a serious problem for anyone who wants to get their wireless 
-routers / access points to run a different version of the kernel.
+Me neither. It would certainly be great to have a decent regression test
+suite for OProfile, but I don't have one other than the usual by-hand
+testing I do. Isn't there some STP thing or something at OSDL we can
+get people to try?
 
-They seem to be very selective about when they acknowledge Linux's existence.  
-IMHO, this makes them even worse than a company that has decided to simply 
-ignore Linux all together.
+> In fact I don't know how to answer that in a _lot_ of cases, but if I know
+> that people are using the feature in anger and we're sufficiently early in
+> the 2.6.x cycle then I'll assume that regressions will be picked up.
 
+I must admit I'm still not clear on when the equivalent of "early in the
+2.6.x cycle" is going to happen again... I have no idea when, if ever,
+call-graph OProfile would be suitable to merge.
 
+> Anyway.  My question was mainly a prod in the antonward direction ;)
 
-- -- Andrew
------BEGIN PGP SIGNATURE-----
-Comment: Key ID: EC3F6CCD (www.keyserver.net)
+That'd be handy certainly...
 
-iD8DBQFBJ+CNTHKGaOw/bM0RAoGJAJoCJOZTuNayN2jCmzCfSbXAbUhkmgCfdk5G
-vLETYsG6DBPFZ5jBeq4MGbM=
-=r+T+
------END PGP SIGNATURE-----
+regards
+john

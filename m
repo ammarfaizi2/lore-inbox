@@ -1,27 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129997AbQJ3B7F>; Sun, 29 Oct 2000 20:59:05 -0500
+	id <S129556AbQJ3CFr>; Sun, 29 Oct 2000 21:05:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130007AbQJ3B6z>; Sun, 29 Oct 2000 20:58:55 -0500
-Received: from smtp.stratos.net ([207.54.80.9]:64013 "EHLO smtp.stratos.net")
-	by vger.kernel.org with ESMTP id <S129997AbQJ3B6v>;
-	Sun, 29 Oct 2000 20:58:51 -0500
-Message-ID: <39FCD671.A493E2F0@stratos.net>
-Date: Sun, 29 Oct 2000 21:01:21 -0500
-From: vwbug <vwbug19@stratos.net>
-X-Mailer: Mozilla 4.06 [en] (Win98; I)
+	id <S129693AbQJ3CF2>; Sun, 29 Oct 2000 21:05:28 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:61817 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129556AbQJ3CFV>; Sun, 29 Oct 2000 21:05:21 -0500
+Message-ID: <39FCE576.9425F7F5@mandrakesoft.com>
+Date: Sun, 29 Oct 2000 22:05:26 -0500
+From: Kevin Lawton <kevin@mandrakesoft.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.15-4mdk i686)
+X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.0-test9 nd bttv
+CC: kevin@mandrakesoft.com
+Subject: bug fix for 'include/linux/wrapper.h', bad parentheses for macros
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it look like you didn't add the lines to .config the stupid bttv drivers
-that's why mine didnt work with bttv card i have read the .config under
-video for linux  and found no refernce to bttv???
+Listed in 2.4 headers as:
 
+        #define mem_map_reserve(p) set_bit(PG_reserved, &p->flags)
+        #define mem_map_unreserve(p) clear_bit(PG_reserved, &p->flags)
+ 
+...but should be:
+ 
+        #define mem_map_reserve(p) set_bit(PG_reserved, &((p)->flags))
+        #define mem_map_unreserve(p) clear_bit(PG_reserved, &((p)->flags))
+
+Because of the 'void *' nature of the 2nd parameter to set_bit/clear_bit,
+the compiler is not picking up this error.  Either expression generates
+a pointer, but not the same values.
+
+Might as well also wrap the parameter 'p' with parentheses in the
+subsequent macros, mem_map_inc_count() and mem_map_dec_count(),
+for clarity.
+
+CC me if needed.  I'm not on this list.
+
+-Kevin Lawton
+Plex86 project
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

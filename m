@@ -1,40 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131796AbRAFQqC>; Sat, 6 Jan 2001 11:46:02 -0500
+	id <S132300AbRAFQwO>; Sat, 6 Jan 2001 11:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131973AbRAFQpw>; Sat, 6 Jan 2001 11:45:52 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:13541 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131796AbRAFQpk>;
-	Sat, 6 Jan 2001 11:45:40 -0500
-Date: Sat, 6 Jan 2001 17:45:35 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101061645.RAA145723.aeb@texel.cwi.nl>
-To: maillist@chello.nl, matthias.andree@stud.uni-dortmund.de
-Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
-Cc: linux-kernel@vger.kernel.org
+	id <S131973AbRAFQwD>; Sat, 6 Jan 2001 11:52:03 -0500
+Received: from [156.46.206.66] ([156.46.206.66]:41991 "EHLO eagle.netwrx1.com")
+	by vger.kernel.org with ESMTP id <S131597AbRAFQvy>;
+	Sat, 6 Jan 2001 11:51:54 -0500
+From: "George R. Kasica" <georgek@netwrx1.com>
+To: linux-kernel@vger.kernel.org
+Cc: Keith Owens <kaos@ocs.com.au>
+Subject: Re: 2.4.0 Module compile error 
+Date: Sat, 06 Jan 2001 10:51:53 -0600
+Organization: Netwrx Consulting Inc.
+Reply-To: georgek@netwrx1.com
+Message-ID: <f8je5tcv8fudipcjcfib41lacger7it6dv@4ax.com>
+In-Reply-To: <ek0c5t404dfib22jc6je0dldkj57e07k7d@4ax.com> <17981.978766533@ocs3.ocs-net>
+In-Reply-To: <17981.978766533@ocs3.ocs-net>
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not that simple.. The maxtor comes clipped,. but Linux can't kill the
-> clip. So it sticks with 32 MB
+>You have a broken modules.conf that tells depmod to scan _all_ of
+>/lib/modules or you have an old version of modules or you have some
+>weird symlinks in /lib/modules.  It looks like you have some dangling
+>symlinks, although I cannot be certain about that.
 
-> ibmsetmax.c does a software clip, but that bugs a bit. Sometimes even
-> Linux doesn't see 61 GB, but only 32, sometimes the full capacity.
+Keith:
 
-Please don't talk vague useless garbage.
-There is no entity called "Linux". If you mean "the 2.4.0 kernel
-boot messages report 61 GB, fdisk 2.9s sees 32 GB, fdisk 2.10r sees 61 GB"
-then say so. If you mean something else, say what you mean.
-Precisely, with versions and everything.
+Here it is....what do I need to fix on it:
 
-Since you have a Maxtor, my old setmax should suffice for you, it can kill
-the clip, and there is no reason to use ibmsetmax.c, that is a version for
-IBM disks. There should not be any need to use other machines.
+>[root@eagle 2.4.0]# cd /etc
+>[root@eagle /etc]# more modules.conf
+>keep
+>
+>path[usb]=/lib/modules/`uname -r`/`uname -v`
+>path[usb]=/lib/modules/`uname -r`
+>path[usb]=/lib/modules/
+>path[usb]=/lib/modules/default
+>
+>alias usb-0000.0000.01.00.00  audio.o
+>alias usb-0000.0000.03.01.00  mouse.o
+>
+>alias parport_lowlevel  parport_pc
+>alias char-major-107    3dfx
+>alias char-major-89     i2c-dev
+>
+># consider disabling this if you have less than 32MB of memory
+>options sound dmabuf=1
 
-If something changed for recent Maxtor disks, we would like to know,
-but only reliable, detailed reports are of any use.
+/lib/modules looks like:
 
-Andries
+>[root@eagle /etc]# ls -la /lib/modules
+>total 4
+>drwxr-xr-x   3 root     root         1024 Jan  6 10:14 .
+>drwxr-xr-x   6 root     users        2048 Jul 25 14:19 ..
+>drwxr-xr-x   3 root     root         1024 Jan  6 10:28 2.4.0
+>[root@eagle /etc]# ls -la /lib/modules/*
+>total 8
+>drwxr-xr-x   3 root     root         1024 Jan  6 10:28 .
+>drwxr-xr-x   3 root     root         1024 Jan  6 10:14 ..
+>lrwxrwxrwx   1 root     root           20 Jan  6 10:22 build -> /usr/src/linux-2
+>.4.0
+>drwxr-xr-x   2 root     root         1024 Jan  6 10:22 kernel
+>-rw-r--r--   1 root     root            0 Jan  6 10:22 modules.dep
+>-rw-r--r--   1 root     root           31 Jan  6 10:22 modules.generic_string
+>-rw-r--r--   1 root     root           81 Jan  6 10:22 modules.isapnpmap
+>-rw-r--r--   1 root     root           29 Jan  6 10:22 modules.parportmap
+>-rw-r--r--   1 root     root           99 Jan  6 10:22 modules.pcimap
+>-rw-r--r--   1 root     root          177 Jan  6 10:22 modules.usbmap
+
+I did a fresh install from linux-2.4.0.tar here and used the following
+sequence:
+
+>make mrproper
+>cp ../.config-2.2.18
+>make oldconfig
+>make dep
+>make bzImage
+>make modules
+>make modules_install
+ 
+*** Stopped here due to errors***
+
+>cp /vmlinuz /vmlinuz.old
+>cp /usr/src/linux/arch/i386/boot/bzImage /vmlinuz
+>/sbin/lilo
+>
+Here is the errors on the latest clean install attempt(almost looks
+like a type here with the two // rather than /) :
+
+make[1]: Leaving directory `/usr/src/linux-2.4.0/arch/i386/lib'
+cd /lib/modules/2.4.0; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.0; fi
+depmod: error reading ELF header /lib/modules//2.4.0/modules.dep: No
+such file o
+r directory
+depmod: error reading ELF header
+/lib/modules//2.4.0/modules.generic_string: No
+such file or directory
+depmod: /lib/modules//2.4.0/modules.isapnpmap is not an ELF file
+depmod: error reading ELF header
+/lib/modules//2.4.0/modules.parportmap: No such
+ file or directory
+depmod: /lib/modules//2.4.0/modules.pcimap is not an ELF file
+depmod: /lib/modules//2.4.0/modules.usbmap is not an ELF file
+
+George, MR. Tibbs & The Beast Kasica
+Waukesha, WI USA
+georgek@netwrx1.com
+http://www.netwrx1.com
+ICQ #12862186
+
+      Zz
+       zZ
+    |\ z    _,,,---,,_
+    /,`.-'`'    _   ;-;;,_
+   |,4-  ) )-,_..;\ (  `'_'
+  '---''(_/--'  `-'\_)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

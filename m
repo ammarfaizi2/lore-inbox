@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265798AbUFORpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265797AbUFORp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265798AbUFORpW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 13:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUFORpW
+	id S265797AbUFORp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 13:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUFORpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 13:45:22 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:36061 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S265798AbUFORoe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 13:44:34 -0400
-Date: Tue, 15 Jun 2004 19:44:36 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: lost dirty bits.
-Message-ID: <20040615174436.GA10098@mschwid3.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 15 Jun 2004 13:45:30 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:6095 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S265797AbUFORo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 13:44:56 -0400
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 15 Jun 2004 18:44:54 +0100
+MIME-Version: 1.0
+Subject: Re: Oopses with both recent 2.4.x kernels and 2.6.x kernels
+Message-ID: <40CF43A6.5170.28D6B4D5@localhost>
+X-mailer: Pegasus Mail for Windows (4.21a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-we just tracked down a severe bug in the memory management
-code of s390. There is a race window where s390 can loose
-a dirty bit. I never expected that SetPageUptodate is called
-on an already up to date page...
+FYI.
 
-blue skies,
-  Martin.
+I have a box here that was originally running 2.4.x.  I updated to 
+2.6.x a few months ago, and all was well.  Then I started to get 
+curious oops, none of them the same.
 
----
+I started to suspect NFS, as I use an old 486 to hold the web pages 
+to serve to the box via NFS... the oops occurred every Saturday 
+morning @ 4:02.  Lead to me think it was some sort of cron.weekly 
+issue with the disc activity and file access or the like, or 
+whatever... I didn't know - I was on a fishing exercise (and a lot of 
+searching on the LKML)
 
-[PATCH] s390: lost dirty bits.
+But, after talking to a member of the HantsLUG, and showing logs and 
+stuff, he brought up at the swap size.  This box was once 64Mb, but 
+is now 128Mb - with 128Mb swap.  I created an additional swap file 
+(256Mb), and (touch wood), no oops since, all heathly :)  I never 
+looked at this before, as swap was never used _during_ normal running 
+of the box, but as he said maybe the cron.weekly ran a lot of stuff 
+that did use it up...
 
-The SetPageUptodate function is called for pages that are already
-up to date. The arch_set_page_uptodate function of s390 may not
-clear the dirty bit in that case otherwise a dirty bit which is set
-between the start of an i/o for a writeback and a following call
-to SetPageUptodate is lost.
+Nick
 
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-
-diffstat:
-
---- linux-2.5/include/asm-s390/pgtable.h	24 Mar 2004 18:18:22 -0000	1.23
-+++ linux-2.5/include/asm-s390/pgtable.h	15 Jun 2004 16:43:35 -0000	1.23.2.1
-@@ -652,7 +652,8 @@
- 
- #define arch_set_page_uptodate(__page)					  \
- 	do {								  \
--		asm volatile ("sske %0,%1" : : "d" (0),			  \
-+		if (!PageUptodate(__page))				  \
-+			asm volatile ("sske %0,%1" : : "d" (0),		  \
- 			      "a" (__pa((__page-mem_map) << PAGE_SHIFT)));\
- 	} while (0)
- 
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."
 

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262173AbSITKlp>; Fri, 20 Sep 2002 06:41:45 -0400
+	id <S262241AbSITK6q>; Fri, 20 Sep 2002 06:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262177AbSITKlp>; Fri, 20 Sep 2002 06:41:45 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:60547 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262173AbSITKlo>;
-	Fri, 20 Sep 2002 06:41:44 -0400
-Date: Fri, 20 Sep 2002 12:53:49 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <Pine.NEB.4.44.0209201144270.2586-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.44.0209201252130.2954-100000@localhost.localdomain>
+	id <S262242AbSITK6p>; Fri, 20 Sep 2002 06:58:45 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:36738 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262241AbSITK6p>; Fri, 20 Sep 2002 06:58:45 -0400
+Date: Fri, 20 Sep 2002 13:04:01 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andi Kleen <ak@suse.de>
+cc: "David S. Miller" <davem@redhat.com>, johnstul@us.ibm.com,
+       jamesclv@us.ibm.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, anton.wilson@camotion.com
+Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
+In-Reply-To: <20020918020535.A9784@wotan.suse.de>
+Message-ID: <Pine.GSO.3.96.1020920130233.28010F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 18 Sep 2002, Andi Kleen wrote:
 
-On Fri, 20 Sep 2002, Adrian Bunk wrote:
-
-> > Unless major flaws in the design are found this code is intended to
-> > become the standard POSIX thread library on Linux system and it will
-> > be included in the GNU C library distribution.
-> >...
-> > - - requires a kernel with the threading capabilities of Linux 2.5.36.
-> >...
+> > It is internal or external to the processor?  Ie. can it be in the
+> > southbridge or something?  If yes, then I still hold my point.
 > 
-> My personal estimation is that Debian will support kernel 2.4 in it's
-> stable distribution until 2006 or 2007 (this is based on the experience
-> that Debian usually supports two stable kernel series and the time
-> between stable releases of Debian is > 1 year). What is the proposed way
-> for distributions to deal with this?
+> Local Apic is in the cpu.
 
-Ulrich will give a fuller reply i guess, but the new threading code in 2.5
-does not disable (or in any way obsolete) the old glibc threading library.
-So by doing boot-time kernel version checks glibc can decide whether it
-wants to provide the new library or the old library.
+ Except from when it's an i82489DX...  Rare but still.
 
-	Ingo
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

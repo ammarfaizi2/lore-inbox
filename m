@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132218AbQLHS6F>; Fri, 8 Dec 2000 13:58:05 -0500
+	id <S129669AbQLHTBP>; Fri, 8 Dec 2000 14:01:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130146AbQLHS5z>; Fri, 8 Dec 2000 13:57:55 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:63753 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129669AbQLHS5p>; Fri, 8 Dec 2000 13:57:45 -0500
-Date: Fri, 8 Dec 2000 10:26:30 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: linux-kernel@vger.kernel.org, ch.rohland@gmx.net
-Subject: Re: [PATCH,preliminary] cleanup shm handling
-In-Reply-To: <qwwu28fkpxh.fsf@sap.com>
-Message-ID: <Pine.LNX.4.10.10012081023170.11302-100000@penguin.transmeta.com>
+	id <S130146AbQLHTBF>; Fri, 8 Dec 2000 14:01:05 -0500
+Received: from service.sh.cvut.cz ([147.32.127.214]:263 "EHLO
+	service.sh.cvut.cz") by vger.kernel.org with ESMTP
+	id <S129669AbQLHTA5>; Fri, 8 Dec 2000 14:00:57 -0500
+Date: Fri, 8 Dec 2000 19:30:28 +0100 (CET)
+From: Martin Kacer <M.Kacer@sh.cvut.cz>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.2.18pre25
+In-Reply-To: <20001208190829.A17848@inspiron.random>
+Message-ID: <Pine.LNX.4.30.0012081918130.7566-100000@duck.sh.cvut.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Dec 2000, Andrea Arcangeli wrote:
 
+# On Fri, Dec 08, 2000 at 06:02:57PM +0100, Martin Kacer wrote:
+# >    Is there any chance to get rid of these VMM failures?
+# You should apply this patch on top of 2.2.18pre25:
+# ftp://.../VM-global-2.2.18pre25-7.bz2
 
-On 8 Dec 2000, Christoph Rohland wrote:
-> 
-> here is my first shot for cleaning up the shm handling. It did survive
-> some basic testing but is not ready for inclusion. 
+   Well, I've found that VM-global patch before, of course. Until now, the
+last version was against pre18. Since I do not know the exact rules for
+including new things into Alan's tree, I thought that VM-global patch was
+already included in pre24. Sorry for my lack of experience. ;-)) I should
+have checked it.
+   As I wrote before, I had no time recently to follow the mailing list
+carefully and I didn't know exactly what VM-global patch is.
 
-The only comment I have right now is that you probably should not mark the
-page dirty in "nopage" - theoretically somebody might have a sparse
-mapping and depend on zero pages for the ones that aren't touched. It's
-better to delay the dirty marking until swapout() (and write(), when that
-is implemented), so that we don't needlessly create swap entries for zero
-pages.
+# >    It seems we need to return back to 2.2.13 for some time. :-(
+# Definitely no, you only need to apply the above collection of bugfixes.
 
-(No, probably nobody does this for traditional shared memory, but I could
-well imagine mmap() on /dev/zero with most of the pages being read-only).
+   Ok, I can try it, at least.
+   I will let you know about results.
 
-Other than that the approach at least looks reasonable. And cleaner than
-what we currently have.
-
-		Linus
+   Martin.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265139AbUFHA3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUFHAcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbUFHA3h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 20:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUFHA3h
+	id S265144AbUFHAcT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 20:32:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUFHAcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 20:29:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18601 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S265139AbUFHA3c (ORCPT
+	Mon, 7 Jun 2004 20:32:19 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:3592 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S265144AbUFHAcC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 20:29:32 -0400
-Subject: Re: Linux 2.6.7-rc3 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0406071227400.2550@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1086654534.15465.4.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 07 Jun 2004 17:28:54 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 20:32:02 -0400
+Message-ID: <1086646115.40c4e763687e4@vds.kolivas.org>
+Date: Tue,  8 Jun 2004 08:08:35 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: Phy Prabab <phyprabab@yahoo.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
+References: <20040608000650.81972.qmail@web51810.mail.yahoo.com>
+In-Reply-To: <20040608000650.81972.qmail@web51810.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running the sparse regressions on -rc3 as well.  Will post them on
-the compile regression site when they are complete.
+Quoting Phy Prabab <phyprabab@yahoo.com>:
 
-----------------------------------------
+> 
+> Just to clarify, setting compute 1 implys interactive
+> 0?
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+Yes.
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+> 
+> These numbers are very reproducable nad have done them
+> (in a continuous loop) for two hours.
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+Ok.
 
-John
+> 
+> The test is a make of headers for a propritary exec. 
+> Making headers is rather simple is all it does it link
+> a bunch of h files (traversing dirs) and some
+> dependance generation (3 files, yacc and lex).  I have
+> moved the source code base to local disk to dicount
+> nfs issues (though the difference is neglibible and
+> nfs performance on 2.6 is generally faster than 2.4).
 
+Out of curiosity, what happens from nfs? i/o effects can be significant. I
+assume you've excluded memory effects?
 
+> I have tried to get a good test case that can be
+> submitted. Still trying. 
 
+Linking kernel headers with full debugging?
+
+> Any suggestions to try to diagnose this?
+
+Profiling.
+
+> Thanks!
+> Phy
+
+Cheers,
+Con

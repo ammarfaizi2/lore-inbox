@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265091AbUHCGxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265102AbUHCGza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265091AbUHCGxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 02:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbUHCGxf
+	id S265102AbUHCGza (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 02:55:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUHCGz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 02:53:35 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:58710 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S265091AbUHCGx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 02:53:28 -0400
-Subject: Re: USB troubles in rc2
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Michael Guterl <mguterl@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <944a03770408021908da573de@mail.gmail.com>
-References: <200408022100.54850.ktech@wanadoo.es>
-	 <20040803002634.GB26323@kroah.com>
-	 <944a03770408021908da573de@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 03 Aug 2004 00:49:58 -0600
-Message-Id: <1091515798.2240.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+	Tue, 3 Aug 2004 02:55:29 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:48014 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S265102AbUHCGzQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 02:55:16 -0400
+Message-ID: <410F36C5.6060205@tequila.co.jp>
+Date: Tue, 03 Aug 2004 15:55:01 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040724
+X-Accept-Language: en-us, en, ja
+MIME-Version: 1.0
+To: Mark Watts <m.watts@eris.qinetiq.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8-rc2-mm2
+References: <20040802015527.49088944.akpm@osdl.org> <200408021631.24593.m.watts@eris.qinetiq.com>
+In-Reply-To: <200408021631.24593.m.watts@eris.qinetiq.com>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same board.  I cannot get USB and 1394 to cohabitate.  On my
-system, when I insert a USB device, the 1394 system shows itself as
-handling the interrupt and the USB remains dormant.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Trever
+Mark Watts wrote:
+|
+| Noting the large wad of x86-64 stuff in here, I'm going to give it a
+whirl.
+| Stupid question though - do I apply this to 2.6.8rc2 or does it bring
+2.6.7
+| up to rc2-mm2 ?
 
-On Mon, 2004-08-02 at 22:08 -0400, Michael Guterl wrote:
-> I have an nforce2 motherboard also (Asus A7N8X Deluxe).  And I'm
-> having issues as well, like the parent poster I had to previously
-> revert bk-usb.patch when using mm kernels.  Now the problem persists
-> in vanilla 2.6.8-rc2.  Specifically my problem is that Starting Cups
-> hangs during bootup.  I removed USB support and it booted fine, but I
-> can't live without USB, keyboard, mouse, and external hard drive are
-> all USB.  Below is my config file hopefully it will help.
+1) you have to apply rc2 first
+2) please _DO_ _NOT_ *NEVER* *EVER* make a full quote of mails. in this
+case you just sent ~49KB (-2KB from your mail) to perhaps 10.000
+subscribers worldwide. just make a samll multiplication and think of
+saving bandwith in the future. Thank you very much.
 
---
-"You can surrender Without a prayer But never ever pray Pray without
-surrender You can fight Fight without ever wining But you can never ever
-win Win without fight" -- Niel Peart
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFBDzbFjBz/yQjBxz8RAgQKAJ9h6a1KnPRalqquOK/crt9gQpL9JgCcCLCC
+ckcMIW6UpTO3LdyPhP9CGoA=
+=aHov
+-----END PGP SIGNATURE-----

@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUILXEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUILXGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263770AbUILXEM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 19:04:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUILXEM
+	id S263893AbUILXGj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 19:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUILXGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 19:04:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36012 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263770AbUILXEG (ORCPT
+	Sun, 12 Sep 2004 19:06:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:45447 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263893AbUILXGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 19:04:06 -0400
-Date: Sun, 12 Sep 2004 16:03:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Airlie <airlied@linux.ie>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jon Smirl <jonsmirl@gmail.com>,
-       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: radeon-pre-2
-In-Reply-To: <Pine.LNX.4.58.0409122319550.20080@skynet>
-Message-ID: <Pine.LNX.4.58.0409121552430.13491@ppc970.osdl.org>
-References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
- <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
-  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
-  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
-  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
-  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
-  <Pine.LNX.4.58.0409102254250.13921@skynet>  <1094853588.18235.12.camel@localhost.localdomain>
-  <Pine.LNX.4.58.0409110137590.26651@skynet> <1094912726.21157.52.camel@localhost.localdomain>
- <Pine.LNX.4.58.0409122319550.20080@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Sep 2004 19:06:32 -0400
+Date: Sun, 12 Sep 2004 16:06:17 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: /proc/sys/kernel/pid_max issues
+Message-ID: <20040912230617.GS2660@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wedgwood <cw@f00f.org>, Ingo Molnar <mingo@elte.hu>,
+	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+	viro@parcelfarce.linux.theplanet.co.uk
+References: <20040912085609.GK32755@krispykreme> <20040912093605.GJ2660@holomorphy.com> <20040912095805.GL2660@holomorphy.com> <20040912101350.GA13164@elte.hu> <20040912104314.GN2660@holomorphy.com> <20040912104524.GO2660@holomorphy.com> <20040912110810.GQ2660@holomorphy.com> <20040912112026.GA16678@elte.hu> <20040912171319.GR2660@holomorphy.com> <20040912180229.GA7157@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040912180229.GA7157@taniwha.stupidest.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 12, 2004 at 10:13:19AM -0700, William Lee Irwin III wrote:
+>> I presumed it was merely cosmetic, so daemons around system startup
+>> will get low pid numbers recognizable by sysadmins. Maybe filtering
+>> process listings for pids < 300 is/was used to find daemons that may
+>> have crashed? I'm not particularly attached to the feature, and have
+>> never used it myself, but merely noticed its implementation was off.
+
+On Sun, Sep 12, 2004 at 11:02:29AM -0700, Chris Wedgwood wrote:
+> I always assumed it was an optimization when looking for a new PID
+> after a wrap by trying to skip over the kernel threads.  Arguably 300
+> is way too small for larger systems (which might have several thousand
+> kernel threads) and should probably be sized on boot (or when starting
+> userspace) if anyone really cares.
+
+There's no reason it couldn't be made tunable, though we may want to
+place restrictions on what values are allowed, e.g. reserved_pids > 0
+and reserved_pids < min(BITS_PER_PAGE, pid_max). For that matter, we
+should likely be using proc_dointvec_minmax() for pid_max or otherwise
+a custom strategy function if we need to update bounds on reserved_pids
+and/or reserved_pids in tandem. I suspect this is obscure enough I
+should leave it alone unless someone develops a strong opinion about it.
 
 
-On Sun, 12 Sep 2004, Dave Airlie wrote:
-> 
-> I think yourself and Linus's ideas for a locking scheme look good, I also
-> know they won't please Jon too much as he can see where the potential
-> ineffecienes with saving/restore card state on driver swap are, especailly
-> on running fbcon and X on a dual-head card with different users.
-
-Now, how much do you actually really need to restore/save?
-
-Yes, intelligent restore/save means that there needs to be independent
-memory management, but I thought that was the long-term plan _anyway_, no?  
-And once you have reasonably intelligent memory management, you really
-only need to save/restore the engine state, if even that (ie it should be
-enough to just "idle" the engine).
-
-Now, I'll agree that getting a good MM that solves peoples issues is a
-huge problem. Much harder that some little locks. But on the other hand,
-it really should be able to be largely card-agnostic, I sincerely hope.
-
-And once you have some way to manage memory allocations between different
-clients, saving/restoring card state really shouldn't be problematic. You 
-make the rule be that everybody has to be able to re-create their caches 
-(as with the locks, the cache manager would obviously have to have a 
-callback), and you should never be in the position where you have to 
-really save/restore any video memory contents at all.
-
-(Yes, and if your working set ends up being bigger than your video ram, 
-you won't perform well, but that's pretty fundamental regardless of number 
-of clients or how they communicate).
-
-The MM is still fairly complex, especially wrt areas that are "busy"  
-(the client may be able to re-create them, but if the currently executing
-_engine_ has pointers to it, the cache obviously can't be thrown away).  
-
-Many of those things might be simplified by having fairly strict rules
-("you can do video memory garbage collection only when the engine is
-idle"), otherwise you'll need to have some complex infrastructure to keep
-track of which areas are used by which commands...
-
-			Linus
+-- wli

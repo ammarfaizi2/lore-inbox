@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUFNVbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264432AbUFNVg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264430AbUFNVbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUFNVbY
+	id S264432AbUFNVg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbUFNVg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:31:24 -0400
-Received: from mailadmin.WKU.EDU ([161.6.18.52]:48323 "EHLO mailadmin.wku.edu")
-	by vger.kernel.org with ESMTP id S264430AbUFNVbN (ORCPT
+	Mon, 14 Jun 2004 17:36:57 -0400
+Received: from mail.kroah.org ([65.200.24.183]:36558 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264432AbUFNVg4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:31:13 -0400
-From: "Bikram Assal" <bikram.assal@wku.edu>
-Subject: eepro100 NIC driver. any bug ?
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
-Date: Mon, 14 Jun 2004 16:31:09 -0500
-Message-ID: <web-68980662@mailadmin.wku.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 14 Jun 2004 17:36:56 -0400
+Date: Mon, 14 Jun 2004 14:21:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Shaun Colley <shaunige@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i2c device driver bugs
+Message-ID: <20040614212130.GA3292@kroah.com>
+References: <20040613184116.76173.qmail@web25105.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040613184116.76173.qmail@web25105.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jun 13, 2004 at 07:41:16PM +0100, Shaun Colley wrote:
+> Hehe, forgot to specify which kernel source I read
+> this from.  Well, the first issue seems to be present
+> in all of the 2.4 kernels, and 2.5 -- I haven't
+> checked 2.6 yet.
 
-Would you suggest ee100 over eepro100 driver for an INTEL NIC ?
+Please let us know exactly what kernel version you see this in.  It
+looks to me that it is fixed in the latest 2.4 and 2.6 versions.  If you
+do not think so, please let us know.
 
-Currently, we are using eepro100 driver on one of our servers that have INTEL NICs installed.
+thanks,
 
-I have come across a situation three times when I had to reboot the server because it hanged and wouldn't respond and next time when I rebooted the server, I did not find any messages in the /var/log/messages file.
-
-On one of these occasions, I could see errors saying, 
-
-
-kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:56:24 kernel: eth1: Transmit timed out: status f048 0c00 at 1703794288/1703794348 command 200ca000.
-Jun 2 12:57:06 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:57:06 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794348/1703794410 command 0001a000.
-Jun 2 12:57:58 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Jun 2 12:57:58 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794410/1703794471 command 0001a000.
-
-
-I have read documentation on the net mentioning that eepro100 is a deprecated driver and isntead ee100 should be used.
-
-I dont know if I should relate the other hangs on our server with the one when we had these "transmit timed out" errors  show up in the /var/log/messages file.
-
-Please suggest me on this.
-
-Thanks for your help.
-
-- Bikram 
-OCA ( Oracle Certified Associate )
-Database Specialist, WKU
-http://www.wku.edu/~bikram.assal/
+greg k-h

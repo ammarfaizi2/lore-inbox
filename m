@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129193AbQKIXXG>; Thu, 9 Nov 2000 18:23:06 -0500
+	id <S129324AbQKIXb6>; Thu, 9 Nov 2000 18:31:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbQKIXW4>; Thu, 9 Nov 2000 18:22:56 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:7430 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S129193AbQKIXWh>; Thu, 9 Nov 2000 18:22:37 -0500
-Date: Fri, 10 Nov 2000 02:17:23 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Gerard Roudier <groudier@club-internet.fr>
-Cc: Richard Henderson <rth@twiddle.net>, axp-list@redhat.com,
-        linux-kernel@vger.kernel.org
+	id <S129551AbQKIXbs>; Thu, 9 Nov 2000 18:31:48 -0500
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:28681 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S129324AbQKIXbi>; Thu, 9 Nov 2000 18:31:38 -0500
+Date: Thu, 9 Nov 2000 16:31:24 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001110021723.A4142@jurassic.park.msu.ru>
-In-Reply-To: <20001109173920.A3205@jurassic.park.msu.ru> <Pine.LNX.4.10.10011092123320.1438-100000@linux.local>
+Message-ID: <20001109163124.A31909@mail.harddata.com>
+In-Reply-To: <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <3A0977A7.53641C52@mandrakesoft.com> <20001108113859.A10997@animx.eu.org> <3A098594.A85DFE0D@mandrakesoft.com> <20001108122306.A11107@animx.eu.org> <3A0989CC.2537FCEA@mandrakesoft.com> <20001109113347.B14133@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10011092123320.1438-100000@linux.local>; from groudier@club-internet.fr on Thu, Nov 09, 2000 at 09:37:41PM +0100
+X-Mailer: Mutt 0.95.5us
+In-Reply-To: <20001109113347.B14133@animx.eu.org>; from Wakko Warner on Thu, Nov 09, 2000 at 11:33:47AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 09, 2000 at 09:37:41PM +0100, Gerard Roudier wrote:
-> Hmmm...
-> The PCI spec. says that Limit registers define the top addresses
-> _inclusive_.
-
-Correct.
-
-> The spec. does not seem to imagine that a Limit register lower than the
-> corresponding Base register will ever exist anywhere, in my opinion. :-)
-
-Not correct.
-Here's a quote from `PCI-to-PCI Bridge Architecture Specification rev 1.1':
-   The Memory Limit register _must_ be programmed to a smaller value
-   than the Memory Base if there are no memory-mapped I/O addresses on the
-   secondary side of the bridge.
-
-I/O is slightly different because it's optional for the bridge -
-but if it's implemented same rules apply.
-
-> This let me think that trying to be clever here is probably a very bad
-> idea. What is so catastrophic of having 1 to 4 bytes of addresses and no
-> more being possibly in a forwardable range?
+On Thu, Nov 09, 2000 at 11:33:47AM -0500, Wakko Warner wrote:
+> > It was posted to lkml, so no link (except if you want to dig through
+> > lkml mail archives).
 > 
-Huh. 1 to 4 bytes? 4K for I/O and 1M for memory.
-And it's not trying to be clever (anymore :-) - just strictly following
-the Specs.
+> It booted but then it oops'ed before userland I belive.  I tried it this
+> morning and didn't have much time.  It did find the scsi controller (which
+> is across the bridge) and the drives attached so it does appear to be
+> working.
 
-I understand your point very well, btw. I asked similar questions to myself
-until I've had the docs.
+Looks so far that I am the worst off.  If I am trying to boot with
+a root on a SCSI device then either a controller is misdetected,
+or goes into an infinite "abort/reset" loop, or it does not initialize
+properly and disks are not found.  This is a non-exclusive, logical,
+"or". :-)
 
-Ivan.
+Booting to an IDE device makes difference only in that that if I can
+boot then SCSI disks will be simply ignored.  If somebody is interested
+in a collection of dmesg outputs, with DEBUG printks, from such attempts
+then I am game.  Ivan was getting these pretty consistently. :-)
+
+   Michal
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbSJWVU0>; Wed, 23 Oct 2002 17:20:26 -0400
+	id <S265235AbSJWV2w>; Wed, 23 Oct 2002 17:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265240AbSJWVU0>; Wed, 23 Oct 2002 17:20:26 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:10397 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265238AbSJWVU0>; Wed, 23 Oct 2002 17:20:26 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 23 Oct 2002 14:35:16 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-In-Reply-To: <20021023171818.B9700@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210231434070.1581-100000@blue1.dev.mcafeelabs.com>
+	id <S265237AbSJWV2w>; Wed, 23 Oct 2002 17:28:52 -0400
+Received: from eaganfw1.SGI.COM ([198.149.7.1]:10472 "EHLO
+	mandrake.americas.sgi.com") by vger.kernel.org with ESMTP
+	id <S265235AbSJWV2v>; Wed, 23 Oct 2002 17:28:51 -0400
+Date: Wed, 23 Oct 2002 16:35:36 -0500 (CDT)
+From: Robin Holt <holt@sgi.com>
+X-X-Sender: holt@mandrake.americas.sgi.com
+To: Jan-Frode Myklebust <janfrode@parallab.no>
+cc: John Hesterberg <jh@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.44 CSA, Job, and PAGG
+In-Reply-To: <20021023232037.A3752@ii.uib.no>
+Message-ID: <Pine.LNX.4.44.0210231623490.12293-100000@mandrake.americas.sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Benjamin LaHaise wrote:
+On Wed, 23 Oct 2002, Jan-Frode Myklebust wrote:
 
-> On Wed, Oct 23, 2002 at 11:47:33AM -0700, Davide Libenzi wrote:
-> > Ben, does it work at all currently read/write requests on sockets ? I
-> > would like to test AIO on networking using my test http server, and I was
-> > thinking about using poll() for async accept and AIO for read/write. The
-> > poll() should be pretty fast because there's only one fd in the set and
-> > the remaining code will use AIO for read/write. Might this work currently ?
->
-> The socket async read/write code is not yet in the kernel.
+> I see the struct acctcsa has a ac_prid.. Are you planning on adding 
+> project level accounting to linux, or is this just leftovers from
+> IRIX? 
 
-Ok, this pretty much stops every attempt to test/compare AIO with sys_epoll ...
-ETA ?
+This is.  I retain the hope that someone will implement project based 
+accounting.  Currently, most of the CSA users on Linux are using it for 
+system tuning.  The users tend to be people trained in using CSA on Irix 
+as one tuning tool and have carried that experience over to Linux.
 
+> 
+> I'm not familiar with CSA, but have some experience with using the 
+> IRIX system audit trail for accounting (satd). satd isn't handling the
+> accounting very well when we get hard hangs or power outages, and no 
+> end-of-job record is written. Then we have no account for the cpu-usage 
+> of the non-finished jobs at the time.
+> 
+> Does CSA handle this better, or is it still depending on jobs being 
+> finished before writing any accounting records? (a way telling it to
+> log periodic intermidiate accounting records would be nice)
 
+Both the job and process accounting record are only generated on process 
+termination.  The same problems will exist.
 
-- Davide
-
+Robin Holt
 

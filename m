@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261810AbSJQF5b>; Thu, 17 Oct 2002 01:57:31 -0400
+	id <S261813AbSJQGUe>; Thu, 17 Oct 2002 02:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261814AbSJQF5b>; Thu, 17 Oct 2002 01:57:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:7881 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261810AbSJQF53>;
-	Thu, 17 Oct 2002 01:57:29 -0400
-Date: Thu, 17 Oct 2002 08:03:14 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
-Message-ID: <20021017060314.GD9245@suse.de>
-References: <20021014135100.GD28283@suse.de> <20021017005109.GV22117@nic1-pc.us.oracle.com> <20021017010754.GW22117@nic1-pc.us.oracle.com>
-Mime-Version: 1.0
+	id <S261815AbSJQGUe>; Thu, 17 Oct 2002 02:20:34 -0400
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:52733 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S261813AbSJQGUd>; Thu, 17 Oct 2002 02:20:33 -0400
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017010754.GW22117@nic1-pc.us.oracle.com>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15790.22703.244115.847023@sofia.bsd2.kbnes.nec.co.jp>
+Date: Thu, 17 Oct 2002 15:29:03 +0900
+To: linux-kernel@vger.kernel.org
+Cc: brownfld@irridia.com
+Subject: Problems in the sk98lin driver (2.5.43)
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16 2002, Joel Becker wrote:
-> On Wed, Oct 16, 2002 at 05:51:10PM -0700, Joel Becker wrote:
-> > On Mon, Oct 14, 2002 at 03:51:00PM +0200, Jens Axboe wrote:
-> > > @@ -943,7 +1015,6 @@
-> > >  	 */
-> > >  	bh = blk_queue_bounce(q, rw, bh);
-> 
-> 	Thinking about this, I went to add it into submit_bh_list()
-> where we already iterate the bhs.  However, this would require some
-> reordering and would require teaching create_bounce() about linked I/Os.
-> Any better ideas?
+I get the following when I attempt to build it as a module (gcc-3.0.4):
 
-The worst problem is the deadlock issue with potentially having to
-allocate more than one bounce page.
+make -f arch/i386/lib/Makefile modules_install
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b /var/tmp/kernel-2.5.43-root -r 2.5.43-1sb; fi
+depmod: *** Unresolved symbols in /var/tmp/kernel-2.5.43-root/lib/modules/2.5.43-1sb/kernel/drivers/net/sk98lin/sk98lin.o
+depmod:         __udivdi3
 
--- 
-Jens Axboe
+This is coming from line 1481 in drivers/net/sk98lin/skgepnmi.c(SkPnmiInit):
+                pAC->Pnmi.StartUpTime = SK_PNMI_HUNDREDS_SEC(SkOsGetTime(pAC));
+
+SkOsGetTime is defined to return an unsigned 64 bit integer, and
+SK_PNMI_HUNDREDS_SEC is a macro which does (arg * 100) / 1000.  The
+1000 is coming from HZ and this macro does not get defined when HZ is
+exactly a 100.
+
+When scanning this file, I found another potential problem.  The Vpd()
+function consumes 2851 bytes on the stack in auto variables.
 

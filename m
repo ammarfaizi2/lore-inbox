@@ -1,66 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265013AbTFLVig (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 17:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbTFLVig
+	id S265014AbTFLVfG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 17:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbTFLVet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 17:38:36 -0400
-Received: from dsl-62-3-122-163.zen.co.uk ([62.3.122.163]:25728 "EHLO
-	tor.trudheim.com") by vger.kernel.org with ESMTP id S265007AbTFLViT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 17:38:19 -0400
-Subject: Re: Intel PRO/Wireless 2100 vs. Broadcom BCM9430x
-From: Anders Karlsson <anders@trudheim.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055452675.13998.2.camel@ixodes.goop.org>
-References: <Pine.LNX.4.44.0306120813380.411-100000@twin.uoregon.edu>
-	 <1055450268.3989.27.camel@tor.trudheim.com>
-	 <1055452675.13998.2.camel@ixodes.goop.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ag2K5P2hguYeH4IMEFKM"
-Organization: Trudheim Technology Limited
-Message-Id: <1055454724.2084.9.camel@tor.trudheim.com>
+	Thu, 12 Jun 2003 17:34:49 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:39358 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265014AbTFLVe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 17:34:29 -0400
+Date: Thu, 12 Jun 2003 14:44:18 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix vmtruncate race and distributed filesystem race
+Message-Id: <20030612144418.49f75066.akpm@digeo.com>
+In-Reply-To: <150040000.1055452098@baldur.austin.ibm.com>
+References: <133430000.1055448961@baldur.austin.ibm.com>
+	<20030612134946.450e0f77.akpm@digeo.com>
+	<20030612140014.32b7244d.akpm@digeo.com>
+	<150040000.1055452098@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
-Date: 12 Jun 2003 22:52:04 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jun 2003 21:48:15.0200 (UTC) FILETIME=[53DFBE00:01C3312C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
+> 
+> --On Thursday, June 12, 2003 14:00:14 -0700 Andrew Morton <akpm@digeo.com>
+> wrote:
+> 
+> > And this does require that ->nopage be entered with page_table_lock held,
+> > and that it drop it.
+> 
+> I think that's a worse layer violation than referencing inode in
+> do_no_page.  We shouldn't require that the filesystem layer mess with the
+> page_table_lock.
 
---=-ag2K5P2hguYeH4IMEFKM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well it is not "worse".  Futzing with i_sem in do_no_page() is pretty gross.
+You could add vm_ops->prevalidate() or something if it worries you.
 
-On Thu, 2003-06-12 at 22:17, Jeremy Fitzhardinge wrote:
-> On Thu, 2003-06-12 at 13:37, Anders Karlsson wrote:
-> > And that is if your laptop will allow such a card to be plugged in and
-> > used of course. Thinkpads with the tcpa chip in them might not allow
-> > such a card,
->=20
-> Nothing to do with TCPA: my laptop doesn't have one, and it objects to
-> "foreign" wireless cards.  Plain old BIOS is enough.
+btw, it should be synchronising with
+file->f_dentry->d_inode->i_mapping->host->i_sem, not
+file->f_dentry->d_inode->i_sem.  do_truncate() also seems to be taking the
+(potentially) wrong semaphore.
 
-I based my statement on a discussion from about a week ago on the list
-and that seemed to indicate that the IBM Thinkpads had a 'white-list'
-of sorts to allow only some specific mini-PCI cards. IIRC it was the
-T40, R40 and X31 that was affected.
-
-Apologies if my statement was incorrect.
-
-/A
-
---=-ag2K5P2hguYeH4IMEFKM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+6PYDLYywqksgYBoRApmxAJ95f0eMjWhd/thz5jdwBiS6RcpIOACgvW1S
-TnDpVDXDTvG+SQr5kn2PeHQ=
-=bpXm
------END PGP SIGNATURE-----
-
---=-ag2K5P2hguYeH4IMEFKM--
 

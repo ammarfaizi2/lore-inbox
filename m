@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129076AbQKPT12>; Thu, 16 Nov 2000 14:27:28 -0500
+	id <S129183AbQKPT36>; Thu, 16 Nov 2000 14:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbQKPT1R>; Thu, 16 Nov 2000 14:27:17 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:61959 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129076AbQKPT1G>;
-	Thu, 16 Nov 2000 14:27:06 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011161856.VAA03745@ms2.inr.ac.ru>
-Subject: Re: Local root exploit with kmod and modutils > 2.1.121
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 16 Nov 2000 21:56:54 +0300 (MSK)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <E13wThz-0008C0-00@the-village.bc.nu> from "Alan Cox" at Nov 16, 0 06:24:26 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129091AbQKPT3t>; Thu, 16 Nov 2000 14:29:49 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1692 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129183AbQKPT3h>;
+	Thu, 16 Nov 2000 14:29:37 -0500
+Date: Thu, 16 Nov 2000 13:59:32 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Eric Paire <paire@ri.silicomp.fr>
+Subject: Re: [BUG] Inconsistent behaviour of rmdir
+In-Reply-To: <Pine.LNX.4.21.0011161934370.30811-100000@sisley.ri.silicomp.fr>
+Message-ID: <Pine.GSO.4.21.0011161352260.13047-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> > It means that test for CAP_SYS_MODULE is illegal, moving pure policy
-> > issue to improper place.
+
+On Thu, 16 Nov 2000, Jean-Marc Saffroy wrote:
+
+> Now I see your point : by "." or "foo/." you mean the directory itself,
+> while "foo" or "foo/" refer to the link to the directory, and they are
+> obviously different objects... at least since hard links on directories
+> were introduced. Fine.
+
+Sorry, no. Directories still have only one parent. However, "." _is_ a
+link. It's not a shortcut or something like that - it's a real, normal,
+honest-to-$DEITY directory entry. Aka link.
+
+> Ok, now I get it. Thanks for this much clearer explanation.
 > 
-> Definitely not so
+> I guess that this was not a problem in 2.2 precisely because hard links on
+> directories were forbidden, right ?
+
+That was a problem and that still _is_ a problem - these races are unsolvable
+without a pretty serious namei.c rewrite and unless Alan is willing to go
+for that in 2.2 they are there to stay.
+
+As for the hard links being forbidden - in some sense they never were, in
+some sense they still are. Situation didn't change - directory can't have
+more than one parent. OTOH, every directory has at least two links - from
+the parent and from itself (+ one from each child).
+
+> > Besides, we clearly violated
+> > all relevant standards - rmdir() and rename() are required to fail
+> > if the last component of name happens to "." or "..".
 > 
-> What matters is whether the user is requesting a module or the kernel is 
-> choosing to load a module. In the former case where the user can influence the
-> module name then you need to check CAP_SYS_MODULE in the latter you do not
-> care.
+> By standard, do you imply 'de facto' ? Or does any source clearly state
+> this ?
 
-Alan, I honestly peered to this paragraph of text for 10 minutes. 8)8)
+POSIX, for one thing.
 
-It is funny, but I managed to compile it only as:
-"dev_load(i.e. you) need not take of care of this".
-
-I.e. exactly the thing which I said. 8)
-
-Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

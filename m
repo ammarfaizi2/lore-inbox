@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316953AbSHJOMk>; Sat, 10 Aug 2002 10:12:40 -0400
+	id <S317005AbSHJOXh>; Sat, 10 Aug 2002 10:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316957AbSHJOMk>; Sat, 10 Aug 2002 10:12:40 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54285 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316953AbSHJOMk>; Sat, 10 Aug 2002 10:12:40 -0400
-Date: Sat, 10 Aug 2002 11:16:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-In-Reply-To: <Pine.LNX.4.44.0208100005070.1474-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44L.0208101114590.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316971AbSHJOXg>; Sat, 10 Aug 2002 10:23:36 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:43525 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S317005AbSHJOXg>;
+	Sat, 10 Aug 2002 10:23:36 -0400
+Date: Sat, 10 Aug 2002 16:36:08 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/12] eyestrain relief
+Message-ID: <20020810163608.A1258@mars.ravnborg.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3D5464A4.84FC2DF3@zip.com.au> <20020810121430.A6215@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020810121430.A6215@infradead.org>; from hch@infradead.org on Sat, Aug 10, 2002 at 12:14:30PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Aug 2002, Linus Torvalds wrote:
+On Sat, Aug 10, 2002 at 12:14:30PM +0100, Christoph Hellwig wrote:
+> 
+> *hint* *hint* mconfig doesn't let your eyes burn..
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/hch/mconfig/
 
-> and having it magically populate the VM directly with the whole file
-> mapping, with _one_ failed page fault. And the above is actually a fairly
-> common thing. See how many people have tried to optimize using mmap vs
-> read, and what they _all_ really wanted was this "populate the pages in
-> one go" thing.
+Any plans to share parser.y with the rest of the world?
+It is missing in the tar-ball.
 
-If this is worth it, chances are prefaulting at mmap() time
-could also be worth trying ... hmmm ;)
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+	Sam

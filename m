@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVBIUJJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVBIUN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbVBIUJJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 15:09:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVBIUHo
+	id S261916AbVBIUN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 15:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVBIULl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 15:07:44 -0500
-Received: from mail01.hansenet.de ([213.191.73.61]:56788 "EHLO
-	webmail.hansenet.de") by vger.kernel.org with ESMTP id S261908AbVBIUEt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 15:04:49 -0500
-Message-ID: <420A6CE9.4080603@web.de>
-Date: Wed, 09 Feb 2005 21:04:57 +0100
-From: Marcus Hartig <m.f.h@web.de>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rcX / 2.6.10-ac9 kernel do not more boot SATA disk on amd64
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Feb 2005 15:11:41 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:58535 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261916AbVBIUKC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 15:10:02 -0500
+Date: Wed, 9 Feb 2005 21:10:32 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Paulo Marques <pmarques@grupopie.com>, LKML <linux-kernel@vger.kernel.org>,
+       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
+Message-ID: <20050209201032.GA2159@ucw.cz>
+References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz> <20050209171438.GI10594@lug-owl.de> <20050209173026.GA17797@ucw.cz> <420A518A.9040500@grupopie.com> <20050209191817.GA1534@ucw.cz> <20050209200351.GK10594@lug-owl.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050209200351.GK10594@lug-owl.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, Feb 09, 2005 at 09:03:51PM +0100, Jan-Benedict Glaw wrote:
 
-I can not more boot any kernel >=2.6.11-rcX also >=2.6.10-ac9 and latest 
-bk6. But I have here Alan Cox 2.6.10-ac8 and Cons 2.6.10-ck5 running and 
-booting fine without any problems.
+> > > It's even worse. Most keyboards don't separate the real keys from 
+> > > magnetic stripe reader events, and just simulate key presses for MSR 
+> > > data. They expect the software to be in a state where it is waiting for 
+> > > that data, and will process it accordingly.
+> > 
+> > In that case I'm not sure if the kernel should care at all what the data
+> > is.
+> 
+> The problematic part is that this needs to be done at a quite low level,
+> since POS keyboards may send quite a lot more than make/break codes in
+> "proper" order...
 
-But now all kernel versions after that failed (with the same config tried) 
-with:
+I'll need some specific examples of protocols the keyboard use to judge
+how to tackle that.
 
-mount: error 6 mounting ext3
-...
-umount /initrd/dev failed
-...
-
-on my Fedora Core 3 x86_64. The Fedora devel kernel also failed booting 
-(2.6.11-rcX-bkX included and badly the SCSI support and all other as 
-modules configured, what a shame... ;) .
-
-I've tried compiling all needed drivers like libata, sata_nv, SCSI 
-support, ext3 (my root / fs),... in the kernel and also the most as always 
-as modules with an initrd. With and wo "noapic", direct device names to 
-grub given and always no chance to get all at the top named kernel to boot.
-
-What was there changed in this time? Or can anybody tell me, what I'm 
-doing here wrong? :-(
-
-Hardware: nForce3 250Gb MSI K8N Neo Mainboard, Samsung SATA 80GB disk, / 
-fs on ext3, x86_64 kernel/Fedora and gcc 3.4.3.
-
-config: http://www.marcush.de/config-2.6.11-rc3
+> > > What we've done in our application is to use the timings and sequence of 
+> > > key presses to distinguish between normal key presses and MSR data :P
+> > 
+> > Yes, embedded and single purpose systems are often full of hacks like
+> > this.
+> 
+> ...and especially this problem can be better solved by reprogramming the
+> MCR readers :-)
 
 
-Greetings,
-Marcus
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263549AbTEYQ6W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 12:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263558AbTEYQ6W
+	id S263547AbTEYQ5g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 12:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTEYQ5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 12:58:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8200 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263549AbTEYQ6T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 12:58:19 -0400
-Date: Sun, 25 May 2003 10:10:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Adam Sampson <azz@us-lot.org>
-cc: Ben Collins <bcollins@debian.org>, Patrick Mochel <mochel@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-In-Reply-To: <y2awugf2pz9.fsf@cartman.at.fivegeeks.net>
-Message-ID: <Pine.LNX.4.44.0305251008490.21192-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 May 2003 12:57:36 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:40833 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S263547AbTEYQ5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 12:57:35 -0400
+Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
+	2.5.30(at least))
+From: David Woodhouse <dwmw2@infradead.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Lothar Wassmann <LW@KARO-electronics.de>,
+       Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0305231640150.1570-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0305231640150.1570-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053882629.17182.8.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
+Date: Sun, 25 May 2003 18:10:29 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Rcpt-To: hugh@veritas.com, LW@KARO-electronics.de, rmk@arm.linux.org.uk, akpm@digeo.com, linux-kernel@vger.kernel.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 25 May 2003, Adam Sampson wrote:
+On Fri, 2003-05-23 at 16:42, Hugh Dickins wrote:
+> On Fri, 23 May 2003, Lothar Wassmann wrote:
+> > I'm using a custom PXA250/255 board (same problem on both processors)
+> > with either kernel 2.5.30-rmk1-pxa1 or 2.5.68-rmk1-pxa1. Both show the
+> > same malfunction when reading a file non-sequentially from an IDE CF
+> > card.
 > 
-> If you're going to do this, it might make sense to call it "strlcpy"
-> for consistency with the OpenBSD-introduced function of the same name
-> that's getting included in a lot of userspace these days...
+> Which filesystem - jffs2 or some other?
 
-Sure, done. I'll check it in asap (and I'll make the devfs parts that Ben 
-was unhappy about use it too).
+Presumably the latter. JFFS2 works on flash, not on IDE -- unless you
+load the 'blkmtd' driver which uses a block device as backing store for
+a 'virtual' MTD device.
 
-Somebody (else ;) should probably go through our current uses of strncpy()  
-and see if they make sense. Some of them probably do, but I suspect 
-anything name/path related does not.
+-- 
+dwmw2
 
-		Linus
 

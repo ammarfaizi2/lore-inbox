@@ -1,81 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbUCQLby (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 06:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUCQLby
+	id S261402AbUCQMGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 07:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUCQMGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 06:31:54 -0500
-Received: from shark.pro-futura.com ([161.58.178.219]:1197 "EHLO
-	shark.pro-futura.com") by vger.kernel.org with ESMTP
-	id S261376AbUCQLbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 06:31:50 -0500
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-Organization: Croadria Internet usluge
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH,RFT] VIA SATA driver update
-Date: Wed, 17 Mar 2004 12:36:21 +0100
-User-Agent: KMail/1.6.1
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <405828DB.7060005@pobox.com>
-In-Reply-To: <405828DB.7060005@pobox.com>
+	Wed, 17 Mar 2004 07:06:32 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:61849 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261402AbUCQMGY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 07:06:24 -0500
+Subject: Re: [PATCH] s390 (8/10): zfcp fixes.
+To: Greg KH <greg@kroah.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF876C2271.59086B92-ONC1256E5A.00409933-C1256E5A.00427853@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Wed, 17 Mar 2004 13:06:01 +0100
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 17/03/2004 13:06:03
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403171236.21145.tvrtko@croadria.com>
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 17 March 2004 11:30, Jeff Garzik wrote:
 
-> I'm interested in hearing reports if libata's VIA SATA still fails for
-> you...
 
-Tested on:
-ABIT KV7 VIAKT600 chipset
 
-Kernel 2.6.5-rc1
 
-With no options:
+Hi Greg,
 
-libata version 1.01 loaded.
-sata_via version 0.20
-sata_via(0000:00:0f.0): routed to hard irq line 11
-ata1: SATA max UDMA/133 cmd 0xB400 ctl 0xB802 bmdma 0xC400 irq 10
-ata2: SATA max UDMA/133 cmd 0xBC00 ctl 0xC002 bmdma 0xC408 irq 10
-ata1 is slow to respond, please be patient
-ata1 failed to respond (30 secs)
-ata1: thread exiting
-scsi0 : sata_via
-ata2: no device found (phy stat 00000000)
-ata2: thread exiting
-scsi1 : sata_via
+> This is not ok.  If you have to do something like this, I really suggest
+> that you not allow the "sub modules" be able to unload before the upper
+> module can.  In fact, why would you want to do such a thing?
+How do sub modules help with the release function problem? The unit/port
+objects get unregistered in zfcp_unit_dequeue. This happens e.g. when
+a zfcp adapter gets removed because of a detach. After the last zfcp
+adapter got removed the module is in principle ready to be removed.
+Now there are two cases. 1) The module count of the zfcp module (or one
+of the non-existent sub-modules) is NOT increase because of the outstanding
+call to the release function. It obvious that the release function can't
+be part of the zfcp module(s) in this case. 2) The module count of the
+zfcp module(s) is elevated because of the outstanding call to release.
+Who does the module_put in this case? The release function only can do it
+if it is not part of ANY of the modules. If it is part of a zfcp module
+the cpu doing the module_put might not be able to get out of the release
+function fast enough before another cpu has removed the module(s)
+(including the sub-modules).
+Did I miss something ?
 
-With:
-1. acpi=off
-2. noapic
-3. acpi=off noapic
-4. acpi=off noapic iommu=off
+> I still really strongly object to this patch.  If it's a scsi problem,
+> fix it there, but odds are it's your driver's problem as no other scsi
+> driver needs this.
+If we can move the port/unit objects to the scsi mid layer that would
+"solve" the problem for the zfcp module. But the problem itself doesn't
+go away. It's just moved one step up the ladder.
 
-Result is always the same:
+blue skies,
+   Martin
 
-libata version 1.01 loaded.
-sata_via version 0.20
-sata_via(0000:00:0f.0): routed to hard irq line 11
-ata1: SATA max UDMA/133 cmd 0xB400 ctl 0xB802 bmdma 0xC400 irq 11
-ata2: SATA max UDMA/133 cmd 0xBC00 ctl 0xC002 bmdma 0xC408 irq 11
-ata1 is slow to respond, please be patient
-ata1 failed to respond (30 secs)
-ata1: thread exiting
-scsi0 : sata_via
-ata2: no device found (phy stat 00000000)
-ata2: thread exiting
-scsi1 : sata_via
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
-This is the same behavior I get ever since 2.6.1 when I started testing 2.6 
-seried. It also doesn't work under 2.6 with IDE generic support for 
-VIA8237SATA (irq timeout, dma timeout)
-
-I works fine with VIA8237SATA generic patch under 2.4.25 though...
 

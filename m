@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264277AbTFTSkf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 14:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTFTSkf
+	id S264340AbTFTSp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 14:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTFTSp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 14:40:35 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:19630 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S264266AbTFTSkd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 14:40:33 -0400
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F2A3@EXA-ATLANTA.se.lsil.com>
-From: "Mukker, Atul" <atulm@lsil.com>
-To: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "'alan@redhat.com'" <alan@redhat.com>
-Subject: [ANNOUNCE]: megaraid 1.18i driver
-Date: Fri, 20 Jun 2003 14:54:23 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 20 Jun 2003 14:45:28 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:51899 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264340AbTFTSp0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 14:45:26 -0400
+Date: Fri, 20 Jun 2003 20:59:15 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Cc: jmorris@intercode.com.au, davem@redhat.com,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: [RFC] Breaking data compatibility with userspace bzlib
+Message-ID: <20030620185915.GD28711@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Hi!
 
-1.18 series of the driver has been upgraded to 1.18i. This driver has fixes
-for management applications not working with stock 1.18f driver. Other
-changes are: Kernel would panic if 2.00.x megaraid driver is loaded on top
-of 1.18h or previous drivers. This was because of a bug in older drivers
-which were not reserving the controller's memory region.
+I'm almost finished with adding bzlib support to the kernel.  You
+could also say, I'm already 150% finished, as there is only cleanup
+left to do.  Since bzlib is new to the kernel, I don't see a point in
+keeping the uglies in the userspace interface for the kernel as well
+and have already killed most of them.
 
-This driver also incorporates the important changes made 1.18g and 1.18h
-driver for firmware handshake. The driver and the patch for 1.18f driver can
-be downloaded at:
+However, one of the uglies, blockSize100k, is also part of the data
+format as well, being one field in the header.  So now I have to
+decide whether to kill this wart or to keep it for compatibility.
 
-ftp://ftp.lsil.com/pub/linux-megaraid/drivers/
+The whole interface of the bzlib was modelled after the zlib
+interface.  blockSize100k is supposed to imitate the zlib compression
+levels, the valid range is from 1 to 9 as well.  The semantic is that
+a block of 100k * blockSize100k is compressed at a time.
+
+Now, the cost of the underlying BWT is O(n) in memory and O(n*ln(n))
+in time.  That given, I consider it odd to use a linear semantic of
+blockSizeXXXX and would prefer an exponential one, as the zlib uses
+here and there.  Thus blockSizeBits would now give the blockSize as
+1 << blockSizeBits, allowing to go well below 100k, resulting in lower
+memory consumption for some and well above 900k, giving better
+compression ratios.
 
 
-Thanks
--Atul Mukker <atulm@lsil.com>
-LSI Logic Corporation
+Long intro, short question: Jay O Nay?
+
+
+The change would make bzlib much more useful for jffs2, assuming it is
+useful for jffs2 at all.  But if any kernel bzlib users have to
+interface with a userspace bzlib, things will break.  That might be a
+good reason to postpone the change for a while and rename the whole
+thing when it gets done,,,, so my personal tendency is Nay.
+
+Jörn
+
+PS: Kept the surplus commata as a personal reminder that 2.5.72 still
+has problems with my keyboard.  Should check Andrews Must-Fix List and
+add this one it not yet present.
+
+-- 
+The competent programmer is fully aware of the strictly limited size of
+his own skull; therefore he approaches the programming task in full
+humility, and among other things he avoids clever tricks like the plague. 
+-- Edsger W. Dijkstra

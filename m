@@ -1,90 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265603AbUEZPWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265619AbUEZPZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265603AbUEZPWp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 11:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265601AbUEZPWp
+	id S265619AbUEZPZe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 11:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbUEZPZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 11:22:45 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26518 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265595AbUEZPWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 11:22:42 -0400
-Date: Wed, 26 May 2004 08:22:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc32 implementation of ptep_set_access_flags
-In-Reply-To: <1085555491.7835.61.camel@gaston>
-Message-ID: <Pine.LNX.4.58.0405260756590.1929@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>  <Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-  <1085371988.15281.38.camel@gaston>  <Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-  <1085373839.14969.42.camel@gaston>  <Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-  <20040525034326.GT29378@dualathlon.random>  <Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-  <20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk> 
- <Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>  <20040525153501.GA19465@foobazco.org>
-  <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>  <20040525102547.35207879.davem@redhat.com>
-  <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>  <20040525105442.2ebdc355.davem@redhat.com>
-  <Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>  <1085521251.24948.127.camel@gaston>
-  <Pine.LNX.4.58.0405251452590.9951@ppc970.osdl.org> 
- <Pine.LNX.4.58.0405251455320.9951@ppc970.osdl.org>  <1085522860.15315.133.camel@gaston>
-  <Pine.LNX.4.58.0405251514200.9951@ppc970.osdl.org>  <1085530867.14969.143.camel@gaston>
-  <Pine.LNX.4.58.0405251749500.9951@ppc970.osdl.org>  <1085541906.14969.412.camel@gaston>
-  <Pine.LNX.4.58.0405252031270.15534@ppc970.osdl.org>  <1085546780.5584.19.camel@gaston>
-  <Pine.LNX.4.58.0405252151100.15534@ppc970.osdl.org>  <1085551152.6320.38.camel@gaston>
-  <1085554527.7835.59.camel@gaston> <1085555491.7835.61.camel@gaston>
+	Wed, 26 May 2004 11:25:33 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:17589 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S265601AbUEZPZR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 11:25:17 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Lenar =?iso-8859-1?q?L=F5hmus?= <lenar@vision.ee>
+Subject: Re: 2.6.x kernel sluggish behavior
+Date: Thu, 27 May 2004 00:46:16 +1000
+User-Agent: KMail/1.6.1
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <40B49BD6.7050202@vision.ee>
+In-Reply-To: <40B49BD6.7050202@vision.ee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405270046.16429.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 26 May 2004 11:29 pm, Lenar Lõhmus wrote:
+> Hi.
 
-On Wed, 26 May 2004, Benjamin Herrenschmidt wrote:
+Hello
+
+> Overall I really like the performance and smoothness of 2.6.x kernels,
+
+Good to hear.
+
+> but there has been always one problematic situation.
 >
-> Here's the ppc32 implementation of ptep_set_access_flags:
+> It's debian here with X/KDE running. The problem manifests itself
+> when one launches acroread-plugin in Mozilla or Mozilla-based browser.
 
-Ok. I modified the way things are done a bit, to make it easier
-to keep architectures that haven't been updated yet in working order.
+A known case.
 
-What I did was to basically split up the old "ptep_establish()" into a new 
-"ptep_establish()" that is only used for COW, and your 
-"ptep_update_accessed_bits()", which is used for the other cases.
+> I think it's definetely a scheduler problem (although caused by
+> application bug).
 
-I also left the default implementations in <asm-generic/pgtable.h> as 
-exactly the same as the default implementation used to be for the old 
-"ptep_establish()", so architectures that have not been updated to
-take advantage of the split should work the way they always did. Except 
-s390, which now gets the default function for the accessed bits update 
-(which should be at least pretty close to correct for s390 too, I think 
-the problem for s390 was the COW-case).
+This was one of my test cases for applications designed in a certain way that 
+makes them prone to priority inversion. I tried extremely hard to find a 
+workaround within the kernel and failed to do so. It only manifests with the 
+acroread plugin in a gecko browser on uniprocessor, and seems to be some 
+interaction within some gdk library if I recall correctly. Look through the 
+kernel archives for my description of an earlier version of blender that 
+exhibited this same problem. I suspect it's actually the binary only acroread 
+and not the gdk library at fault. My solution was to simply make all .pdf 
+files launch acroread separately.
 
-The "new" rules (well, they aren't new, but now they are explicitly
-spelled out) for this thing are:
+Generic solutions for tackling priority inversion prone application designs 
+from within the kernel are expensive, and the best solution is to fix the 
+application. No doubt a differently designed scheduler would be less prone to 
+this particular interaction, but priority inversion is a "feature" of any 
+dynamic priority design scheduler to some degree and it is the particular 
+application that may or may not hit the resonant frequency (as I like to 
+think of it) of each scheduler.
 
- - ptep_establish(__vma, __address, __ptep, __entry)
-
-	Establish a new mapping:
-	 - flush the old one
-	 - update the page tables
-	 - inform the TLB about the new one
-
-	We hold the mm semaphore for reading and vma->vm_mm->page_table_lock.
-
-	Note: the old pte is known to not be writable, so we don't need to
-	worry about dirty bits etc getting lost.
-
- - ptep_set_access_flags(__vma, __address, __ptep, __entry, __dirty)
-
-	Largely same as above, but only sets the access flags (dirty,
-	accessed, and writable). Furthermore, we know it always gets set
-	to a "more permissive" setting, which allows most architectures
-	to optimize this.
-
-and right now they both just default to
-
-	set_pte(__ptep, __entry);
-	flush_tlb_page(__vma, __address);
-
-unless overridden by the architecture. 
-
-			Linus
+Con

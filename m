@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132710AbRDQXAr>; Tue, 17 Apr 2001 19:00:47 -0400
+	id <S132722AbRDQXER>; Tue, 17 Apr 2001 19:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132722AbRDQXAi>; Tue, 17 Apr 2001 19:00:38 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48146 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132710AbRDQXAY>; Tue, 17 Apr 2001 19:00:24 -0400
-Subject: Re: 2.4.3-ac8 build error with CONFIG_DEBUG_KERNEL not set
-To: scole@lanl.gov
-Date: Wed, 18 Apr 2001 00:02:24 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-        elenstev@mesatop.com
-In-Reply-To: <01041716371704.01250@spc2.esa.lanl.gov> from "Steven Cole" at Apr 17, 2001 04:37:17 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S132731AbRDQXD5>; Tue, 17 Apr 2001 19:03:57 -0400
+Received: from t2.redhat.com ([199.183.24.243]:9973 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S132722AbRDQXDz>; Tue, 17 Apr 2001 19:03:55 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010417222555.L805@mea-ext.zmailer.org> 
+In-Reply-To: <20010417222555.L805@mea-ext.zmailer.org>  <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org> <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org> 
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Dave Zarzycki <dave@zarzycki.org>, linux-kernel@vger.kernel.org
+Subject: Re: Your response is requested 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14peUM-0003UE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Wed, 18 Apr 2001 00:03:41 +0100
+Message-ID: <11637.987548621@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> kernel/kernel.o(__ksymtab+0xca0): undefined reference to `__sysrq_get_key_op'
-> kernel/kernel.o(__ksymtab+0xca8): undefined reference to `__sysrq_put_key_op'
-> make: *** [vmlinux] Error 1
-> 
-> However, with CONFIG_DEBUG_KERNEL and CONFIG_MAGIC_SYSRQ set to y,
-> I got a clean build. 
 
-ac8 has a few build glitches. Im testing ac9 now mostly to squash them before
-everyone mails me 8)
+matti.aarnio@zmailer.org said:
+>   Actually not.  Either your MTA, or your MUA did that.
+>   I got:
+> 	From:   J. I.
+>   This particular detail -- when to add canonical domain to e.g. From:
+>   address, and when not -- is implemented rather fuzzily usually.. 
+
+I'm in the "if it arrives unqualified by SMTP from !localhost, reject it"
+camp. I certainly can't think of a single case where it's appropriate to
+accept it _and_ qualify it with the local domain in that case.
+
+--
+dwmw2
+
+

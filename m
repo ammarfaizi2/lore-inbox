@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265128AbRFUTMu>; Thu, 21 Jun 2001 15:12:50 -0400
+	id <S265136AbRFUTOK>; Thu, 21 Jun 2001 15:14:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265127AbRFUTMl>; Thu, 21 Jun 2001 15:12:41 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:52416 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S265128AbRFUTM2>;
-	Thu, 21 Jun 2001 15:12:28 -0400
-Date: Thu, 21 Jun 2001 15:12:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: abc abc <netlogin_99@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: rename problem on vfat file systems
-In-Reply-To: <20010621190434.82955.qmail@web9604.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.21.0106211510400.209-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265127AbRFUTOA>; Thu, 21 Jun 2001 15:14:00 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:55825 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S265129AbRFUTN5>;
+	Thu, 21 Jun 2001 15:13:57 -0400
+Date: Thu, 21 Jun 2001 15:17:16 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Controversy over dynamic linking -- how to end the panic
+Message-ID: <20010621151716.B5662@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200106211814.f5LIEgK04880@snark.thyrsus.com> <E15D9DP-0001sF-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15D9DP-0001sF-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jun 21, 2001 at 07:30:02PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 21 Jun 2001, abc abc wrote:
-
-> If I reboot the machine just after the rename() call
-> is completed, when the machine comes up the file
-> /mnt/sns-c/segments/segfile has zero bytes and there
-> is no file in the tmp directory. Effectively the file
-> is lost some where. Running fsck recovers the file,
-> but it doesn't help me much because I would be copying
-> hundreds of files and its difficult to match the
-> files.
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > >As copyright holder of the Linux kernel, Linus is the only person with
+> > >standing to sue for license violation.  Therefore, when he says
 > 
-> Can you think of any thing that might be causing this.
+> He's copyright holder of parts of it. The FSF is also a copyright holder of
+> oddments, as are many people.
 
-Crappy filesystem layout. If you want to do something a-la journalling
-for VFAT - seek professional help.
+IANAL, but I believe that Linus's position as anthology copyright holder
+makes him privileged in this respect.
 
+My wife, who *is* an attorney, will be researching this.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+If gun laws in fact worked, the sponsors of this type of legislation
+should have no difficulty drawing upon long lists of examples of
+criminal acts reduced by such legislation. That they cannot do so
+after a century and a half of trying -- that they must sweep under the
+rug the southern attempts at gun control in the 1870-1910 period, the
+northeastern attempts in the 1920-1939 period, the attempts at both
+Federal and State levels in 1965-1976 -- establishes the repeated,
+complete and inevitable failure of gun laws to control serious crime.
+        -- Senator Orrin Hatch, in a 1982 Senate Report

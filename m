@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271959AbRH2MjS>; Wed, 29 Aug 2001 08:39:18 -0400
+	id <S271239AbRH2M5t>; Wed, 29 Aug 2001 08:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271958AbRH2Mi5>; Wed, 29 Aug 2001 08:38:57 -0400
-Received: from mail.gazinter.net ([212.44.64.6]:33297 "EHLO
-	server-001.gazinter.net") by vger.kernel.org with ESMTP
-	id <S271957AbRH2Miz>; Wed, 29 Aug 2001 08:38:55 -0400
-X-Mail-Server: =?ISO-8859-1?Q?Eserv/2.95/=CE=CE=CE?= 
-Date: Wed, 29 Aug 2001 15:39:23 +0300
-From: "Oleg O. Ossovitskii" <oleg@kgpa.ru>
-X-Mailer: The Bat! (v1.45) Personal
-Reply-To: "Oleg O. Ossovitskii" <oleg@kgpa.ru>
-Organization: KGPA Ltd. Software lab
-X-Priority: 3 (Normal)
-Message-ID: <1161445508.20010829153923@kgpa.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Small slip in ntfs code from linux kernel 2.4.9
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271957AbRH2M5j>; Wed, 29 Aug 2001 08:57:39 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:46610 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S271239AbRH2M53>;
+	Wed, 29 Aug 2001 08:57:29 -0400
+Date: Wed, 29 Aug 2001 14:57:44 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: linux 2.4.9 make menuconfig bug
+To: ankry@green.mif.pg.gda.pl
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B8CE6C8.ED4F163B@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
+In-Reply-To: <200108291207.f7TC7SQ06387@sunrise.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Andrzej Krzysztofowicz wrote:
+> 
+> "David Balazic wrote:"
+> > kernel 2.4.9
+> >
+> > make menuconfig
+> > on menu point "Fusion MPT device support" "Select" does nothing !
+> > it should go into a submenu
+> 
+> Normal behaviour for empty menu.
+> 
+> All "fusion" options depend on CONFIG_SCSI and CONFIG_BLK_DEV_SD.
 
- Linux kernel 2.4.9 can't be compiled if NTFS support is added. Fix of
- this problem see at bottom of letter.
+But if empty then it should no be listed at all, no ?
+That would make more sense IMHO.
 
-=== cut ===
-diff -u --recursive --new-file linux-2.4.9/fs/ntfs/unistr.c linux-2.4.9-oo1/fs/ntfs/unistr.c
---- linux-2.4.9/fs/ntfs/unistr.c        Mon Aug 27 16:35:21 2001
-+++ linux-2.4.9-oo1/fs/ntfs/unistr.c    Mon Aug 27 16:23:25 2001
-@@ -22,6 +22,7 @@
-  */
- 
- #include <linux/string.h>
-+#include <linux/kernel.h>
- #include <asm/byteorder.h>
- 
- #include "unistr.h"
-
- === cut ===
-
-
-Best regards, Oleg O. Ossovitskii
-system programmer of KGPA Ltd.
-tel: +7(0112)46-23-40, fax: +7(0112)43-64-96
-mailto:oleg@kgpa.ru, icq# 33366588
-
-
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

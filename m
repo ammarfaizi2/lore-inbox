@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUJXFCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbUJXFOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbUJXFCH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 01:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbUJXFCH
+	id S261373AbUJXFOb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 01:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbUJXFOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 01:02:07 -0400
-Received: from quechua.inka.de ([193.197.184.2]:39555 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261363AbUJXFCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 01:02:04 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The naming wars continue...
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20041024032902.GA19696@citd.de>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CLaW2-0005k3-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 24 Oct 2004 07:02:02 +0200
+	Sun, 24 Oct 2004 01:14:30 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:53902 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261373AbUJXFO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 01:14:29 -0400
+Message-ID: <417B3A34.2060306@namesys.com>
+Date: Sat, 23 Oct 2004 22:14:28 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: =?ISO-8859-1?Q?Markus_T=F6rnqvist?= <mjt@nysv.org>,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: 2.6.9-mm1
+References: <20041023165712.GR26192@nysv.org> <417B1574.4090406@slaphack.com>
+In-Reply-To: <417B1574.4090406@slaphack.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20041024032902.GA19696@citd.de> you wrote:
-> The directory is a "user-supplied" value.
+David Masover wrote:
 
-Actually yes and no. With 10g, the "product" directory contain the (3
-digits) version number (unrelated the actual ora home). 
+>
+> Some people don't care about speed but need space.  I'd leave them in on
+> general principle, even if no one wants them now.
 
-The different positions are well defined according to oracle, releases have
-changes in the first 4 positions, where the first is the major product
-version, the second is the release, the third are platform independend
-features. The base release for 10g was 10.1.0.2, and the first patchset is
-10.1.0.3
+Software design is usually improved by identifying features that aren't 
+worth much, and removing them from the interface and burying them where 
+average users don't see them (or dumping them completely).  Interface 
+clutter has a cost.
 
-> My DBA collegues use a default of first 3 numbers without delimiters
-> ie: /server/oracle/920
-
-This has a bit changed with 10g.
-
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Hans

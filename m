@@ -1,73 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbUKJV1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbUKJVaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbUKJV1B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 16:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUKJV0G
+	id S262145AbUKJVaw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 16:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbUKJV36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 16:26:06 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:10952 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262055AbUKJVVQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 16:21:16 -0500
-Date: Wed, 10 Nov 2004 22:21:32 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] drivers/net/pcmcia: use module_param() instead of MODULE_PARM()
-Message-ID: <20041110212132.GK2706@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <20041104112736.GT3472@crusoe.alcove-fr> <418AE490.1010304@pobox.com> <20041110155903.GA8542@sd291.sivit.org> <20041110160058.GB8542@sd291.sivit.org> <41924339.1070809@osdl.org> <20041110195200.GJ2706@deep-space-9.dsnet> <41927055.9030306@osdl.org>
+	Wed, 10 Nov 2004 16:29:58 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.30]:44265 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S262134AbUKJV2e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 16:28:34 -0500
+Date: Wed, 10 Nov 2004 22:28:18 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
+       linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+Message-ID: <20041110212818.GC25410@mail.muni.cz>
+References: <20041103222447.GD28163@zaphods.net> <20041104121722.GB8537@logos.cnet> <20041104181856.GE28163@zaphods.net> <20041109164113.GD7632@logos.cnet> <20041109223558.GR1309@mail.muni.cz> <20041109144607.2950a41a.akpm@osdl.org> <20041109224423.GC18366@mail.muni.cz> <20041109203348.GD8414@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <41927055.9030306@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041109203348.GD8414@logos.cnet>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 11:47:33AM -0800, Randy.Dunlap wrote:
-
-> >In fact, I do think that all module parameter should be exposed in
-> >/sys, and that a '0' in module_param() should really mean 0400.
-> >
-> >It can be useful to know what parameters have been passed to a module,
-> >and I cannot think of a single case where we want to hide this 
-> >information (and no, security doesn't really apply here. If you have
-> >root rights than you can also look into the kernel memory and find
-> >out the value by yourself).
-[...]
+On Tue, Nov 09, 2004 at 06:33:48PM -0200, Marcelo Tosatti wrote:
+> So you can be hitting the e1000/TSO issue - care to retest with 
+> 2.6.10-rc1-mm3/4 please?
 > 
-> I don't have an argument with most of that, but I am concerned
-> about how much memory each entry requires and how useful it really
-> is.  IOW, if I need to know the module parameters for a module,
-> I can probably find that info somewhere else, like in
-> /etc/modprobe.conf or a script etc., so why waste memory on it?
+> Thanks a lot for testing!
 
-The problem is that the information you can get out of /etc/modprobe.conf
-or some script is not necessarily consistent. Maybe the module was
-hand-loaded using different parameters that the ones in the script.
+This is from 2.6.10-rc1-mm3: (i added show_free..)
 
-This is the same issue as with the in-kernel .config. We have this
-today because this way we're sure we are looking at the right one,
-not an older copy which happen to be in /boot. Same thing for KKSYMOOPS.
+ swapper: page allocation failure. order:0, mode:0x20
+  [<c0137f28>] __alloc_pages+0x242/0x40e
+  [<c0138119>] __get_free_pages+0x25/0x3f
+  [<c032ed55>] tcp_v4_rcv+0x69a/0x9b5
+  [<c013b189>] kmem_getpages+0x21/0xc9
+  [<c013be3a>] cache_grow+0xab/0x14d
+  [<c013c05e>] cache_alloc_refill+0x182/0x244
+  [<c013c3ec>] __kmalloc+0x85/0x8c
+  [<c02fac89>] alloc_skb+0x47/0xe0
+  [<c02997ca>] e1000_alloc_rx_buffers+0x44/0xe3
+  [<c029944b>] e1000_clean_rx_irq+0x17c/0x4b7
+  [<c0298fd0>] e1000_clean+0x51/0xe7
+  [<c03010dc>] net_rx_action+0x7f/0x11f
+  [<c011daa3>] __do_softirq+0xb7/0xc6
+  [<c011dadf>] do_softirq+0x2d/0x2f
+  [<c010614e>] do_IRQ+0x1e/0x24
+  [<c0104756>] common_interrupt+0x1a/0x20
+  [<c0101eae>] default_idle+0x0/0x2c
+  [<c0101ed7>] default_idle+0x29/0x2c
+  [<c0101f40>] cpu_idle+0x33/0x3c
+  [<c0448a1f>] start_kernel+0x14c/0x165
+  [<c04484bd>] unknown_bootoption+0x0/0x1ab
+ DMA per-cpu:
+ cpu 0 hot: low 2, high 6, batch 1
+ cpu 0 cold: low 0, high 2, batch 1
+ cpu 1 hot: low 2, high 6, batch 1
+ cpu 1 cold: low 0, high 2, batch 1
+ Normal per-cpu:
+ cpu 0 hot: low 32, high 96, batch 16
+ cpu 0 cold: low 0, high 32, batch 16
+ cpu 1 hot: low 32, high 96, batch 16
+ cpu 1 cold: low 0, high 32, batch 16
+ HighMem per-cpu:
+ cpu 0 hot: low 14, high 42, batch 7
+ cpu 0 cold: low 0, high 14, batch 7
+ cpu 1 hot: low 14, high 42, batch 7
+ cpu 1 cold: low 0, high 14, batch 7
+ Free pages:         532kB (252kB HighMem)
+ Active:39820 inactive:208936 dirty:104508 writeback:672 unstable:0 free:133 slab:7779 mapped:15810 pagetables:410
+ DMA free:8kB min:12kB low:24kB high:36kB active:384kB inactive:11400kB present:16384kB pages_scanned:192 all_unreclaimable? no
+ protections[]: 0 0 0
+ DMA: 0*4kB 1*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 8kB
+ Normal: 0*4kB 0*8kB 1*16kB 0*32kB 0*64kB 0*128kB 1*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 272kB
+ HighMem: 15*4kB 8*8kB 2*16kB 1*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 252kB
+ Swap cache: add 1, delete 0, find 0/0, race 0+0
+ printk: 696 messages suppressed.
+ swapper: page allocation failure. order:0, mode:0x20
 
-Yes, this wastes a bit of memory (quite a lot actually for KKCONFIG
-or KKSYMOOPS), but less and less people cares. And those who really
-care (embedded people etc) can disable this with a config option.
-
-If module parameters are a memory issue, maybe we should do the same
-as above: put all of them into /sys unless chosen otherwise, and in
-this case disable all of them, since we can go just fine without
-any module parameter in /sys.
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
+Luká¹ Hejtmánek

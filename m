@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbUKUS4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbUKUS4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbUKUS4I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 13:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUKUS4H
+	id S261788AbUKUS4z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 13:56:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUKUS4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 13:56:07 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:6496 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261783AbUKUS4G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 13:56:06 -0500
-Date: Sun, 21 Nov 2004 19:56:46 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Andreas Steinmetz <ast@domdv.de>, Sam Ravnborg <sam@ravnborg.org>,
-       Blaisorblade <blaisorblade_spam@yahoo.it>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Why INSTALL_PATH is not /boot by default?
-Message-ID: <20041121185646.GA7811@mars.ravnborg.org>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	Andreas Steinmetz <ast@domdv.de>, Sam Ravnborg <sam@ravnborg.org>,
-	Blaisorblade <blaisorblade_spam@yahoo.it>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <200411160127.15471.blaisorblade_spam@yahoo.it> <20041121094308.GA7911@mars.ravnborg.org> <41A06FF0.7090808@domdv.de> <Pine.LNX.4.61.0411211400530.3418@dragon.hygekrogen.localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411211400530.3418@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.5.6i
+	Sun, 21 Nov 2004 13:56:55 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:58264 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261788AbUKUS4t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 13:56:49 -0500
+Message-ID: <41A0E4E9.3040902@colorfullife.com>
+Date: Sun, 21 Nov 2004 19:56:41 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: can kfree sleep?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 21, 2004 at 02:03:24PM +0100, Jesper Juhl wrote:
- > Please note that there are cases where you build a kernel for machine x on
-> > machine y. Which means: don't unconditionally uncomment this line.
-> > 
-> Huh, in that case wouldn't you just copy the kernel image from the source 
-> dir on machine y to whereever it needs to liveon machine x by hand? At 
-> least that's what I do, the Makefile and its INSTALL_PATH never comes into 
-> play then.
+Hi Peter,
 
-In scripting it's much easier to have:
-make INSTALL_MOD_PATH=/nfs/frodo/ modules_install
-make INSTALL_PATH=/nfs/frodo/ install
+>Just a question: can kfree sleep?
+>
+>
+>  
+>
+No, it never sleeps. It's safe to call kfree from arbitrary context. The 
+only exception is the NMI oopser and similar arch code.
 
-And everything 'just works'.
+>I believe so, but slab.c does not enlighten me immediately:
+>  
+>
+Yes, the kfree code is quite long - it must check if freeing one object 
+created a freeable page and return it to the page allocator. Together 
+with lots of caching and debug checks.
 
-	Sam
+--
+    Manfred
+

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285089AbRLUUHn>; Fri, 21 Dec 2001 15:07:43 -0500
+	id <S285114AbRLUURn>; Fri, 21 Dec 2001 15:17:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285096AbRLUUHd>; Fri, 21 Dec 2001 15:07:33 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:11394 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S285089AbRLUUHO>;
-	Fri, 21 Dec 2001 15:07:14 -0500
-Message-Id: <m16HVwW-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: Re: sr: unaligned transfer
-In-Reply-To: <20011221142133.C811@suse.de> "from Jens Axboe at Dec 21, 2001 02:21:33
- pm"
-To: Jens Axboe <axboe@suse.de>
-Date: Fri, 21 Dec 2001 14:06:56 -0600 (CST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S285127AbRLUURe>; Fri, 21 Dec 2001 15:17:34 -0500
+Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:27653 "EHLO
+	racerx.ixiacom.com") by vger.kernel.org with ESMTP
+	id <S285114AbRLUURS>; Fri, 21 Dec 2001 15:17:18 -0500
+Message-ID: <3C23988D.47A96760@ixiacom.com>
+Date: Fri, 21 Dec 2001 12:16:13 -0800
+From: Dan Kegel <dkegel@ixiacom.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: re: Linux 2.4.17
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Fri, Dec 21 2001, Bob_Tracy wrote:
-> > 	sr: unaligned transfer
-> > 	Unable to identify CD-ROM format.
+Marcelo wrote:
+
+> Well, 
 > 
-> What fs?
+> Here it is... 
+> 
+> 
+> final:
+> 
+> - Fix more loopback deadlocks                   (Andrea Arcangeli)
+> - Make Alpha with Nautilus chipset and
+>   Irongate chipset configuration compile
+>   correctly                                     (Michal Jaegermann)
+> 
+> rc2: 
+> 
+> - Fix potential oops with via-rhine             (Andrew Morton)
+> - sysvfs: mark inodes as bad in case of read 
+> ...
 
-iso9660.
+Um, what happened to the idea of 'no changes between the last
+release candidate and final'?
 
-> Please try and mount with -o loop instead.
+I'm disappointed; I thought we were entering a new era of
+release discipline in the stable kernel. 
 
-???  Sorry if I'm being dense, but the file system is on a physical
-CD: it isn't an image file.  The mount command that has worked for me
-in the past is
-
-	mount -t iso9660 /dev/sr1 /mnt -r
-
-The sr1 device isn't a typo: it's my cd writer.
-
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+- Dan

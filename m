@@ -1,61 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270797AbTG0OLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 10:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270800AbTG0OLZ
+	id S270804AbTG0ORq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 10:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270806AbTG0ORq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 10:11:25 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:26892 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S270797AbTG0OLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 10:11:24 -0400
-Date: Sun, 27 Jul 2003 16:26:37 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Voicu Liviu <pacman@mscc.huji.ac.il>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: make menuconfig
-Message-ID: <20030727142637.GA11649@mars.ravnborg.org>
-Mail-Followup-To: Voicu Liviu <pacman@mscc.huji.ac.il>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <3F2391EF.8080707@mscc.huji.ac.il> <20030727100017.GB21246@mars.ravnborg.org> <3F239AE5.9010403@mscc.huji.ac.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F239AE5.9010403@mscc.huji.ac.il>
-User-Agent: Mutt/1.4.1i
+	Sun, 27 Jul 2003 10:17:46 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:52375 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S270804AbTG0ORo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 10:17:44 -0400
+Message-ID: <3F23E2CA.7070107@softhome.net>
+Date: Sun, 27 Jul 2003 16:33:46 +0200
+From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OT: Vanilla not for embedded?! Re: Kernel 2.6 size increase -
+ get_current()?
+References: <dcQ9.7aj.35@gated-at.bofh.it> <dcQ9.7aj.31@gated-at.bofh.it> <dhFS.3R3.11@gated-at.bofh.it> <dSm7.4TZ.5@gated-at.bofh.it> <dTrN.5Te.7@gated-at.bofh.it>
+In-Reply-To: <dTrN.5Te.7@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 27, 2003 at 12:27:01PM +0300, Voicu Liviu wrote:
-> >
-> >Works for me. Could you provide exact error-message etc.
+Francois Romieu wrote:
+>>   Patches to remove mandatory (for 2.2/2.0) PCI/IDE support were pretty 
+>>common too.
+>>   Patch to shrink network hashes - norm of life.
+>>   Patch to kill PCI names database.
+>>   And this is only things I was using personally (and I remember about) 
+>>in my short 4 years carrier.
 > 
-> liviu@starshooter liviu $ su
-> Password:
-> liviu has logged on pts/0 from :0.0.
-> liviu has logged on pts/1 from :0.0.
-> liviu has logged on vc/1 from local.
-> liviu has logged on vc/2 from local.
-> starshooter /root# cd /usr/src/linux
-> starshooter src/linux# make menuconfig
-> Missing }.
-> starshooter src/linux#
+> Would you mind publishing the patches ?
+> 
 
-Too little context to determine where it goes wrong.
-I tried with tcsh here with success.
+   As I already answered privately - I do have them right now.
+   And those patches were not mine.
+   Most of them was collected right on lkml or from digests on lwn.net.
 
-Try the followings steps:
+   [ I was playing only with network code - and I was concerned with 
+performance more, than with image size. And had no luck achiving 
+something. ]
 
-1) Do not compile as root. In general does as little as possible as root.
-Only the kernel installlation requires root priviliges.
+> 
+>>   CONFIG_TINY - http://lwn.net/Articles/14186/ - got something like 
+>>this merged? - so I'm the first guy in the download queue on ftp.kernel.org!
+> 
+> 
+> See CONFIG_EMBEDDED.
+> 
 
-2) Try to run "make -n", that may hint where is goes wrong.
+   Okay. I have found it.
+   But I cannot find how it is used.
+   I have grepped thru 2.6.0-test0 - but I can find only entries in 
+defconfigs - but no mentions in .h/.c files.
+   What I'm missing?
 
-3) Do not locate the kernel src in /usr/src/linux - it will conflict with
-glibc header files. No matter what a HOWTO say otherwise.
+   And yes - this option doesn't work in 'make menuconfig'.
 
-4) Try another shell, for instance bash.
-Not that the kernel build should rely on bash only, but an approach to
-get your kernel to compile.
+>>   For some reasons all "improvements" to kernel had lead to increase of 
+>>kernel size, not decrease. Strange, isn't it?
+> 
+> No time for sarcasm here.
+> 
 
-	Sam
+   Correct me if I'm wrong.
+   I was just poking around 'small is beatiful'.
+
+
+P.S. To my earlier 'far from vanilla' comment (-x '.*' - to skip 
+.depend/.config/etc):
+$ diff -urN -x '.*' ./linux-2.4.17 \
+/opt/hardhat/devkit/lsp/ibm-walnut-ppc_405/linux-2.4.17_mvl21\
+| wc -l
+     1128089
+$
+and more than 500 additional CONFIG_* parameters comparing to vanilla.
+

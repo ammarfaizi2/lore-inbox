@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289234AbSBNAg6>; Wed, 13 Feb 2002 19:36:58 -0500
+	id <S289255AbSBNAki>; Wed, 13 Feb 2002 19:40:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289236AbSBNAgt>; Wed, 13 Feb 2002 19:36:49 -0500
-Received: from suntan.tandem.com ([192.216.221.8]:55495 "EHLO
-	suntan.tandem.com") by vger.kernel.org with ESMTP
-	id <S289234AbSBNAgp>; Wed, 13 Feb 2002 19:36:45 -0500
-Message-ID: <3C6B0131.F096F020@compaq.com>
-Date: Wed, 13 Feb 2002 16:13:37 -0800
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S289243AbSBNAk3>; Wed, 13 Feb 2002 19:40:29 -0500
+Received: from dsl-213-023-039-092.arcor-ip.net ([213.23.39.92]:9358 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289255AbSBNAkW>;
+	Wed, 13 Feb 2002 19:40:22 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rob Landley <landley@trommello.org>
+Subject: Re: [patch] sys_sync livelock fix
+Date: Thu, 14 Feb 2002 01:44:45 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020212220340.8017A-100000@gatekeeper.tmr.com> <E16b14Z-0001oR-00@starship.berlin> <20020213233051.GSSQ97.femail9.sdc1.sfba.home.com@there>
+In-Reply-To: <20020213233051.GSSQ97.femail9.sdc1.sfba.home.com@there>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, hch@caldera.de
-Subject: Re: [PATCH] 2.4.18-pre9, trylock for read/write semaphores
-In-Reply-To: <26130.1013588383@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16bA0z-0002QV-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> I think the following would be more elegant:
+On February 14, 2002 12:31 am, Rob Landley wrote:
+> On Wednesday 13 February 2002 10:11 am, Daniel Phillips wrote:
 > 
-> [snip]
-
-I agree.
-
-
-> I'm also not sure that the cast has any effect in the following excerpt from
-> the above:
+> > On this topic, it would make a lot of sense from the user's point of view
+> > to have a way of syncing a single volume, how would we express that?
 > 
->         old = (volatile signed long)sem->count;
-> 
+> If you're talking about sync(1), I'd make it work like df.  Typing df with no 
+> arguments lists all volumes, df with a path looks at just that path.  (And 
+> "df ." works fine too.)
 
-You're right. I looked at the generated assembly, and the volatile cast
-makes no difference.
+Yes, that's the right interface from the user's point of view.
 
+> If you're asking about sync(2) and how it should talk to the kernel, I'm not 
+> going to express an opinion...
 
-> What you may actually want is:
-> [snip]
+Patches speak louder than opinions.  First we need a vfs super->sync method,
+coming soon.
 
-Although you're right that a volatile pointer is the proper way to do
-it, it turns out that a volatile declaration isn't necessary at all. The
-cmpxchg() function is a memory barrier that forces the count to be
-refetched the next time through the loop.
-
-
-> Using this inline assembly has three advantages over mixing lots of C into it:
-> [snip]
-
-I'm not much of an assembly programmer, so implementing it this way
-never crossed my mind. It looks much more efficient than the code
-generated from the C version. A drawback is that it is not as easy to
-port to other architectures, particularly those that already have a
-cmpxchg() function.
-
-It's up to you whether you prefer C or assembly. Let me know, and I'll
-test that version and regenerate the patch.
-
-Brian
+-- 
+Daniel

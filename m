@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268752AbUILRGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268751AbUILRKO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268752AbUILRGn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 13:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268751AbUILRGn
+	id S268751AbUILRKO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 13:10:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268755AbUILRKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 13:06:43 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:33733 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268752AbUILRFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 13:05:53 -0400
-Date: Sun, 12 Sep 2004 13:10:26 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andi Kleen <ak@suse.de>
-Cc: Tejun Heo <tj@home-tj.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Interrupt entry CONFIG_FRAME_POINTER fix
-In-Reply-To: <20040912132454.6cf1d60c.ak@suse.de>
-Message-ID: <Pine.LNX.4.53.0409121257320.2297@montezuma.fsmlabs.com>
-References: <20040912091628.GB13359@home-tj.org> <20040912132454.6cf1d60c.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Sep 2004 13:10:14 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16852 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268751AbUILRKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 13:10:09 -0400
+Date: Sun, 12 Sep 2004 09:58:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev: udevd shall inform us abot trouble
+Message-ID: <20040912165832.GA1161@kroah.com>
+References: <200409081018.43626.vda@port.imtp.ilyichevsk.odessa.ua> <200409111943.21225.vda@port.imtp.ilyichevsk.odessa.ua> <41433A68.7090403@backtobasicsmgmt.com> <200409112122.36068.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409112122.36068.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Sep 2004, Andi Kleen wrote:
+On Sat, Sep 11, 2004 at 09:22:36PM +0300, Denis Vlasenko wrote:
+> > The real solution here is for people to re-think their system startup
+> > processes; if you need mixer settings applied at startup, then build a
+> > small script somewhere in /etc/hotplug.d or /etc/dev.d that applies them
+> > to the mixer _when it appears_.
+> 
+> As a user, I prefer to be able to use device right away after
+> modprobe. Imagine ethN appearing "sometime after" modprobe.
+> Would you like such behavior?
 
-> On Sun, 12 Sep 2004 18:16:28 +0900
-> Tejun Heo <tj@home-tj.org> wrote:
-> 
-> >  On x86_64, rbp isn't saved on entering interrupt handler even when
-> > CONFIG_FRAME_POINTER is turned on.  This breaks profile_pc()
-> > (resulting in oops) which uses regs->rbp to track back to the original
-> > stack.  Save full stack when CONFIG_FRAME_POINTER is specified.
-> 
-> 
-> I don't think your patch is correct, you don't restore rbp ever and it gets corrupted.
-> 
-> I think the correct change is to fix profile_pc() to not reference rbp, but just hardcode
-> the rsp offset for the FP and non FP cases (8 and 0) 
+That happens today without udev with my usb wireless and ethernet
+devices all the time.
 
-Yep, i botched up the patch, after looking at the disassembly on 
-x86_64 without CONFIG_FRAME_POINTER again it's definitely incorrect. In 
-fact there are still a few users such as _spin_lock_irqsave which push 
-flags onto the stack and the stack pointer isn't consistent across all 
-functions in that text section. I'm going to have to try Andi's previous 
-suggestions.
+See Kay's message for how this should be fixed up in userspace to work
+properly.  It's what gentoo has switched over too, with much success.
 
-Thanks,
-	Zwane
+thanks,
+
+greg k-h

@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264701AbSKDPVH>; Mon, 4 Nov 2002 10:21:07 -0500
+	id <S264700AbSKDPUw>; Mon, 4 Nov 2002 10:20:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264705AbSKDPVH>; Mon, 4 Nov 2002 10:21:07 -0500
-Received: from [217.167.51.129] ([217.167.51.129]:47326 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S264701AbSKDPVF>;
-	Mon, 4 Nov 2002 10:21:05 -0500
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "Pavel Machek" <pavel@ucw.cz>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-Date: Mon, 4 Nov 2002 16:27:23 +0100
-Message-Id: <20021104152724.25083@192.168.4.1>
-In-Reply-To: <Pine.LNX.4.44.0211040638000.771-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0211040638000.771-100000@home.transmeta.com>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S264701AbSKDPUw>; Mon, 4 Nov 2002 10:20:52 -0500
+Received: from mail.hometree.net ([212.34.181.120]:38610 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S264700AbSKDPUs>; Mon, 4 Nov 2002 10:20:48 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [lkcd-general] Re: What's left over.
+Date: Mon, 4 Nov 2002 15:27:21 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <aq63kp$9j6$1@forge.intermeta.de>
+References: <Pine.LNX.3.96.1021103082813.5197A-100000@gatekeeper.tmr.com> <1036423775.1113.71.camel@irongate.swansea.linux.org.uk>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1036423641 13260 212.34.181.4 (4 Nov 2002 15:27:21 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 4 Nov 2002 15:27:21 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Anyway, this is why I'd much rather have higher layers use a standardized
->queue packet (a SCSI command) to inform lower-level drivers about special
->events, rather than have the lower levels decide on their own command set
->and have specialized ways to try to tell them to use that specialized
->command some other way (a bdev "ops" structure would probably be the way
->we'd go).
->
->So assuming that drivers will accepts commands down the request queue 
->anyway (because it's the only sane way to push them down and get any kind 
->of reasonable ordering), then that would make it a waste of time and extra 
->complexity to _also_ have another interface to push special commands. 
->Especially as that other interface would end up being almost certainly 
->broken wrt synchronization (proof: look at the current mess).
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Ok, I see your point. However, even if having a common mecanism to
-push down a "generic" (ie SCSI packet) "suspend" command down the
-queue, the problem of doing proper suspend/resume has other issues
-to deal with, and it's basically not a higher level layer thing.
+>On Mon, 2002-11-04 at 14:45, Henning P. Schmiedehausen wrote:
+>> Good! This means, people debugging the code have actually to think and
+>> don't produce "turn on debugger, step here, there, patch a band aid,
 
-One is ordering (regarding the controller's own power management
-facilities if any, I do power down the controller itself on pmacs
-for example, or regarding other PM issues on the bus path down to
-that controller). A given IDE disk/cd/tape (same with SCSI or
-anything else) must be suspended/resumed at the proper moment,
-that is exactly just before it's parent, as a result of the
-suspend request getting down the device tree.
+>Some of us debug hardware. Regardless of the nice theories about
+>reviewing your code they don't actually work on hardware because no
+>amount of code review will let you discover things like undocumented 
+>2uS deskew delays, or errors in DMA engines
 
-Another is proper save/restore. We aren't just sending a "please
-stop that disk spinning" command, like one would do for automatic
-power management of inactive disks or whatever. Indeed, a common
-packet command would be very well suited for that. But in our case,
-we are dealing with suspend-to-disk/ram, which usually involves
-a bit more than that. We want to block the queue atomically with
-reception of this suspend command for example until machine is
-resumed. We need to send commands to restore the device state
-(ATA/ATAPI reset, LBA setting, timings, ...) on resume before
-we actually accept new commands from the queue (pushing them
-at head of queue before de-blocking it ?)
+A debugger won't help you here either. A pci bus probe, a 'scope and a
+logic analyzer do.
 
-All of the above is quite device specific. You won't need the
-same commands & state restore stuffs for a disk, cd, tape, ...
-So it's really the driver for that specific device that is
-the only one to know what has to be done for this specific
-device. 
+(And experience, elbow grease, experience and a nice amount of ESP :-)
+I do hate hardware. Had to debug too much of it (and just on
+m68k/MCS-51 where the clock rates are low and the parts easy to
+solder...).
 
-I'm not quite yet sure what is the best way to deal with all
-that yet for IDE, what I did for pmac so far was a lot simpler
-but not definitely generic enough (basically blocking the
-hwgroup state to "busy" and hand-blasting ATA regs to send
-STANDBY command).
+	Regards
+		Henning
 
-Ben.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

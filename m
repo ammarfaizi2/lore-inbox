@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314602AbSHAOpI>; Thu, 1 Aug 2002 10:45:08 -0400
+	id <S315370AbSHAO5i>; Thu, 1 Aug 2002 10:57:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314885AbSHAOpI>; Thu, 1 Aug 2002 10:45:08 -0400
-Received: from jalon.able.es ([212.97.163.2]:16529 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314602AbSHAOpG>;
-	Thu, 1 Aug 2002 10:45:06 -0400
-Date: Thu, 1 Aug 2002 16:47:33 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: "Sergey S. Kostyliov" <rathamahata@php4.ru>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc4aa1
-Message-ID: <20020801144733.GA4779@junk.cps.unizar.es>
-References: <20020801055124.GB1132@dualathlon.random> <20020801141703.GT1132@dualathlon.random> <20020801153032.A13003@infradead.org> <200208011841.41366.rathamahata@php4.ru> <20020801154258.A13336@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20020801154258.A13336@infradead.org>; from hch@infradead.org on jue, ago 01, 2002 at 16:42:58 +0200
-X-Mailer: Balsa 1.3.6
+	id <S315406AbSHAO5h>; Thu, 1 Aug 2002 10:57:37 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:15307 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S315370AbSHAO5h>; Thu, 1 Aug 2002 10:57:37 -0400
+Message-ID: <3D494CFF.245675E@nortelnetworks.com>
+Date: Thu, 01 Aug 2002 11:00:15 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)
+References: <20020730054111.GA1159@dualathlon.random> <20020730084939.A8978@redhat.com> <20020730214116.GN1181@dualathlon.random> <20020730175421.J10315@redhat.com> <20020731004451.GI1181@dualathlon.random> <20020801103011.GB159@elf.ucw.cz> <20020801104707.B21032@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin LaHaise wrote:
 
-On 20020801 Christoph Hellwig wrote:
-> On Thu, Aug 01, 2002 at 06:41:41PM +0400, Sergey S. Kostyliov wrote:
-> > On Thursday 01 August 2002 18:30, Christoph Hellwig wrote:
-> > > On Thu, Aug 01, 2002 at 04:17:03PM +0200, Andrea Arcangeli wrote:
-> > > > new rc4aa2 with this single fix is coming, if anybody else found any
-> > > > other problem please let me know ASAP :), thanks.
-> > >
-> > > why don't you merge up to -rc5?
-> > 
-> > I think because diff bitween rc4 and rc5 is already in 2.4.19rc4aa1
-> 
-> It isn't.
+> After thinking about it further, there is one problem with when that is
+> avoided with timeout: if the system time is changed between the timeout
+> calculation and the time the kernel calculates the jiffies offset, the
+> process could be delayed much longer than desired (and fixing this case
+> is hard enough that it should be avoided in typical code).  Tradeoffs...
 
-If Andrea is in hurry, and you can live with an 'unofficial' version,
-I already did it.
+Now if we had a constant monotonic source of time--say 64-bit nanoseconds since
+boot--this wouldn't be a problem.
+
+Chris
 
 -- 
-J.A. Magallon                           \                 Software is like sex:
-junk.able.es                             \           It's better when it's free
-Mandrake Linux release 9.0 (Cooker) for i586
-Linux 2.4.19-rc4-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVANVRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVANVNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbVANVRY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVANVQ0
+	id S262179AbVANVNM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVANVMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:16:26 -0500
-Received: from alog0392.analogic.com ([208.224.222.168]:20608 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262064AbVANVNR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:13:17 -0500
-Date: Fri, 14 Jan 2005 16:12:38 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Avishay Traeger <atraeger@cs.sunysb.edu>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Adding a new system call from a module in 2.6
-In-Reply-To: <1105735760.3253.23.camel@avishay.fsl.cs.sunysb.edu>
-Message-ID: <Pine.LNX.4.61.0501141554530.6747@chaos.analogic.com>
-References: <1105735760.3253.23.camel@avishay.fsl.cs.sunysb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 14 Jan 2005 16:12:20 -0500
+Received: from smtp3.akamai.com ([63.116.109.25]:156 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S262169AbVANVJ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 16:09:27 -0500
+From: pmeda@akamai.com
+Date: Fri, 14 Jan 2005 13:12:57 -0800
+Message-Id: <200501142112.NAA08016@allur.sanmateo.akamai.com>
+To: jeremy@goop.org
+Subject: [patch]: fix loss of records on size > 4096 in proc/<pid>/maps
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005, Avishay Traeger wrote:
 
-> Now that the sys_call_table is no longer exported, what would be the
-> best way to add a new system call from a module in 2.6?  I have only
-> seen the system call table in assembly code (such as in
-> arch/i386/kernel/entry.S) and do not know how to export it.  I know that
-> doing this is not recommended, but it would save me a lot of time while
-> developing new system calls (no need to recompile kernel and reboot for
-> every change).  Thanks in advance for any suggestions.
->
-> Avishay Traeger
->
+5th: Moved the in-range map's version update logic to m_show from
+m_start and m_next.  This fixes the loss of records on the reads of
+size > 4096 on boundaries.
 
-Just add some dummy function pointers at the end of the table
-and have them point to a procedure that returns -ENOSYS.
+Jeremy, can you please verify it now? This is on top of 2.6.10-mm3.
 
- 	existing:
 
- 	.long	sys_request_key
- 	.long	sys_keyctl
-syscall_table_size = (. -sys_call_table)
-
- 	new:
-
- 	.long	sys_request_key
- 	.long	sys_keyctl
-mine:	.long	sys_in_syscall
- 	.long	sys_in_syscall
- 	.long	sys_in_syscall
- 	.long	sys_in_syscall
-
-.global	mine
-.type	mine,@object
-
-syscall_table_size = (. -sys_call_table)
-
-Export whatever you want to find your entries in your module.
-Your module modifies the pointers at will ('mine' is now an
-array of 4 pointers). To prevent crashes, save what was in
-the pointer you modified and put it back before your module exits!
-
-Just don't expect this to be put into a standard kernel.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--- a/fs/task_mmu.c	Fri Jan 14 00:21:23 2005
++++ b/fs/task_mmu.c	Fri Jan 14 20:20:10 2005
+@@ -79,6 +79,7 @@ out:
+ 
+ static int show_map(struct seq_file *m, void *v)
+ {
++	struct task_struct *task = m->private;
+ 	struct vm_area_struct *map = v;
+ 	struct file *file = map->vm_file;
+ 	int flags = map->vm_flags;
+@@ -110,6 +111,8 @@ static int show_map(struct seq_file *m, 
+ 		seq_path(m, file->f_vfsmnt, file->f_dentry, "");
+ 	}
+ 	seq_putc(m, '\n');
++	if (m->count < m->size)  /* map is copied successfully */
++		m->version = (map != get_gate_vma(task))? map->vm_start: 0;
+ 	return 0;
+ }
+ 
+@@ -132,10 +135,8 @@ static void *m_start(struct seq_file *m,
+ 		return NULL;
+ 
+ 	mm = get_task_mm(task);
+-	if (!mm) {
+-		m->version = -1UL;
++	if (!mm)
+ 		return NULL;
+-	}
+ 
+ 	tail_map = get_gate_vma(task);
+ 	down_read(&mm->mmap_sem);
+@@ -162,13 +163,11 @@ static void *m_start(struct seq_file *m,
+ 		tail_map = NULL; /* After gate map */
+ 
+ out:
+-	if (map && map != tail_map) {
+-		m->version = map->vm_start;
++	if (map)
+ 		return map;
+-	}
+ 
+ 	/* End of maps has reached */
+-	m->version = -1UL;
++	m->version = (tail_map != NULL)? 0: -1UL;
+ 	up_read(&mm->mmap_sem);
+ 	mmput(mm);
+ 	return tail_map;
+@@ -192,12 +191,9 @@ static void *m_next(struct seq_file *m, 
+ 	struct vm_area_struct *tail_map = get_gate_vma(task);
+ 
+ 	(*pos)++;
+-	if (map && (map != tail_map) && map->vm_next) {
+-		m->version = map->vm_next->vm_start;
++	if (map && (map != tail_map) && map->vm_next)
+ 		return map->vm_next;
+-	}
+ 	m_stop(m, v);
+-	m->version = -1UL;
+ 	return (map != tail_map)? tail_map: NULL;
+ }
+ 

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270984AbTGVSad (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 14:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270986AbTGVSad
+	id S270990AbTGVSdd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 14:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270991AbTGVSdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 14:30:33 -0400
-Received: from codepoet.org ([166.70.99.138]:54912 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S270984AbTGVSac (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 14:30:32 -0400
-Date: Tue, 22 Jul 2003 12:45:33 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Promise SATA driver GPL'd
-Message-ID: <20030722184532.GA2321@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
+	Tue, 22 Jul 2003 14:33:33 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:52487 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S270990AbTGVSdb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 14:33:31 -0400
+Subject: Re: Scheduler starvation (2.5.x, 2.6.0-test1)
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Apurva Mehta <apurva@gmx.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030722172858.GB2880@home.woodlands>
+References: <20030722013443.GA18184@netnation.com>
+	 <20030722172858.GB2880@home.woodlands>
+Content-Type: text/plain
+Message-Id: <1058899713.733.6.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 22 Jul 2003 20:48:34 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some folk I've done some consulting work for bought a zillion
-Promise SATA cards.  They were able to convince Promise to
-release their SATA driver, which was formerly available only as 
-a binary only kernel module, under the terms of the GPL.
+On Tue, 2003-07-22 at 19:28, Apurva Mehta wrote:
+> * Simon Kirby <sim@netnation.com> [2003-07-22 11:50]:
+> > I keep seeing cases where browsing in mozilla / galeon will suck away all
+> > CPU from X updating the mouse, xmms playing, etc., for about a second as
+> > Mozilla renders a page (which should take 50 ms to render, but anyway..).
+> 
+> I do not have any problems with mouse response, but xmms sure does
+> skip a whole lot more on my 2.6.0-test1 running on a PIII 500 MHz, 192
+> MB RAM. 
+> 
+> I usually run Opera and the skipping occurs often while switching
+> between tabs with the mouse (not when it is done with the keyboard).
+> 
+> Also, severe xmms skipping occurs while scrolling through PDF files
+> (in Acrobat) while the first few seconds of a song are playing. The
+> song virtually stops while I scroll. After the song plays for a bit,
+> scrolling through a PDF makes no difference.
+> 
+> Sometimes, xmms pops up in between songs saying that it could not
+> detect the audio device! This occurs mainly during heavy disk i/o or
+> cpu usage.
 
-So <drum-roll, trumpets> here it is: the Promise SATA driver for
-the PDC20318, PDC20375, PDC20378, and PDC20618.  This driver is
-released as-is.  It is useful for the
+Could you please test 2.6.0-test1-mm2 instead? It has additional
+scheduler fixes which should improve your overall experience.
 
-	Promise SATA150 TX4
-	Promise SATA150 TX2plus
-	Promise SATA 378
-	Promise Ultra 618
+Thanks!
 
-cards.  As a temporary download location, the GPL'd driver can be
-obtained from http://www.busybox.net/pdc-ultra-1.00.0.10.tgz
-
-Have fun!  And many thanks to Promise for contributing the driver
-for their cards!
-
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

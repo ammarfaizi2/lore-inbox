@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287766AbSAFIUz>; Sun, 6 Jan 2002 03:20:55 -0500
+	id <S287770AbSAFIcp>; Sun, 6 Jan 2002 03:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287768AbSAFIUp>; Sun, 6 Jan 2002 03:20:45 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:35287 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S287766AbSAFIUf>; Sun, 6 Jan 2002 03:20:35 -0500
-Date: Sun, 6 Jan 2002 03:20:30 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Gerrit Huizenga <gerrit@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "M. Edward Borasky" <znmeb@aracnet.com>,
-        Harald Holzer <harald.holzer@eunet.at>, linux-kernel@vger.kernel.org
-Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
-Message-ID: <20020106032030.A27926@redhat.com>
-In-Reply-To: <E16LTvs-00016I-00@the-village.bc.nu> <E16Lslt-0001aG-00@w-gerrit2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16Lslt-0001aG-00@w-gerrit2>; from gerrit@us.ibm.com on Wed, Jan 02, 2002 at 01:17:59PM -0800
+	id <S287769AbSAFIcg>; Sun, 6 Jan 2002 03:32:36 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:11427 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S287768AbSAFIcS>; Sun, 6 Jan 2002 03:32:18 -0500
+Date: Sun, 6 Jan 2002 01:32:09 -0700
+Message-Id: <200201060832.g068W9411534@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: Jason Thomas <jason@topic.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br
+Subject: Re: oops in devfs
+In-Reply-To: <20020105202715.N12868@lynx.no>
+In-Reply-To: <20020103014507.GB19702@topic.com.au>
+	<200201030724.g037ONj04041@vindaloo.ras.ucalgary.ca>
+	<20020103224744.GB29846@topic.com.au>
+	<200201060047.g060l4p08166@vindaloo.ras.ucalgary.ca>
+	<20020105202715.N12868@lynx.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 01:17:59PM -0800, Gerrit Huizenga wrote:
-> I don't know if there are real examples of large memory systems
-> exhausting the ~1 GB of kernel virtual address space on machines
-> with > 12-32 GB of physical memory (we had this problem in PTX which
-> created the need for a larger kernel virtual address space in some
-> contexts).
+Andreas Dilger writes:
+> On Jan 05, 2002  17:47 -0700, Richard Gooch wrote:
+> > Ah! You're using LVM! There are known bugs in LVM which cause memory
+> > corruptions. I told Heinz about this on 16-DEC, but it appears the CVS
+> > tree hasn't been updated yet. So grab the latest CVS tree (which fixes
+> > some bugs) and then apply the appended patch (which fixes more
+> > bugs). You definately need both. The patch should be applied in the
+> > drivers/md directory.
+> 
+> Hmm, my understanding was that the LVM CVS already had this patch
+> applied, but I could be wrong...  In any case, I haven't seen
+> anything about updating the kernel LVM to match CVS since Alan
+> merged in his -ac LVM code into 2.4.15 or so.
 
-The ~800MB or so of kernel address space is exhausted with struct page 
-entries around 48GB of physical memory or so
+When I wrote this message, I had just before downloaded LVM using CVS,
+following the instructions at: http://www.sistina.com/products_CVS.htm
+AFAIK, that's the most recent version of LVM.
 
-SGI's original highmem patch switched page tables on entry to kernel 
-space, so there is code already tested that we can borrow.  But I'm 
-not sure if it's worth it as the overhead it adds makes life really 
-suck: we would lose the ability to use global pages, as well as always 
-encounter tlb misses on the kernel<->userspace transition.  PAE shows 
-up as a 5% performance loss on normal loads, and this would make it 
-worse.  We're probably better off implementing PSE.  Of course, making 
-these kinds of choices is hard without actual statistics of the 
-usage patterns we're targetting.
+Hm. Andreas: do you have write access?
 
-> Would be nice to have a config option like "CONFIG_PCI_36" to imply
-> that all devices on a PAE system were able to access all of memory,
-> globally removing the need for bounce buffering and allowing a native
-> PCI setup for mapping memory addresses...
+				Regards,
 
-That would be neat.
-
-		-ben
--- 
-Fish.
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

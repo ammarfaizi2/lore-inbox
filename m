@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262840AbUCJVea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 16:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUCJVea
+	id S262846AbUCJVfF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 16:35:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUCJVfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 16:34:30 -0500
-Received: from mail.shareable.org ([81.29.64.88]:64905 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262840AbUCJVe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 16:34:28 -0500
-Date: Wed, 10 Mar 2004 21:34:27 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for testing] cow behaviour for hard links
-Message-ID: <20040310213427.GB7341@mail.shareable.org>
-References: <20040310193429.GB4589@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040310193429.GB4589@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Mar 2004 16:35:05 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:6306 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S262846AbUCJVfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 16:35:00 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: (0 == foo), rather than (foo == 0)
+In-Reply-To: <404F6375.3080500@blue-labs.org>
+References: <905989466451C34E87066C5C13DDF034593392@HYDMLVEM01.e2k.ad.ge.com> <20040310100215.1b707504.rddunlap@osdl.org> <Pine.LNX.4.53.0403101324120.18709@chaos> <Pine.LNX.4.53.0403101324120.18709@chaos> <404F6375.3080500@blue-labs.org>
+Message-Id: <E1B1BLv-0004f5-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Date: Wed, 10 Mar 2004 21:34:59 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> Yeah, well, here it is, sortof.  It works on file granularity instead
-> of block, doesn't do the cow part inside the kernel (userspace get's
-> an error and has to do it).  But it works for ext2 and ext3 and is
-> relatively short.
-> 
-> Interna:
-> I introduced a new flag for inodes, switching between normal behaviour
-> and cow for hard links.  Flag can be changed and queried per fcntl().
-> Ext[23] needed a bit of tweaking to write this flag to disk.  open()
-> will fail, when a) cowlink flags is set, b) inode has more than one
-> link and c) write access is requested.
+David Ford wrote:
 
-I like the idea!
+>Really, your mail reading software should be capable of wrapping things 
+>by itself, we really have progressed from yesteryear.
 
-I keep many hard-linked kernel trees, and local version management is
-done by "cp -rl" to make new trees and then change a few files in
-those trees, compile, test etc.  To prevent changes in one tree
-accidentally affecting other trees, I "chmod -R a-r" all but the tree
-I'm currently working on.
+The issue is that there are two types of text. The message itself should
+be wrapped, whereas inline code may be semantically changed by being
+wrapped. If both are streams of text with no embedded newlines then
+there's no way of telling the difference between them, whereas if one
+has embedded newlines then the choice of wrapping the other can be made
+by the recipient. The alternative would result in both being wrapped,
+which isn't the behaviour I want. Having lines that are slightly shorter
+than ideal on some people's screens seems the lesser of two evils.
 
-Thats works quite nicely, but it'd be even nicer to not need the
-"chmod", and just be confident that writes won't clobber files in
-another tree by accident.
-
--- Jamie
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

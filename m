@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbUL3TfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbUL3TlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbUL3TfA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 14:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUL3TfA
+	id S261703AbUL3TlA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 14:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUL3TlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 14:35:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44429 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261702AbUL3Te6 (ORCPT
+	Thu, 30 Dec 2004 14:41:00 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50115 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261703AbUL3Tkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 14:34:58 -0500
-Date: Thu, 30 Dec 2004 11:34:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesse Allen <the3dfxdude@gmail.com>
-cc: Davide Libenzi <davidel@xmailserver.org>, Mike Hearn <mh@codeweavers.com>,
-       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
-       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <53046857041230112742acccbe@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
- <530468570412291343d1478cf@mail.gmail.com>  <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
-  <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com> 
- <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org> 
- <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org> 
- <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org> 
- <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com> 
- <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org> 
- <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
- <53046857041230112742acccbe@mail.gmail.com>
+	Thu, 30 Dec 2004 14:40:52 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+Subject: Re: 3 ways to represent cpu affinity in /sys and counting
+Date: Thu, 30 Dec 2004 11:40:19 -0800
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, greg@kroah.com, miltonm@bga.com
+References: <20041226002744.GC21710@krispykreme.ozlabs.ibm.com>
+In-Reply-To: <20041226002744.GC21710@krispykreme.ozlabs.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412301140.20366.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday, December 25, 2004 4:27 pm, Anton Blanchard wrote:
+> Hi,
+>
+> We have a patch to change pcibus_to_cpumask to pcibus_to_node. This makes
+> it more consistent with cpu_to_node, and when you want a cpumask you
+> use node_to_cpumask.
 
+Great!  I think Matt Dobson said he was going to do something similar, but he 
+got sidetracked (and iirc, ak also didn't like the idea).  FWIW, I like it, 
+with the caveat that the node returned from pcibus_to_node may not have any 
+memory or CPUs associated with it.
 
-On Thu, 30 Dec 2004, Jesse Allen wrote:
-> 
-> Using the latest version of the patch on do_syscall_trace(), it still
-> doesn't work unless I remove this test.  If indeed it's supposed to
-> fall through to receive the proper signal, (ie to single step properly
-> after an int op), then removing it is wrong, and I won't consider it
-> anymore.  I also have to use the patch shown below, with a typo-fixed,
-> to fix the other problem.  I broke it apart from the other because we
-> might want to consider it seperately right now.
+> A pci device has a local_cpus property:
+>
+> /sys/devices/pci000a:00/000a:00:02.6/local_cpus
+>
+> A pci_bus has a cpuaffinity property:
+>
+> /sys/class/pci_bus/000d:d8/cpuaffinity
 
-I'm actually able to now re-create some problems with TF handling with a 
-simple non-wine test, and I think I'm zeroing in on the reason for Wine 
-breaking. And I think it just happened to work by luck before.
+I don't know how these two got different names...
 
-Not only do we have problems single-stepping over a system call, we _also_ 
-have problems single-stepping over a "popf" - we'll set TF (to 
-single-step), and then afterwards we'll _clear_ TF, even if the "popf" 
-also was supposed to set it. 
+> A node has a cpumap property:
+>
+> /sys/devices/system/node/node3/cpumap
+>
+> Can we standardize on a single property name for this? :)
 
-Working on a patch for this right now, I'll send something out soonish 
-(and I'll test it on my test-case before sending it, so that it at least 
-has some chance of working).
+Seems like nodes should have a cpumap and PCI busses should have a node.
 
-		Linus
+> Furthermore, looking at node linkages:
+>
+> A node has symlinks to cpus:
+>
+> /sys/devices/system/node/node0/cpu0 -> /sys/devices/system/cpu/cpu0
+>
+> But doesnt have symlinks to pci devices.
+
+Yep, this would be nice to have.
+
+Jesse

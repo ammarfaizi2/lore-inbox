@@ -1,43 +1,159 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131116AbRCGQrm>; Wed, 7 Mar 2001 11:47:42 -0500
+	id <S131119AbRCGQuN>; Wed, 7 Mar 2001 11:50:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131114AbRCGQrd>; Wed, 7 Mar 2001 11:47:33 -0500
-Received: from ns.caldera.de ([212.34.180.1]:15364 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S131113AbRCGQrZ>;
-	Wed, 7 Mar 2001 11:47:25 -0500
-Date: Wed, 7 Mar 2001 17:46:31 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: yacc dependency of aic7xxx driver
-Message-ID: <20010307174631.A27245@caldera.de>
-Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200103071442.PAA14348@ns.caldera.de> <200103071529.f27FTjO26978@aslan.scsiguy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <200103071529.f27FTjO26978@aslan.scsiguy.com>; from gibbs@scsiguy.com on Wed, Mar 07, 2001 at 08:29:45AM -0700
+	id <S131120AbRCGQuD>; Wed, 7 Mar 2001 11:50:03 -0500
+Received: from [62.90.5.51] ([62.90.5.51]:23058 "EHLO salvador.shunra.co.il")
+	by vger.kernel.org with ESMTP id <S131119AbRCGQtw>;
+	Wed, 7 Mar 2001 11:49:52 -0500
+Message-ID: <F1629832DE36D411858F00C04F24847A11DEFD@SALVADOR>
+From: Ofer Fryman <ofer@shunra.co.il>
+To: "'Hen, Shmulik'" <shmulik.hen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: spinlock help
+Date: Wed, 7 Mar 2001 18:54:16 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07, 2001 at 08:29:45AM -0700, Justin T. Gibbs wrote:
-> >What about simply removing the firmware source and assembler from the
-> >kernel tree?  We have lots of firmware in the kernel tree for which
-> >there isn't even firmware  avaible...
-> 
-> What, and not allow others to fix my bugs for me? :-)
-> 
-> Lots of people have embedded this driver just because it is completely
-> open source.  I'd like to have all distributions be "complete"
-> distributions.
+You can clear interrupts in the beginning of the routine, inside it use
+test_and_set_bit() and clear_bit(), or you can replace the device xmit
+pointer(dev->start_xmit) with a pointer to your routine, anyway eepro100
+still sound better even for your purpose.
 
-Not having it in the kernel tree doesn't have to mean not having it in
-the distributions.  If you are really concerned having iy in the kernel
-tree it might also be a good idea to have it in scripts.
+Ofer.
 
-	Christoph
+-----Original Message-----
+From: Hen, Shmulik [mailto:shmulik.hen@intel.com]
+Sent: Wednesday, March 07, 2001 12:47 PM
+To: 'Ofer Fryman'; Hen, Shmulik
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: spinlock help
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+e100 implements all sorts of hooks for our intermediate driver (kind of a
+co-development effort), so eepro100 is out of the question for us.
+
+	Shmulik.
+
+From: Ofer Fryman [mailto:ofer@shunra.co.il]
+Sent: Wednesday, March 07, 2001 12:31 PM
+To: 'Hen, Shmulik'
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: spinlock help
+
+
+Did you try looking at Becker eepro100 driver it seems to be simple, no
+unnecessary spin_lock_irqsave?.
+
+-----Original Message-----
+From: Hen, Shmulik [mailto:shmulik.hen@intel.com]
+Sent: Wednesday, March 07, 2001 11:21 AM
+To: 'nigel@nrg.org'; Manoj Sontakke
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: spinlock help
+
+
+How about if the same sequence occurred, but from two different drivers ?
+
+We've had some bad experience with this stuff. Our driver, which acts as an
+intermediate net driver, would call the hard_start_xmit in the base driver.
+The base driver, wanting to block receive interrupts would issue a
+'spin_lock_irqsave(a,b)' and process the packet. If the TX queue is full, it
+could call an indication entry point in our intermediate driver to signal it
+to stop sending more packets. Since our indication function handles many
+types of indications but can process them only one at a time, we wanted to
+block other indications while queuing the request.
+
+The whole sequence would look like that:
+
+[our driver]
+	ans_send() {
+		.
+		.
+		e100_hard_start_xmit(dev, skb);
+		.
+		.
+	}
+
+[e100.o]
+	e100_hard_start_xmit() {
+		.
+		.
+		spin_lock_irqsave(a,b);
+		.
+		.
+		if(tx_queue_full)
+			ans_notify(TX_QUEUE_FULL);	<--
+		.
+		.
+		spin_unlock_irqrestore(a,b);
+	}
+	
+[our driver]
+	ans_notify() {
+		.
+		.
+		spin_lock_irqsave(c,d);
+		queue_request(req_type);
+		spin_unlock_irqrestore(c,d);	<--
+		.
+		.
+	}
+
+At that point, for some reason, interrupts were back and the e100.o would
+hang in an infinite loop (we verified it on kernel 2.4.0-test10 +kdb that
+the processor was enabling interrupts and that the e100_isr was called for
+processing an Rx int.).
+
+How is that possible that a 'spin_unlock_irqrestore(c,d)' would also restore
+what should have been restored only with a 'spin_unlock_irqrestore(a,b)' ?
+
+
+	Thanks in advance,
+	Shmulik Hen      
+      Software Engineer
+	Linux Advanced Networking Services
+	Intel Network Communications Group
+	Jerusalem, Israel.
+
+-----Original Message-----
+From: Nigel Gamble [mailto:nigel@nrg.org]
+Sent: Wednesday, March 07, 2001 1:54 AM
+To: Manoj Sontakke
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlock help
+
+
+On Tue, 6 Mar 2001, Manoj Sontakke wrote:
+> 1. when spin_lock_irqsave() function is called the subsequent code is
+> executed untill spin_unloc_irqrestore()is called. is this right?
+
+Yes.  The protected code will not be interrupted, or simultaneously
+executed by another CPU.
+
+> 2. is this sequence valid?
+> 	spin_lock_irqsave(a,b);
+> 	spin_lock_irqsave(c,d);
+
+Yes, as long as it is followed by:
+
+	spin_unlock_irqrestore(c, d);
+	spin_unlock_irqrestore(a, b);
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

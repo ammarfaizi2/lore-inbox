@@ -1,54 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbUAaGBO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 01:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbUAaGBO
+	id S261875AbUAaFup (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 00:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUAaFup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 01:01:14 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12618 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263625AbUAaGBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 01:01:12 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com>
-	<401894DA.7000609@redhat.com>
-	<20040129132623.GB13225@mail.shareable.org>
-	<m1ekthx9ju.fsf@ebiederm.dsl.xmission.com>
-	<20040131024100.GA9236@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 30 Jan 2004 22:54:19 -0700
-In-Reply-To: <20040131024100.GA9236@mail.shareable.org>
-Message-ID: <m1oeskwtmc.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Sat, 31 Jan 2004 00:50:45 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:10635 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261875AbUAaFum
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 00:50:42 -0500
+Message-ID: <401B421F.4060104@zytor.com>
+Date: Fri, 30 Jan 2004 21:50:23 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
+X-Accept-Language: en, sv, es, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, michael@mvdavid.com
+Subject: Re: raid6 badness
+References: <Pine.LNX.4.58.0401301158340.8900@sapphire.newearth.org.suse.lists.linux.kernel>	<bvf2vl$6pr$1@terminus.zytor.com.suse.lists.linux.kernel> <p73ad44n7ig.fsf@verdi.suse.de>
+In-Reply-To: <p73ad44n7ig.fsf@verdi.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------040908030705090009080600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+This is a multi-part message in MIME format.
+--------------040908030705090009080600
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Eric W. Biederman wrote:
-> > With the x86-64 optimized vsyscall the syscall number does
-> > not need to be placed into a register, because you have used
-> > the proper entry point.  For any syscall worth tuning in
-> > user space I suspect that level of optimization would be
-> > beneficial.  A fast call path that does not waste a register.
+Andi Kleen wrote:
+> "H. Peter Anvin" <hpa@zytor.com> writes:
 > 
-> The cost of loading a constant into a register is _much_ lower than
-> the cost of indirect jumps which we have been discussing.
+>>I don't know what would cause the stack to be misaligned, however.
+> 
+> x86-64 kernel doesn't guarantee the stack to be 16 byte aligned
+> (although it usually is). If you need 16 byte alignment you have 
+> to align yourself.
+> 
 
-I was thinking more of the register pressure in the load.
+OK, that's unfortunate... per our discussion I really think this is a 
+bug, since the compiler still does 16-byte alignment, and thus we're 
+taking the cost without the benefit.
 
-But in the case of gettimeofday I think it makes to do a kernel
-implementation that is argument compatible with libc and then linker
-magic could just short circuit the calls to the vsyscall page and libc
-would not need to get involved at all, which removes one of the
-indirect calls.
+I'll send in the attached patch for now, but at some point I'd like to 
+fix this.  Unfortunately I still don't have an x86-64 machine that I can 
+actually compile and install kernels on; I only have access to an x86-64 
+userspace, so I'm a bit limited in what I can test.
 
-We could probably do that today by just renaming the function
-gettimeofday.  But that is rude and has name space pollution issues.
+Michael: Perhaps you could apply this patch and test it out for me?
 
-Eric
+	-hpa
+
+--------------040908030705090009080600
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/drivers/md/raid6x86.h,v
+retrieving revision 1.3
+diff -u -r1.3 raid6x86.h
+--- linux-2.5/drivers/md/raid6x86.h	22 Jan 2004 16:15:09 -0000	1.3
++++ linux-2.5/drivers/md/raid6x86.h	31 Jan 2004 05:41:49 -0000
+@@ -32,18 +32,20 @@
+ /* N.B.: For SSE we only save %xmm0-%xmm7 even for x86-64, since
+    the code doesn't know about the additional x86-64 registers */
+ typedef struct {
+-	unsigned int sarea[8*4];
+-	unsigned int cr0;
++	unsigned int sarea[8*4+2];
++	unsigned long cr0;
+ } raid6_sse_save_t __attribute__((aligned(16)));
+ 
+ /* This is for x86-64-specific code which uses all 16 XMM registers */
+ typedef struct {
+-	unsigned int sarea[16*4];
++	unsigned int sarea[16*4+2];
+ 	unsigned long cr0;
+ } raid6_sse16_save_t __attribute__((aligned(16)));
+ 
+-/* On x86-64 the stack is 16-byte aligned */
+-#define SAREA(x) (x->sarea)
++/* On x86-64 the stack *SHOULD* be 16-byte aligned, but currently this
++   is buggy in the kernel and it's only 8-byte aligned in places, so
++   we need to do this anyway.  Sigh. */
++#define SAREA(x) ((unsigned int *)((((unsigned long)&(x)->sarea)+15) & ~15))
+ 
+ #else /* __i386__ */
+ 
+@@ -60,6 +62,7 @@
+ 	unsigned long cr0;
+ } raid6_sse_save_t;
+ 
++/* Find the 16-byte aligned save area */
+ #define SAREA(x) ((unsigned int *)((((unsigned long)&(x)->sarea)+15) & ~15))
+ 
+ #endif
+
+--------------040908030705090009080600--

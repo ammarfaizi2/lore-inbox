@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129776AbQKFRRy>; Mon, 6 Nov 2000 12:17:54 -0500
+	id <S129467AbQKFRVE>; Mon, 6 Nov 2000 12:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129775AbQKFRRo>; Mon, 6 Nov 2000 12:17:44 -0500
-Received: from [209.245.157.171] ([209.245.157.171]:11392 "EHLO krispykreme")
-	by vger.kernel.org with ESMTP id <S129467AbQKFRRg>;
-	Mon, 6 Nov 2000 12:17:36 -0500
-Date: Mon, 6 Nov 2000 09:17:23 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: rdtsc to mili secs?
-Message-ID: <20001106091723.A516@linuxcare.com>
-In-Reply-To: <20001106011000.A9787@athlon.random> <E13sa8o-0005jc-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S129666AbQKFRUy>; Mon, 6 Nov 2000 12:20:54 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25940 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129467AbQKFRUi>; Mon, 6 Nov 2000 12:20:38 -0500
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Mon, 6 Nov 2000 17:19:29 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse),
+        jgarzik@mandrakesoft.com (Jeff Garzik), goemon@anime.net (Dan Hollis),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        oxymoron@waste.org (Oliver Xymoron), kaos@ocs.com.au (Keith Owens),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A06CB18.570BB38A@evision-ventures.com> from "Martin Dalecki" at Nov 06, 2000 04:15:36 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13sa8o-0005jc-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 06, 2000 at 12:28:00AM +0000
-From: Anton Blanchard <anton@linuxcare.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13spve-0006Pt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > fast_gettimeoffset_quotient, see do_fast_gettimeoffset().
+> > Persistent storage is the best way to do it though. It doesn't have to be
+> > persistent over reboots, just during the lifetime of the kernel.
 > 
-> Also remember that the TSC may not be available due to the chip era, chip
-> bugs or running SMP with non matched CPU clocks.
+> No! The best way to do it are just *persistently loaded* modules.
+> It's THAT simple!
 
-When I boot my thinkpad 600e off battery and then change to AC power,
-gettimeofday has a nasty habit of going backwards. Stephen Rothwell
-tells me it is one of these machines in which the cycle counter
-slows down when power is removed.
+So you want to split every sound driver into two or more modules ? 
 
-This means our offset calculations in do_fast_gettimeoffset are way off
-and taking a reading just before a timer tick and just after results in
-a negative interval. Perhaps we should disable tsc based gettimeofday
-for these type of machines.
+Alan
 
-Anton
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

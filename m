@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266363AbSLIXWq>; Mon, 9 Dec 2002 18:22:46 -0500
+	id <S266298AbSLIXaI>; Mon, 9 Dec 2002 18:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266367AbSLIXWq>; Mon, 9 Dec 2002 18:22:46 -0500
-Received: from dp.samba.org ([66.70.73.150]:44673 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266363AbSLIXWp>;
-	Mon, 9 Dec 2002 18:22:45 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S266330AbSLIXaI>; Mon, 9 Dec 2002 18:30:08 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:27145 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266298AbSLIXaH>; Mon, 9 Dec 2002 18:30:07 -0500
+Date: Mon, 9 Dec 2002 23:37:49 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BK fbdev] Yet again more fbdev updates.
+Message-ID: <20021209233749.A8008@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Simmons <jsimmons@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.33.0212091621180.2360-100000@maxwell.earthlink.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15861.10107.602522.647253@argo.ozlabs.ibm.com>
-Date: Tue, 10 Dec 2002 10:30:03 +1100
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Jacobowitz <dan@debian.org>, george anzinger <george@mvista.com>,
-       Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>, <davidm@hpl.hp.com>,
-       <schwidefsky@de.ibm.com>, <ralf@gnu.org>, <willy@debian.org>
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-In-Reply-To: <Pine.LNX.4.44.0212090828460.3397-100000@home.transmeta.com>
-References: <20021209154142.GA22901@nevyn.them.org>
-	<Pine.LNX.4.44.0212090828460.3397-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0212091621180.2360-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Mon, Dec 09, 2002 at 04:23:08PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
+On Mon, Dec 09, 2002 at 04:23:08PM -0800, James Simmons wrote:
+> 
+> Hi Linus!!!
+> 
+>   Here are the fbdev updates people have so been waiting for. Several
+> drivers have been ported. Many fixes have been implemented and many nice
+> features have been added as well. Please pull the changes. They have been
+> tested by people on this list. Thank you.
+> 
+> bk://fbdev.bkbits.net/fbdev-2.5
 
-> Architecture maintainers, can you comment on how easy/hard it is to do the
-> same thing on your architectures? I _assume_ it's trivial (akin to the
-> three-liner register state change in i386/kernel/signal.c).
+Linus,
 
-It's just as easy on PPC and PPC64 as on x86.
+any chance you could pull James' updates?  He has been sending fbdev updates
+that fix known issues with many drivers for a long time but I can't even
+remember when you merged it the last time.  Most fbdev drivers are pretty
+unusable in mainline without his fixes.
 
-Paul.
+James,
+
+could you please provide diffstat output, bk changes -L output and a
+unified diff for review of the actual changes?

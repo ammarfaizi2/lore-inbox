@@ -1,46 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271118AbTGWGNf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 02:13:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTGWGNe
+	id S271108AbTGWGO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 02:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271110AbTGWGO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 02:13:34 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57103 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271115AbTGWGNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 02:13:32 -0400
-Date: Wed, 23 Jul 2003 07:28:36 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, solca@guug.org, zaitcev@redhat.com,
-       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
-       debian-sparc@lists.debian.org
-Subject: Re: sparc scsi esp depends on pci & hangs on boot
-Message-ID: <20030723072836.A932@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, solca@guug.org,
-	zaitcev@redhat.com, linux-kernel@vger.kernel.org,
-	sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
-References: <20030722025142.GC25561@guug.org> <20030722080905.A21280@devserv.devel.redhat.com> <20030722182609.GA30174@guug.org> <20030722175400.4fe2aa5d.davem@redhat.com> <20030723070739.A697@infradead.org> <20030722232410.7a37ed4d.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030722232410.7a37ed4d.davem@redhat.com>; from davem@redhat.com on Tue, Jul 22, 2003 at 11:24:10PM -0700
+	Wed, 23 Jul 2003 02:14:58 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:20678 "EHLO
+	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S271122AbTGWGOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 02:14:53 -0400
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D55222@axcs03.cos.agilent.com>
+From: yiding_wang@agilent.com
+To: rddunlap@osdl.org, yiding_wang@agilent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.5.72 module loading issue
+Date: Wed, 23 Jul 2003 00:29:56 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 11:24:10PM -0700, David S. Miller wrote:
-> Sparc did not do this, the person coding up the new DMA API
-> decided it was a good idea to implement the generic version
-> this way. :-)
-> 
-> I think it's rediculious that I have to implement the whole
-> new DMA API abstraction thing just to get rid of this PCI
-> dependency.
-> 
-> Why don't we put the enum dma_direction somewhere else?  Some
-> linux/foo.h header that doesn't require asm/dma*.h
+Thanks and I will definitely try it!
 
-Putting it into linux/dma-mapping.h is fine with me, but I expect to
-see more users of the dma-mapping API soon..
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org]
+Sent: Tuesday, July 22, 2003 8:15 PM
+To: yiding_wang@agilent.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.72 module loading issue
+
+
+On Tue, 22 Jul 2003 16:27:24 -0600 <yiding_wang@agilent.com> wrote:
+
+| I am still struggling on the fc driver module working on new 2.5.72/2.6 kernel and wish someone can shed some lights here.
+| 
+| The driver is working great for 2.4.x Linux and is modified to reflect all SCSI layer change in 2.5.72.  I have RH9.0 and installed 2.5.72 on the same system.  Driver compiled under 2.5.72 OK.  The module utilities are upgraded to 0.9.13-pre.
+| 
+| Now first problem I have is to module loading fails on "insmod mymodule.o".  Message:
+|  
+| "No module found in object"
+| "Error inserting 'mymodule.o': -1 Invalid module format"
+...
+| 
+| It looks like something is missing from migrating my driver module from 2.4.x to 2.5.x.
+| 
+| What is new requirement for module building and loading with "insmod" on 2.5.72 compare with the requirement in 2.4.x?  
+
+Please use the correct makefile for mymodule.
+See linux/Documentation/modules.txt and
+  linux/Documentation/kbuild/makefile.txt.
+In general, it only takes a few lines to build a module that is
+maintained outside of the kernel source tree in 2.5/2.6.
+
+Here is an example of one that is probably longer than it needs
+to be:
+
+# makefile for oops_test/dump*.c
+# Randy Dunlap, 2003-03-12
+# usage:
+# cd /path/to/kernel/source && make SUBDIRS=/path/to/source/oops_test/ modules
+
+CONFIG_OOPS_TEST=m
+
+obj-m := dump_test.o
+
+# dump_test-objs := dump_test.o
+
+clean-files := *.o
+
+# fini;
+
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+For Linux-2.6:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+  or http://lwn.net/Articles/39901/
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

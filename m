@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUIDKsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269878AbUIDKyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUIDKsM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 06:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269871AbUIDKsM
+	id S269878AbUIDKyM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 06:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269876AbUIDKyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 06:48:12 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:39368 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S267657AbUIDKsI (ORCPT
+	Sat, 4 Sep 2004 06:54:12 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:23229 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269878AbUIDKyH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 06:48:08 -0400
-Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-To: umbrella-devel@lists.sourceforge.net
-In-Reply-To: <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
-References: <41385FA5.806@cs.aau.dk>
-	 <1094220870.7975.19.camel@localhost.localdomain> <4138CE6F.10501@cs.aau.dk>
-	 <200409032039.i83Kd1ZR028638@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: Aalborg University
-Message-Id: <1094295006.2463.36.camel@aphrodite.olympus.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Sep 2004 12:50:06 +0200
-Content-Transfer-Encoding: 8bit
+	Sat, 4 Sep 2004 06:54:07 -0400
+Date: Sat, 4 Sep 2004 11:54:06 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Keith Whitwell <keith@tungstengraphics.com>,
+       Christoph Hellwig <hch@infradead.org>, Jon Smirl <jonsmirl@yahoo.com>,
+       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <41399CA2.3080607@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0409041151200.25475@skynet>
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+ <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org>
+ <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org>
+ <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org>
+ <4139995E.5030505@tungstengraphics.com> <41399CA2.3080607@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-03 at 22:39, Valdis.Kletnieks@vt.edu wrote:
-> 
-> All this does is stop fork().  I'm not sure, but most shellcodes I've seen
-> don't bother forking, they just execve() a shell....
+>
+> Just out of interest, what would the scenario be if you do if you could
+> get a compatible driver?
 
-I think you totally misunderstood the thing...
+you just grab a DRI snapshot which contains new userspace and DRM, and
+install it... it builds the DRM against your current kernel, now if your
+current kernel has a DRM module built-in which is a different version, you
+are screwed, snapshot process breaks..
 
-Umbrella is a scheme that allow the user to restrict the capabilities of
-a process within his own processes. Preventing the process to fork is
-ONE thing that can be restricted but they might be plenty of others.
+It's one of the major successes I feel of the DRI project, those
+snapshots allowed people with Radeon IGP chipsets to get 3d acceleration
+long before now (they still can't get it any current distro), same goes
+for i915 as Keith points out..
 
-The idea is that each process originating from this process will inherit
-from this restriction (and possibly have some more) and can NEVER been
-granted to restore this capability again.
+Dave.
 
-Now, this has a direct application to restrict the harm that can cause a
-buffer-overflow, but nobody said that it would stop them... As Kristian
-say all the time: « We can't prevent the rain, but we don't get wet. »
-
-> Remember - just papering over the fact that most shellcodes just execve() a
-> shell doesn't fix the fundemental problem, which is that the attacker is able
-> to run code of his choosing as root.
-
-Right. 
-
-Wonderful ! You just volunteered to find a simple and yet efficient
-solution to this problem ! :)
-
-Regards
 -- 
-Emmanuel Fleury
- 
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319085AbSHSWjn>; Mon, 19 Aug 2002 18:39:43 -0400
+	id <S319077AbSHSWhB>; Mon, 19 Aug 2002 18:37:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319086AbSHSWjm>; Mon, 19 Aug 2002 18:39:42 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:52679 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S319085AbSHSWjQ>;
-	Mon, 19 Aug 2002 18:39:16 -0400
-Date: Tue, 20 Aug 2002 00:44:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+	id <S319078AbSHSWhB>; Mon, 19 Aug 2002 18:37:01 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:9994
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S319077AbSHSWhA>; Mon, 19 Aug 2002 18:37:00 -0400
 Subject: Re: MAX_PID changes in 2.5.31
-In-Reply-To: <1029796863.942.1.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0208200043340.5439-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200208192236.g7JMaxS28968@vindaloo.ras.ucalgary.ca>
+References: <200208192231.g7JMVQI28575@vindaloo.ras.ucalgary.ca>
+	<Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain> 
+	<200208192236.g7JMaxS28968@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 19 Aug 2002 18:41:01 -0400
+Message-Id: <1029796863.942.1.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-08-19 at 18:36, Richard Gooch wrote:
 
-On 19 Aug 2002, Robert Love wrote:
+> In other words, "yes, unless you happen not to use SysV IPC semaphores
+> or message queues in any of your binaries on your system". So you want
+> to break binary compatibility. Please don't. I don't want to downgrade
+> to glibc.
 
-> So are you saying we can never deprecate interfaces, just so you can
-> continue using libc5?
-> 
-> Seems saner to keep libc5 in sync with the kernel than vice versa..
+So are you saying we can never deprecate interfaces, just so you can
+continue using libc5?
 
-put differently: if you insist on using libc5 (and its tons of security
-holes) then you might as well use an older kernel such as 2.4 or 2.6.
+Seems saner to keep libc5 in sync with the kernel than vice versa..
 
-	Ingo
+	Robert Love
 

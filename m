@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262948AbUCKCSv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 21:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbUCKCSv
+	id S262946AbUCKCZ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 21:25:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbUCKCZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 21:18:51 -0500
-Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:6062 "EHLO
-	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262948AbUCKCSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 21:18:48 -0500
-X-OB-Received: from unknown (205.158.62.93)
-  by wfilter.us4.outblaze.com; 11 Mar 2004 02:18:30 -0000
-Content-Type: text/plain; charset="iso-8859-1"
+	Wed, 10 Mar 2004 21:25:29 -0500
+Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:2688 "EHLO
+	jm.kir.nu") by vger.kernel.org with ESMTP id S262946AbUCKCZ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 21:25:28 -0500
+Date: Wed, 10 Mar 2004 18:21:44 -0800
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: jt@hpl.hp.com, Christoph Hellwig <hch@infradead.org>,
+       prism54-devel@prism54.org, "David S. Miller" <davem@redhat.com>,
+       netdev@oss.sgi.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] Intersil Prism54 wireless driver
+Message-ID: <20040311022144.GA3738@jm.kir.nu>
+References: <20040304023524.GA19453@bougret.hpl.hp.com> <20040310165548.A24693@infradead.org> <20040310172114.GA8867@bougret.hpl.hp.com> <404F5955.6040702@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "dan carpenter" <error27@email.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Date: Wed, 10 Mar 2004 21:18:47 -0500
-Subject: megaraid on opteron w/ 8G RAM
-X-Originating-Ip: 67.112.215.16
-X-Originating-Server: ws3-3.us4.outblaze.com
-Message-Id: <20040311021847.B02281D7244@ws3-3.us4.outblaze.com>
+In-Reply-To: <404F5955.6040702@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using the megaraid 1.19.6 driver on RedHat Work Station 
-x86_64.  It works great with only 4 gigs of RAM installed, 
-but it locks up when I load the module with 8 gigs of RAM 
-installed.  It generally locks up in the issue_scb_block() 
-but it's not always consistent about which line it locks 
-up on within that function.
+On Wed, Mar 10, 2004 at 01:07:17PM -0500, Jeff Garzik wrote:
 
-On the default Suse Linux Enterprise Server 8 the module 
-loads but after around 5 hours of running drive tests the 
-drives stop responding.
+> Maybe the prism54 and hostAP developers could join us on netdev?  It 
+> would be nice to have everybody in one place, if we're all gonna be 
+> collaborating on a generic 802.11 stack.
 
-I also tried the megaraid2 module and that kernel panics 
-when the module is loaded.
+I am (and have been for quite a while) on netdev, so as far as anything
+related to IEEE 802.11 stack or Host AP driver is concerned, I certainly
+do follow netdev list, too. 
 
-I'm using an arima motherboard with the 1.84 BIOS.
-
-Is this a known issue?  Has anyone been able to make a 
-similar config work?
-
-regards,
-dan carpenter
 -- 
-___________________________________________________________
-Sign-up for Ads Free at Mail.com
-http://promo.mail.com/adsfreejump.htm
-
+Jouni Malinen                                            PGP id EFC895FA

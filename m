@@ -1,73 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbTL2RBT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 12:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTL2RBS
+	id S263726AbTL2RSH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 12:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263742AbTL2RSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 12:01:18 -0500
-Received: from [62.116.46.196] ([62.116.46.196]:7432 "EHLO it-loops.com")
-	by vger.kernel.org with ESMTP id S263787AbTL2RBG (ORCPT
+	Mon, 29 Dec 2003 12:18:07 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38098 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263726AbTL2RSC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 12:01:06 -0500
-Date: Mon, 29 Dec 2003 18:00:25 +0100
-From: Michael Guntsche <mike@it-loops.com>
-To: linux-kernel@vger.kernel.org
-Subject: Network problems with b44 in 2.6.0
-Message-Id: <20031229180025.00b88096.mike@it-loops.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 29 Dec 2003 12:18:02 -0500
+Date: Mon, 29 Dec 2003 18:17:53 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Christophe Saout <christophe@saout.de>
+Cc: Nicklas Bondesson <nicke@nicke.nu>, linux-kernel@vger.kernel.org
+Subject: Re: ataraid in 2.6.?
+Message-ID: <20031229171753.GA21479@devserv.devel.redhat.com>
+References: <S262196AbTL2AJ1/20031229000927Z+17179@vger.kernel.org> <1072691350.5223.7.camel@laptop.fenrus.com> <1072717701.5152.123.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+In-Reply-To: <1072717701.5152.123.camel@leto.cs.pocnet.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recently I activated my BCM4401 network card on my notebook, 
-using the b44 module, to do some large file transfers 
-(normally I use my wireless connection).
-While copying around several MB between 2 computers I noticed something
-very strange.
 
-Scp'ing a file FROM the notebook TO my gateway, I got a throughput of
-1.2MB. This looks normal, since the gateway is a very old machine.
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Dec 29, 2003 at 06:08:21PM +0100, Christophe Saout wrote:
+> Am Mo, den 29.12.2003 schrieb Arjan van de Ven um 10:49:
+> >
+> > the plan is to have a userspace device mapper app take it's place.
+> > As for the timeframe; I'm looking at it but the userspace device mapper
+> > code is still a bit of a mystory to me right now.
+>=20
+> It is? I think it's kind of simple (probably, if you know what's going
+> on ;)). Which interface are you looking it?
+>=20
+> I'm just looking at the ataraid code. Is my assumption correct, that it
+> simply interleaves sectors between two harddisks? Even sector number ->
+> hd1, odd number -> hd2?
 
---------
+not always (one format has the hd2 offset by 10 sectors)
 
-The problems started when copying a file in the opposite direction
-(FROM the gateway TO the notebook).
+> Using the simple dmsetup tool one could try something like:
+>=20
+> echo 0 $(expr $(blockdev --getsize /dev/<HD1>) \* 2) stripe 2 1
+> /dev/<HD1> 0 /dev/<HD2> 0 | dmsetup create ataraid
+>=20
+> Where <HD1> and <HD2> should of course be replaced by the raw disks.
 
-As soon as I started the process, the following error messages started
-appearing in my syslog.
-
-	b44: eth0: Link is down.
-	b44: eth0: Link is up at 100 Mbps, full duplex.
-	b44: eth0: Flow control is on for TX and on for RX.
-	b44: eth0: Link is down.
-	b44: eth0: Link is up at 100 Mbps, full duplex.
-	b44: eth0: Flow control is on for TX and on for RX.
-	b44: eth0: Link is down.
-	b44: eth0: Link is up at 100 Mbps, full duplex.
-	b44: eth0: Flow control is on for TX and on for RX.
-	b44: eth0: Link is down.
-
-After a few seconds the whole transfer -stalled--.
-The Link just went down and up and the messages filled my syslog.
-For me it looks like that something is seriously wrong on the RX side,
-since sending a file works without a problem.
+> If everything is correct a device /dev/mapper/ataraid should be created.
 
 
-System Info:
-Acer TravelMate 800
-Debian unstable
-Kernel 2.6.0 no modifications
-Broadcom Corporation BCM4401 100Base-T (rev 01)
+> Using libdevmapper something like:
+> dm_task_create(DM_DEVICE_CREATE)
+> dm_task_task_set_name (required)
+> dm_task_set_uuid (optional)
+> dm_task_add_target (only once in this case, contains the stripe target)
+> dm_task_set_ro (if readonly)
+> dm_task_set_major / _minor (if you don't want a dynamically allocated)
+> dm_task_run
 
-Please CC: me if you have hints/need more information since I am not
-subscribed to the list
+thanks for the info! I'll look into what this means ;)
 
-Thanks in advance,
-Michael
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE/8GHAxULwo51rQBIRAvkWAJ4tASielhnh6ZAlDcWtgP3G7539LQCfWoSr
+UUeiZoXeuWy9AUZzLixhITs=
+=cpVY
+-----END PGP SIGNATURE-----
 
-
+--k+w/mQv8wyuph6w0--

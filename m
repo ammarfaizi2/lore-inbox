@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318784AbSHLSiS>; Mon, 12 Aug 2002 14:38:18 -0400
+	id <S317508AbSHLSkE>; Mon, 12 Aug 2002 14:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318785AbSHLSiS>; Mon, 12 Aug 2002 14:38:18 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:16655 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318784AbSHLSiR>;
-	Mon, 12 Aug 2002 14:38:17 -0400
-Date: Mon, 12 Aug 2002 11:38:20 -0700
-From: Greg KH <greg@kroah.com>
-To: David Fries <dfries@mail.win.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via vp3 udma corruption
-Message-ID: <20020812183820.GN15975@kroah.com>
-References: <20020811210826.GA684@spacedout.fries.net> <20020812170232.GC15249@kroah.com> <20020812182558.GB677@spacedout.fries.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020812182558.GB677@spacedout.fries.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 15 Jul 2002 17:22:07 -0700
+	id <S318777AbSHLSkE>; Mon, 12 Aug 2002 14:40:04 -0400
+Received: from WARSL402PIP5.highway.telekom.at ([195.3.96.79]:47128 "HELO
+	email04.aon.at") by vger.kernel.org with SMTP id <S317508AbSHLSkE>;
+	Mon, 12 Aug 2002 14:40:04 -0400
+Message-ID: <000501c24230$8a29bdd0$8c00000a@sledgehammer>
+From: "Peter Klotz" <peter.klotz@aon.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.19 and 2.4.20-pre1 don't boot
+Date: Mon, 12 Aug 2002 20:46:11 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 01:25:58PM -0500, David Fries wrote:
-> I ran oldconfig, but I probably just said, 'USB I have all the drivers
-> I need, NO', but thanks, I figured out that option when I read the USB
-> mailing list.
-> 
-> Are there alternate ways of getting data to the /dev/usb/mice type
-> devices CONFIG_INPUT_MOUSEDEV?  (Major 13, Minor 63), or shouldn't an
-> open to that device fail with no device if CONFIG_USB_HIDINPUT isn't
-> enabled?
+Hi
 
-I think any input mouse driver will send data to that device.  If you
-have that config option enabled, an open will always succeed.  Talk to
-the input core authors for more information.
+Up to 2.4.19-rc1 my system worked fine but 2.4.19 and 2.4.20-pre1 produce
+the following message at startup:
 
-Hope this helps,
+Mounting root filesystem
+ide-floppy driver 0.99.newide
+kmod: failed to exec /sbin/modprobe -s -k ide-cd, errno = 2
+hda: driver not present
+mount: error 6 mounting ext3
+pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
+Freeing unused kernel memory: 108k freed
+Kernel panic: No init found. Try passing init= option to kernel.
 
-gregk -h
+I have no idea what causes the problem since I did not change the kernel
+configuration.
+
+The system configuration is as follows:
+Athlon XP 1600+
+Asus A7V266-E (VIA KT266A)
+512MB RAM
+hda, hdc are IDE Harddisks
+
+Any suggestions welcome.
+

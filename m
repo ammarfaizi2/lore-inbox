@@ -1,47 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312121AbSCQUn0>; Sun, 17 Mar 2002 15:43:26 -0500
+	id <S311340AbSCQUyi>; Sun, 17 Mar 2002 15:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312120AbSCQUnR>; Sun, 17 Mar 2002 15:43:17 -0500
-Received: from ns.suse.de ([213.95.15.193]:34318 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312119AbSCQUm6>;
-	Sun, 17 Mar 2002 15:42:58 -0500
-Date: Sun, 17 Mar 2002 21:42:56 +0100
-From: Dave Jones <davej@suse.de>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.6-dj1
-Message-ID: <20020317214256.C5010@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C94E400.99DCBC12@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C94E400.99DCBC12@torque.net>
-User-Agent: Mutt/1.3.22.1i
+	id <S312119AbSCQUy3>; Sun, 17 Mar 2002 15:54:29 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:31495
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S311340AbSCQUyS>; Sun, 17 Mar 2002 15:54:18 -0500
+Date: Sun, 17 Mar 2002 15:55:52 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: 2.4.19-pre3-ac1 - Quotactl patch
+In-Reply-To: <E16mfGE-00034P-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0203171555100.18389-100000@coredump.sh0n.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 17, 2002 at 01:44:16PM -0500, Douglas Gilbert wrote:
+You might want to upgrade to the newer one, the patch has undergone a lot
+of changes and -ac against the XFS merge of the quotactl patch seriously
+breaks ;-(
 
- > Compiled here but didn't link (SMP) :-(
- >  page_cache_release undefined multiple times in mm/mm.o
+Shawn.
 
- Probably a side-effect of me removing the radix tree patch.
- I'll look into this.
 
- > There are over 30 scsi subsystem patches backed up in
- > your tree. Some are over 2 months old. Could
- > some (or perhaps all) of them get promoted to the
- > main tree? 
-
- Indeed. Once Linus returns from vacation, I'll be doing a
- patch-bombing on a larger scale than usual 8-)
-
- Any bits I'm uncertain of, I'll bounce your way first for
- clarification, deal ?
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

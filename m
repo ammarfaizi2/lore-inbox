@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267231AbTAKOep>; Sat, 11 Jan 2003 09:34:45 -0500
+	id <S267255AbTAKOkf>; Sat, 11 Jan 2003 09:40:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267232AbTAKOep>; Sat, 11 Jan 2003 09:34:45 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:28300 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267231AbTAKOeo>;
-	Sat, 11 Jan 2003 09:34:44 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 11 Jan 2003 15:43:27 +0100 (MET)
-Message-Id: <UTC200301111443.h0BEhRZ06262.aeb@smtp.cwi.nl>
-To: mochel@osdl.org
-Subject: sysfs
-Cc: linux-kernel@vger.kernel.org
+	id <S267256AbTAKOkf>; Sat, 11 Jan 2003 09:40:35 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34316 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267255AbTAKOkd>; Sat, 11 Jan 2003 09:40:33 -0500
+Date: Sat, 11 Jan 2003 09:46:23 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Another idea for simplifying locking in kernel/module.c
+In-Reply-To: <Pine.LNX.4.10.10301100138270.31168-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.3.96.1030111094350.8637B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday evening I wrote a trivial utility fd ("find device")
-that gives the contents of sysfs. Mostly in order to see what
-name the memory stick card reader has today.
+On Fri, 10 Jan 2003, Andre Hedrick wrote:
 
-I wondered about several things.
-Is there a description of the intended hierachy, so that one can
-compare present facts with intention?
+> 
+> I'll bite .... what the flip is [unsafe] ??
 
-In /sysfs/devices I see
-1:0:6:0  2:0:0:1  2:0:0:3  3:0:0:1  4:0:0:0  4:0:0:2   ide0  legacy  sys
-2:0:0:0  2:0:0:2  3:0:0:0  3:0:0:2  4:0:0:1  ide-scsi  ide1  pci0
-many SCSI devices and some subdirectories.
-Would it not be better to have subdirectories scsiN just like ideN?
-One can have SCSI hosts, even when presently no devices are connected.
+Actually, I believe it means the modules doesn't use try_module_get
+instead of the old I_cant_remember_the_name macro.
 
-There are links back and forth between block and bus, so that
-/sysfs/block/sda/device points at devices/1:0:6:0 and
-/sysfs/devices/1:0:6:0/block points at block/sda. Good.
-In the case my device is a USB device I tend to first look
-at VendorID and ProductID. But it seems there are no pointers
-from /sysfs/block or /sysfs/devices to the usb device hierachy.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Now /sysfs/devices/pci0/00:07.2/usb1/1-2/1-2.4/1-2.4.4
-is the fourth device on some USB hub, a card reader with
-idVendor=057b, and it is the scsi host scsi2. But it does not
-refer to scsi2, perhaps because the category scsi host is missing
-in the hierarchy?
-
-Andries

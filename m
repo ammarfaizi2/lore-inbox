@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270228AbTGMLkd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 07:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270229AbTGMLkd
+	id S270227AbTGMLl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 07:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270230AbTGMLl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 07:40:33 -0400
-Received: from mailg.telia.com ([194.22.194.26]:20182 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id S270228AbTGMLkb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 07:40:31 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
-From: Christian Axelsson <smiler@lanil.mine.nu>
-Reply-To: smiler@lanil.mine.nu
-To: Guillaume Chazarain <gfc@altern.org>
-Cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
-       phillips@arcor.de
-In-Reply-To: <SO8752FA8VR71YW8IEQOJDXT3Y86D8.3f113765@monpc>
-References: <SO8752FA8VR71YW8IEQOJDXT3Y86D8.3f113765@monpc>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sX7hBcU3TvAIqkjrWT+X"
-Organization: LANIL
-Message-Id: <1058097290.12248.40.camel@sm-wks1.lan.irkk.nu>
+	Sun, 13 Jul 2003 07:41:27 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50365
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270227AbTGMLlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 07:41:20 -0400
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030713115033.GA371@elf.ucw.cz>
+References: <Pine.LNX.4.55.0307091929270.4625@bigblue.dev.mcafeelabs.com>
+	 <20030713115033.GA371@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058097211.32496.30.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 13 Jul 2003 13:54:52 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 13 Jul 2003 12:53:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sul, 2003-07-13 at 12:50, Pavel Machek wrote:
+> Hi!
+> 
+> > I finally found a couple of hours for this and I also found a machine were
+> > I can run 2.5, since luck abandoned myself about this. The small page
+> > describe the obvious and contain the trivial patch and the latecy test app :
+> > 
+> > http://www.xmailserver.org/linux-patches/softrr.html
+> 
+> What happens if evil user forks 60 processes, marks them all
+> SCHED_SOFTRR, and tries to starve everyone else?
 
---=-sX7hBcU3TvAIqkjrWT+X
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+With the current scheduler you lose. Rik did some playing with a fair
+share scheduler some time ago. That actually works very well for a lot
+of these sorts of things. You can nice processes up (but only by
+penalising your own processes) and conceptually you'd be able to soft
+real time on a per user basis this way. 
 
-On Sun, 2003-07-13 at 12:41, Guillaume Chazarain wrote:
-> Hi Con,
->=20
-> I am currently testing SCHED_ISO, but I have noticed a regression:
-> I do a make -j5 in linux-2.5.75/ everything is OK since gcc prio is 25.
-> X and fvwm prio are 15, but when I move a window it's very jerky.
-
-It's pretty smooth on my desktop (t-bird 1.4, 512mb ram, nvidia)
-
-> BTW2, you all seem to test interactivity with xmms. Just for those like m=
-e
-> that didn't noticed, I have just found that it skips much less with alsa'=
-s
-> OSS emulation than with alsa-xmms.
-
-I will try that out, seems to work so far, intressting...
-
---=20
-Christian Axelsson
-smiler@lanil.mine.nu
-
---=-sX7hBcU3TvAIqkjrWT+X
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/EUiJyqbmAWw8VdkRAp60AKCJlcbcjAsKJoeV35JKSJ0VhdcIlACggI7h
-cWRD0F+sAktt737VN0gNOvY=
-=UMpX
------END PGP SIGNATURE-----
-
---=-sX7hBcU3TvAIqkjrWT+X--
+Alan
 

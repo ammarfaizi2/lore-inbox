@@ -1,50 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264388AbTKZWNI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 17:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTKZWNI
+	id S264372AbTKZWIx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 17:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTKZWIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 17:13:08 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:46210 "HELO
-	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S264388AbTKZWNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 17:13:05 -0500
-X-Analyze: Velop Mail Shield v0.0.3
-Date: Wed, 26 Nov 2003 20:12:25 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: linux-kernel@vger.kernel.org
-cc: Gerd Knorr <kraxel@bytesex.org>
-Subject: Re: [2.6.0-test10] standby freezes bttv
-Message-ID: <Pine.LNX.4.58.0311262006170.154@pervalidus.dyndns.org>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Nov 2003 17:08:53 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:44207 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264372AbTKZWIv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 17:08:51 -0500
+Subject: Re: [BUG]Missing i_sb NULL pointer check in destroy_inode()
+From: Mingming Cao <cmm@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com, Paul.McKenney@us.ibm.com
+In-Reply-To: <20031125083643.A15777@infradead.org>
+References: <1068066524.10726.289.camel@socrates>
+	<20031106033817.GB22081@thunk.org> <1068145132.10735.322.camel@socrates>
+	<20031106123922.Y10197@schatzie.adilger.int>
+	<1068148881.10730.337.camel@socrates> <1068230146.10726.359.camel@socrates>
+	<20031109130826.2b37219d.akpm@osdl.org> <1068419747.687.28.camel@socrates>
+	<20031109152936.3a9ffb69.akpm@osdl.org>
+	<1069700440.16649.19433.camel@localhost.localdomain> 
+	<20031125083643.A15777@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Nov 2003 14:09:52 -0800
+Message-Id: <1069884594.1137.22744.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your 2.6.0-test10-2 patch fails for me:
+On Tue, 2003-11-25 at 00:36, Christoph Hellwig wrote:
+> On Mon, Nov 24, 2003 at 11:00:38AM -0800, Mingming Cao wrote:
+> > Hello, Andrew, Marcelo,
+> > 
+> > destroy_inode() dereferences inode->i_sb without checking if it is NULL.
+> > This is inconsistent with its caller: iput() and clear_inode(),  both of
+> > which check inode->i_sb before dereferencing it. Since iput() calls
+> > destroy_inode() after calling file system's .clear_inode method(via
+> > clear_inode()),  some file systems might choose to clear the i_sb in the
+> > .clear_inode super block operation. This results in a crash in
+> > destroy_inode().
+> > 
+> > This issue exists in both 2.6, 2.4 and 2.4 kernel.  A simple fix against
+> > 2.6.0-test9 is included below. 2.4 based fix should be very similar to
+> > this one.  Please take a look and consider include it.  
+> 
+> inode->i_sb can't be NULL.  We should remove all those checks.
+> 
+Sorry I can not agree with this. Maybe the inode->i_sb should not be
+NULL, but the kernel still allows the file system to do so.  In fact
+JFS's diReadSpecial() function clears the inode->i_sb to NULL before
+calling iput().  
 
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:147: unknown field `name' specified in initializer
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:147: warning: missing braces around initializer
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:147: warning: (near initialization for `driver.drv')
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:148: unknown field `drv' specified in initializer
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:149: unknown field `drv' specified in initializer
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:150: unknown field `gpio_irq' specified in initializer
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:150: warning: initialization from incompatible pointer type
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c: In function `ir_probe':
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:185: warning: `mask_keycode' might be used uninitialized in this function
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:186: warning: `mask_keydown' might be used uninitialized in this function
-/usr/local/src/kernel/linux-2.6.0-test11/drivers/media/video/ir-kbd-gpio.c:187: warning: `ir_type' might be used uninitialized in this function
-make[4]: *** [drivers/media/video/ir-kbd-gpio.o] Error 1
-make[3]: *** [drivers/media/video] Error 2
-make[2]: *** [drivers/media] Error 2
-make[1]: *** [drivers] Error 2
-make: *** [all] Error 2
+Acutally iput() in 2.6 is missing the check too.(in 2.4 the check is
+there).  Here is the the incremental fix for 2.6 only:
 
-Before I was using 2.6.0-test8-1.
+diff -urNp linux-2.6.0-test10/fs/inode.c a/fs/inode.c
+--- linux-2.6.0-test10/fs/inode.c	2003-11-23 17:33:24.000000000 -0800
++++ a/fs/inode.c	2003-11-26 13:59:34.000000000 -0800
+@@ -1084,13 +1084,13 @@ static inline void iput_final(struct ino
+ void iput(struct inode *inode)
+ {
+ 	if (inode) {
+-		struct super_operations *op = inode->i_sb->s_op;
+-
++		struct super_block *sb = inode->i_sb;
++		
+ 		if (inode->i_state == I_CLEAR)
+ 			BUG();
+ 
+-		if (op && op->put_inode)
+-			op->put_inode(inode);
++		if (sb && sb->op && sb->op->put_inode)
++			sb->op->put_inode(inode);
+ 
+ 		if (atomic_dec_and_lock(&inode->i_count, &inode_lock))
+ 			iput_final(inode);
 
-GCC 2.95.4, make O=objdir/ , in case it makes any difference.
 
--- 
-http://www.pervalidus.net/contact.html
+
+

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbUKBXQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbUKBXVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbUKBXQh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 18:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbUKBXO0
+	id S262828AbUKBXVI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 18:21:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbUKBXVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 18:14:26 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18910 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262614AbUKBXLI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 18:11:08 -0500
-Date: Tue, 2 Nov 2004 15:10:44 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: linux-kernel@vger.kernel.org, cs@tequila.co.jp, zaitcev@redhat.com
-Subject: Re: Test patch for ub and double registration
-Message-ID: <20041102151044.4270bc12@lembas.zaitcev.lan>
-In-Reply-To: <200411022257.24752.cova@ferrara.linux.it>
-References: <20041101164432.3fa72b81@lembas.zaitcev.lan>
-	<200411022257.24752.cova@ferrara.linux.it>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 2 Nov 2004 18:21:06 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.71]:51330 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S262973AbUKBXTP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 18:19:15 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+Subject: Re: [Linux-fbdev-devel] Help re Frame Buffer/Console Problems
+Date: Wed, 3 Nov 2004 07:19:04 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-fbdev-devel@lists.sourceforge.net, jsimmons@infradead.org,
+       geert@linux-m68k.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+       wli@holomorphy.com
+References: <Pine.LNX.4.10.10411022257010.5391-100000@mtfhpc.demon.co.uk>
+In-Reply-To: <Pine.LNX.4.10.10411022257010.5391-100000@mtfhpc.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411030719.06138.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Nov 2004 22:57:24 +0100, Fabio Coatti <cova@ferrara.linux.it> wrote:
+On Wednesday 03 November 2004 06:57, Mark Fortescue wrote:
+> Will this work for a kernel Panic ?
+>
 
-Dear Fabio, thank you for the test. Indeed, this is wrong:
+Probably not, unless the 'Panic' tells fbcon to release the console and 
+tells promcon to take over the console again.  That in itself is problematic
+as fbcon cannot be safely unloaded yet.
 
-> i.e. no lines like
-> 
-> uba: device 4 capacity nsec 1024000 bsize 512
-> uba: uba1
+Tony
 
-Previously, it would retry capacity reading, quite by accident: the block
-level did revalidation several times when faced with unexpected responses
-from ub. The last one succeeded.
 
-I'd like to secure one last favour from you. Please do this for me:
-1. Connect the thing
-2. Run
-find /sys -name diag | xargs cat | mail -s "Flavio's ub diag" zaitcev@redhat.com
-
-Thanks a lot,
--- Pete

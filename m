@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSE3T6S>; Thu, 30 May 2002 15:58:18 -0400
+	id <S316855AbSE3UBV>; Thu, 30 May 2002 16:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSE3T6R>; Thu, 30 May 2002 15:58:17 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:58894 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316853AbSE3T6Q>; Thu, 30 May 2002 15:58:16 -0400
-Message-ID: <3CF68446.644850F8@linux-m68k.org>
-Date: Thu, 30 May 2002 21:57:58 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: missing bit from signal patches
-In-Reply-To: <20020530220828.3c3192cd.sfr@canb.auug.org.au>
-		<Pine.LNX.4.21.0205301442410.17583-100000@serv> <20020530232636.09d7b7eb.sfr@canb.auug.org.au>
+	id <S316856AbSE3UBU>; Thu, 30 May 2002 16:01:20 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:20999 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316855AbSE3UBT>;
+	Thu, 30 May 2002 16:01:19 -0400
+Date: Thu, 30 May 2002 12:59:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.4] ATM driver for the Alcatel SpeedTouch USB DSL modem
+Message-ID: <20020530195942.GA29522@kroah.com>
+In-Reply-To: <1022782402.1920.130.camel@ldb> <20020530184817.GB28893@kroah.com> <1022787238.1921.185.camel@ldb>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 02 May 2002 18:56:56 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Stephen Rothwell wrote:
-
-> Try this ...
-
-This almost works. :)
-
-> diff -ruN 2.5.19/include/asm-m68k/siginfo.h 2.5.19-si.4/include/asm-m68k/siginfo.h
-> --- 2.5.19/include/asm-m68k/siginfo.h   Thu May 30 09:44:38 2002
-> +++ 2.5.19-si.4/include/asm-m68k/siginfo.h      Thu May 30 23:17:10 2002
-> @@ -2,6 +2,7 @@
->  #define _M68K_SIGINFO_H
+On Thu, May 30, 2002 at 09:33:58PM +0200, Luca Barbieri wrote:
+> > Because of these dependencies (and the fact that the maintainer doesn't
+> > want it added yet) I will not apply this patch.
+> That's ok (right now). Application of it should only be considered after
+> discussion here and after the maintainer responds.
 > 
->  #define HAVE_ARCH_SIGINFO_T
-> +#define HAVE_ARCH_COPY_SIGINFO
-> 
->  #include <asm-generic/siginfo.h>
-> 
-> @@ -68,6 +69,18 @@
->  #define si_uid16       _sifields._kill._uid
->  #else
->  #define si_uid         _sifields._kill._uid
-> +
-> +#include <linux/string.h>
-> +
-> +static inline void copy_siginfo(struct siginfo *to, struct siginfo *from)
-> +{
-> +       if (from->si_code < 0)
-> +               memcpy(to, from, sizeof(*to));
-> +       else
-> +               /* _sigchld is currently the largest know union member */
-> +               memcpy(to, from, 3*sizeof(int) + sizeof(from->_sifields._sigchld));
-> +}
-> +
->  #endif /* __KERNEL__ */
-> 
->  #endif
+> > Sending this to linux-usb-devel might be a better place, instead of
+> > bothering linux-kernel.
+> Should I have sent the first two patches to linux-kernel, the ATM SAR to
+> linux-atm-general and the SpeedTouch driver to linux-usb-devel?
+> How should I have handled the fact that the SpeedTouch and ATM SAR
+> patches depend on main kernel patches and the fact that the SpeedTouch
+> patch includes ATM code (since it is for an ATM device attached to the
+> USB bus)?
 
-The function is in the #else part of #ifdef __KERNEL__.
+Well, if you want a ATM patch added, you need to send it to the ATM
+maintainer (but I don't know if there is one right now or not.)  And if
+you want a USB driver added to the USB tree, you need to send it to the
+USB maintainer.  So cross-posting to all of these lists is probably a
+good idea :)
 
-bye, Roman
+greg k-h

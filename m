@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265032AbTFLWxe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265036AbTFLWxe
+	id S265053AbTFLW5y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbTFLW5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:53:34 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:16843 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265032AbTFLWxV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:53:21 -0400
-Date: Thu, 12 Jun 2003 16:09:10 -0700
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Message-ID: <20030612230910.GA1896@kroah.com>
-References: <3EE8D038.7090600@mvista.com> <20030612214753.GA1087@kroah.com> <20030612150335.6710a94f.akpm@digeo.com> <20030612225040.GA1492@kroah.com> <20030612155148.60a39787.akpm@digeo.com> <20030612230246.GA1782@kroah.com>
+	Thu, 12 Jun 2003 18:57:53 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:48390 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265053AbTFLW5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:57:52 -0400
+Date: Thu, 12 Jun 2003 16:07:40 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix vmtruncate race and distributed filesystem race
+Message-Id: <20030612160740.27a57aca.akpm@digeo.com>
+In-Reply-To: <184910000.1055458610@baldur.austin.ibm.com>
+References: <133430000.1055448961@baldur.austin.ibm.com>
+	<20030612134946.450e0f77.akpm@digeo.com>
+	<20030612140014.32b7244d.akpm@digeo.com>
+	<150040000.1055452098@baldur.austin.ibm.com>
+	<20030612144418.49f75066.akpm@digeo.com>
+	<184910000.1055458610@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030612230246.GA1782@kroah.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jun 2003 23:11:38.0276 (UTC) FILETIME=[F9F08E40:01C33137]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 04:02:47PM -0700, Greg KH wrote:
-> On Thu, Jun 12, 2003 at 03:51:48PM -0700, Andrew Morton wrote:
-> > Greg KH <greg@kroah.com> wrote:
-> > >
-> > > <handwaving>
-> > 
-> > heh.
-> > 
-> > Thought about adding a sequence number to the /sbin/hotplug argument list?
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
+> I also think if we can solve both the vmtruncate and the distributed file
+> system races without adding any vm_ops, we should.
 > 
-> /me owes you a lot of beer at ols.
-> 
-> That's a world simpler than my proposal, I think I'll go write that
-> patch right now...
+> Here's a new patch.  Does this look better?
 
-Pat, here's a patch to add a sequence number to kobject hotplug calls to
-help userspace out a lot.
+grumble, mutter.  It's certainly simple enough.
 
-thanks,
++	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
 
-greg k-h
+I'm not so sure about this one now.  write() alters dentry->d_inode but
+truncate alters dentry->d_inode->i_mapping->host.  Unless truncate is
+changed we have the wrong mapping here.
 
-# kobject: add sequence number to hotplug events to help userspace out.
+I'll put it back to the original while I try to work out why truncate isn't
+wrong...
 
-diff -Nru a/lib/kobject.c b/lib/kobject.c
---- a/lib/kobject.c	Thu Jun 12 16:05:06 2003
-+++ b/lib/kobject.c	Thu Jun 12 16:05:06 2003
-@@ -100,6 +100,7 @@
- 
- #define BUFFER_SIZE	1024	/* should be enough memory for the env */
- #define NUM_ENVP	32	/* number of env pointers */
-+static unsigned long sequence_num;
- static void kset_hotplug(const char *action, struct kset *kset,
- 			 struct kobject *kobj)
- {
-@@ -151,6 +152,10 @@
- 
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "ACTION=%s", action) + 1;
-+
-+	envp [i++] = scratch;
-+	scratch += sprintf(scratch, "SEQNUM=%ld", sequence_num) + 1;
-+	++sequence_num;
- 
- 	kobj_path_length = get_kobj_path_length (kset, kobj);
- 	kobj_path = kmalloc (kobj_path_length, GFP_KERNEL);

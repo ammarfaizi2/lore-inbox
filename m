@@ -1,58 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267941AbTCFJfI>; Thu, 6 Mar 2003 04:35:08 -0500
+	id <S267954AbTCFJjw>; Thu, 6 Mar 2003 04:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267950AbTCFJfI>; Thu, 6 Mar 2003 04:35:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44554 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267941AbTCFJfH>; Thu, 6 Mar 2003 04:35:07 -0500
-Date: Thu, 6 Mar 2003 09:45:33 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Con Kolivas <kernel@kolivas.org>,
-       Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux vs Windows temperature anomaly
-Message-ID: <20030306094533.A26708@flint.arm.linux.org.uk>
-Mail-Followup-To: "Trever L. Adams" <tadams-lists@myrealbox.com>,
-	Ed Sweetman <ed.sweetman@wmich.edu>,
-	Con Kolivas <kernel@kolivas.org>,
-	Herman Oosthuysen <Herman@WirelessNetworksInc.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030303123029.GC20929@atrey.karlin.mff.cuni.cz> <p05210507ba8c20241329@[10.2.0.101]> <3E66842F.9020000@WirelessNetworksInc.com> <200303061038.44872.kernel@kolivas.org> <20030305235057.M20511@flint.arm.linux.org.uk> <3E66964E.6050101@wmich.edu> <1046911624.1051.35.camel@aurora.localdomain>
+	id <S267956AbTCFJjw>; Thu, 6 Mar 2003 04:39:52 -0500
+Received: from adsl-67-115-104-87.dsl.sntc01.pacbell.net ([67.115.104.87]:33104
+	"HELO laura.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S267954AbTCFJjv>; Thu, 6 Mar 2003 04:39:51 -0500
+From: brian@worldcontrol.com
+Date: Thu, 6 Mar 2003 01:49:11 -0800
+To: Niels den Otter <otter@surfnet.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Booting 2.5.63 vs 2.4.20 I can read multicast data
+Message-ID: <20030306094911.GA3398@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Niels den Otter <otter@surfnet.nl>, linux-kernel@vger.kernel.org
+References: <20030304073939.GA31394@top.worldcontrol.com> <20030304223953.GA3114@pangsit> <20030305061102.GA8473@top.worldcontrol.com> <20030305082519.GA920@pangsit>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1046911624.1051.35.camel@aurora.localdomain>; from tadams-lists@myrealbox.com on Wed, Mar 05, 2003 at 07:47:05PM -0500
+In-Reply-To: <20030305082519.GA920@pangsit>
+X-No-Archive: yes
+X-Noarchive: yes
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 07:47:05PM -0500, Trever L. Adams wrote:
-> You are the one mistaken.  Most CPUs don't dissipate a constant amount
-> of power as heat.  That depends on what the CPU is doing.
+> On Tuesday,  4 March 2003, brian@worldcontrol.com wrote:
+> > The apps I have vlc, and mpeg2dec (with mods) cannot read multicast
+> > data under 2.5.63, but both work under 2.4.20.
+> > 
+> > I also have some PERL tools which do multicasting stuff and they don't
+> > work any longer either.
+> > 
+> > However, I added 'eth0' to the IO::Socket::Multicast::mcast_add() 
+> > call and now the data is showing up.
+> > 
+> > I believe this means back in the C/C++ paradigm you can't rely on
+> > INADDR_ANY to do the right thing.  So you may have to set the specific
+> > IP of the interface you want your multicast data to come from in
+> > imr_interface.s_addr of the struct ip_mreq you pass in via setsockopt(
+> > sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, ...
+> > 
+> > I'll give this a try and let you know what I find.
+> 
+On Wed, Mar 05, 2003 at 09:25:20AM +0100, Niels den Otter wrote:
+> But lot of multicast applications use INADDR_ANY and most don't provide
+> an option to choose a specific interface. So I really think that the
+> kernel should bind the application to an ethernet interface and not to
+> the loopback interface to make them work.
 
-Correct - each time a gate in the CPU switches state, it produces a
-small amount of heat.  Have enough gates switching, and you produce
-a lot of heat (and your current consumption goes up.)  This is basic
-CMOS operation.
+I have to agree that the kernel is broke.  After further reading
+the expected behavior looks well defined, and the apps along
+with my code are designed properly.
 
-> I do believe the previous poster was incorrect about the mathematical
-> relationship between case and CPU temperatures.
+> Can you please check if it tries to bind to the loopback interface when
+> using INADDR_ANY by checking 'netstat -n -g' output?
 
-I never said there was a 1:1 relationship here - you misread my mail.
-I talked about _heat sinks_, not the relationship between the temperature
-on the silicon die and the external case temperature, with or without a
-heatsink, with or without a fan.  If you want to talk about the silicon
-die, then you need to take into account thermal resistance between the
-die and the case, the case and the heatsink, the heatsink and the
-surrounding air, the fact that the heatsink is attached to one side
-only, etc.
-
-However, going into it in minute detail with all the maths is NOT a
-subject for this list.
+I will do my best to give it a try. 
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Brian Litzinger

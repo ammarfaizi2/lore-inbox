@@ -1,23 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266001AbUBQF1D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 00:27:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbUBQF1D
+	id S265709AbUBQFbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 00:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265999AbUBQFbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 00:27:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39316 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266001AbUBQF06 (ORCPT
+	Tue, 17 Feb 2004 00:31:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33687 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265709AbUBQFa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 00:26:58 -0500
-Date: Mon, 16 Feb 2004 21:27:58 -0800
+	Tue, 17 Feb 2004 00:30:59 -0500
+Date: Mon, 16 Feb 2004 21:31:59 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: dmorris@metavize.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.2] Badness in futex_wait revisited
-Message-Id: <20040216212758.437af444.akpm@osdl.org>
-In-Reply-To: <20040217051911.6AC112C066@lists.samba.org>
-References: <40311703.8070309@metavize.com>
-	<20040217051911.6AC112C066@lists.samba.org>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: linux-kernel@vger.kernel.org, Linux-MM@kvack.org
+Subject: Re: [PATCH] mremap NULL pointer dereference fix
+Message-Id: <20040216213159.7835f010.akpm@osdl.org>
+In-Reply-To: <Pine.SOL.4.44.0402162331580.20215-100000@blue.engin.umich.edu>
+References: <Pine.SOL.4.44.0402162331580.20215-100000@blue.engin.umich.edu>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,35 +24,59 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+Rajesh Venkatasubramanian <vrajesh@umich.edu> wrote:
 >
-> -	if (likely(!list_empty(&q.list)))
->  +	if (likely(!list_empty(&q.list))) {
->  +		current->flags |= PF_FUTEX_DEBUG;
->   		time = schedule_timeout(time);
->  +		current->flags &= ~PF_FUTEX_DEBUG;
->  +	}
->   	__set_current_state(TASK_RUNNING);
->   
->   	/*
->  diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .6375-linux-2.6.3-rc3-bk1/kernel/sched.c .6375-linux-2.6.3-rc3-bk1.updated/kernel/sched.c
->  --- .6375-linux-2.6.3-rc3-bk1/kernel/sched.c	2004-02-15 18:17:22.000000000 +1100
->  +++ .6375-linux-2.6.3-rc3-bk1.updated/kernel/sched.c	2004-02-17 12:02:24.000000000 +1100
->  @@ -658,6 +658,14 @@ static int try_to_wake_up(task_t * p, un
->   	long old_state;
->   	runqueue_t *rq;
->   
->  +	if ((p->flags & PF_FUTEX_DEBUG)
->  +	    && !(current->flags & PF_FUTEX_DEBUG)) {
->  +		printk("%s %i waking %s: %i %i\n",
->  +		       current->comm, (int)in_interrupt(),
->  +		       p->comm, p->tgid, p->pid);
->  +		WARN_ON(1);
->  +	}
->  +
+> This path fixes a NULL pointer dereference bug in mremap. In
+>  move_one_page we need to re-check the src because an allocation
+>  for the dst page table can drop page_table_lock, and somebody
+>  else can invalidate the src.
 
-If the schedule_timeout() expires then this wakeup will occur from within
-the timer interrupt - current could point at any old thing.  We will get
-bogus warnings.
+OK.
 
+>  In my old Quad Pentium II 200MHz 256MB, with 2.6.3-rc3-mm1-preempt,
+>  I could hit the NULL pointer dereference bug with the program in the
+>  following URL:
+> 
+>    http://www-personal.engin.umich.edu/~vrajesh/linux/mremap-nullptr/
+
+I cannot make any oops happen with that test app.  On a 2-way,
+CONFIG_PREEMPT=y.
+
+
+I think we can simplify things in there a bit.  How does this look?
+
+
+ mm/mremap.c |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
+
+diff -puN mm/mremap.c~mremap-oops-fix mm/mremap.c
+--- 25/mm/mremap.c~mremap-oops-fix	2004-02-16 20:53:25.000000000 -0800
++++ 25-akpm/mm/mremap.c	2004-02-16 21:00:05.000000000 -0800
+@@ -135,15 +135,17 @@ move_one_page(struct vm_area_struct *vma
+ 		dst = alloc_one_pte_map(mm, new_addr);
+ 		if (src == NULL)
+ 			src = get_one_pte_map_nested(mm, old_addr);
+-		error = copy_one_pte(vma, old_addr, src, dst, &pte_chain);
+-		pte_unmap_nested(src);
+-		pte_unmap(dst);
+-	} else
+ 		/*
+-		 * Why do we need this flush ? If there is no pte for
+-		 * old_addr, then there must not be a pte for it as well.
++		 * Since alloc_one_pte_map can drop and re-acquire
++		 * page_table_lock, we should re-check the src entry...
+ 		 */
+-		flush_tlb_page(vma, old_addr);
++		if (src) {
++			error = copy_one_pte(vma, old_addr, src,
++						dst, &pte_chain);
++			pte_unmap_nested(src);
++		}
++		pte_unmap(dst);
++	}
+ 	spin_unlock(&mm->page_table_lock);
+ 	pte_chain_free(pte_chain);
+ out:
+
+_
 

@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUHMLBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUHMLBx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUHMLBp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 07:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUHMLBp
+	id S261232AbUHMLBx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 07:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUHMLBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 07:01:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42951 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261159AbUHMLBm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 07:01:42 -0400
-Date: Fri, 13 Aug 2004 13:01:37 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let W1 select NET
-Message-ID: <20040813110137.GY13377@fs.tum.de>
-References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home> <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home>
+	Fri, 13 Aug 2004 07:01:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:48856 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261232AbUHMLBt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 07:01:49 -0400
+Message-ID: <2a4f155d0408130401112dad3a@mail.gmail.com>
+Date: Fri, 13 Aug 2004 14:01:43 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Two problems with 2.6.8-rc4-mm1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408131253000.20634@scrub.home>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 12:54:25PM +0200, Roman Zippel wrote:
-> Hi,
-> 
-> On Fri, 13 Aug 2004, Evgeniy Polyakov wrote:
-> 
-> > On Fri, 2004-08-13 at 14:32, Roman Zippel wrote:
-> > > Hi,
-> > > 
-> > > On Fri, 13 Aug 2004, Adrian Bunk wrote:
-> > > 
-> > > >  config W1
-> > > >  	tristate "Dallas's 1-wire support"
-> > > > +	select NET
-> > > 
-> > > What's wrong with a simple dependency?
-> > 
-> > W1 requires NET, and thus depends on it.
-> > If you _do_ want W1 then you _do_ need network and then NET must be
-> > selected.
-> 
-> A simple "depends on NET" does this as well, I see no reason to abuse 
-> select.
+Hi all,
 
-In the case of NET the discussion is mostly hypothetically since nearly 
-everyone has enabled NET.
+I am having some problems with 2.6.8-rc4-mm1
 
-But the similar case of USB_STORAGE selecting SCSI is an example where 
-select is a big user-visible improvement over depends.
+1- In syslog I am getting messages like :
 
-> bye, Roman
+Probing IDE interface ide0...
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+ide1 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide2...
+ide2: Wait for ready failed before probe !
+Probing IDE interface ide3...
+ide3: Wait for ready failed before probe !
+Probing IDE interface ide4...
+ide4: Wait for ready failed before probe !
+Probing IDE interface ide5...
+ide5: Wait for ready failed before probe !
 
-cu
-Adrian
+2- Penguin logo doesn't show up in console though framebuffer is enabled.
+
+Any ideas?
+
+/ismail
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Time is what you make of it

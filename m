@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283377AbRK2SQ4>; Thu, 29 Nov 2001 13:16:56 -0500
+	id <S283372AbRK2SPF>; Thu, 29 Nov 2001 13:15:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283373AbRK2SQp>; Thu, 29 Nov 2001 13:16:45 -0500
-Received: from okcforum.org ([207.43.150.207]:54021 "EHLO okcforum.org")
-	by vger.kernel.org with ESMTP id <S283375AbRK2SQc>;
-	Thu, 29 Nov 2001 13:16:32 -0500
-Subject: Re: Unresponiveness of 2.4.16 revisited
-From: "Nathan G. Grennan" <ngrennan@okcforum.org>
-To: Oktay Akbal <oktay.akbal@s-tec.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.42.0111291904190.2184-100000@omega.hbh.net>
-In-Reply-To: <Pine.LNX.4.42.0111291904190.2184-100000@omega.hbh.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 29 Nov 2001 12:16:07 -0600
-Message-Id: <1007057769.1528.7.camel@cygnusx-1.okcforum.org>
+	id <S283373AbRK2SO5>; Thu, 29 Nov 2001 13:14:57 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:34576 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S283372AbRK2SOl>; Thu, 29 Nov 2001 13:14:41 -0500
+Date: Thu, 29 Nov 2001 18:12:27 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: randall@uph.com
+Cc: Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch: Fix serial module use count (2.4.16 _and_ 2.5)
+Message-ID: <20011129181227.I6214@flint.arm.linux.org.uk>
+In-Reply-To: <20011129160637.50471.qmail@web13606.mail.yahoo.com> <200111291803.fATI37q08404@sword.damocles.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200111291803.fATI37q08404@sword.damocles.com>; from randall@sword.damocles.com on Thu, Nov 29, 2001 at 12:03:07PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-29 at 12:09, Oktay Akbal wrote:
-> Why do you think that fstab matters for root-fs ? root-fs needs to be 
-> mounted to read fstab. So autodetection must be done for root-fs.
-> And if the fs has a journal it is ext3. If you do not want that  behaviour
-> you might use a option to lilo, but I don't know of any option to specify
-> the root-fs-tyoe. Or you need to use an initrd to mount explicit as ext2
-> and pivot-root it to / ?
-> 
-> -- 
-> Oktay Akbal
+On Thu, Nov 29, 2001 at 12:03:07PM -0600, Jeff Randall wrote:
+> All of the other UNIX variants I've dealth with behave that way.
+> However, you cannot just make that change without having some means
+> of identifying that behavior change because all of the linux
+> serial drivers have been written to assume that their close()
+> will be called even after their open() has failed.
 
-Actually, I think it should respect fstab. It does mount it, then fsck
-it while mounted read-only, then remounts(key point) read-write. IMHO it
-should remount it with whatever fstab says. I realize this could be a
-little tricky, but I bet doable.
+It's not only serial drivers, its everything that is a tty driver.
+I believe that auditing and fixing that lot in 2.4 just isn't going
+to happen - it's supposed to be a stable kernel after all.
+
+> I'm not opposed to such a change in behavior, but at least be
+> sure that it's somehow identifiable (kernel version, a define
+> set in a header, etc) so that the 3rd party drivers have a means
+> to identify the change.
+
+eg, #if KERNEL_VERSION >= LINUX_VERSION(2,5,0)
+
+> Redhat 7.1 included that behavior change in the kernel they shipped
+> and it caused no end of problems for those of us that were doing
+> serial drivers since there was no way to easily identify that the
+> patch had been included.
+
+The change which adds the MOD_DEC_USE_COUNT stuff is bogus, and it
+shouldn't have been made.  (I'm assuming this is what you're talking
+about).
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

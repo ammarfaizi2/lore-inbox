@@ -1,110 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbTJCWeR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 18:34:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTJCWeR
+	id S261403AbTJCWlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 18:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbTJCWlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 18:34:17 -0400
-Received: from gprs149-76.eurotel.cz ([160.218.149.76]:3200 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261376AbTJCWeI (ORCPT
+	Fri, 3 Oct 2003 18:41:37 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:44262 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S261403AbTJCWle (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 18:34:08 -0400
-Date: Sat, 4 Oct 2003 00:33:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix oops after saving image
-Message-ID: <20031003223352.GB344@elf.ucw.cz>
-References: <20031002203906.GB7407@elf.ucw.cz> <Pine.LNX.4.44.0310031433530.28816-100000@cherise>
+	Fri, 3 Oct 2003 18:41:34 -0400
+Subject: NULL pointer dereference in sysfs_hash_and_remove()
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1065220892.31749.39.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310031433530.28816-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 04 Oct 2003 00:41:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi
 
-> > I do not want to waste 4K, does this look better?
-> > 									Pavel
-> > 
-> > --- tmp/linux/kernel/power/swsusp.c	2003-10-02 22:29:06.000000000 +0200
-> > +++ linux/kernel/power/swsusp.c	2003-10-02 22:27:07.000000000 +0200
-> > @@ -283,6 +283,9 @@
-> >  	unsigned long address;
-> >  	struct page *page;
-> >  
-> > +	if (!buffer)
-> > +		return -ENOMEM;
-> > +
-> >  	printk( "Writing data to swap (%d pages): ", nr_copy_pages );
-> >  	for (i=0; i<nr_copy_pages; i++) {
-> >  		if (!(i%100))
-> 
-> Argh! This bit was in the previous patch I applied. Please get it 
-> straight, or just keep adding to one patch and resending it (with an 
-> itemized list of changes). 
+I compiled 2.6.0-test6 and ran it on a laptop with cardbus.
+I have an Xircom NIC and if I remove it during operation I get the bug
+below.
 
-I do not want to do that (other people would have problems
-reviewing). I'll try to be more carefull.
+I have yenta_socket and xircom_cb loaded as modules.
 
-One thing would help me: could you reply with "Applied" when you apply
-some patch? Just now it seems to be silence==applied and reply==some
-problem, but that makes it "interesting" to guess what your tree looks
-like.
 
-> > @@ -345,7 +348,7 @@
-> >  	printk( "|\n" );
-> >  
-> >  	MDELAY(1000);
-> > -	free_page((unsigned long) buffer);
-> > +	/* No need to free anything, system is going down, anyway. */
-> >  	return 0;
-> >  }
-> 
-> It's technically still incorrect, since you'd still be leaking memory if
-> suspend failed. And, the comment is still in an unfortunate place.  
-> Something like this, before the function helps to provide understanding of 
-> the entire operation:
+Unable to handle kernel NULL pointer dereference at virtual address 00000068
+ printing eip:
+c017cd75
+*pde = 0df96067
+*pte = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c017cd75>]    Not tainted
+EFLAGS: 00010282
+EIP is at sysfs_hash_and_remove+0x15/0x7d
+eax: 00000000   ebx: c03109e4   ecx: 00000068   edx: ccf13dd0
+esi: ccf13d60   edi: c03106e4   ebp: cea5c454   esp: cd0ede54
+ds: 007b   es: 007b   ss: 0068
+Process pccardd (pid: 528, threadinfo=cd0ec000 task=ce1c8740)
+Stack: c017cd55 cd0ede60 c03109e4 ccf13d60 c017e231 ccf13d60 c02c390f ccf13d60 
+       c0310a40 c017e368 ccf13d60 c0310a40 cfc2dc00 cfc2dd90 c023e937 cfc2dd98 
+       c0310a40 cfc2dc00 cd0edeb4 c023b99a cfc2dc00 00000006 cfc2dc00 00000282 
+Call Trace:
+ [<c017cd55>] sysfs_get_dentry+0x65/0x70
+ [<c017e231>] remove_files+0x31/0x40
+ [<c017e368>] sysfs_remove_group+0x28/0x70
+ [<c023e937>] netdev_unregister_sysfs+0x67/0x70
+ [<c023b99a>] netdev_run_todo+0xea/0x1f0
+ [<d086738c>] xircom_remove+0xac/0xd0 [xircom_cb]
+ [<c01a9deb>] pci_device_remove+0x3b/0x40
+ [<c01e9316>] device_release_driver+0x66/0x70
+ [<c01e9455>] bus_remove_device+0x55/0xa0
+ [<c01e81bd>] device_del+0x5d/0xa0
+ [<c01e8213>] device_unregister+0x13/0x30
+ [<c01a740e>] pci_destroy_dev+0x1e/0x70
+ [<c01a752b>] pci_remove_behind_bridge+0x2b/0x40
+ [<c0221b48>] shutdown_socket+0x88/0x120
+ [<c0222263>] socket_remove+0x13/0x50
+ [<c022230a>] socket_detect_change+0x6a/0x90
+ [<c02224c8>] pccardd+0x198/0x220
+ [<c011a980>] default_wake_function+0x0/0x30
+ [<c011a980>] default_wake_function+0x0/0x30
+ [<c0222330>] pccardd+0x0/0x220
+ [<c01092a5>] kernel_thread_helper+0x5/0x10
 
-At this point, suspend may no longer fail: we have ready-to-run image
-in swap, and rollback would happen on next reboot -- corrupting
-data. Yep better docs is needed.
-
-How about this one?
-								Pavel
-
---- tmp/linux/kernel/power/swsusp.c	2003-10-04 00:21:55.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2003-10-04 00:17:19.000000000 +0200
-@@ -274,6 +274,17 @@
- 	swap_list_unlock();
- }
+Code: ff 48 68 78 63 89 34 24 8b 44 24 18 89 44 24 04 e8 66 ff ff 
  
-+/**
-+ *    write_suspend_image - Write entire image to disk.
-+ *
-+ *    After writing suspend signature to the disk, suspend may no
-+ *    longer fail: we have ready-to-run image in swap, and rollback
-+ *    would happen on next reboot -- corrupting data.
-+ *
-+ *    Note: The buffer we allocate to use to write the suspend header is
-+ *    not freed; its not needed since system is going down anyway
-+ *    (plus it causes oops and I'm lazy^H^H^H^Htoo busy).
-+ */
- static int write_suspend_image(void)
- {
- 	int i;
-@@ -345,7 +359,6 @@
- 	printk( "|\n" );
- 
- 	MDELAY(1000);
--	free_page((unsigned long) buffer);
- 	return 0;
- }
- 
-
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+/Martin

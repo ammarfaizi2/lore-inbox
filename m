@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266927AbSLPRVZ>; Mon, 16 Dec 2002 12:21:25 -0500
+	id <S266955AbSLPRiJ>; Mon, 16 Dec 2002 12:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266932AbSLPRVS>; Mon, 16 Dec 2002 12:21:18 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25956 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S266933AbSLPRUp>; Mon, 16 Dec 2002 12:20:45 -0500
-Date: Mon, 16 Dec 2002 17:28:38 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, Arjan van de Ven <arjanv@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Notification hooks
-Message-ID: <20021216172838.B976@devserv.devel.redhat.com>
-References: <20021216171218.GV504@hopper.phunnypharm.org> <1040059138.1438.1.camel@laptop.fenrus.com> <20021216092129.D432@work.bitmover.com> <20021216172722.GX504@hopper.phunnypharm.org>
+	id <S266957AbSLPRiJ>; Mon, 16 Dec 2002 12:38:09 -0500
+Received: from findaloan-online.cc ([216.209.85.42]:10757 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S266955AbSLPRiG>;
+	Mon, 16 Dec 2002 12:38:06 -0500
+Date: Mon, 16 Dec 2002 12:54:32 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org,
+       hpa@zytor.com, terje.eggestad@scali.com
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021216175432.GA5094@mark.mielke.cc>
+References: <20021215220132.GB6347@elf.ucw.cz> <200212160733.gBG7XhD67922@saturn.cs.uml.edu> <20021216111759.GA24196@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021216172722.GX504@hopper.phunnypharm.org>; from bcollins@debian.org on Mon, Dec 16, 2002 at 12:27:22PM -0500
+In-Reply-To: <20021216111759.GA24196@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 12:27:22PM -0500, Ben Collins wrote:
-> > bk help triggers.
-> 
-> Well, if it affects more than just the files I am interested in, I only
-> want the diff for those files, but the changeset log and files-affected
-> for the whole changeset.
-> 
-> If I want the full diff I can go to bkbits or the archive of the commit
-> list.
+On Mon, Dec 16, 2002 at 12:17:59PM +0100, Pavel Machek wrote:
+> > Sure it's dirty. It's also fast, with the only overhead being
+> > a few NOPs that could get skipped on syscall return anyway.
+> > Patching overhead is negligible, since it only happens when a
+> > page is brought in fresh from the disk.
+> Yes but "read only" code changing under you... Should better be
+> avoided.
 
-well grepdiff and filterdiff can do that I bet... 
-filterdiff takes a wildcard and only lets patches through that touch files
-that match this wildcard...
+Programs that self verify their own CRC may get a little confused (are
+there any of these left?), but other than that, 'goto is better avoided'
+as well, but sometimes 'goto' is the best answer.
+
+> > The vsyscall stuff costs you on every syscall. It's nice for
+> Well, the cost is basically one call. That's not *that* big cost.
+
+Time for benchmarks... :-)
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

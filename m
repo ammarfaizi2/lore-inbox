@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266742AbRGFPtb>; Fri, 6 Jul 2001 11:49:31 -0400
+	id <S266743AbRGFP6M>; Fri, 6 Jul 2001 11:58:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266743AbRGFPtU>; Fri, 6 Jul 2001 11:49:20 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15123 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266742AbRGFPtG>; Fri, 6 Jul 2001 11:49:06 -0400
-Subject: Re: DMA memory limitation?
-To: sp@scali.no (Steffen Persvold)
-Date: Fri, 6 Jul 2001 16:48:38 +0100 (BST)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        helgehaf@idb.hist.no (Helge Hafting),
-        pvvvarma@techmas.hcltech.com (Vasu Varma P V),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3B45D656.440A34A9@scali.no> from "Steffen Persvold" at Jul 06, 2001 05:16:38 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266747AbRGFP6B>; Fri, 6 Jul 2001 11:58:01 -0400
+Received: from ausxc08.us.dell.com ([143.166.99.216]:7397 "EHLO
+	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
+	id <S266746AbRGFP5r>; Fri, 6 Jul 2001 11:57:47 -0400
+Message-ID: <71714C04806CD511935200902728921702E5FB@ausxmrr502.us.dell.com>
+From: Matt_Domsch@Dell.com
+To: jgarzik@mandrakesoft.com, sp@scali.no
+Cc: alan@lxorguk.ukuu.org.uk, helgehaf@idb.hist.no,
+        pvvvarma@techmas.hcltech.com, linux-kernel@vger.kernel.org,
+        davem@redhat.com, linux-ia64@linuxia64.org
+Subject: RE: DMA memory limitation?
+Date: Fri, 6 Jul 2001 10:56:47 -0500 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15IXqQ-0004Y9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > GFP_DMA is ISA dma reachable, Forget the IA64, their setup is weird and 
-> > > should best be ignored until 2.5 as and when they sort it out.
-> 
-> Really ? I don't think I can ignore IA64, there are people who ask for it....
+> The important thing is that pci_alloc_consistent and the other PCI DMA
+> functions work as advertised on IA64.  If you pass NULL to
+> pci_alloc_consistent, IA64 should give you an ISA DMA-able 
+> address.  If
+> you don't, you get a 32-bit PCI DMA address.  Use of GFP_DMA is a
+> arch-specific detail, so don't let me confuse you there.
 
-Well the current IA64 tree isnt related to the standard Linux behaviour so you
-need to take that up with the IA64 people. Obviously their non standard
-behaviour causes problems.
-> 
+Until recently, on IA-64, pci_alloc_consistent() given a NULL pci_dev would
+fault.  It's been fixed in at least the most recent IA-64 patch.
+pci_map_single() and pci_map_sg() still have the same problem, as they
+dereference pci_dev w/o checking for NULL first.
+
+
+-- 
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions
+www.dell.com/linux
+#2 Linux Server provider with 17% in the US and 14% Worldwide (IDC)!
+#3 Unix provider with 18% in the US (Dataquest)!
 

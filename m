@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbUCRTZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUCRTZP
+	id S262902AbUCRT1V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262899AbUCRT1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:25:15 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:62442 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262901AbUCRTZK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:25:10 -0500
-Subject: Re: CONFIG_PREEMPT and server workloads
-From: Robert Love <rml@ximian.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <s5hd67ac6r8.wl@alsa2.suse.de>
-References: <40591EC1.1060204@geizhals.at>
-	 <20040318060358.GC29530@dualathlon.random> <s5hlllycgz3.wl@alsa2.suse.de>
-	 <20040318110159.321754d8.akpm@osdl.org>  <s5hd67ac6r8.wl@alsa2.suse.de>
-Content-Type: text/plain
-Message-Id: <1079637899.6363.8.camel@localhost>
+	Thu, 18 Mar 2004 14:27:21 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6834 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262902AbUCRT1S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:27:18 -0500
+Date: Thu, 18 Mar 2004 20:27:07 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: markw@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm2
+Message-ID: <20040318192707.GV22234@suse.de>
+References: <20040314172809.31bd72f7.akpm@osdl.org> <200403181737.i2IHbCE09261@mail.osdl.org> <20040318100615.7f2943ea.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Thu, 18 Mar 2004 14:24:59 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040318100615.7f2943ea.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 14:08, Takashi Iwai wrote:
-
-> oh, sorry, maybe i forgot to tell you that it has been already there
-> :)
+On Thu, Mar 18 2004, Andrew Morton wrote:
+> > Comparing one pair of readprofile results, I find it curious that
+> > dm_table_unplug_all and dm_table_any_congested show up near the top of a
+> > 2.6.4-mm2 profile when they haven't shown up before in 2.6.3.
 > 
-> 	# echo 1 > /proc/asound/card0/pcm0p/xrun_debug
+> 14015190 poll_idle                                241641.2069
+> 175162 generic_unplug_device                    1317.0075
+> 165480 __copy_from_user_ll                      1272.9231
+> 161151 __copy_to_user_ll                        1342.9250
+> 152106 schedule                                  85.0705
+> 142395 DAC960_LP_InterruptHandler               761.4706
+> 113677 dm_table_unplug_all                      1386.3049
+>  65420 __make_request                            45.5571
+>  64832 dm_table_any_congested                   697.1183
+>  37913 try_to_wake_up                            32.2939
 > 
-> this will show the stacktrace when a buffer overrun/underrun is
-> detected in the irq handler.  it's not perfect, though.
+> That's broken.  How many disks are involve in the DM stack?
+> 
+> The relevant code was reworked subsequent to 2.6.4-mm2.  Maybe we fixed
+> this, but I cannot immediately explain what you're seeing here.
 
-Excellent!
+Ugh that looks really bad, I wonder how it could possibly ever be this
+bad. Mark, please do do a run with 2.6.5-rc1-mm2, I'd very much like to
+see the profile there. If things get this bad, I need to think some more
+about how to best handle the 'when to invoke request_fn on unplug calls'
+logic again.
 
-Has this resulted in anything useful?
+Actually, please also do a run with 2.6.5-rc1-mm2 + inlined patch. For
+non-stacked dm on dm it should work and could make a lot of difference
+for you.
 
-With KALLSYMS=y, a lot of users now become intelligent bug testers.
+--- drivers/block/ll_rw_blk.c~	2004-03-18 20:26:17.088531084 +0100
++++ drivers/block/ll_rw_blk.c	2004-03-18 20:26:44.773554953 +0100
+@@ -1134,11 +1134,8 @@
+ 	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
+ 		return;
+ 
+-	/*
+-	 * always call down, since we can race now with setting the plugged
+-	 * bit outside of the queue lock
+-	 */
+-	blk_remove_plug(q);
++	if (!blk_remove_plug(q))
++		return;
+ 
+ 	/*
+ 	 * was plugged, fire request_fn if queue has stuff to do
 
-Eh, except that I do not have that procfs entry on my system..
-
-	Robert Love
-
+-- 
+Jens Axboe
 

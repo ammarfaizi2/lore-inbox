@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUCBXIr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 18:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUCBXIr
+	id S261687AbUCBXL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 18:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUCBXL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 18:08:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55250 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261232AbUCBXIl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 18:08:41 -0500
-Message-ID: <404513E8.9010101@pobox.com>
-Date: Tue, 02 Mar 2004 18:08:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE cleanups for 2.6.4-rc1 (2/3)
-References: <200403022215.07385.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200403022215.07385.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Mar 2004 18:11:58 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:7808 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S261687AbUCBXLx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 18:11:53 -0500
+Date: Wed, 3 Mar 2004 00:12:43 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Bruce Allen <ballen@gravity.phys.uwm.edu>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: harddisk or kernel problem?
+Message-ID: <20040302231243.GB400@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	Bruce Allen <ballen@gravity.phys.uwm.edu>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-kernel@vger.kernel.org
+References: <20040219080115.GD25184@schottelius.org> <Pine.GSO.4.21.0403021405220.21720-100000@dirac.phys.uwm.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0403021405220.21720-100000@dirac.phys.uwm.edu>
+X-MSMail-Priority: (u_int) -1
+X-Mailer: echo $message | gpg -e $sender  -s | netcat mailhost 25
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+Organization: http://nerd-hosting.net/
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> [IDE] remove ide_cmd_type_parser() logic
-> 
-> Set ide_task_t fields (command_type, handler and prehandler) directly.
-> Remove unused ide_task_t->posthandler and all ide_cmd_type_parser() logic.
-> 
-> ide_cmd_type_parser() was meant to be used for ioctls but
-> ended up checking validity of kernel generated requests (doh!).
-> 
-> Rationale for removal:
-> - it can't be used for existing ioctls (changes the way they work)
-> - kernel shouldn't check validity of (root only) user-space requests
->   (it can and should be done in user-space)
-> - it wastes CPU cycles on going through parsers
-> - it makes code harder to understand/follow
->   (now info about request is localized)
 
+--rS8CxjVDS/+yyDmU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Without the annoyingly-large 'switch', how do you figure out whether a 
-command is non-data, pio-read, pio-write, dma-read, or dma-write?
+Bruce,=20
 
-	Jeff
+thank you for the nice explanation! It's very easy to understand and
+perhaps you should include this document into the next release of
+smartmontools.
 
+I think there might even be a need for a "Hard-Disk-Failure-Howto".
+Anyone here wants to write it, has data for something like that?
 
+Nico
 
+--=20
+Keep it simple & stupid, use what's available.
+pgp: 8D0E E27A          | Nico Schottelius
+http://nerd-hosting.net | http://linux.schottelius.org
+
+--rS8CxjVDS/+yyDmU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFARRTrzGnTqo0OJ6QRAq4wAJ9bG4WhT6Ma6dKszIty52QEcAdFQwCgz19T
+vARg2ZC7UsYZhz3AW+/pVjA=
+=7nyC
+-----END PGP SIGNATURE-----
+
+--rS8CxjVDS/+yyDmU--

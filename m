@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271105AbSISPJR>; Thu, 19 Sep 2002 11:09:17 -0400
+	id <S271488AbSISP1V>; Thu, 19 Sep 2002 11:27:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271141AbSISPJR>; Thu, 19 Sep 2002 11:09:17 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58791 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S271105AbSISPJP>;
-	Thu, 19 Sep 2002 11:09:15 -0400
-Date: Thu, 19 Sep 2002 17:21:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-In-Reply-To: <Pine.LNX.4.44.0209190809020.3759-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209191720300.9746-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271489AbSISP1V>; Thu, 19 Sep 2002 11:27:21 -0400
+Received: from fermat.math.technion.ac.il ([132.68.115.6]:34439 "EHLO
+	fermat.math.technion.ac.il") by vger.kernel.org with ESMTP
+	id <S271488AbSISP1U>; Thu, 19 Sep 2002 11:27:20 -0400
+Date: Thu, 19 Sep 2002 18:32:22 +0300
+From: "Nadav Har'El" <nyh@math.technion.ac.il>
+To: linux-kernel@vger.kernel.org
+Subject: Re: weird code (bug?) in IP options handling
+Message-ID: <20020919153222.GB2762@fermat.math.technion.ac.il>
+References: <20020919152801.GA2762@fermat.math.technion.ac.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020919152801.GA2762@fermat.math.technion.ac.il>
+User-Agent: Mutt/1.4i
+Hebrew-Date: 14 Tishri 5763
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 19, 2002, Nadav Har'El wrote about "weird code (bug?) in IP options handling":
+> I am guessing that this is just a programming error, and the programmer
+> perhaps intended to make the assignment in the inner for loop as
+> 
+> 	*optptr = IPOPT_END;
 
-On Thu, 19 Sep 2002, Linus Torvalds wrote:
+Oops, I meant something like
 
-> However, what I worry about is that there may not (will not) be a 1:1
-> session<->tty thing. In particular, when somebody creates a new session
-> with "setsid()", that does not remove the tty from processes that used
-> to hold it, I think (this is all from memory, so I might be wrong).
+ 	*optptr++ = IPOPT_END;
 
-i've done the testrun with the p->tty == tty && p->session != tty->session
-check, and it never triggers. (Which means nothing, but at least the
-assumption is not trivially wrong.)
-
-	Ingo
-
+-- 
+Nadav Har'El                        |    Thursday, Sep 19 2002, 14 Tishri 5763
+nyh@math.technion.ac.il             |-----------------------------------------
+Phone: +972-53-245868, ICQ 13349191 |"God is dead." - Nietzsche; "Nietzsche is
+http://nadav.harel.org.il           |dead" - God

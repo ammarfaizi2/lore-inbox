@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbTKGWmW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:42:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTKGW0e
+	id S261953AbTKGXCP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 18:02:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTKGWYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:26:34 -0500
-Received: from smtp.infonegocio.com ([213.4.129.150]:23724 "EHLO
-	telesmtp3.mail.isp") by vger.kernel.org with ESMTP id S264422AbTKGPln
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 10:41:43 -0500
-Subject: Re: hard lockup with 2.6.0
-From: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
-To: linux-kernel@vger.kernel.org
-Cc: miekg@atoom.net
-Content-Type: text/plain
-Message-Id: <1068219610.14200.6.camel@mir>
+	Fri, 7 Nov 2003 17:24:21 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:48657 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263985AbTKGJhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 04:37:38 -0500
+Date: Fri, 7 Nov 2003 09:37:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Message-ID: <20031107093737.B1992@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 07 Nov 2003 16:41:40 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Nov 06, 2003 at 09:45:50AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Nov 06, 2003 at 09:45:50AM -0800, Andrew Vasquez wrote:
+> No.  We've had this IOWR problem since the inception of 5.x series
+> driver.  Software (SMS 3.0) has been built on top of the this IOCTL
+> interface.  We painfully discovered this problem when we began to look
+> at other non-x86 platforms (ppc64).
 
-I'm experiencing same hard lockups:
+I don't know what SMS is, but Linux provides a stable ABI for stable
+kernel series and only those.  We already have anough garbage from mistakes
+in older kernel releases that we won't accept more with new driver
+submission.  If SMS didn't use a abstraction library it would have a problem,
+yes.
 
-Machine (which seem stable until then) just hard locks without any prior
-notice. It's a Pentium II 233, running 192KB of RAM (PC133).
+> >  Also having different ioctl values for different plattforms is not
+> >  an option for Linux.
+> > 
+> 
+> The better (right) fix would be to push this interface change onto the
+> caller of the IOCTLs where they can manage the differences there, and
+> the driver could once and for all shed itself of this nagging problem.
+> That is the consensus here.  The _BAD conversion was only done so the
+> driver would compile.
 
-I've ran memtest86 to no avail. Everything seems ok.
-I've run badblocks, fsck'ed and dd'ed two entire hard disk without any
-single error. I've done 24 runs of kernel compilation without any single
-SIG11. Then (randomly) machine stops responding to everything. Sometimes
-disk spin down.
-
-As a side note, the machine acts as a NAT router running iptables and
-I've had two corrupted files (one Windows Service pack, unistallable)
-and one DivX file with errors. 
-
-Hope that helps.
+Sorry, I don't parse that.  There's no reason different architectures
+should have differences in the ioctl calling convention, so there shouldn't
+be anything to deal with in the caller either.
 

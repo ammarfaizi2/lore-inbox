@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129381AbQKFRQO>; Mon, 6 Nov 2000 12:16:14 -0500
+	id <S129577AbQKFRQY>; Mon, 6 Nov 2000 12:16:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129713AbQKFRQE>; Mon, 6 Nov 2000 12:16:04 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:9456 "EHLO rob.devdep.sysgo.de")
-	by vger.kernel.org with ESMTP id <S129381AbQKFRPt>;
-	Mon, 6 Nov 2000 12:15:49 -0500
-From: Robert Kaiser <rob@sysgo.de>
-Reply-To: rob@sysgo.de
-To: linux-kernel@vger.kernel.org
-Subject: unresolved reference to hd_init (2.4.0-test10, ll_rw_blk.c)
-Date: Mon, 6 Nov 2000 18:09:08 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
+	id <S129713AbQKFRQO>; Mon, 6 Nov 2000 12:16:14 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:2060 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S129704AbQKFRQF>;
+	Mon, 6 Nov 2000 12:16:05 -0500
+Message-ID: <3A06F3F1.37F84C10@evision-ventures.com>
+Date: Mon, 06 Nov 2000 19:09:53 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <00110618154301.11022@rob>
-Content-Transfer-Encoding: 7BIT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Keith Owens <kaos@ocs.com.au>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <E13spjq-0006OE-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
+> 
+> > >Just load the driver at bootup and forget about it.  Problem solved.
+> >
+> > I daily curse the name of whoever added autoload and autounload.
+> > Autoload maybe useful, autounload is just asking for problems.
+> 
+> Deal with it. Hardware is also now auto load and auto unloading too. For 2.5
+> hopefully a lot of this can be tidied up and done better - persistent storage
+> in the modules that is written to disk and put back by insmod/rmmod (in
+> userspace) will help a lot.
 
-I just ran into a small problem trying to build the 2.4.0-test10 kernel with
-only the "Old hard disk (MFM/RLL/IDE) driver" enabled. The following patch
-fixed this for me, (though I'm not sure I haven't broken anything else with it).
-
-diff -ur linux-2.4.0-test10/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
---- linux-2.4.0-test10/drivers/block/ll_rw_blk.c	Fri Oct 27 08:35:47 2000
-+++ linux/drivers/block/ll_rw_blk.c	Mon Nov  6 17:34:39 2000
-@@ -1063,7 +1063,7 @@
- #if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_IDE)
- 	ide_init();		/* this MUST precede hd_init */
- #endif
--#if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_HD)
-+#if defined(CONFIG_IDE) && defined(CONFIG_BLK_DEV_HD) && !defined(CONFIG_BLK_DEV_HD_ONLY)
- 	hd_init();
- #endif
- #ifdef CONFIG_BLK_DEV_PS2
-
-
-----------------------------------------------------------------
-Robert Kaiser                         email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14                    phone: (49) 6136 9948-762
-D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
+Not quite: plugging physically hardware in and out is compleatly
+different
+then just loading a driver and unconditionally unloading it even when
+the hardware is still there!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

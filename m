@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269130AbUJKQPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUJKPxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269130AbUJKQPC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:15:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269081AbUJKQNz
+	id S269099AbUJKPxW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269059AbUJKPvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 12:13:55 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:7146 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S269065AbUJKQG4
+	Mon, 11 Oct 2004 11:51:22 -0400
+Received: from FW-30-241.go.retevision.es ([62.174.241.30]:56485 "EHLO
+	mayhem.ghetto") by vger.kernel.org with ESMTP id S269048AbUJKPYR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:06:56 -0400
-From: David Brownell <david-b@pacbell.net>
-To: linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [2.6.9-rc4] USB && mass-storage && disconnect broken semantics
-Date: Mon, 11 Oct 2004 09:07:15 -0700
-User-Agent: KMail/1.6.2
-Cc: Kay Sievers <kay.sievers@vrfy.org>, bert hubert <ahu@ds9a.nl>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20041011120701.GA824@outpost.ds9a.nl> <20041011153719.GA4118@vrfy.org>
-In-Reply-To: <20041011153719.GA4118@vrfy.org>
-MIME-Version: 1.0
+	Mon, 11 Oct 2004 11:24:17 -0400
+Date: Mon, 11 Oct 2004 17:24:14 +0200
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [BUG] 2.6.9-rc2 scsi and elevator oops when I/O error
+Message-ID: <20041011152414.GA5118@larroy.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20041011050320.GA28703@larroy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410110907.15219.david-b@pacbell.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20041011050320.GA28703@larroy.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: piotr@larroy.com (Pedro Larroy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 October 2004 8:37 am, Kay Sievers wrote:
-> On Mon, Oct 11, 2004 at 02:07:01PM +0200, bert hubert wrote:
-> > 
-> > The expected behaviour is that on forceably unplugging an USB
-> > memory stick, 
-> > the created SCSI device should vanish, along with the mounts based on it.
-> 
-> That is clearly bejond the scope of the kernel or hotplug. This policy
-> belongs to some other device management software
+Another side problem I have observed about this:
+	
+Processes that call sync() get stuck into D state, for example shutdown.
 
-I've got to disagree with the "clearly", if not that entire claim.
 
-"Clearly" would imply there's some other sane default policy
-that doesn't amount to "wedge the system".
+-- 
+Pedro Larroy Tovar | Linux & Network consultant |  pedro%larroy.com 
 
-- Dave
+Las patentes de programación son nocivas para la innovación
+	http://proinnova.hispalinux.es/

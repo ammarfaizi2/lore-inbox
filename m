@@ -1,65 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264099AbTE0U2q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTE0U2q
+	id S264120AbTE0U3x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbTE0U3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:28:46 -0400
-Received: from static213-229-38-018.adsl.inode.at ([213.229.38.18]:38273 "HELO
-	home.winischhofer.net") by vger.kernel.org with SMTP
-	id S264099AbTE0U2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:28:45 -0400
-Message-ID: <3ED3CDA9.5090605@winischhofer.net>
-Date: Tue, 27 May 2003 22:42:17 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Davide Libenzi <davidel@xmailserver.org>, Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x
-References: <3ED21CE3.9060400@winischhofer.net>	 <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com>	 <3ED32BA4.4040707@winischhofer.net>	 <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com> <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 May 2003 16:29:53 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:29411 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264107AbTE0U3k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 16:29:40 -0400
+Subject: Re: Linux 2.5.70
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054071760.2289.150.camel@cherrypit.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 27 May 2003 14:42:41 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> I'm keeping an eye on it. The correct answer appears to be 
-> "use ACPI" once it works on SiS
+ompile statistics: 2.5.70
+Compiler: gcc 3.2.2
+Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
 
-It already does. No problem, except for idiotic OS string checks which 
-require using a custom DSDT.
+          bzImage       bzImage        modules
+        (defconfig)  (allmodconfig) (allmodconfig)
 
-> I'll probably try some of those changes in a later -ac and see what
-> happens
+2.5.70  7 warnings    10 warnings   1366 warnings
+        0 errors       0 errors       57 errors
 
-I patched the kernels of my 3 650 variants today (using a simpler 
-variant than submitted by Davide), and it works well. They are running a 
-webcam permanently, one is copying from and to a USB floppy in a loop, 
-and I am using a USB mouse on all of them.
+2.5.69  7 warnings    11 warnings   1366 warnings
+        0 errors       0 errors       57 errors
 
-The issue is that the 0x6x register hack seems to be required for _all_ 
-96x variants. These come with the 740 as well as all 650 versions, and 
-probably many of the older chips (645, etc), too.
+2.5.68  7 warnings    11 warnings   1975 warnings
+        0 errors       6 errors       60 errors
 
-Unfortunately, I know of no way how to find out about these south 
-bridges. They have the same PCI ID like the IRQ controller and ISA 
-bridge of the 620, 530, 630 and the old 5595... and partly even the same 
-revision number. Typical SiS stuff, lines up exactly with their graphics 
-hardware...
+2.5.67  8 warnings    12 warnings   2136 warnings
+        0 errors       6 errors       89 errros
 
-Vojtech recommended doing it like the IDE drivers, but - as I said to 
-him - it feels a bit inappropriate to poke around in the IDE config 
-space for IRQ reasons... But anyone interested should take a look into 
-the newest 5513 ide driver (in the bk tree).
 
-Thomas
+Compile statistics have been for kernel releases from 2.5.46 to 2.5.70
+at: www.osdl.org/archive/cherry/stability
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:thomas@winischhofer.net          *** http://www.winischhofer.net
-mailto:twini@xfree86.org
+Failure summary:
+
+   drivers/block: 2 warnings, 1 errors
+   drivers/char: 237 warnings, 4 errors
+   drivers/isdn: 237 warnings, 8 errors
+   drivers/media: 102 warnings, 5 errors
+   drivers/mtd: 31 warnings, 1 errors
+   drivers/net: 336 warnings, 6 errors
+   drivers/scsi/aic7xxx: 0 warnings, 1 errors
+   drivers/video/i810: 3 warnings, 4 errors
+   drivers/video/matrox: 3 warnings, 10 errors
+   drivers/video: 81 warnings, 17 errors
+   sound/oss: 49 warnings, 3 errors
+   sound: 5 warnings, 3 errors
+
+
+Warning summary:
+
+
+   drivers/atm: 36 warnings, 0 errors
+   drivers/cdrom: 25 warnings, 0 errors
+   drivers/hotplug: 1 warnings, 0 errors
+   drivers/i2c: 3 warnings, 0 errors
+   drivers/ide: 32 warnings, 0 errors
+   drivers/md: 2 warnings, 0 errors
+   drivers/message: 1 warnings, 0 errors
+   drivers/pcmcia: 3 warnings, 0 errors
+   drivers/scsi/aacraid: 1 warnings, 0 errors
+   drivers/scsi/pcmcia: 4 warnings, 0 errors
+   drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
+   drivers/serial: 1 warnings, 0 errors
+   drivers/telephony: 10 warnings, 0 errors
+   drivers/usb: 13 warnings, 0 errors
+   drivers/video/aty: 4 warnings, 0 errors
+   drivers/video/sis: 3 warnings, 0 errors
+   fs/afs: 1 warnings, 0 errors
+   fs/cifs: 1 warnings, 0 errors
+   fs/intermezzo: 1 warnings, 0 errors
+   fs/lockd: 4 warnings, 0 errors
+   fs/nfsd: 2 warnings, 0 errors
+   fs/smbfs: 2 warnings, 0 errors
+   net: 30 warnings, 0 errors
+   security: 2 warnings, 0 errors
+   sound/isa: 3 warnings, 0 errors
+   sound/pci: 1 warnings, 0 errors
+   sound/usb: 2 warnings, 0 errors
+
+
+
+Other stability-related links:
+   OSDL Stability page:
+       http://osdl.org/projects/26lnxstblztn/results/
+   Nightly linux-2.5 bk build:
+       www.osdl.org/archive/cherry/stability/linus-tree/running.txt
+   2.5 porting items:
+       www.osdl.org/archive/cherry/stability/linus-tree/port_items.txt
+   2.5 porting items history:
+       www.osdl.org/archive/cherry/stability/linus-tree/port_history.txt
+
+John
+
+
 

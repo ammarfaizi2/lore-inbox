@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264339AbUAPBF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 20:05:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUAPBF2
+	id S264155AbUAPBAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 20:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbUAPBAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 20:05:28 -0500
-Received: from mail.kroah.org ([65.200.24.183]:21961 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264339AbUAPBFX (ORCPT
+	Thu, 15 Jan 2004 20:00:31 -0500
+Received: from main.gmane.org ([80.91.224.249]:49813 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264155AbUAPBAa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 20:05:23 -0500
-Date: Thu, 15 Jan 2004 16:50:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Brian McGroarty <brian@mcgroarty.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB KVM breaks under 2.6.0
-Message-ID: <20040116005041.GG23253@kroah.com>
-References: <20040114064032.GA3247@mcgroarty.net>
+	Thu, 15 Jan 2004 20:00:30 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCH] Increase recursive symlink limit from 5 to 8
+Date: Fri, 16 Jan 2004 01:56:51 +0100
+Message-ID: <yw1xwu7sr9rg.fsf@kth.se>
+References: <E1AeMqJ-00022k-00@minerva.hungry.com> <2flllofnvp6.fsf@saruman.uio.no>
+ <microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org>
+ <1073814570.4431.3.camel@laptop.fenrus.com>
+ <817jzsd8lg.wl@omega.webmasters.gr.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040114064032.GA3247@mcgroarty.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:ILp5ispdmwItBwrxc53sPptW2JA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 14, 2004 at 12:40:32AM -0600, Brian McGroarty wrote:
-> I have a Belkin Omniview SE 4, a four port KVM, with keyboard and
-> mouse provided to a Linux box via USB.
-> 
-> Under 2.4.23, the device works well. The keyboard and mouse are
-> detected.
-> 
-> Under 2.6.0 (Debian build), the keyboard is not recognized.
-> 
-> I have verified that hid and usbkbd are loaded, and if I plug a USB
-> keyboard directly into the machine, the keyboard is recognized
-> properly.
+GOTO Masanori <gotom@debian.or.jp> writes:
 
-NEVER use the usbkbd driver, unless you _really_ know what you are
-doing.  Please read the config help entry for that item.
+> At Sun, 11 Jan 2004 10:49:30 +0100,
+> Arjan van de Ven wrote:
+>> > 6 does seem pretty low.  What was the reason for setting it there?  Is
+>> > there a downside to increasing it?
+>> 
+>> It was reduced down from 8 because it can lead to stack overflows.
+>> Recursive links like this usually point at a quite broken filesystem
+>> setup too afaik.
+>
+> But I still think 6 is too small from user level point of view, as
+> Petter wrote.  The example is /usr/lib library links.  I got bug
+> report which complained that a library want to use "bounce" link:
+>
+> 	/usr/lib/liba -> /etc/alternatives/liba -> /usr/lib/another/libb.
+>
+> If .so file uses major.minor scheme, then /usr/lib/liba.so links:
+>
+> 	/usr/lib/liba.so -> /usr/lib/liba.so.2 -> /usr/lib/liba.so.2.3
+>
+> and so on.  It can easily exceed 6 symlinks.  I think the correct fix
+> is to make VFS not to overflow stacks.  Is it allowable change?
 
-> /proc/bus/usb is empty -- with 2.4, I would have gone there to verify
-> that the device was seen. Is there any data I can pull from 2.6 which
-> might help diagnose this?
+One of the reasons for the limit is that it doesn't require any
+special detection of circular links.
 
-Did you mount usbfs there?
+-- 
+Måns Rullgård
+mru@kth.se
 
-thanks,
-
-greg k-h

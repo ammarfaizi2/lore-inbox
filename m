@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319750AbSIMSmY>; Fri, 13 Sep 2002 14:42:24 -0400
+	id <S319745AbSIMSfM>; Fri, 13 Sep 2002 14:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319749AbSIMSmY>; Fri, 13 Sep 2002 14:42:24 -0400
-Received: from web13205.mail.yahoo.com ([216.136.174.190]:56840 "HELO
-	web13205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S319750AbSIMSmX>; Fri, 13 Sep 2002 14:42:23 -0400
-Message-ID: <20020913184715.62063.qmail@web13205.mail.yahoo.com>
-Date: Fri, 13 Sep 2002 11:47:15 -0700 (PDT)
-From: Srinivas Chavva <chavvasrini@yahoo.com>
-Subject: Configuring kernel
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S319748AbSIMSfM>; Fri, 13 Sep 2002 14:35:12 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:10880 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319745AbSIMSfL>;
+	Fri, 13 Sep 2002 14:35:11 -0400
+Date: Fri, 13 Sep 2002 19:03:48 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Remco Post <r.post@sara.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: writing OOPS/panic info to nvram?
+Message-ID: <20020913170347.GA7096@elf.ucw.cz>
+References: <20020906100650.D35@toy.ucw.cz> <4DE1BD2E-C4CD-11D6-9C2C-000393911DE2@sara.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4DE1BD2E-C4CD-11D6-9C2C-000393911DE2@sara.nl>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Linux RedHat 7.1 installed on my machine which
-has a kernel version 2.4.2. I have to run a software
-called iSCSI for which I need a lower kernel version
-2.4.16.
-I downloaded the sofware and opened it in the /usr/src
-directory. I did the following
-1. unzipped the tar file
-2. mv linux linux-2.4.16
-3 ln -s linux-2.4.16 linux
-4. changed to linux directory and issued the command
-make mproper.
-Then when I issued the command make xconfig I was
-getting errors. I got similar errors when I tried to
-use the following commands make menuconfig, make
-config.
-When I used the command uname -i I still was getting
-the kernel version as 2.4.2.
-I do not know why this error is coming.               
-      
-Kindly please help.
-Regards,
-Srinivas Chavva
+Hi!
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! News - Today's headlines
-http://news.yahoo.com
+> >>driver oopses... Maybe do something like:
+> >>
+> >>if there is enough space on disk && ..., use that else
+> >>if there is a swap over nfs && ..., use that else
+> >>if there is a tape drive attaced and a tape is present and it is
+> >>writeable... else
+> >>if there is nvram available use that
+> >
+> >You just killed any data you had on the tape... too bad.
+> >								Pavel
+> 
+> Yes, so, or you just saved that oops that has been bugging you for 
+> months... (And yes I'm probably one of those rare people that has 
+> tapedrives attached that are not used for anything usefull).
+
+If it was bugging you for months, then you'd have probably copied it
+using paper and pencil already. cli(); while(1); at the end of oops
+handler is not *that* hard to do.
+								Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

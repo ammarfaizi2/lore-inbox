@@ -1,348 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbUDIXWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 19:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbUDIXWZ
+	id S261884AbUDIXRY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 19:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbUDIXRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 19:22:25 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:53216 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261888AbUDIXV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 19:21:59 -0400
-Message-ID: <40772FED.6060905@myrealbox.com>
-Date: Fri, 09 Apr 2004 16:21:17 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Fri, 9 Apr 2004 19:17:24 -0400
+Received: from reformers.mr.itd.umich.edu ([141.211.93.147]:62879 "EHLO
+	reformers.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S261884AbUDIXRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 19:17:20 -0400
+Date: Fri, 9 Apr 2004 19:17:14 -0400 (EDT)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@azure.engin.umich.edu
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] anobjrmap 9 priority mjb tree
+In-Reply-To: <1260000.1081546841@[10.10.2.4]>
+Message-ID: <Pine.GSO.4.58.0404091903540.2019@azure.engin.umich.edu>
+References: <Pine.LNX.4.44.0404041330580.21790-100000@localhost.localdomain><1524892704.1081543162@[10.10.2.4]>
+ <Pine.GSO.4.58.0404091722580.1898@eecs2340u12.engin.umich.edu>
+ <1260000.1081546841@[10.10.2.4]>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       torvalds@osdl.org, chrisw@osdl.org
-CC: Andy Lutomirski <luto@myrealbox.com>
-Subject: Re: [PATCH, local root on 2.4, 2.6?] compute_creds race (fixed patch)
-References: <fa.fuv6lk6.1444ua6@ifi.uio.no>
-In-Reply-To: <fa.fuv6lk6.1444ua6@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My previous patch broke LSM.  Here's a fixed version, which also moves makes the 
-  various bprm_apply_creds implementations a little more readable.  SELinux 
-compiles, but I haven't tested it.  I'd be surprised if it broke, but it may 
-have a similar race.
 
-  fs/exec.c                |   31 +------------------------------
-  include/linux/security.h |   18 +++++++++---------
-  security/capability.c    |    2 +-
-  security/commoncap.c     |   38 ++++++++++++++++++++++++--------------
-  security/dummy.c         |   31 +++++++++++++++++++++++++++----
-  security/selinux/hooks.c |    8 ++++----
-  6 files changed, 66 insertions(+), 62 deletions(-)
---- ./fs/exec.c.orig	2004-04-09 11:18:45.208241872 -0700
-+++ ./fs/exec.c	2004-04-09 15:43:38.873194968 -0700
-@@ -869,15 +869,6 @@
+> > Does SDET use mremap a lot ? Hugh added i_shared_sem in mremap -> move_vma
+> > -> move_page_tables path to avoid orphaned ptes due to mremap vs. truncate
+> > race. That may be the reason for the slowdown, I am not sure.
+>
+> I don't think so .... I presume you're just holding the sem for longer
+> during normal operations due to the more complex data structure.
 
-  EXPORT_SYMBOL(flush_old_exec);
+I haven't done any benchmarks with prio_tree. I just tried kernel compile
+which was not bad. I tried rmap-test.c and test-mmap3.c. The results were
+not bad on UP. I didn't try them on SMP, so you can be right.
 
--/*
-- * We mustn't allow tracing of suid binaries, unless
-- * the tracer has the capability to trace anything..
-- */
--static inline int must_not_trace_exec(struct task_struct * p)
--{
--	return (p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP);
--}
--
-  /*
-   * Fill the binprm structure from the inode.
-   * Check permissions, then read the first 128 (BINPRM_BUF_SIZE) bytes
-@@ -944,27 +935,7 @@
+> This was just with vs without the prio tree patch, so Hughs's changes
+> were in both sets ...
 
-  void compute_creds(struct linux_binprm *bprm)
-  {
--	task_lock(current);
--	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
--                current->mm->dumpable = 0;
--		
--		if (must_not_trace_exec(current)
--		    || atomic_read(&current->fs->count) > 1
--		    || atomic_read(&current->files->count) > 1
--		    || atomic_read(&current->sighand->count) > 1) {
--			if(!capable(CAP_SETUID)) {
--				bprm->e_uid = current->uid;
--				bprm->e_gid = current->gid;
--			}
--		}
--	}
--
--        current->suid = current->euid = current->fsuid = bprm->e_uid;
--        current->sgid = current->egid = current->fsgid = bprm->e_gid;
--
--	task_unlock(current);
--
--	security_bprm_compute_creds(bprm);
-+	security_bprm_apply_creds(bprm);
-  }
+The change I mentioned above was added only in Hugh's prio_tree patch,
+it was not there before. However, I was just guessing that the mremap
+change can be a reason. It can very well be due to prio_tree complexity.
+I don't have any data to prove or disprove either way.
 
-  EXPORT_SYMBOL(compute_creds);
---- ./security/selinux/hooks.c.orig	2004-04-09 11:18:00.938971824 -0700
-+++ ./security/selinux/hooks.c	2004-04-09 11:18:27.354955984 -0700
-@@ -1746,7 +1746,7 @@
-  	spin_unlock(&files->file_lock);
-  }
+Rajesh
 
--static void selinux_bprm_compute_creds(struct linux_binprm *bprm)
-+static void selinux_bprm_apply_creds(struct linux_binprm *bprm)
-  {
-  	struct task_security_struct *tsec, *psec;
-  	struct bprm_security_struct *bsec;
-@@ -1756,7 +1756,7 @@
-  	struct rlimit *rlim, *initrlim;
-  	int rc, i;
 
--	secondary_ops->bprm_compute_creds(bprm);
-+	secondary_ops->bprm_apply_creds(bprm);
-
-  	tsec = current->security;
-
-@@ -2561,7 +2561,7 @@
-  	/* Control the ability to change the hard limit (whether
-  	   lowering or raising it), so that the hard limit can
-  	   later be used as a safe reset point for the soft limit
--	   upon context transitions. See selinux_bprm_compute_creds. */
-+	   upon context transitions. See selinux_bprm_apply_creds. */
-  	if (old_rlim->rlim_max != new_rlim->rlim_max)
-  		return task_has_perm(current, current, PROCESS__SETRLIMIT);
-
-@@ -3972,7 +3972,7 @@
-
-  	.bprm_alloc_security =		selinux_bprm_alloc_security,
-  	.bprm_free_security =		selinux_bprm_free_security,
--	.bprm_compute_creds =		selinux_bprm_compute_creds,
-+	.bprm_apply_creds =		selinux_bprm_apply_creds,
-  	.bprm_set_security =		selinux_bprm_set_security,
-  	.bprm_check_security =		selinux_bprm_check_security,
-  	.bprm_secureexec =		selinux_bprm_secureexec,
---- ./security/commoncap.c.orig	2004-04-09 11:16:21.766048400 -0700
-+++ ./security/commoncap.c	2004-04-09 16:03:47.324482448 -0700
-@@ -115,13 +115,15 @@
-  	return 0;
-  }
-
--/* Copied from fs/exec.c */
-  static inline int must_not_trace_exec (struct task_struct *p)
-  {
--	return (p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP);
-+	return ((p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP))
-+		|| atomic_read(&current->fs->count) > 1
-+		|| atomic_read(&current->files->count) > 1
-+		|| atomic_read(&current->sighand->count) > 1;
-  }
-
--void cap_bprm_compute_creds (struct linux_binprm *bprm)
-+void cap_bprm_apply_creds (struct linux_binprm *bprm)
-  {
-  	/* Derived from fs/exec.c:compute_creds. */
-  	kernel_cap_t new_permitted, working;
-@@ -132,18 +134,26 @@
-  	new_permitted = cap_combine (new_permitted, working);
-
-  	task_lock(current);
-+
-+	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
-+		current->mm->dumpable = 0;
-+	
-+		if (must_not_trace_exec(current) && !capable(CAP_SETUID)) {
-+			bprm->e_uid = current->uid;
-+			bprm->e_gid = current->gid;
-+		}
-+	}
-+
-+	current->suid = current->euid = current->fsuid = bprm->e_uid;
-+	current->sgid = current->egid = current->fsgid = bprm->e_gid;
-+
-  	if (!cap_issubset (new_permitted, current->cap_permitted)) {
-  		current->mm->dumpable = 0;
-
--		if (must_not_trace_exec (current)
--		    || atomic_read (&current->fs->count) > 1
--		    || atomic_read (&current->files->count) > 1
--		    || atomic_read (&current->sighand->count) > 1) {
--			if (!capable (CAP_SETPCAP)) {
--				new_permitted = cap_intersect (new_permitted,
--							       current->
--							       cap_permitted);
--			}
-+		if (must_not_trace_exec (current) && !capable (CAP_SETPCAP)) {
-+			new_permitted = cap_intersect (new_permitted,
-+						       current->
-+						       cap_permitted);
-  		}
-  	}
-
-@@ -315,7 +325,7 @@
-
-  	vm_acct_memory(pages);
-
--        /*
-+	/*
-  	 * Sometimes we want to use more memory than we have
-  	 */
-  	if (sysctl_overcommit_memory == 1)
-@@ -377,7 +387,7 @@
-  EXPORT_SYMBOL(cap_capset_check);
-  EXPORT_SYMBOL(cap_capset_set);
-  EXPORT_SYMBOL(cap_bprm_set_security);
--EXPORT_SYMBOL(cap_bprm_compute_creds);
-+EXPORT_SYMBOL(cap_bprm_apply_creds);
-  EXPORT_SYMBOL(cap_bprm_secureexec);
-  EXPORT_SYMBOL(cap_inode_setxattr);
-  EXPORT_SYMBOL(cap_inode_removexattr);
---- ./security/dummy.c.orig	2004-04-09 11:17:16.964656936 -0700
-+++ ./security/dummy.c	2004-04-09 15:52:03.433490144 -0700
-@@ -26,6 +26,8 @@
-  #include <net/sock.h>
-  #include <linux/xattr.h>
-  #include <linux/hugetlb.h>
-+#include <linux/ptrace.h>
-+#include <linux/file.h>
-
-  static int dummy_ptrace (struct task_struct *parent, struct task_struct *child)
-  {
-@@ -116,7 +118,7 @@
-
-  	vm_acct_memory(pages);
-
--        /*
-+	/*
-  	 * Sometimes we want to use more memory than we have
-  	 */
-  	if (sysctl_overcommit_memory == 1)
-@@ -169,9 +171,30 @@
-  	return;
-  }
-
--static void dummy_bprm_compute_creds (struct linux_binprm *bprm)
-+static inline int must_not_trace_exec (struct task_struct *p)
-  {
--	return;
-+	return ((p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP))
-+		|| atomic_read(&current->fs->count) > 1
-+		|| atomic_read(&current->files->count) > 1
-+		|| atomic_read(&current->sighand->count) > 1;
-+}
-+
-+static void dummy_bprm_apply_creds (struct linux_binprm *bprm)
-+{
-+	task_lock(current);
-+	if (bprm->e_uid != current->uid || bprm->e_gid != current->gid) {
-+		current->mm->dumpable = 0;
-+	
-+		if (must_not_trace_exec(current) && !capable(CAP_SETUID)) {
-+			bprm->e_uid = current->uid;
-+			bprm->e_gid = current->gid;
-+		}
-+	}
-+
-+	current->suid = current->euid = current->fsuid = bprm->e_uid;
-+	current->sgid = current->egid = current->fsgid = bprm->e_gid;
-+
-+	task_unlock(current);
-  }
-
-  static int dummy_bprm_set_security (struct linux_binprm *bprm)
-@@ -887,7 +910,7 @@
-  	set_to_dummy_if_null(ops, vm_enough_memory);
-  	set_to_dummy_if_null(ops, bprm_alloc_security);
-  	set_to_dummy_if_null(ops, bprm_free_security);
--	set_to_dummy_if_null(ops, bprm_compute_creds);
-+	set_to_dummy_if_null(ops, bprm_apply_creds);
-  	set_to_dummy_if_null(ops, bprm_set_security);
-  	set_to_dummy_if_null(ops, bprm_check_security);
-  	set_to_dummy_if_null(ops, bprm_secureexec);
---- ./security/capability.c.orig	2004-04-09 15:52:30.144429464 -0700
-+++ ./security/capability.c	2004-04-09 15:52:49.996411504 -0700
-@@ -35,7 +35,7 @@
-  	.netlink_send =			cap_netlink_send,
-  	.netlink_recv =			cap_netlink_recv,
-
--	.bprm_compute_creds =		cap_bprm_compute_creds,
-+	.bprm_apply_creds =		cap_bprm_apply_creds,
-  	.bprm_set_security =		cap_bprm_set_security,
-  	.bprm_secureexec =		cap_bprm_secureexec,
-
---- ./include/linux/security.h.orig	2004-04-09 11:12:10.991171976 -0700
-+++ ./include/linux/security.h	2004-04-09 11:12:58.969878104 -0700
-@@ -44,7 +44,7 @@
-  extern int cap_capset_check (struct task_struct *target, kernel_cap_t 
-*effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
-  extern void cap_capset_set (struct task_struct *target, kernel_cap_t 
-*effective, kernel_cap_t *inheritable, kernel_cap_t *permitted);
-  extern int cap_bprm_set_security (struct linux_binprm *bprm);
--extern void cap_bprm_compute_creds (struct linux_binprm *bprm);
-+extern void cap_bprm_apply_creds (struct linux_binprm *bprm);
-  extern int cap_bprm_secureexec(struct linux_binprm *bprm);
-  extern int cap_inode_setxattr(struct dentry *dentry, char *name, void *value, 
-size_t size, int flags);
-  extern int cap_inode_removexattr(struct dentry *dentry, char *name);
-@@ -102,7 +102,7 @@
-   * @bprm_free_security:
-   *	@bprm contains the linux_binprm structure to be modified.
-   *	Deallocate and clear the @bprm->security field.
-- * @bprm_compute_creds:
-+ * @bprm_apply_creds:
-   *	Compute and set the security attributes of a process being transformed
-   *	by an execve operation based on the old attributes (current->security)
-   *	and the information saved in @bprm->security by the set_security hook.
-@@ -115,7 +115,7 @@
-   *	@bprm contains the linux_binprm structure.
-   * @bprm_set_security:
-   *	Save security information in the bprm->security field, typically based
-- *	on information about the bprm->file, for later use by the compute_creds
-+ *	on information about the bprm->file, for later use by the apply_creds
-   *	hook.  This hook may also optionally check permissions (e.g. for
-   *	transitions between security domains).
-   *	This hook may be called multiple times during a single execve, e.g. for
-@@ -924,7 +924,7 @@
-   *	Check permission before allowing the @parent process to trace the
-   *	@child process.
-   *	Security modules may also want to perform a process tracing check
-- *	during an execve in the set_security or compute_creds hooks of
-+ *	during an execve in the set_security or apply_creds hooks of
-   *	binprm_security_ops if the process is being traced and its security
-   *	attributes would be changed by the execve.
-   *	@parent contains the task_struct structure for parent process.
-@@ -1026,7 +1026,7 @@
-
-  	int (*bprm_alloc_security) (struct linux_binprm * bprm);
-  	void (*bprm_free_security) (struct linux_binprm * bprm);
--	void (*bprm_compute_creds) (struct linux_binprm * bprm);
-+	void (*bprm_apply_creds) (struct linux_binprm * bprm);
-  	int (*bprm_set_security) (struct linux_binprm * bprm);
-  	int (*bprm_check_security) (struct linux_binprm * bprm);
-  	int (*bprm_secureexec) (struct linux_binprm * bprm);
-@@ -1290,9 +1290,9 @@
-  {
-  	security_ops->bprm_free_security (bprm);
-  }
--static inline void security_bprm_compute_creds (struct linux_binprm *bprm)
-+static inline void security_bprm_apply_creds (struct linux_binprm *bprm)
-  {
--	security_ops->bprm_compute_creds (bprm);
-+	security_ops->bprm_apply_creds (bprm);
-  }
-  static inline int security_bprm_set (struct linux_binprm *bprm)
-  {
-@@ -1962,9 +1962,9 @@
-  static inline void security_bprm_free (struct linux_binprm *bprm)
-  { }
-
--static inline void security_bprm_compute_creds (struct linux_binprm *bprm)
-+static inline void security_bprm_apply_creds (struct linux_binprm *bprm)
-  {
--	cap_bprm_compute_creds (bprm);
-+	cap_bprm_apply_creds (bprm);
-  }
-
-  static inline int security_bprm_set (struct linux_binprm *bprm)
-
+> > On Fri, 9 Apr 2004, Martin J. Bligh wrote:
+> >
+> >> > This anobjrmap 9 (or anon_mm9) patch adds Rajesh's radix priority search
+> >> > tree on top of Martin's 2.6.5-rc3-mjb2 tree, making a priority mjb tree!
+> >> > Approximately equivalent to Andrea's 2.6.5-aa1, but using anonmm instead
+> >> > of anon_vma, and of course each tree has its own additional features.
+> >>
+> >> This slows down kernel compile a little, but worse, it slows down SDET
+> >> by about 25% (on the 16x). I think you did something horrible to sem
+> >> contention ... presumably i_shared_sem, which SDET was fighting with
+> >> as it was anyway ;-(
+> >>
+> >> Diffprofile shows:
+> >>
+> >>
+> >>     122626    15.7% total
+> >>      44129   790.0% __down
+> >>      20988     4.1% default_idle
+> >>      12101   550.3% __wake_up
+> >>      11723   489.1% finish_task_switch
+> >>       6988    77.4% do_wp_page
+> >>       3983    21.7% copy_page_range
+> >>       2683    19.2% zap_pte_range
+> >>       2325    54.3% do_anonymous_page
+> >>       2293    73.1% copy_mm
+> >>       1787    68.3% remove_shared_vm_struct
+> >>       1768   101.6% pte_alloc_one
+> >>       1564    40.0% do_no_page
+> >>       1520    50.8% do_page_fault
+> >>       1376    39.2% clear_page_tables
+> >>       1282    63.4% __copy_user_intel
+> >>        926     9.4% page_remove_rmap
+> >>        878    13.1% __copy_to_user_ll
+> >>        835    46.8% __block_prepare_write
+> >>        788    35.8% copy_process
+> >>        777     0.0% __vma_prio_tree_remove
+> >>        761    48.8% buffered_rmqueue
+> >>        740    48.6% free_hot_cold_page
+> >>        674   128.4% vma_link
+> >>        641     0.0% __vma_prio_tree_insert
+> >>        612   941.5% sched_clock
+> >>        585     0.0% prio_tree_insert
+> >>        563    60.4% exit_notify
+> >>        547   225.1% split_vma
+> >>        539     6.4% release_pages
+> >>        534   464.3% schedule
+> >>        495    32.0% release_task
+> >>        422   148.1% flush_signal_handlers
+> >>        421    66.6% find_vma
+> >>        420    79.5% set_page_dirty
+> >>        409    60.1% fput
+> >>        359    44.5% __copy_from_user_ll
+> >>        319    47.6% do_mmap_pgoff
+> >>        290   254.4% find_vma_prepare
+> >>        270   167.7% rb_insert_color
+> >>        254    61.7% pte_alloc_map
+> >>        251    91.3% exit_mmap
+> >>        229    23.2% __read_lock_failed
+> >>        228     9.9% filemap_nopage
+> >> ...
+> >>       -100   -29.3% group_reserve_blocks
+> >>       -107   -53.5% .text.lock.namespace
+> >>       -107   -18.4% render_sigset_t
+> >>       -126   -18.7% mmgrab
+> >>       -146   -10.9% generic_file_open
+> >>       -166    -9.5% ext2_new_inode
+> >>       -166   -38.1% d_path
+> >>       -166   -20.1% __find_get_block_slow
+> >>       -173   -20.7% proc_pid_status
+> >>       -182   -19.3% update_atime
+> >>       -185   -25.8% fd_install
+> >>       -202   -13.8% .text.lock.highmem
+> >>       -221   -14.5% __fput
+> >>       -225   -14.3% number
+> >>       -257   -14.2% proc_pid_stat
+> >>       -284   -21.6% file_kill
+> >>       -290   -35.3% proc_root_link
+> >>       -300   -36.5% ext2_new_block
+> >>       -349   -61.7% .text.lock.base
+> >>       -382   -48.0% proc_check_root
+> >>       -412   -19.4% path_release
+> >>       -454   -20.0% file_move
+> >>       -462   -32.2% lookup_mnt
+> >>       -515    -4.5% find_get_page
+> >>       -547   -34.5% .text.lock.dcache
+> >>       -689   -31.2% follow_mount
+> >>       -940   -33.8% .text.lock.dec_and_lock
+> >>      -1043   -51.6% .text.lock.file_table
+> >>      -1115    -9.9% __d_lookup
+> >>      -1226   -20.1% path_lookup
+> >>      -1305   -61.5% grab_block
+> >>      -2101   -29.8% atomic_dec_and_lock
+> >>      -2554   -40.3% .text.lock.filemap
+> >>
+> >>
+> >
+> >
+>
+>
+>

@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261400AbSJYNHn>; Fri, 25 Oct 2002 09:07:43 -0400
+	id <S261395AbSJYNMy>; Fri, 25 Oct 2002 09:12:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261399AbSJYNHn>; Fri, 25 Oct 2002 09:07:43 -0400
-Received: from mail.spylog.com ([194.67.35.220]:686 "EHLO mail.spylog.com")
-	by vger.kernel.org with ESMTP id <S261400AbSJYNHl>;
-	Fri, 25 Oct 2002 09:07:41 -0400
-Date: Fri, 25 Oct 2002 17:13:49 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.44-ac3 - don't compile.
-Message-ID: <20021025131349.GA25980@an.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S261397AbSJYNMy>; Fri, 25 Oct 2002 09:12:54 -0400
+Received: from B52cd.pppool.de ([213.7.82.205]:49118 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261395AbSJYNMx>; Fri, 25 Oct 2002 09:12:53 -0400
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+From: Daniel Egger <degger@fhm.edu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+In-Reply-To: <3DB849EF.1050904@colorfullife.com>
+References: <3DB82ABF.8030706@colorfullife.com>
+	<1035483003.5680.13.camel@sonja.de.interearth.com> 
+	<3DB849EF.1050904@colorfullife.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-JxhYQnIr9GwFIXINlAgP"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 25 Oct 2002 15:08:57 +0200
+Message-Id: <1035551337.1360.6.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
+--=-JxhYQnIr9GwFIXINlAgP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
- x86, no SMP.
+Am Don, 2002-10-24 um 21.28 schrieb Manfred Spraul:
 
+> It seems the via cpu doesn't support prefetchnta. Could you try the=20
+> attached version?
 
-...
-make -f init/Makefile 
-  Generating init/../include/linux/compile.h (updated)
-  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=i686 -Iarch/i386/mach-generic
--fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version
--c -o init/version.o init/version.c
-   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o
-init/do_mounts.o
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
-arch/i386/kernel/init_task.o  init/built-in.o --start-group
-arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o
-ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a
-drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o
---end-group  -o vmlinux
-arch/i386/kernel/built-in.o: In function `MP_processor_info':
-arch/i386/kernel/built-in.o(.init.text+0x46a3): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.init.text+0x46b6): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.init.text+0x46c9): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.init.text+0x46dc): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.init.text+0x46ef): undefined reference to `Dprintk'
-arch/i386/kernel/built-in.o(.init.text+0x4702): more undefined references to
-`Dprintk' follow
-make: *** [vmlinux] Error 1
-...
+egger@tanja:~$ ./via=20
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $=20
 
-Why?
+copy_page() tests=20
+copy_page function 'warm up run'         took 24318 cycles per page
+copy_page function '2.4 non MMX'         took 35819 cycles per page
+copy_page function '2.4 MMX fallback'    took 35921 cycles per page
+copy_page function '2.4 MMX version'     took 24291 cycles per page
+Illegal instruction
 
+Unfortunately I have no space for gdb on it right now sow I cannot
+easily debug where it crashes.=20
 
+BTW: I did the same thing you did: Remove the calls to the obviously
+offending calls to the "fast" versions. I've no idea why the no_prefetch
+version doesn't, though...=20
 
--- 
-bye.
-Andrey Nekrasov, SpyLOG.
+--=20
+Servus,
+       Daniel
+
+--=-JxhYQnIr9GwFIXINlAgP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQA9uUJpchlzsq9KoIYRAmVIAJ9h1Y48yKomb1a/Grv25i++WV2hHACfbh5W
+vrDAO8REn+eq+jxwtwbPBOs=
+=4p90
+-----END PGP SIGNATURE-----
+
+--=-JxhYQnIr9GwFIXINlAgP--
+

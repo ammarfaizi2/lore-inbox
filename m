@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbUJ0MOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbUJ0MRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbUJ0MOB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 08:14:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbUJ0MOA
+	id S262403AbUJ0MRo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 08:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbUJ0MRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 08:14:00 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:45267 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262399AbUJ0MNr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 08:13:47 -0400
-Date: Wed, 27 Oct 2004 13:13:28 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Adrian Bunk <bunk@stusta.de>
-cc: Mathieu Segaud <matt@minas-morgul.org>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <reiserfs-dev@namesys.com>
-Subject: Re: 2.6.10-rc1-mm1: reiser4 delete_from_page_cache compile error
-In-Reply-To: <20041027111102.GD2550@stusta.de>
-Message-ID: <Pine.LNX.4.44.0410271308150.20127-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 27 Oct 2004 08:17:44 -0400
+Received: from anor.ics.muni.cz ([147.251.4.35]:47333 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S262403AbUJ0MQW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 08:16:22 -0400
+Date: Wed, 27 Oct 2004 14:15:44 +0200
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
+       trond.myklebust@fys.uio.no, neilb@cse.unsw.edu.au, torvalds@osdl.org
+Subject: Re: [PATCH] NFS mount hang fix
+Message-ID: <20041027121543.GH4724@fi.muni.cz>
+References: <20041026141148.GM6408@fi.muni.cz> <20041026150640.GA24881@fieldses.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026150640.GA24881@fieldses.org>
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, Adrian Bunk wrote:
->   LD      .tmp_vmlinux1
-> fs/built-in.o(.text+0xd2393): In function `drop_page':
-> : undefined reference to `delete_from_page_cache'
-> make: *** [.tmp_vmlinux1] Error 1
-> 
-> Hugh already requested to drop his patch.
+J. Bruce Fields wrote:
+: Changing those buffers to static strikes me as potentially dangerous--we
+: currently call the ->parse() methods under a semaphore, so it's safe for
+: now, but that might change some day and then there'll be an ugly race
+: condition.
+: 
+: Could you check whether the following fixes your problem?--b.
+: 
+	Yes, it is OK with this patch. Thanks,
 
-That's right, thanks Adrian.  Mathieu, please just "patch -R -p1" the below
+-Yenya
 
---- 25/fs/reiser4/page_cache.c~reiser4-delete_from_page_cache	2004-10-24 23:37:37.997272448 -0700
-+++ 25-akpm/fs/reiser4/page_cache.c	2004-10-24 23:37:38.001271840 -0700
-@@ -759,13 +759,9 @@ drop_page(struct page *page)
- #if defined(PG_skipped)
- 	ClearPageSkipped(page);
- #endif
--	if (page->mapping != NULL) {
--		remove_from_page_cache(page);
--		unlock_page(page);
--		/* page removed from the mapping---decrement page counter */
--		page_cache_release(page);
--	} else
--		unlock_page(page);
-+	if (page->mapping != NULL)
-+		delete_from_page_cache(page);
-+	unlock_page(page);
- }
- 
- 
-
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

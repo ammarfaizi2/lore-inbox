@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUDOIbc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 04:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDOIbc
+	id S263448AbUDOIqc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 04:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUDOIqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 04:31:32 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:64691 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262065AbUDOIbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 04:31:23 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Duncan Sands <baldrick@free.fr>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
-Date: Thu, 15 Apr 2004 10:31:19 +0200
-User-Agent: KMail/1.5.1
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-References: <200404141245.37101.baldrick@free.fr> <200404142239.08408.oliver@neukum.org> <200404151005.22143.baldrick@free.fr>
-In-Reply-To: <200404151005.22143.baldrick@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 15 Apr 2004 04:46:21 -0400
+Received: from mail3.codesense.com ([213.132.104.154]:40605 "EHLO
+	mail3.codesense.com") by vger.kernel.org with ESMTP id S261821AbUDOIqT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 04:46:19 -0400
+Subject: Re: Failing back to INSANE timesource :) Time stopped today.
+From: Niclas Gustafsson <niclas.gustafsson@codesense.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Patricia Gaughen <gone@us.ibm.com>
+In-Reply-To: <1081967804.4705.105.camel@cog.beaverton.ibm.com>
+References: <1081416100.6425.45.camel@gmg.codesense.com>
+	 <1081465114.4705.4.camel@cog.beaverton.ibm.com>
+	 <1081932857.17234.37.camel@gmg.codesense.com>
+	 <1081967804.4705.105.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1082018775.17234.137.camel@gmg.codesense.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 15 Apr 2004 10:46:16 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404151031.19940.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 15. April 2004 10:05 schrieb Duncan Sands:
-> On Wednesday 14 April 2004 22:39, Oliver Neukum wrote:
-> > > > I would prefer a real WARN_ON() so that the imbedded people compiling
-> > > > for size are not affected.
-> > >
-> > > What do you mean?  How is a real WARN_ON() better?
-> >
-> > WARN_ON can be defined away to make a smaller kernel. Code that does
-> > not use it takes away that option.
->
-> Hi Oliver, I thought you meant that CONFIG_EMBEDDED made WARN_ON go away
-> (or something like that).  If you just mean that it is easy to redefine
-> WARN_ON by hand, then all I can say is: it is also easy to redefine warn by
-> hand!  Anyway, I made you the following patch:
 
-Yes, but I don't trust gcc to optimise away the 'if' if you redefine warn().
+ons 2004-04-14 klockan 20.36 skrev john stultz:
 
-But there is another point. The embedded people deserve a single switch
-to remove assertion checks. The purpose of macros like WARN_ON() is
-easy and _central_ choice of debugging output vs. kernel size.
+> > Where can I see what the system is currently using as a timing source
+> > (TSC/HPET/PIT etc.)?
+> 
+> Note the "Using tsc for high-res timesource" in your dmesg. 
+> 
+Yes, I noticed that, however, when it stops using tsc, is there a way to
+see what the current strategy is?  I.e. to what time source it is
+falling back to? Or perhaps this is always the same? And because of this
+not implemented into the proc-fs?  I have just briefly looked at the
+kernel source for this, I'll have a closer look today if I can find the
+time.
 
-	Regards
-		Oliver
+> I'm working now to reproduce this w/ a 2G system here in our lab, and
+> just for completeness, could you also send me your BIOS revision number?
+> 
+Sure, Here is some info from bios:
+
+Machine Type:  867373X
+Flash EEPROM Revision Level: PLE161AUS
+System Board Identifier: NA60B7Y0S3Q
+System Serial Number: KDZZ6FC
+Bios Date: 09/10/03
+
+Some more info from Advanced/Cpu Frequency:
+Bus: 133  MHz
+Cpu Multiplier: 18 X
+Processor Speed: 2.8 GHz
+Single processor MP Table: Enabled
+MP Table Version: 1.4
+Hyper-Threading technology: ----------
+
+
+Just a thought, how much if any, increase in performance can one gain
+when disabling the Single processor MP Table option? It says, in the
+help on that options, that one can benefit from disabling it on a
+UP-system if I don't remember wrong now.
+
+ 
+ 
+Cheers,
+
+Niclas
+
 

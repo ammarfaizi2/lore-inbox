@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289792AbSBEUn7>; Tue, 5 Feb 2002 15:43:59 -0500
+	id <S289790AbSBEUs3>; Tue, 5 Feb 2002 15:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289789AbSBEUnt>; Tue, 5 Feb 2002 15:43:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49936 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289787AbSBEUn3>; Tue, 5 Feb 2002 15:43:29 -0500
-Subject: Re: one-line-patch against SCSI-Read-Error-BUG()
-To: R.Oehler@GDAmbH.com (Ralf Oehler)
-Date: Tue, 5 Feb 2002 20:56:43 +0000 (GMT)
-Cc: linux-scsi@vger.kernel.org (Scsi), linux-kernel@vger.kernel.org,
-        andrea@suse.de (Andrea Arcangeli), axboe@kernel.org (Jens Axboe),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <XFMail.20020205153210.R.Oehler@GDAmbH.com> from "Ralf Oehler" at Feb 05, 2002 03:32:10 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S289789AbSBEUsT>; Tue, 5 Feb 2002 15:48:19 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:57092 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S289790AbSBEUsE>; Tue, 5 Feb 2002 15:48:04 -0500
+Date: Tue, 5 Feb 2002 20:47:51 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: driverfs support for motherboard devices
+Message-ID: <20020205204751.G27706@flint.arm.linux.org.uk>
+In-Reply-To: <20020205173912.GA165@elf.ucw.cz> <Pine.LNX.4.33.0202050959020.25114-100000@segfault.osdlab.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16YCdv-0002ru-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0202050959020.25114-100000@segfault.osdlab.org>; from mochel@osdl.org on Tue, Feb 05, 2002 at 10:43:14AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Since at least kernel 2.4.16 there is a BUG() in pci.h,
-> that crashes the kernel on any attempt to read a SCSI-Sector
-> from an erased MO-Medium and on any attempt to read
-> a sector from a SCSI-disk, which returns "Read-Error".
+On Tue, Feb 05, 2002 at 10:43:14AM -0800, Patrick Mochel wrote:
+> I think that ide should get its own bus, as a child of the ide controller. 
+> I haven't looked at ide yet at all. But, on most modern systems, the ide 
+> controller is a function of the southbridge, so ide devices should go 
+> under that. Like what the usb stuff does now...
 
-Adaptec aic7xxx card ?
+What about, say, a Promise PCI IDE card?  You really need to reference
+the parent PCI device when the is one.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,60 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271231AbRHOPzr>; Wed, 15 Aug 2001 11:55:47 -0400
+	id <S271250AbRHOP7r>; Wed, 15 Aug 2001 11:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271245AbRHOPzi>; Wed, 15 Aug 2001 11:55:38 -0400
-Received: from p3EE3E82B.dip.t-dialin.net ([62.227.232.43]:60683 "EHLO
-	srv.sistina.com") by vger.kernel.org with ESMTP id <S271231AbRHOPz1>;
-	Wed, 15 Aug 2001 11:55:27 -0400
-Date: Wed, 15 Aug 2001 17:56:59 +0200
-From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-To: linux-lvm@sistina.com, lvm-devel@sistina.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, sistina@sistina.com
-Cc: mge@sistina.com
-Subject: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
-Message-ID: <20010815175659.A29749@sistina.com>
-Reply-To: mauelshagen@sistina.com
-Mime-Version: 1.0
+	id <S271248AbRHOP71>; Wed, 15 Aug 2001 11:59:27 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37387 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271247AbRHOP7W>; Wed, 15 Aug 2001 11:59:22 -0400
+Subject: Re: Oops on 2.2.19, Athlon 1ghz
+To: natecars@real-time.com (Nate Carlson)
+Date: Wed, 15 Aug 2001 17:01:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L2.0108150904070.22267-400000@enchanter.real-time.com> from "Nate Carlson" at Aug 15, 2001 09:16:49 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15X37F-0003Q6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> probable hardware bug: clock timer configuration lost - probably a VIA686a.
+> probable hardware bug: restoring chip configuration.
 
-Hi all,
+That one is fine, its a sanity check and even if mistriggered is harmless
 
-with all the kind support of the community to stabilize the Linux Logical
-Volume Manager, we are proud to announce the production level release 1.0.
-
-A tarball is available now at
-
-   <http://www.sistina.com/>
-
-for download (Follow the "LVM 1.0" link).
-
-This release contains minor changes to 0.9.1 Beta 8.
-
-!!! YOU STILL NEED TO FOLLOW THE INSTRUCTIONS IN README.1ST !!!
-See the CHANGELOG file contained in the tarball for further information.
-
-We are still working together with Alan Cox on the integration of the
-actual driver into vanilla. *Sorry* folks, we couldn't wait any longer ;-)
-
-Feed back LVM related information to <linux-lvm@sistina.com>.
-
-Thanks a lot for your support of LVM.
-
--- 
-
-Regards,
-Heinz    -- The LVM Guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

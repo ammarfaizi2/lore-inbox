@@ -1,51 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUHENGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUHENNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267661AbUHENGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267676AbUHENFE
+	id S267669AbUHENNo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267673AbUHENNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:05:04 -0400
-Received: from holomorphy.com ([207.189.100.168]:7619 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267670AbUHENDN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:03:13 -0400
-Date: Thu, 5 Aug 2004 06:03:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1
-Message-ID: <20040805130308.GC14358@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040805031918.08790a82.akpm@osdl.org>
+	Thu, 5 Aug 2004 09:13:43 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:33761 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S267669AbUHENNG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 09:13:06 -0400
+Date: Thu, 5 Aug 2004 15:13:20 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: core changes.
+Message-ID: <20040805131320.GA8251@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm1/
-> - Added David Woodhouse's MTD tree to the "external trees" list
-> - Dropped the staircase scheduler, mainly because the schedstats patch broke
->   it.
->   We learned quite a lot from having staircase in there.  Now it's time for
->   a new scheduler anyway.
+[PATCH] s390: core changes.
 
-One of these changes means we need to be able to dereference struct
-device in include/asm-ia64/dma-mapping.h.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
---- mm1-2.6.8-rc3/include/asm-ia64/dma-mapping.h.orig	2004-08-05 22:56:27.204548702 -0700
-+++ mm1-2.6.8-rc3/include/asm-ia64/dma-mapping.h	2004-08-05 22:57:40.435993118 -0700
-@@ -5,7 +5,8 @@
-  * Copyright (C) 2003-2004 Hewlett-Packard Co
-  *	David Mosberger-Tang <davidm@hpl.hp.com>
-  */
--
-+#include <linux/config.h>
-+#include <linux/device.h>
- #include <asm/machvec.h>
+s390 core changes:
+ - Add 32 bit compat code for ptrace requests PTRACE_GETEVENTMSG,
+   PTRACE_GETSIGINFO and PTRACE_SETSIGINFO.
+ - Make non-smp kernel compile.
+ - Regenerate default configuration.
+
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
+diffstat:
+ arch/s390/appldata/appldata_base.c |    1 
+ arch/s390/defconfig                |    4 +--
+ arch/s390/kernel/compat_linux.h    |    3 ++
+ arch/s390/kernel/compat_signal.c   |   47 +++++++++++++++++++++++++++++++++++++
+ arch/s390/kernel/ptrace.c          |   13 ++++++++++
+ arch/s390/mm/cmm.c                 |    1 
+ drivers/s390/net/iucv.c            |    7 +++--
+ 7 files changed, 71 insertions(+), 5 deletions(-)
+
+diff -urN linux-2.6/arch/s390/appldata/appldata_base.c linux-2.6-s390/arch/s390/appldata/appldata_base.c
+--- linux-2.6/arch/s390/appldata/appldata_base.c	Thu Aug  5 14:20:32 2004
++++ linux-2.6-s390/arch/s390/appldata/appldata_base.c	Thu Aug  5 14:20:57 2004
+@@ -17,6 +17,7 @@
+ #include <linux/errno.h>
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
++#include <asm/smp.h>
+ #include <linux/interrupt.h>
+ #include <linux/proc_fs.h>
+ #include <linux/page-flags.h>
+diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
+--- linux-2.6/arch/s390/defconfig	Thu Aug  5 14:20:32 2004
++++ linux-2.6-s390/arch/s390/defconfig	Thu Aug  5 14:20:57 2004
+@@ -11,7 +11,6 @@
+ #
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+-CONFIG_STANDALONE=y
  
- #define dma_alloc_coherent	platform_dma_alloc_coherent
+ #
+ # General setup
+@@ -93,6 +92,7 @@
+ #
+ # Generic Driver Options
+ #
++CONFIG_STANDALONE=y
+ CONFIG_PREVENT_FIRMWARE_BUILD=y
+ # CONFIG_FW_LOADER is not set
+ # CONFIG_DEBUG_DRIVER is not set
+@@ -511,7 +511,7 @@
+ # CONFIG_CRYPTO_BLOWFISH is not set
+ # CONFIG_CRYPTO_TWOFISH is not set
+ # CONFIG_CRYPTO_SERPENT is not set
+-# CONFIG_CRYPTO_AES is not set
++# CONFIG_CRYPTO_AES_GENERIC is not set
+ # CONFIG_CRYPTO_CAST5 is not set
+ # CONFIG_CRYPTO_CAST6 is not set
+ # CONFIG_CRYPTO_TEA is not set
+diff -urN linux-2.6/arch/s390/kernel/compat_linux.h linux-2.6-s390/arch/s390/kernel/compat_linux.h
+--- linux-2.6/arch/s390/kernel/compat_linux.h	Wed Jun 16 07:19:42 2004
++++ linux-2.6-s390/arch/s390/kernel/compat_linux.h	Thu Aug  5 14:20:57 2004
+@@ -214,4 +214,7 @@
+ 	} _sigev_un;
+ };
+ 
++extern int copy_siginfo_to_user32(siginfo_t32 __user *to, siginfo_t *from);
++extern int copy_siginfo_from_user32(siginfo_t *to, siginfo_t32 __user *from);
++
+ #endif /* _ASM_S390X_S390_H */
+diff -urN linux-2.6/arch/s390/kernel/compat_signal.c linux-2.6-s390/arch/s390/kernel/compat_signal.c
+--- linux-2.6/arch/s390/kernel/compat_signal.c	Thu Aug  5 14:20:32 2004
++++ linux-2.6-s390/arch/s390/kernel/compat_signal.c	Thu Aug  5 14:20:57 2004
+@@ -106,6 +106,53 @@
+ 	return err;
+ }
+ 
++int copy_siginfo_from_user32(siginfo_t *to, siginfo_t32 __user *from)
++{
++	int err;
++	u32 tmp;
++
++	if (!access_ok (VERIFY_READ, from, sizeof(siginfo_t32)))
++		return -EFAULT;
++
++	err = __get_user(to->si_signo, &from->si_signo);
++	err |= __get_user(to->si_errno, &from->si_errno);
++	err |= __get_user(to->si_code, &from->si_code);
++
++	if (from->si_code < 0)
++		err |= __copy_from_user(&to->_sifields._pad, &from->_sifields._pad, SI_PAD_SIZE);
++	else {
++		switch (from->si_code >> 16) {
++		case __SI_RT >> 16: /* This is not generated by the kernel as of now.  */
++		case __SI_MESGQ >> 16:
++			err |= __get_user(to->si_int, &from->si_int);
++			/* fallthrough */
++		case __SI_KILL >> 16:
++			err |= __get_user(to->si_pid, &from->si_pid);
++			err |= __get_user(to->si_uid, &from->si_uid);
++			break;
++		case __SI_CHLD >> 16:
++			err |= __get_user(to->si_pid, &from->si_pid);
++			err |= __get_user(to->si_uid, &from->si_uid);
++			err |= __get_user(to->si_utime, &from->si_utime);
++			err |= __get_user(to->si_stime, &from->si_stime);
++			err |= __get_user(to->si_status, &from->si_status);
++			break;
++		case __SI_FAULT >> 16:
++			err |= __get_user(tmp, &from->si_addr);
++			to->si_addr = (void *)(u64) (tmp & PSW32_ADDR_INSN);
++			break;
++		case __SI_POLL >> 16:
++		case __SI_TIMER >> 16:
++			err |= __get_user(to->si_band, &from->si_band);
++			err |= __get_user(to->si_fd, &from->si_fd);
++			break;
++		default:
++			break;
++		}
++	}
++	return err;
++}
++
+ /*
+  * Atomically swap in the new signal mask, and wait for a signal.
+  */
+diff -urN linux-2.6/arch/s390/kernel/ptrace.c linux-2.6-s390/arch/s390/kernel/ptrace.c
+--- linux-2.6/arch/s390/kernel/ptrace.c	Wed Jun 16 07:19:53 2004
++++ linux-2.6-s390/arch/s390/kernel/ptrace.c	Thu Aug  5 14:20:57 2004
+@@ -553,6 +553,19 @@
+ 			copied += sizeof(unsigned int);
+ 		}
+ 		return 0;
++	case PTRACE_GETEVENTMSG:
++		return put_user((__u32) child->ptrace_message,
++				(unsigned int __user *) data);
++	case PTRACE_GETSIGINFO:
++		if (child->last_siginfo == NULL)
++			return -EINVAL;
++		return copy_siginfo_to_user32((siginfo_t32 __user *) data,
++					      child->last_siginfo);
++	case PTRACE_SETSIGINFO:
++		if (child->last_siginfo == NULL)
++			return -EINVAL;
++		return copy_siginfo_from_user32(child->last_siginfo,
++						(siginfo_t32 __user *) data);
+ 	}
+ 	return ptrace_request(child, request, addr, data);
+ }
+diff -urN linux-2.6/arch/s390/mm/cmm.c linux-2.6-s390/arch/s390/mm/cmm.c
+--- linux-2.6/arch/s390/mm/cmm.c	Thu Aug  5 14:20:32 2004
++++ linux-2.6-s390/arch/s390/mm/cmm.c	Thu Aug  5 14:20:57 2004
+@@ -19,6 +19,7 @@
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
++#include <asm/smp.h>
+ 
+ #include "../../../drivers/s390/net/smsgiucv.h"
+ 
+diff -urN linux-2.6/drivers/s390/net/iucv.c linux-2.6-s390/drivers/s390/net/iucv.c
+--- linux-2.6/drivers/s390/net/iucv.c	Thu Aug  5 14:20:39 2004
++++ linux-2.6-s390/drivers/s390/net/iucv.c	Thu Aug  5 14:20:57 2004
+@@ -1,5 +1,5 @@
+ /* 
+- * $Id: iucv.c,v 1.39 2004/07/12 06:54:14 braunu Exp $
++ * $Id: iucv.c,v 1.40 2004/08/04 12:29:33 cborntra Exp $
+  *
+  * IUCV network driver
+  *
+@@ -29,7 +29,7 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  *
+- * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.39 $
++ * RELEASE-TAG: IUCV lowlevel driver $Revision: 1.40 $
+  *
+  */
+ 
+@@ -53,6 +53,7 @@
+ #include <asm/io.h>
+ #include <asm/s390_ext.h>
+ #include <asm/ebcdic.h>
++#include <asm/smp.h>
+ #include <asm/ccwdev.h> //for root device stuff
+ 
+ /* FLAGS:
+@@ -354,7 +355,7 @@
+ static void
+ iucv_banner(void)
+ {
+-	char vbuf[] = "$Revision: 1.39 $";
++	char vbuf[] = "$Revision: 1.40 $";
+ 	char *version = vbuf;
+ 
+ 	if ((version = strchr(version, ':'))) {

@@ -1,84 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbTLHUzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 15:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTLHUzi
+	id S262838AbTLHU50 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 15:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262859AbTLHU50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 15:55:38 -0500
-Received: from [199.45.143.209] ([199.45.143.209]:23301 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S262291AbTLHUz2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 15:55:28 -0500
-Subject: Re: Of Mice and Linux
-From: Zan Lynx <zlynx@acm.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FD4BD1B.1060708@coyotegulch.com>
-References: <3FD4BD1B.1060708@coyotegulch.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UO1sTUiWve2p6foAqIoB"
-Organization: 
-Message-Id: <1070916926.20390.8.camel@localhost.localdomain>
+	Mon, 8 Dec 2003 15:57:26 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:46234 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262838AbTLHU5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 15:57:17 -0500
+Date: Mon, 8 Dec 2003 21:57:14 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Additional clauses to GPL in network drivers
+Message-ID: <20031208205714.GB23652@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <87r7zg0zrg.fsf@jay.local.invalid> <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Dec 2003 13:55:26 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEMBIIAA.davids@webmaster.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 07 Dec 2003, David Schwartz wrote:
 
---=-UO1sTUiWve2p6foAqIoB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+[Jeremy]
+> > I don't understand the desire for a notice that is clearly redundant.
+> > Due to the nature of the GPL (version 1 or 2), licensing an entire work
+> > under it is exactly equivalent to licensing all of the component parts
+> > individually under it.
+> 
+> 	It is definitely redundant. The idea is that if a portion of the
+> distribution ever winds up somewhere, the terms are still clear. For
+> example, one often finds modified header files or implementation files
+> available that don't contain a copy of the GPL or, for that matter, any
+> indication that the files included are covered by the GPL.
 
-On Mon, 2003-12-08 at 11:04, Scott Robert Ladd wrote:
-> Please indulge a minor story in regard to testing beta kernels.
->=20
-> Last Friday, I made a minor change to my Linux .config and rebuilt=20
-> 2.6.0-test11. Soon thereafter, my mouse began getting "stuck", sometimes=20
-> for several seconds, refusing to move no matter how vigorously I wiggled=20
-> my wrist.
->=20
-> I rebuilt the kernel a couple of times, turning on and off various=20
-> options; I plugged and unplugged devices from the USB ports; a=20
-> considerable amount of cursing ensued. The problem was erratic -- and=20
-> frustrating, because I hadn't had much trouble with 2.6 (which I've been=20
-> using since the 2.6.4x days).
->=20
-> Then I borrowed a mouse from another machine, plugged it in -- and the=20
-> replacement rodent worked flawlessly. It seems that my mouse broke just=20
-> about the same time as I installed test11. Being a software guy, I=20
-> should have blamed the hardware first...
->=20
-> ...especially since the truth was right in front of me, emblazoned=20
-> boldly across the mouse: the word "Microsoft".
->=20
-> I think the replacement will be from Logitech.
+I usually state in header files that are likely to be taken elsewhere
+what license applies without copying the full license or excerpts
+thereof into the header. That should be sufficient. There is no need and
+no desire to have all possible variants of GPL summaries all over the
+tree.
 
-Are you _sure_ your mouse is broken?  Did you try your Microsoft mouse
-on another machine?
+> 	For this reason, I think it makes sense for files to carry some indication
+> that they are covered by the GPL. Look, for example, at
+> ftp://ftp.scyld.com/pub/network/tulip.c
 
-I ask because my Microsoft Intellimouse wireless started doing the same
-thing after I installed 2.6.0-test11.  I haven't made a bug report
-because I haven't had time to bother retrying -test10, removing the
-binary Nvidia drivers, and taking out the Reiser4 patches.
+Too long-winded and IMHO too easily misunderstood. The GPL itself
+contains a "how to apply..." (this license to your code) section, and I
+see no reason for any deviation from the suggestions stated there.
 
-But now that you've mentioned the same problem, I'm going to add a "Me
-Too!"
+Even a copyright line and "you may only redistribute this file in
+concordance with the terms of the GNU General Public License, version
+(whatever applies) (optional "or any later version clause") is
+sufficient according to the GPL.
 
-And on a different machine, I'm using a Logitech MX700, and it works
-perfectly under -test11.
---=20
-Zan Lynx <zlynx@acm.org>
+If people actually read the full COPYING file, there'd be no reason for
+such stupid GPL "clarifications". Such are not necessary. If the file is
+meant to be offered under more than one license (say, BSD "no ad clause
+version"/GPL is found sometimes), then that is certainly doable without
+GPL "clarifications". The GPL is clear.
 
---=-UO1sTUiWve2p6foAqIoB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Note: IANAL.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+-- 
+Matthias Andree
 
-iD8DBQA/1OU9G8fHaOLTWwgRAg/lAJ4g70nqp/mx6nIuz77l3X5NX+GuswCgn7ss
-/wIQo4csx3Lxi+xXLLo1A2I=
-=fsfi
------END PGP SIGNATURE-----
-
---=-UO1sTUiWve2p6foAqIoB--
-
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

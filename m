@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUIGMGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267916AbUIGMGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267926AbUIGMGl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 08:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267951AbUIGMGk
+	id S267916AbUIGMGV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 08:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUIGMFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 08:06:40 -0400
-Received: from pat.uio.no ([129.240.130.16]:6530 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S267926AbUIGMG2 (ORCPT
+	Tue, 7 Sep 2004 08:05:54 -0400
+Received: from main.gmane.org ([80.91.224.249]:25218 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267930AbUIGMFo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 08:06:28 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm4
-References: <20040907020831.62390588.akpm@osdl.org>
-From: Terje Kvernes <terjekv@math.uio.no>
-Organization: The friends of mr. Tux
-X-URL: http://terje.kvernes.no/
-Date: Tue, 07 Sep 2004 14:05:52 +0200
-In-Reply-To: <20040907020831.62390588.akpm@osdl.org> (Andrew Morton's
- message of "Tue, 7 Sep 2004 02:08:31 -0700")
-Message-ID: <wxxk6v6l1wf.fsf@nommo.uio.no>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.1 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 7 Sep 2004 08:05:44 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: What is the maximum size in ramdisk_size boot parameter?
+Date: Tue, 07 Sep 2004 21:05:39 +0900
+Message-ID: <chk86k$smh$1@sea.gmane.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
+X-Accept-Language: bg, en, ja, ru, de
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Hello,
+I am trying to boot my laptop via PXE and I still am in the middle of nowhere...
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/
-> 
-> - Added Dave Howells' mysterious CacheFS.
+So, while trying to cram more and more stuff on a ramdisk, I started seeing "strange behaviour" and this got me thinking, is there a limit to ramdisk_size boot parameter??
 
-  [ ... ]
+Looking at drivers/block/rd.c (on 2.6.8.1) I couldn't find anything like that...
+So is there any intrinsic upper limit, apart from the total RAM size?
 
-> +make-afs-use-cachefs.patch
+And what happens if I say ramdisk_size=10240 (10MB) and I load only 1MB image into it.
+Will the "unused" memory be freed? i.e. is the size dynamically allocated (<docs) and the ramdisk_size is only the upper bound?
 
-  without selecting cachefs, I get:
-
- CC [M]  fs/afs/callback.o
-In file included from fs/afs/vnode.h:16,
-                 from fs/afs/callback.c:20:
-include/linux/cachefs.h:347:2: #error 
-make[2]: *** [fs/afs/callback.o] Error 1
-make[1]: *** [fs/afs] Error 2
-make: *** [fs] Error 2
-
-  after selecting cachefs, afs builds as it should.  a missing
-  dependency?
-
+Kalin.
 
 -- 
-Terje
+ || ~~~~~~~~~~~~~~~~~~~~~~ ||
+(  ) http://ThinRope.net/ (  )
+ || ______________________ ||
+

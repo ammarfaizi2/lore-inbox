@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264252AbTEOVUN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 17:20:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264253AbTEOVUN
+	id S264242AbTEOVTB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 17:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264249AbTEOVTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 17:20:13 -0400
-Received: from colossus.systems.pipex.net ([62.241.160.73]:973 "HELO
-	colossus.systems.pipex.net") by vger.kernel.org with SMTP
-	id S264252AbTEOVUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 17:20:12 -0400
-From: shaheed <srhaque@iee.org>
-To: Robert Love <rml@tech9.net>
-Subject: Re: 2.6 must-fix list, v2
-Date: Thu, 15 May 2003 22:30:20 +0100
-User-Agent: KMail/1.5
-Cc: Felipe Alfaro Solana <yo@felipe-alfaro.com>,
-       Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-References: <1050146434.3e97f68300fff@netmail.pipex.net> <200305152107.17419.srhaque@iee.org> <1053030280.899.27.camel@icbm>
-In-Reply-To: <1053030280.899.27.camel@icbm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 15 May 2003 17:19:01 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:1104 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S264242AbTEOVS7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 17:18:59 -0400
+Subject: Re: Test Patch: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       johannes@erdfelt.com,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44L0.0305151709120.1125-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0305151709120.1125-100000@ida.rowland.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053034205.2025.3.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 May 2003 16:30:05 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305152230.20794.srhaque@iee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 May 2003 9:24 pm, Robert Love wrote:
+On Thu, 2003-05-15 at 16:13, Alan Stern wrote:
+> My intention was to avoid resuming if the resume-detect bit is set only 
+> on ports in an over-current condition, since that is the case mentioned in 
+> the erratum.  Of course, this isn't as failsafe as your suggestion.  Which 
+> do you think would work better?
 
-> Oh, one other problem with doing it in the kernel via INIT_TASK:
->
-> You end up affining any kernel threads, which you absolutely do not want
-> to do _implicitly_. Maybe explicitly, but certainly not implicitly as a
-> blind consequence.
->
-> Doing it via init is really the way to go.
+This should be caught on the suspend side so
+that you can still service the ports that do not
+have the over current condition.
 
-OK, that does make sense.
+A single port in OC makes resume unreliable,
+so the only thing to do is not suspend.
 
->Submit a patch to the init maintainer to have it bind itself on boot to
->a given command line value. Maybe I will do this if I find the time...
+The following worked for me:
 
-I will have a go myself too...
+static int suspend_allowed(struct uhci_hcd *uhci)
+{
+	unsigned int io_addr = uhci->io_addr;
+	int i;
 
-[srhaque@chiswick srhaque]$ rpm -q --whatprovides /sbin/init
-SysVinit-2.84-2mdk
+	if (!uhci->hcd.pdev ||
+	    (uhci->hcd.pdev->vendor != PCI_VENDOR_ID_INTEL) ||
+	    (uhci->hcd.pdev->device != PCI_DEVICE_ID_INTEL_82371AB_2))
+		return 1;
 
-and rpmfind.net points to ftp://ftp.cistron.nl/pub/people/miquels/software. 
-I'll drop you a line if I make progress.
+	/* This is a 82371AB/EB/MB USB controller which has a bug that
+	 * causes false resume indications if any port has an
+	 * over current condition. If we do a global suspend then
+	 * the controller thrashes back and forth between suspend and wakeup.
+	 *
+	 * Some motherboards using the 82371AB/EB/MB (but not the USB portion)
+	 * appear to hardwire the over current inputs active to disable
+	 * the USB ports..
+	 */
 
-Thanks, Shaheed
+	/* check for over current condition on all ports */
+	for (i = 0; i < uhci->rh_numports; i++) {
+		if (inw(io_addr + USBPORTSC1 + i * 2) & 0x0400)
+			return 0;
+	}
+
+	return 1;
+}
+
+static void suspend_hc(struct uhci_hcd *uhci)
+{
+	unsigned int io_addr = uhci->io_addr;
+
+	if (!suspend_allowed(uhci))
+		return;
+
+
+
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
 

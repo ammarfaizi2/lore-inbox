@@ -1,72 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbUJXWjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbUJXWsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbUJXWjS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 18:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbUJXWjS
+	id S261605AbUJXWsl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 18:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUJXWsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 18:39:18 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:59068 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261608AbUJXWi4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 18:38:56 -0400
-Date: Mon, 25 Oct 2004 00:33:32 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <Pine.LNX.4.58.0410241027320.13209@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0410242126000.17266@scrub.home>
-References: <41752E53.8060103@pobox.com>  <20041019153126.GG18939@work.bitmover.com>
-  <41753B99.5090003@pobox.com>  <4d8e3fd304101914332979f86a@mail.gmail.com>
-  <20041019213803.GA6994@havoc.gtf.org>  <4d8e3fd3041019145469f03527@mail.gmail.com>
-  <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>  <20041023161253.GA17537@work.bitmover.com>
- <4d8e3fd304102403241e5a69a5@mail.gmail.com> <Pine.LNX.4.58.0410241027320.13209@ppc970.osdl.org>
+	Sun, 24 Oct 2004 18:48:40 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:23746 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261605AbUJXWsh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 18:48:37 -0400
+Message-ID: <417C2619.7060808@free.fr>
+Date: Mon, 25 Oct 2004 00:00:57 +0200
+From: Remi Colinet <remi.colinet@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-mm1 : compile error & question
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Sun, 24 Oct 2004, Linus Torvalds wrote:
+I'am getting this error when compiling 2.6.9-mm1 :
 
->  - I do _not_ want people to "own" subsystems. And that's not so much an 
->    anti-maintainer issue (I _love_ maintainers), as more of a "conceptual" 
->    issue. When people expect one person or one group of person to be the 
->    only way to touch a certain subsystem, we have problems. I really 
->    really want everybody (users, developers _and_ maintainers) to realize 
->    that no code is an island, and work with other people touching their 
->    subsystem.
+ KSYM    .tmp_kallsyms3.S
+ AS      .tmp_kallsyms3.o
+ LD      vmlinux
+ SYSMAP  System.map
+ SYSMAP  .tmp_System.map
+ AS      arch/i386/boot/setup.o
+ LD      arch/i386/boot/setup
+ AS      arch/i386/boot/compressed/head.o
+ CC      arch/i386/boot/compressed/misc.o
+ OBJCOPY arch/i386/boot/compressed/vmlinux.bin
+BFD: Warning: Writing section `.bss' to huge (ie negative) file offset 
+0xc05c6000.
+objcopy: arch/i386/boot/compressed/vmlinux.bin: File truncated
+make[2]: *** [arch/i386/boot/compressed/vmlinux.bin] Error 1
+make[1]: *** [arch/i386/boot/compressed/vmlinux] Error 2
+make: *** [bzImage] Error 2
+[root@tigre01 im]# objdump -h ./vmlinux
 
-OTOH people often just send patches directly to you without bothering to 
-contact the maintainer. There is no system that sends out notifications, 
-if a patch touches file x/y, so that one has a chance to comment on them.
-To be very clear on this, I don't want to control what goes in, I'd just 
-like to know about changes _before_ they go in.
+./vmlinux:     file format elf32-i386
 
->    So BK helps this model, because the distributed nature of BK means that 
->    you can have several pseudo-official trees _and_ totally unofficial
->    ones, and merging is automatic and basically impossible to avoid, so 
->    the "official" tree never gets to drown out the unofficial work. But 
->    despite that, I want to make people _aware_ that maintainership does
->    not imply total ownership, and that we don't have a "hierarchy" of 
->    developers but a *network* of developers.
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+ 0 .text         0037d80e  c0100000  00100000  00001000  2**12         
+<-- something wrong here for LMA used to be 0xc010 000
+                 CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 1 __ex_table    000013b8  c047d810  0047d810  0037e810  2**2
+                 CONTENTS, ALLOC, LOAD, READONLY, DATA
+ 2 .rodata       000a8309  c047ebe0  0047ebe0  0037fbe0  2**5
+                 CONTENTS, ALLOC, LOAD, READONLY, DATA
+...
 
-One should also add that bk is not the answer to everything, e.g. bk 
-doesn't really help with maintaining separate patches. As one cannot 
-remove or change information from/in bk, that makes it difficult to 
-work on a series of patches, e.g. as Andrew does with -mm, a tool like 
-quilt is more helpful here.
-This means patches should only be put into bk, when they are ready 
-(otherwise the repo accumulates useless info nobody is really interested 
-in), during their development bk is about as useful as any other SCM 
-system. bk simplifies mainly your work, but the further one is away from 
-the core of this developer network, the more bk looses its advantage 
-(and might only increase the amount of merge information bk has to 
-manage in relation to patch information).
+23 .exit.text    00001a5b  c06ab430  006ab430  005ac430  2**4
+                 CONTENTS, ALLOC, LOAD, READONLY, CODE
+24 .init.ramfs   00000086  c06ad000  006ad000  005ae000  2**0
+                 CONTENTS, ALLOC, LOAD, READONLY, DATA
+25 .data.percpu  00018938  c06ad100  006ad100  005ae100  2**7
+                 CONTENTS, ALLOC, LOAD, DATA
+26 .bss          0006dfa0  c06c6000  c06c6000  005c7000  2**12     <-- 
+somthing wrong with LMA for .bss.
+                 CONTENTS, ALLOC, LOAD, DATA
+27 .comment      0000c36f  00000000  00000000  00634fa0  2**0
+                 CONTENTS, READONLY
+28 .debug_line   0021497b  00000000  00000000  0064130f  2**0
+...
 
-bye, Roman
+This is very strange. The .text LMA of the vmlinux file is at 0x__0__010 
+0000 whereas, it used to be at  0x__c__010 0000.  But then, the .bss LMA 
+of the vmlinux file suddenly jump at 0x__c__06c 6000 instead of 
+0x__0__06c 6000 which would have seemed more natural -0).  What can 
+cause this offset? I have look for the .bss section content. It contains 
+.bss data and .bss.page_aligned. The later seems to be the root of the 
+.bss LMA offset.  .bss.page_aligned contains then empty_zero_page and 
+the  swapper_pg_dir.
+
+I finally succeded to compile the kernel, using  the following 
+OBJCOPYFLAGS in arch/i386/Makefile.
+
+OBJCOPYFLAGS    := -O binary --change-section-lma .bss-0xc0000000 -R 
+.note -R .comment -S
+
+I haven't yet tried to boot it.
+
+Any idea to fix this objcopy error otherwise?
+Why is the .text LMA set at 0x0010 0000 instead of 0xc010 0000 as it 
+used to be?
+
+Thanks
+Remi

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312590AbSHRJMW>; Sun, 18 Aug 2002 05:12:22 -0400
+	id <S313305AbSHRJZY>; Sun, 18 Aug 2002 05:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSHRJMW>; Sun, 18 Aug 2002 05:12:22 -0400
-Received: from mail12.speakeasy.net ([216.254.0.212]:59063 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S312590AbSHRJMV>; Sun, 18 Aug 2002 05:12:21 -0400
+	id <S313477AbSHRJZY>; Sun, 18 Aug 2002 05:25:24 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:12818
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S313305AbSHRJZX>; Sun, 18 Aug 2002 05:25:23 -0400
+Date: Sun, 18 Aug 2002 02:19:40 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ed Sweetman <safemode@speakeasy.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: cerberus errors on 2.4.19 (ide dma related)
-From: Ed Sweetman <safemode@speakeasy.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu>
-References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Aug 2002 05:16:21 -0400
-Message-Id: <1029662182.2970.23.camel@psuedomode>
-Mime-Version: 1.0
+In-Reply-To: <1029654916.2037.0.camel@psuedomode>
+Message-ID: <Pine.LNX.4.10.10208180215370.23171-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-18 at 05:10, Alexander Viro wrote:
-> 
-> 
-> On 18 Aug 2002, Ed Sweetman wrote:
-> 
-> > (overview written in hindsight of writing email)  
-> > I ran all these tests on ide/host2/bus0/target0/lun0/part1 
-> 
-> Don't be silly - if you want to test anything, devfs is the last thing
-> you want on the system.
-> 
-> 
+
+2.4.19-preempt
+
+All bets are off because who knows what preempt is doing to the state
+machines and in PIO you are dead.
+
+You can not delay transaction of data between interrupts w/o having the
+transport help out.  But the preempt don't get it.
+
+If you push your request size down to 8k or to a page you preempt problems
+will go away, only because granularity of requests.  And the price is
+performance goes in the tank.  But this is preempt so who cares.
+
+Cheers,
 
 
-OK, i can remove devfs, but I dont really see how that would make dma
-transfers (memory) become corrupted and pio mode transfers (memory) to
-not.  
-
-I'm going to remove it, but i dont see how it's going to affect what's
-going on. 
+Andre Hedrick
+LAD Storage Consulting Group
 

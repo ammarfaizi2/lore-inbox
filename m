@@ -1,84 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267528AbTA3P5F>; Thu, 30 Jan 2003 10:57:05 -0500
+	id <S267534AbTA3QHm>; Thu, 30 Jan 2003 11:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267532AbTA3P5E>; Thu, 30 Jan 2003 10:57:04 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:44809 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S267528AbTA3P5C>; Thu, 30 Jan 2003 10:57:02 -0500
-Date: Thu, 30 Jan 2003 17:06:19 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: "Pocrovsky, Lev" <LPocrovsky@analogic.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: .align help
-Message-ID: <20030130160618.GA6588@arthur.ubicom.tudelft.nl>
-References: <61C1E83D9DA9D311A871009027D617F0017DE6A1@PEAEXCH1>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-In-Reply-To: <61C1E83D9DA9D311A871009027D617F0017DE6A1@PEAEXCH1>
-User-Agent: Mutt/1.4i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S267535AbTA3QHm>; Thu, 30 Jan 2003 11:07:42 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:5075 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S267534AbTA3QHl>; Thu, 30 Jan 2003 11:07:41 -0500
+Date: Thu, 30 Jan 2003 08:25:07 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: pci_set_mwi() ... why isn't it used more?
+To: Anton Blanchard <anton@samba.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Message-id: <3E3951E3.7060806@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org>
+ <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anton Blanchard wrote:
+>  
+> 
+>>I suppose the potential for broken PCI devices is exactly why MWI
+>>isn't automatically enabled when DMA mastering is enabled, though
+>>I don't understand why the cacheline size doesn't get fixed then
+>>(unless it's that same issue).  Devices can use the cacheline size
+>>to get better Memory Read Line/Read Multiple" throughput; setting
+>>it shouldn't be tied exclusively to enabling MWI.
+> 
+> 
+> There are a number of cases where we cant enable MWI either because
+> the PCI card doesnt support the CPU cacheline size or we have to set the
+> PCI card cacheline size to something smaller due to various bugs.
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Jan 29, 2003 at 11:53:22AM -0500, Pocrovsky, Lev wrote:
-> I am building up a library using xmm and mmx registers in Linux environme=
-nt.
-> At the begin of this activity I was given a sample routine,  which contai=
-ns
-> a line
->=20
-> .align   16
->=20
-> in a text segment.
-> As far as I can understand the line of the sort does not have any sense a=
-nd
-> GCC-compiler must ignore it. Nevertheless I noticed by running test progr=
-ams
-> that unpredictably some times the line does impact on execution time,
-> sometimes it does not.
->=20
-> Any explanation ?
-
-The .align directive aligns the next code (or data, depending on the
-use) to the value following the directive. How it is interpreted
-depends on the target architecture and ABI. For more information, check
-the "as" info pages. (hint: tkinfo and pinfo are considered better info
-browses than GNU info).
-
-The impact on execution time is quite normal: modern CPUs like (and
-most RISC CPUs even demand) aligned memory accesses, so I bet .align 16
-would at least make the execution time the consistent. Non-aligned
-memory accesses on the i386 family make that the CPU has to fix them
-up, which costs time.
+At least the former case seems like it should be easily detectible.
+The cacheline setting "must" be supported (sez the PCI spec) if MWI
+can be enabled ... and may be supported in other cases too.
 
 
-Erik
+> eg I understand earlier versions of the e100 dont support a 128 byte
+> cacheline (and the top bits are read only so setting it up for 128 bytes
+> will result in it it being set to 0). Not good for read multiple/line
+> and even worse if we decide to enable MWI :)
 
---=20
-J.A.K. (Erik) Mouw
-Email: J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
-WWW: http://www-ict.its.tudelft.nl/~erik/
+At least on 2.5.59, the pci_generic_prep_mwi() code doesn't check
+for that type of error:  it just writes the cacheline size, and
+doesn't verify that setting it worked as expected.  Checking for
+that kind of problem would make it safer to call pci_set_mwi() in
+such cases ... e.g. using it on a P4 with 128 byte L1 cachelines
+would fail cleanly, while on an Athlon (64 byte L1) it might work
+(depending in which top bits are unusable).
 
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+- Dave
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
 
-iD8DBQE+OU16/PlVHJtIto0RAr0cAJ9qjb6R4lZJuQQaJh2V9FlAqwuU9gCggccP
-VBvyprItiiHRecGK8PXJBwQ=
-=o66J
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--

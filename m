@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261385AbSJVOxy>; Tue, 22 Oct 2002 10:53:54 -0400
+	id <S263966AbSJVO4P>; Tue, 22 Oct 2002 10:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261429AbSJVOxy>; Tue, 22 Oct 2002 10:53:54 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59620 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261385AbSJVOxx>;
-	Tue, 22 Oct 2002 10:53:53 -0400
-Date: Tue, 22 Oct 2002 16:59:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Suparna Bhattacharya <suparna@sparklet.in.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
-Message-ID: <20021022145943.GC5616@suse.de>
-References: <20021022094911.GE30597@suse.de> <Pine.LNX.4.33L2.0210220743030.13752-100000@dragon.pdx.osdl.net>
+	id <S263968AbSJVO4P>; Tue, 22 Oct 2002 10:56:15 -0400
+Received: from rakshak.ishoni.co.in ([164.164.83.140]:9660 "EHLO
+	arianne.in.ishoni.com") by vger.kernel.org with ESMTP
+	id <S263966AbSJVO4O>; Tue, 22 Oct 2002 10:56:14 -0400
+Subject: Re: running 2.4.2 kernel under 4MB Ram
+From: Amol Kumar Lad <amolk@ishoni.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk>
+References: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 22 Oct 2002 20:31:43 -0400
+Message-Id: <1035333109.2200.2.camel@amol.in.ishoni.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0210220743030.13752-100000@dragon.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22 2002, Randy.Dunlap wrote:
-> On Tue, 22 Oct 2002, Jens Axboe wrote:
+It means that I _cannot_ run 2.4.2 on a 4MB box. 
+Actually my embedded system already has 2.4.2 running on a 16Mb. I was
+looking for a way to run it in 4Mb. 
+So Is upgrade to 2.4.19 the only option ??
+
+-- Amol
+
+
+On Tue, 2002-10-22 at 06:06, Alan Cox wrote:
+> On Tue, 2002-10-22 at 19:54, Amol Kumar Lad wrote:
+> > Hi,
+> >  I want to run 2.4.2 kernel on my embedded system that has only 4 Mb
+> > SDRAM . Is it possible ?? Is there any constraint for the minimum
+> SDRAM
+> > requirement for linux 2.4.2
 > 
-> | On Tue, Oct 22 2002, Suparna Bhattacharya wrote:
-> | > On Mon, 21 Oct 2002 19:43:20 +0530, Christoph Hellwig wrote:
-> | >
-> | >
-> | > >> +
-> | > >> +	if ((dump_bio = kmalloc(sizeof(struct bio), GFP_KERNEL)) == NULL) { +
-> | > >> 	DUMP_PRINTF("Cannot allocate bio\n"); +		retval = -ENOMEM;
-> | > >> +		goto err2;
-> | > >> +	}
-> | > >
-> | > > Shouldn't you use the generic bio allocator?
-> | > >
-> | >
-> | > Not sure that this should come from the bio mempool. Objects
-> | > allocated from the mem pool are expected to be released back to
-> | > the pool within a reasonable period (after i/o is done), which is
-> | > not quite the case here.
-> | >
-> | > Dump preallocates the bio early when configured and holds on to
-> | > it all through the time the system is up (avoids allocs at
-> | > actual dump time). Doesn't seem like the right thing to hold
-> | > on to a bio mempool element that long.
-> |
-> | Definitely, one must not use the bio pool for long term allocations.
-> 
-> "must not" ?
+> You want to run something a lot newer than 2.4.2. 2.4.19 will run on a
+> 4Mb box, and with Rik's rmap vm seems to be run better than 2.2. That
+> will depend on the workload.
 
-Yes
-
-> what happens if one does do that?  [not suggesting doing that]
-
-Well, the whole concept behind mempool and deadlock-free allocation
-while doing io, builds on that if slab allocation fails we fall back to
-a private pool. If allocation from the private pool also fails, then we
-_know_ we have io in progress that will finish "shortly". This is what
-makes it safe to sleep on the private pool. Once you start doing long
-term allocations from the bio pool, we can no longer make this
-guarentee.
-
--- 
-Jens Axboe
 

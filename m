@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRAJD1o>; Tue, 9 Jan 2001 22:27:44 -0500
+	id <S129431AbRAJDf0>; Tue, 9 Jan 2001 22:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130548AbRAJD1f>; Tue, 9 Jan 2001 22:27:35 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:21387 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129764AbRAJD1Q>;
-	Tue, 9 Jan 2001 22:27:16 -0500
-Date: Tue, 9 Jan 2001 19:09:59 -0800
-Message-Id: <200101100309.TAA16576@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: dean-list-linux-kernel@arctic.org
-CC: mingo@elte.hu, riel@conectiva.com.br, hch@caldera.de, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101091916210.10428-100000@twinlark.arctic.org>
-	(message from dean gaudet on Tue, 9 Jan 2001 19:18:53 -0800 (PST))
-Subject: Re: storage over IP (was Re: [PLEASE-TESTME] Zerocopy networking
- patch, 2.4.0-1)
-In-Reply-To: <Pine.LNX.4.30.0101091916210.10428-100000@twinlark.arctic.org>
+	id <S129826AbRAJDfR>; Tue, 9 Jan 2001 22:35:17 -0500
+Received: from [210.73.88.150] ([210.73.88.150]:24580 "HELO
+	herald.sinocluster.com") by vger.kernel.org with SMTP
+	id <S129431AbRAJDfC>; Tue, 9 Jan 2001 22:35:02 -0500
+Date: Wed, 10 Jan 2001 11:38:20 +0800 (CST)
+From: Huagang Xie <xie@gnuchina.org>
+To: linux-kernel@vger.kernel.org
+Subject: [Security] LIDS 1.0.4 for 2.4.0 release.
+Message-ID: <Pine.LNX.4.21.0101101136030.5364-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Tue, 9 Jan 2001 19:18:53 -0800 (PST)
-   From: dean gaudet <dean-list-linux-kernel@arctic.org>
+Hi,
 
-   - NIC DMAs packet to memory
-   - CPU reads headers from memory, figures out it's NFS
-   - CPU copies data bytes from packet image in memory to pagecache
+the new version ,
 
-Yes, this is precisely what happens in the NFS client with
-the zerocopy patches applied.
+1. add inherit option when config file acls
+2. add exec_domain from lids 0.9.11
+3. add configuration support to multi-platform
+4. bugfixed from 0.9.11
 
-Later,
-David S. Miller
-davem@redhat.com
+LIDS is a kernel patch and admin tools to enhance the current linux kernel
+security.  
+
+For more information, pls visit www.lids.org.
+
+Thanks,
+XIE
+
+-- 
+Happy Hacking
+
+Linux Intrusion Detection System  
+http://www.lids.org/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

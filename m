@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131955AbQKZADm>; Sat, 25 Nov 2000 19:03:42 -0500
+        id <S131903AbQKZAQh>; Sat, 25 Nov 2000 19:16:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131975AbQKZADc>; Sat, 25 Nov 2000 19:03:32 -0500
-Received: from gondor.apana.org.au ([203.14.152.114]:18192 "EHLO
-        gondor.apana.org.au") by vger.kernel.org with ESMTP
-        id <S131955AbQKZAD2>; Sat, 25 Nov 2000 19:03:28 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sun, 26 Nov 2000 10:33:10 +1100
-To: Andries Brouwer <aeb@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001126103310.A21757@gondor.apana.org.au>
-In-Reply-To: <20001125211939.A6883@veritas.com> <200011252211.eAPMBIo21200@gondor.apana.org.au> <20001125234624.A7049@veritas.com>
+        id <S131937AbQKZAQS>; Sat, 25 Nov 2000 19:16:18 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:17156 "HELO mail.ocs.com.au")
+        by vger.kernel.org with SMTP id <S131903AbQKZAQB>;
+        Sat, 25 Nov 2000 19:16:01 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Android" <android@turbosport.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Questions about Kernel 2.4.0.? 
+In-Reply-To: Your message of "Sat, 25 Nov 2000 14:20:39 -0800."
+             <001e01c0572d$f18a6e60$19211518@vnnys1.ca.home.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001125234624.A7049@veritas.com>; from aeb@veritas.com on Sat, Nov 25, 2000 at 11:46:24PM +0100
+Date: Sun, 26 Nov 2000 10:45:52 +1100
+Message-ID: <10338.975195952@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 25, 2000 at 11:46:24PM +0100, Andries Brouwer wrote:
-> 
-> But if the program
-> 
->   static int a = 0;
-> 
->   int main() {
-> 	  /* do something */
->   }
-> 
-> is used as part of a larger program, it has to become
-> 
->   static int a;
-> 
->   int do_something() {
-> 	  a = 0;
-> 	  ...
->   }
+On Sat, 25 Nov 2000 14:20:39 -0800, 
+"Android" <android@turbosport.com> wrote:
+>There is a link in /lib/modules/2.4.0.11: build->/usr/src/linux
+>created by the Makefile (make modules_install).
+>What for? depmod doesn't like this link. It gets confused.
 
-Only if the person doing the change follows this convention, if that happens
-to be you, not a problem.  But in a project like Linux, it's not very likely
-to happen.
+grep modutils Documentation/Changes
 
-It's much better to put a comment above the definition.
--- 
-Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

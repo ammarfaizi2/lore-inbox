@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbTEIMBj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbTEIMBe
+	id S262498AbTEIMVt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTEIMVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:01:34 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:61151 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S262497AbTEIMBZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:01:25 -0400
-Message-Id: <200305091213.h49CDuO4029947@post.webmailer.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: ioctl32_unregister_conversion & modules
-To: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Date: Fri, 09 May 2003 14:10:31 +0200
-References: <20030509100039$6904@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+	Fri, 9 May 2003 08:21:49 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:44767 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262498AbTEIMVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:21:48 -0400
+Subject: [PATCH] Fix for vma merging refcounting bug
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
+Cc: Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       Andrea Arcangeli <andrea@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052483661.3642.16.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 May 2003 13:34:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+When a new vma can be merged simultaneously with its two immediate
+neighbours in both directions, vma_merge() extends the predecessor vma
+and deletes the successor.  However, if the vma maps a file, it fails to
+fput() when doing the delete, leaving the file's refcount inconsistent.
 
-> ...what is the problem?
-> 
-> It seems that function pointers into modules do not need any special
-> treatmeant [I *know* there was talk about this on l-k; but I can't
-> find anything in Documentation/]:
-> 
->                 if (!capable(CAP_SYS_ADMIN))
->                         return -EACCES;
->                 if (disk->fops->ioctl) {
->                         ret = disk->fops->ioctl(inode, file, cmd, arg);
->                         if (ret != -EINVAL)
->                                 return ret;
->                 }
-
-This is protected against unload by the reference counting done in 
-open()/release(). ->ioctl() can be called only for open devices,
-so you know the ioctl handler is not getting unloaded while it
-is running.
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1083  -> 1.1084 
+#	           mm/mmap.c	1.79    -> 1.80   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/09	sct@sisko.scot.redhat.com	1.1084
+# Fix vma merging problem leading to file refcount getting out of sync.
+# --------------------------------------------
+#
+diff -Nru a/mm/mmap.c b/mm/mmap.c
+--- a/mm/mmap.c	Fri May  9 13:26:53 2003
++++ b/mm/mmap.c	Fri May  9 13:26:53 2003
+@@ -471,6 +471,8 @@
+ 			spin_unlock(lock);
+ 			if (need_up)
+ 				up(&inode->i_mapping->i_shared_sem);
++			if (file)
++				fput(file);
  
-> So... what's the problem with {un}register_ioctl32_conversion being
-> called from module_init/module_exit? Drivers in the tree do it
-> already...
+ 			mm->map_count--;
+ 			kmem_cache_free(vm_area_cachep, next);
 
-The problem is that when the conversion handler is called, the reference
-counting is only done for the module listed as ->owner in the
-file operations. For example in the patch you submitted to add 
-register_ioctl32_conversion() to drivers/serial/core.c I see nothing
-stopping you from unloading core.ko while the handler is running
-on a device owned by drivers/char/cyclades.c or any other serial driver.
-It does not even have to be run on a serial driver, a user might try
-to do ioctl(TIOCGSERIAL, ...) on a regular file...
 
-        Arnd <><

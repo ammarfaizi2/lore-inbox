@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264084AbUDGAb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 20:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUDGAb0
+	id S264068AbUDGAab (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 20:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbUDGAab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 20:31:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64937 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264084AbUDGAbQ (ORCPT
+	Tue, 6 Apr 2004 20:30:31 -0400
+Received: from mail3.bluewin.ch ([195.186.1.75]:43243 "EHLO mail3.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264068AbUDGAaW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 20:31:16 -0400
-Date: Tue, 6 Apr 2004 17:33:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: bug-coreutils@gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: dd PATCH: add conv=direct
-Message-Id: <20040406173326.0fbb9d7a.akpm@osdl.org>
-In-Reply-To: <20040406220358.GE4828@hexapodia.org>
-References: <20040406220358.GE4828@hexapodia.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 6 Apr 2004 20:30:22 -0400
+Date: Wed, 7 Apr 2004 02:30:01 +0200
+To: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] H8/300 support update (3/3) - others
+Message-ID: <20040407003001.GA1487@mars>
+References: <m27jwtl6bf.wl%ysato@users.sourceforge.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m27jwtl6bf.wl%ysato@users.sourceforge.jp>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: a.othieno@bluewin.ch (Arthur Othieno)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson <adi@hexapodia.org> wrote:
->
-> On modern Linux, apparently the correct way to bypass the buffer cache
-> when writing to a block device is to open the block device with
-> O_DIRECT.  This enables, for example, the user to more easily force a
-> reallocation of a single sector of an IDE disk with a media error
-> (without overwriting anything but the 1k "sector pair" containing the
-> error).  dd(1) is convenient for this purpose, but is lacking a method
-> to force O_DIRECT.  The enclosed patch adds a "conv=direct" flag to
-> enable this usage.
+On Tue, Apr 06, 2004 at 08:00:20PM +0900, Yoshinori Sato wrote:
+> - use new serial driver (drivers/serial/sh-sci.[ch])
+> - typo fix
+> - add message level
+> 
+> diff -Nru -X .exclude-diff linux-2.6.5/arch/h8300/Kconfig linux-2.6.5-h8300/arch/h8300/Kconfig
+> --- linux-2.6.5/arch/h8300/Kconfig	2004-04-06 17:11:10.000000000 +0900
+> +++ linux-2.6.5-h8300/arch/h8300/Kconfig	2004-04-06 17:00:23.000000000 +0900
+> @@ -57,17 +57,17 @@
+>  config H8300H_AKI3068NET
+>  	bool "AE-3068/69"
+>  	help
+> -	  AKI-H8/3068F / AKI-H8/3069F Flashmicom LAN Board Suppot
+> +	  AKI-H8/3068F / AKI-H8/3069F Flashmicom LAN Board Support
+>  	  More Information. (Japanese Only)
+>  	  <http://akizukidensi.com/catalog/h8.html>
+> -	  AE-3068/69 Evalution Board Support
+> +	  AE-3068/69 Evaluation Board Support
+>  	  More Information.
+>  	  <http://www.microtronique.com/ae3069lan.htm>
+>  
+>  config H8300H_H8MAX
+>  	bool "H8MAX"
+>  	help
+> -	  H8MAX Evalution Board Suooprt
+> +	  H8MAX Evaluation Board Suooprt
+				   ^^^
+Looks like this one managed to sneak through :)
 
-This would be rather nice to have.  You'll need to ensure that the data
-is page-aligned in memory.
-
-While you're there, please add an fsync-before-closing option.
+>  	  More Information. (Japanese Only)
+>  	  <http://strawberry-linux.com/h8/index.html>
+>  

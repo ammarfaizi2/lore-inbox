@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262309AbREWGye>; Wed, 23 May 2001 02:54:34 -0400
+	id <S262423AbREWG7z>; Wed, 23 May 2001 02:59:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262423AbREWGyY>; Wed, 23 May 2001 02:54:24 -0400
-Received: from nwcst320.netaddress.usa.net ([204.68.23.65]:13795 "HELO
-	nwcst320.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S262309AbREWGyO> convert rfc822-to-8bit; Wed, 23 May 2001 02:54:14 -0400
-Message-ID: <20010523065412.6796.qmail@nwcst320.netaddress.usa.net>
-Date: 23 May 2001 00:54:12 MDT
-From: Blesson Paul <blessonpaul@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: __asm__
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	id <S262432AbREWG7f>; Wed, 23 May 2001 02:59:35 -0400
+Received: from [216.100.252.112] ([216.100.252.112]:13572 "EHLO lynx.Lynx.COM")
+	by vger.kernel.org with ESMTP id <S262423AbREWG7c>;
+	Wed, 23 May 2001 02:59:32 -0400
+Date: Tue, 22 May 2001 23:59:00 -0700
+Message-Id: <200105230659.XAA15108@newbast.lynuxworks.com>
+From: <VirusAlert@Lnxw.COM>
+To: <linux-kernel@vger.kernel.org>
+Subject: Virus Alert, FYI
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-              I  am comfronting with a macro __asm__ . What is the meaning of
-this. I cannot find the definition of this. I need the meaning of this line
- __asm__("and	1 %%esp.%0; ":"=r" (current) : "0" (~8191UL));
+An email sent to you was identified to contain a virus.
 
-                       This is defined inside the get_current()	in current.h
-Thanks in advance
-                           by
-                                     Blesson
-          
+Here are the information in this mail:
+
+Date: 	Tue, 22 May 2001 09:29:17 
+From: "Mayank Vasa" <mvasa@confluencenetworks.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Mawanella
 
 
-____________________________________________________________________
-Get free email and a permanent address at http://www.netaddress.com/?N=1
+Our virus filter has blocked this email and notified the sender.
+
+This message is just a FYI. Please send an email to VirusAlert@lnxw.com
+if you have further concerns.
+
+Thanks   
+

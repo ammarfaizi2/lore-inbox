@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265797AbUAKINh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 03:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265799AbUAKINh
+	id S265794AbUAKILL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 03:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUAKILL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 03:13:37 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:7351 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265797AbUAKINa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 03:13:30 -0500
-Date: Sun, 11 Jan 2004 09:13:21 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: Do not use synaptics extensions by default
-Message-ID: <20040111081321.GC25497@ucw.cz>
-References: <20040110175930.GA1749@elf.ucw.cz> <20040110201057.GA1367@elf.ucw.cz> <20040110201512.GA23208@ucw.cz> <200401101852.56429.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401101852.56429.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
+	Sun, 11 Jan 2004 03:11:11 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:42732 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S265794AbUAKILG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 03:11:06 -0500
+Message-ID: <001c01c3d824$cbf26ab0$0a01a8c0@mart>
+From: "Ashton Mills" <amills@iinet.com.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: Bug Report: Reduced disk performance in 2.6.1
+Date: Sun, 11 Jan 2004 19:25:03 +1000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 06:52:56PM -0500, Dmitry Torokhov wrote:
-> On Saturday 10 January 2004 03:15 pm, Vojtech Pavlik wrote:
-> > On Sat, Jan 10, 2004 at 09:10:58PM +0100, Pavel Machek wrote:
-> > > Hi!
-> > >
-> > > > > > Why would you document something that is deprecated? It was
-> > > > > > removed so the new users would not start using it instead of
-> > > > > > psmouse.proto. psmouse.noext should be gone soon.
-> > > > >
-> > > > > My understanding is that Documentation/kernel-parameters.txt
-> > > > > should document all available parameters...
-> > > >
-> > > > Well, I wouldn't mind documenting psmouse.noext, with a comment
-> > > > that it shouldn't be used because it'll be removed in near future.
-> > >
-> > > AFAICS, it is still psmouse*_*noext in mainline kernel, so this
-> > > should be correct...
-> > >
-> > > 								Pavel
-> >
-> > No problem with this patch, though it'd be better if you could provide
-> > it against the -mm kernel for Andrew.
-> >
-> 
-> In Andrew's tree noext option is already gone.
+Following the bug reporting guide at www.kernel.org.
 
-That makes the patch rather trivial then, doesn't it? ;)
+Sending to linux-kernel@vger.kernel.org because I don't know where the
+problem lies, I've eliminated two areas (detailed below).
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+PROBLEM:
+
+Stock 2.6.1 kernel shows reduced disk performance compared to stock 2.6.0.
+
+DESCRIPTION:
+
+2.6.0 -- hdparm -Tt shows:
+
+~70 M/s for a single drive
+~110 M/s for 2-drive software RAID 0 array
+
+2.6.1 -- hdparm -Tt shows:
+
+~60 M/s for single drive
+~90 M/s for 2-drive software RAID 0 array
+
+Kernel configuration file the same -- used .config from 2.6.0 with make
+oldconfig
+
+Reproducible: yes. Results remain consistent between the two kernels.
+
+This is the only change to the system. No other software or hardware was
+changed, just a straight kernel upgrade.
+
+Relevant specs:
+
+Athlon-XP 2800+
+1024M RAM
+Adaptec 29160
+Two Maxtor 10k RPM U160 SCSI drives in md software RAID 0 array
+
+Linux version 2.6.1 (root@Agamemnon) (gcc version 3.3.2 20031218 (Gentoo
+Linux 3.3.2-r5, propolice-3.3-7))
+
+PROGRESS:
+
+Patched 2.6.1 with the 2.6.0 aic7xxx SCSI driver in case it was a result of
+the new .36 version of the driver.
+Result: problem remains
+
+Patched 2.6.1 with the 2.6.0 md driver, since that was also shown to be
+updated in 2.6.1
+Result: problem remains
+
+So, it doesn't appear to be a SCSI or md driver issue. Don't know where to
+go from here, reporting as bug.
+

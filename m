@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267428AbUG2KDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267436AbUG2KHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267428AbUG2KDY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 06:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUG2KDY
+	id S267436AbUG2KHl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 06:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUG2KHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 06:03:24 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:36356 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267428AbUG2KC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 06:02:56 -0400
-Subject: Re: [Patch] Per kthread freezer flags
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: ncunningham@linuxmail.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091061983.8867.95.camel@laptop.cunninghams>
-References: <1090999301.8316.12.camel@laptop.cunninghams>
-	 <20040728142026.79860177.akpm@osdl.org>
-	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
-	 <1091054194.8867.26.camel@laptop.cunninghams>
-	 <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
-	 <1091061983.8867.95.camel@laptop.cunninghams>
-Content-Type: text/plain
-Date: Thu, 29 Jul 2004 12:02:21 +0200
-Message-Id: <1091095341.4359.0.camel@teapot.felipe-alfaro.com>
+	Thu, 29 Jul 2004 06:07:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5034 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267436AbUG2KFJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 06:05:09 -0400
+Subject: Re: LSI 53c1030 (Fusion MPT) performance with O_SYNC
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jan Oravec <jan.oravec@6com.sk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040729095648.GA27925@omega.6com.net>
+References: <20040729095648.GA27925@omega.6com.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Fof5LG8+0hok4uVO4fOf"
+Organization: Red Hat UK
+Message-Id: <1091095493.2792.6.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 29 Jul 2004 12:04:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-29 at 10:46 +1000, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Thu, 2004-07-29 at 09:21, Felipe Alfaro Solana wrote:
-> > kirdad? No... That sounds like Infrared which my laptop does not have.
-> 
-> Did to me too. I was clutching at straws. :>
-> 
-> > Here is a digest of ps -axf:
-> > 
-> >   PID TTY      STAT   TIME COMMAND
-> >     1 ?        S      0:00 init [5]
-> >     2 ?        S<     0:03 [irqd/0]
-> >     3 ?        S<     0:00 [events/0]
-> >     4 ?        S<     0:00  \_ [khelper]
-> >     5 ?        S<     0:00  \_ [kacpid]
-> >    22 ?        S<     0:00  \_ [kblockd/0]
-> >    32 ?        S      0:00  \_ [pdflush]
-> >    33 ?        S      0:00  \_ [pdflush]
-> >    35 ?        S<     0:00  \_ [aio/0]
-> >    36 ?        S<     0:00  \_ [xfslogd/0]
-> >    37 ?        S<     0:00  \_ [xfsdatad/0]
-> >    34 ?        S      0:00 [kswapd0]
-> >    38 ?        S      0:00 [xfsbufd]
-> >   120 ?        S      0:00 [kseriod]
-> >   125 ?        S      0:00 [xfssyncd]
-> >   273 ?        Ss     0:00 minilogd
-> >   286 ?        S      0:00 [xfssyncd]
-> >   287 ?        S      0:00 [xfssyncd]
-> >   567 ?        S      0:00 [khubd]
-> >   871 ?        S      0:00 [pccardd]
-> >   877 ?        S      0:00 [pccardd]
-> 
-> It doesn't look like I've touched any of those threads. I have doubts
-> about irqd/0 (is that kirqd reworked?), so you might try making setting
-> PF_NOFREEZE and seeing if it makes a difference. I haven't done the
-> switch to rc2-mm1 yet, so haven't gotten to those issues.
 
-kirqd is voluntary-preempt patch by Ingo Molnar. I have also applied
-several other patches, like Con's Staircase scheduler policy and some
-latency fixes.
+--=-Fof5LG8+0hok4uVO4fOf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2004-07-29 at 11:56, Jan Oravec wrote:
+
+> I've noticed poor performance with MySQL/InnoDB when compared to another
+> S2880-based box with IDE disks.
+
+your ide disk probably has write back caching enabled while your
+mptfusion doesn't..... if you value data integrity over performance the
+mptfusion has a saner default ;)
+
+--=-Fof5LG8+0hok4uVO4fOf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBCMvFxULwo51rQBIRAvpYAJwKpUhc4VsWXFJWLDNRFHawPslFagCfQirS
+R2hPGciXab+QA3OMMUk5J+Y=
+=f2+X
+-----END PGP SIGNATURE-----
+
+--=-Fof5LG8+0hok4uVO4fOf--
 

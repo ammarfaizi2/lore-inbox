@@ -1,89 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268486AbUILG1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUILG3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268486AbUILG1N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 02:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUILG1M
+	id S268490AbUILG3g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 02:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUILG3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 02:27:12 -0400
-Received: from holomorphy.com ([207.189.100.168]:35971 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268486AbUILG1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 02:27:08 -0400
-Date: Sat, 11 Sep 2004 23:27:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
-Message-ID: <20040912062703.GF2660@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au> <20040910174915.GA4750@logos.cnet> <20040912045636.GA2660@holomorphy.com> <4143D07E.3030408@yahoo.com.au>
+	Sun, 12 Sep 2004 02:29:36 -0400
+Received: from mailgate2.mysql.com ([213.136.52.47]:43214 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S268490AbUILG3d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 02:29:33 -0400
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial
+	of Service
+From: Peter Zaitsev <peter@mysql.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Wolfpaw - Dale Corse <admin@wolfpaw.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040911204710.4aa7abed.davem@davemloft.net>
+References: <022601c49866$9e8aa8f0$0300a8c0@s>
+	 <000001c49872$99333460$0200a8c0@wolf>
+	 <20040911204710.4aa7abed.davem@davemloft.net>
+Content-Type: text/plain
+Message-Id: <1094970424.29211.489.camel@sphere.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4143D07E.3030408@yahoo.com.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 11 Sep 2004 23:27:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> No, it DTRT. Batching does not directly compensate for increases in
->> arrival rates, rather most directly compensates for increases to lock
->> transfer times, which do indeed increase on systems with large numbers
->> of cpus.
+On Sat, 2004-09-11 at 20:47, David S. Miller wrote:
 
-On Sun, Sep 12, 2004 at 02:28:46PM +1000, Nick Piggin wrote:
-> Generally though I think you could expect the lru lock to be most
-> often taken by the scanner by node local CPUs. Even on the big
-> systems. We'll see.
+> If the application doesn't close it's file descriptors there is
+> absolutely nothing the kernel can do about it.
+> 
+> It's a resource leak, plain and simple.
+> 
+> > That being said - below is a the proper description, and the code
+> > used to exploit it. Hope it helps. This version is not the one
+> > which invokes the CLOSE_WAIT state, but rather the TIME_WAIT one,
+> > I am not able to publish the source code for the CLOSE_WAIT bug.
+> 
+> There is nothing wrong with creating tons of TIME_WAIT sockets,
+> they simply time out after 60 seconds (unless hit by a RESET
+> packet or similar).  This is how TCP works.
+> 
 
-No, I'd expect zone->lru_lock to be taken most often for lru_cache_add()
-and lru_cache_del().
+Hm,
 
+As this question arose may I ask where this timeout is configured ?
 
-William Lee Irwin III wrote:
->> A 511 item pagevec is 4KB on 64-bit machines.
+There is tcp_fin_timeout  configuration but I found nothing
+corresponding to TIME_WAIT.
 
-On Sun, Sep 12, 2004 at 02:28:46PM +1000, Nick Piggin wrote:
-> Sure. And when you fill it with pages, they'll use up 32KB of dcache
-> by using a single 64B line per page. Now that you've blown the cache,
-> when you go to move those pages to another list, you'll have to pull
-> them out of L2 again one at a time.
+Here is how it bothers me.  On the Web sites using Apache/PHP and MySQL 
+on different hosts I often see  "Sleep" connections hanging for many
+minutes on MySQL hosts.    Tracking remote host and port shows this
+connection is not assigned to any process on other end any more but
+rather being in TIME_WAIT state. 
 
-There can be no adequate compile-time metric of L1 cache size. 64B
-cachelines with 16KB caches sounds a bit small, 256 entries, which is
-even smaller than TLB's on various systems.
+I do not care about TIME_WAIT  connection on client site itself, what
+concerns me is, until connection is not fully closed server side does
+not seems to be informed connection is dead and so  server resources are
+not deallocated.    
 
-In general a hard cap at the L1 cache size would be beneficial for
-operations done in tight loops, but there is no adequate detection
-method. Also recall that the page structures things will be touched
-regardless if they are there to be touched in a sufficiently large
-pagevec.  Various pagevecs are meant to amortize locking done in
-scenarios where there is no relationship between calls. Again,
-lru_cache_add() and lru_cache_del() are the poster children. These
-operations are often done for one page at a time in some long codepath,
-e.g. fault handlers, and the pagevec is merely deferring the work until
-enough has accumulated. radix_tree_gang_lookup() and mpage_readpages()
-OTOH execute the operations to be done under the locks in tight loops,
-where the lock acquisitions are to be done immediately by the same caller.
-
-This differentiation between the characteristics of pagevec users
-happily matches the cases where they're used on-stack and per-cpu.
-In the former case, larger pagevecs are desirable, as the cachelines
-will not be L1-hot regardless; in the latter, L1 size limits apply.
+Any ideas ? 
 
 
-On Sun, Sep 12, 2004 at 02:28:46PM +1000, Nick Piggin wrote:
-> OK, so a 511 item pagevec is pretty unlikely. How about a 64 item one
-> with 128 byte cachelines, and you're touching two cachelines per
-> page operation? That's 16K.
 
-4*lg(NR_CPUS) is 64 for 16x-31x boxen. No constant number suffices.
-Adaptation to systems and the usage cases would be an improvement.
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
 
 
--- wli
+

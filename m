@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269315AbUJKWpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269318AbUJKWvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269315AbUJKWpm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 18:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUJKWpm
+	id S269318AbUJKWvN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269316AbUJKWvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 18:45:42 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:28076 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269315AbUJKWp2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 18:45:28 -0400
-Date: Mon, 11 Oct 2004 15:42:29 -0700
-From: Paul Jackson <pj@sgi.com>
-To: colpatch@us.ibm.com
-Cc: frankeh@watson.ibm.com, ricklind@us.ibm.com, mbligh@aracnet.com,
-       Simon.Derr@bull.net, pwil3058@bigpond.net.au, dipankar@in.ibm.com,
-       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] Re: [PATCH] cpusets - big numa cpu and memory
- placement
-Message-Id: <20041011154229.7e850ad2.pj@sgi.com>
-In-Reply-To: <1097532989.4038.61.camel@arrakis>
-References: <20041007015107.53d191d4.pj@sgi.com>
-	<200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
-	<20041007072842.2bafc320.pj@sgi.com>
-	<4165A31E.4070905@watson.ibm.com>
-	<20041008061426.6a84748c.pj@sgi.com>
-	<4166B569.60408@watson.ibm.com>
-	<20041008112319.63b694de.pj@sgi.com>
-	<1097283613.6470.146.camel@arrakis>
-	<20041009130808.70c56ea3.pj@sgi.com>
-	<1097532989.4038.61.camel@arrakis>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 11 Oct 2004 18:51:13 -0400
+Received: from dyn3.mc.tuwien.ac.at ([128.130.175.85]:644 "EHLO
+	mail.13thfloor.at") by vger.kernel.org with ESMTP id S269318AbUJKWvK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 18:51:10 -0400
+Date: Tue, 12 Oct 2004 00:57:01 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: lock issues
+Message-ID: <20041011225700.GD32228@DUMA.13thfloor.at>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthrew wrote:
-> My (completely uninformed) guess is that the CKRM folks thought it would
-> be extremely unlikely to be able to get the 'vrm' into the kernel
-> without something to use it.
 
-I'd guess the same thing.
+Hi Trond!
 
-> The 'vrm' and the fair share scheduler, should be
-> logically separate pieces of code, though. 
+experiencing the following panic on a linux-vserver
+kernel (2.6.9-rc4, no modifications to locking)
 
-I agree - should be.
+Kernel panic - not syncing: Attempting to free lock with active block list
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+it's not easy to trigger but it happens now and then.
+after adding a dump_stack() in panic() this is the trace
+
+[<8011b945>] panic+0x55/0xe0		       
+[<80174897>] fcntl_setlk64+0x137/0x2d0         
+[<80119540>] autoremove_wake_function+0x0/0x60 
+[<80179aba>] dnotify_parent+0x3a/0xb0	       
+[<8015dc49>] fget+0x49/0x60		       
+[<8016fa5b>] sys_fcntl64+0x4b/0xa0	       
+[<8010426f>] syscall_call+0x7/0xb
+
+it's the locks_free_lock(file_lock); at the end of 
+fcntl_setlk64() and I'm asking myself if something
+like in sys_flock()
+
+        if (list_empty(&lock->fl_link)) {
+                locks_free_lock(lock);
+        }
+
+would help here or just paper over the real issue?
+
+TIA,
+Herbert
+

@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbUEEFZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUEEFlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbUEEFZr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 01:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUEEFZr
+	id S261628AbUEEFlq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 01:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbUEEFlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 01:25:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13705 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261920AbUEEFZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 01:25:45 -0400
-Date: Tue, 4 May 2004 22:25:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Shantanu Goel <sgoel01@yahoo.com>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [VM PATCH 2.6.6-rc3-bk5] Dirty balancing in the presence of
- mapped pages
-Message-Id: <20040504222524.23a83c02.akpm@osdl.org>
-In-Reply-To: <20040505043115.92441.qmail@web12823.mail.yahoo.com>
-References: <20040504195753.0a9e4a54.akpm@osdl.org>
-	<20040505043115.92441.qmail@web12823.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 5 May 2004 01:41:46 -0400
+Received: from viefep20-int.chello.at ([213.46.255.26]:92 "EHLO
+	viefep20-int.chello.at") by vger.kernel.org with ESMTP
+	id S261628AbUEEFlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 01:41:45 -0400
+From: Anubis <kerub@gmx.net>
+To: linux-kernel@vger.kernel.org, petri.koistinen@iki.fi, lathiat@sixlabs.org,
+       janitor@sternwelten.at
+Subject: Bug for making NETFILTER
+Date: Wed, 5 May 2004 07:43:42 +0200
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405050743.42833.kerub@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shantanu Goel <sgoel01@yahoo.com> wrote:
->
-> > In this case, given that we have an actively mapped
->  > MAP_SHARED pagecache
->  > page, marking it dirty will cause it to be written
->  > by pdflush.  Even though
->  > we're not about to reclaim it, and even though the
->  > process which is mapping
->  > the page may well modify it again.  This patch will
->  > cause additional I/O.
->  > 
-> 
->  True, but is that really very different from normal
->  file I/O where we actively balance # dirty pages? 
->  Also, the I/O will only happen if the dirty thresholds
->  are exceeded.  It probably makes sense though to skip
->  SwapCache pages to more closely mimic file I/O
->  behaviour.
+make[3]: *** No rule to make target `net/ipv4/netfilter/ipt_mark.o', needed by 
+`net/ipv4/netfilter/built-in.o'.  Stop.
+for linux-2.6.5
 
-We need to think about why real applications (as opposed to benchmarks) use
-MAP_SHARED.  I suspect many of them will modify pages again and again and
-again.  We really want to avoid writing these pages out until the
-application has truly finished with them.
-
-I think it is probably the case that pages which were dirtied with write(2)
-are much less likely to be redirtied than pages which were dirtied via
-MAP_SHARED.
-
-One thing you might like to look at is to give these pages another trip
-around the LRU after they have been unmapped from pagetables, and to give
-pdflush a poke.  Add instrumentation to record how many pages end up
-getting written via vmscan's writepage versus via pdflush (use
-current_is_pdflush()).
-
-
-diff -puN mm/vmscan.c~a mm/vmscan.c
---- 25/mm/vmscan.c~a	2004-05-04 22:21:41.613856240 -0700
-+++ 25-akpm/mm/vmscan.c	2004-05-04 22:23:16.016504856 -0700
-@@ -318,7 +318,9 @@ shrink_list(struct list_head *page_list,
- 				rmap_unlock(page);
- 				goto keep_locked;
- 			case SWAP_SUCCESS:
--				; /* try to free the page below */
-+				if (PageDirty(page))
-+					goto keep_locked;
-+				break;
- 			}
- 		}
- 		rmap_unlock(page);
-
-_
-
+Gnu C                  3.2.2
+Gnu make               3.80
+binutils               2.13.90.0.18
+util-linux             2.11z
+mount                  2.11z
+module-init-tools      2.4.22
+e2fsprogs              1.32
+jfsutils               1.1.1
+reiserfsprogs          3.6.4
+xfsprogs               2.3.5
+pcmcia-cs              3.2.4
+quota-tools            3.08.
+PPP                    2.4.1
+nfs-utils              1.0.1
+Linux C Library        2.3.1
+Dynamic linker (ldd)   2.3.1
+Linux C++ Library      5.0.2
+Procps                 3.1.6
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               2.0
+Modules Loaded         i810_audio ac97_codec soundcore usb-ohci ehci-hcd 
+usbcore sis900 pcmcia_core ide-scsi 3c59x

@@ -1,156 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbTEII2K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbTEII2K
+	id S262373AbTEIIhV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTEIIhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:28:10 -0400
-Received: from dp.samba.org ([66.70.73.150]:54711 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262361AbTEII2H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:28:07 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Bump module ref during init.
-Date: Fri, 09 May 2003 18:40:01 +1000
-Message-Id: <20030509084045.792762C0F8@lists.samba.org>
+	Fri, 9 May 2003 04:37:21 -0400
+Received: from 200-103-111-108.gnace7007.dsl.brasiltelecom.net.br ([200.103.111.108]:20203
+	"HELO TmpStr") by vger.kernel.org with SMTP id S262373AbTEIIhU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:37:20 -0400
+Illegal-Object: Syntax error in Reply-To: address found on vger.kernel.org:
+	Reply-To:	"AUMENTE  =?ISO-8859-1?Q?=20SEUP=CANIS=22?= <alavanca2003@yahoo.com.br>"
+			^-missing closing '"' in token
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	"AUMENTE  =?ISO-8859-1?Q?=20SEUP=CANIS=22?= <alavanca2003@yahoo.com.br>"
+			^-missing closing '"' in token
+From: linux-kernel-owner@vger.kernel.org
+To: "" <linux-kernel@vger.kernel.org>
+Organization: 
+X-Priority: 3
+X-MSMail-Priority: Normal
+Subject: =?ISO-8859-1?Q?=20Fa=E7a?= de seu penis um  =?ISO-8859-1?Q?=20P=CANIS?=  
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Fri, 9 May 2003 05:54:32 -0300
+Message-Id: <S262373AbTEIIhU/20030509083720Z+1558@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the moment, __module_get is technically allowed during module init,
-because the module is being held in by its non-live state.  But doing
-so triggers the BUG(), so bump the refcount during init.
-
-Also cleans up unload code a little, making it clearer. 
-
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-Name: Hold Initial Reference To Module
-Author: Rusty Russell
-Status: Tested on 2.5.69-bk3
-
-D: __module_get is theoretically allowed on module inside init, since
-D: we already hold an implicit reference.  Currently this BUG()s: make
-D: the reference count explicit, which also simplifies delete path.
-D: Also cleans up unload path, such that it only drops semaphore when
-D: it's actually sleeping for rmmod --wait.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .7932-linux-2.5.69/kernel/module.c .7932-linux-2.5.69.updated/kernel/module.c
---- .7932-linux-2.5.69/kernel/module.c	2003-05-05 12:37:13.000000000 +1000
-+++ .7932-linux-2.5.69.updated/kernel/module.c	2003-05-07 12:47:45.000000000 +1000
-@@ -214,6 +214,8 @@ static void module_unload_init(struct mo
- 	INIT_LIST_HEAD(&mod->modules_which_use_me);
- 	for (i = 0; i < NR_CPUS; i++)
- 		atomic_set(&mod->ref[i].count, 0);
-+	/* Hold reference count during initialization. */
-+	atomic_set(&mod->ref[smp_processor_id()].count, 1);
- 	/* Backwards compatibility macros put refcount during init. */
- 	mod->waiter = current;
- }
-@@ -462,6 +464,21 @@ void cleanup_module(void)
- }
- EXPORT_SYMBOL(cleanup_module);
+Com o MANUAL mais cobiçado da internet no momento, você aumenta o 
+tamanho
+de seu pênis de 2 a 5 cm  em  2 meses com exercícios absolutamente
+naturais. Aumenta também a sua potência,  controle e volume da 
+ejaculação,
+dentre outros benefícios. Programa completo com figuras ilustrativas
+explicando detalhadamente todos os exercícios.  Fotos comparativas no 
+site
+de pessoas que experimentaram essa técnica. 
+http://alavanca2003.tripod.com.br
+http://www.alavanca2003.impg.com.br
  
-+static void wait_for_zero_refcount(struct module *mod)
-+{
-+	/* Since we might sleep for some time, drop the semaphore first */
-+	up(&module_mutex);
-+	for (;;) {
-+		DEBUGP("Looking at refcount...\n");
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		if (module_refcount(mod) == 0)
-+			break;
-+		schedule();
-+	}
-+	current->state = TASK_RUNNING;
-+	down(&module_mutex);
-+}
-+
- asmlinkage long
- sys_delete_module(const char __user *name_user, unsigned int flags)
- {
-@@ -500,16 +517,6 @@ sys_delete_module(const char __user *nam
- 		goto out;
- 	}
  
--	/* Coming up?  Allow force on stuck modules. */
--	if (mod->state == MODULE_STATE_COMING) {
--		forced = try_force(flags);
--		if (!forced) {
--			/* This module can't be removed */
--			ret = -EBUSY;
--			goto out;
--		}
--	}
--
- 	/* If it has an init func, it must have an exit func to unload */
- 	if ((mod->init != init_module && mod->exit == cleanup_module)
- 	    || mod->unsafe) {
-@@ -529,35 +536,22 @@ sys_delete_module(const char __user *nam
- 	/* If it's not unused, quit unless we are told to block. */
- 	if ((flags & O_NONBLOCK) && module_refcount(mod) != 0) {
- 		forced = try_force(flags);
--		if (!forced)
-+		if (!forced) {
- 			ret = -EWOULDBLOCK;
--	} else {
--		mod->waiter = current;
--		mod->state = MODULE_STATE_GOING;
-+			restart_refcounts();
-+			goto out;
-+		}
- 	}
--	restart_refcounts();
--
--	if (ret != 0)
--		goto out;
--
--	if (forced)
--		goto destroy;
  
--	/* Since we might sleep for some time, drop the semaphore first */
--	up(&module_mutex);
--	for (;;) {
--		DEBUGP("Looking at refcount...\n");
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		if (module_refcount(mod) == 0)
--			break;
--		schedule();
--	}
--	current->state = TASK_RUNNING;
-+	/* Mark it as dying. */
-+	mod->waiter = current;
-+	mod->state = MODULE_STATE_GOING;
-+	restart_refcounts();
  
--	DEBUGP("Regrabbing mutex...\n");
--	down(&module_mutex);
-+	/* Never wait if forced. */
-+	if (!forced && module_refcount(mod) != 0)
-+		wait_for_zero_refcount(mod);
  
-- destroy:
- 	/* Final destruction now noone is using it. */
- 	mod->exit();
- 	free_module(mod);
-@@ -1448,6 +1442,7 @@ sys_init_module(void __user *umod,
- 			printk(KERN_ERR "%s: module is now stuck!\n",
- 			       mod->name);
- 		else {
-+			module_put(mod);
- 			down(&module_mutex);
- 			free_module(mod);
- 			up(&module_mutex);
-@@ -1458,6 +1453,8 @@ sys_init_module(void __user *umod,
- 	/* Now it's a first class citizen! */
- 	down(&module_mutex);
- 	mod->state = MODULE_STATE_LIVE;
-+	/* Drop initial reference. */
-+	module_put(mod);
- 	module_free(mod, mod->module_init);
- 	mod->module_init = NULL;
- 	mod->init_size = 0;
+ 
+_________________________________________________________
+___________
+OBS: Esta mensagem não é um spam, visto que somente estará sendo 
+enviado uma única vez, e também contém uma forma de ser removida,
+é um e-mail normal como tantos outros que você recebe, não estamos
+invadindo sua privacidade e enviar um e-mail não é crime, desde que
+não contenha mensagens que possam causar danos ao usuário. Caso 
+queria remover seu endereço de nossa lista, basta enviar um e-mail
+com o titulo (assunto) remover, que seu
+e-mail será removido de nossa lista definitivamente.Desculpe-nos
+caso tenhamos lhe importunado com nosso e-mail de divulgação.
+Obrigado!

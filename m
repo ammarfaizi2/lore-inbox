@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265315AbRGEPKI>; Thu, 5 Jul 2001 11:10:08 -0400
+	id <S265334AbRGEPM2>; Thu, 5 Jul 2001 11:12:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265319AbRGEPJ7>; Thu, 5 Jul 2001 11:09:59 -0400
-Received: from home.paris.trader.com ([195.68.19.162]:31208 "EHLO
-	smtp-gw.netclub.com") by vger.kernel.org with ESMTP
-	id <S265315AbRGEPJv>; Thu, 5 Jul 2001 11:09:51 -0400
-Message-ID: <3B4483E8.2C31AC01@trader.com>
-Date: Thu, 05 Jul 2001 17:12:40 +0200
-From: Joseph Bueno <joseph.bueno@trader.com>
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: nick@guardiandigital.com
-CC: Peter Zaitsev <pz@spylog.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Is  Swapping on software RAID1 possible  in linux 2.4 ?
-In-Reply-To: <1011478953412.20010705152412@spylog.ru> <3B447FAD.1E4724C9@guardiandigital.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265319AbRGEPMT>; Thu, 5 Jul 2001 11:12:19 -0400
+Received: from pop.gmx.net ([194.221.183.20]:42479 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S265334AbRGEPMJ>;
+	Thu, 5 Jul 2001 11:12:09 -0400
+Date: Thu, 5 Jul 2001 16:15:21 +0200
+From: "Manfred H. Winter" <mahowi@gmx.net>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
+Message-ID: <20010705161521.A4755@marvin.mahowi.de>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <E15I79i-0002NI-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux 2.4.5 i686
+X-Editor: VIM - Vi IMproved 5.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick DeClario wrote:
-> 
-> Just out of curiousity what are the advantages to having a RAID1 swap
-> partition?  Setting the swap priority to 0 (pri=0) in the fstab of all
-> the swap partitions on your system should have the same effect as doing
-> it with RAID but without the overhead, right?  RAID1 would also mirror
-> your swap.  Why would you want that?
-> 
-> Regards,
->         -Nick
-> 
-Hi,
+Hi Alan!
 
-Setting swap priority to 0 is equivalent to RAID0 (striping) not RAID1 (mirroring).
+On Thu, 05 Jul 2001, Alan Cox wrote:
 
-Mirroring your swap partition is important because if the disk containing
-your swap fails, your system is dead. If you want to keep your system running
-even if one disk fails you need to mirror ALL your active partitions including
-swap.
-If you only mirror your data partitions, your are only protected against data
-loss in case of a disk crash (assuming you shutdown gracefully before it panics
-while it tries to read/write  on a crashed swap partition and leave your data in
-some inconsistent state).
+> > This bug hits me since 2.4.6-pre5 but nobody answered to my emails... The
+> > code line is identical (and the softirq.c:206 ofc).
+> > 
+> > Anyone, any idea?
+> 
+> None at all. There are odd items in your config - like khttpd which if 
+> involved might explain why there are not more reports.
+> 
 
-Regards
---
-Joseph Bueno
+But khttpd is compiled as a module which isn't loaded at the moment, the
+crash appears. The crash is just after "Calibrating delay loop... 333.41
+BogoMIPS". At this moment, there should be no modules loaded.
+
+As others report the same error, it seems to be a conflict with Cyrix
+processors.
+
+Bye,
+
+Manfred
+-- 
+ /"\                        | PGP-Key available at Public Key Servers
+ \ /  ASCII ribbon campaign | or "http://www.mahowi.de/pgp/mahowi.asc"
+  X   against HTML mail     | RSA: 0xC05BC0F5 * DSS: 0x4613B5CA
+ / \  and postings          | AIM: mahowi42   * ICQ: 61597169

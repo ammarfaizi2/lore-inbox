@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264341AbTKMQfy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 11:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTKMQfy
+	id S264342AbTKMQiS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 11:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbTKMQiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 11:35:54 -0500
-Received: from services3.virtu.nl ([217.114.97.6]:40601 "EHLO
-	services3.virtu.nl") by vger.kernel.org with ESMTP id S264341AbTKMQfw
+	Thu, 13 Nov 2003 11:38:18 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:36742 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264342AbTKMQiQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 11:35:52 -0500
-Message-Id: <5.1.0.14.2.20031113171537.01ee82c8@services3.virtu.nl>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 13 Nov 2003 17:32:49 +0100
-To: linux-kernel@vger.kernel.org
-From: Remco van Mook <remco@virtu.nl>
-Subject: 2.4 odd behaviour of ramdisk + cramfs
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Virtu-MailScanner-VirusCheck: Found to be clean
+	Thu, 13 Nov 2003 11:38:16 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 13 Nov 2003 08:37:25 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Roland Lezuo <roland.lezuo@chello.at>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23-rc1: SiS pirq: IDE/ACPI/DAQ mapping not implemented: (97)
+In-Reply-To: <200311131250.42465.roland.lezuo@chello.at>
+Message-ID: <Pine.LNX.4.44.0311130833480.1809-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Nov 2003, Roland Lezuo wrote:
 
-I am experiencing a problem when I try to run the following script:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hello,
+> 
+> on my Sis 745 Chipset neither psaux nor USB is working as it should. I can 
+> only use serial mice on this box.
+> 
+> <from dmesg>
+> SiS pirq: IDE/ACPI/DAQ mapping not implemented: (97)
+> SiS router unknown request: (97)
+> SiS pirq: IDE/ACPI/DAQ mapping not implemented: (97)
+> SiS router unknown request: (97)
+> 
+> I though the patch has already been merged?
 
-#! /bin/sh
-cat /flash/modules-2.4.21 > /dev/ram1
-mount -t cramfs -o ro /dev/ram1 /lib/modules
+The latest CVS snapshot I was able to rsync from kernel.org had the fix 
+and should make it work:
 
-Running it once causes the mount to fail with 'cramfs: wrong magic' - 
-running it twice will make mount succeed on the second try.
+[root@drizzle src]# head linux-2.4/Makefile
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 23
+EXTRAVERSION = -pre9
 
-Oddly enough, repeating the 2 lines within the script doesn't work either.
+Request 97 is one of the new ones (USB) correctly handled by the patch.
 
-The behaviour has been reproduced by several people with different 2.4 
-kernels.
 
-As I need this to go into some boot scripts, I'd like this to work without 
-human intervention.
 
-Any suggestions ?
+- Davide
 
-Remco van Mook
-
-Typical kernel config:
-2.4.21 unpatched kernel tree
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_CRAMFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
 

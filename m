@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287425AbSAPURh>; Wed, 16 Jan 2002 15:17:37 -0500
+	id <S287440AbSAPUXs>; Wed, 16 Jan 2002 15:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287436AbSAPUR1>; Wed, 16 Jan 2002 15:17:27 -0500
-Received: from UX3.SP.CS.CMU.EDU ([128.2.198.103]:21105 "HELO
-	ux3.sp.cs.cmu.edu") by vger.kernel.org with SMTP id <S287425AbSAPURY>;
-	Wed, 16 Jan 2002 15:17:24 -0500
-Subject: Re: multithreading  on a multiprocessor system ( a bit OT )
-From: Justin Carlson <justincarlson@cmu.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3C45D95C.7000402@student.uni-kl.de>
-In-Reply-To: <3C45D95C.7000402@student.uni-kl.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-71eFP1xpZ+3cUOAXxsuU"
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 16 Jan 2002 15:16:44 -0500
-Message-Id: <1011212204.314.3.camel@gs256.sp.cs.cmu.edu>
-Mime-Version: 1.0
+	id <S287450AbSAPUXi>; Wed, 16 Jan 2002 15:23:38 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51212 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287440AbSAPUX2>; Wed, 16 Jan 2002 15:23:28 -0500
+Message-ID: <3C45E131.3060308@zytor.com>
+Date: Wed, 16 Jan 2002 12:23:13 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com> <Pine.GSO.4.21.0201152226100.4339-100000@weyl.math.psu.edu> <20020116194121.GC32184@codepoet.org> <a24lub$4o9$1@cesium.transmeta.com> <20020116201823.GA1872@codepoet.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erik Andersen wrote:
 
---=-71eFP1xpZ+3cUOAXxsuU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>>>
+>>Yeah!  Let's put all this crap in KERNEL SPACE!  *NOT!*
+>>
+> 
+> Good point.  We surely wouldn't want to have an ELF interpreter
+> in kernel space.  That would be evil!  
+> 	rm linux/fs/binfmt_elf.c
+> There, thats better, now userspace can load everything.  If we
+> can figure out how to get userspace loaded....
+> 
+> The kernel already knows how to load ELF files, and _has_ to do
+> that job to get userspace running anyways.   So why not use that
+> mechanism for modules?
+> 
 
-On Wed, 2002-01-16 at 14:49, R. Sinoradzki wrote:
-> O.K my question:
-> Consider two modern processors that share some data and a lock.
-> The lock may be implemented with something like an atomic test-and-set
-> instruction. Now processor 'A' acquires the lock and works with the data.
-> Processor 'B' also wants to access the data, but internally reorders it's
-> instructions because the instructions seem independent from each other.
-> So 'B' might access the data without having the lock.
-> If it's a single processor system, reordering instructions in a way that
-> ensures that it looks 'as if' everything has been executed in the right o=
-rder
-> might be easy, but in a multiprocessor system 'A' doesn't know 'B's state=
-.
 
-Then you've got a bug.  Modern implementations that do SMP provide some
-way of placing barriers around speculative execution structures to make
-sure you don't, say, go out and read some memory location that changes
-state in a device because that's an OK speculative action to take.
+Because it's not the same mechanism at all.  insmod is an ELF *LINKER*,
+not just a loader for executable-format ELF files.  There is a huge
+difference between a linkable and an executable ELF file; a module is the
+former, a binary executable is the latter.
 
-Can't really comment on x86, as I'm not very good with it, but taking
-for example MIPS and Alpha, in addition to the ll-sc ops, there are a
-sync and mb instructions, respectively, which provide a method for
-assuring that previous operations have become visible in terms of
-general machine state before going on.
+	-hpa
 
--Justin
-
---=-71eFP1xpZ+3cUOAXxsuU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8Rd+s47Lg4cGgb74RAnxeAJ42+wPvabJmfNf4wOHD/fPNra8XRgCcD4TC
-cRNyj0fjHwjkUn23Vkl1fQQ=
-=BWIY
------END PGP SIGNATURE-----
-
---=-71eFP1xpZ+3cUOAXxsuU--
 

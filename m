@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265551AbSKABYP>; Thu, 31 Oct 2002 20:24:15 -0500
+	id <S262924AbSKABYR>; Thu, 31 Oct 2002 20:24:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262924AbSKABXo>; Thu, 31 Oct 2002 20:23:44 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21777 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265552AbSKABXO>; Thu, 31 Oct 2002 20:23:14 -0500
-Date: Thu, 31 Oct 2002 20:29:03 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: post-halloween 0.2
-In-Reply-To: <1036064925.8584.55.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1021031202442.22444B-100000@gatekeeper.tmr.com>
+	id <S265552AbSKABXu>; Thu, 31 Oct 2002 20:23:50 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:28430 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S265261AbSKABWN>; Thu, 31 Oct 2002 20:22:13 -0500
+Message-ID: <3DC1D885.6030902@namesys.com>
+Date: Fri, 01 Nov 2002 04:27:33 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@digeo.com>
+CC: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Reiserfs-List@namesys.com,
+       Oleg Drokin <green@namesys.com>, zam@namesys.com,
+       umka <umka@thebsh.namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+References: <3DC19F61.5040007@namesys.com> <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com>
+In-Reply-To: <3DC19F61.5040007@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Oct 2002, Alan Cox wrote:
+Andrew Morton wrote:
 
-> On Thu, 2002-10-31 at 00:47, Dave Jones wrote:
+>Hans Reiser wrote:
+>  
+>
+>>Green and Zam and Umka, on Monday please start work on seriously
+>>analyzing how the block allocation differs between the new and the old
+>>kernel, now that you can finally reproduce the benchmark on the old kernel.
+>>    
+>>
+>
+>I just sent the Orlov allocator patch to Linus.  It will double or
+>triple ext2 performance in that test, so please make sure you compare
+>against the latest.  There's a copy at
+>http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.45/shpte-stuff/broken-out/orlov-allocator.patch
+>
+>We can expect similar gains for ext3, when that's done.
+>
+>(The 2x-3x is on an 8meg filesystem.  Larger filesystems should
+>gain more)
+>
+>
+>  
+>
+Well, if we are only 2.5 times as fast for writes as ext3 after your 
+patch is applied, I'll still feel good.;-)  
 
-> > I'd agree that it would make sense to at least remove some of the
-> > lesser maintained drivers. Linus didnt seem to keen on the idea
-> > last time I proposed it.
-> 
-> OSS hasnt worked on SMP between about 2.5.35 and 2.5.44 so I dont think
-> its that major 8)
-
-Thank you, since all the systems I have been using for 2.5 testing are
-SMP, I just thought sound was broken in general. And still may be, since I
-found that some audio CD's I burned with 2.5 are just noise while the same
-hardware burned CD's from the same batch of blanks using 2.4.19+patches.
-Using SMP. I'll try a uni burn tomorrow.
- 
-> Mostly I'm working on the NCR5380 first. That happens to be attached to
-> my scanner so spinning for 15 seconds in IRQ context is annoying me 8)
-
-I can't get the aha142x working either, if you're looking for stuff to do
-;-)
+Better benchmarks will be conducted during the next 3 months, the ones 
+we have are still a bit raw....
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Hans
+
 

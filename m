@@ -1,96 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262720AbRE0Cce>; Sat, 26 May 2001 22:32:34 -0400
+	id <S262716AbRE0Ccn>; Sat, 26 May 2001 22:32:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262719AbRE0CcY>; Sat, 26 May 2001 22:32:24 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:34130 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S262716AbRE0CcQ>; Sat, 26 May 2001 22:32:16 -0400
-Date: Sun, 27 May 2001 04:32:09 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5aa1
-Message-ID: <20010527043208.G1834@athlon.random>
-In-Reply-To: <20010526193310.A1834@athlon.random> <15120.23023.903912.358739@pizda.ninka.net>
+	id <S262719AbRE0Cce>; Sat, 26 May 2001 22:32:34 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:27141 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262716AbRE0Cc0>;
+	Sat, 26 May 2001 22:32:26 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: new aic7xxx oopses with AHA2940 
+In-Reply-To: Your message of "Sun, 27 May 2001 04:21:30 +0200."
+             <20010527042129.A12765@lisa.links2linux.home> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15120.23023.903912.358739@pizda.ninka.net>; from davem@redhat.com on Sat, May 26, 2001 at 06:35:43PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Sun, 27 May 2001 12:32:20 +1000
+Message-ID: <27691.990930740@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 06:35:43PM -0700, David S. Miller wrote:
-> 
-> Andrea Arcangeli writes:
->  > 00_eepro100-64bit-1
->  > 
->  > 	Fixes a 64bit bug that was generating false positives and memory
->  > 	corruption.
->  > 
->  > 	(recommended)
-> 
-> Good spotting, I've put this into my tree ;-)
+On Sun, 27 May 2001 04:21:30 +0200, 
+Marc Schiffbauer <marc.schiffbauer@links2linux.de> wrote:
+>* Keith Owens schrieb am 27.05.01 um 03:07 Uhr:
+>> Since you are failing during modprobe, creating /var/log/ksymoops is a
+>> good idea, man insmod, see KSYMOOPS ASSISTANCE.  Reproduce the
+>> problem to get a clean oops trace then run it through ksymoops, using
+>> the saved module data in /var/log/ksymoops.
+>
+>OK. Now I cut out the Oops out of my /var/log/messages, then did
+>
+>cat aic7xxx.oops | ksymoops -k /var/log/ksymoops/20010527040453.ksyms -l
+>/var/log/ksymoops/20010527040453.modules > trace1
 
-fine, thanks!
+That one was no good.  Because modprobe failed, the data in
+/var/log/ksymoops did not get updated.
 
->  > 00_eepro100-alpha-1
->  > 
->  > 	Possibly fix the eepro100 transmitter hang on alpha by doing atomic PIO
->  > 	updates to avoid the clear_suspend to be lost.
->  > 	
->  > 	(recommended)
-> 
-> The correct fix is to create {set,clear,change}_bit{8,16,32}()
-> routines architectures may implement.  The comment there in eepro100.c
+>and another run with default options:
+>ksymoops 0.7c on i686 2.4.5.  Options used
 
-Agreed.
+You should be running ksymoops 2.4.x with 2.4 kernels,from
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
 
-> indicates the those defines are simply wrong for anything other than
-> x86, not just Alpha.
+>>>EIP; e0a7b3a7 <[aic7xxx]ahc_match_scb+17/c0>   <=====
+>Trace; e0a7b79d <[aic7xxx]ahc_search_qinfifo+14d/6b0>
+>Trace; e0a7c226 <[aic7xxx]ahc_abort_scbs+66/300>
 
-The defines are ok but according to Matt they're not using atomic
-operations, infact they works fine until you beat them hard. Infact I
-guess it may trigger even in x86 in theory, I suspect it doesn't trigger
-by luck, I think we should at least declare the __u16 pointer as
-volatile or gcc may be free to do whatever it does on alpha without
-using the bitops. The patch is actually using an #ifdef __alpha__
-because it relys on the fact alpha internally does the 32bit accesses
-with the bitops (so it doesn't mess with the other registers).
+That trace looks good, now it is up to the aic7xxx maintainer to fix
+the problem.
 
->  > 00_ipv6-null-oops-1
->  > 
->  > 	Fixes null pointer oops.
->  > 
->  > 	(recommended)
-> 
-> Please delete this, a proper fix is in 2.4.5, and in fact your
-> added NULL test will never pass now :-)
-
-I forgotten it, Alan noticed it too. thanks for the reminder.
-
->  > 10_no-virtual-1
->  > 
->  > 	Avoids wasting tons of memory if highmem is not selected (like
->  > 	in all the 64bit ports).
->  > 
->  > 	(nice to have)
-> 
-> I experimented with computing the address every time on sparc64 and
-> the performance actually went down slightly, it turned out it's
-> quicker to load from an in-cache page struct member than compute the
-> offset each time.
-
-Ok, then I will add define_bool CONFIG_NO_PAGE_VIRTUAL y to sparc and
-sparc64.
-
-> It's probably not an issue on ix86, but who knows.
-
-On modern x86 it should be faster to compute it to save dcache, memory
-bandwith and ram.
-
-Thanks for the review!
-
-Andrea

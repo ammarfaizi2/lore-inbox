@@ -1,113 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267256AbUHTORa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267943AbUHTOUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267256AbUHTORa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:17:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUHTOR3
+	id S267943AbUHTOUn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUHTOUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:17:29 -0400
-Received: from imag.imag.fr ([129.88.30.1]:15515 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S267256AbUHTORJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:17:09 -0400
-Date: Fri, 20 Aug 2004 16:09:33 +0200 (MEST)
-From: "emmanuel.colbus@ensimag.imag.fr" <colbuse@ensisun.imag.fr>
-X-X-Sender: colbuse@ensisun
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Screen off while booting
-Message-ID: <Pine.GSO.4.40.0408201509360.18695-100000@ensisun>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-IMAG-MailScanner: Found to be clean
-X-IMAG-MailScanner-Information: Please contact the ISP for more information
+	Fri, 20 Aug 2004 10:20:43 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:18157 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S267943AbUHTOUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:20:40 -0400
+Date: Fri, 20 Aug 2004 15:19:09 +0100
+From: Dave Jones <davej@redhat.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: jeremy@goop.org, linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] dothan speedstep fix
+Message-ID: <20040820141909.GA16090@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Con Kolivas <kernel@kolivas.org>, jeremy@goop.org,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <4125A036.8020401@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4125A036.8020401@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Aug 20, 2004 at 04:54:46PM +1000, Con Kolivas wrote:
 
-I've discovered a very curious behaviour on my Linux laptop (but please
-notice first that it is causing no problem to any normal user and that
-it is very easy to avoid, therefore, it's importance is extremely low, and
-I am just reporting it because I think it could interest you - it's not
-annoying myself too. Notice also that only a very strange behaviour from
-the user can lead to this situation).
+ > Now all I need is for a way to make it report the correct L2 cache.
 
+How's this look ?
 
-1. Summary of the problem :
+		Dave
 
-The kernel switches the screen off every time the users switches between
-graphical and text console.
+Update Intel cache descriptor decoding to match latest
+Intel Documentation (24161827.pdf)
 
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-2. Full description of the problem :
-
-My laptop gives it's users the possibility to switch the screen off/on by
-pressing at the same time "Fn" and F7 on the keyboard. One time, I had the
-idea to switch the screen off before booting (while LILO was waiting from
-me to strike "enter"). I had to switch it back on to see something after
-the boot had completed (ie. normal behaviour), but I noticed that the screen
-was also set off every time I made a manipulation, for example console
-switching, which would theoretically have switched it on if it was off
-before.
-
-In other words, the "on" and "off" states of the screen were confused and
-used instead of each other. I think it is due to the fact that the
-kernel is not expecting to boot while the screen is turned off this way.
-
-
-3. Keywords
-kernel (?)
-screen
-console switching
-
-
-4. Kernel version
-I have a Mandrake 9.2.1 with kernel 2.4.22-26mdk.
-
-
-5. Messages
-No one.
-
-
-6. How to reproduce the problem
-Just boot a laptop with screen turned off using this keyboard feature
-before actual booting. (Of course, I don't know if it's working on every
-laptops, but it's seems me this way.)
-
-
-7. Environment
-7.1 Computer : IBM Thinkpad t40.
-7.2 Processor : Intel centrino.
-7.3 Module information : (I don't know. I've never changed anything to the
-standard modules configuration. I've not my laptop here, sorry).
-7.4 Loaded driver and hardware information :
-7.5 PCI information :
-7.6 SCSI information :
-(Well, I don't know anymore. Are these informations relevant? If they are,
-just ask me, I'll get them and tell you.)
-
-
-X. Other notes :
-Normally, this off-switching of the screen can also be caused by the
-absence of any activity during a while.
-
-As i stated it before, the user has to behave very "curiously" to get this
-behaviour.
-
-Rebooting fixes the problem.
-
-
-
-I think this issue should be given the absolute lowest priority. It
-can also be considered as an informative note, not needing to be fixed at
-all, because nobody uses his computer this way.
-
-I posted this report because I think it could interest you.
-
-
-
-
-(I would like to be personnally CC'ed the (eventual) answers/comments
-posted to the list in response to my posting, because I am not subscriber
-of the list. My own e-mail is : emmanuel.colbus@ensimag.imag.fr )
-
-
+--- FC2/arch/i386/kernel/cpu/intel.c~	2004-08-20 15:15:32.049821280 +0100
++++ FC2/arch/i386/kernel/cpu/intel.c	2004-08-20 15:17:34.407220128 +0100
+@@ -96,10 +96,13 @@
+ 	{ 0x70, LVL_TRACE,  12 },
+ 	{ 0x71, LVL_TRACE,  16 },
+ 	{ 0x72, LVL_TRACE,  32 },
++	{ 0x78, LVL_2,		1024 },
+ 	{ 0x79, LVL_2,      128 },
+ 	{ 0x7a, LVL_2,      256 },
+ 	{ 0x7b, LVL_2,      512 },
+ 	{ 0x7c, LVL_2,      1024 },
++	{ 0x7d, LVL_2,		2048 },
++	{ 0x7f, LVL_2,		512 },
+ 	{ 0x82, LVL_2,      256 },
+ 	{ 0x83, LVL_2,      512 },
+ 	{ 0x84, LVL_2,      1024 },

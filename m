@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTJMBfk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 21:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTJMBfk
+	id S261351AbTJMBkk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 21:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTJMBkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 21:35:40 -0400
-Received: from mail9.speakeasy.net ([216.254.0.209]:39907 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S261321AbTJMBfj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 21:35:39 -0400
-Date: Sun, 12 Oct 2003 18:35:36 -0700
-Message-Id: <200310130135.h9D1Zajj008309@magilla.sf.frob.com>
+	Sun, 12 Oct 2003 21:40:40 -0400
+Received: from www.missl.cs.umd.edu ([128.8.126.38]:3846 "EHLO
+	www.missl.cs.umd.edu") by vger.kernel.org with ESMTP
+	id S261344AbTJMBki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 21:40:38 -0400
+Date: Sun, 12 Oct 2003 21:47:48 -0400 (EDT)
+From: Adam Sulmicki <adam@cfar.umd.edu>
+X-X-Sender: adam@www.missl.cs.umd.edu
+To: Jamie Lokier <jamie@shareable.org>
+cc: Stephen Satchell <list@fluent2.pyramid.net>,
+       Willy TARREAU <willy@w.ods.org>, "David S. Miller" <davem@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
+       <kernelnewbies@nl.linux.org>
+Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
+In-Reply-To: <20031012110328.GA13427@mail.shareable.org>
+Message-ID: <20031012214314.A78995-100000@www.missl.cs.umd.edu>
+X-WEB: http://www.eax.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: torvalds@osdl.org, mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] report user-readable fixmap area in /proc/PID/maps
-In-Reply-To: Andrew Morton's message of  Sunday, 12 October 2003 18:17:57 -0700 <20031012181757.6272eaf5.akpm@osdl.org>
-Emacs: featuring the world's first municipal garbage collector!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This special-casing, and the special-casing in get_user_pages() would go
-> away if each process had a real VMA for the fixmap area inserted into its
-> VMA tree.
+On Sun, 12 Oct 2003, Jamie Lokier wrote:
 
-Agreed.
+> *Please* read the linux-kernel FAQ before posting again.  There *is* a
+> jobs list.
 
-> Remind me again why we cannot do that?
+> 21. Can I post job offers/requests to the list?
+>
+>     (REG) Of course not!  This is a technical development list, not a job
+>     exchange.  If you want to join a job exchange list, send
+>
+>         subscribe linuxjobs
+>
+>     in the body of the message to <majordomo@eax.com> by executing
+>     the following command:
+>
+>         echo "subscribe linuxjobs" | mail majordomo@eax.com
+>
+>     To send messages, email to <linuxjobs@eax.com>.
 
-I don't know any reason to think we cannot.  That's not the way it was done
-when I first looked at fixmap issues, and I try not to rock the boat more
-than necessary (really!).  I know that Ingo had some kernel versions that
-used a normal vma for it (and randomized the location on each exec), so he
-certainly managed it.  I always assumed that people (i.e. Linus) wouldn't
-like it because of the overhead in memory and setup time for an extra vma
-that is identical in every process.  Given the constraint that the fixmap
-area is the last thing in the address space, I imagine that can be
-mitigated by some magic using a single shared fixmap_vma at the end of
-everybody's chain.
+One thing though. While this is the list to receive job announcements, you
+should sent the job offers to me instead. For some reasons spammers love
+emails with word "job" in it and I get tons of spam to that address, so it
+is easy to miss the job offers with huge amount of 'd' going on.
+
+If someone could update FAQ to reflect this, it would be great.
+
+Adam
+
+-- 
+Adam Sulmicki
+http://www.eax.com 	The Supreme Headquarters of the 32 bit registers
+
+

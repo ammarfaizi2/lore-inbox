@@ -1,146 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265876AbTGACLk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 22:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbTGACLc
+	id S265838AbTGACK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 22:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbTGACK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 22:11:32 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36052
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S265876AbTGACLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 22:11:19 -0400
-Date: Tue, 1 Jul 2003 04:25:16 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What to expect with the 2.6 VM
-Message-ID: <20030701022516.GL3040@dualathlon.random>
-References: <Pine.LNX.4.53.0307010238210.22576@skynet>
+	Mon, 30 Jun 2003 22:10:59 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:11268 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265838AbTGACK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 22:10:29 -0400
+Subject: Re: [PATCH] fix for kallsyms module symbol resolution problem
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030630074948.8F43D2C0A7@lists.samba.org>
+References: <20030630074948.8F43D2C0A7@lists.samba.org>
+Content-Type: multipart/mixed; boundary="=-f9V9lKd+cVFuXVxNK60J"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Jun 2003 21:24:35 -0500
+Message-Id: <1057026277.2069.80.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0307010238210.22576@skynet>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 01, 2003 at 02:39:47AM +0100, Mel Gorman wrote:
->    Reverse Page Table Mapping
->    ==========================
-> 
->    One of the most important introductions in the 2.6 kernel is Reverse
->    Mapping commonly referred to as rmap. In 2.4, there is a one way mapping
->    from a PTE to a struct page which is sufficient for process addressing.
->    However, this presents a problem for the page replacement algorithm when
->    dealing with shared pages are used as there is no way in 2.4 to acquire a
->    list of PTEs which map a particular struct page without traversing the
->    page tables for every running process in the system.
-> 
->    In 2.6, a new field is introduced to the struct page called union pte.
->    When a page is shared between two or more processes, a PTE chain is
->    created and linked to this field. PTE chain elements are managed by the
->    slab allocator and each node is able to locate up to NRPTE number of PTEs
->    where NRPTE is related to the L1 cache size of the target architecture.
->    Once NRPTE PTEs have been mapped, a new node is added to the PTE chain.
-> 
->    Using these chains, it is possible for all PTEs mapping a struct page to
->    be located and swapped out to backing storage. This means that it is now
->    unnecessary for whole processes to be swapped out when memory is tight and
->    most pages in the LRU lists are shared as was the case with 2.4. The 2.6
->    VM is able to make much better page replacement decisions as the LRU list
->    ordering is obeyed.
 
-you mention only the positive things, and never the fact that's the most
-hurting piece of kernel code in terms of performance and smp scalability
-until you actually have to swapout or pageout.
+--=-f9V9lKd+cVFuXVxNK60J
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
->    Non-Linear Populating of Virtual Areas
->    ======================================
-> 
->    In 2.4, a VMA backed by a file would be populated in a linear fashion.
->    This can be optionally changed in 2.6 with the introduction of the
->    MAP_POPULATE flag to mmap() and the new system call remap_file_pages().
->    This system call allows arbitrary pages in an existing VMA to be remapped
->    to an arbitrary location on the backing file. This is mainly of interest
->    to database servers which previously simulated this behavior by the
->    creation of many VMAs.
-> 
->    On page-out, the non-linear address for the file is encoded within the PTE
->    so that it can be installed again correctly on page fault. How it is
->    encoded is architecture specific so two macros are defined called
->    pgoff_to_pte() and pte_to_pgoff() for the task.
+On Mon, 2003-06-30 at 01:17, Rusty Russell wrote:
+> Yeah, but I was trying to get you to do more work.  And if the names
+> resulting are useless anyway, why apply the patch?
 
-and it was used to break truncate, furthmore the API doesn't look good
-to me, the vma should have a special VM_NONLINEAR created with a
-MAP_NONLINEAR so the vm will skip it enterely and it should be possible
-to put multiple files in the same vma IMHO. If these areas are
-vmtruncated the VM_NONLINEAR will keep vmtruncate out of them and the
-pages will become anonymous, which is perfectly fine since they're
-created with a special MAP_NONLINEAR that can have different semantics.
+OK, how about the attached.  I think it solves the module_text_address()
+problem too.
 
-Also this feature is mainly useful only in kernels with rmap while using
-the VLM, to workaround the otherwise overkill cpu and memory overhead
-generated by rmap. It is discouraged to use it as a default API unless
-you fall into those special corner cases. the object of this API is to
-bypass the VM so you would lose security and the VM advantages. if you
-want the same features you have w/o nonlinaer w/ nonlinear, then you
-invalidate the whole point of nonlinear.
+James
 
-The other very corner cases are emulators, they also could benefit from
-a VM bypass like remap_file_pags provides.
 
-Pinning ram from multiple files plus a sysctl or a sudo wrapper would be
-an optimal API and it would avoid the VM to even look at the pagetables
-of those areas.
+--=-f9V9lKd+cVFuXVxNK60J
+Content-Disposition: inline; filename=tmp.diff
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
 
-Last but not the least, remap_file_pages is nearly useless (again modulo
-emulators) w/o bigpages support backing it (not yet the case in 2.5 as
-far as I can see so it's unusable compared to 2.4-aa [but 2.5 -
-remap_file_pages is even less usable than 2.5 + remap_file_pages due
-rmap that wouldn't only run slow but it wouldn't run at all]). objrmap
-fixes that despites it introduces some complex algorithm.
+=3D=3D=3D=3D=3D include/linux/module.h 1.65 vs edited =3D=3D=3D=3D=3D
+--- 1.65/include/linux/module.h	Fri Jun  6 00:54:38 2003
++++ edited/include/linux/module.h	Mon Jun 30 15:47:27 2003
+@@ -217,6 +217,9 @@
+ 	/* Here are the sizes of the init and core sections */
+ 	unsigned long init_size, core_size;
+=20
++	/* The size of the code in each section.  */
++	unsigned long init_code_size, core_code_size;
++
+ 	/* Arch-specific module values */
+ 	struct mod_arch_specific arch;
+=20
+=3D=3D=3D=3D=3D kernel/module.c 1.86 vs edited =3D=3D=3D=3D=3D
+--- 1.86/kernel/module.c	Wed Jun 11 00:55:09 2003
++++ edited/kernel/module.c	Mon Jun 30 21:18:17 2003
+@@ -1176,6 +1176,9 @@
+ 			    const char *secstrings)
+ {
+ 	static unsigned long const masks[][2] =3D {
++		/* NOTE: code must be the first and only section
++		 * in this array; otherwise modify the code_size
++		 * finder in the two loops below */
+ 		{ SHF_EXECINSTR | SHF_ALLOC, ARCH_SHF_SMALL },
+ 		{ SHF_ALLOC, SHF_WRITE | ARCH_SHF_SMALL },
+ 		{ SHF_WRITE | SHF_ALLOC, ARCH_SHF_SMALL },
+@@ -1198,6 +1201,8 @@
+ 				continue;
+ 			s->sh_entsize =3D get_offset(&mod->core_size, s);
+ 			DEBUGP("\t%s\n", secstrings + s->sh_name);
++			if(m =3D=3D 0)
++				mod->core_code_size =3D mod->core_size;
+ 		}
+ 	}
+=20
+@@ -1214,6 +1219,8 @@
+ 			s->sh_entsize =3D (get_offset(&mod->init_size, s)
+ 					 | INIT_OFFSET_MASK);
+ 			DEBUGP("\t%s\n", secstrings + s->sh_name);
++			if(m =3D=3D 0)
++				mod->init_code_size =3D mod->init_size;
+ 		}
+ 	}
+ }
+@@ -1726,6 +1733,7 @@
+ 	module_free(mod, mod->module_init);
+ 	mod->module_init =3D NULL;
+ 	mod->init_size =3D 0;
++	mod->init_code_size =3D 0;
+ 	up(&module_mutex);
+=20
+ 	return 0;
+@@ -1747,9 +1755,11 @@
+=20
+ 	/* At worse, next value is at end of module */
+ 	if (within(addr, mod->module_init, mod->init_size))
+-		nextval =3D (unsigned long)mod->module_init + mod->init_size;
++		nextval =3D (unsigned long)mod->module_init
++			+ mod->init_code_size;
+ 	else=20
+-		nextval =3D (unsigned long)mod->module_core + mod->core_size;
++		nextval =3D (unsigned long)mod->module_core
++			+ mod->core_code_size;
+=20
+ 	/* Scan for closest preceeding symbol, and next symbol. (ELF
+            starts real symbols at 1). */
+@@ -1758,10 +1768,12 @@
+ 			continue;
+=20
+ 		if (mod->symtab[i].st_value <=3D addr
+-		    && mod->symtab[i].st_value > mod->symtab[best].st_value)
++		    && mod->symtab[i].st_value > mod->symtab[best].st_value
++		    && *(mod->strtab + mod->symtab[i].st_name) !=3D '\0' )
+ 			best =3D i;
+ 		if (mod->symtab[i].st_value > addr
+-		    && mod->symtab[i].st_value < nextval)
++		    && mod->symtab[i].st_value < nextval
++		    && *(mod->strtab + mod->symtab[i].st_name) !=3D '\0')
+ 			nextval =3D mod->symtab[i].st_value;
+ 	}
+=20
+@@ -1910,8 +1922,8 @@
+ 	struct module *mod;
+=20
+ 	list_for_each_entry(mod, &modules, list)
+-		if (within(addr, mod->module_init, mod->init_size)
+-		    || within(addr, mod->module_core, mod->core_size))
++		if (within(addr, mod->module_init, mod->init_code_size)
++		    || within(addr, mod->module_core, mod->core_code_size))
+ 			return mod;
+ 	return NULL;
+ }
 
-the only significant cost is the tlb flushing and pagetable walking at
-32G of working set in cache with a 30-31bit window on the cache. 
+--=-f9V9lKd+cVFuXVxNK60J--
 
->    the flags are implemented in many different parts of the kernel.
->    The
->    NOFAIL flag requires teh VM to constantly retry an allocation until it
-
-described this way it sounds like NOFAIL imply a deadlock condition. We
-already have very longstanding design deadlock since the first linux
-I've seen in the callers, moving it down to the VM doesn't sound any
-good as if something it would encourage this deadlock prone usages.
-
-The idea of an allocation non failing is broken in the first place and
-it should not get propagated, every allocation visible to the VM users
-must be allowed to fail. If you can't avoid writing buggy code, then
-loop in the caller not in the VM.
-
->    Delayed Coalescing
->    ==================
-> 
->    2.6 extends the buddy algorithm to resemble a lazy buddy algorithm [BL89]
->    which delays the splitting and coalescing of buddies until it is
->    necessary. The delay is implemented only for 0 order allocations with the
-
-desribed this way it sounds like it's not O(1) anymore for order > 0
-allocations. Though it would be a nice feature for all the common cases.
-And of course it's still O(1) if one assumes the number of orders
-limited (and it's fixed at compile time).
-
-as for the per-zone lists, sure they increase scalability, but it loses
-aging information, the worst case will be reproducible on a 1.6G box,
-some day even 2.3 had per-zone lists, I backed it out to avoid losing
-information which is an order of magnitude more interesting than
-the pure smp scalability for normal users (i.e. 2-way systems with 1-2G
-of ram, of course the scalability numbers that people cares about on the
-8-way with 32G of ram will be much better with the per-zone lru).
-
-Just trying not to forget the other side too ;) Not every improvement on
-one side cames for free on all other sides.
-
-Andrea

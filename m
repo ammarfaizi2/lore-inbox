@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293037AbSCFBz6>; Tue, 5 Mar 2002 20:55:58 -0500
+	id <S293035AbSCFBzl>; Tue, 5 Mar 2002 20:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293033AbSCFBzq>; Tue, 5 Mar 2002 20:55:46 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:46798 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S293037AbSCFByH>;
-	Tue, 5 Mar 2002 20:54:07 -0500
-Date: Tue, 5 Mar 2002 17:54:06 -0800
+	id <S293033AbSCFByb>; Tue, 5 Mar 2002 20:54:31 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:36302 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S293035AbSCFBxW>;
+	Tue, 5 Mar 2002 20:53:22 -0500
+Date: Tue, 5 Mar 2002 17:53:20 -0800
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] : ir249_usb_cow-2.diff
-Message-ID: <20020305175406.H1577@bougret.hpl.hp.com>
+Subject: [PATCH] : ir248_lap_icmd_fix-4.diff
+Message-ID: <20020305175320.G1577@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,75 +23,343 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir249_usb_cow-2.diff :
---------------------
-	o [FEATURE] Don't use skb_cow() unless we really need to
-	o [CORRECT] Reorder URB init to avoid races
-	o [CORRECT] USB delay adds processing time, not removes it
+ir248_lap_icmd_fix-4.diff :
+-------------------------
+	o [CORRECT] Fix Tx queue handling (remove race, keep packets in order)
+	o [CORRECT] Synchronise window_size & line_capacity and make sure
+	  we never forget to increase them (would stall Tx queue)
+	o [FEATURE] Group common code out of if-then-else
+	o [FEATURE] Don't harcode LAP header size, use proper constant
+	o [FEATURE] Inline irlap_next_state() to decrease bloat
 
 
-diff -u -p linux/drivers/net/irda/irda-usb.d4.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda/irda-usb.d4.c	Tue Mar  5 16:04:01 2002
-+++ linux/drivers/net/irda/irda-usb.c	Tue Mar  5 16:46:27 2002
-@@ -378,10 +378,17 @@ static int irda_usb_hard_xmit(struct sk_
- 		return 0;
- 	}
+diff -u -p linux/include/net/irda/irlap.d4.h linux/include/net/irda/irlap.h
+--- linux/include/net/irda/irlap.d4.h	Tue Jan 15 10:23:29 2002
++++ linux/include/net/irda/irlap.h	Tue Jan 15 14:44:11 2002
+@@ -11,6 +11,7 @@
+  * 
+  *     Copyright (c) 1998-1999 Dag Brattli <dagb@cs.uit.no>, 
+  *     All Rights Reserved.
++ *     Copyright (c) 2000-2001 Jean Tourrilhes <jt@hpl.hp.com>
+  *     
+  *     This program is free software; you can redistribute it and/or 
+  *     modify it under the terms of the GNU General Public License as 
+@@ -44,6 +45,7 @@
+ #define LAP_ADDR_HEADER 1  /* IrLAP Address Header */
+ #define LAP_CTRL_HEADER 1  /* IrLAP Control Header */
  
--	/* Make room for IrDA-USB header (note skb->len += USB_IRDA_HEADER) */
--	if (skb_cow(skb, USB_IRDA_HEADER)) {
--		dev_kfree_skb(skb);
--		return 0;
-+	/* Make sure there is room for IrDA-USB header. The actual
-+	 * allocation will be done lower in skb_push().
-+	 * Also, we don't use directly skb_cow(), because it require
-+	 * headroom >= 16, which force unnecessary copies - Jean II */
-+	if (skb_headroom(skb) < USB_IRDA_HEADER) {
-+		IRDA_DEBUG(0, __FUNCTION__ "(), Insuficient skb headroom.\n");
-+		if (skb_cow(skb, USB_IRDA_HEADER)) {
-+			WARNING(__FUNCTION__ "(), failed skb_cow() !!!\n");
-+			dev_kfree_skb(skb);
-+			return 0;
-+		}
- 	}
++/* May be different when we get VFIR */
+ #define LAP_MAX_HEADER (LAP_ADDR_HEADER + LAP_CTRL_HEADER)
  
- 	spin_lock_irqsave(&self->lock, flags);
-@@ -432,7 +439,7 @@ static int irda_usb_hard_xmit(struct sk_
- #ifdef IU_USB_MIN_RTT
- 			/* Factor in USB delays -> Get rid of udelay() that
- 			 * would be lost in the noise - Jean II */
--			diff -= IU_USB_MIN_RTT;
-+			diff += IU_USB_MIN_RTT;
- #endif /* IU_USB_MIN_RTT */
- 			if (diff < 0)
- 				diff += 1000000;
-@@ -848,8 +855,8 @@ done:
- 	/* Submit the idle URB to replace the URB we've just received */
- 	irda_usb_submit(self, skb, self->idle_rx_urb);
- 	/* Recycle Rx URB : Now, the idle URB is the present one */
--	self->idle_rx_urb = purb;
- 	purb->context = NULL;
-+	self->idle_rx_urb = purb;
+ #define BROADCAST  0xffffffff /* Broadcast device address */
+@@ -210,9 +212,8 @@ void irlap_wait_min_turn_around(struct i
+ void irlap_init_qos_capabilities(struct irlap_cb *, struct qos_info *);
+ void irlap_apply_default_connection_parameters(struct irlap_cb *self);
+ void irlap_apply_connection_parameters(struct irlap_cb *self, int now);
+-void irlap_set_local_busy(struct irlap_cb *self, int status);
+ 
+-#define IRLAP_GET_HEADER_SIZE(self) 2 /* Will be different when we get VFIR */
++#define IRLAP_GET_HEADER_SIZE(self) (LAP_MAX_HEADER)
+ #define IRLAP_GET_TX_QUEUE_LEN(self) skb_queue_len(&self->txq)
+ 
+ #endif
+diff -u -p linux/include/net/irda/irlap_event.d4.h linux/include/net/irda/irlap_event.h
+--- linux/include/net/irda/irlap_event.d4.h	Tue Jan 15 10:23:38 2002
++++ linux/include/net/irda/irlap_event.h	Tue Jan 15 10:24:23 2002
+@@ -134,7 +134,6 @@ extern const char *irlap_state[];
+ 
+ void irlap_do_event(struct irlap_cb *self, IRLAP_EVENT event, 
+ 		    struct sk_buff *skb, struct irlap_info *info);
+-void irlap_next_state(struct irlap_cb *self, IRLAP_STATE state);
+ void irlap_print_event(IRLAP_EVENT event);
+ 
+ extern int irlap_qos_negotiate(struct irlap_cb *self, struct sk_buff *skb);
+diff -u -p linux/net/irda/irlap.d4.c linux/net/irda/irlap.c
+--- linux/net/irda/irlap.d4.c	Mon Jan 14 17:07:37 2002
++++ linux/net/irda/irlap.c	Tue Jan 15 10:19:32 2002
+@@ -131,7 +131,7 @@ struct irlap_cb *irlap_open(struct net_d
+ 	/* FIXME: should we get our own field? */
+ 	dev->atalk_ptr = self;
+ 
+-	irlap_next_state(self, LAP_OFFLINE);
++	self->state = LAP_OFFLINE;
+ 
+ 	/* Initialize transmit queue */
+ 	skb_queue_head_init(&self->txq);
+@@ -155,7 +155,7 @@ struct irlap_cb *irlap_open(struct net_d
+ 
+ 	self->N3 = 3; /* # connections attemts to try before giving up */
+ 	
+-	irlap_next_state(self, LAP_NDM);
++	self->state = LAP_NDM;
+ 
+ 	hashbin_insert(irlap, (irda_queue_t *) self, self->saddr, NULL);
+ 
+@@ -346,25 +346,21 @@ void irlap_data_request(struct irlap_cb 
+ 	else
+ 		skb->data[1] = I_FRAME;
+ 
++	/* Add at the end of the queue (keep ordering) - Jean II */
++	skb_queue_tail(&self->txq, skb);
++
+ 	/* 
+ 	 *  Send event if this frame only if we are in the right state 
+ 	 *  FIXME: udata should be sent first! (skb_queue_head?)
+ 	 */
+   	if ((self->state == LAP_XMIT_P) || (self->state == LAP_XMIT_S)) {
+-		/*
+-		 *  Check if the transmit queue contains some unsent frames,
+-		 *  and if so, make sure they are sent first
+-		 */
+-		if (!skb_queue_empty(&self->txq)) {
+-			skb_queue_tail(&self->txq, skb);
+-			skb = skb_dequeue(&self->txq);
+-			
+-			ASSERT(skb != NULL, return;);
+-		}
+-		irlap_do_event(self, SEND_I_CMD, skb, NULL);
+-		kfree_skb(skb);
+-	} else
+-		skb_queue_tail(&self->txq, skb);
++		/* If we are not already processing the Tx queue, trigger
++		 * transmission immediately - Jean II */
++		if((skb_queue_len(&self->txq) <= 1) && (!self->local_busy))
++			irlap_do_event(self, DATA_REQUEST, skb, NULL);
++		/* Otherwise, the packets will be sent normally at the
++		 * next pf-poll - Jean II */
++	}
  }
  
- /*------------------------------------------------------------------*/
-@@ -952,13 +959,17 @@ static int irda_usb_net_open(struct net_
- 	/* Allow IrLAP to send data to us */
- 	netif_start_queue(netdev);
+ /*
+@@ -1013,6 +1009,7 @@ void irlap_apply_connection_parameters(s
+ 	self->window_size = self->qos_tx.window_size.value;
+ 	self->window      = self->qos_tx.window_size.value;
  
-+	/* We submit all the Rx URB except for one that we keep idle.
-+	 * Need to be initialised before submitting other USBs, because
-+	 * in some cases as soon as we submit the URBs the USB layer
-+	 * will trigger a dummy receive - Jean II */
-+	self->idle_rx_urb = &(self->rx_urb[IU_MAX_ACTIVE_RX_URBS]);
-+	self->idle_rx_urb->context = NULL;
++#ifdef CONFIG_IRDA_DYNAMIC_WINDOW
+ 	/*
+ 	 *  Calculate how many bytes it is possible to transmit before the
+ 	 *  link must be turned around
+@@ -1020,6 +1017,8 @@ void irlap_apply_connection_parameters(s
+ 	self->line_capacity = 
+ 		irlap_max_line_capacity(self->qos_tx.baud_rate.value,
+ 					self->qos_tx.max_turn_time.value);
++	self->bytes_left = self->line_capacity;
++#endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
+ 
+ 	
+ 	/* 
+@@ -1080,24 +1079,6 @@ void irlap_apply_connection_parameters(s
+ 	self->N2 = self->qos_tx.link_disc_time.value * 1000 / 
+ 		self->qos_rx.max_turn_time.value;
+ 	IRDA_DEBUG(4, "Setting N2 = %d\n", self->N2);
+-}
+-
+-/*
+- * Function irlap_set_local_busy (self, status)
+- *
+- *    
+- *
+- */
+-void irlap_set_local_busy(struct irlap_cb *self, int status)
+-{
+-	IRDA_DEBUG(0, __FUNCTION__ "()\n");
+-
+-	self->local_busy = status;
+-	
+-	if (status)
+-		IRDA_DEBUG(0, __FUNCTION__ "(), local busy ON\n");
+-	else
+-		IRDA_DEBUG(0, __FUNCTION__ "(), local busy OFF\n");
+ }
+ 
+ #ifdef CONFIG_PROC_FS
+diff -u -p linux/net/irda/irlap_event.d4.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d4.c	Mon Jan 14 17:07:44 2002
++++ linux/net/irda/irlap_event.c	Tue Jan 15 14:46:23 2002
+@@ -252,6 +252,9 @@ void irlap_do_event(struct irlap_cb *sel
+ 		 * that will change the state away form XMIT
+ 		 */
+ 		if (skb_queue_len(&self->txq)) {
++			/* Prevent race conditions with irlap_data_request() */
++			self->local_busy = TRUE;
 +
- 	/* Now that we can pass data to IrLAP, allow the USB layer
- 	 * to send us some data... */
- 	for (i = 0; i < IU_MAX_ACTIVE_RX_URBS; i++)
- 		irda_usb_submit(self, NULL, &(self->rx_urb[i]));
--	/* Note : we submit all the Rx URB except for one - Jean II */
--	self->idle_rx_urb = &(self->rx_urb[IU_MAX_ACTIVE_RX_URBS]);
--	self->idle_rx_urb->context = NULL;
+ 			/* Try to send away all queued data frames */
+ 			while ((skb = skb_dequeue(&self->txq)) != NULL) {
+ 				ret = (*state[self->state])(self, SEND_I_CMD,
+@@ -260,6 +263,8 @@ void irlap_do_event(struct irlap_cb *sel
+ 				if (ret == -EPROTO)
+ 					break; /* Try again later! */
+ 			}
++			/* Finished transmitting */
++			self->local_busy = FALSE;
+ 		} else if (self->disconnect_pending) {
+ 			self->disconnect_pending = FALSE;
+ 			
+@@ -282,25 +287,15 @@ void irlap_do_event(struct irlap_cb *sel
+  *    Switches state and provides debug information
+  *
+  */
+-void irlap_next_state(struct irlap_cb *self, IRLAP_STATE state) 
++static inline void irlap_next_state(struct irlap_cb *self, IRLAP_STATE state) 
+ {	
++	/*
+ 	if (!self || self->magic != LAP_MAGIC)
+ 		return;
+ 	
+ 	IRDA_DEBUG(4, "next LAP state = %s\n", irlap_state[state]);
+-
++	*/
+ 	self->state = state;
+-
+-#ifdef CONFIG_IRDA_DYNAMIC_WINDOW
+-	/*
+-	 *  If we are swithing away from a XMIT state then we are allowed to 
+-	 *  transmit a maximum number of bytes again when we enter the XMIT 
+-	 *  state again. Since its possible to "switch" from XMIT to XMIT,
+-	 *  we cannot do this when swithing into the XMIT state :-)
+-	 */
+-	if ((state != LAP_XMIT_P) && (state != LAP_XMIT_S))
+-		self->bytes_left = self->line_capacity;
+-#endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
+ }
  
- 	/* Ready to play !!! */
- 	MOD_INC_USE_COUNT;
+ /*
+@@ -1017,6 +1012,12 @@ static int irlap_state_xmit_p(struct irl
+ 		IRDA_DEBUG(3, __FUNCTION__ "(), POLL_TIMER_EXPIRED (%ld)\n",
+ 			   jiffies);
+ 		irlap_send_rr_frame(self, CMD_FRAME);
++		/* Return to NRM properly - Jean II  */
++		self->window = self->window_size;
++#ifdef CONFIG_IRDA_DYNAMIC_WINDOW
++		/* Allowed to transmit a maximum number of bytes again. */
++		self->bytes_left = self->line_capacity;
++#endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
+ 		irlap_start_final_timer(self, self->final_timeout);
+ 		irlap_next_state(self, LAP_NRM_P);
+ 		break;
+@@ -1029,6 +1030,10 @@ static int irlap_state_xmit_p(struct irl
+ 		self->retry_count = 0;
+ 		irlap_next_state(self, LAP_PCLOSE);
+ 		break;
++	case DATA_REQUEST:
++		/* Nothing to do, irlap_do_event() will send the packet
++		 * when we return... - Jean II */
++		break;
+ 	default:
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), Unknown event %s\n", 
+ 			   irlap_event[event]);
+@@ -1645,12 +1650,17 @@ static int irlap_state_xmit_s(struct irl
+ 			 */
+ 			if (skb->len > self->bytes_left) {
+ 				skb_queue_head(&self->txq, skb_get(skb));
++
+ 				/*
+ 				 *  Switch to NRM_S, this is only possible
+ 				 *  when we are in secondary mode, since we 
+ 				 *  must be sure that we don't miss any RR
+ 				 *  frames
+ 				 */
++				self->window = self->window_size;
++				self->bytes_left = self->line_capacity;
++				irlap_start_wd_timer(self, self->wd_timeout);
++
+ 				irlap_next_state(self, LAP_NRM_S);
+ 
+ 				return -EPROTO; /* Try again later */
+@@ -1687,6 +1697,10 @@ static int irlap_state_xmit_s(struct irl
+ 		irlap_flush_all_queues(self);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		irlap_next_state(self, LAP_SCLOSE);
++		break;
++	case DATA_REQUEST:
++		/* Nothing to do, irlap_do_event() will send the packet
++		 * when we return... - Jean II */
+ 		break;
+ 	default:
+ 		IRDA_DEBUG(2, __FUNCTION__ "(), Unknown event %s\n", 
+diff -u -p linux/net/irda/irlap_frame.d4.c linux/net/irda/irlap_frame.c
+--- linux/net/irda/irlap_frame.d4.c	Mon Jan 14 17:24:07 2002
++++ linux/net/irda/irlap_frame.c	Mon Jan 14 19:14:43 2002
+@@ -768,6 +768,9 @@ void irlap_send_data_primary_poll(struct
+ {
+ 	struct sk_buff *tx_skb;
+ 
++	/* Stop P timer */
++	del_timer(&self->poll_timer);
++		
+ 	/* Is this reliable or unreliable data? */
+ 	if (skb->data[1] == I_FRAME) {
+ 		
+@@ -793,23 +796,15 @@ void irlap_send_data_primary_poll(struct
+ 		 *  skb, since retransmitted need to set or clear the poll
+ 		 *  bit depending on when they are sent.  
+ 		 */
+-		/* Stop P timer */
+-		del_timer(&self->poll_timer);
+-		
+ 		tx_skb->data[1] |= PF_BIT;
+ 		
+ 		self->vs = (self->vs + 1) % 8;
+ 		self->ack_required = FALSE;
+-		self->window = self->window_size;
+-
+-		irlap_start_final_timer(self, self->final_timeout);
+ 
+ 		irlap_send_i_frame(self, tx_skb, CMD_FRAME);
+ 	} else {
+ 		IRDA_DEBUG(4, __FUNCTION__ "(), sending unreliable frame\n");
+ 
+-		del_timer(&self->poll_timer);
+-
+ 		if (self->ack_required) {
+ 			irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+ 			irlap_send_rr_frame(self, CMD_FRAME);
+@@ -818,9 +813,15 @@ void irlap_send_data_primary_poll(struct
+ 			skb->data[1] |= PF_BIT;
+ 			irlap_send_ui_frame(self, skb_get(skb), self->caddr, CMD_FRAME);
+ 		}
+-		self->window = self->window_size;
+-		irlap_start_final_timer(self, self->final_timeout);
+ 	}
++
++	self->window = self->window_size;
++#ifdef CONFIG_IRDA_DYNAMIC_WINDOW
++	/* We are allowed to transmit a maximum number of bytes again. */
++	self->bytes_left = self->line_capacity;
++#endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
++
++	irlap_start_final_timer(self, self->final_timeout);
+ }
+ 
+ /*
+@@ -858,11 +859,8 @@ void irlap_send_data_secondary_final(str
+ 		tx_skb->data[1] |= PF_BIT;
+ 		
+ 		self->vs = (self->vs + 1) % 8; 
+-		self->window = self->window_size;
+ 		self->ack_required = FALSE;
+ 		
+-		irlap_start_wd_timer(self, self->wd_timeout);
+-
+ 		irlap_send_i_frame(self, tx_skb, RSP_FRAME); 
+ 	} else {
+ 		if (self->ack_required) {
+@@ -873,10 +871,15 @@ void irlap_send_data_secondary_final(str
+ 			skb->data[1] |= PF_BIT;
+ 			irlap_send_ui_frame(self, skb_get(skb), self->caddr, RSP_FRAME);
+ 		}
+-		self->window = self->window_size;
+-
+-		irlap_start_wd_timer(self, self->wd_timeout);
+ 	}
++
++	self->window = self->window_size;
++#ifdef CONFIG_IRDA_DYNAMIC_WINDOW
++	/* We are allowed to transmit a maximum number of bytes again. */
++	self->bytes_left = self->line_capacity;
++#endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
++
++	irlap_start_wd_timer(self, self->wd_timeout);
+ }
+ 
+ /*

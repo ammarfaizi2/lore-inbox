@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVBOBKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVBOBQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVBOBKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 20:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVBOBKt
+	id S261614AbVBOBQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 20:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVBOBCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 20:10:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:1921 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261601AbVBOBIA (ORCPT
+	Mon, 14 Feb 2005 20:02:40 -0500
+Received: from gprs215-140.eurotel.cz ([160.218.215.140]:43680 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261540AbVBOBCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 20:08:00 -0500
-Subject: Re: Radeon FB troubles with recent kernels
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, adaplas@pol.net
-In-Reply-To: <20050215002025.GQ15058@waste.org>
-References: <20050214203902.GH15058@waste.org>
-	 <1108420723.12740.17.camel@gaston> <1108422492.12653.30.camel@gaston>
-	 <20050215002025.GQ15058@waste.org>
-Content-Type: text/plain
-Date: Tue, 15 Feb 2005 12:07:34 +1100
-Message-Id: <1108429654.12739.60.camel@gaston>
+	Mon, 14 Feb 2005 20:02:14 -0500
+Date: Tue, 15 Feb 2005 02:01:59 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk
+Cc: ncunningham@cyclades.com, bernard@blackham.com.au, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Fix u32 vs. pm_message_t confusion in AGP
+Message-ID: <20050215010159.GM5415@elf.ucw.cz>
+References: <1108359808.12611.37.camel@desktop.cunningham.myip.net.au> <20050214213400.GF12235@elf.ucw.cz> <20050214134658.324076c9.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050214134658.324076c9.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> Nope. No printk outputs from _set_par, _write_mode, or _engine_init.
-> 
-> Just to clarify: the gdm stop is done from tty1 while gdm is running
-> on tty7, so I don't think it's a matter of mode switch logic.
+This should fix u32 vs. pm_message_t confusion in AGP. Last patch for
+tonight, please apply,
+								Pavel
 
-Ohhh, this is a known bug then. When you kill X while it's not on the
-front VT, it will crap on the engine. This has always been the case, I
-suppose that if you didn't notice it before, it 's because you are
-lucky :)
+--- clean-mm/drivers/char/agp/via-agp.c	2005-02-15 00:46:40.000000000 +0100
++++ linux-mm/drivers/char/agp/via-agp.c	2005-02-15 01:04:09.000000000 +0100
+@@ -440,10 +440,10 @@
+ 
+ #ifdef CONFIG_PM
+ 
+-static int agp_via_suspend(struct pci_dev *pdev, u32 state)
++static int agp_via_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	pci_save_state (pdev);
+-	pci_set_power_state (pdev, 3);
++	pci_set_power_state (pdev, PCI_D3hot);
+ 
+ 	return 0;
+ }
+@@ -452,7 +452,7 @@
+ {
+ 	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
+ 
+-	pci_set_power_state (pdev, 0);
++	pci_set_power_state (pdev, PCI_D0);
+ 	pci_restore_state(pdev);
+ 
+ 	if (bridge->driver == &via_agp3_driver)
 
-> If I do "sleep 5; /etc/init.d/gdm stop" and then switch to tty7 and
-> wait for it to stop, all is fine.
 
-Yes.
-> 
-> Also, I'm still seeing the LCD blooming + hang on starting radeonfb.
-> It's something like 1 in 10 boots rather than every boot now though.
-
-Does it actually hangs ? That's weird... looks like a chip crash. Can
-you check if that happens with radeonfb.default_dynclk=-1 on the kernel
-command line ?
-
-Ben.
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

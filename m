@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315227AbSE2M45>; Wed, 29 May 2002 08:56:57 -0400
+	id <S315214AbSE2M7V>; Wed, 29 May 2002 08:59:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSE2M45>; Wed, 29 May 2002 08:56:57 -0400
-Received: from [212.176.239.134] ([212.176.239.134]:25782 "EHLO
-	vzhik.octet.spb.ru") by vger.kernel.org with ESMTP
-	id <S315227AbSE2M4y>; Wed, 29 May 2002 08:56:54 -0400
-Message-ID: <000901c20710$486c3f40$baefb0d4@nick>
-Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
-From: "Nick Evgeniev" <nick@octet.com>
-To: "Neil Brown" <neilb@cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000901c206f0$cfd42620$baefb0d4@nick> <15604.45243.291277.197140@notabene.cse.unsw.edu.au>
-Subject: Re: 2.4.19-pre8-ac5 ide & raid0 bugs
-Date: Wed, 29 May 2002 16:56:42 +0400
-Organization: Octet Corp.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-Scanner: exiscan *17D30N-0005Es-00*7nPkbYm.xtk* http://duncanthrax.net/exiscan/
+	id <S315235AbSE2M7U>; Wed, 29 May 2002 08:59:20 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:50823 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315214AbSE2M7T>;
+	Wed, 29 May 2002 08:59:19 -0400
+Date: Wed, 29 May 2002 14:58:57 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Neale Banks <neale@lowendale.com.au>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: odd timer bug, similar to VIA 686a symptoms
+Message-ID: <20020529145857.A9813@ucw.cz>
+In-Reply-To: <20020529140515.A8522@ucw.cz> <Pine.LNX.4.05.10205292319090.3388-100000@marina.lowendale.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, May 29, 2002 at 11:40:40PM +1000, Neale Banks wrote:
+> On Wed, 29 May 2002, Vojtech Pavlik wrote:
+> 
+> [...]
+> > On Wed, May 29, 2002 at 01:46:27PM +0100, Alan Cox wrote:
+> [...]
+> > > Neptune chipsets at least had latching bugs on timer reads. What chipset
+> > > is the laptop ?
+> > 
+> > This is unlikely to be the latching bug - note the values are near to
+> > 65535 - that means the timer is reprogrammed to count from 0xffff down
+> > instead from LATCH. That is because of the suspend I presume. What's
+> > weird is that the VIA fix doesn't program it to the correct value, or
+> > perhaps is that missing from the patch?
+> 
+> Yes, my version of your patch includes an option to disable the via686a
+> fix (and this was in effect at the time - I'm still cringing in fear from
+> nasty FS corruption that ensued after a "probable hardware bug: restoring
+> chip configuration" message last October :-( - yes it may be unlikely
+> that it's related, but I don't yet have any other suspects.  FWIW, the
+> machine also locked up then).
 
-Yes, I'm using lvm 1.1rc1 on top of raid0. Hardware details:
-dual piii box on via Apollo pro133 chipset (via694)
-two ATA-100 drives (FUJITSU MPG3204AH) attached to on-board  controller
-(PROMISE 20265)
-& one drive attached to VIA controller. RAID0 is made on top of first two
-drives.
+It shouldn't be able to do anything like that ...
 
-1. I don't have any problem with drive attached to via controller (in DMA33
-mode)
-2. The only problem that I have is with UDMA100 drives attached to promise
-controller... Also I have to notice that log messages about ide errors are
-related to drive that has no errors (according to smartctl -l, while another
-drive has a few records in its log)
-3. I had no problems with ide with 2.4.7 kernel for a months...
+> Any suggestions smarter than backing up everything "important" and running
+> the battery down with the VIA fix enabled?
 
-> > >-----------------------------
-> > But now I've got even more bugs in log like:
-> > >-----------------------------
-> > May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert
-block
-> > across chunks or bigger than 16k 37713311 4
-> > May 29 11:28:06 vzhik kernel: raid0_make_request bug: can't convert
-block
-> > across chunks or bigger than 16k 37713343 4
->
-> This is a request for a 4K block that is not 4K aligned... this
-> shouldn't happen.
-> Are you using LVM or something to partition the raid0 array?
-> ... though I seem to recall that LVM always partitions in multiples of
-> 4K so that shouldn't be a problem.
+Nope. ;)
 
-
+-- 
+Vojtech Pavlik
+SuSE Labs

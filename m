@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274788AbTHFCrc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 22:47:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274813AbTHFCrc
+	id S273403AbTHFCpq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 22:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273906AbTHFCpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 22:47:32 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:18305 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S274788AbTHFCqv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 22:46:51 -0400
-Date: Tue, 5 Aug 2003 22:15:07 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Updates for 2.6.0-test2
-Message-ID: <20030805221507.GC13275@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030805221415.GB13275@neo.rr.com>
+	Tue, 5 Aug 2003 22:45:46 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:18336
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S273403AbTHFCpo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 22:45:44 -0400
+Date: Tue, 5 Aug 2003 22:45:44 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH 2.6: intel ich5 irq router, pci ids
+Message-ID: <20030806024544.GA1296@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030805221415.GB13275@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# --------------------------------------------
-# 03/08/05	ambx1@neo.rr.com	1.1108
-# [PNP] Remove protocol_data from pnp_dev and pnp_card
-# 
-# This is not needed.
-# 
-# --------------------------------------------
-#
-diff -Nru a/include/linux/pnp.h b/include/linux/pnp.h
---- a/include/linux/pnp.h	Tue Aug  5 21:25:05 2003
-+++ b/include/linux/pnp.h	Tue Aug  5 21:25:05 2003
-@@ -133,7 +133,6 @@
- 	struct pnp_protocol * protocol;
- 	struct pnp_id * id;		/* contains supported EISA IDs*/
+
+===== arch/i386/pci/irq.c 1.28 vs edited =====
+--- 1.28/arch/i386/pci/irq.c	Thu Jul 31 19:47:19 2003
++++ edited/arch/i386/pci/irq.c	Tue Aug  5 22:35:31 2003
+@@ -474,6 +474,8 @@
+ 	{ "PIIX", PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801CA_12, pirq_piix_get, pirq_piix_set },
+ 	{ "PIIX", PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_0, pirq_piix_get, pirq_piix_set },
+ 	{ "PIIX", PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801E_0, pirq_piix_get, pirq_piix_set },
++	{ "PIIX", PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0, pirq_piix_get, pirq_piix_set },
++	{ "PIIX", PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB_0, pirq_piix_get, pirq_piix_set },
  
--	void	      * protocol_data;	/* Used to store protocol specific data */
- 	unsigned char	pnpver;		/* Plug & Play version */
- 	unsigned char	productver;	/* product version */
- 	unsigned int	serial;		/* serial number */
-@@ -149,16 +148,6 @@
- 	(card) != global_to_pnp_card(&pnp_cards); \
- 	(card) = global_to_pnp_card((card)->global_list.next))
+ 	{ "ALI", PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, pirq_ali_get, pirq_ali_set },
  
--static inline void *pnp_get_card_protodata (struct pnp_card *pcard)
--{
--	return pcard->protocol_data;
--}
--
--static inline void pnp_set_card_protodata (struct pnp_card *pcard, void *data)
--{
--	pcard->protocol_data = data;
--}
--
- struct pnp_card_link {
- 	struct pnp_card * card;
- 	struct pnp_card_driver * driver;
-@@ -198,7 +187,6 @@
- 	struct pnp_option * dependent;
- 	struct pnp_resource_table res;
- 
--	void * protocol_data;		/* Used to store protocol specific data */
- 	unsigned short	regs;		/* ISAPnP: supported registers */
- 	int 		flags;		/* used by protocols */
- 	struct proc_dir_entry *procent;	/* device entry in /proc/bus/isapnp */
-@@ -226,16 +214,6 @@
- static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
- {
- 	dev_set_drvdata(&pdev->dev, data);
--}
--
--static inline void *pnp_get_protodata (struct pnp_dev *pdev)
--{
--	return pdev->protocol_data;
--}
--
--static inline void pnp_set_protodata (struct pnp_dev *pdev, void *data)
--{
--	pdev->protocol_data = data;
- }
- 
- struct pnp_fixup {
+===== include/linux/pci_ids.h 1.111 vs edited =====
+--- 1.111/include/linux/pci_ids.h	Wed Jul 23 16:42:11 2003
++++ edited/include/linux/pci_ids.h	Tue Aug  5 22:37:33 2003
+@@ -1931,6 +1931,20 @@
+ #define PCI_DEVICE_ID_INTEL_82801EB_7	0x24d7
+ #define PCI_DEVICE_ID_INTEL_82801EB_11	0x24db
+ #define PCI_DEVICE_ID_INTEL_82801EB_13	0x24dd
++#define PCI_DEVICE_ID_INTEL_ESB_0	0x25a0
++#define PCI_DEVICE_ID_INTEL_ESB_1	0x25a1
++#define PCI_DEVICE_ID_INTEL_ESB_2	0x25a2
++#define PCI_DEVICE_ID_INTEL_ESB_3	0x25a3
++#define PCI_DEVICE_ID_INTEL_ESB_31	0x25b0
++#define PCI_DEVICE_ID_INTEL_ESB_4	0x25a4
++#define PCI_DEVICE_ID_INTEL_ESB_5	0x25a6
++#define PCI_DEVICE_ID_INTEL_ESB_6	0x25a7
++#define PCI_DEVICE_ID_INTEL_ESB_7	0x25a9
++#define PCI_DEVICE_ID_INTEL_ESB_8	0x25aa
++#define PCI_DEVICE_ID_INTEL_ESB_9	0x25ab
++#define PCI_DEVICE_ID_INTEL_ESB_11	0x25ac
++#define PCI_DEVICE_ID_INTEL_ESB_12	0x25ad
++#define PCI_DEVICE_ID_INTEL_ESB_13	0x25ae
+ #define PCI_DEVICE_ID_INTEL_82820_HB	0x2500
+ #define PCI_DEVICE_ID_INTEL_82820_UP_HB	0x2501
+ #define PCI_DEVICE_ID_INTEL_82850_HB	0x2530

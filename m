@@ -1,55 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287155AbSAHIuU>; Tue, 8 Jan 2002 03:50:20 -0500
+	id <S287141AbSAHJCw>; Tue, 8 Jan 2002 04:02:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287375AbSAHIuA>; Tue, 8 Jan 2002 03:50:00 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:62925 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287177AbSAHIt4>; Tue, 8 Jan 2002 03:49:56 -0500
-Message-ID: <3C3AB20A.8B16C23A@programmfabrik.de>
-Date: Tue, 08 Jan 2002 09:47:06 +0100
-From: Martin Rode <Martin.Rode@programmfabrik.de>
-Reply-To: Martin.Rode@programmfabrik.de
-Organization: Programmfabrik GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i586)
-X-Accept-Language: en
+	id <S287145AbSAHJCo>; Tue, 8 Jan 2002 04:02:44 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:44998 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S287141AbSAHJCh>; Tue, 8 Jan 2002 04:02:37 -0500
+Message-ID: <3C3AB5AB.2080102@redhat.com>
+Date: Tue, 08 Jan 2002 04:02:35 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Question about bi-directional pipes.
-Content-Type: text/plain; charset=us-ascii
+To: Doug Ledford <dledford@redhat.com>
+CC: Thomas Gschwind <tom@infosys.tuwien.ac.at>,
+        Nathan Bryant <nbryant@allegientsystems.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: i810_audio
+In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com> <3C3A301A.2050501@redhat.com> <3C3AA6F9.5090407@redhat.com> <3C3AA9AD.6070203@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was just wondering if it is possible under Linux to use popen in a
-bi-directional way? I want to use popen under php and must write _and_
-read from and to the pipe. Some guy at the php mailing list stated that
-this is possible to do with BSD, he wasn't sure about linux.
+Doug Ledford wrote:
 
-If this is a kernel issue and not a glibc one, is there a way to get
-popen work bi-directionally under linux? Say I want a 
+> Doug Ledford wrote:
+> 
+> 
+>>> Fixes it applies except for the SiS integration:
+>>> * drain_dac
+>>>   Use interruptible_sleep_on_timeout instead of schedule_timeout.
+>>>   I think this is cleaner. 
+>>
+>>
+>>
+>>
+>> This is fine.
+> 
+> 
+> 
+> Oops, this is one of the mistakes Ben pointed out to me. 
+> interruptible_sleep_on_timeout(wait_queue head, timeout) overwrites the 
+> wait queue that we've already added ourselves to.  schedule_timeout() 
+> does the right thing here.  (interruptible_sleep_on_timeout doesn't 
+> really buy us much of anything we care about either, so it's find to 
+> stay with schedule_timeout)
+> 
+> 
+> 
+> 
 
-pipe = popen ('somefile', 'w+');
+OK, various clean ups made, and enough of the SiS code included that I think 
+it should work, plus one change to the i810 interrupt handler that will 
+(hopefully) render the other change you made to get_dma_addr and drain_dac 
+unnecessary.  If people could please download and test the new 0.14 version 
+of the driver on my site, I would appreciate it.
 
-return a valid pipe. As it is now, popen (at least under php, but I
-think this should be the same), does not return a handle for mode 'w+'.
-It does return a handle only for modes 'r' and 'w'.
-
-Regards,
-
-;Martin
-
+http://people.redhat.com/dledford/i810_audio.c.gz
 
 -- 
-Dipl.-Kfm. Martin Rode
-martin.rode@programmfabrik.de
 
-Programmfabrik GmbH
-Frankfurter Allee 73d
-10247 Berlin
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 
-http://www.programmfabrik.de/
-
-Fon +49-(0)30-4281-8001
-Fax +49-(0)30-4281-8008
-Funk +49-(0)163-5321400

@@ -1,48 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267370AbUBRUoL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 15:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUBRUoL
+	id S267821AbUBRStj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 13:49:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267828AbUBRStj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 15:44:11 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:61322 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S267370AbUBRUoG (ORCPT
+	Wed, 18 Feb 2004 13:49:39 -0500
+Received: from gprs156-45.eurotel.cz ([160.218.156.45]:30337 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267821AbUBRSte (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 15:44:06 -0500
-Subject: Re: [NET] 64 bit byte counter for 2.6.3
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: root@chaos.analogic.com
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-In-Reply-To: <Pine.LNX.4.53.0402181527000.7318@chaos>
-References: <1077123078.9223.7.camel@midux>
-	 <20040218101711.25dda791@dell_ss3.pdx.osdl.net>
-	 <Pine.LNX.4.53.0402181527000.7318@chaos>
-Content-Type: text/plain
-Message-Id: <1077137014.18843.10.camel@midux>
+	Wed, 18 Feb 2004 13:49:34 -0500
+Date: Wed, 18 Feb 2004 19:48:32 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: Andrew Morton <akpm@osdl.org>, Tom Rini <trini@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org,
+       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
+       Andi Kleen <ak@suse.de>, George Anzinger <george@mvista.com>,
+       Jim Houston <jim.houston@ccur.com>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH][0/6] A different KGDB stub
+Message-ID: <20040218184832.GB321@elf.ucw.cz>
+References: <20040217220236.GA16881@smtp.west.cox.net> <200402181026.29813.amitkale@emsyssoft.com> <20040218125647.GA4706@atrey.karlin.mff.cuni.cz> <200402181845.01628.amitkale@emsyssoft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 22:43:34 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402181845.01628.amitkale@emsyssoft.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-18 at 22:32, Richard B. Johnson wrote:
-> Manipulation of a 'long long' is not atomic in 32 bit architectures.
-> Please explain how we don't care, if we shouldn't care. Also some
-> /proc entries might get read incorrectly with existing tools.
-Please, tell me all the tools, I'll test them. ifconfig and netstat
-works correctly atleast.
+Hi!
 
-And about the caring, is rx/tx bytes so important that they can't use
-long long? I would care to see more than 4GB, and maybe some error in
-the counter at some point (Have you _ever_ seen that happen?) than only
-4GB.
+> > > > > > The following is my next attempt at a different KGDB stub
+> > > > > > for your tree
+> > > > >
+> > > > > Is this the patch which everyone agrees on?
+> > > >
+> > > > It is based on Amit's version, so I think answer is "yes". I certainly
+> > > > like this one.
+> > >
+> > > I don't agree. I did a few more cleanups after Andi expressed concerns
+> > > over globals kgdb_memerr and debugger_memerr_expected.
+> > >
+> > > I liked Pavel's approach. Let's first get a minimal kgdb stub into
+> > > mainline kernel. Even this much is going to involve some effort. We can
+> > > merge other features later.
+> > >
+> > > Let's create a cvs tree at kgdb.sourceforge.net for kgdb components to be
+> > > pushed int mainline kernel. This split is to keep current kgdb
+> > > unaffected. People who are already using it won't be affected.
+> >
+> > I do not think we want separate CVS tree.
+> >
+> > What about simply splitting core.patch into core-lite.patch and
+> > core.patch, maybe do the same with i386 patch, and be done with that?
+> > [We do not have enough people for a fork, I think].
+> 
+> Agreed. Let's create core-lite.patch and i386-lite.patch
+> It makes it somewhat difficult to maintain them, but should be easier than 
+> maintaining a separate CVS tree.
 
-And no, I didn't post this to be merged into the mainline kernel, just
-to let users know that there maybe is an option for seeing maximum 4GB.
+There's tool called quilt that is pretty good at exactly this. (It is
+small enough to do by hand, but ...)
 
-This has been working for me since, umm.. let's say 2.4.20. All the
-tools I've needed have worked.
-
-        Markus
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

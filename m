@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272466AbRIRQJN>; Tue, 18 Sep 2001 12:09:13 -0400
+	id <S272467AbRIRQUN>; Tue, 18 Sep 2001 12:20:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272415AbRIRQJD>; Tue, 18 Sep 2001 12:09:03 -0400
-Received: from lilly.ping.de ([62.72.90.2]:2831 "HELO lilly.ping.de")
-	by vger.kernel.org with SMTP id <S272467AbRIRQIo>;
-	Tue, 18 Sep 2001 12:08:44 -0400
-Date: 18 Sep 2001 18:06:25 +0200
-Message-ID: <20010918180625.A1941@planetzork.spacenet>
-From: jogi@planetzork.ping.de
-To: "Andrea Arcangeli" <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did not)
-In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172500.F19092@athlon.random> <20010918173515.B6698@planetzork.spacenet> <20010918174434.I19092@athlon.random>
+	id <S272493AbRIRQUD>; Tue, 18 Sep 2001 12:20:03 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:20499 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S272467AbRIRQTt>;
+	Tue, 18 Sep 2001 12:19:49 -0400
+Date: Tue, 18 Sep 2001 18:20:11 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Knut.Neumann@rz.uni-duesseldorf.de
+Subject: Re: SonyPI Driver
+Message-ID: <20010918182011.G14639@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010918174434.I19092@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 05:44:34PM +0200
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 05:44:34PM +0200, Andrea Arcangeli wrote:
-> On Tue, Sep 18, 2001 at 05:35:15PM +0200, jogi@planetzork.ping.de wrote:
-> > Since I am not using md there are not that much changes left between
-> > -pre10 and -pre11. Or do you think that it is caused by the console
-> > locking changes?
-> 
-> certainly not from the console locking changes. Can you just go back to
-> pre10 and verify you don't get those skips to just to be 100% sure the
-> userspace config is the same?
+> I noticed that when running the sonypi driver on my VAIO z600tek, APM Suspend
+> does no longer work: The power button (to suspend) does no longer work and -
+> well - it will still suspend if I force it to, by apm -s but it does not
+> resume (powers on, but blank screen and no input gets processed).
 
-Ok, -pre10 is ok. There xmms did hang once for about a second, and at that
-time I was building a kernel (make -j4), reniced top, starting mozilla,
-StarOffice, Netscape, mutt (reading in mailbox with >200 emails in qmail
-format).
+Yep, using the sonypi driver switches the laptop in a pseudo acpi
+mode and APM based suspend will get disabled.
 
-With -pre11 much less is required.
+This is a known problem and there is currently no workaround
+(especially since on my Vaio - a C1VE model, even the APM suspend
+hangs).
 
-> The only scheduler change in pre11 is this one:
-> 
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre10aa1/00_sched-rt-fix-1
-> 
-> which should be infact a bugfix for rt threads, also discussed on l-k
-> recently, so it's not clear how this odd regression happened.
-> 
-> You can try to back it out and see if helps just in case.
+You'll have to wait for ACPI suspend support in the kernel
+(some support will get into the 2.5 kernel series) or choose between
+the sonypi driver and APM suspend.
 
-I will test this tomorrow and let you know about the results.
+Of course, you can always find a workaround, in which case I and many
+other Vaio owners will be grateful to you :-).
 
-   JOgi
-
+Stelian.
 -- 
-
-Well, yeah ... I suppose there's no point in getting greedy, is there?
-
-    << Calvin & Hobbes >>
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

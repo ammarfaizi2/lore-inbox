@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270148AbTGZP2N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 11:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270140AbTGZPZK
+	id S272528AbTGZOlS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272548AbTGZOkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 11:25:10 -0400
-Received: from mail.gmx.net ([213.165.64.20]:57526 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S270164AbTGZPXA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 11:23:00 -0400
-Date: Sat, 26 Jul 2003 21:08:11 +0530
-From: Apurva Mehta <apurva@gmx.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Random Oopses on 2.6.0-test1-mm2
-Message-ID: <20030726153811.GC1327@home.woodlands>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030726071801.GB1358@home.woodlands> <1059209649.577.4.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059209649.577.4.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 26 Jul 2003 10:40:46 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:63034 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272529AbTGZOcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:51 -0400
+Date: Sat, 26 Jul 2003 16:51:58 +0200
+Message-Id: <200307261451.h6QEpwYv002466@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] My contact info
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> [26-07-2003 14:44]:
-> On Sat, 2003-07-26 at 09:18, Apurva Mehta wrote:
-> > Hi, 
-> > 
-> > I get random oopses while using 2.6.0-test1-mm2. I have attached the
-> > oops message and also the ksymoops output. I get the same behaviour
-> > with the 08int patch applied also. The OOPs message attached was
-> > obtained on a 2.6.0-test1-mm2-08int.
-> 
-> Please, try the following patch...
+Update my GnuPG fingerprint and address information
 
-Yes, that seems to have fixed the problem. So far, I see a definite
-improvement over the vanilla 2.6.0-test1. 
+--- linux-2.6.x/CREDITS	Sun Jun 22 11:13:58 2003
++++ linux-m68k-2.6.x/CREDITS	Fri Jul 18 13:27:53 2003
+@@ -3185,7 +3185,7 @@
+ N: Geert Uytterhoeven
+ E: geert@linux-m68k.org
+ W: http://home.tvd.be/cr26864/
+-P: 1024/EC4A1EE1 8B 88 38 35 88 1E 95 A1  CD 9E AE DC 4B 4A 2F 41
++P: 1024/862678A6 C51D 361C 0BD1 4C90 B275  C553 6EEA 11BA 8626 78A6
+ D: m68k/Amiga and PPC/CHRP Longtrail coordinator
+ D: Frame buffer device and XF68_FBDev maintainer
+ D: m68k IDE maintainer
+@@ -3194,8 +3194,8 @@
+ D: Atari Falcon chipset IDE
+ D: Amiga Gayle chipset IDE
+ D: mipsel NEC DDB Vrc-5074
+-S: C. Huysmansstraat 12
+-S: B-3128 Baal
++S: Holsbeeksesteenweg 166
++S: B-3010 Kessel-Lo
+ S: Belgium
+ 
+ N: Chris Vance
 
-But Ingo's patch made the vanilla 2.6.0-test1 awesome under really
-heavy load. I basically was compiling 2.6.0-test1-mm2-O8 from scratch
-and the system was (almost) as responsive as if there was no load, with
-no audio skipping. That was the first real improvement I have seen
-over the vanilla 2.4.21... Will keep you'll posted at how
-2.6.0-test1-mm2-O8int compares..
+Gr{oetje,eeting}s,
 
-	- Apurva
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

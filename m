@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVBNSv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVBNSyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVBNSv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVBNSv1
+	id S261199AbVBNSyv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:54:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVBNSyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:51:27 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:20213 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261521AbVBNSvD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:51:03 -0500
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
-	sys_page_migrate
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Robin Holt <holt@sgi.com>
-Cc: Ray Bryant <raybry@sgi.com>, Hirokazu Takahashi <taka@valinux.co.jp>,
-       Hugh DIckins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Marcello Tosatti <marcello@cyclades.com>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050214135221.GA20511@lnx-holt.americas.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	 <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-	 <1108242262.6154.39.camel@localhost>
-	 <20050214135221.GA20511@lnx-holt.americas.sgi.com>
-Content-Type: text/plain
-Date: Mon, 14 Feb 2005 10:50:42 -0800
-Message-Id: <1108407043.6154.49.camel@localhost>
+	Mon, 14 Feb 2005 13:54:51 -0500
+Received: from main.gmane.org ([80.91.229.2]:3536 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261199AbVBNSyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 13:54:44 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Juergen Stuber <juergen@jstuber.net>
+Subject: Re: [BK] upgrade will be needed
+Date: Mon, 14 Feb 2005 19:54:14 +0100
+Message-ID: <87wttbq8fd.fsf@freitag.home.jstuber.net>
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com>
+ <20050214150820.GA21961@optonline.net>
+ <20050214154015.GA8075@bitmover.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsl-082-083-133-184.arcor-ip.net
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:DAljkHyt7iqJiU9wG9ZxQvfZxvo=
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 07:52 -0600, Robin Holt wrote:
-> The node mask is a list of allowed.  This is intended to be as near
-> to a one-to-one migration path as possible.
+Hi Larry,
 
-If that's the case, it would make the kernel internals a bit simpler to
-only take a "from" and "to" node, instead of those maps.  You'll end up
-making multiple syscalls, but that shouldn't be a problem.  
+lm@bitmover.com (Larry McVoy) writes:
+> The protection we need is that people don't get to
+>
+>     - use BK
+>     - stop using BK so they can go work on another system
+>     - start using BK again
+>     - stop using BK so they can go work on another system
+>     ...
+>
+> We could say that if you stop using BK and work on another system then
+> you can't ever use it again.  We're not going to do that, we've already
+> had to calm the fears of people who found themselves in that situation
+> for their job.  
 
-> > There also probably needs to be a bit more coordination between the
-> > other NUMA API and this one.  I noticed that, for now, the migration
-> > loop only makes a limited number of passes.  It appears that either you
-> > don't require that, once the syscall returns, that *all* pages have been
-> > migrated (there could have been allocations done behind the loop) or you
-> > have some way of keeping the process from doing any more allocations.
-> 
-> It is intended that the process would be stopped during the migration
-> to simplify considerations such as overlapping destination node lists.
+how about something akin to
+'You can only use the non-paying version of BK
+ if you haven't worked on another SCM-system in the last year.'
 
-Requiring that the process is stopped will somewhat limit the use of
-this API outside of the HPC space where so much control can be had over
-the processes.  I have the feeling that very few other kinds of
-applications will be willing to be stopped for the time that it takes
-for a set of migrations to occur.  But, if stopping the process is going
-to be a requirement, having more syscalls that take less time each
-should be desirable.  
+So if I stop using BK, I can immediately start working on another SCM
+but I can't go back to BK immediately.
 
--- Dave
+That would be much more acceptable to me, I know what I did in the past,
+but I won't accept any restriction of what I can do in the future.
+
+There would still be a problem of what to do if I get addicted to BK.
+
+
+Jürgen
+
+-- 
+NO to the planned nodding through of the EU software patent directive!
+
+Jürgen Stuber <juergen@jstuber.net>
+http://www.jstuber.net/
+gnupg key fingerprint = 2767 CA3C 5680 58BA 9A91  23D9 BED6 9A7A AF9E 68B4
 

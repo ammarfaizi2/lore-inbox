@@ -1,72 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130195AbRAXQw2>; Wed, 24 Jan 2001 11:52:28 -0500
+	id <S129811AbRAXQzi>; Wed, 24 Jan 2001 11:55:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129811AbRAXQwS>; Wed, 24 Jan 2001 11:52:18 -0500
-Received: from mcdc-us-smtp3.cdc.gov ([198.246.97.19]:39181 "EHLO
-	mcdc-us-smtp3.cdc.gov") by vger.kernel.org with ESMTP
-	id <S130195AbRAXQwC>; Wed, 24 Jan 2001 11:52:02 -0500
-Message-ID: <B7F9A3E3FDDDD11185510000F8BDBBF2049E8045@mcdc-atl-5.cdc.gov>
-X-Sybari-Space: 00000000 00000000 00000000
-From: Heitzso <xxh1@cdc.gov>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: fyi megaraid problems
-Date: Wed, 24 Jan 2001 11:50:54 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129710AbRAXQz2>; Wed, 24 Jan 2001 11:55:28 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:20635 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129811AbRAXQzQ>; Wed, 24 Jan 2001 11:55:16 -0500
+Message-Id: <5.0.2.1.2.20010124162842.00a48720@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Wed, 24 Jan 2001 16:54:36 +0000
+To: Cataldo Thomas <cataldo@essi.fr>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: NTFS safety and lack thereof - Was: Re: Linux 2.4.0ac11
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01012416081105.19999@nessie>
+In-Reply-To: <E14LOAm-0006z0-00@the-village.bc.nu>
+ <E14LOAm-0006z0-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-don't know if this has been covered/studied
+At 15:05 24/01/01, Cataldo Thomas wrote:
+>On Wed, 24 Jan 2001, Alan Cox wrote:
+> > 2.4.0-ac11
+> > o     Major NTFS updates                              (Anton Altaparmakov)
+>
+>Is read access safe ?
 
-datapoints I've run across re the megaraid
-(scsi raid driver, american megatrends)
+Of course read-only is safe. As long as you mount the partition READ-ONLY 
+nothing can happen to it in any way, your NTFS data is at least safe. It is 
+possible however that the driver might cause the kernel to crash in the 
+worst case so you might loose unsaved data on other write mounted 
+partitions. Note that this is an infrequent event and I have only over 
+experienced it under extreme load of the driver! Casual use like playing 
+mp3s from an NTFS partition works fine. On a production system, leaving 
+NTFS partitions mounted will slowly eat your memory (reported by several 
+people), mostly it will go into buffers which don't seem to get freed (I 
+think this is better with more recent kernels but don't have a box with 
+NTFS partitions which can stay up for more than a day, due to needing to 
+use windows, to make sure). - There is no detectable memory leak I can see 
+(I wrote a small memory debugger tracking facility and added it to the 
+driver and all allocated memory was released when the unmount happened, so 
+there is no leak, admittedly I need to have this run for longer to make 
+sure, also none of the memory blocks were overrun in either direction).
 
-box: Dell PowerEdge 2300, 2 cpus, 1G RAM
+To summarize: usage for read only is fine for general, not too heavy duty, 
+workstation that gets rebooted once every few days, kind of use.
 
-hard drive setup as single drive via raid
-controller
+Note that some of the facilities from Windows 2000 NTFS are not available 
+and the driver will either ignore them or do something stupid, but it will 
+NOT damage your data.
 
-RH6.1, compiled 2.2.13, megaraid works!
+Write mode is another matter completely! It is extremely DANGEROUS and NOT 
+suitable for everyday use. I would recommend to never mount an NTFS 
+partition read/write unless you are a developer and it is either a fully 
+backed up partition which you can afford to have completely trashed OR your 
+partition is already trashed / NT/2k isn't working and you are trying to 
+fix it. Only then is it ok to use it. Also note that the current driver has 
+no support whatsoever for deleting files/directories. So you can either 
+create files or copy files on top of others but not delete any of them. And 
+finally note that dealing with directories is not right so preferably stick 
+to only creating/copying files without involving the creation of directories.
 
-RH7.0 install/upgrade breaks on megaraid
-then, after forcing RH7.0 upgrade by hand 
- (completely snuffed up with all updates as of jan 23 am ...)
-RH7.0 kernel (out of the rpm box 686 smp) breaks on megaraid
-RH7.0 2.2.16 kernel source from rpm 
- compiled using 2.2.13 .config file
- and make oldconfig generates kernel that
- breaks on megaraid (used RH provided
- scripts to compile with kgcc)
-2.2.18 kernel (kernel.org) compiled with gcc on RH7.0
- breaks on megaraid during boot
+>I would really be interested by a link to ntfs status in linux. I mean 
+>what is safe and what is not.
 
-BUT! 2.4.1pre10 (kernel.org), compiled with gcc on RH7.0
- the megaraid driver works again!
+You will have to wait for that kind of thing I am afraid. I might put up 
+some kind of status page up on sourceforge at some point but not now. More 
+important things to do. If someone wants to make a web page just drop me a 
+line and we can put it up on linux-ntfs.sourceforge.net (nothing there at 
+the moment at all)...
 
-I was surprised that even 2.2.18 breaks
-then 2.4.1pre10 works, given RH's alliance
-with Dell.
+Hope this answers your immediate questions.
 
-I compiled a 2.4.0 and set it up in
-lilo.conf but haven't tried booting to it.
+Best regards,
 
-If it's useful to anyone, now that I have
-a good booting kernel I could recompile the
-old 2.2.13 setup and see whether the problem
-is due to a bad compiler env in RH7.0 or
-due to a bad megaraid module (i.e. if kernel
-that works fine now compiled under 6.1 
-breaks when recompiled under 7.0 then bug
-is in the RH7.0 compiler env; else bug is
-in megaraid shipped with 2.2.16, 2.2.18)
+         Anton
 
-Let me know if someone needs a datapoint.
 
-Heitzso
-xxh1@cdc.gov
+-- 
+    "Programmers never die. They do a GOSUB without RETURN." - Unknown source
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / Home page: http://www-stu.christs.cam.ac.uk/~aia21/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

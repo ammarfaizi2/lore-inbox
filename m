@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316569AbSG3VGU>; Tue, 30 Jul 2002 17:06:20 -0400
+	id <S316545AbSG3VDp>; Tue, 30 Jul 2002 17:03:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316573AbSG3VGT>; Tue, 30 Jul 2002 17:06:19 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10995 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316569AbSG3VGT>; Tue, 30 Jul 2002 17:06:19 -0400
-Subject: Re: [PATCH] 2.5.29: some compilation fixes for irq frenzy [OSS +
-	i8x0 audio]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1028062608.964.6.camel@andyp>
-References: <1028062608.964.6.camel@andyp>
+	id <S316548AbSG3VDo>; Tue, 30 Jul 2002 17:03:44 -0400
+Received: from symphony-06.iinet.net.au ([203.59.3.38]:40456 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S316545AbSG3VDo>;
+	Tue, 30 Jul 2002 17:03:44 -0400
+Subject: Re: 2.5.25: spurious 8259A interrupt: IRQ7
+From: Wade <neroz@iinet.net.au>
+To: EricAltendorf@orst.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200207301042.31667.EricAltendorf@orst.edu>
+References: <200207300952.28460.EricAltendorf@orst.edu>
+	<20020730175932.GA29379@darwin.crans.org> 
+	<200207301042.31667.EricAltendorf@orst.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 30 Jul 2002 23:25:51 +0100
-Message-Id: <1028067951.8510.44.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 31 Jul 2002 07:04:09 +1000
+Message-Id: <1028063051.487.65.camel@debian>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-30 at 21:56, Andy Pfiffer wrote:
-> This patch cleans up the save_flags()/cli() craziness in the OSS portion
-> of the i8x0 audio driver.
-> 
-> Apply to ChangeSet 1.524
-> 
-> Built, booted, and played some tunes.
+On Wed, 2002-07-31 at 03:42, Eric Altendorf wrote: 
+> OK -- I'll take that explanation.  I mentioned it because it happened 
+> in the first half hour of using this kernel specifically, and I'd 
+> never seen it before.
+I only see this if I have IO-APIC turned on for a uniprocessor 
+system. 
 
-But not it appears on an SMP system
 

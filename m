@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262426AbTCROdn>; Tue, 18 Mar 2003 09:33:43 -0500
+	id <S262414AbTCROdl>; Tue, 18 Mar 2003 09:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262427AbTCROdn>; Tue, 18 Mar 2003 09:33:43 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:35076 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
 	id <S262426AbTCROdl>; Tue, 18 Mar 2003 09:33:41 -0500
-Date: Tue, 18 Mar 2003 15:46:32 +0100
+Received: from [66.70.28.20] ([66.70.28.20]:34564 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S262414AbTCROdk>; Tue, 18 Mar 2003 09:33:40 -0500
+Date: Tue, 18 Mar 2003 15:42:59 +0100
 From: DervishD <raul@pleyades.net>
 To: "Richard B. Johnson" <root@chaos.analogic.com>
 Cc: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>,
        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: select() stress
-Message-ID: <20030318144632.GB1438@DervishD>
+Message-ID: <20030318144259.GA1438@DervishD>
 References: <Pine.WNT.4.44.0303171010580.1544-100000@GOLDENEAGLE.gameday2000> <Pine.LNX.4.53.0303171112090.22652@chaos> <20030318102837.GH42@DervishD> <Pine.LNX.4.53.0303180758380.26753@chaos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -25,22 +25,59 @@ User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Richard, again :)
+    Hi Richard :)
 
-    In my last message I told you that getdtablesize() is not
-reliable for closing all file descriptors, that its return value is
-not necessarily related to the file descriptor index. Well, I forgot
-to say that getdtablehi() effectively returns the index for the
-largest file descriptor available to the process plus one, that is,
-perfect for using with 'select()' and for closing all open files:
+ Richard B. Johnson dixit:
+> > > descriptors. You cannot assume that this number is the same
+> > > as the currently open socket. Just use the socket-value. That's
+> > > the file-descriptor.
+> >     Not at all. 'select()' takes a *number of file descriptors* as
+> > its first argument, meaning the maximum number of file descriptors to
+> > check (it checks only the first N file descriptors, being 'N' the
+> > first argument). Usually that first argument is FD_SETSIZE, but the
+> > result of any function returning a number is right if you know that
+> > the return value is what you want.
+> What I said has been misinterpreted. Select takes the highest
+> number fd in the set you want to examine plus 1.
 
-    for(i=0; i<getdtablehi(); i++) close(i);
+    AFAIK, only if the first argument is 'FD_SETSIZE', but I'm not
+sure of this point.
 
-    Is this implemented under Linux? I have a piece of software that
-relies on the above (now it's written using getdtablesize(), which is
-non-correct as you noted) for closing all file descriptors...
+    And yes, now I understand what you meant, and you're right. If
+you put in the set file descriptor 'N', you *must* put in the first
+argument at least N+1, or the file descriptor won't be checked.
 
-    Thanks again for noting this, Richard :)
+    Anyway, in the case of 'getdtablesize()', and assuming that it
+returns the highest 'openable' file descriptor, it will always return
+a number that is higher than any open file descriptor that the
+process has (except if it's inherited from the parent and the child
+has a lower file descriptor limit, but this involves tweaking with
+getdtablesize()...), since the fd numbers start from zero.
+
+> They are not the same and are not guaranteed to be related although
+> on some target, they might.
+
+    That's what I didn't understand with getdtablesize(). In the man
+page I can read that the function returns the size of the descriptor
+table for the process, not the highest number for a file descriptor,
+so you can't use it for 'select()', because you can have a socket
+descriptor with value e.g. 40055 open and getdtablesize() will
+return, for example, 1024. That is, you can open 1024 file
+descriptors in your process, but the open call can return 40000 :?
+
+    This leads me to the following thinking: I thought that the code
+below is a good way of closing all opened file descriptors, but if
+the OS can return an arbitrary number higher than the descriptor
+table size for a file descriptor, won't work:
+
+    for (i=0; i < getdtablesize(); i++) close(i);
+
+    How can this be achieved, knowing that the return value for
+getdtablesize() doesn't need to be related with fd numbers (that is,
+the kernel can return any arbitrary value for a file descriptor,
+given that the limit for OPEN_MAX or getdtablesize() is honored)?
+
+    Interesting issue :) Thanks, Richard.
 
     Raúl Núñez de Arenas Coronado
 

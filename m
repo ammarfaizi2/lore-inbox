@@ -1,76 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135718AbRAMBtz>; Fri, 12 Jan 2001 20:49:55 -0500
+	id <S136215AbRAMBuf>; Fri, 12 Jan 2001 20:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136215AbRAMBtp>; Fri, 12 Jan 2001 20:49:45 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:56842
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S135718AbRAMBtb>; Fri, 12 Jan 2001 20:49:31 -0500
-Date: Fri, 12 Jan 2001 17:48:51 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
+	id <S136170AbRAMBu0>; Fri, 12 Jan 2001 20:50:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27149 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S136215AbRAMBuI>;
+	Fri, 12 Jan 2001 20:50:08 -0500
+Date: Sat, 13 Jan 2001 02:49:17 +0100
+From: Jens Axboe <axboe@suse.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: John Heil <kerndev@sc-software.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <Pine.LNX.4.10.10101121726590.893-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101121736490.2411-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Cc: Frank de Lange <frank@unternet.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
+        linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+Message-ID: <20010113024917.B22380@suse.de>
+In-Reply-To: <20010113014807.B29757@unternet.org> <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 04:56:24PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Linus Torvalds wrote:
+On Fri, Jan 12 2001, Linus Torvalds wrote:
+> [...] With disks it is very hard
+> to get the same kind of irq load - Linux will merge the requests and do at
+> least 1kB worth of transfer per interrupt etc. On a ne2k 100Mbps PCI card,
 
-> 
-> 
-> On Fri, 12 Jan 2001, Andre Hedrick wrote:
-> > 
-> > It works perfectly and exactly as it is defined to work by the rules.
-> > Getting the rules correct == 'the concept of "working"'.
-> 
-> Don't be silly.
-> 
-> You're entirely ignoring the concept of hardware bugs. Which is one very
-> likely reason for this whole discussion in the first place.
-> 
-> ANYBODY who does driver development without taking the real world into
-> account is a dangerous person. Stacks of papers, diagrams and rules are
-> absolutely WORTHLESS if you can't just understand the fact that
-> documentation is nothing more than a guide-line.
-> 
-> Once you realize that documentation should be laughed at, peed upon, put
-> on fire, and just ridiculed in general, THEN, and only then, have you
-> reached the level where you can safely read it and try to use it to
-> actually implement a driver.
-> 
-> I'm continually amazed and absolutely scared silly by your blind trust in
-> paperwork, whether it be standards or committees or vendor documentation.
+Actually, without mult count you will do only 512b of I/O per interrupt
+on IDE. Regardless of merging etc. Still doesn't reach nic levels, but
+it's _bad_ anyway :-)
 
-Test and Verify!  It has been abused on an ATA-Analyzer!
-It was written while running on an ATA-Analyzer!
-The real world does not get any more real than on an ATA-Analyzer!
-Since this was a done by direct access with out the FS/VM mess it is an
-exact method of operation, it is a perfect data-signal trace.
-Perfect == fits exactly in the boundaries of the state-diagrams.
-
-This is how you write code, LT.
-
-Follow the rules, and the verify the rules are correct.
-If they are not, fix it until it is correct and see what happened in the
-rules.  I have offered to get you signed letters of technical
-certification by the drive makers, and you have declined.
-
-The idea of just banging code to get the desired result regardless of
-public methods published to insure comman design/correctness is all but
-silly.  What do you think timing tables are for, wallpaper or to line the
-bottom of a bird cage?  Sheesh....  You have to access a PCI-bus, CPU, AGP
-and all these other things in the correct event windows, or do you?
-
-Regards,
-
-Andre Hedrick
-Linux ATA Development
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

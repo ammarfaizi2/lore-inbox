@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263284AbSJFD3h>; Sat, 5 Oct 2002 23:29:37 -0400
+	id <S263287AbSJFDev>; Sat, 5 Oct 2002 23:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263285AbSJFD3h>; Sat, 5 Oct 2002 23:29:37 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:404 "EHLO
+	id <S263294AbSJFDeu>; Sat, 5 Oct 2002 23:34:50 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:1684 "EHLO
 	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S263284AbSJFD3g>; Sat, 5 Oct 2002 23:29:36 -0400
-Date: Sat, 5 Oct 2002 23:35:13 -0400
+	id <S263287AbSJFDeu>; Sat, 5 Oct 2002 23:34:50 -0400
+Date: Sat, 5 Oct 2002 23:40:27 -0400
 To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
-       Ben Collins <bcollins@debian.org>
 Subject: Re: New BK License Problem?
-Message-ID: <20021006033513.GA21253@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>,
-	Ulrich Drepper <drepper@redhat.com>,
-	Ben Collins <bcollins@debian.org>
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021005184153.GJ17492@marowsky-bree.de> <20021005190638.GN585@phunnypharm.org> <3D9F3C5C.1050708@redhat.com> <20021005124321.D11375@work.bitmover.com>
+Message-ID: <20021006034027.GB21253@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021005184153.GJ17492@marowsky-bree.de> <20021005190638.GN585@phunnypharm.org> <3D9F3C5C.1050708@redhat.com> <20021005124321.D11375@work.bitmover.com> <3D9F49D9.304@redhat.com> <20021005162852.I11375@work.bitmover.com> <1033861827.4441.31.camel@irongate.swansea.linux.org.uk> <20021005165316.E12580@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021005124321.D11375@work.bitmover.com>
+In-Reply-To: <20021005165316.E12580@work.bitmover.com>
 User-Agent: Mutt/1.4i
 From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 12:43:21PM -0700, Larry McVoy wrote:
-> > patches in the kernel every day.  Now this isn't possible anymore without
-> 
-> Nonsense.  There are all sorts of people who have taken the BK trees and
-> made the patch snapshots available on timely basis.  Garzik's done it,
-> Woodhouse has done it, Rik has done it, I'm sure there are piles more.
+On Sat, Oct 05, 2002 at 04:53:16PM -0700, Larry McVoy wrote:
+> Anyway, we have the BK data, if you have data that says the rate of change
+> has gone down since he started using BK, let's see it.  If all you are 
+> saying is that he isn't publishing ftp-able snapshots every hour, that's
+> a problem that HPA or whoever could easily fix with a shell script.
 
-I promised myself to stay out of this one, but according to the wording
-of your license they all thereby losts their licenses because they
-'developed a product which competes with the BK software' as the GNU
-patches they make available are clearly allowing others to make things
-accessible with competing products. And to automate it they must have
-developed some sort of script to pull the changesets out of the BK
-repository.
+The BK stats don't prove whether the patch drop rate has improved at
+all, only what got merged.
 
-Similarily any fs developer is creating something that can store
-multiple revisions of a source tree which, albeit inefficiently, has
-similar capabilities. And if someone uses a filesystem to store his
-development trees instead of BK, it is clearly a competing product.
-
-I do see your point and consider it valid, you have to make a living
-too, but I can also see how the wording of the license could be
-'misinterpreted'. That 'reasonable opinion of BitMover' is somewhat
-of a safety net which probably would nullify the violations I mentioned
-above.
+And even if Linus is dropping fewer patches, that could very well be a
+bad thing. I've had a couple of times that I looked at a dropped patch
+while pulling it up to a new kernel release and thought 'ok, what was I
+smoking'.
 
 Jan
 

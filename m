@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270449AbRHHK5y>; Wed, 8 Aug 2001 06:57:54 -0400
+	id <S270447AbRHHK4O>; Wed, 8 Aug 2001 06:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270450AbRHHK5o>; Wed, 8 Aug 2001 06:57:44 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45831 "EHLO
+	id <S270449AbRHHK4E>; Wed, 8 Aug 2001 06:56:04 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41991 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270449AbRHHK53>; Wed, 8 Aug 2001 06:57:29 -0400
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-To: rhw@MemAlpha.CX (Riley Williams)
-Date: Wed, 8 Aug 2001 11:59:06 +0100 (BST)
-Cc: jdwyatt@Bellsouth.net (Josh Wyatt), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0108080705450.12565-100000@infradead.org> from "Riley Williams" at Aug 08, 2001 07:28:55 AM
+	id <S270447AbRHHKzr>; Wed, 8 Aug 2001 06:55:47 -0400
+Subject: Re: 2.4.7-ac4 disk thrashing
+To: Dieter.Nuetzel@hamburg.de (Dieter =?iso-8859-1?q?N=FCtzel?=)
+Date: Wed, 8 Aug 2001 11:57:55 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel List),
+        reiserfs-list@namesys.com (ReiserFS List),
+        mason@suse.com (Chris Mason), NikitaDanilov@Yahoo.COM (Nikita Danilov),
+        phillips@bonn-fries.net (Daniel Phillips), tmv5@home.com (Tom Vier)
+In-Reply-To: <20010808063914Z270354-28344+2861@vger.kernel.org> from "Dieter =?iso-8859-1?q?N=FCtzel?=" at Aug 08, 2001 08:38:16 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15UR3K-00051r-00@the-village.bc.nu>
+Message-Id: <E15UR2B-00051d-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Why not have a provision like the following:
-> 
->  > 1. For a given driver, assign ethX in [ascending|descending]
->  >    (pick one) order based on MAC addr. At least this is a
->  >    predictable order; it should never change for a given driver.
-> 
-> Alan Cox will correct me if I'm wrong, but memory says that he pointed
-> out a while back some problem with this idea. I've cc'd this to him
-> for comments.
+> Could it be that the ReiserFS cleanups in ac4 do harm?
+> http://marc.theaimsgroup.com/?l=3Dreiserfs&m=3D99683332027428&w=3D2
 
-Correct. MAC addresses are defined per machine not per card. That they tend
-to be per card is on a PC isnt always true elsewhere. For example many sparc
-boxes have one mac per machine.
-
-Its still a valuable way of naming devices. 
+I suspect the use once patch is the more relevant one. 

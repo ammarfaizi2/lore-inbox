@@ -1,34 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316838AbSGQXjl>; Wed, 17 Jul 2002 19:39:41 -0400
+	id <S316842AbSGQXiL>; Wed, 17 Jul 2002 19:38:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316847AbSGQXjl>; Wed, 17 Jul 2002 19:39:41 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:28131
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S316838AbSGQXjk>; Wed, 17 Jul 2002 19:39:40 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200207172342.g6HNgWJ05647@www.hockin.org>
-Subject: Re: [RFC] Groups beyond 32
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Wed, 17 Jul 2002 16:42:32 -0700 (PDT)
+	id <S316845AbSGQXiL>; Wed, 17 Jul 2002 19:38:11 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:61915 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316842AbSGQXiK>; Wed, 17 Jul 2002 19:38:10 -0400
+Date: Wed, 17 Jul 2002 19:41:04 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200207172341.g6HNf4830755@devserv.devel.redhat.com>
+To: Tomas Szepe <szepe@pinerecords.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <ah4v23$39o$1@cesium.transmeta.com> from "H. Peter Anvin" at Jul 17, 2002 04:36:35 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: sched.h problem
+In-Reply-To: <mailman.1026801544.11015.linux-kernel2news@redhat.com>
+References: <mailman.1026801544.11015.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (glibc has #define NGROUPS NGROUPS_MAX).
+> However, arch/sparc/kernel/process.c::cpu_idle() tries to set
+> these properties for the idle task:
 > 
-> > 3. Is there any true advantage to supporting more than 32 groups, or
-> > creating "meta-groups" to get around the problem? 
-> 
-> There probably is.
+> 	current->nice = 20;
+> 	current->counter = -100;
+> 	init_idle();   
 
-We have patches to fix all this groups stuff, and I have every intention of
-submitting them Real Soon Now.  Our offices are moving, so stuff is hither
-and thither.
+I'll send you my O(1) for sparc 2.5, adapt that.
 
-Tim
+-- Pete

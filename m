@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314215AbSDRBwi>; Wed, 17 Apr 2002 21:52:38 -0400
+	id <S314216AbSDRCNp>; Wed, 17 Apr 2002 22:13:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314216AbSDRBwh>; Wed, 17 Apr 2002 21:52:37 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:22819 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S314215AbSDRBwg>; Wed, 17 Apr 2002 21:52:36 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A78177F10@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Martin J. Bligh'" <Martin.Bligh@us.ibm.com>,
-        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
-        "'Robert Love'" <rml@tech9.net>
-Cc: James Bourne <jbourne@MtRoyal.AB.CA>, Ingo Molnar <mingo@elte.hu>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Hyperthreading
-Date: Wed, 17 Apr 2002 20:52:19 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S314217AbSDRCNo>; Wed, 17 Apr 2002 22:13:44 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:35497 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S314216AbSDRCNo>;
+	Wed, 17 Apr 2002 22:13:44 -0400
+Date: Wed, 17 Apr 2002 19:10:53 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: RAID superblock confusion
+Message-ID: <20020418021053.GF574@matchmail.com>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
+	Richard Gooch <rgooch@ras.ucalgary.ca>,
+	Andreas Dilger <adilger@clusterfs.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200204101533.g3AFXwS09100@vindaloo.ras.ucalgary.ca> <20020410184010.GC3509@turbolinux.com> <200204101924.g3AJOp113305@vindaloo.ras.ucalgary.ca> <20020410193812.GE3509@turbolinux.com> <200204102037.g3AKbmT14222@vindaloo.ras.ucalgary.ca> <15540.59659.114876.390224@notabene.cse.unsw.edu.au> <200204131926.g3DJQGI06532@vindaloo.ras.ucalgary.ca> <15550.10053.834276.18723@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> (Though check Anandtech, he did a benchmark on his DB, and got a small
->> performance Decrease on a test!)
+On Thu, Apr 18, 2002 at 11:54:13AM +1000, Neil Brown wrote:
+> On Saturday April 13, rgooch@ras.ucalgary.ca wrote:
+> > If there was only a "do as I say, regardless" mode, I would be happy.
+> > This programmer-knows-best attitude smacks of M$.
+> 
+> mdadm will do as you say, reguardless - if you ask it to.  Have you
+> tried mdadm?
+>    http://www.cse.unsw.edu.au/~neilb/source/mdadm/
 
->Thanks for the pointer.
-
-Also, it looks like the Athlon MP still stacks up quite nice in his more or
-less real world benchmark, even against an pair of Hyperthreaded ZEON's.
-
->It sounds like a good idea in theory, but the fact that they share the TLB
->cache and other things makes me rather dubious about whether it's really
->worth it. I'm not saying it's necessarily bad, I'm just not convinced it's
-good
->yet. Introducing more processors to the OS has it's own problems to deal 
->with (ones we're interested in solving anyway).
-
-I'll bet it'll be interesting, and I agree, I was dubious about the P4 at
-first anyway.. :o)  Though Hyperthreading will only be in the ZEON.   
-
->Real world benchmarks from people other than Intel should make interesting
->reading .... I think we need some more smarts in the OS to take real
-advantage
->of this (eg using the NUMA scheduling mods to create cpu pools of 2 "procs"
->for each pair, etc) ... will be fun ;-)
-
->From the docs, it looks like maybe some scheduling smarts could be added.
-Run Floating point ops on one Logical processor, and normal ops on the
-other, and maybe some other parallelism mods.  
-
+Niel, do you plan to merge mdadm into the raidtools package?  It sounds like
+it belongs there.

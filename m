@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSEDJqP>; Sat, 4 May 2002 05:46:15 -0400
+	id <S292730AbSEDJiz>; Sat, 4 May 2002 05:38:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311424AbSEDJqO>; Sat, 4 May 2002 05:46:14 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:32004 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S293457AbSEDJqN>; Sat, 4 May 2002 05:46:13 -0400
-Date: Sat, 4 May 2002 11:46:01 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: bruce.holzrichter@monster.com, linux-kernel@vger.kernel.org, ak@muc.de
-Subject: Re: my slab cache broken on sparc64
-In-Reply-To: <20020503.200747.104775821.davem@redhat.com>
-Message-ID: <Pine.LNX.4.21.0205041144020.23113-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293457AbSEDJiy>; Sat, 4 May 2002 05:38:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55560 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S292730AbSEDJix>; Sat, 4 May 2002 05:38:53 -0400
+Date: Sat, 4 May 2002 10:38:43 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+Message-ID: <20020504103843.B17918@flint.arm.linux.org.uk>
+In-Reply-To: <15571.33592.365558.215598@argo.ozlabs.ibm.com> <23023.1020502982@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sat, May 04, 2002 at 07:03:02PM +1000, Keith Owens wrote:
+> md5sums alone are not enough, people touch source or header files, even
+> config options and expect objects to be rebuilt, timestamps are
+> required as well.  A change to the KBUILD_SRCTREE_nnn environment
+> variables adds or deletes entire trees.  So phase1 is still required,
+> to find all the files in all the trees and get their current
+> timestamps.  "Optimizing" will not save any time there, kbuild always
+> needs current timestamp data.
 
-On Fri, 3 May 2002, David S. Miller wrote:
+So you're *reading* all source files in the kernel tree each time you
+kick off a build?  Do you have shares in a SDRAM memory manufacturer
+by any chance?
 
-> If the __get_user() fails, you will leave the kernel in the
-> KERNEL_DS segment.
-> 
-> Do it like this instead.
-> 
-> 	int fault;
-> 	mm_segment_t old_fs;
-> 
-> 	...
-> 
-> 	old_fs = get_fs();
-> 	set_fs(KERNEL_DS);
-> 	fault = __get_user(tmp, pc->name);
-> 	set_fs(old_fs);
-> 
-> 	if (fault) {
-> 	...
+If that's the case, I'd rather the existing 2.4 build system stayed.
 
-He can also simply move it outside of the loop to avoid this problem.
-
-bye, Roman
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

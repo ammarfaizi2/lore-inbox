@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131365AbRCWTaL>; Fri, 23 Mar 2001 14:30:11 -0500
+	id <S131345AbRCWT2l>; Fri, 23 Mar 2001 14:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131368AbRCWTaC>; Fri, 23 Mar 2001 14:30:02 -0500
-Received: from relay03.cablecom.net ([62.2.33.103]:44806 "EHLO
-	relay03.cablecom.net") by vger.kernel.org with ESMTP
-	id <S131365AbRCWT3x>; Fri, 23 Mar 2001 14:29:53 -0500
-Message-ID: <3ABBA400.2AEC97E8@bluewin.ch>
-Date: Fri, 23 Mar 2001 20:29:03 +0100
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S131365AbRCWT2c>; Fri, 23 Mar 2001 14:28:32 -0500
+Received: from [193.120.246.5] ([193.120.246.5]:13977 "EHLO best.eurologic.com")
+	by vger.kernel.org with ESMTP id <S131345AbRCWT2W>;
+	Fri, 23 Mar 2001 14:28:22 -0500
+Message-ID: <3ABBA330.2ADCEBAA@eurologic.com>
+Date: Fri, 23 Mar 2001 19:25:36 +0000
+From: Mark Mitchell <mmitchell@eurologic.com>
+Organization: Eurologic
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: David Balazic <david.balazic@uni-mb.si>, linux-kernel@vger.kernel.org
-Subject: Re: Linux should better cope with power failure
-In-Reply-To: <3ABB6B82.62293CAD@uni-mb.si>
+To: linux-kernel@vger.kernel.org
+Subject: Re: raw access and qlogic isp device driver?
+In-Reply-To: <E14gUgZ-00050U-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had a similar experience:
-> X crashed , hosing the console , so I could not initiate
-> a proper shutdown.
+Alan Cox wrote:
+>
+> ...
+>
+> > Has anyone used the raw device with qlogicisp driver? Does 
+> > anyone have any interest in looking at this?
 > 
-> Here I must note that the response you got on linux-kernel is
-> shameful.
-> 
-Thanks, but I expected it a little bit. All around Linux is centered
-around getting the highest performance out of it and very low (to low
-IMHO) is done to have a save system. The attitude "It doesn't matter
-making mistakes, they get fix anyhow" annoys me most, especially if it
-were easy to prevent them. 
+> It shouldnt matter which driver is involved, but 2.4 raw stuff 
+> is reported broken still
 
-> What I did was to write a kernel/apmd patch , that performed a
-> proper shutdown when I press the power button ( which luckily
-> works as long as the kernel works ).
-> 
-Not with a AT power supply but certainly nice to have. See that it gets
-included into the kernel. I didn't lost anything important since it was
-just a testing machine. I was just shocked what fsck complained on a
-machine which hadn't done almost anything at all. If I'd run into this
-on a productive system I'd get immediately a serial keyboard or have at
-least a usable network connection. Besides USB-only is not ready yet.
+Any chance of anyone elaborating on any RAWIO flaws?
 
-> > Don't we tell children never go close to any abyss or doesn't have
-> > alpinist a saying "never go to the limits"? So why is this simple rule
-> > always broken with computers?
-> >
-Is there a similar expression which could be hammered into any
-developers mind, i.e. "Don't make errors, others already do them for you".
+*Seems* to work fine with:
+- 2.4.2 (inc Dave Miller's zero copy patch)
+- qlogic fc driver & qla2200
+- PIII
+- Seagate ST39103fc drives in a JBOD
 
-O. Wyss
+I really need to know any *specific* issues with RAWIO.
+
+Cheers,
+	Mark.

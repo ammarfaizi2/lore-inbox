@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268184AbTAKWI1>; Sat, 11 Jan 2003 17:08:27 -0500
+	id <S268157AbTAKWL1>; Sat, 11 Jan 2003 17:11:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268183AbTAKWIW>; Sat, 11 Jan 2003 17:08:22 -0500
-Received: from [66.109.128.42] ([66.109.128.42]:9939 "EHLO
-	mistersix.montana.com") by vger.kernel.org with ESMTP
-	id <S268182AbTAKWIK>; Sat, 11 Jan 2003 17:08:10 -0500
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-From: Chief Gadgeteer <gadgeteer@elegantinnovations.org>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
-	<1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
-	<20030111020738.GC9373@work.bitmover.com>
-	<1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
-	<20030111021741.GF9373@work.bitmover.com>
-	<1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
-	<20030111214437.GD9153@nbkurt.casa-etp.nl> 
-	<1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
-Content-Type: text/plain
+	id <S268151AbTAKWLC>; Sat, 11 Jan 2003 17:11:02 -0500
+Received: from pop.gmx.net ([213.165.64.20]:10286 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S268183AbTAKWJg>;
+	Sat, 11 Jan 2003 17:09:36 -0500
+From: Helge Deller <deller@gmx.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre3
+Date: Sat, 11 Jan 2003 23:15:11 +0100
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.50L.0301061932140.8257-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.50L.0301061932140.8257-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Jan 2003 15:16:40 -0700
-Message-Id: <1042323408.14323.3.camel@FatBoy>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200301112315.11415.deller@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 14:53, Rob Wilkens wrote:
-> I'd say terribly presumptuous, but I don't think it is presumptuous to
-> say that if there are many patches (bug fixes, mostly) coming in that
-> the code that was originally there was of questionable quality.
+On Monday 06 January 2003 22:32, Marcelo Tosatti wrote:
+> So here goes -pre3...
 
-OK, then you do not know shit about software engineering within the FOSS
-development paradigm.
-
--- 
-Chief Gadgeteer
-Elegant Innovations
+depmod: *** Unresolved symbols in /lib/modules/2.4.21-pre3/kernel/drivers/video/matrox/matroxfb_DAC1064.o
+depmod:         g450_mnp2f
+depmod:         matroxfb_g450_setpll_cond
+depmod:         matroxfb_g450_setclk
 

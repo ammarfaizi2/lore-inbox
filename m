@@ -1,66 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbTJRFTT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 01:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbTJRFTB
+	id S261344AbTJRFVU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 01:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTJRFVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 01:19:01 -0400
-Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:42370 "EHLO
-	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S261342AbTJRFS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 01:18:58 -0400
-Message-ID: <XFMail.20031018011826.f.duncan.m.haldane@worldnet.att.net>
-X-Mailer: XFMail 1.5.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Date: Sat, 18 Oct 2003 01:18:26 -0400 (EDT)
-From: Duncan Haldane <f.duncan.m.haldane@worldnet.att.net>
+	Sat, 18 Oct 2003 01:21:20 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52688
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261344AbTJRFVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 01:21:19 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test8: broken  /fs/proc/array.c  compilation
+Subject: Where's the bzip2 compressed linux-kernel patch?
+Date: Sat, 18 Oct 2003 00:18:21 -0500
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310180018.21818.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
-the changes in 2.6.0-test8 break compilation
-of /fs/proc/array.c with
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
+I just rewrote bunzip2 for busybox in about 500 lines of C (and a good chunk 
+of that's comments), which comiles to a bit under 7k, and I was thinking of 
+redoing the bunzip-the-kernel patch with my new bunzip code, but I can't find 
+the patch.  Anybody got a URL to it?
 
+The most recent one I could find was kerneltrap's 404-error link to 
+http://chrissicool.piranho.com/patch-2.4.x-bzip2-i386
 
+Rob
 
-
-CC      fs/proc/array.o
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:398: Unrecognizable insn:
-(insn/i 1332 1672 1666 (parallel[
-            (set (reg:SI 0 eax)
-                (asm_operands ("") ("=a") 0[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (set (reg:SI 1 edx)
-                (asm_operands ("") ("=d") 1[
-                        (reg:DI 1 edx)
-                    ]
-                    [
-                        (asm_input:DI ("A"))
-                    ]  ("include/linux/times.h") 37))
-            (clobber (reg:QI 19 dirflag))
-            (clobber (reg:QI 18 fpsr))
-            (clobber (reg:QI 17 flags))
-        ] ) -1 (insn_list 1326 (nil))
-    (nil))
-fs/proc/array.c:398: confused by earlier errors, bailing out
-make[2]: *** [fs/proc/array.o] Error 1
-make[1]: *** [fs/proc] Error 2
-make: *** [fs] Error 2
-
-
-No problem in 2.6.0-test7
-
-
-
+P.S.  If you're curious about the micro-bunzip code, it's in busybox CVS:
+http://www.busybox.net/cgi-bin/cvsweb/busybox/archival/libunarchive/decompress_bunzip2.c

@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267932AbSIRSXS>; Wed, 18 Sep 2002 14:23:18 -0400
+	id <S269364AbSIRS37>; Wed, 18 Sep 2002 14:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268261AbSIRSXS>; Wed, 18 Sep 2002 14:23:18 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:65451 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S267932AbSIRSXQ>;
-	Wed, 18 Sep 2002 14:23:16 -0400
-Date: Wed, 18 Sep 2002 20:28:18 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918182818.GA14629@win.tue.nl>
-References: <20020918123206.GA14595@win.tue.nl> <Pine.LNX.4.44.0209181452050.19672-100000@localhost.localdomain>
+	id <S269365AbSIRS37>; Wed, 18 Sep 2002 14:29:59 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:15015 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S269364AbSIRS3x>;
+	Wed, 18 Sep 2002 14:29:53 -0400
+Date: Thu, 19 Sep 2002 00:10:18 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Read-Copy Update 2.5.36
+Message-ID: <20020919001018.C23055@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <200209181937.39385.m.c.p@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209181452050.19672-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209181937.39385.m.c.p@gmx.net>; from m.c.p@wolk-project.de on Wed, Sep 18, 2002 at 07:38:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 18, 2002 at 02:56:19PM +0200, Ingo Molnar wrote:
-> On Wed, 18 Sep 2002, Andries Brouwer wrote:
+On Wed, Sep 18, 2002 at 07:38:30PM +0200, Marc-Christian Petersen wrote:
+> Hi Dipankar,
 > 
-> > I still don't understand the current obsession with this stuff. It is
-> > easy to have pid_max 2^30 and a fast algorithm that does not take any
-> > more kernel space.
+> > Here is RCU for 2.5.36. It is just a rediff from earlier version.
+> unfortunately it does not build the modules correctly.
 > 
-> it's only an if(unlikely()) branch in a 1:4096 slowpath to handle this, so
-> why not? If it couldnt be done sanely then i wouldnt argue about this, but
-> look at the code, it can be done cleanly and with very low cost.
-
-In my opinion you are doing something that is entirely superfluous,
-and at nonzero cost.
-
-> > It seems to me you are first creating an unrealistic and unfavorable
-> > situation (put pid_max at some artificially low value, [...]
+> Output of "make modules"
 > 
-> we want the default to be low, so that compatibility with the older SysV
-> APIs is preserved.
+> make[1]: Entering directory `/usr/src/linux-2.5.36-vanilla/fs'
+>   gcc -Wp,-MD,./.binfmt_misc.o.d -D__KERNEL__ 
+> -I/usr/src/linux-2.5.36-vanilla/include -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+> -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include 
+> -DMODULE   -DKBUILD_BASENAME=binfmt_misc   -c -o binfmt_misc.o binfmt_misc.c
+> In file included from /usr/src/linux-2.5.36-vanilla/include/linux/mm.h:4,
+>                  from /usr/src/linux-2.5.36-vanilla/include/linux/pagemap.h:7,
+>                  from binfmt_misc.c:26:
+> /usr/src/linux-2.5.36-vanilla/include/linux/sched.h:480: parse error before 
+> `cpu_quiescent'
+> /usr/src/linux-2.5.36-vanilla/include/linux/sched.h:480: warning: type 
+> defaults to `int' in declaration of `DEFINE_PER_CPU'
+> /usr/src/linux-2.5.36-vanilla/include/linux/sched.h:480: warning: function 
+> declaration isn't a prototype
 
-Do you know of any programs that would be affected?
-Last I did a grep on all source rpm's in some SuSE or RedHat distribution,
-there was not a single program.
+Ok, so DEFINE_PER_CPU() has now been excluded when MODULE is defined.
+The included patch below should fix that.
 
-> Also, why use a 128K bitmap to handle 1 million PIDs on
-> a system that has at most 1000 tasks running? I'd rather use an algorithm
-> that scales well from low pid_max to a larger pid_max as well.
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
-Yes indeed. So I advertize not using any bitmap at all.
 
-> > Please leave pid_max large.
-> 
-> why? For most desktop systems even 32K PIDs is probably too high. A large
-> pid_max only increases the RAM footprint. (well not under the current
-> allocation scheme but still.)
-
-I have said it so many times, but let me repeat.
-A large pid_max makes your system faster.
-
-Collisions cost time. In a large space there are few collisions.
-
-Now suppose you start 10^4 tasks at boot time and after 10^9 forks
-you have to come back. Do you necessarily have to come across this
-bunch of 10^4 tasks that are still sitting there?
-That would be unfortunate.
-
-But, you see, there are really many ways to avoid that.
-
-Let me just invent one on the spot. Pick a random generator with
-period 2^128 - 1 and each time you want a new pid pick the last
-30 bits of its output. Why is that nice? Next time you come
-around to the same pid, pids that were close together first
-are far apart the second time.
-
-You see, no data structures, no bitmaps, and very good behaviour
-on average, even after 10^9 forks.
-
-But there are lots of other solutions.
-
-I would prefer to avoid talking about specific solutions as long as
-this is not a problem that occurs in practice (with 30-bit pids).
-I just want to stress: the larger the pid space, the faster your
-computer forks.
-
-Andries
+--- linux-2.5.36-rcu_poll/include/linux/sched.h.orig	Wed Sep 18 22:33:16 2002
++++ linux-2.5.36-rcu_poll/include/linux/sched.h	Wed Sep 18 22:49:51 2002
+@@ -477,7 +477,9 @@
+ 
+ extern struct   mm_struct init_mm;
+ extern struct task_struct *init_tasks[NR_CPUS];
++#ifndef MODULE
+ extern DEFINE_PER_CPU(long, cpu_quiescent);
++#endif
+ 
+ /* PID hashing. (shouldnt this be dynamic?) */
+ #define PIDHASH_SZ 8192
+@@ -1029,7 +1031,7 @@
+ 
+ #endif /* CONFIG_SMP */
+ 
+-#ifdef CONFIG_PREEMPT
++#if defined(CONFIG_PREEMPT) && !defined(MODULE)
+ 
+ extern DEFINE_PER_CPU(atomic_t[2], rcu_preempt_cntr);
+ extern DEFINE_PER_CPU(atomic_t, *curr_preempt_cntr);

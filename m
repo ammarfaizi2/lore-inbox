@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUEWTrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263484AbUEWTyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUEWTrr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 15:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUEWTrq
+	id S263484AbUEWTyR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 15:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbUEWTyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 15:47:46 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:18641 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263540AbUEWTrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 15:47:43 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 VS 2.6 fork VS thread creation time test
-Date: Sun, 23 May 2004 21:47:31 +0200
-User-Agent: KMail/1.6.2
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Gergely Czuczy <phoemix@harmless.hu>, itk-sysadm@ppke.hu
-References: <Pine.LNX.4.60.0405230914330.15840@localhost> <200405231139.44096.linux-kernel@borntraeger.net> <Pine.LNX.4.58.0405230247450.8199@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.58.0405230247450.8199@dlang.diginsite.com>
+	Sun, 23 May 2004 15:54:17 -0400
+Received: from ghoul.undead.cc ([216.126.84.18]:5248 "HELO mail.undead.cc")
+	by vger.kernel.org with SMTP id S263551AbUEWTup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 15:50:45 -0400
+Message-ID: <40B10093.6030703@undead.cc>
+Date: Sun, 23 May 2004 15:50:43 -0400
+From: John Zielinski <grim@undead.cc>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405232147.36372.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] sysfs rename dir problem
+Content-Type: multipart/mixed;
+ boundary="------------000802070000040400040204"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> On Sun, 23 May 2004, Christian Borntraeger wrote:
-> > Gergely Czuczy wrote:
-> > > failed. As I told it above all the processes are teminated right
-> > > after creation, but there were a lot of defunct processes in the
-> > > system, and they were only gone when the parent termineted.
-> > Have you heard of wait, waitpid and pthread_join?
-> there really is some sort of problem with 2.6.6 in this area. I have an
+This is a multi-part message in MIME format.
+--------------000802070000040400040204
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well in the example given by Gergely there was no wait call at all. 
-Therefore I believe your problem is not related to his one.
+In the sysfs_rename_dir function if something goes wrong then the 
+directory name would no longer match the internal kobj name.  Here's a 
+patch I made to fix that but I'm not sure if it's 100% correct.
 
-What do you mean by with 2.6.6. Does this testcase behaves differently with 
-other kernel versions? Which version is the first with this problem?
+John
 
-> the prarent deals with sigchild by
-> handler{
-> while ( wait(...) >0);
-> signal(SIGCHLD, handler);
-> }
 
-You run signal within the signal handler. This is not necessary, although 
-this should cause no problems. Nevertheless, can you try your test without 
-signal in the signal handler?
 
-cheers
 
-Christian
+--------------000802070000040400040204
+Content-Type: text/plain;
+ name="sysfs_rename_fix"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sysfs_rename_fix"
+
+diff -urNX dontdiff linux-2.6.6/fs/sysfs/dir.c linux/fs/sysfs/dir.c
+--- linux-2.6.6/fs/sysfs/dir.c	2004-05-09 22:32:28.000000000 -0400
++++ linux/fs/sysfs/dir.c	2004-05-23 15:16:40.000000000 -0400
+@@ -169,8 +169,14 @@
+ 	down(&parent->d_inode->i_sem);
+ 
+ 	new_dentry = sysfs_get_dentry(parent, new_name);
+-	d_move(kobj->dentry, new_dentry);
+-	kobject_set_name(kobj,new_name);
++	if (!IS_ERR(new_dentry)) {
++		if (kobject_set_name(kobj,new_name))
++			d_move(kobj->dentry, new_dentry);
++		else {
++			d_delete(new_dentry);
++			dput(new_dentry);
++		}
++	}
+ 	up(&parent->d_inode->i_sem);	
+ }
+ 
+
+--------------000802070000040400040204--
+

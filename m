@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263803AbUDVHLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263731AbUDVHKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbUDVHLz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263794AbUDVHLd
+	id S263731AbUDVHKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUDVHKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:11:33 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:52668 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263642AbUDVHKS (ORCPT
+	Thu, 22 Apr 2004 03:10:42 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:31677 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263731AbUDVHKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:10:18 -0400
-Date: Thu, 22 Apr 2004 00:07:00 -0700
+	Thu, 22 Apr 2004 03:10:22 -0400
+Date: Thu, 22 Apr 2004 00:07:59 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: [Patch 3 of 17] cpumask v4 - New bitmap operators and two op
- complement
-Message-Id: <20040422000700.6416b9f6.pj@sgi.com>
+Subject: [Patch 17 of 17] cpumask v4 - Cpumask code clarification in
+ kernel/sched.c
+Message-Id: <20040422000759.2919be54.pj@sgi.com>
 In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
 References: <20040421232247.22ffe1f2.pj@sgi.com>
 Organization: SGI
@@ -27,162 +27,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask3-bitmap-newops - New bitmap operators and two op complement
-        Add intersects, subset, xor and andnot operators.
-        Change bitmap_complement to take two operands.
+mask17-cpumask-sched-refine - Cpumask code clarification in kernel/sched.c
+        Clarify and slightly optimize set_cpus_allowed() cpumask check
 
-Index: 2.6.5.bitmap/include/asm-generic/cpumask_array.h
+Index: 2.6.5.bitmap.v4/kernel/sched.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask_array.h	2004-04-07 20:58:38.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask_array.h	2004-04-07 21:14:12.000000000 -0700
-@@ -17,7 +17,7 @@
- #define cpus_and(dst,src1,src2)	bitmap_and((dst).mask,(src1).mask, (src2).mask, NR_CPUS)
- #define cpus_or(dst,src1,src2)	bitmap_or((dst).mask, (src1).mask, (src2).mask, NR_CPUS)
- #define cpus_clear(map)		bitmap_clear((map).mask, NR_CPUS)
--#define cpus_complement(map)	bitmap_complement((map).mask, NR_CPUS)
-+#define cpus_complement(map)	bitmap_complement((map).mask, (map).mask, NR_CPUS)
- #define cpus_equal(map1, map2)	bitmap_equal((map1).mask, (map2).mask, NR_CPUS)
- #define cpus_empty(map)		bitmap_empty(map.mask, NR_CPUS)
- #define cpus_addr(map)		((map).mask)
-Index: 2.6.5.bitmap/include/asm-i386/mpspec.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-i386/mpspec.h	2004-04-07 20:58:38.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-i386/mpspec.h	2004-04-07 20:58:41.000000000 -0700
-@@ -53,7 +53,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_clear((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, MAX_APICS)
-+#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-Index: 2.6.5.bitmap/include/asm-x86_64/mpspec.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-x86_64/mpspec.h	2004-04-07 20:58:38.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-x86_64/mpspec.h	2004-04-07 20:58:41.000000000 -0700
-@@ -212,7 +212,7 @@
- #define physids_and(dst, src1, src2)		bitmap_and((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_or(dst, src1, src2)		bitmap_or((dst).mask, (src1).mask, (src2).mask, MAX_APICS)
- #define physids_clear(map)			bitmap_clear((map).mask, MAX_APICS)
--#define physids_complement(map)			bitmap_complement((map).mask, MAX_APICS)
-+#define physids_complement(map)			bitmap_complement((map).mask, (map).mask, MAX_APICS)
- #define physids_empty(map)			bitmap_empty((map).mask, MAX_APICS)
- #define physids_equal(map1, map2)		bitmap_equal((map1).mask, (map2).mask, MAX_APICS)
- #define physids_weight(map)			bitmap_weight((map).mask, MAX_APICS)
-Index: 2.6.5.bitmap/include/linux/bitmap.h
-===================================================================
---- 2.6.5.bitmap.orig/include/linux/bitmap.h	2004-04-07 20:58:38.000000000 -0700
-+++ 2.6.5.bitmap/include/linux/bitmap.h	2004-04-07 21:14:15.000000000 -0700
-@@ -13,8 +13,8 @@
- int bitmap_empty(const unsigned long *bitmap, int bits);
- int bitmap_full(const unsigned long *bitmap, int bits);
- int bitmap_equal(const unsigned long *bitmap1,
--			unsigned long *bitmap2, int bits);
--void bitmap_complement(unsigned long *bitmap, int bits);
-+			const unsigned long *bitmap2, int bits);
-+void bitmap_complement(unsigned long *dst, const unsigned long *src, int bits);
+--- 2.6.5.bitmap.v4.orig/kernel/sched.c	2004-04-21 16:45:03.000000000 -0700
++++ 2.6.5.bitmap.v4/kernel/sched.c	2004-04-21 16:45:17.000000000 -0700
+@@ -2722,7 +2722,7 @@
+ 	runqueue_t *rq;
  
- static inline void bitmap_clear(unsigned long *bitmap, int bits)
- {
-@@ -40,6 +40,14 @@
- 			const unsigned long *bitmap2, int bits);
- void bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
- 			const unsigned long *bitmap2, int bits);
-+void bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+void bitmap_andnot(unsigned long *dst, const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+int bitmap_intersects(const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
-+int bitmap_subset(const unsigned long *bitmap1,
-+			const unsigned long *bitmap2, int bits);
- int bitmap_weight(const unsigned long *bitmap, int bits);
- int bitmap_scnprintf(char *buf, unsigned int buflen,
- 			const unsigned long *maskp, int bits);
-Index: 2.6.5.bitmap/lib/bitmap.c
-===================================================================
---- 2.6.5.bitmap.orig/lib/bitmap.c	2004-04-07 20:58:41.000000000 -0700
-+++ 2.6.5.bitmap/lib/bitmap.c	2004-04-07 21:14:18.000000000 -0700
-@@ -81,14 +81,14 @@
- }
- EXPORT_SYMBOL(bitmap_equal);
- 
--void bitmap_complement(unsigned long *bitmap, int bits)
-+void bitmap_complement(unsigned long *dst, const unsigned long *src, int bits)
- {
- 	int k, lim = bits/BITS_PER_LONG;
- 	for (k = 0; k < lim; ++k)
--		bitmap[k] = ~bitmap[k];
-+		dst[k] = ~src[k];
- 
- 	if (bits % BITS_PER_LONG)
--		bitmap[k] = ~bitmap[k] & ((1UL << (bits % BITS_PER_LONG)) - 1);
-+		dst[k] = ~src[k] & ((1UL << (bits % BITS_PER_LONG)) - 1);
- }
- EXPORT_SYMBOL(bitmap_complement);
- 
-@@ -144,6 +144,60 @@
- }
- EXPORT_SYMBOL(bitmap_or);
- 
-+void bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k;
-+	int nr = BITS_TO_LONGS(bits);
-+
-+	for (k = 0; k < nr; k++)
-+		dst[k] = bitmap1[k] ^ bitmap2[k];
-+}
-+EXPORT_SYMBOL(bitmap_xor);
-+
-+void bitmap_andnot(unsigned long *dst, const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k;
-+	int nr = BITS_TO_LONGS(bits);
-+
-+	for (k = 0; k < nr; k++)
-+		dst[k] = bitmap1[k] & ~bitmap2[k];
-+}
-+EXPORT_SYMBOL(bitmap_andnot);
-+
-+int bitmap_intersects(const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap1[k] & bitmap2[k])
-+			return 1;
-+
-+	if (bits % BITS_PER_LONG)
-+		if ((bitmap1[k] & bitmap2[k]) &
-+				((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 1;
-+	return 0;
-+}
-+EXPORT_SYMBOL(bitmap_intersects);
-+
-+int bitmap_subset(const unsigned long *bitmap1,
-+				const unsigned long *bitmap2, int bits)
-+{
-+	int k, lim = bits/BITS_PER_LONG;
-+	for (k = 0; k < lim; ++k)
-+		if (bitmap1[k] & ~bitmap2[k])
-+			return 0;
-+
-+	if (bits % BITS_PER_LONG)
-+		if ((bitmap1[k] & ~bitmap2[k]) &
-+				((1UL << (bits % BITS_PER_LONG)) - 1))
-+			return 0;
-+	return 1;
-+}
-+EXPORT_SYMBOL(bitmap_subset);
-+
- #if BITS_PER_LONG == 32
- int bitmap_weight(const unsigned long *bitmap, int bits)
- {
+ 	rq = task_rq_lock(p, &flags);
+-	if (any_online_cpu(new_mask) == NR_CPUS) {
++	if (!cpus_intersects(new_mask, cpu_online_map)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 
 
 -- 

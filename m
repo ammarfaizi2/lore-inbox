@@ -1,78 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSHVPzJ>; Thu, 22 Aug 2002 11:55:09 -0400
+	id <S312558AbSHVPzR>; Thu, 22 Aug 2002 11:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311749AbSHVPzI>; Thu, 22 Aug 2002 11:55:08 -0400
-Received: from ALyon-209-1-13-54.abo.wanadoo.fr ([217.128.17.54]:27067 "EHLO
-	alph.dyndns.org") by vger.kernel.org with ESMTP id <S293203AbSHVPzC>;
+	id <S312590AbSHVPzR>; Thu, 22 Aug 2002 11:55:17 -0400
+Received: from ida.rowland.org ([192.131.102.52]:2564 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id <S312558AbSHVPzC>;
 	Thu, 22 Aug 2002 11:55:02 -0400
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
-	calculation
-From: Yoann Vandoorselaere <yoann@prelude-ids.org>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       cpufreq@lists.arm.linux.org.uk, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <3D65020D.5070201@iram.es>
-References: <3D64D51C.9040603@iram.es> <20020822143115.15323@192.168.4.1> 
-	<3D65020D.5070201@iram.es>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Aug 2002 17:59:19 +0200
-Message-Id: <1030031960.15427.237.camel@alph>
-Mime-Version: 1.0
+Date: Thu, 22 Aug 2002 11:59:08 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: <stern@ida.rowland.org>
+To: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Simmons <jsimmons@transvirtual.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Patch for PC keyboard driver's autorepeat-rate handling
+Message-ID: <Pine.LNX.4.33L2.0208221153210.672-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-22 at 17:23, Gabriel Paubert wrote:
-> Benjamin Herrenschmidt wrote:
-> >>Well, first on sane archs which have an easily accessible, fixed
-> >>frequency time counter, loops_per_jiffy should never have existed :-)
-> >>
-> >>Second, putting this code there means that one day somebody will
-> >>inevitably try to use it outside of its domain of operation (like it
-> >>happened for div64 a few months ago when I pointed out that it would not
-> >>work for divisors above 65535 or so).
-> > 
-> > 
-> > Well... it's clearly located inside kernel/cpufreq.c, so there is
-> > little risk, though it may be worth a big bold comment
-> 
-> Hmm, in my experience people hardly ever read detailed comments even 
-> when they are well-written. Perhaps if you called the function 
-> imprecise_scale or coarse_scale, it might ring a bell.
-> 
-> Besides that functions should do one thing and do that *well*[1]. Well, 
-> I'm usually not too dogmatic, but this function breaks the second rule
-> beyond what I find acceptable.
+This patch fixes several mistakes in the PC keyboard driver's
+autorepeat-rate handling.  It applies as-is to both the current 2.4.x
+and 2.5.x Linux kernels.
 
-At least it report *correct* result (when the old one was returning BS
-because of the 32 bits integer overflow). Doing it well require per
-architecture support.
+I don't know why nobody has addressed this problem earlier.  Hasn't
+anyone noticed that Rik Faith's kbdrate program no longer works
+properly?  The error is not in the program; it's in the kernel's
+handling of the KDKBDREP ioctl.  This patch fixes the following three
+mistakes:
 
- 
-> >>In this case a generic scaling function, while not a standard libgcc/C
-> >>library feature has potentially more applications than this simple 
-> >>cpufreq approximation. But I don't see very much the need for scaling a 
-> >>long (64 bit on 64 bit archs) value, 32 bit would be sufficient.
-> > 
-> > 
-> > Well... if you can write one, go on then ;) In my case, I'm happy
-> > with Yoann implementation for cpufreq right now. Though I agree that
-> > could ultimately be moved to arch code.
+	The .rate member of struct kbd_repeat is actually a repeat
+	_period_ measured in msec; the driver interprets it as a
+	repeat _rate_ in characters per second.
 
-[...]
+	The driver returns the _prior_ values of the rate and delay
+	settings rather than the _current_ values.
 
-> [1] Documentation/CodingStyle, which also claims that functions should 
-> be short and *sweet*. Well, I found the patch far too bitter ;-).
+	The driver looks for an exact match for the rate and delay
+	values rather than using the closest match.
 
-No wonder why you're loosing contributor with such comportment.
+Note that the first two issues above are mentioned explicitly in
+include/linux/kd.h, in the region defining the KDKBDREP ioctl.
 
--- 
-Yoann Vandoorselaere, http://www.prelude-ids.org
+Not all the repeat rates supported by the PC hardware are recognized
+by the driver.  I decided not to change that, since many of the rates
+are only imperceptibly different.  If anybody thinks that implementing
+the full set would be worthwhile, it will be easy enough to do so.
 
-"Programming is a race between programmers, who try and make more and 
- more idiot-proof software, and universe, which produces more and more 
- remarkable idiots. Until now, universe leads the race"  -- R. Cook
+Incidentally, does anybody know why drivers/char/pc_keyb.c hasn't been
+moved to the arch/i386 part of the directory tree?
+
+Alan Stern
+
+
+--- drivers/char/pc_keyb.c.orig	Wed Aug 21 15:36:13 2002
++++ drivers/char/pc_keyb.c	Thu Aug 22 11:12:05 2002
+@@ -13,6 +13,9 @@
+  * Code fixes to handle mouse ACKs properly.
+  * C. Scott Ananian <cananian@alumni.princeton.edu> 1999-01-29.
+  *
++ * Fix the keyboard autorepeat rate handling.
++ * Alan Stern <stern@rowland.org> 2002-08-21.
++ *
+  */
+
+ #include <linux/config.h>
+@@ -578,7 +581,7 @@
+ }
+
+ #define DEFAULT_KEYB_REP_DELAY	250
+-#define DEFAULT_KEYB_REP_RATE	30	/* cps */
++#define DEFAULT_KEYB_REP_RATE	33	/* msec: = 30 cps */
+
+ static struct kbd_repeat kbdrate={
+ 	DEFAULT_KEYB_REP_DELAY,
+@@ -587,48 +590,48 @@
+
+ static unsigned char parse_kbd_rate(struct kbd_repeat *r)
+ {
+-	static struct r2v{
+-		int rate;
+-		unsigned char val;
+-	} kbd_rates[]={	{5,0x14},
+-			{7,0x10},
+-			{10,0x0c},
+-			{15,0x08},
+-			{20,0x04},
+-			{25,0x02},
+-			{30,0x00}
+-	};
+-	static struct d2v{
+-		int delay;
+-		unsigned char val;
+-	} kbd_delays[]={{250,0},
+-			{500,1},
+-			{750,2},
+-			{1000,3}
++#if 0	/* Here is the complete list of repeat periods in msec. */
++		{	 33,  38,  42,  46,  50,  54,  58,  63,
++			 67,  75,  83,  92, 100, 108, 117, 125,
++			133, 150, 167, 183, 200, 217, 234, 250,
++			267, 300, 334, 367, 400, 434, 467, 500};
++#endif
++	static struct r2v {
++		int period;
++		int val;
++	} kbd_rates[] = {	{33,0},		/* 30 cps */
++				{42,2},		/* 24 */
++				{50,4},		/* 20 */
++				{67,8},		/* 15 */
++				{100,12},	/* 10 */
++				{133,16},	/* 7.5 */
++				{200,20},	/* 5 */
++				{500,31},	/* 2 */
+ 	};
+-	int rate=0,delay=0;
++	static int kbd_delays[4] = {250, 500, 750, 1000};
++	int rval=0, dval=0, i;
++
+ 	if (r != NULL){
+-		int i,new_rate=30,new_delay=250;
+ 		if (r->rate <= 0)
+ 			r->rate=kbdrate.rate;
+ 		if (r->delay <= 0)
+ 			r->delay=kbdrate.delay;
+-		for (i=0; i < sizeof(kbd_rates)/sizeof(struct r2v); i++)
+-			if (kbd_rates[i].rate == r->rate){
+-				new_rate=kbd_rates[i].rate;
+-				rate=kbd_rates[i].val;
++
++		/* Find the closest matches */
++
++		for (i = 0; i < sizeof(kbd_rates)/sizeof(struct r2v)-1; i++) {
++			if ((kbd_rates[i].period+kbd_rates[i+1].period)/2 >= r->rate)
+ 				break;
+-			}
+-		for (i=0; i < sizeof(kbd_delays)/sizeof(struct d2v); i++)
+-			if (kbd_delays[i].delay == r->delay){
+-				new_delay=kbd_delays[i].delay;
+-				delay=kbd_delays[i].val;
++		}
++		r->rate = kbd_rates[i].period;
++		rval = kbd_rates[i].val;
++		for (dval=0; dval < sizeof(kbd_delays)/sizeof(int)-1; dval++) {
++			if ((kbd_delays[dval]+kbd_delays[dval+1])/2 >= r->delay)
+ 				break;
+-			}
+-		r->rate=new_rate;
+-		r->delay=new_delay;
++		}
++		r->delay = kbd_delays[dval];
+ 	}
+-	return (delay << 5) | rate;
++	return (dval << 5) | rval;
+ }
+
+ static int write_kbd_rate(unsigned char r)
+@@ -644,13 +647,13 @@
+ {
+ 	if (rep == NULL)
+ 		return -EINVAL;
+-	else{
++	if (rep->rate < 0 && rep->delay < 0) {
++		*rep = kbdrate;
++		return 0;
++	} else {
+ 		unsigned char r=parse_kbd_rate(rep);
+-		struct kbd_repeat old_rep;
+-		memcpy(&old_rep,&kbdrate,sizeof(struct kbd_repeat));
+-		if (write_kbd_rate(r)){
+-			memcpy(&kbdrate,rep,sizeof(struct kbd_repeat));
+-			memcpy(rep,&old_rep,sizeof(struct kbd_repeat));
++		if (write_kbd_rate(r)) {
++			kbdrate = *rep;
+ 			return 0;
+ 		}
+ 	}
+
 

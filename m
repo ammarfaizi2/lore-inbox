@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUKSMnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbUKSMp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUKSMnf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 07:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUKSMnX
+	id S261385AbUKSMp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 07:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUKSMnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 07:43:23 -0500
-Received: from main.gmane.org ([80.91.229.2]:31145 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261383AbUKSMl0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 07:41:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: modprobe + request_module() deadlock
-Date: Fri, 19 Nov 2004 17:42:51 +0500
-Message-ID: <cnkpl6$jjm$1@sea.gmane.org>
-References: <20041117222949.GA9006@linuxtv.org> <1100749702.5865.39.camel@localhost.localdomain> <20041118135522.GA16910@linuxtv.org> <s5h4qjnc6zs.wl@alsa2.suse.de> <cnjr8v$dcu$1@sea.gmane.org> <s5hpt2aayco.wl@alsa2.suse.de> <20041119115042.GA30334@bytesex>
+	Fri, 19 Nov 2004 07:43:43 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:53228 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261394AbUKSMn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 07:43:29 -0500
+Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
+	using SELinux and SOCK_SEQPACKET
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: James Morris <jmorris@redhat.com>
+Cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>, netdev@oss.sgi.com,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Xine.LNX.4.44.0411182207080.7831-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0411182207080.7831-100000@thoron.boston.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100864358.8127.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inet.ycc.ru
-User-Agent: KNode/0.7.7
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 19 Nov 2004 11:39:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
-
->> Well, how about to add a new marker in the driver code such as
->> 
->> MODULE_DEPENDS_ON("somemodule");
->> 
->> so that depmod can pick it up?
+On Gwe, 2004-11-19 at 03:12, James Morris wrote:
+> On Thu, 18 Nov 2004, Alan Cox wrote:
 > 
-> Wouldn't work for me as this isn't static.  saa7134 has to look at the
-> hardware, then decide whenever it should load saa7134-empress,
-> saa7134-dvb or none of them.
+> > As to the other stuff I think the only change needed is to check the
+> > queued asynchronous error and report that before going on to the
+> > connected test
 > 
-> On the other hand I don't depend on request_module() waiting for the
-> modprobe being finished.  So maybe we can solve that with a
-> request_module_async()?
+> How about this?
 
-Unfortunately I am not an expert here, but wouldn't it be sufficient to
-export in sysfs the information needed to distinguish between those two
-saa7134-* modules, and then submit a new agent to linux-hotplug-devel? Then
-hotplug will take care of loading the correct module (and hotplug is always
-called asynchronously).
-
--- 
-Alexander E. Patrakov
-
+Looks right to me, the ECONNRESET is no longer being lost.

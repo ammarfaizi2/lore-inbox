@@ -1,29 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277052AbRJDAsE>; Wed, 3 Oct 2001 20:48:04 -0400
+	id <S277055AbRJDAtY>; Wed, 3 Oct 2001 20:49:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277054AbRJDAr7>; Wed, 3 Oct 2001 20:47:59 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:39439 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S277052AbRJDArt>; Wed, 3 Oct 2001 20:47:49 -0400
-Date: Thu, 4 Oct 2001 01:48:18 +0100 (BST)
-From: <chris@scary.beasts.org>
-X-X-Sender: <cevans@sphinx.mythic-beasts.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.11pre2 - O_DIRECT code went missing?!
-Message-ID: <Pine.LNX.4.33.0110040146540.29943-100000@sphinx.mythic-beasts.com>
+	id <S277054AbRJDAtQ>; Wed, 3 Oct 2001 20:49:16 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:52152 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S277056AbRJDAtF>;
+	Wed, 3 Oct 2001 20:49:05 -0400
+Date: Wed, 3 Oct 2001 20:46:45 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.LNX.4.33.0110031828060.8633-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.30.0110031840580.7244-100000@shell.cyberus.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.GSO.4.30.0110032044411.8016@shell.cyberus.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-Looks like the O_DIRECT flag was left in 2.4.11pre2, but most of the
-O_DIRECT code was removed. Does this leave O_DIRECT non-functional? That
-would be very confusing.
+On Wed, 3 Oct 2001, Ingo Molnar wrote:
 
-Cheers
-Chris
+>
+> On Wed, 3 Oct 2001, jamal wrote:
+>
+> (and the only thing i pointed out was that the patch as-is did not limit
+> the amount of polling done.)
+
+you mean in the softirq or the one line in the driver?
+
+>
+> > > *if* you can make polling a success in ~90% of the time we enter
+> > > tulip_poll() under non-specific server load (ie. not routing), then i
+> > > think you have really good metrics.
+> >
+> > we can make it 100% successful; i mentioned that we only do work, if
+> > there is work to be done.
+>
+> can you really make it 100% successful for rx? Ie. do you only ever call
+> the ->poll() function if there is a new packet waiting? How do you know
+> with a 100% probability that someone on the network just sent a new packet
+> waiting? (without receiving an interrupt to begin with that is.)
+>
+
+Take a look at what i think is the NAPI state machine pending a nod
+from Alexey and Robert:
+http://www.cyberus.ca/~hadi/NAPI-SM.ps.gz
+
+cheers,
+jamal
+
 

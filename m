@@ -1,75 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262829AbSIPStx>; Mon, 16 Sep 2002 14:49:53 -0400
+	id <S262843AbSIPSu7>; Mon, 16 Sep 2002 14:50:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbSIPStx>; Mon, 16 Sep 2002 14:49:53 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56198 "EHLO
-	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S262829AbSIPStw>; Mon, 16 Sep 2002 14:49:52 -0400
-Subject: Re: Killing/balancing processes when overcommited
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L.0209161102120.1857-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44L.0209161102120.1857-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 16 Sep 2002 11:49:23 -0700
-Message-Id: <1032202163.1458.351.camel@wookie-t23.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S262856AbSIPSu6>; Mon, 16 Sep 2002 14:50:58 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11789 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262843AbSIPSu5>; Mon, 16 Sep 2002 14:50:57 -0400
+Date: Mon, 16 Sep 2002 14:48:35 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: Rik van Riel <riel@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: 2.5.34-mm4
+In-Reply-To: <3D84D799.557653C7@digeo.com>
+Message-ID: <Pine.LNX.3.96.1020916143506.6180E-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  
-On Mon, 2002-09-16 at 07:03, Rik van Riel wrote:
-> On Mon, 16 Sep 2002, Helge Hafting wrote:
-> > Rik van Riel wrote:
-> >
-> > > 1) memory is exhausted
-> > > 2) the network driver can't allocate memory and
-> > >    spits out a message
-> > > 3) syslogd and/or klogd get killed
-> > >
-> > > Clearly you want to be a bit smarter about which process to kill.
-> >
-> > Ill-implemented klogd/syslogd.  Pre-allocating a little memory
-> > is one way to go, or drop messages until allocation
-> > becomes possible again.  Then log a complaint about
-> > messages missing due to a temporary OOM.
-> 
-> No.  This has absolutely nothing to do with it.
-> 
-> In this case, "allocating memory" simply means that klogd/syslogd
-> page faults on something it already allocated, say a piece of the
-> executable or a swapped-out buffer.
-> 
-> Simple page faults like this can also trigger an OOM-killing.
-> 
+On Sun, 15 Sep 2002, Andrew Morton wrote:
 
-  Not in what I had described.  Unless the page fault was for a
-new page (just malloc'ed) it wouldn't result in the killing of
-the process.
+> Impressions are:
+> 
+> - 2.5 swaps a lot in response to heavy pagecache activity.
+> 
+>   SEGQ didn't change that, actually.  And this is correct,
+>   as-designed behaviour.  We'll need some "don't be irritating"
+>   knob to prevent this.  Or speculative pagein when the load
+>   has subsided, which would be a fair-sized project.
 
-Tim
+It would be nice to have a knob in /proc/sys which could be tuned for
+response or throughput, Preferably not a boolean;-) I suspect that we
+would have lack of agreement on what that would do, but it sure would be
+nice!
+ 
+> - In both -ac and 2.5 the scheduler is prone to starving interactive
+>   applications (netscape 4, gkrellm, command-line gdb, others) when
+>   there is a compilation happening.
+> 
+>   This is very, very noticeable; and it afects applications which
+>   do not use sched_yield().  Ingo has put some extra stuff in since
+>   then and I need to retest.
+> 
+> - In -ac, there are noticeable stalls during heavy writeout.  This
+>   may be an ext3 thing, but I can't think of any IO scheduling
+>   differences in -ac ext3.  I'd be guessing that it is due to
+>   bdflush/kupdate lumpiness.
 
-> Rik
-> -- 
-> Bravely reimplemented by the knights who say "NIH".
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-> Spamtraps of the month:  september@surriel.com trac@trac.org
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I have the feeling that 2.5 is less good about noting that a file is open
+for write only and no seeks have been done. I haven't measured it, but it
+would seem that writes to such a file would be better on the disk and not
+taking buffers, since they're probably not going to be read.
+
+This is just based on running mkisofs on 2.4.19 and 2.5.34, a watching "no
+disk activity" followed by a heavy burst. I haven't made any careful
+measurement, so take this as you will, but I agree that heavy write bogs
+the system. Clearly with big memory I can/do get the whole ~700MB in
+memory if writes don't start quickly.
+
+Yes, that could be tuning, I know that.
+ 
+> Overall I find Marcelo kernels to be the most comfortable, followed
+> by 2.5.  Alan's kernels I find to be the least comfortable in a
+> "developer's desktop" situation.
+
+On small memory machines I don't see as much to choose, and the -ck series
+has been very nice to me. I don't run 2.5 on any but test machines, and
+both are big memory (1+GB) machines.
+
 -- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbTGCPqo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 11:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTGCPqo
+	id S264593AbTGCPt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 11:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbTGCPt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 11:46:44 -0400
-Received: from static213-229-38-018.adsl.inode.at ([213.229.38.18]:26524 "HELO
-	home.winischhofer.net") by vger.kernel.org with SMTP
-	id S264376AbTGCPqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 11:46:43 -0400
-Message-ID: <3F0452AD.6020203@winischhofer.net>
-Date: Thu, 03 Jul 2003 17:58:37 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en, de-at, de-de, sv
+	Thu, 3 Jul 2003 11:49:56 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:8836 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264610AbTGCPsR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 11:48:17 -0400
+Date: Thu, 3 Jul 2003 09:05:40 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Russell King <rmk@arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org, Wiktor Wodecki <wodecki@gmx.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.5.74-mm1
+In-Reply-To: <20030703151529.B20336@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0307030857240.14925-100000@cherise>
 MIME-Version: 1.0
-To: maximilian attems <maks@sternwelten.at>
-CC: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
-       James Simmons <jsimmons@infradead.org>
-Subject: Re: [2.5 patch] move an unused variable in sis_main.c
-References: <20030703104700.GA939@mail.sternwelten.at> <20030703114726.GK282@fs.tum.de> <20030703120404.GC939@mail.sternwelten.at> <3F042A24.6040609@winischhofer.net> <20030703133830.GG939@mail.sternwelten.at> <3F04439F.4000601@winischhofer.net> <20030703154453.GK939@mail.sternwelten.at>
-In-Reply-To: <20030703154453.GK939@mail.sternwelten.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maximilian attems wrote:
->>>what prevents you from merging?
->>
->>My name isn't Linus, and James is the maintainer of the fb stuff. Go bug 
->>him...
->>
-> 
-> 
-> hey i didn't want to bug you, you told me that the version was outdated.
-> i just wanted to know if there are any blocking technichal issues? :)
 
-No offence taken (mutually, I hope :) AFAIK there are no technical 
-issues; please ask James what keeps him from doing that.
+Hi Russell, 
 
-Thomas
+> If anyone else is having similar problems, they need to report them so
+> we can obtain more data points - I suspect some other change in some other
+> subsystem broke PCMCIA for Wiktor.
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          http://www.winischhofer.net/
-twini AT xfree86 DOT org
+I have a T20 and a NE2k network card and have been experiencing a similar 
+hang when I start cardmgr. I did some playing around with it and found 
+some inconsistencies. 
+
+At first, I had it in Slot 1, and it hung when probing the first range of 
+addresses. I moved it to Slot 0, and it was able to probe and bring the 
+interface up (though it did complain heavily about dropping packets). 
+
+After a few reboots, it started hanging during the address probe (in Slot 
+0). I tried disabling various memory regions to probe in 
+/etc/pcmcia/config.opts, and had luck initially, but it now has decided to 
+not work at all. 
+
+I also have a Cisco/Aironet 340 802.11b card that is having problems. When 
+in Slot 0, cardmgr can idenitfy the card, and the driver initalizes the 
+card properly, but I cannot obtain an IP address (but does not hang). In 
+Slot 1, the system hangs while trying to obtain an IP address. 
+
+Any ideas?
+
+
+
+	-pat
 

@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUHCQju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266725AbUHCQtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266703AbUHCQju (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 12:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266707AbUHCQju
+	id S266725AbUHCQtw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 12:49:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266715AbUHCQtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 12:39:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60318 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266703AbUHCQjp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 12:39:45 -0400
-Subject: Re: [2.6 patch] let AIC7{9,X}XX_BUILD_FIRMWARE depend on
-	!PREVENT_FIRMWARE_BUILD
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>, Sam Ravnborg <sam@ravnborg.org>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, Adrian Bunk <bunk@fs.tum.de>,
-       James.Bottomley@HansenPartnership.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <410FBDAA.4070907@optonline.net>
-References: <20040801185543.GB2746@fs.tum.de>
-	 <20040801191118.GA7402@mars.ravnborg.org> <410FA577.4040602@adaptec.com>
-	 <410FBDAA.4070907@optonline.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yhWWIc1Lk+oUiaqlBGXd"
-Organization: Red Hat UK
-Message-Id: <1091550985.2816.10.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 03 Aug 2004 18:36:25 +0200
+	Tue, 3 Aug 2004 12:49:52 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:39376 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S266725AbUHCQtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 12:49:51 -0400
+Message-ID: <410FC22C.8030802@tungstengraphics.com>
+Date: Tue, 03 Aug 2004 17:49:48 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Romanick <idr@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "DRI developer's list" <dri-devel@lists.sourceforge.net>
+Subject: Re: DRM code reorganization
+References: <20040802155312.56128.qmail@web14923.mail.yahoo.com> <410E81C3.2070804@us.ibm.com> <20040802185746.GA12724@redhat.com> <410E9FEE.60108@us.ibm.com> <20040802204553.GC12724@redhat.com> <410ED3F7.7090809@us.ibm.com> <410F443A.7050707@tungstengraphics.com> <410FBD47.2060605@us.ibm.com>
+In-Reply-To: <410FBD47.2060605@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ian Romanick wrote:
+> Keith Whitwell wrote:
+> 
+>> We've actually managed to do a fair bit of cleanup already - if you 
+>> look at the gamma driver, there's a lot of stuff in there which used 
+>> to be shared but ifdef'ed out between all the drivers.  The 
+>> __HAVE_MULTIPLE_DMA_QUEUES macro is a remnant of this, but I think 
+>> you'll break gamma when you try & remove it.
+> 
+> 
+> It looks like __HAVE_MULTIPLE_DMA_QUEUES is a superset of 
+> __HAVE_DMA_QUEUE.  My thinking was that the code for those two options 
+> could be merged.  Does that seem reasonable?
 
---=-yhWWIc1Lk+oUiaqlBGXd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+If it looks reasonable in the codebase, I don't know any reason not to.
 
-On Tue, 2004-08-03 at 18:30, Nathan Bryant wrote:
-> Luben Tuikov wrote:
-> > Hi Sam,
-> >=20
-> > You can forward it to Linus and I'll also integrate it
-> > to the latest version of the drivers, yet to be integrated
-> > to the mainline kernel.
->=20
-> Luben -
->=20
-> Are the latest drivers going to be available in BitKeeper format before=20
-> they get merged?
-
-I'm sure they'll be submitted in small incremental updates which can be
-submitted and merged in smaller pieces to keep testability to a
-maximum....=20
-
---=-yhWWIc1Lk+oUiaqlBGXd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBD78JxULwo51rQBIRAo4pAJ4mOfI1nl+QBJTbKnkvRoJjncdIRwCglc+M
-Yc4dg59EDjcDt1rOg165ye8=
-=9jn4
------END PGP SIGNATURE-----
-
---=-yhWWIc1Lk+oUiaqlBGXd--
+Keith
 

@@ -1,32 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262939AbTDBAPM>; Tue, 1 Apr 2003 19:15:12 -0500
+	id <S262943AbTDBAVt>; Tue, 1 Apr 2003 19:21:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262940AbTDBAPM>; Tue, 1 Apr 2003 19:15:12 -0500
-Received: from modemcable226.131-200-24.mtl.mc.videotron.ca ([24.200.131.226]:54779
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262939AbTDBAPM>; Tue, 1 Apr 2003 19:15:12 -0500
-Date: Tue, 1 Apr 2003 19:22:13 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Joe Korty <joe.korty@ccur.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] smp_call_function needs mb()
-In-Reply-To: <20030401220004.GB30989@tsunami.ccur.com>
-Message-ID: <Pine.LNX.4.50.0304011919300.8773-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304010305510.8773-100000@montezuma.mastecende.com>
- <20030401220004.GB30989@tsunami.ccur.com>
+	id <S262945AbTDBAVt>; Tue, 1 Apr 2003 19:21:49 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:37270 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S262943AbTDBAVs>; Tue, 1 Apr 2003 19:21:48 -0500
+Date: Tue, 1 Apr 2003 16:33:07 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: whitney@math.berkeley.edu
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
+In-Reply-To: <Pine.LNX.4.44.0304011320580.13867-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0304011632060.2951-100000@mf1.private>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003, Joe Korty wrote:
+On Tue, 1 Apr 2003, Linus Torvalds wrote:
 
-> This should be sent to Marcello as well.
-> Joe
+> Can you test this patch? 
 
-I'll try oops 2.4.20 and send.
+This patch (on top of the previous one) does the trick for me.  Thanks!
 
--- 
-function.linuxpower.ca
+Wayne
+
+> ===== arch/i386/kernel/vm86.c 1.22 vs edited =====
+> --- 1.22/arch/i386/kernel/vm86.c	Mon Mar 31 14:30:01 2003
+> +++ edited/arch/i386/kernel/vm86.c	Tue Apr  1 13:25:28 2003
+> @@ -113,10 +113,14 @@
+>  		printk("vm86: could not access userspace vm86_info\n");
+>  		do_exit(SIGSEGV);
+>  	}
+> +
+> +	preempt_disable();
+>  	tss = init_tss + smp_processor_id();
+>  	current->thread.esp0 = current->thread.saved_esp0;
+>  	load_esp0(tss, current->thread.esp0);
+>  	current->thread.saved_esp0 = 0;
+> +	preempt_enable();
+> +
+>  	loadsegment(fs, current->thread.saved_fs);
+>  	loadsegment(gs, current->thread.saved_gs);
+>  	ret = KVM86->regs32;
+> @@ -289,10 +293,11 @@
+>  	asm volatile("movl %%fs,%0":"=m" (tsk->thread.saved_fs));
+>  	asm volatile("movl %%gs,%0":"=m" (tsk->thread.saved_gs));
+>  
+> -	tss = init_tss + get_cpu();
+> +	preempt_disable();
+> +	tss = init_tss + smp_processor_id();
+>  	tss->esp0 = tsk->thread.esp0 = (unsigned long) &info->VM86_TSS_ESP0;
+>  	disable_sysenter(tss);
+> -	put_cpu();
+> +	preempt_enable();
+>  
+>  	tsk->thread.screen_bitmap = info->screen_bitmap;
+>  	if (info->flags & VM86_SCREEN_BITMAP)
+
+

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285049AbRLQIfn>; Mon, 17 Dec 2001 03:35:43 -0500
+	id <S285059AbRLQIuc>; Mon, 17 Dec 2001 03:50:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285054AbRLQIfc>; Mon, 17 Dec 2001 03:35:32 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:61627 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S285049AbRLQIfO> convert rfc822-to-8bit; Mon, 17 Dec 2001 03:35:14 -0500
-From: Christoph Rohland <cr@sap.com>
-To: RaXl NXXez de Arenas Coronado <raul@viadomus.com>
-Cc: linux-kernel@vger.kernel.org, rml@tech9.net
-Subject: Re: Is /dev/shm needed?
-In-Reply-To: <E16FtLQ-00006A-00@DervishD.viadomus.com>
-Organisation: SAP LinuxLab
-Date: 17 Dec 2001 09:34:04 +0100
-In-Reply-To: <E16FtLQ-00006A-00@DervishD.viadomus.com>
-Message-ID: <m38zc2i6tf.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+	id <S285058AbRLQIuX>; Mon, 17 Dec 2001 03:50:23 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:17157 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S285059AbRLQIuK>; Mon, 17 Dec 2001 03:50:10 -0500
+Message-ID: <3C1DB1C4.316EC802@idb.hist.no>
+Date: Mon, 17 Dec 2001 09:50:12 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.1-pre10 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-SAP: out
-X-SAP: out
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kill(-1,sig)
+In-Reply-To: <Pine.LNX.4.33.0112141237470.3063-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Raúl,
+Linus Torvalds wrote:
 
-On Mon, 17 Dec 2001, RaXl NXXez de Arenas Coronado wrote:
->>When one of these gets full I can either stop the affending job or
->>increase the limit
+> Count one for the complaints, but I want more to overrule a published
+> standard.
 > 
->     That's one of my doubts: if the available RAM decreases then the
-> buffer (disk) cache will do too. So, if I have /tmp mounted with
-> tmpfs, the contents here will be cached no matter the available RAM,
-> or am I completely wrong?
+> (Of course, a language lawyer will call "self" a "system process",
+> although I cannot for the life of me really see what kind of excuse we
+> would come up with to do se ;)
 
-No, it will be swapped out.
+Root doing a kill -1 -9 is definitely doing system administration,
+hence it is a "system process." I never do this as a user,
+but think about what happens at shutdown time.  At least a
+root process ought to survive this.
 
-Greetings
-		Christoph
-
-
+Helge Hafting

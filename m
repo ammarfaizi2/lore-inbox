@@ -1,48 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265046AbTIDOcR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTIDOba
+	id S265082AbTIDOez (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:34:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTIDOeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:31:30 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:3597 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265043AbTIDOaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:30:25 -0400
-Date: Thu, 4 Sep 2003 15:30:23 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       campbell@torque.net
-Subject: Re: 2.6.0-test4-mm5: SCSI imm driver doesn't compile
-Message-ID: <20030904153023.A32549@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-	campbell@torque.net
-References: <20030902231812.03fae13f.akpm@osdl.org> <20030903170256.GA18025@fs.tum.de> <20030904133056.GA2411@conectiva.com.br> <20030904135256.GS14376@lug-owl.de>
+	Thu, 4 Sep 2003 10:34:05 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:55351 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S265067AbTIDOc1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 10:32:27 -0400
+Subject: [PATCH] synclink_cs.c 2.4.23-pre3
+From: Paul Fulghum <paulkf@microgate.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062685890.2183.8.camel@diemos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030904135256.GS14376@lug-owl.de>; from jbglaw@lug-owl.de on Thu, Sep 04, 2003 at 03:52:56PM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Sep 2003 09:31:31 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 03:52:56PM +0200, Jan-Benedict Glaw wrote:
-> C99 style is
-> 
-> 	.element = initializer,
-> 
-> not
-> 	[element] = initializer,
-> 
-> which is a GNU/GCCism.
+* fix arbitration between net open and tty open
+* add MODULE_LICENSE() macro
+* add dosyncppp module parameter
 
-We're talking about arrays here..
+Please apply
 
-.element obviously never works for arrays and [constant] never
-works for structs..
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+
+--- linux-2.4.23-pre3/drivers/char/pcmcia/synclink_cs.c	2002-11-28 17:53:12.000000000 -0600
++++ linux-2.4.23-pre3-mg/drivers/char/pcmcia/synclink_cs.c	2003-06-18 16:07:28.000000000 -0500
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink_cs.c
+  *
+- * $Id: synclink_cs.c,v 3.4 2002/04/22 14:36:41 paulkf Exp $
++ * $Id: synclink_cs.c,v 3.9 2003/05/23 20:16:41 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink PC Card
+  * multiprotocol serial adapter.
+@@ -483,6 +483,7 @@
+ 
+ static int debug_level = 0;
+ static int maxframe[MAX_DEVICE_COUNT] = {0,};
++static int dosyncppp[MAX_DEVICE_COUNT] = {1,1,1,1};
+ 
+ /* The old way: bit map of interrupts to choose from */
+ /* This means pick from 15, 14, 12, 11, 10, 9, 7, 5, 4, and 3 */
+@@ -499,9 +500,14 @@
+ MODULE_PARM(cuamajor,"i");
+ MODULE_PARM(debug_level,"i");
+ MODULE_PARM(maxframe,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
++MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICE_COUNT) "i");
++
++#ifdef MODULE_LICENSE
++MODULE_LICENSE("GPL");
++#endif
+ 
+ static char *driver_name = "SyncLink PC Card driver";
+-static char *driver_version = "$Revision: 3.4 $";
++static char *driver_version = "$Revision: 3.9 $";
+ 
+ static struct tty_driver serial_driver, callout_driver;
+ static int serial_refcount;
+@@ -2616,14 +2622,17 @@
+ {
+ 	MGSLPC_INFO * info = (MGSLPC_INFO *)tty->driver_data;
+ 
+-	if (!info || mgslpc_paranoia_check(info, tty->device, "mgslpc_close"))
++	if (mgslpc_paranoia_check(info, tty->device, "mgslpc_close"))
+ 		return;
+ 	
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):mgslpc_close(%s) entry, count=%d\n",
+ 			 __FILE__,__LINE__, info->device_name, info->count);
+ 			 
+-	if (!info->count || tty_hung_up_p(filp))
++	if (!info->count)
++		return;
++
++	if (tty_hung_up_p(filp))
+ 		goto cleanup;
+ 			
+ 	if ((tty->count == 1) && (info->count != 1)) {
+@@ -2747,7 +2756,7 @@
+ 			schedule_timeout(char_time);
+ 			if (signal_pending(current))
+ 				break;
+-			if (timeout && ((orig_jiffies + timeout) < jiffies))
++			if (timeout && time_after(jiffies, orig_jiffies + timeout))
+ 				break;
+ 		}
+ 	} else {
+@@ -2757,7 +2766,7 @@
+ 			schedule_timeout(char_time);
+ 			if (signal_pending(current))
+ 				break;
+-			if (timeout && ((orig_jiffies + timeout) < jiffies))
++			if (timeout && time_after(jiffies, orig_jiffies + timeout))
+ 				break;
+ 		}
+ 	}
+@@ -2937,16 +2946,11 @@
+ 	info = mgslpc_device_list;
+ 	while(info && info->line != line)
+ 		info = info->next_device;
+-	if ( !info ){
+-		printk("%s(%d):Can't find specified device on open (line=%d)\n",
+-			__FILE__,__LINE__,line);
++	if (mgslpc_paranoia_check(info, tty->device, "mgslpc_open"))
+ 		return -ENODEV;
+-	}
+ 	
+ 	tty->driver_data = info;
+ 	info->tty = tty;
+-	if (mgslpc_paranoia_check(info, tty->device, "mgslpc_open"))
+-		return -ENODEV;
+ 		
+ 	if (debug_level >= DEBUG_LEVEL_INFO)
+ 		printk("%s(%d):mgslpc_open(%s), old ref count = %d\n",
+@@ -3008,6 +3012,8 @@
+ 	
+ cleanup:			
+ 	if (retval) {
++		if (tty->count == 1)
++			info->tty = 0; /* tty layer will release tty struct */
+ 		if(MOD_IN_USE)
+ 			MOD_DEC_USE_COUNT;
+ 		if(info->count)
+@@ -3181,8 +3187,7 @@
+ 	if (info->line < MAX_DEVICE_COUNT) {
+ 		if (maxframe[info->line])
+ 			info->max_frame_size = maxframe[info->line];
+-//		info->dosyncppp = dosyncppp[info->line];
+-		info->dosyncppp = 1;
++		info->dosyncppp = dosyncppp[info->line];
+ 	}
+ 
+ 	mgslpc_device_count++;
+
+
 

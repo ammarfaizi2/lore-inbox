@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290634AbSBFPxh>; Wed, 6 Feb 2002 10:53:37 -0500
+	id <S290641AbSBFPyh>; Wed, 6 Feb 2002 10:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290639AbSBFPx1>; Wed, 6 Feb 2002 10:53:27 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60420 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290634AbSBFPxP>; Wed, 6 Feb 2002 10:53:15 -0500
-Date: Wed, 6 Feb 2002 10:51:45 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel: ldt allocation failed
-In-Reply-To: <E16YSpV-0005Es-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.1020206105011.7298A-100000@gatekeeper.tmr.com>
+	id <S290640AbSBFPy1>; Wed, 6 Feb 2002 10:54:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51209 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290639AbSBFPyM>; Wed, 6 Feb 2002 10:54:12 -0500
+Subject: Re: Cyrix CX5530 audio support?
+To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Date: Wed, 6 Feb 2002 16:07:02 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        thibaut@celestix.com (Thibaut Laurent), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0202061643320.7099-100000@mustard.heime.net> from "Roy Sigurd Karlsbakk" at Feb 06, 2002 04:44:04 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16YUb8-0005bJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Feb 2002, Alan Cox wrote:
+> > In the BIOS. There is 64K or so of deep magic SMM emulation firmware in the
+> > Geode system. Much of the PC compatible I/O is not in fact real but smoke and
+> > mirrors games played in the processor behind Linux back. This includes the
+> > SB16 interface.
+> 
+> Do you know if this is standard with the SC1200 chip?
 
-> I think it would be a good idea to modify the glibc authors in that case.
-
-  Did you mean "notify," or are you REALLY serious about this ;-)
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Ask your vendor what firmware is in their BIOS

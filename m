@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTFXKMc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 06:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTFXKMc
+	id S261808AbTFXKOP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 06:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTFXKOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 06:12:32 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:25066 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261823AbTFXKMb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 06:12:31 -0400
-Date: Tue, 24 Jun 2003 12:25:51 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
+	Tue, 24 Jun 2003 06:14:14 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:36838 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261808AbTFXKOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 06:14:12 -0400
+Date: Tue, 24 Jun 2003 03:29:04 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
 Subject: Re: Provide example copy_in_user implementation
-Message-ID: <20030624102551.GE159@elf.ucw.cz>
-References: <20030624100610.GC159@elf.ucw.cz> <20030624111820.D6478@flint.arm.linux.org.uk>
+Message-Id: <20030624032904.13213eb8.akpm@digeo.com>
+In-Reply-To: <20030624100610.GC159@elf.ucw.cz>
+References: <20030624100610.GC159@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030624111820.D6478@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 24 Jun 2003 10:28:20.0683 (UTC) FILETIME=[556771B0:01C33A3B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 24-06-03 11:18:20, Russell King wrote:
-> On Tue, Jun 24, 2003 at 12:06:10PM +0200, Pavel Machek wrote:
-> > This patch adds example copy_in_user implementation (copy_in_user is
-> > needed for new ioctl32 implementation, all 64bit archs will need
-> > it)... Please apply,
-> 
-> get_user / put_user on byte quantities may be faster than using
-> copy_from_user/copy_to_user on byte quantities.  Yes, it may be
-> a generic implementation, but there's no point in purposely making
-> it inefficient.
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> +static inline unsigned long copy_in_user(void *dst, const void *src, unsigned size) 
+>  +{ 
+>  +	unsigned i, ret;
+>  +	unsigned char c;
+>  +	for (i=0; i<size; i++) {
+>  +		if (copy_from_user(&c, src+i, 1)) 
+>  +			return size-i;
+>  +		if (copy_to_user(dst+i, &c, 1))
+>  +			return size-i;
+>  +	}
+>  +	return 0;
+>  +}	
+>  +
 
-Actually, it seems that most architectures do...
+I know that this is usually not performance critical, but by gawd that code
+is inefficient and bloaty.
 
-static inline unsigned long
-__copy_from_user(void *to, const void __user *from, unsigned long n)
-{
-        if (__builtin_constant_p(n)) {
-                unsigned long ret;
-
-                switch (n) {
-                case 1:
-
-
-...so it should be exactly as fast. Ahha, not arm.
-
-If I wanted to optimize it, first step would be to copy over something
-else than bytes. I'm afraid I do not want to optimize it.
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+It has 18 callsites; it can be put in lib/lib.a:copy_in_user.o.  The
+access_ok() checks only need to be run once.  It can copy a cacheline at a
+time.

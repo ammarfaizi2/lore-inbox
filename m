@@ -1,109 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUJDB52@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268311AbUJDB6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268301AbUJDB52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 21:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268311AbUJDB52
+	id S268311AbUJDB6l (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 21:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268312AbUJDB6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 21:57:28 -0400
-Received: from pimout7-ext.prodigy.net ([207.115.63.58]:62602 "EHLO
-	pimout7-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S268301AbUJDB5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 21:57:24 -0400
-Date: Sun, 3 Oct 2004 21:56:37 -0400 (EDT)
-From: Vladimir Dergachev <volodya@mindspring.com>
-X-X-Sender: volodya@node2.an-vo.com
-Reply-To: Vladimir Dergachev <volodya@mindspring.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jon Smirl <jonsmirl@gmail.com>, Dave Airlie <airlied@linux.ie>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Merging DRM and fbdev
-In-Reply-To: <1096841964.16457.17.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0410032047040.18796@node2.an-vo.com>
-References: <9e47339104100220553c57624a@mail.gmail.com> 
- <Pine.LNX.4.58.0410030824280.2325@skynet>  <9e4733910410030833e8a6683@mail.gmail.com>
-  <Pine.LNX.4.61.0410031145560.17248@node2.an-vo.com>
- <1096841964.16457.17.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 3 Oct 2004 21:58:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39315 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268311AbUJDB6d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 21:58:33 -0400
+Date: Sun, 3 Oct 2004 18:56:10 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Tim Hockin <thockin@hockin.org>
+Cc: mbligh@aracnet.com, pwil3058@bigpond.net.au, frankeh@watson.ibm.com,
+       dipankar@in.ibm.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
+       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041003185610.3bbff226.pj@sgi.com>
+In-Reply-To: <20041003201005.GA27757@hockin.org>
+References: <247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003201005.GA27757@hockin.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tim wrote:
+> 7 years ago, before cpus_allowed was dreamed up, I proposed a pset patch
+
+One more thing ... the original message from Simon and Sylvain that I
+first saw a year ago announcing their cpuset work, which is the basis
+for the current cpuset patch in Andrew's tree, began with the lines:
 
 
-On Sun, 3 Oct 2004, Alan Cox wrote:
-
-> On Sul, 2004-10-03 at 16:50, Vladimir Dergachev wrote:
->> In particular, I can contribute the code that does Framebuffer->System Ram
->> transfers over PCI/AGP. It is currently GPL licensed, but there is no
->> problem if BSD folks want it too.
->
-> This will do *wonders* to X render performance if used properly on those
-> cards we can't do render in hardware.
->
->> This is also potentially useful for any Mesa functions that want to
->> transfer data back from video RAM - using plain reads for this is really slow.
->
-> Agreed - and Mesa tends to skip even tricks like SSE2 that can quadruple
-> read performance.
-
-I am glad to see such enthusiasm :)
-
-The code I have only does it on ATI cards (all radeons, all rage128, some 
-mach64). The radeon code is the one that is known to work well.
-
-My personal interest is that Framebuffer -> System Ram transfer is needed
-if one wants to use Radeon GPUs for numerical computation. Thus, if there 
-is an agreement on what needs to be done and what modifications are 
-acceptable I can make this a priority.
-
-What kind of interface would different projects want ? Should I wait for 
-Jon's modifications to complete ? What people should we include on CC list ?
-
-Also here is a short description of current km design:
-
-     * km.[c,h] - this provides module registration and DMA queue
-       virtualization (note: this is GUI_DMA queue, different from what
-       DRM uses)
-
-     * radeon.c, rage128.c, mach64.c - these are hardware specific
-       functions
-
-     * km_memory.[c,h] - this is v4l code for reverse mapping, I guess
-       it is obsolete in 2.6.x kernels
-
-     * km_api.[c,h] km_api_data.[c,h] - this is a new interface for
-       video (and similar devices), an experiment to implement features
-       not present in v4l or v4l2.
-       ** I am not suggesting this be included. **
-
-     * km_v4l.c - this is a client of km_api that provides v4l
-       interface.
-
-The first two pieces can be ported with ease - there are few modifications 
-to be made, just cut the code that registers the driver.
-
-The km_api piece will need to be replaced with interface everyone agrees 
-on.
-
-Please let me know your comments !
-
-                         best
-
-                            Vladimir Dergachev
+> From: Simon Derr <Simon.Derr@bull.net>
+> Date: Wed, 24 Sep 2003 17:59:01 +0200 (DFT)
+> To: lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
+> cc: Sylvain Jeaugey <sylvain.jeaugey@bull.net>
+> 
+> We have developped a new feature in the Linux kernel, controlling CPU
+> placements, which are useful on large SMP machines, especially NUMA ones.
+> We call it CPUSETS, and we would highly appreciate to know about anyone
+> who would be interested in such a feature. This has been somewhat inspired
+> by the pset or cpumemset patches existing for Linux 2.4.
 
 
+So I guess Tim, you (pset) and I (cpumemset) can both claim to
+have developed anticedents of this current cpuset proposal.
 
->
->
-> -------------------------------------------------------
-> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
-> Use IT products in your business? Tell us what you think of them. Give us
-> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
-> http://productguide.itmanagersjournal.com/guidepromo.tmpl
-> --
-> _______________________________________________
-> Dri-devel mailing list
-> Dri-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/dri-devel
->
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

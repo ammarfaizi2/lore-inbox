@@ -1,53 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317639AbSGFMOh>; Sat, 6 Jul 2002 08:14:37 -0400
+	id <S317637AbSGFMjw>; Sat, 6 Jul 2002 08:39:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317637AbSGFMOg>; Sat, 6 Jul 2002 08:14:36 -0400
-Received: from ns.suse.de ([213.95.15.193]:41481 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317639AbSGFMOe>;
-	Sat, 6 Jul 2002 08:14:34 -0400
-Date: Sat, 6 Jul 2002 14:17:10 +0200
-From: Dave Jones <davej@suse.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Rob Landley <landley@trommello.org>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Kernel release management
-Message-ID: <20020706141710.A8216@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Rob Landley <landley@trommello.org>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96.1020701140915.23920A-100000@gatekeeper.tmr.com> <20020703173421.B8934@suse.de> <20020703200044.EB039C2C@merlin.webofficenow.com> <20020704132120.C11601@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020704132120.C11601@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Jul 04, 2002 at 01:21:20PM +0100
+	id <S317640AbSGFMjv>; Sat, 6 Jul 2002 08:39:51 -0400
+Received: from [194.105.207.66] ([194.105.207.66]:50064 "EHLO
+	vider.octet.spb.ru") by vger.kernel.org with ESMTP
+	id <S317637AbSGFMju>; Sat, 6 Jul 2002 08:39:50 -0400
+Message-ID: <004c01c224ea$816bfb80$15cf69c2@nick>
+From: "Nick Evgeniev" <nick@octet.spb.ru>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: "Dave Jones" <davej@suse.de>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.10.10207051710430.25668-100000@master.linux-ide.org>
+Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
+Date: Sat, 6 Jul 2002 16:41:52 +0400
+Organization: M.Y.T.H. Inc
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Scanner: exiscan *17Qosr-0005KZ-00*4Mu9ctJDgpg* (M.Y.T.H. Inc)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 04, 2002 at 01:21:20PM +0100, Russell King wrote:
+I don't know. Actually, I'm trying to setup "production" environment :)) &
+i845e (or i845pe) is the only one solution (I don't want to try via+promise
+anymore)
 
- > Think about who will do the stabilisation.  Do you really think Alan or
- > Marcelo will pick up 2.6 when it comes out?  Or do you see someone else
- > picking up 2.6?
+----- Original Message -----
+From: "Andre Hedrick" <andre@linux-ide.org>
+To: "Nick Evgeniev" <nick@octet.spb.ru>
+Cc: "Dave Jones" <davej@suse.de>; "Alan Cox" <alan@lxorguk.ukuu.org.uk>;
+<linux-kernel@vger.kernel.org>
+Sent: Saturday, July 06, 2002 4:25 AM
+Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
 
-Marcelo didn't seem against the idea, and as he's done a pretty good
-job so far in 2.4, he seems to be the ideal guy for the job (time
-permitting). At the time we get to 2.6.0, 2.4 should have slowed down
-sufficiently that he'll be looking for something else to do.
 
- > One of the fundamental questions that needs to be asked along side the
- > "fork 2.7 with 2.6" problem is _who_ exactly is going to look after 2.6.
- > Dave Jones?  If Dave, who's going to do Daves job of making sure fixes
- > get propagated between stable and development trees?
+>
+> Does it work in 2.5 ?
+>
+>
+> On Thu, 4 Jul 2002, Nick Evgeniev wrote:
+>
+> > Well, anyway, 2.4.19-pre10-ac2 works for me :)
+> >
+> > > No it has everything to do with determining if the HBA is in
+compatablity
+> > > or native mode and if the device is properly enabled.
+> > >
+> > > On Wed, 3 Jul 2002, Dave Jones wrote:
+> > >
+> > > > On Mon, Jul 01, 2002 at 03:49:43PM +0400, Nick Evgeniev wrote:
+> > > >
+> > > >  >     Why are you so assure? It's "msi 845e Max" with LAN on-board
+mb
+> > with
+> > > >  > _latest_ BIOS installed....
+> > > >  > Just FYI 2.4.18 was even unable to run eepro100 driver on it
+while
+> > intels
+> > > >  > e100 driver was working perfectly.
+> > > >
+> > > > Could this be related to the pci id clash I pointed out last week?
+> > > > That id was for an intel IDE device iirc.
+> > > >
+> > > > (Recap: Two id's don't tally between 2.4/2.5)
+> > > >
+> > > >         Dave
+> > > >
+> > > > --
+> > > > | Dave Jones.        http://www.codemonkey.org.uk
+> > > > | SuSE Labs
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel"
+> > in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > >
+> > >
+> > > Andre Hedrick
+> > > LAD Storage Consulting Group
+> > >
+> > > -
+> > > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> > > the body of a message to majordomo@vger.kernel.org
+> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > Please read the FAQ at  http://www.tux.org/lkml/
+> > >
+> >
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+>
 
-When we get to 2.6, I'll do 2.6-dj's until the important bits are all
-pushed to $maintainer, and keep the leftovers until 2.7-dj.
-
-        Dave 
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVAKAKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVAKAUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262753AbVAKAKG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 19:10:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVAKAJl
+	id S262551AbVAKAUz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 19:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbVAKAUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 19:09:41 -0500
-Received: from mail.teja.com ([209.10.202.115]:26771 "EHLO mail.teja.com")
-	by vger.kernel.org with ESMTP id S262753AbVAJXzo (ORCPT
+	Mon, 10 Jan 2005 19:20:15 -0500
+Received: from gprs214-230.eurotel.cz ([160.218.214.230]:43904 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262674AbVAKAOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 18:55:44 -0500
-Message-ID: <41E3176F.6000809@teja.com>
-Date: Mon, 10 Jan 2005 16:01:51 -0800
-From: Slade Maurer <smaurer@teja.com>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave <dave.jiang@gmail.com>
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org, linux@arm.linux.org.uk,
-       dsaxena@plexity.net, drew.moseley@intel.com
-Subject: Re: clean way to support >32bit addr on 32bit CPU
-References: <8746466a050110153479954fd2@mail.gmail.com>
-In-Reply-To: <8746466a050110153479954fd2@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jan 2005 19:14:46 -0500
+Date: Tue, 11 Jan 2005 01:14:26 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Bernard Blackham <bernard@blackham.com.au>
+Cc: Shaw <shawv@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: Screwy clock after apm suspend
+Message-ID: <20050111001426.GF1444@elf.ucw.cz>
+References: <7bb8b8de05010710085ea81da9@mail.gmail.com> <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net> <20050110074422.GA17710@mussel> <20050110105759.GM1353@elf.ucw.cz> <20050110174804.GC4641@blackham.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050110174804.GC4641@blackham.com.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave wrote:
+Hi!
 
->I have this ARM (XScale) based platform that supports 36bit physical
->addressing. Due to the way the ATU is designed, the outbound memory
->translation window is fixed outside the first 4GB of memory space, and
->thus the need to use 64bit addressing in order to access the PCI bus. 
->After all said and done, the struct resource members start and end
->must support 64bit integer values in order to work. On a 64bit arch
->that would be fine since unsigned long is 64bit. However on a 32bit
->arch one must use unsigned long long to get 64bit. However, if we do
->that then it would make the 64bit archs to have 128bit start and end
->and probably wouldn't be something we'd want. What would be a nice
->clean way to support this that's acceptable to Linux? I guess this
->issue would be similar to x86-32 PAE would have?
->
->Also, please cc me on on the discussion. Not sure if my LKML
->subscription is working... Thanks!
->
->  
->
-Also, it would be nice to have PTEs to represent the upper 4GB such that 
-it can be mmapped to user space. PAE handled this in and it would be 
-great to have it in ARM MMU36 as well.
+> > > > > arch/i386/kernel/time.c, can you comment out
+> > > > > jiffies += sleep_length * HZ;
+> > > > 
+> > > > Worked like a charm.  I'm not seeing any time drift after your suggested 
+> > > > change.
+> > > 
+> > > AIUI, this also means that a machine's uptime does not include time
+> > > whilst suspended. This was the behaviour prior to 2.6.10 and seems to be
+> > > more desirable as it counts the time the machine is actually running,
+> > > not just time since boot. Is there a good reason why we can't go back to
+> > > this?
+> > 
+> > I think it means very wrong system clock in ACPI state.
+> 
+> So would implementing the equivalent of hwclock --hctosys keep both
+> ACPI & APM happy, but not include time suspended in uptime?
 
-  -Slade
+I think that hwclock --hctosys is not quite straightforward operation
+-- it needs to know if your CMOS clock are in local timezone or GMT,
+or something like that, IIRC.
 
+But this might work: compute difference between system and cmos time
+before suspend, and use that info to restore time after suspend.
+
+> > Plus think something wanting timeout of five minutes, then suspend
+> > one minute after, machine sleeps for a hour.
+> > 
+> > With this approach, timeout should happen just after resume, with your
+> > approach, it would wait 4 more minutes.
+> 
+> It does depend on whether a timer wants a delay against the wall
+> clock or the rest of the system.  A process may be sleeping because
+> it's waiting for some other task to complete, or waiting for input
+> from the user. In these cases I claim time-whilst-hibernated should
+> not be counted.
+
+> Hibernating shouldn't be noticeable to the system. For example, a
+> popup window that came up an instant prior to suspending which is
+> normally on the screen for several seconds would vanish instantly
+> upon resuming without the user ever seeing it.
+
+I disagree here.
+
+If I do cli(); sleep(5 hours); sti();, system should survive that. If
+you do cli(); sleep(5 hours); sti() but fail to compensate for lost
+ticks, all sorts of funny things might happen if you are comunicating
+with someone who did not sleep.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,132 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129957AbQKGWbX>; Tue, 7 Nov 2000 17:31:23 -0500
+	id <S129958AbQKGWcD>; Tue, 7 Nov 2000 17:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129958AbQKGWbD>; Tue, 7 Nov 2000 17:31:03 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:41044 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129957AbQKGWac>; Tue, 7 Nov 2000 17:30:32 -0500
-Date: Tue, 7 Nov 2000 16:30:22 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200011072230.QAA304551@tomcat.admin.navo.hpc.mil>
-To: kaos@ocs.com.au
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage - modutils design 
-X-Mailer: [XMailTool v3.1.2b]
+	id <S129486AbQKGWbx>; Tue, 7 Nov 2000 17:31:53 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129958AbQKGWbk>; Tue, 7 Nov 2000 17:31:40 -0500
+Date: Tue, 7 Nov 2000 17:31:19 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+cc: Chris Meadors <clubneon@hereintown.net>,
+        Ulrich Drepper <drepper@redhat.com>, kernel@kvack.org,
+        "Dr. David Gilbert" <dg@px.uk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dual XEON - >>SLOW<< on SMP
+In-Reply-To: <Pine.LNX.4.21.0011071401280.4438-100000@sol.compendium-tech.com>
+Message-ID: <Pine.LNX.3.95.1001107172159.198A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- From: Keith Owens <kaos@ocs.com.au> 
-> On Tue, 7 Nov 2000 10:01:02 -0600 (CST), 
-> Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> wrote:
-> >Keith Owens <kaos@ocs.com.au>:
-> >> Enough people have asked for persistent module storage to at least
-> >> justify me writing the code.  The design is simple.
-> >> 
-> >> MODULE_PARM(var,type) currently defines type as [min[-max]]{b,h,i,l,s}.
-> >> For persistent data support, type is now [min[-max]]{b,h,i,l,s}{p}, the
-> >
-> >How about including the posibility for some binary data. If something
-> >like devfs were to store permanent data, then it would likely contain
-> >a list of security labels (rwx/owner/group/(future mac)). This could
-> >be a sizable block to store in ascii (but hex might be reasonable).
-> >
-> >This would shift the "MODULE_PARM" definition to something like:
-> >	MODULE_PARM(var,type,size)
-> >where size is only used when the type would be binary.
+On Tue, 7 Nov 2000, Dr. Kelsey Hudson wrote:
+
+> > This machine isn't even a Xeon, just a PIII CuMine on a ServerWorks HeIII
+> > chipset.
 > 
-> #define MAX_PERSIST 100
-> int mode[MAX_PERSIST];
-> int owner[MAX_PERSIST];
-> int group[MAX_PERSIST];
-> MODULE_PARM(mode, "1-" __MODULE_STRING(MAX_PERSIST) "ip");
-> MODULE_PARM(owner, "1-" __MODULE_STRING(MAX_PERSIST) "ip");
-> MODULE_PARM(group, "1-" __MODULE_STRING(MAX_PERSIST) "ip");
+> Strange, I've got a dual Katmai (non-Xeon) and notice the same...
 > 
-> Resulting data looks like this, trailing all zero values are removed.
+>            CPU0       CPU1       
+>   0:   95135438   95720832    IO-APIC-edge  timer
+>   1:     579101     572402    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   3:    1414912    1423496    IO-APIC-edge  serial
+>   5:    5563231    5551230    IO-APIC-edge  soundblaster
+>   9:          0          0    IO-APIC-edge  acpi
+>  10:   10945738   10944261   IO-APIC-level  eth0
+>  11:     696382     700477   IO-APIC-level  ide0, ide1
+>  12:    7251164    7251575    IO-APIC-edge  PS/2 Mouse
+>  13:          0          0          XT-PIC  fpu
+>  14:    3079238    3079438   IO-APIC-level  eth1
+>  15:        111        130   IO-APIC-level  bttv
+> NMI:  190856196  190856196 
+> LOC:  190858464  190858463 
+> ERR:          0
 > 
-> mode=420,420,493
-> owner=0,0,1
-> group=0,0,2
+> This cannot be good...
 > 
-> No need for a separate size field.  Note that MODULE_PARM is built at
-> compile time so all persistent data must have a fixed compile time
-> size.
+>  Kelsey Hudson                                           khudson@ctica.com 
+>  Software Engineer
+>  Compendium Technologies, Inc                               (619) 725-0771
+> ---------------------------------------------------------------------------     
 
-I'll buy that - but it does mean that if there are 300 items then it
-will get LONG... but then, that can be handled. I was thinking of the
-"parameter" to possibly being a full data structure that could be updated
-in an atomic manner, with a minimum of overhead (no number conversions
-in the kernel).
+The build time (of version 2.2.17) was 300 seconds +/- 20 seconds
+with Linux version 2.2.17.
 
-> Pure binary immediately runs into kernel version skew problems.  If the
-> data in kernel 2.4.n is
->
-> struct { int mode; int owner; int group; } persistent[MAX_PERSIST];
-> 
-> but kernel 2.4.n+1 has
-> 
-> struct { int mode; int owner; int group; long acl; } persistent[MAX_PERSIST];
-> 
-> Then saving binary data from kernel 2.4.n and loading it into 2.4.n+1
-> or vice versa results in garbage because the structure format has
-> changed.  Separating individual fields and treating them as text has no
-> such problem.  I have already decided that persistent data will not be
-> passed to insmod on the command line, instead insmod will read directly
-> from the saved data file, that removes any worries about command line
-> limitations.
+The build time (of version 2.2.17) is now 1240 seconds +/- 20 seconds
+with Linux version 2.4.0.
 
-The identification of data version should be left up to the userspace
-utility that retrieves the data. That way different versions wouldn't have
-a skew. If the utility used a file format like "ar", then the access key
-could contain the kernel version, the module, and the parameter. If not the
-kernel version, then the module version - with the kernel version represented
-by a file identifier (/var/persist/`uname -r` ?).
+So the system is about 4 times slower.
 
-> >This could hold a lot of data, as well as allow for parameters that
-> >are configured in user space, but don't take effect until next device
-> >load or boot (buffer size settings, kernel scheduling options, memory
-> >resource controls...).
-> 
-> If the values are implemented via modules then make them persistent.
-> OTOH if they are implemented via code that is built into the kernel
-> then insmod is far too late.
+Also, I get some CPU watchdog timeout that I didn't ask for Grrr...
 
-For some things, yes. I was thinking of things like automatically changing
-the scheduling priorities for batch+interactive use. Also things like
-fair-share scheduler parameters, resident set size/swap resource control,
-(other large system capabilities, I admit).
+Nov  7 17:17:54 chaos nmbd[115]:   Samba server CHAOS is now a domain master browser for workgroup LINUX on subnet 204.178.40.224 
+Nov  7 17:17:54 chaos nmbd[115]:    
+Nov  7 17:17:54 chaos nmbd[115]:   ***** 
+Nov  7 17:18:54 chaos kernel: NMI Watchdog detected LOCKUP on CPU0, registers: 
+Nov  7 17:18:54 chaos kernel: CPU:    0 
+Nov  7 17:19:01 chaos login: ROOT LOGIN ON tty2
 
-The only large (data sized) thing I can think of right now would be
-re-loading default sounds into a audio devices wave table. The other
-things are closer to having only 20-30 values at a time.
 
-> 
-> >An additional option would be an IOCTL (or something)
-> >on the resource file to indicate a userspace update had been made (including
-> >the parameter identifier) so that the appropriate driver/module could
-> >be requested to perform an update. This would be most usefull for being
-> >able to atomicly change kernel parameters (scheduling or resource controls).
-> 
-> Now you are getting into the area of configuration utilities and the
-> interface between such utilities and the kernel as a whole, not just
-> modules.  That is a seperate problem and is best left to the
-> configuration tools that already exist.  Module persistent data is
-> intended for values in individual modules that the user changes daily
-> or even hourly (volume, TV tuner), not for overall system control.
+           CPU0       CPU1       
+  0:      10945      11869    IO-APIC-edge  timer
+  1:        419        393    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          0          0    IO-APIC-edge  rtc
+ 10:       2990       2904   IO-APIC-level  eth0
+ 11:       1066       1124   IO-APIC-level  BusLogic BT-958
+ 13:          0          0          XT-PIC  fpu
+NMI:      22748      22748 
+LOC:      21731      22229 
+ERR:          0
 
-It looked to be closely related.
 
-I know it wasn't considered, but batch schedulers may have their parameters
-changed hourly. My site currently works with one that has parameters changed
-to reflect available resources for future scheduling cycles that use updated
-job priorities to determine how the system should respond.
+The NMI and LOC (timers) run faster than timer channel 0. This
+cannot be correct. Anybody know what this is and how to get
+rid of these CPU time stealers?
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
 
-Any opinions expressed are solely my own.
+This is just a dual 400MHz Pentiumi II:
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 5
+model name	: Pentium II (Deschutes)
+stepping	: 1
+cpu MHz		: 400.000915
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+sep_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips	: 799.54
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 5
+model name	: Pentium II (Deschutes)
+stepping	: 1
+cpu MHz		: 400.000915
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+sep_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips	: 801.18
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

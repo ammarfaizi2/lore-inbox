@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265390AbUFOJGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265383AbUFOJVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbUFOJGp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 05:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbUFOJGp
+	id S265383AbUFOJVw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 05:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265396AbUFOJVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 05:06:45 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:42455 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S265383AbUFOJGf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 05:06:35 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Steve French <smfltc@us.ibm.com>
-Subject: Re: upcalls from kernel code to user space daemons
-Date: Tue, 15 Jun 2004 11:06:23 +0200
-User-Agent: KMail/1.6.2
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-References: <1087236468.10367.27.camel@stevef95.austin.ibm.com> <200406142341.13340.oliver@neukum.org> <1087253679.10367.41.camel@stevef95.austin.ibm.com>
-In-Reply-To: <1087253679.10367.41.camel@stevef95.austin.ibm.com>
-MIME-Version: 1.0
+	Tue, 15 Jun 2004 05:21:52 -0400
+Received: from holomorphy.com ([207.189.100.168]:18085 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265383AbUFOJVu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 05:21:50 -0400
+Date: Tue, 15 Jun 2004 02:12:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [3/12] remove irda usage of isa_virt_to_bus()
+Message-ID: <20040615091219.GR1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040615014344.GA17657@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406151106.31253.oliver@neukum.org>
+In-Reply-To: <20040615014344.GA17657@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jun 14, 2004 at 06:43:44PM -0700, Jean Tourrilhes wrote:
+> 	Could you please send this directly to me. I hate scrubbing
+> large patches from the mailing list archive.
+> 	Note that before even thinking of pushing this patch in the
+> kernel, we need to perform testing with the hardware on i386 and
+> potentially on ARM. The author only tried with irtty that doesn't use
+> this function, so that's not a valid test at all. Finding people test
+> those changes is going to be tough, as usual.
+> 	I'm also wondering about the validity of those changes, but
+> that's another matter I need to go through. During 2.5.X, some people
+> assured me that using isa_virt_to_bus was safe on all platform with an
+> ISA bus...
 
-Am Dienstag, 15. Juni 2004 00:54 schrieb Steve French:
-> On Mon, 2004-06-14 at 16:40, Oliver Neukum wrote:
-> > > > 1) getHostByName:  when the kernel cifs code detects a server crashes
-> > > > and fails reconnecting the socket and the kernel code wants to see if
-> > > > the hostname now has a new ip address.
-> > 
-> > Is that possible at all? It looks like that might deadlock in the page
-> > out code path.
-> > 
-> 
-> Yes - since an upcall (indirectly) to a different process while in write
-> could cause writepage to write out memory to a mount - which could hang
-> if on an already dead tcp session, this (reconnection - failover to new
-> ip address if the server ip address changes after failure) may be too
-> risky to do in the context of writepage, but there may be a way to keep
-> refusing to do writepage while in the midst of this harder form of mount
-> reconnection - which isn't likely to be any worse than not
-> reconnecting.  Fortunately, most tcp reconnection cases are much
-> simpler.
+Okay, well, I myself didn't produce this, and I couldn't tell offhand
+if it was bogus or not. I presumed bugreporter made happy and spraying
+it across the debian userbase was enough to verify it at runtime. From
+what you're telling me, this is not the case.
 
-Well, unless you want to mlock() all libraries connected with name
-resolution or code dns in kernel, you'll have to either fail the io, which
-is bad, or use a fallback that is local. I suggest that you write the block
-in question to a local disk (swap space?) and fire of a user space helper
-asynchronously. That helper then could reestablish the connection.
+Can you recommend people to do this kind of testing?
 
-	Regards
-		Oliver
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Apparently people aren't entirely happy with "dump it on lkml and wait
+for an ack or nak", which I've noted for future reference, but probably
+won't have a need to consider again (it's very rare that I have to deal
+with changes I didn't write myself or are otherwise in areas I don't
+have much knowledge about). OTOH, it was easier to find than buried in
+a distro BTS and/or cvs, not that that makes it ideal.
 
-iD8DBQFAzrwUbuJ1a+1Sn8oRAv2kAJ444nIrog/fnOPqlxTCAjAnaHtDUQCePe15
-cGBjATSxNNRhCHGplhV703o=
-=kjJe
------END PGP SIGNATURE-----
+
+-- wli

@@ -1,44 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264140AbRFMBxc>; Tue, 12 Jun 2001 21:53:32 -0400
+	id <S264135AbRFMBna>; Tue, 12 Jun 2001 21:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264143AbRFMBxW>; Tue, 12 Jun 2001 21:53:22 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:58326 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S264140AbRFMBxK>;
-	Tue, 12 Jun 2001 21:53:10 -0400
-Message-ID: <3B26C779.ECE9017C@candelatech.com>
-Date: Tue, 12 Jun 2001 18:52:57 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S264138AbRFMBnU>; Tue, 12 Jun 2001 21:43:20 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:61713 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264135AbRFMBnM>; Tue, 12 Jun 2001 21:43:12 -0400
+Date: Tue, 12 Jun 2001 18:42:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux-2.4.6-pre3
+Message-ID: <Pine.LNX.4.31.0106121836030.1253-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Ken Brownfield <brownfld@irridia.com>, Florin Andrei <florin@sgi.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19: eepro100 and cmd_wait issues
-In-Reply-To: <Pine.LNX.4.33.0106121702500.25366-100000@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Lang wrote:
-> 
-> I am useing the D-link 4 port card without running into problems
-> (admittidly I have not been stressing it much yet)
 
-I was able to get the D-Link to work in half-duplex (100bt), but
-not in auto-negotiate or full-duplex mode.  (Packets would pass,
-but there would be huge number of carrier and other bad packets.)
+User-noticeable things: if you are tired of not being able to NFS-export
+your reiserfs tree, this should make you happy.
 
-I get a similar problem with the ZNYX 4-port, but I can't even
-force it to half-duplex, or any other fixed speed (it just won't go).
-It kinda autonegotiates something, claiming to be full-duplex, but it
-still shows collisions and I can't get through-put above about 10Mbps
-bi-directional, and its dropping many packets.
+VM tuning has also happened, with Rik van Riel, Mike Galbraith, Marcelo
+Tosatti and Andrew Morton all doing various tweaks. Give it a whirl.
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+		Linus
+
+-----
+
+-pre3:
+ - remember to increment the version number
+ - Chris Mason: reiserfs mark_journal_new and bh leak fix
+ - Richard Gooch: devfs update
+ - Alexander Viro: further FS cleanup (superblock list)
+ - David Woodhouse: MTD update
+ - Kai Germaschewski: ISDN update (stanford checker fixes etc)
+ - Rich Baum: gcc-3.0 warning fixes
+ - Jeff Garzik: network driver updates
+ - Geert Uytterhoeven: m68k fbdev logo merge glitch fix
+ - Andrea Arcangeli: fix signal return path
+ - David Miller: Sparc updates
+ - Johannes Erdfelt: USB update
+ - Carsten Otte, Andries Brouwer: don't clear blk_size unconditionally
+   on partition check
+ - Martin Frey: alpha Sable irq fix
+ - Paul Mackerras: PPC softirq update
+ - Patrick Mochel: PCI power management infrastructure
+ - Robert Siemer: miroSOUND driver update
+ - Neil Brown: knfsd updates, including ability to export ReiserFS filesystems
+ - Trond Myklebust: NFS readdir fixup, don't update atime on client
+ - Andrew Morton: truncate_inode_pages speedup
+ - Paul Menage: make inode quota count all inodes..
+
+-pre2:
+ - Takanori Kawano: brlock indexing bugfix
+ - Ingo Molnar, Jeff Garzik: softirq updates and fixes
+ - Al Viro: rampage of superblock cleanups.
+ - Jean Tourrilhes: Orinoco driver update v6, IrNET update
+ - Trond Myklebust: NFS brown-paper-bag thing
+ - Tim Waugh: parport update
+ - David Miller: networking and sparc updates
+ - Jes Sorensen: m68k update.
+ - Ben Fennema: UDF update
+ - Geert Uytterhoeven: fbdev logo updates
+ - Willem Riede: osst driver updates
+ - Paul Mackerras: PPC update
+ - Marcelo Tosatti: unlazy swap cache
+ - Mikulas Patocka: hpfs update
+
+-pre1:
+ - Andreas Dilger: make ext2fs react more gracefully to inode disk
+   errors
+ - Andrea Arkangeli: fix up alpha compile issues
+ - Ingo Molnar: io-apic MP table parsing update and softirq latency
+   update
+ - Johannes Erdfelt: USB updates
+ - Richard Henderson: alpha rawhide irq handling fixes
+ - Marcelo, Andrea, Rik: more VM issues
+ - Al Viro: fix various ext2 directory handling checks by biting the
+   bullet and using the page cache.
+
+

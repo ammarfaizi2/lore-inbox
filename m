@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293613AbSCFOha>; Wed, 6 Mar 2002 09:37:30 -0500
+	id <S293619AbSCFOqX>; Wed, 6 Mar 2002 09:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293619AbSCFOhU>; Wed, 6 Mar 2002 09:37:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50448 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293613AbSCFOhJ>; Wed, 6 Mar 2002 09:37:09 -0500
-Subject: Re: bitkeeper / IDE cleanup
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Wed, 6 Mar 2002 14:52:15 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <3C86110E.7020703@evision-ventures.com> from "Martin Dalecki" at Mar 06, 2002 01:52:30 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293621AbSCFOqM>; Wed, 6 Mar 2002 09:46:12 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:29907 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293619AbSCFOpy>;
+	Wed, 6 Mar 2002 09:45:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Futexes III :  performance numbers
+Date: Wed, 6 Mar 2002 09:46:41 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <E16i8x2-0008TV-00@wagner.rustcorp.com.au> <20020305212210.B10A33FF04@smtp.linux.ibm.com> <20020306185420.29df1bf2.rusty@rustcorp.com.au>
+In-Reply-To: <20020306185420.29df1bf2.rusty@rustcorp.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16icm7-00072w-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020306144536.C4D0E3FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 3. Why do we have something like genric cdrom ioctl handling layer,
->     which is basically just adding the above hooks?
+On Wednesday 06 March 2002 02:54 am, Rusty Russell wrote:
+> On Tue, 5 Mar 2002 16:23:14 -0500
+>
+> Hubertus Franke <frankeh@watson.ibm.com> wrote:
+> > Interesting... the strict FIFO ordering of my fast semaphores limits
+> > performance as seen by 99.71% contention, so we always ditch
+> > into the kernel. Convoy Avoidance locks 2.5 times better.
+> > Wohh futex rock, BUT... with 0.29% contention it basically tells
+> > me that we are exhausting our entire quantum getting the lock
+> > without contention. So their is some serious fairness issue here
+> > at least for the tightly scheduled locks. Compare the M numbers
+> > for 2 and 3 children.
+>
+> Fairness <sigh>.  This patch should be much more FIFO: it works by handing
+> the mutex straight to the first one on the queue if there is one, and only
+> actually "freeing" it if there's noone waiting.
+>
+> Unfortunately, it seems to hurt performance by 50% on tdbtorture (although
+> there are weird scheduler things happening too).
+>
+> Here's the "fair" patch:
+> Rusty.
 
-That bit is needed. You want unpriviledged processes to issue a subset of
-the available commands so users can do things like play music. Those ioctls
-for CDROM are also rather important for back compatibility.
+Thanks, Rusty, man you are a coding machine :-)
 
-Thats a seperate but important case.
+Now you are experiencing all the issues that I went through as well.
+Point I was trying ot make is, that there is not cookie cutter solution.
+One must provide the various options to the higher level and let
+the application choose what mootex semantics it wants.
 
-There are two things I think you must consider
+There is applicability for fair futexes and for convoy avoidance futexes.
 
-#1	"Make the simple things easy" - abstract common cd interface and
-	friends. Unpriviledged but with strict limits on what can be issued
+So let's put both in, and later expand it to read/write stuff.
 
-#2	"Make the hard possible" - the direct "I know what I am doing"
-	CAP_SYS_RAWIO interface
 
-#3	Ioctls that must be issued with kernel help because they change
-	interface status and must synchronize both the device and the
-	controller (eg 'go to UDMA3')
-
-What can hopefully go is ioctls that are complex, setuid required and 
-could be done by #2.
-
-Alan
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

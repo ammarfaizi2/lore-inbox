@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289726AbSBESQS>; Tue, 5 Feb 2002 13:16:18 -0500
+	id <S289737AbSBESWR>; Tue, 5 Feb 2002 13:22:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289727AbSBESQF>; Tue, 5 Feb 2002 13:16:05 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:24510 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289726AbSBESPq>;
-	Tue, 5 Feb 2002 13:15:46 -0500
-Date: Tue, 5 Feb 2002 23:47:57 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Andrea Arcangeli <andrea@suse.de>, Rusty Russell <rusty@rustcorp.com.au>,
-        Paul McKenney <paul.mckenney@us.ibm.com>, mingo@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New Read-Copy Update patch
-Message-ID: <20020205234757.A427@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-In-Reply-To: <20020205211826.B32506@in.ibm.com> <200202051654.g15GsWH01780@ns.caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200202051654.g15GsWH01780@ns.caldera.de>; from hch@ns.caldera.de on Tue, Feb 05, 2002 at 05:54:32PM +0100
+	id <S289735AbSBESWG>; Tue, 5 Feb 2002 13:22:06 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:50954 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S289733AbSBESV4>;
+	Tue, 5 Feb 2002 13:21:56 -0500
+Date: Tue, 5 Feb 2002 10:18:38 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <leist@beldesign.de>
+cc: <linux-kernel@vger.kernel.org>,
+        Guillaume Chamberland-Larose 
+	<Guillaume.Chamberland-Larose@ift.ulaval.ca>
+Subject: Re: Documentation
+In-Reply-To: <20020202103959.7E7832AD636@fastpage>
+Message-ID: <Pine.LNX.4.33L2.0202051017450.18426-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 05, 2002 at 05:54:32PM +0100, Christoph Hellwig wrote:
-> In article <20020205211826.B32506@in.ibm.com> you wrote:
-> > 3. A per-cpu timer support ? - This will allow us to get rid of the krcud
-> >    stuff and make RCU even simpler.
-> 
-> Something like http://people.redhat.com/mingo/scalable-timers-patches/smptimers-2.4.16-A0?
+On Sat, 2 Feb 2002, Yven J. Leist wrote:
 
-Almost. IIUC, there is still the possibility that a timer queued
-in one CPU may get executed in another. While this by itself
-doesn't cause a problem for this RCU implementation (we end up
-checking some other CPU's queue), if one CPU is starved of timers,
-it could be problematic.
+| On Saturday 02 February 2002 10:18, Guillaume Chamberland-Larose wrote:
+| > Hi,
+| >
+| > I have some linux kernel programming experience from the 2.0 days and I'd
+| > like to start programming it again, or at least understand the new
+| > features. Is there any really up-to-date information on 2.5, what's changed
+| > (build process, new VM, new this), what's new for developers eager to jump
+| > into kernel programming again? :)
+|
+| http://www.kernelnewbies.org/status/status.html
+| provides a nice overview of 2.5 changes.
 
-Since we have many per-cpu data structures, it would be a useful thing
-to have a per-cpu mechanism to manipulate these data structures
-in a cache-sensitive way.
 
-> 
-> Ingo, Linus:  Any chance to see that in 2.5 soon?
+also try http://www.osdl.org/archive/rddunlap/linux-port-25x.html
 
-IIRC, timerlist_lock used to show up in lockmetering in some workloads
-we were using some time ago. It would be a good thing to get rid
-of this global lock soon.
+I need to add input API and frame buffer API changes to it...
 
-Thanks
-Dipankar
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+~Randy
+

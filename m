@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315219AbSDWNyN>; Tue, 23 Apr 2002 09:54:13 -0400
+	id <S315208AbSDWNzs>; Tue, 23 Apr 2002 09:55:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315220AbSDWNyN>; Tue, 23 Apr 2002 09:54:13 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:35459 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315219AbSDWNyL>; Tue, 23 Apr 2002 09:54:11 -0400
-Date: Tue, 23 Apr 2002 09:56:00 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: gio zanei <il_boba@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: undefined reference to printk()
-In-Reply-To: <F236cWcHoWRwE67G7lU00005dc6@hotmail.com>
-Message-ID: <Pine.LNX.3.95.1020423095215.16072A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315209AbSDWNzq>; Tue, 23 Apr 2002 09:55:46 -0400
+Received: from mail44-s.fg.online.no ([148.122.161.44]:7866 "EHLO
+	mail44.fg.online.no") by vger.kernel.org with ESMTP
+	id <S315208AbSDWNzo>; Tue, 23 Apr 2002 09:55:44 -0400
+Date: Tue, 23 Apr 2002 16:55:59 +0200
+From: Dag Bakke <dag@bakke.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BUG: 2 NICs on same network
+Message-ID: <20020423165559.G18305@dagb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Apr 2002, gio zanei wrote:
+On Tue, Apr 23, 2002 at 11:39:35AM +0200, Frank Louwers wrote:
+> Our situation is this: we have a server with 2 nics, each with a
+> different IP on the same network, connected to the same switch. Let's
+> assume eth0 has ip 1.2.3.1 and eth1 has 1.2.3.2, with a both with a
+> netmask of 255.255.255.0.
+>
+> Now the strange thing is that traffic for 1.2.3.2 arrives at eth0 no
+> matter what!
+>
+> Even if we disconnect the cable for eth1, 1.2.3.2 still replies to
+> pings, ssh, web, ...
 
-> hi to all,
-> i need to compile a small program that i made. WHen i try to do it, it 
-> compiles all right with the -c option ( that is i get the .o file), but if i 
-> do even the linking it just keep giving me the undefined reference error to 
-> some kernel functions that i need to use. In particular are the printk, 
-> filp_open, generic_file_read....  I have included the header files that 
-> declare them ( kernel.h and fs.h) and i have compiled the program with the 
-> -D__KERNEL__ and other option used by the compiler when it wants to compile 
-> a module in the kernel. I tried in many different ways but the error in the 
-> linking is always the same.
-> thank you,
-> boba
-> 
+Do:
+netstat -rn
 
-Stuff compiled to run in the kernel needs to be run in the kernel.
-Stuff compiled to run in user-mode needs to be run in user-mode.
-None the twain shall meet.
+and you will (should?) understand why.
 
-You can't make a 'program' that calls kernel functions. You make
-a module and install it. Modules are not linked as user-mode
-executables. They remain object files.
+See:
+/usr/src/linux/Documentation/networking/bonding.txt
 
-Cheers,
-Dick Johnson
+to (possibly) achieve what you want..
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+Dag B

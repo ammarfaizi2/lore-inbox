@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVCRN6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVCROIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVCRN6S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 08:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVCRN6S
+	id S261607AbVCROIK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 09:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVCROIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 08:58:18 -0500
-Received: from mailgw3.technion.ac.il ([132.68.238.35]:5026 "EHLO
-	mailgw3.technion.ac.il") by vger.kernel.org with ESMTP
-	id S261605AbVCRN6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 08:58:14 -0500
-Date: Fri, 18 Mar 2005 15:58:11 +0200 (IST)
-From: Jacques Goldberg <goldberg@phep2.technion.ac.il>
-X-X-Sender: goldberg@localhost.localdomain
-Reply-To: Jacques Goldberg <Jacques.Goldberg@cern.ch>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Need break driver<-->pci-device automatic association
-In-Reply-To: <1111151648.9874.10.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58_heb2.09.0503181537400.9143@localhost.localdomain>
-References: <Pine.LNX.4.58_heb2.09.0503181042470.8660@localhost.localdomain>
- <1111151648.9874.10.camel@localhost.localdomain>
-X-MailKey: 829.36.63
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Mar 2005 09:08:10 -0500
+Received: from postman2.arcor-online.net ([151.189.20.157]:15003 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261607AbVCROIJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 09:08:09 -0500
+Date: Fri, 18 Mar 2005 15:09:41 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: "Josef E. Galea" <josefeg@euroweb.net.mt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel space sockets
+Message-ID: <20050318140941.GA31622@hsnr.de>
+References: <423ADD5B.5060708@euroweb.net.mt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <423ADD5B.5060708@euroweb.net.mt>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Alan Cox wrote:
+On Fri, Mar 18, 2005 at 02:53:31PM +0100, Josef E. Galea wrote:
+> Hi,
+> 
+> I'm trying to implement a UDP server in a kernel module. So far I have 
+> created the struct socket using sock_create_kern(), and used 
+> sock->ops->bind() on it. Now how do I send UDP datagrams? I looked at 
+> some code and found the function sock->ops->sendmsg() but I can't figure 
+> out where to put the destination address. I would appreciate it if 
+> someone could point me to some tutorial or sample code.
 
-> On Gwe, 2005-03-18 at 08:57, Jacques Goldberg wrote:
-> >Question: is there a way, as of kernels 2.6.10 and above, to release the
-> > device from the serial driver, without having to recompile the kernel?
->
-> There is an ugly way (fake a hot unplug 8)) butif you want to do it
-> properly you need to get the relevant pci check into the serial driver
-> proper by submitting it to Russell King. That way the serial driver can
-> skip the PCI devices that turn out to be modems
->
-  Thank you very much.
-  To be ugly or to never be up to date, that's the question.
-  We did patch 8250_pci.c but there is no way to build a stable list of
-the devices to be handled that way.
-  We will thus spend some time on the hot unplug solution.
-  This is my very last question: is there a script able to do that? Google
-quotes their existence but no link found. Or a doc showing how to code
-that in a program?
+Maybe the sample code on this (german) site helps:
 
-  Many many thanks - Jacques
+http://ezs.kr.hsnr.de/TreiberBuch/Artikel/index.html
+
+Look at "Folge" 16.
+
+          Juergen.

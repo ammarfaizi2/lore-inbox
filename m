@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268856AbRG0OVg>; Fri, 27 Jul 2001 10:21:36 -0400
+	id <S268862AbRG0OYg>; Fri, 27 Jul 2001 10:24:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268861AbRG0OV1>; Fri, 27 Jul 2001 10:21:27 -0400
-Received: from [208.187.172.194] ([208.187.172.194]:13594 "HELO
-	odin.oce.srci.oce.int") by vger.kernel.org with SMTP
-	id <S268856AbRG0OVN>; Fri, 27 Jul 2001 10:21:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Joshua Schmidlkofer <menion@srci.iwpsd.org>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Date: Fri, 27 Jul 2001 08:18:12 -0600
-X-Mailer: KMail [version 1.2]
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>
-In-Reply-To: <Pine.LNX.4.33.0107271515200.10139-100000@devel.blackstar.nl>
+	id <S268864AbRG0OY0>; Fri, 27 Jul 2001 10:24:26 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:4875 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S268862AbRG0OYH>; Fri, 27 Jul 2001 10:24:07 -0400
+Message-ID: <3B61794C.D407B69E@namesys.com>
+Date: Fri, 27 Jul 2001 18:23:08 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Message-Id: <0107270818120A.06707@widmers.oce.srci.oce.int>
-Content-Transfer-Encoding: 7BIT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: bvermeul@devel.blackstar.nl, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Steve Kieu <haiquy@yahoo.com>,
+        Sam Thompson <samuelt@cervantes.dabney.caltech.edu>,
+        kernel <linux-kernel@vger.kernel.org>, ramon@namesys.com
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <E15Q7eW-0005cP-00@the-village.bc.nu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I've almost quit using reiser, because everytime I have a power outage, the 
-last 2 or three files that I've editted, even ones that I haven't touched in 
-a while, will usually be hopelessly corrupted.  The '<file>~' that Emacs 
-makes is usually fine though.   It seems to be that any open file is 
-in danger.  I don't know if this is normal, or not, but I switched to XFS on 
-several machines.  I have nothing against reiser.  I assumed that these 
-problems were due to immaturity.... 
+Alan Cox wrote:
+> 
+> > > and when that hangs the kernel it will also screw up all files touched
+> > > just before it in a edit-make-install-try cycle. Which can be rather
+> > > annoying, because you can start all over again (this effect randomly
+> > > distributes the last touched sectors to the last touched files. Very nice
+> > > effect, but not something I expect from a journalled filesystem).
+> > >
+> > Do you think it is reasonable to ask that a filesystem be designed to
+> > work well with bad drivers?
+> 
+> Its certainly a good idea. 
+I think it is a terrible idea.... at least as a general expectation to meet, there may be specifics
+where things can be done though.... like journaling....
 
-   One more thing - All my computers with Reiser as '/'  on them had a 
-disturbingly long boot time.   From the time when the Redhat startup scripts 
-began, it was.... hideously slow.   I thought nothing of it, blaming bash, 
-etc, Until I switched to ext2 on all those.  Now the boot time is...  SUPER 
-fast.  [3 Computers, 1 K6-2, a Pentium III, and a Pentium II, all 128+meg, 
-and IDE] I currently have 3 computers running reiserfs left, all are using 
-MySQL databases. 
-    Once,  I lost power in on my SQL box, [it was blessedly during a 
-period of no use.]  I had to rebuild all the indexes.  Not  only THAT, but 
-what happens to that box if I lose power whilst in the middle of operations?  
-I am working on the migration plan to move that to XFS because of these 
-concerns. [However, I am doing a better job of testing with XFS first.]
+> But it sounds to me like he is describing the
+> normal effect of metadata only logging.
 
-  I think that Reiser is cool, and has neat ideology, but I am un-nerved by 
-this behaviour.
+Ah, right you are.  Now I understand him.  Well, data-journaling that doesn't cost a whole lot of
+performance awaits reiser4, and reiser4 is at least a year away, we are doing seminars and
+pseudo-coding now.
 
-js
+> 
+> Putting a sync just before the insmod when developing new drivers is a good
+> idea btw
 
+This makes a lot of sense to me.  Good suggestion.  It should go into our FAQ.  Dad, please put it
+there.
 
->
-> Yup. I know ext2 can do it. I expect a filesystem to not foul up my data
-> when something happens. Especially not shuffle around sectors in several
-> files. I can understand that the changes I made are not on disc, I can
-> even understand it if my files are gone, but not when it corrupts my data.
-> That just plain sucks.
->
-> A friend of mine has had crashes as well (not reiser related btw), where
-> files he was using at the time suddenly contained different pieces of
-> different files. It's just plain annoying. The reason why *I* use(d)
-> reiserfs was the fact that I thought that it would protect my data when
-> something does crash. From my experience, it doesn't, and I'd rather wait
-> a couple of minutes for ext2 to fsck than use reiserfs and be sure I can
-> start all over again.
->
-> Regards,
->
-> Bas Vermeulen
+Q: I like to dynamically load buggy drivers into the kernel because that is what kernel developers
+like me do for fun, how can I better avoid data corruption when doing this and using ReiserFS?
+
+A: Do sync before insmod.  (Alan Cox's good suggestion.)

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVAGQAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVAGQE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVAGQAx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 11:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVAGQAx
+	id S261479AbVAGQE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 11:04:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVAGQE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 11:00:53 -0500
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:20826 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S261477AbVAGP7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 10:59:24 -0500
-Date: Fri, 7 Jan 2005 16:59:22 +0100 (CET)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: linux-kernel@vger.kernel.org
-Subject: uselib()  & 2.6.X?
-Message-ID: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	Fri, 7 Jan 2005 11:04:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4553 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261477AbVAGQEn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 11:04:43 -0500
+Date: Fri, 7 Jan 2005 17:03:51 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Lee Revell <rlrevell@joe-job.com>,
+       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107160350.GB29327@devserv.devel.redhat.com>
+References: <20050107153328.GD28466@devserv.devel.redhat.com> <200501071541.j07FfeQC018553@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501071541.j07FfeQC018553@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Fri, Jan 07, 2005 at 10:41:40AM -0500, Paul Davis wrote:
+> 
+> fine, so the mlock situation may have improved enough post-2.6.9 that
+> it can be considered fixed. that leaves the scheduler issue. but
+> apparently, a uid/gid solution is OK for mlock, and not for the
+> scheduler. am i missing something?
 
-
-http://isec.pl/vulnerabilities/isec-0021-uselib.txt
-
-[...]
-Locally  exploitable  flaws  have  been found in the Linux binary format
-loaders'  uselib()  functions  that  allow  local  users  to  gain  root
-privileges.
-[...]
-Version:   2.4 up to and including 2.4.29-rc2, 2.6 up to and including 2.6.10
-[...]
-
-It's was fixed by Marcelo on 2.4.29-rc1. Thank's :)
-What about 2.6.X? Is any patch available? I don't see any changes 
-around binfmt_elf in 2.6.10-bk10?
-
-
-
--- 
-*[ £ukasz Tr±biñski ]*
+I think you skipped a step. You don't have a scheduler requirement, you have
+a latency requirement. You currently *solve* that latency requirement via a
+scheduler "hack", yet is quite clear that the "hard" realtime solution is
+most likely not the right approach. Note that I'm not saying that you
+shouldn't get the latency that that currently provides, but the downsides
+(can hang the machine) are bad; a solution that solves that would be far
+preferable
+something like a soft realtime flag that acts as if it's the hard realtime
+one unless the app shows "misbehavior" (eg eats its timeslice for X times in
+a row) might for example be such a solution. And with the anti abuse
+protection it can run with far lighter privilegs.

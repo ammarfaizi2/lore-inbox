@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131728AbRC3XPz>; Fri, 30 Mar 2001 18:15:55 -0500
+	id <S131733AbRC3Xzl>; Fri, 30 Mar 2001 18:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131726AbRC3XPp>; Fri, 30 Mar 2001 18:15:45 -0500
-Received: from umail.unify.com ([204.163.170.2]:56567 "EHLO umail.unify.com")
-	by vger.kernel.org with ESMTP id <S131722AbRC3XP0>;
-	Fri, 30 Mar 2001 18:15:26 -0500
-Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C165@pcmailsrv1.sac.unify.com>
-From: "Manuel A. McLure" <mmt@unify.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.4.3 fails to compile
-Date: Fri, 30 Mar 2001 15:14:11 -0800
+	id <S131740AbRC3Xzb>; Fri, 30 Mar 2001 18:55:31 -0500
+Received: from unimur.um.es ([155.54.1.1]:20400 "EHLO unimur.um.es")
+	by vger.kernel.org with ESMTP id <S131733AbRC3XzW>;
+	Fri, 30 Mar 2001 18:55:22 -0500
+Date: Sat, 31 Mar 2001 01:59:39 +0200 (CEST)
+From: Juan Piernas Canovas <piernas@ditec.um.es>
+To: Tim Waugh <twaugh@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [SOLVED]Re: 2.2.19 && ppa: total lockup. No problem with 2.2.17
+In-Reply-To: <20010330152921.Q10553@redhat.com>
+Message-ID: <Pine.LNX.4.21.0103310156530.23634-100000@ditec.um.es>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> On Fri, 30 Mar 2001, Manuel A. McLure wrote:
+On Fri, 30 Mar 2001, Tim Waugh wrote:
+
+> On Fri, Mar 30, 2001 at 03:55:01PM +0200, Juan Piernas Canovas wrote:
 > 
-> > Jeff Garzik wrote:
-> > > On Fri, 30 Mar 2001, Manuel A. McLure wrote:
-> > > 
-> > > > ...
-> > > > gcc -D__KERNEL__ -I/usr/src/linux/include -Wall 
-> > > -Wstrict-prototypes -O2
-> > > > -fomit-frame-pointer -fno-strict-aliasing -pipe 
-> > > -mpreferred-stack-boundary=2
-> > > > -march=athlon  -DMODULE -DMODVERSIONS -include
-> > > > /usr/src/linux/include/linux/modversions.h   -c -o buz.o buz.c
-> > > > buz.c: In function `v4l_fbuffer_alloc':
-> > > > buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in 
-> this function)
-> > > > buz.c:188: (Each undeclared identifier is reported only once
-> > > > buz.c:188: for each function it appears in.)
-> > > 
-> > > Easy solution -- just delete the entire test
-> > > 
-> > > 	if (size > KMALLOC_MAXSIZE) {
-> > > 		...
-> > > 	}
-> > 
-> > Thanks, I'll do that. It just seemed strange that the file was being
-> > compiled in the first place when the config option was not set.
+> > The kernel configuration is the same in both 2.2.17 and 2.2.19.
+> > Perhaps, the problem is not in the ppa module, but in the parport,
+> > parport_pc or parport_probe modules.
 > 
-> buz is built with CONFIG...ZORAN as well as CONFIG...BUZ.  I dunno if
-> that's a bug or not...
+> There weren't any parport changes in 2.2.18->2.2.19, and the ones in
+> 2.2.17->2.2.18 won't affect you unless you are using a PCI card.
+> 
+> Could you please try this patch and let me know if the behaviour
+> changes?
+> 
+> Thanks,
+> Tim.
+> */
+> 
+> --- linux/drivers/scsi/ppa.h.eh	Fri Mar 30 15:27:43 2001
+> +++ linux/drivers/scsi/ppa.h	Fri Mar 30 15:27:52 2001
+> @@ -178,7 +178,6 @@
+>  		eh_device_reset_handler:	NULL,			\
+>  		eh_bus_reset_handler:		ppa_reset,		\
+>  		eh_host_reset_handler:		ppa_reset,		\
+> -		use_new_eh_code:		1,			\
+>  		bios_param:			ppa_biosparam,		\
+>  		this_id:			-1,			\
+>  		sg_tablesize:			SG_ALL,			\
+> 
 
-Yeah - I figured that out. I found that there were many places where
-KMALLOC_MAXSIZE was being used in buz.c so I removed CONFIG...ZORAN and the
-kernel is working now.
+Yes!!!. It works. I am happy now :-)
 
-It looks like the tulip driver isn't as up-to-date as the one from
-2.4.2-ac20 - when is 2.4.3-ac1 due? :-) I got NETDEV WATCHDOG errors shortly
-after rebooting with 2.4.3, although these were of the "slow/packet lossy"
-type I got with 2.4.2-ac20 instead of the "network completely unusable" type
-I got with 2.4.2-ac11 and earlier.
+Thank you very much, Tim.
 
---
-Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-Space Ghost: "Hey, what happened to the-?" Moltar: "It's out." SG: "What
-about-?" M: "It's fixed." SG: "Eh, good. Good."
+	Juan.
+

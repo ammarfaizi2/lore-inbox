@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263858AbTDYKeG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 06:34:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTDYKeF
+	id S263859AbTDYKoO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 06:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263862AbTDYKoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 06:34:05 -0400
-Received: from web20403.mail.yahoo.com ([66.163.169.91]:15390 "HELO
-	web20415.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263858AbTDYKeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 06:34:05 -0400
-Message-ID: <20030425104615.7429.qmail@web20415.mail.yahoo.com>
-Date: Fri, 25 Apr 2003 03:46:15 -0700 (PDT)
-From: devnetfs <devnetfs@yahoo.com>
-Subject: Re: compiling modules with gcc 3.2
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1051261584.1391.4.camel@laptop.fenrus.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Apr 2003 06:44:14 -0400
+Received: from [12.47.58.68] ([12.47.58.68]:27824 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263859AbTDYKoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 06:44:13 -0400
+Date: Fri, 25 Apr 2003 03:57:27 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: daniel@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.68 2/2] i_size atomic access
+Message-Id: <20030425035727.6f107236.akpm@digeo.com>
+In-Reply-To: <20030425014208.GC26194@dualathlon.random>
+References: <1051230056.2448.16.camel@ibm-c.pdx.osdl.net>
+	<20030424180503.2c2a8bea.akpm@digeo.com>
+	<20030425014208.GC26194@dualathlon.random>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Apr 2003 10:56:17.0333 (UTC) FILETIME=[4BFAEE50:01C30B19]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Arjan van de Ven <arjanv@redhat.com> wrote:
-
-Thanks for the quick reply :)
-
-> > Either way why is this so? AFAIK gcc 3.2 has abi incompatiblities
-> > w.r.t. C++ and not C (which the kernel+modules are written in).
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Thu, Apr 24, 2003 at 06:05:03PM -0700, Andrew Morton wrote:
+> > And if the race _does_ hit, what is the effect?  Assuming stat() was fixed
+> > with i_sem, I don't think the race has a very serious effect.  We won't
 > 
-> there are some cornercase C ABI changes but nobody except DAC960 will
-> ever hit those. 
+> writepage needs it too to avoid returning -EIO and I doubt you want to
+> take the i_sem in writepage
 
-what are these? i am just curious about the change as i dont
-see them (probably did not search hard) documented/listed on
-gcc site. C++ ABI changes have some mention on some sites, but 
-NOT on C ABI. 
+Well the -EIO thing is bogus really, but yes.  The writepage will not hit
+disk *at all*.  That's a problem.
 
-> The more serious change is that the kernel contains
-> workarounds for older compilers (the test used is major < 3) that
-> changes the size of structures etc etc, and that breaks the module
-> stuff.
+We modify i_size in very few places - an alternative might be to maintain a
+parallel unsigned long i_size>>PAGE_CACHE_SIZE in the inode and use that in
+critical places.  Sounds messy though.
 
-so does this mean that: these workarounds now fixed in gcc 3.X?
-and its just that the workaround employed in kernel source (for 
-gcc 2.X) is different than the way gcc 3.X fixes them and hence 
-objects generated from gcc 3.X and 2.X (w.r.t kernel sources+modules)
-dont mix well?
+Ho hum.  ugh.
 
-thanks
-A.
-
-__________________________________________________
-Do you Yahoo!?
-The New Yahoo! Search - Faster. Easier. Bingo
-http://search.yahoo.com

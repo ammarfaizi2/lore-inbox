@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUGIKEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUGIKG5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264819AbUGIKEf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 06:04:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUGIKDK
+	id S264914AbUGIKG5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 06:06:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUGIKEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 06:03:10 -0400
-Received: from zulo.virutass.net ([62.151.20.186]:41885 "EHLO
-	mx.larebelion.net") by vger.kernel.org with ESMTP id S264914AbUGIKCp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 06:02:45 -0400
-From: Manuel Arostegui Ramirez <manuel@todo-linux.com>
-To: Michael Buesch <mbuesch@freenet.de>, Chris Wright <chrisw@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel fchown() exploit status?
-Date: Fri, 9 Jul 2004 12:02:58 +0200
-User-Agent: KMail/1.5
-Cc: Chris White <webmaster@securesystem.info>
-References: <40EDB764.6060107@securesystem.info> <20040708162414.I1973@build.pdx.osdl.net> <200407091146.32077.mbuesch@freenet.de>
-In-Reply-To: <200407091146.32077.mbuesch@freenet.de>
+	Fri, 9 Jul 2004 06:04:41 -0400
+Received: from zero.aec.at ([193.170.194.10]:54025 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264910AbUGIKEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 06:04:05 -0400
+To: Michael Buesch <mbuesch@freenet.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 and broken inlining.
+References: <2fVEt-6Vy-11@gated-at.bofh.it> <2fVO5-79H-3@gated-at.bofh.it>
+	<2fWqQ-7uv-19@gated-at.bofh.it> <2g0b6-1Cf-23@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 09 Jul 2004 12:04:02 +0200
+In-Reply-To: <2g0b6-1Cf-23@gated-at.bofh.it> (Michael Buesch's message of
+ "Fri, 09 Jul 2004 11:50:08 +0200")
+Message-ID: <m3smc1pkdp.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200407091202.58377.manuel@todo-linux.com>
-X-Virus: by Larebelion
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Viernes 09 Julio 2004 11:46, Michael Buesch escribió:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Michael Buesch <mbuesch@freenet.de> writes:
 >
-> Quoting Chris Wright <chrisw@osdl.org>:
-> > * Chris White (webmaster@securesystem.info) wrote:
-> > > There was a recent security announcment regarding a vulnerability with
-> > > the fchown function.
-> > >
-> > > Only a few distrobutions (red hat/suse) have fixed the issue, but I've
-> > > yet to see a general patch for it.
-> >
-> > Patches are in both 2.4 and 2.6 bk trees.  2.4.27-rc3 has this fixed.
-> > There hasn't been a 2.6.8-rc release since the patches went in to 2.6
->
-> Is there an exploit available to test if the kernel has
-> this vulnerability?
+> Do I miss something?
 
-Look at this:
-http://www.securityfocus.com/bid/10662/exploit/
-It says that it's not exploit requiered to exploit this bug.
+Yes.  Take a look at arch/i386/Makefile
 
-Any ideas,  Chris White?
-
-Cheers
-
- 
--- 
-Manuel Arostegui Ramirez #Linux Registered User 200896
+-Andi
 

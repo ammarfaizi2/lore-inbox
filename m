@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129040AbQKHNtw>; Wed, 8 Nov 2000 08:49:52 -0500
+	id <S129230AbQKHNxw>; Wed, 8 Nov 2000 08:53:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129118AbQKHNtm>; Wed, 8 Nov 2000 08:49:42 -0500
-Received: from snark.tuxedo.org ([207.106.50.26]:44550 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S129040AbQKHNtY>;
-	Wed, 8 Nov 2000 08:49:24 -0500
-Date: Wed, 8 Nov 2000 09:05:49 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: CML2-0.8.3 is available
-Message-ID: <20001108090549.A2847@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S129181AbQKHNxn>; Wed, 8 Nov 2000 08:53:43 -0500
+Received: from humbolt.geo.uu.nl ([131.211.28.48]:15372 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S129152AbQKHNxZ>; Wed, 8 Nov 2000 08:53:25 -0500
+Date: Wed, 8 Nov 2000 14:53:11 +0100 (CET)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Looking for better VM
+In-Reply-To: <Pine.LNX.4.21.0011081052010.1242-100000@fs129-190.f-secure.com>
+Message-ID: <Pine.LNX.4.05.10011081450320.3666-100000@humbolt.nl.linux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version is always available at http://www.tuxedo.org/~esr/kbuild/
+On Wed, 8 Nov 2000, Szabolcs Szakacsits wrote:
+> On Mon, 6 Nov 2000, Rik van Riel wrote:
+> > On Mon, 6 Nov 2000, Szabolcs Szakacsits wrote:
+> > > On Wed, 1 Nov 2000, Rik van Riel wrote:
+> > > > but simply because 
+> > > > it appears there has been amazingly little research on this 
+> > > > subject and it's completely unknown which approach will work 
+> > > There has been lot of research, this is the reason most Unices support
+> > > both non-overcommit and overcommit memory handling default to
+> > > non-overcommit [think of reliability and high availability].
+> > It's a shame you didn't take the trouble to actually
+> > go out and see that non-overcommit doesn't solve the
+> > "out of memory" deadlock problem.
+> 
+> Read my *entire* email again and please try to understand. No deadlock
+> at all since kernel *falls back* to process killing if memory reserved
+> for *root* is also out.
+> 
+> You could ask, so what's the point for non-overcommit if we use
+> process killing in the end? And the answer, in *practise* this almost
+> never happens, root can always clean up and no processes are lost
+> [just as when disk is "full" except the reserved area for root]. See?
+> Human get a chance against hard-wired AI.
+> 
+> I also didn't say non-overcommit should be used as default and a
+> patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
+> developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
+> ignored completely, implemented it this way. 
 
-Release 0.8.3: Wed Nov  8 08:31:56 EST 2000
-	* Synchronized with 2.4.0-test10.
+OK. This is a lot more reasonable. I'm actually looking
+into putting non-overcommit as a configurable option in
+the kernel.
 
-The tools are ready for production use.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+However, this does not save you from the fact that the
+system is essentially deadlocked when nothing can get
+more memory and nothing goes away. Non-overcommit won't
+give you any extra reliability unless your applications
+are very well behaved ... in which case you don't need
+non-overcommit.
 
-"Boys who own legal firearms have much lower rates of delinquency and
-drug use and are even slightly less delinquent than nonowners of guns."
-	-- U.S. Department of Justice, National Institute of
-	   Justice, Office of Juvenile Justice and Delinquency Prevention,
-	   NCJ-143454, "Urban Delinquency and Substance Abuse," August 1995.
+regards,
+
+Rik
+--
+The Internet is not a network of computers. It is a network
+of people. That is its real strength.
+
+http://www.conectiva.com/		http://www.surriel.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVAMIhx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVAMImw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVAMIhx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 03:37:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVAMIhk
+	id S261298AbVAMImw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 03:42:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVAMImw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 03:37:40 -0500
-Received: from faye.voxel.net ([69.9.164.210]:52110 "EHLO faye.voxel.net")
-	by vger.kernel.org with ESMTP id S261298AbVAMIha (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 03:37:30 -0500
-Subject: 2.6.10-as1
-From: Andres Salomon <dilinger@voxel.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MN5Zr+/dZiAIX4Bl8NSn"
-Date: Thu, 13 Jan 2005 03:37:28 -0500
-Message-Id: <1105605448.7316.13.camel@localhost>
+	Thu, 13 Jan 2005 03:42:52 -0500
+Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:13485 "EHLO
+	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261298AbVAMImu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 03:42:50 -0500
+Date: Thu, 13 Jan 2005 09:42:50 +0100
+From: Voluspa <lista1@telia.com>
+To: Terence Ripperda <tripperda@nvidia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11-rc1
+Message-Id: <20050113094250.706fd9a8.lista1@telia.com>
+In-Reply-To: <20050113012159.GB15008@hygelac>
+References: <20050112095238.32a89245.lista1@telia.com>
+	<20050113021328.137435b8.lista1@telia.com>
+	<20050113012159.GB15008@hygelac>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 12 Jan 2005 19:21:59 -0600
+Terence Ripperda wrote:
 
---=-MN5Zr+/dZiAIX4Bl8NSn
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> change_page_attr has a book-keeping bug that surprisingly hasn't
+> caused problems until recently (on my todo list is to track down what
+> caused this problem to suddenly start triggering).
 
-Hi,
+If it can help, I'm writing this on a 2.6.10-bk14 kernel. So it's just
+the final bits going into 2.6.11-rc1 that pushed the bug on. At
+least on my machine.
 
-I'm announcing a new kernel tree; -as.  The goal of this tree is to form
-a stable base for vendors/distributors to use for their kernels.  In
-order to do this, I intend to include only security fixes and obvious
-bugfixes, from various sources.  I do not intend to include driver
-updates, large subsystem fixes, cleanups, and so on.  Basically, this is
-what I'd want 2.6.10.1 to contain.
+Can't find any incremental bk14->rc1 to finalize that statement, though.
 
-This first release should have been done last week, but the various
-security advisories kept me pretty busy.  It includes various iptables
-and nfs fixes, the various security fixes announced over the past two
-weeks (including the latest, CAN-2005-0001), and misc. others.  My hope
-is that people find this useful, so less work is duplicated by
-distribution packagers.  Debian kernels are basically a combination of
-this tree, as well as debian-specific patches and more experimental
-stuff.
+Ok kernels, from 2.6.10, that I've compiled and run now is: -bk7, -bk11,
+-bk13 and -bk14.
 
-The kernel patches can be grabbed from here:
-http://www.acm.rpi.edu/~dilinger/patches/2.6.10/as1/
-
-02e412361955fa80c0ea3a5a59a37c36  ChangeLog
-0a75d0e8922491fb2540b3c6178dfd58  linux-2.6.10-as1.tar.gz
-540effd229ea72dad4bd274bba40fb94  patch-2.6.10-as1.gz
-
-patch-2.6.10-as1.gz is a patch against vanilla 2.6.10.
-linux-2.6.10-as1.tar.gz are the patches, individually broken out.
-Patches pulled from bitkeeper include their comment headers.
-
-As mentioned, this should've been released last week; as such, it's
-about a week behind bitkeeper.  I shall go through the remaining 600 or
-so changesets within the next few days, and release -as2.
-=20
-
---=20
-Andres Salomon <dilinger@voxel.net>
-
---=-MN5Zr+/dZiAIX4Bl8NSn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBB5jNI78o9R9NraMQRAk81AKDEaSIK6f4xZNiDOsJ/5zGo4Ln4LACgxsn6
-MM83q4A6FOEQLFzpjaqHrNI=
-=QD6t
------END PGP SIGNATURE-----
-
---=-MN5Zr+/dZiAIX4Bl8NSn--
-
+-- 
+Mvh
+Mats Johannesson

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129780AbRAOASy>; Sun, 14 Jan 2001 19:18:54 -0500
+	id <S129792AbRAOAWz>; Sun, 14 Jan 2001 19:22:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129825AbRAOASp>; Sun, 14 Jan 2001 19:18:45 -0500
-Received: from mail.courier-mta.com ([216.254.50.2]:62731 "EHLO
-	mail.courier-mta.com") by vger.kernel.org with ESMTP
-	id <S129780AbRAOASi>; Sun, 14 Jan 2001 19:18:38 -0500
-Date: Sun, 14 Jan 2001 19:18:35 -0500 (EST)
-From: Sam Varshavchik <mrsam@courier-mta.com>
-Reply-To: mrsam@courier-mta.com
-To: Paul Bristow <paul@paulbristow.net>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide-floppy ATAPI format capability (official)
-In-Reply-To: <3A623265.A2D49E80@paulbristow.net>
-Message-ID: <Pine.LNX.4.30.0101141912520.30136-100000@ny.email-scan.com>
-X-No-Archive: Yes
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129825AbRAOAWq>; Sun, 14 Jan 2001 19:22:46 -0500
+Received: from d228.as5200.mesatop.com ([208.164.122.228]:22154 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S129792AbRAOAWd>; Sun, 14 Jan 2001 19:22:33 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+Date: Sun, 14 Jan 2001 17:24:18 -0700
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Cc: ignaciomonge@navegalia.com, alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] 2.4.0-ac9 fix for mm/shmem.c build error without CONFIG_SWAPFS enabled
+MIME-Version: 1.0
+Message-Id: <01011417241800.16223@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2001, Paul Bristow wrote:
+On Sunday 14 January 2001 02:56, Christoph Rohland wrote:
+> Steven Cole <elenstev@mesatop.com> writes:
+> > Here is a little patch which also fixes the symptoms of the build
+> > problem, and makes a kernel 1510 bytes smaller (without
+> > CONFIG_SWAPFS).  Someone more knowlegable than I will have to verify
+> > its correctness.
+>
+> Thanks, this is correct. I did not test the symlink fixes w/o
+> CONFIG_SWAPFS. My bad.
 
-> is welcome to format 1.44MB floppies with it.  You will need Sams floppy
-> formatting utility which is available at
-> http://www.email-scan.com/floppy.
+Here is the patch again for those who missed it in the 
+Re: Linux 2.4.0-ac9 thread.
 
-Err...
+Steven
 
-That should be http://www.email-scan.com/idefloppy/
-
-Don't bookmark the URL just yet -- I'll move the whole thing to
-sourceforge shortly.
-
-The patch is also included in the tarball over there.  The userland format
-utility handles both IDE floppy drives and floppy controller (/dev/fd
-drives) drives, transparently.
-
-
--- 
-Sam
-
+--- linux/mm/shmem.c.orig       Sat Jan 13 20:23:36 2001
++++ linux/mm/shmem.c    Sat Jan 13 20:27:32 2001
+@@ -968,8 +968,10 @@
+ 
+ static struct inode_operations shmem_symlink_inode_operations = {
+        truncate:       shmem_truncate,
++#ifdef CONFIG_SWAPFS
+        readlink:       shmem_readlink,
+        follow_link:    shmem_follow_link,
++#endif
+ };
+ 
+ static struct file_operations shmem_dir_operations = {
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

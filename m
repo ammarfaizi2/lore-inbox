@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271923AbRIEJ5X>; Wed, 5 Sep 2001 05:57:23 -0400
+	id <S271929AbRIEJ7Z>; Wed, 5 Sep 2001 05:59:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271909AbRIEJ5M>; Wed, 5 Sep 2001 05:57:12 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:23967 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S271895AbRIEJ46>; Wed, 5 Sep 2001 05:56:58 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Linux 2.4.9-ac6
-Date: Wed, 5 Sep 2001 02:57:17 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMAECKDLAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1257554973.999687013@[169.254.198.40]>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S271953AbRIEJ7N>; Wed, 5 Sep 2001 05:59:13 -0400
+Received: from techmonkeys.org ([24.72.12.135]:29880 "EHLO techmonkeys.org")
+	by vger.kernel.org with ESMTP id <S271929AbRIEJ6x>;
+	Wed, 5 Sep 2001 05:58:53 -0400
+Date: Wed, 5 Sep 2001 03:59:10 -0600
+From: "Matthew S . Hallacy" <poptix@techmonkeys.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon doesn't like Athlon optimisation?
+Message-ID: <20010905035910.L20505@techmonkeys.org>
+In-Reply-To: <200109050521.WAA26155@equinox.unr.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200109050521.WAA26155@equinox.unr.edu>; from ejolson@unr.edu on Tue, Sep 04, 2001 at 10:21:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 04, 2001 at 10:21:58PM -0700, Eric Olson wrote:
+> 
+> Robert Redelmeier told me he has written a version of his burnMMX which 
+> uses K7 MMX 3DNow streaming cache bypass load/store instruction sequences
+> similar to what is used in linux/arch/i386/lib/mmx.c
+> 
 
-> >> 	I think, perhaps, the logic should be that a module
-> >> shouldn't taint the kernel if:
+I'm happy to report that after leaving these (burnK7, and burnMMX) running for about 
+30 minutes there were no problems, a slight increase in CPU/system temperature, but 
+within safe limits, along with a nice load average.. FYI:
 
-> >> 	1) The user built the module from source on that machine, OR
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 4
+cpu MHz         : 1327.702
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2647.65
 
-> >> 	2) The module source is freely available without restriction
+note this is the "c" core chip,
+256M DDR RAM,
+PC Chips M830LR motherboard w/ the SiS 735 Chipset,
+(note, my single-chip chipset requires no fan, unlike the VIA chipsets)
 
-> > 	I just realized two things. One, there's a strong argument that this
-> > should be an AND, not an OR.
+All rather well considering the CPU fan is missing two blades, and only has the little
+pink patch of thermal grease.
 
-> And as all distributions would fail (1) in initial form, all
-> distributions would result in tainted kernels. Is this the
-> intent?
 
-	They wouldn't taint because the kernel signature would match the module
-signatures. I provided more detail on one possible way this scheme would
-work and it's not quite as simple as the summary above suggests.
 
-	Basically, when you compile (or install) the kernel, a random 'signature'
-goes in. When you compile a module, the signature goes in too. You can then
-compare the module's signature to the kernel's signature to ensure they were
-compiled as a unit. Unfortunately, this doesn't ensure that the user has the
-source.
+				Matthew S. Hallacy
 
-	I suppose, if the module source were freely available, then '2' would
-apply. If you keep it as an OR, then distributions wouldn't taint out of the
-box unless they included modules whose source distribution was limited. I
-think this is what you want.
-
-	DS
-
+-- 

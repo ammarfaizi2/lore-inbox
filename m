@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267899AbUHTIms@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUHTIny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267899AbUHTIms (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:42:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267893AbUHTIk4
+	id S267934AbUHTIny (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUHTInM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:40:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38091 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267899AbUHTIgC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:36:02 -0400
-Date: Fri, 20 Aug 2004 01:34:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: remove dentry_open::file_ra_init_state() duplicated memset was
- Re: kernbench on 512p
-Message-Id: <20040820013418.2a178ea0.akpm@osdl.org>
-In-Reply-To: <20040820072847.GA8205@logos.cnet>
-References: <200408191216.33667.jbarnes@engr.sgi.com>
-	<20040820005654.GC6374@logos.cnet>
-	<20040819232145.2fd5c54a.akpm@osdl.org>
-	<20040820072847.GA8205@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 04:43:12 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46752 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S268024AbUHTIme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:42:34 -0400
+To: Greg KH <greg@kroah.com>
+CC: Andi Kleen <ak@muc.de>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Add sysfs support for the i8259 PIC on x86_64
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 02:40:49 -0600
+Message-ID: <m13c2i8ani.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
->  On Thu, Aug 19, 2004 at 11:21:45PM -0700, Andrew Morton wrote:
->  > Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->  > >
->  > > So this patch creates a __file_ra_state_init() function, which initializes
->  > >  the file_ra_state fields, without the memset. 
->  > > 
->  > >  file_ra_state_init() does the memset + its __ counterpart. 
->  > 
->  > Seems unnecessarily fiddly.  How about this?
-> 
->  Thats cleaner yep. :)
 
-It got even cleaner - Neil has just nuked the NFS callsite.
+I got to looking at x86_64 and while it occasionally uses the i8259 legacy
+pic it is not put in sysfs.
 
+Here is the appropriate code ported code from i386.
 
---- 25/mm/readahead.c~file_ra_state_init-speedup	2004-08-20 00:03:19.979397128 -0700
-+++ 25-akpm/mm/readahead.c	2004-08-20 00:04:25.159488248 -0700
-@@ -28,16 +28,15 @@ struct backing_dev_info default_backing_
- EXPORT_SYMBOL_GPL(default_backing_dev_info);
- 
- /*
-- * Initialise a struct file's readahead state
-+ * Initialise a struct file's readahead state.  Assumes that the caller has
-+ * memset *ra to zero.
-  */
- void
- file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping)
- {
--	memset(ra, 0, sizeof(*ra));
- 	ra->ra_pages = mapping->backing_dev_info->ra_pages;
- 	ra->average = ra->ra_pages / 2;
+diff -uNr linux-2.6.8.1-i8259-shutdown.i386/arch/x86_64/kernel/i8259.c linux-2.6.8.1-i8259-sysfs.x86_64/arch/x86_64/kernel/i8259.c
+--- linux-2.6.8.1-i8259-shutdown.i386/arch/x86_64/kernel/i8259.c	Wed Aug 18 14:54:30 2004
++++ linux-2.6.8.1-i8259-sysfs.x86_64/arch/x86_64/kernel/i8259.c	Wed Aug 18 14:59:00 2004
+@@ -342,6 +342,44 @@
+ 	}
  }
--EXPORT_SYMBOL(file_ra_state_init);
  
- /*
-  * Return max readahead size for this inode in number-of-pages.
-_
-
++static int i8259A_resume(struct sys_device *dev)
++{
++	init_8259A(0);
++	return 0;
++}
++
++static int i8259A_shutdown(struct sys_device *dev)
++{
++	/* Put the i8259A into a quiescent state that
++	 * the kernel initialization code can get it
++	 * out of.
++	 */
++	outb(0xff, 0x21);	/* mask all of 8259A-1 */
++	outb(0xff, 0xA1);	/* mask all of 8259A-1 */
++	return 0;
++}
++
++static struct sysdev_class i8259_sysdev_class = {
++	set_kset_name("i8259"),
++	.resume = i8259A_resume,
++	.shutdown = i8259A_shutdown,
++};
++
++static struct sys_device device_i8259A = {
++	.id	= 0,
++	.cls	= &i8259_sysdev_class,
++};
++
++static int __init i8259A_init_sysfs(void)
++{
++	int error = sysdev_class_register(&i8259_sysdev_class);
++	if (!error)
++		error = sysdev_register(&device_i8259A);
++	return error;
++}
++
++device_initcall(i8259A_init_sysfs);
++
+ void __init init_8259A(int auto_eoi)
+ {
+ 	unsigned long flags;

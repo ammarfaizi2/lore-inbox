@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTELI1w (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 04:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbTELI1v
+	id S262008AbTELIts (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 04:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTELIts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 04:27:51 -0400
-Received: from smtp3.cwidc.net ([154.33.63.113]:57546 "EHLO smtp3.cwidc.net")
-	by vger.kernel.org with ESMTP id S262001AbTELI1u (ORCPT
+	Mon, 12 May 2003 04:49:48 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:772 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S262008AbTELItr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 04:27:50 -0400
-Message-ID: <3EBF5DF2.2080204@tequila.co.jp>
-Date: Mon, 12 May 2003 17:40:18 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Anders Karlsson <anders@trudheim.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Two RAID1 mirrors are faster than three
-References: <200305112212_MC3-1-386B-32BF@compuserve.com>	 <3EBF24A8.1050100@tequila.co.jp> <1052716203.4100.10.camel@tor.trudheim.com>
-In-Reply-To: <1052716203.4100.10.camel@tor.trudheim.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 May 2003 04:49:47 -0400
+Date: Mon, 12 May 2003 11:02:18 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: willy@w.ods.org, gibbs@scsiguy.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-Id: <20030512110218.4bbc1afe.skraw@ithnet.com>
+In-Reply-To: <20030509145738.GB17581@alpha.home.local>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
+	<2804790000.1052441142@aslan.scsiguy.com>
+	<20030509120648.1e0af0c8.skraw@ithnet.com>
+	<20030509120659.GA15754@alpha.home.local>
+	<20030509150207.3ff9cd64.skraw@ithnet.com>
+	<20030509145738.GB17581@alpha.home.local>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 9 May 2003 16:57:38 +0200
+Willy Tarreau <willy@w.ods.org> wrote:
 
-Anders Karlsson wrote:
+> On Fri, May 09, 2003 at 04:11:06PM +0200, Stephan von Krawczynski wrote:
+> > On Fri, 9 May 2003 15:27:57 +0200
+> > Willy Tarreau <willy@w.ods.org> wrote:
+> > 
+> > > Well, would you at least agree to retest current version from the above
+> > > URL ? I find it a bit of a shame that the driver goes back in -rc stage.
+> > 
+> > Ok, I can tell you at least this: it boots. Just did it. I can tell
+> > tomorrow how it behaves with my specific problem.
+> 
+> Thanks for having tried ;-)
 
-> On Mon, 2003-05-12 at 05:35, Clemens Schwaighofer wrote:
->
+Hello all,
 
-[db raid1 with 3 discs]
+I have tried 2.4.21-rc2 with aic79xx-linux-2.4-20030502-tar.gz for three days
+now and have to say it performs well. I had no freezes any more and nothing
+weird happening. Everything is smooth and ok. This is the best performance I
+have seen comparing all 2.4.21-X versions tested.
 
-that sounds like a super special featuer never needed in Software (!!)
-Raid thing (IMvHO).
+Thanks a lot.
 
-I can only image a Hotspare Disc, thats all.
+I will proceed with further stress tests...
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+v13yjBz/yQjBxz8RAptGAKCIikhrT18Qn5QpFYqjo+e/tlbisACg34Yb
-m45mtqNXKDf239bDJkAqdpw=
-=/rFz
------END PGP SIGNATURE-----
-
+Regards,
+Stephan

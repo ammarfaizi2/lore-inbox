@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283760AbRK3TNL>; Fri, 30 Nov 2001 14:13:11 -0500
+	id <S280975AbRK3TTB>; Fri, 30 Nov 2001 14:19:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283766AbRK3TNB>; Fri, 30 Nov 2001 14:13:01 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19723 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S283760AbRK3TMy>;
-	Fri, 30 Nov 2001 14:12:54 -0500
-Date: Fri, 30 Nov 2001 20:12:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gertjan van Wingerde <gwingerde@home.nl>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Compile fixes for 2.5.1-pre4
-Message-ID: <20011130201231.G22698@suse.de>
-In-Reply-To: <3C07D770.3010807@home.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C07D770.3010807@home.nl>
+	id <S280980AbRK3TSw>; Fri, 30 Nov 2001 14:18:52 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:2506 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S280975AbRK3TSm>;
+	Fri, 30 Nov 2001 14:18:42 -0500
+Date: Fri, 30 Nov 2001 11:18:09 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: [PATCH] fbdev blank cleanup
+Message-ID: <Pine.LNX.4.10.10111301108440.26676-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30 2001, Gertjan van Wingerde wrote:
-> 	3. Linear MD code
-> 	4. RAID-0 MD code
 
-Have you verified that it works, or are these just compile fixes?
+This patch is pretty big. Basically it moves the blank function out of
+struct fb_info into struct fb_ops where it belongs. I makes it flexiable
+that if your hardware doesn't support blanking of any kind that you can
+leave this field NULL in struct fb_ops. At present if you don't supply a
+blank function it could oops (see where blank() is called in fbcon.c). 
+Thus people are forced to supply a empty function. This saves that
+overhead of a function call for those drivers. I have tested it on my
+local machine for the past 24 hours. It works fine. I did a compile test
+for every driver that is avaliable on the ix86 thus those drivers do
+compile and most likely work. Please test this on other hardware
+platforms and across drivers. 
 
--- 
-Jens Axboe
+Since the patch is to big it is at the following link:
+
+http://www.transvirtual.com/~jsimmons/blank.diff
+
+Please note it also includes the patch I sent Linus earlier for fb.h. I
+will remove that part once that patch goes in. Thank you.
+
+ 
+
 

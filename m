@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265756AbUF2NA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUF2NUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265756AbUF2NA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 09:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265760AbUF2NA3
+	id S264482AbUF2NUY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 09:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUF2NUY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 09:00:29 -0400
-Received: from mail.humboldt.co.uk ([81.2.65.18]:34213 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S265756AbUF2NAZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 09:00:25 -0400
-Subject: pcnet32.c regression
-From: Adrian Cox <adrian@humboldt.co.uk>
+	Tue, 29 Jun 2004 09:20:24 -0400
+Received: from fmx3.freemail.hu ([195.228.242.223]:5901 "HELO fmx3.freemail.hu")
+	by vger.kernel.org with SMTP id S264482AbUF2NUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 09:20:23 -0400
+Date: Tue, 29 Jun 2004 15:20:06 +0200 (CEST)
+From: Debi Janos <debi.janos@freemail.hu>
+Subject: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
 To: linux-kernel@vger.kernel.org
-Cc: brazilnut@us.ibm.com
-Content-Type: text/plain
-Message-Id: <1088514023.923.126.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 29 Jun 2004 14:00:25 +0100
-Content-Transfer-Encoding: 7bit
+Message-ID: <freemail.20040529152006.85505@fm4.freemail.hu>
+X-Originating-IP: [195.56.253.245]
+X-HTTP-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch v1.30e  11 Jun 2004 Don Fry recover after fifo error and rx hang.
+I am found an interesting (bug?) feature in kernels between
+2.6.7-mm1 and 2.6.7-mm4
 
-Since this patch went in to pcnet32.c my diskless PowerPC boards with
-AM79C793 ethernet controllers have stopped working.
+Some web pages eg. 
 
-The boards use the "ip=bootp root=/dev/nfs" option to mount the root
-filesystem.The boot freezes after this message:
-eth0: link up, 100Mbps, full-duplex, lpa 0x41E1
->From tcpdump on the server it seems that the board never transmits.
+http://www.hup.hu/
+http://portal.fsn.hu/
+http://wiki.hup.hu/
 
-The cure for me is to revert the change at line 1089, back to:    
-/* Set interrupt enable. */
-    lp->a.write_csr (ioaddr, 0, 0x7940);
-    lp->a.write_rap (ioaddr,rap);
+is unreachable with these kernels. If i try kernel versions
+<= 2.6.7 everything is O.K. above-mentioned all web pages works.
 
-- Adrian Cox
-Humboldt Solutions Ltd.
+I try this web pages with some different operating systems
+like Windows, OpenBSD, FreeBSD, WinCe... and seems working
+fine for me.
 
+Any idea?
 
+Thanks.

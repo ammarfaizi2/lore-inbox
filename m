@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288623AbSAXQAO>; Thu, 24 Jan 2002 11:00:14 -0500
+	id <S288422AbSAXQGD>; Thu, 24 Jan 2002 11:06:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288611AbSAXQAC>; Thu, 24 Jan 2002 11:00:02 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:10178 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288606AbSAXP77>;
-	Thu, 24 Jan 2002 10:59:59 -0500
-Date: Thu, 24 Jan 2002 18:57:27 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>, Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] preemptive kernel
-In-Reply-To: <20020124155557.GM1816@cpe-24-221-152-185.az.sprintbbd.net>
-Message-ID: <Pine.LNX.4.33.0201241857100.2050-100000@localhost.localdomain>
+	id <S288639AbSAXQFy>; Thu, 24 Jan 2002 11:05:54 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:8691 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288422AbSAXQFq>; Thu, 24 Jan 2002 11:05:46 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Norbert Preining <preining@logic.at>
+Subject: Re: amd athlon cooling on kt266/266a chipset
+Date: Thu, 24 Jan 2002 17:05:38 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Daniel Nofftz <nofftz@castor.uni-trier.de>,
+        Ed Sweetman <ed.sweetman@wmich.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020124160551Z288422-13997+9459@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 24 Jan 2002, Tom Rini wrote:
-
-> > can you please redo for O(1)-J6 (2.4.18-pre7) or is nothing changed?
+On Thursday, 24. January 2002 12:36, Norbert Preining wrote:
+> On Don, 24 Jan 2002, Ed Sweetman wrote:
+> > Furthermore, I haven't heard of anyone where the patch actually makes an
+> > improvement in temp with the patch.  But i have heard of people saying
 >
-> Or -J6 there was a small reject, it looks like -J6 sets p->cpu =
-> smp_processor_id(); in kernel/sched.c, which the preempt patch wants to
-> do as well.
+> Well, I am a counterexample. I used another patch doing the same
+> (the one from www.vcool.de) and it reduced my CPU temp by around 15-20 C!
+> In summer this can be of real good use!
 
-it's the same fix - you can safely disregard the reject.
+I can second that.
+You know that this thread was running for some time ([patch] amd athlon 
+cooling on kt266/266a chipset).
 
-	Ingo
+Find below the best numbers I've ever seen (I resend them, here):
 
+Athlon TB 1.2 GHz on MSI MS-6380 (KT7-Turbo-R):
+
+idle mode with full VCool stuff under Win98SE
+(you could watch the temperature drop in 5 sec (?) steps...;-)
+
+~64°C => 29°-30°C
+
+Case was somewhat below after that.
+
+Regards,
+	Dieter
+
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

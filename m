@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129842AbRBNTTD>; Wed, 14 Feb 2001 14:19:03 -0500
+	id <S131096AbRBNTWd>; Wed, 14 Feb 2001 14:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRBNTSx>; Wed, 14 Feb 2001 14:18:53 -0500
-Received: from [207.199.12.19] ([207.199.12.19]:60685 "EHLO
-	centrum.jedi-group.com") by vger.kernel.org with ESMTP
-	id <S129842AbRBNTSn>; Wed, 14 Feb 2001 14:18:43 -0500
-Date: Wed, 14 Feb 2001 11:16:21 -0800 (PST)
-From: "Erik G. Burrows" <egb@erikburrows.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Multicast on loopback?
-In-Reply-To: <E14SocF-0003Df-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102141105140.19982-100000@centrum.jedi-group.com>
+	id <S130766AbRBNTWX>; Wed, 14 Feb 2001 14:22:23 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:30706 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130950AbRBNTWJ>; Wed, 14 Feb 2001 14:22:09 -0500
+Message-ID: <3A8ADA30.2936D3B1@sympatico.ca>
+Date: Wed, 14 Feb 2001 14:19:12 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is this the ultimate stack-smash fix?
+In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> <m1lmr98c5t.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Eric W. Biederman" wrote:
 
-> > locally over the loopback interface. This does not work without adding a 
-> > bogus route statement to get the kernel to hand up the packets from
-> > loopback to my waiting application.
-> 
-> The multicast ABI includes the ability to toggle loopback of multicast
-> datagrams. Use the socket options instead
+> Jeremy Jackson <jeremy.jackson@sympatico.ca> writes:
+> (about non-executable stack)
+>
+> There is another much more effective solution in the works.  The C
+> standard allows bounds checking of arrays.  So it is quite possible
+> for the compiler itself to check this in a combination of run-time and
+> compile-time checks.   I haven't followed up but not too long ago
+> there was an effort to add this as an option to gcc.  If you really
+> want this fixed that is the direction to go.  Then buffer overflow
+> exploits become virtually impossible.
+>
 
-I read that multicast loopback is by default enabled, and I have witnessed
-this, when having my application bind to my ethernet interface, but the
-datagrams do not seem to be looped back when I bind to the 'lo' interface.
+I've thought some more, and yes someone else has already done this.  Problems
+are with compilers that
+put code on stack (g++ trampolines for local functions i think).  There is
+the gcc-mod (Stack-guard?) that checks for
+corrupt stack frame using magic number containing zeros before returning...
+this will take away some
+performance though...
 
-Could this possibly be a conflict with the inherently 'looped back'
-behavior of the loopback net driver?
+I wonder if the root of the issue is the underlying security architechure ...
+anything that needs ANY privilege
+gets ALL privileges (ie root).  chown named and such fixes this, but can't
+rebind to privileged port, must be restarted
+by root to do so.  VMS / NT have more fine grained privileges.
 
-As far as toggling the flag, or even reading it, I cannot, as I am
-developing in Java.
+Is there any documentation of the kernel's 'capabilities' functions?  It
+would be exceedingly cool if services (named, nfs, etc)
+could be updated to use this;  I think crackers would loose some motivation
+if instead of "hey I can totally rule this box!"
+they have to settle for "hey I can make the ident service report user 'CrAp'
+for every port!".
 
-For developing, I can easily kludge it to work, by adding a fake route
-statement, forcing the packets back up to the application, but I want to 
-make sure the differing behavior is not a bug in the kernel networking
-code.
-
--Erik G. Burrows
 

@@ -1,137 +1,268 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264327AbTEPAqe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 20:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264325AbTEPAqe
+	id S264330AbTEPBEK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 21:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264336AbTEPBEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 20:46:34 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:17063 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S264327AbTEPAqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 20:46:30 -0400
-Date: Thu, 15 May 2003 20:20:59 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-Message-ID: <20030516002059.GE433@phunnypharm.org>
-References: <20030513071412.GS433@phunnypharm.org> <Pine.LNX.4.44.0305130808040.9816-100000@cherise>
+	Thu, 15 May 2003 21:04:10 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:50780 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264330AbTEPBEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 21:04:05 -0400
+Date: Thu, 15 May 2003 18:12:11 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: lists@mdiehl.de, linux-kernel@vger.kernel.org, jt@hpl.hp.com
+Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
+Message-Id: <20030515181211.5853fd18.akpm@digeo.com>
+In-Reply-To: <20030515.175348.45895365.davem@redhat.com>
+References: <PAO-EX01Cv3uS7sBdxk00001183@pao-ex01.pao.digeo.com>
+	<20030515.175348.45895365.davem@redhat.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305130808040.9816-100000@cherise>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 May 2003 01:16:51.0874 (UTC) FILETIME=[D4D3A020:01C31B48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 13, 2003 at 08:08:35AM -0700, Patrick Mochel wrote:
+"David S. Miller" <davem@redhat.com> wrote:
+>
 > 
-> On Tue, 13 May 2003, Ben Collins wrote:
-> 
-> > On Tue, May 13, 2003 at 08:10:32AM +0100, Christoph Hellwig wrote:
-> > > On Tue, May 13, 2003 at 02:26:40AM -0400, Ben Collins wrote:
-> > > > This was causing me all sorts of problems with linux1394's 16-18 byte
-> > > > long bus_id lengths. The sysfs names were all broken.
-> > > > 
-> > > > This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
-> > > > strncpy's in drivers/base/ so that it can't happen again (atleast the
-> > > > strings will be null terminated).
-> > > 
-> > > What about defining BUS_ID_SIZE in terms of KOBJ_NAME_LEN?
+> Way too invasive, and this adds bugs to the ipmr.c code.
+
+Thought you'd say that.
+
+My mail client munched the context.  For reference:
+
+> Martin Diehl <lists@mdiehl.de> wrote:
+> >
 > > 
-> > Ok, then add this in addition to the previous patch.
+> > [ unregister_netdevice calls call_usermodehelper which waits for keventd to
+> >   pick up the subprocess_info, but keventd is blocked on rtnl_lock, which
+> >   unregister_netdev took ]
+> >
 > 
-> I'll add this, and sync with Linus this week, if he doesn't pick it up.
+> The nice way to fix this is to change unregister_netdev so it runs
+> net_run_sbin_hotplug() outside rtnl_lock.
+> 
+> Problem is, it's hard.  I just knocked up the below patch, and it still
+> needs work.  Mainly because of the tremendously deep codepaths which call
+> unregister_netdevice(), knowing that they are under rtnl_lock().
+> 
+> It would be nice to clean all that up, and this patch actually contains
+> good cleanups and a couple of bugfixes.  But I don't think it's going to
+> get there.
+> 
+> 
+> The other way to fix it is to make call_usermodehelper() more async.  That
+> means kmallocing the sub_info, the work struct and the string arrays and
+> all the strings.  This is more general, and will probably fix other
+> keventd-related deadlocks.  But it is unattractive.
+> 
+> 
+> Or we could change linkwatch to not take rtnl_lock() by some means.  That's
+> even less general.
+> 
+> 
+> David, any comments?  You think the below approach shuld be pursued?
 
-*sigh* Patrick, you accepted the BUS_ID_SIZE change without the original
-patch, so now BUS_ID_SIZE is back to 16 bytes.
 
-Linus, please apply this patch to get things right again.
+"David S. Miller" <davem@redhat.com> wrote:
+>
+> I'd much rather see /sbin/hotplug be able to handle things
+> asynchonously.
 
--------
+Yeah, I'm inclined to agree.  I'll take a look at it.
 
-This was causing me all sorts of problems with linux1394's 16-18 byte
-long bus_id lengths. The sysfs names were all broken.
 
-This not only makes KOBJ_NAME_LEN match BUS_ID_SIZE, but fixes the
-strncpy's in drivers/base/ so that it can't happen again (atleast the
-strings will be null terminated).
+Meanwhile please take a look at the leftover cleanups.  It fixes a bug in
+drivers/net/hamradio/dmascc.c too.
 
-Index: include/linux/kobject.h
-===================================================================
-RCS file: /home/scm/linux-2.5/include/linux/kobject.h,v
-retrieving revision 1.11
-diff -u -r1.11 kobject.h
---- include/linux/kobject.h	12 Apr 2003 01:04:46 -0000	1.11
-+++ include/linux/kobject.h	13 May 2003 06:56:30 -0000
-@@ -12,7 +12,7 @@
- #include <linux/rwsem.h>
- #include <asm/atomic.h>
+
+ 25-akpm/drivers/net/hamradio/dmascc.c  |    4 +---
+ 25-akpm/drivers/net/irda/ali-ircc.c    |    7 ++-----
+ 25-akpm/drivers/net/irda/donauboe.c    |    7 +------
+ 25-akpm/drivers/net/irda/irda-usb.c    |   10 ++++------
+ 25-akpm/drivers/net/irda/irport.c      |    7 ++-----
+ 25-akpm/drivers/net/irda/irtty.c       |    7 ++-----
+ 25-akpm/drivers/net/irda/nsc-ircc.c    |    7 ++-----
+ 25-akpm/drivers/net/irda/sa1100_ir.c   |    7 ++-----
+ 25-akpm/drivers/net/irda/toshoboe.c    |    8 ++------
+ 25-akpm/drivers/net/irda/w83977af_ir.c |    7 ++-----
+ 10 files changed, 20 insertions(+), 51 deletions(-)
+
+diff -puN drivers/net/hamradio/dmascc.c~unregister_netdev-cleanup drivers/net/hamradio/dmascc.c
+--- 25/drivers/net/hamradio/dmascc.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/hamradio/dmascc.c	Thu May 15 18:05:29 2003
+@@ -325,9 +325,7 @@ void cleanup_module(void) {
+     /* Unregister devices */
+     for (i = 0; i < 2; i++) {
+       if (info->dev[i].name)
+-	rtnl_lock();
+-	unregister_netdevice(&info->dev[i]);
+-	rtnl_unlock();
++	unregister_netdev(&info->dev[i]);
+     }
  
--#define KOBJ_NAME_LEN	16
-+#define KOBJ_NAME_LEN	20
+     /* Reset board */
+diff -puN drivers/net/irda/ali-ircc.c~unregister_netdev-cleanup drivers/net/irda/ali-ircc.c
+--- 25/drivers/net/irda/ali-ircc.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/ali-ircc.c	Thu May 15 18:05:29 2003
+@@ -390,11 +390,8 @@ static int __exit ali_ircc_close(struct 
+         iobase = self->io.fir_base;
  
- struct kobject {
- 	char			name[KOBJ_NAME_LEN];
-Index: drivers/base/bus.c
-===================================================================
-RCS file: /home/scm/linux-2.5/drivers/base/bus.c,v
-retrieving revision 1.24
-diff -u -r1.24 bus.c
---- drivers/base/bus.c	29 Apr 2003 17:30:20 -0000	1.24
-+++ drivers/base/bus.c	13 May 2003 06:56:30 -0000
-@@ -432,6 +432,7 @@
- 		pr_debug("bus %s: add driver %s\n",bus->name,drv->name);
+ 	/* Remove netdevice */
+-	if (self->netdev) {
+-		rtnl_lock();
+-		unregister_netdevice(self->netdev);
+-		rtnl_unlock();
+-	}
++	if (self->netdev)
++		unregister_netdev(self->netdev);
  
- 		strncpy(drv->kobj.name,drv->name,KOBJ_NAME_LEN);
-+		drv->kobj.name[KOBJ_NAME_LEN-1] = '\0';
- 		drv->kobj.kset = &bus->drivers;
+ 	/* Release the PORT that this driver is using */
+ 	IRDA_DEBUG(4, "%s(), Releasing Region %03x\n", __FUNCTION__, self->io.fir_base);
+diff -puN drivers/net/irda/donauboe.c~unregister_netdev-cleanup drivers/net/irda/donauboe.c
+--- 25/drivers/net/irda/donauboe.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/donauboe.c	Thu May 15 18:05:29 2003
+@@ -1577,12 +1577,7 @@ toshoboe_close (struct pci_dev *pci_dev)
+     }
  
- 		if ((error = kobject_register(&drv->kobj))) {
-@@ -541,6 +542,7 @@
- int bus_register(struct bus_type * bus)
- {
- 	strncpy(bus->subsys.kset.kobj.name,bus->name,KOBJ_NAME_LEN);
-+	bus->subsys.kset.kobj.name[KOBJ_NAME_LEN-1] = '\0';
- 	subsys_set_kset(bus,bus_subsys);
- 	subsystem_register(&bus->subsys);
+   if (self->netdev)
+-    {
+-      /* Remove netdevice */
+-      rtnl_lock ();
+-      unregister_netdevice (self->netdev);
+-      rtnl_unlock ();
+-    }
++      unregister_netdev(self->netdev);
  
-Index: drivers/base/class.c
-===================================================================
-RCS file: /home/scm/linux-2.5/drivers/base/class.c,v
-retrieving revision 1.18
-diff -u -r1.18 class.c
---- drivers/base/class.c	11 May 2003 05:00:57 -0000	1.18
-+++ drivers/base/class.c	13 May 2003 06:56:30 -0000
-@@ -89,6 +89,7 @@
- 	INIT_LIST_HEAD(&cls->interfaces);
+   kfree (self->ringbuf);
+   self->ringbuf = NULL;
+diff -puN drivers/net/irda/irda-usb.c~unregister_netdev-cleanup drivers/net/irda/irda-usb.c
+--- 25/drivers/net/irda/irda-usb.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/irda-usb.c	Thu May 15 18:05:29 2003
+@@ -1231,12 +1231,10 @@ static inline int irda_usb_close(struct 
+ 	ASSERT(self != NULL, return -1;);
+ 
+ 	/* Remove netdevice */
+-	if (self->netdev) {
+-		rtnl_lock();
+-		unregister_netdevice(self->netdev);
+-		self->netdev = NULL;
+-		rtnl_unlock();
+-	}
++	if (self->netdev)
++		unregister_netdev(self->netdev);
++	self->netdev = NULL;
++
+ 	/* Remove the speed buffer */
+ 	if (self->speed_buff != NULL) {
+ 		kfree(self->speed_buff);
+diff -puN drivers/net/irda/irport.c~unregister_netdev-cleanup drivers/net/irda/irport.c
+--- 25/drivers/net/irda/irport.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/irport.c	Thu May 15 18:05:29 2003
+@@ -256,11 +256,8 @@ int irport_close(struct irport_cb *self)
+ 	self->dongle = NULL;
  	
- 	strncpy(cls->subsys.kset.kobj.name,cls->name,KOBJ_NAME_LEN);
-+	cls->subsys.kset.kobj.name[KOBJ_NAME_LEN-1] = '\0';
- 	subsys_set_kset(cls,class_subsys);
- 	subsystem_register(&cls->subsys);
+ 	/* Remove netdevice */
+-	if (self->netdev) {
+-		rtnl_lock();
+-		unregister_netdevice(self->netdev);
+-		rtnl_unlock();
+-	}
++	if (self->netdev)
++		unregister_netdev(self->netdev);
  
-@@ -259,6 +260,7 @@
+ 	/* Release the IO-port that this driver is using */
+ 	IRDA_DEBUG(0 , "%s(), Releasing Region %03x\n", 
+diff -puN drivers/net/irda/irtty.c~unregister_netdev-cleanup drivers/net/irda/irtty.c
+--- 25/drivers/net/irda/irtty.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/irtty.c	Thu May 15 18:05:29 2003
+@@ -282,11 +282,8 @@ static void irtty_close(struct tty_struc
+ 	self->dongle = NULL;
  
- 	/* first, register with generic layer. */
- 	strncpy(class_dev->kobj.name, class_dev->class_id, KOBJ_NAME_LEN);
-+	class_dev->kobj.name[KOBJ_NAME_LEN-1] = '\0';
- 	kobj_set_kset_s(class_dev, class_obj_subsys);
- 	if (parent)
- 		class_dev->kobj.parent = &parent->subsys.kset.kobj;
-Index: drivers/base/core.c
-===================================================================
-RCS file: /home/scm/linux-2.5/drivers/base/core.c,v
-retrieving revision 1.43
-diff -u -r1.43 core.c
---- drivers/base/core.c	29 Apr 2003 17:30:20 -0000	1.43
-+++ drivers/base/core.c	13 May 2003 06:56:30 -0000
-@@ -214,6 +214,7 @@
+ 	/* Remove netdevice */
+-	if (self->netdev) {
+-		rtnl_lock();
+-		unregister_netdevice(self->netdev);
+-		rtnl_unlock();
+-	}
++	if (self->netdev)
++		unregister_netdev(self->netdev);
+ 	
+ 	self = hashbin_remove(irtty, (int) self, NULL);
  
- 	/* first, register with generic layer. */
- 	strncpy(dev->kobj.name,dev->bus_id,KOBJ_NAME_LEN);
-+	dev->kobj.name[KOBJ_NAME_LEN-1] = '\0';
- 	kobj_set_kset_s(dev,devices_subsys);
- 	if (parent)
- 		dev->kobj.parent = &parent->kobj;
+diff -puN drivers/net/irda/nsc-ircc.c~unregister_netdev-cleanup drivers/net/irda/nsc-ircc.c
+--- 25/drivers/net/irda/nsc-ircc.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/nsc-ircc.c	Thu May 15 18:05:29 2003
+@@ -391,11 +391,8 @@ static int __exit nsc_ircc_close(struct 
+         iobase = self->io.fir_base;
+ 
+ 	/* Remove netdevice */
+-	if (self->netdev) {
+-		rtnl_lock();
+-		unregister_netdevice(self->netdev);
+-		rtnl_unlock();
+-	}
++	if (self->netdev)
++		unregister_netdev(self->netdev);
+ 
+ 	/* Release the PORT that this driver is using */
+ 	IRDA_DEBUG(4, "%s(), Releasing Region %03x\n", 
+diff -puN drivers/net/irda/sa1100_ir.c~unregister_netdev-cleanup drivers/net/irda/sa1100_ir.c
+--- 25/drivers/net/irda/sa1100_ir.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/sa1100_ir.c	Thu May 15 18:05:29 2003
+@@ -1122,11 +1122,8 @@ static void __exit sa1100_irda_exit(void
+ {
+ 	struct net_device *dev = dev_get_drvdata(&sa1100ir_device.dev);
+ 
+-	if (dev) {
+-		rtnl_lock();
+-		unregister_netdevice(dev);
+-		rtnl_unlock();
+-	}
++	if (dev)
++		unregister_netdev(dev);
+ 
+ 	sys_device_unregister(&sa1100ir_device);
+ 	driver_unregister(&sa1100ir_driver);
+diff -puN drivers/net/irda/toshoboe.c~unregister_netdev-cleanup drivers/net/irda/toshoboe.c
+--- 25/drivers/net/irda/toshoboe.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/toshoboe.c	Thu May 15 18:05:29 2003
+@@ -679,12 +679,8 @@ toshoboe_remove (struct pci_dev *pci_dev
+       self->recv_bufs[i] = NULL;
+     }
+ 
+-  if (self->netdev) {
+-	  /* Remove netdevice */
+-	  rtnl_lock();
+-	  unregister_netdevice(self->netdev);
+-	  rtnl_unlock();
+-  }
++  if (self->netdev)
++	  unregister_netdev(self->netdev);
+ 
+   kfree (self->taskfilebuf);
+   self->taskfilebuf = NULL;
+diff -puN drivers/net/irda/w83977af_ir.c~unregister_netdev-cleanup drivers/net/irda/w83977af_ir.c
+--- 25/drivers/net/irda/w83977af_ir.c~unregister_netdev-cleanup	Thu May 15 18:05:29 2003
++++ 25-akpm/drivers/net/irda/w83977af_ir.c	Thu May 15 18:05:29 2003
+@@ -299,11 +299,8 @@ static int w83977af_close(struct w83977a
+ #endif /* CONFIG_USE_W977_PNP */
+ 
+ 	/* Remove netdevice */
+-	if (self->netdev) {
+-		rtnl_lock();
+-		unregister_netdevice(self->netdev);
+-		rtnl_unlock();
+-	}
++	if (self->netdev)
++		unregister_netdev(self->netdev);
+ 
+ 	/* Release the PORT that this driver is using */
+ 	IRDA_DEBUG(0 , "%s(), Releasing Region %03x\n", 
+
+_
+

@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315629AbSHAQaZ>; Thu, 1 Aug 2002 12:30:25 -0400
+	id <S315717AbSHAQ1j>; Thu, 1 Aug 2002 12:27:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315708AbSHAQaZ>; Thu, 1 Aug 2002 12:30:25 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:54657 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S315629AbSHAQaY>; Thu, 1 Aug 2002 12:30:24 -0400
-Date: Thu, 1 Aug 2002 18:33:40 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Kasper Dupont <kasperd@daimi.au.dk>
-cc: stas.orel@mailcity.com, linux-kernel@vger.kernel.org
+	id <S315720AbSHAQ1j>; Thu, 1 Aug 2002 12:27:39 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:62704 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315717AbSHAQ1i>; Thu, 1 Aug 2002 12:27:38 -0400
 Subject: Re: [patch] vm86: Clear AC on INT
-In-Reply-To: <3D493B06.3C20A88@daimi.au.dk>
-Message-ID: <Pine.GSO.3.96.1020801182359.8256L-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: root@chaos.analogic.com, stas.orel@mailcity.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D496019.88237C6@daimi.au.dk>
+References: <Pine.LNX.3.95.1020801105021.26692A-100000@chaos.analogic.com>
+	<1028220750.15022.67.camel@irongate.swansea.linux.org.uk> 
+	<3D4959EF.15022EE8@daimi.au.dk>
+	<1028222900.14871.77.camel@irongate.swansea.linux.org.uk> 
+	<3D496019.88237C6@daimi.au.dk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 01 Aug 2002 18:47:16 +0100
+Message-Id: <1028224036.14871.83.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Aug 2002, Kasper Dupont wrote:
+On Thu, 2002-08-01 at 17:21, Kasper Dupont wrote:
+> Ehrm, that wasn't my point. My point was that if the feature exist
+> in virtual 86 mode but not in real mode, the kernel should prevent
+> it from being used in virtual 86 mode because it is supposed to
+> emulate real mode.
 
-> This sounds a little strange to me. AC is in the upper 16 bit
-> of the EFLAGS register, so it is not saved on an interrupt
-> where only lower 16 bits is saved. This means that when we
-> clear it on the interrupt, the value will be lost for good.
+That would prevent people wanting to run real virtualised 8086 stuff
+that does use the AC trap, and other vm86 extensions to the basic real
+mode stuff.
 
- Indeed.
+If you want an accurate real mode emulation you are stuck with Bochs,
+not down to the kernel but down to the fact vm86 is a mode for running
+8086 applications under a 32bit system, not a mode for emulation of real
+mode.
 
-> I can see the spec says it, so we'd better do that. But does
-> the spec make any sense? And does the CPU really loose the
-> AC flag on every interrupt in real mode?
-
- The flag is cleared as on every interrupt regardless of the processor's
-mode.  It's unfortunate it gets stored nowhere in the real mode, indeed. 
-It leads the Intel's official CPU determination code to fail if interrupts
-are enabled and one arrives at a wrong time.  I discovered it in mid-90's
-and have some diagnostic code somewhere in my archive -- basically raising
-the 8254 timer interrupt rate (actually any IRQ suffices, but that's the
-easiest to reconfigure) much enough assures any i486+ processor will get
-misidentified as an i386 with high enough probability you may actually see
-incorrect reports from programs. 
-
- The discussion may be available from a Usenet archive; I think there is a
-statement on the problem somewhere at the www.x86.org site as well.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

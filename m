@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317482AbSIAUPW>; Sun, 1 Sep 2002 16:15:22 -0400
+	id <S317422AbSIAUNL>; Sun, 1 Sep 2002 16:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317517AbSIAUPW>; Sun, 1 Sep 2002 16:15:22 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:3539 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317482AbSIAUPW>; Sun, 1 Sep 2002 16:15:22 -0400
-Subject: Re: [patch] USB storage: Datafab KECF-USB, Sagatek DCS-CF
-From: Martin Wilck <mwilck@freenet.de>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: Greg KH <greg@kroah.com>, marcelo@conectiva.com.br,
-       mdharm-usb@one-eyed-alien.net, linux-kernel@vger.kernel.org
-In-Reply-To: <E17kPnl-0003aD-00@alf.amelek.gda.pl>
-References: <E17kPnl-0003aD-00@alf.amelek.gda.pl>
+	id <S317462AbSIAUNL>; Sun, 1 Sep 2002 16:13:11 -0400
+Received: from sb0-cf9a4971.dsl.impulse.net ([207.154.73.113]:43782 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id <S317422AbSIAUNK>;
+	Sun, 1 Sep 2002 16:13:10 -0400
+Subject: Re: [PATCH] Re: 2.5.33 PNPBIOS does not compile
+From: Ray Lee <ray-lk@madrabbit.org>
+To: ldb@ldb.ods.org, Linux Kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 01 Sep 2002 22:19:37 +0200
-Message-Id: <1030911578.17142.1.camel@odysseus.mittagstun.de>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 01 Sep 2002 13:17:34 -0700
+Message-Id: <1030911455.4803.3.camel@orca>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Don, 2002-08-29 um 15.57 schrieb Marek Michalkiewicz:
-> > > /* aka Sagatek DCS-CF */
-> > > UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
-> > > 		"Datafab",
-> > > 		"KECF-USB",
-> > > 		US_SC_SCSI, US_PR_BULK, NULL,
-> > > 		US_FL_FIX_INQUIRY ),
+Hi there,
 
-This works fine with 2.4.20 - congratulations!!
-I wonder what happened to the SCSI inquiry - was it limited to 36 bytes?
+> #define Q_SET_SEL(cpu, selname, address, size) \
+>  set_base(cpu_gdt_table[cpu][(selname) >> 3], __va((u32)(address))); \
+> -set_limit(&cpu_gdt_table[cpu][(selname) >> 3], size)
+> +set_limit(cpu_gdt_table[cpu][(selname) >> 3], size)
+ 
+>  #define Q2_SET_SEL(cpu, selname, address, size) \
+>  set_base(cpu_gdt_table[cpu][(selname) >> 3], (u32)(address)); \
+> -set_limit(&cpu_gdt_table[cpu][(selname) >> 3], size)
+> +set_limit(cpu_gdt_table[cpu][(selname) >> 3], size)
 
-Martin
+These look very wrong. They're not wrapped in the standard do {...}
+while(0) protection, and used inside bare if statements below. Can
+someone who knows the code verify that these should be wrapped?
 
+(Not, mind you, that I'm complaining about your patch. You didn't
+introduce the problem, it just caught my eye.)
+
+Ray
 

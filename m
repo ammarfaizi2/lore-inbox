@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284017AbRLEKmN>; Wed, 5 Dec 2001 05:42:13 -0500
+	id <S284038AbRLEK7I>; Wed, 5 Dec 2001 05:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284022AbRLEKmD>; Wed, 5 Dec 2001 05:42:03 -0500
-Received: from pD903C85F.dip.t-dialin.net ([217.3.200.95]:16056 "EHLO
-	no-maam.dyndns.org") by vger.kernel.org with ESMTP
-	id <S284017AbRLEKll>; Wed, 5 Dec 2001 05:41:41 -0500
-Date: Wed, 5 Dec 2001 11:40:28 +0100
-To: Rasmus =?iso-8859-1?B?Qvhn?= Hansen <moffe@amagerkollegiet.dk>
-Cc: Erik Tews <erik.tews@gmx.net>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: tuning ext2 or ReiserFS to avoid fragmentation with large files?
-Message-ID: <20011205114028.A1268@no-maam.dyndns.org>
-In-Reply-To: <20011204142047.N11967@no-maam.dyndns.org> <Pine.LNX.4.33.0112050315450.2930-100000@grignard.amagerkollegiet.dk>
+	id <S284039AbRLEK66>; Wed, 5 Dec 2001 05:58:58 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46075
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S284038AbRLEK6q>; Wed, 5 Dec 2001 05:58:46 -0500
+Date: Wed, 5 Dec 2001 02:58:40 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Josh McKinney <forming@home.com>, linux-kernel@vger.kernel.org,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Fwd: binutils in debian unstable is broken.
+Message-ID: <20011205105840.GA439@mikef-linux.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Josh McKinney <forming@home.com>, linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@mandrakesoft.com>
+In-Reply-To: <20011205050513.GD1442@cy599856-a.home.com> <3C0DB3D6.9C86B865@zip.com.au> <3C0DC1AA.E653D425@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0112050315450.2930-100000@grignard.amagerkollegiet.dk>
-User-Agent: Mutt/1.3.23i
-From: erik.tews@gmx.net (Erik Tews)
+In-Reply-To: <3C0DC1AA.E653D425@zip.com.au>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 03:17:17AM +0100, Rasmus Bøg Hansen wrote:
-> On Tue, 4 Dec 2001, Erik Tews wrote:
-> 
-> > If I remember right xfs has got a online-defragmentation utility. So
-> > have a look at xfs.
+On Tue, Dec 04, 2001 at 10:41:46PM -0800, Andrew Morton wrote:
+> Andrew Morton wrote:
 > > 
-> > I think xfs works different from reiserfs and ext2 when writing files to
-> > disk which helps avoiding fragmentation. This feature is called
-> > allocation groups.
+> > 3) Something else.  HJ's #ifdef MODULE works OK.  It has a rather
+> >    internecine relationship with the workings of __devexit though.
 > 
-> I *might* be wrong, but isn't the allocation-group thing exactly what 
-> ext2/ext3 does?
+> OK, here's a piece of speed-editing.  Fixed a few other __devexit
+> bugs on the way as well.
 > 
-> I don't know about reiserfs and fragmentation, however.
 
-I am sure that xfs is doing that and reiserfs is not doing that.
+Thanks Andrew, you fixed it before I had the compulsion to compile a new
+kernel.
 
-But I am not sure about ext2 and ext3.
+I'm running 2.4.17-pre2+ext3-0.9.16+binutils now, and all is well so far.
 
-Reiserfs4 is going to be different, and it will have a
-online-defragmentation utility.
+Mike

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266758AbUH0Rrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUH0Rx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266758AbUH0Rrd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 13:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266762AbUH0Rrd
+	id S261239AbUH0Rx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 13:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266769AbUH0Rx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 13:47:33 -0400
-Received: from smtp1.wanadoo.fr ([193.252.22.30]:36592 "EHLO
-	mwinf0103.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S266758AbUH0RrX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 13:47:23 -0400
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Craig Milo Rogers <rogers@isi.edu>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0408271027060.14196@ppc970.osdl.org>
-References: <20040826233244.GA1284@isi.edu>
-	 <20040827004757.A26095@infradead.org>
-	 <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org>
-	 <20040827094346.B29407@infradead.org>
-	 <Pine.LNX.4.58.0408271027060.14196@ppc970.osdl.org>
-Content-Type: text/plain; charset=utf-8
-Message-Id: <1093628254.15313.14.camel@gonzales>
+	Fri, 27 Aug 2004 13:53:27 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:47814 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261239AbUH0RxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 13:53:25 -0400
+Subject: Re: [PATCH] Configure IDE probe delays
+From: Lee Revell <rlrevell@joe-job.com>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+In-Reply-To: <87wtzkmq4l.fsf@stark.xeocode.com>
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
+	 <1091226922.5083.13.camel@localhost.localdomain>
+	 <1091232770.1677.24.camel@mindpipe>
+	 <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1091296857.1677.286.camel@mindpipe>  <87wtzkmq4l.fsf@stark.xeocode.com>
+Content-Type: text/plain
+Message-Id: <1093629202.837.37.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 27 Aug 2004 19:37:35 +0200
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 27 Aug 2004 13:53:22 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le ven 27/08/2004 à 19:28, Linus Torvalds a écrit :
-
-> We don't remove drivers because the maintainers go away. There's tons of 
-> drivers that have no maintainer.
+On Fri, 2004-08-27 at 13:45, Greg Stark wrote:
+> Lee Revell <rlrevell@joe-job.com> writes:
 > 
-> We remove drivers because the author _asks_ us to. If the person who wrote 
-> the code doesn't want the code in the kernel, that's a pretty big deal.
+> > I wonder if 83 probes are really necessary.  Maybe this could be
+> > optimized a bit.
+> 
+> Or if the kernel could be doing something useful during that time. I don't
+> suppose it's possible to probe two different ide interfaces at the same time,
+> is it?
+> 
 
-What if someone steps up and want to maintain and extend this piece of
-code ? Will you forbid him (as in "not in my tree") ?
+Did the patch to move this into a #define ever get merged?  Seems like a
+no brainer, as it eliminates a magic number.
 
-	Xav
+Lee
 

@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274244AbRJEWQC>; Fri, 5 Oct 2001 18:16:02 -0400
+	id <S274255AbRJEWRW>; Fri, 5 Oct 2001 18:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274248AbRJEWPw>; Fri, 5 Oct 2001 18:15:52 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:7894 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S274244AbRJEWPo>;
-	Fri, 5 Oct 2001 18:15:44 -0400
-Date: Sat, 6 Oct 2001 00:16:11 +0200 (CEST)
-From: Seth Mos <knuffie@xs4all.nl>
-To: David Schwartz <davids@webmaster.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: %u-order allocation failed
-In-Reply-To: <20011005220627.AAA22897@shell.webmaster.com@whenever>
-Message-ID: <Pine.BSI.4.10.10110060011450.303-100000@xs3.xs4all.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274249AbRJEWRM>; Fri, 5 Oct 2001 18:17:12 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:44008 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S274248AbRJEWRF>; Fri, 5 Oct 2001 18:17:05 -0400
+Date: Fri, 5 Oct 2001 23:17:32 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: jamey.hicks@compaq.com, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.11-pre4/drivers/mtd/bootldr.c does not compile
+Message-ID: <20011005231732.B19985@flint.arm.linux.org.uk>
+In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Oct 05, 2001 at 01:48:42PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, David Schwartz wrote:
+On Fri, Oct 05, 2001 at 01:48:42PM -0700, Adam J. Richter wrote:
+> 	Attempting to compile linux-2.4.11-pre4/drivers/mtd/bootldr.c
+> fails with a bunch of compiler errors, including a complaint that
+> "struct tag" is not defined anywhere.  Presumably this is the result
+> of an incompletely applied patch.
 
-> 
-> >The system is beafy enough to tolerate something mundane as this. It should
-> >definitely not die.
-> 
-> 	A fork bomb with no limits attempts to create an infinite number of 
-> processes. No system can be that beefy.
+Firstly, its ARM only.  Secondly, Compaq decided that a partition table in
+flash isn't a good idea, so they're passing it from the boot loader, which
+is a set of tagged lists.
 
-I was refering to the mundane load of mongo.pl with 5 processes. Something
-the systems should withstand. If you have more then 10GB of database to
-access you would want it to work. I am not talking about a lot of
-processes but a lot of disk IO.
+Unfortunately, they haven't even sent me a patch to add the entries into
+the ARM tree, so even I have to reverse this from my MTD update. ;(
 
-I have just one box running SMP with highmem and that one is acting
-funny. All the other SMP ur Uni servers have absolutely no
-problems.
-
-Disable highmem and the problem goes away while halving your ram. That is
-not very efficient is it?
-
-Cheers
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,78 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263363AbVCKAc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263296AbVCKAj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263363AbVCKAc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 19:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbVCKAcl
+	id S263296AbVCKAj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 19:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbVCKAdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 19:32:41 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:26006 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S263363AbVCKAKn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 19:10:43 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Greg KH <greg@kroah.com>
-Date: Fri, 11 Mar 2005 11:10:37 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Mar 2005 19:33:37 -0500
+Received: from fire.osdl.org ([65.172.181.4]:43423 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261912AbVCKAbI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 19:31:08 -0500
+Date: Thu, 10 Mar 2005 16:30:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: re-inline sched functions
+Message-Id: <20050310163056.64878c24.akpm@osdl.org>
+In-Reply-To: <200503110024.j2B0OFg06087@unix-os.sc.intel.com>
+References: <200503110024.j2B0OFg06087@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16944.57853.539416.268893@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
-       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] -stable, how it's going to work.
-In-Reply-To: message from Greg KH on Thursday March 10
-References: <20050309072833.GA18878@kroah.com>
-	<16944.6867.858907.990990@cse.unsw.edu.au>
-	<20050310164312.GC16126@kroah.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday March 10, greg@kroah.com wrote:
-> On Thu, Mar 10, 2005 at 09:00:51PM +1100, Neil Brown wrote:
-> > On Tuesday March 8, greg@kroah.com wrote:
-> > > So here's a first cut at how this 2.6 -stable release process is going
-> > > to work that Chris and I have come up with.  Does anyone have any
-> > > problems/issues/questions with this?
-> > 
-> > One rule that I thought would make sense, but that I don't see listed
-> > is:
-> > 
-> >  - must fix a regression
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> This could be part of the unknown 2% performance regression with
+> db transaction processing benchmark.
 > 
-> That, and a zillion other specific wordings that people suggested fall
-> under the:
-> 	or some "oh, that's not good" issue
-> rule.
+> The four functions in the following patch use to be inline.  They
+> are un-inlined since 2.6.7.
 > 
-> I didn't feel like being all lawyer-like and explicitly spelling out all
-> of the different kinds of bugs that we would be accepting patches for :)
+> We measured that by re-inline them back on 2.6.9, it improves performance
+> for db transaction processing benchmark, +0.2% (on real hardware :-)
 > 
-> So yes, I don't have a problem with patches to fix regressions.
+> The cost is certainly larger kernel size, cost 928 bytes on x86, and
+> 2728 bytes on ia64.  But certainly worth the money for enterprise
+> customer since they improve performance on enterprise workload.
 
-I think you did not get the meaning that I was trying to convey...
+Less that 1k on x86 versus >2k on ia64.  No wonder those things have such
+big caches ;)
 
-I didn't mean "If it fixes a regression, it should be accepted."
-I meant "If it does not fix a regression, it should not be accepted."
+> ...
+> Possible we can introduce them back?
 
-I have the impression that the 2.6.x.y series were suggested because
-of regressions in 2.6.11 over 2.6.10 and we needed a way to respond to
-that.   I think it should purely be a response to that.
+OK by me.
 
-
-The issue that made me think through this is the locking bug in nfs
-(there is a significant delay in getting a contended lock after the
-holder drops it).  It has been suggested at least twice for 2.6.11.y.
-While it would be nice to have it fixed, I really don't think it
-should be a candidate for 2.6.11.y.  It should go into 2.6.12
-(which it will) and that should be released 6-10 weeks post 2.6.11
-which, given the bug as been around for a lot longer than that without
-being widely noticed, should be soon enough.
-
-I fear that if too many bug fixes go into 2.6.11.y, it might seem to
-take the pressure of 2.6.12 coming out in a timely fashion, and I
-wouldn't like to see that.
-
-NeilBrown

@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263925AbTCWVkW>; Sun, 23 Mar 2003 16:40:22 -0500
+	id <S263924AbTCWVj7>; Sun, 23 Mar 2003 16:39:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263929AbTCWVkW>; Sun, 23 Mar 2003 16:40:22 -0500
-Received: from packet.digeo.com ([12.110.80.53]:15867 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263925AbTCWVkU>;
-	Sun, 23 Mar 2003 16:40:20 -0500
-Date: Sun, 23 Mar 2003 13:51:02 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smp overhead, and rwlocks considered harmful
-Message-Id: <20030323135102.7bd3654d.akpm@digeo.com>
-In-Reply-To: <20030323214357.GA22181@vitelus.com>
-References: <20030322175816.225a1f23.akpm@digeo.com>
-	<20030323214357.GA22181@vitelus.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S263925AbTCWVj6>; Sun, 23 Mar 2003 16:39:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63153 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263924AbTCWVj5>;
+	Sun, 23 Mar 2003 16:39:57 -0500
+Message-ID: <3E7E2C5C.7000905@pobox.com>
+Date: Sun, 23 Mar 2003 16:51:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       Pavel Machek <pavel@ucw.cz>, szepe@pinerecords.com, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org> <402760000.1048451441@[10.10.2.4]>
+In-Reply-To: <402760000.1048451441@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Mar 2003 21:50:51.0074 (UTC) FILETIME=[45527A20:01C2F186]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Lehmann <aaronl@vitelus.com> wrote:
->
-> On Sat, Mar 22, 2003 at 05:58:16PM -0800, Andrew Morton wrote:
-> > 
-> > I've been looking at the CPU cost of the write() system call.  Time how long
-> > it takes to write a million bytes to an ext2 file, via a million
-> > one-byte-writes:
+Martin J. Bligh wrote:
+>>>But if you assume this, what are the official releases for anyway?
+>>
+>>Well, official releases have always been sort of arbitrary for the
+>>kernel... just labeled releases along the course of development. 
+>>Although with the recent addition of the -rc patches, they tend to
+>>ensure the latest round of development at least resulted in a stable
+>>release.  But look at all the major vendors - their 2.4.18 release, for
+>>example, may include whatever the latest pre-patch was at the time.
 > 
-> Are you using a sysenter-capable C library?
+> 
+> I don't agree that's always been true by any means. It may currently
+> be true, but that's far from a good thing. The current state of divergance
+> the distros have from mainline 2.4 is IMHO the biggest problem Linux has
+> today.
+> 
+> The distros inherently have a conflict of interest getting changes merged
+> back into mainline ... it's time consuming to do, it provides them no real
+> benefit (they have to maintain their huge trees anyway), and it actively
+> damages the "value add" they provide.
 
-No.  That would certainly help the numbers.
 
-But it is unrelated to the lock overhead problem.
+Just to underscore Arjan's point:  non-mainline patches are very 
+actively discouraged at Red Hat.  As time progresses the maintenance 
+cost of EACH non-mainline patch increases.  Non-mainline patches do not 
+get the benefits of wide community testing, review, and feedback. 
+Further, Red Hat employees in my experience typically land patches in 
+the community _first_ -- witness my netdriver work (goes me -> Marcelo 
+-> RH), DaveM's net stack work, and Alan's -ac tree.
+
+	Jeff
+
 

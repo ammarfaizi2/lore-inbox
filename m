@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266883AbUFYWLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUFYWTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266883AbUFYWLX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 18:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUFYWLX
+	id S266878AbUFYWTS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 18:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUFYWTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 18:11:23 -0400
-Received: from smtp07.auna.com ([62.81.186.17]:41090 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id S266881AbUFYWKo (ORCPT
+	Fri, 25 Jun 2004 18:19:18 -0400
+Received: from pop.gmx.de ([213.165.64.20]:30618 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266878AbUFYWTR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 18:10:44 -0400
-Date: Sat, 26 Jun 2004 00:10:42 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Scheduler: -mm vs -staircase
-Message-ID: <20040625221042.GA4453@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-X-Mailer: Balsa 2.0.17
+	Fri, 25 Jun 2004 18:19:17 -0400
+X-Authenticated: #4512188
+Message-ID: <40DCA4E2.4040602@gmx.de>
+Date: Sat, 26 Jun 2004 00:19:14 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040618)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-ck2 (was Re: 2.6.7-ck1)
+References: <40DC2D28.5020605@kolivas.org> <40DC2DAF.2090204@kolivas.org> <40DCA2CA.6060102@gmx.de>
+In-Reply-To: <40DCA2CA.6060102@gmx.de>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Prakash K. Cheemplavam wrote:
+> Hi,
+> 
+> like in the other thread, I also think there is something fishy about 
+> staircase 7.4.
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[snip]
+> Revertung to staircase 7.3 (on ck1) it seems to be ok.
 
-Hi all...
+After some further tests I am not sure anymore about this. I did a 
+recompile of xine-lib using staircase 7.3. At first everything seems to 
+be normal, but nearly at the end of the compile, the system started to 
+get into this blocking state:
 
-Just a comment about a weird thing I have noticed wrt scheduling in latest
-kernels.
+I wnated to start a kedit and a konsole, but it took forever. Only afer 
+the compile was done and the package actually gets emerge, both windows 
+showed up. Hmmm, so I revert to staircase 7.1 and check it out...
 
-My last two tests are 2.6.7-mm2 and 2.6.7-mm2+staircase-7.4 (plus a couple
-other things, like aic updated driver). I use GLMatrix as screensaver,
-running with nVidia drivers (yup, tainted kernels, but both are tainted ;)).
-What I have noticed:
-- With standard -mm, as GLMatrix runs, the framerate drops even to something
-  like a frame every couple seconds
-- With staircase, it keeps running smoothly at 25fps.
-
-Something is strange in -mm. It keeps stoling cycles to the screensaver.
-Is this expected ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandrakelinux release 10.1 (Cooker) for i586
-Linux 2.6.7-jam5 (gcc 3.4.1 (Mandrakelinux (Cooker) 3.4.1-0.3mdk)) #1
-
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA3KLiRlIHNEGnKMMRAtiBAJ9XcbNecIsw5hEaOjaWu0/DYkOWuQCgodJ1
-gy48qMkIjrXGSLr16VRFLAM=
-=OJNh
------END PGP SIGNATURE-----
-
---LZvS9be/3tNcYl/X--
+Prakash

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273588AbRJXOWb>; Wed, 24 Oct 2001 10:22:31 -0400
+	id <S274544AbRJXOeD>; Wed, 24 Oct 2001 10:34:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274544AbRJXOWV>; Wed, 24 Oct 2001 10:22:21 -0400
-Received: from NS.iNES.RO ([193.230.220.1]:23504 "EHLO Master.iNES.RO")
-	by vger.kernel.org with ESMTP id <S273588AbRJXOWM>;
-	Wed, 24 Oct 2001 10:22:12 -0400
-Subject: Re: Two suggestions (loop and owner's of linux tree)
-From: Dumitru Ciobarcianu <cioby@ines.ro>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110241605020.12884-100000@oceanic.wsisiz.edu.pl>
-In-Reply-To: <Pine.LNX.4.33.0110241605020.12884-100000@oceanic.wsisiz.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16 (Preview Release)
-Date: 24 Oct 2001 17:21:18 +0300
-Message-Id: <1003933278.1496.6.camel@LNX.iNES.RO>
+	id <S274809AbRJXOdx>; Wed, 24 Oct 2001 10:33:53 -0400
+Received: from cs.utexas.edu ([128.83.139.9]:31641 "EHLO cs.utexas.edu")
+	by vger.kernel.org with ESMTP id <S274544AbRJXOds>;
+	Wed, 24 Oct 2001 10:33:48 -0400
+Date: Wed, 24 Oct 2001 09:34:20 -0500
+From: Kjohn Sasitorn <kjohn@cs.utexas.edu>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: patch to exec_domain
+Message-ID: <20011024093420.A6686@vampire.cs.utexas.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+Organization: (University of Texas at Austin)
+X-URL: http://www.cs.utexas.edu/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mi, 2001-10-24 at 17:13, Lukasz Trabinski wrote:
-> Hello
-> 
-> I would like to suggest to change max_loop from 8 to 16 or more if it
-> possible.
+Currently, the personality(2) system call always returns the previous
+persona. However, according to the manpage, it should return the previous
+persona when successful and -1 otherwise. The following patch to
+lookup_exec_domain() should remedy this behavior:
 
-max_loop=16 in your kernel command line if you use loop builtin or:
-options loop max_loop=16 in /etc/modules.conf if you use it as an
-module.
+--- kernel-source-2.4.12.orig/kernel/exec_domain.c      Thu Oct 18 09:12:47
+2001
++++ kernel-source-2.4.12/kernel/exec_domain.c      Thu Oct 18 09:23:59 2001
+@@ -100,7 +100,7 @@
+     }
+ #endif
 
-> My second suggestions is a request for change owner linux tree from 1046 
-> uid and 101 gid to 0.0 for security reason.  
-
-chmod -R root.root linux/ 
-after you have unpacked the tarball.
-
-//Cioby
+-    ep = &default_exec_domain;
++    ep = NULL;
+ out:
+     read_unlock(&exec_domains_lock);
+     return (ep);
 
 
-
+Kjohn Sasitorn
+kjohn@cs.utexas.edu

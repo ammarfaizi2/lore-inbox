@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264551AbTFKWGo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 18:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTFKWGo
+	id S264606AbTFKWNX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 18:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbTFKWNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 18:06:44 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:45196 "EHLO
-	rwcrmhc13.attbi.com") by vger.kernel.org with ESMTP id S264551AbTFKWGG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 18:06:06 -0400
-Message-ID: <3EE7AB05.4010601@attbi.com>
-Date: Wed, 11 Jun 2003 15:19:49 -0700
-From: Miles Lane <miles.lane@attbi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3.1) Gecko/20030428
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70 (PPC build) -- drivers/net/hp100.ko needs unknown symbol isa_readl
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Jun 2003 18:13:23 -0400
+Received: from [212.97.163.22] ([212.97.163.22]:58346 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S264606AbTFKWNU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 18:13:20 -0400
+Date: Thu, 12 Jun 2003 00:26:51 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: ecki@calista.eckenfels.6bone.ka-ip.net, linux-kernel@vger.kernel.org
+Subject: Re: cachefs on linux
+Message-ID: <20030611222651.GA2712@werewolf.able.es>
+References: <200306101515.53464.rob@landley.net> <E19Q2S2-0001J0-00@calista.inka.de> <20030611.201218.66717787.taka@valinux.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030611.201218.66717787.taka@valinux.co.jp>; from taka@valinux.co.jp on Wed, Jun 11, 2003 at 13:12:18 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like a configuration dependency change is needed.
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.70; fi
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/hp100.ko needs unknown 
-symbol isa_readl
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/hp100.ko needs unknown 
-symbol isa_memset_io
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/hp100.ko needs unknown 
-symbol isa_memcpy_toio
-WARNING: /lib/modules/2.5.70/kernel/drivers/net/hp100.ko needs unknown 
-symbol isa_memcpy_fromio
+On 06.11, Hirokazu Takahashi wrote:
+> Hello,
+> 
+> I think the main benfit of cachefs is on NFS servers. Cachefs of
+> clients can help them to reduce their loads. We know many clients
+> may share one huge NFS server.
+> (e.g. Streaming systems which contents may be extremly huge.)
+> 
 
+Tha main use of cachefs I've seen was Sun's network-booting workstations.
+We had a bunch of old suns (IPX, that was a 68k), with small disks
+used to cache / , /usr and so on from an nfs server. You have the
+benefits of just one centralized install and the ones from local
+storage for more used files....
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-rc7-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))

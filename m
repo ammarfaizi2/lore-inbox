@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267669AbUH0Xl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUH0Xpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267669AbUH0Xl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 19:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267517AbUH0Xk4
+	id S267431AbUH0Xpz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 19:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUH0Xpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 19:40:56 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:42848 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267368AbUH0XkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 19:40:07 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org, grendel@caudium.net
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-Date: Fri, 27 Aug 2004 18:40:03 -0500
-User-Agent: KMail/1.6.2
-Cc: "Nemosoft Unv." <webcam@smcc.demon.nl>, Linus Torvalds <torvalds@osdl.org>,
-       Craig Milo Rogers <rogers@isi.edu>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       Christoph Hellwig <hch@infradead.org>
-References: <20040826233244.GA1284@isi.edu> <200408272342.30619@smcc.demon.nl> <20040827224937.GA5107@beowulf.thanes.org>
-In-Reply-To: <20040827224937.GA5107@beowulf.thanes.org>
+	Fri, 27 Aug 2004 19:45:51 -0400
+Received: from snat.supernetwork.cz ([81.31.19.1]:32128 "EHLO
+	lindik.prosek.czf") by vger.kernel.org with ESMTP id S267350AbUH0Xpf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 19:45:35 -0400
+Message-ID: <412FC7A7.4030100@scssoft.com>
+Date: Sat, 28 Aug 2004 01:45:43 +0200
+From: Petr Sebor <petr@scssoft.com>
+Organization: SCS Software
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408271840.04219.dtor_core@ameritech.net>
+To: =?ISO-8859-1?Q?Petter_Sundl=F6f?= <petter.sundlof@findus.dhs.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA)
+References: <412F5D50.7000807@findus.dhs.org>
+In-Reply-To: <412F5D50.7000807@findus.dhs.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 August 2004 05:49 pm, Marek Habersack wrote:
-> On Fri, Aug 27, 2004 at 11:42:30PM +0200, Nemosoft Unv. scribbled:
-> [snip]
-> > > So I'd personally much prefer the user mode approach. At that point it's
-> > > still closed-source, but at least there is not even a whiff of a "hook"
-> > > inside the kernel.
-> > 
-> > My problem with that is that it makes using such cams a lot harder for both 
-> > users and developers of webcam tools. Basicly, every tool that wanted to 
-> > use webcam X that has some binary-only library would need to specifically 
-> > support it, use probing routines, check which formats are supported, set up 
-> > the decompressor, push the data through it, etc. Conversely, every user 
-> > that wanted to use webcams X, Y and Z would need to check first if they are 
-> > all supported by the program(s) he would like to use.
-> Forgive me if I'm talking bullshit, but wouldn't it be possible for you to
-> route the stream through a device with an entry in /dev/ which would be
-> opened by a userspace daemon which would take the stream from the in-kernel
-> pwc driver, apply all the codec magic to it, and then give it back to the
-> driver in the kernel so that the application that grabs the frames would get
-> the processed data? That way you would need only one userlevel daemon to
-> support the codecs and all the other apps would just read the data from the
-> framebuffer.
+Petter Sundlöf wrote:
+> Using 2.6.8.1. DMA works fine on /dev/hda (PATA, CD burner).
 > 
+> When I try to enable it for my SATA drive (which is performing horribly 
+> bad -- 80-90% CPU load on an AMD64 3200+ during copy of large files)
 
-I wonder if something like uinput is possible/desirable for v4l?
+Hello,
 
--- 
-Dmitry
+just a 'me too' e-mail... I have Master2-FAR mobo, VIA/KT800 chipset.
+IDE disk runs like a charm but SATA disks consume big amount of cpu
+time (which is spent in iowait). The system behaves exactly as with
+old IDE disk and DMA disabled... everything is slow when data is 
+transferred to/from disk.
+
+I have played with various settings, io schedulers, acpi... but haven't
+found anything useful so far..
+
+Regards,
+Petr

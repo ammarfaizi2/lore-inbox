@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261774AbTCGUzq>; Fri, 7 Mar 2003 15:55:46 -0500
+	id <S261777AbTCGU41>; Fri, 7 Mar 2003 15:56:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261777AbTCGUzp>; Fri, 7 Mar 2003 15:55:45 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:19074 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S261774AbTCGUzh>;
-	Fri, 7 Mar 2003 15:55:37 -0500
-Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mike Galbraith <efault@gmx.de>, Andrew Morton <akpm@digeo.com>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0303072136590.22681-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0303072136590.22681-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047071156.29990.5.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 07 Mar 2003 22:05:57 +0100
+	id <S261779AbTCGU41>; Fri, 7 Mar 2003 15:56:27 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:63164 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S261777AbTCGU4X>; Fri, 7 Mar 2003 15:56:23 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: alx <alexs81@libero.it>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Date: Fri, 7 Mar 2003 13:05:20 -0800 (PST)
+Subject: Re: acx100_pci.o GPL but only binary version
+In-Reply-To: <1047068304.1603.14.camel@galileo.homenet.lan>
+Message-ID: <Pine.LNX.4.44.0303071304340.1933-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 21:39, Ingo Molnar wrote:
-> On 7 Mar 2003, Martin Josefsson wrote:
-> 
-> > Some negative things:
-> 
-> if you have time/interest, could you re-test the negative things with X
-> reniced to -10, to further isolate the problem? Another thing to try is to
-> renice xmms to -10 (or RT priority). Which one makes the larger
-> difference?
+check on the site that you got the binary module from. they are the ones
+who need to give you the source.
 
-X niced to -10 makes the xmms mouse-jerkyness disappear. but it can
-still skip right after a songchange. If I renice xmms to -10 as well I
-get the mouse-jerkyness again, it I renice it to -5 it seems to behave
-quite well, no mouse-jerkyness and so far I havn't heard any skips, but
-it can take some time until a skip occurs.
+David Lang
 
-With X reniced to -10 it feels like the wiggle_a_window while a
-'make -j10' and a movie is playing gets a bit more sluggish.
+On 7 Mar 2003, alx wrote:
 
-And sawfish still takes 30 second naps when executing a bunch of
-aumix's.
-
--- 
-/Martin
-
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+> Date: 07 Mar 2003 21:18:24 +0100
+> From: alx <alexs81@libero.it>
+> To: LKML <linux-kernel@vger.kernel.org>
+> Subject: acx100_pci.o GPL but only binary version
+>
+>
+>
+> HI all
+> I got this module from the net (binary version)
+>
+> acx100_pci.o wanna be a linux driver from the TI acx100 chipset.
+> but it doesn't work at all!
+> - First ifconfig SegFault
+> - Second hangs the machine
+>
+> I did modinfo on this module and I got:
+>
+>  $ modinfo acx100_pci.o
+> filename:    acx100_pci.o
+> description: "TI ACX100 WLAN 22Mbps driver"
+> author:      "Lancelot Wang"
+> license:     "GPL"
+>  $
+>
+> Someone has the source code or know the author ?
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

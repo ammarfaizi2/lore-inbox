@@ -1,86 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265627AbUATSJf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 13:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265635AbUATSJf
+	id S265617AbUATSTc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbUATSTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 13:09:35 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:16519 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265627AbUATSJZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 13:09:25 -0500
-Date: Tue, 20 Jan 2004 13:10:21 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Zan Lynx <zlynx@acm.org>
-cc: Bart Samwel <bart@samwel.tk>, Ashish sddf <buff_boulder@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling C++ kernel module + Makefile
-In-Reply-To: <1074620079.22023.26.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.53.0401201306030.12044@chaos>
-References: <20040116210924.61545.qmail@web12008.mail.yahoo.com> 
- <Pine.LNX.4.53.0401161659470.31455@chaos>  <200401171359.20381.bart@samwel.tk>
-  <Pine.LNX.4.53.0401190839310.6496@chaos> <400C1682.2090207@samwel.tk> 
- <Pine.LNX.4.53.0401191311250.8046@chaos> <400C37E3.5020802@samwel.tk> 
- <Pine.LNX.4.53.0401191521400.8389@chaos> <400C4B17.3000003@samwel.tk> 
- <Pine.LNX.4.53.0401201000490.11497@chaos> <1074620079.22023.26.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jan 2004 13:19:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11235 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265617AbUATSTZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 13:19:25 -0500
+Date: Tue, 20 Jan 2004 10:19:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] -mm5 has no i2c on amd64
+Message-Id: <20040120101945.0e23b655.akpm@osdl.org>
+In-Reply-To: <p73n08ihj25.fsf@verdi.suse.de>
+References: <20040120124626.GA20023@bytesex.org.suse.lists.linux.kernel>
+	<p73n08ihj25.fsf@verdi.suse.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jan 2004, Zan Lynx wrote:
+Andi Kleen <ak@suse.de> wrote:
+>
+> Gerd Knorr <kraxel@bytesex.org> writes:
+> > 
+> > ==============================[ cut here ]==============================
+> > --- linux-mm5-2.6.1/arch/x86_64/Kconfig.i2c	2004-01-20 13:14:42.000000000 +0100
+> > +++ linux-mm5-2.6.1/arch/x86_64/Kconfig	2004-01-20 13:15:10.000000000 +0100
+> > @@ -429,6 +429,8 @@
+> >  
+> >  source "drivers/char/Kconfig"
+> >  
+> > +source "drivers/i2c/Kconfig"
+> > +
+> 
+> There is no such source in arch/i386/Kconfig.  So it's probably wrong.
+> 
 
-> On Tue, 2004-01-20 at 08:20, Richard B. Johnson wrote:
-> > Nevertheless, I provide three programs, one written in
-> > C, the other in C++ and the third in assembly. A tar.gz
-> > file is attached for those interested.
-> >
-> > -rwxr-xr-x   1 root     root        57800 Jan 20 10:16 hello+
-> > -rwxr-xr-x   1 root     root          460 Jan 20 10:16 helloa
-> > -rwxr-xr-x   1 root     root         2948 Jan 20 10:16 helloc
-> >
-> > The code size, generated from assembly is 460 bytes.
-> > The code size, generated from C is 2,948 bytes.
-> > The code size, generated from C++ is 57,800 bytes.
-> >
-> > Clearly, C++ is not the optimum language for writing
-> > a "Hello World" program.
->
-> I like C++ and hate to see it so unfairly maligned.  Here's a much
-> better example:
->
-> Makefile:
-> helloc: hello.c
->         gcc -Os -s -o helloc hello.c
->
-> hellocpp: hello.cpp
->         g++ -Os -fno-rtti -fno-exceptions -s -o hellocpp hello.cpp
->
-> Both programs contain exactly the same code: one main() function using
-> puts("Hello world!").
->
-> # ls -l
-> -rwxrwxr-x    1 jbriggs  jbriggs      2840 Jan 20 10:02 helloc
-> -rwxrwxr-x    1 jbriggs  jbriggs      2948 Jan 20 10:06 hellocpp
->
-> 108 extra bytes is hardly the end of the world.
-> --
-> Zan Lynx <zlynx@acm.org>
->
-
-Well you just fell into the usual trap of using the "C-like"
-capabilities of C++ to call a 'C' function. If you are going
-to use 'C' library functions, you don't use an object-oriented
-language to call them. That is using a hatchet like a hammer.
-
-I did not malign C++. I used it as it was designed and let
-the chips fall where they may.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+arch/i386/Kconfig sources drivers/Kconfig, which then picks up the i2c stuff.
 

@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbTA1D0v>; Mon, 27 Jan 2003 22:26:51 -0500
+	id <S264681AbTA1D3n>; Mon, 27 Jan 2003 22:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264681AbTA1D0v>; Mon, 27 Jan 2003 22:26:51 -0500
-Received: from boo-mda02.boo.net ([216.200.67.22]:270 "EHLO boo-mda02.boo.net")
-	by vger.kernel.org with ESMTP id <S262824AbTA1D0v>;
-	Mon, 27 Jan 2003 22:26:51 -0500
-Message-Id: <3.0.6.32.20030127224726.00806c20@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Mon, 27 Jan 2003 22:47:26 -0500
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: [PATCH] page coloring for 2.5.59 kernel, version 1
+	id <S264745AbTA1D3n>; Mon, 27 Jan 2003 22:29:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38661 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id <S264681AbTA1D3m>;
+	Mon, 27 Jan 2003 22:29:42 -0500
+Date: Mon, 27 Jan 2003 22:39:03 -0500
+From: Christopher Faylor <cgf@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: andersg@0x63.nu, lkernel2003@tuxers.net, linux-kernel@vger.kernel.org,
+       kuznet@ms2.inr.ac.ru, tobi@tobi.nu
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
+Message-ID: <20030128033903.GA882@redhat.com>
+References: <Pine.LNX.4.44.0301270920150.5267-100000@harappa.oldtrail.reston.va.us> <20030127.101128.104592362.davem@redhat.com> <20030127182856.GE20701@h55p111.delphi.afb.lu.se> <20030127.143625.84825692.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030127.143625.84825692.davem@redhat.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 27, 2003 at 02:36:25PM -0800, David S. Miller wrote:
+>Hey guys, can you all see if this patch makes the problem go away in
+>2.5.x?  It is merely a guess, but it is worth enough to experiment.
+>
+>Alexey, this piece of code was buggy first time it was coded, and it
+>may still have some holes. :-)))
+>
+>--- net/ipv4/tcp_output.c.~1~	Mon Jan 27 14:45:49 2003
+>+++ net/ipv4/tcp_output.c	Mon Jan 27 14:46:33 2003
+>@@ -889,7 +889,7 @@
+> 	if (atomic_read(&sk->wmem_alloc) > min(sk->wmem_queued+(sk->wmem_queued>>2),sk->sndbuf))
+> 		return -EAGAIN;
+> 
+>-	if (before(TCP_SKB_CB(skb)->seq, tp->snd_una)) {
+>+	if (0 && before(TCP_SKB_CB(skb)->seq, tp->snd_una)) {
+> 		if (before(TCP_SKB_CB(skb)->end_seq, tp->snd_una))
+> 			BUG();
 
-This is yet another holding action, a port of my page coloring patch
-to the 2.5 kernel. This is a minimal port (x86 only) intended to get
-some testing done; once again the algorithm used is the same as in 
-previous patches. There are several cleanups and removed 2.4-isms that
-make the code somewhat more compact, though.
+Sorry, but this doesn't do it for me.  I still get a hang.
 
-I'll be experimenting with other coloring schemes later this week.
-
-www.boo.net/~jasonp/page_color-2.5.59-20030127.patch
-
-Feedback of any sort welcome.
-
-jasonp
+cgf

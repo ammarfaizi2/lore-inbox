@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267739AbSLGJwK>; Sat, 7 Dec 2002 04:52:10 -0500
+	id <S267737AbSLGJv2>; Sat, 7 Dec 2002 04:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267740AbSLGJwK>; Sat, 7 Dec 2002 04:52:10 -0500
-Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:35588 "HELO
-	legolas.dynup.net") by vger.kernel.org with SMTP id <S267739AbSLGJwA>;
-	Sat, 7 Dec 2002 04:52:00 -0500
-Message-Id: <5.2.0.9.0.20021207105421.00a44ec0@legolas>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Sat, 07 Dec 2002 10:56:59 +0100
-To: Rusty Russell <rusty@rustcorp.com.au>
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Subject: Re: 2.5.50bk5 cannot insert module aha152x
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.2.0.9.0.20021206141716.00a09df0@mail.science.uva.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S267739AbSLGJv2>; Sat, 7 Dec 2002 04:51:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59404 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267737AbSLGJv1>;
+	Sat, 7 Dec 2002 04:51:27 -0500
+Message-ID: <3DF1C643.5070900@pobox.com>
+Date: Sat, 07 Dec 2002 04:58:27 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Grover, Andrew" <andrew.grover@intel.com>
+CC: acpi-devel@sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Proposed ACPI Licensing change
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com>
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:36 6-12-02 +0100, Rudmer van Dijk wrote:
->I get this error when I try to load the aha152x module:
-># modprobe aha152x io=0x140 irq=9
->FATAL: Error inserting aha152x (/lib/modules/2.5.50bk5/kernel/aha152x.ko): 
->No such device
+Grover, Andrew wrote:
+> In order to solve this, we are considering releasing the Linux version of
+> the interpreter under a dual license. This would allow direct incorporation
+> of changes. Any patches submitted against the ACPI core code would
+> implicitly be allowed to be used by us in a non-GPL context. This is already
+> done elsewhere in the Linux kernel source by the PCMCIA code, for example.
 
-ok, my mistake: after upgrading to 2.5.50bk5 I forgot to reapply the 
-module-param patches... now it works!
 
->and this message appears in dmesg:
->scsi HBA driver Adaptec 152x SCSI driver; $Revision: 2.5 $ didn't set 
->max_sectors, please fix the template
+I think this is great.
 
-and this is something of the driver but does no harm.
+Since pcmcia already set an example with their license, I think it's a 
+great model to follow.
 
-         Rudmer 
+I also echo other comments to choose an already-known license like the 
+MPL or BSD (etc.) so that lawyers don't have extra work ;-)
+
+	Jeff
+
+
 

@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292888AbSCSV4i>; Tue, 19 Mar 2002 16:56:38 -0500
+	id <S292971AbSCSV6s>; Tue, 19 Mar 2002 16:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292971AbSCSV42>; Tue, 19 Mar 2002 16:56:28 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:59273 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S292888AbSCSV4U>;
-	Tue, 19 Mar 2002 16:56:20 -0500
-Date: Tue, 19 Mar 2002 22:56:09 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Olivier Galibert <galibert@pobox.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020319225609.A12655@ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com> <20020314141342.B37@toy.ucw.cz> <3C91D571.5070806@mandrakesoft.com> <20020318192004.GB194@elf.ucw.cz> <20020319102926.B9997@ucw.cz> <20020319212130.GG12260@atrey.karlin.mff.cuni.cz>
+	id <S293071AbSCSV62>; Tue, 19 Mar 2002 16:58:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21779 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S292971AbSCSV6U>; Tue, 19 Mar 2002 16:58:20 -0500
+Date: Tue, 19 Mar 2002 22:58:00 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Larry McVoy <lm@work.bitmover.com>, Dave Jones <davej@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+Message-ID: <20020319215800.GN12260@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz> <20020319002241.K17410@suse.de> <20020318180233.D10086@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 10:21:30PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > > commands.  With the proper sequencing, you can even do power management 
-> > > > of the drives in userspace.  You don't want to do system suspend/resume 
-> > > > that way, but you can certainly have a userspace policy daemon running, 
-> > > > that powers-down and powers-up the drives, etc.
-> > > 
-> > > See noflushd, Hdparm is able to powersave disks well, already, and it
-> > > was in 2.2.X, too.
+Hi!
+
+> >  > > Pavel, the problem here is your fundamental distrust.  
+> >  > By giving me binary-only installer you ask me to trust you. You ask me
+> >  > to trust you without good reason [it only generates .tar.gz and
+> >  > shellscript, why should it be binary? Was not shar designed to handle
+> >  > that?], and that's pretty suspect.
 > > 
-> > Not all of them safely, though. Many a drive will corrupt data if it
-> > receives a command when not spinned up. You need to issue a wake command
-> > first, which hdparm doesn't, it just leaves it to the kernel to issue a
-> > read command or whatever to wake the drive ...
+> >  Bitmover doing anything remotely suspect in an executable installer
+> >  would be commercial suicide, do you distrust realplayer too?
 > 
-> Is this common disk bug, or are they permitted to behave like that?
+> And all our installer does, and I will give you the code if you want it,
+> I'd be happy to even have Pavel audit it, is make two arrays, 
 
-This behavior is permitted by the specification, as far as I know -
-results of commands other than wakeup (and other pm commands) in sleep
-or suspend mode are undefined ...
+Okay, you wanted audit ;-).
 
+> main()
+> {
+>         char    installer_name[200];
+>         char    data_name[200];
+>         char    cmd[2048];
+>         int     fd;
+> 
+>         fprintf(stderr, "Please wait while we unpack the installer...");
+>         sprintf(installer_name, "/tmp/installer%d", getpid());
+>         fd = creat(installer_name, 0777);
+
+If nasty user on same system creates symlink (ln -s /etc/passwd
+/tmp/installer123), he may overwrite any file on the system. You probably want
+
+fd = open(installer_name, O_WRONLY | O_TRUNC | O_CREAT | O_EXCL, 0755);
+
+Same goes for data.
+								Pavel
 -- 
-Vojtech Pavlik
-SuSE Labs
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTDQA7m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 20:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTDQA7m
+	id S262621AbTDQBEb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 21:04:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbTDQBEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 20:59:42 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:7300 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262174AbTDQA7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 20:59:41 -0400
-Date: Wed, 16 Apr 2003 21:11:31 -0400 (EDT)
-From: Rik van Riel <riel@surriel.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: coreteam@netfilter.org
-cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
-Subject: [PATCH] compile fix ipfw
-Message-ID: <Pine.LNX.4.44.0304162109530.12650-100000@chimarrao.boston.redhat.com>
+	Wed, 16 Apr 2003 21:04:31 -0400
+Received: from windsormachine.com ([206.48.122.28]:1290 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S262621AbTDQBEa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 21:04:30 -0400
+Date: Wed, 16 Apr 2003 21:16:23 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
+In-Reply-To: <200304162205.XAA15178@mauve.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0304162115030.13548-100000@router.windsormachine.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-In the patch that went to marcelo a few days ago the reset
-argument to ip_chain_procinfo() got removed, but there's still
-a code block inside the function that references that variable.
 
-This patch gets rid of that (presumably old) code block. Note
-that I didn't cc this to Marcelo because I'm not 100% sure, so
-please check it.
+On Wed, 16 Apr 2003 root@mauve.demon.co.uk wrote:
 
---- linux-2.4.20/net/ipv4/netfilter/ipfwadm_core.c.compile	2003-04-16 21:04:30.000000000 -0400
-+++ linux-2.4.20/net/ipv4/netfilter/ipfwadm_core.c	2003-04-16 21:05:24.000000000 -0400
-@@ -1176,12 +1176,6 @@ static int ip_chain_procinfo(int stage, 
- 			len = last_len;
- 			break;
- 		}
--		else if(reset)
--		{
--			/* This needs to be done at this specific place! */
--			i->fw_pcnt=0L;
--			i->fw_bcnt=0L;
--		}
- 		last_len = len;
- 		i=i->fw_next;
- 	}
+> This has a little basis in fact.
+>
+> "Double sided SIMMs" can have higher capacitances on the data lines, as there
+> are more pins connected to the socket.
+> This means more loading, especially at high speed.
+>
+> Add in marginal designs, and it can make a difference.
+
+As well, these usually use two banks of memory.
+
+I have a pair of crucial 256 meg sticks in my home pc, one is single sided
+and one is double sided.  when I decide that 512 meg isn't enough, I have
+to make sure I get a stick that uses only one bank of ram, as my ASUS
+p4B533-e shares DIMM2 and DIMM3's banks.  You can only have single sided
+dimms in it if you want to use both at once.
+
+Mike
 

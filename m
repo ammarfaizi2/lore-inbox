@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbUDSUPj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 16:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUDSUPj
+	id S262020AbUDSURn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 16:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUDSURn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 16:15:39 -0400
-Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:46499 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S262009AbUDSUPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 16:15:33 -0400
-Message-ID: <40843363.4070903@backtobasicsmgmt.com>
-Date: Mon, 19 Apr 2004 13:15:31 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back To Basics Network Management
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Mon, 19 Apr 2004 16:17:43 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:26051 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262029AbUDSUQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 16:16:35 -0400
+Date: Mon, 19 Apr 2004 16:16:58 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Willy Tarreau <w@w.ods.org>
+Cc: Joe Korty <joe.korty@ccur.com>, cramerj@intel.com, scott.feldman@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BUG] e1000 fails on 2.4.26+bk with CONFIG_SMP=y
+In-Reply-To: <20040419193930.GA28340@alpha.home.local>
+Message-ID: <Pine.LNX.4.58.0404191615560.2252@montezuma.fsmlabs.com>
+References: <20040416224422.GA19095@tsunami.ccur.com> <20040417072455.GD596@alpha.home.local>
+ <20040419165425.GA3988@tsunami.ccur.com> <20040419193930.GA28340@alpha.home.local>
 MIME-Version: 1.0
-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-CC: John Pesce <pescej@sprl.db.erau.edu>, linux-kernel@vger.kernel.org
-Subject: Re: How to make Linux route multicast traffic bi-directionly between
- multible subnets
-References: <1082389059.1982.15.camel@inferno> <20040419200739.GA3020@localhost>
-In-Reply-To: <20040419200739.GA3020@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jose Luis Domingo Lopez wrote:
+On Mon, 19 Apr 2004, Willy Tarreau wrote:
 
-> So, to summarize, your best bet is to get "mrouted" or something like
-> that, and have a look at the documentation bundled. You are quite right,
-> multicast routing documentation for Linux seems to be quite old, rather
-> short, and maybe out of date.
+> Hi Joe,
+>
+> On Mon, Apr 19, 2004 at 12:54:25PM -0400, Joe Korty wrote:
+> >
+> > Uniprocessor 2.4.26 works fine.
+> > Uniprocessor 2.4.26 + local apic works fine.
+> > Uniprocessor 2.4.26 + local apic + io apic fails.
+>
+> interesting. Unfortunately, I didn't have time to try on the machine I told
+> you about last day. But right here, I have a dual athlon communicating with
+> an alpha, both with e1000 (544) in 2.4.26. Since there's a PCI bridge on your
+> quad, I wonder if the IOAPIC doesn't trigger an interrupt routing problem with
+> bridges. Are all the ports unusable or do some of them work reliably in APIC
+> mode ?
 
-That it is, but if you use the mrouted source and patches from the 
-Debian distribution it's fairly easy to get a basic network working. It 
-took me a few days to get it all set up, but I now have a router that 
-routes multicast between local devices and two remotes over OpenVPN 
-tunnels. Setting up mrouted was actually pretty easy, once I figured out 
-that's what I needed and got the Debian patches so it would compile.
+Joe could you also try it without ACPI if possible.

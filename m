@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVBVKfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVBVLS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVBVKfj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 05:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVBVKfi
+	id S262266AbVBVLS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 06:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVBVLS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 05:35:38 -0500
-Received: from mail2.sasken.com ([203.200.200.72]:60621 "EHLO mail2.sasken.com")
-	by vger.kernel.org with ESMTP id S262262AbVBVKfa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 05:35:30 -0500
-Date: Tue, 22 Feb 2005 16:05:15 +0530 (IST)
-From: Subbu <subbu@sasken.com>
-To: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-cc: <subbu2k_av@yahoo.com>, Venkata Subbarao Annam <subbu@sasken.com>
-Subject: how to detect the n/w driver name at user level. 
-Message-ID: <Pine.GSO.4.30.0502221555380.17229-100000@sunrnd2.sasken.com>
+	Tue, 22 Feb 2005 06:18:58 -0500
+Received: from mta13.adelphia.net ([68.168.78.44]:50149 "EHLO
+	mta13.adelphia.net") by vger.kernel.org with ESMTP id S262266AbVBVLS5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 06:18:57 -0500
+Message-ID: <421B14A8.3000501@nodivisions.com>
+Date: Tue, 22 Feb 2005 06:16:56 -0500
+From: Anthony DiSante <theant@nodivisions.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset=US-ASCII
-X-imss-version: 2.022
-X-imss-result: Passed
-X-imss-scores: Clean:93.97931 C:2 M:3 S:5 R:5
-X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu> <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no>
+In-Reply-To: <421B12DB.70603@aitel.hist.no>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting wrote:
+> The infrastructure for that does not exist, so instead, the "killed" 
+> process remains. Not all of it, but at least the memory pinned down by 
+> the io request.  This overhead is typically small, and the overehad of 
+> adding forced io abort to every driver might
+> be larger than a handful of stuck processes.  It looks ugly, but perhaps 
+> a ps flag that hides the ugly processes is enough.
 
-Hi
+I don't care about any overhead associated with stuck processes, nor do I 
+care that they look ugly in the ps output.  What I care about is the fact 
+that at least once a week on multiple systems with different hardware, some 
+HW-related driver/process gets stuck, then immediately cascades its 
+stuckness up to udevd or hald, and then I can't use any of my hardware 
+anymore until I reboot.
 
-I have a network driver which can have driver name as ethX. everytime i
-used to enter eth1 or eth2  manually as driver name to enable/start my n/w
-driver.
-
-Is there any way that i could get the driver name at user lever other than
-polling for it..??
-
-Please reply to the mail addresses in CC.
-
-Thanx in advance
-Subbu
-
-_______________________________________________________________________________
-_______________________________________________________________________________
-
-A.V.Subba Rao
-SEMICON-DSL group
-SASKEN COMMUNICATION TECHNOLOGIES LTD.
-139/25,AMARJYOTI LAYOUT,
-RING ROAD, DOMULUR
-BANGALORE-560071                                   subbu@sasken.com
-TEL::25355503    25355501 EXT:4056/6465(lab)       subbu2k_av@yahoo.com
-MOBILE::9448802242
-_______________________________________________________________________________
-
-
-"SASKEN RATED THE BEST EMPLOYER IN THE COUNTRY by the BUSINESS TODAY Mercer Survey 2004"
-
-
-                           SASKEN BUSINESS DISCLAIMER
-This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email
+-Anthony DiSante
+http://nodivisions.com/

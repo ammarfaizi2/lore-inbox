@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314094AbSEISqi>; Thu, 9 May 2002 14:46:38 -0400
+	id <S314095AbSEISrt>; Thu, 9 May 2002 14:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314095AbSEISqh>; Thu, 9 May 2002 14:46:37 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:61831 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314094AbSEISqg>; Thu, 9 May 2002 14:46:36 -0400
-Date: Thu, 9 May 2002 13:46:28 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Patrick Mochel <mochel@osdl.org>
-cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
-        James Bottomley <James.Bottomley@steeleye.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] PCI reorg fix
-In-Reply-To: <Pine.LNX.4.33.0205091121450.762-100000@segfault.osdl.org>
-Message-ID: <Pine.LNX.4.44.0205091338170.11642-100000@chaos.physics.uiowa.edu>
+	id <S314101AbSEISrs>; Thu, 9 May 2002 14:47:48 -0400
+Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:32392 "EHLO
+	sparrow.websense.net") by vger.kernel.org with ESMTP
+	id <S314095AbSEISrq>; Thu, 9 May 2002 14:47:46 -0400
+Date: Thu, 9 May 2002 14:47:02 -0400 (EDT)
+From: William Stearns <wstearns@pobox.com>
+X-X-Sender: wstearns@sparrow.websense.net
+Reply-To: William Stearns <wstearns@pobox.com>
+To: Andi Kleen <ak@muc.de>
+cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH & call for help: Marking ISA only drivers 
+In-Reply-To: <20020509203719.A3746@averell>
+Message-ID: <Pine.LNX.4.44.0205091445570.2626-100000@sparrow.websense.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 May 2002, Patrick Mochel wrote:
+Good evening, Andi,
 
-> Actually, the point _is_ to break everything. 
-> 
-> The fact that there are wrappers emulating old PCI behavior is the reason 
-> the SCSI drivers don't use the 2.4 interface. If we provide wrappers for 
-> alloc_consistent, they'll never change those, either. 
+On Thu, 9 May 2002, Andi Kleen wrote:
 
-I surely can see your point there. However, new-style and old-style PCI 
-init are conceptually different, and there's no easy way to emulate the 
-old behavior on top of the new one. That is equivalent to saying that 
-converting drivers is in many cases non-trivial. It's painful, and that's 
-why it doesn't happen (or only slowly), unless you force people to do so.
+> This patch tries to make most ISA only drivers dependent on CONFIG_ISA. 
 
-However, the issue here is IMO different. Not having the wrappers only
-means lots of trivial changes to the drivers, along the lines of
+	I did quite a bit of this work for CML2 - bus dependencies can be 
+found in the CML2 sources.
+	Cheers,
+	- Bill
 
-pci_set_dma_mask(pdev,) -> device_set_dma_mask(&pdev->dev,)
-
-which is pointless IMO. Actually, as far as I understood things, the plan 
-with the device tree is not expose it to drivers, but let them still
-act on pci_dev / usb_dev / whatever, and only base the implementation of
-struct pci_dev / usb/dev / ... on struct device.
-
-So keeping these pci_* functions makes sense to me, only base the 
-implementation on struct device.
-
---Kai
-
+---------------------------------------------------------------------------
+        "Do you smell something burning or is it me?"
+        -- Joan of Arc
+--------------------------------------------------------------------------
+William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
+and ipfwadm2ipchains are at:                        http://www.stearns.org
+--------------------------------------------------------------------------
 

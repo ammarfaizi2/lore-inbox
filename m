@@ -1,94 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267388AbSLLBrF>; Wed, 11 Dec 2002 20:47:05 -0500
+	id <S267401AbSLLBvm>; Wed, 11 Dec 2002 20:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267389AbSLLBrF>; Wed, 11 Dec 2002 20:47:05 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:9744 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267388AbSLLBrD>;
-	Wed, 11 Dec 2002 20:47:03 -0500
-Date: Wed, 11 Dec 2002 17:53:26 -0800
-From: Greg KH <greg@kroah.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] Dynamic MP_BUSSES and IRQ_SOURCES for 2.4.21-pre1
-Message-ID: <20021212015326.GI16615@kroah.com>
+	id <S267402AbSLLBvm>; Wed, 11 Dec 2002 20:51:42 -0500
+Received: from xf86.isc.org ([204.152.184.37]:43533 "EHLO public.xfree86.org")
+	by vger.kernel.org with ESMTP id <S267401AbSLLBvl>;
+	Wed, 11 Dec 2002 20:51:41 -0500
+Date: Wed, 11 Dec 2002 20:58:54 -0500
+From: David Dawes <dawes@XFree86.Org>
+To: Nicolas ASPERT <Nicolas.Aspert@epfl.ch>
+Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org,
+       davej@suse.de, faith@redhat.com, dri-devel@lists.sourceforge.net
+Subject: Re: [Dri-devel] Re: 2.4.20 AGP for I845 wrong ?
+Message-ID: <20021211205854.A7654@xfree86.org>
+References: <fa.jjk71mv.1kja10g@ifi.uio.no> <3DF72A91.5080804@epfl.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3DF72A91.5080804@epfl.ch>; from Nicolas.Aspert@epfl.ch on Wed, Dec 11, 2002 at 01:07:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a bk tree with two changesets that fix some problems with
-mpparse.c.
+On Wed, Dec 11, 2002 at 01:07:45PM +0100, Nicolas ASPERT wrote:
+>Margit Schubert-While wrote:
+>>  From drivers/char/agp/agpgart_be.c
+>> 4554,4559
+>>     { PCI_DEVICE_ID_INTEL_845_G_0,
+>>                  PCI_VENDOR_ID_INTEL,
+>>                  INTEL_I845_G,
+>>                  "Intel",
+>>                  "i845G",
+>>                  intel_830mp_setup },
+>> 
+>> Surely this is wrong or ?
+>> Should be "intel_845_setup", I think.
+>> 
+>
+>IIRC, the 845G is a "new" version of the 830MP chipset (it had been
+>added by Abraham vd Merwe & Graeme Fisher some months ago), but acts
+>basically just as the 830MP. Therefore the entry is correct.... Or maybe
+>if it gets confusing adding a comment would not hurt...
 
-The first patch fixes a problem for machines that have more busses or
-irq sources than MAX_MP_BUSSES or MAX_IRQ_SOURCES has been set to.  This
-happens on some Intel Foster machines (or whatever they are calling the
-processors now) when a PCI bus expansion unit is plugged in at boot
-time.
-  
-Without this patch, those machines can not boot Linux.
-  
-If the machine needs more busses or interrupts, they will be dynamically
-allocated at boot time.  If not, the existing MAX_MP_BUSSES and
-MAX_IRW_SOURCES value will be used.  Once nice side effect of this patch
-is when running a SMP kernel on a UP machine without a MP table, less
-kernel memory is used than without the patch.
-  
-This patch was originally written by James Cleverdon, and has been in
-the -ac tree for quite some time.  I also think Red Hat includes it in
-their main kernel, but am not sure.
+No, I think it should be intel_845_setup too, since the 845G docs on
+Intel's public web site show that the behaviour is like the 845 when
+the on-board graphics isn't enabled.  I made that change in my
+locally maintained version of the agpgart driver a little while ago,
+but haven't had the opportunity to test it with an external AGP card
+in an 845G box yet.
 
-There's also a minor patch to fix a formatting error in mpparse.c too.
-
-Please pull from:
-	bk://linuxusb.bkbits.net/marcelo-smp-2.4
-
-Patches will be sent as a response to this message for those who want to
-see them.
-
-thanks,
-
-greg k-h
-
-
-
- arch/i386/kernel/mpparse.c |   80 +++++++++++++++++++++++++++++++++++++++++----
- include/asm-i386/io_apic.h |    2 -
- include/asm-i386/mpspec.h  |   12 ++----
- 3 files changed, 79 insertions(+), 15 deletions(-)
------
-
-ChangeSet@1.813, 2002-12-11 17:44:54-08:00, greg@kroah.com
-  mpparse.c: Fix a minor code formatting issue.
-
- arch/i386/kernel/mpparse.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
-ChangeSet@1.812, 2002-12-11 11:53:05-08:00, greg@kroah.com
-  [PATCH] dynamic MAX_MP_BUSSES and MAX_IRQ_SOURCES
-  
-  Here's a patch that fixes a problem for machines
-  that have more busses or irq sources than MAX_MP_BUSSES or
-  MAX_IRQ_SOURCES has been set to.  This happens on some Intel Foster
-  machines (or whatever they are calling the processors now) when a PCI
-  bus expansion unit is plugged in at boot time.
-  
-  Without this patch, those machines can not boot Linux.
-  
-  If the machine needs more busses or interrupts, they will be dynamically
-  allocated at boot time.  If not, the existing MAX_MP_BUSSES and
-  MAX_IRW_SOURCES value will be used.  Once nice side effect of this patch
-  is when running a SMP kernel on a UP machine without a MP table, less
-  kernel memory is used than without the patch.
-  
-  This patch was originally written by James Cleverdon.
-
- arch/i386/kernel/mpparse.c |   78 +++++++++++++++++++++++++++++++++++++++++----
- include/asm-i386/io_apic.h |    2 -
- include/asm-i386/mpspec.h  |   12 ++----
- 3 files changed, 78 insertions(+), 14 deletions(-)
-------
-
+David
+-- 
+David Dawes
+Release Engineer/Architect                      The XFree86 Project
+www.XFree86.org/~dawes

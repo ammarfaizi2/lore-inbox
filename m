@@ -1,56 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUGIBDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUGIBGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUGIBDq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 21:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUGIBDp
+	id S262085AbUGIBGE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 21:06:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUGIBGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 21:03:45 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:28269 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262071AbUGIBDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 21:03:44 -0400
-Message-ID: <40EDEEEC.3040109@yahoo.com.au>
-Date: Fri, 09 Jul 2004 11:03:40 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Thu, 8 Jul 2004 21:06:03 -0400
+Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:57741 "EHLO
+	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262085AbUGIBF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 21:05:58 -0400
+Message-ID: <40EDEF68.2020503@kolivas.org>
+Date: Fri, 09 Jul 2004 11:05:44 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mikhail Ramendik <mr@ramendik.ru>
-CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       nigelenki@comcast.net, linux-kernel@vger.kernel.org, ck@vds.kolivas.org,
-       John Richard Moser <nigelenki@comcast.net>
-Subject: Re: [ck] Re: [PATCH] Autoregulate swappiness & inactivation
-References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>	 <cone.1089268800.781084.4554.502@pc.kolivas.org>	 <40ECF278.7070606@yahoo.com.au> <1089306601.2753.13.camel@localhost.localdomain>
-In-Reply-To: <1089306601.2753.13.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: FabF <fabian.frederick@skynet.be>
+Cc: Andrew Morton <akpm@osdl.org>, nigelenki@comcast.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Autoregulate swappiness & inactivation
+References: <40EC13C5.2000101@kolivas.org> <40EC1930.7010805@comcast.net>	 <40EC1B0A.8090802@kolivas.org> <20040707213822.2682790b.akpm@osdl.org>	 <cone.1089268800.781084.4554.502@pc.kolivas.org>	 <20040708001027.7fed0bc4.akpm@osdl.org>	 <cone.1089273505.418287.4554.502@pc.kolivas.org>	 <20040708010842.2064a706.akpm@osdl.org>	 <cone.1089275229.304355.4554.502@pc.kolivas.org> <1089284097.3691.52.camel@localhost.localdomain>
+In-Reply-To: <1089284097.3691.52.camel@localhost.localdomain>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig52CB04A09B52BE232EEF4589"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikhail Ramendik wrote:
-> Nick Piggin wrote:
-> 
-> 
->>Secondly, can you please not mess with the exported sysctl. If you
->>think your "autoswappiness" calculation is better than the current
->>swappiness one, just completely replace it. Bonus points if you can
->>retain the swappiness knob in some capacity.
-> 
-> 
-> I as a user of -ck *strongly* disagree with this proposal. I want to be
-> able to try both manual and automatic setting, without recompiling the
-> kernel.
-> 
-> If you really must avoid another named exported sysctl, I suggest making
-> a "reserved" swappiness value, like 255, that would mean
-> "auto-regulate".
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig52CB04A09B52BE232EEF4589
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The point is, there really isn't anything fancy about this
-"auto tuning". It just alters the reclaim_mapped formula.
+FabF wrote:
+> Con,
+> 	What's interesting is try_to_free_pages comment :
+> 
+> " the zone may be full of dirty or under-writeback pages, which this
+>  * caller can't do much about.  We kick pdflush and take explicit naps
+> in the
+>  * hope that some of these pages can be written.  But if the allocating
+> task..."
+> 
+> 	I mean do we have high activity profile of that side of the kernel when
+> bringing up some big application to life ?
+> 	Does work consist here in 50% out, 50% in (time) ? Your anticipation
+> algorithm can help the "in" side but maybe we can optimize yet the "out"
+> side.btw, I'm surprised to see autoswappiness so far in fx tree:
+> 
+> page_reclaim
+> 	try_to_free_pages
+> 		shrink_caches
+> 			shrink_zone
+> 				refill_inactive_zone
+> 					auto_swap calculation
+> 
+> 
+> IOW, does such parameter could not involve more decisions ?
 
-If we decide that the new formula gives better results, then
-we should go with that. Exposing an intermediate calculation
-in the swappiness sysctl is meaningless.
+If you put it that way, yes - it would classify as duct tape. However 
+the code already acted based upon mapped_ratio which is pretty much all 
+this patch does. Folded in in that sample patch I sent out earlier you 
+can see that all it does is acted on mapped_ratio in a different manner 
+so it's not really an extra layer at all.
 
-You can then work out somewhere to input a manual "swappiness"
-bias into the new calculation.
+-	swap_tendency = mapped_ratio / 2 + distress + vm_swappiness;
++	vm_swappiness = mapped_ratio * 150 / 100;
++	vm_swappiness = vm_swappiness * vm_swappiness / 150;
++	swap_tendency = distress + vm_swappiness;
+
+Con
+
+> Regards,
+> FabF
+
+--------------enig52CB04A09B52BE232EEF4589
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA7e9oZUg7+tp6mRURAglEAJ0e2N+IT5JjHaAuQdJmiD0trH4JbwCgkeVi
+NHKQVDEhXQZ6Q0JzqYVayOY=
+=qYp9
+-----END PGP SIGNATURE-----
+
+--------------enig52CB04A09B52BE232EEF4589--

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129844AbQLDRFH>; Mon, 4 Dec 2000 12:05:07 -0500
+	id <S129521AbQLDRJ1>; Mon, 4 Dec 2000 12:09:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130119AbQLDRE6>; Mon, 4 Dec 2000 12:04:58 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:51465 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S129844AbQLDREk>; Mon, 4 Dec 2000 12:04:40 -0500
-Message-Id: <200012041633.eB4GXOt26866@pincoya.inf.utfsm.cl>
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.4.0.12.4: drivers/net/dummy.c fails compile
-X-Mailer: MH [Version 6.8.4]
-Date: Mon, 04 Dec 2000 13:33:24 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S129573AbQLDRJS>; Mon, 4 Dec 2000 12:09:18 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1900 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129521AbQLDRJE>; Mon, 4 Dec 2000 12:09:04 -0500
+Date: Mon, 4 Dec 2000 10:37:54 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Thomas Sailer <sailer@ife.ee.ethz.ch>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@suse.cz>,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i810_audio 2.4.0-test11
+In-Reply-To: <3A2BA005.F85423F6@ife.ee.ethz.ch>
+Message-ID: <Pine.LNX.3.96.1001204103533.9128C-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SPARC64, Red Hat 6.2 + local updates
+On Mon, 4 Dec 2000, Thomas Sailer wrote:
+> And before killing format conversion you should kill
+> the mmap stunt, because the format conversion complexity
+> (~25 LOC) is by far dwarfed by the mmap emulation stuff.
+
+mmap -emulation- ??  Ug.  Is Quake really worth that much? :)
 
 
-dummy.c: In function `dummy_init_module':
-dummy.c:103: invalid type argument of `->'
+> The underlying question is:
+> 
+> - do we want an usb audio driver that supports the OSS
+>   interface and with which most existing applications work
 
-A patch follows:
+of course
 
---- linux-2.4.0-test/drivers/net/dummy.c~	Mon Dec  4 09:03:05 2000
-+++ linux-2.4.0-test/drivers/net/dummy.c	Mon Dec  4 13:27:23 2000
-@@ -100,7 +100,7 @@
- 	int err;
- 
- 	dev_dummy.init = dummy_init;
--	SET_MODULE_OWNER(&dev_dummy);
-+	SET_MODULE_OWNER((&dev_dummy));
- 
- 	/* Find a name for this unit */
- 	err=dev_alloc_name(&dev_dummy,"dummy%d");
--- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Anything in between is IMO silly. Killing the format
+> conversion drops the advantage of running many existing
+> applications but don't bring you much closer to the goal
+> of simplicity.
+
+OSS has always implied that the software performs conversions when the
+hardware cannot support certain formats.  And the kernel direction has
+always been to -remove- any software conversion code.  We removed
+SoftOSS, for example.
+
+	Jeff
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129243AbRBSV7G>; Mon, 19 Feb 2001 16:59:06 -0500
+	id <S129310AbRBSV6q>; Mon, 19 Feb 2001 16:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129813AbRBSV65>; Mon, 19 Feb 2001 16:58:57 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:49682 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S129243AbRBSV6u>; Mon, 19 Feb 2001 16:58:50 -0500
-Message-Id: <200102192158.f1JLwhO13390@aslan.scsiguy.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Peter Samuelson <peter@cadcamlab.org>
+	id <S129243AbRBSV6g>; Mon, 19 Feb 2001 16:58:36 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:34573 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129310AbRBSV6B>;
+	Mon, 19 Feb 2001 16:58:01 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: root@chaos.analogic.com
 cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx (and sym53c8xx) plans 
-In-Reply-To: Your message of "Mon, 19 Feb 2001 14:27:14 CST."
-             <14993.33186.622147.313411@wire.cadcamlab.org> 
+Subject: Re: [LONG RANT] Re: Linux stifles innovation... 
+In-Reply-To: Your message of "Mon, 19 Feb 2001 10:58:36 CDT."
+             <Pine.LNX.3.95.1010219101720.30581A-100000@chaos.analogic.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 19 Feb 2001 14:58:43 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Date: Tue, 20 Feb 2001 08:57:54 +1100
+Message-ID: <32690.982619874@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->BTW, is there really enough common ground between the whole series of
->AIC chips to justify a single huge driver?  I know they ship three
->separate NT drivers to cover this range..
+On Mon, 19 Feb 2001 10:58:36 -0500 (EST), 
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>I was unable to use the new kernel because the drivers I need for
+>`initrd` all had undefined symbols relating to some high memory stuff.
+>This, in spite of the fact that I did:
+>
+>cp .config ..
+>make clean
+>make distclean
+>cp ../.config
+>make oldconfig
+>make dep
+>make bzImage
+>make modules
+>make modules_install
 
-The chips are very similar.  I think the single driver for Linux is
-actually a smaller binary than any of the individual drivers for NT. 8-)
+FAQ: http://www.tux.org/lkml/#s8-8
 
---
-Justin

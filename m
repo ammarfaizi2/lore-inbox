@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbTIYO7c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 10:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbTIYO7c
+	id S261294AbTIYPVB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 11:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTIYPVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 10:59:32 -0400
-Received: from h80ad26dc.async.vt.edu ([128.173.38.220]:31617 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261282AbTIYO7b (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 10:59:31 -0400
-Message-Id: <200309251459.h8PExJ6q027275@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Horiffic SPAM 
-In-Reply-To: Your message of "Thu, 25 Sep 2003 10:21:49 +0200."
-             <3F72A59D.4000407@aitel.hist.no> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.53.0309231408260.28457@quark.analogic.com> <20030923183648.GE1269@velociraptor.random> <Pine.LNX.4.53.0309241006500.30216@quark.analogic.com>
-            <3F72A59D.4000407@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1131873296P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 25 Sep 2003 11:21:01 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:3336 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S261294AbTIYPU7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 11:20:59 -0400
+Message-ID: <3F730637.8080406@rackable.com>
+Date: Thu, 25 Sep 2003 08:13:59 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bradley Chapman <kakadu_croc@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
+References: <20030925132630.59015.qmail@web40903.mail.yahoo.com>
+In-Reply-To: <20030925132630.59015.qmail@web40903.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Thu, 25 Sep 2003 10:59:19 -0400
+X-OriginalArrivalTime: 25 Sep 2003 15:20:57.0944 (UTC) FILETIME=[9EC39D80:01C38378]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1131873296P
-Content-Type: text/plain; charset=us-ascii
+Bradley Chapman wrote:
+> I've just discovered a very strange and unusual problem with rpm on my Red Hat 9
+> laptop running 2.6.0-test. Under 2.4.22-ac2 rpm runs perfectly fine, but when I
+> run it under 2.6.0-test, it outputs the following errors:
+> 
+> sudo rpm -Uvh alsa-driver-0.9.6-1.fr.i386.rpm
+> Password:
+> rpmdb: unable to join the environment
+> error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+> error: cannot open Packages index using db3 - Resource temporarily unavailable (11)
+> error: cannot open Packages database in /var/lib/rpm
+> warning: alsa-driver-0.9.6-1.fr.i386.rpm: V3 DSA signature: NOKEY, key ID e42d547b
+> rpmdb: unable to join the environment
+> error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+> error: cannot open Packages database in /var/lib/rpm
+> rpmdb: unable to join the environment
+> error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+> error: cannot open Packages database in /var/lib/rpm
+> 
+> I have never seen rpm do this before, and it only occurs under 2.6.0-test. It
+> happens under these specific kernels:
+> 
+> 2.6.0-test5-bk10
+> 2.6.0-test5-bk11
+> 2.6.0-test5-mm4
+> 
+> I have not tried -test5-bk12 yet, but I have a feeling that I will get the same
+> errors. I have checked syslog and dmesg and there are no errors from the kernel;
+> under 2.4.22-ac2 rpm works perfectly fine, so I don't believe it's file corruption
+> or filesystem breakage.
+> 
+> Does anyone have any ideas that I can try?
+>
 
-On Thu, 25 Sep 2003 10:21:49 +0200, Helge Hafting said:
+    Sound like NPTL issues "LD_ASSUME_KERNEL=2.4.1 <rpm command>". 
+Check the archives for details.
 
-> According to standards they will give up after 5 days or so.
 
-Methinks you forgot the smiley on here.
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
---==_Exmh_-1131873296P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/cwLHcC3lWbTT17ARAoWQAKCsgxFYlesF+88+h8SQsCSrak/u/wCfcKir
-37icxBDJZQTfjGckDOEHnKw=
-=8NaI
------END PGP SIGNATURE-----
-
---==_Exmh_-1131873296P--

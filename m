@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136338AbRDWCZw>; Sun, 22 Apr 2001 22:25:52 -0400
+	id <S136346AbRDWCjE>; Sun, 22 Apr 2001 22:39:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136339AbRDWCZn>; Sun, 22 Apr 2001 22:25:43 -0400
-Received: from leng.mclure.org ([64.81.48.142]:1288 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S136338AbRDWCZZ>; Sun, 22 Apr 2001 22:25:25 -0400
-Date: Sun, 22 Apr 2001 19:25:20 -0700
-From: Manuel McLure <manuel@mclure.org>
-To: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with "su -" and kernels 2.4.3-ac11 and higher
-Message-ID: <20010422192520.A3618@ulthar.internal.mclure.org>
-In-Reply-To: <20010422102234.A1093@ulthar.internal.mclure.org> <200104222138.XAA00666@kufel.dom>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200104222138.XAA00666@kufel.dom>; from kufel!ankry@green.mif.pg.gda.pl on Sun, Apr 22, 2001 at 14:38:55 -0700
-X-Mailer: Balsa 1.1.4
+	id <S136339AbRDWCiy>; Sun, 22 Apr 2001 22:38:54 -0400
+Received: from [211.99.247.66] ([211.99.247.66]:6665 "HELO lustre.us.mvd")
+	by vger.kernel.org with SMTP id <S135519AbRDWCil>;
+	Sun, 22 Apr 2001 22:38:41 -0400
+Date: Sun, 22 Apr 2001 19:40:10 -0700 (PDT)
+From: "Peter J. Braam" <braam@mountainviewdata.com>
+To: adilger@turbolinux.com, sct@redhat.com, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Cc: ericm@mountainviewdata.com
+Subject: Ext3 for Linux 2.4 progress report
+Message-ID: <Pine.LNX.4.21.0104221927020.11051-100000@lustre.us.mvd>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andreas, Stephen, 
 
-On 2001.04.22 14:38 Andrzej Krzysztofowicz wrote:
-> > 
-> > I'm having a problem with "su -" on ac11/ac12. ac5 doesn't show the
-> > problem.
-> > The problem is easy to reproduce - go to a console, log in as root, do
-> an
-> > "su -" (this will succeed) and then another "su -". The second "su -"
-> > should hang - ps shows it started bash and that the bash process is
-> > sleeping. You need to "kill -9" the bash to get your prompt back.
-> 
-> No problem here.
-> 
-> P233MMX
-> 
-> # uname -a
-> Linux kufel 2.4.3-ac12 #2 nie kwi 22 15:32:51 CEST 2001 i586 unknown
-> 
-> # ls -l /lib/libc-*
-> -rwxr-xr-x   1 root     root      1060168 Nov 19 11:17 /lib/libc-2.1.3.so
-> 
-> # gcc --version
-> egcs-2.91.66
-> (kernel with the fix by Niels Kristian Bech Jensen <nkbj@image.dk>)
-> 
-> # su --version
-> su (GNU sh-utils) 2.0
-> 
-> Maybe it is RH7 specyfic ? Or you have some compiler / hardware problem ?
-> 
-> Andrzej
+We have a lot working now: 
 
-Did you try nesting more than one "su -"? The first one after a boot works
-for me - every other one fails.
-I'm on RH71 - this may be specific to this release. It's also
-kernel-dependent, I can reboot with ac5 and the problem does not happen.
-The kernel is compiled with the same compiler as yours.
+1. journal recovery and initialization stuff is working
+2. transactions go to the disk
+3. infrastructure is there to do transcactions
+4. ext3_create is fully operational. 
 
-My libc is 2.2.2 while yours is 2.1.3 - this may be the difference.
+The problems we have seen mostly have to do with differences in which
+buffer heads are being initialized.  Things like b_transaction etc. were
+not cleaned up.
 
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+There are more buffer head problems around, but we are debugging them
+quickly now.
+
+You can play with this, make a loop device, mount it and to things like
+touch (NOTE: only file creations have been handled so far).  If you
+re-mount a dirty ext3 image, it will recovery.  The first few always
+work, but at present things go wrong when bdflush kicks in.
+
+We left a patch at: 
+
+ftp.inter-mezzo.org:/pub/ext3/242-ac26-1um.ext3-ph5_4.patch.gz
+
+In the patch there are markers of the form @@@ with your names, asking for
+help!
+
+- Peter -
 

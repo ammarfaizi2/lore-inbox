@@ -1,119 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVBVVlV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVBVVmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVBVVlV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 16:41:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVBVVlU
+	id S261279AbVBVVmS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 16:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVBVVmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 16:41:20 -0500
-Received: from fire.osdl.org ([65.172.181.4]:28094 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261258AbVBVVkk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 16:40:40 -0500
-Date: Tue, 22 Feb 2005 13:40:10 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: olof@austin.ibm.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
-Message-Id: <20050222134010.4c286e64.akpm@osdl.org>
-In-Reply-To: <20050222210752.GG22555@mail.shareable.org>
-References: <20050222190646.GA7079@austin.ibm.com>
-	<20050222115503.729cd17b.akpm@osdl.org>
-	<20050222210752.GG22555@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 16:42:18 -0500
+Received: from alog0055.analogic.com ([208.224.220.70]:1920 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261279AbVBVVl4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 16:41:56 -0500
+Date: Tue, 22 Feb 2005 16:40:54 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Chris Friesen <cfriesen@nortel.com>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Anthony DiSante <theant@nodivisions.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: uninterruptible sleep lockups
+In-Reply-To: <421B9C86.8090800@nortel.com>
+Message-ID: <Pine.LNX.4.61.0502221619330.5460@chaos.analogic.com>
+References: <421A3414.2020508@nodivisions.com> <200502211945.j1LJjgbZ029643@turing-police.cc.vt.edu>
+ <421A4375.9040108@nodivisions.com> <421B12DB.70603@aitel.hist.no>
+ <421B14A8.3000501@nodivisions.com> <Pine.LNX.4.61.0502220824440.25089@chaos.analogic.com>
+ <421B9018.7020007@nodivisions.com> <200502222024.j1MKOtlZ007512@laptop11.inf.utfsm.cl>
+ <421B9C86.8090800@nortel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> wrote:
+On Tue, 22 Feb 2005, Chris Friesen wrote:
+
+> Horst von Brand wrote:
+>> Anthony DiSante <theant@nodivisions.com> said:
 >
-> ...
-> 
-> > > One attempt to fix this is included below. It works, but I'm not entirely
-> > > happy with the fact that it's a bit messy solution. If anyone has a
-> > > better idea for how to solve it I'd be all ears.
-> > 
-> > It's fairly sane.  Style-wise I'd be inclined to turn this:
-> > 
-> > 	down_read(&current->mm->mmap_sem);
-> > 	while (!check_user_page_readable(current->mm, uaddr1)) {
-> > 		up_read(&current->mm->mmap_sem);
-> > 		/* Fault in the page through get_user() but discard result */
-> > 		if (get_user(curval, (int __user *)uaddr1) != 0)
-> > 			return -EFAULT;
-> > 		down_read(&current->mm->mmap_sem);
-> > 	}
-> 
-> That won't work because the vma lock must be help between key
-> calculation and get_user() - otherwise futex is not reliable.  It
-> would work if the futex key calculation was inside the loop.
+>>> That's one of the things I asked a few messages ago.  Some people on the 
+>>> list were saying that it'd be "really hard" and would "require a lot of 
+>>> bookkeeping" to "fix" permanently-D-stated processes... which is 
+>>> completely different than "impossible."
+>> 
+>> Most people here have little clue. It can't be done.
+>
+> I realize it would be extremely difficult if not impossible to do in the 
+> current linux architecture, but I find it hard to believe that it is 
+> technically impossible if one were allowed to design the system from scratch.
+>
 
-All the above is trying to do is to convert the initial down_read(mmap_sem)
-into a function which, on exit, guarantees that
+No. It has nothing to do with the architecture. These problems go
+all the way back to the first multi-tasking systems.
 
-a) down_read(mmap_sem) is held and
+> Maybe I'm on crack, but would it not be technically possible to have all 
+> resource usage be tracked so that when a task tries to do something and 
+> hangs, eventually it gets cleaned up?
 
-b) the subsequent get_user() of that address will not generate a pagefault.
+It's not the "task" that's hung. That's just the symptoms. It's
+the SHARED RESOURCE that is hung!  Once some task attempts
+to use a shared resource, it must (somehow) get in-line so
+that the it can use that task without somebody else coming
+along and mucking with it. To get "in-line" means to
+execute some kind of MUTEX. There are many kinds. VAXen
+had a "lock manager", there are simple sleeping-loops using
+semaphores, etc. Linux uses such loops, the two most
+commonly used are "down()" and "up()".
 
-So it shouldn't affect the futex code's atomicity at all.
+Now, somebody needs a resource. It executes down(&semaphore);
+once it gets control again, it has that resource. It attempts
+to use that resource through a driver. The driver waits forever.
+The resource is now permanently dorked --forever because its
+driver is waiting forever. The user code never returns from
+the driver so it can never execute up(&semaphore).
 
-However the pte can get unmapped by memory reclaim so we could still take a
-minor fault, and hit the same deadlock, yes?
+If you, somehow, grab hold of the program-counter (like
+a long-jump), and force a return so that up(&semaphore) gets
+executed, the wrong thread unlocks the semaphore but its
+forever broken anyway because the resource it protects is
+hung.
 
-> A much simpler solution (and sorry for not offering it earlier,
-> because Andrew Morton pointed out this bug long ago, but I was busy), is:
-> 
-> In futex.c:
-> 
-> 	down_read(&current->mm->mmap_sem);
-> 	get_futex_key(...) etc.
-> 	queue_me(...) etc.
-> 	current->flags |= PF_MMAP_SEM;             <- new
-> 	ret = get_user(...);
-> 	current->flags &= PF_MMAP_SEM;             <- new
-> 	/* the rest */
-> 
-> And in arch/*/mm/fault.c, replace every one of these:
-> 
-> 	down_read(&mm->mmap_sem);
-> 
-> 	up_read(&mm->mmap_sem);
-> 
-> with these:
-> 
-> 	if (!(current & PF_MMAP_SEM))
-> 		down_read(&mm->mmap_sem);
-> 
-> 	if (!(current & PF_MMAP_SEM))
-> 		up_read(&mm->mmap_sem);
-> 
+>
+> We already handle cleaning up stuff for userspace (memory, file descriptors, 
+> sockets, etc.).  Why not enforce a design that says "all entities taking a 
+> lock must specify a maximum hold time".  After that time expires, they are 
+> assumed to be hung, and all their resources (which were being tracked by some 
+> system) get cleaned up.
+>
 
-Yes, that will work.  However I do feel that it's cleaner to localise this
-nastiness into a single function which the futex code calls, rather than
-spreading it all around and adding overhead to every pagefault.  If we can
-work out how.
+Time won't do it. It's not a matter of "cleaning up" it's a matter
+of not waiting forever in the first place. If you were able to
+"clean up" by reinitializing the semaphores, etc., killing anything
+that was attached,  etc., the next instance of attempting to use
+that resource will hang the exact same way.
 
-wrt this down_read/down_write/down_read deadlock: iirc, the reason why
-down_write() takes precedence over down_read() is to avoid the permanent
-writer starvation which would occur if there is heavy down_read() traffic.
+We are not talking about some broken semaphore code that sometimes
+gets hung. We are talking about the resource it protects. The
+semaphore code is fine.
 
-As Linus points out, an alternative would be to do an inc_preempt_count()
-around the offending get_user(), then use __copy_from_user_inatomic(), then
-take some sort of remedial action if __copy_from_user_inatomic() returns a
-fault.  Something like:
+> It would probably be complicated, slow, and generally not worth the effort. 
+> But it seems at least technically possible.
+>
+> Chris
+> -
 
-retry:
-	if (get_user(uaddr) == -EFAULT)
-		return -EFAULT;
-	down_read(mmap_sem);
-	inc_preempt_count();
-	if (__copy_from_user_inatomic(..., uaddr)) {
-		up_read(mmap_sem);
-		dec_preempt_count();
-		goto retry;
-	}
+The problem is not "Waiting in D state". That's the symptom.
+The problem is waiting forever after a lock has been taken.
+That is the problem.
 
-	dec_preempt_count();
-	up_read(mmap_sem);
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

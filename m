@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUJBFbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUJBFdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267285AbUJBFbk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 01:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUJBFbh
+	id S267287AbUJBFdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 01:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJBFdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 01:31:37 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:1664 "EHLO midnight.suse.cz")
-	by vger.kernel.org with ESMTP id S267285AbUJBFbf (ORCPT
+	Sat, 2 Oct 2004 01:33:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62877 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267287AbUJBFdP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 01:31:35 -0400
-Date: Sat, 2 Oct 2004 07:31:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Andrew Morton <akpm@osdl.org>,
-       "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm4
-Message-ID: <20041002053117.GA1211@ucw.cz>
-References: <20040926181021.2e1b3fe4.akpm@osdl.org> <1096586774l.5206l.1l@werewolf.able.es> <20040930170505.6536197c.akpm@osdl.org> <200410010030.39826.dtor_core@ameritech.net> <20041001180101.GC14015@kroah.com> <20041001182602.GA1613@ucw.cz> <20041001234156.GB9505@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041001234156.GB9505@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 2 Oct 2004 01:33:15 -0400
+Message-ID: <415E3D5A.2010501@redhat.com>
+Date: Fri, 01 Oct 2004 22:32:10 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: George Anzinger <george@mvista.com>, johnstul@us.ibm.com,
+       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: Re: Posix compliant cpu clocks V6 [2/3]: Glibc patch
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com> <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com> <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com> <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com> <415AF4C3.1040808@mvista.com> <B6E8046E1E28D34EB815A11AC8CA31290322B307@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0410011259190.18738@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0410011259190.18738@schroedinger.engr.sgi.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 04:41:56PM -0700, Greg KH wrote:
-> On Fri, Oct 01, 2004 at 08:26:02PM +0200, Vojtech Pavlik wrote:
-> > On Fri, Oct 01, 2004 at 11:01:01AM -0700, Greg KH wrote:
-> > > On Fri, Oct 01, 2004 at 12:30:39AM -0500, Dmitry Torokhov wrote:
-> > > > On Thursday 30 September 2004 07:05 pm, Andrew Morton wrote:
-> > > > > > One other question. Isn't /dev/input/mice supposed to be a multiplexor
-> > > > > > for mice ? I think I remember some time when I could have both a PS2 and
-> > > > > > a USB mouse connected and X pointer followed both. Now if I boot with the
-> > > > > > USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
-> > > > > > and plug it after boot, both work; usb mouse works fine, and PS2 just
-> > > > > > jumps half screen each time I move it, and with big delays.
-> > > > > > 
-> > > > > 
-> > > > 
-> > > > I bet it's USB legacy emulation topic again. Try loading USB modules first
-> > > > and then psmouse, should help.
-> > > > 
-> > > > Vojtech, what is the status of USB handoff patches. I have seen several
-> > > > variants and so far heard only success stories from people using them. Can
-> > > > we have them in kernel proper?
-> > > 
-> > > They are already in the -mm tree, but they need to be explicitly enabled
-> > > with a boot command line option to have the handoff happen.
-> >  
-> > I think we really need them by default. I had seven bugs with touchpads,
-> > lost synchronization with PS/2 mice and similar fixed just by enabling
-> > this patch unconditionally in the SuSE tree.
-> 
-> Hm, let's let the patch make it into mainline and they I'll consider
-> making it the default.  Ok?
- 
-OK.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Christoph Lameter wrote:
+> The following patch makes glibc not provide the above clocks and use the
+> kernel clocks instead if either of the following condition is met:
+
+Did you ever hear about a concept called binary compatiblity?  Don't
+bother working on any glibc patch.
+
+- --
+➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBXj1a2ijCOnn/RHQRAh31AJ9rZ5+i5x3LkTwEbeMj2DY/uBzPjwCfeAip
+zTYpRJb0lfsR5POro22uViM=
+=aUP/
+-----END PGP SIGNATURE-----

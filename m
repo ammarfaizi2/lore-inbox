@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263325AbTCNNcT>; Fri, 14 Mar 2003 08:32:19 -0500
+	id <S263322AbTCNNbN>; Fri, 14 Mar 2003 08:31:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263329AbTCNNcT>; Fri, 14 Mar 2003 08:32:19 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:16514 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S263325AbTCNNbV>; Fri, 14 Mar 2003 08:31:21 -0500
-Date: Fri, 14 Mar 2003 14:42:02 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       lm@bitmover.com
-Subject: re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314134202.GG283@louise.pinerecords.com>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
+	id <S263325AbTCNNbN>; Fri, 14 Mar 2003 08:31:13 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:57357 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S263322AbTCNNbM>;
+	Fri, 14 Mar 2003 08:31:12 -0500
+Date: Fri, 14 Mar 2003 16:41:32 +0300
+From: Samium Gromoff <deepfire@ibe.miee.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: DAC960 in 2.5.59 vs modem
+Message-Id: <20030314164132.46981ace.deepfire@ibe.miee.ru>
+In-Reply-To: <20030313163926.6e95029f.deepfire@ibe.miee.ru>
+References: <20030313163926.6e95029f.deepfire@ibe.miee.ru>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [pavel@suse.cz]
+On Thu, 13 Mar 2003 16:39:26 +0300
+Samium Gromoff <deepfire@ibe.miee.ru> wrote:
+
+> 	The matters are quite simple: any disk acces to the drives on my
+ Just to clarify the issue a bit:
+  not exactly _any_, but any substantiable will do, i.e. very very light
+ accesses are tolerable so some degree.
+
+>   DAC960PL tends to kill my ppp connection. that is on a p3-600.
 > 
-> Never ever use [the] word KitBeeper, Larry thinks he owns the world.  
-
-Okay, how about you calm down, have a cup of coffee and think for
-two seconds whether it's not actually you who's totally lost it today?
-
--- 
-Tomas Szepe <szepe@pinerecords.com>
+> regards, Samium Gromoff

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264990AbTGCRPP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 13:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265019AbTGCRPP
+	id S265073AbTGCRXC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 13:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbTGCRXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 13:15:15 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:52949 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP id S264990AbTGCRPN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 13:15:13 -0400
-Message-ID: <3F04680D.B9703696@pp.inet.fi>
-Date: Thu, 03 Jul 2003 20:29:49 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
+	Thu, 3 Jul 2003 13:23:02 -0400
+Received: from va-leesburg1b-227.chvlva.adelphia.net ([68.64.41.227]:53128
+	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
+	id S265073AbTGCRXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 13:23:00 -0400
+To: linux-kernel@vger.kernel.org
+Subject: local nntp connections much slower in 2.5.73 than in 2.4.x
+From: John Covici <covici@ccs.covici.com>
+Date: Thu, 03 Jul 2003 13:37:26 -0400
+Message-ID: <m3znjvbjft.fsf@ccs.covici.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andries.Brouwer@cwi.nl, akpm@digeo.com, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] cryptoloop
-References: <UTC200307021844.h62IiIQ19914.aeb@smtp.cwi.nl>
-			<3F0411B9.9E11022D@pp.inet.fi> <20030703082034.5643b336.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jari Ruusu <jari.ruusu@pp.inet.fi> wrote:
-> > Andries.Brouwer@cwi.nl wrote:
-> > > Changing that would kill all existing modules that use the loop device.
-> > >
-> > > Maybe nobody cares. Then we can do so in a subsequent patch.
-> >
-> > I care. Please don't break the transfer function prototype.
-> 
-> Why?
+Hi.  I have been noticing an nntp problem in my 2.5.73 kernel.  I
+have inn 2.3 set up on my machine and I use gnus to read mail and
+news.  Now what happens is that when gnus starts up it connects to
+the server (same box) and gets all the active newsgroups.  What I
+have noticed is a drastic slowdown in 2.5.73 (or other 7x) than in my
+2.4.20 kernel and I was wondering if anyone else has seen this or can
+tell me either a workaround or what is going on with this.
 
-Because loop-AES attempts to be compatible with structures in loop.h by not
-modifying loop.h at all. This is what the "no kernel sources patched or
-replaced" means. Breakage in loop.h breaks loop-AES, and I have to clean the
-mess.
+Thanks.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
-
+-- 
+         John Covici
+         covici@ccs.covici.com

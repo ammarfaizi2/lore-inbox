@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130367AbQK1DQY>; Mon, 27 Nov 2000 22:16:24 -0500
+        id <S130420AbQK1DTe>; Mon, 27 Nov 2000 22:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130550AbQK1DQO>; Mon, 27 Nov 2000 22:16:14 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:59400 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S130367AbQK1DQH>; Mon, 27 Nov 2000 22:16:07 -0500
-Date: Mon, 27 Nov 2000 18:45:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: test12-pre2
-Message-ID: <Pine.LNX.4.10.10011271838080.15454-100000@penguin.transmeta.com>
+        id <S130540AbQK1DTY>; Mon, 27 Nov 2000 22:19:24 -0500
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:23286 "EHLO
+        shell.webmaster.com") by vger.kernel.org with ESMTP
+        id <S130420AbQK1DTK>; Mon, 27 Nov 2000 22:19:10 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <joeja@mindspring.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: out of swap
+Date: Mon, 27 Nov 2000 18:49:08 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKKEJAMCAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+        charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20001128020501.27708.qmail@web512.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Oh, well. Some people saw the (unannounced, and not for public
-consumption) pre1, so here's pre2. pre1 was just meant to be an interim
-patch to sync up with the ISDN patches.
+> Last night I was browsing the web and I came across a page with
+> LOTS of images.  There were so many that it drove my swap space
+> to ZERO.  I still had 3 Meg of memory, but the system became
+> virtually unusable and SLOW. (there were over 150 x 30k+ images
+> on one page).
+>
+> Is this something that the OOM would fix or is this another
+> issue altogether?
+>
+> The machine has
+> 64Meg of swap space, 128 Meg of RAM, Dual 233MMX, Itis running
+> 2.2.17 and Rh 6.2.
+>
+> Any ideas?  thanks Joe
 
-Due to the birth of my third daughter last week (yes, I got /.'ed), if you
-sent me patches that aren't in pre2, you can pretty much consider them
-lost.
+	Add more swap. What would you like the system to do if it's out of both
+memory and swap? It can either kill processes or become slow.
 
-		Linus
-
----
-
- - pre2:
-    - Peter Anvin: more P4 configuration parsing
-    - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
-      do the right thing.
-    - Keith Owens: make mdule loading use the right struct module size
-    - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
-    - Alan Cox: various random documentation etc
-    - Dario Ballabio: EATA and u14-34f update
-    - Ivan Kokshaysky: unbreak alpha ruffian
-    - Richard Henderson: PCI bridge initialization on alpha
-    - Zach Brown: correct locking in Maestro driver
-    - Geert Uytterhoeven: more m68k updates
-    - Andrey Savochkin: eepro100 update
-    - Dag Brattli: irda update
-    - Johannes Erdfelt: USB update
-
- - pre1: (for ISDN synchronization _ONLY_! Not complete!)
-    - Byron Stanoszek: correct decimal precision for CPU MHz in
-      /proc/cpuinfo
-    - Ollie Lho: SiS pirq routing.
-    - Andries Brouwer: isofs cleanups
-    - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
-    - me: be stricter about what we accept as a PCI bridge setup.
-    - me: always set PCI interrupts to be level-triggered when we enable them.
-    - me: updated PageDirty and swap cache handling
-    - Peter Anvin: update A20 code to work without keyboard controller
-    - Kai Germaschewski: ISDN updates
-    - Russell King: ARM updates
-    - Geert Uytterhoeven: m68k updates
+	DS
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

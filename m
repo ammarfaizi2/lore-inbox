@@ -1,35 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316512AbSGUQy3>; Sun, 21 Jul 2002 12:54:29 -0400
+	id <S316542AbSGUQ76>; Sun, 21 Jul 2002 12:59:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSGUQy3>; Sun, 21 Jul 2002 12:54:29 -0400
-Received: from divine.city.tvnet.hu ([195.38.100.154]:783 "EHLO
-	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S316512AbSGUQy3>; Sun, 21 Jul 2002 12:54:29 -0400
-Date: Sun, 21 Jul 2002 17:23:40 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Adrian Bunk <bunk@fs.tum.de>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] strict VM overcommit
-In-Reply-To: <1027258349.17234.85.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.30.0207211705220.701-100000@divine.city.tvnet.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316662AbSGUQ76>; Sun, 21 Jul 2002 12:59:58 -0400
+Received: from tomts24.bellnexxia.net ([209.226.175.187]:55442 "EHLO
+	tomts24-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S316542AbSGUQ75>; Sun, 21 Jul 2002 12:59:57 -0400
+User-Agent: Pan/0.11.2 (Unix)
+From: "David Caplan" <david@polycode.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Asus-a7v/Via-Vt8233 data corruption
+Date: Sun, 21 Jul 2002 13:11:33 -0400
+References: <20020721043653.NLID8251.tomts6-srv.bellnexxia.net@david> <Pine.LNX.4.44.0207202300180.3309-100000@hawkeye.luckynet.adm>
+Message-Id: <20020721170313.EXP2648.tomts24-srv.bellnexxia.net@david>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again,
+I would like to add that I just had the same results, using kernel 
+2.4.19-rc3.
 
-On 21 Jul 2002, Alan Cox wrote:
+I had DMA enabled again, and I ran the dt program with the same
+parameters.
 
-> One of the design goals of Unix is that the system does not think
-> it knows better than the administrator.
-
-What about the many hundred counter-examples (e.g. umount gives EBUSY,
-kill can't kill processes in uninterruptible sleep, etc, etc)? Why the
-system knows better then admin in these cases? Why just don't destroy
-the data, crash the system as you suggest in your case? Why this
-inconsistency?
-
-	Szaka
-
+Thanks,
+-David

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270264AbRHHCOp>; Tue, 7 Aug 2001 22:14:45 -0400
+	id <S270267AbRHHCQp>; Tue, 7 Aug 2001 22:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270267AbRHHCOg>; Tue, 7 Aug 2001 22:14:36 -0400
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:24218 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S270264AbRHHCOT>; Tue, 7 Aug 2001 22:14:19 -0400
-Date: Tue, 7 Aug 2001 19:13:50 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: Brian May <bam@snoopy.apana.org.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Encrypted Swap
-In-Reply-To: <84zo9ci4dk.fsf@scrooge.chocbit.org.au>
-Message-ID: <Pine.LNX.4.33.0108071907280.23797-100000@sol.compendium-tech.com>
+	id <S270269AbRHHCQf>; Tue, 7 Aug 2001 22:16:35 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:3812 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S270267AbRHHCQ0>;
+	Tue, 7 Aug 2001 22:16:26 -0400
+Message-ID: <3B70A0DA.DE33CB87@candelatech.com>
+Date: Tue, 07 Aug 2001 19:15:54 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stuart Duncan <sety@perth.wni.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ARP's frustrating behavior
+In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Aug 2001, Brian May wrote:
+Stuart Duncan wrote:
+> 
+> Hi,
+> 
+> I'm noticing on a machine with dual NICs that they they all seem to answer
+> ARP queries, even if the request is not directed to their IP.  Here's an
+> example:
+> 
 
-> Example: disk is faulty and will no longer work. How do you guarantee
-> that nobody will be able to read it after you toss it out OR return it
-> to the manufacturer to claim for warranty?
+Evidently, this is considered a feature.  However, to turn it off:
+echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
 
-Most people paranoid with security (US DOD, NSA, etc.) have protocol
-regarding disks with classified data on them: Once classified, always
-classified. A failed disk still under warranty must forfiet that warranty
-to ensure data integrity. If the disk is no longer useful (eg that 575MB
-disk out of the SPARCstation 2 in the corner) then it is to be destroyed
-with fire and the remains slagged.
+Ben
 
-> (of course, encrypting swap space is only part of the solution, here
-> you need to encrypt everything).
-
-Encrypting everything is what DISA decided they would do with the DII COE
-operating environment for Windows NT and Solaris. DISA's solution under NT
-was to zero the swapfile at system shutdown as well as use an encryption
-scheme similar to what has been referred to earlier in this thread. The
-solution under Solaris was to do encryption only. I'm not going to go into
-detail about it, but basically, everything but the filesystems on-disk
-have been encrypted. DII COE is not available for public consumption as
-well as export outside the US. Besides, I pity anyone who's forced to use
-it. It really is a miserable thing to be forced to use.
-
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
-
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

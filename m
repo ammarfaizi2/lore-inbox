@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263457AbTJVHLd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 03:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbTJVHLb
+	id S263439AbTJVHCp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 03:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTJVHCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 03:11:31 -0400
-Received: from dark.beer.net ([204.145.225.20]:26636 "EHLO dark.beer.net")
-	by vger.kernel.org with ESMTP id S263457AbTJVHL3 (ORCPT
+	Wed, 22 Oct 2003 03:02:45 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:13798 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S263439AbTJVHCn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 03:11:29 -0400
-Date: Wed, 22 Oct 2003 02:11:20 -0500 (CDT)
-Message-Id: <200310220711.h9M7BKAf099719@dark.beer.net>
-From: "Michael Glasgow" <glasgowNOSPAM@beer.net>
-To: "Andy Lutomirski" <luto@stanford.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: posix capabilities inheritance
-In-reply-to: <fa.f36f4t9.1rg8j3v@ifi.uio.no>
-References: <fa.f36f4t9.1rg8j3v@ifi.uio.no>
+	Wed, 22 Oct 2003 03:02:43 -0400
+Date: Wed, 22 Oct 2003 09:03:47 +0200
+From: Jens Kubieziel <linux-kernel@kubieziel.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [test8] Oops after trying to access USB-device /dev/sda
+Message-ID: <20031022070347.GB1367@kubieziel.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031021194143.GI1133@kubieziel.de> <20031021212727.GL1133@kubieziel.de> <00a401c39819$762e0e40$fb457dc0@tgasterix>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+In-Reply-To: <00a401c39819$762e0e40$fb457dc0@tgasterix>
+Organisation: Qbi's Welt
+X-Message-flag: Formating hard disk. please wait...   10%...   20%...
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski wrote:
-> 1. Can a process have capabilities in its inheritable set and not
-> in its permitted set?  POSIX allows such processes to be created
-> (pI = pP = full, then execute (fI = 0, fP = 0).
 
-Sure, this is apparent to me in reading the spec.  I'm not exactly
-sure if this is relavent though:  if pP = pE = 0, it does not seem
-like it should be possible for pI=full to have any effect on exec,
-unless I am missing something.
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Nevertheless, its pP evolution rule assumes that this never happens
-> (pI capabilities can reappear).
+On Tue, Oct 21, 2003 at 11:22:35PM +0200, Thomas Giese wrote:
+> is this original or with your extensions to the kernel?
 
-Certainly with the current rule as implemented in 2.4, it looks as
-though you can regain permitted flags: pP' = (fP & X) | (fI & pI)
+Hope, I get you right: This is a stock kernel without any extensions. See
+=2Econfig at http://www.kubieziel.de/tmp/config
+--=20
+Jens Kubieziel                                   http://www.kubieziel.de
+I have defined the hundred per cent American as ninety-nine per cent an idi=
+ot.
+		-- George Bernard Shaw
 
-Is this what you mean when you say they can reappear?  WRT the
-spec itself, I don't see this assumption.  The rule could just as
-easily be:  pP' = (fP & X) | (pP & fI & pI)  (just an example)
-The rule in your patch seems like it should be compliant as well.
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I'm not saying there aren't some problems to be worked out with
-the spec; I think there are.  But I don't think this is a case of
-the spec being broken per se -- just too vague.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> 2. If a process has pE < pP (i.e. some caps disabled, e.g. uid=0,
-> euid!=0), and exec's fE=full, then its capabilities get re-enabled.
-> This seems like a pretty serious breakage of userspace.
+iD8DBQE/livTVm02LO4Jd+gRAvXcAKCyCODvKAgsMibiveZScqcKGv59fwCeLOn0
+s0zuOEkH+dlos2ZxW7smxbU=
+=Dskm
+-----END PGP SIGNATURE-----
 
-How is this any different from traditional *nix setuid semantics?
-I suppose I can see your point somewhat if you are concerned
-specifically about the case where pE < pP execs fE=full && fP=0,
-but I am unconvinced this constitutes serious breakage.  On the
-contrary, I think it seems most reasonable for those caps to be
-reenabled, especially for caps where fI=1, but perhaps even when
-fI=0.
-
-I'm still looking over your patches to try to figure out how exactly
-you think this stuff should work.  I'm glad to see someone out
-there is thinking about this.  You're right, it's pretty complex
-and still far from useable.
-
---
-Michael Glasgow < glasgow at beer dot net >
+--PEIAKu/WMn1b1Hv9--

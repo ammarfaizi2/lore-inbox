@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265016AbTGBOKS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 10:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265020AbTGBOKS
+	id S265020AbTGBORb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 10:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbTGBORa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 10:10:18 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:2546 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265016AbTGBOKN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 10:10:13 -0400
-Date: Wed, 2 Jul 2003 16:23:51 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Bernardo Innocenti <bernie@develer.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
-In-Reply-To: <Pine.LNX.4.44.0307012203001.2047-100000@home.osdl.org>
-Message-ID: <Pine.GSO.4.21.0307021623090.15047-100000@vervain.sonytel.be>
+	Wed, 2 Jul 2003 10:17:30 -0400
+Received: from va-leesburg1b-227.chvlva.adelphia.net ([68.64.41.227]:49892
+	"EHLO ccs.covici.com") by vger.kernel.org with ESMTP
+	id S265020AbTGBOR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 10:17:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.73 - Won't compile using oldconfig - config attached
+References: <003201c33970$21f57280$0200a8c0@wsl3>
+From: John Covici <covici@ccs.covici.com>
+Date: Wed, 02 Jul 2003 10:31:53 -0400
+In-Reply-To: <003201c33970$21f57280$0200a8c0@wsl3> (vlad@lrsehosting.com's
+ message of "Mon, 23 Jun 2003 05:13:43 -0500")
+Message-ID: <m3k7b12e5i.fsf@ccs.covici.com>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Jul 2003, Linus Torvalds wrote:
-> On Wed, 2 Jul 2003, Bernardo Innocenti wrote:
-> > This code makes gcc select the "udivmodsi4" pattern on the m68k
-> > backend
-> 
-> Who cares about m68k? Does it do the right thing on x86? gcc 3.2.2 does
+Anyone have an answer to this one?  I am getting the same error as
+below.
 
-Just for the record, I do ;-)
+Its true I am using a .config from 70 and did make oldconfig -- if
+this is the problem, how can I fix it?
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Thanks.
 
 
+on Mon, 23 Jun 2003 05:13:43 -0500 vlad@lrsehosting.com wrote:
+
+> drivers/usb/host/ehci-hcd.c:977: pci_ids causes a section type conflict
+> make[3]: *** [drivers/usb/host/ehci-hcd.o] Error 1
+> make[2]: *** [drivers/usb/host] Error 2
+> make[1]: *** [drivers/usb] Error 2
+> make: *** [drivers] Error 2
+>
+>
+>
+> --
+>
+
+-- 
+         John Covici
+         covici@ccs.covici.com

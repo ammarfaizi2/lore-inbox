@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSFQVXK>; Mon, 17 Jun 2002 17:23:10 -0400
+	id <S317023AbSFQVS3>; Mon, 17 Jun 2002 17:18:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317026AbSFQVXK>; Mon, 17 Jun 2002 17:23:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27917 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317025AbSFQVXI>;
-	Mon, 17 Jun 2002 17:23:08 -0400
-Message-ID: <3D0E52DD.4CE57058@zip.com.au>
-Date: Mon, 17 Jun 2002 14:21:33 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Martin Dalecki <dalecki@evision-ventures.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/19] writeback tunables
-References: <3D0D86D7.644F0C13@zip.com.au> <3D0DBAEE.2030409@evision-ventures.com> <20020617114957.A4130@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+	id <S317024AbSFQVS2>; Mon, 17 Jun 2002 17:18:28 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:11251 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317023AbSFQVS1>; Mon, 17 Jun 2002 17:18:27 -0400
+Subject: Re: [PATCH] 2.4-ac: sparc64 support for O(1) scheduler
+From: Robert Love <rml@mvista.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020616.222813.04502396.davem@redhat.com>
+References: <Pine.LNX.4.44.0206161710240.7461-100000@e2>
+	<1024271149.3090.13.camel@sinai> 
+	<20020616.222813.04502396.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 17 Jun 2002 14:18:22 -0700
+Message-Id: <1024348703.3090.136.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> 
-> On Mon, Jun 17, 2002 at 12:33:18PM +0200, Martin Dalecki wrote:
-> ...
-> > > +int dirty_expire_centisecs = 30 * 100;
-> > > +
-> >
-> > Blind guess - didn't the 100 wan't to be HZ?!
-> 
-> The units are centiseconds (as the name suggests). 5 * 100 centiseconds = 5
-> seconds, so the dirty writeback timeout is 5 seconds.  Check the code a
-> little further and you'll see HZ gets factored into them on use.
-> 
+On Sun, 2002-06-16 at 22:28, David S. Miller wrote:
 
-Yup.  Sorry about the "_centisecs" thing.  That's a bit anal, but
-I tend to think that it's best to be really explicit about the
-units, make it a bit easier to use.  I don't know how many times
-I've had to peer in fs/buffer.c to remember what those dang numbers do.
+> Your changes were pretty, that's part of the problem.  Fixing things
+> correctly is 10 times more preferable to a 1 time hack "just for now".
 
-Possibly, "seconds" may be sufficiently high resolution for
-these things.  But I wasn't sure - maybe someone wants to
-run the kupdate function five times per second?  Dunno.
+*shrug* I think you are missing my point but that is OK - we really do
+not need to fight over it.
 
-There are some departures from 2.4 tradition which are worth
-mentioning here:
+The switch_mm patch touched _core_ bits - code that affects i386 which
+works fine now in 2.4-ac.  As 2.4-ac is stable and i386 is working fine,
+I want to move changes into it slowly and with testing.
 
-- There is no range checking on the settings.  (But a divide-by
-  zero isn't possible, so I think that's OK)
+If you object to merging the "broken" sparc64 patch now but concede we
+can wait for Ingo's patch, then I agree.  In fact, in light of Ingo's
+patch Alan should not merge what I sent.  But my opinion would be to
+hold off until the new bits saw some testing in 2.5 ... however trivial
+they may be.
 
-- Unlike the 2.4 bdflush settings, these parameters are not
-  updated in a single hit.  So if you modify them by a large
-  amount while the system is under heavy writeback load, perhaps
-  some whacky things will happen if you create an irrational
-  intermediate state.  But that's quite unlikely.
+	Robert Love
 
-- Unlike 2.4, the settings are scaled by HZ.  So that bdflush
-  tuning tool whose name I forget will no longer make kupdate
-  run ten times too fast on Alphas.
-
--

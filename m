@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbUBYBuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 20:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUBYBmj
+	id S262572AbUBYBma (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 20:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUBYBfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 20:42:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19651 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262596AbUBYBmC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 20:42:02 -0500
-Date: Tue, 24 Feb 2004 17:43:54 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: [PATCH 2.6.3-mm3] serialize_writeback_fdatawait patch
-Message-Id: <20040224174354.517b1d23.akpm@osdl.org>
-In-Reply-To: <1077671733.1956.247.camel@ibm-c.pdx.osdl.net>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	<1077671733.1956.247.camel@ibm-c.pdx.osdl.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 24 Feb 2004 20:35:50 -0500
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:45262 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S262572AbUBYBew convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 20:34:52 -0500
+Subject: Re: [PATCH] request_firmware(): fixes and polishing.
+In-Reply-To: <1077672889471@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 25 Feb 2004 02:34:49 +0100
+Message-Id: <10776728892832@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>, jt@hpl.hp.com,
+       Simon Kelley <simon@thekelleys.org.uk>
+Content-Transfer-Encoding: 7BIT
+From: Manuel Estrada Sainz <ranty@ranty.pantax.net>
+X-SA-Exim-Mail-From: ranty@ranty.pantax.net
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel McNeil <daniel@osdl.org> wrote:
->
-> This patch moves the serializing of writebacks up one level to before
-> where the dirty_pages are moved to the io_pages list.  This prevents
-> writebacks from missing any pages that are moved back to the
-> dirty list by an SYNC_NONE writeback.  I have not seen this race in
-> testing -- just by looking at the code.  It also skips the serialization
-> for blockdevs.
-> 
-> Also this patch changes filemap_fdatawrite() to leave the page on the
-> locked_pages list until the i/o has finished.  This prevents
-> parallel filemap_fdatawait()s from missing a page that should be
-> waited on.  I have not seen this in testing, either.
+Based on patch and suggestions from Dmitry Torokhov
 
-hm, OK.  I've converted all the down_read_trylock() things into a sinple
-down_read(), to address the pdflush-busywait problem which Hugh identified.
+Changelog:
+	- release 'struct firmware_priv' from class_dev->release.
 
-This does mean that pdflush can get blocked by ongoing sync activity but
-that's probably insignificant and we have per-spindle pdflush collision
-avoidance which will help a bit.
-
-Call me lazy, but could you please work out the ranking of wb_rwsem with
-respect to the other VFS locks, update the locking documentation in
-mm/filemap.c and make sure that we're actually adhering to it?  Thanks.
+Index: linux-2.5/drivers/base/firmware_class.c
+===================================================================
+--- linux-2.5.orig/drivers/base/firmware_class.c	2004-01-06 13:30:48.000000000 +0100
++++ linux-2.5/drivers/base/firmware_class.c	2004-01-06 13:31:38.000000000 +0100
+@@ -232,6 +232,9 @@
+ static void
+ fw_class_dev_release(struct class_device *class_dev)
+ {
++	struct firmware_priv *fw_priv = class_get_devdata(class_dev);
++
++	kfree(fw_priv);
+ 	kfree(class_dev);
+ }
+ 
+@@ -258,6 +261,8 @@
+ 	struct class_device *class_dev = kmalloc(sizeof (struct class_device),
+ 						 GFP_KERNEL);
+ 
++	*class_dev_p = NULL;
++
+ 	if (!fw_priv || !class_dev) {
+ 		printk(KERN_ERR "%s: kmalloc failed\n", __FUNCTION__);
+ 		retval = -ENOMEM;
+@@ -318,10 +323,11 @@
+ 	sysfs_remove_bin_file(&class_dev->kobj, &fw_priv->attr_data);
+ error_unreg_class_dev:
+ 	class_device_unregister(class_dev);
++	goto out;
++
+ error_kfree:
+ 	kfree(fw_priv);
+ 	kfree(class_dev);
+-	*class_dev_p = NULL;
+ out:
+ 	return retval;
+ }
+@@ -374,7 +380,6 @@
+ 	wait_for_completion(&fw_priv->completion);
+ 
+ 	del_timer_sync(&fw_priv->timeout);
+-	fw_remove_class_device(class_dev);
+ 
+ 	if (fw_priv->fw->size && !test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
+ 		*firmware = fw_priv->fw;
+@@ -383,7 +388,7 @@
+ 		vfree(fw_priv->fw->data);
+ 		kfree(fw_priv->fw);
+ 	}
+-	kfree(fw_priv);
++	fw_remove_class_device(class_dev);
+ out:
+ 	return retval;
+ }
 

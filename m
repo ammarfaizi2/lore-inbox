@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315607AbSECIpG>; Fri, 3 May 2002 04:45:06 -0400
+	id <S315608AbSECIwn>; Fri, 3 May 2002 04:52:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315608AbSECIpF>; Fri, 3 May 2002 04:45:05 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:45514 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S315607AbSECIpE>; Fri, 3 May 2002 04:45:04 -0400
-Date: Fri, 3 May 2002 10:24:07 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Jaroslav Kysela <perex@suse.cz>
-Cc: A Guy Called Tyketto <tyketto@wizard.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.13 sound compile error
-In-Reply-To: <Pine.LNX.4.33.0205030942550.513-100000@pnote.perex-int.cz>
-Message-ID: <Pine.LNX.4.44.0205031023190.12156-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315609AbSECIwm>; Fri, 3 May 2002 04:52:42 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:36305 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315608AbSECIwm>;
+	Fri, 3 May 2002 04:52:42 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Nick Sanders <sandersn@btinternet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.3 is available 
+In-Reply-To: Your message of "Fri, 03 May 2002 18:38:05 +1000."
+             <9549.1020415085@kao2.melbourne.sgi.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 May 2002 18:51:30 +1000
+Message-ID: <9771.1020415890@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 May 2002, Jaroslav Kysela wrote:
+On Fri, 03 May 2002 18:38:05 +1000, 
+Keith Owens <kaos@ocs.com.au> wrote:
+>On Thu, 2 May 2002 17:45:19 +0100, 
+>Nick Sanders <sandersn@btinternet.com> wrote:
+>>I'm having problems installing a kernel built with kbuild-2.5 (Release 2.3), the kernel compiled fine its just the install step.
+>
+>Silly error in arch/i386/Makefile.defs.*config.
+>
+>cd $KBUILD_SRCTREE_000
+>perl -i -ple 's/\(CC\)/(CC_REAL)/g' arch/i386/Makefile.defs.*config
 
-> This patch fixes the problem:
-> 
-> --- misc.c	29 Apr 2002 15:57:08 -0000	1.13
-> +++ misc.c	3 May 2002 07:42:33 -0000	1.14
-> @@ -96,10 +96,10 @@
->  	if (format[0] == '<' && format[1] >= '0' && format[1] <= '9' && format[2] == '>') {
->  		char tmp[] = "<0>";
->  		tmp[1] = format[1];
-> -		printk("%sALSA %s:%d: ", tmp, file, line);
-> +		printk("%sALSA: ", tmp);
->  		format += 3;
->  	} else {
-> -		printk(KERN_DEBUG "ALSA %s:%d: ", file, line);
-> +		printk(KERN_DEBUG "ALSA: ");
->  	}
+Sigh.  Silly error in the fix :(
 
-woaaahh!! 8)
-
--- 
-http://function.linuxpower.ca
-		
+cd $KBUILD_SRCTREE_000
+perl -i -ple 's/\(CC\)/(CC_real)/g;' arch/i386/Makefile.defs.*config
 

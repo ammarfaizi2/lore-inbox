@@ -1,41 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVDATXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVDATxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbVDATXn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 14:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbVDATXn
+	id S262835AbVDATxU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 14:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbVDATxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 14:23:43 -0500
-Received: from pin.if.uz.zgora.pl ([212.109.128.251]:1737 "EHLO
-	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S262861AbVDATWs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 14:22:48 -0500
-Message-ID: <424D9FCE.6020200@pin.if.uz.zgora.pl>
-Date: Fri, 01 Apr 2005 21:23:58 +0200
-From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Michael Thonke <tk-shockwave@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI-Express not working/unuseable on Intel 925XE Chipset since
- 2.6.12-rc1[mm1-4]
-References: <424D44F0.6090707@web.de> <424D5E2E.8040207@pin.if.uz.zgora.pl> <424D71DE.5060703@web.de> <424D91B5.50404@pin.if.uz.zgora.pl> <424D9A9C.2070705@web.de>
-In-Reply-To: <424D9A9C.2070705@web.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 1 Apr 2005 14:53:20 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:10939 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262835AbVDATxL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 14:53:11 -0500
+Subject: [RFC][PATCH] make all non-file-backed madvise() calls fail
+From: Dave Hansen <haveblue@us.ibm.com>
+To: linux-mm <linux-mm@kvack.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-k4+DCbLhIqxhRSHCN05P"
+Date: Fri, 01 Apr 2005 11:43:00 -0800
+Message-Id: <1112384580.12201.30.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Thonke napisał(a):
-> Hello Jacek,
-> 
-> I finially got it working :-) my PCI-Express devices working now...
-> I grabbed the last bk-snapshot from kernel.org 2.6.12-rc1-bk3 and et volia
-> everything except the Marvell Yokon PCI-E device working.
-> I hope Andrew will look into the mm-line to find the bug?
-> 
 
-I've got Marvell Yukon 88E8053 GigE and it works fine with fixed (by 
-myself :]) driver from syskonnect. If you wont I may send it to you!
+--=-k4+DCbLhIqxhRSHCN05P
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-	Jacek
+This is related to this bug:
+http://bugme.osdl.org/show_bug.cgi?id=2995
+
+The kernel currently only checks that the memory is file-backed if
+MADV_WILLNEED is set.  It's not entirely clear from the manpage at least
+that *all* non-file-backed madvise() calls should fail.  
+
+The attached patch returns -EBADF for all non-file-backed madvise()
+calls.  I'm not suggesting that this is the absolutely right behavior,
+but it certainly does what the bug submitter wants.
+
+Comments?
+
+-- Dave
+
+--=-k4+DCbLhIqxhRSHCN05P
+Content-Disposition: attachment; filename=madvise-allebadf.patch
+Content-Type: text/x-patch; name=madvise-allebadf.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
+
+--- mm/madvise.c.orig	2005-04-01 10:40:59.000000000 -0800
++++ mm/madvise.c	2005-04-01 10:56:50.000000000 -0800
+@@ -58,13 +58,9 @@
+  * Schedule all required I/O operations.  Do not wait for completion.
+  */
+ static long madvise_willneed(struct vm_area_struct * vma,
+-			     unsigned long start, unsigned long end)
++			     unsigned long start, unsigned long end,
++			     struct file *file)
+ {
+-	struct file *file = vma->vm_file;
+-
+-	if (!file)
+-		return -EBADF;
+-
+ 	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 	if (end > vma->vm_end)
+ 		end = vma->vm_end;
+@@ -115,6 +111,10 @@
+ 			unsigned long end, int behavior)
+ {
+ 	long error = -EBADF;
++	struct file *file = vma->vm_file;
++
++	if (!file)
++		goto out;
+ 
+ 	switch (behavior) {
+ 	case MADV_NORMAL:
+@@ -124,7 +124,7 @@
+ 		break;
+ 
+ 	case MADV_WILLNEED:
+-		error = madvise_willneed(vma, start, end);
++		error = madvise_willneed(vma, start, end, file);
+ 		break;
+ 
+ 	case MADV_DONTNEED:
+@@ -136,6 +136,7 @@
+ 		break;
+ 	}
+ 		
++out:
+ 	return error;
+ }
+ 
+
+--=-k4+DCbLhIqxhRSHCN05P--
+

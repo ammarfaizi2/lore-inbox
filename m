@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265818AbSKAXVT>; Fri, 1 Nov 2002 18:21:19 -0500
+	id <S265811AbSKAXTc>; Fri, 1 Nov 2002 18:19:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265819AbSKAXVT>; Fri, 1 Nov 2002 18:21:19 -0500
-Received: from mtao-m01.ehs.aol.com ([64.12.52.73]:52874 "EHLO
-	mtao-m01.ehs.aol.com") by vger.kernel.org with ESMTP
-	id <S265818AbSKAXVQ>; Fri, 1 Nov 2002 18:21:16 -0500
-Date: Fri, 01 Nov 2002 15:27:41 -0800
-From: John Gardiner Myers <jgmyers@netscape.com>
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-In-reply-to: <20021031230215.GA29671@bjl1.asuk.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Message-id: <3DC30DED.6040207@netscape.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
- Gecko/20021016
-References: <20021031230215.GA29671@bjl1.asuk.net>
- <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com>
- <20021101020119.GC30865@bjl1.asuk.net>
-To: unlisted-recipients:; (no To-header on input)
+	id <S265812AbSKAXTc>; Fri, 1 Nov 2002 18:19:32 -0500
+Received: from packet.digeo.com ([12.110.80.53]:28829 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265811AbSKAXTa>;
+	Fri, 1 Nov 2002 18:19:30 -0500
+Message-ID: <3DC30CD6.D92D0F9F@digeo.com>
+Date: Fri, 01 Nov 2002 15:23:02 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Huge TLB pages always physically continious?
+References: <20021101235620.A5263@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Nov 2002 23:23:02.0290 (UTC) FILETIME=[9F868F20:01C281FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+Ingo Oeser wrote:
+> 
+> Hi there,
+> 
+> are huge TLB pages always physically continous in memory?
 
->You avoid the extra CPU cycles like this:
->
->    1. EP_CTL_ADD adds the listener to the file's wait queue using
->       ->poll(), and gets a free test of the object readiness [;)]
->
->    2. When the transition happens, the wakeup will call your function,
->       epoll_wakeup_function.  That removes the listener from the file's
->       wait queue.  Note, you won't see any more wakeups from that file.
->
->    3. When you report the event user space, _then_ you automatically
->       add the listener back to the file's wait queue by calling ->poll().
->  
->
-The cost of removing and readding the listener to the file's wait queue 
-is part of what epoll is amortizing.
+Yes.
 
-There's also the oddity that I noticed this week: pipes don't report 
-POLLOUT readiness through the classic poll interface until the pipe's 
-buffer is completely empty.  Changing this to report POLLOUT readiness 
-when the pipe's buffer is not full apparently causes NIS to break.
+> What does follow_hugetlb_page do exactly? I simply don't
+> understand what the code does.
 
+It allows get_user_pages() to work correctly across hugepage
+regions.  It walks a chunk of memory which is covered by
+hugepages and installs (at *pages) the list of 4k-pages which
+are covered by the hugepage.  So
 
+ |--------------------------------------------------|  <- hugepage
+ |--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|  <- 4k pages
+
+ get_user_pages(   ^here                   ^to here)
+
+ will install the spanned 4k pages into the caller's pages[]
+ array.
+ 
+> I would like to build up a simplified get_user_pages_sgl() to
+> build a scatter gather list from user space adresses.
+> 
+> If I want to coalesce physically continous pages (if they are
+> also virtually continious) anyway, can I write up a simplified
+> follow_hugetlb_page_sgl() function which handles the huge page
+> really as only one page?
+
+I suggest that you restructure get_user_pages thusly:
+
+1: Write a simplified get_user_page().  Most callers of get_user_pages()
+   only want a single page anyway, and don't need to concoct all those
+   arguments.
+
+2: Split get_user_pages up into a pagetable walker and a callback function.
+   So it walks the pages, calling back to the caller's callback function
+   for each page with
+
+	(*callback)(struct page *page, <other stuff>, void *callerdata);
+
+   You'll need to extend follow_hugetlb_page() to take the callback
+   info and to perform the callbacks for its pages as well.
+
+3: Reimplement the current get_user_pages() using the core engine from 2
+   (ie: write the callback for it)
+
+4: Implement your sg engine using the walker+callback arrangement.  This
+   way, you can do your coalescing on-the-fly, and you only take one
+   pass across the pages list and you do not need to know about hugepages
+   at all.   Sure you'll do a *little* more work than you need to,  but
+   not having that special case is nicer.
+
+5: Fix up the ia64 follow_hugetlb_page too.

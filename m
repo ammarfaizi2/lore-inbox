@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSDASus>; Mon, 1 Apr 2002 13:50:48 -0500
+	id <S312560AbSDATRf>; Mon, 1 Apr 2002 14:17:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312559AbSDASuj>; Mon, 1 Apr 2002 13:50:39 -0500
-Received: from 64-60-75-69-cust.telepacific.net ([64.60.75.69]:59405 "EHLO
-	racerx.ixiacom.com") by vger.kernel.org with ESMTP
-	id <S312558AbSDASuY>; Mon, 1 Apr 2002 13:50:24 -0500
-Message-ID: <3CA8A9AB.AEFA87DC@ixiacom.com>
-Date: Mon, 01 Apr 2002 10:40:43 -0800
-From: Dan Kegel <dank@ixiacom.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-dan i686)
-X-Accept-Language: en
+	id <S312562AbSDATRY>; Mon, 1 Apr 2002 14:17:24 -0500
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:12247
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S312560AbSDATRO>; Mon, 1 Apr 2002 14:17:14 -0500
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200204011912.g31JCnH02991@www.hockin.org>
+Subject: Re: Linux needs new leadership.
+To: jmerkey@traxess.com (Jeff V. Merkey)
+Date: Mon, 1 Apr 2002 11:12:48 -0800 (PST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3CA8AF1E.1040200@traxess.com> from "Jeff V. Merkey" at Apr 01, 2002 12:03:58 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: re: Nomination
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter J. Braam" <braam@clusterfs.com> wrote:
-> 
-> Linus, I'm sad to see you give this up, but I think I understand. 
-> 
-> I'd like to nominate/vote for Alan Cox as your successor.
+> Wa-ya Ge-tlv-hv-s-di  (Jeff V. Merkey)
 
-IMHO the time of greybeards like Alan has passed.  It's
-time for dynamic new leadership, unafraid to confront
-conformancy!  That's why I nominate Rick Hohensee as
-the new maintainer.  With cLIeNUX [1], he has demonstrated
-that he can think outside of the box.
+I nominate "That Guy" (anyone watch futurama?).  Seeing as I won't take
+the bait (check your calendars, boys!), I nominate Jeff Merkey!
 
-Vote Hohensee for Linux Kernel Leader!
-
-- Dan
-
-[1] ftp://linux01.gwdg.de/pub/cLIeNUX/BEGIN_HERE
-ftp://linux01.gwdg.de/pub/cLIeNUX/descriptive/DSFH.html
+Tim

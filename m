@@ -1,178 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVATSXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVATSXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVATSXo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 13:23:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVATSVw
+	id S261608AbVATSXx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 13:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVATSUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 13:21:52 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:735 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261503AbVATSP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 13:15:28 -0500
-Date: Thu, 20 Jan 2005 12:14:30 -0600
-From: Erik Jacobson <erikj@efs.americas.sgi.com>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-cc: Andrew Morton <akpm@osdl.org>, Limin Gu <limin@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, lkml <linux-kernel@vger.kernel.org>,
-       LSE-Tech <lse-tech@lists.sourceforge.net>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Philip Mucci <mucci@cs.utk.edu>
-Subject: Re: [Lse-tech] Re: [patch] Job - inescapable job containers
-In-Reply-To: <1106224946.10947.131.camel@frecb000711.frec.bull.fr>
-Message-ID: <Pine.SGI.4.53.0501201058540.42807@efs.americas.sgi.com>
-References: <1106213319.17195.96.camel@frecb000711.frec.bull.fr>
- <1106224946.10947.131.camel@frecb000711.frec.bull.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 20 Jan 2005 13:20:55 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2828 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261392AbVATSRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 13:17:04 -0500
+Date: Thu, 20 Jan 2005 19:17:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] i386: unexport do_settimeofday
+Message-ID: <20050120181703.GG3174@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hooks. So, there is PAGG that offers hooks and is the right framework.
-> But there is some other applications, like LTT or whatever, that will
-> need new hooks. Isn't there a duplicate usage of hooks? Will it be
-> interesting for Linux to provide some generic hooks because it seems
-> that some (like in do_fork(), do_exit(), ... ) are often needed by
-> applications instead of doing the job for security, accounting,
-> tracing, ...
+I haven't found any modular usage of do_settimeofday in the kernel.
 
-There are a couple ways to view PAGG.  We commonly look at it for its
-"container" aspects and its use to "group otherwise unrelated tasks
-together".  Job is based on this view.
-
-Another way to view PAGG is as a hook manager.  When a task is created
-(copy_process), kernel modules (PAGG users) are notified.  By default, the
-new task has the same "tracking or PAGG" associations as the parent task.
-But the kernel module author could also decide that there should be no
-"tracking" for a given task.  In other words, the kernel module author can
-control which tasks are being "tracked" and which are not.
-
-We have a hook set up for exec, for example.  The way we decide if we want
-notification when a task gets to exec is if the the task is being "tracked".
-If it is, the kernel module (PAGG user) can be notified when that tracked
-task is in exec and execute the associated callout.
-
-We also have support of an "init" function pointer.  If the kernel mdoule
-author uses this, then all current tasks in the system will be "tracked"
-when the pagg hook is registered.  Kernel modules that need notification for
-all tasks would implement this in the attach hook to get notification for
-all tasks currently on the system, and all their children moving forward
-(by default).
-
-One reason this implementation could be better in some ways than just an
-array of generic hook users is because, by default with PAGG, there is little
-overhead.  The overhead starts increasing only when kernel modules begin to
-need varous hooks.  Perhaps a typical system would only have a few tasks
-being "tracked".
-
-One could imagine that we could increase the number of hooks PAGG supports
-as there is demand.
-
-In summary - kernel module authors could use PAGG to manage tasks, decide
-which tasks they cares about, and implement callouts when a task reaches
-certain "hooks" in the kernel.
-
-Here is a very simple exmaple I sometimes build on for testing PAGG.  Some
-pieces of the example were contributed by Peter Williams.   Note that
-I didn't include all pieces of the example (but can supply it if requested).
-So this won't simply "compile" but should show my point.
-
-Here is how we could define the pagg hook.  It shows which callouts we
-wish to use.  exec, for example, can be NULL.
-
-static struct pagg_hook pagg_hook = {
-   .module = THIS_MODULE,
-   .name = TEST_PAGG,
-   .data = NULL,
-   .entry = LIST_HEAD_INIT(pagg_hook.entry),
-   .init = test_init,
-   .attach = test_attach,
-   .detach = test_detach,
-   .exec = test_exec,
-};
+Is the patch below correct?
 
 
-Here is how you might register with pagg for a given kernel module...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-static int __init test_module_init(void)
-{
-   int rc = pagg_hook_register(&pagg_hook);
-   if (rc < 0) {
-      return -1;
-   }
+---
 
-   return 0;
-}
+ arch/alpha/kernel/time.c     |    2 --
+ arch/arm/kernel/time.c       |    2 --
+ arch/arm26/kernel/time.c     |    2 --
+ arch/cris/kernel/time.c      |    2 --
+ arch/h8300/kernel/time.c     |    2 --
+ arch/i386/kernel/time.c      |    2 --
+ arch/m32r/kernel/time.c      |    2 --
+ arch/m68k/kernel/time.c      |    2 --
+ arch/m68knommu/kernel/time.c |    1 -
+ arch/mips/dec/time.c         |    2 --
+ arch/mips/kernel/time.c      |    2 --
+ arch/parisc/kernel/time.c    |    1 -
+ arch/ppc/kernel/time.c       |    2 --
+ arch/ppc64/kernel/time.c     |    2 --
+ arch/s390/kernel/time.c      |    2 --
+ arch/sh/kernel/time.c        |    2 --
+ arch/sparc/kernel/time.c     |    2 --
+ arch/um/kernel/ksyms.c       |    1 -
+ arch/v850/kernel/time.c      |    2 --
+ arch/x86_64/kernel/time.c    |    2 --
+ 20 files changed, 37 deletions(-)
 
+--- linux-2.6.11-rc1-mm2-full/arch/i386/kernel/time.c.old	2005-01-20 18:52:12.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/i386/kernel/time.c	2005-01-20 18:52:27.000000000 +0100
+@@ -169,8 +169,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ static int set_rtc_mmss(unsigned long nowtime)
+ {
+ 	int retval;
+--- linux-2.6.11-rc1-mm2-full/arch/arm/kernel/time.c.old	2005-01-20 18:52:46.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/arm/kernel/time.c	2005-01-20 18:52:51.000000000 +0100
+@@ -301,8 +301,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ /**
+  * save_time_delta - Save the offset between system time and RTC time
+  * @delta: pointer to timespec to store delta
+--- linux-2.6.11-rc1-mm2-full/arch/sparc/kernel/time.c.old	2005-01-20 18:52:59.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/sparc/kernel/time.c	2005-01-20 18:53:03.000000000 +0100
+@@ -530,8 +530,6 @@
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ static int sbus_do_settimeofday(struct timespec *tv)
+ {
+ 	time_t wtm_sec, sec = tv->tv_sec;
+--- linux-2.6.11-rc1-mm2-full/arch/ppc/kernel/time.c.old	2005-01-20 18:53:11.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/ppc/kernel/time.c	2005-01-20 18:53:15.000000000 +0100
+@@ -285,8 +285,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ /* This function is only called on the boot processor */
+ void __init time_init(void)
+ {
+--- linux-2.6.11-rc1-mm2-full/arch/mips/dec/time.c.old	2005-01-20 18:53:21.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/mips/dec/time.c	2005-01-20 18:53:25.000000000 +0100
+@@ -189,8 +189,6 @@
+ 	CMOS_WRITE(RTC_REF_CLCK_32KHZ | (16 - LOG_2_HZ), RTC_REG_A);
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ void __init dec_timer_setup(struct irqaction *irq)
+ {
+ 	setup_irq(dec_interrupt[DEC_IRQ_RTC], irq);
+--- linux-2.6.11-rc1-mm2-full/arch/mips/kernel/time.c.old	2005-01-20 18:53:32.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/mips/kernel/time.c	2005-01-20 18:53:36.000000000 +0100
+@@ -234,8 +234,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ /*
+  * Gettimeoffset routines.  These routines returns the time duration
+  * since last timer interrupt in usecs.
+--- linux-2.6.11-rc1-mm2-full/arch/m68knommu/kernel/time.c.old	2005-01-20 18:53:43.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/m68knommu/kernel/time.c	2005-01-20 18:53:47.000000000 +0100
+@@ -195,4 +195,3 @@
+ 	return (unsigned long long)jiffies * (1000000000 / HZ);
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+--- linux-2.6.11-rc1-mm2-full/arch/sh/kernel/time.c.old	2005-01-20 18:53:54.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/sh/kernel/time.c	2005-01-20 18:53:58.000000000 +0100
+@@ -254,8 +254,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ /* last time the RTC clock got updated */
+ static long last_rtc_update;
+ 
+--- linux-2.6.11-rc1-mm2-full/arch/cris/kernel/time.c.old	2005-01-20 18:54:05.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/cris/kernel/time.c	2005-01-20 18:54:11.000000000 +0100
+@@ -122,8 +122,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ 
+ /*
+  * BUG: This routine does not handle hour overflow properly; it just
+--- linux-2.6.11-rc1-mm2-full/arch/arm26/kernel/time.c.old	2005-01-20 18:54:18.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/arm26/kernel/time.c	2005-01-20 18:54:22.000000000 +0100
+@@ -198,8 +198,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ static irqreturn_t timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+         do_timer(regs);
+--- linux-2.6.11-rc1-mm2-full/arch/m68k/kernel/time.c.old	2005-01-20 18:54:29.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/m68k/kernel/time.c	2005-01-20 18:54:32.000000000 +0100
+@@ -175,8 +175,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ /*
+  * Scheduler clock - returns current time in ns units.
+  */
+--- linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/time.c.old	2005-01-20 18:54:44.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/alpha/kernel/time.c	2005-01-20 18:54:48.000000000 +0100
+@@ -512,8 +512,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ 
+ /*
+  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
+--- linux-2.6.11-rc1-mm2-full/arch/ppc64/kernel/time.c.old	2005-01-20 18:54:56.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/ppc64/kernel/time.c	2005-01-20 18:54:59.000000000 +0100
+@@ -424,8 +424,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ void __init time_init(void)
+ {
+ 	/* This function is only called on the boot processor */
+--- linux-2.6.11-rc1-mm2-full/arch/um/kernel/ksyms.c.old	2005-01-20 18:55:07.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/um/kernel/ksyms.c	2005-01-20 18:55:11.000000000 +0100
+@@ -95,7 +95,6 @@
+ EXPORT_SYMBOL(dump_thread);
+ 
+ EXPORT_SYMBOL(do_gettimeofday);
+-EXPORT_SYMBOL(do_settimeofday);
+ 
+ /* This is here because UML expands open to sys_open, not to a system
+  * call instruction.
+--- linux-2.6.11-rc1-mm2-full/arch/parisc/kernel/time.c.old	2005-01-20 18:55:19.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/parisc/kernel/time.c	2005-01-20 18:55:23.000000000 +0100
+@@ -197,7 +197,6 @@
+ 	clock_was_set();
+ 	return 0;
+ }
+-EXPORT_SYMBOL(do_settimeofday);
+ 
+ /*
+  * XXX: We can do better than this.
+--- linux-2.6.11-rc1-mm2-full/arch/h8300/kernel/time.c.old	2005-01-20 18:55:33.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/h8300/kernel/time.c	2005-01-20 18:55:37.000000000 +0100
+@@ -125,8 +125,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ unsigned long long sched_clock(void)
+ {
+ 	return (unsigned long long)jiffies * (1000000000 / HZ);
+--- linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/time.c.old	2005-01-20 18:55:46.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/m32r/kernel/time.c	2005-01-20 18:55:50.000000000 +0100
+@@ -181,8 +181,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ /*
+  * In order to set the CMOS clock precisely, set_rtc_mmss has to be
+  * called 500 ms after the second nowtime has started, because when
+--- linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/time.c.old	2005-01-20 18:55:59.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/x86_64/kernel/time.c	2005-01-20 18:56:02.000000000 +0100
+@@ -179,8 +179,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ unsigned long profile_pc(struct pt_regs *regs)
+ {
+ 	unsigned long pc = instruction_pointer(regs);
+--- linux-2.6.11-rc1-mm2-full/arch/s390/kernel/time.c.old	2005-01-20 18:56:11.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/s390/kernel/time.c	2005-01-20 18:56:15.000000000 +0100
+@@ -148,8 +148,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ 
+ #ifdef CONFIG_PROFILING
+ #define s390_do_profile(regs)	profile_tick(CPU_PROFILING, regs)
+--- linux-2.6.11-rc1-mm2-full/arch/v850/kernel/time.c.old	2005-01-20 18:56:22.000000000 +0100
++++ linux-2.6.11-rc1-mm2-full/arch/v850/kernel/time.c	2005-01-20 18:56:26.000000000 +0100
+@@ -179,8 +179,6 @@
+ 	return 0;
+ }
+ 
+-EXPORT_SYMBOL(do_settimeofday);
+-
+ static int timer_dev_id;
+ static struct irqaction timer_irqaction = {
+ 	timer_interrupt,
 
-And here are a couple examples of the function pointers referenced in the
-PAGG hook.
-
-Since test_init is defined, it means all tasks on the system will
-be "tracked" for this kernel module.  Of course, if a kernel module
-doesn't need to know about all current processes, that module shouldn't
-implement this.
-
-static int test_init(struct task_struct *tsk, struct pagg *pagg)
-{
-   if (pagg_get(tsk, TEST_PAGG) == NULL)
-      dprintk("ERROR PAGG expected \"%s\" PID = %d\n", TEST_PAGG, tsk->pid);
-
-   dprintk("FYI PAGG init hook fired for PID = %d\n", tsk->pid);
-   atomic_inc(&init_count);
-   return 0;
-}
-
-
-This function would be executed when a parent forks - this is associated
-with the pagg_attach callout in copy_process.  There would be a very
-similar test_detach function (not shown).  This is also where kernel
-author can control which tasks are "tracked" and which are not depending
-on the function's return value.  A negative value results in the fork
-failing.  zero is success.  >0 means success, but the function doesn't
-want the task "tacked".
-
-static int test_attach(struct task_struct *tsk, struct pagg *pagg, void *vp)
-{
-   dprintk("PAGG attach hook fired for PID = %d\n", tsk->pid);
-   atomic_inc(&attach_count);
-
-   return 0;
-}
-
-
-
-And here is an example function to run when a task gets to exec.  So any
-time a "tracked" process gets to exec, this would execute.  More
-hooks/callouts similar to this one could be implemented as there is demand
-for them.
-
-static void test_exec(struct task_struct *tsk, struct pagg *pagg)
-{
-   dprintk("PAGG exec hook fired for PID %d\n", tsk->pid);
-   atomic_inc(&exec_count);
-
-}
-
-
-
-And finally, here is an example of cleaning up done in __exit.
-
-static void __exit test_module_cleanup(void)
-{
-   pagg_hook_unregister(&pagg_hook);
-   printk("detach called %d times...\n", atomic_read(&detach_count));
-   printk("attach called %d times...\n", atomic_read(&attach_count));
-   printk("init called %d times...\n", atomic_read(&init_count));
-   printk("exec called %d times ...\n", atomic_read(&exec_count));
-   if (atomic_read(&attach_count) + atomic_read(&init_count) !=
-    atomic_read(&detach_count))
-      printk("PAGG PROBLEM: attach count + init count SHOULD equal detach cound and doesn't\n");
-   else
-      printk("Good - attach count + init count equals detach count.\n");
-}
-
-
-Hopefully this helps explain what I'm talking about.
-
---
-Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota

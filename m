@@ -1,170 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290712AbSAROzh>; Fri, 18 Jan 2002 09:55:37 -0500
+	id <S290725AbSARPxM>; Fri, 18 Jan 2002 10:53:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290707AbSAROz2>; Fri, 18 Jan 2002 09:55:28 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:30481 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S290712AbSAROzN>; Fri, 18 Jan 2002 09:55:13 -0500
-Message-ID: <3C48366D.20502@namesys.com>
-Date: Fri, 18 Jan 2002 17:51:25 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S290726AbSARPxC>; Fri, 18 Jan 2002 10:53:02 -0500
+Received: from [66.189.64.253] ([66.189.64.253]:19333 "HELO majere.epithna.com")
+	by vger.kernel.org with SMTP id <S290725AbSARPwt>;
+	Fri, 18 Jan 2002 10:52:49 -0500
+Date: Fri, 18 Jan 2002 10:52:16 -0500 (EST)
+From: <listmail@majere.epithna.com>
+To: Tommy Faasen <faasen@xs4all.nl>
+Cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: vm philosophising
+In-Reply-To: <20020118154239.A11920@xs4all.nl>
+Message-ID: <Pine.LNX.4.33.0201181041440.28887-100000@majere.epithna.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
-        Oleg Drokin <green@namesys.com>
-Subject: [Fwd: [PATCH] rename bug patch]
-Content-Type: multipart/mixed;
- boundary="------------020304040301040001010408"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020304040301040001010408
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Others besides Marcelo are likely to be interested in this.  I think 
-this might be the fix to a longtime eluding us bug.
-
-Hans
-
---------------020304040301040001010408
-Content-Type: message/rfc822;
- name="[PATCH] rename bug patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="[PATCH] rename bug patch"
 
 
->From - Fri Jan 18 14:41:10 2002
-X-Mozilla-Status2: 00000000
-Message-ID: <3C4809D6.8040908@namesys.com>
-Date: Fri, 18 Jan 2002 14:41:10 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] rename bug patch
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Please apply and credit Oleg.  It is tested by three persons and read/reviewed by Saveliev, so it should be good.
-
-Hans
+On Fri, 18 Jan 2002, Tommy Faasen wrote:
 
 
+> I have no clue about VM's but I can imagine that for example the following situations have different requirements:
+> 1-Desktop: many "small" apps, I believe exe's remain in memory and data is written to disk? Anyway I can imagine fragmentation and latency is an issue here.
+> 2-DBMS: 1 or 2 big programs which sometimes even do their own memory management.Fragmentation and latency isn't issue here I think however moving ltos of data to and from swap is.
+> 3-Webserver: for example apache with many childs being created under high load and killed under low load. The data is always small (in case of static pages). So a lot of small swaps? Latency is not as much as un issue but I can imagine that fragmentation can be an issue?
 
-Hello!
+There is another situation to consider which I think more typical in the
+"Real World"
 
-     A-rename_stale_item_bug-1.diff
-     This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to access item before verifying it was
-     not moved since last access. Second is a window, where old filename may be written to disk with 'visible'
-     flag unset without these changes be journaled.
+4 - The Typical Web server Environment, in many many companies that I have
+seen.
+  The machine runs both the DBMS(mysql, Oracle, etc) and the web server
+Apache.  Therefore a balence of memory use needs to be struck between the
+two applications.  Then ususally the system also has a development
+environment at the ready incase changes need to be made quickly from the
+console.  While this may not be true as things scale up for a business and
+functions get separated to different machines.  Many startups and small
+businesses that I have worked with that have turned to LINUX for the OS
+becuase the TCO, it offers over the other guys, tend to have just that
+single does everything box.
 
-Bye,
-     Oleg
-
---- linux/fs/reiserfs/namei.c.orig	Thu Jan 17 14:05:11 2002
-+++ linux/fs/reiserfs/namei.c	Thu Jan 17 17:09:23 2002
-@@ -1057,7 +1057,7 @@
-      INITIALIZE_PATH (old_entry_path);
-      INITIALIZE_PATH (new_entry_path);
-      INITIALIZE_PATH (dot_dot_entry_path);
--    struct item_head new_entry_ih, old_entry_ih ;
-+    struct item_head new_entry_ih, old_entry_ih, dot_dot_ih ;
-      struct reiserfs_dir_entry old_de, new_de, dot_dot_de;
-      struct inode * old_inode, * new_inode;
-      int windex ;
-@@ -1151,6 +1151,8 @@
-
-  	copy_item_head(&old_entry_ih, get_ih(&old_entry_path)) ;
-
-+ 
-reiserfs_prepare_for_journal(old_inode->i_sb, old_de.de_bh, 1) ;
-+
-  	// look for new name by reiserfs_find_entry
-  	new_de.de_gen_number_bit_string = 0;
-  	retval = reiserfs_find_entry (new_dir, new_dentry->d_name.name, new_dentry->d_name.len,
-@@ -1167,6 +1169,7 @@
-  	if (S_ISDIR(old_inode->i_mode)) {
-  	    if (search_by_entry_key (new_dir->i_sb, &dot_dot_de.de_entry_key, &dot_dot_entry_path, &dot_dot_de) != NAME_FOUND)
-  		BUG ();
-+ 
-     copy_item_head(&dot_dot_ih, get_ih(&dot_dot_entry_path)) ;
-  	    // node containing ".." gets into transaction
-  	    reiserfs_prepare_for_journal(old_inode->i_sb, dot_dot_de.de_bh, 1) ;
-  	}
-@@ -1183,23 +1186,33 @@
-  	** of the above checks could have scheduled.  We have to be
-  	** sure our items haven't been shifted by another process.
-  	*/
-- 
-if (!entry_points_to_object(new_dentry->d_name.name,
-+ 
-if (item_moved(&new_entry_ih, &new_entry_path) ||
-+ 
-     !entry_points_to_object(new_dentry->d_name.name,
-  	                            new_dentry->d_name.len,
-  	 
-		    &new_de, new_inode) ||
-- 
-     item_moved(&new_entry_ih, &new_entry_path) ||
-  	    item_moved(&old_entry_ih, &old_entry_path) ||
-  	    !entry_points_to_object (old_dentry->d_name.name,
-  	                             old_dentry->d_name.len,
-  	 
-		     &old_de, old_inode)) {
-  	    reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
-+ 
-     reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
-  	    if (S_ISDIR(old_inode->i_mode))
-  		reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
-  	    continue;
-  	}
-+ 
-if (S_ISDIR(old_inode->i_mode)) {
-+ 
-     if ( item_moved(&dot_dot_ih, &dot_dot_entry_path) ||
-+ 
-	 !entry_points_to_object ( "..", 2, &dot_dot_de, old_dir) ) {
-+ 
-	reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
-+ 
-	reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
-+ 
-	reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
-+ 
-	continue;
-+ 
-     }
-+ 
-}
-+
-
-  	RFALSE( S_ISDIR(old_inode->i_mode) &&
-- 
-	(!entry_points_to_object ("..", 2, &dot_dot_de, old_dir) ||
-- 
-	 !reiserfs_buffer_prepared(dot_dot_de.de_bh)), "" );
-+ 
-	!reiserfs_buffer_prepared(dot_dot_de.de_bh), "" );
-
-  	break;
-      }
-@@ -1212,6 +1225,7 @@
-      journal_mark_dirty (&th, old_dir->i_sb, new_de.de_bh);
-
-      mark_de_hidden (old_de.de_deh + old_de.de_entry_num);
-+    journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
-      old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
-      new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
-
-
-
-
-
---------------020304040301040001010408--
+-Bill
 

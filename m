@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261461AbSKGRHU>; Thu, 7 Nov 2002 12:07:20 -0500
+	id <S261530AbSKGQxD>; Thu, 7 Nov 2002 11:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261485AbSKGRHU>; Thu, 7 Nov 2002 12:07:20 -0500
-Received: from packet.digeo.com ([12.110.80.53]:12006 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261461AbSKGRHT>;
-	Thu, 7 Nov 2002 12:07:19 -0500
-Message-ID: <3DCA9F50.1A9E5EC5@digeo.com>
-Date: Thu, 07 Nov 2002 09:13:52 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S261531AbSKGQxD>; Thu, 7 Nov 2002 11:53:03 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24076 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261530AbSKGQxB>; Thu, 7 Nov 2002 11:53:01 -0500
+Date: Thu, 7 Nov 2002 11:58:35 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: reiser <reiser@namesys.com>
+cc: Peter Chubb <peter@chubb.wattle.id.au>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       Nikita Danilov <Nikita@namesys.com>,
+       Tomas Szepe <szepe@pinerecords.com>,
+       Alexander Zarochentcev <zam@namesys.com>,
+       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
+       umka <umka@namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+In-Reply-To: <3DC87154.1030601@namesys.com>
+Message-ID: <Pine.LNX.3.96.1021107114229.30525D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Bill Davidsen <davidsen@tmr.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.5.46-mm1
-References: <Pine.LNX.3.96.1021107113557.30525C-100000@gatekeeper.tmr.com> <4051130868.1036659083@[10.10.2.3]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Nov 2002 17:13:53.0234 (UTC) FILETIME=[0C235320:01C28681]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> > For what it's worth, the last mm kernel which booted on my old P-II IDE
-> > test machine was 44-mm2. With 44-mm6 and this one I get an oops on boot.
-> > Unfortunately it isn't written to disk, scrolls off the console, and
-> > leaves the machine totally dead to anything less than a reset. I will try
-> 
-> Any chance of setting up a serial console? They're very handy for
-> things like this ...
-> 
+On Tue, 5 Nov 2002, reiser wrote:
 
-"vga=extended" gets you 50 rows, which is usually enough.
+> There is also a longer PhD thesis by her.  10 minutes is about as much 
+> work as I personally am willing to lose and try to remember.  Avoiding 
+> 75% of writes instead of 20% is a substantial performance gain worth 
+> paying a cost for.  Unfortunately it is not easy to say if it is worth 
+> that much cost, but I suspect it is.  An approach we are exploring is 
+> for blocks to reach disk earlier than that if the device is not 
+> congested, on the grounds that if not much IO is occuring, then 
+> performance is not important.
+
+  I would certainly like to see that, lost data in case of problems is
+more of a problem than performance for many people. 
+
+  Particularly if (a) there is an idle CPU, (b) there are no blocks queued
+for write to the device, and (c) there are dirty blocks to go to the
+device, it would be good to ignore the age of the block or use a firly low
+minimum age. If we dropped a few blocks onto the drive each time the
+conditions were met, I suspect that with many systems that would result in
+a lot more free write space in memory. The total blocks written to the
+drive would go up, but it shouldn't hurt performance. 
+
+  My first thought is that the check would be done after finding no
+runable normal processes and before running batch priority processes. If
+only a few blocks were written each time oldest first it shouldn't even
+hurt the batch processes. 
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310835AbSC1ARZ>; Wed, 27 Mar 2002 19:17:25 -0500
+	id <S287149AbSC1AUY>; Wed, 27 Mar 2002 19:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310769AbSC1ARP>; Wed, 27 Mar 2002 19:17:15 -0500
-Received: from codepoet.org ([166.70.14.212]:64173 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S287149AbSC1ARI>;
-	Wed, 27 Mar 2002 19:17:08 -0500
-Date: Wed, 27 Mar 2002 17:17:09 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Jos Hulzink <josh@stack.nl>, jw schultz <jw@pegasys.ws>,
-        linux-kernel@vger.kernel.org
-Subject: Re: DE and hot-swap disk caddies
-Message-ID: <20020328001709.GA16582@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andre Hedrick <andre@linux-ide.org>, Jos Hulzink <josh@stack.nl>,
-	jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020327235029.P78593-100000@snail.stack.nl> <Pine.LNX.4.10.10203271553520.6006-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S310769AbSC1AUO>; Wed, 27 Mar 2002 19:20:14 -0500
+Received: from marc2.theaimsgroup.com ([63.238.77.172]:525 "EHLO
+	marc2.theaimsgroup.com") by vger.kernel.org with ESMTP
+	id <S287149AbSC1AUF>; Wed, 27 Mar 2002 19:20:05 -0500
+Date: Wed, 27 Mar 2002 19:20:04 -0500
+Message-Id: <200203280020.g2S0K4g01218@marc2.theaimsgroup.com>
+From: Hank Leininger <linux-kernel@progressive-comp.com>
+Reply-To: Hank Leininger <hlein@progressive-comp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SMP motherboards (760 MPX chipset) and SMP howto
+X-Shameless-Plug: Check out http://marc.theaimsgroup.com/
+X-Warning: This mail posted via a web gateway at marc.theaimsgroup.com
+X-Warning: Report any violation of list policy to abuse@progressive-comp.com
+X-Posted-By: Hank Leininger <hlein@progressive-comp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Mar 27, 2002 at 03:57:48PM -0800, Andre Hedrick wrote:
-> > If you really want to build in IDE hot swap support, I demand it comes
-> > with a warning: Enabling this option will probably destroy your harddisks
-> > and your chipset. Feel free to continue, but don't blame us.
-> 
-> FYI, there was almost a witch hunt when I went into T13 with a SCA4ATA
-> proposal.  You understand the issue and I am glad it was you and not me to
-> have to bang this drum.  Thanks.
+On 2002-03-27, Bill Davidsen <davidsen@tmr.com> wrote:
 
-Ok.  How about my laptop?  I have an ATAPI zip drive I can plug
-in instead of a second battery.  It is the only device on the
-second IDE bus (hdc).  In windows there is a little hotplug
-utility thing one runs before unplugging the zip drive.  In Linux
-I currently have to reboot if I want the ide-floppy driver to see
-the device...  I'm willing to bet that Dell has done mysterious
-stuff to make the electrical part work.  It would sure be nice if
-I could ask the ide driver to kindly re-scan for /dev/hdc now.
+> On 27 Mar 2002, Emmanuel Michon wrote:
 
-Is whatever windows is doing when I hotplug my zip drive somehow
-unsafe, such that supporting the same functionality on Linux is
-somehow a Bad Thing(tm)?
+> > I'm sorry to write here for a problem only about SMP: there used to
+> > be a linux-smp mailing list but it seems it's not active anymore.
 
- -Erik
+>   I, too, am (was?) a member of that list. I believe it has died
+> because SMP is mainline now, instead of cutting edge. Discussion is
+> probably appropriate here more than anywhere else.
+
+What are you guys talking about?  ;)
+
+The linux-smp list is alive and well.  It was hosted by vger.rutgers.edu
+along with l-k and others; perhaps that death is what you're thinking of? 
+linux-smp is avail now from vger.kernel.org.  It's not terribly high
+volume, but various notes-comparing about hardware compatability, etc goes
+on steadily.
+
+[ ObShamelessPlug: archives of it at:
+  http://marc.theaimsgroup.com/?l=linux-smp&r=1&w=2 ]
 
 --
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Hank Leininger <hlein@progressive-comp.com> 
+  

@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270734AbTHSPdY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 11:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270716AbTHSPdX
+	id S270939AbTHSPQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 11:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270726AbTHSPQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 11:33:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48777 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272375AbTHSPdB (ORCPT
+	Tue, 19 Aug 2003 11:16:07 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:36108 "EHLO ns.sul.com.br")
+	by vger.kernel.org with ESMTP id S270472AbTHSPKo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 11:33:01 -0400
-Date: Tue, 19 Aug 2003 08:22:27 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Ben Greear <greearb@candelatech.com>
-Cc: davidsen@tmr.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, bloemsaa@xs4all.nl,
-       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819082227.5ef3b7ed.davem@redhat.com>
-In-Reply-To: <3F41979C.3070408@candelatech.com>
-References: <Pine.LNX.3.96.1030818171100.2101C-100000@gatekeeper.tmr.com>
-	<3F41979C.3070408@candelatech.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 19 Aug 2003 11:10:44 -0400
+Date: Tue, 19 Aug 2003 11:58:02 -0300
+To: linux-kernel@vger.kernel.org
+Subject: Re: Surges of repeated input events in 2.6.0-test3-bk1?
+Message-ID: <20030819145802.GA23675@cathedrallabs.org>
+References: <200308190609.44691.rob@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308190609.44691.rob@landley.net>
+From: aris@cathedrallabs.org (aris)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 20:21:00 -0700
-Ben Greear <greearb@candelatech.com> wrote:
+> Every once in a while, I'll get a surge of repeated input events, repeating 
+> really fast for about half a second.  Just now it was the m key repeating 
+> really fast for about half a second when I only hit it once, and before that 
+> I was scrolling a window down using the down arrow under the scrollbar with 
+> the rat, and it surged down for about half a second when I only clicked it 
+> once.  (Each time the result was equal to a half-dozen clicks/keypresses when 
+> I only did one...)
+i have the same thing in my notebook, seems to be something with at
+keyboard driver, as using kbdrate fixes it.
 
-> I never did hear a response to my comment that this
-> was inadequate in this age of vlans...
+-- 
+aris
 
-Just define a rtnetlink attribute to extend the ID
-number, that's all.  It's not hard work and it eliminates
-the 8-bit limit.

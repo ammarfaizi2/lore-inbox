@@ -1,65 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264869AbTFYSBY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 14:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264870AbTFYSBY
+	id S264912AbTFYSIN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 14:08:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbTFYSIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 14:01:24 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:4104 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264869AbTFYSBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 14:01:23 -0400
-Date: Wed, 25 Jun 2003 19:15:32 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: mocm@mocm.de
-Cc: Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DVB Include files
-Message-ID: <20030625191532.A1083@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
-	Michael Hunold <hunold@convergence.de>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <3EF9CB25.4050105@convergence.de> <16121.53934.527440.109966@sheridan.metzler> <20030625175513.A28776@infradead.org> <16121.55366.94360.338786@sheridan.metzler> <20030625181606.A29104@infradead.org> <16121.55873.675690.542574@sheridan.metzler> <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler> <20030625185036.C29537@infradead.org> <16121.58735.59911.813354@sheridan.metzler>
+	Wed, 25 Jun 2003 14:08:12 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:23822 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S264912AbTFYSIE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 14:08:04 -0400
+Date: Wed, 25 Jun 2003 20:22:12 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: SOLVED - Testing IDE-TCQ and Taskfile - doesn't work nicely:)
+Message-ID: <20030625182210.GI29233@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+References: <20030624224021.GJ6353@lug-owl.de> <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OfrWf2Fun5Ae4m0Y"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16121.58735.59911.813354@sheridan.metzler>; from mocm@metzlerbros.de on Wed, Jun 25, 2003 at 08:09:51PM +0200
+In-Reply-To: <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu.pl>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux mail 2.4.18
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 08:09:51PM +0200, Marcus Metzler wrote:
->  > If the structures change incompatibly you're fucked anyway.  Better
-> 
-> Not necessarily, e.g. changing
-> 
-> #define AUDIO_SET_ATTRIBUTES       _IOW('o', 17, audio_attributes_t)
-> #define AUDIO_SET_KARAOKE          _IOW('o', 18, audio_karaoke_t)
-> 
-> to 
-> 
-> #define AUDIO_SET_ATTRIBUTES       _IOW('o', 47, audio_attributes_t)
-> #define AUDIO_SET_KARAOKE          _IOW('o', 48, audio_karaoke_t)
-> 
-> or
 
-In that case yes, you are screwed.  Your ABI just changed incompatibly.
+--OfrWf2Fun5Ae4m0Y
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Anyway, even in user/include it should be under linux/dvb because
-> that's just what it is Linux DVB. So the app has to include
-> <linux/dvb/xxx.h>. 
+On Wed, 2003-06-25 01:08:13 +0200, Bartlomiej Zolnierkiewicz <B.Zolnierkiew=
+icz@elka.pw.edu.pl>
+wrote in message <Pine.SOL.4.30.0306250107180.17106-100000@mion.elka.pw.edu=
+.pl>:
+> On Wed, 25 Jun 2003, Jan-Benedict Glaw wrote:
+> > On Tue, 2003-06-24 15:44:36 +0200, Bartlomiej Zolnierkiewicz <B.Zolnier=
+kiewicz@elka.pw.edu.pl>
+> > wrote in message <Pine.SOL.4.30.0306241543050.23584-100000@mion.elka.pw=
+.edu.pl>:
+> >
+> > > Corrected patch below...
+> >
+> > Taking this 2nd IDE patch, my boot-up looks as shown below. I still have
+>=20
+> Thanks for testing, it looks okay now.
+>=20
+> > to test the taskfile thing again, but I cannot find my girlfriends
+> > digital camera right now:)
 
-No!  <linux/*.h> is the namesapce for kernelheaders.  Currently they're
-still in the the user includes, too (due to legacy reasons).  The
-DVD API must move to a directory outside <linux/dvb>.
+Found the cam, downloaded any old pics, recompiled with taskfile I/O and
+- nothing. 2.5.73 + your second IDE patch do work flawlessly on my old
+box. The "clack     clack    clack" went away is if had never been
+there...
 
-If you userland packages add headers to /usr/include/linux/ they
-are totally bogus.
+So - thanks a lot for looking at my problem. Please feed your patch to
+Linus as it seems to actually solve (at least my) problems.
 
-> I don't care what distributions do. When I get a new kernel (no
-> packages), I use the includes from that kernel and compile my apps
-> with that.
+However, allow me to ask why this occured never bevore (for other
+people)? Do they all have only one drive? Does nobody use TCQ? Nobody
+with old hardware (though, your patch hasn't touched the core PIIX
+parts...)?
 
-And that's wrong.  You must always compile against the kernel headers
-that your libc was compiled against.
+MfG, JBG
 
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+
+--OfrWf2Fun5Ae4m0Y
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE++ehRHb1edYOZ4bsRAs1KAJ9f3MaKtt2J8FoYfezw+MINeCLWuQCfQUfo
+yn20ZbiNP1YkHND13HQhPW0=
+=CZm4
+-----END PGP SIGNATURE-----
+
+--OfrWf2Fun5Ae4m0Y--

@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319365AbSH2Vxt>; Thu, 29 Aug 2002 17:53:49 -0400
+	id <S319388AbSH2WXa>; Thu, 29 Aug 2002 18:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319398AbSH2Vx0>; Thu, 29 Aug 2002 17:53:26 -0400
-Received: from smtpout.mac.com ([204.179.120.97]:28888 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319365AbSH2VwA>;
-	Thu, 29 Aug 2002 17:52:00 -0400
-Message-Id: <200208292156.g7TLuO72021588@smtp-relay04-en1.mac.com>
-Date: Thu, 29 Aug 2002 21:56:27 +0200
-Mime-Version: 1.0 (Apple Message framework v482)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 19/41 sound/oss/es1370.c - convert cli to spinlocks
-From: pwaechtler@mac.com
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-Cc: torvalds@transmeta.com
-X-Mailer: Apple Mail (2.482)
+	id <S319396AbSH2WWd>; Thu, 29 Aug 2002 18:22:33 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:46088 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S319388AbSH2WWS>; Thu, 29 Aug 2002 18:22:18 -0400
+Date: Fri, 30 Aug 2002 00:26:42 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: input u-cleanup
+Message-ID: <20020829222642.GB16986@atrey.karlin.mff.cuni.cz>
+References: <20020828220603.GA30107@elf.ucw.cz> <20020829081736.A23935@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020829081736.A23935@ucw.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/es1370.c	Sat Aug 10 00:08:54 2002
-+++ linux-2.5-cli-oss/sound/oss/es1370.c	Sat Aug 10 16:49:12 2002
-@@ -1406,12 +1406,12 @@
-         case SNDCTL_DSP_RESET:
- 		if (file->f_mode & FMODE_WRITE) {
- 			stop_dac2(s);
--			synchronize_irq();
-+			synchronize_irq(s->irq);
- 			s->dma_dac2.swptr = s->dma_dac2.hwptr = s->dma_dac2.count = s->dma_dac2.total_bytes = 0;
- 		}
- 		if (file->f_mode & FMODE_READ) {
- 			stop_adc(s);
--			synchronize_irq();
-+			synchronize_irq(s->irq);
- 			s->dma_adc.swptr = s->dma_adc.hwptr = s->dma_adc.count = s->dma_adc.total_bytes = 0;
- 		}
- 		return 0;
-@@ -1798,7 +1798,7 @@
- 	down(&s->open_sem);
- 	if (file->f_mode & FMODE_WRITE) {
- 		stop_dac2(s);
--		synchronize_irq();
-+		synchronize_irq(s->irq);
- 		dealloc_dmabuf(s, &s->dma_dac2);
- 	}
- 	if (file->f_mode & FMODE_READ) {
-@@ -1976,7 +1976,7 @@
- 		
-         case SNDCTL_DSP_RESET:
- 		stop_dac1(s);
--		synchronize_irq();
-+		synchronize_irq(s->irq);
- 		s->dma_dac1.swptr = s->dma_dac1.hwptr = s->dma_dac1.count = s->dma_dac1.total_bytes = 0;
- 		return 0;
- 
-@@ -2704,7 +2704,7 @@
- 	list_del(&s->devs);
- 	outl(CTRL_SERR_DIS | (1 << CTRL_SH_WTSRSEL), s->io+ES1370_REG_CONTROL); /* switch everything off */
- 	outl(0, s->io+ES1370_REG_SERIAL_CONTROL); /* clear serial interrupts */
--	synchronize_irq();
-+	synchronize_irq(s->irq);
- 	free_irq(s->irq, s);
- 	if (s->gameport.io) {
- 		gameport_unregister_port(&s->gameport);
+Hi!
 
+> > proc is clever enough not to need ifdefs, so this is probably good
+> > idea...
+> > 
+> > 								Pavel
+> 
+> If you could remove all the procfs #ifdefs from input.c, that'd be great.
+> But removing only those around unregistration IMHO doesn't make
+> > sense.
+
+
+They can be safely dropped. I had patch to do that but droped it during
+merge. If you'll accept complete patch, I'll create it.   [Or you can
+do it yourself, just killing #ifdef CONFIG_PROC_FS should do the
+trick].
+
+ 
+> > 
+> > --- clean/drivers/input/input.c	Wed Aug 28 22:38:46 2002
+> > +++ linux-swsusp/drivers/input/input.c	Wed Aug 28 23:28:23 2002
+> > @@ -800,11 +803,9 @@
+> >  
+> >  static void __exit input_exit(void)
+> >  {
+> > -#ifdef CONFIG_PROC_FS
+> >  	remove_proc_entry("devices", proc_bus_input_dir);
+> >  	remove_proc_entry("handlers", proc_bus_input_dir);
+> >  	remove_proc_entry("input", proc_bus);
+> > -#endif
+> >  	devfs_unregister(input_devfs_handle);
+> >          if (unregister_chrdev(INPUT_MAJOR, "input"))
+> >                  printk(KERN_ERR "input: can't unregister char major %d", INPUT_MAJOR);
+> > 
+> > -- 
+> > Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+> > What goes next? Inserting advertisment *into* email?
+> 
+
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

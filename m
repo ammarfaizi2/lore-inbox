@@ -1,77 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266194AbUG1Xai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267348AbUG1Xae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266194AbUG1Xai (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267331AbUG1X2F
+	id S267348AbUG1Xae (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:30:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUG1X2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:28:05 -0400
-Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:56015 "EHLO
-	yoda.timesys") by vger.kernel.org with ESMTP id S266194AbUG1XYT
+	Wed, 28 Jul 2004 19:28:51 -0400
+Received: from out004pub.verizon.net ([206.46.170.142]:60546 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S267184AbUG1X0b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:24:19 -0400
-Date: Wed, 28 Jul 2004 19:24:16 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Scott Wood <scott@timesys.com>, linux-kernel@vger.kernel.org,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
-       Manas Saksena <manas.saksena@timesys.com>, Bill Huey <bhuey@lnxw.com>
-Subject: Re: [patch] IRQ threads
-Message-ID: <20040728232416.GF6685@yoda.timesys>
-References: <20040727225040.GA4370@yoda.timesys> <20040728062722.GA15283@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jul 2004 19:26:31 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crashes
+Date: Wed, 28 Jul 2004 19:26:29 -0400
+User-Agent: KMail/1.6.82
+References: <200407271233.04205.gene.heskett@verizon.net> <20040727142918.GE12308@parcelfarce.linux.theplanet.co.uk> <200407271331.13081.gene.heskett@verizon.net>
+In-Reply-To: <200407271331.13081.gene.heskett@verizon.net>
+Cc: viro@parcelfarce.linux.theplanet.co.uk
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040728062722.GA15283@elte.hu>
-User-Agent: Mutt/1.5.4i
-From: Scott Wood <scott@timesys.com>
+Message-Id: <200407281926.29920.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [141.153.76.185] at Wed, 28 Jul 2004 18:26:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 08:27:22AM +0200, Ingo Molnar wrote:
-> > 4. This might be a good time to get around to moving the bulk of the
-> > arch/whatever/kernel/irq.c into generic code, as the code said was
-> > supposed to happen in 2.5.  This patch is currently only for x86
-> > (though we've run IRQ threads on many different platforms in the
-> > past).
-> 
-> agreed. I punted this one for the time being as it's clearly separate
-> from the issue of latencies and it's deeply intrusive to 2.6.
+Greetings all;
 
-The intrusiveness is somewhat mitigated by not having to convert all
-architectures at once, though; the generic code would only be
-included for those architectures that set the relevant CONFIG_.  At
-that point, it basically is just moving code from one file to another
-(for x86), and doing minor tweaks for those architectures that are
-close to what x86 does.
+I just had another crash, but this one was different.
 
-> > 5. Is there any reason why an IRQ controller might want to have its
-> > end() called even if IRQ_DISABLED or IRQ_INPROGRESS is set?  It'd be
-> > nice to merge those checks in with the
-> > IRQ_THREADPENDING/IRQ_THREADRUNNING checks.
-> 
-> e.g. in the IO-APIC case if we ack the local APIC only in the end()
-> function then we must do that - an un-acked local APIC prevents other
-> IRQs from being delivered. We do this for level-triggered IO-APIC irqs.
+/dev/hda5 developed an error and was remounted read
+only by the system.  As thats /root, everything pretty
+much came to a screeching halt several hours ago while
+I was out carving the tapered ends on some split rail
+fencing, a somewhat dangerous job because its arsenic
+treated wood, and I made a large leaf bag of sawdust
+and wood chips with bare hands and no resperator filter
+device.
 
-Yes, but the IO-APIC code needs to be changed anyway to work properly
-with IRQ threads.
+Here is the log for the event:
+---------------
+Jul 28 13:37:00 coyote kernel: EXT3-fs error (device hda5): ext3_free_blocks: bit already
+cleared for block 761450
+Jul 28 13:37:00 coyote kernel: Aborting journal on device hda5.
+Jul 28 13:37:00 coyote kernel: ext3_free_blocks: aborting transaction: Journal has aborted
+ in __ext3_journal_get_undo_access<2>EXT3-fs error (device hda5) in ext3_free_blocks: Jour
+nal has aborted
+Jul 28 13:37:00 coyote last message repeated 16 times
+Jul 28 13:37:00 coyote kernel: ext3_reserve_inode_write: aborting transaction: Journal has
+ aborted in __ext3_journal_get_write_access<2>EXT3-fs error (device hda5) in ext3_reserve_
+inode_write: Journal has aborted
+Jul 28 13:37:00 coyote kernel: EXT3-fs error (device hda5) in ext3_truncate: Journal has a
+borted
+Jul 28 13:37:00 coyote kernel: ext3_reserve_inode_write: aborting transaction: Journal has
+ aborted in __ext3_journal_get_write_access<2>EXT3-fs error (device hda5) in ext3_reserve_
+inode_write: Journal has aborted
+Jul 28 13:37:00 coyote kernel: EXT3-fs error (device hda5) in ext3_orphan_del: Journal has
+ aborted
+Jul 28 13:37:00 coyote kernel: ext3_reserve_inode_write: aborting transaction: Journal has
+ aborted in __ext3_journal_get_write_access<2>EXT3-fs error (device hda5) in ext3_reserve_
+inode_write: Journal has aborted
+Jul 28 13:37:00 coyote kernel: EXT3-fs error (device hda5) in ext3_delete_inode: Journal h
+as aborted
+Jul 28 13:37:00 coyote kernel: ext3_abort called.
+Jul 28 13:37:00 coyote kernel: EXT3-fs abort (device hda5): ext3_journal_start: Detected a
+borted journal
+Jul 28 13:37:00 coyote kernel: Remounting filesystem read-only
+Jul 28 18:34:29 coyote shutdown: shutting down for system reboot
 
-> what do you think about making the i8259A's interrupt priorities
-> configurable? (a'la rtirq patch) Does it make any sense, given how early
-> we mask the source irq and ack the interrupt controller [hence giving
-> all other interrupts a fair chance to arrive ASAP]?
+On the reboot and e2fsck of /dev/hda5, one inode had
+zero dtime and was fixed.
 
-It could be useful for SA_NOTHREAD interrupts, but I don't think it
-buys much for threaded interrupts (as you'd have to wait until normal
-IRQs are enabled to schedule the handler thread anyway).
+This is the third crash today.  I'm now building a plain
+2.6.7 to run on this board as thats the newest version that
+has a diff in fs/dcache.c, from 2.6.7-mm1 they are all identical.
 
-> Bernhard Kuhn's rtirq patch is for IO-APIC/APICs, but i think the
-> latency issues could be equally well fixed by not keeping the local APIC
-> un-ACK-ed during level triggered irqs, but doing the mask & ack thing.
-> This will be slightly slower but should make them both redirectable and
-> more symmetric and fair.
 
-I agree.  How much slower would it be (is it worth an #ifdef for irq
-threads)?  Hopefully PIC operations aren't as slow as they are on the
-8259...
+>On Tuesday 27 July 2004 10:29,
+> viro@parcelfarce.linux.theplanet.co.uk
+>
+>wrote:
+>>On Tue, Jul 27, 2004 at 12:33:04PM -0400, Gene Heskett wrote:
+>>> Greetings everybody;
+>>>
+>>> I have now had 4 crashes while running 2.6.8-rc2, the last one
+>>> requiring a full powerdown before the intel-8x0 could
+>>> re-establish control over the sound.
+>>>
+>>> All have had an initial Opps located in prune_dcache, and were
+>>> logged as follows:
+>>> Jul 27 07:58:58 coyote kernel: Unable to handle kernel NULL
+>>> pointer dereference at virtual address 00000000
+>>
+>>... which means that dentry_unused list got corrupted, which
+>> doesn't really help.  Could you try to narrow it down to
+>> 2.6.8-rc1-bk<day>?
+>
+>And something else that doesn't help, I just found that 2.6.8-rc1
+>doesn't have the reverse engineered nforce2 support, so a remake for
+>this mobo probably won't fly past the decompression stage.  But
+>2.6.8-rc1-mm1 does have it, but under a different xconfig entry. 
+> Its building now.
 
--Scott
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

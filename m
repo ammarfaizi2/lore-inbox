@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbUCDD7u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 22:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUCDD7u
+	id S261330AbUCDD6G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 22:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUCDD6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 22:59:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17371 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261432AbUCDD7E (ORCPT
+	Wed, 3 Mar 2004 22:58:06 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:24237 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S261330AbUCDD6C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 22:59:04 -0500
-Date: Wed, 3 Mar 2004 22:58:56 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: Michael Weiser <michael@weiser.dinsnail.net>, Ed Tomlinson <edt@aei.ca>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 021 release
-Message-ID: <20040304035856.GA31986@devserv.devel.redhat.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Michael Weiser <michael@weiser.dinsnail.net>,
-	Ed Tomlinson <edt@aei.ca>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20040303225305.GB30608@weiser.dinsnail.net> <20040304012531.GC2207@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040304012531.GC2207@kroah.com>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 3 Mar 2004 22:58:02 -0500
+Message-ID: <4046A93D.9090305@matchmail.com>
+Date: Wed, 03 Mar 2004 19:57:49 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VM patches in 2.6.4-rc1-mm2
+References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org>
+In-Reply-To: <20040303193025.68a16dc4.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH (greg@kroah.com) said: 
-> Sorry, but you're a bit late.  We've been moving this way since before
-> 2.4.0.
+Andrew Morton wrote:
+> Mike Fedyk <mfedyk@matchmail.com> wrote:
 > 
-> The fact that module unload even works today is a blessing due to all of
-> the well-documented issues involved.  I doubt any distro will enable
-> module unloading because of it.
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm2/
+>>>
+>>>- More VM tweaks and tuneups
+>>
+>>Running 2.6.3-lofft-snsus-264rc1mm2vm (nfsd loff_t, sunrpc locking & -mm 
+>>VM patches).  Seems to be working well.
+> 
+> 
+> OK, good.
+> 
+> 
+>>Most of the previous 2.6 kernels I was running on these servers would be 
+>>lightly hitting swap by now.  This definitely looks better to me.
+> 
+> 
+> It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid of stuff,
+> freeing up physical memory.
 
-So, then, answer this question. In previous kernels, 2.4 and otherwise,
-a driver or piece of hardware may get into a 'confused' state. You unload
-the driver, reload it, it resets, everything is peachy.
+Swapping out is good to me.  It's the swapping in, and out, and in, 
+and... that's bad.
 
-How do I reinitialize a driver or hardware in your 'no-unload'
-scenario?
+> 
+> But I do not see a lot of difference here.
 
-Bill
+Let's let it run a few more days to make sure.
+
+> The 900MB desktop machine is
+> 300M into swap after 24 hours.  That's usual.
+
+Neither of my servers have 900MB ram...
+
+Mike

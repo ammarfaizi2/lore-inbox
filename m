@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbULVXZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbULVXtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbULVXZL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 18:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbULVXZL
+	id S262079AbULVXtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 18:49:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbULVXtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 18:25:11 -0500
-Received: from mail.suse.de ([195.135.220.2]:48268 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262085AbULVXYs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 18:24:48 -0500
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc3, i386: fpu handling on sigreturn
-References: <41C9B21F.90802@fujitsu-siemens.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Dec 2004 00:24:45 +0100
-In-Reply-To: <41C9B21F.90802@fujitsu-siemens.com.suse.lists.linux.kernel>
-Message-ID: <p73mzw5zzk2.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 22 Dec 2004 18:49:47 -0500
+Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:48027 "EHLO
+	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S262079AbULVXtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 18:49:45 -0500
+X-SBRSScore: None
+X-IronPort-AV: i="3.88,83,1102287600"; 
+   d="scan'208"; a="1193568:sNHT21684176"
+Message-ID: <41CA0813.1070707@fujitsu-siemens.com>
+Date: Thu, 23 Dec 2004 00:49:39 +0100
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc3, i386: fpu handling on sigreturn
+References: <41C9B21F.90802@fujitsu-siemens.com.suse.lists.linux.kernel> <p73mzw5zzk2.fsf@verdi.suse.de>
+In-Reply-To: <p73mzw5zzk2.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Stroesser <bstroesser@fujitsu-siemens.com> writes:
+Andi Kleen wrote:
+> Bodo Stroesser <bstroesser@fujitsu-siemens.com> writes:
 > 
-> Now, the interrupted processes fpu no longer is cleared!
+>>Now, the interrupted processes fpu no longer is cleared!
+> 
+> 
+> I agree it's a bug, although it's probably pretty obscure so people
+> didn't notice it.  The right fix would be to just clear_fpu again
+> in this case.  The problem has been in Linux forever.
+Wouldn't it be better to also reset used_math to 0? (As it has been,
+before the sighandler was started)
 
-I agree it's a bug, although it's probably pretty obscure so people
-didn't notice it.  The right fix would be to just clear_fpu again
-in this case.  The problem has been in Linux forever.
-
-Here's an untested patch for i386 and x86-64. 
-
--Andi
-
-diff -u linux-2.6.10rc2-time/arch/i386/kernel/signal.c-o linux-2.6.10rc2-time/arch/i386/kernel/signal.c
---- linux-2.6.10rc2-time/arch/i386/kernel/signal.c-o	2004-11-15 12:34:25.000000000 +0100
-+++ linux-2.6.10rc2-time/arch/i386/kernel/signal.c	2004-12-23 00:07:18.000000000 +0100
-@@ -190,7 +190,8 @@
- 			if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
- 				goto badframe;
- 			err |= restore_i387(buf);
--		}
-+		} else if (current->used_math) 
-+			clear_fpu(current); 
- 	}
- 
- 	err |= __get_user(*peax, &sc->eax);
-diff -u linux-2.6.10rc2-time/arch/x86_64/kernel/signal.c-o linux-2.6.10rc2-time/arch/x86_64/kernel/signal.c
---- linux-2.6.10rc2-time/arch/x86_64/kernel/signal.c-o	2004-10-19 01:55:08.000000000 +0200
-+++ linux-2.6.10rc2-time/arch/x86_64/kernel/signal.c	2004-12-23 00:07:19.000000000 +0100
-@@ -125,7 +125,8 @@
- 			if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
- 				goto badframe;
- 			err |= restore_i387(buf);
--		}
-+		} else if (current->used_math) 
-+			clear_fpu(current); 
- 	}
- 
- 	err |= __get_user(*prax, &sc->rax);
-diff -u linux-2.6.10rc2-time/arch/x86_64/ia32/ia32_signal.c-o linux-2.6.10rc2-time/arch/x86_64/ia32/ia32_signal.c
---- linux-2.6.10rc2-time/arch/x86_64/ia32/ia32_signal.c-o	2004-10-19 01:55:08.000000000 +0200
-+++ linux-2.6.10rc2-time/arch/x86_64/ia32/ia32_signal.c	2004-12-23 00:07:17.000000000 +0100
-@@ -261,7 +261,8 @@
- 			if (verify_area(VERIFY_READ, buf, sizeof(*buf)))
- 				goto badframe;
- 			err |= restore_i387_ia32(current, buf, 0);
--		}
-+		} else if (current->used_math) 
-+			clear_fpu(current); 
- 	}
- 
- 	{ 
-
+Bodo
+> 
+> Here's an untested patch for i386 and x86-64. 
+> 
+> -Andi

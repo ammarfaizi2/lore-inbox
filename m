@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291226AbSBMBYp>; Tue, 12 Feb 2002 20:24:45 -0500
+	id <S291248AbSBMB3F>; Tue, 12 Feb 2002 20:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291248AbSBMBYf>; Tue, 12 Feb 2002 20:24:35 -0500
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:8383 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S291226AbSBMBY1>; Tue, 12 Feb 2002 20:24:27 -0500
-Message-Id: <4.2.0.58.20020212172729.0195b630@bulkrate.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
-Date: Tue, 12 Feb 2002 17:34:44 -0800
-To: linux-kernel@vger.kernel.org
-From: Mukund Ingle <inglem@cisco.com>
-Subject: Quick question on Software RAID support.
+	id <S291282AbSBMB2z>; Tue, 12 Feb 2002 20:28:55 -0500
+Received: from holomorphy.com ([216.36.33.161]:59044 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S291248AbSBMB2h>;
+	Tue, 12 Feb 2002 20:28:37 -0500
+Date: Tue, 12 Feb 2002 17:28:09 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] get_request starvation fix
+Message-ID: <20020213012809.GI767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C69A196.B7325DC2@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <3C69A196.B7325DC2@zip.com.au>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 12, 2002 at 03:13:26PM -0800, Andrew Morton wrote:
+> Second version of this patch, incorporating Suparna's
+> suggested simplification (the low-water mark was
+> unnecessary).
+> 
+> This patch is working well here.  Hopefully it'll pop up
+> in an rmap kernel soon.
+> 
+> Bill Irwin has been doing some fairly extensive tuning
+> and testing of this.  Hopefully he'll come out with some
+> numbers soon.
 
-1) Does the Software RAID-5 support automatic detection
-     of a drive failure? How?
+Much of my testing has involved varying elevator and bdflush parameters
+to find what works best with this. From preliminary results it is clear
+that the resolution of the fairness issues in this patch and the read
+latency patch does not impair performance.
 
-2) Has Linux Software RAID-5 been used in the Enterprise environment
-     to support redundancy by any real-world networking company
-     or this is just a tool used by individuals to provide redundancy on
-     their own PCs in the labs and at home?
+I'll do a bunch more runs tonight with the latest version of this.
+My prior runs were with an earlier version.
 
-Thanks a lot!
-Mukund 
+
+Cheers,
+Bill

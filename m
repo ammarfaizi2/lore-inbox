@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266831AbTGKVHn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 17:07:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbTGKVHm
+	id S266823AbTGKVMR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 17:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbTGKVMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 17:07:42 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:1802 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S266831AbTGKVGu
+	Fri, 11 Jul 2003 17:12:17 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:48087 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S266823AbTGKVMI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 17:06:50 -0400
-Date: Fri, 11 Jul 2003 17:21:33 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Style question: Should one check for NULL pointers? 
-In-Reply-To: <200307111932.h6BJWMr5004606@eeyore.valparaiso.cl>
-Message-ID: <Pine.LNX.4.44L0.0307111714130.10595-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 11 Jul 2003 17:12:08 -0400
+Date: Fri, 11 Jul 2003 14:26:45 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Larry McVoy <lm@bitmover.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Strange BK behaviour?
+Message-ID: <20030711212645.GA17601@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ben Collins <bcollins@debian.org>, Larry McVoy <lm@bitmover.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307111715400.5537@freak.distro.conectiva> <20030711205532.GB17804@work.bitmover.com> <20030711195440.GY439@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711195440.GY439@phunnypharm.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jul 2003, Horst von Brand wrote:
+On Fri, Jul 11, 2003 at 03:54:40PM -0400, Ben Collins wrote:
+> On Fri, Jul 11, 2003 at 01:55:32PM -0700, Larry McVoy wrote:
+> > Ahh, it's there, bkbits just isn't showing it because it is an empty merge
+> > changeset.  That's a bug.  If you care, file a bug on bk/web with a 
+> > summary like "show merge changesets if they are tagged".
+> 
+> It definitely got down to CVS/SVN.
 
-> My personal paranoia when reading code goes the other way: How can I be
-> sure it won´t ever be NULL?  Maybe it can't be now (and to find that out an
-> hour grepping around goes by), but the very next patch introduces the
-> possibility.  Better have the function do an extra check, or make sure
-> somehow the assumption won't _ever_ be violated. But that is a large (huge,
-> even) cost, so...
+Right, the data is there.  There is a lot of "merge noise" in BK where BK
+is just recording the fact that changes in unrelated files have been 
+brought together.  In general, you don't want to see all that noise, it's
+more or less internal BK metadata.  So BK/Web filters it out, as does
+bk changes.  But in this case, because the cset in question is "named"
+with a tag it should have been shown.
 
-Suppose something does change and your function is passed a NULL pointer 
-after all.  What will you do about it then?  Clearly this represents a 
-mistake on the part of the caller; are you simply going to return without 
-doing anything and hope that nothing else will go wrong?  Or will you 
-return an error code and hope that a caller careless enough to pass an 
-invalid argument will also be careful enough to check the return code?
-Quite a lot of places in the kernel do one of these (usually the first).
-
-Neither of those options is attractive to me.  I would prefer something 
-that leaves a clear indication that the problem exists.  A logged error 
-message would help; a BUG_ON or segfault would be even better.  This is 
-especially true in situations where the function in question is part of a 
-relatively small subsystem where you _know_ that a NULL pointer is never 
-valid.  (It may occur, but if it does it must represent an error.)
-
-Alan Stern
-
+It's a presentation issue, not a data problem, which is why CVS/SVN saw 
+it - the exporter works on the raw data.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,53 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbSKUAqt>; Wed, 20 Nov 2002 19:46:49 -0500
+	id <S266199AbSKUA5A>; Wed, 20 Nov 2002 19:57:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbSKUAqt>; Wed, 20 Nov 2002 19:46:49 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:651 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262322AbSKUAqs>;
-	Wed, 20 Nov 2002 19:46:48 -0500
-Date: Thu, 21 Nov 2002 00:55:02 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
+	id <S266233AbSKUA47>; Wed, 20 Nov 2002 19:56:59 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:62852 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S266199AbSKUA46>; Wed, 20 Nov 2002 19:56:58 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 20 Nov 2002 17:04:41 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Mark Mielke <mark@mark.mielke.cc>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [rfc] epoll interface change and glibc bits ...
-Message-ID: <20021121005502.GE12650@bjl1.asuk.net>
-References: <20021120235135.GA32715@mark.mielke.cc> <Pine.LNX.4.44.0211201546250.974-100000@blue1.dev.mcafeelabs.com> <20021121003332.GE32715@mark.mielke.cc>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021121003332.GE32715@mark.mielke.cc>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021121005502.GE12650@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0211201703050.974-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote:
-> It looks fine to me for as long as we can guarantee that sizeof(void *)
-> will be less than or equal to sizeof(__uint64_t) (relatively safe).
+On Thu, 21 Nov 2002, Jamie Lokier wrote:
 
-It is fine, for epoll itself, even if sizeof(void *) > sizeof(__uint64_t).
+> That is a good idea, if we go for the union.
 
-Conversion functions for legacy 32-bit code running on a 128-bit chip
-will be more complex, but epoll is the _least_ of problems in that case...
+This is the include file I'm thinking to submit to Ulrich for glibc
+inclusion :
 
-> I still prefer 'userdata' over 'obj', but the name of thing is not very
-> important to me.
 
-The AIO subsystem has a very similar cookie, which is simply declared
-as `__u64 aio_data' in user-supplied requests, and returned in the
-responses.  It's converted to a field called `ki_user_data' in the
-kernel.
 
-Just a few reference points...  I like `user_data' myself.
+#ifndef	_SYS_EPOLL_H
+#define	_SYS_EPOLL_H	1
 
-> I'm not sure if this is wise or not, but an 'fd' member might be
-> useful as well:
-> [...]
-> For applications that wish to store fd's (probably common due to
-> poll() roots), this would help them avoid casting magic as well. Also,
-> it allows for 64 bit file descriptors if that ever became necessary.
+#include <sys/types.h>
 
-That is a good idea, if we go for the union.
 
--- Jamie
+enum EPOLL_EVENTS {
+	EPOLLIN = 0x001,
+#define EPOLLIN EPOLLIN
+
+	EPOLLPRI = 0x002,
+#define EPOLLPRI EPOLLPRI
+
+	EPOLLOUT = 0x004,
+#define EPOLLOUT EPOLLOUT
+
+#ifdef __USE_XOPEN
+
+	EPOLLRDNORM = 0x040,
+#define EPOLLRDNORM EPOLLRDNORM
+
+	EPOLLRDBAND = 0x080,
+#define EPOLLRDBAND EPOLLRDBAND
+
+	EPOLLWRNORM = 0x100,
+#define EPOLLWRNORM EPOLLWRNORM
+
+	EPOLLWRBAND = 0x200,
+#define EPOLLWRBAND EPOLLWRBAND
+
+#endif
+
+#ifdef __USE_GNU
+	EPOLLMSG = 0x400,
+#define EPOLLMSG EPOLLMSG
+#endif
+
+	EPOLLERR = 0x008,
+#define EPOLLERR EPOLLERR
+
+	EPOLLHUP = 0x010
+#define EPOLLHUP EPOLLHUP
+
+};
+
+
+
+/* Valid opcodes to issue to epoll_ctl() */
+#define EPOLL_CTL_ADD 1	/* Add a file decriptor to the interface */
+#define EPOLL_CTL_DEL 2	/* Remove a file decriptor from the interface */
+#define EPOLL_CTL_MOD 3	/* Change file decriptor epoll_event structure */
+
+
+typedef union epoll_obj {
+	void *ptr;
+	int fd;
+	__uint32_t u32[2];
+	__uint64_t u64;
+} epoll_obj_t;
+
+struct epoll_event {
+	unsigned short events;	/* Required events */
+	unsigned short revents;	/* Returned events */
+	epoll_obj_t data;	/* User data variable */
+};
+
+
+__BEGIN_DECLS
+
+/*
+ * Creates an epoll interface by suggesting the requested size in terms
+ * of file descriptors that will be presumably stored inside the interface.
+ * The integer returned by epoll_create() should be closed with close().
+ */
+extern int epoll_create(int size);
+
+/*
+ * Controller function for the epoll interface. Valid values for the "op"
+ * parameter are the EPOLL_CTL_* constant defined above. The "fd" parameter
+ * is the target of the operation while the "event" parameter describe which
+ * events the caller is interested in and the data ( obj ) he associates
+ * the the file "fd".
+ */
+extern int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event) __THROW;
+
+/*
+ * Wait for events on the epoll interface. The function will return the number
+ * of events that will be available inside the memory area pointed by "events".
+ * Up to "maxevents" events will be copied. The "timeout" parameter enable the
+ * caller to specify a miximum wait time in milliseconds ( -1 == infinite ).
+ */
+extern int epoll_wait(int epfd, struct epoll_event *events, int maxevents,
+		      int timeout) __THROW;
+
+__END_DECLS
+
+
+#endif /* #ifndef _SYS_EPOLL_H */
+
+
+
+Comments ?
+
+
+
+
+
+
+- Davide
+
+

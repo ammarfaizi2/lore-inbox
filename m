@@ -1,91 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130953AbRCMHrC>; Tue, 13 Mar 2001 02:47:02 -0500
+	id <S129346AbRCMIhC>; Tue, 13 Mar 2001 03:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130958AbRCMHqx>; Tue, 13 Mar 2001 02:46:53 -0500
-Received: from mail.veka.com ([213.68.6.130]:27600 "EHLO veka.com")
-	by vger.kernel.org with ESMTP id <S130953AbRCMHqp>;
-	Tue, 13 Mar 2001 02:46:45 -0500
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_PNL4ZLP9YGSHDBW13I74"
-From: Frank Fiene <frank.fiene@syntags.de>
-Organization: Syntags GmbH
-To: LINUX Kernel <linux-kernel@vger.kernel.org>
-Subject: Fwd: Re: patch-2.4.2-ac19
-Date: Tue, 13 Mar 2001 08:47:49 +0100
-X-Mailer: KMail [version 1.2]
+	id <S129363AbRCMIgn>; Tue, 13 Mar 2001 03:36:43 -0500
+Received: from server.divms.uiowa.edu ([128.255.28.165]:3089 "EHLO
+	server.divms.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S129346AbRCMIgi>; Tue, 13 Mar 2001 03:36:38 -0500
+From: Doug Siebert <dsiebert@divms.uiowa.edu>
+Message-Id: <200103130836.CAA06967@server.divms.uiowa.edu>
+Subject: Issues with disk block devices
+To: linux-kernel@vger.kernel.org
+Date: Tue, 13 Mar 2001 02:36:09 -0600 (CST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <01031308474902.02849@fflaptop>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This note is sort of a half question half bug report.  I ran into a
+problem with VMware, though it isn't really an issue with VMware -- I
+was creating what it terms a "plain disk", and part of that process has
+it trying to seek to the end of a disk partition and verifying it is
+really the size it is being defined as, seemingly a very good precaution.
+I received errors on one of my partitions that I was "trying to seek past
+the end", and did a 'wc -c' on the device to see how big it really was.
+Sure enough, 3K was missing from the end!
 
---------------Boundary-00=_PNL4ZLP9YGSHDBW13I74
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+A further complication was that it would work OK on a partition that didn't
+have a mounted filesystem on it, but once you mounted a filesystem (even
+if you then later unmounted it) it lost the last 3K.  So I ended up
+thinking I had found a bug, but later found it is not quite so clear what
+it is.
 
+After first testing 2.4.2ac19 to see if I ran into something fixed in
+kernels later than my 2.2 series kernels I tried this on (on two different
+machines) I looked through the source and found the "problem".  Since I'm
+using block devices, the access is of course in blocks.  IDE disks use a
+1K byte block size, ext2 fs uses 4K.  I'm curious why IDE disks use a 1K
+block size rather than 512 byte, when 512 byte is its native sector size,
+for at least the vast majority of drives.  Granted, it is doable to set
+up your partitions so that they have an even number of sectors, but since
+the fake "geometry" modern drives use tends to be 63 sectors, 255 heads
+and whatever number of cylinders works out for the drive's capacity (not
+to mention that the first and all extended partitions lose the first 63
+sectors) you really end up with only a 50-50 shot.  I'm assuming of course
+that you want to put your partitions on cylinder boundaries to keep other
+operating systems you may have loaded happy and not trying to "fix" "bad"
+partition tables for you.
 
+OK, so the issue of the 1024 byte default blocksize aside, I do think it
+is a bug to see that a partition will have a 1024 byte blocksize by
+default, until it is used to mount a filesystem with some other blocksize.
+After that time, even when the filesystem is unmounted, the blocksize is
+left at what the filesystem changed it to.  I'm really not even sure how
+good it is for the block device itself to have its blocksize changed due
+to the fact you mounted its contents as a filesystem...  I'll include
+some little printk debugging work I did while tracking this particular
+thing down.  I was running a simple program which did a BLKGETSIZE ioctl
+to find the device size, then lseek'd to size-7, size-6 and size-1 and
+attemped to read 1024 bytes after each seek:
 
-----------  Forwarded Message  ----------
-Subject: Re: patch-2.4.2-ac19
-Date: Tue, 13 Mar 2001 08:46:22 +0100
-From: Frank Fiene <frank.fiene@syntags.de>
-To: Joachim Backes <backes@rhrk.uni-kl.de>
+  /dev/hda5 before mount:
+in block_read left 1024, block 2096447, offset 512, size 0, blocks 2096451
+in block_read left 1024, block 2096448, offset 0, size 0, blocks 2096451
+in block_read left 512, block 2096450, offset 512, size 0, blocks 2096451
 
+  /dev/hda5 after mount and unmount:
+in block_read left 1024, block 524111, offset 3584, size 0, blocks 524112
+in block_read left 1024, block 524112, offset 0, size 0, blocks 524112
+in block_read left 512, block 524112, offset 2560, size 0, blocks 524112
 
-On Tuesday, 13. March 2001 08:14, Joachim Backes wrote:
-> Hi,
->
-> after applying patch-2.4.2-ac19 to the base 2.4.2 distribution, I
-> have problems to install vmware: the vmware install has problems to
-> find the symbol
->
->                 skb_datarefp
->
-> in the /usr/src/linux/include tree.
->
-> Without applying patch-2.4.2-ac19, it is found in
->
->                 /usr/src/linux/include/linux/skbuff.h
->
-> and vmware-2.0.3-799 can be compiled.
+This was the case on 2.2.12, 2.2.16, 2.4.2 and 2.4.2ac19.
 
-Here is a patch for vmware. You have to apply this on
-vmware-distrib/lib/modules/source/vmnet.tar:
-untar vmnet
-apply patch to vnetInt.h
-tar vmnet
-install
+Is there any good way to get access to an entire disk partition, no matter
+how badly it divides into a 1K/4K blocksize?  I tried using 'raw', but
+it didn't produce a readable device, at least not readable for the 'wc'
+command (tried under kernel 2.2.16)  Plus since it doesn't use the buffer
+cache it is somewhat useless even if it works because you'd have to do
+all your accesses with it.  In particular, you can't use it to access
+something you may also want to mount, at least not if you care about data
+integrity.
 
-Regards. Frank.
-P.S.: This is not official. It works for me!
---
-Frank Fiene, SYNTAGS GmbH, Im Defdahl 5-10, D-44141 Dortmund, Germany
-Security, Cryptography, Networks, Software Development
-http://www.syntags.de mailto:Frank.Fiene@syntags.de
+So to sum up, why are IDE disks using a 1K default blocksize, rather than
+512 bytes?  And am I correct in believing that this issue with the
+blocksize of a partition permanently changing when you mount a filesystem
+using a different blocksize (4K ext2 in my case) on that partition, even
+if you mount it read-only and immediately unmount it is a bug?  What would
+be the recommended way around these problems, other than the only good fix
+I can come up with, to repartition and choose my partition sizes such that
+they all end up divisible by 4K?
 
--------------------------------------------------------
+I figure even if I'm wrong in thinking these two things are not working
+the way they should, at least I'll learn something about why the design
+was done in such a way that things end up like this.
+
+Thanks!
 
 -- 
-Frank Fiene, SYNTAGS GmbH, Im Defdahl 5-10, D-44141 Dortmund, Germany
-Security, Cryptography, Networks, Software Development
-http://www.syntags.de mailto:Frank.Fiene@syntags.de
+Douglas Siebert
+douglas-siebert@uiowa.edu
 
---------------Boundary-00=_PNL4ZLP9YGSHDBW13I74
-Content-Type: application/x-bzip2;
-  charset="iso-8859-1";
-  name="vmware.patch.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="vmware.patch.bz2"
-
-QlpoOTFBWSZTWSTARa8AAFL/gFQUBABJb3+zfy+/RL/v3yAwARrTMNJqaT0mmQeoAAABoBo0009R
-oAammpHqPUyNGmjTE0AAADQNBoaCSimaSepmkxNM9RMmAQ0YTTMkNNG0HAafGkDazBkAAUZO5xLM
-1VEORduUu+4WX/JGRSjAgmhaCyDoDyFrSQbKuIrCT8+dWikaU34dN1XrAbKxmwyNJCJ0FVnsfraj
-hCngVCBH0X24MoZAVpW2YvEBonA0KGAOkIBBjE0TizA1s5FEcTYjEnMJ6NKNxQcEdoSE0jr22M4C
-R9txCN6jeKYO9AkpAoP7AyYhAl0iGAxBOqgSg/ICihTbtehcSMritxImYo3k6kQwlhKBCk0YSU/4
-cRKdlOZG4hEqHKd6sLtExPGl8jHPyjVUgOlp8jaAeQ065NWExLWQRKmUPiiGUBiIwkOfxdyRThQk
-CTARa8A=
-
---------------Boundary-00=_PNL4ZLP9YGSHDBW13I74--
+A computer without Microsoft software is like chocolate cake without ketchup.

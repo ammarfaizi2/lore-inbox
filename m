@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286756AbSA2XUD>; Tue, 29 Jan 2002 18:20:03 -0500
+	id <S286893AbSA2X1Z>; Tue, 29 Jan 2002 18:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286692AbSA2XSw>; Tue, 29 Jan 2002 18:18:52 -0500
-Received: from waste.org ([209.173.204.2]:52193 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S286712AbSA2XRg>;
-	Tue, 29 Jan 2002 18:17:36 -0500
-Date: Tue, 29 Jan 2002 17:17:04 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, <torvalds@transmeta.com>
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
-In-Reply-To: <E16VU8j-0006Hm-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0201291713090.25443-100000@waste.org>
+	id <S286723AbSA2XZt>; Tue, 29 Jan 2002 18:25:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4874 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287115AbSA2XUA>; Tue, 29 Jan 2002 18:20:00 -0500
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Tue, 29 Jan 2002 23:32:08 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0201292059440.32617-100000@imladris.surriel.com> from "Rik van Riel" at Jan 29, 2002 09:01:40 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VhjU-0005Vb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Rusty Russell wrote:
+> We can let oracle shared memory segments use 4 MB pages,
+> but still use the normal page cache code to look up the
+> pages.
 
-> This patch introduces the __per_cpu_data tag for data, and the
-> per_cpu() & this_cpu() macros to go with it.
->
-> This allows us to get rid of all those special case structures
-> springing up all over the place for CPU-local data.
+That has some potential big wins beyond oracle. Some of the big number
+crunching algorithms also benefit heavily from 4Mb pages even when you
+try and minimise tlb misses.
 
-Seems like we could do slightly better to have these local areas mapped to
-the same virtual address on each processor, which does away with the need
-for an entire level of indirection.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Just remember to read the ppro/early pII errata when starting - there are
+some page invalidation funnies. If I remember rightly we have to kill MCE
+support on PPro if we do 4Mb pages that may overlap 4K ones

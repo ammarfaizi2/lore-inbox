@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273857AbRJDLuT>; Thu, 4 Oct 2001 07:50:19 -0400
+	id <S273870AbRJDLxT>; Thu, 4 Oct 2001 07:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273796AbRJDLuJ>; Thu, 4 Oct 2001 07:50:09 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:41657 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S273857AbRJDLtv>;
-	Thu, 4 Oct 2001 07:49:51 -0400
-Date: Thu, 4 Oct 2001 07:47:26 -0400 (EDT)
+	id <S273883AbRJDLxA>; Thu, 4 Oct 2001 07:53:00 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:46521 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S273846AbRJDLww>;
+	Thu, 4 Oct 2001 07:52:52 -0400
+Date: Thu, 4 Oct 2001 07:50:32 -0400 (EDT)
 From: jamal <hadi@cyberus.ca>
-To: Ben Greear <greearb@candelatech.com>
-cc: Simon Kirby <sim@netnation.com>, Ingo Molnar <mingo@elte.hu>,
-        <linux-kernel@vger.kernel.org>,
+To: Ingo Molnar <mingo@elte.hu>
+cc: Ben Greear <greearb@candelatech.com>, <linux-kernel@vger.kernel.org>,
         Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
         Robert Olsson <Robert.Olsson@data.slu.se>,
         Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>
 Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-In-Reply-To: <3BBC05EC.AA9BFB4F@candelatech.com>
-Message-ID: <Pine.GSO.4.30.0110040742191.9341-100000@shell.cyberus.ca>
+In-Reply-To: <Pine.LNX.4.33.0110040851280.2166-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.30.0110040749590.9341-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,27 +25,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 3 Oct 2001, Ben Greear wrote:
+On Thu, 4 Oct 2001, Ingo Molnar wrote:
 
-> The tulip driver only started working for my DLINK 4-port NIC after
-> about 2.4.8, and last I checked the ZYNX 4-port still refuses to work,
-> so I wouldn't consider it a paradigm of stability and grace quite yet.
+>
+> On Wed, 3 Oct 2001, Ben Greear wrote:
+>
+> > > so far your appraoch is that of a shotgun i.e  "let me fire in
+> > > that crowd and i'll hit my target but dont care if i take down a few
+> > > more"; regardless of how noble the reasoning is, it's  as Linus described
+> > > it -- a sledge hammer.
+> >
+> > Aye, but by shooting this target and getting a few bystanders, you save
+> > everyone else...  (And it's only a flesh wound!!)
+>
+> especially considering that the current code nukes the whole city ;)
+>
 
-The tests in www.cyberus.ca/~hadi/247-res/ were done with 4-port znyx
-cards using 2.4.7.
-What kind of problems are you having? Maybe i can help.
-
-> Regardless of that, it is often impossible to trade NICS (think
-> built-in 1U servers), and claiming to only work correctly on certain
-> hardware (and potentially lock up hard on other hardware) is a pretty
-> sorry state of affairs...
-
-My point is that the API exists. Driver owners could use it; this
-discussion seems to have at least helped to point in the existence of the
-API. Alexey had the hardware flow control in there since 2.1.x .., us
-that at least. In my opinion, Ingos patch is radical enough to be allowed
-in when we are approaching stability. And it is a lazy way of solving the
-problem
+Ingo, cut down on the bad mushrooms ;->
 
 cheers,
 jamal

@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbRDXIby>; Tue, 24 Apr 2001 04:31:54 -0400
+	id <S131460AbRDXIgf>; Tue, 24 Apr 2001 04:36:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131460AbRDXIbo>; Tue, 24 Apr 2001 04:31:44 -0400
-Received: from zmailer.org ([194.252.70.162]:22027 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S131446AbRDXIbc>;
-	Tue, 24 Apr 2001 04:31:32 -0400
-Date: Tue, 24 Apr 2001 11:31:10 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Paolo Castagna <castagna@cefriel.it>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [help] TCP rate control and Linux TCP/IP Stack?
-Message-ID: <20010424113110.Y805@mea-ext.zmailer.org>
-In-Reply-To: <76D2776C1B442B4C90E1F95FCA217C46866D65@roll.cefriel.it>
+	id <S131477AbRDXIgQ>; Tue, 24 Apr 2001 04:36:16 -0400
+Received: from passat.ndh.net ([195.94.90.26]:7569 "EHLO passat.ndh.net")
+	by vger.kernel.org with ESMTP id <S131460AbRDXIgL>;
+	Tue, 24 Apr 2001 04:36:11 -0400
+Date: Tue, 24 Apr 2001 10:36:07 +0200
+From: Alex Riesen <a.riesen@traian.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: init_rwsem redefinition warning in usbdevice_fs.h
+Message-ID: <20010424103607.B5368@traian.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <76D2776C1B442B4C90E1F95FCA217C46866D65@roll.cefriel.it>; from castagna@cefriel.it on Tue, Apr 24, 2001 at 10:11:15AM +0200
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 10:11:15AM +0200, Paolo Castagna wrote:
-> Hi,
-> I'm an Italian student and I'm doing a Master Thesis on TCP rate 
-> control.
+Hi, again
+i do not know whether it may be important, but the warning
+makes me anyway curios.
+In 2.4.3-ac13 the compiler says that init_rwsem in the
+usbdevice_fs.h is redefined. It was previously defined in a .ver-file.
 
-   You have already posted this very same message to
-        linux-net@vger.kernel.org
-   and:
-        netdev@oss.sgi.com
-   lists.  If you don't get reply from those (netdev mainly), the
-   linux-kernel is not going to yield cheers either.
+/*
+ * sigh. rwsemaphores do not (yet) work from modules
+ */
+ 
+#define rw_semaphore semaphore
+#define init_rwsem init_MUTEX <<<<<<<<<<<<<<<< here
+#define down_read down
+#define down_write down
+#define up_read up
+#define up_write up
 
-   People that know the networking code intimately are presently
-   "somewhat" busy,   Be patient, repeat this topic at  netdev
-   list after about a week.
+Should it be fixed? And, maybe the other define's around
+should be fixed too?
 
-....
-> ---------------------------------------------------------------------
-> About this algorithm, I've a problem... how can I measure the rate
-> Ri for each TCP flow? I've found NeTraMet on this URL:
-> http://www.auckland.ac.nz/net/Accounting/ntm.Release.note.html
-> ... and I've also read the discussion about that on linux-kernel 
-> mailing list. Where is the best place to make a such thing? 
-> I've thought in /net/core/dev.c in function dev_queue_xmit. 
-> And, again, how can I associate the rate Ri to each TCP flow?
+Alex Riesen
 
-        TCP Timestamps ?
-        (Which Linux does use if the other end supports them too.)
+P.S. the original warning (gcc-2.95.2):
 
-        Of course, what is "rate" ?  Units of something per units
-	of time ?  Packets ?  Payload bytes ?   How does the size
-        of payload data in the packets affect the "rate" ?
+In file included from hub.c:24:
+linux-2.4.3-ac13/include/linux/usbdevice_fs.h:170: warning: `init_rwsem' redefined
+linux-2.4.3-ac13/include/linux/modules/rwsem-spinlock.ver:2: warning: this is the location of the previous definition
 
-...
-> Greetings,
-> Paolo Castagna.
 
-/Matti Aarnio

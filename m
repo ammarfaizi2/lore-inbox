@@ -1,70 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266588AbUBDU4j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266597AbUBDUyp
+	id S266591AbUBDUwO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUBDUtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:54:45 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26028 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266588AbUBDUxT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:53:19 -0500
-Date: Wed, 4 Feb 2004 12:54:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jim Faulkner <jfaulkne@ccs.neu.edu>
-Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: major network performance difference between 2.4 and 2.6.2-rc2
-Message-Id: <20040204125444.3f2b5e79.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.58.0402041529160.7454@denali.ccs.neu.edu>
-References: <Pine.GSO.4.58.0401302108560.1211@denali.ccs.neu.edu>
-	<Pine.GSO.4.58.0402041529160.7454@denali.ccs.neu.edu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 4 Feb 2004 15:49:49 -0500
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:31493
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S266588AbUBDUp6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:45:58 -0500
+Date: Wed, 4 Feb 2004 12:46:01 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com
+Subject: [PATCH] Update ohci-omap to compile
+Message-ID: <20040204204601.GD8007@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Faulkner <jfaulkne@ccs.neu.edu> wrote:
->
-> 
-> I am still experiencing severely degraded network performance under
-> 2.6.2-rc3 and 2.6.2-rc3-mm1.
 
-A kernel profile is needed.
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->  Based on some kernel output, I think this
-> problem may be related to Gerd Knorr's input patches, so I am CCing him on
-> this e-mail.
+Hi Greg,
 
-Sounds unlikely.
+Following is a trivial patch to update the ohci-omap.c in 2.6.2 to be in 
+sync with the OMAP tree. Basically the IRQ name was changed, which keeps 
+the driver from compiling.
 
-> Additionally, while large network transfers are going on, both ksoftirqd/0
-> and events/0 start going crazy, putting a huge load on my system:
-> 
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->   3 root      35  19     0    0    0 S 45.9  0.0   0:46.98 ksoftirqd/0
->   6 root       5 -10     0    0    0 S 43.3  0.0   1:56.63 events/0
->   12008 dogshu 15   0  4800 2356 3828 S  5.3  0.2   0:05.98 proftpd
->   12 root      15   0     0    0    0 S  0.3  0.0   0:00.41 pdflush
->   9778 root    16   0  5888 1724 5516 R  0.3  0.2   0:00.12 sshd
-> 
-> the load before that network transfer was 0.01, and the load after the
-> network transfer was 1.45.
+It also includes a cosmetic change to replace inl/outl with readl/writel. 
+Can you please apply?
 
-Could be a networking problem, but boy that's a lot of CPU time.
+Regards,
+
+Tony
 
 
-Please, do this:
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="patch-2.6.2-ohci-omap-update"
 
-- Boot with `profile=1' on the kernel command line
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1551  -> 1.1552 
+#	drivers/usb/host/ohci-omap.c	1.1     -> 1.2    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/02/04	tmlind@kaakku.muru.com	1.1552
+# Patch to update the mainline ohci-omap.c with the current version
+# - Changed irq name from INT_OHCI to INT_USB_HHC_1
+# - Cosmetic fix to replace inl/outl with readl/writel
+# --------------------------------------------
+#
+diff -Nru a/drivers/usb/host/ohci-omap.c b/drivers/usb/host/ohci-omap.c
+--- a/drivers/usb/host/ohci-omap.c	Wed Feb  4 12:34:34 2004
++++ b/drivers/usb/host/ohci-omap.c	Wed Feb  4 12:34:34 2004
+@@ -134,7 +134,7 @@
+ 			writel(readl(ULPD_SOFT_REQ_REG) | SOFT_USB_REQ,
+ 				ULPD_SOFT_REQ_REG);
+ 
+-			outl(inl(ULPD_STATUS_REQ_REG) | USB_HOST_DPLL_REQ,
++			writel(readl(ULPD_STATUS_REQ_REG) | USB_HOST_DPLL_REQ,
+ 			     ULPD_STATUS_REQ_REG);
+ 		}
+ 
+@@ -248,7 +248,7 @@
+ 	val |= (1 << 2); /* Disable pulldown on integrated transceiver DM */
+ 	val |= (1 << 1); /* Disable pulldown on integraded transceiver DP */
+ 
+-	outl(val, USB_TRANSCEIVER_CTRL);
++	writel(val, USB_TRANSCEIVER_CTRL);
+ 
+ 	/* Set the USB0_TRX_MODE */
+ 	val = 0;
+@@ -256,7 +256,7 @@
+ 	val &= ~DEV_IDLE_EN;
+ 	val &= ~(7 << 16);	/* Clear USB0_TRX_MODE */
+ 	val |= (3 << 16);	/* 0 or 3, 6-wire DAT/SE0, TRM p 15-159 */
+-	outl(val, OTG_SYSCON_1);
++	writel(val, OTG_SYSCON_1);
+ 
+ 	/* 
+ 	 * Control via OTG, see TRM p 15-163
+@@ -275,10 +275,10 @@
+ 	val |= (4 << 16);	/* Must be 4 */
+ 	val |= USBX_SYNCHRO;	/* Must be set */
+ 	val |= SRP_VBUS;
+-	outl(val, OTG_SYSCON_2);
++	writel(val, OTG_SYSCON_2);
+ 
+ 	/* Enable OTG idle */
+-	//outl(inl(OTG_SYSCON_1) | OTG_IDLE_EN, OTG_SYSCON_1);
++	//writel(readl(OTG_SYSCON_1) | OTG_IDLE_EN, OTG_SYSCON_1);
+ 
+ 	return 0;
+ }
+@@ -631,7 +631,7 @@
+ 		.end	= OMAP_OHCI_BASE + OMAP_OHCI_SIZE,
+ 	},
+ 	.irq = {
+-		INT_OHCI,
++		INT_USB_HHC_1,
+ 	},
+ };
+ 
 
-sudo readprofile -r
-sudo readprofile -M10
-time <whatever command it is that is causing the problem>
-readprofile -n -v -m /boot/System.map | sort -n +2 | tail -40 | tee ~/log
-
-Making very sure that /boot/System.map is the correct map file for the
-currently-running kernel.
-
-Thanks.
+--XsQoSWH+UP9D9v3l--

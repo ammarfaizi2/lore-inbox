@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264054AbTIIM1r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 08:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTIIM1r
+	id S263344AbTIIMYd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 08:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTIIMYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 08:27:47 -0400
-Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:40432
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S264054AbTIIM1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 08:27:46 -0400
-Message-ID: <3F5DC73F.69916959@eyal.emu.id.au>
-Date: Tue, 09 Sep 2003 22:27:43 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test5: CONFIG_ATM_BR2684 build fails
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
+	Tue, 9 Sep 2003 08:24:33 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51410
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263344AbTIIMYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 08:24:31 -0400
+Date: Tue, 9 Sep 2003 14:25:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-ID: <20030909122547.GN21086@dualathlon.random>
+References: <20030909110112.4d634896.skraw@ithnet.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Disposition: inline
+In-Reply-To: <20030909110112.4d634896.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-allmodconfig, i386:
+On Tue, Sep 09, 2003 at 11:01:12AM +0200, Stephan von Krawczynski wrote:
+> Hello,
+> 
+> lately I upgraded my testbox from 2 to 6 GB ram and found out some oddities I
+> would like to hear your opinions.
+> The box ran flawlessly and performant with 2 GB - was in fact a real joy.
+> After upgrading the ram and recompiling kernel 2.4.22 with support for 64 GB I
+> noticed:
+> 
+> 1) nfs clients see timeouts again, like
+> 
+> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 not responding, still
+> trying
+> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 OK
+> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 not responding, still
+> trying
+> Sep  9 03:37:35 clienta kernel: nfs: server 192.168.1.1 OK
+> Sep  9 03:41:13 clienta kernel: nfs: server 192.168.1.1 not responding, still
+> trying
+> Sep  9 03:41:13 clienta kernel: nfs: server 192.168.1.1 OK
+> 
+> Both are 2.4.22. 192.168.1.1 is the testbox. I saw those with 2GB, but could
+> fix it through more nfs-daemons and
+> 
+>         echo 2097152 >/proc/sys/net/core/rmem_max
+>         echo 2097152 >/proc/sys/net/core/wmem_max
+> 
+> Are these values too small for 6 GB?
+> 
+> 2) Box is very slow, kswapd looks very active during tar of a local harddisk.
+> Interactivity is really bad. Seems vm has a high time looking for free or
+> usable pages. Compared to 2 GB the behaviour is unbelievably bad.
+> 
+> 3) Network performance has a remarkable dropdown during above tar. In fact
+> doing simple pings every few minutes shows that quite a lot of them are simply
+> dropped, never make it over the ethernet.
+> 
+> I am really astonished about this. Can some kind soul give me hints or maybe
+> patches to try?
 
-  CC [M]  net/atm/br2684.o
-net/atm/br2684.c: In function `br2684_seq_show':
-net/atm/br2684.c:735: `pos' undeclared (first use in this function)
-net/atm/br2684.c:735: (Each undeclared identifier is reported only once
-net/atm/br2684.c:735: for each function it appears in.)
-net/atm/br2684.c:736: `buf' undeclared (first use in this function)
-make[2]: *** [net/atm/br2684.o] Error 1
-make[1]: *** [net/atm] Error 2
-make: *** [net] Error 2
+for the vm issues my suggestion is to try again with 2.4.22aa1.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Andrea
+
+/*
+ * If you refuse to depend on closed software for a critical
+ * part of your business, these links may be useful:
+ *
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.5/
+ * rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.4/
+ * http://www.cobite.com/cvsps/
+ *
+ * svn://svn.kernel.org/linux-2.6/trunk
+ * svn://svn.kernel.org/linux-2.4/trunk
+ */

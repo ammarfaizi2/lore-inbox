@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbTEAUlp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 16:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbTEAUlp
+	id S262489AbTEAUow (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 16:44:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbTEAUow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 16:41:45 -0400
-Received: from elaine24.Stanford.EDU ([171.64.15.99]:16051 "EHLO
-	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S262440AbTEAUlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 16:41:44 -0400
-Date: Thu, 1 May 2003 13:53:59 -0700 (PDT)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Greg KH <greg@kroah.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <mc@cs.stanford.edu>
-Subject: Re: [CHECKER] 5 potential user-pointer errors that allow arbitrary
- reads from kernel
-In-Reply-To: <20030501205219.GA3616@kroah.com>
-Message-ID: <Pine.GSO.4.44.0305011353180.28997-100000@elaine24.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 May 2003 16:44:52 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:14344 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262489AbTEAUot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 16:44:49 -0400
+Date: Thu, 1 May 2003 21:57:09 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Steve Whitehouse <Steve@ChyGwyn.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+       linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Remains of seq_file conversion for DECnet, plus fixes
+Message-ID: <20030501215709.A28210@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steve Whitehouse <Steve@ChyGwyn.com>,
+	"David S. Miller" <davem@redhat.com>,
+	linux-decnet-user@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20030501.060909.26990580.davem@redhat.com> <200305012052.VAA19274@gw.chygwyn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305012052.VAA19274@gw.chygwyn.com>; from steve@gw.chygwyn.com on Thu, May 01, 2003 at 09:52:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 01, 2003 at 09:52:01PM +0100, Steven Whitehouse wrote:
+> --- linux-2.5.68-bk10/fs/seq_file.c	Sun Apr 20 03:27:58 2003
+> +++ linux/fs/seq_file.c	Mon Apr 21 14:40:35 2003
+> @@ -338,3 +338,13 @@
+>  	kfree(op);
+>  	return res;
+>  }
+> +
+> +int kfree_release(struct inode *inode, struct file *file)
+> +{
+> +	struct seq_file *seq = file->private_data;
+> +
+> +	kfree(seq->private);
+> +	seq->private = NULL;
+> +	return seq_release(inode, file);
+> +}
 
-Thanks!
-
-On Thu, 1 May 2003, Greg KH wrote:
-
-> On Wed, Apr 30, 2003 at 09:39:18PM -0700, Junfeng Yang wrote:
-> > ---------------------------------------------------------
-> > [BUG] proc_dir_entry.write_proc can take tainted inputs
-> >
-> > /home/junfeng/linux-2.5.63/drivers/usb/media/vicam.c:1117:vicam_write_proc_gain:
-> > ERROR:TAINTED:1117:1117: passing tainted ptr 'buffer' to simple_strtoul
-> > [Callstack:
-> > /home/junfeng/linux-2.5.63/net/core/pktgen.c:991:vicam_write_proc_gain((tainted
-> > 1))]
-> >
-> > static int vicam_write_proc_gain(struct file *file, const char *buffer,
-> > 				unsigned long count, void *data)
-> > {
-> > 	struct vicam_camera *cam = (struct vicam_camera *)data;
-> >
-> >
-> > Error --->
-> > 	cam->gain = simple_strtoul(buffer, NULL, 10);
->
-> Real bug, I'll fix this.
->
-> > ---------------------------------------------------------
-> > [BUG] proc_dir_entry.write_proc can take tainted inputs
-> >
-> > /home/junfeng/linux-2.5.63/drivers/usb/media/vicam.c:1107:vicam_write_proc_shutter:
-> > ERROR:TAINTED:1107:1107: passing tainted ptr 'buffer' to simple_strtoul
-> > [Callstack:
-> > /home/junfeng/linux-2.5.63/net/core/pktgen.c:991:vicam_write_proc_shutter((tainted
-> > 1))]
-> >
-> > static int vicam_write_proc_shutter(struct file *file, const char *buffer,
-> > 				unsigned long count, void *data)
-> > {
-> > 	struct vicam_camera *cam = (struct vicam_camera *)data;
-> >
-> >
-> > Error --->
-> > 	cam->shutter_speed = simple_strtoul(buffer, NULL, 10);
->
-> Again, real bug, I'll fix it.
->
-> thanks,
->
-> greg k-h
->
+The name is a bit generic for an export function.  What about
+seq_release_kfree?
 

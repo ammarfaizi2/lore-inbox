@@ -1,68 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264300AbTEGV6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 17:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTEGV6G
+	id S264282AbTEGVz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 17:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264293AbTEGVz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 17:58:06 -0400
-Received: from tomts14-srv.bellnexxia.net ([209.226.175.35]:64742 "EHLO
-	tomts14-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264300AbTEGV6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 17:58:04 -0400
-Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030505143006.29c0301a.akpm@digeo.com>
-References: <1052141029.2527.27.camel@mars.goatskin.org>
-	 <20030505143006.29c0301a.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052345437.8259.6.camel@mars.goatskin.org>
+	Wed, 7 May 2003 17:55:28 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:61217 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S264282AbTEGVz1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 17:55:27 -0400
+Date: Wed, 7 May 2003 15:04:14 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: The magical mystical changing ethernet interface order
+Message-Id: <20030507150414.1eaeae75.akpm@digeo.com>
+In-Reply-To: <20030507181410.A19615@flint.arm.linux.org.uk>
+References: <20030507141458.B30005@flint.arm.linux.org.uk>
+	<20030507082416.0996c3df.rddunlap@osdl.org>
+	<20030507181410.A19615@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 07 May 2003 18:10:37 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 May 2003 22:07:55.0144 (UTC) FILETIME=[1C4DE880:01C314E5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew & Alan,
+Russell King <rmk@arm.linux.org.uk> wrote:
+>
+> A wild stab in the dark, I'd think maybe the init ordering changed:
 
-Sorry for the delay but the one liner below does seem to have cleared up
-the issue. I have been running it for about eight hours, with some sound
-on all the time, and haven't seen any 'nobody cared' messages.
+Well stabbed.  The relative ordering of tulip and ne2k in
+drivers/net/Makefile got changed.
 
-BTW: I hand applied this to 2.5.69-mm1. So I am confident that this one
-liner did fix it.
+Maybe we should reorganise the 2.5 Makefile to copy the 2.4 Makefile's
+ordering.  How pleasant.
 
-On Mon, 2003-05-05 at 17:30, Andrew Morton wrote:
-> Shane Shrybman <shrybman@sympatico.ca> wrote:
-> >
-> > Hi,
-> > 
-> > I am getting a lot of these in the logs. This is with the ALSA emu10k1
-> > driver for a SB live card. This is a x86, UP, KT133 system with preempt
-> > enabled. The system seems to be running fine.
-> > 
-> > handlers:
-> > [<d8986540>] (gcc2_compiled.+0x0/0x390 [snd_emu10k1])
-> > irq 7: nobody cared!
-> 
-> Beats me.  Does this fix it up?
-> 
-> diff -puN sound/pci/emu10k1/irq.c~sound-irq-hack sound/pci/emu10k1/irq.c
-> --- 25/sound/pci/emu10k1/irq.c~sound-irq-hack	Mon May  5 14:28:58 2003
-> +++ 25-akpm/sound/pci/emu10k1/irq.c	Mon May  5 14:29:17 2003
-> @@ -147,5 +147,5 @@ irqreturn_t snd_emu10k1_interrupt(int ir
->  			outl(IPR_FXDSP, emu->port + IPR);
->  		}
->  	}
-> -	return IRQ_RETVAL(handled);
-> +	return IRQ_HANDLED;
->  }
-
-Regards,
-
-Shane
-
-
+I suspect the linker is at liberty to reorder these anyway.

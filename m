@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129506AbRCBV1O>; Fri, 2 Mar 2001 16:27:14 -0500
+	id <S129525AbRCBVaY>; Fri, 2 Mar 2001 16:30:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129509AbRCBV1E>; Fri, 2 Mar 2001 16:27:04 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1183 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129506AbRCBV0t>;
-	Fri, 2 Mar 2001 16:26:49 -0500
-Date: Fri, 2 Mar 2001 16:26:24 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Pavel Roskin <proski@gnu.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net
-Subject: [FIX] Re: usbdevfs can be mounted multiple times
-In-Reply-To: <Pine.LNX.4.33.0103021605570.22765-100000@fonzie.nine.com>
-Message-ID: <Pine.GSO.4.21.0103021617500.15463-100000@weyl.math.psu.edu>
+	id <S129509AbRCBVaO>; Fri, 2 Mar 2001 16:30:14 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:42637 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S129525AbRCBVaA> convert rfc822-to-8bit; Fri, 2 Mar 2001 16:30:00 -0500
+Date: Fri, 2 Mar 2001 22:29:45 +0100 (CET)
+From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+To: Sébastien HINDERER <jrf3@wanadoo.fr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Escape sequences & console
+In-Reply-To: <"3a9ea6fa3b646cc9@citronier.wanadoo.fr> (added by    citronier.wanadoo.fr)">
+Message-Id: <Pine.LNX.4.31.0103022208050.30419-100000@phobos.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Mar 2001, Sébastien HINDERER wrote:
 
+> According to linux/drivers/console.c, function setterm_commands, case 12,
+> one can change the virtual console by sending an escape sequence to
+> /dev/cnsole (what I want to do), hower, this is not documented in man
+> pages.
 
-On Fri, 2 Mar 2001, Pavel Roskin wrote:
+>From the source of the chvt program:
 
-> Hello!
-> 
-> I understand that root can do many strange and unsafe things, but mounting
-> the same filesystem many times is not allowed for systems other than
-> usbdevfs.
+    if (ioctl(fd,VT_ACTIVATE,num)) {
+        perror("chvt: VT_ACTIVATE");
+        exit(1);
+    }
+    if (ioctl(fd,VT_WAITACTIVE,num)) {
+        perror("VT_WAITACTIVE");
+        exit(1);
+    }
 
-Mounting the same fs many times _is_ perfectly legitimate. However, I really
-don't like the fact that you've been able to do it several times on the same
-mountpoint...  Ah. I see - Linus, could you please do the following?
+Where fd is /dev/tty, /dev/tty0, /dev/console or std{in,out,err} (From the
+source, I doubt this ioctl works on all of those).
 
-vi drivers/usb/inode.c '-c/DECLARE_FSTYPE/s/0/FS_SINGLE/
-x'
+   Simon
 
-I.e. replace the last argument in declaration of usbdevfs with FS_SINGLE -
-without that we get a new instance every time.
-
-								Cheers,
-									Al
+-- 
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+UP:  10:29pm  up 7 days,  3:40,  8 users,  load average: 3.67, 4.43, 4.69
 

@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVBGPI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVBGPLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVBGPI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 10:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVBGPI3
+	id S261160AbVBGPLv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 10:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVBGPLv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 10:08:29 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:52921 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261152AbVBGPI2
+	Mon, 7 Feb 2005 10:11:51 -0500
+Received: from fmmailgate04.web.de ([217.72.192.242]:64989 "EHLO
+	fmmailgate04.web.de") by vger.kernel.org with ESMTP id S261160AbVBGPLt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 10:08:28 -0500
-Date: Mon, 7 Feb 2005 16:08:23 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Real-Time Preemption and UML?
-In-Reply-To: <20050207092128.GA19189@elte.hu>
-Message-Id: <Pine.OSF.4.05.10502071601480.29801-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: -2.82 () ALL_TRUSTED
+	Mon, 7 Feb 2005 10:11:49 -0500
+Date: Mon, 07 Feb 2005 16:11:47 +0100
+Message-Id: <791761604@web.de>
+MIME-Version: 1.0
+From: "Enrico Bartky" <DOSProfi@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: BIOS Bug
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I am trying to compile and run UM-Linux with PREEMPT_REALTIME. I
-managed to get it to compile but it wont start - it simply stops somewhere
-in start_kernel() :-(
+Hello,
 
-Have anyone else looked at it?
+on my notebook, when I plugged in my USB keyboard the kernel doesnt boot correctly, ...
 
-It doesn't sound like it makes much sense to have PREEMPT_REALTIME for UML
-but I thought it was a good developing platform for playing around
-before going to the real hardware, where the latency meassurements
-of course have to take place. The turn around time should be much shorter
-than rebooting a full PC every time and the possibility of getting debug
-output in the beginning should also be much better.
+... 
+BIOS hangoff failed ( 112, 1010001 )
+continuing after BIOS bug
+irq 192, pci mem 0xfebff000
+new usb device registered, assigned bus number 1
+...
 
-Esben
+then the notebook hangs. If I boot without the plugged keyboard and plug in when the kernel is ready, there are no problems. I have a SiS USB chipset.
+
+Can you help me?
+
+Thanx, EnricoB
+______________________________________________________________
+Verschicken Sie romantische, coole und witzige Bilder per SMS!
+Jetzt bei WEB.DE FreeMail: http://f.web.de/?mc=021193
 

@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUIOIm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUIOIzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbUIOIm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 04:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUIOIm4
+	id S262071AbUIOIzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 04:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUIOIzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 04:42:56 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:27326 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263429AbUIOImx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 04:42:53 -0400
-Date: Wed, 15 Sep 2004 10:43:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040915084355.GA29752@elte.hu>
-References: <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914145457.GA13113@elte.hu> <414776CE.5030302@yahoo.com.au> <20040915061922.GA11683@elte.hu> <4147FC14.2010205@yahoo.com.au>
+	Wed, 15 Sep 2004 04:55:38 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:59788 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262071AbUIOIzh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 04:55:37 -0400
+Date: Wed, 15 Sep 2004 10:54:50 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: George Anzinger <george@mvista.com>
+Cc: Christoph Lameter <clameter@sgi.com>, john stultz <johnstul@us.ibm.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+Message-ID: <20040915085450.GA5242@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	George Anzinger <george@mvista.com>,
+	Christoph Lameter <clameter@sgi.com>,
+	john stultz <johnstul@us.ibm.com>,
+	Albert Cahalan <albert@users.sourceforge.net>,
+	lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+	Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+	David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+	paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
+	keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+	Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+References: <1094700768.29408.124.camel@cog.beaverton.ibm.com> <413FDC9F.1030409@mvista.com> <1094756870.29408.157.camel@cog.beaverton.ibm.com> <4140C1ED.4040505@mvista.com> <Pine.LNX.4.58.0409131420500.490@schroedinger.engr.sgi.com> <1095114307.29408.285.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0409141045370.6963@schroedinger.engr.sgi.com> <41479369.6020506@mvista.com> <Pine.LNX.4.58.0409142024270.10739@schroedinger.engr.sgi.com> <4147F774.6000800@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4147FC14.2010205@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <4147F774.6000800@mvista.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> OK.
+On Wed, Sep 15, 2004 at 01:04:04AM -0700, George Anzinger wrote:
+> >One could do this but we want to have a tickless system. The tick is only
+> >necessary if the time needs to be adjusted.
 > 
-> Alternatively, I'd say tell everyone who wants really low latency to
-> enable CONFIG_PREEMPT, which automatically gives the minimum possible
-> preempt latency, delimited (and defined) by critical sections, instead
-> of the more ad-hoc "sprinkling" ;)
+> I really think a tickless system, for other than UML systems, is a loosing 
+> thing.  The accounting overhead on context switch (which increases as the 
+> number of switchs per second) will cause more overhead than a periodic 
+> accounting tick once a respectable load appears.
+			 ^^^^^^^^^^^^^^^^
 
-it's not ad-hoc. These are the 10 remaining points for which there is no
-natural might_sleep() point nearby (according to measurements). That's
-why i called them 'complementary'. They cause zero problems for the
-normal kernel (we already have another 70 cond_resched() points), but
-they _are_ the ones needed in addition if might_sleep() also does
-cond_resched().
+On a largely idle system (like notebooks on battery power in typical use)
+the accounting overhead will be less a problem. However, the CPU being 
+woken up each millisecond will cause an increased battery usage. So if 
+the load is less than a certain threshold, tickless systems do make much 
+sense.
 
-the 'reliability' of latency break-up depends on the basic preemption
-model. Believe me, even with CONFIG_PREEMPT there were a boatload of
-critical sections that had insanely long latencies that nobody fixed
-until the VP patchset came along. Without CONFIG_PREEMPT the number of
-possibly latency-paths increases, but the situation is the same as with
-CONFIG_PREEMPT: you need tools, people that test stuff and lots of
-manual work to break them up reliably. You will never be 'done' but you
-can do a reasonably good job for workloads that people care about.
-
-the 'final' preemption model [for hard-RT purposes] that i believe will
-make it into the Linux kernel one nice day is total preemptability of
-everything but the core preemption code (i.e. the scheduler and
-interrupt controllers). _That_ might be something that has provable
-latencies. Note that such a 'total preemption' model has prerequisites
-too, like the deterministic execution of hardirqs/softirqs.
-
-note that the current lock-break-up activities still make alot of sense
-even under the total-preemption model: it decreases the latency of
-kernel-using hard-RT applications. (raw total preemption only guarantees
-quick scheduling of the hard-RT task - it doesnt guarantee that the task
-can complete any useful kernel/syscall work.)
-
-since we already see at least 4 different viable preemption models
-placed on different points in the 'latency reliability' spectrum, it
-makes little sense to settle for any of them. So i'm aiming to keep the
-core code flexible to have them all without much fuss, and usage will
-decide which ones are needed. Maybe CONFIG_PREEMPT will merge into
-CONFIG_TOTAL_PREEMPT. Maybe CONFIG_NO_PREEMPT will merge into
-CONFIG_PREEMPT_VOLUNTARY. Maybe CONFIG_PREEMPT_VOLUNTARY will go away
-altogether. We cannot know at this point, it all depends on how usage
-(and consequently, hardware) evolves.
-
-	Ingo
+	Dominik

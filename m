@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279499AbRKVNfe>; Thu, 22 Nov 2001 08:35:34 -0500
+	id <S279326AbRKVNmz>; Thu, 22 Nov 2001 08:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279407AbRKVNfZ>; Thu, 22 Nov 2001 08:35:25 -0500
-Received: from chiark.greenend.org.uk ([195.224.76.132]:39178 "EHLO
-	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
-	id <S279505AbRKVNfH>; Thu, 22 Nov 2001 08:35:07 -0500
-From: Colin Watson <cjwatson@flatline.org.uk>
-To: Ian Stirling <root@mauve.demon.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Can't link?
-In-Reply-To: <200111200206.CAA07946@mauve.demon.co.uk>
-Organization: riva.ucam.org
-Message-Id: <E166u0Q-0006Yv-00@chiark.greenend.org.uk>
-Date: Thu, 22 Nov 2001 13:35:06 +0000
+	id <S279502AbRKVNmq>; Thu, 22 Nov 2001 08:42:46 -0500
+Received: from dirac.dina.kvl.dk ([130.225.40.191]:38148 "EHLO
+	dirac.dina.kvl.dk") by vger.kernel.org with ESMTP
+	id <S279326AbRKVNmd>; Thu, 22 Nov 2001 08:42:33 -0500
+Date: Thu, 22 Nov 2001 14:42:27 +0100 (CET)
+From: "Thomas S. Iversen" <thomassi@dina.kvl.dk>
+To: linux-kernel@vger.kernel.org
+Subject: XIP linux?
+Message-ID: <Pine.LNX.4.21.0111221437130.22919-100000@dirac.dina.kvl.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200111200206.CAA07946@mauve.demon.co.uk>, Ian Stirling wrote:
->Rather odd thing happening right now, that I can't figure out.
->
->Running 2.4.11 on a ext2 filesystem, with a couple of 40Gb drives, and 
->some NFS mounts.
->
->After reading man link, I tried the following in /
->
->bash-2.03# >1 
->bash-2.03# ls -l
->total 0
->-rw-r--r--   1 root     root            0 Nov 20 01:57 1
->bash-2.03# ln 1 2
->ln: cannot create hard link `2' to `1': No such file or directory
+Hi There
 
-2.4.11 was badly broken (it's called 2.4.11-dontuse in the kernel
-archives now). Have you tried later kernels?
+I have a wonderfull HP omnibook 600C lying around here. It is a monster
+machine with a 486-50Mhz and 4Mb ram. The hdd system is based on pcmcia
+harddrives but mine is long gone to lala-land (badblocks everywhere).
 
--- 
-Colin Watson                                  [cjwatson@flatline.org.uk]
+So I thought of installing a CompactFlash card with a complete linux
+system on it. Because of wear on the flash part I have to do without
+swap. And as I only have 4Mb ram on the system I have to conserve that
+also. So a couple of questions:
+
+1. Are there any patches for making linux run from a CF card?
+2. Anybody know anyting about making a XIP linux disk? (all code stays on
+the CF card, only datastructures and the like eat up the little memory I
+have)?
+
+Any hint, pointer, anything will be greatly appriciated :)
+
+Regards Thomas, Denmark
+

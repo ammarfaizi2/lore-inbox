@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263506AbTDWUSV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 16:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTDWUSV
+	id S263620AbTDWUYm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 16:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263621AbTDWUYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 16:18:21 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:43185 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263506AbTDWUSU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 16:18:20 -0400
+	Wed, 23 Apr 2003 16:24:41 -0400
+Received: from pop.gmx.de ([213.165.65.60]:59182 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263620AbTDWUYk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 16:24:40 -0400
+Date: Wed, 23 Apr 2003 22:36:39 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Pavel Machek <pavel@ucw.cz>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Fix SWSUSP & !SWAP
+Message-Id: <20030423223639.7cc6a796.gigerstyle@gmx.ch>
+In-Reply-To: <1051126871.1893.35.camel@laptop-linux>
+References: <20030423135100.GA320@elf.ucw.cz>
+	<Pine.GSO.4.21.0304231631560.1343-100000@vervain.sonytel.be>
+	<20030423144705.GA2823@elf.ucw.cz>
+	<20030423175629.7cfc9087.gigerstyle@gmx.ch>
+	<1051126871.1893.35.camel@laptop-linux>
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] HT scheduler, sched-2.5.68-B2
-Date: Wed, 23 Apr 2003 15:14:44 -0500
-User-Agent: KMail/1.4.3
-References: <Pine.LNX.4.44.0304231816210.10779-100000@localhost.localdomain> <200304231253.09520.habanero@us.ibm.com> <1538380000.1051123399@flay>
-In-Reply-To: <1538380000.1051123399@flay>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304231514.44451.habanero@us.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 April 2003 13:43, Martin J. Bligh wrote:
-> >> >  - turn off the more agressive idle-steal variant. This could fix the
-> >> >    low-load regression reported by Martin J. Bligh.
-> >>
-> >> Yup, that fixed it (I tested just your first version with just that
-> >> bit altered).
-> >
-> > Can we make this an arch specific option?  I have a feeling the HT
-> > performance on low loads will actually drop with this disabled.
->
-> Is it really an arch thing? Or is it a load level thing? I get the feeling
-> it might be switchable dynamically, dependant on load ...
+Hi Nigel, Hi All
 
-Well on high load, you shouldn't have an idle cpu anyway, so you would never 
-pass the requirements for the agressive -idle- steal even if it was turned 
-on.   On low loads on HT, without this agressive balance on cpu bound tasks, 
-you will always load up one core before using any of the others.  When you 
-fork/exec, the child will start on the same runqueue as the parent, the idle 
-sibling will start running it, and it will never get a chance to balance 
-properly while it's in a run state.  This is the same behavior I saw with the 
-NUMA-HT solution, because I didn't have this agressive balance (although it 
-could be added I suppose), and as a result it consistently performed less 
-than Ingo's solution (but still better than no patch at all).
+On Thu, 24 Apr 2003 07:41:11 +1200
+Nigel Cunningham <ncunningham@clear.net.nz> wrote:
 
--Andrew Theurer
+> Swsusp will use the portion of your swap partition that is unused when
+> you start to suspend. The version currently in the 2.5 tree frees most
+> of your memory before suspending, and so doesn't need that much swap at
+> all. The version that I'm working on merging only frees memory if it is
+> necessary to fit the image in the available swap or to have enough
+> memory to be able to save the image. Thus, you need a lot more swap for
+> my version. (eg. I have 640MB ram on my laptop and a ~700MB swap
+> partition).
+> 
+
+Ok! I see the advantages / disadvantages of each version. But what happens if the memory AND swap space are full and nothing can't be freed? When I watch the memory and swap consumption on my laptop, I think it's the most time the case...
+
+Another question:
+Is it a big problem to save the memory in a separate file on the file system, and save somewhere the pointer to it (as example in swap. Also we could set a flag in swap so that we now that the last shutdown was a hybernation). One Problem will be, that we don't know the filesystem type on resume...(We could save the module in swap...)
+All that is just theoretical. It's only a idea.
+
+Thank you for your statements.
+
+greets
+
+Marc

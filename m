@@ -1,69 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266690AbSK1Sjt>; Thu, 28 Nov 2002 13:39:49 -0500
+	id <S266701AbSK1SoO>; Thu, 28 Nov 2002 13:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266701AbSK1Sjt>; Thu, 28 Nov 2002 13:39:49 -0500
-Received: from sysdoor.net ([62.212.103.239]:39684 "EHLO celia")
-	by vger.kernel.org with ESMTP id <S266690AbSK1Sjs>;
-	Thu, 28 Nov 2002 13:39:48 -0500
-Message-ID: <3DE67279.5040402@sysdoor.com>
-Date: Thu, 28 Nov 2002 20:46:01 +0100
-From: "Vergoz Michael (SYSDOOR)" <mvergoz@sysdoor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-X-Accept-Language: en
+	id <S266702AbSK1SoO>; Thu, 28 Nov 2002 13:44:14 -0500
+Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:7947 "EHLO
+	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
+	id <S266701AbSK1SoN> convert rfc822-to-8bit; Thu, 28 Nov 2002 13:44:13 -0500
+Date: Thu, 28 Nov 2002 19:51:33 +0100 (CET)
+From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PROBLEM] NFS trouble - file corruptions
+In-Reply-To: <15846.25140.759632.709205@charged.uio.no>
+Message-ID: <Pine.LNX.4.44.0211281949030.1818-100000@grignard.amagerkollegiet.dk>
 MIME-Version: 1.0
-To: Wakko Warner <wakko@animx.eu.org>
-CC: Adam Belay <ambx1@neo.rr.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: Possible Linux Theme Song :)
-References: <20021128132259.GA364@neo.rr.com> <20021128133422.A17920@animx.eu.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner wrote:
+On Thu, 28 Nov 2002, Trond Myklebust wrote:
 
->>I just ran across this song, recorded by Lyle Lovett.  As you can see, he really
->>likes penguins.  If you'd like to hear the song, I'd be glad to send you a tape.
->>    
->>
+> >>>>> " " == Rasmus Bøg Hansen <moffe@amagerkollegiet.dk> writes:
 >
->I think I'm loosing my Herring...
+>     >> Does it also occur if you play around with setting rsize and
+>     >> wsize = 1024?
 >
->  
+>      > I'm afraid so - I just double-checked...
 >
->>Album: I Love Everybody
->>Title: Penguins
->>
->>I go for Penguins
->>I don't go for fancy cars
->>For diamond rings
->>Or movie stars
->>I go for penguins
->>Oh Lord I go for penguins
->>
->>Throw your money out the door
->>We'll just sit around
->>And watch it snow
->>I go for penguins
->>Oh Lord I go for penguins
->>
->>Penguins are so sensitive
->>Penguins are so sensitive
->>Penguins are so sensitive
->>To my needs
->>To my needs
->>To my needs
->>To my needs
->>--Lyle Lovett
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>    
->>
-stop drug :P
+> Given that you are saying that even synchronous RPC (which is the
+> default for r/wsize = 1024) is failing, then my 2 main suspicions are
+>
+>   - hardware failure: Have you tried this on several different
+>     server/client combinations and hardware combinations?
 
+I have thought of this too but never seen traces of hardware failure
+otherwise. I will try other hardware tomorrow (I'm tight on time today)
+- although I haven't got access to that many different machines.
+
+>   - gcc miscompile: which version of gcc are you using?
+
+It is the standard Debian Woody gcc:
+
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+gcc version 2.95.4 20011002 (Debian prerelease)
+moffe@carlsberg:~# dpkg -l gcc
+Ønsket=Ukendt/Installér/Fjern/Udrens/Tilbagehold
+| Status=Ikke/Installeret/Opsæt.-files/Upakket/Opsætn.-fejl/Halvt-inst.
+|/ Fjl?=(ingen)/Tilbageholdt/Geninst.-krævet/X=begge-dele (Status,Fjl:
+versaler=slemt)
+||/ Navn                Version             Beskrivelse
++++-===================-===================-======================================================
+ii  gcc                 2.95.4-14           The GNU C compiler.
+
+I will report ASAP.
+
+Thanks so far
+
+/Rasmus
+
+-- 
+-- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
+Linux hackers are funny people: They count the time in patchlevels.
+----------------------------------[ moffe at amagerkollegiet dot dk ] --
 

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129360AbRA3LtS>; Tue, 30 Jan 2001 06:49:18 -0500
+	id <S129406AbRA3MZb>; Tue, 30 Jan 2001 07:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRA3LtH>; Tue, 30 Jan 2001 06:49:07 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:20476 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129360AbRA3Ls7>; Tue, 30 Jan 2001 06:48:59 -0500
-Date: Tue, 30 Jan 2001 09:48:33 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: alex@foogod.com
-cc: Alan Olsen <alan@clueserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Recommended swap for 2.4.x.
-In-Reply-To: <20010129152335.H11411@draco.foogod.com>
-Message-ID: <Pine.LNX.4.21.0101300945500.1321-100000@duckman.distro.conectiva>
+	id <S129834AbRA3MZV>; Tue, 30 Jan 2001 07:25:21 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63617 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129406AbRA3MZJ>;
+	Tue, 30 Jan 2001 07:25:09 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14966.45657.61304.403990@pizda.ninka.net>
+Date: Tue, 30 Jan 2001 04:23:53 -0800 (PST)
+To: Chris Wedgwood <cw@f00f.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [UPDATE] Fresh zerocopy patch on kernel.org
+In-Reply-To: <20010131001605.B6620@metastasis.f00f.org>
+In-Reply-To: <14966.35438.429963.405587@pizda.ninka.net>
+	<20010131001605.B6620@metastasis.f00f.org>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001 alex@foogod.com wrote:
-> On Mon, Jan 29, 2001 at 02:57:44PM -0800, Alan Olsen wrote:
-> > 
-> > What is the recommended amount of swap with the 2.4.x kernels?
-> 
-> AFAIK, swap requirements for applications running under a 2.4
-> kernel have not changed significantly from 2.2 kernels
 
-It has. We now leave dirty pages swapcached, which means that
-for certain workloads Linux 2.4 eats up much more swap space
-than Linux 2.2.
+Chris Wedgwood writes:
+ > On Tue, Jan 30, 2001 at 01:33:34AM -0800, David S. Miller wrote:
+ > 
+ >     2) Accept TCP flags (ACK, URG, RST, etc.) for out of window packets
+ >        if truncating the data to the window would make that packet valid.
+ >        (Alexey)
+ > 
+ >     3) Add SO_ACCEPTCONN, Unix standard wants it. (me)
+ > 
+ > these have been feed back for 2.4.x Linus anyhow right?
 
-On the other hand, if you almost never used swap under Linux
-2.2, you probably won't be using it under 2.4 either.
+Yes, but I couldn't get them to him in time for 2.4.1
 
-> 2) Subtract the amount of RAM you have (believe it or not, the more RAM you 
->    have, the less swap you need.  Imagine that).
-
-For Linux 2.4, it may be better to substract a bit less,
-because of the issue above.
-
-If you have a very swap-intensive workload, you may end
-up with 90% of your memory being "duplicated" in swap, in
-which case this rule doesn't work.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

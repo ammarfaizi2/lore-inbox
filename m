@@ -1,39 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBGQBb>; Wed, 7 Feb 2001 11:01:31 -0500
+	id <S129031AbRBGQWX>; Wed, 7 Feb 2001 11:22:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129031AbRBGQBV>; Wed, 7 Feb 2001 11:01:21 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:48530 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S129026AbRBGQBK>; Wed, 7 Feb 2001 11:01:10 -0500
-Date: Wed, 7 Feb 2001 16:56:53 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: mingo@redhat.com, linux-kernel@vger.kernel.org, hpa@transmeta.com,
-        mikpe@csd.uu.se
-Subject: Re: UP APIC reenabling vs. cpu type detection ordering
-In-Reply-To: <20010207135824.A24476@vana.vc.cvut.cz>
-Message-ID: <Pine.GSO.3.96.1010207165119.1418A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129047AbRBGQWO>; Wed, 7 Feb 2001 11:22:14 -0500
+Received: from lama.supermedia.pl ([212.75.96.18]:44302 "EHLO
+	lama.supermedia.pl") by vger.kernel.org with ESMTP
+	id <S129031AbRBGQV5>; Wed, 7 Feb 2001 11:21:57 -0500
+Date: Wed, 7 Feb 2001 17:21:53 +0100
+From: Bartek Krajnik <bartek@sm.pl>
+To: linux-kernel@vger.kernel.org
+Subject: alpha with 2.4.1
+Message-ID: <20010207172153.A7333@lama.supermedia.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001, Petr Vandrovec wrote:
+My console after panic:
+_____________________________________________________________________________
+Code: b26901cc stl a3,460(s0)
 
->   Mikael Pettersson pointed to me that current kernel code should not
-> reenable local APIC on AMD K7, as it tests boot_cpu_data.x86_vendor.
-> But boot_cpu_data.x86_vendor is uninitialized (or contains wrong
-> value) when detect_init_APIC is invoked.
+ a0300000	ldl t0,0(a0)
+ 482010c1	extbl t0,0,t0
+ 402075a2	cmpeq t0,3,t1
+ e4400003	blt t1,.+16
+ d3400045	bsr ra,.+280
+*b0090218	stl v0,536(s0)
+ c3e00002	br .+12
 
- I'm working on CPU capabilities now.  I'll address the problem.
+Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+_____________________________________________________________________________
+
+My cpuinfo:
+______________________________________________________________________________
+cpu                     : Alpha
+cpu model               : EV56
+cpu variation           : 7
+cpu revision            : 0
+cpu serial number       :
+system type             : Noritake
+system variation        : 0
+system revision         : 0
+system serial number    : AY90560615
+cycle frequency [Hz]    : 500000000
+timer frequency [Hz]    : 1024.00
+page size [bytes]       : 8192
+phys. address bits      : 40
+max. addr. space #      : 127
+BogoMIPS                : 994.44
+kernel unaligned acc    : 318104 (pc=fffffc00003cec04,va=fffffc000e1c25e6)
+user unaligned acc      : 0 (pc=0,va=0)
+platform string         : AlphaServer 800 5/500
+cpus detected           : 1
+______________________________________________________________________________
+
+With kernel 2.2.* I haven't any problems... (expect files >2GB).
+I use reiserfs(ext2: problem with inodes numbers) for /var/spool_news/.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+	BARTEK
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283567AbRLDW3X>; Tue, 4 Dec 2001 17:29:23 -0500
+	id <S283535AbRLDWaX>; Tue, 4 Dec 2001 17:30:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283551AbRLDW3P>; Tue, 4 Dec 2001 17:29:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:12453 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S283535AbRLDW26>;
-	Tue, 4 Dec 2001 17:28:58 -0500
-Date: Tue, 04 Dec 2001 14:28:42 -0800 (PST)
-Message-Id: <20011204.142842.08393744.davem@redhat.com>
-To: groudier@free.fr
-Cc: kaos@ocs.com.au, hps@intermeta.de, jgarzik@mandrakesoft.com,
-        lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011204181546.B2674-100000@gerard>
-In-Reply-To: <30026.1007335642@ocs3.intra.ocs.com.au>
-	<20011204181546.B2674-100000@gerard>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S283551AbRLDWaO>; Tue, 4 Dec 2001 17:30:14 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:29056 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S283535AbRLDWaC>; Tue, 4 Dec 2001 17:30:02 -0500
+Message-ID: <3C0D4E62.4010904@optonline.net>
+Date: Tue, 04 Dec 2001 17:29:54 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   
-   On Mon, 3 Dec 2001, Keith Owens wrote:
-   
-   > On Sun, 02 Dec 2001 15:21:57 -0800 (PST),
-   > "David S. Miller" <davem@redhat.com> wrote:
-   > >   From: Keith Owens <kaos@ocs.com.au>
-   > >   Date: Sat, 01 Dec 2001 12:17:03 +1100
-   > >
-   > >   What is ugly in aic7xxx is :-
-   > >
-   > >You missed:
-   > >
-   > >* #undef's "current"
-   >
-   > Where?  fgrep -ir current 2.4.17-pre2/drivers/scsi/aic7xxx did not find it.
+Doug Ledford wrote:
 
-OMFG, it's been fixed... this is amazing.  I am honestly shocked.
+> Probably not.  Although I did change it back but then change it in 
+> another way.  Use the attached patch to back out those changes and let 
+> me know if it works (for some reason, I doubt it).
+
+Fascinating...
+
+Your patch to i810_poll fixes the sleep of death. and with the rest of 
+the patches in 0.07, select() works a lot better but still not perfectly.
+
+xmms+artsd is likely to play sound for quite a while, *until* I do 
+something that causes another process to be scheduled, like click on the 
+Mozilla window that's sitting in the background. At that point, it 
+reverts to the behavior where select() doesn't return properly. And 
+stays that way.
+
+this may be due to an output underrun... or i suppose lost interrupt is 
+also possible.
+
+i think it might be wise to use 
+get_available_read_data/get_free_write_space from i810_poll instead of 
+dmabuf->count directly. i'll try this and see if it works...
+

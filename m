@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUIIXVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUIIXZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUIIXVv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 19:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUIIXVu
+	id S264530AbUIIXZL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 19:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUIIXZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 19:21:50 -0400
-Received: from holomorphy.com ([207.189.100.168]:26804 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266810AbUIIXVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 19:21:03 -0400
-Date: Thu, 9 Sep 2004 16:20:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
-Message-ID: <20040909232053.GP3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
-	Mark_H_Johnson@Raytheon.com
-References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu> <20040909130526.2b015999.akpm@osdl.org> <20040909224535.GN3106@holomorphy.com> <1094767887.15731.0.camel@localhost.localdomain>
+	Thu, 9 Sep 2004 19:25:09 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:63371 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S268084AbUIIXW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 19:22:28 -0400
+Subject: Re: netwinder or ARM build platform
+From: David Woodhouse <dwmw2@infradead.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200409091759.i89HxHI2023135@work.bitmover.com>
+References: <200409091759.i89HxHI2023135@work.bitmover.com>
+Content-Type: text/plain
+Message-Id: <1094772143.9144.42.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094767887.15731.0.camel@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Fri, 10 Sep 2004 00:22:23 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-09 at 23:45, William Lee Irwin III wrote:
->> Something odd is going on, in part because I get *blistering* IO speeds
->> running benchmarks like dbench, tiobench, et al on tmpfs with striped
->> swap. In fact, IO speeds markedly faster than any other filesystem I've
->> ever tried, by about 30MB/s (i.e. wirespeed, where others fall about
->> 37.5% short of it). Virtual alignment issues do hurt, but the core
->> allocation algorithm appears to be better than good, it's astounding.
+On Thu, 2004-09-09 at 10:59 -0700, Larry McVoy wrote:
+> BK found another bad hard drive today, on our netwinder.  The disk is dieing
+> badly unfortunately and I don't have installation media for this beast.
+> I suspect I can go find it but does anyone know of a faster build platform
+> for arm?  Russell uses bk on arms (no kidding, that's amazing) and so we
+> continue to support it but that netwinder is just amazingly slow.  If there
+> is a faster platform we want one.
 
-On Thu, Sep 09, 2004 at 11:11:39PM +0100, Alan Cox wrote:
-> Thats a very atypical load where you can expect to get long linear write
-> outs. The seek v write numbers for a disk nowdays have more in common
-> with a tape drive. Paging tends to be much much more random.
+TBH I'd suggest cross-building and testing in qemu-arm. Assuming
+qemu-arm is actually working now.
 
-Yes, I mentioned that those kinds of benchmarks are not the workload
-we're shooting for in the second part of the message. The commentary
-regarding dbench et al on tmpfs suggests that the lower-level parts of
-the algorithm are sound, but are somehow driven inappropriately or in a
-manner unaligned with what locality of reference there may be.
+-- 
+dwmw2
 
 
--- wli

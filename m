@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbTDFPXv (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbTDFPXu (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:23:50 -0400
-Received: from wall.ttu.ee ([193.40.254.238]:28678 "EHLO wall.ttu.ee")
-	by vger.kernel.org with ESMTP id S263012AbTDFPXu (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 11:23:50 -0400
-Date: Sun, 6 Apr 2003 18:34:57 +0300 (EET DST)
-From: Siim Vahtre <siim@pld.ttu.ee>
-To: linux-kernel@vger.kernel.org
-cc: linux-fbdev-devel@lists.sourceforge.net
-Subject: i810fb compile/module loading failure on 2.5.66-bk12
-Message-ID: <Pine.GSO.4.53.0304061824230.17774@pitsa.pld.ttu.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263011AbTDFPWQ (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 11:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbTDFPWQ (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 11:22:16 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22670
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263011AbTDFPWP (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 11:22:15 -0400
+Subject: Re: [PATCH] take 48-bit lba a bit further
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Bradford <john@grabjohn.com>
+Cc: Jens Axboe <axboe@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200304061332.h36DWnaD000165@81-2-122-30.bradfords.org.uk>
+References: <200304061332.h36DWnaD000165@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049639724.962.7.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Apr 2003 15:35:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sul, 2003-04-06 at 14:32, John Bradford wrote:
+> Then, don't we want to be using 48-bit lba all the time on compatible devices
+> instead of falling back to 28-bit when possible to save a small amount of
+> instruction overhead?  (Or is that what we're doing already?  I haven't really
+> had the time to follow this thread).
 
-When trying to load module i810 on 2.5.66-bk12 I get:
-i810fb: Unknown symbol __memcpy
+The overhead of the double load of the command registers is microseconds so it
+is actually quite a lot, especially since IDE lacks TCQ so neither end of the
+link is doing *anything* useful. SCSI has similar problems on older SCSI with 
+command sending being slow, but the drive is at least doing other commands during
+this.
 
-It also happens (in a bit different way) when I try to link it while
-compiling directly into kernel.
-
-I fixed it by changing
-            memcpy_toio(d_addr, s_addr, s_pitch * image->height);
-on drivers/video/i810/i810_accel.c:419 to:
-            memcpy(d_addr, s_addr, s_pitch * image->height);
-
-I have no idea what I've just done but... it works for me. :-)

@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268283AbUH2Tlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268286AbUH2TrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268283AbUH2Tlp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 15:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268290AbUH2Tlp
+	id S268286AbUH2TrP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 15:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268289AbUH2TrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 15:41:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60870 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268283AbUH2Tln (ORCPT
+	Sun, 29 Aug 2004 15:47:15 -0400
+Received: from hig2.hig.no ([128.39.140.8]:10654 "EHLO hig2.hig.no")
+	by vger.kernel.org with ESMTP id S268286AbUH2TrN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 15:41:43 -0400
-Date: Sun, 29 Aug 2004 12:40:55 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
-       Craig Milo Rogers <rogers@isi.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-Message-ID: <20040829194055.GA435@kroah.com>
-References: <20040826233244.GA1284@isi.edu> <20040827004757.A26095@infradead.org> <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org> <1093790181.27934.44.camel@localhost.localdomain> <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408291102010.2295@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 29 Aug 2004 15:47:13 -0400
+Date: Sun, 29 Aug 2004 21:21:44 +0200
+From: =?iso-8859-15?Q?Vegard_W=E6rp?= <vegarwa@online.no>
+To: vegarwa@online.no
+Subject: [PATCH] BeFS: load default nls if none is specified in mount options
+Message-ID: <opsdideir8f6sr3p@yoda>
+User-Agent: Opera M2/7.54 (Linux, build 751)
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 29 Aug 2004 19:47:14.0191 (UTC) FILETIME=[FB62B1F0:01C48E00]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 11:09:22AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 29 Aug 2004, Alan Cox wrote:
-> > 
-> > He is not sole author. Large parts of the code are based on other
-> > authors work and simply copied from the standard framework. Please put
-> > back the version without the hooks. It is useful to all sorts of people
-> > in that form.
-> 
-> Are you willing to stand up for that and be the maintainer for it?
+Makes the BeOS File Systen driver load the default nls
+if none is specified in the "iocharset" mount option.
 
-Someone has contacted me and Nemosoft and is willing to be the
-maintainer, so it looks like this will happen.  That person is currently
-working with Nemosoft to hash out a few issues and should soon be
-sending a patch in to add the driver back, minus the hook.
 
-At least that's what they say they will do :)
+Signed-off-by: Vegard Wærp <vegarwa@online.no>
 
-thanks,
 
-greg k-h
+diff -urN a/fs/befs/linuxvfs.c b/fs/befs/linuxvfs.c
+--- a/fs/befs/linuxvfs.c        2004-08-29 20:51:21.000000000 +0200
++++ b/fs/befs/linuxvfs.c        2004-08-29 20:59:45.583725680 +0200
+@@ -857,10 +857,14 @@
+                  befs_sb->nls = load_nls(befs_sb->mount_opts.iocharset);
+                  if (!befs_sb->nls) {
+                          befs_warning(sb, "Cannot load nls %s"
+-                                    "loding default nls",
++                                    " loading default nls",
+                                       befs_sb->mount_opts.iocharset);
+                          befs_sb->nls = load_nls_default();
+                  }
++       /* load default nls if none is specified  in mount options */
++       } else {
++               befs_debug(sb, "Loading default nls");
++               befs_sb->nls = load_nls_default();
+          }
+
+          return 0;
+

@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUIUMVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267612AbUIUMYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267615AbUIUMVl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 08:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUIUMVl
+	id S267612AbUIUMYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 08:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUIUMYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 08:21:41 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:15297 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267612AbUIUMVj (ORCPT
+	Tue, 21 Sep 2004 08:24:43 -0400
+Received: from gprs214-92.eurotel.cz ([160.218.214.92]:27779 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267612AbUIUMYm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 08:21:39 -0400
-Date: Tue, 21 Sep 2004 13:21:38 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK tree] [drm] remove counter macros..
-In-Reply-To: <20040921130936.A22429@infradead.org>
-Message-ID: <Pine.LNX.4.58.0409211316310.22187@skynet>
-References: <Pine.LNX.4.58.0409211148290.22187@skynet> <20040921130936.A22429@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Sep 2004 08:24:42 -0400
+Date: Tue, 21 Sep 2004 14:24:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: acpi-devel <acpi-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] exposing ACPI objects in sysfs
+Message-ID: <20040921122428.GB2383@elf.ucw.cz>
+References: <1095716476.5360.61.camel@tdi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095716476.5360.61.camel@tdi>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Well this was only a direct macro removal, I'm contemplating removing the
-counters as to be honest I'm not sure any drm developer as actually used
-them since day one .. (and maybe not even then)... but I'll leave that for
-another time, as there might be a wierd use of them somewhere...
+>    I've lost track of how many of these patches I've done, but here's
+> the much anticipated next revision ;^)  The purpose of this patch is to
+> expose ACPI objects in the already existing namespace in sysfs
+> (/sys/firmware/acpi/namespace/ACPI).  There's a lot of information
 
-Once I drop the ioctl macro, I'll probably start going back to see what
-stuff is probably not of any use anymore.. (counters are fairly high on
-that list..)..
+Perhaps this needs some description in Documentation/ ?
 
-Dave.
-
-On Tue, 21 Sep 2004, Christoph Hellwig wrote:
-
-> While I definitly approve this patch is there a specific reason for this
-> array instead of individual members like
->
-> 	lock_cnt, open_cnt, close_cnt, etc..?
->
-> also the optional counters seem to be largely overlapping, why not always
-> all four thta exist and if some drivers don't want to update them they'd
-> just not update them
->
-
+								Pavel	
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

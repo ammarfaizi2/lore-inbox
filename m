@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317351AbSHYNQX>; Sun, 25 Aug 2002 09:16:23 -0400
+	id <S317349AbSHYNNw>; Sun, 25 Aug 2002 09:13:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSHYNQW>; Sun, 25 Aug 2002 09:16:22 -0400
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:9901 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S317351AbSHYNQW>; Sun, 25 Aug 2002 09:16:22 -0400
-Message-ID: <3D68D9F1.17A9A1B0@wanadoo.fr>
-Date: Sun, 25 Aug 2002 15:21:53 +0200
-From: Christophe Devalquenaire <C.Devalquenaire@wanadoo.fr>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: fr-FR, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, becker@scyld.com
-Subject: Re: 2.4 and 2.5 Problem ne.c driver
-References: <3D68C32C.AD7D9414@wanadoo.fr> <3D68CD62.C3E59923@wanadoo.fr>
+	id <S317351AbSHYNNw>; Sun, 25 Aug 2002 09:13:52 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:28863 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317349AbSHYNNv>;
+	Sun, 25 Aug 2002 09:13:51 -0400
+Date: Sun, 25 Aug 2002 16:18:04 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: joerg.beyer@email.de
+Cc: ZwaneMwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: big IRQ latencies, was:  <no subject>
+Message-ID: <20020825131804.GV10011@mea-ext.zmailer.org>
+References: <200208251238.g7PCcxX03888@mailgate5.cinetic.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200208251238.g7PCcxX03888@mailgate5.cinetic.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kris wrote:
+On Sun, Aug 25, 2002 at 02:38:59PM +0200, joerg.beyer@email.de wrote:
+> Zwane Mwaikambo <zwane@linuxpower.ca> schrieb am 25.08.02 14:10:12:
+> > On Sun, 25 Aug 2002 joerg.beyer@email.de wrote:
+> ...
+> > That should fix your slowdown during untarring/disk access, as for your 
+> > NIC problem looks like you might be having a receive FIFO overflow, so 
+> > perhaps the card stops processing incoming packets? I have no clue, 
 > 
-> kris wrote:
-> >
-> > I have 2 ne2000 isa cards (10Mbps for each) and with this versions of
-> > kernel the bandwith is divided by 2. So 2*5Mbps = 10Mbps instead of
-> > 2*10Mbps=20Mbps.
-> > I try to fix the pbm.
+> maybe this helps: outgoing transfer (from the laptop to some
+> other machine) is reasonable fast: I could copy gig's of data
+> away, but not to the machine. I asume sending away makes not
+> so heavy use of IRQ's, right?
+
+A laptop, you say ?   And network reception is jamming while
+there is high disk-write activity ?
+
+  /sbin/hdparam -v /dev/hda
+
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)  <-----  ??
+ unmaskirq    =  1 (on)      <-----  ??
+ using_dma    =  1 (on)      <-----  ??
+ keepsettings =  1 (on)      <-----  ??
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+
+
+>     does this help?
+>     Joerg
 > 
-> perhaps a bug exists on the dispatcher when 2 identical cards exist.
-> Anyone have 2 identical cards for test ?
+> ps: sorry for the missing subjectline
 
-After other tries, the ne.c file is buggy. Confirmation.
-I investigate. Anyone helps me ?
-
-regards
-Christophe
+/Matti Aarnio

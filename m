@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbSJ2Al2>; Mon, 28 Oct 2002 19:41:28 -0500
+	id <S261510AbSJ2Alz>; Mon, 28 Oct 2002 19:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261434AbSJ2Al2>; Mon, 28 Oct 2002 19:41:28 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:24987 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261426AbSJ2Al0>; Mon, 28 Oct 2002 19:41:26 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 28 Oct 2002 16:57:12 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: bert hubert <ahu@ds9a.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>
-Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
-In-Reply-To: <20021029004034.GA32118@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.44.0210281652270.966-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261521AbSJ2Alz>; Mon, 28 Oct 2002 19:41:55 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:43175 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261510AbSJ2Alw>;
+	Mon, 28 Oct 2002 19:41:52 -0500
+Date: Tue, 29 Oct 2002 00:48:05 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: bert hubert <ahu@ds9a.nl>, Davide Libenzi <davidel@xmailserver.org>,
+       Hanna Linder <hannal@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021029004805.GA18727@bjl1.asuk.net>
+References: <20021028220809.GB27798@outpost.ds9a.nl> <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com> <20021028234434.GB18415@bjl1.asuk.net> <20021029000339.GA31212@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021029000339.GA31212@outpost.ds9a.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, bert hubert wrote:
+bert hubert wrote:
+> > :( I was hoping sys_epoll would be scalable without increasing the
+> > number of system calls per event.
+> 
+> I see only one call per event? sys_epoll_wait. Perhaps sys_epoll_ctl to
+> register a new interest.
 
-> If that code dares to read immediatly from the fd without having an explicit
-> POLLIN event, which also means that epoll can only be used in this fashion
-> with nonblocking sockets.
+As David pointed out, you need a second call before the sys_epoll_wait
+if you're waiting for fds that epoll doesn't support (such as a tty).
 
-The epoll interface has to be used with non-blocking fds. The EAGAIN
-return code from read/write tells you that you can go safely to wait for
-events for that fd because you making the read/write to return EAGAIN, you
-consumed the whole I/O space for that fd. Consuming the whole I/O space
-meant that you brought the signal to zero ( talking in ee terms ), and a
-followinf 0->1 transaction will trigger the event. Where 1 means I/O space
-available ...
-
-
-
-- Davide
-
-
+-- Jamie

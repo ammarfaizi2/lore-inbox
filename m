@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285121AbRLRUed>; Tue, 18 Dec 2001 15:34:33 -0500
+	id <S285094AbRLRUhy>; Tue, 18 Dec 2001 15:37:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285133AbRLRUe2>; Tue, 18 Dec 2001 15:34:28 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11529 "EHLO
+	id <S285138AbRLRUhn>; Tue, 18 Dec 2001 15:37:43 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14857 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285132AbRLRUdK>; Tue, 18 Dec 2001 15:33:10 -0500
-Message-ID: <3C1FA7EE.6050707@transmeta.com>
-Date: Tue, 18 Dec 2001 12:32:46 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
+	id <S285117AbRLRUfk>; Tue, 18 Dec 2001 15:35:40 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Booting a modular kernel through a multiple streams file
+Date: 18 Dec 2001 12:35:31 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vo9aj$j2e$1@cesium.transmeta.com>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, mirrors@kernel.org
-Subject: Recent kernel.org outages
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear friends,
+Followup to:  <59885C5E3098D511AD690002A5072D3C42D804@orsmsx111.jf.intel.com>
+By author:    "Grover, Andrew" <andrew.grover@intel.com>
+In newsgroup: linux.dev.kernel
+> 
+> Implicit in the use of initrd is that you have to *make a ramdisk image*,
+> and then tell your bootloader to load it. If you have a bootloader that can
+> load multiple images (i.e. the modules themselves) you can skip the first
+> step.
+> 
 
-I'd like to apologize for the apparently sad state of kernel.org recently.
- We have been experiencing repeated hardware problems with the old server,
-and it's pretty clear that it's no longer reliable.
+initramfs will do this just fine.
 
-The good news is that we're already in the process of provisioning a new
-server, generously donated by Compaq.  Until that gets installed, though,
-I'm afraid kernel.org is probably going to be rather flaky.  Please bear
-with us...
+> Again, even the new scheme will still involve the creation of an initrd. I'm
+> saying, as a user, it would be easier for me to not do this, and just modify
+> a .conf file to have the driver loaded early-on.
+
+See above.
+
+> I'm not arguing that the new initrd won't be better than the old initrd
+> (because obviously you are right) I'm arguing that no matter how whizzy
+> initrd is, it's still an unnecessary step, and it's one that other OSs (e.g.
+> FreeBSD) omit in favor of the approach I'm advocating.
+
+Doing things in multiple steps is often appropriate.
 
 	-hpa
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

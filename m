@@ -1,64 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266727AbUG0XnC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266731AbUG0Xng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266727AbUG0XnC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 19:43:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266732AbUG0XnC
+	id S266731AbUG0Xng (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 19:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266732AbUG0Xng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 19:43:02 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:28385 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266727AbUG0Xmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 19:42:53 -0400
-Message-ID: <4106E873.4060907@t-online.de>
-Date: Wed, 28 Jul 2004 01:42:43 +0200
-From: franz_pletz@t-online.de (Franz Pletz)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040703 Thunderbird/0.7.1 Mnenhy/0.6.0.103
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 27 Jul 2004 19:43:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37787 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266731AbUG0Xne (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 19:43:34 -0400
+Date: Tue, 27 Jul 2004 16:41:47 -0700
+From: "David S. Miller" <davem@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [BUG] fs/jbd/checkpoint.c:427: "blocknr != 0"
-References: <41024AA1.5080401@t-online.de> <20040727161128.5939f8c0.akpm@osdl.org>
-In-Reply-To: <20040727161128.5939f8c0.akpm@osdl.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bh_lru_install
+Message-Id: <20040727164147.39ad7f5c.davem@redhat.com>
+In-Reply-To: <20040727160617.321ce504.akpm@osdl.org>
+References: <20040723170338.0c9a38ef.davem@redhat.com>
+	<20040727160617.321ce504.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-ID: TnNDliZ1reR4h1xb4kTliKyyIiT7x6w77mIW9Wuj6K05e342q7FnYG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> I assume you have a wrecked journal, which is triggering this assert:
-> 
-> 	} else {
-> 		first_tid = journal->j_transaction_sequence;
-> 		blocknr = journal->j_head;
-> 	}
-> 	spin_unlock(&journal->j_list_lock);
-> 	J_ASSERT(blocknr != 0);
-> 
-> 	/* If the oldest pinned transaction is at the tail of the log
->            already then there's not much we can do right now. */
-> 
-> e2fsck should have fixed this up when doing its journal replay.
-> 
-> You could probably get your data back by temporarily removing the journal:
-> 
-> 	tune2fs -O ^has_journal /dev/hda1
-> 	e2fsck -f /dev/hda1
-> 	tune2fs -j /dev/hda1
-> 	e2fsck -f /dev/hda1
+On Tue, 27 Jul 2004 16:06:17 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-That solved the problem. Thank you very much.
+> But I don't recall seeing bh_lru_install() standing out on profiles.  I
+> expect that when the system is working hard we're averaging nearly zero
+> cache misses in that copy.  Do you really think it is worth optimising?
 
-I've read the tune2fs manpage in order to rebuild the journal in some 
-way. But as I didn't want to destroy my data, I didn't dare to do 
-something unless I am really sure what I'm doing.
-
-I can't track that error down to a specific issue because the machine 
-didn't lock up or something similar. I just shut it down and got that 
-message when booting it the other day.
-
-
-Franz
+On a full kernel build after a fresh boot, that memcpy() executes
+approximately 400K times on my sparc64 boxes.

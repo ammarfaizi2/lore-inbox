@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262082AbTCZUT7>; Wed, 26 Mar 2003 15:19:59 -0500
+	id <S262074AbTCZUcm>; Wed, 26 Mar 2003 15:32:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262083AbTCZUT7>; Wed, 26 Mar 2003 15:19:59 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:47779 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262082AbTCZUT6>; Wed, 26 Mar 2003 15:19:58 -0500
-Date: Wed, 26 Mar 2003 20:30:48 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       James Bourne <jbourne@hardrock.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <20030326203042.GA31359@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Pavel Machek <pavel@ucw.cz>, "H. Peter Anvin" <hpa@zytor.com>,
-	J?rn Engel <joern@wohnheim.fh-wedel.de>,
-	James Bourne <jbourne@hardrock.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3E7E4C63.908@gmx.de> <Pine.LNX.4.44.0303231717390.19670-100000@cafe.hardrock.org> <20030324003946.GA11081@wohnheim.fh-wedel.de> <3E7E736D.4020200@zytor.com> <20030324144219.GC29637@suse.de> <20030327074727.GA3021@zaurus.ucw.cz>
+	id <S262076AbTCZUcm>; Wed, 26 Mar 2003 15:32:42 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:60422 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262074AbTCZUcg>; Wed, 26 Mar 2003 15:32:36 -0500
+Date: Wed, 26 Mar 2003 20:43:43 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Jan Dittmer <j.dittmer@portrix.net>, azarah@gentoo.org,
+       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
+       sensors@stimpy.netroedge.com
+Subject: Re: w83781d i2c driver updated for 2.5.66 (without sysfs support)
+Message-ID: <20030326204343.A22053@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Jan Dittmer <j.dittmer@portrix.net>,
+	azarah@gentoo.org, KML <linux-kernel@vger.kernel.org>,
+	Dominik Brodowski <linux@brodo.de>, sensors@stimpy.netroedge.com
+References: <1048582394.4774.7.camel@workshop.saharact.lan> <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan> <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030327074727.GA3021@zaurus.ucw.cz>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030326202622.GJ24689@kroah.com>; from greg@kroah.com on Wed, Mar 26, 2003 at 12:26:23PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 08:47:27AM +0100, Pavel Machek wrote:
+On Wed, Mar 26, 2003 at 12:26:23PM -0800, Greg KH wrote:
+> We should really split these multivalue files up into individual files,
+> as sysfs is for single value files.  Makes parsing easier too.
+> 
+> Here's a patch for the lm75.c driver that does this.  As we are going to
+> need a "generic" read and write for the "real" values that the i2c
+> drivers use, I added these files to the i2c-proc.c file.
 
- > > and have it wget patches from k.o, verify signatures and auto-apply them,
- > > which removes the "admin didnt even know there were patches
- > > that needed to be applied" possibility.
- > 
- > That looks like ugly can of worms to me.
- > "what kernel do you have?"
- > "2.4.25 and it did two downloads; I was
- > compiling it on the friday night"
-
-So make one of the patches change extra-version to -errataN or the like.
-
-		Dave
+i2c-proc.c is the wrong place.  Please add a i2c-sensor.c file with
+helper code for hardware sensors driver (i2c_detect should move over to
+there from i2c-proc.c aswell)
 

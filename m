@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269457AbRHGVRu>; Tue, 7 Aug 2001 17:17:50 -0400
+	id <S269465AbRHGVYu>; Tue, 7 Aug 2001 17:24:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269462AbRHGVRk>; Tue, 7 Aug 2001 17:17:40 -0400
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:59783 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S269457AbRHGVRc>; Tue, 7 Aug 2001 17:17:32 -0400
-Message-ID: <3B704C86.5010401@earthlink.net>
-Date: Tue, 07 Aug 2001 16:16:06 -0400
-From: Brad Chapman <kakadu@earthlink.net>
-Reply-To: kakadu@adelphia.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.7 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S269464AbRHGVYk>; Tue, 7 Aug 2001 17:24:40 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:1883 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S269463AbRHGVYW>; Tue, 7 Aug 2001 17:24:22 -0400
+Date: Tue, 7 Aug 2001 23:25:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: Strange compilation messages with gcc 2.96.2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: 2.4.8pre5aa2
+Message-ID: <20010807232519.A1078@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Only in 2.4.8pre5aa2: 00_sync_old_buffers-3
 
-   When I compile the 2.4.7 kernel on a RedHat system with an Athlon 
-1GHz processor
-and gcc 2.96.2, I get a LOT of messages similar to the following:
+	Merged Jens's fix for avoiding kupdate to be killed.
 
-   <source file>:<number>:<number>: pasting would not give a valid 
-preprocessor token
+ULR:
 
-   They don't seem to be a problem; they're annoying, but they don't 
-prevent the compilation
-of the kernel. Is this a problem? Or is it just another compile-time 
-annoyance?
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8pre5aa2/
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.8pre5aa2.bz2
 
-Thanks,
-
-Brad
-
+Andrea

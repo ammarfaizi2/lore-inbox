@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbULCPyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbULCP6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbULCPyw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 10:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbULCPyw
+	id S262279AbULCP6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 10:58:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbULCP6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 10:54:52 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:48316 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261500AbULCPyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 10:54:49 -0500
-Date: Fri, 3 Dec 2004 09:54:42 -0600
-From: Erik Jacobson <erikj@subway.americas.sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Where should virutal filesystems live?
-Message-ID: <Pine.SGI.4.53.0412030922170.46881@subway.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Dec 2004 10:58:44 -0500
+Received: from lug-owl.de ([195.71.106.12]:1923 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S262279AbULCP6j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 10:58:39 -0500
+Date: Fri, 3 Dec 2004 16:58:38 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: Re: How to add/drop SCSI drives from within the driver?
+Message-ID: <20041203155838.GM16958@lug-owl.de>
+Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+References: <0E3FA95632D6D047BA649F95DAB60E570230CA70@exa-atlanta>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kunpHVz1op/+13PW"
+Content-Disposition: inline
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CA70@exa-atlanta>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We recently had a discussion as to where certain virtual filesystems
-used to communicate with the kernel/kernel modules from userland should
-live.
 
-One of the things we discussed was cpuset, which is in 2.6.10-rc2-mm4.
+--kunpHVz1op/+13PW
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The kernel docs for cpuset suggest that the cpuset virtual filesystem
-be mounted at /dev/cpuset.
+On Fri, 2004-12-03 10:29:29 -0500, Bagalkote, Sreenivas <sreenib@lsil.com>
+wrote in message <0E3FA95632D6D047BA649F95DAB60E570230CA70@exa-atlanta>:
+> I agree. The sysfs method would have been the most logical way of doing i=
+t.
 
-My position in the discussion was that this sounded wrong.  Maybe it's
-the systems administration background in me but it sure seems like
-/dev should be for device nodes to me.  My co-workers rightfully
-countered with "then you should suggest something better..."  My fear is
-that we'll end up with everybody putting stuff in /dev -- ie,
-/dev/kitchensink may be a virtual filesystem in the future...
+Then this is the way to go.
 
-So I took a look at FHS hoping there would be something like "/dev is
-for device nodes only".  FHS states that /dev is the location for
-special device files.  So my opinion is that this violates FHS too.
+> But then application becomes sysfs dependent. We really cannot do that.
 
-However, since the kernel docs make the suggestions as to where these things
-should end up and various distributions are likely to follow that suggestion,
-it seems like a valid discussion to have here.
+You can, I'm sure :)
 
-I looked at some examples of where virtual filesystems are mounted in
-fedora core 3.  We have /sys (sysfs).  However, it seems like /sys is
-for hardware stuffs and we probably don't want to mount other virtuals
-under it as-is.
+MfG, JBG
 
-We have devpts mounted at /dev/pts - but it really is device related so
-that's probably ok.
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-We have /dev/shm (tmpfs) - but that's perhaps historic at this point.
+--kunpHVz1op/+13PW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-We have a usbfs mounted at /proc/bus/usb and binfmt_misc is mounted at
-/proc/sys/fs/binfmt_misc.  However, it seems like folks would frown on
-mounting more things under /proc and these examples aren't using the fstab
-anyway.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-It seems like people would also dislike it if we mount at various random
-places in / like /cpuset or /kitchensink.
+iD8DBQFBsI0uHb1edYOZ4bsRAs18AJwOF84hrNT3GIaS0RudTpOBWHZ4XgCeIThS
+jEPEM+aphZe5rMpa76NBqTE=
+=iQsL
+-----END PGP SIGNATURE-----
 
-We have a few things in the pipe that will probably need virtual filesystems
-mounted "somewhere" that we hope to get accepted in to the kernel.  Is it
-possible to sort of agree on some sort of standard place to put these things?
-If most people don't cringe at mounting these things in /dev/ like I do, I
-can live with that.  My first concern is some sort of consensus.  My 2nd
-concern is that it not be /dev :-)
-
-I'd personally like to see something like /sys/<fs> where the various
-virtual filesystems can be collected under /sys or something similar.
-
-I look forward to seeing what folks think about this and hopefully it will
-help us agree on some sort of convention to start following.
-
---
-Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota
+--kunpHVz1op/+13PW--

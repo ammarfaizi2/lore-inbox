@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbSKAFy3>; Fri, 1 Nov 2002 00:54:29 -0500
+	id <S265637AbSKAGKj>; Fri, 1 Nov 2002 01:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265629AbSKAFy3>; Fri, 1 Nov 2002 00:54:29 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:30472 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S265628AbSKAFy2>; Fri, 1 Nov 2002 00:54:28 -0500
-Date: Fri, 1 Nov 2002 17:00:43 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: What's left over.
-In-Reply-To: <1036092043.8575.116.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Mutt.LNX.4.44.0211011649190.25808-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265638AbSKAGKj>; Fri, 1 Nov 2002 01:10:39 -0500
+Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:52593 "EHLO
+	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265637AbSKAGKi>;
+	Fri, 1 Nov 2002 01:10:38 -0500
+Date: Fri, 1 Nov 2002 07:17:00 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Bernd Petrovitsch <bernd@gams.at>
+Cc: Matt Porter <porter@cox.net>, Mark Mielke <mark@mark.mielke.cc>,
+       Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021101071700.A19847@jaquet.dk>
+References: <20021031194348.A12469@jaquet.dk> <26717.1036107014@frodo.gams.co.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <26717.1036107014@frodo.gams.co.at>; from bernd@gams.at on Fri, Nov 01, 2002 at 12:30:14AM +0100
+X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
+X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Oct 2002, Alan Cox wrote:
 
-> Chris is write that crypto api is misdesigned if we want to use hardware
-> cryptocards
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hardware support was not an initial goal, as the requirements are not yet 
-fully known.
+On Fri, Nov 01, 2002 at 12:30:14AM +0100, Bernd Petrovitsch wrote:
+> Rasmus Andersen <rasmus@jaquet.dk> wrote:
+> >On Thu, Oct 31, 2002 at 05:52:59PM +0100, Bernd Petrovitsch wrote:
+> [...]
+> >> In an ideal world there would be several options invidually=20
+> >> selectable.
+> >
+> >But there is? Please look at 2.5.44-config. Or did I misunderstand
+>=20
+> ACK. Ooops, sorry, this part of the world is ideal.
+> Hmm, which of the 2.5.44 patches (from
+> http://www.jaquet.dk/kernel/config_tiny/) are to be applied?
+> Applying all seem to work but some config options are duplicated.
+>=20
 
->From Documentation/crypto/api-intro.txt:
+Could you provide a little more detail? This is not by design :)
+Keep in mind that the 'allinone' patch encompasses all of the
+others. And that only 2.5.44-* are of interest.
 
-  An asynchronous scheduling interface is in planning but not yet
-  implemented, as we need to further analyze the requirements of all of
-  the possible hardware scenarios (e.g. IPsec NIC offload).
+Regards,
+  Rasmus
 
-Hardware accelerators are generally a known issue, with already proven 
-solutions (e.g. the OpenBSD crypto queue).  We don't know much about IPSec 
-NIC offload yet, however.
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+iD8DBQE9whxclZJASZ6eJs4RApacAKCO3NMIuO8+hU6WDR7GUn8BjdnIPgCeNcYZ
+/vlSdmSg91hwgpu9nKnjYF8=
+=z2jN
+-----END PGP SIGNATURE-----
 
-
+--d6Gm4EdcadzBjdND--

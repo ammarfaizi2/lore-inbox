@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbTAWHOt>; Thu, 23 Jan 2003 02:14:49 -0500
+	id <S264992AbTAWHt4>; Thu, 23 Jan 2003 02:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264939AbTAWHOt>; Thu, 23 Jan 2003 02:14:49 -0500
-Received: from packet.digeo.com ([12.110.80.53]:49560 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264938AbTAWHOs>;
-	Thu, 23 Jan 2003 02:14:48 -0500
-Date: Wed, 22 Jan 2003 23:24:07 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Kevin Lawton <kevinlawton2001@yahoo.com>
+	id <S265037AbTAWHt4>; Thu, 23 Jan 2003 02:49:56 -0500
+Received: from angband.namesys.com ([212.16.7.85]:51335 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S264992AbTAWHtz>; Thu, 23 Jan 2003 02:49:55 -0500
+Date: Thu, 23 Jan 2003 10:59:04 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Gerhard Mack <gmack@innerfire.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please
- consider)
-Message-Id: <20030122232407.0ac4fe85.akpm@digeo.com>
-In-Reply-To: <20030123070007.8790.qmail@web80310.mail.yahoo.com>
-References: <Pine.LNX.4.44.0301222345110.21255-100000@chaos.physics.uiowa.edu>
-	<20030123070007.8790.qmail@web80310.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: Re: why isn't quota dependant on ext2?
+Message-ID: <20030123105904.A11988@namesys.com>
+References: <Pine.LNX.4.44.0301212046260.5472-100000@innerfire.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 Jan 2003 07:23:51.0671 (UTC) FILETIME=[60F84070:01C2C2B0]
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301212046260.5472-100000@innerfire.net>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin Lawton <kevinlawton2001@yahoo.com> wrote:
->
-> --- Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
-> 
-> > Three minor points:
-> 
-> OK, done.  Here's my #3 submission.
+Hello!
 
-Kinda cruel making you do all this work when Linus is unlikely to take the
-patch anyway ;)
+On Tue, Jan 21, 2003 at 08:47:53PM -0500, Gerhard Mack wrote:
 
-Thanks for the explanation - all is much clearer - it looks like very cool
-technology.
+> Anyone know why the quota menu option isn't dependant on ext2 since that's
+> all it works with?
 
-- <asm/if.h> doesn't mean much to me.  Network interface, if anything.  How
-  about <asm/asm-macros.h> ?
+reiserfs works with this quota code too. Chris Mason working on porting the
+patch from 2.4 to 2.5.
 
-- It's quite conceivable that the infrastructure will be used for other
-  forms of asm-mangling.  Those "Q2" things hurt like hell.  Is there no
-  other way?
-
-- application/octet-stream!
-
-
+Bye,
+    Oleg

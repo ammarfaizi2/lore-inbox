@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUHXUZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268272AbUHXU1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268270AbUHXUZd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268277AbUHXUZd
+	id S268272AbUHXU1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268274AbUHXU1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:25:33 -0400
-Received: from verein.lst.de ([213.95.11.210]:4007 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S268270AbUHXUZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:25:28 -0400
-Date: Tue, 24 Aug 2004 22:25:21 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org, reiser@namesys.com
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: silent semantic changes with reiser4
-Message-ID: <20040824202521.GA26705@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
-	reiser@namesys.com, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 24 Aug 2004 16:27:22 -0400
+Received: from dauntless.milewski.org ([64.142.38.232]:56241 "EHLO
+	dauntless.milewski.org") by vger.kernel.org with ESMTP
+	id S268272AbUHXU1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:27:09 -0400
+Message-ID: <412BA4FC.2070505@asperasoft.com>
+Date: Tue, 24 Aug 2004 13:28:44 -0700
+From: Serban Simu <serban@asperasoft.com>
+Organization: Aspera
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: page allocation failure & sk98lin
+References: <412AE018.8000207@asperasoft.com> <412AF360.60005@yahoo.com.au>
+In-Reply-To: <412AF360.60005@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After looking trough the code and mailinglists I'm quite unhappy with
-a bunch of user-visible changes that Hans sneaked in and make reiser4
-incompatible with other filesystems and have a slight potential to break
-even in the kernel.
+Thank you, Nick. Just wanted to mention that while I understand that we 
+recover from this allocation failure (and also I don't mind the stack 
+printouts), about 20% of my incoming network traffic (600-700 Mbps) 
+seems to be dropped in the process. Does the memory manager have to 
+spend a considerable amount of time to recover?
 
- o files as directories
-   - O_DIRECTORY opens succeed on all files on reiser4.  Besides breaking
-     .htaccess handling in apache and glibc compilation this also renders
-     this flag entirely useless and opens up the races it tries to
-     prevent against cmpletely useless
-   - meaning of the -x permission.  This one has different meanings on
-     directories vs files on UNIX systems.  If we want to support
-     directories as files we'll probably have to find a way to work
-     around this.
-   - dentry aliasing.  I can't find a formal guarantee in the code this
-     can't happen
- 
- o metafiles - ..metas as a magic name that's just taken out of the
-   namespace doesn't sound like a good idea.  If we want this it should
-   be a VFS-level option and there should be a translation-layer to
-   xattrs.  Not doing this will again confuse applications greatly that
-   expect uniform filesystem behaviour.
+I will have a look at the -mm fixes, thanks for the idea.
 
-Given these problems I request that these interfaces are removed from
-reiser4 for the kernel merge, and if added later at the proper VFS level
-after discussion on linux-kernel and linux-fsdevel, like we did for
-xattrs.
+-Serban
+
+Nick Piggin wrote:
+
+> Serban Simu wrote:
+> 
+>> Hello all,
+>>
+>> I found a few references to similar problems in the list but no 
+>> indications of whether this has been fixed or can be avoided.
+>>
+>> I'm using 2.6.8.1 and the patch: sk98lin_v7.04_2.6.8_patch. This 
+>> happens  when receiving data fast on the GigE card (about 600Mbps) and 
+>> writing on disk. It seems to happen after writing 1 GB to disk (1024 
+>> MB) but I can't correlate that very reliably.
+>>
+>> I would appreciate any information pointing me to a fix or explanation.
+>>
+>> Thank you!
+>>
+>> -Serban
+>>
+>> swapper: page allocation failure. order:0, mode:0x20
+> 
+> 
+> 
+> The messages should be basically harmless and can't be completely avoided.
+> 
+> That said, -mm kernels have patches to fix up numerous problems with the 
+> page
+> allocator which have a good chance of fixing your problems.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265458AbTFZIPt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 04:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265459AbTFZIPt
+	id S265438AbTFZIio (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 04:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265447AbTFZIio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 04:15:49 -0400
-Received: from pop.gmx.net ([213.165.64.20]:56710 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265458AbTFZIPt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 04:15:49 -0400
-Message-Id: <5.2.0.9.2.20030626103217.02002168@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 26 Jun 2003 10:34:14 +0200
-To: "Shawn Starr" <spstarr@sh0n.net>
-From: Mike Galbraith <efault@gmx.de>
-Subject: RE: Speeding up Linux kernel compiles using -pipe?
-Cc: "'Anton Blanchard'" <anton@samba.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <000001c33b7e$7b3959a0$030aa8c0@panic>
-References: <20030625052940.GA18786@krispykreme>
+	Thu, 26 Jun 2003 04:38:44 -0400
+Received: from remt23.cluster1.charter.net ([209.225.8.33]:60845 "EHLO
+	remt23.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S265438AbTFZIio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 04:38:44 -0400
+Subject: Re: Problems with IDE on GA-7VAXP motherboard
+From: Tim McGrath <misty-@charter.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Bernd Schubert <bernd-schubert@web.de>, andre@linux-ide.org,
+       linux-kernel@vger.kernel.org, despair@adelphia.net
+In-Reply-To: <1056612565.27426.37.camel@roll>
+References: <200306191429.40523.bernd-schubert@web.de>
+	 <20030619193118.GA32406@charter.net> <20030620075249.GA7833@charter.net>
+	 <20030620105853.A16743@ucw.cz>  <20030620114030.GA11827@charter.net>
+	 <1056612565.27426.37.camel@roll>
+Content-Type: text/plain
+Message-Id: <1056613389.323.1.camel@roll>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 26 Jun 2003 03:43:09 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:01 PM 6/25/2003 -0400, Shawn Starr wrote:
->Nevermind, We are using pipe, I just didn't see due to the new Makefile
->output (V=1) shows me we are using pipe, at least for ia32.
+Well, I just rebooted and checked - I can, in fact, set the CHS
+settings. However, not to the settings I need. ... Which explains nicely
+why my bios can't figure out what to do with my disk. Ah well, I tried.
 
-Unless something has changed recently, -pipe is actually a slowdown.
+Anyone with suggestions on how to get DOS booting and happy would be
+appreciated.
 
-         -Mike 
+Tim McGrath
 

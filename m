@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262431AbSJESWM>; Sat, 5 Oct 2002 14:22:12 -0400
+	id <S262434AbSJESY1>; Sat, 5 Oct 2002 14:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262434AbSJESWM>; Sat, 5 Oct 2002 14:22:12 -0400
-Received: from bohnice.netroute.lam.cz ([212.71.169.62]:30191 "EHLO localhost")
-	by vger.kernel.org with ESMTP id <S262431AbSJESWK>;
-	Sat, 5 Oct 2002 14:22:10 -0400
-Date: Sat, 5 Oct 2002 20:27:40 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unable to kill processes in D-state
-Message-ID: <20021005182740.GC16200@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262439AbSJESY1>; Sat, 5 Oct 2002 14:24:27 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:33505 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S262434AbSJESY0>; Sat, 5 Oct 2002 14:24:26 -0400
+Message-ID: <20021005182850.31930.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
-In-Reply-To: <1033841462.1247.3716.camel@phantasy>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <conman@kolivas.net>, linux-kernel@vger.kernel.org
+Cc: <akpm@digeo.com>, <rmaureira@alumno.inacap.cl>, <rcastro@ime.usp.br>
+Date: Sun, 06 Oct 2002 02:28:50 +0800
+Subject: Re: [BENCHMARK] contest 0.50 results to date
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 02:11:02PM -0400, Robert Love wrote:
-> On Sat, 2002-10-05 at 05:07, Thomas Lang?s wrote:
-> 
-> > We have a fairly large installation on-campus, and we have some problems
-> > with the current linux-kernel (and older ones) - namely that processes
-> > entering D-state will stay there forever (given that the right event got
-> > them there in the first place).  This right event is killing the 
-> > autofs-daemon.  Doing this will result in heavy load because of lots
-> > of D-state processes, and you can't kill any of the D-state processes.
-> > Why shouldn't one be able to kill processes that has entered D-state?
-> > We have to reboot our servers to get rid of this problem, and it's
-> > rather annoying.
-> 
-> Because they are in uninterruptible sleep.  They are doing something
-> important, presumably in a critical section, and have no wake-up path
-> for signals or errors.
-> 
-> Finally, they probably hold a semaphore.  In short, you cannot kill
-> them, nor would you want to.
-> 
-> I would simplify the question and ask why are you killing the autofs
-> daemon?  Clearly this is a recipe for disaster.
+And here are my results:
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [3]              128.8   97      0       0       1.01
+2.4.19-0.24pre4 [3]     127.4   98      0       0       0.99
+2.5.40 [3]              134.4   96      0       0       1.05
+2.5.40-nopree [3]       133.7   96      0       0       1.04
 
-On the other hand it's a bug if a process stays in D-state for time of
-order of seconds or more. Unfortunately it's impossible to avoid this
-in networking filesystems with current state of VFS (in 2.4). Even there
-though, it's a bug if it's indefinite.
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [3]              194.1   60      134     40      1.52
+2.4.19-0.24pre4 [3]     193.2   60      133     40      1.51
+2.5.40 [3]              184.5   70      53      31      1.44
+2.5.40-nopree [3]       286.4   45      163     55      2.24
 
-These problems were already discussed on LKML, you might want to search
-the archive. IIRC this is a known problem of OpenAFS (not in standart
-kernel). It was reported with various drivers for some 2.4.x kernels
-too.
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [3]              461.0   28      46      8       3.60
+2.4.19-0.24pre4 [3]     235.4   55      26      10      1.84
+2.5.40 [3]              293.6   45      25      8       2.29
+2.5.40-nopree [3]       269.4   50      20      7       2.10
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.4.19 [3]              161.1   80      38      2       1.26
+2.4.19-0.24pre4 [3]     181.2   76      253     19      1.41
+2.5.40 [3]              163.0   80      34      2       1.27
+2.5.40-nopree [3]       161.7   80      34      2       1.26
+
+Comments ?
+
+Paolo
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

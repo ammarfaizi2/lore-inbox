@@ -1,309 +1,582 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbUKFWl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbUKFWxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbUKFWl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 17:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKFWl3
+	id S261487AbUKFWxz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 17:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbUKFWxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 17:41:29 -0500
-Received: from potato.cts.ucla.edu ([149.142.36.49]:15760 "EHLO
-	potato.cts.ucla.edu") by vger.kernel.org with ESMTP id S261491AbUKFWgg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 17:36:36 -0500
-Date: Sat, 6 Nov 2004 14:36:25 -0800 (PST)
-From: Chris Stromsoe <cbs@cts.ucla.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: deadlock with 2.6.9
-In-Reply-To: <Pine.LNX.4.61.0411040836270.19741@potato.cts.ucla.edu>
-Message-ID: <Pine.LNX.4.61.0411061413390.1115@potato.cts.ucla.edu>
-References: <Pine.LNX.4.61.0411012112450.24956@potato.cts.ucla.edu>
- <Pine.LNX.4.61.0411040836270.19741@potato.cts.ucla.edu>
+	Sat, 6 Nov 2004 17:53:55 -0500
+Received: from smtp2.netcabo.pt ([212.113.174.29]:6729 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S261487AbUKFWxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 17:53:24 -0500
+Message-ID: <32792.192.168.1.8.1099781557.squirrel@192.168.1.8>
+In-Reply-To: <20041106155720.GA14950@elte.hu>
+References: <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
+    <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
+    <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
+    <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu>
+    <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu>
+    <20041106155720.GA14950@elte.hu>
+Date: Sat, 6 Nov 2004 22:52:37 -0000 (WET)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.18
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 06 Nov 2004 22:53:19.0480 (UTC) FILETIME=[68EB5780:01C4C453]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a third lockup, this time not related to burning a dvd.  As before, 
-the bulk of the processes that were hung were cron, and looked like:
-
-cron          S C1205F60     0  5023    444          5036  5022 (NOTLB)
-c721ec9c 00000082 cd1b27f0 c1205f60 ca82ab7c c252a97c c721ec94 c014584e
-        c252a940 c1fe8900 b7fe7000 ce607150 c1205f60 00239d5b fac8e72b 00003496
-        cd1b2950 cf9b1d40 7fffffff 00000001 c721ecd8 c02f9f04 b7fe7000 00000001
-Call Trace:
-  [<c02f9f04>] schedule_timeout+0xb4/0xc0
-  [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
-  [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
-  [<c0293cab>] sock_sendmsg+0xbb/0xe0
-  [<c0295161>] sys_sendto+0xe1/0x100
-  [<c02951b2>] sys_send+0x32/0x40
-  [<c0295a1a>] sys_socketcall+0x13a/0x250
-  [<c0104383>] syscall_call+0x7/0xb
-
-
-Full sysrq+t dump is at <http://hashbrown.cts.ucla.edu/deadlock/>.
-
-
-Several others that were in the same state:
-
-sendmail-mta  S C1205F60     0   416      1           434   334 (NOTLB)
-ceaaceac 00000082 00000000 c1205f60 c12068c0 ceaacf44 ceaace84 c0139bb5
-        cfba6b80 00000246 ceaaceac c01236d6 c1205f60 00005a1e cb12fa34 0000acdf
-        ce9f97f0 0b4fcb33 ceaacec0 00000007 ceaacee8 c02f9eb5 ceaacec0 0b4fcb33
-Call Trace:
-  [<c02f9eb5>] schedule_timeout+0x65/0xc0
-  [<c01671ee>] do_select+0x16e/0x2a0
-  [<c016760e>] sys_select+0x2ae/0x4c0
-  [<c0104383>] syscall_call+0x7/0xb
-
-
-ntpd          S C1205F60     0   434      1           437   416 (NOTLB)
-cf7e1eac 00000086 00000000 c1205f60 c12068c0 00000010 c034eb80 00000000
-        cfba6700 bffffa10 000000d0 cfb1a2e0 c1205f60 000008d0 0c7e1cd2 0000ace0
-        ce9f87d0 00000000 7fffffff 00000008 cf7e1ee8 c02f9f04 00000246 cf7e1ed0
-Call Trace:
-  [<c02f9f04>] schedule_timeout+0xb4/0xc0
-  [<c01671ee>] do_select+0x16e/0x2a0
-  [<c016760e>] sys_select+0x2ae/0x4c0
-  [<c0104383>] syscall_call+0x7/0xb
-
-
-mdadm         S C1205F60     0   437      1           440   434 (NOTLB)
-cf707eac 00000086 00000000 c1205f60 c12068c0 cfb3c610 00000003 00000000
-        cf8204c0 00000246 cf707eac c01236d6 c1205f60 00000448 b1f651f9 0000acd3
-        cfb3d790 0b4fd705 cf707ec0 00000005 cf707ee8 c02f9eb5 cf707ec0 0b4fd705
-Call Trace:
-  [<c02f9eb5>] schedule_timeout+0x65/0xc0
-  [<c01671ee>] do_select+0x16e/0x2a0
-  [<c016760e>] sys_select+0x2ae/0x4c0
-  [<c0104383>] syscall_call+0x7/0xb
-
-
-
-atd           S C1205F60     0   440      1           444   437 (NOTLB)
-ce5e0f48 00000082 00000000 c1205f60 c12068c0 00000000 00000000 00000000
-        cfba6280 00000246 ce5e0f48 c01236d6 c1205f60 00006970 daf6df4d 0000aa54
-        ce9f8270 0b5bfcbc ce5e0f5c 000f41a7 ce5e0f84 c02f9eb5 ce5e0f5c 0b5bfcbc
-Call Trace:
-  [<c02f9eb5>] schedule_timeout+0x65/0xc0
-  [<c01243ce>] sys_nanosleep+0xde/0x160
-  [<c0104383>] syscall_call+0x7/0xb
-
-
-
-The box is P3 SMP, 256Mb ram, dual Intel eepro100 controllers, bonded into 
-a single failover device.  The box is a syslog server for ~100 different 
-other machines logging at debug level.  UDP traffic is constant.  syslog 
-logs to a stripe of two mirrors, built with mdadm.
-
-Each of the three hangs has been exactly the same.  Nothing forks, but I 
-can use sysrq to dump the process table, or to kill everything, log in, 
-and restart.
-
-After I logged in today, all of the partitions were mounted ro, and one of 
-the mirrors had kicked a partition out.  Tests on the partition and the 
-disk that it's on so far show no errors.
-
-What would cause everything on the box to hang in schedule_timeout?
-
-
--Chris
-
-On Thu, 4 Nov 2004, Chris Stromsoe wrote:
-
-> I had another deadlock after the completion of a dvd writing session 
-> last night.  The dvd was written using the ide interface with growisof.
+Ingo Molnar wrote:
 >
-> sysrq+p, sysrq+m, and a partial sysrq+t are at 
-> http://hashbrown.cts.ucla.edu/deadlock/sysrq+t-20041104.
+> i have released the -V0.7.18 Real-Time Preemption patch, which can be
+> downloaded from:
 >
-> Virtually everything is stuck in schedule_timeout+0xb4/0xc0.  It looks very 
-> similar to the last deadlock I had (sysrq+t output is in the same directory 
-> as the above as sysrq+t-20041101).
+>    http://redhat.com/~mingo/realtime-preempt/
 >
-> cbs:~ > lsmod
-> Module                  Size  Used by
-> ide_cd                 39328  0
-> cdrom                  38460  1 ide_cd
-> e100                   29760  0
-> bonding                64552  0
->
-> Any ideas?  Anything in particular to check?
->
->
-> -Chris
->
-> On Mon, 1 Nov 2004, Chris Stromsoe wrote:
->
->> The machine collects remote syslog, roughly 1000 packets per second. The 
->> logs are burned to dvd several times per week.  The hanging may have 
->> coincided with the completion of one of the log burning sessions. Before 
->> the last crash I was using ide-scsi to do the burning.  Since the last 
->> crash, I switched over to directly using the ide device and have disabled 
->> ide-scsi.
->> 
->> The machine did not crash.  Remote access with ssh would hang after 
->> authentication.  Already running processes that didn't fork anything 
->> responded fine to the network.  I could not fork a shell from a serial 
->> console.  I was able to use sysrq to pull debugging information.  I was 
->> also able to kill off all running processes (sysrq+e and sysrq+i), then log 
->> in from the serial console and restart things.
->> 
->> I had the same problem with 2.6.8.1
->> 
->> Most of the processes seem to be stuck in schedule_timeout.
->> 
->> The full sysrq and .config are at http://hashbrown.cts.ucla.edu/deadlock/
->> 
->> 
->> cbs:~ > lsmod
->> Module                  Size  Used by
->> sg                     35040  0
->> sr_mod                 14884  0
->> cdrom                  38460  1 sr_mod
->> ide_scsi               15332  0
->> e100                   29760  0
->> bonding                64552  0
->> 
->> 
->> 
->> telnet> send brk
->> SysRq : Show Regs
->> 
->> Pid: 0, comm:              swapper
->> EIP: 0060:[<c01022cf>] CPU: 0
->> EIP is at default_idle+0x2f/0x40
->> EFLAGS: 00000246    Not tainted  (2.6.9)
->> EAX: 00000000 EBX: c039b000 ECX: c01022a0 EDX: c039b000
->> ESI: c04080a0 EDI: c04081a0 EBP: c039bfc4 DS: 007b ES: 007b
->> CR0: 8005003b CR2: bffffd66 CR3: 0fb3f000 CR4: 000006d0
->> [<c0102516>] show_regs+0x146/0x170
->> [<c0207a81>] __handle_sysrq+0x71/0xf0
->> [<c021a5aa>] receive_chars+0x11a/0x230
->> [<c021a9bd>] serial8250_interrupt+0xdd/0xe0
->> [<c0106c96>] handle_IRQ_event+0x36/0x70
->> [<c0107063>] do_IRQ+0xe3/0x1b0
->> [<c0104cf0>] common_interrupt+0x18/0x20
->> [<c010235b>] cpu_idle+0x3b/0x50
->> [<c039cb8b>] start_kernel+0x16b/0x190
->> [<c0100211>] 0xc0100211
->> 
->> 
->> 
->> telnet> send brk
->> SysRq : Show Memory
->> Mem-info:
->> DMA per-cpu:
->> cpu 0 hot: low 2, high 6, batch 1
->> cpu 0 cold: low 0, high 2, batch 1
->> Normal per-cpu:
->> cpu 0 hot: low 30, high 90, batch 15
->> cpu 0 cold: low 0, high 30, batch 15
->> HighMem per-cpu: empty
->> 
->> Free pages:        1348kB (0kB HighMem)
->> Active:26008 inactive:2118 dirty:10 writeback:0 unstable:0 free:337 
->> slab:16168 mapped:25917 pagetables:12564
->> DMA free:172kB min:32kB low:64kB high:96kB active:160kB inactive:48kB 
->> present:16384kB
->> protections[]: 0 0 0
->> Normal free:1176kB min:480kB low:960kB high:1440kB active:103872kB 
->> inactive:8424kB present:245760kB
->> protections[]: 0 0 0
->> HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB 
->> present:0kB
->> protections[]: 0 0 0
->> DMA: 23*4kB 2*8kB 0*16kB 0*32kB 1*64kB 0*128kB 0*256kB 0*512kB 0*1024kB 
->> 0*2048kB 0*4096kB = 172kB
->> Normal: 54*4kB 8*8kB 14*16kB 5*32kB 2*64kB 1*128kB 1*256kB 0*512kB 0*1024kB 
->> 0*2048kB 0*4096kB = 1176kB
->> HighMem: empty
->> Swap cache: add 66873, delete 65915, find 54916/55208, race 0+0
->> Free swap:       805560kB
->> 65536 pages of RAM
->> 0 pages of HIGHMEM
->> 1786 reserved pages
->> 600111 pages shared
->> 958 pages swap cached
->> 
->> 
->> 
->> 
->> cron          S C1205F60     0  2614    435          2628  2613 (NOTLB)
->> cde0bc9c 00000082 00000000 c1205f60 c12068c0 c4dba97c cde0bc94 c014584e
->>       c4dba940 c57d3468 b7fe7000 00000001 c1205f60 001aff4a d6c5bd65 
->> 0003d278
->>       c8c5e530 cf9aed40 7fffffff 00000001 cde0bcd8 c02f9f04 b7fe7000 
->> 00000001
->> Call Trace:
->> [<c02f9f04>] schedule_timeout+0xb4/0xc0
->> [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
->> [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
->> [<c0293cab>] sock_sendmsg+0xbb/0xe0
->> [<c0295161>] sys_sendto+0xe1/0x100
->> [<c02951b2>] sys_send+0x32/0x40
->> [<c0295a1a>] sys_socketcall+0x13a/0x250
->> [<c0104383>] syscall_call+0x7/0xb
->> cron          S C1205F60     0  2628    435          2640  2614 (NOTLB)
->> cc738c9c 00000086 c8c5e930 c1205f60 c82e1b7c c4dba73c cc738c94 00000000
->>       c4dba700 00000007 cc738cac cebb0690 c1205f60 00289ad9 af39036a 
->> 0003d2be
->>       c8c5ea90 cf9aed40 7fffffff 00000001 cc738cd8 c02f9f04 00000246 
->> 000000d0
->> Call Trace:
->> [<c02f9f04>] schedule_timeout+0xb4/0xc0
->> [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
->> [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
->> [<c0293cab>] sock_sendmsg+0xbb/0xe0
->> [<c0295161>] sys_sendto+0xe1/0x100
->> [<c02951b2>] sys_send+0x32/0x40
->> [<c0295a1a>] sys_socketcall+0x13a/0x250
->> [<c0104383>] syscall_call+0x7/0xb
->> 
->> cron          S C1205F60     0  2640    435          2655  2628 (NOTLB)
->> c2bfbc9c 00000082 c721b9d0 c1205f60 cd21db7c c4dba07c c2bfbc94 00000000
->>       c4dba040 00000007 cf06b200 cebb0690 c1205f60 0027ced4 87b993a6 
->> 0003d304
->>       c721bb30 cf9aed40 7fffffff 00000001 c2bfbcd8 c02f9f04 c138f6c0 
->> c9bdea4c
->> Call Trace:
->> [<c02f9f04>] schedule_timeout+0xb4/0xc0
->> [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
->> [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
->> [<c0293cab>] sock_sendmsg+0xbb/0xe0
->> [<c0295161>] sys_sendto+0xe1/0x100
->> [<c02951b2>] sys_send+0x32/0x40
->> [<c0295a1a>] sys_socketcall+0x13a/0x250
->> [<c0104383>] syscall_call+0x7/0xb
->> sshd          S C1205F60     0  2653   1410          2654 17528 (NOTLB)
->> c163dc9c 00000086 c721b470 c1205f60 00000000 00000000 00000000 00000000
->>       c4dba4c0 00000007 cf06b560 c721af10 c1205f60 00039ddd 67910d34 
->> 0003d32a
->>       c721b5d0 cf9aed40 7fffffff 00000001 c163dcd8 c02f9f04 c138f6c0 
->> c9bdea4c
->> Call Trace:
->> [<c02f9f04>] schedule_timeout+0xb4/0xc0
->> [<c02ef86e>] unix_wait_for_peer+0xbe/0xd0
->> [<c02f028a>] unix_dgram_sendmsg+0x26a/0x500
->> [<c0293cab>] sock_sendmsg+0xbb/0xe0
->> [<c0295161>] sys_sendto+0xe1/0x100
->> [<c02951b2>] sys_send+0x32/0x40
->> [<c0295a1a>] sys_socketcall+0x13a/0x250
->> [<c0104383>] syscall_call+0x7/0xb
->> 
->> 
->> 
->> 
->> 
->> -Chris
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+
+I'm having trouble modprobe'ing the alsasound drivers ever since
+RT-V0.7.11, to latest RT-V0.7.18, and I suspect this applies to -mm3 as
+well.
+
+The most evident trouble happens while unloading the modules, either on
+shutdown or doing simple modprobe -r or rmmod. The system hangs
+completely. On my P4/SMT machine it doesn't spit anything out to the
+serial console. Nada. OTOH, on my P4/UP laptop, I found that it does
+behave a litle more verbose, as the following syslog excerpt:
+
+
+Nov  6 20:29:52 lambda alsa: Shutting down ALSA sound driver (version 1.0.6):
+Nov  6 20:29:55 lambda kernel: usbcore: deregistering driver snd-usb-usx2y
+Nov  6 20:29:55 lambda alsa: /etc/rc6.d/K70alsa: line 287: 15938
+Segmentation fault      /sbin/rmmod `echo $line | cut -d ' ' -f 1`
+>/dev/null 2>&1
+Nov  6 20:29:55 lambda kernel: BUG: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Nov  6 20:29:55 lambda kernel:  printing eip:
+Nov  6 20:29:55 lambda kernel: c012ae47
+Nov  6 20:29:55 lambda kernel: *pde = 00000000
+Nov  6 20:29:55 lambda kernel: Oops: 0000 [#1]
+Nov  6 20:29:55 lambda kernel: PREEMPT
+Nov  6 20:29:55 lambda kernel: Modules linked in: realtime commoncap
+snd_usb_usx2y snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep snd_ali5451
+snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd soundcore prism2_cs
+p80211 pcmcia yenta_socket pcmcia_core natsemi crc32 loop subfs evdev
+pl2303 usbserial ohci_hcd usbcore
+Nov  6 20:29:55 lambda kernel: CPU:    0
+Nov  6 20:29:55 lambda kernel: EIP:    0060:[__up_write+109/721]    Not
+tainted VLI
+Nov  6 20:29:55 lambda kernel: EIP:    0060:[<c012ae47>]    Not tainted VLI
+Nov  6 20:29:55 lambda kernel: EFLAGS: 00010083   (2.6.10-rc1-mm2-RT-V0.7.7)
+Nov  6 20:29:55 lambda kernel: EIP is at __up_write+0x6d/0x2d1
+Nov  6 20:29:55 lambda kernel: eax: 00000000   ebx: d6cb8000   ecx:
+00000064   edx: 00000064
+Nov  6 20:29:55 lambda alsa: /etc/rc6.d/K70alsa: line 287: 15965
+Segmentation fault      /sbin/rmmod `echo $line | cut -d ' ' -f 1`
+>/dev/null 2>&1
+Nov  6 20:29:55 lambda kernel: esi: e011b5cc   edi: ddd7ce30   ebp:
+e0061e78   esp: d6cb9eb8
+Nov  6 20:29:55 lambda kernel: ds: 007b   es: 007b   ss: 0068   preempt:
+00000004
+Nov  6 20:29:55 lambda kernel: Process rmmod (pid: 15938,
+threadinfo=d6cb8000 task=ded203b0)
+Nov  6 20:29:55 lambda kernel: Stack: c015258f df760280 00000008 c013baa4
+ddc02028 00000246 d6cb8000 00000246
+Nov  6 20:29:55 lambda kernel:        df767400 00000000 d6cb8000 e011b5c8
+e0061e68 e0061e78 c012b957 00000246
+Nov  6 20:29:55 lambda kernel:        ded203b0 d6cb8000 00000246 c02ff3c0
+de3db4e8 e011b5e8 c030ac28 c01b1cef
+Nov  6 20:29:55 lambda kernel: Call Trace:
+Nov  6 20:29:55 lambda kernel:  [invalidate_inode_buffers+26/240]
+invalidate_inode_buffers+0x1a/0xf0 (4)
+Nov  6 20:29:55 lambda kernel:  [<c015258f>]
+invalidate_inode_buffers+0x1a/0xf0 (4)
+Nov  6 20:29:55 lambda kernel:  [cache_flusharray+69/161]
+cache_flusharray+0x45/0xa1 (12)
+Nov  6 20:29:55 lambda kernel:  [<c013baa4>] cache_flusharray+0x45/0xa1 (12)
+Nov  6 20:29:55 lambda kernel:  [up+80/173] up+0x50/0xad (44)
+Nov  6 20:29:55 lambda kernel:  [<c012b957>] up+0x50/0xad (44)
+Nov  6 20:29:55 lambda kernel:  [kobject_cleanup+142/144]
+kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:55 lambda kernel:  [<c01b1cef>] kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:55 lambda kernel:  [kobject_release+0/8]
+kobject_release+0x0/0x8 (8)
+Nov  6 20:29:55 lambda kernel:  [<c01b1cf1>] kobject_release+0x0/0x8 (8)
+Nov  6 20:29:55 lambda kernel:  [kref_put+81/194] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:55 lambda kernel:  [<c01b2597>] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:55 lambda kernel:  [bus_remove_driver+63/72]
+bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:55 lambda kernel:  [<c01f79d2>] bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:55 lambda kernel:  [driver_unregister+11/26]
+driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:55 lambda kernel:  [<c01f7d44>] driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:55 lambda kernel:  [pg0+533397933/1069954048]
+usb_deregister+0x31/0x3f [usbcore] (8)
+Nov  6 20:29:55 lambda kernel:  [<e004b1ad>] usb_deregister+0x31/0x3f
+[usbcore] (8)
+Nov  6 20:29:55 lambda kernel:  [sys_delete_module+287/299]
+sys_delete_module+0x11f/0x12b (20)
+Nov  6 20:29:55 lambda kernel:  [<c012d91f>] sys_delete_module+0x11f/0x12b
+(20)
+Nov  6 20:29:55 lambda kernel:  [blk_queue_bounce+29/132]
+blk_queue_bounce+0x1d/0x84 (20)
+Nov  6 20:29:55 lambda kernel:  [<c0140079>] blk_queue_bounce+0x1d/0x84 (20)
+Nov  6 20:29:55 lambda kernel:  [do_munmap+282/374] do_munmap+0x11a/0x176
+(12)
+Nov  6 20:29:55 lambda kernel:  [<c0144f7a>] do_munmap+0x11a/0x176 (12)
+Nov  6 20:29:55 lambda kernel:  [sys_munmap+56/69] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:55 lambda kernel:  [<c014500e>] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:55 lambda kernel:  [sysenter_past_esp+82/113]
+sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:55 lambda kernel:  [<c0103bc1>] sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:55 lambda kernel: Code: 75 0b 8b 46 04 85 c0 0f 84 71 01 00
+00 b8 00 e0 ff ff 21 e0 83 40 14 01 8b 46 0c e8 d0 81 fe ff 8b 7e 0c 89 c2
+8b 87 60 05 00 00 <8b> 08 0f 18 01 90 8d 9f 60 05 00 00 eb 10 8b 40 0c 39
+d0 0f 4c
+Nov  6 20:29:55 lambda kernel:  <6>note: rmmod[15938] exited with
+preempt_count 3
+Nov  6 20:29:55 lambda kernel: BUG: scheduling while atomic:
+rmmod/0x00000003/15938
+Nov  6 20:29:55 lambda kernel: caller is do_exit+0x289/0x4b2
+Nov  6 20:29:55 lambda kernel:  [__schedule+1194/1525]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:55 lambda kernel:  [<c02ac2fa>]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:55 lambda kernel:  [exit_notify+1154/2290]
+exit_notify+0x482/0x8f2 (24)
+Nov  6 20:29:55 lambda kernel:  [<c01187ba>] exit_notify+0x482/0x8f2 (24)
+Nov  6 20:29:55 lambda kernel:  [kmem_cache_free+72/197]
+kmem_cache_free+0x48/0xc5 (24)
+Nov  6 20:29:55 lambda kernel:  [<c013bd6d>] kmem_cache_free+0x48/0xc5 (24)
+Nov  6 20:29:55 lambda kernel:  [do_exit+649/1202] do_exit+0x289/0x4b2 (32)
+Nov  6 20:29:55 lambda kernel:  [<c0118eb3>] do_exit+0x289/0x4b2 (32)
+Nov  6 20:29:55 lambda kernel:  [do_divide_error+0/330]
+do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:55 lambda kernel:  [<c0104d83>] do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:55 lambda kernel:  [do_page_fault+920/1425]
+do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:55 lambda kernel:  [<c0111313>] do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:55 lambda kernel:  [preempt_schedule+80/106]
+preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:55 lambda kernel:  [<c02ac5ab>] preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:55 lambda kernel:  [queue_work+44/101] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:55 lambda kernel:  [<c0125d66>] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:55 lambda kernel:  [call_usermodehelper+274/316]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:55 lambda kernel:  [<c0125caa>]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:55 lambda kernel:  [__call_usermodehelper+0/72]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:55 lambda kernel:  [<c0125b50>]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:55 lambda kernel:  [do_page_fault+0/1425]
+do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:55 lambda kernel:  [<c0110f7b>] do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:55 lambda kernel:  [error_code+45/56] error_code+0x2d/0x38 (8)
+Nov  6 20:29:55 lambda kernel:  [<c010461d>] error_code+0x2d/0x38 (8)
+Nov  6 20:29:55 lambda kernel:  [__up_write+109/721] __up_write+0x6d/0x2d1
+(52)
+Nov  6 20:29:55 lambda kernel:  [<c012ae47>] __up_write+0x6d/0x2d1 (52)
+Nov  6 20:29:55 lambda kernel:  [invalidate_inode_buffers+26/240]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:55 lambda kernel:  [<c015258f>]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:55 lambda kernel:  [cache_flusharray+69/161]
+cache_flusharray+0x45/0xa1 (12)
+Nov  6 20:29:55 lambda kernel:  [<c013baa4>] cache_flusharray+0x45/0xa1 (12)
+Nov  6 20:29:55 lambda kernel:  [up+80/173] up+0x50/0xad (44)
+Nov  6 20:29:55 lambda kernel:  [<c012b957>] up+0x50/0xad (44)
+Nov  6 20:29:55 lambda kernel:  [kobject_cleanup+142/144]
+kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:55 lambda kernel:  [<c01b1cef>] kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:55 lambda kernel:  [kobject_release+0/8]
+kobject_release+0x0/0x8 (8)
+Nov  6 20:29:55 lambda kernel:  [<c01b1cf1>] kobject_release+0x0/0x8 (8)
+Nov  6 20:29:55 lambda kernel:  [kref_put+81/194] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:55 lambda kernel:  [<c01b2597>] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:55 lambda kernel:  [bus_remove_driver+63/72]
+bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:55 lambda kernel:  [<c01f79d2>] bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:55 lambda kernel:  [driver_unregister+11/26]
+driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:55 lambda kernel:  [<c01f7d44>] driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:55 lambda kernel:  [pg0+533397933/1069954048]
+usb_deregister+0x31/0x3f [usbcore] (8)
+Nov  6 20:29:55 lambda kernel:  [<e004b1ad>] usb_deregister+0x31/0x3f
+[usbcore] (8)
+Nov  6 20:29:55 lambda kernel:  [sys_delete_module+287/299]
+sys_delete_module+0x11f/0x12b (20)
+Nov  6 20:29:55 lambda kernel:  [<c012d91f>] sys_delete_module+0x11f/0x12b
+(20)
+Nov  6 20:29:55 lambda kernel:  [blk_queue_bounce+29/132]
+blk_queue_bounce+0x1d/0x84 (20)
+Nov  6 20:29:55 lambda kernel:  [<c0140079>] blk_queue_bounce+0x1d/0x84 (20)
+Nov  6 20:29:55 lambda kernel:  [do_munmap+282/374] do_munmap+0x11a/0x176
+(12)
+Nov  6 20:29:55 lambda kernel:  [<c0144f7a>] do_munmap+0x11a/0x176 (12)
+Nov  6 20:29:55 lambda kernel:  [sys_munmap+56/69] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:55 lambda kernel:  [<c014500e>] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:55 lambda kernel:  [sysenter_past_esp+82/113]
+sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:55 lambda kernel:  [<c0103bc1>] sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:55 lambda kernel: ALI 5451 0000:00:06.0: Device was removed
+without properly calling pci_disable_device(). This may need fixing.
+Nov  6 20:29:55 lambda kernel: BUG: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Nov  6 20:29:55 lambda kernel:  printing eip:
+Nov  6 20:29:55 lambda kernel: c012ae47
+Nov  6 20:29:55 lambda kernel: *pde = 00000000
+Nov  6 20:29:55 lambda kernel: Oops: 0000 [#2]
+Nov  6 20:29:55 lambda kernel: PREEMPT
+Nov  6 20:29:55 lambda kernel: Modules linked in: realtime commoncap
+snd_usb_usx2y snd_usb_lib snd_rawmidi snd_seq_device snd_hwdep snd_ali5451
+snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd soundcore prism2_cs
+p80211 pcmcia yenta_socket pcmcia_core natsemi crc32 loop subfs evdev
+pl2303 usbserial ohci_hcd usbcore
+Nov  6 20:29:55 lambda kernel: CPU:    0
+Nov  6 20:29:55 lambda kernel: EIP:    0060:[__up_write+109/721]    Not
+tainted VLI
+Nov  6 20:29:55 lambda kernel: EIP:    0060:[<c012ae47>]    Not tainted VLI
+Nov  6 20:29:55 lambda kernel: EFLAGS: 00010083   (2.6.10-rc1-mm2-RT-V0.7.7)
+Nov  6 20:29:55 lambda kernel: EIP is at __up_write+0x6d/0x2d1
+Nov  6 20:29:55 lambda kernel: eax: 00000000   ebx: d6cb8000   ecx:
+00000064   edx: 00000064
+Nov  6 20:29:55 lambda kernel: esi: e00ef894   edi: ddd7ce30   ebp:
+c0303198   esp: d6cb9ec4
+Nov  6 20:29:55 lambda kernel: ds: 007b   es: 007b   ss: 0068   preempt:
+00000004
+Nov  6 20:29:55 lambda kernel: Process rmmod (pid: 15965,
+threadinfo=d6cb8000 task=ded203b0)
+Nov  6 20:29:55 lambda kernel: Stack: c015258f ded203b0 00000000 00000096
+de536d84 00000246 d6cb8000 00000246
+Nov  6 20:29:56 lambda kernel:        df767400 00000000 d6cb8000 e00ef890
+c0303188 c0303198 c012b957 00000246
+Nov  6 20:29:56 lambda kernel:        ded203b0 d6cb8000 00000246 c02ff3c0
+deb50cc8 e00ef8b0 c030ac28 c01b1cef
+Nov  6 20:29:56 lambda kernel: Call Trace:
+Nov  6 20:29:56 lambda kernel:  [invalidate_inode_buffers+26/240]
+invalidate_inode_buffers+0x1a/0xf0 (4)
+Nov  6 20:29:56 lambda kernel:  [<c015258f>]
+invalidate_inode_buffers+0x1a/0xf0 (4)
+Nov  6 20:29:56 lambda kernel:  [up+80/173] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [<c012b957>] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [kobject_cleanup+142/144]
+kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cef>] kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [kobject_release+0/8]
+kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cf1>] kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [kref_put+81/194] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [<c01b2597>] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [bus_remove_driver+63/72]
+bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01f79d2>] bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [driver_unregister+11/26]
+driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [<c01f7d44>] driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [pci_unregister_driver+11/19]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b95e4>]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [sys_delete_module+287/299]
+sys_delete_module+0x11f/0x12b (8)
+Nov  6 20:29:56 lambda kernel:  [<c012d91f>] sys_delete_module+0x11f/0x12b
+(8)
+Nov  6 20:29:56 lambda kernel:  [unmap_vma_list+14/23]
+unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0144c7d>] unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [do_munmap+282/374] do_munmap+0x11a/0x176
+(12)
+Nov  6 20:29:56 lambda kernel:  [<c0144f7a>] do_munmap+0x11a/0x176 (12)
+Nov  6 20:29:56 lambda kernel:  [sys_munmap+56/69] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [<c014500e>] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [sysenter_past_esp+82/113]
+sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel:  [<c0103bc1>] sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel: Code: 75 0b 8b 46 04 85 c0 0f 84 71 01 00
+00 b8 00 e0 ff ff 21 e0 83 40 14 01 8b 46 0c e8 d0 81 fe ff 8b 7e 0c 89 c2
+8b 87 60 05 00 00 <8b> 08 0f 18 01 90 8d 9f 60 05 00 00 eb 10 8b 40 0c 39
+d0 0f 4c
+Nov  6 20:29:56 lambda kernel:  <6>note: rmmod[15965] exited with
+preempt_count 3
+Nov  6 20:29:56 lambda kernel: BUG: scheduling while atomic:
+rmmod/0x10000003/15965
+Nov  6 20:29:56 lambda kernel: caller is __cond_resched+0x36/0x41
+Nov  6 20:29:56 lambda kernel:  [__schedule+1194/1525]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:56 lambda kernel:  [<c02ac2fa>]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:56 lambda kernel:  [__cond_resched+54/65]
+__cond_resched+0x36/0x41 (80)
+Nov  6 20:29:56 lambda kernel:  [<c0113715>] __cond_resched+0x36/0x41 (80)
+Nov  6 20:29:56 lambda kernel:  [cond_resched+28/37]
+cond_resched+0x1c/0x25 (12)
+Nov  6 20:29:56 lambda kernel:  [<c02acedb>] cond_resched+0x1c/0x25 (12)
+Nov  6 20:29:56 lambda kernel:  [unmap_vmas+374/385]
+unmap_vmas+0x176/0x181 (8)
+Nov  6 20:29:56 lambda kernel:  [<c0140cff>] unmap_vmas+0x176/0x181 (8)
+Nov  6 20:29:56 lambda kernel:  [exit_mmap+79/268] exit_mmap+0x4f/0x10c (64)
+Nov  6 20:29:56 lambda kernel:  [<c01452df>] exit_mmap+0x4f/0x10c (64)
+Nov  6 20:29:56 lambda kernel:  [mmput+78/295] mmput+0x4e/0x127 (40)
+Nov  6 20:29:56 lambda kernel:  [<c01141d7>] mmput+0x4e/0x127 (40)
+Nov  6 20:29:56 lambda kernel:  [do_exit+304/1202] do_exit+0x130/0x4b2 (24)
+Nov  6 20:29:56 lambda kernel:  [<c0118d5a>] do_exit+0x130/0x4b2 (24)
+Nov  6 20:29:56 lambda kernel:  [do_divide_error+0/330]
+do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:56 lambda kernel:  [<c0104d83>] do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:56 lambda kernel:  [do_page_fault+920/1425]
+do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:56 lambda kernel:  [<c0111313>] do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:56 lambda kernel:  [preempt_schedule+80/106]
+preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:56 lambda kernel:  [<c02ac5ab>] preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:56 lambda kernel:  [queue_work+44/101] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0125d66>] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:56 lambda kernel:  [call_usermodehelper+274/316]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:56 lambda kernel:  [<c0125caa>]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:56 lambda kernel:  [__call_usermodehelper+0/72]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0125b50>]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:56 lambda kernel:  [do_page_fault+0/1425]
+do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:56 lambda kernel:  [<c0110f7b>] do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:56 lambda kernel:  [error_code+45/56] error_code+0x2d/0x38 (8)
+Nov  6 20:29:56 lambda kernel:  [<c010461d>] error_code+0x2d/0x38 (8)
+Nov  6 20:29:56 lambda kernel:  [__up_write+109/721] __up_write+0x6d/0x2d1
+(52)
+Nov  6 20:29:56 lambda kernel:  [<c012ae47>] __up_write+0x6d/0x2d1 (52)
+Nov  6 20:29:56 lambda kernel:  [invalidate_inode_buffers+26/240]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:56 lambda kernel:  [<c015258f>]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:56 lambda kernel:  [up+80/173] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [<c012b957>] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [kobject_cleanup+142/144]
+kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cef>] kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [kobject_release+0/8]
+kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cf1>] kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [kref_put+81/194] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [<c01b2597>] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [bus_remove_driver+63/72]
+bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01f79d2>] bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [driver_unregister+11/26]
+driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [<c01f7d44>] driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [pci_unregister_driver+11/19]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b95e4>]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [sys_delete_module+287/299]
+sys_delete_module+0x11f/0x12b (8)
+Nov  6 20:29:56 lambda kernel:  [<c012d91f>] sys_delete_module+0x11f/0x12b
+(8)
+Nov  6 20:29:56 lambda kernel:  [unmap_vma_list+14/23]
+unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0144c7d>] unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [do_munmap+282/374] do_munmap+0x11a/0x176
+(12)
+Nov  6 20:29:56 lambda kernel:  [<c0144f7a>] do_munmap+0x11a/0x176 (12)
+Nov  6 20:29:56 lambda kernel:  [sys_munmap+56/69] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [<c014500e>] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [sysenter_past_esp+82/113]
+sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel:  [<c0103bc1>] sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel: BUG: scheduling while atomic:
+rmmod/0x10000003/15965
+Nov  6 20:29:56 lambda kernel: caller is __cond_resched+0x36/0x41
+Nov  6 20:29:56 lambda kernel:  [__schedule+1194/1525]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:56 lambda kernel:  [<c02ac2fa>]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:56 lambda kernel:  [do_exit+328/1202] do_exit+0x148/0x4b2 (36)
+Nov  6 20:29:56 lambda kernel:  [<c0118d72>] do_exit+0x148/0x4b2 (36)
+Nov  6 20:29:56 lambda kernel:  [down_write_mutex+333/518]
+down_write_mutex+0x14d/0x206 (4)
+Nov  6 20:29:56 lambda kernel:  [<c02ad5f9>] down_write_mutex+0x14d/0x206 (4)
+Nov  6 20:29:56 lambda kernel:  [remove_vm_struct+93/129]
+remove_vm_struct+0x5d/0x81 (8)
+Nov  6 20:29:56 lambda kernel:  [<c0143446>] remove_vm_struct+0x5d/0x81 (8)
+Nov  6 20:29:56 lambda kernel:  [__cond_resched+54/65]
+__cond_resched+0x36/0x41 (32)
+Nov  6 20:29:56 lambda kernel:  [<c0113715>] __cond_resched+0x36/0x41 (32)
+Nov  6 20:29:56 lambda kernel:  [cond_resched+28/37]
+cond_resched+0x1c/0x25 (12)
+Nov  6 20:29:56 lambda kernel:  [<c02acedb>] cond_resched+0x1c/0x25 (12)
+Nov  6 20:29:56 lambda kernel:  [put_files_struct+146/269]
+put_files_struct+0x92/0x10d (8)
+Nov  6 20:29:56 lambda kernel:  [<c0117ec3>] put_files_struct+0x92/0x10d (8)
+Nov  6 20:29:56 lambda kernel:  [do_exit+352/1202] do_exit+0x160/0x4b2 (32)
+Nov  6 20:29:56 lambda kernel:  [<c0118d8a>] do_exit+0x160/0x4b2 (32)
+Nov  6 20:29:56 lambda kernel:  [do_divide_error+0/330]
+do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:56 lambda kernel:  [<c0104d83>] do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:56 lambda kernel:  [do_page_fault+920/1425]
+do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:56 lambda kernel:  [<c0111313>] do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:56 lambda kernel:  [preempt_schedule+80/106]
+preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:56 lambda kernel:  [<c02ac5ab>] preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:56 lambda kernel:  [queue_work+44/101] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0125d66>] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:56 lambda kernel:  [call_usermodehelper+274/316]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:56 lambda kernel: aa>] call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:56 lambda kernel:  [__call_usermodehelper+0/72]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0125b50>]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:56 lambda kernel:  [do_page_fault+0/1425]
+do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:56 lambda kernel:  [<c0110f7b>] do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:56 lambda kernel:  [error_code+45/56] error_code+0x2d/0x38 (8)
+Nov  6 20:29:56 lambda kernel:  [<c010461d>] error_code+0x2d/0x38 (8)
+Nov  6 20:29:56 lambda kernel:  [__up_write+109/721] __up_write+0x6d/0x2d1
+(52)
+Nov  6 20:29:56 lambda kernel:  [<c012ae47>] __up_write+0x6d/0x2d1 (52)
+Nov  6 20:29:56 lambda kernel:  [invalidate_inode_buffers+26/240]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:56 lambda kernel:  [<c015258f>]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:56 lambda kernel:  [up+80/173] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [<c012b957>] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [kobject_cleanup+142/144]
+kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cef>] kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [kobject_release+0/8]
+kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cf1>] kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [kref_put+81/194] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [<c01b2597>] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [bus_remove_driver+63/72]
+bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01f79d2>] bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [driver_unregister+11/26]
+driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [<c01f7d44>] driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [pci_unregister_driver+11/19]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b95e4>]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [sys_delete_module+287/299]
+sys_delete_module+0x11f/0x12b (8)
+Nov  6 20:29:56 lambda kernel:  [<c012d91f>] sys_delete_module+0x11f/0x12b
+(8)
+Nov  6 20:29:56 lambda kernel:  [unmap_vma_list+14/23]
+unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0144c7d>] unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [do_munmap+282/374] do_munmap+0x11a/0x176
+(12)
+Nov  6 20:29:56 lambda kernel:  [<c0144f7a>] do_munmap+0x11a/0x176 (12)
+Nov  6 20:29:56 lambda kernel:  [sys_munmap+56/69] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [<c014500e>] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [sysenter_past_esp+82/113]
+sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel:  [<c0103bc1>] sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel: BUG: scheduling while atomic:
+rmmod/0x00000003/15965
+Nov  6 20:29:56 lambda kernel: caller is do_exit+0x289/0x4b2
+Nov  6 20:29:56 lambda kernel:  [__schedule+1194/1525]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:56 lambda kernel:  [<c02ac2fa>]
+__sched_text_start+0x4aa/0x5f5 (8)
+Nov  6 20:29:56 lambda kernel:  [exit_notify+1154/2290]
+exit_notify+0x482/0x8f2 (24)
+Nov  6 20:29:56 lambda kernel:  [<c01187ba>] exit_notify+0x482/0x8f2 (24)
+Nov  6 20:29:56 lambda kernel:  [kmem_cache_free+72/197]
+kmem_cache_free+0x48/0xc5 (24)
+Nov  6 20:29:56 lambda kernel:  [<c013bd6d>] kmem_cache_free+0x48/0xc5 (24)
+Nov  6 20:29:56 lambda kernel:  [do_exit+649/1202] do_exit+0x289/0x4b2 (32)
+Nov  6 20:29:56 lambda kernel:  [<c0118eb3>] do_exit+0x289/0x4b2 (32)
+Nov  6 20:29:56 lambda kernel:  [do_divide_error+0/330]
+do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:56 lambda kernel:  [<c0104d83>] do_divide_error+0x0/0x14a (40)
+Nov  6 20:29:56 lambda kernel:  [do_page_fault+920/1425]
+do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:56 lambda kernel:  [<c0111313>] do_page_fault+0x398/0x591 (64)
+Nov  6 20:29:56 lambda kernel:  [preempt_schedule+80/106]
+preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:56 lambda kernel:  [<c02ac5ab>] preempt_schedule+0x50/0x6a (80)
+Nov  6 20:29:56 lambda kernel:  [queue_work+44/101] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0125d66>] queue_work+0x2c/0x65 (20)
+Nov  6 20:29:56 lambda kernel:  [call_usermodehelper+274/316]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:56 lambda kernel:  [<c0125caa>]
+call_usermodehelper+0x112/0x13c (24)
+Nov  6 20:29:56 lambda kernel:  [__call_usermodehelper+0/72]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0125b50>]
+__call_usermodehelper+0x0/0x48 (20)
+Nov  6 20:29:56 lambda kernel:  [do_page_fault+0/1425]
+do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:56 lambda kernel:  [<c0110f7b>] do_page_fault+0x0/0x591 (52)
+Nov  6 20:29:56 lambda kernel:  [error_code+45/56] error_code+0x2d/0x38 (8)
+Nov  6 20:29:56 lambda kernel:  [<c010461d>] error_code+0x2d/0x38 (8)
+Nov  6 20:29:56 lambda kernel:  [__up_write+109/721] __up_write+0x6d/0x2d1
+(52)
+Nov  6 20:29:56 lambda kernel:  [<c012ae47>] __up_write+0x6d/0x2d1 (52)
+Nov  6 20:29:56 lambda kernel:  [invalidate_inode_buffers+26/240]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:56 lambda kernel:  [<c015258f>]
+invalidate_inode_buffers+0x1a/0xf0 (12)
+Nov  6 20:29:56 lambda kernel:  [up+80/173] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [<c012b957>] up+0x50/0xad (56)
+Nov  6 20:29:56 lambda kernel:  [kobject_cleanup+142/144]
+kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cef>] kobject_cleanup+0x8e/0x90 (36)
+Nov  6 20:29:56 lambda kernel:  [kobject_release+0/8]
+kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b1cf1>] kobject_release+0x0/0x8 (8)
+Nov  6 20:29:56 lambda kernel:  [kref_put+81/194] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [<c01b2597>] kref_put+0x51/0xc2 (12)
+Nov  6 20:29:56 lambda kernel:  [bus_remove_driver+63/72]
+bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [<c01f79d2>] bus_remove_driver+0x3f/0x48 (36)
+Nov  6 20:29:56 lambda kernel:  [driver_unregister+11/26]
+driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [<c01f7d44>] driver_unregister+0xb/0x1a (8)
+Nov  6 20:29:56 lambda kernel:  [pci_unregister_driver+11/19]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [<c01b95e4>]
+pci_unregister_driver+0xb/0x13 (8)
+Nov  6 20:29:56 lambda kernel:  [sys_delete_module+287/299]
+sys_delete_module+0x11f/0x12b (8)
+Nov  6 20:29:56 lambda kernel:  [<c012d91f>] sys_delete_module+0x11f/0x12b
+(8)
+Nov  6 20:29:56 lambda kernel:  [unmap_vma_list+14/23]
+unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [<c0144c7d>] unmap_vma_list+0xe/0x17 (20)
+Nov  6 20:29:56 lambda kernel:  [do_munmap+282/374] do_munmap+0x11a/0x176
+(12)
+Nov  6 20:29:56 lambda kernel:  [<c0144f7a>] do_munmap+0x11a/0x176 (12)
+Nov  6 20:29:56 lambda kernel:  [sys_munmap+56/69] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [<c014500e>] sys_munmap+0x38/0x45 (36)
+Nov  6 20:29:56 lambda kernel:  [sysenter_past_esp+82/113]
+sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda kernel:  [<c0103bc1>] sysenter_past_esp+0x52/0x71 (12)
+Nov  6 20:29:56 lambda alsa:  succeeded
+Nov  6 20:29:56 lambda rc: Stopping alsa:  succeeded
+
+Bye now.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

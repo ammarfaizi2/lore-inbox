@@ -1,59 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVBWWzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVBWW6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVBWWzp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 17:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVBWWx5
+	id S261674AbVBWW6g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVBWW4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 17:53:57 -0500
-Received: from 1-1-3-7a.rny.sth.bostream.se ([82.182.133.20]:9660 "EHLO
-	pc18.dolda2000.com") by vger.kernel.org with ESMTP id S261664AbVBWWxN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 17:53:13 -0500
-Subject: ipt_owner panic on 2.6.10-1.12_FC2
-From: Fredrik Tolf <fredrik@dolda2000.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 23 Feb 2005 23:53:09 +0100
-Message-Id: <1109199189.15302.21.camel@pc7.dolda2000.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Wed, 23 Feb 2005 17:56:36 -0500
+Received: from mailwasher.lanl.gov ([192.65.95.54]:51693 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S261663AbVBWWyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 17:54:44 -0500
+Message-ID: <421D09AE.4090100@mesatop.com>
+Date: Wed, 23 Feb 2005 15:54:38 -0700
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steven Cole <elenstev@mesatop.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1 (VFS: Cannot open root device "301")
+References: <20050223014233.6710fd73.akpm@osdl.org>	<421CB161.7060900@mesatop.com> <20050223121759.5cb270ee.akpm@osdl.org> <421CFF5E.4030402@mesatop.com>
+In-Reply-To: <421CFF5E.4030402@mesatop.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Steven Cole wrote:
+> Andrew Morton wrote:
+> 
+>> Steven Cole <elenstev@mesatop.com> wrote:
+> 
+> 
+>>> I am having trouble getting recent -mm kernels to boot on my test box.
+>>> For 2.6.11-rc3-mm2 and 2.6.11-rc4-mm1 I get the following:
+>>>
+>>> VFS: Cannot open root device "301" or unknown-block(3,1)
+>>> Please append a correct "root=" boot option
+>>> Kernel panic - not syncing: VFS: Unable to mount root fs on 
+>>> unknown-block(3,1)
+>>>
+> [snipped]
+> 
+>>
+>> Please set CONFIG_BASE_FULL=y.  Check that this causes 
+>> CONFIG_BASE_SMALL=0,
+>> then retest.
+> 
+> 
+> Yes, that worked.  2.6.11-rc4-mm1 now boots OK, but hdb1 seems to be 
+> missing.
+> 
+> [root@spc1 steven]# uname -r
+> 2.6.11-rc4-mm1-GX110
+> [root@spc1 steven]# mount -t reiser4 /dev/hdb1 /reiser4_testing
+> mount: special device /dev/hdb1 does not exist
+> 
+> Reading another post (and looking in /dev), I tried hdq:
+> 
+> [root@spc1 steven]# mount -t reiser4 /dev/hdq1 /reiser4_testing
+> [root@spc1 steven]# df -T
+> Filesystem    Type    Size  Used Avail Use% Mounted on
+> /dev/hda1     ext3    304M   75M  214M  26% /
+> /dev/hda9 reiserfs    8.3G  3.9G  4.4G  48% /home
+> /dev/hda8     ext3    464M  8.1M  432M   2% /tmp
+> /dev/hda6     ext3    7.4G  1.7G  5.4G  24% /usr
+> /dev/hda7     ext3    1.9G   86M  1.7G   5% /var
+> /dev/hdq1  reiser4     18G  217M   18G   2% /reiser4_testing
+> 
+> Snipped from dmesg:
+> 
+> hda: ST320423A, ATA DISK drive
+> hdb: WDC WD200BB-75AUA1, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> Probing IDE interface ide1...
+> hdc: SONY CD-RW CRX160E, ATAPI CD/DVD-ROM drive
+> ide1 at 0x170-0x177,0x376 on irq 15
+> Probing IDE interface ide2...
+> Probing IDE interface ide3...
+> Probing IDE interface ide4...
+> Probing IDE interface ide5...
+> hda: max request size: 128KiB
+> hda: 40011300 sectors (20485 MB) w/512KiB Cache, CHS=39693/16/63, UDMA(66)
+> hda: cache flushes not supported
+>  /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 >
+> hdb: max request size: 128KiB
+> hdb: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(66)
+> hdb: cache flushes not supported
+>  /dev/ide/host0/bus0/target1/lun0: p1
+> 
+> 
+> Steven
 
-On the Linux router I'm running, I use the ipt_owner iptables module,
-and since a few kernel versions back, I've begun getting kernel panics
-in the ipt_owner module.
+(Replying to myself)
+I decided to fix 2.6.11-rc3-mm1 with CONFIG_BASE_FULL=y and see if
+the hdb/hdq confusion existed with that earlier kernel, but when I
+ran lilo, I got a "Fatal: cache_add: LILO internal error" message.
 
-Unfortunately, the start of it coincided with a CPU upgrade of the
-router, so at first I thought it was a hardware failure. Therefore, I
-didn't note on what kernel version it first started happening. This
-kernel version is a stock Fedora Core 2 kernel from FC's yum repo,
-2.6.10-1.12_FC2.
+[root@spc1 steven]# /sbin/lilo -v
+LILO version 22.6.1, Copyright (C) 1992-1998 Werner Almesberger
+Development beyond version 21 Copyright (C) 1999-2004 John Coffman
+Released 17-Nov-2004, and compiled at 20:03:17 on Jan 15 2005
 
-Anyhow, I'm getting this panic message:
-Kernel panic - not syncing: net/ipv4/netfilter/ipt_owner.c:38:
-spin_lock(kernel/fork.c:ca2dc044) already locked by fs/file_table.c/153
+Reading boot sector from /dev/hda
+Fatal: cache_add: LILO internal error
 
-I've got a long stack trace in the same photograph that I took of the
-monitor. Please tell me if you want it. I've seen the file and source
-line of the "already locked by" vary (such as "already locked by
-fs/open.c/someline"... it was somewhere in sys_close() at that time), so
-it doesn't seem to be depending on that.
+This box is still running 2.6.11-rc4-mm1 from above, and was booted
+with append="root=0301" accidentally left in lilo.conf from earlier testing.
 
-Not sure if this is the kind of error that goes to the LKML. Please tell
-me if I got it wrong.
-
-Also, if anyone has the time, please clear up this confusion for me -- I
-assume from the message that this panic is because one thread tries to
-lock the same lock twice, but I've always thought that Linux spinlocks
-are recursively lockable. Am I just wrong about them being recursively
-lockable, or does this panic have another cause?
-
-Thanks for your time!
-
-Fredrik Tolf
-
+Steven
 

@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUINLPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269281AbUINLPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268902AbUINLPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269311AbUINLMe
+	id S269281AbUINLPX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 07:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269075AbUINLMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:12:34 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:48560 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S269296AbUINLKe (ORCPT
+	Tue, 14 Sep 2004 07:12:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:27430 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269298AbUINLKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:10:34 -0400
-Date: Tue, 14 Sep 2004 13:10:24 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>
-Subject: Re: [pidhashing] [2/3] lower PID_MAX_LIMIT for 32-bit machines
-Message-ID: <20040914111024.GN4882@marowsky-bree.de>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914022530.GO9106@holomorphy.com> <20040914022827.GP9106@holomorphy.com> <20040914023114.GQ9106@holomorphy.com> <20040914105527.GB11238@k3.hellgate.ch>
+	Tue, 14 Sep 2004 07:10:31 -0400
+Message-ID: <9ae345c004091404102a10cf4a@mail.gmail.com>
+Date: Tue, 14 Sep 2004 14:10:30 +0300
+From: Yuval Turgeman <yuvalt@gmail.com>
+Reply-To: Yuval Turgeman <yuvalt@gmail.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] Menuconfig search changes - pt. 3
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0409141257130.877@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914105527.GB11238@k3.hellgate.ch>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040903190023.GA8898@aduva.com>
+	 <Pine.LNX.4.61.0409040152160.877@scrub.home>
+	 <9ae345c0040904101365a1ca63@mail.gmail.com>
+	 <Pine.LNX.4.61.0409140111100.877@scrub.home>
+	 <9ae345c0040914035331f17465@mail.gmail.com>
+	 <Pine.LNX.4.61.0409141257130.877@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-09-14T12:55:27,
-   Roger Luethi <rl@hellgate.ch> said:
+On Tue, 14 Sep 2004 13:00:43 +0200 (CEST), Roman Zippel
+<zippel@linux-m68k.org> wrote:
+> Hi,
+> 
+> On Tue, 14 Sep 2004, Yuval Turgeman wrote:
+> 
+> > > Could you please resend one complete (logical) patch.
+> >
+> > I did - http://lkml.org/lkml/2004/9/4/155 (patch against mm3)
+> 
+> That's only one part of the patch, it's only arbitrary splitted, I need
+> the merged patch to properly comment on it.
 
-> > -#define PID_MAX_LIMIT (4*1024*1024)
-> > +#define PID_MAX_LIMIT (sizeof(long) > 32 ? 4*1024*1024 : PID_MAX_DEFAULT)
-> An architecture with sizeof(long) > 32? -- Most impressive.
+Ok, the first patch was against 2.6.8.1 which was inserted to mm3
+(along with Andrew's coding style modifications).  The patch mentioned
+above is against mm3 (so there are 2 patches...)
+Do you want a complete patch against 2.6.8.1 ?  It could be arranged easily.
 
-x86_64, s390x, ppc64...
-
-
+Thanks,
+Yuval.

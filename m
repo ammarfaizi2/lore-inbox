@@ -1,160 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264734AbUFXTCS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUFXTC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264734AbUFXTCS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 15:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264771AbUFXTAZ
+	id S264900AbUFXTC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 15:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbUFXTCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 15:00:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58836 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264734AbUFXS6a (ORCPT
+	Thu, 24 Jun 2004 15:02:35 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:237 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264808AbUFXTCJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 14:58:30 -0400
-Date: Thu, 24 Jun 2004 11:57:04 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Limin Gu <limin@dbear.engr.sgi.com>
-Cc: Erik Jacobson <erikj@subway.americas.sgi.com>,
-       linux-kernel@vger.kernel.org, jlan@engr.sgi.com, limin@engr.sgi.com,
-       pwil3058@bigpond.net.au
-Subject: Re: [PATCH] Process Aggregates (PAGG) for 2.6.7
-Message-ID: <20040624115704.O22989@build.pdx.osdl.net>
-References: <Pine.SGI.4.53.0406241239400.340142@subway.americas.sgi.com> <200406241832.i5OIWeq03303@dbear.engr.sgi.com>
-Mime-Version: 1.0
+	Thu, 24 Jun 2004 15:02:09 -0400
+Date: Thu, 24 Jun 2004 12:01:44 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-mm2 oopses and badness
+Message-ID: <27420000.1088103704@flay>
+In-Reply-To: <1968860000.1088089370@[10.10.2.4]>
+References: <1968860000.1088089370@[10.10.2.4]>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200406241832.i5OIWeq03303@dbear.engr.sgi.com>; from limin@dbear.engr.sgi.com on Thu, Jun 24, 2004 at 11:32:40AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Limin Gu (limin@dbear.engr.sgi.com) wrote:
-> Job has not received much feedback from the community yet, we welcome
-> any comments/suggestions/criticism for you.
+> During bootup, shortly after CPU init (mm1 was fine):
+> 
+> Only candidate I can see is 
+> +reduce-tlb-flushing-during-process-migration-2.patch
+> Will try backing that out unless you want something else ...
 
-I recall seeing a bunch of syscall looking pieces in job that seemed odd
-to be stuck behind a module.
+Looks like that's ia64 only ;-(
 
-Ah, yes...
+But the oops seems like we're just calling flush_tlb_mm with a NULL mm.
+ 
+> Jun 24 06:54:24 larry kernel: c010e98b
+> Jun 24 06:54:24 larry kernel: SMP 
+> Jun 24 06:54:24 larry kernel: c010e98b
+> Jun 24 06:54:24 larry kernel: Modules linked in:
+> Jun 24 06:54:24 larry kernel: CPU:    12
+> Jun 24 06:54:24 larry kernel: EIP:    0060:[flush_tlb_mm+7/120]    Not tainted VLI
+> Jun 24 06:54:24 larry kernel: EFLAGS: 00010292   (2.6.7-mm2) 
+> Jun 24 06:54:24 larry kernel: EIP is at flush_tlb_mm+0x7/0x78
+> Jun 24 06:54:24 larry kernel: eax: 00000000   ebx: f124bfa8   ecx: 00000000   ed
+> x: f124bf94
+> Jun 24 06:54:24 larry kernel: esi: c30d3be0   edi: 00000000   ebp: f124bf9c   esp: f124bf4c
+> Jun 24 06:54:24 larry kernel: ds: 007b   es: 007b   ss: 0068
+> Jun 24 06:54:24 larry kernel: Process kswapd3 (pid: 72, threadinfo=f124a000 task=f1247390)
+> Jun 24 06:54:24 larry kernel: Stack: 00200200 c01159e1 00000000 f1247390 f124bfdc f124bff0 f124bfa8 c02bcc40 
+> Jun 24 06:54:24 larry kernel:        00000000 00000282 f124bf74 f124bf74 00000000 f1247390 0000000c f124a000 
+> Jun 24 06:54:24 larry kernel:        00000000 00000001 f124bf94 f124bf94 f1a00000 c0138bca f1247390 0000f000 
+> Jun 24 06:54:24 larry kernel: Call Trace:
+> Jun 24 06:54:24 larry kernel:  [set_cpus_allowed+225/252] set_cpus_allowed+0xe1/0xfc
+> Jun 24 06:54:24 larry kernel:  [kswapd+142/224] kswapd+0x8e/0xe0
+> Jun 24 06:54:24 larry kernel:  [kswapd+0/224] kswapd+0x0/0xe0
+> Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
+> Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
+> Jun 24 06:54:24 larry kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+> Jun 24 06:54:24 larry kernel: Code: 0f 20 d8 0f 22 d8 8b 04 24 85 c0 74 13 6a ff 51 50 e8 0a ff ff ff 83 c4 0c 8d b4 26 00 00 00 00 59 c3 89 f6 83 ec
+>  04 8b 4c 24 08 <8b> 81 24 01 00 00 ba 00 e0 ff ff 21 e2 89 04 24 8b 42 10 f0 0f 
 
-> +/* Function prototypes */
-> +static int job_sys_create(struct job_create *);
-> +static int job_sys_getjid(struct job_getjid *);
-> +static int job_sys_waitjid(struct job_waitjid *);
-> +static int job_sys_killjid(struct job_killjid *);
-> +static int job_sys_getjidcnt(struct job_jidcnt *);
-> +static int job_sys_getjidlst(struct job_jidlst *);
-> +static int job_sys_getpidcnt(struct job_pidcnt *);
-> +static int job_sys_getpidlst(struct job_pidlst *);
-> +static int job_sys_getuser(struct job_user *);
-> +static int job_sys_getprimepid(struct job_primepid *);
-> +static int job_sys_sethid(struct job_sethid *);
-> +static int job_sys_detachjid(struct job_detachjid *);
-> +static int job_sys_detachpid(struct job_detachpid *);
-> +static int job_attach(struct task_struct *, struct pagg *, void *);
-> +static void job_detach(struct task_struct *, struct pagg *);
-> +static struct job_entry *job_getjob(u64 jid);
-> +static int job_syscall(unsigned int, unsigned long);
-> +
-> +u64 job_getjid(struct task_struct *);
-> +
-> +int job_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
-[snip]
-> +/*
-> + * job_syscall
-> + *
-> + * Function to handle job syscall requests.
-> + *
-> + * Returns 0 on success and -(ERRNO VALUE) upon failure.
-> + */
-> +int
-> +job_syscall(unsigned int request, unsigned long data)
-
-trivial...declared static above.
-
-> +{                 
-> +	int rc=0;
-> +
-> +	DBG_PRINTINIT("job_syscall");
-> +
-> +	DBG_PRINTENTRY();
-> +
-> +	switch (request) {
-> +		case JOB_CREATE:
-> +			rc = job_sys_create((struct job_create *)data);
-> +			break;
-> +		case JOB_ATTACH:
-> +		case JOB_DETACH:
-> +			/* RESERVED */
-> +			rc = -EBADRQC;
-> +			break;
-> +		case JOB_GETJID:
-> +			rc = job_sys_getjid((struct job_getjid *)data);
-> +			break;
-> +		case JOB_WAITJID:
-> +			rc = job_sys_waitjid((struct job_waitjid *)data);
-> +			break;
-> +		case JOB_KILLJID:
-> +			rc = job_sys_killjid((struct job_killjid *)data);
-> +			break;
-> +		case JOB_GETJIDCNT:
-> +			rc = job_sys_getjidcnt((struct job_jidcnt *)data);
-> +			break;
-> +		case JOB_GETJIDLST:
-> +			rc = job_sys_getjidlst((struct job_jidlst *)data);
-> +			break;
-> +		case JOB_GETPIDCNT:
-> +			rc = job_sys_getpidcnt((struct job_pidcnt *)data);
-> +			break;
-> +		case JOB_GETPIDLST:
-> +			rc = job_sys_getpidlst((struct job_pidlst *)data);
-> +			break;
-> +		case JOB_GETUSER:
-> +			rc = job_sys_getuser((struct job_user *)data);
-> +			break;
-> +		case JOB_GETPRIMEPID:
-> +			rc = job_sys_getprimepid((struct job_primepid *)data);
-> +			break;
-> +		case JOB_SETHID:
-> +			rc = job_sys_sethid((struct job_sethid *)data);
-> +			break;
-> +		case JOB_DETACHJID:
-> +			rc = job_sys_detachjid((struct job_detachjid *)data);
-> +			break;
-> +		case JOB_DETACHPID:
-> +			rc = job_sys_detachpid((struct job_detachpid *)data);
-> +			break;
-> +		case JOB_SETJLIMIT:
-> +		case JOB_GETJLIMIT:
-> +		case JOB_GETJUSAGE:
-> +		case JOB_FREE:
-> +		default:
-> +			rc = -EBADRQC;
-> +			break;
-> +	}
-> +
-> +	DBG_PRINTEXIT(rc);
-> +	return rc;
-> +}
-> +
-> +
-> +/*
-> + * job_ioctl
-> + *
-> + * Function to handle job ioctl call requests.
-> + *
-> + * Returns 0 on success and -(ERRNO VALUE) upon failure.
-> + */
-> +int
-> +job_ioctl(struct inode *inode, struct file *file, unsigned int request,
-> +	  unsigned long data)        
-> +{                 
-> +	return job_syscall(request, data);
-> +}
-
-So, this is really ioctl.  This should be exposed in fs interface, or
-the primitives should be promoted to first class syscalls if others can
-use this.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

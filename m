@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbTKNLWl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 06:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTKNLWl
+	id S262353AbTKNLiz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 06:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTKNLiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 06:22:41 -0500
-Received: from pop.gmx.net ([213.165.64.20]:1209 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262407AbTKNLWj (ORCPT
+	Fri, 14 Nov 2003 06:38:55 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:18444 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262353AbTKNLix (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 06:22:39 -0500
-Date: Fri, 14 Nov 2003 12:22:38 +0100 (MET)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: new reiser4 snapshot is available
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0020183004@gmx.net
-X-Authenticated-IP: [213.23.34.93]
-Message-ID: <11745.1068808958@www67.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 14 Nov 2003 06:38:53 -0500
+Date: Fri, 14 Nov 2003 12:38:51 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Patrick Beard" <patrick@scotcomms.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9 VFAT problem
+Message-ID: <20031114113851.GA18054@win.tue.nl>
+References: <bp27qb$tj2$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bp27qb$tj2$1@sea.gmane.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+On Fri, Nov 14, 2003 at 09:39:23AM -0000, Patrick Beard wrote:
 
-4.)-----------------------------------------------------------------
-even after aplying the export-* patches from the older snapshot
-i still get
+> I'm having trouble with my smartmedia.
+> 
+> FAT: Bogus number of reserved sectors
+> VFS: Can't find a valid FAT filesystem on dev sda
+> 
+> These are Olympus sm cards, my camera is a Olympus 300-zoom.
+> These cards camera and reader all worked well using Kernel 2.4.18.
+> 
+> My fstab entry is;
+> /dev/sda    /mnt/smedia    vfat    rw,user,noauto    0,0
 
-  MODPOST
-*** Warning: "kswapd" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "destroy_inode" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "nr_free_pagecache_pages" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "inodes_stat" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "balance_dirty_pages_ratelimited" [fs/reiser4/reiser4.ko]
-undefined!
-*** Warning: "wakeup_kswapd" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "truncate_mapping_pages_range" [fs/reiser4/reiser4.ko]
-undefined!
-*** Warning: "generic_sync_sb_inodes" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "radix_tree_preload" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "__remove_from_page_cache" [fs/reiser4/reiser4.ko] undefined!
-*** Warning: "max_sane_readahead" [fs/reiser4/reiser4.ko] undefined!
+I would guess that you have to mount /dev/sda1 or perhaps /dev/sda4.
+Isn't that what you do under 2.4?
 
-
-
-best,
-
-svetljo
-
-PS.
-
-please CC me as i'm not subscribed
-
--- 
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-
-Jetzt kostenlos anmelden unter http://www.gmx.net
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
+Andries
 

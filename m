@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319100AbSHSXDb>; Mon, 19 Aug 2002 19:03:31 -0400
+	id <S319093AbSHSXZJ>; Mon, 19 Aug 2002 19:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319102AbSHSXDa>; Mon, 19 Aug 2002 19:03:30 -0400
-Received: from 0xc3d7fc80.boanxx2.adsl.tele.dk ([195.215.252.128]:56963 "EHLO
-	idoru") by vger.kernel.org with ESMTP id <S319100AbSHSXDa>;
-	Mon, 19 Aug 2002 19:03:30 -0400
-Subject: Re: More VIA chipset fun?
-From: Martin Hammer <martin.h@subdimension.com>
-To: linux-kernel@vger.kernel.org
+	id <S319096AbSHSXZJ>; Mon, 19 Aug 2002 19:25:09 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:32505 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319093AbSHSXZI>; Mon, 19 Aug 2002 19:25:08 -0400
+Subject: Re: MAX_PID changes in 2.5.31
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Aug 2002 01:07:33 +0200
-Message-Id: <1029798454.1906.24.camel@idoru>
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 20 Aug 2002 00:29:11 +0100
+Message-Id: <1029799751.21212.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the exact same symptoms, although our systems are somewhat
-different (still the VIA vt8233A southbridge, though):
+On Mon, 2002-08-19 at 23:34, Ingo Molnar wrote:
+> 
+> On Mon, 19 Aug 2002, Richard Gooch wrote:
+> 
+> > Are you saying that people running libc 5 or even glibc 2.1 will
+> > suddenly have their code broken?
+> 
+> nope. Only if they use the 16-bit PID stuff in SysV IPC semaphores and
+> message queues.
 
-Intel Pentium 4 2000Mhz (Northwood core) 
-Soltek SL-85DRV3 motherboard w. VIA P4X266A chipset 
-Nvidia GeForce 2 GTS and SB Live
-256MB DDR RAM 
-Kernel 2.4.19 w. XFS and pre-empt patches + Alsa 0.9 modules
-
-I tried disabling both audio-support, rtc-driver and apm, but the
-lockup's still occur.
-
-PS. Pleace cc me, as I'm not on the list. 
-
-
-
+libc5 is very much 16bit pid throughout. It would make sense that our
+default (proc settable) pid max is 30000 still so that it only breaks
+stuff if you increase it
 

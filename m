@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267632AbTAMJGl>; Mon, 13 Jan 2003 04:06:41 -0500
+	id <S267375AbTAMJF2>; Mon, 13 Jan 2003 04:05:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267647AbTAMJGl>; Mon, 13 Jan 2003 04:06:41 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1544 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267632AbTAMJGk>; Mon, 13 Jan 2003 04:06:40 -0500
-Date: Mon, 13 Jan 2003 09:15:26 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fixing the tty layer was Re: any chance of 2.6.0-test*?
-Message-ID: <20030113091526.A12379@flint.arm.linux.org.uk>
-Mail-Followup-To: Dipankar Sarma <dipankar@in.ibm.com>,
-	Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <20030110165441$1a8a@gated-at.bofh.it> <20030110165505$38d9@gated-at.bofh.it> <20030112094007$1647@gated-at.bofh.it> <m3iswuk7xm.fsf_-_@averell.firstfloor.org> <20030113064131.GB14996@in.ibm.com> <20030113072539.GA2197@averell> <20030113081233.GA15525@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030113081233.GA15525@in.ibm.com>; from dipankar@in.ibm.com on Mon, Jan 13, 2003 at 01:42:33PM +0530
+	id <S267632AbTAMJF2>; Mon, 13 Jan 2003 04:05:28 -0500
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:14236 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S267375AbTAMJF1> convert rfc822-to-8bit; Mon, 13 Jan 2003 04:05:27 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH][COMPAT] compat_sys_[f]statfs - s390x part
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFC74FD0A9.9C22AA34-ONC1256CAD.0031FD29@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Mon, 13 Jan 2003 10:11:20 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 13/01/2003 10:13:56
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 01:42:33PM +0530, Dipankar Sarma wrote:
-> > The idea of the BKL was to protect the protect context code against
-> > itself (code lock) and also the few global data structures that 
-> > are only accessed from process context (like the tty drivers list)
-> 
-> In that case would it not be better to replace all BKLs by a single tty
-> lock ?
 
-No.  The tty layer relies on being able to safely reschedule with the
-BKL held.  If you replace it with a "tty lock" you need to find all
-those schedule() points throughout _every_ tty line discipline and
-tty driver and release that lock.
+Hi Stephen,
 
-Basically, the tty later was written upon the assumption that there
-would be only _one_ thread of execution running tty code at any one
-time, and we only reschedule when we explicitly want to (which was
-the general kernel coding rule before we got spinlocks etc.)  Every
-point where a reschedule is possible, state checks are (should be)
-made to prevent races.
+> Hopefully, with Martin's continued blessing, here is the s390x part.
 
-When analysing the tty layer, you have to think not "what data does
-this protect" but "what code are we protecting".  Note that you must
-apply the same approach towards what were the global-cli points.
+Looks fine to me. I can't test it at the moment because the s390x compat
+stuff is broken right now. Not because of your patches but other things
+need fixing. I'll have a go at it as soon as I'm through with the TLS
+stuff for binutils and glibc. Keep up with it, I'm happy about every
+line of code that is moved out of the arch/s390* folders.
 
-I don't think its the BKL points you have to worry about; they've
-stayed the same over many kernel versions.  The places that need
-deeper consideration are where the global-cli was replaced with the
-local-cli.  Obviously the latter is not a direct subsitute for the
-former.
+blue skies,
+   Martin
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
+
 

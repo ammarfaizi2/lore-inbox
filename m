@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbUKJAVb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbUKJAXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbUKJAVb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 19:21:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUKJAVa
+	id S261808AbUKJAXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 19:23:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUKJAXZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 19:21:30 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:45956 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261806AbUKJAVS (ORCPT
+	Tue, 9 Nov 2004 19:23:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59299 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261808AbUKJAXN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 19:21:18 -0500
-Message-ID: <41915EF9.6060604@g-house.de>
-Date: Wed, 10 Nov 2004 01:21:13 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 9 Nov 2004 19:23:13 -0500
+Date: Tue, 9 Nov 2004 16:23:08 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christian Kujau <evil@g-house.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in 2.6.10-rc1
+In-Reply-To: <41915CE3.4080404@g-house.de>
+Message-ID: <Pine.LNX.4.58.0411091621220.2301@ppc970.osdl.org>
+References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz>
+ <4180FDB3.8080305@g-house.de> <418A47BB.5010305@g-house.de>
+ <418D7959.4020206@g-house.de> <Pine.LNX.4.58.0411062244150.2223@ppc970.osdl.org>
+ <20041107130553.M49691@g-house.de> <418E4705.5020001@g-house.de>
+ <Pine.LNX.4.58.0411070831200.2223@ppc970.osdl.org> <20041107182155.M43317@g-house.de>
+ <418EB3AA.8050203@g-house.de> <Pine.LNX.4.58.0411071653480.24286@ppc970.osdl.org>
+ <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org>
+ <41915CE3.4080404@g-house.de>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Matt Domsch <Matt_Domsch@dell.com>, Linus Torvalds <torvalds@osdl.org>,
-       Pekka Enberg <penberg@gmail.com>, Greg KH <greg@kroah.com>
-Subject: Re: Oops in 2.6.10-rc1 (almost solved)
-References: <418F6E33.8080808@g-house.de> <Pine.LNX.4.58.0411080951390.2301@ppc970.osdl.org> <418FDE1F.7060804@g-house.de> <419005F2.8080800@g-house.de> <41901DF0.8040302@g-house.de> <84144f02041108234050d0f56d@mail.gmail.com> <4190B910.7000407@g-house.de> <20041109164238.M12639@g-house.de> <Pine.LNX.4.58.0411091026520.2301@ppc970.osdl.org> <4191530D.8020406@g-house.de> <20041109234053.GA4546@lists.us.dell.com>
-In-Reply-To: <20041109234053.GA4546@lists.us.dell.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Matt Domsch schrieb:
+
+On Wed, 10 Nov 2004, Christian Kujau wrote:
+> > 
+> > 	bk set -n -d -r1.2462 -r1.2463 | bk -R prs -h -d'<:P:@:HOST:>\n$each(:C:){\t(:C:)\n}\n' -
+> > 
+> > which is black magic that does a set operation and shows all the changes 
+> > in between the sets of "bk at 1.2462" and "bk at 1.2463".
 > 
-> -BIOS EDD facility v0.16 2004-Jun-25, 16 devices found
-> +BIOS EDD facility v0.16 2004-Jun-25, 6 devices found
-> 
-> So with the latest EDD patch noted above, it's finding more disks than
-> before.  How many disks do you actually have in the system?
+> hm, i still fail to see the "magic" part here. from a current tree i get:
 
-i have one scsi disk (sda) and two atapi cdrom drives:
+You don't see any magic, unless there are merges involved. And you've 
+already narrowed the thing down to a single non-merge changeset, at which 
+point the "magic" way is just a very slow way of doing the same thing.
 
-hda: CRD-8483B, ATAPI CD/DVD-ROM drive
-hdb: AOPEN CD-RW CRW3248 1.17 20020620, ATAPI CD/DVD-ROM drive
-...
-SCSI device sda: 35548320 512-byte hdwr sectors (18201 MB)
-SCSI device sda: drive cache: write back
+The magic hits you only when you have non-trivial merges, in which case 
+the set operation shows you more than the "just walk from one top-of-tree 
+to the other".
 
-the "scsi0 : sym-2.1.18k" is on a pci card, the atapi devices are
-connected onboard. if it helps:
-
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/lspci-v.txt
-http://www.nerdbynature.de/bits/prinz/2.6.10-rc1/lspci-vv.txt
-
-> I'll review the assembly again to see where I could have miscounted,
-> and see how that may affect the EDD sysfs exports.  Likely no answer
-> from me before tomorrow though.
-
-that's ok, real life kicks in here too...
-
-thanks,
-Christian.
-
-PS: do you have *any* idea how this could be related to the snd-es1371
-driver (which is producing the oops then)?
-- --
-BOFH excuse #449:
-
-greenpeace free'd the mallocs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBkV75+A7rjkF8z0wRAl67AJ9P+SF1WfRe7r2zoF9D/b/fyDeD0QCfe6/f
-Uxt5DVlb/IzW9VSWuFJqLlI=
-=Hpg9
------END PGP SIGNATURE-----
+		Linus

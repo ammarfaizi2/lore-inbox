@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbTEKRKr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 13:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbTEKRKr
+	id S261797AbTEKRYO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 13:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTEKRYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 13:10:47 -0400
-Received: from mrt-lx1.iram.es ([150.214.224.59]:28375 "EHLO mrt-lx1.iram.es")
-	by vger.kernel.org with ESMTP id S261780AbTEKRKq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 13:10:46 -0400
-Date: Sun, 11 May 2003 17:22:40 +0000
-From: paubert <paubert@iram.es>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: desc v0.61 found a 2.5 kernel bug
-Message-ID: <20030511172240.A957@mrt-lx1.iram.es>
-References: <200305102353_MC3-1-385A-BC35@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305102353_MC3-1-385A-BC35@compuserve.com>
-User-Agent: Mutt/1.3.22.1i
+	Sun, 11 May 2003 13:24:14 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:40850 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261797AbTEKRYN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 13:24:13 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 11 May 2003 10:38:49 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Jos Hulzink <josh@stack.nl>, Linus Torvalds <torvalds@transmeta.com>,
+       Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use correct x86 reboot vector
+In-Reply-To: <20030511140144.GA5602@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.50.0305111033590.7563-100000@blue1.dev.mcafeelabs.com>
+References: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
+ <200305111137.29743.josh@stack.nl> <20030511140144.GA5602@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10, 2003 at 11:50:07PM -0400, Chuck Ebbert wrote:
-> Gabriel Paubert wrote:
-> 
-> > The devil is in the details: you have to edit the TSS, clear the busy bit
-> > of the previous TSS, LTR, clear the busy bit of the debug TSS, restore
-> > many registers from the previous TSS image, switch to the kernel stack of
-> > the interrupted process, push a lot of stuff on the stack to be used by iret.
-> > (depending on whether you return to kernel/user/v86 modes). All of this in the 
-> > right order, of course (and after having cleared your own NT flag).
-> 
->  And this is the way to do it right, but...
+On Sun, 11 May 2003, Jamie Lokier wrote:
 
-And you don't need to keep cr3 in the TSS.
-> 
-> > Doable I believe but not simple, and there is still the TS issue.
-> 
->  I finally realized the TS problem is basically unsolvable.  There is no
-> way to know what the value was before a switch happened.
+> Jos Hulzink wrote:
+> > On Sunday 11 May 2003 05:50, Linus Torvalds wrote:
+> > > Hmm.. Doesnt' a _real_ hardware reset actually use a magic segment that
+> > > isn't even really true real mode? I have this memory that the reset value
+> > > for a i386 has CS=0xf000, but the shadow base register actually contains
+> > > 0xffff0000. In other words, the CPU actually starts up in "unreal" mode,
+> > > and will fetch the first instruction from physical address 0xfffffff0.
+> > >
+> > > At least that was true on an original 386. It's something that could
+> > > easily have changed since.
+>
+> I got my info from an article on the net which says that a 386 does
+> behave as you say, but it is possible for the system designer to
+> arrange that it boots into the 286-compatible vector at physical
+> address 0x000ffff0.  It states that the feature is specifically so
+> that system designers don't have to create a "memory hole" (that's as
+> much detail as it gives).
 
-I believe the TS value can be inferred from the thread flags except
-between kernel_fpu_begin() and kernel_fpu_end().
- 
->  (BTW some other Free kernel has interesting things in its descriptor
-> tables: DPL 1 execute-only code segments, conforming code, expand-down
-> data, multiple LDTs etc...  It uncovered a bug in my code, too.)
+Guys, mem[0xfffffff0,...] == mem[0x000ffff0,...] since the hw remaps the
+bios. Being picky about Intel specs, it should be f000:fff0 though.
 
-Interesting, but using 3 privilege levels is not very portable, and
-you'll need another per process stack.
 
-Multiple LDT, how can this be useful and what are the semantics? 
-There are enough problems with LDT eating up vmalloc space (I believe 
-I have a solution to that particular problem).
 
-	Gabriel.
+- Davide
+

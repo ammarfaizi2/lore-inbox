@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131796AbRDCNzQ>; Tue, 3 Apr 2001 09:55:16 -0400
+	id <S131809AbRDCOOd>; Tue, 3 Apr 2001 10:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131778AbRDCNzH>; Tue, 3 Apr 2001 09:55:07 -0400
-Received: from webserver.giki.edu.pk ([210.56.13.8]:7430 "EHLO
-	webserver.giki.edu.pk") by vger.kernel.org with ESMTP
-	id <S131726AbRDCNyr>; Tue, 3 Apr 2001 09:54:47 -0400
-Message-ID: <00c101c0bc45$a6f1e590$430ba8c0@hostel1.giki.edu.pk>
-From: "Imran Ali Rashid" <u970042@giki.edu.pk>
-To: <Undisclosed-Recipient:@odyssey.hostel1.giki.edu.pk;>
-Subject: Apology
-Date: Tue, 3 Apr 2001 18:54:47 +0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131820AbRDCOOY>; Tue, 3 Apr 2001 10:14:24 -0400
+Received: from jalon.able.es ([212.97.163.2]:37252 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131809AbRDCOOJ>;
+	Tue, 3 Apr 2001 10:14:09 -0400
+Date: Tue, 3 Apr 2001 16:13:22 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: David Lang <dlang@diginsite.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/config idea
+Message-ID: <20010403161322.A8174@werewolf.able.es>
+In-Reply-To: <3AC91800.22D66B24@mandrakesoft.com> <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.33.0104021734400.30128-100000@dlang.diginsite.com>; from dlang@diginsite.com on Tue, Apr 03, 2001 at 02:39:19 +0200
+X-Mailer: Balsa 1.1.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
 
-Due to a problem in receiving email on my PC, I may have unintentionally bounced
-your message. This email is an apology to you for the inconvenience... If it was an
-important mail and sent specifically to me and not on a mailing list, please send it again.
+On 04.03 David Lang wrote:
+> 
+> if the distro/sysadmin _always_ installs the kernel the 'right way' then
+> the difference isn't nessasarily that large, but if you want reliability
+> on any system it may be worth loosing a page or so of memory (hasn't
+> someone said that the data can be compressed to <1K?) make it so that you
+> need a common external tool to use the data and deliver it from the kernel
+> in compressed form and you don't even need to put the decompression
+> routine in the kernel (cat /proc/sys/kernel/config |gunzip >config)
+> 
 
-Your Sincerely,
-Imran Ali Rashid
+Just my 2 cents...
+
+If this has not been done for System.map, that is a much more important
+info for debug and oops, and the de facto standard is to put it aside
+kernel with some standadr naming, lets use the same method for config.
+
+-- 
+J.A. Magallon                                          #  Let the source
+mailto:jamagallon@able.es                              #  be with you, Luke... 
+
+Linux werewolf 2.4.3 #2 SMP Fri Mar 30 15:42:05 CEST 2001 i686
 

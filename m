@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbSLOXkB>; Sun, 15 Dec 2002 18:40:01 -0500
+	id <S263313AbSLPAJs>; Sun, 15 Dec 2002 19:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbSLOXkA>; Sun, 15 Dec 2002 18:40:00 -0500
-Received: from harddata.com ([216.123.194.198]:19863 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S263276AbSLOXj7>;
-	Sun, 15 Dec 2002 18:39:59 -0500
-Date: Sun, 15 Dec 2002 16:47:53 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Mark Rutherford <mark@justirc.net>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.20] via82cxxx goes postal and locks system, no full duplex(?)
-Message-ID: <20021215164753.A30822@mail.harddata.com>
-References: <3DFBFD61.1B367CD2@justirc.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DFBFD61.1B367CD2@justirc.net>; from mark@justirc.net on Sat, Dec 14, 2002 at 10:56:17PM -0500
+	id <S263362AbSLPAJs>; Sun, 15 Dec 2002 19:09:48 -0500
+Received: from elin.scali.no ([62.70.89.10]:59920 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S263313AbSLPAJr>;
+	Sun, 15 Dec 2002 19:09:47 -0500
+Date: Mon, 16 Dec 2002 01:17:30 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How to do -nostdinc?
+In-Reply-To: <1357.1039954001@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.44.0212160110040.1030-100000@sp-laptop.isdn.scali.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 14, 2002 at 10:56:17PM -0500, Mark Rutherford wrote:
-> I get a lot of errors, sometimes it locks the system, sometimes it does
-> not.
+On Sun, 15 Dec 2002, Keith Owens wrote:
 
-I only can to add that I reported basically the same error sometimes
-in October with respect to a kernel 2.4.18-17.8.0 used at that
-time in Red Hat 8.0 distribution ( #76603 is a reference to Red Hat
-bugzilla).  The only difference is that it works for me 100% of
-time. :-)
-
-Initially I ascribed it mistakenly to 'gnome-session', as it tries
-to play something and locks my machine with an absolute reliability,
-and without any traces in logs, but in later comments I corrected
-that initial impression.  So far I do not know of any fixes but
-sounds like the same "improvements" found its way into 2.4.20
-kernel.
-
+> There are two ways of setting the -nostdinc flag in the kernel Makefile :-
 > 
-> lspci info:
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
+> (1) -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+> (2) -nostdinc -iwithprefix include
 > 
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-....
-> 00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
-> AC97 Audio Controller (rev 50)
+> The first format breaks with non-English locales, however the fix is trivial.
+> 
+> (1a) -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
+> 
+> The second format is simpler but there have been reports that it does
+> not work with some versions of gcc.  I have been unable to find a
+> definitive statement about which versions of gcc fail and whether the
+> problem has been fixed.  Anybody care to provide a definitive
+> statement?
+> 
+> If kernel build cannot rely on gcc working with -nostdinc -iwithprefix include
+> then we need to convert to (1a).
 
-I have here somewhat older hardware but in various aspects quite
-similar
+Well, it works fine with gcc-2.91.66 (egcs-1.1.2 release), gcc-2.96 (RH 
+7.{1,2,3} versions), and gcc-3.2 (RH 8.0 version)
 
-00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 21)
-....
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686
-AC97 Audio Controller (rev 20)
+Of course there are other versions out there but 2.91 is rather old...
 
-This is a more complete picture of my PCI bus:
+Regards,
+-- 
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
 
--[00]-+-00.0  VIA Technologies, Inc. VT8371 [KX133]
-      +-01.0-[01]----00.0  Matrox Graphics, Inc. MGA G400 AGP
-      +-07.0  VIA Technologies, Inc. VT82C686 [Apollo Super South]
-      +-07.1  VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
-      +-07.4  VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-      +-07.5  VIA Technologies, Inc. VT82C686 AC97 Audio Controller
-      \-09.0-[02]--+-04.0  LSI Logic / Symbios Logic 53c895
-                   \-05.0  Digital Equipment Corporation DECchip 21142/43
-
-
-   Michal

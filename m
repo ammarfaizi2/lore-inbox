@@ -1,28 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266238AbRGGRPZ>; Sat, 7 Jul 2001 13:15:25 -0400
+	id <S266508AbRGGR3g>; Sat, 7 Jul 2001 13:29:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266271AbRGGRPP>; Sat, 7 Jul 2001 13:15:15 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:16597 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S266507AbRGGRPF>;
-	Sat, 7 Jul 2001 13:15:05 -0400
-Message-Id: <m15IvfY-000OzlC@amadeus.home.nl>
-Date: Sat, 7 Jul 2001 18:15:00 +0100 (BST)
-From: arjan@fenrus.demon.nl
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Subject: Re: RFC: Remove swap file support
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B472C06.78A9530C@mandrakesoft.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S266507AbRGGR31>; Sat, 7 Jul 2001 13:29:27 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:274 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266483AbRGGR3M>; Sat, 7 Jul 2001 13:29:12 -0400
+Date: Sat, 7 Jul 2001 10:28:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <3B47116C.14118B9C@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0107071019440.31249-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3B472C06.78A9530C@mandrakesoft.com> you wrote:
-> Since you can make any file into a block device using loop,
-> is there any value to supporting swap files in 2.5?
 
-> swap files seem like a special case that is no longer necessary...
+On Sat, 7 Jul 2001, Jeff Garzik wrote:
+>
+> When building gcc-2.96 RPM using gcc-2.96 under kernel 2.4.7 on alpha,
+> the system goes --deeply-- into swap.  Not pretty at all.  The system
+> will be 200MB+ into swap, with 200MB+ in cache!  I presume this affects
+> 2.4.7-release also.
 
-loop is always tricky re near-OOM deadlocks. It'll survive now, by sleeping
-and waiting for memory, but swapping over that changes that equation.....
+Note that "200MB+ into swap, with 200MB+ in cache" is NOT bad in itself.
+
+It only means that we have scanned the VM, and allocated swap-space for
+200MB worth of VM space. It does NOT necessarily mean that any actual
+swapping has been taking place: you should realize that the "cache" is
+likely to be not at least partly the _swap_ cache that hasn't been written
+out.
+
+This is an accounting problem, nothing more. It looks strange, but it's
+normal.
+
+Now, the fact that the system appears unusable does obviously mean that
+something is wrong. But you're barking up the wrong tree.
+
+Although it might be the "right tree" in the sense that we might want to
+remove the swap cache from the "cached" output in /proc/meminfo. It might
+be more useful to separate out "Cached" and "SwapCache": add a new line to
+/proc/meminfo that is "swapper_space.nr_pages", and make the current code
+that does
+
+	atomic_read(&page_cache_size)
+
+do
+
+	(atomic_read(&page_cache_size) - swapper_space.nrpages)
+
+instead. That way the vmstat output might be more useful, although vmstat
+obviously won't know about the new "SwapCache:" field..
+
+Can you try that, and see if something else stands out once the misleading
+accounting is taken care of?
+
+		Linus
+

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbTAJERD>; Thu, 9 Jan 2003 23:17:03 -0500
+	id <S262580AbTAJEVz>; Thu, 9 Jan 2003 23:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbTAJERD>; Thu, 9 Jan 2003 23:17:03 -0500
-Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:19210 "EHLO
-	roo.rogueind.com") by vger.kernel.org with ESMTP id <S262646AbTAJERC>;
-	Thu, 9 Jan 2003 23:17:02 -0500
-Date: Thu, 9 Jan 2003 23:23:02 -0500 (EST)
-From: Tom Diehl <tdiehl@rogueind.com>
-To: jdow <jdow@earthlink.net>
-Cc: Chris Adams <cmadams@hiwaay.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: "Mother" == "computer-illiterate"
-In-Reply-To: <04a701c2b84e$2bd7ad70$1125a8c0@wizardess.wiz>
-Message-ID: <Pine.LNX.4.44.0301092320340.18307-100000@tigger.rogueind.com>
+	id <S262602AbTAJEVz>; Thu, 9 Jan 2003 23:21:55 -0500
+Received: from [216.222.206.4] ([216.222.206.4]:20625 "EHLO
+	webmail.frogspace.net") by vger.kernel.org with ESMTP
+	id <S262580AbTAJEVy>; Thu, 9 Jan 2003 23:21:54 -0500
+Message-ID: <1042173025.3e1e4c61af615@webmail.cogweb.net>
+Date: Thu,  9 Jan 2003 20:30:25 -0800
+From: Peter <peter@cogweb.net>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 -- ac97_codec failure ALi 5451
+References: <200301100250.h0A2olE20795@devserv.devel.redhat.com>
+In-Reply-To: <200301100250.h0A2olE20795@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 128.97.184.152
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, jdow wrote:
+Quoting Alan Cox <alan@redhat.com>:
 
-> From: "Chris Adams" <cmadams@hiwaay.net>
+> >         Trident 4DWave/SiS 7018/ALi 5451,Tvia CyberPro 5050 PCI Audio, 
+> > 		version 0.14.9d, 00:57:19 Jan  9 2003
+> >         PCI: Enabling device 00:06.0 (0000 -> 0003)
+> >         PCI: Assigned IRQ 10 for device 00:06.0
+> >         trident: ALi Audio Accelerator found at IO 0x1000, IRQ 10
+> >         ac97_codec: AC97 Audio codec, id: 0x4144:0x5372 (Unknown)
 > 
-> > Once upon a time, Alan Cox  <alan@lxorguk.ukuu.org.uk> said:
-> > >and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
-> > >who know what her networking related patent is on)
-> > 
-> > That's HEDLEY!  Oh, but he doesn't have any patents.
+> So far so good.
 > 
-> No, it's Hedy Lamarr and she invented frequency hopping spread spectrum
-> with George Anthiel. I worked on one of the first practical implementations
-> of the concept back in the early 70s. Somehow it seems appropriate.
+> >         ali: AC97 CODEC read timed out.
+> >         last message repeated 127 times
+> >         ali: AC97 CODEC write timed out.
+> >         ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+> 
+> Something lost the codec. Could be power management - was the laptop
+> suspended before it went funny ?
 
-Hehe!! He got you Joanne!! Ever watch Blazing Saddles?? 
+No, this happens very reliably every time on a large number of occasions, whether 
+trident is compiled in or as a module, or with ALSA's snd-ali5451. Dozens of read 
+and write timeouts. In fact when the codec loads, it tends to freeze the whole 
+system for a short time (from a few seconds to a minute).
 
-I am jealous though. In reading various messages written by you, you have 
-clearly had way too much fun in life!! :-)
+That said, it's close to working. There have been times when I've been able to get 
+sound -- typically by doing a manual insmod ac97_codec and trident. I had hoped the 
+ALSA module would work more reliably, but it seems the problem is with the ac97 
+codec.
 
-Enjoy,
+Is the driver for the ac97 codec the same for OSS and ALSA? They appear to fail in 
+very similar ways.
 
--- 
-.............Tom	"Nothing would please me more than being able to 
-tdiehl@rogueind.com	hire ten programmers and deluge the hobby market 
-			with good software." -- Bill Gates 1976
-
-   			We are still waiting ....
-
+Peter

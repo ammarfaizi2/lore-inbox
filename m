@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311753AbSCTQTF>; Wed, 20 Mar 2002 11:19:05 -0500
+	id <S311786AbSCTQWY>; Wed, 20 Mar 2002 11:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311745AbSCTQSv>; Wed, 20 Mar 2002 11:18:51 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:35466
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S311761AbSCTQSb>; Wed, 20 Mar 2002 11:18:31 -0500
-Date: Wed, 20 Mar 2002 09:17:53 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>, Nicolas Pitre <nico@cam.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zlib double-free bug
-Message-ID: <20020320161753.GE3762@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.44.0203191533360.3615-100000@xanadu.home> <3C985A46.D3C73301@aitel.hist.no> <20020320155933.GC4911@mh57.net>
-Mime-Version: 1.0
+	id <S311782AbSCTQWH>; Wed, 20 Mar 2002 11:22:07 -0500
+Received: from smtp02.vsnl.net ([203.197.12.8]:35220 "EHLO smtp02.vsnl.net")
+	by vger.kernel.org with ESMTP id <S311760AbSCTQVh>;
+	Wed, 20 Mar 2002 11:21:37 -0500
+Message-ID: <3C98B7DC.A9038221@vsnl.net>
+Date: Wed, 20 Mar 2002 21:55:00 +0530
+From: "Amit S. Kale" <kgdb@vsnl.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Announce: Documentation on thread analysis with kgdb
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 04:59:33PM +0100, Martin Hermanowski wrote:
-> On Wed, Mar 20, 2002 at 10:45:42AM +0100, Helge Hafting wrote:
-> > Nicolas Pitre wrote:
-> > 
-> >>> Removable media?
-> >> 
-> >> Most if not all removable media are not ment to be used with JFFS2.
-> > 
-> > Nothing is _meant_ to be exploited either.  Someone could
-> > create a cdrom with jffs2 (linux don't demand that cd's use iso9660)
-> > with an intent to make trouble.  crc's and such would match the 
-> > bad compressed stuff.  Nothing unusual seems to happen, but
-> > using the cd installs a back door as the fs uncompresses stuff.
-> 
-> What about ZISOFS? IIRC the files are compressed with gzip und
-> decompressed on the fly.
+Hi,
 
-ZISOFS falls into the same case that 2.5 does.
-
+Documentation on thread analysis using kgdb can be found at
+http://kgdb.sourceforge.net/
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Amit S. Kale
+Linux kernel source level debugger    http://kgdb.sourceforge.net/
+Translation filesystem                http://trfs.sourceforge.net/

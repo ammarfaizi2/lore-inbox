@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310598AbSCSKXZ>; Tue, 19 Mar 2002 05:23:25 -0500
+	id <S310637AbSCSKqL>; Tue, 19 Mar 2002 05:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310602AbSCSKXQ>; Tue, 19 Mar 2002 05:23:16 -0500
-Received: from mailhub.unibe.ch ([130.92.9.52]:52418 "EHLO mailhub.unibe.ch")
-	by vger.kernel.org with ESMTP id <S310598AbSCSKXG>;
-	Tue, 19 Mar 2002 05:23:06 -0500
-Date: Tue, 19 Mar 2002 11:23:02 +0100 (MET)
-From: Matthias Scheidegger <mscheid@iam.unibe.ch>
-Subject: extending callbacks?
-X-X-Sender: mscheid@speedy
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.GSO.4.44.0203191111320.20995-100000@speedy>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S310632AbSCSKqA>; Tue, 19 Mar 2002 05:46:00 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:40943 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S310619AbSCSKpy>; Tue, 19 Mar 2002 05:45:54 -0500
+Date: Tue, 19 Mar 2002 10:45:48 +0000 (GMT)
+From: David Woodhouse <dwmw2@redhat.com>
+X-X-Sender: dwmw2@passion.cambridge.redhat.com
+To: Paul Mackerras <paulus@samba.org>
+Cc: "J.A. Magallon" <jamagallon@able.es>, <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] zlib double-free bug 
+In-Reply-To: <15510.25987.233438.112897@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44.0203191044150.26226-100000@passion.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 19 Mar 2002, Paul Mackerras wrote:
 
-I've got the following problem: I want to register a callback in a kernel
-structure, but I need to supply an additional argument to my own code. I.e. I
-need a callback
+> David Woodhouse writes:
+> 
+> > After it's been in -ac for a while without mishap I'll ask Marcelo to
+> > consider it - possibly for 2.4.20-pre1.
+> 
+> Yep, that sounds good to me.  For now, I think my patch should go in
+> for 2.4.19.
 
-int (*cb)(int u)
+Absolutely - sorry, I didn't mean to imply otherwise.
 
-to really call
+For the record - it's not worth bothering with fs/jffs2/zlib.c; if they 
+can corrupt your file system on the medium, why bother with cracking zlib? 
+:)
 
-int (*real_cb)(int u, void* my_arg)
-
-At the moment, I'm only focussing on the i386 architecture.
-In user space, I'd do this by generating some machine code, which takes the
-original args, pushes my_fixed_arg and calls real_cb (using mprotect to make
-the generated code callable). That way I'd use a function
-
-int (*)(int) create_callback(int (*real_cb)(int, void*), void *arg);
-
-Is there a good way to do that in the kernel?
-Not necessarily using self modifying code, I'll only use it if I must.
-
-Please CC answers to my address, I'm not subscribed.
-
-thanks very much,
-
-Matthias
-
-
-| Matthias Scheidegger   Institute of Computer Science and Applied Mathematics |
-| University of Bern     Neubrueckstr. 10, CH-3012 Bern, Switzerland	       |
-| http://www.iam.unibe.ch/~mscheid  Phone: +41 31-6318692  Fax: +41 31-6313261 |
+-- 
+dwmw2
 

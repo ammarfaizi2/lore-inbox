@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262795AbTLOAX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 19:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTLOAX2
+	id S262827AbTLOAZa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 19:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTLOAZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 19:23:28 -0500
-Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:14469
-	"EHLO ghanima.endorphin.org") by vger.kernel.org with ESMTP
-	id S262795AbTLOAX1 convert rfc822-to-8bit (ORCPT
+	Sun, 14 Dec 2003 19:25:30 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:62407 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262827AbTLOAZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 19:23:27 -0500
-Date: Mon, 15 Dec 2003 01:23:22 +0100
-To: linux-crypto@nl.linux.org
-Cc: cryptoapi-devel@kerneli.org, David Belohrad <david.belohrad@cern.ch>,
-       waters+gen2@zocalo.net, cruhmoz602@sneakemail.com,
-       linux-kernel@vger.kernel.org
-Subject: Cryptoloop (<2.4.22) to Cryptoloop (>2.5.x) Migration Guide
-Message-ID: <20031215002322.GA26637@ghanima.endorphin.org>
+	Sun, 14 Dec 2003 19:25:28 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
+Subject: Re: RFC - tarball/patch server in BitKeeper 
+In-reply-to: Your message of "Sun, 14 Dec 2003 15:44:23 -0800."
+             <20031214234423.GB15850@work.bitmover.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-User-Agent: Mutt/1.5.4i
-From: Fruhwirth Clemens <clemens-dated-1072311803.2300@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+Date: Mon, 15 Dec 2003 11:25:11 +1100
+Message-ID: <3034.1071447911@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 14 Dec 2003 15:44:23 -0800, 
+Larry McVoy <lm@bitmover.com> wrote:
+>On Mon, Dec 15, 2003 at 10:05:03AM +1100, Keith Owens wrote:
+>> On Sun, 14 Dec 2003 09:21:56 -0800, 
+>> Larry McVoy <lm@bitmover.com> wrote:
+>> >I've prototyped an extension to BitKeeper that provides tarballs
+>> >and patches.  ...
+>> >... You need to understand that this is all you get,
+>> >we're not going to extend this so you can do anything but track the most
+>> >recent sources accurately.  No diffs.  No getting anything but the most
+>> >recent version.  No revision history.  
+>> 
+>> Do we get the changelogs from each BK check in?  Without the
+>> changelogs, patches are going to be much less useful.
+>
+>You already get those, use BK/Web.  It's all there and always has been.
 
-Cryptoloop (<2.4.22) to Cryptoloop (>2.5.x) Migration Guide:
+Using update and BK/Web means manually reconciling two sets of data
+which may have different time bases.  If update has not been run for 23
+days, the user has to look at "Changesets in the last four weeks" and
+manually determine where in that log of 119 changesets (linux-2.5)
+their last update was done before they know which changesets are in the
+current update.
 
-http://clemens.endorphin.org/Cryptoloop_Migration_Guide.html
+What about this, assuming it does not give away information that you
+believe will be used for $SCM.  Treat the BK changelog as a file, and
+have update generate a patch from the last update for the changelog as
+well as the project files.
 
-Hope it helps, 
-Clemens

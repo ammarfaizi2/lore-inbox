@@ -1,95 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281450AbRKFEeG>; Mon, 5 Nov 2001 23:34:06 -0500
+	id <S281456AbRKFEg4>; Mon, 5 Nov 2001 23:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281456AbRKFEd5>; Mon, 5 Nov 2001 23:33:57 -0500
-Received: from [202.73.165.30] ([202.73.165.30]:384 "EHLO
-	maravillo.q-linux.com") by vger.kernel.org with ESMTP
-	id <S281450AbRKFEdi>; Mon, 5 Nov 2001 23:33:38 -0500
-Date: Tue, 6 Nov 2001 12:31:37 +0800
-From: Mike Maravillo <mike.maravillo@q-linux.com>
+	id <S281457AbRKFEgq>; Mon, 5 Nov 2001 23:36:46 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:17685 "EHLO
+	c0mailgw08.prontomail.com") by vger.kernel.org with ESMTP
+	id <S281456AbRKFEgg>; Mon, 5 Nov 2001 23:36:36 -0500
+Message-ID: <3BE768C4.D6F5E9E3@starband.net>
+Date: Mon, 05 Nov 2001 23:36:20 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: mike.maravillo@q-linux.com
-Subject: Re: 2.4.13-ac6: videodev/__release_region oops!
-Message-ID: <20011106123137.A1254@maravillo.q-linux.com>
-In-Reply-To: <20011106045014.A1361@maravillo.q-linux.com> <13664.1005011063@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
+Subject: Kernel 2.4.14 fails to link.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <13664.1005011063@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Tue, Nov 06, 2001 at 12:44:23PM +1100
-Organization: Q Linux Solutions, Inc.
-X-Accepted-File-Formats: ASCII .rtf .ps - *NO* MS Office files please
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the pointers Keith!  Here's my second shot at it...
+make[1]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/mm'
+make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686 " -C  arch/i386/lib
+make[1]: Entering directory `/usr/src/linux-2.4.14/arch/i386/lib'
+make all_targets
+make[2]: Entering directory `/usr/src/linux-2.4.14/arch/i386/lib'
+make[2]: Nothing to be done for `all_targets'.
+make[2]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
+make[1]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o
+drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o
+drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o
 
-ksymoops 2.4.1 on i586 2.4.13-ac6.  Options used
-     -V (default)
-     -k /var/log/ksymoops/20011106121445.ksyms (specified)
-     -l /var/log/ksymoops/20011106121445.modules (specified)
-     -o /lib/modules/2.4.13-ac6/ (default)
-     -m /boot/System.map-2.4.13-ac6 (default)
+drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
+        net/network.o \
+        /usr/src/linux-2.4.14/arch/i386/lib/lib.a
+/usr/src/linux-2.4.14/lib/lib.a
+/usr/src/linux-2.4.14/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/block/block.o: In function `lo_send':
+drivers/block/block.o(.text+0x855f): undefined reference to
+`deactivate_page'
+drivers/block/block.o(.text+0x85c4): undefined reference to
+`deactivate_page'
+make: *** [vmlinux] Error 1
+[root@war linux]#
 
-Warning (compare_maps): mismatch on symbol proc_scsi  , scsi_mod says d00fc9e4, /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o says d00fc448.  Ignoring /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o entry
-Warning (compare_maps): mismatch on symbol scsi_devicelist  , scsi_mod says d00fca10, /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o says d00fc474.  Ignoring /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o entry
-Warning (compare_maps): mismatch on symbol scsi_hostlist  , scsi_mod says d00fca0c, /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o says d00fc470.  Ignoring /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o entry
-Warning (compare_maps): mismatch on symbol scsi_hosts  , scsi_mod says d00fca14, /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o says d00fc478.  Ignoring /lib/modules/2.4.13-ac6/kernel/drivers/scsi/scsi_mod.o entry
-Warning (compare_maps): mismatch on symbol md_size  , md says d001a8e0, /lib/modules/2.4.13-ac6/kernel/drivers/md/md.o says d001a700.  Ignoring /lib/modules/2.4.13-ac6/kernel/drivers/md/md.o entry
-Warning (compare_maps): mismatch on symbol mddev_map  , md says d001a0e0, /lib/modules/2.4.13-ac6/kernel/drivers/md/md.o says d0019f00.  Ignoring /lib/modules/2.4.13-ac6/kernel/drivers/md/md.o entry
-Unable to handle kernel paging request at virtual address 05c80741
-c0118012
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0118012>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 09b20b27   ebx: c0002014   ecx: 105e11e6   edx: 05c8073d
-esi: ec000fff   edi: ec000000   ebp: cb98f000   esp: cb6f5f50
-ds: 0018   es: 0018   ss: 0018
-Process rmmod (pid: 1129, stackpage=cb6f5000)
-Stack: d0130000 00001000 c1430800 d0129062 c0239ff8 ec000000 00001000 02430800 
-       c1430800 d012dae0 00000000 c01b663e c1430800 d0123000 cb98f000 d012949a 
-       d012dae0 c011589e d0123000 cb98f000 00000000 c0114cfc d0123000 00000000 
-Call Trace: [<d0130000>] [<d0129062>] [<d012dae0>] [<c01b663e>] [<d012949a>] 
-   [<d012dae0>] [<c011589e>] [<c0114cfc>] [<c0106dd3>] 
-Code: 8b 42 04 39 f8 77 f0 8b 4a 08 39 f1 72 e9 83 7a 0c 00 78 05 
+System Info:
 
->>EIP; c0118012 <__release_region+22/70>   <=====
-Trace; d0130000 <[bttv]__ksymtab_bttv_write_gpio+0/8>
-Trace; d0129062 <[bttv]bttv_remove+1e2/210>
-Trace; d012dae0 <[bttv]bttv_pci_driver+0/40>
-Trace; c01b663e <pci_unregister_driver+2e/50>
-Trace; d012949a <[bttv]cleanup_module+a/10>
-Trace; d012dae0 <[bttv]bttv_pci_driver+0/40>
-Trace; c011589e <free_module+1e/b0>
-Trace; c0114cfc <sys_delete_module+11c/1e0>
-Trace; c0106dd3 <system_call+33/40>
-Code;  c0118012 <__release_region+22/70>
-00000000 <_EIP>:
-Code;  c0118012 <__release_region+22/70>   <=====
-   0:   8b 42 04                  mov    0x4(%edx),%eax   <=====
-Code;  c0118015 <__release_region+25/70>
-   3:   39 f8                     cmp    %edi,%eax
-Code;  c0118017 <__release_region+27/70>
-   5:   77 f0                     ja     fffffff7 <_EIP+0xfffffff7> c0118009 <__release_region+19/70>
-Code;  c0118019 <__release_region+29/70>
-   7:   8b 4a 08                  mov    0x8(%edx),%ecx
-Code;  c011801c <__release_region+2c/70>
-   a:   39 f1                     cmp    %esi,%ecx
-Code;  c011801e <__release_region+2e/70>
-   c:   72 e9                     jb     fffffff7 <_EIP+0xfffffff7> c0118009 <__release_region+19/70>
-Code;  c0118020 <__release_region+30/70>
-   e:   83 7a 0c 00               cmpl   $0x0,0xc(%edx)
-Code;  c0118024 <__release_region+34/70>
-  12:   78 05                     js     19 <_EIP+0x19> c011802b <__release_region+3b/70>
+System Hardware:
+    CPU Type: Pentium III
+   CPU Speed: 868.665 MHz
+         Ram: 1005 MB
+        Swap: 2000 MB
+
+System Software:
+Distribution: Red Hat Linux release 7.2 (Enigma)
+    autoconf: 2.52
+     autogen: 5.2.11
+    automake: 1.5
+    binutils: 2.11.2
+      esound: 0.2.23
+         gcc: 2.95.3
+     gettext: 0.10.40
+       glibc: 2.2.4
+        glib: 1.2.10
+  gnome-libs: 1.2.13
+         gtk: 1.2.10
+       imlib: 1.9.11
+     kdelibs: 2.2.1
+      kernel: 2.4.13
+     libtool: 1.4.2
+     openssl: 0.9.6b
+       orbit: 0.5.8
+   orbit-idl: 0.6.8
+        perl: 5.6.1
+          qt: 3.0.0
+         rpm: 4.0.3
+         sdl: 1.2.2
+     xfree86: 4.1.0
+        xml2: 2.4.8
+         xml: 1.8.16
 
 
-6 warnings issued.  Results may not be reliable.
 
--- 
- .--.  Michael J. Maravillo                   office://+63.2.894.3592/
-( () ) Q Linux Solutions, Inc.              mobile://+63.917.897.0919/
- `--\\ A Philippine Open Source Solutions Co.  http://www.q-linux.com/

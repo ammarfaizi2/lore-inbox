@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUE0SLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264919AbUE0SNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264915AbUE0SLG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 14:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUE0SLG
+	id S264919AbUE0SNH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 14:13:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264923AbUE0SNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:11:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28638 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264915AbUE0SLD
+	Thu, 27 May 2004 14:13:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36062 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264919AbUE0SNE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:11:03 -0400
-Message-ID: <40B62F29.6090101@pobox.com>
-Date: Thu, 27 May 2004 14:10:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, prism54-devel@prism54.org
-Subject: Re: [PATCH 0/14] prism54: bring up to sync with prism54.org cvs rep
-References: <20040524083003.GA3330@ruslug.rutgers.edu> <20040524085727.GR3330@ruslug.rutgers.edu>
-In-Reply-To: <20040524085727.GR3330@ruslug.rutgers.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 27 May 2004 14:13:04 -0400
+Date: Thu, 27 May 2004 19:13:02 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: FabF <fabian.frederick@skynet.be>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.7-rc1-mm1] lp int copy_to_user replaced
+Message-ID: <20040527181301.GR12308@parcelfarce.linux.theplanet.co.uk>
+References: <1085679127.2070.21.camel@localhost.localdomain> <20040527180118.GQ12308@parcelfarce.linux.theplanet.co.uk> <1085681215.2070.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1085681215.2070.27.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luis R. Rodriguez wrote:
-> BTW we can supply a 2.4 prism54 patch (as new driver). Would that be
-> wanted?
+On Thu, May 27, 2004 at 08:06:55PM +0200, FabF wrote:
+> On Thu, 2004-05-27 at 20:01, viro@parcelfarce.linux.theplanet.co.uk
+> wrote:
+> > On Thu, May 27, 2004 at 07:32:08PM +0200, FabF wrote:
+> > > Andrew,
+> > > 
+> > > 	Here's a patch to have standard __put_user for integer transfers in lp
+> > > driver.Is it correct ?
+> > 
+> > What the hell for?  copy_to_user()/copy_from_user() is perfectly OK here.
+> > 
+> And why the hell use generic functions when we have neat small type
+> exchange macros ?
 
-No objections here.
-
-2.4.x is vaguely closed, though, so Marcelo may not be interested in new 
-drivers.
-
-	Jeff
-
-
+We have different definitions of "neat", apparently.

@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269012AbUJEO4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268995AbUJEPFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269012AbUJEO4P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 10:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUJEO4P
+	id S268995AbUJEPFT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269068AbUJEPFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 10:56:15 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:41104 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S269012AbUJEO4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 10:56:11 -0400
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Mark Lord <lsml@rtr.ca>
-Cc: Anton Blanchard <anton@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4162B345.9000806@rtr.ca>
-References: <1096401785.13936.5.camel@localhost.localdomain>	<1096467125.2028.11.camel@m
-	ulgrave> 	<20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
-	<1096984590.1765.2.camel@mulgrave>  <4162B345.9000806@rtr.ca>
+	Tue, 5 Oct 2004 11:05:19 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:33934 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S268995AbUJEPFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:05:04 -0400
+Subject: Re: reiserfs bug
+From: Vladimir Saveliev <vs@namesys.com>
+To: Hongwei Li <hwli98@yahoo.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040701060924.11587.qmail@web11202.mail.yahoo.com>
+References: <20040701060924.11587.qmail@web11202.mail.yahoo.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Oct 2004 09:56:00 -0500
-Message-Id: <1096988167.2064.7.camel@mulgrave>
+Message-Id: <1096988498.10831.76.camel@tribesman.namesys.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 05 Oct 2004 19:01:39 +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 09:44, Mark Lord wrote:
-> There seem to be other holes/races in this and related code.
+Hello
+
+On Thu, 2004-07-01 at 10:09, Hongwei Li wrote:
+> Hi:
+> My machine am running linux-2.4.25, it crash in the
+> reiser_panic.
+> I looked at the oops and find out the followings:
+> check_leaf_block_head pass the 0 as "sb" value, and
+> cause reiser_panic crash.
+> Any fix for this?
 > 
-> The QStor driver implements hot insertion/removal of drives.
+
+Reiserfs found metadata corruption. It is supposed to not crash but
+return i/o error, 
+
+but you should reiserfsck your filesystem.
+
+We have to improve reiserfs data corruption handling.
+
+> static void check_leaf_block_head (struct buffer_head
+> * bh)
+> {
+>   struct block_head * blkh;
+>   int nr;
 > 
-> One thing it has to cope with at present is, after notifying
-> the mid-layer that a drive has been removed, the mid-layer calls
-> back with a synchronize-cache command for that drive..
-
-This is expected behaviour.  For orderly removal an cache sync command
-must be sent to drives with a writeback cache before they're powered
-down.  For forced ejection, the driver has to error the command.
-
-James
-
+>   blkh = B_BLK_HEAD (bh);
+>   nr = blkh_nr_item(blkh);
+>   if ( nr > (bh->b_size - BLKH_SIZE) / IH_SIZE)
+>     reiserfs_panic (0, "vs-6010:
+> check_leaf_block_head: invalid item number %z", bh);
+>   if ( blkh_free_space(blkh) > 
+>       bh->b_size - BLKH_SIZE - IH_SIZE * nr )
+>     reiserfs_panic (0, "vs-6020:
+> check_leaf_block_head: invalid free space %z", bh);
+>     
+> }
+> 
+> void reiserfs_panic (struct super_block * sb, const
+> char * fmt, ...)
+> {
+>   show_reiserfs_locks() ;
+>   do_reiserfs_warning(fmt);
+>   printk ( KERN_EMERG "%s (device %s)\n", error_buf,
+> bdevname(sb->s_dev));
+>   BUG ();
+> 
+>   /* this is not actually called, but makes
+> reiserfs_panic() "noreturn" */
+>   panic ("REISERFS: panic (device %s): %s\n",
+> 	 sb ? kdevname(sb->s_dev) : "sb == 0", error_buf);
+> }
+> 
+> Li Hongwei
+> 
+> 
+> 	
+> 		
+> __________________________________
+> Do you Yahoo!?
+> New and Improved Yahoo! Mail - 100MB free storage!
+> http://promotions.yahoo.com/new_mail
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

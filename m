@@ -1,38 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129568AbQL2ESA>; Thu, 28 Dec 2000 23:18:00 -0500
+	id <S129538AbQL2GgJ>; Fri, 29 Dec 2000 01:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130856AbQL2ERv>; Thu, 28 Dec 2000 23:17:51 -0500
-Received: from a203-167-249-89.reverse.clear.net.nz ([203.167.249.89]:41479
-	"HELO metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S130679AbQL2ERe>; Thu, 28 Dec 2000 23:17:34 -0500
-Date: Fri, 29 Dec 2000 16:47:05 +1300
-From: Chris Wedgwood <cw@f00f.org>
-To: Mike Elmore <mike@kre8tive.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
-Message-ID: <20001229164705.A17269@metastasis.f00f.org>
-In-Reply-To: <20001228161126.A982@lingas.basement.bogus> <200012282159.NAA00929@pizda.ninka.net> <20001228212116.A968@lingas.basement.bogus>
-Mime-Version: 1.0
+	id <S129543AbQL2Gf7>; Fri, 29 Dec 2000 01:35:59 -0500
+Received: from mail2.mia.bellsouth.net ([205.152.144.14]:3989 "EHLO
+	mail2.mia.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S129538AbQL2Gfo>; Fri, 29 Dec 2000 01:35:44 -0500
+Message-ID: <3A4BE396.8A48A3F4@bellsouth.net>
+Date: Fri, 29 Dec 2000 01:06:30 +0000
+From: Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test13 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Stefan Traby <stefan@hello-penguin.com>, Andi Kleen <ak@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre5
+In-Reply-To: <Pine.LNX.4.10.10012281712180.1231-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001228212116.A968@lingas.basement.bogus>; from mike@kre8tive.org on Thu, Dec 28, 2000 at 09:21:16PM -0600
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2000 at 09:21:16PM -0600, Mike Elmore wrote:
+Simply executing
+         *p++ = htonl(fl->fl_pid);
+before 
+         start = loff_t_to_s64(fl->fl_start);
+also works.
+Later,
+Albert
 
-    Any idea what portion of pre4 got fixed in pre5 to
-    fix this problem?  I'd just like to know so I can
-    look around if it comes back.
+Linus Torvalds wrote:
+> 
+> On Fri, 29 Dec 2000, Stefan Traby wrote:
+> > On Thu, Dec 28, 2000 at 03:37:51PM -0800, Linus Torvalds wrote:
+> >
+> > > Too bad. Maybe somebody should tell gcc maintainers about programmers that
+> > > know more than the compiler again.
+> >
+> > I know that {p,}gcc-2.95.2{,.1} are not officially supported.
+> 
+> Hmm, I use gcc-2.95.2 myself on some machines, and while I'm not 100%
+> comfortable with it, it does count as "supported" even if it has known
+> problems with "long long". pgcc isn't.
+> 
+> > Did you know that it's impossible to compile nfsv4 because of
+> > register allocation problems with long long since (long long) month ?
+> 
+> lockd v4 (for NFS v3), I assume.
+> 
+> No, I wasn't aware of this particular bug.
+> 
+> > The following does not hurt, it's just a fix for a broken
+> > compiler:
+> 
+> Ugh, that's ugly.
+> 
+> Can you test if it is sufficient to just simplify the math a bit, instead
+> of uglyfing that function more? The nlm4_encode_lock() function already
+> tests for NLM4_OFFSET_MAX explicitly for both start and end, so it should
+> be ok to just re-code the function to not do the extra "loff_t_to_s64()"
+> stuff, and simplify it enough that the compile rwill be happy to compile
+> the simpler function. Something along the lines of
+> 
+>         if (.. NLM4_OFFSET_MAX tests ..)
+>                 ..
+> 
+>         *p++ = htonl(fl->fl_pid);
+> 
+>         start = fl->fl_start;
+>         len = fl->fl_end - start;
+>         if (fl->fl_end == OFFSET_MAX)
+>                 len = 0;
+> 
+>         p = xdr_encode_hyper(p, start);
+>         p = xdr_encode_hyper(p, len);
+> 
+>         return p;
+> 
+> Where it tries to minimize the liveness of the 64-bit values, and tries to
+> avoid extra complications.
+> 
+>                 Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-nfs over UDP? My guess is the IP fragmentation fix Alexey posted a
-couple of days ago.
-
-
-  --cw
+-- 
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

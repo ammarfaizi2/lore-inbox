@@ -1,37 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131956AbQKVQdk>; Wed, 22 Nov 2000 11:33:40 -0500
+        id <S130800AbQKVQhV>; Wed, 22 Nov 2000 11:37:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131979AbQKVQda>; Wed, 22 Nov 2000 11:33:30 -0500
-Received: from adsl-63-205-85-133.dsl.snfc21.pacbell.net ([63.205.85.133]:18193
-        "EHLO schmee.sfgoth.com") by vger.kernel.org with ESMTP
-        id <S131956AbQKVQdY>; Wed, 22 Nov 2000 11:33:24 -0500
-Date: Wed, 22 Nov 2000 08:03:18 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Patrick van de Lageweg <patrick@bitwizard.nl>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>
-Subject: Re: [PATCH] atmrefcount
-Message-ID: <20001122080318.A53983@sfgoth.com>
-In-Reply-To: <Pine.LNX.4.21.0011221029020.995-100000@panoramix.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.21.0011221029020.995-100000@panoramix.bitwizard.nl>; from patrick@bitwizard.nl on Wed, Nov 22, 2000 at 10:31:22AM +0100
+        id <S130316AbQKVQhA>; Wed, 22 Nov 2000 11:37:00 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:2466 "EHLO
+        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+        id <S131793AbQKVQgx>; Wed, 22 Nov 2000 11:36:53 -0500
+Date: Wed, 22 Nov 2000 17:02:18 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Johannes Erdfelt <johannes@erdfelt.com>,
+        Ingo Molnar <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0test11-ac1
+In-Reply-To: <E13yMsl-0005Lb-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.3.96.1001122164851.24845B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick van de Lageweg wrote:
-> This patch contains the fix for the atmrefcount problem (noted as a
-> critical problem in Ted's todo list). It also has the makefile
-> modifications for the firestream driver in a separate email. 
+On Tue, 21 Nov 2000, Alan Cox wrote:
 
-Could you please split the two patches so that they're actually independant
-(i.e. put all the stuff for the new driver in its own patch).  I'll
-comment on that driver seperately.
+> >  It's not legal -- the MPS is very explicit the MP-table must reflect a
+> > real configuration. 
+> 
+> Intel tell me otherwise. The real world also disagrees which makes the
+> discussion a little pointless. We have to handle the real situation where
+> this occurs
 
--Mitch
+ Quoting from "MultiProcessor Specification" version 1.4, p. 5-2:
+
+ "The default system configurations are designed to support dual-processor
+systems with fixed configurations.  Systems with dynamically configurable
+components, for example, a uniprocessor system with an upgrade socket for
+the second processor, must always generate the MP configuration table. 
+Failure to do so may cause the operating system to install the wrong
+modules due to erroneous configuration information." 
+
+ This will not fix the broken work, unfortunately...
+
+> >  OK, but how does it handle the 82489DX?  There are valid configurations
+> > using this kind of APIC, including Pentium P54C ones...
+> 
+> These processors don't report the APIC on the cpuid ? If so then I guess
+> the fix is something like this
+
+ No, they don't, as they have their on-chip APICs disabled by hardware.
+Otherwise they wouldn't be able to utilize a discrete local APIC.
+
+> Intel stuff appears to always be happy poking in APIC space. I don't know
+> if this is related to the chip internals on the non APIC capable chips.
+
+ It might be related to the chipset setup.  I wonder whether would it
+crash on accessing another area of unoccupied space.  Hmm, after thinking
+for I while I recall there exist an event that's called "PCI master abort" 
+and that may happen when no device responds to a PCI cycle.  What chipset
+do the affected systems use?  Is it HX or NX?  I have docs for both and I
+may search for a possible cause.  Maybe we could fix it as a quirk... 
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

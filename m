@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278967AbRKFK3f>; Tue, 6 Nov 2001 05:29:35 -0500
+	id <S278924AbRKFKaq>; Tue, 6 Nov 2001 05:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278962AbRKFK30>; Tue, 6 Nov 2001 05:29:26 -0500
-Received: from addleston.eee.nott.ac.uk ([128.243.70.70]:33716 "HELO
-	addleston.eee.nott.ac.uk") by vger.kernel.org with SMTP
-	id <S278924AbRKFK3N>; Tue, 6 Nov 2001 05:29:13 -0500
-Date: Tue, 6 Nov 2001 10:29:12 +0000 (GMT)
-From: Matthew Clark <matt@eee.nott.ac.uk>
-X-X-Sender: <matt@perry>
-To: <linux-kernel@vger.kernel.org>
-Subject: PCI interrupts (round 2) + PCI bus question
-Message-ID: <Pine.OSF.4.31.0111061000420.25740-100000@perry>
+	id <S278962AbRKFKab>; Tue, 6 Nov 2001 05:30:31 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47366 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278924AbRKFKaQ>; Tue, 6 Nov 2001 05:30:16 -0500
+Date: Tue, 6 Nov 2001 07:10:59 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Bob Smart <smart@hpc.CSIRO.AU>, Pete Wyckoff <pw@osc.edu>,
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: Red Hat needs this patch (was Re: handling NFSERR_JUKEBOX)
+In-Reply-To: <shswv14w9ps.fsf@charged.uio.no>
+Message-ID: <Pine.LNX.4.21.0111060709380.9597-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The first part of this mail follows up a previous request-
- "PCI interrupts" 5/11/2001-
 
-***** Q1
+On 6 Nov 2001, Trond Myklebust wrote:
 
-I had a 1/2 dozen replies -all sensible- but between them there
-was still a few questions.
+> >>>>> " " == Bob Smart <smart@hpc.CSIRO.AU> writes:
+> 
+>     >> Take a look at the nfs sourceforge mailing list.  There's a
+>     >> long thread about this in the context of a Solaris HSM server.
+>     >> I wrote a patch to try to do the right thing on a linux client,
+>     >> but it is not perfect for many reasons:
+>     >> http://devrandom.net/lists/archives/2001/6/NFS/0135.html
+> 
+>      > Thanks again for this patch. I've appended our current version
+>      > to save others the trouble of minor modifications. I've just
+>      > tested it against 2.4.13-ac7.
+> 
+>      > Your patch may not be perfect but it is a million times better
+>      > than nothing. We have had no problems with it. Linux has a long
+>      > tradition of utilizing imperfect software till something better
+>      > comes along.
+> 
+>      > This patch is ESSENTIAL to make Linux useable in large
+>      > enterprises, because they increasingly commonly utilize
+>      > hirearchically managed storage. I strongly urge
+>      > Alan/Linus/Macello to include this patch in the stable kernel
+>      > tree (but marked experimental). Or at least can the kernel
+>      > maintainers at Red Hat and other distributions put it in their
+>      > offerings: surely you see that you need this for your big
+>      > customers.
+> 
+> The patch may appear to work, but it fails to understand the nature of
+> the problem. The problem with NFSERR_JUKEBOX is that is can appear in
+> more or less *any* NFSv3 RPC call. That includes everything from
+> lookups to writes.
+> 
+> If all you do is intercept read and setattr, then you certainly
+> haven't achieved 'enterprise quality'.
 
-I am writing a dev driver for a PCI card- this card will
-generate a large number of interrupts (at ~1kHz) which can be
-serviced very quickly.  The interrupt the card uses is the same
-as another device in the computer (usb controller).
+Trond, 
 
-It looks like I must share the interrupt with the USB
-controller-
+Should'nt we make Linux retry on NFSERR_JUKEBOX _by default_ ? 
 
-How do I ensure that I get <my> interrupt and not the the USB
-one?  (is this done automagically from my point of view?)
-
-Is there anyway of getting a unique IRQ?
-
-Is there a performance penalty with a shared penalty, if so
-would it be significant at a kHz IRQ repetition?
-
-(Thanks to the previous replies)
-
-****** Q2
-
-I have the nasty task of reverse engineering a semi-auto written
-windows driver rather than using a hardware manual for writing
-the driver-  so my information is sketchy.
-
-The hardware is known to have a few problems and one of these
-problems involves locking the machine solid.
-
-It is suspected that this occurs when the hardware (for some
-reason that is unknown to the hardware developers) stops
-accepting data from the PCI bus.
-
-Is it possible that the bus can over run and that this can lock
-the machine?  If so is it possible to probe the bus to prevent
-the overruns- The hardware comes with a "fix it" register that
-can be used provided the problem can be detected prior to the
-lock.
-
-I know where the lockups occur- when I shove data from RAM to
-PCI memory (using writel)- the driver will work for hours on end
-and the lock the machine solid in one of these regions.
-
-It looks like a hardware problem- I want to see if I can side
-step it unitl the hardware developers fix it (maybe a long
-time).
-
-Any thoughts gratefully received
-
-
-Thanks matt
-
+Is there any reason why we already don't do that already except "nobody
+coded it yet" ? 
 

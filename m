@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263942AbUGAE6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUGAF0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263942AbUGAE6u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 00:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGAE6t
+	id S264012AbUGAF0p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 01:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbUGAF0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 00:58:49 -0400
-Received: from mail.kroah.org ([65.200.24.183]:48585 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263942AbUGAE6l (ORCPT
+	Thu, 1 Jul 2004 01:26:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46047 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263972AbUGAF0m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 00:58:41 -0400
-Date: Wed, 30 Jun 2004 21:57:25 -0700
-From: Greg KH <greg@kroah.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How NOT to have already compiled modules (auto)load?
-Message-ID: <20040701045725.GC2150@kroah.com>
-References: <40E37954.3080201@thinrope.net>
+	Thu, 1 Jul 2004 01:26:42 -0400
+Date: Wed, 30 Jun 2004 22:25:47 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: jakub@redhat.com, wesolows@foobazco.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on Sparc and Sparc64
+Message-Id: <20040630222547.65d793da.davem@redhat.com>
+In-Reply-To: <20040630225220.GA32560@mail.shareable.org>
+References: <20040630030503.GA25149@mail.shareable.org>
+	<20040630082804.GS21264@devserv.devel.redhat.com>
+	<20040630135419.25b843b8.davem@redhat.com>
+	<20040630225220.GA32560@mail.shareable.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40E37954.3080201@thinrope.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 11:39:16AM +0900, Kalin KOZHUHAROV wrote:
-> Sorry for the fuzzy subject, I couldn't formulate it better.
-> 
-> I was trying to find info on that on Google, man and Documentation/*, but 
-> to no avail...
-> 
-> I have a laptop with USB CD-ROM that is very rarely attached/used.
-> I have sr_mod, etc. compiled as modules.
-> On every boot it gets autoloaded, despite the fact that CD-ROM is not 
-> connected (no, I don't have another).
-> 
-> My question is is there any good(tm) way to prevent this?
-> One way I could think is to rename the module, but that is a bit bad.
-> Is there a way to blacklist some modules?
+On Wed, 30 Jun 2004 23:52:20 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
-/etc/hotplug/blacklist will prevent the hotplug scripts from loading the
-module automatically.
+> The PaX security patch already implements R!X pages on Sparc64, so you
+> could just cut out that part of the patch.  Just pick out the changes
+> to arch/sparc64/* and include/asm-sparc64/*:
+> 
+> 	http://pax.grsecurity.net/pax-linux-2.6.7-200406252135.patch
+> 
+> It appears to use exactly the technique Jakub describes, and has been tested.
 
-Hope this helps,
+Great, I'm integrating something along these lines right now.
 
-greg k-h
+Do you have any idea who authored the sparc64 bits so I can give
+them credit?

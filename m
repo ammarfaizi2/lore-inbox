@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVANOIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVANOJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVANOIK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 09:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVANOIK
+	id S261989AbVANOJE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 09:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVANOJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 09:08:10 -0500
-Received: from adsl-298.mirage.euroweb.hu ([193.226.239.42]:37005 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261418AbVANOID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 09:08:03 -0500
-To: aia21@cam.ac.uk
-CC: akpm@osdl.org, torvalds@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.60.0501141351130.18572@hermes-1.csi.cam.ac.uk>
-	(message from Anton Altaparmakov on Fri, 14 Jan 2005 13:55:46 +0000
-	(GMT))
-Subject: Re: [PATCH 2/11] FUSE - core
-References: <E1CoOpP-0003Jb-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.60.0501141351130.18572@hermes-1.csi.cam.ac.uk>
-Message-Id: <E1CpS73-0001kC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 14 Jan 2005 15:07:41 +0100
+	Fri, 14 Jan 2005 09:09:04 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:39176 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261989AbVANOIu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 09:08:50 -0500
+To: Ulrich Drepper <drepper@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: propolice support for linux
+References: <20050113134620.GA14127@boetes.org>
+	<a36005b5050113131179d932eb@mail.gmail.com>
+	<20050113225244.GH14127@boetes.org>
+	<a36005b505011323061bd2e4a9@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: more boundary conditions than the Middle East.
+Date: Fri, 14 Jan 2005 14:08:42 +0000
+In-Reply-To: <a36005b505011323061bd2e4a9@mail.gmail.com> (Ulrich Drepper's
+ message of "14 Jan 2005 07:09:29 -0000")
+Message-ID: <87652014t1.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +static struct inode *fuse_alloc_inode(struct super_block *sb)
-> > +{
-> > +	struct inode *inode;
-> > +	struct fuse_inode *fi;
-> > +
-> > +	inode = kmem_cache_alloc(fuse_inode_cachep, SLAB_KERNEL);
-> 
-> This should probably be SLAB_NOFS as FUSE is a file system so you don't 
-> want allocations to go off submitting i/o to your file system.  Much 
-> better to be safe and always use the _NOFS versions in you kernel fs code.
+On 14 Jan 2005, Ulrich Drepper yowled:
+> Finally, the gcc patch is not going to work as is on architectures
+> like IA-64 which do not have the kind of adressing modes which are
+> needed for the code to work.
 
-Well, I don't think it matters in this case, since inode allocation is
-not part of processing I/O, so no deadlock is possible.  See also
-alloc_inode() in fs/inode.c which also uses SLAB_KERNEL.
+Nor does it work on SPARC-like processors (it tries, but the resulting
+programs dump core).
 
-> > +static struct fuse_conn *new_conn(void)
-> > +{
-> > +	struct fuse_conn *fc;
-> > +
-> > +	fc = kmalloc(sizeof(*fc), GFP_KERNEL);
-> 
-> Same comment as before:  GFP_NOFS is safer.
+> To fully understand the problem, you need to understand compiler
+> design, and especially RTL.  The latter by itself is another problem:
+> getting the code work in gcc 4 is at least challenging due the SSA.
 
-Same reason as above.
+Probably a rewrite (using trees instead of RTL) would be easier;
+preferably by someone who actually documents what the patch is doing and
+submits it in a fashion acceptable to the GCC people; i.e. not in a
+single huge nearly-unexplained lump followed by all queries going
+unanswered.
 
-In actual fact the whole GFP_NOFS argument doesn't apply to FUSE
-_at_all_, since dirty pages are never allowed.  Which is because
-userspace can't easily be taught about GFP_NOFS allocations, and
-otherwise could deadlock on page writeback.
+Working directly on trees would have the advantage that it would work on
+every platform GCC supports straight away (or at least it would have a
+higher chance of doing so).
 
-Thanks,
-Miklos
+-- 
+`Blish is clearly in love with language. Unfortunately,
+ language dislikes him intensely.' --- Russ Allbery

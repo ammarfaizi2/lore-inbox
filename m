@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUHOVgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266915AbUHOVmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266910AbUHOVgk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 17:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266915AbUHOVgk
+	id S266915AbUHOVmw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 17:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUHOVmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 17:36:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16266 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266910AbUHOVgX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 17:36:23 -0400
-Message-ID: <411FD744.2090308@pobox.com>
-Date: Sun, 15 Aug 2004 17:36:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: new tool:  blktool
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Aug 2004 17:42:52 -0400
+Received: from unthought.net ([212.97.129.88]:58769 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S266915AbUHOVmt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 17:42:49 -0400
+Date: Sun, 15 Aug 2004 23:42:48 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux SATA RAID FAQ
+Message-ID: <20040815214247.GU27443@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Xavier Bestel <xavier.bestel@free.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+	Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net> <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com> <411BA940.5000300@pobox.com> <1092520163.27405.11.camel@localhost.localdomain> <1092603242.7421.6.camel@nomade>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1092603242.7421.6.camel@nomade>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 15, 2004 at 10:54:02PM +0200, Xavier Bestel wrote:
+> Le sam 14/08/2004 à 23:49, Alan Cox a écrit :
+> > > > * Caching
+> > 
+> > Is it battery backed ? If it is battery backed then its useful, if not
+> > then it becomes less useful although not always. The i2o drivers have
+> > some ioctls so you can turn on writeback caching even without battery
+> > backup. While this is suicidal for filesytems its just great for swap..
+> 
+> Isn't sufficient to have it do ordered writes ? If you power your
+> machine off, you'll have things half-written anyway, the only thing
+> important with journaled filesystems (and raid5 arrays) is to have
+> writes staying between barriers.
 
-I just posted "blktool" on my SF page,
-	http://sourceforge.net/projects/gkernel/
-and in BitKeeper at
-	bk://gkernel.bkbits.net/blktool
+On a RAID controller with battery backed write-back cache, it can
+complete a "sync" operation as soon as the data is in the controller
+cache.   This gives a significant performance speedup.
 
+If the cache is not battery backed and power is lost after such a "sync"
+operation, then data that the kernel/userspace thought was sync'ed to
+disk is actually lost.
 
-blktool aims to be an easier to use, and more generic version of the 
-existing utility 'hdparm'.  For example,
+This *will* break journalling filesystems and databases.  They work from
+the assumption that 'sync' means 'sync' - and if it doesn't, then all
+hell breaks lose.
 
-	$ hdparm -c1 /dev/hda
-		becomes
-	$ blktool /dev/hda pio-data 32-bit
+It is common to enforce ordering of writes by issuing a 'sync' of some
+data and after the sync completes then starting the writeout of the
+'next' data.  On a controller with write-back cache without battery
+backup, you could actually risk that your 'next' data were written
+before the data you just issued a 'sync' for.
 
-	and
+In other words;  write-back cache without battery backup is absolutely
+insane, except for some few isolated cases, such as swap-space that Alan
+pointed out.
 
-	$ hdparm -L0 /dev/hda
-		becomes
-	$ blktool /dev/hda media unlock
+-- 
 
-The utility is currently still fairly specific to IDE devices (as hdparm 
-is), but that will change in the coming weeks as SCSI, I2O, and possibly 
-some bits of hardware RAID control are added.
-
-The audience for this application, like hdparm, is fairly narrow, 
-specific to people who tweak their storage devices and _know what they 
-are doing_.  Improper use of this tool, like hdparm, can turn your disk 
-into a doorstop.
-
-	Jeff
-
-
+ / jakob
 

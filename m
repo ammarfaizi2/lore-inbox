@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKSWxf>; Sun, 19 Nov 2000 17:53:35 -0500
+	id <S129210AbQKSW4Q>; Sun, 19 Nov 2000 17:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129875AbQKSWx0>; Sun, 19 Nov 2000 17:53:26 -0500
-Received: from 3dyn88.com21.casema.net ([212.64.94.88]:63762 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S129183AbQKSWxM>;
-	Sun, 19 Nov 2000 17:53:12 -0500
-Date: Mon, 20 Nov 2000 00:16:52 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Cc: aeb@veritas.com
-Subject: Re: 2.4 sendfile() not doing as manpage promises?
-Message-ID: <20001120001652.A12969@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org, aeb@veritas.com
-In-Reply-To: <20001119001558.B10579@home.ds9a.nl> <Pine.LNX.4.30.0011181513290.5897-100000@anime.net> <20001119015259.A10773@home.ds9a.nl> <20001119173623.A1185@veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <20001119173623.A1185@veritas.com>; from aeb@veritas.com on Sun, Nov 19, 2000 at 05:36:23PM +0100
+	id <S129348AbQKSWz4>; Sun, 19 Nov 2000 17:55:56 -0500
+Received: from cr309871-a.lndn1.on.wave.home.com ([24.112.227.208]:51980 "EHLO
+	EMAIL.debugs.org") by vger.kernel.org with ESMTP id <S129210AbQKSWzs>;
+	Sun, 19 Nov 2000 17:55:48 -0500
+Message-ID: <01CBB9212067C547A572CA1AE8757EB50C00@EMAIL.debugs.org>
+From: "Sean B. Estabrooks" <sean@Debugs.org>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: ATA/IDE: dmaproc error 14 testers wanted!
+Date: Sun, 19 Nov 2000 17:20:29 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 19, 2000 at 05:36:23PM +0100, Andries Brouwer wrote:
-> DESCRIPTION
->        This call copies data  between  one  file  descriptor  and
->        another.   Either  or  both  of these file descriptors may
->        refer to a socket.  in_fd  should  be  a  file  descriptor
->        opened  for  reading  and  out_fd  should  be a descriptor
->        opened for writing.
-> 
-> If that is incorrect, then editing a private copy of the manpage,
-> as Dan Hollis, or the distributor from whom he got his page,
-> seems to have done, does not suffice to change the manpage distribution.
 
-Improved attempt:
+> It is on kernel.org and the README tells you what to do to enable the stub
+> in ide-dma.c If it works let me know!
 
-DESCRIPTION 
-	This call copies data between one file descriptor and another.  The
-	descriptor from which data is read cannot be a socket but must
-	correspond to a file which supports mmap()-like operations. in_fd
-	should be a filedescriptor opened for reading and out_fd should be a
-	descriptor opened for writing. Because this copying is done within
-	the kernel, sendfile() does not need to spend time transfering data
-	to and from userspace.
+Andre,
 
-Regards,
+      Where on kernel.org are you hiding the README and patch files you
+mention?
 
-bert hubert
+           Regards,
+                Sean
 
--- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

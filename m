@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVDFCtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVDFCwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVDFCtl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 22:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVDFCtl
+	id S262085AbVDFCwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 22:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVDFCwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 22:49:41 -0400
-Received: from smtp103.rog.mail.re2.yahoo.com ([206.190.36.81]:1970 "HELO
-	smtp103.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262083AbVDFCth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 22:49:37 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [2.6.12-rc1][ACPI][suspend] /proc/acpi/sleep vs /sys/power/state issue - 'standby' on a laptop
-Date: Tue, 5 Apr 2005 22:49:29 -0400
-User-Agent: KMail/1.7.2
-Cc: LKML <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net
-References: <20050405185620.80060.qmail@web88009.mail.re2.yahoo.com> <20050405204234.GE1380@elf.ucw.cz>
-In-Reply-To: <20050405204234.GE1380@elf.ucw.cz>
+	Tue, 5 Apr 2005 22:52:12 -0400
+Received: from wip-ec-wd.wipro.com ([203.101.113.39]:57011 "EHLO
+	wip-ec-wd.wipro.com") by vger.kernel.org with ESMTP id S262085AbVDFCwH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 22:52:07 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1190047.sdQ0FRJkRK";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504052249.35030.shawn.starr@rogers.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Scheduling tasklets from process context...
+Date: Wed, 6 Apr 2005 08:20:28 +0530
+Message-ID: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Scheduling tasklets from process context...
+Thread-Index: AcU5o2nE/voz6U0GTVKOrkpf1wqXXw==
+From: <arun.prabha@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Apr 2005 02:55:38.0093 (UTC) FILETIME=[1C9221D0:01C53A54]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1190047.sdQ0FRJkRK
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-So nobody minds if I make this into a CONFIG option marked as Deprecated? :)
+Hi,
 
-Shawn.
+I have a query.
 
->
-> > Do you know if /proc/acpi/sleep will be deprecated in
-> > favour of /sys/power/state? If so, this thread will be
-> > moot ;)
->
-> No idea, deprecating it would be ok with me.
->
->        Pavel
+Since tasklets are typically used for bottom half
+processing, is it acceptable/recommended that they
+be scheduled from a process context (say an ioctl handler)?
 
---nextPart1190047.sdQ0FRJkRK
-Content-Type: application/pgp-signature
+Should one try to minimize such scheduling and try to
+do things in process context if possible, as tasklets run
+in interrupt context? Or is the driver writer free to use
+the tasklets at will? What is recommended here?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCU04+sX/SQXZigqcRAm3wAJ0Z3ZdArjH3rrQafruoZNtXpIDVoACeO+sN
-jEWXEPU1302+/Vee/4S6i7w=
-=/6l8
------END PGP SIGNATURE-----
-
---nextPart1190047.sdQ0FRJkRK--
+Thanks in advance,
+Arun.

@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVA2X7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVA3ADD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVA2X7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 18:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVA2X7Q
+	id S261614AbVA3ADD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 19:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVA3ADD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 18:59:16 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:31640 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S261614AbVA2X62
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 18:58:28 -0500
-Message-ID: <41FC26AD.AE9EFEAA@gte.net>
-Date: Sat, 29 Jan 2005 16:13:33 -0800
-From: Bukie Mabayoje <bukiemab@gte.net>
-X-Mailer: Mozilla 4.78 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michael Gernoth <simigern@stud.uni-erlangen.de>
-CC: linux-kernel@vger.kernel.org,
-       Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
-Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
-References: <20050128164811.GA8022@cip.informatik.uni-erlangen.de> <41FA8A3F.CC19F9EE@gte.net> <20050128185402.GA7923@cip.informatik.uni-erlangen.de>
+	Sat, 29 Jan 2005 19:03:03 -0500
+Received: from waste.org ([216.27.176.166]:47583 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261614AbVA3ACg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 19:02:36 -0500
+Date: Sat, 29 Jan 2005 16:02:21 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Fruhwirth Clemens <clemens-dated-1107431870.41eb@endorphin.org>
+Cc: akpm@osdl.org, jmorris@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 04/04] Add LRW
+Message-ID: <20050130000221.GA2955@waste.org>
+References: <20050124115750.GA21883@ghanima.endorphin.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [66.199.68.159] at Sat, 29 Jan 2005 17:58:26 -0600
+Content-Disposition: inline
+In-Reply-To: <20050124115750.GA21883@ghanima.endorphin.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 24, 2005 at 12:57:50PM +0100, Fruhwirth Clemens wrote:
+> This is the core of my LRW patch. Added test vectors.
+> http://grouper.ieee.org/groups/1619/email/pdf00017.pdf
 
+Please include a URL for the standard at the top of the LRW code and
+next to the test vectors. I had to search around a fair bit for decent
+background material, would be helpful to a couple other references as
+well.
 
-Michael Gernoth wrote:
+> +static inline void findAlignment(u128 callersN, int value, int *align) {
+> +	int i;
 
-> On Fri, Jan 28, 2005 at 10:53:51AM -0800, Bukie Mabayoje wrote:
-> > Do you know the official NIC product name e.g Pro/100B. I need to identify
-> > the LAN Controller. There are differences between  557 (not sure if 557 can
-> > do WOL), 558 and 559 how they ASSERT the PME# signal. Even the same chip have
-> > differences between steppings.
->
-> The chip is integrated on the motherboard. Its PCI ID is 8086:1039.
-> lspci says: Intel Corp. 82801BD PRO/100 VE (LOM) Ethernet Controller (rev 81)
-> If you want I can open up one of these machines tomorrow to look on the chip
-> directly.
->
-> Regards,
->   Michael
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Your gfmulseq code has lots of StudlyCaps and strange whitespace, eg
+this '{' should be on the next line.
 
-I can't  find the datasheet for 82801BD. 82801 are typically I/O Controller Hub.  I need to see how it drives the  PCI Interface Signals.
+> +	/* Copy N, so lsr does not destroy caller's copy */
+> +	u128_alloc(N);
+> +	copy128(N,callersN);
 
-I will try an reproduce it on a different set of chipset. Basically send a WOL packet to a live linux system. And see if keventd consumes excessive CPU time.
+The usage of your u128 type is really confusing, so 'u128' is an
+especially bad name. I expect u128 to work like u64 and u32. I propose
+gf128_t.
+
+> +	int i;			// Outer control loop counter
+
+C++ comments.
+
+> +#define min(a,b) (a)<(b)?(a):(b)
+
+Have a very nice one of those already.
+
+> +#ifdef DEBUG
+> +	printf("negative step at:");
+> +	print128(currentN);
+> +#endif
+
+Better to use printk and put #define printk printf in your userspace
+test harness.
+
+> +typedef u64 *u128;
+> +typedef u64 *u128_t;
+
+Did I mention confusing?
+
+> +#define u128_alloc(VAR) u64 _ ## VAR ## _[2]; u128 VAR = _ ## VAR ## _
+
+Wrap this in a struct, please. That's disgusting.
+
+> -obj-$(CONFIG_CRYPTO) += api.o scatterwalk.o cipher.o digest.o compress.o \
+> +obj-$(CONFIG_CRYPTO) += api.o scatterwalk.o cipher.o digest.o compress.o lrw.o gfmulseq.o \
+
+LRW and the GF(2**128) code is not configurable?
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,94 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUJFC2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUJFCaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUJFC2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 22:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266741AbUJFC2e
+	id S266741AbUJFCaT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 22:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUJFCaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 22:28:34 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:22397 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266704AbUJFC22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 22:28:28 -0400
-Message-ID: <41635848.8050001@yahoo.com.au>
-Date: Wed, 06 Oct 2004 12:28:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Robert Love <rml@novell.com>, Roland Dreier <roland@topspin.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Preempt? (was Re: Cannot enable DMA on SATA drive (SCSI-libsata,
- VIA SATA))
-References: <4136E4660006E2F7@mail-7.tiscali.it> <41634236.1020602@pobox.com> <52is9or78f.fsf_-_@topspin.com> <4163465F.6070309@pobox.com> <41634A34.20500@yahoo.com.au> <41634CF3.5040807@pobox.com> <1097027575.5062.100.camel@localhost> <20041006015515.GA28536@havoc.gtf.org> <41635248.5090903@yahoo.com.au> <20041006020734.GA29383@havoc.gtf.org>
-In-Reply-To: <20041006020734.GA29383@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 5 Oct 2004 22:30:18 -0400
+Received: from mail.renesas.com ([202.234.163.13]:4345 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S266741AbUJFC3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 22:29:38 -0400
+Date: Wed, 06 Oct 2004 11:29:25 +0900 (JST)
+Message-Id: <20041006.112925.295395530.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.9-rc3-mm2 1/5] [m32r] Remove arch/m32r/drivers
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20041006.112743.635726864.takata.hirokazu@renesas.com>
+References: <20041006.112743.635726864.takata.hirokazu@renesas.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> On Wed, Oct 06, 2004 at 12:02:48PM +1000, Nick Piggin wrote:
-> 
->>Jeff Garzik wrote:
->>
->>>On Tue, Oct 05, 2004 at 09:52:55PM -0400, Robert Love wrote:
->>>
->>>
->>>>On Tue, 2004-10-05 at 21:40 -0400, Jeff Garzik wrote:
->>>>
->>>>
->>>>
->>>>>And with preempt you're still hiding stuff that needs fixing.  And when 
->>>>>it gets fixed, you don't need preempt.
->>>>>
->>>>>Therefore, preempt is just a hack that hides stuff that wants fixing 
->>>>>anyway.
->>
->>What is it hiding exactly?
-> 
-> 
-> Bugs and high latency code paths that should instead be fixed.
-> 
+[PATCH 2.6.9-rc3-mm2 1/5] [m32r] Remove arch/m32r/drivers
 
-OK - high latency code paths: It doesn't hide critical section latency.
-I suppose you could say it hides cond_resched latency (the important
-metric for !preempt kernels), but people who care about latency should
-enable preempt; those that don't won't (to a point - I agree !preempt
-latency needs to be kept in check with the *occasional* cond_resched).
+Please remove obsolete m32r-specific driver files,
+which are no longer used.
 
-I can't imagine it should hide any bugs though...
+Thanks.
 
-> 
-> 
->>>>This actually sounds like the argument for preempt, and against
->>>
->>>
->>>As opposed to fixing drivers???  Please fix the drivers and code first.
->>>
->>
->>I thought you just said preempt should be turned off because it
->>breaks things (ie. as opposed to fixing the things that it breaks).
->>
->>But anyway, yeah obviously fixing drivers always == good. I don't
->>think anybody advocated otherwise.
-> 
-> 
-> By _definition_, when you turn on preempt, you hide the stuff I just
-> described above.
-> 
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-I really don't see the requirement to have less than a few ms latency
-without preempt.
+ arch/m32r/Kconfig          |    2 --
+ arch/m32r/Makefile         |    1 -
+ arch/m32r/drivers/Kconfig  |   34 ----------------------------------
+ arch/m32r/drivers/Makefile |    7 -------
+ 4 files changed, 44 deletions(-)
 
-> Hiding that stuff means that users and developers won't see code paths
-> that need fixing.  If users and developers aren't aware of code paths
-> that need fixing, they don't get fixed.
-> 
-> Therefore, by advocating preempt, you are advocating a solution _other
-> than_ actually making the necessary fixes.
-> 
 
-So the "necessary fixes" would be adding more cond_resched checks,
-right? In that case, I disagree with your assumption that the fix is
-necessary (again, to a point. We don't want 10s of ms latency).
+diff -ruNp a/arch/m32r/Kconfig b/arch/m32r/Kconfig
+--- a/arch/m32r/Kconfig	2004-10-01 11:14:53.000000000 +0900
++++ b/arch/m32r/Kconfig	2004-10-05 20:51:34.000000000 +0900
+@@ -253,8 +253,6 @@ config NUMA
+ 	depends on SMP
+ 	default n
+ 
+-source "arch/m32r/drivers/Kconfig"
+-
+ # turning this on wastes a bunch of space.
+ # Summit needs it only when NUMA is on
+ config BOOT_IOREMAP
+diff -ruNp a/arch/m32r/Makefile b/arch/m32r/Makefile
+--- a/arch/m32r/Makefile	2004-10-01 11:14:53.000000000 +0900
++++ b/arch/m32r/Makefile	2004-10-05 20:51:34.000000000 +0900
+@@ -36,7 +36,6 @@ core-y	+= arch/m32r/kernel/	\
+ 	   arch/m32r/mm/	\
+ 	   arch/m32r/boot/
+ 
+-drivers-y			+= arch/m32r/drivers/
+ drivers-$(CONFIG_OPROFILE)	+= arch/m32r/oprofile/
+ 
+ boot := arch/m32r/boot
+diff -ruNp a/arch/m32r/drivers/Kconfig b/arch/m32r/drivers/Kconfig
+--- a/arch/m32r/drivers/Kconfig	2004-10-01 11:14:54.000000000 +0900
++++ b/arch/m32r/drivers/Kconfig	1970-01-01 09:00:00.000000000 +0900
+@@ -1,34 +0,0 @@
+-#
+-# For a description of the syntax of this configuration file,
+-# see Documentation/kbuild/kconfig-language.txt.
+-#
+-
+-menu "M32R drivers"
+-
+-config M32RPCC
+-	bool "M32R PCMCIA I/F"
+-	depends on CHIP_M32700
+-
+-config M32R_CFC
+-	bool "CF I/F Controller"
+-	depends on PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2 || PLAT_OPSPUT
+-
+-config M32700UT_CFC
+-	bool
+-	depends on M32R_CFC
+-	default y
+-
+-config CFC_NUM
+-	int "CF I/F number"
+-	depends on PLAT_USRV || PLAT_M32700UT
+-	default "1" if PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2 || PLAT_OPSPUT
+-
+-config MTD_M32R
+-	bool "Flash device mapped on M32R"
+-	depends on PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2
+-
+-config M32700UT_DS1302
+-	bool "DS1302 Real Time Clock support"
+-	depends on PLAT_M32700UT || PLAT_OPSPUT
+-
+-endmenu
+diff -ruNp a/arch/m32r/drivers/Makefile b/arch/m32r/drivers/Makefile
+--- a/arch/m32r/drivers/Makefile	2004-10-01 11:14:54.000000000 +0900
++++ b/arch/m32r/drivers/Makefile	1970-01-01 09:00:00.000000000 +0900
+@@ -1,7 +0,0 @@
+-#
+-# Makefile for the Linux/M32R driver
+-#
+-
+-obj-$(CONFIG_M32RPCC)		+= m32r_pcc.o
+-obj-$(CONFIG_M32R_CFC)		+= m32r_cfc.o
+-obj-$(CONFIG_M32700UT_DS1302)	+= ds1302.o
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132548AbRDQMbP>; Tue, 17 Apr 2001 08:31:15 -0400
+	id <S132547AbRDQMbF>; Tue, 17 Apr 2001 08:31:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132526AbRDQMbF>; Tue, 17 Apr 2001 08:31:05 -0400
-Received: from ns.caldera.de ([212.34.180.1]:65285 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S132548AbRDQMay>;
-	Tue, 17 Apr 2001 08:30:54 -0400
-Date: Tue, 17 Apr 2001 14:30:14 +0200
-Message-Id: <200104171230.OAA23346@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: mike@bangstate.com ("Michael L. Welles")
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel space getcwd()? (using current() to find out cwd)
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <15067.30060.436790.458922@bangstate.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S132526AbRDQMaz>; Tue, 17 Apr 2001 08:30:55 -0400
+Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:33540 "HELO
+	xena.sind-doof.de") by vger.kernel.org with SMTP id <S132547AbRDQMal>;
+	Tue, 17 Apr 2001 08:30:41 -0400
+Date: Tue, 17 Apr 2001 14:08:59 +0200
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: Russell Coker <russell@coker.com.au>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: Mylex DAC vs RAM disk in 2.4.2 devfs
+Message-ID: <20010417140859.E4385@kallisto.sind-doof.de>
+Mail-Followup-To: Russell Coker <russell@coker.com.au>,
+	linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+In-Reply-To: <01041713220107.28478@lyta>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01041713220107.28478@lyta>; from russell@coker.com.au on Tue, Apr 17, 2001 at 01:22:01PM +0200
+X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
+X-Disclaimer: Are you really taking me serious?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <15067.30060.436790.458922@bangstate.com> you wrote:
-> So, a little ignorance being a dangerous thing, I thought I'd be clever
-> and manually reconstruct the full path by walking up
-> current->fs->pwd->d_parent and padding d_name to the filename until it
-> hits root.
->
-> Unfortunatly, this approach causes kernel panics.  e.g., the attached
-> code snippet will inevitably bring down the machine if I call it
-> during in my replacement open, mkdir, rmdir, unlink routines -- and
-> tehy all work fine without itq. 
+Hi,
 
+On Tue, Apr 17, 2001 at 01:22:01PM +0200, Russell Coker wrote:
 
-Use d_path.  NOTE:  the buffer in which the pathname is returned is
-the return value of the function and _not_ the buffer you gave to it.
+> Mylex controllers for a long time.  I am willing to submit patches to the 
+> kernel and to devfsd if this suggestion is accepted and someone can suggest a 
+> good directory name for ram-disks (I don't want to have the same problem 
+> again).
 
-	Christoph
+What about simply "ramdisk"? ;-)
 
+Andreas
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+"How do you pronounce SunOS?"  "Just like you hear it, with a big SOS"
+	-- dedicated to Roland Kaltefleiter
+

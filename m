@@ -1,203 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269273AbTCDGCP>; Tue, 4 Mar 2003 01:02:15 -0500
+	id <S269287AbTCDGDp>; Tue, 4 Mar 2003 01:03:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269275AbTCDGCP>; Tue, 4 Mar 2003 01:02:15 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:27021 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S269273AbTCDGCL>;
-	Tue, 4 Mar 2003 01:02:11 -0500
-Date: Tue, 4 Mar 2003 17:12:30 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: [PATCH][COMPAT] compat_sys_fcntl{,64} 6/9 s390x part
-Message-Id: <20030304171230.0312601d.sfr@canb.auug.org.au>
-In-Reply-To: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
-References: <20030304165812.7141f7c0.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S269288AbTCDGDp>; Tue, 4 Mar 2003 01:03:45 -0500
+Received: from ip-202-60-228-171.cyberec.com ([202.60.228.171]:62476 "HELO
+	ip-202-60-228-171.cyberec.com") by vger.kernel.org with SMTP
+	id <S269287AbTCDGDo>; Tue, 4 Mar 2003 01:03:44 -0500
+Message-ID: <2536431085olqx{0nhuqhoCyjhu1nhuqho1ruj@infoart.ru>
+From: "yakineta" <guesswho_new1937sezol@yahoo.com>
+To: "" <linux-kernel@vger.kernel.org>
+Date: Mon, 3 Mar 2003 23:17:21 -0800
+Subject: =?ISO-8859-1?Q?=EF=D0=CC=C1=D4=C1?= =?ISO-8859-1?Q?=D4=D2=D5=C4=C1:?= =?ISO-8859-1?Q?=C2=D5=C8=C7=C1=CC=D4=C5=D2=D3=CB=C9=CA?= =?ISO-8859-1?Q?=C9?= =?ISO-8859-1?Q?=CE=C1=CC=CF=C7=CF=D7=D9=CA?= =?ISO-8859-1?Q?=C1=D3=D0=C5=CB=D4.?=
+X-Mailer: Microsoft Outlook Express 4.72.3110.1
+MIME-Version: 1.0
+Content-Type: multipart/related;
+  boundary="----=_NextPart_000_0003_7BB97D2D.065E0D78"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+------=_NextPart_000_0003_7BB97D2D.065E0D78
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: base64
 
-Here is the s390x part with Martin's blessing (hopefully).
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+8M8gzc7Px8/eydPMxc7O2c0g0NLP09jCwc0g0M/X1M/S0cXNINPFzcnOwdI6Cgoi7/Ds4fTh
+IPTy9eThOiDC1cjHwczUxdLTy8nKIMkgzsHMz8fP19nKIMHT0MXL1CIgLSAxMSDNwdLUwQoK
+MS4gIPDSwdfP19nFIM/Tzs/X2SDP0MzB1Nkg1NLVxMEgLSDe1M8gzs/Xz8fPPyAo1yDT18XU
+xSDQz8zP1sXOycog9Osg8uYgCiAgICDJINMg1d7F1M/NINDP08zFxM7JyCDJ2s3FzsXOycop
+LgoyLiAg79DMwdTBINrBIM/U0sHCz9TBzs7PxSDX0sXN0ToKLSAgIM3JzsnNwczYztnKINLB
+2s3F0iDP0MzB1Nkg1NLVxMEsCi0gICDawdLBws/UzsHRINDMwdTBLCDUwdLJxsnLwcPJ0SDS
+wcLP1CwKLSAgIMTP0MzB1NkgySDOwcTCwdfLySwKLSAgIMfB0sHO1MnJIMkgy8/N0MXO08HD
+yckuCjMuICDv0MzB1MEg2sEgzsXP1NLBws/Uwc7Oz8Ug19LFzdE6Ci0gICDP0MzB1MEgz9TQ
+1dPLz9csCi0gICDP0MzB1MEgzNjHz9TO2cgg3sHTz9csCi0gICDLz83Qxc7TwcPJ0SDSwcLP
+1M7Jy8HNLCDTz9fNxd3BwN3JzSDSwcLP1NUg0yDV3sXCz8osCi0gICDP0MzB1MEg0NLJINfZ
+0M/MzsXOyckgx8/T1cTB0tPU18XOztnIIMkgz8LdxdPU18XOztnIIM/C0drBzs7P09TFyi4K
+NC4gIOTS1cfJxSDX2dDMwdTZINLBws/UzsnLwc0uIAo1LiAg8sHT3sXU2SDQ0skg1dfPzNjO
+xc7JySDSwcLP1M7Jy8EuCjYuICD1xMXS1sHOydEgydog2sHSwcLP1M7PyiDQzMHU2ToKLSAg
+IM7BzM/HIM7BIMTPyM/E2SDGydrJ3sXTy8nIIMzJwywKLSAgINXExdLWwc7JxSDXINDPx8Hb
+xc7JxSDawcTPzNbFzs7P09TJINLBws/Uz8TB1MXMwCwKLSAgINXExdLWwc7JxSDQzyDJ09DP
+zM7J1MXM2M7ZzSDEz8vVzcXO1MHNIMkgxNIuCjcuICDi1cjHwczUxdLTy8nKIMkgzsHMz8fP
+19nKINXexdQg0sHT3sXUz9cg0M8gz9DMwdTFINTS1cTBLgo4LiAg88HOy8PJySDawSDOwdLV
+28XOycUg1NLVxM/Xz8fPIMkgzsHMz8fP18/HzyDawcvPzs/EwdTFzNjT1NfBINcg08bF0sUg
+CiAgICDP0MzB1Nkg1NLVxMEuCjkuICDzzM/WztnFINfP0NLP09kgySDUydDJ3s7ZxSDP28nC
+y8kg1yDSwdPexdTByCDQzyDP0MzB1MUg1NLVxMEuCiAK7sEg08XNyc7B0sUg19nT1NXQwcXU
+IOvMyc3P18Eg7cHSyc7BIOHSy8HE2MXXzsEsIMsu3C7OLiwg0NLPxsXT08nPzsHM2M7ZyiAK
+wtXIx8HM1MXSLCDB19TP0iDLzsnHICLuwczPxyDOwSDEz8jPxNkgxsnayd7F08vJyCDMycMi
+LCAgIuvByyDQ0sHXyczYzs8gCs/Gz9LNydTYINXexdTO1cAg0M/MydTJy9Ugz9LHwc7J2sHD
+yckiLCAi5M/L1c3FztTPz8LP0s/UINcgwtXIx8HM1MXS08vPzSAK1d7F1MUiLCAi9NLVxM/X
+z8og68/ExcvTIPLmOiDQz9PUwdTFys7ZyiDLz83Nxc7UwdLJyiIsICAi+sHSwcLP1M7B0SDQ
+zMHUwTogCtDSwcvUyd7F08vPxSDS1cvP18/E09TXzyIsICAi5M/Hz9fP0tkgx9LB1sTBztPL
+zy3Q0sHXz9fPx88gyMHSwcvUxdLBOiAK2sHLzMDexc7JxSwg1d7F1CDJIM7BzM/Hz8/CzM/W
+xc7JxSIK88XNyc7B0tkg0NLPyM/E0dQg1yDtz9PL18UgKM0uIOHLwcTFzcnexdPLwdEsIDIg
+zcnO1dTZIM/UIM3F1NLPINDF28vPzSkuIArv0sfBzsnawdTP0iDTxc3JzsHSz9cg7cXWxNXO
+wdLPxM7ZyiDDxc7U0iDPwtXexc7J0S4K68/O1MHL1M7ZxSDUxczFxs/O2SAoMDk1KSAyMDct
+MjYtMjEsIDc3Mi05Mi00Ni4gCvDSySDV3sHT1MnJIM/Ezs/HzyDexczP18XLwSDT1M/Jzc/T
+1NggIMzAws/HzyDTxc3JzsHSwSDTz9PUwdfM0cXUIDOaOTAwINLVwi4sIArTINXexdTPzSDu
+5PMuIPDSySDV3sHT1MnJINcgMiDTxc3JzsHSwcggKMnMySAyIN7FzM/Xxcsg1yDPxM7PzSDT
+xc3JzsHSxSkgCtDSxcTP09TB18zRxdTT0SAxMCUg08vJxMvBLCDQ0skg1d7B09TJySDXIDMg
+08XNyc7B0sHIICjJzMkgMyDexczP18XLKSwgCt7F1NfF0tTZyiAtINcg0M/EwdLPyy4g8NLJ
+INXewdPUyckg1yA0INPFzcnOwdLByCAo3sXU18XS1NnKIMLF09DMwdTOzykgCtDSz8bF09PJ
+z87BzNjO2c0gwtXIx8HM1MXSwc0g19nEwcXU09Eg08XS1MnGycvB1CDPINDSz8jP1sTFzsnJ
+INDSz8fSwc3N2SAKxdbFx8/Ezs/KINDF0sXQz8THz9TP18vJIOnw4iDXIM/C38XNxSA0MCDe
+wdPP1y4g8NLJINLFx8nT1NLBw8nJINPPz8LdydTFIArOz83F0iDezMXO08vPx88gwsnMxdTB
+IOnw4iDJIMTB1NUg1dDMwdTZIN7Mxc7Ty8nIINfazs/Tz9cuCg==
 
-diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/entry.S 2.5.63-32bit.2/arch/s390x/kernel/entry.S
---- 2.5.63-32bit.1/arch/s390x/kernel/entry.S	2003-02-25 12:59:29.000000000 +1100
-+++ 2.5.63-32bit.2/arch/s390x/kernel/entry.S	2003-02-25 14:35:59.000000000 +1100
-@@ -452,7 +452,7 @@
-         .long  SYSCALL(sys_umount,sys32_umount_wrapper)
-         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* old lock syscall */
-         .long  SYSCALL(sys_ioctl,sys32_ioctl_wrapper)
--        .long  SYSCALL(sys_fcntl,sys32_fcntl_wrapper)   /* 55 */
-+        .long  SYSCALL(sys_fcntl,compat_sys_fcntl_wrapper)   /* 55 */
-         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* intel mpx syscall */
-         .long  SYSCALL(sys_setpgid,sys32_setpgid_wrapper)
-         .long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* old ulimit syscall */
-@@ -618,7 +618,7 @@
-         .long  SYSCALL(sys_mincore,sys32_mincore_wrapper)
-         .long  SYSCALL(sys_madvise,sys32_madvise_wrapper)
- 	.long  SYSCALL(sys_getdents64,sys32_getdents64_wrapper)/* 220 */
--	.long  SYSCALL(sys_ni_syscall,sys32_fcntl64_wrapper)
-+	.long  SYSCALL(sys_ni_syscall,compat_sys_fcntl64_wrapper)
- 	.long  SYSCALL(sys_readahead,sys32_readahead)
- 	.long  SYSCALL(sys_ni_syscall,sys32_sendfile64)
- 	.long  SYSCALL(sys_setxattr,sys32_setxattr_wrapper)
-diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/linux32.c 2.5.63-32bit.2/arch/s390x/kernel/linux32.c
---- 2.5.63-32bit.1/arch/s390x/kernel/linux32.c	2003-02-25 12:59:30.000000000 +1100
-+++ 2.5.63-32bit.2/arch/s390x/kernel/linux32.c	2003-02-25 14:35:59.000000000 +1100
-@@ -834,57 +834,6 @@
- 	return err;
- }
- 
--extern asmlinkage long sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg);
+
 -
--asmlinkage long sys32_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
--{
--	switch (cmd) {
--	case F_GETLK:
--		{
--			struct flock f;
--			mm_segment_t old_fs;
--			long ret;
--			
--			if(get_compat_flock(&f, (struct compat_flock *)A(arg)))
--				return -EFAULT;
--			old_fs = get_fs(); set_fs (KERNEL_DS);
--			ret = sys_fcntl(fd, cmd, (unsigned long)&f);
--			set_fs (old_fs);
--			if (ret) return ret;
--			if (f.l_start >= 0x7fffffffUL ||
--			    f.l_start + f.l_len >= 0x7fffffffUL)
--				return -EOVERFLOW;
--			if(put_compat_flock(&f, (struct compat_flock *)A(arg)))
--				return -EFAULT;
--			return 0;
--		}
--	case F_SETLK:
--	case F_SETLKW:
--		{
--			struct flock f;
--			mm_segment_t old_fs;
--			long ret;
--			
--			if(get_compat_flock(&f, (struct compat_flock *)A(arg)))
--				return -EFAULT;
--			old_fs = get_fs(); set_fs (KERNEL_DS);
--			ret = sys_fcntl(fd, cmd, (unsigned long)&f);
--			set_fs (old_fs);
--			if (ret) return ret;
--			return 0;
--		}
--	default:
--		return sys_fcntl(fd, cmd, (unsigned long)arg);
--	}
--}
--
--asmlinkage long sys32_fcntl64(unsigned int fd, unsigned int cmd, unsigned long arg)
--{
--	if (cmd >= F_GETLK64 && cmd <= F_SETLKW64)
--		return sys_fcntl(fd, cmd + F_GETLK - F_GETLK64, arg);
--	return sys32_fcntl(fd, cmd, arg);
--}
--
- extern asmlinkage long sys_truncate(const char * path, unsigned long length);
- extern asmlinkage long sys_ftruncate(unsigned int fd, unsigned long length);
- 
-diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/linux32.h 2.5.63-32bit.2/arch/s390x/kernel/linux32.h
---- 2.5.63-32bit.1/arch/s390x/kernel/linux32.h	2003-01-17 14:01:01.000000000 +1100
-+++ 2.5.63-32bit.2/arch/s390x/kernel/linux32.h	2003-02-25 14:35:59.000000000 +1100
-@@ -21,10 +21,6 @@
-         __s32   msgtyp;
- };
- 
--#define F_GETLK64       12
--#define F_SETLK64       13
--#define F_SETLKW64      14    
--
- struct old_sigaction32 {
-        __u32			sa_handler;	/* Really a pointer, but need to deal with 32 bits */
-        compat_old_sigset_t	sa_mask;	/* A 32 bit mask */
-diff -ruN 2.5.63-32bit.1/arch/s390x/kernel/wrapper32.S 2.5.63-32bit.2/arch/s390x/kernel/wrapper32.S
---- 2.5.63-32bit.1/arch/s390x/kernel/wrapper32.S	2003-02-25 12:59:30.000000000 +1100
-+++ 2.5.63-32bit.2/arch/s390x/kernel/wrapper32.S	2003-02-25 14:35:59.000000000 +1100
-@@ -227,12 +227,12 @@
- 	llgfr	%r4,%r4			# unsigned int
- 	jg	sys32_ioctl		# branch to system call
- 
--	.globl  sys32_fcntl_wrapper 
--sys32_fcntl_wrapper:
-+	.globl  compat_sys_fcntl_wrapper 
-+compat_sys_fcntl_wrapper:
- 	llgfr	%r2,%r2			# unsigned int
- 	llgfr	%r3,%r3			# unsigned int 
- 	llgfr	%r4,%r4			# unsigned long
--	jg	sys32_fcntl		# branch to system call
-+	jg	compat_sys_fcntl	# branch to system call
- 
- 	.globl  sys32_setpgid_wrapper 
- sys32_setpgid_wrapper:
-@@ -1050,12 +1050,12 @@
- 	llgfr	%r4,%r4			# unsigned int
- 	jg	sys_getdents64		# branch to system call
- 
--	.globl  sys32_fcntl64_wrapper 
--sys32_fcntl64_wrapper:
-+	.globl  compat_sys_fcntl64_wrapper 
-+compat_sys_fcntl64_wrapper:
- 	llgfr	%r2,%r2			# unsigned int
- 	llgfr	%r3,%r3			# unsigned int 
- 	llgfr	%r4,%r4			# unsigned long
--	jg	sys32_fcntl64		# branch to system call
-+	jg	compat_sys_fcntl64	# branch to system call
- 
- 	.globl	sys32_stat64_wrapper
- sys32_stat64_wrapper:
-diff -ruN 2.5.63-32bit.1/include/asm-s390x/compat.h 2.5.63-32bit.2/include/asm-s390x/compat.h
---- 2.5.63-32bit.1/include/asm-s390x/compat.h	2003-02-25 12:59:57.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-s390x/compat.h	2003-02-25 14:35:59.000000000 +1100
-@@ -64,7 +64,18 @@
- 	compat_off_t	l_start;
- 	compat_off_t	l_len;
- 	compat_pid_t	l_pid;
--	short		__unused;
-+};
-+
-+#define F_GETLK64       12
-+#define F_SETLK64       13
-+#define F_SETLKW64      14    
-+
-+struct compat_flock64 {
-+	short		l_type;
-+	short		l_whence;
-+	compat_loff_t	l_start;
-+	compat_loff_t	l_len;
-+	compat_pid_t	l_pid;
- };
- 
- struct compat_statfs {
-@@ -87,4 +98,7 @@
- 
- typedef u32		compat_sigset_word;
- 
-+#define COMPAT_OFF_T_MAX	0x7fffffff
-+#define COMPAT_LOFF_T_MAX	0x7fffffffffffffffL
-+
- #endif /* _ASM_S390X_COMPAT_H */
-diff -ruN 2.5.63-32bit.1/include/asm-s390x/fcntl.h 2.5.63-32bit.2/include/asm-s390x/fcntl.h
---- 2.5.63-32bit.1/include/asm-s390x/fcntl.h	2001-11-10 09:11:15.000000000 +1100
-+++ 2.5.63-32bit.2/include/asm-s390x/fcntl.h	2003-02-25 14:35:59.000000000 +1100
-@@ -80,6 +80,4 @@
- 
- #define F_LINUX_SPECIFIC_BASE  1024
- 
--#define flock64   flock
--
- #endif
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+------=_NextPart_000_0003_7BB97D2D.065E0D78--

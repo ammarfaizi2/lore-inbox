@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbUKRC31@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbUKRCcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbUKRC31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 21:29:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbUKRC3A
+	id S262383AbUKRCcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 21:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbUKRCcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 21:29:00 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:39133 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262543AbUKRB7t convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 20:59:49 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 17 Nov 2004 21:32:54 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:55683 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262383AbUKRCcn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 21:32:43 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial update: option for default ondemand cpufreq governor
+Date: Wed, 17 Nov 2004 21:32:38 -0500
+User-Agent: KMail/1.6.2
+Cc: Pedro Venda <pjlv@mega.ist.utl.pt>, davej@codemonkey.org.uk
+References: <419BF015.3050900@mega.ist.utl.pt>
+In-Reply-To: <419BF015.3050900@mega.ist.utl.pt>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] Fix GDT re-load on ACPI resume
-Date: Thu, 18 Nov 2004 09:59:30 +0800
-Message-ID: <16A54BF5D6E14E4D916CE26C9AD3057594611D@pdsmsx402.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] Fix GDT re-load on ACPI resume
-Thread-Index: AcTM11hJDU7oWzFPQqWuBjevYgyQkgAOoqog
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Cc: "Nickolai Zeldovich" <kolya@MIT.EDU>, <linux-kernel@vger.kernel.org>,
-       <csapuntz@stanford.edu>, <hiroit@mcn.ne.jp>
-X-OriginalArrivalTime: 18 Nov 2004 01:59:33.0839 (UTC) FILETIME=[3FE675F0:01C4CD12]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411172132.39274.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > 	movw	_0x0e00 + 'i', %fs:(0x12)
->> >
->> > 	# need a gdt
->> >+	.byte	0x66			# force 32-bit operands in case
->> >+					# the GDT is past 16 megabytes
->> > 	lgdt	real_save_gdt - wakeup_code
->> >
->> > 	movl	real_save_cr0 - wakeup_code, %eax
->> There is a patch from hiroit@mcn.ne.jp to fix the GDT issue. You can
-try
->> it.
->
->Well, replacing lgdt with lgdtl (above) seems like nicer solution than
->attachment...
-Copy GDT to low mem seems safer. Now the GDT table is in per-cpu region,
-possibly it's not in low memory. Or am I missing anything?
+Hi,
 
-Shaohua
+On Wednesday 17 November 2004 07:43 pm, Pedro Venda wrote:
+> This is a trivial patch that adds a Kconfig option to select the
+> *ondemand* cpufreq governor as the *default cpufreq governor*.
+> 
+
+See here:
+
+	http://www.ussg.iu.edu/hypermail/linux/kernel/0408.3/0953.html
+
+"... If transition_latency is high, the ondemand governor initialization
+will fail (User level governor is suggested in this case). Hence it cannot
+be used as a default governor." 
+
+-- 
+Dmitry

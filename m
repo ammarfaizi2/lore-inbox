@@ -1,78 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266641AbRGTG5p>; Fri, 20 Jul 2001 02:57:45 -0400
+	id <S266651AbRGTGvf>; Fri, 20 Jul 2001 02:51:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266650AbRGTG5g>; Fri, 20 Jul 2001 02:57:36 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:45317 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S266641AbRGTG5Y>; Fri, 20 Jul 2001 02:57:24 -0400
-Date: Fri, 20 Jul 2001 02:57:22 -0400 (EDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH re-sent] one more starfire net driver fix for 2.4.7pre6+
-Message-ID: <Pine.LNX.4.33.0107200256020.8516-100000@age.cs.columbia.edu>
+	id <S266652AbRGTGvY>; Fri, 20 Jul 2001 02:51:24 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:30340 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S266651AbRGTGvO>; Fri, 20 Jul 2001 02:51:14 -0400
+Message-ID: <3B57D541.10312D18@uow.edu.au>
+Date: Fri, 20 Jul 2001 16:52:49 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Niels Kristian Bech Jensen <nkbj@image.dk>
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Oops in 2.4.7-pre9.
+In-Reply-To: <Pine.LNX.4.33.0107200815230.858-100000@hafnium.nkbj.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+Niels Kristian Bech Jensen wrote:
+> 
+> I get this oops while booting 2.4.7-pre9:
 
-This patch reverses the MII hunk from the previous patch (included in
-2.4.7-pre6), which was apparently breaking some cards. It also fixes an
-incorrect comment.
+Kernel is trying to read /proc/pid entries for a kernel thread
+which has called daemonize().  It has a null task_struct.mm.
 
-Please apply.
+I tested various other possible problems, such as making
+/sbin/hotplug an elf executable and it looks OK, apart from
+the /proc problem.
 
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
----------------------------------
---- linux-2.4/drivers/net/starfire.c.orig	Thu Jul 12 10:15:18 2001
-+++ linux-2.4/drivers/net/starfire.c	Thu Jul 12 10:17:30 2001
-@@ -87,8 +87,7 @@
- 
- 	LK1.3.3 (Ion Badulescu)
- 	- Initialize the TxMode register properly
--	- Set the MII registers _after_ resetting it
--	- Don't dereference dev->priv after unregister_netdev() has freed it
-+	- Don't dereference dev->priv after freeing it
- 
- TODO:
- 	- implement tx_timeout() properly
-@@ -987,12 +986,12 @@
- 	struct netdev_private *np = dev->priv;
- 	u16 reg0;
- 
-+	mdio_write(dev, np->phys[0], MII_ADVERTISE, np->advertising);
- 	mdio_write(dev, np->phys[0], MII_BMCR, BMCR_RESET);
- 	udelay(500);
- 	while (mdio_read(dev, np->phys[0], MII_BMCR) & BMCR_RESET);
- 
- 	reg0 = mdio_read(dev, np->phys[0], MII_BMCR);
--	mdio_write(dev, np->phys[0], MII_ADVERTISE, np->advertising);
- 
- 	if (np->autoneg) {
- 		reg0 |= BMCR_ANENABLE | BMCR_ANRESTART;
-@@ -1939,12 +1938,12 @@
- 		pci_free_consistent(pdev, PAGE_SIZE,
- 				    np->rx_ring, np->rx_ring_dma);
- 
--	unregister_netdev(dev);			/* Will also free np!! */
-+	unregister_netdev(dev);
- 	iounmap((char *)dev->base_addr);
- 	pci_release_regions(pdev);
- 
- 	pci_set_drvdata(pdev, NULL);
--	kfree(dev);
-+	kfree(dev);			/* Will also free np!! */
- }
- 
- 
-
-
+--- linux-2.4.7-pre9/fs/proc/base.c	Fri Jul 20 15:39:12 2001
++++ linux-akpm/fs/proc/base.c	Fri Jul 20 16:43:02 2001
+@@ -670,7 +670,7 @@ static struct inode *proc_pid_make_inode
+ 	inode->u.proc_i.task = task;
+ 	inode->i_uid = 0;
+ 	inode->i_gid = 0;
+-	if (ino == PROC_PID_INO || task->mm->dumpable) {
++	if (ino == PROC_PID_INO || (task->mm && task->mm->dumpable)) {
+ 		inode->i_uid = task->euid;
+ 		inode->i_gid = task->egid;
+ 	}

@@ -1,27 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287511AbRLaNLg>; Mon, 31 Dec 2001 08:11:36 -0500
+	id <S287508AbRLaNLg>; Mon, 31 Dec 2001 08:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287509AbRLaNL0>; Mon, 31 Dec 2001 08:11:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41230 "EHLO
+	id <S287511AbRLaNL1>; Mon, 31 Dec 2001 08:11:27 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41486 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287511AbRLaNLJ>; Mon, 31 Dec 2001 08:11:09 -0500
-Subject: Re: 2.4.16 with es1370 pci
-To: wakko@animx.eu.org (Wakko Warner)
-Date: Mon, 31 Dec 2001 13:19:58 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011231065544.A28966@animx.eu.org> from "Wakko Warner" at Dec 31, 2001 06:55:44 AM
+	id <S287512AbRLaNLN>; Mon, 31 Dec 2001 08:11:13 -0500
+Subject: Re: merge in progress.
+To: axboe@suse.de (Jens Axboe)
+Date: Mon, 31 Dec 2001 13:21:46 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davej@suse.de (Dave Jones),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <20011231140455.F7130@suse.de> from "Jens Axboe" at Dec 31, 2001 02:04:55 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16L2MA-000521-00@the-village.bc.nu>
+Message-Id: <E16L2Nu-000530-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The only thing I can see is the fact it's on IRQ 15 with the usb controller.
+> On Mon, Dec 31 2001, Alan Cox wrote:
+> > > Things unlikely to merge yet.
+> > > o  Alans aacraid driver (not bio aware)
+> > 
+> > Thats fine. I don't plan to worry about that until 2.5 is a lot more stable.
+> 
+> I'm assuming you mean stable wrt code base changes, otherwise I'd like
+> to hear about any instability of the kernel wrt bio.
 
-That shouldn't matter. When it gets into this state is the IRQ counter still
-ticking up when you try and play audio (you may need to unload the USB to
-check that sanely)
+Until I am sure the block I/O layer is totally stable and the changes to
+both it and the scsi layer are complete.

@@ -1,62 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263538AbTC3LFN>; Sun, 30 Mar 2003 06:05:13 -0500
+	id <S263539AbTC3Let>; Sun, 30 Mar 2003 06:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263539AbTC3LFN>; Sun, 30 Mar 2003 06:05:13 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:47756 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S263538AbTC3LFM>; Sun, 30 Mar 2003 06:05:12 -0500
-Subject: Re: 3c59x gives HWaddr FF:FF:...
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Thomas Backlund <tmb@iki.fi>
-Cc: Juan Quintela <quintela@mandrakesoft.com>,
-       "J.A. Magallon" <jamagallon@able.es>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <021301c2f6aa$ae726140$9b1810ac@xpgf4>
-References: <20030328145159.GA4265@werewolf.able.es>
-	 <20030328124832.44243f83.akpm@digeo.com>
-	 <20030328230510.GA5124@werewolf.able.es>
-	 <20030328151624.67a3c8c5.akpm@digeo.com>
-	 <20030329004630.GA2480@werewolf.able.es>
-	 <0d0001c2f616$6a678dc0$9b1810ac@xpgf4> <86y92xh9wt.fsf@trasno.mitica>
-	 <1049019577.597.6.camel@teapot>  <021301c2f6aa$ae726140$9b1810ac@xpgf4>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049022973.728.8.camel@teapot>
+	id <S263540AbTC3Let>; Sun, 30 Mar 2003 06:34:49 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:18112 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S263539AbTC3Ler>; Sun, 30 Mar 2003 06:34:47 -0500
+Date: Sun, 30 Mar 2003 12:45:44 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: torvalds@transmeta.com, dri-devel@lists.sourceforge.net
+Subject: Re: Update direct-rendering to current DRI CVS tree.
+Message-ID: <20030330114544.GB16060@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	torvalds@transmeta.com, dri-devel@lists.sf.net
+References: <200303300712.h2U7CVB32581@hera.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 30 Mar 2003 13:16:14 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303300712.h2U7CVB32581@hera.kernel.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-30 at 12:53, Thomas Backlund wrote:
-> | <snip>
-> | Yenta IRQ list 08d8, PCI irq5
-> | Socket status: 30000020
-> | Yenta IRQ list 08d8, PCI irq10
-> | Socket status: 30000006
-> | cs: cb_alloc(bus 6): vendor 0x10b7, device 0x5257
-> | PCI: Failed to allocate resource 0(1000-2c3) for 06:00.0
-> | PCI: Enabling device 06:00.0 (0000 -> 0003)
-> | <snip>
-> | eth0: command 0x5800 did not complete! Status=0xffff
-> | eth0: command 0x2804 did not complete! Status=0xffff
-> | <snip>
-> |
-> | However, Alan Cox patches for 2.4.20 and Red Hat's linux kernel both
-> | seem to work OK... I think it's related to PCI resource assignment.
-> |
-> 
-> Have you tried with pci=noapic?
+On Sun, Mar 30, 2003 at 06:34:37AM +0000, Linux Kernel wrote:
 
-It yields the same results as above: "failed to allocate resource
-0(1000-2c3)"... I'm not using neither ACPI nor APIC.
+This bit seems to be backing out a memleak fix..
+(takedown doesn't kfree 'device' & 'minor' that I can see.)
 
-Thanks!
+ > diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
+ > --- a/drivers/char/drm/drm_drv.h	Sat Mar 29 23:12:35 2003
+ > +++ b/drivers/char/drm/drm_drv.h	Sat Mar 29 23:12:35 2003
+ > @@ -576,13 +578,9 @@
+ >  		memset( (void *)dev, 0, sizeof(*dev) );
+ >  		dev->count_lock = SPIN_LOCK_UNLOCKED;
+ >  		sema_init( &dev->struct_sem, 1 );
+ > -		init_timer( &dev->timer );
+ > -		init_waitqueue_head( &dev->context_wait );
+ >  
+ > -		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0) {
+ > -			retcode = -EPERM;
+ > -			goto fail_reg;
+ > -		}
+ > +		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0)
+ > +			return -EPERM;
+ >  		dev->device = MKDEV(DRM_MAJOR, DRM(minor)[i] );
+ >  		dev->name   = DRIVER_NAME;
+ >  
+ > @@ -591,8 +589,9 @@
+ >  #if __MUST_HAVE_AGP
+ >  		if ( dev->agp == NULL ) {
+ >  			DRM_ERROR( "Cannot initialize the agpgart module.\n" );
+ > -			retcode = -ENOMEM;
+ > -			goto fail;
+ > +			DRM(stub_unregister)(DRM(minor)[i]);
+ > +			DRM(takedown)( dev );
+ > +			return -ENOMEM;
+ >  		}
+ >  #endif
+ >  #if __REALLY_HAVE_MTRR
+ > @@ -608,7 +607,9 @@
+ >  		retcode = DRM(ctxbitmap_init)( dev );
+ >  		if( retcode ) {
+ >  			DRM_ERROR( "Cannot allocate memory for context bitmap.\n" );
+ > -			goto fail;
+ > +			DRM(stub_unregister)(DRM(minor)[i]);
+ > +			DRM(takedown)( dev );
+ > +			return retcode;
+ >  		}
+ >  #endif
+ >  		DRM_INFO( "Initialized %s %d.%d.%d %s on minor %d\n",
+ > @@ -623,17 +624,6 @@
+ >  	DRIVER_POSTINIT();
+ >  
+ >  	return 0;
+ > -
+ > -#if (__REALLY_HAVE_AGP && __MUST_HAVE_AGP) || __HAVE_CTX_BITMAP
+ > -fail:
+ > -	DRM(stub_unregister)(DRM(minor)[i]);
+ > -	DRM(takedown)( dev );
+ > -#endif
+ > -
+ > -fail_reg:
+ > -	kfree (DRM(device));
+ > -	kfree (DRM(minor));
+ > -	return retcode;
+ >  }
+ >  
+ >  /* drm_cleanup is called via cleanup_module at module unload time.
 
-________________________________________________________________________
-        Felipe Alfaro Solana
-   Linux Registered User #287198
-http://counter.li.org
+...
+
+ > @@ -41,7 +42,7 @@
+ >  
+ >  /* malloc/free without the overhead of DRM(alloc) */
+ >  #define DRM_MALLOC(x) kmalloc(x, GFP_KERNEL)
+ > -#define DRM_FREE(x) kfree(x)
+ > +#define DRM_FREE(x,size) kfree(x)
+
+eww. wtf is this for ? Some cross-OS compataiblity gunk ?
+
+ > diff -Nru a/drivers/char/drm/i830_dma.c b/drivers/char/drm/i830_dma.c
+ > --- a/drivers/char/drm/i830_dma.c	Sat Mar 29 23:12:35 2003
+ > +++ b/drivers/char/drm/i830_dma.c	Sat Mar 29 23:12:35 2003
+ > @@ -46,8 +47,6 @@
+ >  #define I830_BUF_UNMAPPED 0
+ >  #define I830_BUF_MAPPED   1
+ >  
+ > -#define RING_LOCALS	unsigned int outring, ringmask; volatile char *virt;
+ > -
+ >  #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,4,2)
+ >  #define down_write down
+ >  #define up_write up
+
+#if can go, like it did in other parts of the patch.
+
+I would read through the other 10 billion lines, but I lost
+enthusiasm..  More frequent merges may help here.
+With the two trees in sync, would it help to have DRI cvs changes
+tracked in a bk tree you could pull from ?
+
+It could maybe even be scripted. Doing the opposite of
+Larry's bk->cvs gizmo should be easier due to the linear
+nature of cvs.
+
+		Dave
 

@@ -1,53 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314582AbSDTIXP>; Sat, 20 Apr 2002 04:23:15 -0400
+	id <S314587AbSDTI3v>; Sat, 20 Apr 2002 04:29:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314584AbSDTIXO>; Sat, 20 Apr 2002 04:23:14 -0400
-Received: from web13307.mail.yahoo.com ([216.136.175.43]:54544 "HELO
-	web13307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314582AbSDTIXO>; Sat, 20 Apr 2002 04:23:14 -0400
-Message-ID: <20020420082314.34809.qmail@web13307.mail.yahoo.com>
-Date: Sat, 20 Apr 2002 01:23:14 -0700 (PDT)
-From: Shobana Valli M <shobanavalli@yahoo.com>
-Subject: Will missing libraries lead to kernel panic?
-To: linux-kernel@vger.kernel.org
+	id <S314589AbSDTI3u>; Sat, 20 Apr 2002 04:29:50 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58120 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314587AbSDTI3u>; Sat, 20 Apr 2002 04:29:50 -0400
+Subject: Re: PDC20268 TX2 support?
+To: linux@cabbey.net (Chris Abbey)
+Date: Sat, 20 Apr 2002 09:47:35 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204200101190.24652-100000@tweedle.cabbey.net> from "Chris Abbey" at Apr 20, 2002 01:06:54 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16yqWt-0000QP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I am trying to boot my board with 2.4.18 kernel. I am
-getting the Kernel panic: No init found error when
-tried with all kernels  above 2.4.8. But, in pc
-environment,they are working fine. Why is this so? 
-The distribution is Redhat 7.2. The 2.4.8 kernel, is
-bringing the board up with the same rootfs.  
-	
-	The root file system is mounted.  The rootfs has
-/sbin/init and /bin/sh. Init may not be corrupted,
-since it is working with 2.4.8 and other lower
-versions. 
+> the 2.4.19 timeframe. I'm curious what level of support folks are
+> expecting? Just basic IDE, or support for the hardware raid features?
 
-	I tried including /initrd directory in the rootfs,
-but that couldn't solve the problem. Am I missing any
-libraries  needed for kernels above 2.4.8 in my
-rootfs? Where can I get those details? As of now, all
-files in  my rootfs /lib donot have executable
-permission and are without symbolic links. Are these a
-must for kernels above 2.4.8?
- 
-    ext3 is deselected in Kernel configuration. Does
-ext3 file system has anything to do here? This kernel
-panic problem persists even when the .config of 2.4.8
-is used for configuring the kernel...Does the problem
-lie in the kernel configuration or rootfs? 
+What hardware raid features ? 
 
-Please enlighten me
-Regards
-Shobana
+AFAIK their only cards with hardware raid features are the supertrak 100 and
+SX6000.
 
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Games - play chess, backgammon, pool and more
-http://games.yahoo.com/
+Alan

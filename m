@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263920AbTJEWGd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 18:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTJEWGd
+	id S263892AbTJEW24 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 18:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTJEW24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 18:06:33 -0400
-Received: from pop.gmx.net ([213.165.64.20]:47076 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263920AbTJEWG1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 18:06:27 -0400
-X-Authenticated: #1033915
-Message-ID: <3F8090E7.9040501@GMX.li>
-Date: Sun, 05 Oct 2003 23:45:11 +0200
-From: Jan Schubert <Jan.Schubert@GMX.li>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20031005
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, kernelnewbies@vger.kernel.org
-Subject: Q: Maintainer for drivers/isdn/hisax in kernel-2.6
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Oct 2003 18:28:56 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:64004 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263892AbTJEW2x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 18:28:53 -0400
+Date: Mon, 6 Oct 2003 00:28:17 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Jay Vosburgh <fubar@us.ibm.com>, shmulik.hen@intel.com,
+       "Chad N. Tindel" <chad@tindel.net>, bonding-devel@lists.sourceforge.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       "Noam, Amir" <amir.noam@intel.com>,
+       "Mendelson, Tsippy" <tsippy.mendelson@intel.com>,
+       "Noam, Marom" <noam.marom@intel.com>
+Subject: Re: [Bonding-announce] [PATCH SET][bonding] cleanup
+Message-ID: <20031005222817.GA2527@pcw.home.local>
+References: <shmulik.hen@intel.com> <200309252011.53960.shmulik.hen@intel.com> <200309251733.h8PHXWpV013559@death.ibm.com> <20030925211259.GA59653@calma.pair.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030925211259.GA59653@calma.pair.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who is the Maintainer for the (old) ISDN-Hisax-Part for the kernel-2.6 
-(located in drivers/isdn/hisax)? I've digged into the code and got some 
-problems. IMHO there exist some old/outdated code which will never be 
-used in the current state (there are some Kernel-Config-Values which are 
-not defined or which will never be used). I tried to write an module to 
-get an Teles ISDN-PCMCIA Card running and run into some problems which 
-prevents me from further testing now.
+Hi !
 
-Any help?
-Thx, Jan
+On Thu, Sep 25, 2003 at 05:13:00PM -0400, Chad N. Tindel wrote:
+ 
+> I was specifically told by David Miller that we are not to break binary
+> compatibility within a 2.4 release.  Such things had to wait until 2.5 
+> or later.  We can not require a user to upgrade their ifenslave within a 2.4
+> series kernel just to keep using the same functionality they were using in 
+> 2.4.1.
 
-PS: May someone point me to an Kernel-Module-Howto for kernel-2.6? There 
-is none in the the Documentation-Directory and i did'nt found one in the 
-net for now....
+I strongly agree. I have been facing this problem and it was really a pain. I
+used the last bonding version which didn't define the ABI version, together
+with the associated ifenslave, but when the need to upgrade to plain 2.4.22
+came in, I had the surprize of getting a non-working bonding because this
+intermediate ifenslave. Well, I upgraded it to latest version, which prevents
+me from downgrading to the previous kernel because it has ABIv2 with no version,
+so the newer ifenslave thinks it's an ABIv1. So the result is a symlink with
+two versions of ifenslave on the disk, just in case I have to downgrade.
+
+Although I agree it's clearly my fault and I should have been more careful, I
+prefer to warn everyone about the consequences this might have on production
+systems. Schmulik has done quite a great job here, and I believe most of it
+should be integrated, but we have to carefully test each combination of old/new
+ifenslave with old/new driver if we don't want to break some setups or prevent
+admins from downgrading if something goes wrong.
+
+Cheers,
+Willy
 

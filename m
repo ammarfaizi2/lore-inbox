@@ -1,93 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264748AbTAJJIN>; Fri, 10 Jan 2003 04:08:13 -0500
+	id <S264711AbTAJJDr>; Fri, 10 Jan 2003 04:03:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbTAJJGg>; Fri, 10 Jan 2003 04:06:36 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:61188 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S264745AbTAJJGO>; Fri, 10 Jan 2003 04:06:14 -0500
-Message-Id: <200301100908.h0A98ks15321@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Anthony Lau <anthony@greyweasel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Oops with HIMEM+VM in 2.4.19,20
-Date: Fri, 10 Jan 2003 11:08:39 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20030110083714.GA702@kimagure>
-In-Reply-To: <20030110083714.GA702@kimagure>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S264706AbTAJJDP>; Fri, 10 Jan 2003 04:03:15 -0500
+Received: from dp.samba.org ([66.70.73.150]:46494 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264711AbTAJJBa>;
+	Fri, 10 Jan 2003 04:01:30 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Eric Weigle <ehw@lanl.gov>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] checksum.h header fixes for 2.4 
+In-reply-to: Your message of "Thu, 09 Jan 2003 13:06:46 PDT."
+             <20030109200646.GG3329@lanl.gov> 
+Date: Fri, 10 Jan 2003 18:47:50 +1100
+Message-Id: <20030110091014.9B5252C40A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 January 2003 10:37, Anthony Lau wrote:
-> Hello,
->
-> I am getting reproducible kernel oops and random segmentation
-> faults whenever the kernel starts using VM. Without any VM pages
-> being used, the system is stable.
->
-> I have tested kernels compiled with and without HIMEM support
-> (all other kernel config options identical). Without HIMEM 4GB
-> support, the system is stable for weeks. With HIMEM 4GB support,
-> the system starts oops'ing and seg. faulting when VM starts
-> being used.
+In message <20030109200646.GG3329@lanl.gov> you write:
+> All-
+> 
+> I'm making a loadable module that will send IP packets; and need to do IP
+> checksums. Unfortunately a simple #include of checksum.h fails because that
+> file does not itself include the headers required to compile correctly.
+> Several of the arch-specific files are this way.
+> 
+> * Some files use VERIFY_READ, VERIFY_WRITE, access_ok from uaccess.h but do
+> not include uaccess.h
+> 
+> * Some files have an IPv6 checksum with struct in6_addr, but do not include
+> linux/in6.h. x86_64 just defines the structure instead of including the
+> file. Either way works, but it's inconsistent. I've moved them all to the
+> #include, but they could all go to the struct in6_addr way too.
 
-You mean when your system starts to swap? Details?
-(How much/how heavy it swaps before oops? vmstat output?)
+Two general rules I like:
+1) Never include asm/xxx when there is a linux/xxx.
+2) asm/ headers shouldn't include linux/ headers.  It's
+   too easy to cause insoluble loops.
 
-> My system info:
->
-> 1.5GB physical RAM (MemTest86 run for 2 times, no errors)
-> 2.0GB VM on a partition
-> Aopen AX34u with Via Apollo Pro 133T chipset
->
-> Sample Oops from logs:
-[snipped]
->
-> Because of the symptoms, I think that there could be some
-> incompatibility between Himem and the VM subsystem. Of course
-> I may have just configured my kernel incorrectly.
->
-> Any help is appreciated and I will gladly supply more logs
-> if I knew which ones would be useful.
+I this case, I suspect #include <net/checksum.h> is what you really
+want.
 
-Kernel version and .config?
-Arrange klogd to be started with -x. Process oopses with ksymoops.
-Then contact VM people (listed in no particular order):
-
-William Irwin <wli@holomorphy.com> [02 jul 2002]
-	Send bug reports and/or feature requests related to many tasks,
-	rmap, space consumption, or allocators to me. I'm involved in
-	* rmap
-	* memory allocators
-	* reducing space consumed by data structures (e.g. struct page)
-	* issues arising in workloads with many tasks
-	* kernel janitoring
-	See also:
-	Rik van Riel <riel@surriel.com>
-	Andrea Arcangeli <andrea@suse.de>
-	Martin Bligh <Martin.Bligh@us.ibm.com>
-	Andrew Morton <akpm@digeo.com>
-
-Andrea Arcangeli <andrea@suse.de> [28 mar 2002]
-	Send VM related bug reports and patches to me.
-	I'm especially interested in VM issues with:
-	* lots of RAM and CPUs
-	* NUMA
-	* heavy swap scenarios
-	* performance of I/O intensive workloads (in particular
-	  with lots of async buffer flushing involved)
-	See also Martin J. Bligh <Martin.Bligh@us.ibm.com> entry
-	Mail also:
-	Arjan van de Ven <arjanv@redhat.com>
-
-Martin J. Bligh <Martin.Bligh@us.ibm.com> [28 mar 2002]
-	I'm interested in VM issues with lots (>4G for i386)
-	of RAM, lots of CPUs, NUMA
-
-Rik van Riel <riel@conectiva.com.br> [07 feb 2002]
-	Send me VM related stuff, please CC to linux-mm@kvack.org
+Rusty.
 --
-vda
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

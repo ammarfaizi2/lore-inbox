@@ -1,38 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264730AbTFQNrq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 09:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbTFQNrq
+	id S264731AbTFQNtx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 09:49:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264732AbTFQNtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 09:47:46 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:27659 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264730AbTFQNrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 09:47:40 -0400
-Subject: Re: gcc-3.2.2 miscompiles kernel 2.4.* O_DIRECT code ?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Alan Cox <alan@redhat.com>
-In-Reply-To: <20030617123745.GA5717@verdi.et.tudelft.nl>
-References: <20030617123745.GA5717@verdi.et.tudelft.nl>
-Content-Type: text/plain
-Message-Id: <1055858491.588.3.camel@teapot.felipe-alfaro.com>
+	Tue, 17 Jun 2003 09:49:52 -0400
+Received: from arm.t19.ds.pwr.wroc.pl ([156.17.236.105]:53261 "EHLO misie.k.pl")
+	by vger.kernel.org with ESMTP id S264731AbTFQNtp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 09:49:45 -0400
+Date: Tue, 17 Jun 2003 16:03:39 +0200
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.72: drivers/ide/legacy/pdc4030.c:843: error: `hwif' undeclared (first use in this function)
+Message-ID: <20030617140338.GA1575@arm.t19.ds.pwr.wroc.pl>
+References: <20030617121129.GA9606@arm.t19.ds.pwr.wroc.pl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 17 Jun 2003 16:01:32 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030617121129.GA9606@arm.t19.ds.pwr.wroc.pl>
+User-Agent: Mutt/1.4.1i
+X-URL: http://www.t17.ds.pwr.wroc.pl/~misiek/
+X-Operating-System: Linux dark 4.0.20 #119 wto cze 17 16:02:33 CEST 2003 i986 pld
+Organization: Self Organizing
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-17 at 14:37, Rob van Nieuwkerk wrote:
-> Hi,
+On/Dnia Tue, Jun 17, 2003 at 02:11:29PM +0200, Arkadiusz Miskiewicz wrote/napisa³(a)
 > 
-> I found out that O_DIRECT does not work correctly on 2.4 kernels
-> compiled with the RH gcc-3.2.2-5 on RH9.  It is working fine with
-> kernels compiled with the RH gcc-2.96-113 on RH 7.3.
+> While building 2.5.72 (+lsm patch):
+> 
+>  CC [M]  drivers/ide/legacy/pdc4030.o
+> drivers/ide/legacy/pdc4030.c: In function `promise_multwrite':
+> drivers/ide/legacy/pdc4030.c:617: warning: `return' with a value, in
+> function returning void
+> drivers/ide/legacy/pdc4030.c: In function `promise_write_pollfunc':
+> drivers/ide/legacy/pdc4030.c:627: warning: unused variable `rq'
+> drivers/ide/legacy/pdc4030.c: In function `promise_rw_disk':
+> drivers/ide/legacy/pdc4030.c:843: error: `hwif' undeclared (first use in
+> this function)
+> drivers/ide/legacy/pdc4030.c:843: error: (Each undeclared identifier is
+> reported only once
+> drivers/ide/legacy/pdc4030.c:843: error: for each function it appears
+> in.)
+> make[3]: *** [drivers/ide/legacy/pdc4030.o] B³±d 1
+> make[2]: *** [drivers/ide/legacy] B³±d 2
+> make[1]: *** [drivers/ide] B³±d 2
+> 
 
-Could you please try with gcc 3.3? I had similar problems when compiling
-2.5 kernels with gcc 3.2. Compiling them with gcc 3.3 or 2.96 fixed the
-problems.
+This seems be fix:
 
+--- linux-2.5.72/drivers/ide/legacy/pdc4030.c~	2003-06-17 06:20:02.000000000 +0200
++++ linux-2.5.72/drivers/ide/legacy/pdc4030.c	2003-06-17 16:00:05.000000000 +0200
+@@ -818,7 +818,8 @@
+ 	   Feature register.
+ 	   FIXME: Is promise_selectproc now redundant??
+ 	*/
+-	int drive_number = (HWIF(drive)->channel << 1) + drive->select.b.unit;
++    	ide_hwif_t *hwif	= HWIF(drive);
++	int drive_number	= (hwif->channel << 1) + drive->select.b.unit;
+ #ifdef CONFIG_IDE_TASKFILE_IO
+ 	struct hd_drive_task_hdr taskfile;
+ 	ide_task_t args;
+
+-- 
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekmatssedotpl AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux

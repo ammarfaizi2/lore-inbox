@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263160AbRFGVKU>; Thu, 7 Jun 2001 17:10:20 -0400
+	id <S263175AbRFGVLk>; Thu, 7 Jun 2001 17:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263173AbRFGVKK>; Thu, 7 Jun 2001 17:10:10 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:27632 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S263160AbRFGVKG>; Thu, 7 Jun 2001 17:10:06 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200106072109.f57L9FeW005798@webber.adilger.int>
-Subject: Re: Background scanning change on 2.4.6-pre1
-In-Reply-To: <Pine.LNX.4.21.0106071545520.1156-100000@freak.distro.conectiva>
- "from Marcelo Tosatti at Jun 7, 2001 03:50:31 pm"
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Date: Thu, 7 Jun 2001 15:09:15 -0600 (MDT)
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S263173AbRFGVLb>; Thu, 7 Jun 2001 17:11:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:52498 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263189AbRFGVLU>; Thu, 7 Jun 2001 17:11:20 -0400
+Date: Thu, 7 Jun 2001 16:36:05 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VM suggestion...
+In-Reply-To: <3B1FEB7E.D06B10A2@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0106071631150.1156-100000@freak.distro.conectiva>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcello writes:
-> Who did this change to refill_inactive_scan() in 2.4.6-pre1 ? 
+
+
+On Thu, 7 Jun 2001, Jeff Garzik wrote:
+
+> While you guys are in there hacking, perhaps consider adding metrics
+> which allows you to tell exactly when certain cases and conditions are
+> hit.
+> 	page_aged_while_sleeping_in_page_lauder++
 > 
->         /*
->          * When we are background aging, we try to increase the page aging
->          * information in the system.
->          */
->         if (!target)
->                 maxscan = nr_active_pages >> 4;
+> Statistics like this are cheap to use in runtime and should provide
+> concrete information rather than guesses and estimations...
 
-A quick check in the l-k archives shows this was Zlatko Calusic
-<zlatko.calusic@iskon.hr> who submitted the patch.  See
+I've been using LTT (Linux Trace Toolkit) to do similar stuff. 
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99151955000988&w=4
+The problem is that we _cannot_ base ourselves simply on practical results
+from a _limited_ amount of workloads. Also remember the tests we (at least
+I do) are benchmarks which try to use all resources all the time upon
+completion.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+
+

@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262969AbTC0Out>; Thu, 27 Mar 2003 09:50:49 -0500
+	id <S262993AbTC0Ozs>; Thu, 27 Mar 2003 09:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262993AbTC0Out>; Thu, 27 Mar 2003 09:50:49 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:61923 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262969AbTC0Ous>;
-	Thu, 27 Mar 2003 09:50:48 -0500
-Date: Thu, 27 Mar 2003 06:59:11 -0800 (PST)
-Message-Id: <20030327.065911.29350824.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org
-Subject: Re: Obsolete messages ...
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1048776371.2606.60.camel@dhcp22.swansea.linux.org.uk>
-References: <Pine.LNX.4.50.0303261857290.970-100000@blue1.dev.mcafeelabs.com>
-	<1048774874.19677.0.camel@rth.ninka.net>
-	<1048776371.2606.60.camel@dhcp22.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262996AbTC0Ozr>; Thu, 27 Mar 2003 09:55:47 -0500
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:15750 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262993AbTC0Ozq>;
+	Thu, 27 Mar 2003 09:55:46 -0500
+Date: Thu, 27 Mar 2003 10:06:59 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: zlib in the kernel?
+Message-ID: <20030327150659.GC802@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="V88s5gaDVPzZ0KCq"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 27 Mar 2003 14:46:11 +0000
 
-   In which case they would benefit from net/shut_up sysctl. In lots of
-   environments they will just be a pain
-   
-Keep in mind we have these kinds of messages in 2.4.x right this
-very moment, and nobody complains about them nor asks for sysctls
-to shut them off.
+--V88s5gaDVPzZ0KCq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-See net/socket.c:sock_create() for example.
 
-Now, I'll all for netratelimit()'ing the networking ones.
+
+Anyone have a good breakdown on what this is?  I have some wild theories
+I'm hoping are right but don't need to start another day looking like an
+idiot guessing blindly.
+
+The Help section is empty and I'm not finding anything on kernel.org
+(may have overlooked something, the site is slow for me today)..
+
+Robert
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | PGP Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--V88s5gaDVPzZ0KCq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+gxOT8+1vMONE2jsRAnfFAJ9Rw1AHtIJJUvQWR8BbhaBTzUSSNgCgzHil
+9IPlbb/u+60EBvNlNbnZWdk=
+=cQMg
+-----END PGP SIGNATURE-----
+
+--V88s5gaDVPzZ0KCq--

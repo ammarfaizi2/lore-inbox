@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265640AbUATR47 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 12:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUATR47
+	id S265621AbUATSHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 13:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265622AbUATSHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 12:56:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10454 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265640AbUATR44 (ORCPT
+	Tue, 20 Jan 2004 13:07:42 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:31751 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265621AbUATSHj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 12:56:56 -0500
-Date: Tue, 20 Jan 2004 09:56:41 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries.Brouwer@cwi.nl
-cc: der.eremit@email.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix for ide-scsi crash
-In-Reply-To: <UTC200401200944.i0K9iRE25868.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0401200953470.2123@home.osdl.org>
-References: <UTC200401200944.i0K9iRE25868.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jan 2004 13:07:39 -0500
+Date: Tue, 20 Jan 2004 19:11:08 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] -mm5 has no i2c on amd64
+Message-ID: <20040120181108.GC12912@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
+References: <20040120124626.GA20023@bytesex.org> <20040120091035.0fb7b3ee.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040120091035.0fb7b3ee.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 20 Jan 2004 Andries.Brouwer@cwi.nl wrote:
+On Tue, Jan 20, 2004 at 09:10:35AM -0800, Andrew Morton wrote:
+> >   Hi,
+> > 
+> > trivial fix ...
+> > 
+> >   Gerd
+> > 
+> > ==============================[ cut here ]==============================
+> > --- linux-mm5-2.6.1/arch/x86_64/Kconfig.i2c	2004-01-20 13:14:42.000000000 +0100
+> > +++ linux-mm5-2.6.1/arch/x86_64/Kconfig	2004-01-20 13:15:10.000000000 +0100
+> > @@ -429,6 +429,8 @@
+> >  
+> >  source "drivers/char/Kconfig"
+> >  
+> > +source "drivers/i2c/Kconfig"
+> > +
+> >  source "drivers/misc/Kconfig"
+> >  
 > 
->     If Andries wants to
->     re-send the whitespace fixes, I can apply those too, but I hate applying 
->     patches like this where the whitespace fixes hide the real fix.
+> Ah-hah!  That's why the ppc64 kbuild system is whining about undefined but
+> used i2c symbols:
 > 
-> Yes, it seems we presently have no good mechanism / policy here.
-> Patches are noise. If some kernel version works and another doesnt,
-> one has to look at the diffs. Whitespace-only diffs are bad,
-> I would never submit them. They also needlessly invalidate existing patches.
+> drivers/ieee1394/Kconfig:60:warning: enable is only allowed with boolean and tristate symbols
+> drivers/media/video/Kconfig:13:warning: enable is only allowed with boolean and tristate symbols
+> 
+> So this change needs to be propagated to other architectures as well.
 
-Whitespace-only diffs can be very useful. In particular, they are common 
-when somebody starts working on a piece of code without a maintainer, and 
-the old code was terminally broken wrt whitespace. Happens quite often in 
-the driver world.
+The better approach is to use the generic drivers/Kconfig,
+as used by i386, parisc and cris today.
 
-So I don't have any real issues with applying whitespace-only patches, and 
-I much prefer them to patches that mix whitespace and bugfixes. In 
-particular, if the whitespace fixes are preparation for some other 
-cleanup, it's usually a good idea.
-
-(I agree that if the whitespace fix is just random, it's usually not worth 
-it).
-
-		Linus
+	Sam

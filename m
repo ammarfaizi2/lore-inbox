@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTIXNYn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 09:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbTIXNYn
+	id S261364AbTIXNw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 09:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTIXNw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 09:24:43 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:40690 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261352AbTIXNYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 09:24:41 -0400
-X-KENId: 00001511KEN019B37E1
-X-KENRelayed: 00001511KEN019B37E1@PCDR800
-Date: Wed, 24 Sep 2003 15:18:13 +0200
-From: "Christoph Baumann" <cb@sorcus.com>
-Subject: mysterious prblem with IO memory
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "Christoph Baumann" <cb@sorcus.com>
-Message-Id: <004b01c3829e$4fe29980$2265a8c0@dirtyentw>
-Mime-Version: 1.0
-Content-Type: text/plain;
-   charset="iso-8859-1"
-X-Priority: 3
-Organization: SORCUS Computer GmbH
-Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 24 Sep 2003 09:52:29 -0400
+Received: from mail-14.iinet.net.au ([203.59.3.46]:47046 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261364AbTIXNw2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Sep 2003 09:52:28 -0400
+Date: Wed, 24 Sep 2003 21:38:16 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Maneesh Soni <maneesh@in.ibm.com>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH] autofs4 deadlock during expire - kernel 2.6
+In-Reply-To: <1064408962.5074.2.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.44.0309242136080.6713-100000@raven.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 24 Sep 2003, Arjan van de Ven wrote:
 
-developing a driver (currently with a vanilla 2.4.20 kernel) for a PCI
-card i encountered a mysterious behaviour. I get the IO addresses from
-the card configuration space and use ioremap_nocache to get virtual
-addresses for usage with write[bwl]. This works to some extend (the card
-behaves as expected). But then at some random moment i get error
-messages about dereferencing a NULL pointer and severe crashes
-afterwards. When i put a printk("%p\n",address) before each write[bwl]
-everything is fine (appart from lots of log entries). I also tried wmb()
-after the write commands which didn't help. Any idea?
+> On Wed, 2003-09-24 at 15:01, Ian Kent wrote:
+> > This is a corrected patch for the autofs4 daedlock problem I posted about 
+> > @@ -206,6 +207,11 @@
+> >  
+> >  		interruptible_sleep_on(&wq->queue);
+> >  
+> > +		if (waitqueue_active(&wq->queue) && current != wq->owner) {
+> > +			set_current_state(TASK_INTERRUPTIBLE);
+> > +			schedule_timeout(wq->wait_ctr * (HZ/10));
+> > +		}
+> > +
+> 
+> this really really looks like you're trying to pamper over a bug by
+> changing the timing somewhere instead of fixing it...
 
-Mit freundlichen Gruessen / Best regards
-Dipl.-Phys. Christoph Baumann
----
-SORCUS Computer GmbH
-Im Breitspiel 11 c
-D-69126 Heidelberg
+Agreed.
 
-Tel.: +49(0)6221/3206-0
-Fax: +49(0)6221/3206-66
+> 
+> also are you sure the deadlock isn't because of the racey use of
+> interruptible_sleep_on ?
+> 
+
+OK so maybe I should have suggestions instead of comments.
+
+Please elaborate.
+
+-- 
+
+   ,-._|\    Ian Kent
+  /      \   Perth, Western Australia
+  *_.--._/   E-mail: raven@themaw.net
+        v    Web: http://themaw.net/
 

@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316519AbSHOD0W>; Wed, 14 Aug 2002 23:26:22 -0400
+	id <S316535AbSHODcT>; Wed, 14 Aug 2002 23:32:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316535AbSHOD0W>; Wed, 14 Aug 2002 23:26:22 -0400
-Received: from otter.mbay.net ([206.55.237.2]:4623 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S316519AbSHOD0V> convert rfc822-to-8bit;
-	Wed, 14 Aug 2002 23:26:21 -0400
-From: John Alvord <jalvo@mbay.net>
-To: Greg Banks <gnb@alphalink.com.au>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-Date: Wed, 14 Aug 2002 20:30:09 -0700
-Message-ID: <as7mlucq38obgsecg8kbh3vqjqiiic35bl@4ax.com>
-References: <Pine.LNX.4.44.0208141242280.8911-100000@serv> <3D5B0970.13CE831A@alphalink.com.au>
-In-Reply-To: <3D5B0970.13CE831A@alphalink.com.au>
-X-Mailer: Forte Agent 1.92/32.570
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id <S316538AbSHODcT>; Wed, 14 Aug 2002 23:32:19 -0400
+Received: from 209-221-203-149.dsl.qnet.com ([209.221.203.149]:33807 "HELO
+	divino.rinspin.com") by vger.kernel.org with SMTP
+	id <S316535AbSHODcT>; Wed, 14 Aug 2002 23:32:19 -0400
+Subject: Re: smp_num_cpus undeclared workaround
+From: Scott Bronson <bronson@rinspin.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L.0208142155190.23404-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0208142155190.23404-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 14 Aug 2002 20:35:03 -0700
+Message-Id: <1029382505.20412.96.camel@emma>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Aug 2002 11:52:48 +1000, Greg Banks <gnb@alphalink.com.au>
-wrote:
+On Wed, 2002-08-14 at 17:55, Rik van Riel wrote:
+> Looks like Evolution is Darwinian, after all ;)
 
->Roman Zippel wrote:
->> 
->> Hi,
->> 
->> On Tue, 13 Aug 2002, Peter Samuelson wrote:
->> 
->> > Mutating the language, long-term, so that it looks less like sh [...]
->> 
->> That doesn't solve any of the more fundamental problems.
->
->Correct, it doesn't.
->
->> 1) We still have 3 config parsers, which produce slightly different
->> .config files.
->
->Yes.
->
->> 2) To integrate a new driver, you have to touch at least 3 files:
->> Config.in, Config.help, Makefile. Properly configuring and building a
->> driver outside of the tree is painful to impossible.
->
->Yes.
->
->> The problems are really not simple, the current config language is very
->> limited, [...]
->
->I don't think anyone who actually understands the config system would
->argue these points, but we are limited by practical constraints to making
->incremental improvements only.
+Unfortunately for me, yes.  PEBKAC: I needed to use "Save as Draft," not
+"Send Later."
 
-I've been puzzling about this problem and the CML2 trainwreck.
+And, now, this 100% reproducible link error is not reproducing for me. 
+I thought I had it.  Bah!  Well, I'll continue to keep an eye out for
+it.
 
-Maybe we can used advanced tools to remove the many bugs and
-inconsistancies and then switch to a better config tool. That way the
-rulebase will be (almost) identical when the config process changes.
+    - Scott
 
-john alvord
+
+

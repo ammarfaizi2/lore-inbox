@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265151AbUGHWk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUGHWl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbUGHWk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 18:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265163AbUGHWk2
+	id S265195AbUGHWl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 18:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUGHWlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 18:40:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25832 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265151AbUGHWk2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 18:40:28 -0400
-Date: Thu, 8 Jul 2004 15:43:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: evil@g-house.de, drightler@technicalogic.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7 "Unable to handle kernel paging request" plus kobject_get
- badness
-Message-Id: <20040708154328.557bb2d5.akpm@osdl.org>
-In-Reply-To: <20040708150223.2fa765bf.rddunlap@osdl.org>
-References: <004101c462c8$b870fbd0$0200000a@darkomen.lan>
-	<40EDC3C3.40302@g-house.de>
-	<20040708150223.2fa765bf.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 8 Jul 2004 18:41:55 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:20899 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S265195AbUGHWlq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 18:41:46 -0400
+Subject: Re: GCC 3.4 and broken inlining.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040708222511.GL28324@fs.tum.de>
+References: <1089287198.3988.18.camel@nigel-laptop.wpcb.org.au>
+	 <20040708120719.GS21264@devserv.devel.redhat.com>
+	 <20040708205225.GI28324@fs.tum.de>
+	 <20040708210925.GA13908@devserv.devel.redhat.com>
+	 <1089324501.3098.9.camel@nigel-laptop.wpcb.org.au>
+	 <20040708222511.GL28324@fs.tum.de>
+Content-Type: text/plain
+Message-Id: <1089326266.3276.15.camel@nigel-laptop.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 09 Jul 2004 08:37:46 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
-> Andrew, do you recognize this Oops?
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=108905677320691&w=2
+Hi.
 
-Nope.  Looks like the IDE I/O error triggered some bug in JBD.
+On Fri, 2004-07-09 at 08:25, Adrian Bunk wrote:
+> I'm currently working on fixing the compile errors and I plan to send 
+> some fixes later.
+
+Great! Thanks!
+
+Nigel
+
+

@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTEINTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 09:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTEINTP
+	id S263245AbTEINSh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 09:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbTEINSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 09:19:15 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:1038 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263246AbTEINTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 09:19:13 -0400
-Date: Fri, 9 May 2003 14:31:47 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, arjanv@redhat.com,
-       viro@parcelfarce.linux.theplanet.co.uk, drepper@redhat.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] New authentication management syscalls
-Message-ID: <20030509143147.A23197@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David Howells <dhowells@redhat.com>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>, arjanv@redhat.com,
-	viro@parcelfarce.linux.theplanet.co.uk, drepper@redhat.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <11183.1052485877@warthog.warthog>
+	Fri, 9 May 2003 09:18:37 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:56330 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263245AbTEINSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 09:18:36 -0400
+Date: Fri, 9 May 2003 15:27:57 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Willy Tarreau <willy@w.ods.org>, gibbs@scsiguy.com,
+       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Undo aic7xxx changes
+Message-ID: <20030509132757.GA16649@alpha.home.local>
+References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <11183.1052485877@warthog.warthog>; from dhowells@redhat.com on Fri, May 09, 2003 at 02:11:17PM +0100
+In-Reply-To: <20030509150207.3ff9cd64.skraw@ithnet.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 02:11:17PM +0100, David Howells wrote:
->  (3) settok(const char *fs, const char *key, size_t size, const void *data)
+On Fri, May 09, 2003 at 03:02:07PM +0200, Stephan von Krawczynski wrote:
+ 
+> I cannot say which version of the driver it was, the only thing I can tell you
+> is that the archive was called aic79xx-linux-2.4-20030410-tar.gz.
 
-fs is the path to a mount point?
+That's really interesting, because I got the bug since around this version
+(20030417 IIRC), and it locked up only on SMP, sometimes during boot, or
+during heavy disk accesses caused by "updatedb" and "make -j dep". It's
+fixed in 20030502 from http://people.freebsd.org/~gibbs/linux/SRC/
 
->      Present data to the named filesystem as being the authentication token
->      for the specified key (eg: an AFS cell). If accepted, this token should
->      be stored in the PAG to which the calling process belongs.
+> I can't tell, basic problem in my setup is that it seems virtually impossible
+> to bring some 100GB of data onto a streamer connected to the above aic. It
+> crashes almost every day with a freeze and no oops or other message.
 
-s/filesystem/mount instance/
+I had the same symptom which is very frustrating, I agree. I even had
+difficulties to catch the NMI watchdog output which was often truncated.
 
-> 
-> 	struct file_system_type {
-> 	        ...
-> 		int settok(struct file_system_type *fstype,
-> 			   const char *domain,
-> 			   size_t size,
-> 			   const void *data);
-> 	};
+> I am at the moment willing to await 2.4.21 and see, and if that does not solve it,
 
-This should go into super_operations instead.
+Well, would you at least agree to retest current version from the above URL ?
+I find it a bit of a shame that the driver goes back in -rc stage.
+
+Marcelo, do you have some information about the setup from the people who reported
+hangs to you ? Perhaps we could even ask them to confirm that Justin's updated
+driver fixes their problems ?
+
+> This is a system in production and not particularly useful for debugging a lot
+> and correspoding downtime.
+
+I certainly can understand ;-)
+
+Regards,
+Willy
 

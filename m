@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266865AbSLKATw>; Tue, 10 Dec 2002 19:19:52 -0500
+	id <S266868AbSLKAT4>; Tue, 10 Dec 2002 19:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266868AbSLKATw>; Tue, 10 Dec 2002 19:19:52 -0500
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:520 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S266865AbSLKATv>; Tue, 10 Dec 2002 19:19:51 -0500
-X-Envelope-From: roubm9am@barbora.ms.mff.cuni.cz
-Message-ID: <039d01c2a0ab$b19a5ad0$551b71c3@krlis>
-From: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Petr Sebor" <petr@scssoft.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <068d01c29d97$f8b92160$551b71c3@krlis><1039312135.27904.11.camel@irongate.swansea.linux.org.uk><20021208234102.GA8293@scssoft.com>  <021401c2a05d$f1c72c80$551b71c3@krlis> <1039540202.14251.43.camel@irongate.swansea.linux.org.uk>
-Subject: Re: IDE feature request & problem
-Date: Wed, 11 Dec 2002 01:24:29 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
+	id <S266886AbSLKAT4>; Tue, 10 Dec 2002 19:19:56 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:28609
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266868AbSLKATz>; Tue, 10 Dec 2002 19:19:55 -0500
+Subject: Re: 2.5.51 don't compil with dvb
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: greg@ulima.unil.ch,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-dvb@linuxtv.org
+In-Reply-To: <20021211105343.4385029a.rusty@rustcorp.com.au>
+References: <20021210150748.GB20411@ulima.unil.ch>
+	<1039536315.14175.2.camel@irongate.swansea.linux.org.uk> 
+	<20021211105343.4385029a.rusty@rustcorp.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 01:04:40 +0000
+Message-Id: <1039568680.15174.103.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
-I have got xfs partition and man fsck.xfs say
-that it will run automatically on reboot.
-I don't know where to find any results of the
-test, because in syslog is only
-SGI XFS with ACLs, DMAPI, realtime, quota, no debug enabled
-XFS mounting filesystem md(9,0)
-    Thanx for help
-    Milan
------ Original Message -----
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Milan Roubal" <roubm9am@barbora.ms.mff.cuni.cz>
-Cc: "Petr Sebor" <petr@scssoft.com>; "Linux Kernel Mailing List"
-<linux-kernel@vger.kernel.org>
-Sent: Tuesday, December 10, 2002 6:10 PM
-Subject: Re: IDE feature request & problem
+On Tue, 2002-12-10 at 23:53, Rusty Russell wrote:
+> On 10 Dec 2002 16:05:15 +0000
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> 
+> > On Tue, 2002-12-10 at 15:07, Gregoire Favre wrote:
+> > > drivers/built-in.o(.text+0x38655): In function `try_attach_device':
+> > > : undefined reference to `MOD_CAN_QUERY'
+> > > make: *** [vmlinux] Error 1
+> > > 
+> > 
+> > Modules are still very broken in 2.5.51, its best to compile a system
+> > which doesn't use modules or stay at an older kernel
+> 
+> That may be true, but in this case, it's the only occurrance of MOD_CAN_QUERY
+> outside the archs which haven't been updated to the new module loader yet,
+> and it's a very odd thing to do.
+> 
+> I assume the author meant this:
 
-
-> On Tue, 2002-12-10 at 15:07, Milan Roubal wrote:
-> > DriveStatusError UncorrectableError SectorIdNotFound TrackZeroNotFound
-> > AddrMarkNotFound }, LBAsect=8830595334015, high=526344, low=8355711,
-> > sector=196817664
->
-> Can you force an fsck of the volume firstly. AddrMark not found isnt too
-> nreasonable a compliant given the LBAsect in question
->
+That looks right to me yes
 

@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261572AbTCYHEp>; Tue, 25 Mar 2003 02:04:45 -0500
+	id <S261584AbTCYHKL>; Tue, 25 Mar 2003 02:10:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261578AbTCYHEp>; Tue, 25 Mar 2003 02:04:45 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:23176 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261572AbTCYHEo>; Tue, 25 Mar 2003 02:04:44 -0500
-Date: Tue, 25 Mar 2003 08:15:32 +0100
-From: Andi Kleen <ak@muc.de>
-To: ink@jurassic.park.msu.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: cacheline size detection code in 2.5.66
-Message-ID: <20030325071532.GA19217@averell>
+	id <S261595AbTCYHKL>; Tue, 25 Mar 2003 02:10:11 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:33970 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S261584AbTCYHKJ>; Tue, 25 Mar 2003 02:10:09 -0500
+Date: Tue, 25 Mar 2003 18:22:30 +1100
+From: CaT <cat@zip.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.66
+Message-ID: <20030325072230.GA496@zip.com.au>
+References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com> <20030325012252.7aafee8c.us15@os.inf.tu-dresden.de> <20030325003048.GC10505@kroah.com> <20030325041802.GA535@zip.com.au> <20030325043454.GJ11874@kroah.com> <20030325055613.GB464@zip.com.au> <20030325065125.GA12590@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030325065125.GA12590@kroah.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 24, 2003 at 10:51:25PM -0800, Greg KH wrote:
+> On Tue, Mar 25, 2003 at 04:56:13PM +1100, CaT wrote:
+> > > You will need the last one, I've attached it here.  Let me know if it
+> > > fixes this or not.
+> > 
+> > I grabbed the entire patchset you posted for 2.5.66 and applied. Booted
+> > without oops. Me happy. :)
+> 
+> Nice, thanks for testing, I really appreciate it.
 
-Hi,
+No worries. Glad to help. :)
 
-You added this code in 2.5.66: 
+One point of note though. Should this be happening?
 
-+       /*
-+        * Assume PCI cacheline size of 32 bytes for all x86s except K7/K8
-+        * and P4. It's also good for 386/486s (which actually have 16)
-+        * as quite a few PCI devices do not support smaller values.
-+        */
-+        pci_cache_line_size = 32 >> 2;
-+       if (c->x86 >= 6 && c->x86_vendor == X86_VENDOR_AMD)
-+               pci_cache_line_size = 64 >> 2;  /* K7 & K8 */
-+       else if (c->x86 > 6)
-+               pci_cache_line_size = 128 >> 2; /* P4 */
+i2c-dev.o: i2c /dev entries driver module version 2.7.0 (20021208)
+i2c-proc.o version 2.7.0 (20021208)
+i2c-piix4 version 2.7.0 (20021208)
+piix4 smbus 00:07.3: Found Intel Corp. 82371AB/EB/MB PIIX4  device
+i2c i2c-0: Error: no response!
+i2c i2c-0: Error: no response!
+i2c i2c-0: Error: no response!
+i2c i2c-0: Error: no response!
+i2c i2c-0: Error: no response!
+i2c i2c-0: Error: no response!
+i2c i2c-0: Error: no response!
+registering i2c_dev_0
+i2c i2c-0: Error: no response!
 
-This will be wrong on Pentium M for example which has a 32byte cache
-line but x86 model 9. But it's actually not needed, because all the 
-new CPUs report their cacheline size as part of CPUID for CLFLUSH.
+I only have the following compiled in:
 
-When the CPU supports CLFLUSH you can just extract it from 
-the second byte in the second word reported by CPUID 1.
-With that just use what the CPU tells you. This should also
-work correctly on VIA etc which afaik support CLFLUSH 
-in the newer CPUs.
+# I2C support
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_PROC=y
+CONFIG_I2C_PIIX4=y
+CONFIG_SENSORS_ADM1021=y
 
-The x86-64 port extract it like this in setup.c:
-	if (c->x86_capability[0] & (1<<19)) 
-       		c->x86_clflush_size = ((misc >> 8) & 0xff) * 8;
-	}. 
-I changed its pci code to use that directly now. i386 likely
-should too. When no CLFLUSH is supported you can safely assume 32byte
-cachelines.
+I trimmed things down to this through testing (I compiled in many
+options and then left only the ones that appeared in
+/proc/sys/dev/sensors)
 
--Andi
-
-	
-
-
-
+-- 
+"Other countries of course, bear the same risk. But there's no doubt his
+hatred is mainly directed at us. After all this is the guy who tried to
+kill my dad."
+        - George W. Bush Jr, Leader of the United States Regime
+          September 26, 2002 (from a political fundraiser in Houston, Texas)

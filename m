@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUI2QFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268682AbUI2QGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbUI2QFz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 12:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbUI2QFz
+	id S268682AbUI2QGu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 12:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268686AbUI2QGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 12:05:55 -0400
-Received: from [195.167.234.212] ([195.167.234.212]:33202 "EHLO atchik.com")
-	by vger.kernel.org with ESMTP id S268682AbUI2QFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 12:05:49 -0400
-Date: Wed, 29 Sep 2004 18:05:30 +0200
-From: Colin Leroy <colin@colino.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add polling support to Sungem
-Message-ID: <20040929180530.164d05cd@pirandello>
-In-Reply-To: <415ADC31.7080902@pobox.com>
-References: <20040929145721.6a489ed8@pirandello>
-	<415ADC31.7080902@pobox.com>
-X-Mailer: Sylpheed-Claws 0.9.12cvs110.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
-X-Face: Fy:*XpRna1/tz}cJ@O'0^:qYs:8b[Rg`*8,+o^[fI?<%5LeB,Xz8ZJK[r7V0hBs8G)*&C+XA0qHoR=LoTohe@7X5K$A-@cN6n~~J/]+{[)E4h'lK$13WQf$.R+Pi;E09tk&{t|;~dakRD%CLHrk6m!?gA,5|Sb=fJ=>[9#n1Bu8?VngkVM4{'^'V_qgdA.8yn3)
+	Wed, 29 Sep 2004 12:06:45 -0400
+Received: from zmamail04.zma.compaq.com ([161.114.64.104]:51725 "EHLO
+	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
+	id S268682AbUI2QGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 12:06:40 -0400
+Date: Wed, 29 Sep 2004 11:06:12 -0500
+From: mike.miller@hp.com
+To: axboe@suse.de, marcelo.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: cciss typo fix fix 2.4.28-pre3
+Message-ID: <20040929160612.GA22308@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net, mike.miller@hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Atchik-MailScanner-Information: Please contact the ISP for more information
-X-Atchik-MailScanner: Found to be clean
-X-MailScanner-From: colin@colino.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Sep 2004 at 12h09, Jeff Garzik wrote:
+This patch fixes a typo of a varaible name in the 32-bit to 64-bit
+conversions. Please consider this for inclusion.
 
-Hi, 
+Thanks,
+mikem
+-------------------------------------------------------------------------------
 
-> Check BK snapshots, this support is already in sungem.
-
-huh, too late. Thanks :)
-
--- 
-Colin
+diff -burNp lx2428-pre3/drivers/block/cciss.c lx2428-pre3-p001/drivers/block/cciss.c
+--- lx2428-pre3/drivers/block/cciss.c	2004-09-21 14:29:46.000000000 -0500
++++ lx2428-pre3-p001/drivers/block/cciss.c	2004-09-29 10:56:40.234721928 -0500
+@@ -535,7 +535,7 @@ static int cciss_ioctl32_passthru(unsign
+ static int cciss_ioctl32_big_passthru(unsigned int fd, unsigned cmd, unsigned long arg, 
+ 	struct file *file);
+ 
+-typedef long (*handler type) (unsigned int, unsigned int, unsigned long,
++typedef long (*handler_type) (unsigned int, unsigned int, unsigned long,
+ 				struct file *);
+ 
+ static struct ioctl32_map {

@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUHFOww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265993AbUHFOzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268072AbUHFOww (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268075AbUHFOww
+	id S265993AbUHFOzx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268064AbUHFOzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:52:52 -0400
-Received: from c3-1d224.neo.lrun.com ([24.93.233.224]:131 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S268072AbUHFOwm (ORCPT
+	Fri, 6 Aug 2004 10:55:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:50124 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265993AbUHFOz2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:52:42 -0400
-Date: Fri, 6 Aug 2004 10:44:33 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux@dominikbrodowski.de, akpm@osdl.org, rml@ximian.com,
-       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: Re: [PATCH] pcmcia driver model support [4/5]
-Message-ID: <20040806104433.GH11641@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de,
-	akpm@osdl.org, rml@ximian.com, linux-kernel@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org
-References: <20040805222820.GE11641@neo.rr.com> <20040806114320.A13653@flint.arm.linux.org.uk> <20040806103538.GG11641@neo.rr.com>
+	Fri, 6 Aug 2004 10:55:28 -0400
+Date: Fri, 6 Aug 2004 07:54:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Blueman <daniel.blueman@gmx.net>
+Cc: linux-ia64@vger.kernel.org, davidm@napali.hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.7, ia64] continual memory leak at ~102kB/s...
+Message-ID: <20040806145451.GI17188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Blueman <daniel.blueman@gmx.net>, linux-ia64@vger.kernel.org,
+	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+References: <20029.1091803458@www55.gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040806103538.GG11641@neo.rr.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20029.1091803458@www55.gmx.net>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 10:35:38AM +0000, Adam Belay wrote:
-> On Fri, Aug 06, 2004 at 11:43:20AM +0100, Russell King wrote:
-> > On Thu, Aug 05, 2004 at 10:28:20PM +0000, Adam Belay wrote:
-> > > It is not safe to use the skt_sem in pcmcia_validate_mem.  This patch
-> > > fixes a real world bug, and without it many systems will fail to shutdown
-> > > properly.
-> > 
-> > However, we need to take this semaphore here to prevent the socket state
-> > changing.  It sounds from your description that we're hitting yet another
-> > stupid recursion bug in PCMCIA...
-> 
-> It's worth noting that we don't hold skt_sem in pcmcia_get_first_tuple (and
-> possibly others), but we probably should be.  This may have been to prevent
-> recursion bugs.
-> 
-> > 
-> > It sounds like we shouldn't be holding skt_sem when we wait for userspace
-> > to reply to the ejection request.
-> 
-> The situation is rather complicated.  pcmcia_eject_card itself has to hold
-> skt_sem to ensure the socket state remains correct.  We could always release
-> the semaphore while sending the event, and then grab it again.  Of course we
-> would have to check if the socket is still present a second time in the same
-> function.  How does this look (untested)?
+On Fri, Aug 06, 2004 at 04:44:18PM +0200, Daniel Blueman wrote:
+> When running 2.6.7 on a generic ia64 system, I see memory being leaked in
+> the kernel. Most of the fancy (preempt, hot-plug procs, ...) features are
+> disabled, and the system in a quiescent state [1].
+> /proc/meminfo shows the memory as unaccounted for [2], so it seems likely it
+> has been kmalloc()d somehere. A small script shows memory disappearing at
+> 102kB/s [3].
+> Anyone else seen this on ia64?
 
-Sorry, the last patch was incorrect.
+Could you dump /proc/slabinfo?
 
---- a/drivers/pcmcia/cs.c	2004-08-05 21:28:48.000000000 +0000
-+++ b/drivers/pcmcia/cs.c	2004-08-06 10:42:34.000000000 +0000
-@@ -2056,9 +2056,14 @@
- 			break;
- 		}
- 
-+		up(&skt->skt_sem);
- 		ret = send_event(skt, CS_EVENT_EJECTION_REQUEST, CS_EVENT_PRI_LOW);
--		if (ret != 0) {
--			ret = -EINVAL;
-+		if (ret != 0)
-+			return -EINVAL;
-+		down(&skt->skt_sem);
-+
-+		if (!(skt->state & SOCKET_PRESENT)) {
-+			ret = -ENODEV;
- 			break;
- 		}
- 
+
+-- wli

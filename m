@@ -1,109 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270481AbTGSTsD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 15:48:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270502AbTGSTsC
+	id S270531AbTGSTwq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 15:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270533AbTGSTwq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 15:48:02 -0400
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:31507 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S270481AbTGSTr5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 15:47:57 -0400
-To: Larry McVoy <lm@work.bitmover.com>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Christian Reichert <c.reichert@resolution.de>,
-       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
-       linux-kernel@vger.kernel.org, rms@gnu.org, Valdis.Kletnieks@vt.edu
-Subject: Re: [OT] HURD vs Linux/HURD
-Mail-Copies-To: nobody
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk>
-	<1058626962.30424.6.camel@stargate>
-	<plopm3lluu8mv0.fsf@drizzt.kilobug.org>
-	<20030719172311.GA23246@work.bitmover.com>
-	<plopm3he5i8l4h.fsf@drizzt.kilobug.org>
-	<20030719181249.GA24197@work.bitmover.com>
-From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
-Organization: HurdFr - http://hurdfr.org
-X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-Date: Sat, 19 Jul 2003 22:05:12 +0200
-In-Reply-To: <20030719181249.GA24197@work.bitmover.com> (Larry McVoy's
- message of "Sat, 19 Jul 2003 11:12:49 -0700")
-Message-ID: <plopm38yqu8epz.fsf@drizzt.kilobug.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+	Sat, 19 Jul 2003 15:52:46 -0400
+Received: from zork.zork.net ([64.81.246.102]:47008 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S270531AbTGSTwg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 15:52:36 -0400
+To: Eric.VanBuggenhaut@AdValvas.be
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 fails at insmoding orinoco_cs
+References: <20030719195754.GA3687@eric.ath.cx>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Eric.VanBuggenhaut@AdValvas.be, linux-kernel@vger.kernel.org
+Date: Sat, 19 Jul 2003 21:07:21 +0100
+In-Reply-To: <20030719195754.GA3687@eric.ath.cx> (Eric Van Buggenhaut's
+ message of "Sat, 19 Jul 2003 21:57:54 +0200")
+Message-ID: <6uoezq8eme.fsf@zork.zork.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric Van Buggenhaut <ericvb@debian.org> writes:
 
- > On Sat, Jul 19, 2003 at 07:46:54PM +0200, Ga?l Le Mignot wrote:
- >> Hello Larry!
- >> 
- >> Sat, 19 Jul 2003 10:23:11 -0700, you wrote: 
- >> 
- >> >> - GNU/Hurd, the  whole systems, is  actually GNU tools  (libc, linker,
- >> >> ...)  on top  of the  GNU Hurd  (set of  servers) and  the  GNU Mach
- >> >> microkernel.
- >> 
- >> > Mach wasn't written by GNU, it's a BSD based kernel
- >> 
- >> Totally wrong. You're confusing the  Mach operating system (with UX, a
- >> BSD-server on top of the  Mach micro-kernel) and the Mach micro-kernel
- >> itself.
+> It's the same driver I used with 2.4.21 and it worked fine. Is this a
+> bug ? I'm not a kernel guru... If you need help to debug, lemme know.
 
- > The microkernel part of any reasonable microkernel is tiny.  The QNX 
- > microkernel used to fit in a 4K instruction cache.  To say that the
- > microkernel is the operating system is ludicrous, that's like say
- > this series of 5 instructions which happen to get run a lot are the
- > whole program.
+Happily using the version shipped with 2.6.0-test1 here.
 
-You completly missed the point.
+Jul 19 15:40:47 revox kernel: Linux Kernel Card Services 3.1.22
+Jul 19 15:40:47 revox kernel:   options:  [pci] [cardbus] [pm]
+Jul 19 15:40:47 revox kernel: PCI: Found IRQ 11 for device 0000:02:01.0
+Jul 19 15:40:47 revox kernel: PCI: Sharing IRQ 11 with 0000:02:01.1
+Jul 19 15:40:47 revox kernel: Yenta IRQ list 06b8, PCI irq11
+Jul 19 15:40:47 revox kernel: Socket status: 30000006
+Jul 19 15:40:47 revox kernel: PCI: Found IRQ 11 for device 0000:02:01.1
+Jul 19 15:40:47 revox kernel: PCI: Sharing IRQ 11 with 0000:02:01.0
+Jul 19 15:40:47 revox kernel: Yenta IRQ list 06b8, PCI irq11
+Jul 19 15:40:47 revox kernel: Socket status: 30000010
+Jul 19 15:40:48 revox cardmgr[396]: watching 2 sockets
+Jul 19 15:40:48 revox cardmgr[397]: starting, version is 3.2.2
+Jul 19 15:40:48 revox cardmgr[397]: socket 1: NetGear MA401RA
+Jul 19 15:40:48 revox kernel: cs: IO port probe 0x0c00-0x0cff: clean.
+Jul 19 15:40:48 revox kernel: cs: IO port probe 0x0800-0x08ff: excluding 0x800-0x817 0x828-0x837 0x
+840-0x857 0x860-0x877 0x880-0x88f 0x898-0x89f 0x8a8-0x8cf 0x8e0-0x8ff
+Jul 19 15:40:48 revox kernel: cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f 0x3c0-0x3df 0x
+4d0-0x4d7
+Jul 19 15:40:48 revox kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+Jul 19 15:40:48 revox kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean.
+Jul 19 15:40:48 revox cardmgr[397]: executing: 'modprobe orinoco_cs'
+Jul 19 15:40:48 revox kernel: orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and othe
+rs)
+Jul 19 15:40:48 revox kernel: orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and o
+thers)
+Jul 19 15:40:48 revox kernel: eth1: Station identity xxxx:xxxx:xxxx:xxxx
+Jul 19 15:40:48 revox kernel: eth1: Looks like an Intersil firmware version 1.3.6
+Jul 19 15:40:48 revox kernel: eth1: Ad-hoc demo mode supported
+Jul 19 15:40:48 revox kernel: eth1: IEEE standard IBSS ad-hoc mode supported
+Jul 19 15:40:48 revox kernel: eth1: WEP supported, 104-bit key
+Jul 19 15:40:48 revox kernel: eth1: MAC address xx:xx:xx:xx:xx:xx
+Jul 19 15:40:48 revox kernel: eth1: Station name "Prism  I"
+Jul 19 15:40:48 revox kernel: eth1: ready
+Jul 19 15:40:48 revox kernel: eth1: index 0x01: Vcc 5.0, irq 3, io 0x0100-0x013f
 
-The part  use by the  GNU Hurd is  only the Mach microkernel,  not the
-Mach operating system in a whole.
-
- >> > pried apart into chunks by people at CMU.
- >> 
- >> GNU Mach is  a modified version of OSF Mach  which is modified version
- >> of CMU Mach.
-
- > Whatever.  That's your label.  Personally, I despise this business of
- > taking someone else's code and renaming it.  It's not GNU code, the
- > GNU people didn't write it.
-
-We did  it with  the agreement  of the original  authors, and  then we
-changed it.   Should we call our  modified version with  the same name
-than the original one ? That would be bad, indeed !
-
- >> Maybe  for  you,  an  OS  is  drivers.  For  me,  it's  a  design,  an
- >> architecture, a  philosophy, and a way  to defend a value  that is not
- >> important for you: Freedom.
-
- > I've got a shelf of OS texts, probably close to 90% of all the OS texts
- > written and I don't recall any of them teaching that you should take other
- > people's code, rename it, and claim it as your own in the name of freedom.
-
-Stop lying. No one at the GNU project ever claimed a code to be his if
-he didn't  write it. Just look in  any header file, and  you'll se the
-copyright entries intact.  And we always say everywhere  that GNU Mach
-is a fork of OSF Mach.
-
- >> > If the Hurd gets its drivers from Linux then it should rightfully be called
- >> > Linux/HURD (or Linux/HURD/GNU).
- >> 
- >> Stop trolling, thank you.
-
- > Hey, you want to spout nonsense then be prepared to be challenged.  I'm
- > just responding to something that is obviously incorrect, that's not
- > trolling, that's setting the record straight.  
-
-You're just  writing a lot  of incorrect statements,  insulting people
-(yes, you're  calling the GNU  project "thieves"), and  not correcting
-anything, since you just answer completly outside the subject.
-
--- 
-Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-
-Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org

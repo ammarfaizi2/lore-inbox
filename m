@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265484AbSKOAjy>; Thu, 14 Nov 2002 19:39:54 -0500
+	id <S265409AbSKOAdb>; Thu, 14 Nov 2002 19:33:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265477AbSKOAjy>; Thu, 14 Nov 2002 19:39:54 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4360 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265484AbSKOAjv>; Thu, 14 Nov 2002 19:39:51 -0500
-Date: Thu, 14 Nov 2002 19:31:24 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       Nicolas Pitre <nico@cam.org>, Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-In-Reply-To: <20021114174246.GB10723@mars.ravnborg.org>
-Message-ID: <Pine.LNX.3.96.1021114192150.5672C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265402AbSKOAda>; Thu, 14 Nov 2002 19:33:30 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:27823 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S265380AbSKOAd3>;
+	Thu, 14 Nov 2002 19:33:29 -0500
+Date: Thu, 14 Nov 2002 13:31:54 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove hugetlb syscalls
+Message-ID: <20021114213154.GN23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Benjamin LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@digeo.com>,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20021113184555.B10889@redhat.com> <20021114203035.GF22031@holomorphy.com> <20021114154809.D20258@redhat.com> <20021114210220.GM23425@holomorphy.com> <20021114161134.E20258@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021114161134.E20258@redhat.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Nov 2002, Sam Ravnborg wrote:
+On Thu, Nov 14, 2002 at 04:11:34PM -0500, Benjamin LaHaise wrote:
+> Oracle does not run as root, so they can't even use the syscalls 
+> directly.  At least with hugetlbfs we can chmod the filesystem to be 
+> owned by the oracle user.
 
-> In other words a more powerfull clean compared to today.
-> The difference between clean and mrproper is then _only_ the configuration
-> files. That easy to explain, and thats easy to understand. Today only
-> very few people know the difference, and simply save their config,
-> and do make mrproper.
-> 
-> I have many times seen people do something like:
-> cp .config xxx
-> make mrproper
-> mv xxx .config
-> 
-> No need for that, when make clean deletes enough.
+Okay, the advantage with respect to permissions is clear; now there is
+a correction to the permissions checking I should do, as CAP_IPC_LOCK
+is currently checked in ->f_ops->mmap(), but the permissions are
+enforcible by means of ordinary vfs permissions, and so it's redundant.
 
-Unless you want to make a distribution, or see that a distribution made
-from your patched kernel would build.
- 
-> Only caveat is that people are forced to wait for the modversion stuff,
 
-I get "nothing to be done" for make dep after make distclean.
-
-> but to my understanding Rusty is making that step obsolete soon.
-
-I hope he isn't wasting his time on stuff like this when modules don't
-work! I have more faith in his sense of priorities.
-
-> Did I miss something obvious?
-
-Possibly. Try this:
-1 - unpack a kernel from the full tarball
-2 - config
-3 - make all
-4 - make distclean
-Now all the files left which weren't in the original tarball shouldn't be
-in a tree someone might tar up and ship! Look at what make distclean used
-to do beyond mrproper in 2.5.41 or so, that's what should be happening.
-
-I don't see why you ever thought it was a good idea to change this,
-distclean is that standard target used by many other things. And perhaps
-mrproper shouldn't bother to clean up all the leftovers, patch backups,
-they are documentation.
-
-I believe you went into this not understanding the difference and why
-there was one, and now you are defending how good it is not to have a way
-to get a clean tree other than write a script which does what distclean
-used to do. And the solution is not to have mrproper delete the original
-files, they are useful!
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Bill

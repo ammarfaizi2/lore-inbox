@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262401AbREUIPX>; Mon, 21 May 2001 04:15:23 -0400
+	id <S261975AbREUILx>; Mon, 21 May 2001 04:11:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262400AbREUIPN>; Mon, 21 May 2001 04:15:13 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:23812 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S262358AbREUIPF>;
-	Mon, 21 May 2001 04:15:05 -0400
-Date: Mon, 21 May 2001 10:14:51 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ben LaHaise <bcrl@redhat.com>,
-        torvalds@transmeta.com, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re:  [RFD w/info-PATCH] device arguments from lookup, partion code in userspace
-Message-ID: <20010521101451.F555@marowsky-bree.de>
-In-Reply-To: <Pine.LNX.4.33.0105190138150.6079-100000@toomuch.toronto.redhat.com> <m14ruhin7d.fsf@frodo.biederman.org> <01051916254708.00491@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <01051916254708.00491@starship>; from "Daniel Phillips" on 2001-05-19T16:25:47
-X-Ctuhulu: HASTUR
+	id <S261983AbREUILn>; Mon, 21 May 2001 04:11:43 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:13729 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261975AbREUILf>;
+	Mon, 21 May 2001 04:11:35 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15112.52655.885447.500126@pizda.ninka.net>
+Date: Mon, 21 May 2001 01:11:27 -0700 (PDT)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: andrewm@uow.edu.au (Andrew Morton), andrea@suse.de (Andrea Arcangeli),
+        ink@jurassic.park.msu.ru (Ivan Kokshaysky),
+        rth@twiddle.net (Richard Henderson), linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+In-Reply-To: <E151kf4-0003TY-00@the-village.bc.nu>
+In-Reply-To: <15112.51569.744590.398000@pizda.ninka.net>
+	<E151kf4-0003TY-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-05-19T16:25:47,
-   Daniel Phillips <phillips@bonn-fries.net> said:
 
-> How about:
-> 
->   # mkpart /dev/sda /dev/mypartition -o size=1024k,type=swap
->   # ls /dev/mypartition
->   base	size	device	type
->   # cat /dev/mypartition/size
->   1048576
->   # cat /dev/mypartition/device
->   /dev/sda
->   # mke2fs /dev/mypartition
+Alan Cox writes:
+ > Pages allocated in main memory and mapped for access by PCI devices. On some
+ > HP systems there is now way for such a page to stay coherent. It is quite
+ > possible to sync the view but there is no sane way to allow any
+ > pci_alloc_consistent to succeed
 
-Ek. You want to run mke2fs on a _directory_ ?
+This is not what the HP folk told me, and in fact they said that
+pci_alloc_consistent could be made to work via disabling the cache
+attribute in the cpu side mappings or something similar in the PCI
+controller IOMMU mappings.
 
-If anything, /dev/mypartition/realdev
+Please someone on the HPPA team provide details :-)
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
-
+Later,
+David S. Miller
+davem@redhat.com

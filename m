@@ -1,99 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268245AbUHQOHL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUHQOHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268245AbUHQOHL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUHQOHK
+	id S266236AbUHQOHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268239AbUHQOHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:07:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8680 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265701AbUHQOGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 10:06:40 -0400
-Date: Tue, 17 Aug 2004 10:05:33 -0400
-From: Alan Cox <alan@redhat.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@redhat.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
-Message-ID: <20040817140533.GB2019@devserv.devel.redhat.com>
-References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408171512.26568.bzolnier@elka.pw.edu.pl>
+	Tue, 17 Aug 2004 10:07:41 -0400
+Received: from email-out1.iomega.com ([147.178.1.82]:57242 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S266236AbUHQOG4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 10:06:56 -0400
+Subject: RE: Can not read UDF CD
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: David Balazic <david.balazic@hermes.si>
+Cc: linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
+In-Reply-To: <B1ECE240295BB146BAF3A94E00F2DBFF090209@piramida.hermes.si>
+References: <B1ECE240295BB146BAF3A94E00F2DBFF090209@piramida.hermes.si>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092751541.4934.59.camel@patlinux.iomegacorp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408171512.26568.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Aug 2004 08:05:41 -0600
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Aug 2004 14:06:53.0274 (UTC) FILETIME=[729D0BA0:01
+	C48463]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:6.34492 C:20 M:0 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 03:12:26PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> some other driver may accessing this hwif->hwgroup without holding ide_lock
-> - probably will result in a crash few lines below when we try to free this 
-> hwgroup
+David Balazic:
 
-Will take a look. 
- 
-> > +
-> > +	hwif->chipset = ide_unknown;
-> 
-> this breaks (half-working) HDIO_SCAN_HWIF ioctl
-> and can change ordering of IDE devices in some situations
-> - many host drivers look at hwif->chipset during init
+Sorry I still have Not caught up on all this thread, yet I can add:
 
-The existing code didn't allow reuse of the hwif. It leaked it forever
-each time because the chipset was left randomly set to pci. ide_unknown is
-used by the scanning code in various places to mean "reusable". It has no
-impact on ordering I can see because you don't hotplug ide until after
-the boot sequence is complete. Once you do hotplug well the order is already
-intriguing although it will preserve the pre setup legacy interfaces.
+> How should I make the image ?
+> Remember, it is a multisession CD ( has two sessions ).
 
-> hwif->key is not restored in ide_hwif_restore() so it will be
-> always == 1 for once unregistered hwifs due to init_hwif_data()
-> 
-> Have you tested 'hwif->key' infrastructure?
+I'm curious to know how you answered that question, because:
 
-I've done some basic testing on things like unload invalidate. It would
-have missed the unload/reload one. As discussed earlier I'm trying some
-alternatives - refcount turns out to get really horrible because unless
-we switch to refcounting -everything- in one go we get unregisters that
-can randomly fail as busy depending on /proc and other accesses, and
-code that isnt meant to cope with this.
+> http://bitconjurer.org/BitTorrent/download.html
+> http://lizika.pfmb.uni-mb.si/~stein/UDF_image_and_reports.torrent
+> http://lizika.pfmb.uni-mb.si/~stein/UDF_image_and_reports/udf.iso
 
-> >  		kfree(setting);
-> >  	return -1;
-> > @@ -1058,7 +1282,7 @@
-> >  EXPORT_SYMBOL(ide_add_setting);
-> 
-> this breaks locking for IDE device drivers which also call ide_add_setting()
-> but they are not holding ide_setting_sem
+I see this UDF disc image did Not arrive here in a usable form:
 
-No. Follow the locking. You have to move that locking outwards and I
-already did so. Remember ata_attach is only safe under the setting sem.
-The attach methods should always have ben called under setting_sem but
-were not. Now they are so they in turn call the setting functions safely.
+$ logger 1
+$ sudo mount -r -t udf -o loop=/dev/loop0 udf.iso /mnt/loop0
+mount: wrong fs type, bad option, bad superblock on /dev/loop0,
+       or too many mounted file systems
+       (could this be the IDE device where you in fact use
+       ide-scsi so that sr0 or sda or so is needed?)
+$ sudo cat /var/log/messages | tail -2
+Aug 17 07:48:20 patlinux pat: 1
+Aug 17 07:48:25 patlinux kernel: UDF-fs: No partition found (1)
+$
+$ phgfsck | head -4 | tail -2
+Application version: 1.1r0
+UCT Core version   : 1.1r0
+$ dd if=udf.iso bs=2K conv=sync >udf.2Ki.iso
+$ phgfsck -mlimit 99 udf.2Ki.iso | grep 'total o'
+    Error count:  11    total occurrences:    43
+  Warning count:   0    total occurrences:     0
+$
+$ md5sum *.iso
+22ab5c118f73307f88c43a820ced4718  udf.2Ki.iso
+03ef2c1d988f65acde82c5da40ef17a2  udf.iso
+$
 
-> > -			ide_unregister(arg);
-> > -			return 0;
-> > +			if(arg > MAX_HWIFS || arg < 0)
-> > +				return -EINVAL;
-> > +			if(ide_hwifs[arg].pci_dev)
-> > +				return -EINVAL;
-> 
-> Why this change?  It prohibits all IDE PCI drivers and ide-cs
-> from using HDIO_UNREGISTER_HWIF ioctl (which is half-working for IDE PCI 
-> because next call to HDIO_SCAN_HWIF will clear hwif out due to hwif->hold == 
-> 0 but it is not the case for ide-cs).
+> > I still have Not caught up on all this thread
 
-It's unsafe for the PCI case. Its also unsafe for every other case. Thats
-why I have a fixme tagged on it 8)
+I haven't yet seen you report uname -msr of 2.6.7 or better.
 
-> I hate HDIO_SCAN_HWIF and HDIO_UNREGISTER_HWIF and I still think we should 
-> remove them - I waited with such changes for 2.7 but this plan failed becuase 
-> there won't be 2.7 soon. :/
+I missed how Ben F's suggestion of mount -t udf -o session=$n worked
+out.
 
-Once you have drive and controller hot plug you don't need them. Until then
-some laptop users rely on them. I'd prefer to ignore the issue (its a
-privileged code path) until the hotplug is there, or patch it up by
-allowing unregister only of SCAN_HWIF added hwifs ?
+The David Burg & Gerrit S input I have not processed.
 
-Alan
+Etc.
+
+> http://lizika.pfmb.uni-mb.si/~stein/UDF_image_and_reports/udf.iso
+
+Link rotted away by now, I think.
+
+Pat LaVarre
+http://sourceforge.net/tracker/index.php?func=detail&aid=1008156&group_id=295&atid=100295
+http://linux-pel.blog-city.com/read/768572.htm
+http://linux-pel.blog-city.com/read/776884.htm
+
 

@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263232AbTJUSy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 14:54:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTJUSy5
+	id S263268AbTJUTBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTJUTBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 14:54:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20499 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263232AbTJUSyz
+	Tue, 21 Oct 2003 15:01:13 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22291 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263268AbTJUTBL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 14:54:55 -0400
+	Tue, 21 Oct 2003 15:01:11 -0400
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
 Subject: Re: Circular Convolution scheduler
-Date: 21 Oct 2003 18:44:53 GMT
+Date: 21 Oct 2003 18:51:10 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bn3ur5$htf$1@gatekeeper.tmr.com>
-References: <20031016015105.27987.qmail@email.com>
-X-Trace: gatekeeper.tmr.com 1066761893 18351 192.168.12.62 (21 Oct 2003 18:44:53 GMT)
+Message-ID: <bn3v6u$hv6$1@gatekeeper.tmr.com>
+References: <20031019085008.7505.qmail@email.com>
+X-Trace: gatekeeper.tmr.com 1066762270 18406 192.168.12.62 (21 Oct 2003 18:51:10 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031016015105.27987.qmail@email.com>,
+In article <20031019085008.7505.qmail@email.com>,
 Clayton Weaver <cgweav@email.com> wrote:
+| (perhaps a bit less vague)
 | 
-| > Ok, but what is "circular convolution scheduling"?
+| While the long-term time series analyses
+| would doubtless be interesting for enterprise
+| networks, I had something more modest in mind.
 | 
-| It was a vague idea that I had for integrating our current,
-| more-or-less distributed system of priority scaling heuristics into a
-| single state model and applying them all at once to a scheduling
-| decision with a single matrix multiply. The motivation would be to
-| engineer out unexpected interactions between different parts of the
-| heuristic analyses that produce unpredicted (and potentially unwanted)
-| behavior in the scheduler.
+| Most of the heuristic work so far seems to have
+| been directed toward how to identify interactive
+| processes as interactive without false positives
+| on batch processes, making the code correct (no
+| bugs), making it fast, and a little tuning to
+| obtain generally ("for most people") usable
+| values for how fast to scale up the priority
+| on a process that has matched the heuristics,
+| yes?
 | 
-| Ad hoc code is fast, but it depends on implementers being able to model
-| the implied state machine in their imagination, with the implementation
-| of it distributed across various code points in the scheduler. This
-| makes isolated simulation and verification (proof that the scheduler
-| does what we intend it to do) difficult, and we might get farther
-| faster by having an implementation of these scheduling-relevant runtime
-| heuristic analyses that allows us to reliably model scheduler state in
-| the abstract.
-| 
-| I'm not saying that can't be done with the present system, it's just a
-| lot harder to be sure that your model really reflects what is happening
-| at runtime when you start with ad hoc code and try to model it than if
-| you start with a model of a set of state transitions that does what you
-| want and then implement/optimize the model.
-| 
-| As other people have pointed out, runtime scheduler performance is the
-| trump card, and abstract verifiability that a scheduler (with heuristic
-| priority scaling) meets a specified set of state transition constraints
-| is not much help if you can't implement the model with code that
-| performs at least as well as a scheduler with ad-hoc heuristics pasted
-| in "wherever it looked convenient".
-| 
-| (But you are not likely to need to revert stuff very often with a
-| heuristic-enhanced scheduler implemented from a verified formal model,
-| because you aren't guessing what a code change is going to do to the
-| state machine. You already know.)
+| My question about inserting a convolution
+| would be more relevant to what do we do
+| with that information ("we believe that
+| this process is interactive")once we have it.
 
-As I noted elsewhere, this depends on the past being a predictor of the
-future. I don't think we will see a major improvement in behaviour until
-disk, CPU, and VM management are all integrated. Given that the
-implementors don't agree on any one part of this I find that unlikely.
-At least the scheduler folks are all civil and acknowledge the good
-points of all work, resulting in progress even thought they are taking
-different approaches. With that model perhaps integration of all
-resource managers would be possible.
+I think that's the right point, but the advantage of better analysis may
+not be in better finding which process does what, but deciding which
+type of process we want to run and for how long. The reports of starving
+this and that indicate that giving the "most interactive" process all it
+can use may not be the best for the system responsiveness overall.
 
-On the other hand... the pissing contest with suspend makes good soap
-opera, but does not seem to have resulted in even one widely functional
-implementation. The phrase "does not play well with others" comes to
-mind.
+And the observed results from various fairness and deadline scheduling
+seem to bear this out. Instead of using an override "this process has
+waited too long" model, a better schudling in normal mode might be
+possible.
 
-
+Just my thought, not "do the same old but better," but "make better
+choices for the system overall." That could target throughput or
+responsiveness as desired.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

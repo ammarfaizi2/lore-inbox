@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262310AbSJJMXb>; Thu, 10 Oct 2002 08:23:31 -0400
+	id <S262025AbSJJMeR>; Thu, 10 Oct 2002 08:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSJJMXb>; Thu, 10 Oct 2002 08:23:31 -0400
-Received: from AGrenoble-101-1-2-94.abo.wanadoo.fr ([193.253.227.94]:16525
-	"EHLO awak") by vger.kernel.org with ESMTP id <S262310AbSJJMXa> convert rfc822-to-8bit;
-	Thu, 10 Oct 2002 08:23:30 -0400
-Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Giuliano Pochini <pochini@shiny.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DA55E0C.24033BB5@aitel.hist.no>
-References: <XFMail.20021010113849.pochini@shiny.it> 
-	<3DA55E0C.24033BB5@aitel.hist.no>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 10 Oct 2002 14:29:11 +0200
-Message-Id: <1034252951.961.23.camel@bip>
+	id <S262318AbSJJMeR>; Thu, 10 Oct 2002 08:34:17 -0400
+Received: from ifaedi.insa-lyon.fr ([134.214.104.16]:33687 "EHLO
+	ifaedi.insa-lyon.fr") by vger.kernel.org with ESMTP
+	id <S262025AbSJJMeQ>; Thu, 10 Oct 2002 08:34:16 -0400
+Subject: Small Patch for docbook documentation typo
+From: Joaquim Fellmann <mljf@altern.org>
+Reply-To: mljf@altern.org
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-M6OMmEpBIcF37pOimJ44"
+Organization: 
+Message-Id: <1034253606.676.24.camel@I401.resi.insa-lyon.fr>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 10 Oct 2002 14:40:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 10/10/2002 à 13:01, Helge Hafting a écrit :
-> Giuliano Pochini wrote:
-> 
-> > Yes, it makes sense, but it's useless or harmful to discard caches
-> > if nobody else needs memory. You just lose data that may be
-> > requested in the future for no reason.
-> 
-> Sure, so the ideal is to not drop unconditionally, but
-> make sure that the "finished" O_STREAMING pages are
-> the very first ones to go whenever memory pressure happens.
 
-IMHO this shoudln't be taken care of. As you say it, a linux box has no
-free memory (or it's been very recently booted), so the problem is not
-to make O_STREAMING pages "low priority", but just to make them not stay
-in the cache (perhaps just keep a few KB worth of them in case of a
-limited seek back, but not more).
+--=-M6OMmEpBIcF37pOimJ44
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-	Xav
+
+Here's a small patch that fixes the scsidrivers.templ typo.
+It seems that using underscore char in id="" fields prevent from
+compiling the docs.
+
+Against current 2.5 bk tree
+
+Regards
+
+
+
+-- 
+Joaquim Fellmann <mljf@altern.org>
+
+--=-M6OMmEpBIcF37pOimJ44
+Content-Description: 
+Content-Disposition: inline; filename=patch-docbook-documentation.diff
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+--- linux/Documentation/DocBook/scsidrivers.tmpl.orig	2002-10-10 14:34:51.000000000 +0200
++++ linux/Documentation/DocBook/scsidrivers.tmpl	2002-10-10 14:35:45.000000000 +0200
+@@ -60,7 +60,7 @@
+ </para>
+   </chapter>
+ 
+-  <chapter id="driver_struct">
++  <chapter id="driver-struct">
+       <title>Driver structure</title>
+   <para>
+ Traditionally a lower level driver for the scsi subsystem has been
+
+--=-M6OMmEpBIcF37pOimJ44--
 

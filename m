@@ -1,58 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266257AbUGJO0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266259AbUGJOio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266257AbUGJO0t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 10:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUGJO0t
+	id S266259AbUGJOio (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 10:38:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266267AbUGJOio
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 10:26:49 -0400
-Received: from web20827.mail.yahoo.com ([216.136.227.166]:50778 "HELO
-	web20827.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266257AbUGJO0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 10:26:48 -0400
-Message-ID: <20040710142647.73810.qmail@web20827.mail.yahoo.com>
-Date: Sat, 10 Jul 2004 07:26:47 -0700 (PDT)
-From: Fawad Lateef <fawad_lateef@yahoo.com>
-Subject: Re: Re: Need help in creating 8GB RAMDISK
-To: ebiederm@xmission.com
-Cc: linux-kernel@vger.kernel.org
+	Sat, 10 Jul 2004 10:38:44 -0400
+Received: from smtp014.mail.yahoo.com ([216.136.173.58]:3742 "HELO
+	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266259AbUGJOin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 10:38:43 -0400
+Message-ID: <40EFFF6D.7080308@yahoo.com.au>
+Date: Sun, 11 Jul 2004 00:38:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.7-np8
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://www.kerneltrap.org/~npiggin/2.6.7-np8/
 
-> ebiederm@xmission.com (Eric W. Biederman) writes:
-> 
-> What do you need this for?
-> 
-> Mostly it looks like you just need to use kmap,
-> but...
-> As other have pointed out ramfs is usually the
-> better solution,
-> and you don't need to code anything.
-> 
-> Or are you trying to use an 7GB initrd.  An
-> interesting idea
-> but that would take a little bootloader hacking to
-> make work.
-
-Actually I need 7GB RAMDISK to use with my Caching
-Drive Project. I have to use RAMDISK of 7GB or more
-for the Caching purpose. The Architecture is like Disk
-Caching Disk (DCD), but here I hav to use RAMDISK. 
-
-I created RAMDISK using physical address as I hav
-reserved all RAM above 1GB for my RAMDISK, but I am
-not able to create RAMDISK of 7GB as a single Drive. 
-
-Is there any Idea regarding this ????
-
-Fawad Lateef
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+A few important fixes to the memory management stuff, and fixed
+a regression in scheduler interactivity.

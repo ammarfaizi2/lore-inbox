@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265512AbUAJXTI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 18:19:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAJXTI
+	id S265473AbUAJXOd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 18:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUAJXOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 18:19:08 -0500
-Received: from dsl017-022-215.chi1.dsl.speakeasy.net ([69.17.22.215]:26641
-	"EHLO gateway.two14.net") by vger.kernel.org with ESMTP
-	id S265512AbUAJXTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 18:19:01 -0500
-Date: Sat, 10 Jan 2004 17:18:40 -0600
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: maney@pobox.com, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.4.22-rc2 ext2 filesystem corruption
-Message-ID: <20040110231840.GA2528@furrr.two14.net>
-Reply-To: maney@pobox.com
-References: <200310311941.31930.bzolnier@elka.pw.edu.pl> <20040104011222.GA1433@furrr.two14.net> <200401040307.48530.bzolnier@elka.pw.edu.pl> <20040108162508.GA4017@furrr.two14.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 Jan 2004 18:14:33 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:60072 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S265473AbUAJXOa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 18:14:30 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Subject: Re: Q re /proc/bus/i2c
+Date: Sat, 10 Jan 2004 18:14:29 -0500
+User-Agent: KMail/1.5.1
+Cc: John Lash <jlash@speakeasy.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200401100117.42252.gene.heskett@verizon.net> <200401101415.46745.gene.heskett@verizon.net> <1073763636.9096.18.camel@nosferatu.lan>
+In-Reply-To: <1073763636.9096.18.camel@nosferatu.lan>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040108162508.GA4017@furrr.two14.net>
-User-Agent: Mutt/1.3.28i
-From: maney@two14.net (Martin Maney)
+Message-Id: <200401101814.29104.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.61.108] at Sat, 10 Jan 2004 17:14:28 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 08, 2004 at 10:25:08AM -0600, Martin Maney wrote:
-> On Sun, Jan 04, 2004 at 03:07:48AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > I see nothing in 2.4.23 which can explain this.
-> > Probably if you boot from Promise you will see corruption again.
+On Saturday 10 January 2004 14:40, Martin Schlemmer wrote:
 
-> that.  In fact I did *not* observe the corruption when I booted from
-> the Promise, but I didn't have the same file (an XFree86 source
+>> Next thing to check?
+>
+>What mobo (make, model, etc - sorry, missed that), and do you
+>have appropriate modules loaded.  Also, maybe add a dmesg.
 
-Okay, color me as having no idea what's going on...
+I sent that, but you can call off the bloodhounds, the perp has been 
+apprehended and jailed.
 
-Jiggered things around to boot from the drive connected to the Promise
-(hereafter the old drive) again, with a copy of the original test
-object (xfree86_4.2.1.orig.tar.gz from Branden's Debian archives).  It
-still works with 2.4.23.  Rebuilt 2.4.22 (didn't have any of the patches
-around, and I'm 99% sure I tested with 22-final just before giving up
-originally); that works too.  Shutdown and physically removed the 3ware
-card from the machine; dug up the grub boot disk that I'd forgotten I
-would need for this, booted into 2.4.22 again.  Still, it works.
+Actually, there is a huge gotcha in make xconfig.  If, under busses 
+early in the menu, you do not select ISA, even if your mobo doesn't 
+have one, you MUST enable it before you can even see the i2c-isa 
+options and turn them on in the i2c tree.  Bad dog, no bisquit, it 
+should be shown and the help should say it needs the busses/isa 
+enabled too.
 
-Maybe it's because the Promise chip knows it's no longer needed?  :-/
+Turned them both on and everything but the eeprom and temps is working 
+in sensors output, minor details because the cpu temp IS being 
+displayed by gkrellm just fine, as are both of the fan rpms.
+
+Many thanks to Nuno Montiero for tickling me in the right spot with an 
+email about that, to John Lash and Martin Schlemmer who were also 
+helping me chase it down, and to the list for putting up with my 
+whining.
 
 -- 
-...and of course you must be careful not to overwrite the bounds of
-memory blocks, free a memory block twice, forget to free a memory block,
-use a memory block after it's been freed, use memory that you haven't
-explicitly allocated, etc.  We C++ programmers have developed tricks
-to help us deal with this sort of thing, in much the same way that people
-who suffer severe childhood trauma develop psychological mechanisms to
-insulate themselves from those experiences.  -- Joseph A. Knapka
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

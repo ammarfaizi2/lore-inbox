@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131142AbQKJPPy>; Fri, 10 Nov 2000 10:15:54 -0500
+	id <S131103AbQKJPZT>; Fri, 10 Nov 2000 10:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131103AbQKJPPo>; Fri, 10 Nov 2000 10:15:44 -0500
-Received: from iitg.ernet.in ([202.141.80.2]:48399 "EHLO luit.iitg.ernet.in")
-	by vger.kernel.org with ESMTP id <S131151AbQKJPPd>;
-	Fri, 10 Nov 2000 10:15:33 -0500
-Date: Fri, 10 Nov 2000 20:33:29 +0530 (IST)
-From: "M.Kiran Babu" <kbabu@iitg.ernet.in>
-To: linux-kernel@vger.kernel.org
-Subject: threads
-Message-ID: <Pine.LNX.4.10.10011102031210.31929-100000@kamrup.iitg.ernet.in>
+	id <S131194AbQKJPY7>; Fri, 10 Nov 2000 10:24:59 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:61452 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S131103AbQKJPYu>; Fri, 10 Nov 2000 10:24:50 -0500
+Message-ID: <3A0C131F.AE3D7FBF@holly-springs.nc.us>
+Date: Fri, 10 Nov 2000 10:24:15 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <80256991.007632DE.00@d06mta06.portsmouth.uk.ibm.com> <3A09C725.6CFA0EE2@holly-springs.nc.us> <20001110170754.K13151@mea-ext.zmailer.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
- sir,
-i got some doubts in kernel
-programming. i am using linux 6.1 version. i want to use threads in
-kernel.is it possible to use pthreads in kernel. there is one more
-function kernel_thread. can i use
-that function. if i use that function how to get synchonization. inmany
-files it was used. but everywhere lock_kernel() and unlock_kernel()
-functions are being used. if we use that commands the whole kernel gets
-locked. is there any other mechanisms. or can i use that methods only. if
-i can use these methods what is the syntax of kernel_thread function. the
-arguments that are passing to these function are 3. i dont know what are
-those three. please  tell me.
-				
+Matti Aarnio wrote:
+> On Wed, Nov 08, 2000 at 04:35:33PM -0500, Michael Rothwell wrote:
+> > Sounds great; unfortunately, the core group has spoken out against a
+> > modular kernel.
+> 
+>         Really ?
+> 
+> $ /sbin/lsmod
+> Module                  Size  Used by
+> [...]
+> soundcore               4336   4 [es1371]
 
 
+Really. That the kernal has loadable modules does not mean that it is
+modular.
 
-
-                                               
-                        
-               
-
-
-
-
+-M
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269181AbTCBKmh>; Sun, 2 Mar 2003 05:42:37 -0500
+	id <S269183AbTCBKrF>; Sun, 2 Mar 2003 05:47:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269182AbTCBKmh>; Sun, 2 Mar 2003 05:42:37 -0500
-Received: from AMarseille-201-1-3-35.abo.wanadoo.fr ([193.253.250.35]:40231
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S269181AbTCBKmg>; Sun, 2 Mar 2003 05:42:36 -0500
-Subject: Re: Multiple & vs. && and | vs. || bugs in 2.4 and 2.5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Norbert Kiesel <nkiesel@tbdnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030302102751.GA26028@defiant>
-References: <20030302102751.GA26028@defiant>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046602478.2030.105.camel@zion.wanadoo.fr>
+	id <S269185AbTCBKrF>; Sun, 2 Mar 2003 05:47:05 -0500
+Received: from holomorphy.com ([66.224.33.161]:39309 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S269183AbTCBKrE>;
+	Sun, 2 Mar 2003 05:47:04 -0500
+Date: Sun, 2 Mar 2003 02:57:14 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: percpu-2.5.63-bk5-1
+Message-ID: <20030302105714.GF1195@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20030302104204.GC1399@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 02 Mar 2003 11:54:38 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030302104204.GC1399@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-02 at 11:27, Norbert Kiesel wrote:
+On Sun, Mar 02, 2003 at 02:42:04AM -0800, William Lee Irwin III wrote:
+> This patch does a 3 different things:
 
-> linux-2.4.20/drivers/video/aty128fb.c:2534:		if (!reg & LVDS_ON) {
-> linux-2.4.20/drivers/video/radeonfb.c:2781:		if (!lvds_gen_cntl & LVDS_ON) {
+You've got to be kidding me. Even worse than a typo in the description,
+the diff was improperly generated. Proper diff + description incoming.
 
-There two are single bit tests, they should probably be written
-with an additional parenthesis:
 
-	if (!(reg & LVDS_ON))
-	if (!(lvds_gen_cntl & LVDS_ON))
-
-Though in these specific cases, I tend to prefer writing it this way
-
-	if ((reg & LVDS_ON) == 0)
-	if ((lvds_gen_cntrl & LVDS_ON) == 0)
-
-Since I'm the author of both of the above (though I'm not the driver
-maintainer), feel free to send the typo fixes to Marcelo along with
-Ani Joshi (driver maintainer)
-
-Ben.
+-- wli

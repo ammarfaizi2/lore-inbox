@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317191AbSHGKxt>; Wed, 7 Aug 2002 06:53:49 -0400
+	id <S318060AbSHGLOM>; Wed, 7 Aug 2002 07:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317209AbSHGKxt>; Wed, 7 Aug 2002 06:53:49 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:26105 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317191AbSHGKxs>; Wed, 7 Aug 2002 06:53:48 -0400
-Subject: Re: 64bit clean drivers was Re: Linux 2.4.20-pre1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020807124153.A8592@wotan.suse.de>
-References: <200208062329.g76NTqP30962@devserv.devel.redhat.com.suse.lists.linux.kernel>
-	 <p73vg6nhtsb.fsf@oldwotan.suse.de>
-	<1028721043.18478.265.camel@irongate.swansea.linux.org.uk> 
-	<20020807124153.A8592@wotan.suse.de>
-Content-Type: text/plain
+	id <S318061AbSHGLOM>; Wed, 7 Aug 2002 07:14:12 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:19422 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318060AbSHGLOL>; Wed, 7 Aug 2002 07:14:11 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Florian Weimer <fw@deneb.enyo.de>
+Date: Wed, 7 Aug 2002 21:18:23 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 07 Aug 2002 13:16:48 +0100
-Message-Id: <1028722608.18156.280.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15697.511.36832.939913@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, gam3@acm.org
+Subject: Re: Problems with NFS exports
+In-Reply-To: message from Florian Weimer on Wednesday August 7
+References: <87eldchtr2.fsf@deneb.enyo.de>
+	<87k7n3t3zm.fsf@deneb.enyo.de>
+	<15696.63765.38094.618742@notabene.cse.unsw.edu.au>
+	<8765ymsyzh.fsf@deneb.enyo.de>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-07 at 11:41, Andi Kleen wrote:
-> I don't see why it is unmaintainable. What is so bad with these ifs? 
-> 64bit cleanness is just another dependency, nothing magic and fundamentally
-> hard.
+On Wednesday August 7, fw@deneb.enyo.de wrote:
+> Neil Brown <neilb@cse.unsw.edu.au> writes:
+> 
+> > Probably better documentation in exports.5 would be just as useful.
+> 
+> Maybe.
+> 
+> BTW, is it possible to export a directory tree under a different path,
+> using the kernel NFS daemon?
 
-Lets take I2O block the if rule would
-
-if [ $CONFIG_X86 = "y" -a $CONFIG_X86_64 != "y" ] 
-	dep_bool ...
-fi
-if [ $CONFIG_ALPHA = "y" &&  other conditions ...]
-	dep_bool ...
-fi
-
-and so on
-
-The actual rule being if 32bit little endian || 64bit little endian with
-kernel memory objects always below 4Gb and having PCI bus
+Uhm... symlinks work.
+Which is to say, the client can mount using a 'different path', though
+they can also mount using the 'true' path.
 
 
-Thats just one non too complicated driver. CML1 can't handle this
-scalably, maybe CML2 could have. 
 
-Secondly you actually want people to discover stuff doesn't work so you
-can persuade them to go and fix it. Stick up a 'Good/Probably
-Ok/Bad/Hopeless' driver listing on x86_64.org, then once Hammer becomes
-in general use post it to the janitor list now and then
+> 
+> > And "BUSY" probably isn't correct ....
+> 
+> Why not? The ressource (the directory tree) is already being used, and
+> therefore the export fails.
 
-Alan
+I guess... I just feel it isn't really clear what it is that is
+'busy'.
 
+NeilBrown
+
+
+> 
+> > It would be possible to dis-ambiguate the ambiguity but it wouldn't be
+> > very clean, and I really am not sure that it is worth the effort.
+> 
+> Better error messages are always a good idea. :-)
+
+Can't disagree there.
+
+NeilBrown

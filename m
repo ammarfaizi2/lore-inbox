@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbQKHR1I>; Wed, 8 Nov 2000 12:27:08 -0500
+	id <S129159AbQKHRcT>; Wed, 8 Nov 2000 12:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129113AbQKHR06>; Wed, 8 Nov 2000 12:26:58 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:37897 "EHLO
+	id <S129190AbQKHRcJ>; Wed, 8 Nov 2000 12:32:09 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:54537 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129111AbQKHR0v>; Wed, 8 Nov 2000 12:26:51 -0500
+	id <S129159AbQKHRb4>; Wed, 8 Nov 2000 12:31:56 -0500
 To: linux-kernel@vger.kernel.org
 From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: Pentium 4 and 2.4/2.5
-Date: 8 Nov 2000 09:26:41 -0800
+Date: 8 Nov 2000 09:31:24 -0800
 Organization: Transmeta Corporation
-Message-ID: <8uc2ch$g3u$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10011061940200.18160-100000@master.linux-ide.org> <E13t7dG-0007KT-00@the-village.bc.nu>
+Message-ID: <8uc2lc$g4t$1@penguin.transmeta.com>
+In-Reply-To: <OE59dY2pjID9Lv40q2H00001e2c@hotmail.com> <E13tGbg-0007oC-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E13t7dG-0007KT-00@the-village.bc.nu>,
+In article <E13tGbg-0007oC-00@the-village.bc.nu>,
 Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
 >
->Be careful with the intel patches. The ones I've seen so far tried to call the
->cpu 'if86' breaking several tools that do cpu model checking off uname. They
->didnt fix the 2GHz CPU limit, they use 'rep nop' in the locks which is
->explicitly 'undefined behaviour' for non intel processors and they use the
->TSC without checking it had one.
+>rep;nop is a magic instruction on the PIV and possibly some PIII series CPUs
+>[not sure]. As far as I can make out it naps momentarily or until bus
+>activity thus saving power on spinlocks.
 
-"rep nop" is definitely not undefined behaviour except in some older
-Intel manuals. 
+>From what I've heard, the reason Intel _really_ wants "rep nop" is that
+without it the CPU will heat up quite efficiently (that's what you do
+when you want to run at an eventual 2GHz with all cylinders firing all
+the time), causing thermal meltdown on non-thermally protected CPU's and
+CPU speed throttling on the ones that _are_ thermally protected (which
+will obviously have to be all the shipping ones). 
 
-Do you actually know of a CPU where it doesn't work? Every single
-intel-compatible CPU I know of has the rep prefixes as no-ops if they
-aren't used (lock -> ILL being a later, documented, addition), and the
-way the prefixes work it almost has to be that way.
+And the thermal throttling will severly cripple performance.
 
-As prefixes they can't be part of the instruction, because you can
-legally have other prefixes in between the rep and the real instruction,
-which means that any sane implementation will just set a flag when it
-sees the prefix, and an instruction that doesn't care will just ignore
-the flag.  So you'd almost have to do _extra_ work to make "rep nop"
-fail, even if it used to be specified as "undefined". 
+>The problem is 'rep nop' is not defined on other cpus so we can only really use
+>it on the PIII/PIV kernel builds
 
-Standard 2.4.x will definitely be using "rep nop" unless somebody can
-show me a CPU where it doesn't work (and even then I probably won't care
-unless that CPU is also SMP-capable).  It's documented by intel these
-days, and it works on all CPU's I've ever heard of, and it even makes
-sense to me (*).
-
-(*) Well..  More sense than _some_ instruction set extensions I've seen. 
-After all, "repeat no-op" for a longer delay sounds almost logical. 
-Certainly better than that IV == 15 thing, ugh ;)
-
-Also, at least part of the reason Intel removed the TSC check was that
-Linux actually seems to get the extended CPU capability flags wrong,
-overwriting the _real_ capability flags which in turn caused the TSC
-check on Linux to simply not work.  Peter Anvin is working on fixing
-this. I suspect that Linux-2.2 has the same problem.
-
-There's a few other minor details that need to be fixed for Pentium 4
-features (aka " not very well documented errata"), and I think I have
-them all except for waiting for Peter to get the capabilities flag
-handling right.
-
-So I suspect that we'll have good support for Pentium IV soon enough.. 
+Intel retroactively defined it for all their CPU's. And I very strongly
+suspect that every single other x86 CPU vendor does the same. Why not?
+They get a new instruction for free, but just documenting it. Maybe they
+can sell the same old chip with a new name ("The Xxxxx Wonderchip. Now
+with documetned 'rep nop' support! Get one today!").
 
 		Linus
 -

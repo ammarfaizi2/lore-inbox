@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265997AbUFOWOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265999AbUFOW3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265997AbUFOWOr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 18:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265987AbUFOWOr
+	id S265999AbUFOW3P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 18:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266002AbUFOW3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 18:14:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60568 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265998AbUFOWOi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 18:14:38 -0400
-Message-ID: <40CF74C0.1040409@pobox.com>
-Date: Tue, 15 Jun 2004 18:14:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>, Dean Nelson <dcn@sgi.com>
-CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: calling kthread_create() from interrupt thread
-References: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com> <1087321777.2710.43.camel@laptop.fenrus.com> <20040615180525.GA17145@sgi.com> <200406151414.20565.jbarnes@engr.sgi.com>
-In-Reply-To: <200406151414.20565.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jun 2004 18:29:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30359 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265999AbUFOW3O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 18:29:14 -0400
+Date: Tue, 15 Jun 2004 15:29:12 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Blair Strang <bls@asterisk.co.nz>, Kyle Moffett <mrmacman_g4@mac.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: In-kernel Authentication Tokens (PAGs)
+Message-ID: <20040615152912.C22989@build.pdx.osdl.net>
+References: <1087282990.13680.13.camel@lade.trondhjem.org> <772741DF-BC19-11D8-888F-000393ACC76E@mac.com> <1087080664.4683.8.camel@lade.trondhjem.org> <D822E85F-BCC8-11D8-888F-000393ACC76E@mac.com> <1087084736.4683.17.camel@lade.trondhjem.org> <DD67AB5E-BCCF-11D8-888F-000393ACC76E@mac.com> <87smcxqqa2.fsf@asterisk.co.nz> <1087282990.13680.13.camel@lade.trondhjem.org> <8666.1087292194@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <8666.1087292194@redhat.com>; from dhowells@redhat.com on Tue, Jun 15, 2004 at 10:36:34AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Tuesday, June 15, 2004 2:05 pm, Dean Nelson wrote:
+* David Howells (dhowells@redhat.com) wrote:
+> You might want to look at this patch. It's what I've come up with to support
+> kafs, but it's general, and should work for anything. It's been built along
+> Linus's guidelines, and has Linus's approval, contingent on something actually
+> using it fully.
 > 
->>As mentioned above, it is possible for this "simple" function to
->>sleep/block for an indefinite period of time. I was under the impression
->>that one couldn't block a work queue thread for an indefinite period of
->>time. Am I mistaken?
+> You can use the session keyring number as a PAG ID if you wish.
 > 
-> 
-> For tasklets and softirqs you're not allowed to sleep, but I think it's ok for 
-> work queues.
+> I've a sample aklog program (key submission) should you be interested.
 
+I'd be intereseted.  BTW, I just took a brief look and had a quick
+question.
 
-Dean is correct and incorrect ;-)
+> +	if (bprm->e_uid != current->uid)
+> +		suid_keys(current);
+> +	exec_keys(current);
+> +
 
-If you are using schedule_work() or schedule_task(), blocking for 
-extended periods of time would be very undesirable.  We see this on 
-occasion in 2.6 uniprocessor, where a long-running keventd task may 
-block a console or tty update.
+would the security module be expected update/revoke keys if the thing changes
+security domains on exec?
 
-In 2.6, the solution is easy... create your own private workqueue.  No 
-such solution in 2.4 (though I would argue that workqueues would help 
-drivers, if accepted into 2.4 at this late stage).
+>  	task_lock(current);
+>  	unsafe = unsafe_exec(current);
+>  	security_bprm_apply_creds(bprm, unsafe);
 
-	Jeff
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

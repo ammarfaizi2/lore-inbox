@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311593AbSCXReU>; Sun, 24 Mar 2002 12:34:20 -0500
+	id <S311594AbSCXRfC>; Sun, 24 Mar 2002 12:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311594AbSCXReK>; Sun, 24 Mar 2002 12:34:10 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:29449
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S311593AbSCXRd7>; Sun, 24 Mar 2002 12:33:59 -0500
-Message-Id: <5.1.0.14.2.20020324122756.02581750@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 24 Mar 2002 12:28:48 -0500
-To: Alexander Viro <viro@math.psu.edu>, rddunlap@osdl.org
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: [patch 2.5] seq_file for /proc/partitions
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-In-Reply-To: <Pine.GSO.4.21.0203232308260.6560-100000@weyl.math.psu.edu>
+	id <S311597AbSCXRev>; Sun, 24 Mar 2002 12:34:51 -0500
+Received: from adsl-64-109-89-110.dsl.chcgil.ameritech.net ([64.109.89.110]:18012
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S311594AbSCXRei>; Sun, 24 Mar 2002 12:34:38 -0500
+Message-Id: <200203241734.g2OHYV810736@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+cc: James.Bottomley@HansenPartnership.com
+Subject: [PATCH: NEW ARCHITECTURE FOR 2.5.7] support for NCR voyager (3/4/5xxx 
+ series)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 24 Mar 2002 11:34:31 -0600
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:11 PM 3/23/2002 -0500, Alexander Viro wrote:
->> +     return part_start(part, pos);
->
->Erm...  Actually that _is_ wrong - what you want is
->
->        return ((struct gendisk)v)->next;
+This really only tidies up the split out of arch/i386 in the previous release. 
+ It also backs out a fix for the migration_mask physical/logical CPU problems 
+in 2.5.6 in favour of the official fix.
 
-Forgive my ignorance, but that doesn't look right....
-shouldn't it REALLY be
+In response to will it work questions, this is the list of supported types
 
-        return ((struct gendisk*)v)->next;
+3430/3360 (Level 4): Works (tested up to 2 way), need sim710 driver for 
+internal SCSI chip.
+345x (Level 5): Works (tested up to 10 way), need NCR_D700 or BusLogic SCSI 
+card.
+35xx (Level 5): Should work up to 16 way (not tested), need NCR_D700 or 
+BusLogic SCSI card.
+4100 (Level 5): Should work (not tested), need NCR_D700 SCSI card.  Q720 
+driver is broken currently, so must use D700 or BusLogic SCSI card.
+51xx (Level 5): Should work up to 32 way (not tested).  No Q720 driver is a 
+bit of a problem here since I don't think they support anything else.
 
+The patch is in two parts this time:  The i386 sub-architecture split is 
+separated from the addition of the voyager components
 
---
-Stevie-O
+http://www.hansenpartnership.com/voyager/files/split-2.5.7.diff (259k)
+http://www.hansenpartnership.com/voyager/files/split-2.5.7.BK (107k)
+http://www.hansenpartnership.com/voyager/files/voyager-2.5.7.diff (149k)
+http://www.hansenpartnership.com/voyager/files/voyager-2.5.7.BK (288k)
 
-Real programmers use COPY CON PROGRAM.EXE
+(The split diff is pretty huge because it's actually moving files about).  You 
+must apply the split diff before applying the voyager one.
+
+James Bottomley
+
 

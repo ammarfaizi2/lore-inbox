@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265863AbUFTJq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264906AbUFTKV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265863AbUFTJq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 05:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265865AbUFTJq4
+	id S264906AbUFTKV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 06:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbUFTKV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 05:46:56 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:267 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S265863AbUFTJqx (ORCPT
+	Sun, 20 Jun 2004 06:21:59 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:37863 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264906AbUFTKV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 05:46:53 -0400
-Message-ID: <40D55D13.20803@aknet.ru>
-Date: Sun, 20 Jun 2004 13:46:59 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
+	Sun, 20 Jun 2004 06:21:57 -0400
+Date: Sun, 20 Jun 2004 12:21:25 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: Francois Romieu <romieu@fr.zoreil.com>, jsimmons@pentafluge.infradead.org,
+       Rik van Riel <riel@redhat.com>, Tim Bird <tim.bird@am.sony.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+In-Reply-To: <20040619135524.GX20632@lug-owl.de>
+Message-ID: <Pine.GSO.4.58.0406201219460.23356@waterleaf.sonytel.be>
+References: <40D33C58.1030905@am.sony.com>
+ <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com>
+ <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org>
+ <20040619144214.B32669@electric-eye.fr.zoreil.com> <20040619135524.GX20632@lug-owl.de>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch][rfc] expandable anonymous shared mappings
-References: <Pine.LNX.4.44.0406200048490.29576-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0406200048490.29576-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sat, 19 Jun 2004, Jan-Benedict Glaw wrote:
+> On Sat, 2004-06-19 14:42:14 +0200, Francois Romieu <romieu@fr.zoreil.com>
+> wrote in message <20040619144214.B32669@electric-eye.fr.zoreil.com>:
+> > jsimmons@pentafluge.infradead.org <jsimmons@pentafluge.infradead.org> :
+> > [...]
+> > > The framebuffer is also so far behind. 9 out of 10 patches are
+> > > dropped. The reason being is that everyone is a volunteer doing this in
+> >
+> > Do you mean dropped as "Posted on fb-devel but nobody cared" ?
+>
+> Maybe. And even that's a sad thing. Work has been done, and (without
+> knowing the exact state of the fb development) I'm sure James did a good
+> job on them. Caring for patches (so they make their way upstream) can
+> take as long as doing the programming. If this work could be layed off,
+> that would be nice:)
 
-Hugh Dickins wrote:
->> I disagree with this. The way I am using it may look horrible,
->> but yes, I do use it without the fork().
-> Then I think you have no reason to use MAP_SHARED: use MAP_PRIVATE
-> and you should get the behaviour you require, without kernel change.
-Hugh, I think you misunderstood me because
-once again I wrote something, said nothing -
-happens to me sometimes.
-The trick is that I am setting the old_len arg
-of mremap() to 0. This means that the new mapping
-is created while the old one is *not* being
-destroyed. So I get multiple virtual memory
-areas referencing the same shared memory region,
-lets call them "aliases".
-You propose to share the same backing-store
-across the multiple processes. Instead, I am
-sharing it across the multiple memory areas
-of a single process. I can't use MAP_PRIVATE
-for that, really.
-Then I want to expand my initial pool of shared
-mem while preserving the already created "aliases",
-and there seems to be no way of doing that:
-creating the larger pool and mremap'ing old
-one to the beginning of the new one, leaves the
-VMAs unmerged; creating the larger pool and
-mamcpy() the content of the old one to it,
-doesn't preserve the already created "aliases".
-The only thing I can do, is to expand the
-initial pool with mremap(), which doesn't work.
-So I have to resort to the more heavyweight
-things like shm_open(), while otherwise the
-expandable anonymous shared mapping can suit
-very well for my needs.
+Caring for patches can easily take a multiple of the time to write the patches.
 
-> Shared anonymous is peculiar: although mapping is anonymous (nothing
-> shared with unrelated mms), modifications are shared between parent
-> and children.  It's half-way between anonymous and file-backed.
-> We agree that it might be nice to let the object used to support that
-> be extended if mremap extends the mapping.  But it might instead just
-> be needless feature creep. 
-But then I beleive the entire idea of anonymous
-shared mapping is also a crap. But since it is
-already there, I would like to have it fully
-functional, so that I can avoid the things like
-shm_open() when possible. I just don't see the
-reason of keeping something partially implemented.
+> So we need Rusty's "Not-so-trivial patch monkey(s)"...
 
-> Sorry, your case does not persuade me yet.
-Well, I beleive perhaps you missed the fact
-that I was setting the old_len to 0 in mremap(),
-which doesn't work as I want to, when you use
-MAP_PRIVATE.
-You'll probably call it a horrible hack, but
-here's where that technique comes from:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0401.1/1351.html
-And since it comes from here, I beleive it
-must be fully supported.
+:-)
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

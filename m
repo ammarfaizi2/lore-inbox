@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261872AbSJNPiv>; Mon, 14 Oct 2002 11:38:51 -0400
+	id <S261923AbSJNPpj>; Mon, 14 Oct 2002 11:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSJNPiv>; Mon, 14 Oct 2002 11:38:51 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:58378 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S261872AbSJNPit>; Mon, 14 Oct 2002 11:38:49 -0400
-Date: Mon, 14 Oct 2002 17:36:19 +0200
-From: DervishD <raul@pleyades.net>
-To: Andre Costa <brblueser@uol.com.br>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Known 'issues' about 2.4.19...
-Message-ID: <20021014153619.GG596@DervishD>
-References: <20021013184052.GC46@DervishD> <20021014114201.493c812a.brblueser@uol.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021014114201.493c812a.brblueser@uol.com.br>
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+	id <S261934AbSJNPpj>; Mon, 14 Oct 2002 11:45:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:15535 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261923AbSJNPpj>;
+	Mon, 14 Oct 2002 11:45:39 -0400
+Date: Mon, 14 Oct 2002 18:02:30 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [patch, feature] nonlinear mappings, prefaulting support,
+ 2.5.42-F8
+In-Reply-To: <Pine.LNX.4.44.0210141739510.8792-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210141800160.9302-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> subsystem doesn't get along too well with VIA chipsets (replaced my
-> old mobo for a VT8233 based recently and probls started surfacing).
 
-    I have a VIA8363 (82C686B) AKA KT133/KM133, running perfectly
-with 2.4.18 at the time. Will this be a problem with 2.4.19?
+> if this is really an issue then we could force vma->vm_page_prot to
+> PROT_NONE within remap_file_pages(), so at least all subsequent faults
+> will be PROT_NONE and the user would have to explicitly re-mprotect()
+> the vma again to change this.
 
-> Aside from this, I've been using it daily at home, for all sorts of
-> things.
+i've added this to the -G1 patch at:
 
-    Thanks for your answer, Andre :))
+        http://redhat.com/~mingo/remap-file-pages-patches/
 
-    Raúl
+    Ingo
+

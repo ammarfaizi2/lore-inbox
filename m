@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbUCAO7x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 09:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbUCAO7x
+	id S261326AbUCAPCe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 10:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbUCAPCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 09:59:53 -0500
-Received: from mail.siemenscom.com ([12.146.131.10]:27641 "EHLO
-	mail.siemenscom.com") by vger.kernel.org with ESMTP id S261313AbUCAO7v
+	Mon, 1 Mar 2004 10:02:34 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:40580 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261326AbUCAPCc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 09:59:51 -0500
-Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310F0D1@stca204a.bus.sc.rolm.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: linux-kernel@vger.kernel.org
-Subject: 
-Date: Mon, 1 Mar 2004 06:59:47 -0800 
+	Mon, 1 Mar 2004 10:02:32 -0500
+Date: Mon, 1 Mar 2004 10:04:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: -Wshadow
+Message-ID: <Pine.LNX.4.53.0403010958240.31041@chaos>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a way to set the directory where the core dump files get stored? I
-am running a 2.4.19 Kernel from SuSE.
 
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
+Don't know about the latest version(s), but with 2.4.25, compiling
+with -Wshadow brings up a lot of potential problems. One can
+turn off (temporarily) the built in functions to get rid of the
+spurious warnings about memcpy(), etc., then you see that too many
+variables to mention here are shadowed (probably thousands). Some
+of them may be hazardous because they are spin-lock variables and
+semaphores. There are also some shadowed functions. NotGood(tm)!
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

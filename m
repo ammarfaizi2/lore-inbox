@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbVA1S70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVA1S71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262725AbVA1S70 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 13:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVA1S4j
+	id S262730AbVA1S71 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 13:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVA1S4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 13:56:39 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:22999 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262701AbVA1SyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 13:54:06 -0500
-Date: Fri, 28 Jan 2005 19:54:02 +0100
-From: Michael Gernoth <simigern@stud.uni-erlangen.de>
-To: Bukie Mabayoje <bukiemab@gte.net>
-Cc: linux-kernel@vger.kernel.org,
-       Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
-Subject: Re: 2.4.29, e100 and a WOL packet causes keventd going mad
-Message-ID: <20050128185402.GA7923@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: Bukie Mabayoje <bukiemab@gte.net>,
-	linux-kernel@vger.kernel.org,
-	Matthias Koerber <simakoer@stud.informatik.uni-erlangen.de>
-References: <20050128164811.GA8022@cip.informatik.uni-erlangen.de> <41FA8A3F.CC19F9EE@gte.net>
+	Fri, 28 Jan 2005 13:56:52 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15080 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262753AbVA1Swi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 13:52:38 -0500
+Date: Fri, 28 Jan 2005 18:52:34 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: brking@us.ibm.com
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH 1/2] pci: Arch hook to determine config space size
+Message-ID: <20050128185234.GB21760@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, brking@us.ibm.com,
+	greg@kroah.com, linux-kernel@vger.kernel.org,
+	linuxppc64-dev@ozlabs.org
+References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41FA8A3F.CC19F9EE@gte.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 10:53:51AM -0800, Bukie Mabayoje wrote:
-> Do you know the official NIC product name e.g Pro/100B. I need to identify
-> the LAN Controller. There are differences between  557 (not sure if 557 can
-> do WOL), 558 and 559 how they ASSERT the PME# signal. Even the same chip have
-> differences between steppings.
+> +int __attribute__ ((weak)) pcibios_exp_cfg_space(struct pci_dev *dev) { return 1; }
 
-The chip is integrated on the motherboard. Its PCI ID is 8086:1039.
-lspci says: Intel Corp. 82801BD PRO/100 VE (LOM) Ethernet Controller (rev 81)
-If you want I can open up one of these machines tomorrow to look on the chip
-directly.
+ - prototypes belong to headers
+ - weak linkage is the perfect way for total obsfucation
 
-Regards,
-  Michael
+please make this a regular arch hook
+> Please read the FAQ at  http://www.tux.org/lkml/
+---end quoted text---

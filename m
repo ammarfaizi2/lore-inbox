@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269779AbRHMDXo>; Sun, 12 Aug 2001 23:23:44 -0400
+	id <S269777AbRHMD1e>; Sun, 12 Aug 2001 23:27:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269777AbRHMDXf>; Sun, 12 Aug 2001 23:23:35 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:29708 "EHLO
-	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S269775AbRHMDXU>; Sun, 12 Aug 2001 23:23:20 -0400
-Message-Id: <200108130323.f7D3NIV04420@jordan.goethel.local>
-Content-Type: text/plain; charset=US-ASCII
-From: Sven Goethel <sgoethel@jausoft.com>
-Organization: Jausoft - Sven Goethel Software Development
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac2
-Date: Mon, 13 Aug 2001 05:23:16 +0200
-X-Mailer: KMail [version 1.2.3]
-Cc: torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <E15W4nB-0006RQ-00@the-village.bc.nu>
-In-Reply-To: <E15W4nB-0006RQ-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S269778AbRHMD1Y>; Sun, 12 Aug 2001 23:27:24 -0400
+Received: from zero.tech9.net ([209.61.188.187]:5641 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S269777AbRHMD1O>;
+	Sun, 12 Aug 2001 23:27:14 -0400
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
+From: Robert Love <rml@tech9.net>
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <200108122031.WAA1566356@mail.takas.lt>
+In-Reply-To: <E15W1eR-000691-00@the-village.bc.nu> 
+	<200108122031.WAA1566356@mail.takas.lt>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 12 Aug 2001 23:27:23 -0400
+Message-Id: <997673246.9343.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 12 Aug 2001 22:30:39 +0200, Nerijus Baliunas wrote:
+>> so I think Linus should do the only sane thing - back it out. I'm backing
+>> it out of -ac. Of my three boxes, one spews noise, one locks up smp and
+>> one works.
+> 
+> But later there was a patch from maintainer (Rui Sousa). Besides, there
+> were no updates from maintainers for over a year, so I think
+> "non maintainer" did a good thing - at least maintainers started to >
+> send patches finally. Instead of backing out I suggest for maintainers
+> to send more patches...
 
-On Monday 13 August 2001 01:37, Alan Cox wrote:
-> > i just want to ask you (sorry for this consumer behavior)
-> > if you intend to integrate the xfs filesystem in your ac-series
->
-> I've discussed it with Martin Petersen a bit. Its not clear it makes
-> sense, since they kind of do chunks of their own vm (partly because they
-> had to) and other bits like acls that want to be out for the first one.
-> Right no I don't know what will occur. I think in part it depends when
-> Linus starts 2.5
->
-> > also .. do you know if it is planed to integrate the xfs fs
-> > into the main branch of the kernel ?
->
-> You'd have to ask Linus
->
+thank you :)
 
-thanxs alan
+i think this is preferred to having a year-old revision in the kernel.
 
-so i ask linus here ..
+these problems (issues after Rui's update to my patch) are issues with
+the driver itself, and hopefully they will be resolved now.  the number
+of eyes looking at current code has grown greatly, now ...
 
-hello ;-)
+certainly i did not intend for any issues with the driver update patch,
+but some issues were fixed and many features were added (fwiw, i  have
+no problems).
 
-dear linus
+i suspect now the issues will be cleared up soon, and hopefully the
+driver will see more frequent updates.
 
-how about integrating the xfs fs into the main kernel branch ?
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
-i guess 'ya all know how nice this would be ..
-
-sorry for acting just like a wanting customer
-
-thanxs for all the great work - cheers, sven
-- -- 
-mailto:sgoethel@jausoft.com
-www   : http://www.jausoft.com ; pgp: http://www.jausoft.com/gpg/
-voice : +49-521-2399440 ; fax : +49-521-2399442
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7d0glHdOA30NoFAARAsJGAJ992d5j7Q7EOmxmfjGWaVLUfknlLQCgtLOa
-wihwthQ6GewYn+lvAaARwt8=
-=32Be
------END PGP SIGNATURE-----

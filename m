@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUJaLlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUJaLo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUJaLlK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 06:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbUJaLlC
+	id S261536AbUJaLo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 06:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUJaLlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 06:41:02 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:41155 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S261539AbUJaK5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 05:57:41 -0500
-Subject: Re: 2.6.10-rc1 crashes on recursive directory walk [2.6.9 was OK]
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: dap <dap@kenyer.hu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1099156115.14842.322.camel@localhost>
-References: <1099156115.14842.322.camel@localhost>
-Content-Type: text/plain
-Message-Id: <1099220254.677.6.camel@boxen>
+	Sun, 31 Oct 2004 06:41:18 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:6617 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261585AbUJaK5a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 05:57:30 -0500
+Date: Sun, 31 Oct 2004 05:57:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: geert@linux-m68k.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH 475] HP300 LANCE
+Message-ID: <20041031105724.GA28012@havoc.gtf.org>
+References: <200410311003.i9VA3UMN009557@anakin.of.borg> <4184BB09.8000107@pobox.com> <20041031021933.1eba86a6.akpm@osdl.org> <4184C16E.80705@pobox.com> <20041031024840.6eeee92d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 31 Oct 2004 11:57:34 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031024840.6eeee92d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  I've used xfs and ext3 on a large ftp server with lots of files, and
-> when I do a 'find / -ls' with the kernel 2.6.10-rc1, the server crashes
-> with no Oops or other message. only the reset button give a response.. I
-> can reproduce it any time with find, but the point of crash is random,
-> it can crash on xfs and ext3 partitions too..  2.6.9 works fine in this
-> environment..
-> 
-> 
-> vm settings:
-> 
-> echo 16384 > /proc/sys/vm/min_free_kbytes
-> echo 28 > /proc/sys/vm/vfs_cache_pressure
-> echo 100 > /proc/sys/vm/swappiness
-> 
-> I've tried to double min_free_kbytes but didn't help
-> 
+On Sun, Oct 31, 2004 at 02:48:40AM -0800, Andrew Morton wrote:
+> > -        void *va = dio_scodetoviraddr(scode);
+> > +	unsigned long pa = dio_scodetophysaddr(scode);
+> > +        unsigned long va = (pa + DIO_VIRADDRBASE);
 
-Hi,
 
-.config & dmesg please, I can't seem to be able to reproduce this under
-me own environment. Also a little more description of how the setup
-looks like would be nice, I've only gathered one or more raid5 arrays
-with xfs and ext3 involved.
+> That's because the stoopid driver is using spaces instead of tabs all over
+> the place.  It comes out visually OK once the patch is applied.  But it's a
+> useful reminder of how much dreck we have in the tree.
+
+Did you see the above quoted patch chunk?  The patch is inconsistent
+with _itself_, adding 'pa' and 'va' with different idents (but when they
+should be at the same identation level).
+
+	Jeff
+
+
 

@@ -1,63 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275485AbTHJJGL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 05:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275487AbTHJJGL
+	id S275481AbTHJJQR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 05:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275487AbTHJJQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 05:06:11 -0400
-Received: from waste.org ([209.173.204.2]:20111 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S275485AbTHJJGH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 05:06:07 -0400
-Date: Sun, 10 Aug 2003 04:05:56 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: virt_to_offset() (Re: [RFC][PATCH] Make cryptoapi non-optional?)
-Message-ID: <20030810090556.GY31810@waste.org>
-References: <20030809194627.GV31810@waste.org> <20030809131715.17a5be2e.davem@redhat.com> <20030810081529.GX31810@waste.org> <20030810.173215.102258218.yoshfuji@linux-ipv6.org> <20030810013041.679ddc4c.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030810013041.679ddc4c.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+	Sun, 10 Aug 2003 05:16:17 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:13585 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S275481AbTHJJQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 05:16:04 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH][2.6.0-test3] i386 cpuid.c devfs support 2/2
+Date: Sun, 10 Aug 2003 12:52:26 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_KfgN/0qFjb/9De8"
+Message-Id: <200308101252.26584.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 10, 2003 at 01:30:41AM -0700, David S. Miller wrote:
-> On Sun, 10 Aug 2003 17:32:15 +0900 (JST)
-> YOSHIFUJI Hideaki / _$B5HF#1QL@ <yoshfuji@linux-ipv6.org> wrote:
-> 
-> > BTW, we spread ((long) ptr & ~PAGE_MASK); it seems ugly.
-> > Why don't we have vert_to_offset(ptr) or something like this?
-> > #define virt_to_offset(ptr) ((unsigned long) (ptr) & ~PAGE_MASK)
-> > Is this bad idea?
-> 
-> With some name like "virt_to_pageoff()" it sounds like a great
-> idea.
 
-Had the same thought. Nowhere good to stick it, so I put it in mm.
+--Boundary-00=_KfgN/0qFjb/9De8
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-diff -urN -X dontdiff orig/include/linux/mm.h work/include/linux/mm.h
---- orig/include/linux/mm.h	2003-08-10 03:16:39.000000000 -0500
-+++ work/include/linux/mm.h	2003-08-10 04:03:25.000000000 -0500
-@@ -400,6 +400,8 @@
- #define VM_FAULT_MINOR	1
- #define VM_FAULT_MAJOR	2
+the same question about default permissions as for msr.c; the same problem 
+with module unload.
+
+-andrey
+--Boundary-00=_KfgN/0qFjb/9De8
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="2.6.0-test3-cpuid_devfs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="2.6.0-test3-cpuid_devfs.patch"
+
+--- linux-2.6.0-test3-smp/arch/i386/kernel/cpuid.c.devfs	2003-05-05 03:52:48.000000000 +0400
++++ linux-2.6.0-test3-smp/arch/i386/kernel/cpuid.c	2003-08-09 22:30:39.000000000 +0400
+@@ -39,6 +39,8 @@
+ #include <linux/smp_lock.h>
+ #include <linux/fs.h>
  
-+#define virt_to_pageoff(p) ((unsigned long)(p) & ~PAGE_MASK)
++#include <linux/devfs_fs_kernel.h>
 +
- extern void show_free_areas(void);
+ #include <asm/processor.h>
+ #include <asm/msr.h>
+ #include <asm/uaccess.h>
+@@ -156,17 +158,27 @@ static struct file_operations cpuid_fops
  
- struct page *shmem_nopage(struct vm_area_struct * vma,
+ int __init cpuid_init(void)
+ {
++  int i;
++
+   if (register_chrdev(CPUID_MAJOR, "cpu/cpuid", &cpuid_fops)) {
+     printk(KERN_ERR "cpuid: unable to get major %d for cpuid\n",
+ 	   CPUID_MAJOR);
+     return -EBUSY;
+   }
+ 
++  for (i = 0; i < NR_CPUS; i++)
++    devfs_mk_cdev(MKDEV(CPUID_MAJOR, i), S_IFCHR | S_IRUGO, "cpu/%d/cpuid", i);
++
+   return 0;
+ }
+ 
+ void __exit cpuid_exit(void)
+ {
++  int i;
++
++  for (i = 0; i < NR_CPUS; i++)
++    devfs_remove("cpu/%d/cpuid", i);
++
+   unregister_chrdev(CPUID_MAJOR, "cpu/cpuid");
+ }
+ 
 
+--Boundary-00=_KfgN/0qFjb/9De8--
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon

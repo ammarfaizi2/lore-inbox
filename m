@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129322AbQKHXvR>; Wed, 8 Nov 2000 18:51:17 -0500
+	id <S129033AbQKHX5r>; Wed, 8 Nov 2000 18:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129386AbQKHXu5>; Wed, 8 Nov 2000 18:50:57 -0500
-Received: from k2.llnl.gov ([134.9.1.1]:43473 "EHLO k2.llnl.gov")
-	by vger.kernel.org with ESMTP id <S129322AbQKHXuz>;
-	Wed, 8 Nov 2000 18:50:55 -0500
-Message-ID: <3A099F81.81FD885@scs.ch>
-Date: Wed, 08 Nov 2000 10:46:25 -0800
-From: Reto Baettig <baettig@scs.ch>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
-X-Accept-Language: en
+	id <S129044AbQKHX5i>; Wed, 8 Nov 2000 18:57:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40767 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129033AbQKHX5a>; Wed, 8 Nov 2000 18:57:30 -0500
+Subject: Re: Linux 2.4.0test11pre1ac1
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Wed, 8 Nov 2000 23:58:32 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3A09E3E5.7A8EB9DB@mandrakesoft.com> from "Jeff Garzik" at Nov 08, 2000 06:38:13 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: david <sector2@ihug.co.nz>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: fpu now a must in kernel
-In-Reply-To: <3A09E161.ACB11253@ihug.co.nz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13tf6v-0000cW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When you add it to the task switcher, it takes away a lot of cpu cycles
-during each task switch and slows down your system. I think this was the
-main idea behind _not_ saving those registers. IMHO, it does not make
-sense to generally save these registers when nobody else but your driver
-uses them. 
+> * CARDBUS is never defined.  Should that be CONFIG_CARDBUS?
 
-Good luck!
+Yep
 
-Reto
+> * just increment the version number.  There's no need to add "a" on the
+> end...  this version number just differentiates us from the 'canonical'
+> Donald Becker version of epic100.c.
 
-david wrote:
+Ok
+
+> net/atm/pvc:  return the error value from sock_register, not toss it
+> away.
+
 > 
-> hi i need fast fpu in the kernel for my lexos work
-> so how am i going to do it on the i386
 > 
-> 1 . can i add some save / restore code to the task swicher ( the right
-> way )
->      so when it switchs from user to kernel task its saves the fpu state
-> ?
-> 
-> 2 . put the save / restore code in my code (NOT! GOOD! i do not wont to
-> do it this way it is not the right way)
-> 
-> so i have to use fpu in the kernel so its just how am i going to do it ?
-> 
-> thank you
-> 
->     David Rundle <sector2@ihug.co.nz>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> ramfs comments:
+
+Note: the ramfs changes are in there for one reason only - that Im hacking
+on some bits with a pda type box and I cannot be bothered to keep two
+sets of trees
+
+> That's one API change we shouldn't throw in without discussion, IMHO...
+> it screams "ramfs-specific hack in core code!"
+
+Absolutely
+
+> And finally, don't you need to EXPORT_SYMBOL pm_devs_lock ?
+
+Yep
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVC0I6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVC0JJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVC0I6f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 03:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVC0I6f
+	id S261480AbVC0JJo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 04:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVC0JJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 03:58:35 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:20679 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261480AbVC0I60 (ORCPT
+	Sun, 27 Mar 2005 04:09:44 -0500
+Received: from mail.dif.dk ([193.138.115.101]:28896 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261480AbVC0JJ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 03:58:26 -0500
-Date: Sun, 27 Mar 2005 10:58:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
-Message-ID: <20050327085814.GA23082@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <1111790009.23430.19.camel@mindpipe> <20050325223959.GA24800@elte.hu> <1111814065.24049.21.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111814065.24049.21.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 27 Mar 2005 04:09:28 -0500
+Date: Sun, 27 Mar 2005 11:11:27 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Ingo Molnar <mingo@redhat.com>,
+       Robert Love <rml@tech9.net>, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [RFC] spinlock_t & rwlock_t break_lock member initialization
+ (patch seeking comments included)
+In-Reply-To: <Pine.LNX.4.62.0503202205480.2508@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0503271108140.2388@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503202205480.2508@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+I've now been running kernels (both PREEMPT, SMP, both and without both) 
+with the patch below applied for a few days and I see no ill effects. I'm 
+still interrested in comments about wether or not something like this 
+makes sense and is acceptable ?
 
-> Running for several days with PREEMPT_DESKTOP, on the Athlon XP the 
-> worst latency I am seeing is ~150 usecs!  But on the C3 its about 4ms:
+-- 
+Jesper Juhl
 
-could you run a bit with tracing disabled (in the .config) on the C3?  
-(but wakeup timing still enabled) It may very well be tracing overhead 
-that makes those latencies that high.  Also, we'd thus have some hard 
-data on how much overhead tracing is in such a situation, on that CPU.
 
-	Ingo
+On Sun, 20 Mar 2005, Jesper Juhl wrote:
+
+> 
+> I'm often building the tree with gcc -W to look for potential trouble 
+> spots, and of course I see a lot of warning messages. I'm well aware that 
+> most of these don't indicate actual problems and should just be ignored, 
+> but the less warnings there are the easier it is to zoom in on the ones 
+> that might actually matter, so I try to also locate those that can be 
+> silenced safely even when they don't indicate a real problem - just to cut 
+> down on the number of warnings I have to sift through.
+> One class of warnings that belong in the "not really a problem but I 
+> believe I can silence it without doing any harm" category are these : 
+> 
+> include/linux/wait.h:82: warning: missing initializer
+> include/linux/wait.h:82: warning: (near initialization for `(anonymous).break_lock')
+> 
+> include/asm/rwsem.h:88: warning: missing initializer
+> include/asm/rwsem.h:88: warning: (near initialization for `(anonymous).break_lock')
+> 
+> These stem from the fact that when you enable CONFIG_PREEMPT spinlock_t 
+> and rwlock_t each gain an extra member "break_lock", but the lock 
+> initialization code neglects to initialize this extra member in that case.
+> 
+> If you enable CONFIG_PREEMPT and build with gcc -W you'll see a *lot* of 
+> those, since spinlocks and rwlocks are used all over the place.
+> 
+> I've come up with a patch to that silence those warnings by making sure 
+> the "break_lock" member will be initialized when CONFIG_PREEMPT is 
+> enabled.
+> 
+> I would like to know if a patch like this is welcome or just considered 
+> clutter for no real gain. I would also like to know if I've overlooked 
+> some implications of doing this - it seems to me that this should be 
+> completely safe to do and without significant overhead, but I'm also well 
+> aware that my knowledge of this code is quite shallow, so I need comments 
+> (especially since lock performance is quite performance critical, so I 
+> don't want to screw up here).
+> 
+> Here's the patch I came up with - comments are very welcome.
+> 
+> 
+> (no Signed-off-by since this is not intended to be merged just yet)
+> 
+> --- linux-2.6.11-mm4-orig/include/asm-i386/spinlock.h	2005-03-02 08:37:50.000000000 +0100
+> +++ linux-2.6.11-mm4/include/asm-i386/spinlock.h	2005-03-20 22:40:46.000000000 +0100
+> @@ -32,7 +32,13 @@
+>  #define SPINLOCK_MAGIC_INIT	/* */
+>  #endif
+>  
+> -#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
+> +#ifdef CONFIG_PREEMPT
+> +#define SPINLOCK_BREAK_INIT	, 0
+> +#else
+> +#define SPINLOCK_BREAK_INIT	/* */
+> +#endif
+> +
+> +#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT SPINLOCK_BREAK_INIT }
+>  
+>  #define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+>  
+> @@ -182,7 +188,13 @@
+>  #define RWLOCK_MAGIC_INIT	/* */
+>  #endif
+>  
+> -#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
+> +#ifdef CONFIG_PREEMPT
+> +#define RWLOCK_BREAK_INIT	, 0
+> +#else
+> +#define RWLOCK_BREAK_INIT	/* */
+> +#endif
+> +
+> +#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT RWLOCK_BREAK_INIT }
+>  
+>  #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+>  
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268311AbUIKUw6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268314AbUIKUyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268311AbUIKUw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 16:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUIKUw5
+	id S268314AbUIKUyI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 16:54:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268316AbUIKUx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 16:52:57 -0400
-Received: from hcc022004.bai.ne.jp ([210.171.22.4]:42121 "HELO
+	Sat, 11 Sep 2004 16:53:57 -0400
+Received: from hcc022004.bai.ne.jp ([210.171.22.4]:43145 "HELO
 	tigger.internet.email.ne.jp") by vger.kernel.org with SMTP
-	id S268311AbUIKUvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 16:51:15 -0400
-Date: Sun, 12 Sep 2004 05:51:13 +0900 (JST)
-Message-Id: <20040912.055113.884011275.takata@linux-m32r.org>
+	id S268314AbUIKUvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 16:51:21 -0400
+Date: Sun, 12 Sep 2004 05:51:19 +0900 (JST)
+Message-Id: <20040912.055119.424243625.takata@linux-m32r.org>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.9-rc1-mm4 4/6] [m32r] Update uaccess.h
+Subject: [PATCH 2.6.9-rc1-mm4 5/6] [m32r] Update checksum functions
 From: Hirokazu Takata <takata@linux-m32r.org>
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
 In-Reply-To: <20040912.052403.730551818.takata@linux-m32r.org>
@@ -24,476 +24,328 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH 2.6.9-rc1-mm4 4/6] [m32r] Update uaccess.h
-  This patch updates asm-m32r/uaccess.h.
-
-	* include/asm-m32r/uaccess.h:
-	(__copy_to_user_inatomic): Added.
-	(__copy_from_user_inatomic): Added.
-	Update comments.
+[PATCH 2.6.9-rc1-mm4 5/6] [m32r] Update checksum functions
+  This patch update checksum routines.
+  And EXPORT_SYMBOL() is moved from m32r_ksyms.c to csum_partial_copy.c.
 
 Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 ---
 
- include/asm-m32r/uaccess.h |  349 +++++++++++++++++++++++++++++++++++++--------
- 1 files changed, 290 insertions(+), 59 deletions(-)
+ arch/m32r/kernel/m32r_ksyms.c     |    2 
+ arch/m32r/lib/csum_partial_copy.c |   39 ++--------
+ include/asm-m32r/checksum.h       |  136 +++++++++++---------------------------
+ 3 files changed, 52 insertions(+), 125 deletions(-)
 
 
-diff -ruNp linux-2.6.9-rc1-mm4.orig/include/asm-m32r/uaccess.h linux-2.6.9-rc1-mm4/include/asm-m32r/uaccess.h
---- linux-2.6.9-rc1-mm4.orig/include/asm-m32r/uaccess.h	2004-09-08 08:14:17.000000000 +0900
-+++ linux-2.6.9-rc1-mm4/include/asm-m32r/uaccess.h	2004-09-12 04:46:32.000000000 +0900
-@@ -1,7 +1,12 @@
- #ifndef _ASM_M32R_UACCESS_H
- #define _ASM_M32R_UACCESS_H
+diff -ruNp linux-2.6.9-rc1-mm4.orig/arch/m32r/kernel/m32r_ksyms.c linux-2.6.9-rc1-mm4/arch/m32r/kernel/m32r_ksyms.c
+--- linux-2.6.9-rc1-mm4.orig/arch/m32r/kernel/m32r_ksyms.c	2004-09-08 08:14:03.000000000 +0900
++++ linux-2.6.9-rc1-mm4/arch/m32r/kernel/m32r_ksyms.c	2004-09-09 01:39:58.000000000 +0900
+@@ -14,7 +14,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/checksum.h>
+ #include <asm/io.h>
+-#include <asm/hardirq.h>
+ #include <asm/delay.h>
+ #include <asm/irq.h>
+ #include <asm/tlbflush.h>
+@@ -42,7 +41,6 @@ EXPORT_SYMBOL(__up);
+ EXPORT_SYMBOL(__down_trylock);
+ 
+ /* Networking helper routines. */
+-EXPORT_SYMBOL(csum_partial_copy);
+ /* Delay loops */
+ EXPORT_SYMBOL(__udelay);
+ EXPORT_SYMBOL(__delay);
+diff -ruNp linux-2.6.9-rc1-mm4.orig/arch/m32r/lib/csum_partial_copy.c linux-2.6.9-rc1-mm4/arch/m32r/lib/csum_partial_copy.c
+--- linux-2.6.9-rc1-mm4.orig/arch/m32r/lib/csum_partial_copy.c	2004-09-08 08:14:03.000000000 +0900
++++ linux-2.6.9-rc1-mm4/arch/m32r/lib/csum_partial_copy.c	2004-09-09 23:06:24.000000000 +0900
+@@ -14,38 +14,34 @@
+  *		as published by the Free Software Foundation; either version
+  *		2 of the License, or (at your option) any later version.
+  *
+- * $Id$
+  */
+-#include <net/checksum.h>
++
++#include <linux/module.h>
+ #include <linux/types.h>
++
++#include <net/checksum.h>
+ #include <asm/byteorder.h>
+ #include <asm/string.h>
+ #include <asm/uaccess.h>
+ 
+ /*
+- * copy while checksumming, otherwise like csum_partial
++ * Copy while checksumming, otherwise like csum_partial
+  */
+-unsigned int csum_partial_copy(const char *src, char *dst,
+-                               int len, int sum)
++unsigned int csum_partial_copy_nocheck (const char *src, char *dst,
++                                        int len, unsigned int sum)
+ {
+-	/*
+-	 * It's 2:30 am and I don't feel like doing it real ...
+-	 * This is lots slower than the real thing (tm)
+-	 */
+ 	sum = csum_partial(src, len, sum);
+ 	memcpy(dst, src, len);
+ 
+ 	return sum;
+ }
++EXPORT_SYMBOL(csum_partial_copy_nocheck);
+ 
+ /*
+  * Copy from userspace and compute checksum.  If we catch an exception
+  * then zero the rest of the buffer.
+-unsigned int csum_partial_copy_from_user (const char *src, char *dst,
+-                                          int len, unsigned int sum,
+-                                          int *err_ptr)
+  */
+-unsigned int csum_partial_copy_generic_from (const char *src, char *dst,
++unsigned int csum_partial_copy_from_user (const char __user *src, char *dst,
+                                           int len, unsigned int sum,
+                                           int *err_ptr)
+ {
+@@ -59,19 +55,4 @@ unsigned int csum_partial_copy_generic_f
+ 
+ 	return csum_partial(dst, len-missing, sum);
+ }
+-unsigned int csum_partial_copy_generic_to (const char *src, char *dst,
+-                                          int len, unsigned int sum,
+-                                          int *err_ptr)
+-{
+-	int missing;
+-
+-	missing = copy_to_user(dst, src, len);
+-	if (missing) {
+-/*
+-		memset(dst + len - missing, 0, missing);
+-*/
+-		*err_ptr = -EFAULT;
+-	}
+-
+-	return csum_partial(src, len-missing, sum);
+-}
++EXPORT_SYMBOL(csum_partial_copy_from_user);
+diff -ruNp linux-2.6.9-rc1-mm4.orig/include/asm-m32r/checksum.h linux-2.6.9-rc1-mm4/include/asm-m32r/checksum.h
+--- linux-2.6.9-rc1-mm4.orig/include/asm-m32r/checksum.h	2004-09-08 08:14:17.000000000 +0900
++++ linux-2.6.9-rc1-mm4/include/asm-m32r/checksum.h	2004-09-09 21:05:16.000000000 +0900
+@@ -1,14 +1,20 @@
++#ifdef __KERNEL__
+ #ifndef _ASM_M32R_CHECKSUM_H
+ #define _ASM_M32R_CHECKSUM_H
  
 -/* $Id$ */
-+/*
-+ *  linux/include/asm-m32r/uaccess.h
+-
+ /*
+- *  linux/include/asm-m32r/atomic.h
+- *    orig : i386 2.4.10
++ * include/asm-m32r/checksum.h
 + *
-+ *  M32R version.
++ * IP/TCP/UDP checksum routines
++ *
++ * This file is subject to the terms and conditions of the GNU General Public
++ * License.  See the file "COPYING" in the main directory of this archive
++ * for more details.
++ *
++ * Some code taken from mips and parisc architecture.
+  *
+- *  M32R version:
+  *    Copyright (C) 2001, 2002  Hiroyuki Kondo, Hirokazu Takata
 + *    Copyright (C) 2004  Hirokazu Takata <takata at linux-m32r.org>
-+ */
+  */
  
- #undef UACCESS_DEBUG
- 
-@@ -61,7 +66,13 @@ static inline void set_fs(mm_segment_t s
- 	((unsigned long)(addr) < (current_thread_info()->addr_limit.seg))
+ #include <linux/in6.h>
+@@ -25,71 +31,31 @@
+  *
+  * it's best to have buff aligned on a 32-bit boundary
+  */
+-asmlinkage unsigned int csum_partial(const unsigned char * buff, int len, unsigned int sum);
++asmlinkage unsigned int csum_partial(const unsigned char *buff, int len, unsigned int sum);
  
  /*
-- * Uhhuh, this needs 33-bit arithmetic. We have a carry..
-+ * Test whether a block of memory is a valid user space address.
-+ * Returns 0 if the range is valid, nonzero otherwise.
-+ *
-+ * This is equivalent to the following test:
-+ * (u33)addr + (u33)size >= (u33)current->addr_limit.seg
-+ *
-+ * This needs 33-bit arithmetic. We have a carry...
+- * the same as csum_partial, but copies from src while it
+- * checksums, and handles user-space pointer exceptions correctly, when needed.
++ * The same as csum_partial, but copies from src while it checksums.
+  *
+- * here even more important to align src and dst on a 32-bit (or even
++ * Here even more important to align src and dst on a 32-bit (or even
+  * better 64-bit) boundary
   */
- #define __range_ok(addr,size) ({					\
- 	unsigned long flag, sum; 					\
-@@ -78,8 +89,27 @@ static inline void set_fs(mm_segment_t s
- 		: "cbit" );						\
- 	flag; })
- 
-+/**
-+ * access_ok: - Checks if a user space pointer is valid
-+ * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE.  Note that
-+ *        %VERIFY_WRITE is a superset of %VERIFY_READ - if it is safe
-+ *        to write to a block, it is always safe to read from it.
-+ * @addr: User space pointer to start of block to check
-+ * @size: Size of block to check
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Checks if a pointer to a block of memory in user space is valid.
-+ *
-+ * Returns true (nonzero) if the memory block may be valid, false (zero)
-+ * if it is definitely invalid.
-+ *
-+ * Note that, depending on architecture, this function probably just
-+ * checks that the pointer is in the user space range - after calling
-+ * this function, memory access functions may still return -EFAULT.
-+ */
- #ifdef CONFIG_MMU
--#define access_ok(type,addr,size) (__range_ok(addr,size) == 0)
-+#define access_ok(type,addr,size) (likely(__range_ok(addr,size) == 0))
- #else
- static inline int access_ok(int type, const void *addr, unsigned long size)
- {
-@@ -90,8 +120,25 @@ static inline int access_ok(int type, co
- }
- #endif /* CONFIG_MMU */
- 
--static __inline__ int verify_area(int type, const void __user *addr,
--	unsigned long size)
-+/**
-+ * verify_area: - Obsolete, use access_ok()
-+ * @type: Type of access: %VERIFY_READ or %VERIFY_WRITE
-+ * @addr: User space pointer to start of block to check
-+ * @size: Size of block to check
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * This function has been replaced by access_ok().
-+ *
-+ * Checks if a pointer to a block of memory in user space is valid.
-+ *
-+ * Returns zero if the memory block may be valid, -EFAULT
-+ * if it is definitely invalid.
-+ *
-+ * See access_ok() for more details.
-+ */
-+static inline int verify_area(int type, const void __user *addr,
-+			      unsigned long size)
- {
- 	return access_ok(type, addr, size) ? 0 : -EFAULT;
- }
-@@ -167,6 +214,23 @@ extern void __get_user_4(void);
- 
- /* Careful: we have to cast the result to the type of the pointer for sign
-    reasons */
-+/**
-+ * get_user: - Get a simple variable from user space.
-+ * @x:   Variable to store result.
-+ * @ptr: Source address, in user space.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * This macro copies a single simple variable from user space to kernel
-+ * space.  It supports simple types like char and int, but not larger
-+ * data types like structures or arrays.
-+ *
-+ * @ptr must have pointer-to-simple-variable type, and the result of
-+ * dereferencing @ptr must be assignable to @x without a cast.
-+ *
-+ * Returns zero on success, or -EFAULT on error.
-+ * On error, the variable @x is set to zero.
-+ */
- #define get_user(x,ptr)							\
- ({	int __ret_gu,__val_gu;						\
- 	__chk_user_ptr(ptr);						\
-@@ -182,11 +246,69 @@ extern void __get_user_4(void);
- 
- extern void __put_user_bad(void);
- 
-+/**
-+ * put_user: - Write a simple value into user space.
-+ * @x:   Value to copy to user space.
-+ * @ptr: Destination address, in user space.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * This macro copies a single simple value from kernel space to user
-+ * space.  It supports simple types like char and int, but not larger
-+ * data types like structures or arrays.
-+ *
-+ * @ptr must have pointer-to-simple-variable type, and @x must be assignable
-+ * to the result of dereferencing @ptr.
-+ *
-+ * Returns zero on success, or -EFAULT on error.
-+ */
- #define put_user(x,ptr)							\
-   __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
- 
-+
-+/**
-+ * __get_user: - Get a simple variable from user space, with less checking.
-+ * @x:   Variable to store result.
-+ * @ptr: Source address, in user space.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * This macro copies a single simple variable from user space to kernel
-+ * space.  It supports simple types like char and int, but not larger
-+ * data types like structures or arrays.
-+ *
-+ * @ptr must have pointer-to-simple-variable type, and the result of
-+ * dereferencing @ptr must be assignable to @x without a cast.
-+ *
-+ * Caller must check the pointer with access_ok() before calling this
-+ * function.
-+ *
-+ * Returns zero on success, or -EFAULT on error.
-+ * On error, the variable @x is set to zero.
-+ */
- #define __get_user(x,ptr) \
-   __get_user_nocheck((x),(ptr),sizeof(*(ptr)))
-+
-+
-+/**
-+ * __put_user: - Write a simple value into user space, with less checking.
-+ * @x:   Value to copy to user space.
-+ * @ptr: Destination address, in user space.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * This macro copies a single simple value from kernel space to user
-+ * space.  It supports simple types like char and int, but not larger
-+ * data types like structures or arrays.
-+ *
-+ * @ptr must have pointer-to-simple-variable type, and @x must be assignable
-+ * to the result of dereferencing @ptr.
-+ *
-+ * Caller must check the pointer with access_ok() before calling this
-+ * function.
-+ *
-+ * Returns zero on success, or -EFAULT on error.
-+ */
- #define __put_user(x,ptr) \
-   __put_user_nocheck((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
- 
-@@ -208,48 +330,6 @@ extern void __put_user_bad(void);
- 	__pu_err;							\
- })
- 
--#define __put_user_size(x,ptr,size,retval)				\
--do {									\
--	retval = 0;							\
--	__chk_user_ptr(ptr);						\
--	switch (size) {							\
--	  case 1: __put_user_asm(x,ptr,retval,"b"); break;		\
--	  case 2: __put_user_asm(x,ptr,retval,"h"); break;		\
--	  case 4: __put_user_asm(x,ptr,retval,""); break;		\
--	  case 8: __put_user_u64((__typeof__(*ptr))(x),ptr,retval); break;\
--	  default: __put_user_bad();					\
--	}								\
--} while (0)
 -
--struct __large_struct { unsigned long buf[100]; };
--#define __m(x) (*(struct __large_struct *)(x))
+-asmlinkage unsigned int csum_partial_copy_generic(const char *src, char *dst,
+-		int len, int sum, int *src_err_ptr, int *dst_err_ptr);
++extern unsigned int csum_partial_copy_nocheck(const char *src, char *dst,
++                                              int len, unsigned int sum);
+ 
+ /*
+- *	Note: when you get a NULL pointer exception here this means someone
+- *	passed in an incorrect kernel address to one of these functions.
+- *
+- *	If you use these functions directly please don't forget the
+- *	verify_area().
++ * This is a new version of the above that records errors it finds in *errp,
++ * but continues and zeros thre rest of the buffer.
+  */
+-
+-extern unsigned int csum_partial_copy(const char *src, char *dst,
+-		int len, int sum);
+-extern unsigned int csum_partial_copy_generic_from(const char *src,
+-		char *dst, int len, unsigned int sum, int *err_ptr);
+-extern unsigned int csum_partial_copy_generic_to (const char *src,
+-		char *dst, int len, unsigned int sum, int *err_ptr);
+-
+-extern __inline__
+-unsigned int csum_partial_copy_nocheck ( const char *src, char *dst,
+-					int len, int sum)
+-{
+-#if 0
+-	return csum_partial_copy_generic ( src, dst, len, sum, NULL, NULL);
+-#else
+-	return  csum_partial_copy( src, dst, len, sum);
+-#endif
+-}
+-
+-extern __inline__
+-unsigned int csum_partial_copy_from_user ( const char __user *src, char *dst,
+-						int len, int sum, int *err_ptr)
+-{
+-#if 0
+-	return csum_partial_copy_generic ( src, dst, len, sum, err_ptr, NULL);
+-#else
+-	return csum_partial_copy_generic_from ( src, dst, len, sum, err_ptr);
+-#endif
+-}
 -
 -/*
-- * Tell gcc we read from memory instead of writing: this is because
-- * we do not write to any memory gcc knows about, so there are no
-- * aliasing issues.
+- * These are the old (and unsafe) way of doing checksums, a warning message will be
+- * printed if they are used and an exeption occurs.
+- *
+- * these functions should go away after some time.
 - */
--#define __put_user_asm(x, addr, err, itype)				\
--	__asm__ __volatile__(						\
--		"	.fillinsn\n"					\
--		"1:	st"itype" %1,@%2\n"				\
--		"	.fillinsn\n"					\
--		"2:\n"							\
--		".section .fixup,\"ax\"\n"				\
--		"	.balign 4\n"					\
--		"3:	ldi %0,%3\n"					\
--		"	seth r14,#high(2b)\n"				\
--		"	or3 r14,r14,#low(2b)\n"				\
--		"	jmp r14\n"					\
--		".previous\n"						\
--		".section __ex_table,\"a\"\n"				\
--		"	.balign 4\n"					\
--		"	.long 1b,3b\n"					\
--		".previous"						\
--		: "=r"(err)						\
--		: "r"(x), "r"(addr), "i"(-EFAULT), "0"(err)		\
--		: "r14", "memory")
 -
- #if defined(__LITTLE_ENDIAN__)
- #define __put_user_u64(x, addr, err)                                    \
-         __asm__ __volatile__(                                           \
-@@ -303,6 +383,48 @@ struct __large_struct { unsigned long bu
- #error no endian defined
- #endif
- 
-+#define __put_user_size(x,ptr,size,retval)				\
-+do {									\
-+	retval = 0;							\
-+	__chk_user_ptr(ptr);						\
-+	switch (size) {							\
-+	  case 1: __put_user_asm(x,ptr,retval,"b"); break;		\
-+	  case 2: __put_user_asm(x,ptr,retval,"h"); break;		\
-+	  case 4: __put_user_asm(x,ptr,retval,""); break;		\
-+	  case 8: __put_user_u64((__typeof__(*ptr))(x),ptr,retval); break;\
-+	  default: __put_user_bad();					\
-+	}								\
-+} while (0)
-+
-+struct __large_struct { unsigned long buf[100]; };
-+#define __m(x) (*(struct __large_struct *)(x))
-+
-+/*
-+ * Tell gcc we read from memory instead of writing: this is because
-+ * we do not write to any memory gcc knows about, so there are no
-+ * aliasing issues.
-+ */
-+#define __put_user_asm(x, addr, err, itype)				\
-+	__asm__ __volatile__(						\
-+		"	.fillinsn\n"					\
-+		"1:	st"itype" %1,@%2\n"				\
-+		"	.fillinsn\n"					\
-+		"2:\n"							\
-+		".section .fixup,\"ax\"\n"				\
-+		"	.balign 4\n"					\
-+		"3:	ldi %0,%3\n"					\
-+		"	seth r14,#high(2b)\n"				\
-+		"	or3 r14,r14,#low(2b)\n"				\
-+		"	jmp r14\n"					\
-+		".previous\n"						\
-+		".section __ex_table,\"a\"\n"				\
-+		"	.balign 4\n"					\
-+		"	.long 1b,3b\n"					\
-+		".previous"						\
-+		: "=r"(err)						\
-+		: "r"(x), "r"(addr), "i"(-EFAULT), "0"(err)		\
-+		: "r14", "memory")
-+
- #define __get_user_nocheck(x,ptr,size)					\
- ({									\
- 	long __gu_err, __gu_val;					\
-@@ -346,6 +468,13 @@ do {									\
- 		: "r"(addr), "i"(-EFAULT), "0"(err)			\
- 		: "r14", "memory")
- 
-+/*
-+ * Here we special-case 1, 2 and 4-byte copy_*_user invocations.  On a fault
-+ * we return the initial request size (1, 2 or 4), as copy_*_user should do.
-+ * If a store crosses a page boundary and gets a fault, the m32r will not write
-+ * anything, so this is accurate.
-+ */
-+
+-#define csum_partial_copy_fromuser csum_partial_copy
+-unsigned int csum_partial_copy( const char *src, char *dst, int len, int sum);
++extern unsigned int csum_partial_copy_from_user(const char __user *src,
++                                                char *dst,
++                                                int len, unsigned int sum,
++                                                int *err_ptr);
  
  /*
-  * Copy To/From Userspace
-@@ -475,14 +604,14 @@ do {									\
- /* We let the __ versions of copy_from/to_user inline, because they're often
-  * used in fast paths and have only a small space overhead.
+  *	Fold a partial checksum
   */
--static __inline__ unsigned long __generic_copy_from_user_nocheck(void *to,
-+static inline unsigned long __generic_copy_from_user_nocheck(void *to,
- 	const void __user *from, unsigned long n)
+ 
+-static __inline__ unsigned int csum_fold(unsigned int sum)
++static inline unsigned int csum_fold(unsigned int sum)
  {
- 	__copy_user_zeroing(to,from,n);
- 	return n;
+ 	unsigned long tmpreg;
+ 	__asm__(
+@@ -106,15 +72,12 @@ static __inline__ unsigned int csum_fold
+ 	);
+ 	return sum;
+ }
+-
++
+ /*
+- *	This is a version of ip_compute_csum() optimized for IP headers,
+- *	which always checksum on 4 octet boundaries.
+- *
+- *	By Jorge Cwik <jorge@laser.satlink.net>, adapted for linux by
+- *	Arnt Gulbrandsen.
++ * This is a version of ip_compute_csum() optimized for IP headers,
++ * which always checksum on 4 octet boundaries.
+  */
+-static __inline__ unsigned short ip_fast_csum(unsigned char * iph,
++static inline unsigned short ip_fast_csum(unsigned char * iph,
+ 					  unsigned int ihl) {
+ 	unsigned long sum, tmpreg0, tmpreg1;
+ 
+@@ -150,11 +113,11 @@ static __inline__ unsigned short ip_fast
+ 	return csum_fold(sum);
  }
  
--static __inline__ unsigned long __generic_copy_to_user_nocheck(void __user *to,
-+static inline unsigned long __generic_copy_to_user_nocheck(void __user *to,
- 	const void *from, unsigned long n)
+-static __inline__ unsigned long csum_tcpudp_nofold(unsigned long saddr,
+-						   unsigned long daddr,
+-						   unsigned short len,
+-						   unsigned short proto,
+-						   unsigned int sum)
++static inline unsigned long csum_tcpudp_nofold(unsigned long saddr,
++					       unsigned long daddr,
++					       unsigned short len,
++					       unsigned short proto,
++					       unsigned int sum)
  {
- 	__copy_user(to,from,n);
-@@ -492,30 +621,132 @@ static __inline__ unsigned long __generi
- unsigned long __generic_copy_to_user(void *, const void *, unsigned long);
- unsigned long __generic_copy_from_user(void *, const void *, unsigned long);
+ #if defined(__LITTLE_ENDIAN)
+ 	unsigned long len_proto = (ntohs(len)<<16)+proto*256;
+@@ -182,11 +145,11 @@ static __inline__ unsigned long csum_tcp
+  * computes the checksum of the TCP/UDP pseudo-header
+  * returns a 16-bit checksum, already complemented
+  */
+-static __inline__ unsigned short int csum_tcpudp_magic(unsigned long saddr,
++static inline unsigned short int csum_tcpudp_magic(unsigned long saddr,
+ 						   unsigned long daddr,
+ 						   unsigned short len,
+ 						   unsigned short proto,
+-						   unsigned int sum)
++						   unsigned int sum)
+ {
+ 	return csum_fold(csum_tcpudp_nofold(saddr,daddr,len,proto,sum));
+ }
+@@ -196,16 +159,16 @@ static __inline__ unsigned short int csu
+  * in icmp.c
+  */
  
-+/**
-+ * __copy_to_user: - Copy a block of data into user space, with less checking.
-+ * @to:   Destination address, in user space.
-+ * @from: Source address, in kernel space.
-+ * @n:    Number of bytes to copy.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Copy data from kernel space to user space.  Caller must check
-+ * the specified block with access_ok() before calling this function.
-+ *
-+ * Returns number of bytes that could not be copied.
-+ * On success, this will be zero.
-+ */
-+#define __copy_to_user(to,from,n)			\
-+	__generic_copy_to_user_nocheck((to),(from),(n))
-+
-+#define __copy_to_user_inatomic __copy_to_user
-+#define __copy_from_user_inatomic __copy_from_user
-+
-+/**
-+ * copy_to_user: - Copy a block of data into user space.
-+ * @to:   Destination address, in user space.
-+ * @from: Source address, in kernel space.
-+ * @n:    Number of bytes to copy.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Copy data from kernel space to user space.
-+ *
-+ * Returns number of bytes that could not be copied.
-+ * On success, this will be zero.
-+ */
- #define copy_to_user(to,from,n)				\
- ({							\
- 	might_sleep();					\
- 	__generic_copy_to_user((to),(from),(n));	\
- })
+-static __inline__ unsigned short ip_compute_csum(unsigned char * buff, int len) {
++static inline unsigned short ip_compute_csum(unsigned char * buff, int len) {
+ 	return csum_fold (csum_partial(buff, len, 0));
+ }
  
-+/**
-+ * __copy_from_user: - Copy a block of data from user space, with less checking. * @to:   Destination address, in kernel space.
-+ * @from: Source address, in user space.
-+ * @n:    Number of bytes to copy.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Copy data from user space to kernel space.  Caller must check
-+ * the specified block with access_ok() before calling this function.
-+ *
-+ * Returns number of bytes that could not be copied.
-+ * On success, this will be zero.
-+ *
-+ * If some data could not be copied, this function will pad the copied
-+ * data to the requested size using zero bytes.
-+ */
-+#define __copy_from_user(to,from,n)			\
-+	__generic_copy_from_user_nocheck((to),(from),(n))
-+
-+/**
-+ * copy_from_user: - Copy a block of data from user space.
-+ * @to:   Destination address, in kernel space.
-+ * @from: Source address, in user space.
-+ * @n:    Number of bytes to copy.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Copy data from user space to kernel space.
-+ *
-+ * Returns number of bytes that could not be copied.
-+ * On success, this will be zero.
-+ *
-+ * If some data could not be copied, this function will pad the copied
-+ * data to the requested size using zero bytes.
-+ */
- #define copy_from_user(to,from,n)			\
- ({							\
- 	might_sleep();					\
--	__generic_copy_from_user((to),(from),(n));	\
-+__generic_copy_from_user((to),(from),(n));	\
- })
+ #define _HAVE_ARCH_IPV6_CSUM
+-static __inline__ unsigned short int csum_ipv6_magic(struct in6_addr *saddr,
+-						     struct in6_addr *daddr,
+-						     __u16 len,
+-						     unsigned short proto,
+-						     unsigned int sum)
++static inline unsigned short int csum_ipv6_magic(struct in6_addr *saddr,
++						 struct in6_addr *daddr,
++						 __u16 len,
++						 unsigned short proto,
++						 unsigned int sum)
+ {
+ 	unsigned long tmpreg0, tmpreg1, tmpreg2, tmpreg3;
+ 	__asm__(
+@@ -231,7 +194,7 @@ static __inline__ unsigned short int csu
+ 		"	addx	%0, %1 \n"
+ 		: "=&r" (sum), "=&r" (tmpreg0), "=&r" (tmpreg1),
+ 		  "=&r" (tmpreg2), "=&r" (tmpreg3)
+-		: "r" (saddr), "r" (daddr),
++		: "r" (saddr), "r" (daddr),
+ 		  "r" (htonl((__u32) (len))), "r" (htonl(proto)), "0" (sum)
+ 		: "cbit"
+ 	);
+@@ -239,20 +202,5 @@ static __inline__ unsigned short int csu
+ 	return csum_fold(sum);
+ }
  
--#define __copy_to_user(to,from,n)			\
--	__generic_copy_to_user_nocheck((to),(from),(n))
-+long __must_check strncpy_from_user(char *dst, const char __user *src, 
-+				long count);
-+long __must_check __strncpy_from_user(char *dst, 
-+				const char __user *src, long count);
-+
-+/**
-+ * __clear_user: - Zero a block of memory in user space, with less checking.
-+ * @to:   Destination address, in user space.
-+ * @n:    Number of bytes to zero.
-+ *
-+ * Zero a block of memory in user space.  Caller must check
-+ * the specified block with access_ok() before calling this function.
-+ *
-+ * Returns number of bytes that could not be cleared.
-+ * On success, this will be zero.
-+ */
-+unsigned long __clear_user(void __user *mem, unsigned long len);
- 
--#define __copy_from_user(to,from,n)			\
--	__generic_copy_from_user_nocheck((to),(from),(n))
-+/**
-+ * clear_user: - Zero a block of memory in user space.
-+ * @to:   Destination address, in user space.
-+ * @n:    Number of bytes to zero.
-+ *
-+ * Zero a block of memory in user space.  Caller must check
-+ * the specified block with access_ok() before calling this function.
-+ *
-+ * Returns number of bytes that could not be cleared.
-+ * On success, this will be zero.
-+ */
-+unsigned long clear_user(void __user *mem, unsigned long len);
- 
--long strncpy_from_user(char *dst, const char __user *src, long count);
--long __strncpy_from_user(char *dst, const char __user *src, long count);
-+/**
-+ * strlen_user: - Get the size of a string in user space.
-+ * @str: The string to measure.
-+ *
-+ * Context: User context only.  This function may sleep.
-+ *
-+ * Get the size of a NUL-terminated string in user space.
-+ *
-+ * Returns the size of the string INCLUDING the terminating NUL.
-+ * On exception, returns 0.
-+ *
-+ * If there is a limit on the length of a valid string, you may wish to
-+ * consider using strnlen_user() instead.
-+ */
- #define strlen_user(str) strnlen_user(str, ~0UL >> 1)
- long strnlen_user(const char __user *str, long n);
--unsigned long clear_user(void __user *mem, unsigned long len);
--unsigned long __clear_user(void __user *mem, unsigned long len);
- 
- #endif /* _ASM_M32R_UACCESS_H */
+-/*
+- *	Copy and checksum to user
+- */
+-#define HAVE_CSUM_COPY_USER
+-static __inline__ unsigned int csum_and_copy_to_user (const char *src, char *dst,
+-				    int len, int sum, int *err_ptr)
+-{
+-	if (access_ok(VERIFY_WRITE, dst, len))
+-		return csum_partial_copy_generic_to(src, dst, len, sum, err_ptr);
 -
+-	if (len)
+-		*err_ptr = -EFAULT;
+-
+-	return -1; /* invalid checksum */
+-}
+-
+ #endif /* _ASM_M32R_CHECKSUM_H */
++#endif /* __KERNEL__ */
 
 --
 Hirokazu Takata <takata@linux-m32r.org>

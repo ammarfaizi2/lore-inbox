@@ -1,98 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUG0Uef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUG0Ue6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUG0Uef (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 16:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266614AbUG0Uef
+	id S266619AbUG0Ue6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 16:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266614AbUG0Ue6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 16:34:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40114 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266613AbUG0UeU (ORCPT
+	Tue, 27 Jul 2004 16:34:58 -0400
+Received: from gprs214-61.eurotel.cz ([160.218.214.61]:51072 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S266619AbUG0Uex (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 16:34:20 -0400
-Date: Tue, 27 Jul 2004 13:14:15 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: geert@linux-m68k.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
-Message-Id: <20040727131415.51260cca.rddunlap@osdl.org>
-In-Reply-To: <20040727190210.GE20740@linux-sh.org>
-References: <20040723231158.068d4685.rddunlap@osdl.org>
-	<Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
-	<20040727104737.0de2da5b.rddunlap@osdl.org>
-	<20040727190210.GE20740@linux-sh.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Tue, 27 Jul 2004 16:34:53 -0400
+Date: Tue, 27 Jul 2004 22:34:38 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Avi Kivity <avi@exanet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS server on local NFS mount
+Message-ID: <20040727203438.GB2149@elf.ucw.cz>
+References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz> <4106B992.8000703@exanet.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4106B992.8000703@exanet.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 15:02:11 -0400 Paul Mundt wrote:
+Hi!
 
-| On Tue, Jul 27, 2004 at 10:47:37AM -0700, Randy.Dunlap wrote:
-| > DEBUG_SLAB is not available in cris, h8300, m68knommu, sh, sh64,
-| > or v850 AFAICT.  Yes/no ?
-| > 
-| This can be set for sh/sh64 just fine, it is pretty much generic anyways.
-| So placing this in a common Kconfig seems reasonable.
+> >>On heavy write activity, allocators wait synchronously for kswapd to
+> >>free some memory. But if kswapd is freeing memory via a userspace NFS
+> >>server, that server could be waiting for kswapd, and the system seizes
+> >>instantly.
+> >>
+> >>This patch (against RHEL 2.4.21-15EL, but should apply either 
+> >>literally
+> >>or conceptually to other kernels) allows a process to declare itself 
+> >>as
+> >>kswapd's little helper, and thus will not have to wait on kswapd.
+> >>   
+> >>
+> >
+> >Ok, but what if its memory runs out, anyway?
+> >
+> > 
+> >
+> Tough. What if kswapd's memory runs out?
 
-Changed that, thanks.
+I'd hope that kswapd was carefully to make sure that it always has
+enough pages...
 
-| > | (didn't check the whole list) Perhaps the first instance of DEBUG_INFO
-| > | can depend on !SUPERH64 && !USERMODE only?
-| > 
-| > It could.  It depends on one's config (or code/patch) philosophy.
-| > I was trying to be explicit about which arches support a config option
-| > by including each arch in a list ("inclusion").  Or I could exclude
-| > certain arches from config options ("exclusion").  The inclusion
-| > method seems safer and more readable/maintainable to me, but that's
-| > just one opinion.
-| > 
-| There's no need for the !SUPERH64 dependancy for DEBUG_INFO either, so
-| feel free to drop that if that's the way you end up going.
+...it is harder to do the same auditing with userland program.
 
-Changed that one also.
+> A more complete solution would be to assign memory reserve levels below 
+> which a process starts allocating synchronously. For example, normal 
+> processes must have >20MB to make forward progress, kswapd wants >15MB 
+> and the NFS server needs >10MB. Some way would be needed to express the 
+> dependencies.
 
-Along with 3 changes in response to Geert:
-- DEBUG_KERNEL applies to all arch-es;
-- DEBUG_SPINLOCK depends only on DEBUG_KERNEL && SMP;
-- DEBUG_HIGHMEM depends only on DEBUG_KERNEL && HIGHMEM;
+Yes, something like that would be neccessary. I believe it would be
+slightly more complicated, like
 
-Updated patch (applies to 2.6.8-rc2-bk6) is now available at
-  http://developer.osdl.org/rddunlap/kconfig/kconfig-debug-268rc2bk6.patch
+"NFS server needs > 10MB *and working kswapd*", so you'd need 25MB in
+fact... and this info should be stored in some readable form so that
+it can be checked.
 
-(approx. 133 KB)
-
----
-
-Localize Kconfig debug options into one file (lib/Kconfig.debug)
-for easier maintenance and searching.
-
-
-Summary of changes:
-
-. localizes the following symbols in lib/Kconfig.debug:
-    DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
-    DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
-    DEBUG_INFO
-  and FRAME_POINTER for some instances of it (if it's freely
-  user-selectable) but not for the cases where it's forced or
-  it depends on some other options.
-. adds DEBUG_KERNEL requirement to some DEBUG_vars;
-. DEBUG_KERNEL applies to all arch-es;
-. remove KALLSYMS from S390-specific kernel hacking menu;
-  use KALLSYMS in the EMBEDDED menu instead;
-. add CRIS and M68KNOMMU symbols for use in lib/Kconfig.debug;
-. eliminate duplicate "General setup" labels in sparc64 config;
-. whitespace cleanup;
-. fixed a few trival typos;
-
-
-Portions of the original patch were also done by
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
---
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

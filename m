@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264861AbUFAAwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264863AbUFAAwS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264861AbUFAAwO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 20:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUFAAwO
+	id S264863AbUFAAwS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 20:52:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUFAAwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 20:52:14 -0400
-Received: from mailout.despammed.com ([65.112.71.29]:31999 "EHLO
-	mailout.despammed.com") by vger.kernel.org with ESMTP
-	id S264861AbUFAAwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 20:52:13 -0400
-Date: Mon, 31 May 2004 19:38:59 -0500 (CDT)
-Message-Id: <200406010038.i510cxk23507@mailout.despammed.com>
-From: ndiamond@despammed.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to use floating point in a module?
-X-Mailer: despammed.com
+	Mon, 31 May 2004 20:52:18 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:24232 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S264863AbUFAAwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 20:52:15 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Colin Gibbs <colin@gibbsonline.net>
+Date: Tue, 1 Jun 2004 10:52:08 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16571.54072.719572.522225@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfsd readahead
+In-Reply-To: message from Colin Gibbs on Monday May 31
+References: <20040531190525.GA20916@alpha.gibbsonline.net>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In http://www.ussg.iu.edu/hypermail/linux/kernel/0405.3/1620.html,
-Linus Torvalds wrote:
+On Monday May 31, colin@gibbsonline.net wrote:
+> Hi,
+> 
+> I was having problems with slow streaming reads over nfs. After much
+> investigation, I found that nfsd uses its own cache of readahead
+> parameters and that:
+> (1) they were not being reused
+> (2) they were not being initialized properly
 
-> You can do it "safely" on x86 using
-> kernel_fpu_begin();
-> ...
-> kernel_fpu_end();
-> and make sure that _all_ the FP stuff is in between those two things, and 
-> that you don't do _anything_ that might fault or sleep.
+Thanks a lot Colin. (I did get your earlier person email, but it
+didn't get to the top of the priority queue until today).
 
-In http://www.uwsg.iu.edu/hypermail/linux/kernel/0202.1/1591.html,
-Alan Cox two years ago advised another questioner that init_fpu()
-could be called after kernel_fpu_begin().  Looking at the source code,
-this seems like a good idea.
+The current code is a bit of a mess isn't it!!!
 
-Since the kernel is 2.4. 20something, init_fpu() takes no arguments.
+I have one question about your patch:
 
-I am looking at directory linux/arch/i386/kernel, with file i387.c
-containing functions kernel_fpu_begin() and init_fpu() and others,
-file i387.o resulting from a compilation, and Makefile saying that
-i387 is included in the obj-y list.  So it seems to me that the executing
-kernel should have kernel_fpu_begin() and init_fpu() built in.
+> +	file_ra_state_init(&ra->p_ra, file->f_mapping);
 
-But when we do insmod on our module, the list of undefined symbols
-includes kernel_fpu_begin and init_fpu.  How is this possible?
+I note that the corresponding code in fs/open.c(dentry_open) reads
 
-(The CPU is an i686.  I'll have to look up its opcodes and see if its
-hardware will come close enough for everything the driver needs.  If it
-doesn't, I'll buy one of the books that some others kindly recommended
-and do polynomial approximations.)  (By the way the driver is being
-ported from VxWorks, where it seems that the kernel can do floating
-point including trig, logarithms, etc.)
+	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
 
+i.e. there is an extra level of indirection.  Is there a reason that
+you didn't copy that.
+
+I am seriously thinking of getting rid of the "open_private_file"
+stuff, and using dentry_open to open files for nfsd, and just allow it
+to init the ra_state, so that nfsd doesn't do it itself.
+However that patch touches 13 files, so I want to see it get a bit of
+testing first.
+
+Thanks again,
+I'll make sure this fix gets through Andrew to Linus,
+
+NeilBrown

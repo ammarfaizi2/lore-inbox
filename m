@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265162AbUEYWqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265115AbUEYWvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265162AbUEYWqu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 18:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265164AbUEYWqh
+	id S265115AbUEYWvp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 18:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEYWvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 18:46:37 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:9090 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S265115AbUEYWqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 18:46:32 -0400
-Date: Tue, 25 May 2004 18:46:13 -0400
-To: Rob Landley <rob@landley.net>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCEMENT PATCH COW] proof of concept impementation of cowlinks
-Message-ID: <20040525224613.GA7647@delft.aura.cs.cmu.edu>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	Jan Harkes <jaharkes@cs.cmu.edu>,
-	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	Steve French <smfltc@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <20040506131731.GA7930@wohnheim.fh-wedel.de> <20040511100232.GA31673@wohnheim.fh-wedel.de> <20040511140853.GT24211@delft.aura.cs.cmu.edu> <200405211823.12230.rob@landley.net>
+	Tue, 25 May 2004 18:51:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32674 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265115AbUEYWvn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 18:51:43 -0400
+Date: Tue, 25 May 2004 19:53:09 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Feldman, Scott" <scott.feldman@intel.com>, doug@easyco.com,
+       linux-kernel@vger.kernel.org, cramerj@intel.com, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, jgarzik@pobox.com
+Subject: Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1) - Not out of memory
+Message-ID: <20040525225308.GA5344@logos.cnet>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0103AF618C@orsmsx402.amr.corp.intel.com> <20040525144759.0e51cfd9.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405211823.12230.rob@landley.net>
-User-Agent: Mutt/1.5.6i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+In-Reply-To: <20040525144759.0e51cfd9.davem@redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 06:23:12PM -0500, Rob Landley wrote:
-> >     /* are we copying the entire source file? */
-> >     if (*ppos != 0 || count != in_file->f_dentry->d_inode->i_size)
-> > 	goto copy_local;
+On Tue, May 25, 2004 at 02:47:59PM -0700, David S. Miller wrote:
+> On Tue, 25 May 2004 14:20:23 -0700
+> "Feldman, Scott" <scott.feldman@intel.com> wrote:
 > 
-> Is there a race condition for i_size to change between the api getting called 
-> and the copy being done?  More to the point, is there some way to specify a 
-> count of -1 or something to easily say "to end of file"?
+> > Marcelo Tosatti wrote:
+> > 
+> > > It seems we are calling alloc_skb(GFP_KERNEL) from inside an 
+> > > interrupt handler. Oops. 
+> > 
+> > We're calling dev_alloc_skb() from hard interrupt context, but it uses
+> > GFP_ATOMIC, not GFP_KERNEL, so this is OK, right?  I don't see the
+> > problem with e1000.
+> 
+> Neither do I, where is the detailed backtrace of this GFP_KERNEL
+> allocation supposedly from interrupt context?
 
-I don't think so, what does the existing sendfile to a socket
-implementation do?
+That was just a very wrong guess, I must admit. 
 
-Sure there is something you could call a race, but it doesn't seem all
-that serious to me. If someone writes to the source file a couple of
-seconds after the copy completes we would get the exact same situation.
+Actually what seems to be happening is an e1000 IRQ while 
+trying to free memory (shrink_caches()) which tries to 
+allocate more memory. 
 
-The only problem here is that it is possible for the write to arrive
-between the stat of the source file to get the number of bytes we want
-to copy and the actual sendfile call. That would invalidate the cached
-inode data and by the time call sendfile the example code falls back to
-a local copy operation because count != i_size.
+Locked caused by extremely high load it seems.
 
-But if the filesystem provided a more powerful copy operation than just
-copy whole file A to file B it could actually do what the user asked for
-without needing to fall back on the local copy operation.
-
-An application that wants to make sure the source file is not modified
-before, during or after the copy operation, both by the local client and
-possibly by any remote clients, probably should lock it with flock or
-fcntl.
-
-Jan
-
+You know better than me.

@@ -1,86 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbVA1T7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVA1T7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbVA1T7a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 14:59:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVA1TzF
+	id S261515AbVA1T7b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVA1Tz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 14:55:05 -0500
-Received: from colo.lackof.org ([198.49.126.79]:63957 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262787AbVA1TdF (ORCPT
+	Fri, 28 Jan 2005 14:55:29 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:7588 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262791AbVA1TqN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 14:33:05 -0500
-Date: Fri, 28 Jan 2005 12:33:20 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Jon Smirl <jonsmirl@gmail.com>,
-       Greg KH <greg@kroah.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
-       linux-pci@atrey.karlin.mff.cuni.cz, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: Patch to control VGA bus routing and active VGA device.
-Message-ID: <20050128193320.GB32135@colo.lackof.org>
-References: <9e47339105011719436a9e5038@mail.gmail.com> <200501270828.43879.jbarnes@sgi.com> <20050128173222.GC30791@colo.lackof.org> <200501281041.42016.jbarnes@sgi.com>
+	Fri, 28 Jan 2005 14:46:13 -0500
+Date: Fri, 28 Jan 2005 20:45:46 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15)
+Message-ID: <20050128194546.GA348@elte.hu>
+References: <20041214113519.GA21790@elte.hu> <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk> <20050128073856.GA2186@elte.hu> <1106939910.14321.37.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501281041.42016.jbarnes@sgi.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1106939910.14321.37.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 10:41:41AM -0800, Jesse Barnes wrote:
-> > Eh?! there can only be *one* legacy I/O space.
-> > We can support multipl IO port spaces, but only one can be the "legacy".
+
+* Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+
+> If you do have a highest interrupt case that causes all activity to
+> block, then rwsems may indeed fit the bill.
 > 
-> What do you mean?  If you define legacy I/O space to be 
-> 0x0000000000000000-0x000000000000ffff, then yes of course you're right.
+> In the NFS client code we may use rwsems in order to protect stateful
+> operations against the (very infrequently used) server reboot recovery
+> code. The point is that when the server reboots, the server forces us
+> to block *all* requests that involve adding new state (e.g. opening an
+> NFSv4 file, or setting up a lock) while our client and others are
+> re-establishing their existing state on the server.
 
-Yes - exactly.
+it seems the most scalable solution for this would be a global flag plus
+per-CPU spinlocks (or per-CPU mutexes) to make this totally scalable and
+still support the requirements of this rare event. An rwsem really
+bounces around on SMP, and it seems very unnecessary in the case you
+described.
 
-> But 
-> if you mean being able to access legacy ports at all, then no.  On SGI 
-> machines, there's a per-bus base address that can be used as the base for 
-> port I/O, which is what I was getting at.
+possibly this could be formalised as an rwlock/rwlock implementation
+that scales better. brlocks were such an attempt.
 
-Ok - my point was "0x3fc" will get routed to exactly one of those
-IO port address spaces.
+> IOW: If you are planning on converting rwsems into a semaphore, you
+> will screw us over most royally, by converting the currently highly
+> infrequent scenario of a single task being able to access the server
+> into the common case.
 
-> > If it is intended to work with multiple IO Port address spaces,
-> > then it needs to use the pci_dev->resource[] and mangle that appropriately.
-> 
-> There is no resource for some of the I/O port space that cards respond to.
+nono, i have no such plans.
 
-Yes - I've heard several graphics cards are horrible broken WRT address
-decoding.  Are PCI quirks supposed to handle that sort of thing?
-
-Another example was Xf86 was poking around in MMIO space 
-to determine if such broken cards are installed.
-
-> I can set the I/O BAR of my VGA card to 0x400 and it'll still respond to 
-> accesses at 0x3bc for example.  That's what I mean by legacy space--space 
-> that cards respond to but don't report in their PCI resources.
-
-Can't PCI quirks fix up the resources to reflect this?
-
-I think one needs to fix up PCI IO Port resources to adjust
-for "The One" legacy IO port space getting routed to a different
-PCI segment - assuming no one submits a patch to change current
-behavior of using hard coded addresses.
-
-HP parisc and ia64 platforms implement seperate PCI segments under
-each PCI host bus controller. Linux PCI "BIOS" support provides
-the illusion it's all in one PCI segment on most (not all) platforms.
-Some HP chipsets also provide a "Legacy" IO Port space that gets
-routed to a chosen PCI Host bus controller.
-
-parisc PCI BIOS adds the controller instance number to the IO port space
-resource to help "inb()" generate the IO port cycle on the right
-PCI segment. This needs to be fixed up if we decide a different
-PCI segment should be segment 0 (and thus get references to 0x3fc).
-I expect other arches with multi-segment support to do similar
-fix ups.
-
-Am I making more sense now?
-
-thanks,
-grant
+	Ingo

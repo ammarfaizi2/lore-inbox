@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbTEMRr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 13:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTEMRr0
+	id S262498AbTEMRuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 13:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbTEMRuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 13:47:26 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:11657 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262479AbTEMRrY
+	Tue, 13 May 2003 13:50:05 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:39207 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262498AbTEMRuE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 13:47:24 -0400
-Date: Tue, 13 May 2003 11:01:08 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
-       Neil Brown <neilb@cse.unsw.edu.au>, akpm@digeo.com
-cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: lse conference switched to IRC to discuss 2.6 must-fix list
-Message-ID: <33800000.1052848868@w-hlinder>
-In-Reply-To: <1052830548.463.4.camel@dhcp22.swansea.linux.org.uk>
-References: <99500000.1052781962@w-hlinder> <20030513111908.GU17033@suse.de> <1052830548.463.4.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 May 2003 13:50:04 -0400
+Subject: Re: 2.5.69 Interrupt Latency
+From: Paul Fulghum <paulkf@microgate.com>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@digeo.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Arnd Bergmann <arnd@arndb.de>, johannes@erdfelt.com
+In-Reply-To: <20030513173044.GB10284@kroah.com>
+References: <Pine.LNX.4.44L0.0305131117240.3274-100000@ida.rowland.org>
+	 <1052840106.2255.24.camel@diemos>  <20030513173044.GB10284@kroah.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052830860.1992.2.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 13 May 2003 08:01:01 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, May 13, 2003 01:55:50 PM +0100 Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
->> > 2:00pm PDT (GMT-0700), 4:00pm CDT, 5:00pm EDT Wednesday May 14, 2003.
->> 
->> How about doing it a bit earlier, for the europeans joining? At least
->> for me, 2 hours earlier looks a lot better.
+On Tue, 2003-05-13 at 12:30, Greg KH wrote:
+> On Tue, May 13, 2003 at 10:35:07AM -0500, Paul Fulghum wrote:
+> > On Tue, 2003-05-13 at 10:26, Alan Stern wrote:
+> > 
+> > > Putting in a sanity check for the global suspend state will be very easy.  
+> > > But I would like to point out that this "global suspend" does not refer to
+> > > the entire system, only the USB bus.
+> > 
+> > That is a problem then, because the delay can still
+> > occur during normal system operation.
 > 
-> As I said before I can't do Wednesday. 
-> 
+> Ok, can you try the attached patch and see if it causes your latency
+> problem to go away?
 
-Alan, 
+I applied the patch plus a couple of printk statements,
+and the wakeup_hc() is being continuously called
+as well as actually executing the delay.
 
-It is too late to switch this one (again). However, I would be happy to 
-organize another one on a different day/time for the Europeans. Andrew, 
-what is the earliest in the day you can do it? Alan, how about Tuesday or 
-Thursday next week? 
+So the check is not preventing anything.
 
-I would still like to try a conference call so if that is acceptable to a 
-subset of participants I would be happy to organize that for the next one. 
-Just think of the enjoyment from making fun of our American accents! 
-
-Seriously, conference calls are an opportunity for the rest of the 
-Kernel Community to hear each others voices and communicate in a 
-different way than has been done widely before. Especially for people who
-can't attend OLS. I think it will help bring people together in a way that 
-email and irc can't. Maybe it's a woman thing, I dont know ;)
-
-Hanna
-
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
 

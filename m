@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317861AbSHDNH4>; Sun, 4 Aug 2002 09:07:56 -0400
+	id <S314553AbSHDNTC>; Sun, 4 Aug 2002 09:19:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317862AbSHDNHz>; Sun, 4 Aug 2002 09:07:55 -0400
-Received: from ns.suse.de ([213.95.15.193]:29959 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317861AbSHDNHz> convert rfc822-to-8bit;
-	Sun, 4 Aug 2002 09:07:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: [PATCH] Caches that shrink automatically
-Date: Sun, 4 Aug 2002 15:11:27 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <200208041308.51638.agruen@suse.de> <3D4D1070.1020802@namesys.com>
-In-Reply-To: <3D4D1070.1020802@namesys.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208041511.27990.agruen@suse.de>
+	id <S314707AbSHDNTC>; Sun, 4 Aug 2002 09:19:02 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:34317 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314553AbSHDNTB>;
+	Sun, 4 Aug 2002 09:19:01 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 make allmodconfig - undefined symbols 
+In-reply-to: Your message of "Sun, 04 Aug 2002 14:35:13 +0200."
+             <20020804123513.GC13316@alpha.home.local> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 04 Aug 2002 23:22:24 +1000
+Message-ID: <1876.1028467344@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 August 2002 13:30, Hans Reiser wrote:
-> How do you ensure that caches have their (internal) aging hands pushed
-> at a speed that is proportional to their memory usage, or is your design
-> susceptible to all the usual complaints the unified memory manager crowd
-> has about separate caches?
+On Sun, 4 Aug 2002 14:35:13 +0200, 
+Willy Tarreau <willy@w.ods.org> wrote:
+>On Sun, Aug 04, 2002 at 08:13:20PM +1000, Keith Owens wrote:
+>> 2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
+>> wanting proc_get_inode, there was only one undefined symbol.  In the
+>> extremely unlikely event that binfmt_elf is a module (how do you load
+>> modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
+>
+>I also get an unresolved reference to __io_virt_debug in misc.o:puts()
+>when building bzImage. If you don't get it, it means that my tree is
+>corrupted.
 
-That's a policy/optimization issue; it's not even desirable to shrink the 
-caches with priorities proportional to their size---they would all tend to 
-become equally large.
+Neither.  It is a problem with CONFIG_DEBUG_IOVIRT which allmod and
+allyesconfig turn on.  My builds stop at vmlinux and do not build
+bzImage so I did not detect this problem.  The outb_p calls in misc.c
+need fixing for CONFIG_DEBUG_IOVIRT=y, or force CONFIG_DEBUG_IOVIRT=n.
 
-The patch shrinks all the caches equally often, with the same priorities. The 
-caches can then decide themselves how they will react, depending on their 
-cache size and entry size, replacement strategy, taking care of page entry 
-clustering or not, etc.
-
-The icache, dcache, and dqcache are shrunk using the same strategy (except the 
-priority is a constant for some of the caches, which could be coded in the 
-shrink function as well). This scheme has worked out pretty well so far, 
-right?
-
-For Extended Attributes we are currently using a very simple cache with LRU 
-entry replacement, and small entries. The cache doesn't grow very big, 
-either.
-
-Regards,
-Andreas.
-
-------------------------------------------------------------------
- Andreas Gruenbacher                                SuSE Linux AG
- mailto:agruen@suse.de                     Deutschherrnstr. 15-19
- http://www.suse.de/                   D-90429 Nuernberg, Germany
+Interesting that the comment for CONFIG_DEBUG_IOVIRT says "Temporary
+debugging check to catch old code using unmapped ISA addresses. Will be
+removed in 2.4".
 

@@ -1,95 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbUADA1e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 19:27:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUADA1e
+	id S264366AbUADAdM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 19:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264384AbUADAdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 19:27:34 -0500
-Received: from deadlock.et.tudelft.nl ([130.161.36.93]:20880 "EHLO
-	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id S264361AbUADA1c convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 19:27:32 -0500
-Date: Sun, 4 Jan 2004 01:27:30 +0100 (CET)
-From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
-To: Claas Langbehn <claas@rootdir.de>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0: atyfb broken
-In-Reply-To: <20040103233728.GA22427@rootdir.de>
-Message-ID: <Pine.LNX.4.44.0401040041160.10711-100000@deadlock.et.tudelft.nl>
+	Sat, 3 Jan 2004 19:33:12 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:33037 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S264366AbUADAdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 19:33:11 -0500
+Message-ID: <3FF75D26.5070009@myrealbox.com>
+Date: Sat, 03 Jan 2004 16:24:06 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040103
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Technical udev question for Greg
+References: <3FF72A4C.2040404@myrealbox.com> <20040103214750.GB11061@kroah.com>
+In-Reply-To: <20040103214750.GB11061@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Sat, Jan 03, 2004 at 12:47:08PM -0800, walt wrote:
+
+>>I acidentally ran a script which ran MAKEDEV
+>>while udev was running.
+>>
+>>Now /dev/.udev.tdb is very large and devices have strange permissions
+>>they didn't have before.
 
 
-On Sun, 4 Jan 2004, Claas Langbehn wrote:
+> As udev didn't get called when runinng MAKEDEV, I don't see how the udev
+> database could have grown.
 
-> Hello!
->
->
-> > > Does it work with 2.4.22 and earlier? Mobility support was changed a lot in
-> > > 2.4.23.
->
-> No, 2.4.22 does not work either. It has also screen-flickering.
+Well, after doing the steps below the size of the db didn't seem any
+smaller, true enough.
 
-Ok, that was expected; this most likely is because of the initialisation
-code in 2.4.22; it is completely unsuitable for the Mobility M1 and programs
-very bad values into the chip.
 
-> 2.6.0 seems to be closest to a working solution.
+>>All I want to do is delete all the extraneous devices in .udev.tdb
+>>and start over.  How do I do that?
 
-Not at all. Your laptop has an LCD display. Unlike CRTs, LCD displays have
-a fixed resolution; you LCD display has 1024x768 pixels. Because the
-display is completely digital, the display needs its pixel data send at
-a fixed rate, enforcing also the refresh rate, 60 Hz in your case.
 
-(LCD monitors with VGA-connectors have special chips that adapt the
-resolution and refresh rate of a VGA signal to the video mode desired by
-the panel. Image quality suffers badly)
+> 	rm -rf /dev/*
+> 	rm -f /dev/.udev.tdb
+> 	/etc/init.d/udev start
 
-Because of this, a traditional video driver will fail on such a display.
-I.e. Atyfb switches to 640x480 60 Hz, which is completely different from
-what your display accepts, and it won't work.
-
-Because of some VGA compatibility stuff normal 720x400 VGA text mode is
-downscaled to 640x400 by your laptop. Therefore, it is not too different
-from 640x480 and on some computers it displays something. I experienced
-this on my Rage LT pro, the image was completely wrong, the bottom part of
-the screen was a mirror of the upper part.
-
-Therefore, it might happen that 2.6.0 does display something
-(initialization is different from 2.4.x), but 2.6.0 will not display a
-correct image in any case.
-
-Years ago I started making the Atyfb support LCD displays. It was a very
-difficult project; I got my own laptop working more than 2 years ago,
-after that slowly all the other machines I knew of started working.
-However, it was only until recently before Geert's laptop did work; that was a
-really stupborn one. The LCD registers on the chips are very tricky to set
-right; the clock code (which was completely wrong) was even more tricky
-to get right.
-
-My work was included in 2.4.23. Therefore that kernel
-is the only one which has any chance of working. Apparently
-there still is an LCD specific issue with your laptop, which needs to be
-debugged.
-
-What to do?
-
-The best thing you can try is to connect a CRT. Its a handy tool (it
-eats any video mode, including wrong ones) to check if the driver does
-something wrong. Use it to inspect geometry and the horizontal & vertical
-refresh rates. The CRT should dislay 1024x768 60 Hz in all resolutions
-(unless you switch off the LCD display).
-
-Compile Atyfb as module. Use fbset to switch video modes blindly. Check
-the following modes: 640x400, 640x480, 1024x768.
-
-If everything is ok, we'll start to do some register debugging.
-
-Daniël
-
+However, after doing the above and recreating a few missing devices
+the behavior of the machine seems back to normal, so clearly I did
+something that mattered.  I don't pretend to understand how or why,
+but thanks.

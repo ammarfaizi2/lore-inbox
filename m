@@ -1,422 +1,218 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267929AbUHKEXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267932AbUHKEYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267929AbUHKEXo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 00:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUHKEXn
+	id S267932AbUHKEYt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 00:24:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUHKEYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 00:23:43 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:29118 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267929AbUHKEVy (ORCPT
+	Wed, 11 Aug 2004 00:24:17 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:10690 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267930AbUHKEVy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 11 Aug 2004 00:21:54 -0400
-Date: Tue, 10 Aug 2004 16:03:38 -0500
+Date: Tue, 10 Aug 2004 15:57:39 -0500
 From: Maneesh Soni <maneesh@in.ibm.com>
 To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
        Dipankar Sarma <dipankar@in.ibm.com>,
        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 4/4] Stop pinning dentries/inodes for leaf entries
-Message-ID: <20040810210338.GF3124@in.ibm.com>
+Subject: [PATCH 0/4] sysfs backing store - updated
+Message-ID: <20040810205739.GA3124@in.ibm.com>
 Reply-To: maneesh@in.ibm.com
-References: <20040810205739.GA3124@in.ibm.com> <20040810210102.GC3124@in.ibm.com> <20040810210203.GD3124@in.ibm.com> <20040810210240.GE3124@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810210240.GE3124@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello Viro,
+
+I have revised the sysfs backing store patchset. It took some what longer
+time due to last minute dentry leak obeserved in intermediate patches. Now
+I have verified individual patches work properly and without any leaks.
+
+I have also re-arranged it according to your last comments. The patch set
+also fixes the recent uid/gid problem reported om lkml. Now we always create
+sysfs files with root uid/gid (i.e 0).
+
+Appended below is the first patch in the series and rest of them follow this
+mail.
+
+Andrew, please replace all the sysfs-backing-store-xxx.patch again in -mm. 
+
+Thanks
+Maneesh
 
 
-o This patch stops the pinning of non-directory or leaf dentries and inodes. 
-  The leaf dentries and inodes are created during lookup based on the
-  entries on sysfs_dirent tree. These leaves are removed from the dcache
-  through the VFS dentry ageing process during shrink dcache operations. Thus
-  reducing about 80% of sysfs lowmem needs.
 
-o This implments the ->lookup() for sysfs directory inodes and allocates
-  dentry and inode if the lookup is successful and avoids the need of 
-  allocating and pinning of dentry and inodes during the creation of 
-  corresponding sysfs leaf entry. As of now the implementation has not 
-  required negative dentry creation on failed lookup. As sysfs is still a
-  RAM based filesystem, negative dentries are not of any use IMO.
-
-o The leaf dentry allocated after successful lookup is connected to the 
-  existing corresponding sysfs_dirent through the d_fsdata field.
+o The following patch provides dumb helpers to access the corresponding 
+  kobject, attribute or binary attribute given a dentry and prepare the
+  sysfs_file_operation methods for using sysfs_dirents.
 
 
- sysfs/group.c      |    0 
- fs/sysfs/bin.c     |   28 +-------------
- fs/sysfs/dir.c     |  106 ++++++++++++++++++++++++++++++++++++++++++++++++++---
- fs/sysfs/file.c    |   25 +-----------
- fs/sysfs/mount.c   |    2 -
- fs/sysfs/symlink.c |   26 ++-----------
- fs/sysfs/sysfs.h   |    4 ++
- 7 files changed, 115 insertions(+), 76 deletions(-)
+ fs/sysfs/bin.c   |   14 +++++++-------
+ fs/sysfs/file.c  |   24 ++++++++++++------------
+ fs/sysfs/sysfs.h |   18 +++++++++++++++++-
+ 3 files changed, 36 insertions(+), 20 deletions(-)
 
-diff -puN fs/sysfs/dir.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/dir.c
---- linux-2.6.8-rc4/fs/sysfs/dir.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves	2004-08-10 15:09:20.000000000 -0500
-+++ linux-2.6.8-rc4-maneesh/fs/sysfs/dir.c	2004-08-10 15:09:20.000000000 -0500
-@@ -61,15 +61,17 @@ int sysfs_make_dirent(struct sysfs_diren
- 	sd->s_mode = mode;
- 	sd->s_type = type;
- 	sd->s_dentry = dentry;
--	dentry->d_fsdata = sysfs_get(sd);
--	dentry->d_op = &sysfs_dentry_ops;
-+	if (dentry) {
-+		dentry->d_fsdata = sysfs_get(sd);
-+		dentry->d_op = &sysfs_dentry_ops;
-+	}
- 
- 	return 0;
- }
- 
- static int init_dir(struct inode * inode)
- {
--	inode->i_op = &simple_dir_inode_operations;
-+	inode->i_op = &sysfs_dir_inode_operations;
- 	inode->i_fop = &sysfs_dir_operations;
- 
- 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
-@@ -77,6 +79,18 @@ static int init_dir(struct inode * inode
- 	return 0;
- }
- 
-+static int init_file(struct inode * inode)
-+{
-+	inode->i_size = PAGE_SIZE;
-+	inode->i_fop = &sysfs_file_operations;
-+	return 0;
-+}
-+
-+static int init_symlink(struct inode * inode)
-+{
-+	inode->i_op = &sysfs_symlink_inode_operations;
-+	return 0;
-+}
- 
- static int create_dir(struct kobject * k, struct dentry * p,
- 		      const char * n, struct dentry ** d)
-@@ -91,8 +105,11 @@ static int create_dir(struct kobject * k
- 		if (!error) {
- 			error = sysfs_make_dirent(p->d_fsdata, *d, k, mode,
- 						SYSFS_DIR);
--			if (!error)
-+			if (!error) {
- 				p->d_inode->i_nlink++;
-+				(*d)->d_op = &sysfs_dentry_ops;
-+				d_rehash(*d);
-+			}
- 		}
- 		if (error)
- 			d_drop(*d);
-@@ -136,6 +153,82 @@ int sysfs_create_dir(struct kobject * ko
- 	return error;
- }
- 
-+/* attaches attribute's sysfs_dirent to the dentry corresponding to the
-+ * attribute file
-+ */
-+static int sysfs_attach_attr(struct sysfs_dirent * sd, struct dentry * dentry)
-+{
-+	struct attribute * attr = NULL;
-+	struct bin_attribute * bin_attr = NULL;
-+	int (* init) (struct inode *) = NULL;
-+	int error = 0;
-+
-+        if (sd->s_type & SYSFS_KOBJ_BIN_ATTR) {
-+                bin_attr = sd->s_element;
-+                attr = &bin_attr->attr;
-+        } else {
-+                attr = sd->s_element;
-+                init = init_file;
-+        }
-+
-+	error = sysfs_create(dentry, (attr->mode & S_IALLUGO) | S_IFREG, init);
-+	if (error)
-+		return error;
-+
-+        if (bin_attr) {
-+		dentry->d_inode->i_size = bin_attr->size;
-+		dentry->d_inode->i_fop = &bin_fops;
-+	}
-+	dentry->d_op = &sysfs_dentry_ops;
-+	dentry->d_fsdata = sysfs_get(sd);
-+	sd->s_dentry = dentry;
-+	d_rehash(dentry);
-+
-+	return 0;
-+}
-+
-+static int sysfs_attach_link(struct sysfs_dirent * sd, struct dentry * dentry)
-+{
-+	int err = 0;
-+
-+	err = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
-+	if (!err) {
-+		dentry->d_op = &sysfs_dentry_ops;
-+		dentry->d_fsdata = sysfs_get(sd);
-+		sd->s_dentry = dentry;
-+		d_rehash(dentry);
-+	}
-+	return err;
-+}
-+
-+struct dentry * sysfs_lookup(struct inode *dir, struct dentry *dentry,
-+				struct nameidata *nd)
-+{
-+	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * sd;
-+	int err = 0;
-+
-+	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
-+		if (sd->s_type & SYSFS_NOT_PINNED) {
-+			const unsigned char * name = sysfs_get_name(sd);
-+
-+			if (strcmp(name, dentry->d_name.name))
-+				continue;
-+
-+			if (sd->s_type & SYSFS_KOBJ_LINK)
-+				err = sysfs_attach_link(sd, dentry);
-+			else
-+				err = sysfs_attach_attr(sd, dentry);
-+			break;
-+		}
-+	}
-+
-+	return ERR_PTR(err);
-+}
-+
-+struct inode_operations sysfs_dir_inode_operations = {
-+	.lookup		= sysfs_lookup,
-+};
- 
- static void remove_dir(struct dentry * d)
- {
-@@ -219,8 +312,10 @@ int sysfs_rename_dir(struct kobject * ko
- 	if (!IS_ERR(new_dentry)) {
-   		if (!new_dentry->d_inode) {
- 			error = kobject_set_name(kobj,new_name);
--			if (!error)
-+			if (!error) {
-+				d_add(new_dentry, NULL);
- 				d_move(kobj->dentry, new_dentry);
-+			}
- 			else
- 				d_drop(new_dentry);
- 		} else
-@@ -254,7 +349,6 @@ static int sysfs_dir_close(struct inode 
- 	down(&dentry->d_inode->i_sem);
- 	list_del_init(&cursor->s_sibling);
- 	up(&dentry->d_inode->i_sem);
--	sysfs_put(file->private_data);
- 
- 	return 0;
- }
-diff -puN fs/sysfs/file.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/file.c
---- linux-2.6.8-rc4/fs/sysfs/file.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves	2004-08-10 15:09:20.000000000 -0500
-+++ linux-2.6.8-rc4-maneesh/fs/sysfs/file.c	2004-08-10 15:09:20.000000000 -0500
-@@ -9,15 +9,6 @@
- 
- #include "sysfs.h"
- 
--static struct file_operations sysfs_file_operations;
--
--static int init_file(struct inode * inode)
--{
--	inode->i_size = PAGE_SIZE;
--	inode->i_fop = &sysfs_file_operations;
--	return 0;
--}
--
- #define to_subsys(k) container_of(k,struct subsystem,kset.kobj)
- #define to_sattr(a) container_of(a,struct subsys_attribute,attr)
- 
-@@ -337,7 +328,7 @@ static int sysfs_release(struct inode * 
- 	return 0;
- }
- 
--static struct file_operations sysfs_file_operations = {
-+struct file_operations sysfs_file_operations = {
- 	.read		= sysfs_read_file,
- 	.write		= sysfs_write_file,
- 	.llseek		= generic_file_llseek,
-@@ -348,24 +339,14 @@ static struct file_operations sysfs_file
- 
- int sysfs_add_file(struct dentry * dir, const struct attribute * attr, int type)
- {
--	struct dentry * dentry;
- 	struct sysfs_dirent * parent_sd = dir->d_fsdata;
- 	umode_t mode = (attr->mode & S_IALLUGO) | S_IFREG;
- 	int error = 0;
- 
- 	down(&dir->d_inode->i_sem);
--	dentry = sysfs_get_dentry(dir,attr->name);
--	if (!IS_ERR(dentry)) {
--		error = sysfs_create(dentry, mode, init_file);
--		if (!error)
--			error = sysfs_make_dirent(parent_sd, dentry, 
--						(void *) attr, mode, type);
--		if (error)
--			d_drop(dentry);
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
-+	error = sysfs_make_dirent(parent_sd, NULL, (void *) attr, mode, type);
- 	up(&dir->d_inode->i_sem);
-+
- 	return error;
- }
- 
-diff -puN fs/sysfs/bin.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/bin.c
---- linux-2.6.8-rc4/fs/sysfs/bin.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves	2004-08-10 15:09:20.000000000 -0500
-+++ linux-2.6.8-rc4-maneesh/fs/sysfs/bin.c	2004-08-10 15:09:20.000000000 -0500
-@@ -141,7 +141,7 @@ static int release(struct inode * inode,
- 	return 0;
- }
- 
--static struct file_operations bin_fops = {
-+struct file_operations bin_fops = {
- 	.read		= read,
- 	.write		= write,
- 	.llseek		= generic_file_llseek,
-@@ -158,33 +158,9 @@ static struct file_operations bin_fops =
- 
- int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr)
- {
--	struct dentry * dentry;
--	struct dentry * parent;
--	umode_t mode = (attr->attr.mode & S_IALLUGO) | S_IFREG;
--	int error = 0;
--
- 	BUG_ON(!kobj || !kobj->dentry || !attr);
- 
--	parent = kobj->dentry;
--
--	down(&parent->d_inode->i_sem);
--	dentry = sysfs_get_dentry(parent,attr->attr.name);
--	if (!IS_ERR(dentry)) {
--		error = sysfs_create(dentry, mode, NULL);
--		if (!error) {
--			dentry->d_inode->i_size = attr->size;
--			dentry->d_inode->i_fop = &bin_fops;
--			error = sysfs_make_dirent(parent->d_fsdata, dentry, 
--						  (void *) attr, mode, 
--						  SYSFS_KOBJ_BIN_ATTR);
--		}
--		if (error)
--			d_drop(dentry);
--		dput(dentry);
--	} else
--		error = PTR_ERR(dentry);
--	up(&parent->d_inode->i_sem);
--	return error;
-+	return sysfs_add_file(kobj->dentry, &attr->attr, SYSFS_KOBJ_BIN_ATTR);
- }
- 
- 
-diff -puN fs/sysfs/sysfs.h~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/sysfs.h
---- linux-2.6.8-rc4/fs/sysfs/sysfs.h~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves	2004-08-10 15:09:20.000000000 -0500
-+++ linux-2.6.8-rc4-maneesh/fs/sysfs/sysfs.h	2004-08-10 15:09:20.000000000 -0500
-@@ -21,6 +21,10 @@ extern int sysfs_follow_link(struct dent
+diff -puN fs/sysfs/sysfs.h~sysfs-backing-store-prepare-file_operations fs/sysfs/sysfs.h
+--- linux-2.6.8-rc4/fs/sysfs/sysfs.h~sysfs-backing-store-prepare-file_operations	2004-08-10 15:09:10.000000000 -0500
++++ linux-2.6.8-rc4-maneesh/fs/sysfs/sysfs.h	2004-08-10 15:37:34.000000000 -0500
+@@ -16,14 +16,30 @@ extern int sysfs_readlink(struct dentry 
+ extern int sysfs_follow_link(struct dentry *, struct nameidata *);
  extern struct rw_semaphore sysfs_rename_sem;
- extern struct super_block * sysfs_sb;
- extern struct file_operations sysfs_dir_operations;
-+extern struct file_operations sysfs_file_operations;
-+extern struct file_operations bin_fops;
-+extern struct inode_operations sysfs_dir_inode_operations;
-+extern struct inode_operations sysfs_symlink_inode_operations;
  
- struct sysfs_symlink {
- 	char * link_name;
-diff -puN fs/sysfs/symlink.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/symlink.c
---- linux-2.6.8-rc4/fs/sysfs/symlink.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves	2004-08-10 15:09:20.000000000 -0500
-+++ linux-2.6.8-rc4-maneesh/fs/sysfs/symlink.c	2004-08-10 15:09:20.000000000 -0500
-@@ -8,17 +8,11 @@
- 
- #include "sysfs.h"
- 
--static struct inode_operations sysfs_symlink_inode_operations = {
-+struct inode_operations sysfs_symlink_inode_operations = {
- 	.readlink = sysfs_readlink,
- 	.follow_link = sysfs_follow_link,
- };
- 
--static int init_symlink(struct inode * inode)
--{
--	inode->i_op = &sysfs_symlink_inode_operations;
--	return 0;
--}
--
- static int object_depth(struct kobject * kobj)
++static inline struct kobject * to_kobj(struct dentry * dentry)
++{
++	return ((struct kobject *) dentry->d_fsdata);
++}
++
++static inline struct attribute * to_attr(struct dentry * dentry)
++{
++	return ((struct attribute *) dentry->d_fsdata);
++}
++
++static inline struct bin_attribute * to_bin_attr(struct dentry * dentry)
++{
++	return ((struct bin_attribute *) dentry->d_fsdata);
++}
++
+ static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
  {
- 	struct kobject * p = kobj;
-@@ -53,9 +47,9 @@ static void fill_object_path(struct kobj
+ 	struct kobject * kobj = NULL;
+ 
+ 	spin_lock(&dcache_lock);
+ 	if (!d_unhashed(dentry))
+-		kobj = kobject_get(dentry->d_fsdata);
++		kobj = kobject_get(to_kobj(dentry));
+ 	spin_unlock(&dcache_lock);
+ 
+ 	return kobj;
+ }
++
+diff -puN fs/sysfs/file.c~sysfs-backing-store-prepare-file_operations fs/sysfs/file.c
+--- linux-2.6.8-rc4/fs/sysfs/file.c~sysfs-backing-store-prepare-file_operations	2004-08-10 15:09:10.000000000 -0500
++++ linux-2.6.8-rc4-maneesh/fs/sysfs/file.c	2004-08-10 15:37:34.000000000 -0500
+@@ -67,7 +67,7 @@ struct sysfs_buffer {
+ 
+ /**
+  *	fill_read_buffer - allocate and fill buffer from object.
+- *	@file:		file pointer.
++ *	@dentry:	dentry pointer.
+  *	@buffer:	data buffer for file.
+  *
+  *	Allocate @buffer->page, if it hasn't been already, then call the
+@@ -75,10 +75,10 @@ struct sysfs_buffer {
+  *	data. 
+  *	This is called only once, on the file's first read. 
+  */
+-static int fill_read_buffer(struct file * file, struct sysfs_buffer * buffer)
++static int fill_read_buffer(struct dentry * dentry, struct sysfs_buffer * buffer)
+ {
+-	struct attribute * attr = file->f_dentry->d_fsdata;
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
++	struct attribute * attr = to_attr(dentry);
++	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 	struct sysfs_ops * ops = buffer->ops;
+ 	int ret = 0;
+ 	ssize_t count;
+@@ -150,7 +150,7 @@ sysfs_read_file(struct file *file, char 
+ 	ssize_t retval = 0;
+ 
+ 	if (!*ppos) {
+-		if ((retval = fill_read_buffer(file,buffer)))
++		if ((retval = fill_read_buffer(file->f_dentry,buffer)))
+ 			return retval;
  	}
- }
+ 	pr_debug("%s: count = %d, ppos = %lld, buf = %s\n",
+@@ -197,10 +197,10 @@ fill_write_buffer(struct sysfs_buffer * 
+  */
  
--static int sysfs_add_link(struct dentry * dentry, char * name, struct kobject * target)
-+static int sysfs_add_link(struct dentry * parent, char * name, struct kobject * target)
+ static int 
+-flush_write_buffer(struct file * file, struct sysfs_buffer * buffer, size_t count)
++flush_write_buffer(struct dentry * dentry, struct sysfs_buffer * buffer, size_t count)
  {
--	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
-+	struct sysfs_dirent * parent_sd = parent->d_fsdata;
- 	struct sysfs_symlink * sl;
- 	int error = 0;
+-	struct attribute * attr = file->f_dentry->d_fsdata;
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
++	struct attribute * attr = to_attr(dentry);
++	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 	struct sysfs_ops * ops = buffer->ops;
  
-@@ -71,7 +65,7 @@ static int sysfs_add_link(struct dentry 
- 	strcpy(sl->link_name, name);
- 	sl->target_kobj = kobject_get(target);
+ 	return ops->store(kobj,attr,buffer->page,count);
+@@ -231,7 +231,7 @@ sysfs_write_file(struct file *file, cons
  
--	error = sysfs_make_dirent(parent_sd, dentry, sl, S_IFLNK|S_IRWXUGO, 
-+	error = sysfs_make_dirent(parent_sd, NULL, sl, S_IFLNK|S_IRWXUGO, 
- 				SYSFS_KOBJ_LINK);
- 	if (!error)
- 		return 0;
-@@ -92,22 +86,12 @@ exit1:
- int sysfs_create_link(struct kobject * kobj, struct kobject * target, char * name)
+ 	count = fill_write_buffer(buffer,buf,count);
+ 	if (count > 0)
+-		count = flush_write_buffer(file,buffer,count);
++		count = flush_write_buffer(file->f_dentry,buffer,count);
+ 	if (count > 0)
+ 		*ppos += count;
+ 	return count;
+@@ -240,7 +240,7 @@ sysfs_write_file(struct file *file, cons
+ static int check_perm(struct inode * inode, struct file * file)
  {
- 	struct dentry * dentry = kobj->dentry;
--	struct dentry * d;
+ 	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
+-	struct attribute * attr = file->f_dentry->d_fsdata;
++	struct attribute * attr = to_attr(file->f_dentry);
+ 	struct sysfs_buffer * buffer;
+ 	struct sysfs_ops * ops = NULL;
  	int error = 0;
+@@ -321,8 +321,8 @@ static int sysfs_open_file(struct inode 
  
- 	BUG_ON(!kobj || !kobj->dentry || !name);
+ static int sysfs_release(struct inode * inode, struct file * filp)
+ {
+-	struct kobject * kobj = filp->f_dentry->d_parent->d_fsdata;
+-	struct attribute * attr = filp->f_dentry->d_fsdata;
++	struct kobject * kobj = to_kobj(filp->f_dentry->d_parent);
++	struct attribute * attr = to_attr(filp->f_dentry);
+ 	struct sysfs_buffer * buffer = filp->private_data;
  
- 	down(&dentry->d_inode->i_sem);
--	d = sysfs_get_dentry(dentry,name);
--	if (!IS_ERR(d)) {
--		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
--		if (!error)
--			error = sysfs_add_link(d, name, target);
--		if (error)
--			d_drop(d);
--		dput(d);
--	} else 
--		error = PTR_ERR(d);
-+	error = sysfs_add_link(dentry, name, target);
- 	up(&dentry->d_inode->i_sem);
- 	return error;
+ 	if (kobj) 
+diff -puN fs/sysfs/bin.c~sysfs-backing-store-prepare-file_operations fs/sysfs/bin.c
+--- linux-2.6.8-rc4/fs/sysfs/bin.c~sysfs-backing-store-prepare-file_operations	2004-08-10 15:09:10.000000000 -0500
++++ linux-2.6.8-rc4-maneesh/fs/sysfs/bin.c	2004-08-10 15:37:34.000000000 -0500
+@@ -17,8 +17,8 @@
+ static int
+ fill_read(struct dentry *dentry, char *buffer, loff_t off, size_t count)
+ {
+-	struct bin_attribute * attr = dentry->d_fsdata;
+-	struct kobject * kobj = dentry->d_parent->d_fsdata;
++	struct bin_attribute * attr = to_bin_attr(dentry);
++	struct kobject * kobj = to_kobj(dentry->d_parent);
+ 
+ 	return attr->read(kobj, buffer, off, count);
  }
-diff -puN fs/sysfs/group.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/group.c
-diff -puN fs/sysfs/mount.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves fs/sysfs/mount.c
---- linux-2.6.8-rc4/fs/sysfs/mount.c~sysfs-backing-store-stop-pinning-dentries-inodes-for-leaves	2004-08-10 15:09:20.000000000 -0500
-+++ linux-2.6.8-rc4-maneesh/fs/sysfs/mount.c	2004-08-10 15:09:20.000000000 -0500
-@@ -42,7 +42,7 @@ static int sysfs_fill_super(struct super
+@@ -60,8 +60,8 @@ read(struct file * file, char __user * u
+ static int
+ flush_write(struct dentry *dentry, char *buffer, loff_t offset, size_t count)
+ {
+-	struct bin_attribute *attr = dentry->d_fsdata;
+-	struct kobject *kobj = dentry->d_parent->d_fsdata;
++	struct bin_attribute *attr = to_bin_attr(dentry->d_parent);
++	struct kobject *kobj = to_kobj(dentry);
  
- 	inode = sysfs_new_inode(S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO);
- 	if (inode) {
--		inode->i_op = &simple_dir_inode_operations;
-+		inode->i_op = &sysfs_dir_inode_operations;
- 		inode->i_fop = &sysfs_dir_operations;
- 		/* directory inodes start off with i_nlink == 2 (for "." entry) */
- 		inode->i_nlink++;	
+ 	return attr->write(kobj, buffer, offset, count);
+ }
+@@ -95,7 +95,7 @@ static ssize_t write(struct file * file,
+ static int open(struct inode * inode, struct file * file)
+ {
+ 	struct kobject *kobj = sysfs_get_kobject(file->f_dentry->d_parent);
+-	struct bin_attribute * attr = file->f_dentry->d_fsdata;
++	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
+ 	int error = -EINVAL;
+ 
+ 	if (!kobj || !attr)
+@@ -130,8 +130,8 @@ static int open(struct inode * inode, st
+ 
+ static int release(struct inode * inode, struct file * file)
+ {
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
+-	struct bin_attribute * attr = file->f_dentry->d_fsdata;
++	struct kobject * kobj = to_kobj(file->f_dentry->d_parent);
++	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
+ 	u8 * buffer = file->private_data;
+ 
+ 	if (kobj) 
 
 _
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Austin
-email: maneesh@in.ibm.com
-Phone: 1-512-838-1896 Fax: 
-T/L : 6781896

@@ -1,79 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263962AbTDJATp (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 20:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263966AbTDJATo (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 20:19:44 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:34526 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S263962AbTDJATn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 20:19:43 -0400
-Message-ID: <20030410003116.9596.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id S263971AbTDJAhj (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 20:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbTDJAhj (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 20:37:39 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:4008 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263971AbTDJAhj (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 20:37:39 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: wa@almesberger.net
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16020.49037.394899.695055@napali.hpl.hp.com>
+Date: Wed, 9 Apr 2003 17:49:17 -0700
+To: Neil Brown <neilb@cse.unsw.edu.au>
 Cc: linux-kernel@vger.kernel.org
-Date: Wed, 09 Apr 2003 19:31:16 -0500
-Subject: Re: [PATCH] new syscall: flink
-X-Originating-Ip: 172.200.16.65
-X-Originating-Server: ws3-2.us4.outblaze.com
+Subject: Re: NFSD binary compatibility breakage
+In-Reply-To: <16020.45397.938754.806118@notabene.cse.unsw.edu.au>
+References: <200304090542.h395gHF5004000@napali.hpl.hp.com>
+	<16020.45397.938754.806118@notabene.cse.unsw.edu.au>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: Werner Almesberger <wa@almesberger.net>
-Date: Mon, 7 Apr 2003 15:43:03 -0300
-To: Clayton Weaver <cgweav@email.com>
-Subject: Re: [PATCH] new syscall: flink
+>>>>> On Thu, 10 Apr 2003 09:48:37 +1000, Neil Brown <neilb@cse.unsw.edu.au> said:
 
-> Clayton Weaver wrote:
-> > If the client process subsequently flink()s to the inode, it is merely
-> > a zerocopy file copy.
+  Neil> Hmm... just another reason to get rid of these binary
+  Neil> interfaces!  I plan to rip them all out in 2.7.1.
 
-> As far as access to the data is concerned, yes. But there's also the
-> location of the file. E.g. this might enable you to fill somebody
-> else's quota, or, if distinct physical devices can be be covered by
-> the same file system, to access a physical device that would
-> otherwise not be available to you.
+Sounds good to me.
 
-> Example: I write some kind of RAID mounted at /world, that contains
-> my disk under /world/disk, and some Flash storage under /world/flash.
-> I protect /world/flash against writes by other people. If a
-> read-only FD could be turned into something writeable, some malicious
-> creature could "wear out" my Flash by writing to it a lot of times.
+  Neil> But for now I'll try to keep them going as best I can.  Thanks
+  Neil> for the patch.
 
-> - Werner
+Thanks!
 
-I'm wondering about the semantics of the unlink
-of the last directory entry and subsequent
-flink(). When is the inode updated?
- 
-I presume that the open fd has owner and mode
-information from open(), but would flink()update the inode with new owner information if the
-last directory reference had already been
-unlinked, and how would this interact with
-owner information associated with the open fd
-for subsequent file operations? Would fchmod() then succeed, even if the new process is not
-owned by the original owner of the flink()ed
-to inode? Are any changes to the inode data
-delayed until after close()?
-
-What about multiple flink()s before an inode
-update has appeared in the filesystem?
-
-It seems to me that "change of owner of the inode" via flink() is an issue, and application programmers that unlink the last directory reference and then pass the open fd to another process had better have no sentimental attachment to the existing access constraints on the file. flink(), close(), open() isn't exactly a difficult hoop to jump through, even if you've passed an
-open fd for a read-only file (that you unlinked
-any directory references to).
-
-Regards,
-
-Clayton Weaver
-<mailto: cgweav@email.com>
-
-
--- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
+	--david

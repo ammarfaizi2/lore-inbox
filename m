@@ -1,104 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317483AbSGJPqD>; Wed, 10 Jul 2002 11:46:03 -0400
+	id <S317522AbSGJPuQ>; Wed, 10 Jul 2002 11:50:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317521AbSGJPqC>; Wed, 10 Jul 2002 11:46:02 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:30625 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S317483AbSGJPqB>; Wed, 10 Jul 2002 11:46:01 -0400
-Message-Id: <200207101548.g6AFmUg96842@d12relay01.de.ibm.com>
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Subject: Re: [PATCH] 2.5.25 : tr_source_route fix
-To: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Mail-Copies-To: arndb@de.ibm.com
-Date: Wed, 10 Jul 2002 19:48:39 +0200
-References: <Pine.LNX.4.44.0207101011580.873-100000@localhost.localdomain>
-Organization: IBM Deutschland Entwicklung GmbH
-User-Agent: KNode/0.7.1
+	id <S317528AbSGJPuP>; Wed, 10 Jul 2002 11:50:15 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:52673 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317522AbSGJPuO>;
+	Wed, 10 Jul 2002 11:50:14 -0400
+Message-ID: <1026316367.3d2c584f45ab0@imap.linux.ibm.com>
+Date: Wed, 10 Jul 2002 11:52:47 -0400
+From: niv@us.ibm.com
+To: hurwitz@lanl.gov
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How many copies to get from NIC RX to user read()?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.0
+X-Originating-IP: 9.65.0.27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Davis wrote:
 
-> Hello all,
->   The following patch fixes the below 'make bzImage' error. Please review
-> for inclusion.
+> I could've sworn I heard the stack was single-copy 
+> on both the TX and RX sides. But, it doesn't look to 
+> me like it is. Rather, it looks like there is one copy 
+> in tcp_rcv_estabilshed() (via tcp_copy_to_iovec()), and a
+> second copy in tcp_recvmsg() (which is called when the 
+> user calls read()). Both of these copies are, I believe, 
+> done by skb_copy_datagram_iovec().
 
-> --- net/802/tr.c.old	Thu Jun 20 20:52:05 2002
-> +++ net/802/tr.c	Thu Jun 20 20:51:59 2002
+tcp_recvmsg() only does the copy from the receive_queue
+or the backlog queue. tcp_rcv_established() does the copy
+directly into the iovec or queues it onto the receive_queue 
+or backlog queue for tcp_recvmsg() to complete the work. So 
+there arent two copies of the same data happening, just a 
+question of one or the other function doing the work depending 
+on whether there is currently a process doing a read or not..
 
-make the patch one level higher, so it applies with '-p1', not '-p0'.
+hth,
+
+thanks,
+Nivedita
 
 
-> -static void tr_source_route(struct sk_buff *skb, struct trh_hdr *trh, struct net_device *dev);
-> +void tr_source_route(struct sk_buff *skb, struct trh_hdr *trh, struct net_device *dev);
-
-This declaration is not needed any more, since it now is in the header file. The other
-declaration in net/netsyms.c and net/llc/llc_mac.c should be removed as well.
-replacement patch follows.
-
-	Arnd <><
-
-diff -u -r1.1.1.1 trdevice.h
---- a/include/linux/trdevice.h	2002/03/13 19:33:11	1.1.1.1
-+++ b/include/linux/trdevice.h	2002/07/10 15:34:28
-@@ -33,6 +33,9 @@
- 				   void *saddr, unsigned len);
- extern int		tr_rebuild_header(struct sk_buff *skb);
- extern unsigned short	tr_type_trans(struct sk_buff *skb, struct net_device *dev);
-+extern void		tr_source_route(struct sk_buff *skb, 
-+					struct trh_hdr *trh,
-+					struct net_device *dev);
- extern struct net_device *init_trdev(struct net_device *dev, int sizeof_priv);
- extern struct net_device *alloc_trdev(int sizeof_priv);
- extern int register_trdev(struct net_device *dev);
-diff -u -r1.6 netsyms.c
---- a/net/netsyms.c	2002/06/25 09:36:58	1.6
-+++ b/net/netsyms.c	2002/07/10 15:34:28
-@@ -444,8 +444,6 @@
- #endif  /* CONFIG_INET */
- 
- #if defined(CONFIG_TR) && defined(CONFIG_LLC)
--extern void tr_source_route(struct sk_buff *skb, struct trh_hdr *trh,
--			    struct net_device *dev);
- EXPORT_SYMBOL(tr_source_route);
- EXPORT_SYMBOL(tr_type_trans);
- #endif
-diff -u -r1.3 tr.c
---- a/net/802/tr.c	2002/05/27 12:33:18	1.3
-+++ b/net/802/tr.c	2002/07/10 15:34:28
-@@ -36,7 +36,6 @@
- #include <linux/init.h>
- #include <net/arp.h>
- 
--static void tr_source_route(struct sk_buff *skb, struct trh_hdr *trh, struct net_device *dev);
- static void tr_add_rif_info(struct trh_hdr *trh, struct net_device *dev);
- static void rif_check_expire(unsigned long dummy);
- 
-@@ -230,7 +229,7 @@
-  *	We try to do source routing... 
-  */
- 
--static void tr_source_route(struct sk_buff *skb,struct trh_hdr *trh,struct net_device *dev) 
-+void tr_source_route(struct sk_buff *skb,struct trh_hdr *trh,struct net_device *dev) 
- {
- 	int i, slack;
- 	unsigned int hash;
-diff -u -r1.1 llc_mac.c
---- a/net/llc/llc_mac.c	2002/06/25 09:37:00	1.1
-+++ b/net/llc/llc_mac.c	2002/07/10 15:34:29
-@@ -25,10 +25,7 @@
- #include <net/llc_evnt.h>
- #include <net/llc_c_ev.h>
- #include <net/llc_s_ev.h>
--#ifdef CONFIG_TR
--extern void tr_source_route(struct sk_buff *skb, struct trh_hdr *trh,
--			    struct net_device *dev);
--#endif
-+
- /* function prototypes */
- static void fix_up_incoming_skb(struct sk_buff *skb);

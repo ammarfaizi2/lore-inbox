@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273085AbRIIW3F>; Sun, 9 Sep 2001 18:29:05 -0400
+	id <S273086AbRIIWaP>; Sun, 9 Sep 2001 18:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273083AbRIIW2z>; Sun, 9 Sep 2001 18:28:55 -0400
-Received: from smtp-server2.cfl.rr.com ([65.32.2.69]:29138 "EHLO
-	smtp-server2.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S273081AbRIIW2m>; Sun, 9 Sep 2001 18:28:42 -0400
-Message-Id: <200109092229.f89MT3M07627@smtp-server2.tampabay.rr.com>
+	id <S273084AbRIIW34>; Sun, 9 Sep 2001 18:29:56 -0400
+Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:23697 "EHLO
+	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S273083AbRIIW3r>; Sun, 9 Sep 2001 18:29:47 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Phillip Susi <psusi@cfl.rr.com>
-Reply-To: psusi@cfl.rr.com
-To: linux-kernel@vger.kernel.org
-Subject: New SCSI subsystem in 2.4, and scsi idle patch
-Date: Sun, 9 Sep 2001 18:21:13 +0000
-X-Mailer: KMail [version 1.3]
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: "J. Dow" <jdow@earthlink.net>, "Carsten Leonhardt" <leo@debian.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon/K7-Opimisation problems
+Date: Sun, 9 Sep 2001 15:29:25 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <87g09w70o4.fsf@cymoril.oche.de> <01090915115400.00173@c779218-a> <063301c1397e$0efa6d00$1125a8c0@wednesday>
+In-Reply-To: <063301c1397e$0efa6d00$1125a8c0@wednesday>
 MIME-Version: 1.0
+Message-Id: <01090915292502.00173@c779218-a>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get my 2.4.9 system to spin down my scsi disk(s) when idle.  
-Aparently, this is supported on IDE disks, but not SCSI.  I found an old 
-patch to add support for this to the 2.0.34 kernel, and have been trying to 
-use it as a guide to fixing the 2.4.9 kernel.  It seems that major changes 
-have been done to the scsi layer, so I'm a little confused.  Any help is 
-appreciated.  Here is my current status:
+On Sunday 09 September 2001 03:23 pm, J. Dow wrote:
+> From: "Nicholas Knight" <tegeran@home.com>
+>
+> > > The only difference I can make out between the working and the
+> > > non-working CPU is the internal clockspeed of the CPU and the
+> > > stepping (old: 2, new: 4).
+> >
+> > Heat anyone? stepping 4 hasn't seemed to be the problem, at least not
+> > directly
+> > What's the tempature difference between your 1Ghz and 1.4Ghz? both
+> > CPU and system? What kind of cooling do you have?
+>
+> What about the power supply. If it is at all marginal the power
+> consumption boost going to 1.4G is likely a killer.
 
-It looks like the code path I need to modify is in 
-drivers/scsi/sd.c:rw_intr().  It looks to me that this function is called 
-when the HBA completes an SRB and it decides if it was an error or not, and 
-completes it correctly.  I think I need to check for the NOT_READY sense 
-status here, and if it is found, try to spin up the disk.  
+Well, he didn't mention the amperage outputs, but he said 431W Enermax, 
+from what I hear Enermax PSU's are good.
+I still have trouble dealing with the idea that the optimizations cause 
+power consumption like this, but then, I have trouble with my own idea 
+that it causes sufficient heat increase in the chipset that soon after 
+boot.
 
-Now for my questions:  
-
-1) In the old patch, if the spin up failed, it calls 
-end_scsi_request, and then requeue_sd_request.  I'm not sure why it tries to 
-requeue a failed request, but the it seems that neither of these functions 
-exist in the 2.4 kernel.  What should I use instead?
-
-2) If the spin up worked, the old code called requeue_sd_request, I assume to 
-send down the original read/write request to the disk now that it is on.  
-Once again, what should I use instead of requeue_sd_request to do this?  
-There is a comment still in the 2.4 code describing this function, but the 
-function itself is not there.  
-
-3) The old code called scsi_do_cmd to send down a START_STOP SRB to the drive 
-when it decides it should spin the drive back up.  This function is also no 
-longer there, so what should I use to send down the START_STOP SRB?  
-
-P.S.  I'd like to use a user mode daemon to detect disk idle, and issue the 
-existing ioctl code to spin the disk down, and rely on the kernel to spin it 
-back up as needed.  Isn't there somewhere in /proc that keeps IO counters on 
-the disk I can monitor?  Also, is there a way I could ask the kernel to not 
-flush dirty pages to disk unless it gets a whole lot of them so the disk 
-won't be spun up all the time just to write a few KB?
-
--- 
---> Phill Susi
+Do most people that experience this problem also experience after a 
+cold-boot where the system had been off for at least 10-15 minutes? And 
+has ANYONE sucsesfully cured this problem by changing power supplies?

@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVCUWLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVCUWRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVCUWLA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:11:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVCUWLA
+	id S261654AbVCUWRF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVCUWRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:11:00 -0500
-Received: from smtp1.sloane.cz ([62.240.161.228]:27121 "EHLO smtp1.sloane.cz")
-	by vger.kernel.org with ESMTP id S261930AbVCUWKp (ORCPT
+	Mon, 21 Mar 2005 17:17:05 -0500
+Received: from nn7.excitenetwork.com ([207.159.120.61]:5212 "EHLO excite.com")
+	by vger.kernel.org with ESMTP id S261389AbVCUWQs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:10:45 -0500
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
-Date: Mon, 21 Mar 2005 23:10:37 +0100
-User-Agent: KMail/1.7.1
-References: <20050321184512.GA1390@elf.ucw.cz>
-In-Reply-To: <20050321184512.GA1390@elf.ucw.cz>
+	Mon, 21 Mar 2005 17:16:48 -0500
+To: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
+Subject: Problem in encryption in kernel
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: ID = 41790ee39c7967bbf4ef314fad615410
+Reply-To: vintya@excite.com
+From: "Vineet Joglekar" <vintya@excite.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+X-Mailer: PHP
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503212310.37801.cijoml@volny.cz>
+Message-Id: <20050321221648.169188AECF@xprdmailfe2.nwk.excite.com>
+Date: Mon, 21 Mar 2005 17:16:48 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-It is real stupid, that Linux kernel freezes when simply during hibernate I 
-change Bluetooth dongle to USB mouse in my USB port.
+Hi all,
 
-And it is not uncommon problem - I have BT dongle that starts in HID proxy 
-mode and then I switch it to HCI mode. So I hibernate with BT dongle and 
-after hibernate Linux only reads image from Swap and then freezes! :( Problem 
-is, that It delete image from swap imeditially after reading it, so when I 
-tried is simply with USB mouse (hibernate without it and plug it when 
-notebook was switched off) it doesn't read it from swap ever and I lost all 
-my memory :(
+I am trying to use some encryption routines inside the kernel (2.4.28). I have done the following things, please let me know where I am going wrong, or anything additional needs to be done.
 
-I can do nothing with this behavior of my dongle and there is no known way how 
-to switch it back to HID-proxy mode before hibernate (Marcel correct me if I 
-am wrong) - CSR based dongle D-Link with Apple firmware.
+1: defined struct crypto_tfm * tfm and allocated to des using crypto_alloc_tfm()
+2: called crypto_cipher_setkey() to set the DES key.
+3: defined the ecryption function as follows:
 
-Windows knows it and doesn't have problem with it for 5 years! :)
+int encrypt(char *buffer, size_t buffer_length)
+{
+    struct scatterlist sg;
+    int ret = 0,i = 0;
 
-Laptop is all Intel based, kernel 2.6.11.5-vanilla, gcc 3.4.3, Debian testing
+    printk("addr sent = %x\n",buffer);
+    sg.page = virt_to_page(buffer);
+    printk("addr frm virt_to_page = %x\n",sg.page);
+// these 2 address are coming out to be different.
 
-Michal
+    sg.length = 8;
+    for(i=0; i < buffer_length; i+=8)
+    {
+        sg.offset = i;
 
+        ret = crypto_cipher_encrypt(tfm,&sg,&sg,8);
+        if(ret) printk("error");
+    }
+    return ret;
+}
 
-> ----- Forwarded message from David Brownell <david-b@pacbell.net> -----
->
-> X-Original-To: pavel@atrey.karlin.mff.cuni.cz
-> To: linux-pm@lists.osdl.org
-> Subject: Re: [linux-pm] potential pitfall? changing configuration while PC
-> in hibernate Cc: Pavel Machek <pavel@ucw.cz>, Arioch <the_Arioch@nm.ru>
-> X-Spam-Checker-Version: SpamAssassin 3.0.2 (2004-11-16) on
->  atrey.karlin.mff.cuni.cz
-> X-Spam-Level: *
-> X-Spam-Status: No, score=1.8 required=5.0 tests=DNS_FROM_RFC_ABUSE,
->  DNS_FROM_RFC_POST autolearn=no version=3.0.2
-> X-CRM114-Status: Good  ( pR: 18.5243 )
->
-> On Monday 21 March 2005 1:52 am, Pavel Machek wrote:
-> > On Po 21-03-05 11:02:04, Arioch wrote:
-> > > I wonder, if hardware configuration asked for changes when resuming
-> > > from hibernate ?
-> >
-> > Current position is "don't do this". You *will* be able to recover by
-> > passing noresume, but if you change hw configuration, it may crash&burn.
->
-> That may be Pavel's position, but USB-wise we absolutely consider
-> it a bug if Linux misbehaves in the face of routine actions like
-> unplugging a device during suspend (or plugging in a new one).
-> Regardless of "noresume" etc.
->
-> I'd say that's true for all hotpluggable busses, in fact, but I
-> rarely submit patches for non-USB ones like PCMCIA or CardBus.
->
-> - Dave
->
->
-> ----- End forwarded message -----
+Now if I define a character array temp[16], pass it to encrypt as encrypt(temp,16) and on the next line, if I see the the array using printk again, it doesnt show it as encrypted. whats going wrong? (it didnt give any memory fault that this point, maybe it encrypted something else - as the address I saw were different)
 
--- 
-S pozdravem
+I tried to see the address in pointer "buffer" and address returned by "virt_to_page", they are different.
 
-Michal Semler
+Since the addresses were different, I tried to do following variations, but it always gave some memory fault:
+1: instead of using sg.page, i tried to use sg.address as
+sg.address = buffer; sg.offset = i;
+2 : I tried to assign sg.page = buffer (w/o using virt_to_page) and sg.offset = i;
+3: I tried
+        sg.page = virt_to_page(buffer);
+        sg.offset = ((unsigned long)buffer + ~PAGE_MASK) + i;
+
+So I am stuck and out of ideas now. Please help me with it. All I want is that array getting encrypted after I pass it to the encrypt function (the size should remain the same)
+
+Thanks in advance and regards,
+
+Vineet
+
+_______________________________________________
+Join Excite! - http://www.excite.com
+The most personalized portal on the Web!

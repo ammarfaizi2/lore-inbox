@@ -1,84 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267707AbUHJVO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUHJVV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267707AbUHJVO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267727AbUHJVO6
+	id S267650AbUHJVV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 17:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbUHJVV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:14:58 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:39712 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267707AbUHJVOt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:14:49 -0400
-Date: Tue, 10 Aug 2004 23:16:57 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
-Message-ID: <20040810211656.GA7221@mars.ravnborg.org>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de>
+	Tue, 10 Aug 2004 17:21:58 -0400
+Received: from holomorphy.com ([207.189.100.168]:21996 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267727AbUHJVUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 17:20:46 -0400
+Date: Tue, 10 Aug 2004 14:20:33 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1
+Message-ID: <20040810212033.GY11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org> <200408100937.47451.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810084411.GI26174@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200408100937.47451.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 10:44:11AM +0200, Adrian Bunk wrote:
-> 
-> I assume Sam thinks in the direction to let a symbol inherit the 
-> dependencies off all symbols it selects.
-> 
-> E.g. in
-> 
-> config A
-> 	depends on B
-> 
-> config C
-> 	select A
-        depends on Z
+On Tuesday, August 10, 2004 12:21 am, Andrew Morton wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc4/2.6
+>>.8-rc4-mm1/
 
-  config Z
-        depends on Y
-> 
-> 
-> C should be treated as if it would depend on B.
+On Tue, Aug 10, 2004 at 09:37:47AM -0700, Jesse Barnes wrote:
+> Needs a build fix for ia64, which is attached.  acpi_noirq wasn't defined for 
+> anything but i386, afaict.
+> Once I fix the build, it hangs in the same way as 2.6.8-rc3-mm2.  I
+> assume wli is still working on fixing that...
+> Jesse
 
-Correct. But at the same time I miss some functionality to
-tell me what a given symbol:
-1) depends on
-2) selects
-
-It would be nice in menuconfig to see what config symbol
-that has dependencies and/or side effects. 
-
-[*] PCI support
-Could look like:
-[*]d PCI support
-The space for the 'd' tag could be misused for other purposes later.
+Yes. Not quite there yet. I have it down to one printk() and "why does
+the printk fix anything?"
 
 
-The pressing 'd' would give me the following output:
-
-C "The C prompt"
--> depends on
-   CONFIG_Z "Prompt for Z"
-   -> depends on
-      CONFIG_Y "Prompt for Y"
--> Selects
-   CONFIG_A "Promtp for A"
-   -> depends on
-      CONFIG_B "Prompt for B"
-
-Or something similar.
-The idea is to give user an idea of dependencies (both ways) - recursive.
-Using both CONFIG symbol and prompt will give the user an idea where to
-locate it.
-
-Something like this is on my wish list.
-
-	Sam
+-- wli

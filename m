@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTD2SCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 14:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTD2SCZ
+	id S262118AbTD2SMD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 14:12:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbTD2SMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 14:02:25 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39060
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262119AbTD2SCY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 14:02:24 -0400
-Subject: RE: LSI MegaRAID ATA driver (COMPAQ Proliant DL-320 G2)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Mukker, Atul" <atulm@lsil.com>
-Cc: prequejo@dbs.es, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "'Martin_List-Petersen@Dell.com'" <Martin_List-Petersen@Dell.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570185F15D@EXA-ATLANTA.se.lsil.com>
-References: <0E3FA95632D6D047BA649F95DAB60E570185F15D@EXA-ATLANTA.se.lsil.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051636554.18199.46.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 29 Apr 2003 18:15:55 +0100
+	Tue, 29 Apr 2003 14:12:02 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:28138 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262118AbTD2SMC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 14:12:02 -0400
+Date: Tue, 29 Apr 2003 20:24:14 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [FLAME]: Log and console pollution: ip_tables: (C) 2000-2002
+ Netfilter core team
+In-Reply-To: <200304300136.30478.mflt1@micrologica.com.hk>
+Message-ID: <Pine.LNX.4.51.0304292016140.28027@dns.toxicfilms.tv>
+References: <200304300136.30478.mflt1@micrologica.com.hk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-29 at 17:27, Mukker, Atul wrote:
->  > > Well... Now, I need to upgrade and rebuild the kernel (2.4.18 
-> > > to 2.4.20)
-> > > but, I haven't got the source code of the LSI MegaRAID ATA 
-> > controller.
-> > > 
-> That's right, the source for this software stack is not released under GPL.
-> We do release the RPM packages to update driver. This is true for the stock
-> kernels only. It is not possible to use the RPM for all (or individually
-> compiled) kernels
+Hi,
 
-Or last time I checked you can load the CMD IDE driver just use the
-standard kernel software raid instead of the AMI one. 
+> Gladly, most humble authors refrain from this bloat.
+Strange, i though we are coding for fame and glory ? :)
 
+But seriously...
+You see these messages only when you load the module. On a
+non-testbed-machine it is once a boot. I would not call that polluting
+the logs.
 
+On the other hand on a testbed-machine you see these messages when you
+load and reload the modules. I treat these messages as debug messages.
+When I develop a module i put versioning info there, and i know if I
+loaded the correct module or some previous version.
+
+Regards,
+Maciej Soltysiak
+
+-----BEGIN GEEK CODE BLOCK-----
+VERSION: 3.1
+GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
+Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
+-----END GEEK CODE BLOCK-----

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRKFB2Q>; Mon, 5 Nov 2001 20:28:16 -0500
+	id <S276832AbRKFBaq>; Mon, 5 Nov 2001 20:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276743AbRKFB2H>; Mon, 5 Nov 2001 20:28:07 -0500
-Received: from femail22.sdc1.sfba.home.com ([24.0.95.147]:14502 "EHLO
-	femail22.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S276708AbRKFB1t>; Mon, 5 Nov 2001 20:27:49 -0500
-Message-ID: <000b01c16662$81ccdf00$0300a8c0@theburbs.com>
-From: "Jamie" <darkshad@home.com>
-To: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-Cc: <becker@webserv.gsfc.nasa.gov>, <jam@McQuil.com>, <hendriks@lanl.gov>,
-        <jgolds@resilience.com>, <sdegler@degler.net>,
-        <tulip-users@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-        "Anders Hedborg" <ahe@systemkoreograferna.com>
-In-Reply-To: <000c01c16655$78a1af80$0300a8c0@theburbs.com> <3BE729BB.F84AFAEF@mandrakesoft.com>
-Subject: Re: Tulip Drivers Problem in 2.4.xx Kernel
-Date: Mon, 5 Nov 2001 20:29:38 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S276982AbRKFBag>; Mon, 5 Nov 2001 20:30:36 -0500
+Received: from codepoet.org ([166.70.14.212]:45867 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S276914AbRKFBaa>;
+	Mon, 5 Nov 2001 20:30:30 -0500
+Date: Mon, 5 Nov 2001 18:30:32 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: David Dyck <dcd@tc.fluke.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 doesn't compile: deactivate_page not defined in loop.c
+Message-ID: <20011105183032.A17445@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	David Dyck <dcd@tc.fluke.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111051654140.4708-100000@dd.tc.fluke.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0111051654140.4708-100000@dd.tc.fluke.com>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok Jeff thanks I will definately give that a try I have never tried the
-dec4x5 drivers I will see if it works
-for my NIC.
+On Mon Nov 05, 2001 at 04:57:18PM -0800, David Dyck wrote:
+> 
+> 
+> drivers/block/block.o: In function `lo_send':
+> drivers/block/block.o(.text+0x8ad9): undefined reference to `deactivate_page'
+> drivers/block/block.o(.text+0x8b19): undefined reference to `deactivate_page'
+> 
+> 
+> a grep from deactivate_page only shows up in  linux/drivers/block/loop.c
 
-Thanks,
+It used to be in mm/swap.c but it no longer is....
+Looks like the loop device needs some surgery,
 
-Jamie
+ -Erik
 
------ Original Message -----
-From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
-To: "Jamie" <darkshad@home.com>
-Cc: <becker@webserv.gsfc.nasa.gov>; <jam@McQuil.com>; <hendriks@lanl.gov>;
-<jgolds@resilience.com>; <sdegler@degler.net>;
-<tulip-users@lists.sourceforge.net>; <linux-kernel@vger.kernel.org>; "Anders
-Hedborg" <ahe@systemkoreograferna.com>
-Sent: Monday, November 05, 2001 7:07 PM
-Subject: Re: Tulip Drivers Problem in 2.4.xx Kernel
-
-
-Currently there is a bug in 2.4.x-current tulip drivers that prevents
-21041 from initializing correctly.  Until then you can use the 'de4x5'
-driver or download the latest stable version on the tulip web page:
-http://sourceforge.net/projects/tulip/
 --
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
-
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

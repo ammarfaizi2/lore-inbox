@@ -1,81 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbTKCX1U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 18:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbTKCX1U
+	id S263485AbTKCXbw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 18:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTKCXbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 18:27:20 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:65010 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262094AbTKCX1T
+	Mon, 3 Nov 2003 18:31:52 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:25826 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263485AbTKCXbs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 18:27:19 -0500
-Message-ID: <3FA6E451.1050508@mvista.com>
-Date: Mon, 03 Nov 2003 15:27:13 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Mon, 3 Nov 2003 18:31:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
+Date: Mon, 3 Nov 2003 15:29:21 -0800
+User-Agent: KMail/1.4.1
+References: <3F9D82F0.4000307@mvista.com> <200310290920.06056.dsteklof@us.ibm.com> <1067794124.30274.18.camel@simulacron>
+In-Reply-To: <1067794124.30274.18.camel@simulacron>
 MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sourceforge.net>
-CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       linuxquestasu@yahoo.com
-Subject: Re: Cyclic Scheduling for linux
-References: <1067646722.2560.259.camel@cube>
-In-Reply-To: <1067646722.2560.259.camel@cube>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200311031529.21509.dsteklof@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-He is supposed to do this for a class.  I wonder if the teacher would give extra 
-credits for grabbing on open source solution instead of writting the code...
+On Sunday 02 November 2003 09:28 am, Andreas Jellinghaus wrote:
+> On Wed, 2003-10-29 at 18:20, Daniel Stekloff wrote:
+> > The tdb database is for storing current device information, udev needs to
+> > reference names to devices. The database also enables an api for
+> > applications to query what devices are on the system, their names, and
+> > their nodes.
+> >
+> > Using tdb has its advantages too; it's small, it's flexible, it's fast,
+> > it can be in memory or on disk, and it has locking for multiple accesses.
+> >
+> > IMVHO - tdb isn't bloat.
+>
+> Hi Dan,
 
-But then you did not say the Concurrent thing was open source. :)
 
--g
+Hi Andreas, 
 
-Albert Cahalan wrote:
->>I am working on providing a cyclic scheduling policy
->>to the current non real time version of the linux to
->>support hard real time tasks as part of one of my
->>projects. This policy should be able to support
->>aperiodic, periodic and sporadic tasks too. Could any
->>one pour some light on how to go about achieving it?.
->>
->>Any Helpful tips, project reports, links or advices
->>are greatly appreciated.
-> 
-> 
-> I suppose you expect to write this, but if not,
-> you can get it in Concurrent's Red Hawk Linux
-> product.
-> 
-> Marketing says:
-> 
-> "RedHawk's Frequency-Based Scheduler (FBS) is a
-> high-resolution task scheduler that enables the
-> user to run processes in cyclical execution patterns.
-> FBS can control the periodic execution of multiple,
-> coordinated processes utilizing major and minor
-> cycles with overrun detection. A performance
-> monitor is also provided to view CPU utilization
-> during each scheduled execution frame."
-> 
-> That's on a "real" Linux kernel, not like RTAI
-> or RT-Linux. There are some other cool real-time
-> features as well, and an Ada compiler if you're
-> so inclined.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Sorry for my late reply. 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+> thanks for your email.
+> I took a look at tdb. Upon adding devices, the DEVPATH is resolved via
+> config files etc. to a final /dev filename. That combination is stored
+> in tdb, and when the device is remove, the same resolution process is
+> not done, but the tdb is looked up to find the filename, and remove
+> the device. Is that right?
+
+
+The device path and device name are stored in the tdb database. The path is 
+used as the primary key, the unique identifier to locate the specific device. 
+A device is added by path and then removed using the path. 
+
+
+> So the advantage would be resistance against config file changes - if
+> the nameing scheme is changed while a devices is added, the remove would
+> get the new name, and that way try to remove the wrong device.
+
+
+Adding and removing device from the tdb database is done based on the device's 
+path and not the generated name. Changing the config file shouldn't impact 
+currently loaded and configured devices. 
+
+
+
+> Also this mechanism could be used to implement counting device names
+> like "disc/0", where the final name depends on the devices currently
+> available, so there is no static translation from devpath to the
+> filename.
+>
+> I'd prefer the kernel giving up the old device names, and migrating
+> to counter names i.e. disc/0, cdrom/0, printer/0, etc. Those who
+> still want the old names could use /sys/ to determine the details
+> on the device, and that way create devices per the old naming schema.
+> That way tdb wouldn't be necessary for counting device names, at least
+> if sysfs still has the full information on the device while the hotplug
+> event runs. I guess that is not the case or not guaranteed?
+>
+> Also I have to admit, if symlinks like "hpdeskjet" to some usb device
+> are configured in the config, the device is attached, and the config
+> is changed, then a remove event will not find the old symlink and
+> cannot remove it, without tdb.
+>
+> But maybe like a coldplug / fulling an empty /dev, there should be
+> rerun command? I.e. like coldplug determine what device and symlinks
+> shold be in /dev, and the remove unnecessary, add missing, and modify
+> outdated entries (devices,files)? If that existed, configuration changes
+> wouldn't be a reason for udev to use tdb?
+>
+> So why is tdb currently required? I only see the possibility to use
+> naming schemes like disc/0 as a reason, but that isn't implemented
+> in udev so far...
+>
+> other than a theological discussion about needed or not, I guess nobody
+> will complain about it - even people with /dev on tmpfs and a readonly
+> / will have a writable or tmpfs /var so they can live with it anyway.
+> but I'm still not sure, if it isn't unnecessary.
+
+
+Honestly, I'm not exactly sure what you're questioning - is tdb specifically 
+unnecessary or is having a backing store unnecessary. 
+
+It's true, you could do without a backing store. You could build the reference 
+between device and name every time you wish to work with the device. In some 
+cases that would be easy, such as simply using the kernel naming system. In 
+other cases it might not be so easy, especially if you use a specific and 
+complicated naming scheme. You'd have to pay the processing hit it would take 
+to calculate the names every time you access a device. You'd also have to 
+deal with issues like current devices and adjusting the config files, which 
+you've already brought up. 
+
+I believe having a backing store - whether tdb, gdbm, a table in memory, or a 
+flat file - is useful for storing the configured devices and their names. 
+It's cheap to submit a small query to find the necessary device, rather than 
+having to go through the naming process every time a device is added, 
+removed, or queried. Having the backing store removes the problem you 
+mentioned about changing config files on the fly, there's no loose ends or 
+missing or changed device names - they are stored in the database. I believe 
+the trade off between backing store complexity and storage versus on the fly 
+calculation is worth it. I can understand if you feel differently.
+
+As for tdb specifically being unnecessary, you could most certainly use 
+something else to store device information. You could use a flat file. You 
+could use gdbm. You could use a simple table in memory. I chose tdb for the 
+following reasons: 
+
+- it is a proven mechanism. 
+- it could handle thousands of devices.
+- it is fast to query.
+- it has a small footprint.
+
+It seemed to me like a good solution for udev's backing store need. 
+
+If you believe udev doesn't need the backing store and/or tdb, let's see your 
+solution and we can decide on its technical merit by looking it over. I'm 
+certainly open to new ideas and solutions. I'm sorry if you felt this was a 
+"theological" discussion, I certainly don't feel the same way.
+
+Cheers,
+
+Dan
+
+ 
+
+
+> Regards, Andreas
 

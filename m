@@ -1,111 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319239AbSHUWwv>; Wed, 21 Aug 2002 18:52:51 -0400
+	id <S319234AbSHUWum>; Wed, 21 Aug 2002 18:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319240AbSHUWwu>; Wed, 21 Aug 2002 18:52:50 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:63184 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S319239AbSHUWwT>; Wed, 21 Aug 2002 18:52:19 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000BA1E06E@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: Banai Zoltan <bazooka@emitel.hu>, Kelsey Hudson <khudson@compendium.us>
-Cc: James Bourne <jbourne@mtroyal.ab.ca>, Hugh Dickins <hugh@veritas.com>,
-       "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       linux-kernel@vger.kernel.org
-Subject: RE: Hyperthreading
-Date: Wed, 21 Aug 2002 15:56:12 -0700
+	id <S319235AbSHUWum>; Wed, 21 Aug 2002 18:50:42 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:64523 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319234AbSHUWul>; Wed, 21 Aug 2002 18:50:41 -0400
+Message-ID: <3D6419B3.50356B8E@zip.com.au>
+Date: Wed, 21 Aug 2002 15:52:35 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       Thomas Molina <tmolina@cox.net>
+Subject: Re: Race in pagevec code
+References: <20020821154535.11432.qmail@thales.mathematik.uni-ulm.de> <3D63D0DC.271B6130@zip.com.au> <20020821222333.21552.qmail@thales.mathematik.uni-ulm.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since Pentium 4 and Xeon share the same core, you see the HT bit on Pentium
-4 as well. The HT bit does not mean HT is enabled (you can enable/disable
-usually by the BIOS setup), but the number of the threads (i.e. logical
-CPUs) in a processor package must be 2 (via cpuid instruction) so that the
-OS can be sure that HT is enabled (see setup.c). The HT bit is just useful
-as a prerequisite for HT.
-
-Thanks,
-Jun
------Original Message-----
-From: Banai Zoltan [mailto:bazooka@emitel.hu]
-Sent: Wednesday, August 21, 2002 2:55 PM
-To: Kelsey Hudson
-Cc: James Bourne; Hugh Dickins; Reed, Timothy A;
-linux-kernel@vger.kernel.org
-Subject: Re: Hyperthreading
-
-
-On Wed, Aug 21, 2002 at 02:16:11PM -0700, Kelsey Hudson wrote:
-> On Wed, 21 Aug 2002, James Bourne wrote:
+Christian Ehrhardt wrote:
 > 
-> > On Wed, 21 Aug 2002, Hugh Dickins wrote:
-> > 
-> > > You do need CONFIG_SMP and a processor capable of HyperThreading,
-> > > i.e. Pentium 4 XEON; but CONFIG_MPENTIUM4 is not necessary for HT,
-> > > just appropriate to that processor in other ways.
-> > 
-> > I was under the impression that the only CPU capable of hyperthreading
-was
-> > the P4 Xeon.  Is this not correct?  I don't know of any other CPUs that
-> > have the ht feature.
+> On Wed, Aug 21, 2002 at 10:41:48AM -0700, Andrew Morton wrote:
+> > Christian Ehrhardt wrote:
+> > >
+> > > ...
+> > >       Both processors succeeded in bringing the page_count to zero,
+> > >       i.e. both processors will add the page to their own
+> > >       pages_to_free_list.
+> >
+> > This is why __pagevec_release() has the refcount check inside the lock.
+> > If someone else grabbed a ref to the page (also inside the lock) via
+> > the LRU, __pagevec_release doesn't free it.
 > 
-> This is currently correct, although I believe Intel has plans to release a
+> I saw this check but this doesn't help. There is no guarantee that this
+> other reference that someone grabbed is still beeing held at the time
+> where we do the check:
+> The problem is if this newly grabbed reference is again dropped BEFORE
+> the check for page_count == 0 but AFTER put_page_test_zero. In this
+> case there can be TWO execution paths the BOTH think that they dropped
+> the last reference, i.e. both call __free_pages_ok for the same page.
+> See?
 
-> Hyperthreading-capable version of its desktop P4. 
+shrink_cache() detects that, inside the lock, and puts the page back
+if it has a zero refcount.
 
-If this is correct, and there is not destop P4 capable of ht,
-then what does mean the ht flag in cpuinfo?
+refill_inactive doesn't need to do that, because it calls page_cache_release(),
+which should look like this:
 
-$cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 1
-model name      : Intel(R) Pentium(R) 4 CPU 1.70GHz
-stepping        : 2
-cpu MHz         : 1694.907
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3381.65
-                                                         ^^
+void __page_cache_release(struct page *page)
+{
+        unsigned long flags;
 
-> 
-> > Also, looking at setup.c it's hard to determine if CONFIG_SMP is
-> > actually required, but it doesn't look like it...
-> 
-> Of course it's required. How are you to take advantage of a "second CPU" 
-> if your scheduler only works on a uniprocessor machine?
-> 
-> -- 
->  Kelsey Hudson                                       khudson@compendium.us
->  Software Engineer/UNIX Systems Administrator
->  Compendium Technologies, Inc                               (619) 725-0771
->
----------------------------------------------------------------------------
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+        spin_lock_irqsave(&_pagemap_lru_lock, flags);
+        if (TestClearPageLRU(page)) {
+                if (PageActive(page))
+                        del_page_from_active_list(page);
+                else
+                        del_page_from_inactive_list(page);
+        }
+        if (page_count(page) != 0)
+                page = NULL;
+        spin_unlock_irqrestore(&_pagemap_lru_lock, flags);
+        if (page)
+                __free_pages_ok(page, 0);
+}
 
--- 
-Banai Zoltan
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+If the page count and non-LRUness are both seen inside the lock,
+the page is freeable.
+
+We do a similar thing with inodes, via atomic_dec_and_lock.
+
+Despite the transformations, it's based on the 2.4 approach.  But you've
+successfully worried me, and I'm not really sure it's right, and I'm
+dead sure it's too hairy.  Something simpler-but-not-sucky is needed.

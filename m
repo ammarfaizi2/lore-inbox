@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318798AbSICQAY>; Tue, 3 Sep 2002 12:00:24 -0400
+	id <S318799AbSICP5R>; Tue, 3 Sep 2002 11:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318806AbSICQAX>; Tue, 3 Sep 2002 12:00:23 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:7943 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318798AbSICQAR>;
-	Tue, 3 Sep 2002 12:00:17 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200209031604.g83G4fY06284@oboe.it.uc3m.es>
-Subject: Re: [RFC] mount flag "direct"
-In-Reply-To: <Pine.GSO.3.96.1020903174246.20090C-100000@delta.ds2.pg.gda.pl>
- from "Maciej W. Rozycki" at "Sep 3, 2002 05:53:39 pm"
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Date: Tue, 3 Sep 2002 18:04:41 +0200 (MET DST)
-Cc: Rik van Riel <riel@conectiva.com.br>, "Peter T. Breuer" <ptb@it.uc3m.es>,
-       linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S318122AbSICP4P>; Tue, 3 Sep 2002 11:56:15 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:32494
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317312AbSICPzT>; Tue, 3 Sep 2002 11:55:19 -0400
+Subject: Re: 2.4.20-pre4-ac1 trashed my system
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Isely <isely@pobox.com>
+Cc: mbs <mbs@mc.com>, Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0209030917040.17540-100000@grace.speakeasy.net>
+References: <Pine.LNX.4.44.0209030917040.17540-100000@grace.speakeasy.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 03 Sep 2002 17:00:58 +0100
+Message-Id: <1031068858.21409.13.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Maciej W. Rozycki wrote:"
-> On Tue, 3 Sep 2002, Rik van Riel wrote:
-> > And what if they both allocate the same disk block to another
-> > file, simultaneously ?
-> 
->  You need a mutex then.  For SCSI devices a reservation is the way to go
-> -- the RESERVE/RELEASE commands are mandatory for direct-access devices,
-> so thy should work universally for disks.
+> Unfortunately you've said you are using a 40GB drive and something other
+> than a Promise controller so your situation may be a different problem.
 
-Is there provision in VFS for this operation?
+The 40Gb drives may well be trying to pick LBA48, but LBA48 works on the
+Intel hardware
 
-(i.e. care to point me at an entry point? I just grepped for "reserve"
-and came up with nothing useful).
-
-Peter

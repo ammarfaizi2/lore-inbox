@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132312AbRARP3Y>; Thu, 18 Jan 2001 10:29:24 -0500
+	id <S131099AbRARPeI>; Thu, 18 Jan 2001 10:34:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132571AbRARP3O>; Thu, 18 Jan 2001 10:29:14 -0500
-Received: from adsl-nrp10-C8B0F87C.sao.terra.com.br ([200.176.248.124]:31219
+	id <S131949AbRARPd5>; Thu, 18 Jan 2001 10:33:57 -0500
+Received: from adsl-nrp10-C8B0F87C.sao.terra.com.br ([200.176.248.124]:31731
 	"EHLO thor.gds-corp.com") by vger.kernel.org with ESMTP
-	id <S132312AbRARP3M> convert rfc822-to-8bit; Thu, 18 Jan 2001 10:29:12 -0500
-Date: Thu, 18 Jan 2001 13:30:09 -0200 (BRST)
+	id <S131907AbRARPdj> convert rfc822-to-8bit; Thu, 18 Jan 2001 10:33:39 -0500
+Date: Thu, 18 Jan 2001 13:34:40 -0200 (BRST)
 From: Joel Franco Guzmán <joel@gds-corp.com>
-To: Mike Dresser <mdresser@windsormachine.com>
+To: Stefan Ring <e9725446@student.tuwien.ac.at>
 cc: <linux-kernel@vger.kernel.org>
 Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
-In-Reply-To: <3A670078.E8DF3229@windsormachine.com>
-Message-ID: <Pine.LNX.4.30.0101181325550.1017-100000@thor.gds-corp.com>
+In-Reply-To: <Pine.HPX.4.10.10101181050260.3561-100000@stud3.tuwien.ac.at>
+Message-ID: <Pine.LNX.4.30.0101181330390.1017-100000@thor.gds-corp.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Mike Dresser wrote:
+On Thu, 18 Jan 2001, Stefan Ring wrote:
 
-> Sorry if this has been asked of you before, but what happens if you put just
-> the 64 meg module in?
-
-Ok. i've not analised that possibility. I've tested that just now.
-But, the system work perfect. Without the sound card problem.
-I've exchanged the modules. FAIL.
-The memory sets in the BIOS is 3-3-3-10.
-The 64M and the 128M is PC100.
-Another more one thing. I think that be a software problem, because with
-the kernel 2.2.18 it's not happening.
-
-thank you, Mike.
+> On Wed, 17 Jan 2001, Joel Franco Guzmán wrote:
 >
-> > Bug Report
-> > ----------
-> > 1. 128M memory OK, but with 192M the sound card generate a noise while
-> > use the DSP.
-> > 2. i got the problem when I just put more 64M memory to the my machine.
 > > With 128M the problem is not present, but with 192M it is. The only
 > > difference is the memory quantity, or in other words, the additional slot
 > > occupied by the new memory card.
 >
-> My instinct is the pc100 ram being run at 133.  Sometimes you get away with
-> it(my pre-ratings, but supposed to be pc66 - hyundai ram runs at 100 just
-> fine, but won't go any higher), and maybe your new 64 megger can't do it.
+> >    - ASUS P299 (Chipset i440ZX). Note: the i440ZX don't support officially
+> > the coppermine processor at 133Mhz FSB.
 >
-> Mike Dresser
+> I know that increasing the number of DIMMs on your board will require
+> speedier RAMs on ASUS boards with some sort of an i440 chipset. This may
+> well be the case for just about every other MB, it's only that I don't
+> know specifically about these other boards.
+
+This means that a modules will work at more high MHZ?
+
+>
+> 133MHz is damn fast, and you need really good RAMs to keep up to that.
+> In fact, most of the cheap modules sold as "PC133" can't cope with it,
+> and you just got PC100. That's asking for trouble! As you add more
+> modules, it gets even more critical.
+
+OK. the 2 modules are PC100.
+But why the system works with the 2.2.18 kernel perfectly?
+It's by this, that i think that the problem is in new kernel.
+
+>
+> Do extensive testing before actually using such a system. The best testing
+> that I know of is compiling large source trees with 2.2.x (I don't know
+> about 2.4.x -- I DO know that 2.0.x won't turn up problems as easily
+> because the buffer cache grows out of bounds) for hours and hours (10h
+> minimum, 48h or more desirable). Make sure that there is enough "free"
+> memory at all time (not cached, but really "free"). Also make sure that
+> the temperature inside your computer is slightly higher than in actual use
+> to put maximum stress on the RAMs.
+>
+> You may be able to get away by just increasing the SDRAM timings if you
+> are running 2-2-2.
+
+I use 3-3-3 to have security that i'm not forcing the memory modules.
+with 2-2-2 i've troubles.
+
+thank you.
+
+
 >
 
 -- 

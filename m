@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263937AbTL2Txt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 14:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTL2Tvm
+	id S264479AbTL2To4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 14:44:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbTL2ToG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 14:51:42 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:53207 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S263937AbTL2TvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 14:51:22 -0500
-Date: Mon, 29 Dec 2003 12:52:35 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+	Mon, 29 Dec 2003 14:44:06 -0500
+Received: from prin.lo2.opole.pl ([213.77.100.98]:1555 "EHLO prin.lo2.opole.pl")
+	by vger.kernel.org with ESMTP id S264479AbTL2TmO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 14:42:14 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Is it safe to ignore UDMA BadCRC errors?
-Message-ID: <20031229195235.GC26821@bounceswoosh.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Should struct inode be made available to userspace?
+Date: Mon, 29 Dec 2003 20:40:00 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <16368.20794.147453.255239@jik.kamens.brookline.ma.us>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200312292040.00409.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29 at 11:07, Jonathan Kamens wrote:
->The topic of CRC errrors from IDE drives has been discussed numerous
->times on this list, and I've reviewed those discussions, but I'm still
->not 100% certain of the answer to this question: Is it safe for me to
->ignore occasional CRC errors from my drive?
->
->Here are the details....
->
->The errors look like this:
->
->  hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
->  hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
->
->They don't seem to happen often enough to convince the kernel to back
->down to a slower UDMA mode.
+Inside __KERNEL__ block in linux/fs.h there is a definition (looks rather 
+kernel specific) of struct inode. This structure is used all over the 
+headers, specificaly in ${fsname}_fs_i.h files containing 
+${fsname}_inode_info structures. The problem is ${fsname}_fs_i.h files are  
+included in ${fsname}_fs.h files which in turn are often used by various 
+programs. This results in compile time errors since normal programs don't 
+define __KERNEL__ (they shouldn't) and thus while parsing 
+${fsname}_inode_info structures do not have access to the inode structure 
+("error: field `vfs_inode' has incomplete type").
+What is the complete, politicaly correct solution? (workarounds are of no use 
+to me)
+Is it (a) struct inode should be made available to userspace (yuck), (b) no 
+!kernel code should use struct inode (linux/${fsname}_fs_i.h files shouldn't 
+be included anywhere... hell... maybe all linux/${fsname}* files shouldn't be 
+available outside kernel!) or (c) this kind of structures should come with 
+apps using it and not be a part of any kernel derived userspace headers.
 
-0x5184 is the error code for when the drive sends you data that was
-corrupted during transmission over the cable.  In general, nothing is
-wrong with your drive, and a re-read from the drive will almost always
-produce the proper data.
 
-Odds are your cable is bad, regardless of how "good" it looks, you
-really can't tell if you have marginal conductivity on a pin or
-something else wierd.  In my home system I replace the IDE cables
-every few years, on my test box at work I replace them every month
-since I'm doing lots of re-plugging of drives. Note that a bad cable
-is *dangerous* to your filesystem, since a PIO transfer to the drive
-has *no* integrity checking on the cable!
-
-Also, those "round" cables violate the ATA spec, I can't really
-recommend using them unless airflow is your #1 concern, however in
-that case you're probably better off buying a SATA drive.
-
-Generic IDE ribbon cables (between 6" and 18") seem to work fine for
-most people, just go buy another $2 cable from CompUSA and see if the
-problem goes away.
-
-FYI, UDMA4 isn't that fast, only 66MB/sec... "good" (functional, not
-brand name) flat cables should be able to do 100MB sec trivially.
-
---eric
 
 -- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+Ka¿dy cz³owiek, który naprawdê ¿yje, nie ma charakteru, nie mo¿e go mieæ.
+Charakter jest zawsze martwy, otacza ciê zgni³a struktura przeniesiona z 
+przesz³o¶ci. Je¿eli dzia³asz zgodnie z charakterem wtedy nie dzia³asz w ogóle
+- jedynie mechanicznie reagujesz.                 { Osho }

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261554AbSJAItR>; Tue, 1 Oct 2002 04:49:17 -0400
+	id <S261548AbSJAIqj>; Tue, 1 Oct 2002 04:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261555AbSJAItR>; Tue, 1 Oct 2002 04:49:17 -0400
-Received: from achilles.noc.ntua.gr ([147.102.222.210]:60860 "EHLO ntua.gr")
-	by vger.kernel.org with ESMTP id <S261554AbSJAItQ>;
-	Tue, 1 Oct 2002 04:49:16 -0400
-Message-ID: <3D996148.2020604@telecom.ntua.gr>
-Date: Tue, 01 Oct 2002 11:48:08 +0300
-From: Yannis Mitsos <gmitsos@telecom.ntua.gr>
-Organization: National Technical Universit of Athens
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en, el
+	id <S261549AbSJAIqj>; Tue, 1 Oct 2002 04:46:39 -0400
+Received: from 62-190-202-133.pdu.pipex.net ([62.190.202.133]:5125 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261548AbSJAIqi>; Tue, 1 Oct 2002 04:46:38 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210010900.g9190OvK000816@darkstar.example.net>
+Subject: Re: [OFF-TOPIC] uk.kernel.org FUBAR?
+To: matti.aarnio@zmailer.org (Matti Aarnio)
+Date: Tue, 1 Oct 2002 10:00:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021001084506.GY30392@mea-ext.zmailer.org> from "Matti Aarnio" at Oct 01, 2002 11:45:06 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Binary File format
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> > Just had a look at www.uk.kernel.org, as www.kernel.org is down, and it 
+> > just contains this:
+> > 
+> >    ahimsa
+> > 
+> > Is there a known issue with the uk mirror, or has it been compromised?
+> 
+>   Which that might be ?
 
-I am investigating the potential to initiate a project to port a Linux 
-kernel to a new processor.
-This processor lacks of MMU so we have to adopt the uClinux approach.
+Yeah, I know, I am an idiot :-).
 
-Currently, the available tools can generate only COFF executable files.
-What are the restrictions imposed by this ?? Can we initiate the project 
-and wait a couple of months until the ELF tools are available ?
+212.100.230.19
 
- From what I found until now it *seems* that we will not able to compile 
-the 2.4.x kernel. Is this true ?
-Are there any parts that cannot be compiled ? or the functionality of 
-the tools will not be able to produce image ??
-
-TIA
-
-Yannis
-
-
+John.

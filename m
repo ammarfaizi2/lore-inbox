@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbUCJI1S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 03:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUCJI1S
+	id S262555AbUCJI1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 03:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUCJI1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 03:27:18 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:61448 "HELO
+	Wed, 10 Mar 2004 03:27:24 -0500
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:61960 "HELO
 	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262547AbUCJI1O convert rfc822-to-8bit (ORCPT
+	id S262555AbUCJI1U convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 03:27:14 -0500
+	Wed, 10 Mar 2004 03:27:20 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Dax Kelson <dax@gurulabs.com>,
-       James Ketrenos <jketreno@linux.co.intel.com>
-Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
-Date: Wed, 10 Mar 2004 10:15:19 +0200
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Redirection of STDERR
+Date: Wed, 10 Mar 2004 10:21:36 +0200
 X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-References: <404E27E6.40200@linux.co.intel.com> <1078866774.2925.15.camel@mentor.gurulabs.com>
-In-Reply-To: <1078866774.2925.15.camel@mentor.gurulabs.com>
+References: <20040308111349.030feea6.Christoph.Pleger@uni-dortmund.de> <jehdwylz0x.fsf@sykes.suse.de> <20040310085039.6c234fbc.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <20040310085039.6c234fbc.Christoph.Pleger@uni-dortmund.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200403101021.36507.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 March 2004 23:12, Dax Kelson wrote:
-> On Tue, 2004-03-09 at 13:24, James Ketrenos wrote:
-> > I am pleased to announce the launch of an open source development project
-> > for the Intel PRO/Wireless 2100 miniPCI network adapter. The project has
-> > been created and is hosted at http://ipw2100.sf.net.
+On Wednesday 10 March 2004 09:50, Christoph Pleger wrote:
+> Hello,
 >
-> I applaud Intel for starting to plug this major hole. This looks
-> promising.
+> > >> In my initialization scripts for hotplug (written for bash) the
+> > >> following command is used to redirect output which normally goes to
+> > >> stderr to the system logger:
+> > >> "exec 2> >(logger -t $0[$$])"
+> > >
+> > > I don't remember this syntax as legal.
+> >
+> > That's the process substitution feature of bash, quite handy when you
+> > want to get an fd connected to a pipe.
 >
-> I took a look at the website and see the GPL driver and the closed
-> firmware.
->
-> Is it is really *firmware*, in that it loads and executes purely within
-> the Intel PRO/Wireless 2100 itself and not in the linux kernel on the
-> main CPU? If so, bravo!
+> I found out that the problem exists with bash 2.05b, but not with 2.05a.
+> The reason is that with 2.05a the command uses the file descriptors
+> under /dev/fd0 for the pipe, but with 2.05b the command creates a pipe
+> under /tmp. Obviously, the 2.05b mechanism worked with Kernel 2.4, but
+> not with 2.6.
 
-*FLAME ALERT*
-/me is slowly getting mad about his prism54 11g hardware
-and its firmware, with neither firmware authors nor documentation
-for this pile of silicon crap nowhere in sight
-
-What's so cool about having binary firmware? Bugs are bugs,
-and you won't be able to even see bugs, less fix, in it.
-I don't like being at the mercy of firmware authors.
---
+I always wondered what prevents bash from NOT using
+pipes in the filesystem. It does not use them for
+ps | less 
+and friends.
+-- 
 vda

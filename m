@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVBARqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVBARse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbVBARqw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 12:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVBARqv
+	id S262081AbVBARse (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 12:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVBARse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 12:46:51 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:42462 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S262078AbVBARqr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 12:46:47 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Tue, 1 Feb 2005 12:48:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36057 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262081AbVBARsF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 12:48:05 -0500
+Date: Tue, 1 Feb 2005 17:47:58 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Brian King <brking@us.ibm.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andi Kleen <ak@muc.de>, Paul Mackerras <paulus@samba.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
+Message-ID: <20050201174758.GE10088@parcelfarce.linux.theplanet.co.uk>
+References: <41ED27CD.7010207@us.ibm.com> <1106161249.3341.9.camel@localhost.localdomain> <41F7C6A1.9070102@us.ibm.com> <1106777405.5235.78.camel@gaston> <1106841228.14787.23.camel@localhost.localdomain> <41FA4DC2.4010305@us.ibm.com> <20050201072746.GA21236@kroah.com> <41FF9C78.2040100@us.ibm.com> <20050201154400.GC10088@parcelfarce.linux.theplanet.co.uk> <41FFBDC9.2010206@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16895.49283.929460.224645@napali.hpl.hp.com>
-Date: Tue, 1 Feb 2005 09:46:43 -0800
-To: baswaraj kasture <kbaswaraj@yahoo.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.21 hangs up
-In-Reply-To: <20050201082001.43454.qmail@web51102.mail.yahoo.com>
-References: <41FF0281.6090903@yahoo.com.au>
-	<20050201082001.43454.qmail@web51102.mail.yahoo.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <41FFBDC9.2010206@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[I trimmed the cc-list...]
+On Tue, Feb 01, 2005 at 11:35:05AM -0600, Brian King wrote:
+> >If we've done a write to config space while the adapter was blocked,
+> >shouldn't we replay those accesses at this point?
+> 
+> I did not think that was necessary.
 
->>>>> On Tue, 1 Feb 2005 00:20:01 -0800 (PST), baswaraj kasture <kbaswaraj@yahoo.com> said:
+We have to do *something*.  We can't just throw away writes.
 
-  Baswaraj> Hi, I compiled kernel 2.4.21 with intel compiler .
+I see a few options:
 
-That's curious.  Last time I checked, the changes needed to use the
-Intel-compiler have not been backported to 2.4.  What kernel sources
-are you working off of?
+ - Log all pending writes to config space and replay the log when the
+   device is unblocked.
+ - Fail writes to config space while the device is blocked.
+ - Write to the saved config space and then blat the saved config space
+   back to the device upon unblocking.
 
-Also, even with 2.6 you need a script from Intel which does some
-"magic" GCC->ICC option translations to build the kernel with the
-Intel compiler.  AFAIK, this script has not been released by Intel
-(hint, hint...).
+Any other ideas?
 
-  Baswaraj> While booting it hangs-up . further i found that it
-  Baswaraj> hangsup due to call to "calibrate_delay" routine in
-  Baswaraj> "init/main.c". Also found that loop in the
-  Baswaraj> callibrate_delay" routine goes infinite.
+BTW, you know things like XFree86 go completely around the kernel's PCI
+accessors and poke at config space directly?
 
-I suspect your kernel was just miscompiled.  We have used the
-Intel-compiler internally on a 2.6 kernel and it worked fine at the
-time, though I haven't tried recently.
-
-	--david
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,50 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265628AbUBFVTg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 16:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266701AbUBFVTg
+	id S266517AbUBFVZK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 16:25:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUBFVZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 16:19:36 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:49878 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265628AbUBFVT3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 16:19:29 -0500
-Date: Fri, 06 Feb 2004 13:18:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Dave Hansen <haveblue@us.ibm.com>, Keith Mannthey <kmannth@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Andi Kleen <ak@muc.de>
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving X  (fwd)
-Message-ID: <220850000.1076102320@flay>
-In-Reply-To: <Pine.LNX.4.58.0402061215030.30672@home.osdl.org>
-References: <51080000.1075936626@flay><Pine.LNX.4.58.0402041539470.2086@home.osdl.org><60330000.1075939958@flay><64260000.1075941399@flay><Pine.LNX.4.58.0402041639420.2086@home.osdl.org><20040204165620.3d608798.akpm@osdl.org> <Pine.LNX.4.58.0402041719300.2086@home.osdl.org><1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com><Pine.LNX.4.58.0402041800320.2086@home.osdl.org> <98220000.1076051821@[10.10.2.4]><1076061476.27855.1144.camel@nighthawk> <5450000.1076082574@[10.10.2.4]><1076088169.29478.2928.camel@nighthawk> <218650000.1076097590@flay> <Pine.LNX.4.58.0402061215030.30672@home.osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 6 Feb 2004 16:25:10 -0500
+Received: from web40501.mail.yahoo.com ([66.218.78.118]:63411 "HELO
+	web40501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266517AbUBFVWM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 16:22:12 -0500
+Message-ID: <20040206212205.46151.qmail@web40501.mail.yahoo.com>
+Date: Fri, 6 Feb 2004 13:22:05 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Issues with linux-2.6.2
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 6 Feb 2004, Martin J. Bligh wrote:
->> 
->> Ah ... that's the problem. That's not a valid config
-> 
-> It really _should_ be a valid config, though. Otherwise, nobody can ever 
-> test it in any reasonable way on a regular PC.
-> 
-> So why not allow a NuMA config for a PC (and it should end up as being 
-> just one node, of course)?
+I have a few issues with 2.6.2. Ths first issue is when upgrading from 2.4, I had to create 
+the symlinks:
 
-We have that - it's what the generic arch is. It's also good for distros, 
-as it'll enable them to build one binary kernel and run it on flat SMP 
-boxes and the Summit/x440 boxes.
+   ln -s /usr/include/asm /usr/src/linux/include/asm-i386
+   ln -s /usr/include/asm-generic /usr/src/linux/include/asm-generic
 
-If we really want to do good testing, we should make a fake NUMA config
-that can run a 4x SMP box as fake NUMA, with half the memory in each
-"node" and half the processors ... but I never got around to coding that ;-)
+This requirement was not mentioned in any documentation I could find.
 
-M.
+The second issue is when trying to build util-linux-2.11z I get the following error:
 
+cc -pipe -O2 -mcpu=i486 -fomit-frame-pointer -I../lib -Wall -Wmissing-prototypes
+-Wstrict-prototypes -I/usr/include/ncurses -DNCH=0   -D_FILE_OFFSET_BITS=64 -DSBINDIR=\"/sbin\"
+-DUSRSBINDIR=\"/usr/sbin\" -DLOGDIR=\"/var/log\" -DVARPATH=\"/var\"
+-DLOCALEDIR=\"/usr/share/locale\" -O2  -s  blockdev.c   -o blockdev
+blockdev.c:70: error: parse error before '[' token
+blockdev.c:70: error: initializer element is not constant
+blockdev.c:70: error: (near initialization for `bdcms[4].ioc')
+blockdev.c:70: error: initializer element is not constant
+blockdev.c:70: error: (near initialization for `bdcms[4]')
+blockdev.c:73: error: parse error before '[' token
+blockdev.c:73: error: initializer element is not constant
+blockdev.c:73: error: (near initialization for `bdcms[5].ioc')
+blockdev.c:73: error: initializer element is not constant
+blockdev.c:73: error: (near initialization for `bdcms[5]')
+blockdev.c:76: error: initializer element is not constant
+blockdev.c:76: error: (near initialization for `bdcms[6]')
+blockdev.c:79: error: initializer element is not constant
+blockdev.c:79: error: (near initialization for `bdcms[7]')
+blockdev.c:82: error: initializer element is not constant
+blockdev.c:82: error: (near initialization for `bdcms[8]')
+blockdev.c:85: error: initializer element is not constant
+blockdev.c:85: error: (near initialization for `bdcms[9]')
+blockdev.c:89: error: initializer element is not constant
+blockdev.c:89: error: (near initialization for `bdcms[10]')
+blockdev.c: In function `report_device':
+blockdev.c:331: error: parse error before '[' token
+make: *** [blockdev] Error 1
+
+It seems there is a problem with the BLKBSZGET and the BLKBSZSET macros defined in
+linux/include/linux/fs.h.
+They both indirectly call the _IOC_TYPECHECK macro, which is defined in
+linux/include/asm-386/ioctl.h thusly:
+
+#define _IOC_TYPECHECK(t) \
+	((sizeof(t) == sizeof(t[1]) && \
+	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
+	  sizeof(t) : __invalid_size_argument_for_IOC)
+
+
+The problem is that _IOC_TYPECHECK is being called with a constant value (size_t), making the 
+array indexing attempt illegal. Using gcc -E, BLKBSZGET expands to:
+(((2U) << (((0 +8)+8)+14)) | (((0x12)) << (0 +8)) | (((112)) << 0) | (((((sizeof(sizeof(int)) == 
+sizeof(sizeof(int)[1]) && sizeof(sizeof(int)) < (1 << 14)) ? sizeof(sizeof(int)) : 
+       ^^^^^^^^^^^^^^  // illegal.
+__invalid_size_argument_for_IOC))) << ((0 +8)+8))) 
+
+Is this a known problem?
+
+=====
+I code, therefore I am
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Finance: Get your refund fast by filing online.
+http://taxes.yahoo.com/filing.html

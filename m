@@ -1,70 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276746AbRJHBeE>; Sun, 7 Oct 2001 21:34:04 -0400
+	id <S276755AbRJHBxL>; Sun, 7 Oct 2001 21:53:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276749AbRJHBdz>; Sun, 7 Oct 2001 21:33:55 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:50873 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S276746AbRJHBdn>;
-	Sun, 7 Oct 2001 21:33:43 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.11-pre4 remove spurious kernel recompiles 
-In-Reply-To: Your message of "Mon, 08 Oct 2001 03:20:23 +0200."
-             <20011008032022.M726@athlon.random> 
+	id <S276753AbRJHBxB>; Sun, 7 Oct 2001 21:53:01 -0400
+Received: from sushi.toad.net ([162.33.130.105]:60370 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S276751AbRJHBwo>;
+	Sun, 7 Oct 2001 21:52:44 -0400
+Subject: [PATCH] 2.4.10-ac8 PnP BIOS fix #2
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14 (Preview Release)
+Date: 07 Oct 2001 21:52:43 -0400
+Message-Id: <1002505965.829.92.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Oct 2001 11:34:04 +1000
-Message-ID: <32255.1002504844@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Oct 2001 03:20:23 +0200, 
-Andrea Arcangeli <andrea@suse.de> wrote:
->On Mon, Oct 08, 2001 at 10:42:56AM +1000, Keith Owens wrote:
->> IOW a check for Makefile timestamp is both overkill (it recompiles too
->> much) and incomplete (it does not detect command line overrides).  BTW,
->> kbuild 2.5 gets this right.
->
->That sounds fine. Of course the only regression could be the build time.
->Do you have a benchmark on the build time with kbuild 2.5 applied to
->2.4.10 compared to the build time of 2.4.10?
+Here is a second patch to 2.4.10-ac8 PnP BIOS driver.
+It adds error reporting to the dev_node_info, get_dev_node,
+and set_dev_node functions. It applies on top of patch #1.
 
-kbuild 2.5 build times vary from 10% faster to 100% slower, depending
-on the number of objects being compiled.  There are some O(n^2)
-algorithms in kbuild 2.5, I know where they are and how to fix them, it
-just takes time that I don't have right now.  At the moment I am
-concentrating on correctness for kbuild 2.5.  MEC mantra:
-
-  Correctness comes first. 
-  Then maintainability. 
-  Then speed.
-
->> module.h currently uses the full UTS_RELEASE which includes
->> EXTRAVERSION but that is spurious, modutils ignores EXTRAVERSION when
->> loading a module.  modutils only cares about VERSION, PATCHLEVEL and
->> SUBLEVEL.
->
->Well again EXTRAVERSION was just an example, SUBLEVEL was the same
->problem as EXTRAVERSION for me, I mean after you apply an -ac patch that
->for example goes backwards in the SUBLEVEL, do you recompile everything
->or do you just run make after your Makefile patch is applied to the
->kernel?
-
-Changing VERSION, PATCHLEVEL or SUBLEVEL requires a recompile of
-anything that tests LINUX_VERSION_CODE, including everything that
-includes module.h.  That already occurs because the timestamp of
-include/linux/version.h changes.  I pointed this out in the patch
-notes.
-
-My patch to the Makefile does not (cannot) change the dependencies on
-LINUX_VERSION_CODE.  I am removing the spurious recompiles caused by
-changing EXTRAVERSION and by changing lines in the top level Makefile
-that do not directly affect objects.  With my patch only the required
-objects are rebuilt.
-
-BTW, how can you apply a -ac patch that sets SUBLEVEL backwards?  -ac
-patches are against the Linus tree with the same VERSION, PATCHLEVEL
-and SUBLEVEL.
+// Thomas
+--- linux-2.4.10-ac8-fix/drivers/pnp/pnp_bios.c	Sun Oct  7 15:37:29 2001
++++ linux-2.4.10-ac7-fix/drivers/pnp/pnp_bios.c	Sun Oct  7 12:44:02 2001
+@@ -236,7 +236,7 @@
+ /*
+  * Call PnP BIOS with function 0x00, "get number of system device nodes"
+  */
+-int pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
++static int pnp_bios_dev_node_info_silently(struct pnp_dev_node_info *data)
+ {
+ 	u16 status;
+ 	if (!pnp_bios_present ())
+@@ -247,6 +247,14 @@
+ 	return status;
+ }
+ 
++int pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
++{
++	u16 status = pnp_bios_dev_node_info_silently( data );
++	if ( status )
++		printk(KERN_WARNING "PnPBIOS: PnP BIOS dev_node_info function returned error status 0x%x\n", status);
++	return status;
++}
++
+ /*
+  * Note that some PnP BIOSes (on Sony Vaio laptops) die a horrible
+  * death if they are asked to access the "current" configuration
+@@ -261,7 +269,7 @@
+  *               or volatile current (0) config
+  * Output: *nodenum=next node or 0xff if no more nodes
+  */
+-int pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
++static int pnp_bios_get_dev_node_silently(u8 *nodenum, char boot, struct pnp_bios_node *data)
+ {
+ 	u16 status;
+ 	if (!pnp_bios_present ())
+@@ -272,19 +280,35 @@
+ 	return status;
+ }
+ 
++int pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
++{
++	u16 status =  pnp_bios_get_dev_node_silently( nodenum, boot, data );
++	if ( status )
++		printk(KERN_WARNING "PnPBIOS: PnP BIOS get_dev_node function returned error status 0x%x\n", status);
++	return status;
++}
++
+ /*
+  * Call PnP BIOS with function 0x02, "set system device node"
+  * Input: *nodenum = desired node, 
+  *        boot = whether to set nonvolatile boot (!=0)
+  *               or volatile current (0) config
+  */
+-int pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
++static int pnp_bios_set_dev_node_silently(u8 nodenum, char boot, struct pnp_bios_node *data)
+ {
+ 	u16 status;
+ 	if (!pnp_bios_present ())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
+ 	Q2_SET_SEL(PNP_TS1, data, /* *((u16 *) data)*/ 65536);
+ 	status = call_pnp_bios(PNP_SET_SYS_DEV_NODE, nodenum, 0, PNP_TS1, boot ? 2 : 1, PNP_DS, 0, 0);
++	return status;
++}
++
++int pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
++{
++	u16 status =  pnp_bios_set_dev_node_silently( nodenum, boot, data );
++	if ( status )
++		printk(KERN_WARNING "PnPBIOS: PnP BIOS set_dev_node function returned error status 0x%x\n", status);
+ 	return status;
+ }
+ 
 

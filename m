@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVBMVFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVBMVJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVBMVFo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 16:05:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVBMVFo
+	id S261308AbVBMVJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 16:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVBMVJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 16:05:44 -0500
-Received: from cantor.suse.de ([195.135.220.2]:40584 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261307AbVBMVFf (ORCPT
+	Sun, 13 Feb 2005 16:09:53 -0500
+Received: from box3.punkt.pl ([217.8.180.76]:13833 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261308AbVBMVJw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 16:05:35 -0500
-Date: Sun, 13 Feb 2005 16:05:15 -0500
-From: Kurt Garloff <garloff@suse.de>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Cc: Andreas Gruenbacher <agruen@suse.de>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>
-Subject: [PATCH] 0/5: LSM hooks rework
-Message-ID: <20050213210515.GH27893@tpkurt.garloff.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	Andreas Gruenbacher <agruen@suse.de>,
-	James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="reI/iBAAp9kzkmX4"
+	Sun, 13 Feb 2005 16:09:52 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: Nix <nix@esperi.org.uk>
+Subject: Re: [PATCH] linux-libc-headers-2.6.10.0: if_tunnel.h relies on byteorder.h having been included
+Date: Sun, 13 Feb 2005 22:09:29 +0100
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <87k6pch0t9.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87k6pch0t9.fsf@amaterasu.srvr.nix>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-X-Operating-System: Linux 2.6.11-rc3-bk6-20-xen i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SUSE/Novell
-User-Agent: Mutt/1.5.6i
+Message-Id: <200502132209.29822.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On niedziela 13 luty 2005 17:38, Nix wrote:
+---snip---
 
---reI/iBAAp9kzkmX4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied, thanks. Though I believe CCing such mails to lkml is kind of 
+pointless.
 
-Hi,
 
-this goes back to a discussion in August last year:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0408.1/0623.html
-
-The following patchset addresses three issues of the security.h stub
-collection:
-* All the functions are implemented twice, once for
-  CONFIG_SECURITY enabled and once for disabled.
-  Makes it harder than necessary to keep in sync
-  and the file much longer than needed.=20
-* We do lots of indirect (and thus non-inlined) calls to
-  mostly noop functions, which has a performance impact.
-  By using a branch (as suggested by David Mosberger and
-  implemented by Brian Baker) we can save a number of cycles.
-  Especially visible on IA64, where we can get > 3% improvement
-  on netperf -t TCP_RR
-* The default of dummy if CONFIG_SECURITY is enabled is not
-  desirable as it does differ from the CONFIG_SECURITY disabled
-  default. Thus make capabilities the default.
-
-Patches are against 2.6.11-rc4 and follow in subsequent mails.
---=20
-Kurt Garloff, Director SUSE Labs, Novell Inc.
-
---reI/iBAAp9kzkmX4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCD8ELxmLh6hyYd04RArQ8AJ90TTa9ws3tVkGJ732z7yjdPFwl0QCeISor
-X4xYPMFb7Wduv3oFVf/6O9g=
-=Fp2y
------END PGP SIGNATURE-----
-
---reI/iBAAp9kzkmX4--
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

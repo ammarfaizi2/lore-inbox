@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVCBJNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVCBJRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbVCBJNw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVCBJNw
+	id S262235AbVCBJRO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCBJRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:13:52 -0500
-Received: from pat.uio.no ([129.240.130.16]:57762 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262234AbVCBJNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:13:50 -0500
-Subject: Re: x86_64: 32bit emulation problems
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andi Kleen <ak@muc.de>
-Cc: Andreas Schwab <schwab@suse.de>, Bernd Schubert <bernd-schubert@web.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050302081858.GA7672@muc.de>
-References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de>
-	 <200503012207.02915.bernd-schubert@web.de> <jewtsruie9.fsf@sykes.suse.de>
-	 <200503020019.20256.bernd-schubert@web.de> <jebra3udyo.fsf@sykes.suse.de>
-	 <20050302081858.GA7672@muc.de>
+	Wed, 2 Mar 2005 04:17:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:30621 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262235AbVCBJRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 04:17:11 -0500
+Subject: Missing 'noinline' and '__compiler_offsetof' for GCC4+
+From: David Woodhouse <dwmw2@infradead.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Wed, 02 Mar 2005 01:13:38 -0800
-Message-Id: <1109754818.10407.48.camel@lade.trondhjem.org>
+Date: Wed, 02 Mar 2005 09:16:47 +0000
+Message-Id: <1109755008.19535.16.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.349, required 12,
-	autolearn=disabled, AWL 0.65, UIO_MAIL_IS_INTERNAL -5.00)
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 02.03.2005 Klokka 09:18 (+0100) skreiv Andi Kleen:
-> On Wed, Mar 02, 2005 at 12:46:23AM +0100, Andreas Schwab wrote:
-> > Bernd Schubert <bernd-schubert@web.de> writes:
-> > 
-> > > Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But why does 
-> > > it work without this option on a 32bit kernel, but not on a 64bit kernel?
-> > 
-> > See nfs_fileid_to_ino_t for why the inode number is different between
-> > 32bit and 64bit kernels.
-> 
-> Ok that explains it. Thanks.
-> 
-> Best would be probably to just do the shift unconditionally on 64bit kernels
-> too.
-> 
-> Trond, what do you think?
+At some point we'll want to create 'compiler-gcc4.h' but probably not
+until it's going to be actually differ from 'compiler-gcc+.h'. Because
+they only get out of date if they're not used by anyone...
 
-Why would this be more appropriate than defining __kernel_ino_t on the
-x86_64 platform to be of the size that you actually want the kernel to
-support?
+--- linux-2.6.10/include/linux/compiler-gcc+.h~	2004-12-24 21:35:39.000000000 +0000
++++ linux-2.6.10/include/linux/compiler-gcc+.h	2005-03-01 15:49:47.000000000 +0000
+@@ -13,4 +13,6 @@
+ #define __attribute_used__	__attribute__((__used__))
+ #define __attribute_pure__	__attribute__((pure))
+ #define __attribute_const__	__attribute__((__const__))
++#define  noinline		__attribute__((noinline))
+ #define __must_check 		__attribute__((warn_unused_result))
++#define __compiler_offsetof(a,b) __builtin_offsetof(a,b)
 
-I can see no good reason for truncating inode number values on platforms
-that actually do support 64-bit inode numbers, but I can see several
-reasons why you might want not to (utilities that need to detect hard
-linked files for instance).
 
-Cheers,
-  Trond
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+dwmw2
 

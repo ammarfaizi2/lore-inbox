@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbTDECMk (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 21:12:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTDECMj (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 21:12:39 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:5087 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261767AbTDECMh (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 21:12:37 -0500
-Date: Fri, 04 Apr 2003 18:13:52 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>
-cc: mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <12880000.1049508832@flay>
-In-Reply-To: <20030404163154.77f19d9e.akpm@digeo.com>
-References: <Pine.LNX.4.44.0304041453160.1708-100000@localhost.localdomain><20030404105417.3a8c22cc.akpm@digeo.com><20030404214547.GB16293@dualathlon.random><20030404150744.7e213331.akpm@digeo.com><20030405000352.GF16293@dualathlon.random> <20030404163154.77f19d9e.akpm@digeo.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S261773AbTDECNS (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 21:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTDECNS (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 21:13:18 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:9050 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261773AbTDECNO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 21:13:14 -0500
+Date: Fri, 4 Apr 2003 18:25:36 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error whilst running "tune2fs -j"
+Message-Id: <20030404182536.64e120b2.akpm@digeo.com>
+In-Reply-To: <5750000.1049507953@flay>
+References: <5880000.1049498738@flay>
+	<20030404155633.29ed6f8a.akpm@digeo.com>
+	<5750000.1049507953@flay>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 05 Apr 2003 02:24:38.0271 (UTC) FILETIME=[81A6D0F0:01C2FB1A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps it is useful to itemise the prblems which we're trying to solve here:
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> > Can you reproduce it?
 > 
-> - ZONE_NORMAL consumption by pte_chains
+> Not easily, I fear ... since it's a pain in the butt to remove an ext3
+> journal on the root fs once mounted. I suppose I could boot from CD
+> or something ... will try to recreate on a less valuable box over
+> the weekend ;-)
 > 
->   Solved by objrmap and presumably page clustering.
+> I had been having some other trouble with the fs (power cycled a couple
+> of times for silly reasons), but it had just ext2 fscked. I suppose there
+> *might* have been some corruption, but seems unlikely.
 > 
-> - ZONE_NORMAL consumption by VMAs
-> 
->   Solved by remap_file_pages.  Neither objrmap nor page clustering will
->   help here.
 
-I'm not convinced that we can't do something with nonlinear mappings for
-this ... we just need to keep a list of linear areas within the nonlinear
-vmas, and use that to do the objrmap stuff with. Dave and I talked about
-this yesterday ... we both had different terminology, but I think the
-same underlying fundamental concept ... I was calling them "sub-vmas"
-for each linear region within the nonlinear space. 
+OK.  Please add the below to your patchset.  I've had this in -mm for *ages*,
+precisely because this problem was reported a single time, maybe four months
+ago.
 
-The fundamental problem I came to (and I think Dave had the same problem) 
-is that I couldn't see what problem remap_file_pages was trying to solve,
-so it was tricky to see if we'd cause the same thing or not. sub-vmas
-could certainly be a lot smaller, but we weren't thinking of 128K of the
-damned things, so ... the other thing is of course the setup and teardown
-time ... but the could be a btree or something for the structure.
+I have not had a report of it triggering since then.  I'd like to know what
+block number it was.
 
-Of course, if we did this, it would get rid of the whole conversion
-to and from object based stuff ;-) I think Dave had some other bright
-idea on this too, but I don't recall what it was ;-(
+diff -puN fs/buffer.c~buffer-debug fs/buffer.c
+--- 25/fs/buffer.c~buffer-debug	2003-04-02 22:24:27.000000000 -0800
++++ 25-akpm/fs/buffer.c	2003-04-02 22:24:27.000000000 -0800
+@@ -397,6 +397,9 @@ __find_get_block_slow(struct block_devic
+ 		bh = bh->b_this_page;
+ 	} while (bh != head);
+ 	buffer_error();
++	printk("block=%llu, b_blocknr=%llu\n",
++		(unsigned long long)block, (unsigned long long)bh->b_blocknr);
++	printk("b_state=0x%08lx, b_size=%u\n", bh->b_state, bh->b_size);
+ out_unlock:
+ 	spin_unlock(&bd_mapping->private_lock);
+ 	page_cache_release(page);
 
-> - pte_chain setup and teardown CPU cost.
-> 
->   objrmap does not seem to help.  Page clustering might, but is unlikely to
->   be enabled on the machines which actually care about the overhead.
+_
 
-eh? Not sure what you mean by that. It helped massively ...
-diffprofile from kernbench showed:
-
-     -4666   -74.9% page_add_rmap
-    -10666   -92.0% page_remove_rmap
-
-I'd say that about an 85% reduction in cost is pretty damned fine ;-)
-And that was about a 20% overall reduction in the system time for the
-test too ... that was all for partial objrmap (file backed, not anon).
-
-M.

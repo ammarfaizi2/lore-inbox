@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273912AbRJIKYb>; Tue, 9 Oct 2001 06:24:31 -0400
+	id <S273983AbRJIKdv>; Tue, 9 Oct 2001 06:33:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273976AbRJIKYL>; Tue, 9 Oct 2001 06:24:11 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:48017 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S273912AbRJIKYG>;
-	Tue, 9 Oct 2001 06:24:06 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: keyboard + PS/2 mouse locks after opening psaux
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 09 Oct 2001 12:21:48 +0200
-Message-ID: <m3elodw1tv.fsf@defiant.pm.waw.pl>
+	id <S273985AbRJIKdm>; Tue, 9 Oct 2001 06:33:42 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:46609 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S273983AbRJIKd2>; Tue, 9 Oct 2001 06:33:28 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <paulus@samba.org>, <linux-kernel@vger.kernel.org>,
+        <torvalds@transmeta.com>
+Subject: Re: [PATCH] change name of rep_nop
+Date: Tue, 9 Oct 2001 12:33:56 +0200
+Message-Id: <20011009103356.4478@smtp.adsl.oleane.com>
+In-Reply-To: <E15qjdL-0002FT-00@the-village.bc.nu>
+In-Reply-To: <E15qjdL-0002FT-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>That raises the question of whether x86 should seperate the "386" "486" ..
+>kernels by adding "Generic" for building a kernel that has all the work
+>arounds for everyones randomly buggy processors
 
-I'm having the following problem: after I start X11 (or gpm with no X)
-my keyboard and PS/2 mouse sometimes locks up. What could that be?
+One approach we take on PPC that you may or may not like for this is
+dynamic patching.
 
-440BX UP celeron mobo here (Abit - BH6?), '94 AT keyboard, '2000 A4tech
-2-wheel mouse, various Linux 2.4 versions (usually -ac, currently 2.4.10ac3).
-I'm using NVidia Xserver module, but it doesn't seem related (the lookup
-occured with no X while starting gpm once or twice).
+Basically, we have some very early init code that probes the CPU type,
+and extract from a table a bit mask of "CPU features". Those can be
+real features, like has an FPU or an Altivec, but can also be known
+erratas.
 
-If I kill Xserver (haven't tried with gpm), the keyboard (and mouse) start
-working again (the next Xserver spawn works fine).
+Then, we have a a couple of macros that look like this : (to be used
+in .S files or in inline assembly)
 
-For me, it looks like some race condition between open_aux and mouse
-(kbd?) interrupt, causing interrupts or kbd controller to stay disabled
-after the mouse device is opened. The interrupt counters for both kbd
-and psaux stay constant when I move the mouse and/or press buttons/keyboard
-keys:
+  some asm code...
+BEGIN_FEATURE_SECTION()
+  some asm code specific to the presence
+  or absence of a CPU feature bit
+END_FEATURE_SECTION(mask, value)
 
-intrepid:~$ cat /proc/interrupts 
-           CPU0       
-  0:    1528212          XT-PIC  timer
-  1:          6          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:     189554          XT-PIC  serial
-  9:    1587447          XT-PIC  acpi, nvidia
- 11:      15215          XT-PIC  usb-uhci, eth0, eth1
- 12:          2          XT-PIC  PS/2 Mouse
- 14:      49181          XT-PIC  ide0
- 15:          1          XT-PIC  ide1
-NMI:          0 
-ERR:          3
+basically, what those macros do is to add references to the enclosed
+bit of code to a separate ELF section, along with the mask & values
+32 bit values.
 
-I'm currently keeping this machine in locked state, so I can provide more
-info.
+The early CPU probe code, after having determined the feature bits mask
+of the CPU will then walk that additional ELF section, and for each
+entry in it (an entry is a start address, an end address, a mask and
+a value), will test if (cpu_feature & mask) == value. If the result is
+false, then the entire section of code referenced is replaced with nop's.
 
-What I also found is that open_aux routine isn't protected by lock_kernel(),
-while release_aux is. Is that correct? Would a mouse interrupt received
-before open_aux() is completed cause such a lookup?
+This works well for small bits of code (we use it for commenting out
+some altivec code in the context switch path on non-altivec machines,
+and for nop'ing out some "sync" intructions that are only necessary
+on some older buggy CPUs). You still have the cost of executing a NOP
+(which is pretty minimal on PPC, but other archs may want a more suitable
+instruction as NOP can be context synchronising on some CPUs).
 
--- 
-Krzysztof Halasa
-Network Administrator
+If you happen to have large code sections covered by this mecanism,
+the patching code can be improved to insert a branch to the end of
+the nop'ed out section on it's first instruction.
+
+Regards,
+Ben.
+
+

@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265537AbSLCTj5>; Tue, 3 Dec 2002 14:39:57 -0500
+	id <S265469AbSLCTi7>; Tue, 3 Dec 2002 14:38:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbSLCTj5>; Tue, 3 Dec 2002 14:39:57 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:47234 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S265537AbSLCTj4>;
-	Tue, 3 Dec 2002 14:39:56 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] generic HDLC update for 2.4.21-pre
-References: <m3el91jiyg.fsf@defiant.pm.waw.pl>
-	<20021202192014.A20163@electric-eye.fr.zoreil.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 02 Dec 2002 23:52:53 +0100
-In-Reply-To: <20021202192014.A20163@electric-eye.fr.zoreil.com>
-Message-ID: <m3k7ism3sq.fsf@defiant.pm.waw.pl>
+	id <S265523AbSLCTi6>; Tue, 3 Dec 2002 14:38:58 -0500
+Received: from d196069.dynamic.cmich.edu ([141.209.196.69]:54930 "EHLO euclid")
+	by vger.kernel.org with ESMTP id <S265469AbSLCTi6> convert rfc822-to-8bit;
+	Tue, 3 Dec 2002 14:38:58 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: "Matthew J. Fanto" <mattjf@uncompiled.com>
+Reply-To: mattjf@uncompiled.com
+Organization: mattjf.com
+To: linux-kernel@vger.kernel.org
+Subject: [ANN] NTFS 2.1.0a for Linux 2.4.20
+Date: Tue, 3 Dec 2002 14:44:49 -0500
+User-Agent: KMail/1.4.3
+Cc: linux-ntfs-announce@lists.sourceforge.net,
+       Linux-NTFS-Dev@lists.sourceforge.net
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212031444.49142.mattjf@uncompiled.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> writes:
 
-> I'd rather avoid pushing the 2.5.x core code for the dscc4 chipset in
-> 2.4 now as some side of it still suck. Is it fine to wait for me to 
-> update current 2.4.x dscc4 code to new api ? ETA = now + a few days at 
-> worst.
+The new NTFS driver 2.1.0 (a) is now available for the 2.4.20 kernel. 
 
-I can see no problem with that, as long as we are at early 2.4.21 stages.
--- 
-Krzysztof Halasa
-Network Administrator
+You can grab it along with ntfstools and other patches from 
+http://linux-ntfs.sf.net
+
+
+Regards,
+
+Matthew J. Fanto
+Linux-NTFS Project
+#ntfs - irc.openprojects.net
+

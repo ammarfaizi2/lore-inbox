@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275206AbRIZOX7>; Wed, 26 Sep 2001 10:23:59 -0400
+	id <S275229AbRIZOZ7>; Wed, 26 Sep 2001 10:25:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275228AbRIZOXu>; Wed, 26 Sep 2001 10:23:50 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:46349 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S275206AbRIZOXj>;
-	Wed, 26 Sep 2001 10:23:39 -0400
-Date: Wed, 26 Sep 2001 11:23:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)
-In-Reply-To: <20010926160347.F27945@athlon.random>
-Message-ID: <Pine.LNX.4.33L.0109261123070.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275230AbRIZOZt>; Wed, 26 Sep 2001 10:25:49 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:17671 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S275229AbRIZOZl>; Wed, 26 Sep 2001 10:25:41 -0400
+Date: Wed, 26 Sep 2001 16:25:59 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Out of memory handling broken
+Message-ID: <20010926162559.F7290@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010926160306.D7290@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33L.0109261106550.19147-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0109261106550.19147-100000@imladris.rielhome.conectiva>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Sep 2001, Andrea Arcangeli wrote:
-> On Wed, Sep 26, 2001 at 06:38:48AM -0700, Craig Kulesa wrote:
-> > in memory, and is swapping out harder to compensate.  The ac14/ac15 tree
->
-> 2.4.10 is swapping out more also because I don't keep track of which
-> pages are just uptodate on the swap space. This will be fixed as soon
-> as I teach get_swap_page to collect away from the swapcache mapped
-> exclusive swap pages.
+Hi!
 
-Wouldn't that be easier to do from try_to_swap_out() ?
+> We swap something out.
+> 
+> But indeed, when the kernel needs memory for itself
+> and no more memory is available, we'd crash. This is
+> not something I've ever seen any system get close to,
+> however...
 
-cheers,
+Yep...
 
-Rik
+> > Okay, okay. Is there any solution (in 2.4.10) in doing what I want to
+> > do?
+> 
+> GPF_ATOMIC and giving kswapd a chance to run whenever the
+> atomic allocations fail ?
+
+But how do I know when to stop? I'd have to place timeout there
+:-(. How do I know no more memory is available?
+								Pavel  
 -- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Causalities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272964AbRIHGRt>; Sat, 8 Sep 2001 02:17:49 -0400
+	id <S272966AbRIHG3q>; Sat, 8 Sep 2001 02:29:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272963AbRIHGRi>; Sat, 8 Sep 2001 02:17:38 -0400
-Received: from juicer47.bigpond.com ([144.135.25.134]:23522 "EHLO
-	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S272965AbRIHGR2>; Sat, 8 Sep 2001 02:17:28 -0400
-Message-ID: <003001c1382d$f483d9d0$010da8c0@uglypunk>
-From: "Kingsley Foreman" <kingsley@wintronics.com.au>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B99A8C2.56E88CE3@isn.net>
-Subject: Re: 2.4.10-pre5
-Date: Sat, 8 Sep 2001 15:44:31 +0930
-MIME-Version: 1.0
+	id <S272967AbRIHG3g>; Sat, 8 Sep 2001 02:29:36 -0400
+Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:45253 "HELO
+	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S272966AbRIHG3V>; Sat, 8 Sep 2001 02:29:21 -0400
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Robert Love <rml@tech9.net>
+Subject: Re: Linux Preemptive patch success 2.4.10-pre4 + lots of other
+Date: Sat, 8 Sep 2001 08:29:03 +0200
+X-Mailer: KMail [version 1.3]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20010908062932Z272966-761+7898@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes i got this too
-anyone got a fix
+Robert Love wrote:
+> I am glad you take a pro side to the preemption issue.  Hopefully I can
+> get some continued support and see some work towards inclusion in 2.5. 
+> Any help is appreciated.
 
+I've tested your former patch against 2.4.7-acX and sent you some feedback 
+but you didn't answered my post.
 
------ Original Message -----
-From: "Garst R. Reese" <reese@isn.net>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Cc: <torvalds@transmeta.com>
-Sent: Saturday, September 08, 2001 2:42 PM
-Subject: 2.4.10-pre5
+Is the module problem (missing preempt_xxx symbols) thing fixed?
 
+Aside from that I saw some nice speed increase (UP Athlon) and very snappy 
+system.
 
-> gcc-3.0
-> log should be self explanatory.
-> cc me if rqd.
-> Garst
+dbench-1.1 32 clients load drops to mostly below 16 (33 before)
 
+Go on with your great work!
 
-----------------------------------------------------------------------------
-----
+Greetings,
+	Dieter
 
-
-> make[2]: Entering directory `/usr/src/linux/drivers/block'
->
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-tri
-graphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpre
-ferred-stack-boundary=2 -march=i586 -DMODULE   -c -o rd.o rd.c
-> rd.c: In function `rd_ioctl':
-> rd.c:262: invalid type argument of `->'
-> rd.c: In function `rd_cleanup':
-> rd.c:375: too few arguments to function `blkdev_put'
-> make[2]: *** [rd.o] Error 1
-> make[2]: Leaving directory `/usr/src/linux/drivers/block'
-> make[1]: *** [_modsubdir_block] Error 2
-> make[1]: Leaving directory `/usr/src/linux/drivers'
-> make: *** [_mod_drivers] Error 2
-> Command exited with non-zero status 2
-> 4.13user 0.37system 0:04.50elapsed 99%CPU (0avgtext+0avgdata
-0maxresident)k
-> 0inputs+0outputs (3849major+4162minor)pagefaults 0swaps
->
-
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
+University of Hamburg

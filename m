@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263762AbUAHHcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 02:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUAHHcP
+	id S263800AbUAHHqA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 02:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbUAHHqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 02:32:15 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:61882 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263762AbUAHHcN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 02:32:13 -0500
-Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
-From: Ram Pai <linuxram@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paolo Ornati <ornati@lycos.it>, gandalf@wlug.westbo.se,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040107155729.7e737c36.akpm@osdl.org>
-References: <200401021658.41384.ornati@lycos.it>
-	 <200401071559.16130.ornati@lycos.it>
-	 <1073503421.10018.17.camel@dyn319250.beaverton.ibm.com>
-	 <200401072112.35334.ornati@lycos.it>
-	 <20040107155729.7e737c36.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1073547103.10018.29.camel@dyn319250.beaverton.ibm.com>
+	Thu, 8 Jan 2004 02:46:00 -0500
+Received: from ns.suse.de ([195.135.220.2]:48610 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263800AbUAHHp6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 02:45:58 -0500
+Date: Thu, 8 Jan 2004 08:45:56 +0100
+From: Olaf Hering <olh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <greg@kroah.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+Message-ID: <20040108074556.GA23187@suse.de>
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040107205237.GB16832@suse.de> <Pine.LNX.4.58.0401071801310.12602@home.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Jan 2004 23:31:44 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0401071801310.12602@home.osdl.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-01-07 at 15:57, Andrew Morton wrote:
-> Paolo Ornati <ornati@lycos.it> wrote:
-> >
-> > I haven't done a lot of tests but it seems to me that the changes in 
-> > mm/filemap.c are the only things that influence the sequential read 
-> > performance on my disk.
-> 
-> The fact that this only happens when reading a blockdev (true?) is a big
-> hint.   Maybe it is because regular files implement ->readpages.
-> 
-> If the below patch makes read throughput worse on regular files too then
-> that would confirm the idea.
+ On Wed, Jan 07, Linus Torvalds wrote:
 
-No the throughput did not worsen with the patch, for regular files(on
-scsi disk). Lets see what Paolo Ornati finds.
+> This works. I do it all the time. You just stick in your card, and mount 
+> it, and off it foes. No "fdisk" or "parted" _anywhere_.
 
-Its something to do with the changes in filemap.c,
-RP
+This is the point. You do it, and I do it. We just know that device and
+have it configured somehow.
+Now what should a distro do for these 'unknown' devices? Add 15 fstab
+entries and let KDE put 15 icons on the desktop (for that ZIP) and give
+the user a choice?
 
+Like you said in another mail:
+If you insert a smartmedia card in your cardreader, you expect to be
+able to access it pretty much immediately when you start typing.
+
+Noone knows in advance what media will be inserted. So we have to poll
+if the hardware doesnt inform us.
+We can make an assumption and add just one icon with a smart application
+behind it. This app does the 'blockdev --rereadpt /dev/hdd' on request,
+and not every 2 seconds.
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

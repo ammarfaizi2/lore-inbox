@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbUCCD5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 22:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbUCCD5c
+	id S262350AbUCCECB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 23:02:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUCCECB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 22:57:32 -0500
-Received: from smtp.knology.net ([24.214.63.101]:36544 "HELO smtp5.knology.net")
-	by vger.kernel.org with SMTP id S262348AbUCCD5D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 22:57:03 -0500
-Subject: Re: poll() in 2.6 and beyond
-From: David Dillow <dave@thedillows.org>
-To: root@chaos.analogic.com
-Cc: Bill Davidsen <davidsen@tmr.com>, Roland Dreier <roland@topspin.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.53.0403021817050.9351@chaos>
-References: <1vmPm-4lU-11@gated-at.bofh.it> <1vonq-6dr-37@gated-at.bofh.it>
-	 <1voGY-6vC-41@gated-at.bofh.it> <1vpjt-7dl-17@gated-at.bofh.it>
-	 <1vpCV-7wY-41@gated-at.bofh.it> <1vpWa-7Py-19@gated-at.bofh.it>
-	 <4045106D.8060902@tmr.com>  <Pine.LNX.4.53.0403021817050.9351@chaos>
-Content-Type: text/plain
+	Tue, 2 Mar 2004 23:02:01 -0500
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:64409 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262350AbUCCEB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 23:01:59 -0500
+From: dan carpenter <error27@email.com>
+To: Mike Fedyk <mfedyk@matchmail.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: bad: scheduling while atomic in nfs with 2.6.3
+Date: Tue, 2 Mar 2004 20:15:43 -0800
+User-Agent: KMail/1.5.4
+References: <40454C6F.5020901@matchmail.com>
+In-Reply-To: <40454C6F.5020901@matchmail.com>
+Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1078286221.4302.23.camel@ori.thedillows.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Mar 2004 22:57:01 -0500
+Content-Disposition: inline
+Message-Id: <200403022015.43151.error27@email.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-02 at 18:32, Richard B. Johnson wrote:
-> Yes. The code I attached earlier shows that the poll() in a driver
-> gets called (correctly), then it calls poll_wait(). Unfortunately
-> the call to poll_wait() returns immediately so that the return
-> value from the driver's poll() is whatever it was before some
-> event occurred that the driver was going to signal with
-> wake_up_interruptible().
+On Tuesday 02 March 2004 07:09 pm, Mike Fedyk wrote:
+> I'm running 2.6.3-zonebal-lofft-slabfaz
+> Call Trace:
+>   [<c012258d>] __might_sleep+0x9d/0xe0
+>   [<c01651d8>] deactivate_super+0x58/0x100
+>   [<f89e9fba>] svc_export_put+0x7a/0x80 [nfsd]
 
-You've been handed a clue enough times now that you should understand
-that poll_wait() does not, and has never, put the process to sleep.
+The bad call path goes something like this:
+svc_export_put() -> mntput() ->  __mntput() -> deactivate_super()
+-> down_write() -> might_sleep()
 
-If you can show a case where do_poll() returns stale data, then by all
-means do so. We will be happy to fix any such error in the kernel.
+I don't have a fix.  Neil Brown might.  I've CC'd him.
 
-You say do_poll() looses the status returned from your driver's poll
-method. If your driver is truly returning a nonzero status from the
-poll() method call, then a simple read of the code in do_pollfd() will
-show that the only way it looses information from that event mask is if
-your user space is not setting that event type in pollfd.events.
+regards,
+dan carpenter
 
-If I were you, I'd check two things:
-1) that your poll method is really returning a non-zero status when you
-think it is
-2) that your user space program is really asking for all events you
-think it is
-
-I think you'll find your problem is not this well-used mechanism in the
-kernel.
-
-Dave

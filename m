@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265413AbUAPPxm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 10:53:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbUAPPxl
+	id S265527AbUAPPqx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 10:46:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAPPqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 10:53:41 -0500
-Received: from gprs214-224.eurotel.cz ([160.218.214.224]:7808 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265413AbUAPPws (ORCPT
+	Fri, 16 Jan 2004 10:46:53 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:51980 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S265527AbUAPPqw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 10:52:48 -0500
-Date: Fri, 16 Jan 2004 16:52:23 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       kgdb-bugreport@lists.sourceforge.net, mpm@selenic.com,
-       discuss@x86-64.org, george@mvista.com
-Subject: Re: [discuss] KGDB 2.0.3 with fixes and development in ethernet interface
-Message-ID: <20040116155223.GA258@elf.ucw.cz>
-References: <200401161759.59098.amitkale@emsyssoft.com> <200401161951.51597.amitkale@emsyssoft.com> <20040116144736.GF2535@elf.ucw.cz> <200401162045.59591.amitkale@emsyssoft.com>
+	Fri, 16 Jan 2004 10:46:52 -0500
+Date: Fri, 16 Jan 2004 16:46:39 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: GOTO Masanori <gotom@debian.or.jp>, arjanv@redhat.com,
+       Steve Youngs <sryoungs@bigpond.net.au>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Increase recursive symlink limit from 5 to 8
+Message-ID: <20040116164639.A2809@pclin040.win.tue.nl>
+References: <E1AeMqJ-00022k-00@minerva.hungry.com> <2flllofnvp6.fsf@saruman.uio.no> <microsoft-free.87isjj0y1e.fsf@eicq.dnsalias.org> <1073814570.4431.3.camel@laptop.fenrus.com> <817jzsd8lg.wl@omega.webmasters.gr.jp> <20040116012511.GI21151@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401162045.59591.amitkale@emsyssoft.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040116012511.GI21151@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Fri, Jan 16, 2004 at 01:25:11AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Jan 16, 2004 at 01:25:11AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-> > int kgdbeth_event(struct notifier_block * self, unsigned long val,
-> > void * data)
-> > {
-> >         if (strcmp(((struct net_device *)data)->name, "eth0")) {
-> >                 goto out;
-> >         }
-> >         if (val!= NETDEV_UP)
-> >                 goto out;
-> >
-> > Do I read it correctly as "eth0 is not to be used for debugging"? So
-> > if I only have eth0 here, I have to comment it out, right?
+> > and so on.  It can easily exceed 6 symlinks.  I think the correct fix
+> > is to make VFS not to overflow stacks.  Is it allowable change?
 > 
-> No. It uses only "eth0" for debugging. If you have only eth0, it'll use that 
-> for debugging.
+> 	You are quite welcome to submit clean patches that would do that.
+> So far all suggested "solutions" had turned out to be broken _and_ ugly.
 
-Perhaps this is good idea? It should be documented
-somewhere... Please apply,
-								Pavel
+Ugly, possibly - broken, no.
 
---- /dev/null	2003-09-12 10:38:14.000000000 +0200
-+++ linux/Documentation/kgdb/ethernet.txt	2004-01-16 16:43:34.000000000 +0100
-@@ -0,0 +1,15 @@
-+Some notes about kgdb over ethernet
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+ 2004 Pavel Machek <pavel@suse.cz>
-+
-+Pass this on kernel commandline:
-+
-+	kgdbeth=interfacenum,localmac,listenport,remoteip,remotemac gdb
-+
-+Boot local machine. At the point where you enable eth0, machine will
-+hang, waiting for remote gdb to connect. At that point, type this on
-+remote machine:
-+
-+   $ gdb ./vmlinux
-+   (gdb) target remote udp:HOSTNAME:6443
-
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

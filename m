@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264071AbUDBPWB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 10:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264074AbUDBPWA
+	id S264074AbUDBP1V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 10:27:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbUDBP1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 10:22:00 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:48132 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S264071AbUDBPV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 10:21:58 -0500
-Message-ID: <406D89B8.4090308@techsource.com>
-Date: Fri, 02 Apr 2004 10:41:44 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: Consistently slower 3ware RAID performance under 2.6.4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 10:27:20 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:4371 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264074AbUDBP1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 10:27:15 -0500
+Date: Fri, 2 Apr 2004 16:27:09 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040402162709.A4312@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+	hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20040402001535.GG18585@dualathlon.random> <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain> <20040402011627.GK18585@dualathlon.random> <20040401173649.22f734cd.akpm@osdl.org> <20040402020022.GN18585@dualathlon.random> <20040401180802.219ece99.akpm@osdl.org> <20040402022233.GQ18585@dualathlon.random> <20040402070525.A31581@infradead.org> <20040402152240.GA21341@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040402152240.GA21341@dualathlon.random>; from andrea@suse.de on Fri, Apr 02, 2004 at 05:22:40PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-## Background:
+On Fri, Apr 02, 2004 at 05:22:40PM +0200, Andrea Arcangeli wrote:
+> I already explained the reason of the changes, and they've nothing to do
+> with hugetlbfs. The whole thing has nothing to do with hugetlbfs. I also
+> proposed a way to optimize _always_ regardless of hugetlbfs=y or =n, by
+> just turning my __GFP_NO_COPM into a __GFP_COMP, again regardless of
+> hugetlbfs. The current mainline code returning different things from
+> alloc_pages depending on a hugetlbfs compile option is totally broken
+> and I simply fixed it. this has absolutely nothing to do with the
+> hugetlbfs users.
 
-I'm doing a lot of sequential read and write performance tests on my 
-3ware 7000-2 controller (RAID1 with 2xWD1200JB), because I'm getting 
-very poor write performance.  This is a problem that I'm currently 
-working with 3ware to resolve, and they are working enthusiastically 
-with me to fix it.
+Umm, the usersn't aren't supposed to dig into the VM internals that deep.
+Everyone who does has a bug.
 
-Read test:    time dd if=/dev/sda2 of=/dev/null bs=1024k count=1024
-Write test:   time dd if=/dev/zero of=/dev/sda2 bs=1024k count=1024
+> The only ones that may not turn it on are probably the embedded people
+> using a custom kernel, but as I said I strongly doubt they want to risk
+> to trigger driver bugs with a different alloc_pages API since nobody
+> tested that API since everybody is going to turn hugetlbfs on.
 
-NOTE:  /dev/sda2 is the swap partition which is NEAR the outer-most tracks.
+We can make a little poll on lkml, but I bet most kernel developers will
+have it disabled :)
 
+> I'll now look into the bug that you triggered with xfs. Did you ever
+> test with hugetlbfs=y before btw
 
-## The new problem I discovered specific to Linux:
+I for myself haven't run with hugetlfs=y ever and don't really plan to.
 
-Regardless of the above-mentioned problem, I am noticing a very 
-significant performance drop between a 2.4 kernel and a 2.6 kernel.
+> (maybe you were one of the users
+> keeping it off always and now noticing the API changes under you, and
+> now benefiting from my standardization of the API)? 
 
-
-## Performance with "2.4.25-gentoo":
-
-The read test here takes 21.6 seconds which is about 47MB/sec.  This is 
-a correct number, because I have measured the maximum read throughput 
-from each drive to be 47MB/sec.
-
-The write test here takes 2 minutes, 2.5 seconds.  This translates to 
-8.35MB/sec.  This is what I'm working with 3ware to correct, but let's 
-call this the baseline write performance.
-
-
-## Performance with "2.6.4-gentoo-r1":
-
-The read test here takes 33.9 seconds.  That's down to about 30MB/sec.
-
-The write test here takes 2 minutes, 44.2 seconds.  That is down to 
-6.2MB/sec.
-
-
-## HELP?
-
-How can I help kernel developers to diagnose this problem?  What 
-information do I need to provide that is missing?
-
-What is responsible for such a significant performance drop on LONG 
-sequential disk accesses?
-
-
-## My computer:
-
-Athlon 2800+
-1GB RAM  (Corsair 2700LL)
-ABIT KD7 (KT400 chipset)
-
-
-Thanks in advance for the help!
+Huh?  The callchain comes from generic slab code..
 

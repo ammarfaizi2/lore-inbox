@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263939AbTDHHrv (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 03:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263948AbTDHHrv (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 03:47:51 -0400
-Received: from mail.scs.ch ([212.254.229.5]:28322 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id S263939AbTDHHrt (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 03:47:49 -0400
-Subject: Re: ES1371 on PPC, garbled output
-From: Thomas Sailer <sailer@scs.ch>
-To: David Brown <dave@codewhore.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030406171007.GA12378@codewhore.org>
-References: <20030406171007.GA12378@codewhore.org>
-Content-Type: text/plain
+	id S263916AbTDHHqe (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 03:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbTDHHqe (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 03:46:34 -0400
+Received: from [203.124.139.208] ([203.124.139.208]:22590 "EHLO
+	pcsbom.patni.com") by vger.kernel.org with ESMTP id S263916AbTDHHqd (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 03:46:33 -0400
+Reply-To: <pratyush.joshi@patni.com>
+From: "Pratyush Joshi" <pratyush.joshi@patni.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Unsupported VGA card
+Date: Tue, 8 Apr 2003 13:37:23 +0530
+Message-ID: <001401c2fda5$e3f80a70$f661d103@patni.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 08 Apr 2003 09:59:18 +0200
-Message-Id: <1049788758.20194.102.camel@kronenbourg.scs.ch>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+In-Reply-To: <oydr88do6qo.fsf@bert.cs.rice.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-06 at 19:10, David Brown wrote:
+Hi everybody,
 
-> Has anyone had any experience with getting es1371.c working on PPC? I
-> get sound, but the high-end of anything I play through /dev/dsp is
-> garbled and randomly cuts in and out. The problem doesn't appear on x86.
-> 
-> Anyone have any ideas?
+I am a newbie to Linux. I have a problem. I had Win 2K Pro installed on my
+PC. When I got Red Hat Linux 8.0 installed on it, the it showed "Unsupported
+VGA card", but the rest of the installation went fine. Now, I can log in to
+Linux, and only the command line is seen. When I enter the "startx" command,
+it gives some big error.
 
-Check that your application is using little endian byte ordering if it
-is 16bit, since es1371 doesn't do native byte ordering, only little
-endian. Also, it doesn't support uLaw/ALaw
+I have an ASUS P4SDR-VM motherboard with onboard VGA. Probably it is not
+supported by Red Hat. What do I do to get KDE/GNOME desktops working ? What
+exactly should I look for - is it the display drivers or RPMs ? Can I get
+anything from www.kernel.org ? Somebody told me that nVidia's nForce or
+gForce drivers should work for ASUS motherboard. Is that true ? In ASUS's
+website, I can see display drivers for download, for Red Hat Linux 7.3. Will
+those also work for 8.0 ? Are the display drivers specific to the
+motherboard make, or the Linux distro and version ?
 
-Tom
+I am quite confused and would really appreciate a detailed reply.
+
+Thanking you all in anticipation.
+
+With kind regards,
+Pratyush Joshi
 

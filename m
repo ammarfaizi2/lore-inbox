@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbUDTAIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbUDTANU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbUDTAIj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 20:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUDTAIj
+	id S262035AbUDTANU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 20:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDTANU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 20:08:39 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:31738 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S261380AbUDTAIh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 20:08:37 -0400
-Message-Id: <200404200008.i3K08Zvs018948@radium.internal.synopsys.com>
-Date: Mon, 19 Apr 2004 17:08:35 -0700 (PDT)
-From: Venkata Ravella <Venkata.Ravella@synopsys.com>
-Reply-To: Venkata Ravella <Venkata.Ravella@synopsys.com>
-Subject: Re: Automount/NFS issues causing executables to appear corrupted
-To: raven@themaw.net
-Cc: linux-kernel@vger.kernel.org, Ramki.Balasubramanium@synopsys.COM,
-       ab@californiadigital.com, hpa@zytor.com, autofs@linux.kernel.org
+	Mon, 19 Apr 2004 20:13:20 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:33931 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262035AbUDTANS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 20:13:18 -0400
+Message-ID: <40846B1B.2010103@yahoo.com.au>
+Date: Tue, 20 Apr 2004 10:13:15 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Content-MD5: +FBRoMmHSN9ox+1AV41ZHg==
-X-Mailer: dtmail 1.3.0 @(#)CDE Version 1.5 SunOS 5.9 sun4u sparc 
+To: Antti Lankila <alankila@elma.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: elevator=as, or actually gpm doesn't get time from scheduler???
+References: <Pine.A41.4.58.0404191609060.42820@tokka.elma.fi>
+In-Reply-To: <Pine.A41.4.58.0404191609060.42820@tokka.elma.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Antti Lankila wrote:
 
-autofs version is autofs-3.1.7-21
+> My X reads gpmdata, so perhaps that's the problem? I now undercut gpm in
+> order to examine the situation, and my system behaves _perfectly_ as far as
+> I can see. The mouse issues are all gone. (gpm is still running in the
+> background, X just reads psaux directly. As I have understood, this is
+> possible in 2.6 while in 2.4 it caused a problem for multiple readers.)
+> 
+> I progress from now by removing gpm on all my systems.  There's still the
+> issue what gpm (or maybe kernel's scheduler) is doing wrong, I suppose.
+> Nevertheless, gpm is virtually useless for me and has so far caused far more
+> grief than its utility has ever been worth.
+> 
+> I'm sorry for having wasted your time with this.
+> 
 
-I also have one new update. We started seeing similar problem on
-the system running the kernel 2.4.18-e.12smp which has the same
-version(3.1.7-21) of autofs as well.
+Not at all, thank you for reporting the problem.
 
-This may or may not be an autofs problem but, restarting autofs
-fixes this problem temporarily.
-
-
->
->Please cc autofs questions to the list at autofs@linux.kernel.org.
->
->On Sun, 18 Apr 2004, Venkata Ravella wrote:
->
->> 
->> The current kernel we use is default 7.2 kernel with two modifications:
->> 1) BM patch applied to extend address space for a single process to 3.6GB
->> 2) mnt patch applied to allow upto 1024 nfs mount points
->> 
->> uname -r output:
->> 2.4.7-10mntBMsmp
->
->What autofs version?
->
->To be honest it's a bit hard to see how this is an autofs issue.
->Mind, having said that, ....
->
->Ian
-
+It seems the CPU scheduler is a bit fragile when there
+are a number of interrelated processes. Note: I don't
+know whether my scheduler fixes this case or not, it might
+just be a difficult problem.

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262079AbTCHQaj>; Sat, 8 Mar 2003 11:30:39 -0500
+	id <S262080AbTCHQmX>; Sat, 8 Mar 2003 11:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262078AbTCHQaj>; Sat, 8 Mar 2003 11:30:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23505 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262076AbTCHQai>;
-	Sat, 8 Mar 2003 11:30:38 -0500
-Date: Sat, 08 Mar 2003 08:22:24 -0800 (PST)
-Message-Id: <20030308.082224.130739242.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: zippel@linux-m68k.org, david.lang@digitalinsight.com, hpa@zytor.com,
-       rmk@arm.linux.org.uk, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0303080826300.2954-100000@home.transmeta.com>
-References: <20030308.080317.27972826.davem@redhat.com>
-	<Pine.LNX.4.44.0303080826300.2954-100000@home.transmeta.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262082AbTCHQmX>; Sat, 8 Mar 2003 11:42:23 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:27143 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S262080AbTCHQmX>; Sat, 8 Mar 2003 11:42:23 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200303081654.h28Gskpk002027@81-2-122-30.bradfords.org.uk>
+Subject: Re: what's an OOPS
+To: szaka@sienet.hu (Szakacsits Szabolcs)
+Date: Sat, 8 Mar 2003 16:54:46 +0000 (GMT)
+Cc: ludootje@linux.be, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0303081654050.2790-100000@divine.city.tvnet.hu> from "Szakacsits Szabolcs" at Mar 08, 2003 05:01:34 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Sat, 8 Mar 2003 08:35:24 -0800 (PST)
+> > The number of the oops, (I.E. whether it was the first, second, third,
+> > etc, starting with 0000).
+> 
+> Urban myth (at least on i386). The "Oops:" part can be decoded on i386 as,
+> 
+>  *      bit 0 == 0 means no page found, 1 means protection fault
+>  *      bit 1 == 0 means read, 1 means write
+>  *      bit 2 == 0 means kernel, 1 means user-mode
 
-   The thing is, this discussion has _not_ been exactly neutral. You may have 
-   said "could" or "might" or whatever, but clearly people are trying to 
-   pressure hpa into going to GPL. It's the whole tone of the thread.
-   
-   Or would you disagree with that?
-   
-The tone of parts of this thread, sure.
+Interesting - I wasn't aware of that.
 
-Did my intentions match this?  Absolutely not.
+Maybe we should note this in Documentation/oops-tracing.txt?
 
-I couldn't justify my use of bitkeeper if I didn't believe in
-personal choice about licenses.
+Infact, overall there must be quite a lot that isn't documented at
+all, except in this mailing list's archives - I think an overhaul of
+Documentation/* is more than slightly overdue...
+
+John.

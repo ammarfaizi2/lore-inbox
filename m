@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVAZXUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVAZXWv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVAZXUb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbVAZXTw
+	id S262331AbVAZXWv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:22:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVAZXVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:19:52 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:21431 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262458AbVAZSB6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 13:01:58 -0500
-Subject: Re: [RFC][PATCH 0/5] consolidate i386 NUMA init code
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <15640000.1106750236@flay>
-References: <1106698985.6093.39.camel@localhost>  <15640000.1106750236@flay>
-Content-Type: text/plain
-Date: Wed, 26 Jan 2005 10:01:49 -0800
-Message-Id: <1106762509.6093.67.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Jan 2005 18:21:54 -0500
+Received: from alog0168.analogic.com ([208.224.220.183]:39296 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261632AbVAZSVg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 13:21:36 -0500
+Date: Wed, 26 Jan 2005 13:20:53 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Olivier Galibert <galibert@pobox.com>
+cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
+       Bryn Reeves <breeves@redhat.com>
+Subject: Re: don't let mmap allocate down to zero
+In-Reply-To: <20050126181006.GA80759@dspnet.fr.eu.org>
+Message-ID: <Pine.LNX.4.61.0501261315220.18301@chaos.analogic.com>
+References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
+ <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
+ <20050126181006.GA80759@dspnet.fr.eu.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-26 at 06:37 -0800, Martin J. Bligh wrote:
-> > The following five patches reorganize and consolidate some of the i386
-> > NUMA/discontigmem code.  They grew out of some observations as we
-> > produced the memory hotplug patches.
-> > 
-> > Only the first one is really necessary, as it makes the implementation
-> > of one of the hotplug components much simpler and smaller.  2 and 3 came
-> > from just looking at the effects on the code after 1.
-> > 
-> > 4 and 5 aren't absolutely required for hotplug either, but do allow
-> > sharing a bunch of code between the normal boot-time init and hotplug
-> > cases.  
-> > 
-> > These are all on top of 2.6.11-rc2-mm1.
-> 
-> Looks reasonable. How much testing have they had, on what platforms?
+On Wed, 26 Jan 2005, Olivier Galibert wrote:
 
-Built on all the i386 configs here:
-http://sr71.net/patches/2.6.11/2.6.11-rc1-mm1-mhp1/configs/
+> On Wed, Jan 26, 2005 at 11:38:15AM -0500, linux-os wrote:
+>> On Wed, 26 Jan 2005, Rik van Riel wrote:
+>>
+>>> With some programs the 2.6 kernel can end up allocating memory
+>>> at address zero, for a non-MAP_FIXED mmap call!  This causes
+>>> problems with some programs and is generally rude to do. This
+>>> simple patch fixes the problem in my tests.
+>>
+>> Does this mean that we can't mmap the screen regen buffer at
+>> 0x000b8000 anymore?
+>
+> No.  Missed the "non-MAP_FIXED" part?  You can always map at 0, you
+> just have to ask for it.
+>
 
-Booted on x440 (summit and generic), numaq, 4-way PIII.  I would imagine
-that any problem would manifest as the system simply not booting.  The
-most likely to fail would be systems with DISCONTIG enabled, because
-that's where the greatest amount of churn happened.  The normal !
-DISCONTIG case still uses most of the same code.
+Okay.
 
-Anyway, I think they're probably ready for a run in -mm, with the "if
-the machines don't boot check these first" flag set.  Although, I'd
-appreciate any other testing that anyone wants to throw at them.
+>
+>> What 'C' standard do you refer to?
+>
+> Malloc uses mmap to get more memory.  Malloc returning 0 means no
+> memory, not "the memory happens to be at 0".  Not that easy to fix in
+> the glibc if you want to keep the "segfault on null pointer accesses"
+> debugging help too.
+>
 
--- Dave
+malloc is a runtime library. It has its own documented rules.
 
+> Given that the man page itself says that unless you're using MAP_FIXED
+> start is only a hint and you should use 0 if you don't care things can
+> get real annoying real fast.  Imagine if you want to mmap a <4K file
+> and mmap then returns 0, i.e. NULL, as the mapping address as you
+> asked.  It's illegal from the point of view of susv3[1] and it's real
+> annoying in a C/C++ program.
+
+mmap() can (will) return 0 if you use 0 as the hint and use MAP_FIXED
+at 0. That's the reason why one does NOT check for NULL with mmap() but
+for MAP_FAILED (which on this system is (void *)-1.
+
+>
+>  OG.
+>
+> [1]
+>  When MAP_FIXED is not set, the implementation uses addr in an
+>  implementation-defined manner to arrive at pa. The pa so chosen
+>  shall be an area of the address space that the implementation deems
+>  suitable for a mapping of len bytes to the file. All implementations
+>  interpret an addr value of 0 as granting the implementation complete
+>  freedom in selecting pa, subject to constraints described below. A
+>  non-zero value of addr is taken to be a suggestion of a process
+>  address near which the mapping should be placed. When the
+>  implementation selects a value for pa, it never places a mapping at
+>  address 0, nor does it replace any extant mapping.
+>
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268469AbTGIR5S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268486AbTGIR5S
+	id S268442AbTGIRyb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 13:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268451AbTGIRyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:57:18 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:57268 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S268469AbTGIR5O (ORCPT
+	Wed, 9 Jul 2003 13:54:31 -0400
+Received: from granite.he.net ([216.218.226.66]:40198 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S268442AbTGIRy3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:57:14 -0400
-Date: Wed, 9 Jul 2003 13:38:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: vojtech@ucw.cz, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Make synaptics support optional
-Message-ID: <20030709113855.GC223@elf.ucw.cz>
-References: <20030708104551.GA209@elf.ucw.cz> <20030709095544.GA852@vitelus.com>
+	Wed, 9 Jul 2003 13:54:29 -0400
+Date: Wed, 9 Jul 2003 10:38:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Disconnect <lkml@sigkill.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG][USB] 2.4.22-pre2
+Message-ID: <20030709173816.GA17421@kroah.com>
+References: <1057769826.8465.30.camel@slappy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030709095544.GA852@vitelus.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1057769826.8465.30.camel@slappy>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Jul 09, 2003 at 12:57:06PM -0400, Disconnect wrote:
+> Its dead simple to reproduce - plug a pl2303 in, open /dev/ttyUSB0 with
+> (eg) minicom or pppd, close it, check logs.
 
-> On Tue, Jul 08, 2003 at 12:45:51PM +0200, Pavel Machek wrote:
-> > --- /usr/src/tmp/linux/drivers/input/mouse/synaptics.c	2003-06-24 12:27:47.000000000 +0200
-> > +++ /usr/src/linux/drivers/input/mouse/synaptics.c	2003-07-08 12:32:36.000000000 +0200
-> > @@ -213,6 +213,9 @@
-> >  {
-> >  	struct synaptics_data *priv;
-> >  
-> > +#ifndef CONFIG_MOUSE_SYNAPTICS
-> > +	return -1;
-> > +#endif;
-> >  	psmouse->private = priv = kmalloc(sizeof(struct synaptics_data), GFP_KERNEL);
-> >  	if (!priv)
-> >  		return -1;
-> > 
-> 
-> Why not adjust the Makefiles?
+Known bug, search the archives :)
 
-It was that way once in history, but later it was changed to "always
-include". I wanted minimal change.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+It's fixed in 2.5.
+
+Someone needs to backport the 2.5 changes to 2.4 to fix this issue, as
+I'm getting tired of repeating myself...
+
+thanks,
+
+greg k-h

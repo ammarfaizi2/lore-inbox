@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbTGKPtI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 11:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTGKPtI
+	id S263428AbTGKPwA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 11:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTGKPvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 11:49:08 -0400
-Received: from dp.samba.org ([66.70.73.150]:19080 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263187AbTGKPtF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 11:49:05 -0400
-Date: Sat, 12 Jul 2003 02:02:14 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Joe Thornber <thornber@sistina.com>
-Cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm3
-Message-ID: <20030711160214.GH7348@krispykreme>
-References: <20030708223548.791247f5.akpm@osdl.org> <200307101821.h6AIL87u013299@turing-police.cc.vt.edu> <20030711082532.GA432@fib011235813.fsnet.co.uk>
+	Fri, 11 Jul 2003 11:51:36 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:61396
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S264085AbTGKPuG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 11:50:06 -0400
+Date: Fri, 11 Jul 2003 12:04:48 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Flameeyes <daps_mls@libero.it>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030711160448.GE2210@gtf.org>
+References: <20030711140219.GB16433@suse.de> <1057939179.954.2.camel@laurelin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030711082532.GA432@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1057939179.954.2.camel@laurelin>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 11, 2003 at 05:59:39PM +0200, Flameeyes wrote:
+> On Fri, 2003-07-11 at 16:02, Dave Jones wrote:
+> > - (Possibly linked to above bug) VIA APIC routing is currently broken.
+> >   boot with 'noapic'.
+> On my system (with VIA KT266 chipset) I can't boot also using noapic
+> parameter, it freezes on "calibrating apic timer" using or not the
+> noapic parameter.
+> The only way is not enabling APIC at all.
 
-> The v1 ioctl interface passes the dev in as a __kernel_dev_t, so
-> unfortunately if you change the size of __kernel_dev_t you will have
-> to rebuild the tools.
-> 
-> The v4 ioctl interface just uses a __u64 which I hope will be future
-> proof.
+More details, please.
 
-This was the only thing that made the 32bit ioctls different to the 64bit 
-ones on ppc64, so changing it to __u64 is a good thing.
+Does 2.4.22-pre4 work for you?
 
-Anton
+	Jeff
+
+
+

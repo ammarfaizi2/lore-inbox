@@ -1,102 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbTKYS3X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 13:29:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTKYS3X
+	id S262955AbTKYShe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 13:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbTKYShd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 13:29:23 -0500
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:3037 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S262838AbTKYS3U
+	Tue, 25 Nov 2003 13:37:33 -0500
+Received: from snowman.net ([66.93.83.236]:52488 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S262955AbTKYShb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 13:29:20 -0500
-Date: Tue, 25 Nov 2003 19:26:47 +0100
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Hannes Reinecke <hare@suse.de>
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is initramfs freed after kernel is booted?
-Message-ID: <20031125182647.GA8068@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <E1ALlQs-000769-00.arvidjaar-mail-ru@f7.mail.ru> <3FB90A6A.4050505@nortelnetworks.com> <20031117180312.GZ24159@parcelfarce.linux.theplanet.co.uk> <200311172133.59839.arvidjaar@mail.ru> <20031117191513.GA24159@parcelfarce.linux.theplanet.co.uk> <3FBB8748.8020503@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FBB8748.8020503@suse.de>
-User-Agent: Mutt/1.5.4i
+	Tue, 25 Nov 2003 13:37:31 -0500
+Date: Tue, 25 Nov 2003 13:37:13 -0500 (EST)
+From: Nick <nick@snowman.net>
+To: Ricky Beam <jfbeam@bluetronic.net>
+cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Copy protection of the floppies
+In-Reply-To: <Pine.GSO.4.33.0311251054040.13188-100000@sweetums.bluetronic.net>
+Message-ID: <Pine.LNX.4.21.0311251336250.24128-100000@ns.snowman.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 19, 2003 at 04:07:52PM +0100, Hannes Reinecke wrote:
-> viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >On Mon, Nov 17, 2003 at 09:33:59PM +0300, Andrey Borzenkov wrote:
+Hardware dongles.  You need to be a bit creative but it can be done.  Say
+on save of the file output it to the hardware dongle with encrypts it with
+your private key, then on load of the file it gets decrypted with the
+public key, which is available, or some similar scheme.
+	Nick
+
+On Tue, 25 Nov 2003, Ricky Beam wrote:
+
+> On Tue, 25 Nov 2003, [iso-8859-1] Måns Rullgård wrote:
+> >> About 15 years ago, there were many gaming softwares which were procected,
+> (it was more than 15 years ago.)
+> >> for example, by checking "gap" between sectors.
 > >
-> >>On Monday 17 November 2003 21:03, viro@parcelfarce.linux.theplanet.co.uk 
-> >>wrote:
-> >>
-> >>>On Mon, Nov 17, 2003 at 12:50:34PM -0500, Chris Friesen wrote:
-> >>>
-> >>>>viro@parcelfarce.linux.theplanet.co.uk wrote:
-[snip]
-> >You do, but you can trivially call unlink() on the executable itself.  It
-> >will be freed after it does exec() of final /sbin/init...
-> >
-> >Alternatively, you could
-> >mkdir /root
-> >mount final root on /root
-> >
-> >chdir("/root");
-> >mount("/", "initramfs", NULL, MS_BIND, NULL);
-> >mount(".", "/", NULL, MS_MOVE, NULL);
-> >chroot(".");
-> >execve("/sbin/init", ...)
-> >
-> Nope. initramfs shares the superblock with 'rootfs', which has the 
-> MS_NOUSER flags set. Hence graft_tree() (which is the worker function 
-> for MS_BIND) refuses to work.
-> Can't we just remove the MS_NOUSER flags if initramfs is active?
-> Probably not the correct way, but certainly the quickest :-)
-> The correct way would probably be to clone the superblock of initramfs, 
-> set the filesystem-type of initramfs to 'ramfs' so that initramfs 
-> appears to be a chroot()ed filesystem like initrd. Then we could do a 
-> pivot_root and we have the contents of initramfs still available.
-> But needs someone with deeper fs-knowledge than myself to do it.
+> >Can't that be done with a regular floppy drive and some special
+> >software?
+> 
+> Please heed the lessons already learned in the software industry...
+> Copy protection doesn't work.  It works about as well as locks on doors
+> as it'll keep the honest people honest, and offer a small obstacle to
+> the dishonest.
+> 
+> As others have stated, anything *you* can do with a PC floppy drive, *I*
+> can do. (And given this thread, I can probablly do a few things you
+> currently cannot.)  Ultimately, any copy protection comes down to
+> the software on the floppy.  If the machine can read it to execute it,
+> the hacker can read it to remove the checks.  No ammount of hand-waving
+> will change that. (That, btw, is why the DMCA, et. al., exist.)
+> 
+> --Ricky
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
- How about this one liner?
-
---- fs/ramfs/inode.c	22 Oct 2003 15:19:58 -0000	1.39
-+++ fs/ramfs/inode.c	25 Nov 2003 18:10:00 -0000
-@@ -207,7 +207,7 @@
- static struct super_block *rootfs_get_sb(struct file_system_type *fs_type,
- 	int flags, const char *dev_name, void *data)
- {
--	return get_sb_nodev(fs_type, flags|MS_NOUSER, data, ramfs_fill_super);
-+	return get_sb_single(fs_type, flags, data, ramfs_fill_super);
- }
- 
- static struct file_system_type ramfs_fs_type = {
-
-
-
- Since rootfs is supposed to be mounted just once, it shouldn't be a
- problem using get_sb_single().
-
- This way, you can mount rootfs anytime, and get in there to remove
- files.
-
-
- Am I missing something obvious here?
-
- Have a nice day
-
- 	Manuel
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.

@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262694AbSJGT7h>; Mon, 7 Oct 2002 15:59:37 -0400
+	id <S262629AbSJGUCe>; Mon, 7 Oct 2002 16:02:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262700AbSJGT6R>; Mon, 7 Oct 2002 15:58:17 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:13700 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262693AbSJGT53>;
-	Mon, 7 Oct 2002 15:57:29 -0400
-Date: Mon, 7 Oct 2002 22:03:03 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: Linux v2.5.41
-Message-ID: <20021007220303.A1681@ucw.cz>
-References: <mailman.1034018941.1657.linux-kernel2news@redhat.com> <200210072001.g97K1p726546@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S262672AbSJGUB4>; Mon, 7 Oct 2002 16:01:56 -0400
+Received: from 62-190-203-30.pdu.pipex.net ([62.190.203.30]:11012 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262629AbSJGUBc>; Mon, 7 Oct 2002 16:01:32 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210072015.g97KFjch003948@darkstar.example.net>
+Subject: Re: 2.5.X breaks PS/2 mouse
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Mon, 7 Oct 2002 21:15:45 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021007162318.A758@ucw.cz> from "Vojtech Pavlik" at Oct 07, 2002 04:23:18 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200210072001.g97K1p726546@devserv.devel.redhat.com>; from zaitcev@redhat.com on Mon, Oct 07, 2002 at 04:01:51PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 04:01:51PM -0400, Pete Zaitcev wrote:
-> > David S. Miller <davem@redhat.com>:
-> >   o USB: usbkbd fix
+Finally re-assembled the laptop :-)
+
+> > I didn't, but I've compiled a new kernel with it in.  Unfortunately,
+> > it doesn't seem to do anything useful :-(.
+> > 
+> > cat /dev/input/eventX | hexdump
+> > 
+> > returns nothing, not even for keyboard events, which makes me think
+> > I've gone wrong somewhere :-/
 > 
-> Dave, why do you even bother with usbkbd? It MUST DIE and get
-> removed. Please, do me a favour: kill CONFIG_USB_KBD from your
-> configuration and let me and Vojtech know if something
-> actually fails. The hid must support all devices which were
-> supported bye usbkbd.
+> Have you tried all of them (0, 1, 2 ...)? Btw, you can compile evbug in
+> also.
 
-The embedded people always cry when I want to kill the usbkbd module ...
+Whoops, me being silly again, I actually created a single device node
+called /dev/input/eventX instead of event1, event2, etc.  :-)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> > mouse
+> > 
+> >  Left button - 09 00 00 08 00 00
+> > Right button - 0a 00 00 08 00 00
+> > 
+> > trackball
+> > 
+> >  Left button - 01 00 00 00 00 00
+> > Right button - 02 00 00 00 00 00
+> 
+> Hmm, interesting ... let's see what that means ...
+> 
+> Indeed the 0x08 byte indicates the beginning of a packet. The driver
+> synchronizes on that, and when it's missing, it ignores the packets.
+> Thus, it ignores all the packets from the trackball.
+> 
+> This patch should fix that:
+
+It does.  Cool!
+
+GPM and X work perfectly.
+
+Cheers!
+
+John.

@@ -1,68 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262487AbSJDQ4p>; Fri, 4 Oct 2002 12:56:45 -0400
+	id <S262805AbSJDRhI>; Fri, 4 Oct 2002 13:37:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262490AbSJDQ4p>; Fri, 4 Oct 2002 12:56:45 -0400
-Received: from mail3.efi.com ([192.68.228.90]:25099 "HELO
-	fcexgw03.efi.internal") by vger.kernel.org with SMTP
-	id <S262487AbSJDQ4n>; Fri, 4 Oct 2002 12:56:43 -0400
-Message-ID: <3D9DC9E1.44D7AF7A@efi.com>
-Date: Fri, 04 Oct 2002 10:03:29 -0700
-From: Kallol Biswas <kallol@efi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S262807AbSJDRhI>; Fri, 4 Oct 2002 13:37:08 -0400
+Received: from d06lmsgate-6.uk.ibm.com ([194.196.100.252]:26522 "EHLO
+	d06lmsgate-6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S262805AbSJDRhF> convert rfc822-to-8bit; Fri, 4 Oct 2002 13:37:05 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.40 s390 (20/27): signal quiesce.
+Date: Fri, 4 Oct 2002 16:32:47 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-To: Paul P Komkoff Jr <i@stingr.net>
-CC: linux-kernel@vger.kernel.org, linux.nics@intel.com,
-       Andrey Nekrasov <andy@spylog.ru>
-Subject: Re: NIC on Intel STL2 - bad work with eepro100 & e100
-References: <20021004113128.GA31145@an.local> <20021004135016.GJ6318@stingr.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Oct 2002 17:02:22.0404 (UTC) FILETIME=[CE538840:01C26BC7]
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210041632.47388.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe the problem is due to the sleep mode bit,
-I  think the errata of Intel-STL2 documents it. We had a similar problem with our
+Add 'signal quiesque' feature to s390 hardware console. A signal quiesce
+is sent from VM or the service element every time the system should shut
+down. We receive the quiesce signal and call ctrl_alt_del(). Finally the
+mainframes have ctrl-alt-del as well :-)
 
-STL2 based board,
-clearing the sleep mode fixed it.
-
-Paul P Komkoff Jr wrote:
-
-> Replying to Andrey Nekrasov:
-> >                       Intel Server Board STL2.
-> >       Network: onboard NIC "Intel(R) 82559 single chip PCI LAN controller"
->
-> I have almost the same behavior here except that eepro100 works
-> without freezes. Maybe spylog servers' NIC load is much more higher
-> than mine :)
->
-> Intel support guys advised me to test both versions of e100 driver.
->
-> ftp://aiedownload.intel.com/df-support/2896/eng/e100-2.1.15.tar.gz
-> ftp://aiedownload.intel.com/df-support/2896/eng/e100-1.8.38.tar.gz
->
-> Unfortunately, I haven't tested it yet. My investigation shows that
-> the following fragment of e100_main.c code fails:
->
-> <code from="e100_hw_init">
->      if (!e100_wait_exec_cmplx(bdp, 0, SCB_RUC_LOAD_BASE))
->             return false;
-> </code>
->
-> we returning false here.
->
-> And I am stalled for now till the end of next week until the ACM ICPC
-> Qfinal is over :(
->
-> --
-> Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
->   When you're invisible, the only one really watching you is you (my keychain)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff -urN linux-2.5.40/drivers/s390/char/hwc.h linux-2.5.40-s390/drivers/s390/char/hwc.h
+--- linux-2.5.40/drivers/s390/char/hwc.h	Tue Oct  1 09:07:07 2002
++++ linux-2.5.40-s390/drivers/s390/char/hwc.h	Fri Oct  4 16:16:22 2002
+@@ -22,6 +22,7 @@
+ #define ET_PMsgCmd		0x09
+ #define ET_CntlProgOpCmd	0x20
+ #define ET_CntlProgIdent	0x0B
++#define ET_SigQuiesce	0x1D
+ 
+ #define ET_OpCmd_Mask	0x80000000
+ #define ET_Msg_Mask		0x40000000
+@@ -29,6 +30,7 @@
+ #define ET_PMsgCmd_Mask	0x00800000
+ #define ET_CtlProgOpCmd_Mask	0x00000001
+ #define ET_CtlProgIdent_Mask	0x00200000
++#define ET_SigQuiesce_Mask	0x00000008
+ 
+ #define GMF_DOM		0x8000
+ #define GMF_SndAlrm	0x4000
+@@ -218,7 +220,8 @@
+ 	0x0000,
+ 	0x0000,
+ 	sizeof (_hwcb_mask_t),
+-	ET_OpCmd_Mask | ET_PMsgCmd_Mask | ET_StateChange_Mask,
++	ET_OpCmd_Mask | ET_PMsgCmd_Mask |
++	ET_StateChange_Mask | ET_SigQuiesce_Mask,
+ 	ET_Msg_Mask | ET_PMsgCmd_Mask | ET_CtlProgIdent_Mask
+ };
+ 
+diff -urN linux-2.5.40/drivers/s390/char/hwc_rw.c linux-2.5.40-s390/drivers/s390/char/hwc_rw.c
+--- linux-2.5.40/drivers/s390/char/hwc_rw.c	Fri Oct  4 16:16:11 2002
++++ linux-2.5.40-s390/drivers/s390/char/hwc_rw.c	Fri Oct  4 16:16:22 2002
+@@ -35,6 +35,8 @@
+ #define MIN(a,b) (((a<b) ? a : b))
+ #endif
+ 
++extern void ctrl_alt_del (void);
++
+ #define HWC_RW_PRINT_HEADER "hwc low level driver: "
+ 
+ #define  USE_VM_DETECTION
+@@ -172,6 +174,7 @@
+ 	unsigned char read_nonprio:1;
+ 	unsigned char read_prio:1;
+ 	unsigned char read_statechange:1;
++	unsigned char sig_quiesce:1;
+ 
+ 	unsigned char flags;
+ 
+@@ -222,6 +225,7 @@
+ 	    0,
+ 	    0,
+ 	    0,
++	    0,
+ 	    NULL,
+ 	    NULL
+ 
+@@ -1529,6 +1533,19 @@
+ 				       HWC_RW_PRINT_HEADER
+ 				 "can not read state change notifications\n");
+ 
++	hwc_data.sig_quiesce
++	    = ((mask & ET_SigQuiesce_Mask) == ET_SigQuiesce_Mask);
++	if (hwc_data.sig_quiesce)
++		internal_print (
++				       DELAYED_WRITE,
++				       HWC_RW_PRINT_HEADER
++				       "can receive signal quiesce\n");
++	else
++		internal_print (
++				       DELAYED_WRITE,
++				       HWC_RW_PRINT_HEADER
++				       "can not receive signal quiesce\n");
++
+ 	hwc_data.read_nonprio
+ 	    = ((mask & ET_OpCmd_Mask) == ET_OpCmd_Mask);
+ 	if (hwc_data.read_nonprio)
+@@ -1609,6 +1626,47 @@
+ 	return retval;
+ }
+ 
++#ifdef CONFIG_SMP
++static volatile unsigned long cpu_quiesce_map;
++
++static void 
++do_load_quiesce_psw (void)
++{
++	psw_t quiesce_psw;
++
++	clear_bit (smp_processor_id (), &cpu_quiesce_map);
++	if (smp_processor_id () == 0) {
++
++		while (cpu_quiesce_map != 0) ;
++
++		quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
++		quiesce_psw.addr = 0xfff;
++		__load_psw (quiesce_psw);
++	}
++	signal_processor (smp_processor_id (), sigp_stop);
++}
++
++static void 
++do_machine_quiesce (void)
++{
++	cpu_quiesce_map = cpu_online_map;
++	smp_call_function (do_load_quiesce_psw, NULL, 0, 0);
++	do_load_quiesce_psw ();
++}
++
++#else
++static void 
++do_machine_quiesce (void)
++{
++	psw_t quiesce_psw;
++
++	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
++	queisce_psw.addr = 0xfff;
++	__load_psw (quiesce_psw);
++}
++
++#endif
++
+ static int 
+ process_evbufs (void *start, void *end)
+ {
+@@ -1644,6 +1702,13 @@
+ 			retval += eval_statechangebuf
+ 			    ((statechangebuf_t *) evbuf);
+ 			break;
++		case ET_SigQuiesce:
++
++			_machine_restart = do_machine_quiesce;
++			_machine_halt = do_machine_quiesce;
++			_machine_power_off = do_machine_quiesce;
++			ctrl_alt_del ();
++			break;
+ 		default:
+ 			internal_print (
+ 					       DELAYED_WRITE,
 

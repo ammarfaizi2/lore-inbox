@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314042AbSDKNFt>; Thu, 11 Apr 2002 09:05:49 -0400
+	id <S314043AbSDKNIO>; Thu, 11 Apr 2002 09:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314043AbSDKNFs>; Thu, 11 Apr 2002 09:05:48 -0400
-Received: from c5cust8.starstream.net ([206.170.161.8]:13964 "HELO
-	10cust182.starstream.net") by vger.kernel.org with SMTP
-	id <S314042AbSDKNFs>; Thu, 11 Apr 2002 09:05:48 -0400
-Date: Thu, 11 Apr 2002 06:05:44 -0700
-From: Ted Deppner <ted@psyber.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Jens Axboe <axboe@suse.de>, Martin Dalecki <martin@dalecki.de>,
-        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-        Hans Reiser <reiser@namesys.com>
+	id <S314045AbSDKNIN>; Thu, 11 Apr 2002 09:08:13 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:57874 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314043AbSDKNIN>; Thu, 11 Apr 2002 09:08:13 -0400
+Message-ID: <3CB57C1F.9060607@evision-ventures.com>
+Date: Thu, 11 Apr 2002 14:05:51 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: Jens Axboe <axboe@suse.de>, Martin Dalecki <martin@dalecki.de>,
+        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
 Subject: Re: New IDE code and DMA failures
-Message-ID: <20020411130544.GA8163@dondra.ofc.psyber.com>
-Reply-To: Ted Deppner <ted@psyber.com>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	Jens Axboe <axboe@suse.de>, Martin Dalecki <martin@dalecki.de>,
-	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-	Hans Reiser <reiser@namesys.com>
 In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 03:39:33PM -0200, Denis Vlasenko wrote:
+Denis Vlasenko wrote:
+> Hi Jens, Martin, Vojtech,
+
+Zdrastwujtie.
+
 > I have a flaky IDE subsystem in one box. Reads work fine,
 > writes sometimes don't work and hang either IDE/block device
+> sybsystem or entire box. For example, I dumped ~40 MB file to
+> the disk and now I have additional power led (i.e. hdd activity
+> led is constantly on) and a bunch of "D" state processes
+> (kupdated, mount, umount).
+> 
+> This is happening since I decided to try 2.5.7.
+> 2.4.18 reported DMA failures and reverted to PIO.
+> 
+> I did send a detailed report of similar event with
+> ksymoopsed stack traces of hung prosesses to lkml.
+> 
+> Since you are working on IDE subsystem, I will be glad to
+> *retain* my flaky IDE setup and test future kernels
+> for correct operation in this failure mode.
 > 
 > Please inform me whenever you want me to test your patches.
 
-I've been testing 2.4.17 and 2.4.19-pre6 and see some similar issues.  I
-have an Asus A7V w/ 1gig Athlon processor.  Using the onboard Promise
-UDMA100 controller, I can read and write all day long to /dev/hde all by
-itself...  However, after few minutes of any type of access to /dev/hdh,
-/dev/hde suddenly starts having DMA errors and switches to PIO.  I'm on my
-third DMA66 cable (yet it fights tightly), and am still seeing the exact
-same issues.  I don't believe my IDE subsystem to be flaky.  hde is a WD
-drive, and hdh is a Maxtor.
+Guessing from the symptoms I would rather suggest that:
 
-In one of my tests the contents /dev/hdh was additionally corrupted (a
-write test to /dev/hdh1) so badly that the partion information changed
-from type 83 to type 3 (Xenix), and the contents of a reiser partition so
-badly damaged that a --rebuild-tree and later a --rebuild-sb to reiserfsck
-didn't restore it to usable. (I put those options in at the request of
-reiserfsck, and I haven't wiped the drive yet if someone would like
-further tests against the reiserfs partition).
+1. Are you sure you have the support for your chipset properly
+    enabled? It's allmost a must for DMA.
 
--- 
-Ted Deppner
-http://www.psyber.com/~ted/
+2. Could you please report about the hardware you have. There are
+    chipsets around there which are using theyr own transport layer
+    implementations. host chip (aka south bridge) disk types and so on.
+
+3. Some timeout values got increased to more generally used values (in esp.
+    IBM microdrives advice about timeout values. Could you see whatever
+    the data doesn't eventually go to the disk after georgeous
+    amounts of time.
+
+4. Could you try to set the DMA mode lower then it's set up
+    per default by using hdparm and try whatever it helps?
+

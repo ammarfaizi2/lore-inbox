@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291122AbSBGWXR>; Thu, 7 Feb 2002 17:23:17 -0500
+	id <S291373AbSBGWY5>; Thu, 7 Feb 2002 17:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291373AbSBGWXH>; Thu, 7 Feb 2002 17:23:07 -0500
-Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:41106 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S291122AbSBGWW7>;
-	Thu, 7 Feb 2002 17:22:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mike Touloumtzis <miket@bluemug.com>
-Subject: Re: How to check the kernel compile options ?
-Date: Thu, 7 Feb 2002 23:27:14 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16Ywj7-00016Y-00@starship.berlin> <20020207221336.GD27645@bluemug.com>
-In-Reply-To: <20020207221336.GD27645@bluemug.com>
+	id <S291384AbSBGWYl>; Thu, 7 Feb 2002 17:24:41 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17416 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S291386AbSBGWYP>; Thu, 7 Feb 2002 17:24:15 -0500
+Message-ID: <3C62FE72.2050500@zytor.com>
+Date: Thu, 07 Feb 2002 14:23:46 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Yx0d-00016d-00@starship.berlin>
+To: Justin Piszcz <war@starband.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Information & Install Kernel Script
+In-Reply-To: <3C6267B7.30A3020D@starband.net> <a3ut0u$f60$1@cesium.transmeta.com> <3C62FB81.E053B660@starband.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 7, 2002 11:13 pm, Mike Touloumtzis wrote:
-> On Thu, Feb 07, 2002 at 11:09:09PM +0100, Daniel Phillips wrote:
-> > On February 7, 2002 10:41 pm, Mike Touloumtzis wrote:
-> > > Adding configuration information to the kernel is a change to the status
-> > > quo, and has a cost.  The cost is small, but I'm unsympathetic to that
-> > > argument because many small convenience features, each with a small cost,
-> > > add up to a large cost.
-> > 
-> > The cost is *zero* if you don't enable the option, is this concept difficult
-> > for you?
-> 
-> That argument can be used to justify almost anything.  But it's not
-> zero maintenance cost or code complexity cost.  No one wants the kernel
-> to be an unmaintainable nest of CONFIG_FOO and #ifdef BAR because of
-> "zero cost" options.
+Justin Piszcz wrote:
 
-OK, there we are, your real argument: you think adding this option will make
-the kernel unmaintainable.
+> Perhaps, however I began ik in December 2000.
+> No /sbin/installkernel existed at the time.
 
-feh.
 
--- 
-Daniel
+Bullsh*t.  /sbin/installkernel has existed since 1993 or thereabouts.
+
+	-hpa
+
+

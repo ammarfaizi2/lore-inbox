@@ -1,138 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266434AbSL2R2B>; Sun, 29 Dec 2002 12:28:01 -0500
+	id <S266640AbSL2Rfh>; Sun, 29 Dec 2002 12:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266622AbSL2R2B>; Sun, 29 Dec 2002 12:28:01 -0500
-Received: from tag.witbe.net ([81.88.96.48]:64784 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S266434AbSL2R17>;
-	Sun, 29 Dec 2002 12:27:59 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'John Stoffel'" <stoffel@lucent.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.53] So sloowwwww......
-Date: Sun, 29 Dec 2002 18:36:19 +0100
-Message-ID: <00bf01c2af60$cc842a10$2101a8c0@witbe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <15887.12599.256259.66915@gargle.gargle.HOWL>
+	id <S266643AbSL2Rfh>; Sun, 29 Dec 2002 12:35:37 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5101 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266640AbSL2Rfg>; Sun, 29 Dec 2002 12:35:36 -0500
+Date: Sun, 29 Dec 2002 18:43:52 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Erik Andersen <andersen@codepoet.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, bcollins@debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix 2.4.x ieee1394
+Message-ID: <20021229174351.GA6114@fs.tum.de>
+References: <200212172033.gBHKX6A32611@hera.kernel.org> <20021222112613.GA8743@codepoet.org> <20021229153821.GN27658@fs.tum.de> <20021229164409.GA5416@codepoet.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021229164409.GA5416@codepoet.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> Paul> I'm just playing a little bit with Kernel 2.5.53, and I've been
-> Paul> afraid of finding it quite slow...
+On Sun, Dec 29, 2002 at 09:44:09AM -0700, Erik Andersen wrote:
+> On Sun Dec 29, 2002 at 04:38:21PM +0100, Adrian Bunk wrote:
+> > When I try 2.4.21-pre2 with your patch and the IEEE 1394 options you 
+> > mention in your mail _nothing_ gets built inside the drivers/ieee1394 
+> > directory and the error message at the final linking is:
+> > 
+> > <--  snip  -->
+> > 
+> > ...
+> >         -o vmlinux
+> > ld: cannot open drivers/ieee1394/ieee1394.o: No such file or directory
+> > make: *** [vmlinux] Error 1
+> > 
+> > <--  snip  -->
+> > 
+> > 
+> > How did you manage to get a kernel that actually compiles?
+> > 
 > 
-> Not a bad report, but you didn't give any info on the machine 
-> configuration in terms of:
-> 	     
-> - CPU type and speed
-> - memory
-> - disk
-> 
-Correct. Here are some more :
-6 [18:34] rol@donald:/kernels> cat /proc/cpuinfo 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.40GHz
-stepping        : 4
-cpu MHz         : 2423.933
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 4836.55
+> Sorry about that.  I missed a spot.  Here is the full fix:
+>...
 
-7 [18:34] rol@donald:/kernels> cat /proc/meminfo 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  526839808 516452352 10387456        0 18071552 403718144
-Swap: 3764346880  2527232 3761819648
-MemTotal:       514492 kB
-MemFree:         10144 kB
-MemShared:           0 kB
-Buffers:         17648 kB
-Cached:         392980 kB
-SwapCached:       1276 kB
-Active:         289588 kB
-Inactive:       167568 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       514492 kB
-LowFree:         10144 kB
-SwapTotal:     3676120 kB
-SwapFree:      3673652 kB
+Thanks, I can confirm that this patch fixes it.
 
-8 [18:34] rol@donald:/kernels> df -aT
-Filesystem    Type   1K-blocks      Used Available Use% Mounted on
-/dev/hda2     ext3     2063536   1210488    748224  62% /
-none          proc           0         0         0   -  /proc
-/dev/hda8     ext3    46267844   7936068  35981472  19% /data
-none        devpts           0         0         0   -  /dev/pts
-none         tmpfs      257244         0    257244   0% /dev/shm
-/dev/hda4     ext3    12317944    404104  11288112   4% /usr/local
-/dev/hda7     ext3     2063504     99620   1859064   6% /var
-/dev/sda1     ext3    10320888    692592   9103960   8% /kernels
-/dev/sda3     ext3     7740648    630368   6717016   9% /witbe
-/dev/sda6 reiserfs    10919580     32840  10886740   1% /divers
-/dev/hdb6 reiserfs    29406044  19067932  10338112  65% /mp3
-/dev/hda1     ntfs     2096450   1279606    816844  62% /diskC
-/dev/hda5     ntfs    10241404   4065772   6175632  40% /diskF
-/dev/hdb2     vfat     5122732   3047232   2075500  60% /diskD
-/dev/hdb5     vfat     5122704    900844   4221860  18% /diskE
-/dev/cdrom iso9660       60760     60760         0 100% /mnt/cdrom
+cu
+Adrian
 
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-SIS5513: IDE controller on PCI bus 00 dev 15
-SIS5513: chipset revision 0
-SIS5513: not 100% native mode: will probe irqs later
-SiS5513
-    ide0: BM-DMA at 0xa400-0xa407, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xa408-0xa40f, BIOS settings: hdc:DMA, hdd:DMA
-hda: WDC WD800BB-00CAA1, ATA DISK drive
-hdb: IC35L040AVER07-0, ATA DISK drive
-hdc: MATSHITADVD-ROM SR-8584A, ATAPI CD/DVD-ROM drive
-hdd: TDK CDRW4800B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63
-hdb: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=5005/255/63
-hdc: ATAPI 32X DVD-ROM drive, 512kB Cache
-Uniform CD-ROM driver Revision: 3.12
-ide-cd: passing drive hdd to ide-scsi emulation.
-ide-floppy driver 0.99.newide
-Partition check:
- hda: hda1 hda2 hda3 < hda5 hda6 hda7 hda8 > hda4
- hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 >
-...
-SCSI subsystem driver Revision: 1.00
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.8
-        <Adaptec 2940 Ultra2 SCSI adapter>
-        aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+-- 
 
-(scsi0:A:0): 40.000MB/s transfers (20.000MHz, offset 127, 16bit)
-  Vendor: FUJITSU   Model: MAN3367MP         Rev: 5507
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
-...
-
-Hope this helps,
-Regards,
-Paul
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

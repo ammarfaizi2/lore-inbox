@@ -1,67 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261631AbTCaNT1>; Mon, 31 Mar 2003 08:19:27 -0500
+	id <S261635AbTCaN2J>; Mon, 31 Mar 2003 08:28:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261632AbTCaNT1>; Mon, 31 Mar 2003 08:19:27 -0500
-Received: from mx00.yatack.net ([193.71.32.2]:40713 "HELO mx00.yatack.net")
-	by vger.kernel.org with SMTP id <S261631AbTCaNT0>;
-	Mon, 31 Mar 2003 08:19:26 -0500
-Message-ID: <3E884305.9070701@uw.no>
-Date: Mon, 31 Mar 2003 13:30:45 +0000
-From: "Daniel K." <dk@uw.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030227
-X-Accept-Language: en-us, en
+	id <S261638AbTCaN2J>; Mon, 31 Mar 2003 08:28:09 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:16907 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261635AbTCaN2H>; Mon, 31 Mar 2003 08:28:07 -0500
+Message-ID: <3E8845A8.20107@aitel.hist.no>
+Date: Mon, 31 Mar 2003 15:42:00 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-To: Stelian Pop <stelian@popies.net>
+To: erik@hensema.net
 CC: linux-kernel@vger.kernel.org
-Subject: [patch] fix ec_read using wrong #define's in sonypi driver.
+Subject: Re: Delaying writes to disk when there's no need
+References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <20030328231248.GH5147@zaurus.ucw.cz> <slrnb8gbfp.1d6.erik@bender.home.hensema.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch will make the driver use the correct #define's when
-querying battery charge.
+Erik Hensema wrote:
+[...]
+> Helge Hafting already pointed out that writing out the data earlier isn't
+> desirable. The problem isn't in the waiting: the problem is in the writing.
+> I think the current kernel tries to write too much data too fast when
+> there's absolutely no reason to do so. It should probably gently write out
+> small amounts of data until there is a more pressing need for memory.
+> 
+I don't think the problem is "writing a large chunk", rather that this
+chunk is scheduled for writing a bit too late.  Memory is filling up
+and the process producing data us throttled while waiting for
+the write to free up pages.  Then the "huge chunk" of pages is released,
+and memory is allowed to fill up for too long again.
 
-This error sneaked into 2.4.20-pre1,
-and have been present in 2.5 since 2.5.49.
+Seem to me the correct solution is to start writing out
+things long before memory gets so full that we need to
+throttle the producer.
 
-The patch is for 2.4.21-pre6, but will also apply to 2.5.66
-with an offset of 1 line.
+This will result in somewhat smaller chunks and a somewhat
+steadier stream of data.  It will work better, but not because
+the chunks are smaller. (Block devices is supposed to handle
+enormous chunks with no problems, and the bandwith utilization
+is generally better the bigger chunks you can get.  50M to
+disk in one go isn't "pushing" anything - it is "nice".)
+The reason an earlier start works better is that memory never fills up
+to the point where the producer is throttled, assuming
+the io system can keep up with the producer forever.
+Throttling will _always_ happen when that isn't the case.
 
-Please apply.
+The tricky part here is knowing the bandwith of the output
+device, and start writing at such a time that memory
+won't have time to fill up in the case where a
+producer is almost as fast as the output device.
 
-Daniel K.
+The problem is that this depends on several things:
+1. How much more memory is there (varies a lot, but
+    the kernel knows this one.)
+2. How fast is the output device (varies a lot, different
+    areas on a disk have different speed.  Different
+    disks have different speed.  The speed of nfs depends
+    on network speed, network congestion,
+    roundtrip time, server load, and server disk speed.
+    You probably cannot get good estimates for all cases,
+    particularly not nfs in a shared net.
+    To get this right we need both bandwith and latency.
+3. How fast is data produced?  A global estimate may
+    be possible, looking at how fast memory is dirtied.
+    I have no idea if such an estimate is possible per
+    block device.
+4. The big problem is that there may be several unrelated
+    processes dirtying memory to be written to several
+    very different block devices.
+    For this to work automatically we need a low estimate
+    for the bandwith for each block device/filesystem,
+    and memory dirying rate for each.
+
+
+This seems hard to solve automatically.  A specific
+case of a realtime program writing near disk speed is solvable
+by having an extra thread that issue a fsync whenever the
+amount of written but unsynced data gets near the point
+where the time necessary to write it is long enough
+to fill memory with the same rate of producing data.
+Of course one wants a substantial safety margin here,
+perhaps an assumption that only one third or so of memory
+actually will be available for caching the important stuff.
+
+A manual solution is possible if we can have two "knobs"
+for this:
+1. Treshold for when to start writing out stuff
+2. Treshold for when to throttle processes.
+
+The latter may or may not be necessary, the point is that the former
+should kick in long before throttling is necessary.
+
+This is usually expressed as how many % of memory that is dirty, but
+I'm not sure that is the right thing.  It assumes that 100% will be
+available after cleaning, which may be way off.
+
+Something like % of memory that is still available (free,
+or instantly freeable by reclaiming clean unpinned cache)
+
+Helge Hafting
 
 
 
---- linux-2.4.21-pre6.vanilla/drivers/char/sonypi.c	2003-03-29 17:27:22.000000000 +0000
-+++ linux-2.4.21-pre6/drivers/char/sonypi.c	2003-03-30 11:44:42.000000000 +0000
-@@ -531,7 +531,7 @@
-  			ret = -EFAULT;
-  		break;
-  	case SONYPI_IOCGBAT1REM:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT1_LEFT, &val16)) {
-  			ret = -EIO;
-  			break;
-  		}
-@@ -539,7 +539,7 @@
-  			ret = -EFAULT;
-  		break;
-  	case SONYPI_IOCGBAT2CAP:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT2_FULL, &val16)) {
-  			ret = -EIO;
-  			break;
-  		}
-@@ -547,7 +547,7 @@
-  			ret = -EFAULT;
-  		break;
-  	case SONYPI_IOCGBAT2REM:
--		if (ec_read16(SONYPI_BAT1_FULL, &val16)) {
-+		if (ec_read16(SONYPI_BAT2_LEFT, &val16)) {
-  			ret = -EIO;
-  			break;
-  		}
 

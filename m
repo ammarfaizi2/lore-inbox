@@ -1,154 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbTICIHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 04:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbTICIFY
+	id S261663AbTICIHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 04:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbTICIGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 04:05:24 -0400
-Received: from dp.samba.org ([66.70.73.150]:37281 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261606AbTICIEo (ORCPT
+	Wed, 3 Sep 2003 04:06:06 -0400
+Received: from dp.samba.org ([66.70.73.150]:39073 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261613AbTICIEp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 04:04:44 -0400
+	Wed, 3 Sep 2003 04:04:45 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com, akpm@zip.com.au
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       Dag Brattli <dagb@cs.uit.no>, Maxim Krasnyansky <maxk@qualcomm.com>,
-       Paul Fulghum <paulkf@microgate.com>, Vojtech Pavlik <vojtech@ucw.cz>,
-       Andreas =?ISO-8859-1?Q?=20K=F6nsgen?= <ajk@ccac.rwth-aachen.de>
-Subject: [PATCH] MODULE_ALIAS for tty ldisc
-Date: Wed, 03 Sep 2003 18:01:47 +1000
-Message-Id: <20030903080444.65FEB2C07D@lists.samba.org>
+To: Jean Tourrilhes <jt@bougret.hpl.hp.com>, irda-users@lists.sourceforge.net
+Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: [PATCH] MODULE_ALIAS for IRDA dongles
+Date: Wed, 03 Sep 2003 17:49:36 +1000
+Message-Id: <20030903080444.6FE6B2C085@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Rather than hardcoded names in modprobe, modules can offer their own
-aliases (which can be overridden by the config file).
+aliases (which are overridden by config files).
 
-Here are the tty-ldisc ones.
+Here are the IRDA dongle ones.
 
-Name: Module Aliases Inside Modules: Line Disciplines
+Please apply,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+Name: Module Aliases Inside Modules: IRDA
 Author: Rusty Russell
 Status: Trivial
 
-D: MODULE_ALIAS() macros for line disciplines.
+D: MODULE_ALIAS() macros for IRDA.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/include/asm-i386/termios.h working-2.6.0-test4-bk4-miscmod/include/asm-i386/termios.h
---- linux-2.6.0-test4-bk4/include/asm-i386/termios.h	2001-06-12 12:15:27.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/include/asm-i386/termios.h	2003-09-03 15:11:07.000000000 +1000
-@@ -58,6 +58,7 @@ struct termio {
- #define N_HCI		15  /* Bluetooth HCI UART */
- 
- #ifdef __KERNEL__
-+#include <linux/module.h>
- 
- /*	intr=^C		quit=^\		erase=del	kill=^U
- 	eof=^D		vtime=\0	vmin=\1		sxtc=\0
-@@ -101,6 +102,8 @@ struct termio {
- #define user_termios_to_kernel_termios(k, u) copy_from_user(k, u, sizeof(struct termios))
- #define kernel_termios_to_user_termios(u, k) copy_to_user(u, k, sizeof(struct termios))
- 
-+#define MODULE_ALIAS_LDISC(ldisc) \
-+	MODULE_ALIAS("tty-ldisc-" __stringify(ldisc))
- #endif	/* __KERNEL__ */
- 
- #endif	/* _I386_TERMIOS_H */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/bluetooth/hci_ldisc.c working-2.6.0-test4-bk4-miscmod/drivers/bluetooth/hci_ldisc.c
---- linux-2.6.0-test4-bk4/drivers/bluetooth/hci_ldisc.c	2003-05-27 15:02:07.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/bluetooth/hci_ldisc.c	2003-09-03 15:25:06.000000000 +1000
-@@ -574,3 +574,4 @@ module_exit(hci_uart_cleanup);
- MODULE_AUTHOR("Maxim Krasnyansky <maxk@qualcomm.com>");
- MODULE_DESCRIPTION("Bluetooth HCI UART driver ver " VERSION);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/act200l.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/act200l.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/act200l.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/act200l.c	2003-09-03 17:07:21.000000000 +1000
+@@ -280,6 +280,7 @@ static int act200l_reset(struct irda_tas
+ MODULE_AUTHOR("SHIMIZU Takuya <tshimizu@ga2.so-net.ne.jp>");
+ MODULE_DESCRIPTION("ACTiSYS ACT-IR200L dongle driver");
  MODULE_LICENSE("GPL");
-+MODULE_ALIAS_LDISC(N_HCI);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/char/n_hdlc.c working-2.6.0-test4-bk4-miscmod/drivers/char/n_hdlc.c
---- linux-2.6.0-test4-bk4/drivers/char/n_hdlc.c	2003-09-03 09:55:14.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/char/n_hdlc.c	2003-09-03 15:22:26.000000000 +1000
-@@ -982,3 +982,4 @@ MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Paul Fulghum paulkf@microgate.com");
- MODULE_PARM(debuglevel, "i");
- MODULE_PARM(maxframe, "i");
-+MODULE_ALIAS_LDISC(N_HDLC);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/char/n_r3964.c working-2.6.0-test4-bk4-miscmod/drivers/char/n_r3964.c
---- linux-2.6.0-test4-bk4/drivers/char/n_r3964.c	2003-08-12 06:57:41.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/char/n_r3964.c	2003-09-03 15:27:57.000000000 +1000
-@@ -1428,4 +1428,4 @@ static int r3964_receive_room(struct tty
- 
- 
- MODULE_LICENSE("GPL");
--
-+MODULE_ALIAS_LDISC(N_R3964);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/input/serio/serport.c working-2.6.0-test4-bk4-miscmod/drivers/input/serio/serport.c
---- linux-2.6.0-test4-bk4/drivers/input/serio/serport.c	2003-05-05 12:37:00.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/input/serio/serport.c	2003-09-03 15:28:17.000000000 +1000
-@@ -24,6 +24,7 @@
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Input device TTY line discipline");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS_LDISC(N_MOUSE);
- 
- #define SERPORT_BUSY	1
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/net/hamradio/6pack.c working-2.6.0-test4-bk4-miscmod/drivers/net/hamradio/6pack.c
---- linux-2.6.0-test4-bk4/drivers/net/hamradio/6pack.c	2003-08-12 06:57:45.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/net/hamradio/6pack.c	2003-09-03 15:19:22.000000000 +1000
-@@ -1064,6 +1064,7 @@ static void decode_data(unsigned char in
- MODULE_AUTHOR("Andreas Könsgen <ajk@ccac.rwth-aachen.de>");
- MODULE_DESCRIPTION("6pack driver for AX.25");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS_LDISC(N_6PACK);
- 
- module_init(sixpack_init_driver);
- module_exit(sixpack_exit_driver);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/net/hamradio/mkiss.c working-2.6.0-test4-bk4-miscmod/drivers/net/hamradio/mkiss.c
---- linux-2.6.0-test4-bk4/drivers/net/hamradio/mkiss.c	2003-07-14 16:58:36.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/net/hamradio/mkiss.c	2003-09-03 15:14:58.000000000 +1000
-@@ -935,7 +935,7 @@ MODULE_DESCRIPTION("KISS driver for AX.2
- MODULE_PARM(ax25_maxdev, "i");
- MODULE_PARM_DESC(ax25_maxdev, "number of MKISS devices");
- MODULE_LICENSE("GPL");
--
-+MODULE_ALIAS_LDISC(N_AX25);
- module_init(mkiss_init_driver);
- module_exit(mkiss_exit_driver);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/net/irda/irtty-sir.c working-2.6.0-test4-bk4-miscmod/drivers/net/irda/irtty-sir.c
---- linux-2.6.0-test4-bk4/drivers/net/irda/irtty-sir.c	2003-07-11 09:54:45.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/net/irda/irtty-sir.c	2003-09-03 15:21:00.000000000 +1000
-@@ -651,5 +651,6 @@ module_exit(irtty_sir_cleanup);
- 
- MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
- MODULE_DESCRIPTION("IrDA TTY device driver");
-+MODULE_ALIAS_LDISC(N_IRDA);
- MODULE_LICENSE("GPL");
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/net/ppp_async.c working-2.6.0-test4-bk4-miscmod/drivers/net/ppp_async.c
---- linux-2.6.0-test4-bk4/drivers/net/ppp_async.c	2003-08-12 06:57:45.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/net/ppp_async.c	2003-09-03 15:12:52.000000000 +1000
-@@ -84,7 +84,7 @@ static int flag_time = HZ;
- MODULE_PARM(flag_time, "i");
- MODULE_PARM_DESC(flag_time, "ppp_async: interval between flagged packets (in clock ticks)");
- MODULE_LICENSE("GPL");
--
-+MODULE_ALIAS_LDISC(N_PPP);
++MODULE_ALIAS("irda-dongle-10"); /* IRDA_ACT200L_DONGLE */
  
  /*
-  * Prototypes.
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/net/ppp_synctty.c working-2.6.0-test4-bk4-miscmod/drivers/net/ppp_synctty.c
---- linux-2.6.0-test4-bk4/drivers/net/ppp_synctty.c	2003-05-27 15:02:11.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/net/ppp_synctty.c	2003-09-03 15:23:39.000000000 +1000
-@@ -759,3 +759,4 @@ ppp_sync_cleanup(void)
- module_init(ppp_sync_init);
- module_exit(ppp_sync_cleanup);
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/actisys-sir.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/actisys-sir.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/actisys-sir.c	2003-03-18 05:01:45.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/actisys-sir.c	2003-09-03 17:12:50.000000000 +1000
+@@ -235,6 +235,8 @@ static int actisys_reset(struct sir_dev 
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no> - Jean Tourrilhes <jt@hpl.hp.com>");
+ MODULE_DESCRIPTION("ACTiSYS IR-220L and IR-220L+ dongle driver");	
  MODULE_LICENSE("GPL");
-+MODULE_ALIAS_LDISC(N_SYNC_PPP);
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test4-bk4/drivers/net/slip.c working-2.6.0-test4-bk4-miscmod/drivers/net/slip.c
---- linux-2.6.0-test4-bk4/drivers/net/slip.c	2003-08-25 11:58:22.000000000 +1000
-+++ working-2.6.0-test4-bk4-miscmod/drivers/net/slip.c	2003-09-03 15:11:27.000000000 +1000
-@@ -1513,3 +1513,4 @@ out:
++MODULE_ALIAS("irda-dongle-2"); /* IRDA_ACTISYS_DONGLE */
++MODULE_ALIAS("irda-dongle-3"); /* IRDA_ACTISYS_PLUS_DONGLE */
  
- #endif
+ module_init(actisys_sir_init);
+ module_exit(actisys_sir_cleanup);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/actisys.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/actisys.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/actisys.c	2003-03-18 05:01:45.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/actisys.c	2003-09-03 17:08:10.000000000 +1000
+@@ -270,6 +270,8 @@ static int actisys_reset(struct irda_tas
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no> - Jean Tourrilhes <jt@hpl.hp.com>");
+ MODULE_DESCRIPTION("ACTiSYS IR-220L and IR-220L+ dongle driver");	
  MODULE_LICENSE("GPL");
-+MODULE_ALIAS_LDISC(N_SLIP);
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
++MODULE_ALIAS("irda-ongle-2"); /* IRDA_ACTISYS_DONGLE */
++MODULE_ALIAS("irda-dongle-3"); /* IRDA_ACTISYS_PLUS_DONGLE */
+ 
+ 		
+ /*
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/ep7211_ir.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/ep7211_ir.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/ep7211_ir.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/ep7211_ir.c	2003-09-03 17:08:57.000000000 +1000
+@@ -120,6 +120,7 @@ static void __exit ep7211_ir_cleanup(voi
+ MODULE_AUTHOR("Jon McClintock <jonm@bluemug.com>");
+ MODULE_DESCRIPTION("EP7211 I/R driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-8"); /* IRDA_EP7211_IR */
+ 		
+ module_init(ep7211_ir_init);
+ module_exit(ep7211_ir_cleanup);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/esi-sir.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/esi-sir.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/esi-sir.c	2003-01-02 12:34:05.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/esi-sir.c	2003-09-03 17:13:12.000000000 +1000
+@@ -139,6 +139,7 @@ static int esi_reset(struct sir_dev *dev
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("Extended Systems JetEye PC dongle driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-1"); /* IRDA_ESI_DONGLE */
+ 
+ module_init(esi_sir_init);
+ module_exit(esi_sir_cleanup);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/esi.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/esi.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/esi.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/esi.c	2003-09-03 17:06:17.000000000 +1000
+@@ -133,6 +133,7 @@ static int esi_reset(struct irda_task *t
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("Extended Systems JetEye PC dongle driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-1"); /* IRDA_ESI_DONGLE */
+ 
+ /*
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/girbil.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/girbil.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/girbil.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/girbil.c	2003-09-03 17:09:57.000000000 +1000
+@@ -232,7 +232,7 @@ static int girbil_reset(struct irda_task
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("Greenwich GIrBIL dongle driver");
+ MODULE_LICENSE("GPL");
+-
++MODULE_ALIAS("irda-dongle-4"); /* IRDA_GIRBIL_DONGLE */
+ 	
+ /*
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/litelink.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/litelink.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/litelink.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/litelink.c	2003-09-03 17:10:24.000000000 +1000
+@@ -164,7 +164,7 @@ static int litelink_reset(struct irda_ta
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("Parallax Litelink dongle driver");	
+ MODULE_LICENSE("GPL");
+-
++MODULE_ALIAS("irda-dongle-5"); /* IRDA_LITELINK_DONGLE */
+ 		
+ /*
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/ma600.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/ma600.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/ma600.c	2003-06-17 16:57:31.000000000 +1000
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/ma600.c	2003-09-03 17:10:46.000000000 +1000
+@@ -336,6 +336,7 @@ int ma600_reset(struct irda_task *task)
+ MODULE_AUTHOR("Leung <95Etwl@alumni.ee.ust.hk> http://www.engsvr.ust/~eetwl95");
+ MODULE_DESCRIPTION("MA600 dongle driver version 0.1");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-11"); /* IRDA_MA600_DONGLE */
+ 		
+ /*
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/mcp2120.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/mcp2120.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/mcp2120.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/mcp2120.c	2003-09-03 17:11:03.000000000 +1000
+@@ -223,7 +223,7 @@ static int mcp2120_reset(struct irda_tas
+ MODULE_AUTHOR("Felix Tang <tangf@eyetap.org>");
+ MODULE_DESCRIPTION("Microchip MCP2120");
+ MODULE_LICENSE("GPL");
+-
++MODULE_ALIAS("irda-dongle-9"); /* IRDA_MCP2120_DONGLE */
+ 	
+ /*
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/old_belkin.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/old_belkin.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/old_belkin.c	2003-07-14 16:58:36.000000000 +1000
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/old_belkin.c	2003-09-03 17:11:25.000000000 +1000
+@@ -149,7 +149,7 @@ static int old_belkin_reset(struct irda_
+ MODULE_AUTHOR("Jean Tourrilhes <jt@hpl.hp.com>");
+ MODULE_DESCRIPTION("Belkin (old) SmartBeam dongle driver");	
+ MODULE_LICENSE("GPL");
+-
++MODULE_ALIAS("irda-dongle-7"); /* IRDA_OLD_BELKIN_DONGLE */
+ 
+ /*
+  * Function init_module (void)
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/tekram-sir.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/tekram-sir.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/tekram-sir.c	2003-08-12 06:57:45.000000000 +1000
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/tekram-sir.c	2003-09-03 16:15:26.000000000 +1000
+@@ -242,6 +242,7 @@ static int tekram_reset(struct sir_dev *
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("Tekram IrMate IR-210B dongle driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-0"); /* IRDA_TEKRAM_DONGLE */
+ 		
+ module_init(tekram_sir_init);
+ module_exit(tekram_sir_cleanup);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .12950-linux-2.6.0-test4-bk4/drivers/net/irda/tekram.c .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/tekram.c
+--- .12950-linux-2.6.0-test4-bk4/drivers/net/irda/tekram.c	2003-02-07 19:16:15.000000000 +1100
++++ .12950-linux-2.6.0-test4-bk4.updated/drivers/net/irda/tekram.c	2003-09-03 16:13:23.000000000 +1000
+@@ -265,6 +265,7 @@ int tekram_reset(struct irda_task *task)
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");
+ MODULE_DESCRIPTION("Tekram IrMate IR-210B dongle driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("irda-dongle-0"); /* IRDA_TEKRAM_DONGLE */
+ 		
+ /*
+  * Function init_module (void)

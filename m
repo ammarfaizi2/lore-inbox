@@ -1,100 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272818AbRISKhv>; Wed, 19 Sep 2001 06:37:51 -0400
+	id <S273235AbRISLDS>; Wed, 19 Sep 2001 07:03:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273235AbRISKhl>; Wed, 19 Sep 2001 06:37:41 -0400
-Received: from cmail.ru ([195.2.82.126]:30732 "EHLO cmail.ru")
-	by vger.kernel.org with ESMTP id <S272818AbRISKhb>;
-	Wed, 19 Sep 2001 06:37:31 -0400
-Date: Wed, 19 Sep 2001 14:36:10 +0400
-Message-Id: <200109191036.f8JAa9J20856@cmail.ru>
+	id <S274031AbRISLDI>; Wed, 19 Sep 2001 07:03:08 -0400
+Received: from gateway-2.hyperlink.com ([213.52.152.2]:51986 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S273235AbRISLC7>; Wed, 19 Sep 2001 07:02:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Martin Brooks <martin@jtrix.com>
+Reply-To: martin@jtrix.com
+Organization: Jtrix Ltd 
 To: linux-kernel@vger.kernel.org
-From: "Andrew V. Samoilov" <kai@cmail.ru>
-Reply-to: "Andrew V. Samoilov" <kai@cmail.ru>
-X-Mailer: Perl Mail::Sender 0.7.04 Jan Krynicky  http://jenda.krynicky.cz/
+Subject: 2.4.10pre11 build problem
+Date: Wed, 19 Sep 2001 12:03:22 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-type: text/plain; charset="koi8-r"
-Subject: mmap successed but SIGBUS generated on access
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15jf8d-0002Pr-00@obelix.intranet.hyperlink.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi
 
-I have bad CD-R with a some number of unreadable files.
+I get this error:
 
-Then user-space program use mmap system it returns ok but any
-attempt to access a memory pointed by this system call finishes 
-with SIGBUS. So Midnight Commander internal file viewer faults.
-
-This error is 100 % reproduceable at 2.2.19 and 2.4.2 kernels.
-
-Is there any way to detect such problem in user-space without signal handlers ?
-
-Lines from /var/log/messages:
-
-Sep 19 12:20:05 sav kernel: attempt to access beyond end of device
-Sep 19 12:20:05 sav kernel: 16:00: rw=0, want=657860, limit=386954
-Sep 19 12:20:05 sav kernel: dev 16:00 blksize=2048 blocknr=328929 sector=1315716 size=2048 
-count=1
-
-Test program:
-
-#include <stdio.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <errno.h>
-
-int main (int argc, char ** argv) {
-    int fd;
-    struct stat st;
-    void * p;
-    while (--argc) {
-	argv++;
-	if (stat (*argv, &st)) {
-	    fprintf (stderr, "stat (%s) -- %s\n", *argv, strerror (errno));
-	    continue;
-	}
-	if ((fd = open (*argv, O_RDONLY)) == -1) {
-	    fprintf (stderr, "open (%s) -- %s\n", *argv, strerror (errno));
-	    continue;
-	}
-	fprintf (stderr, "mmap (%d) called...\n", st.st_size);
-	if ((p = mmap (0, st.st_size, PROT_READ, MAP_SHARED, fd, 0)) == (void*) -1) {
-	    fprintf (stderr, "mmap (%s) -- %s\n", *argv, strerror (errno));
-	    close (fd);
-	    continue;
-	}
-	fputs ("mmap done...\n", stderr);
-	write (2, p, st.st_size);
-	fputs ("munmap called...\n", stderr);
-	if (munmap (p, st.st_size) == -1) {
-	    fprintf (stderr, "munmap (%s) -- %s\n", *argv, strerror (errno));
-	}
-	fputs ("munmap done...\n", stderr);
-	close (fd);
-    }
-}
-
-This program output:
-
-mmap (8) called...
-mmap done...
-Bus error
+mm/mm.o(.text+0x8202): undefined reference to `__builtin_expect'
+mm/mm.o(.text+0x821f): undefined reference to `__builtin_expect'
+mm/mm.o(.text+0x8272): undefined reference to `__builtin_expect'
+mm/mm.o: In function `kmalloc':
+mm/mm.o(.text+0x8332): undefined reference to `__builtin_expect'
+mm/mm.o(.text+0x834f): undefined reference to `__builtin_expect'
+mm/mm.o(.text+0x83a2): more undefined references to `__builtin_expect' follow
+make: *** [vmlinux] Error 1
 
 
---
-Regards,
-Andrew.
+unhygienix:/usr/src/linux# gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
+gcc version 2.95.4 20010902 (Debian prerelease)
 
-____________________________________________
+I'm not on the list, please CC any reply.
 
-Играй в шахматы в Интернет на InstantChess.com! 
+Regards
+-- 
 
-Play chess on InstantChess.com !
+Martin A. Brooks,  Systems Administrator
+------------------------------------------------
+Jtrix Ltd		t: +44 207 395 4990
+57-59 Neal Street	f: +44 207 395 4991
+Covent Garden		e: martin@jtrix.org
+London WC2H 9PJ		w: http://www.jtrix.org
 
-www.instantchess.com
-
-
+Running Windows: while (problem){ reboot; last if
+Upgrade||ServicePack||MassivelyPublicisedExploit;} restart;

@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317365AbSHQQwn>; Sat, 17 Aug 2002 12:52:43 -0400
+	id <S317378AbSHQQzv>; Sat, 17 Aug 2002 12:55:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317371AbSHQQwn>; Sat, 17 Aug 2002 12:52:43 -0400
-Received: from waste.org ([209.173.204.2]:20155 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S317365AbSHQQwm>;
-	Sat, 17 Aug 2002 12:52:42 -0400
-Date: Sat, 17 Aug 2002 11:56:40 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: Problem with random.c and PPC
-Message-ID: <20020817165640.GB21829@waste.org>
-References: <80256C17.00376E92.00@notesmta.eur.3com.com> <20020816195254.GL5418@waste.org> <200208161751.35895.henrique@cyclades.com> <20020817004520.GN5418@waste.org> <20020817060507.GM9642@clusterfs.com> <20020817072310.GQ5418@waste.org> <20020817090950.GN9642@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020817090950.GN9642@clusterfs.com>
-User-Agent: Mutt/1.3.28i
+	id <S317380AbSHQQzv>; Sat, 17 Aug 2002 12:55:51 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35856 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317378AbSHQQzu>; Sat, 17 Aug 2002 12:55:50 -0400
+Date: Sat, 17 Aug 2002 10:02:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Pavel Machek <pavel@elf.ucw.cz>, <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>
+Subject: Re: aio-core why not using SuS? [Re: [rfc] aio-core for 2.5.29 (Re:
+ async-io API registration for 2.5.29)]
+In-Reply-To: <2159880183.1029535922@[10.10.2.3]>
+Message-ID: <Pine.LNX.4.44.0208170953190.3062-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 17, 2002 at 03:09:50AM -0600, Andreas Dilger wrote:
-> > 
-> > Not sure this is an ideal fix. We might instead have an entropy
-> > low-water mark (say 1/2 pool size), below which /dev/urandom will not
-> > deplete the pool. This way when we have ample entropy, both devices
-> > will behave like TRNGs, with /dev/urandom falling back to PRNG when a
-> > shortage is threatened.
+
+On Fri, 16 Aug 2002, Martin J. Bligh wrote:
 > 
-> Well, I can think of a few mechanisms that would work better than a
-> simple on/off method that you are proposing.  The current code will
-> basically "fill" the urandom pool each time it is depleted, and then
-> when the entropy is gone it will just go on dumping out data.  You
-> could make urandom only get more entropy each N times through its pool,
-> or make N a function of the "fullness" of the available entropy.  Then
-> if a system has lots of entropy sources urandom is TRNG, but if not
-> it will gracefully degrade from TRNG to PRNG without wiping out all
-> the entropy in the process.
-> 
-> As an alternative, instead of taking poolsize bytes of entropy each
-> N uses, you could take some small amount of entropy to mix into the
-> pool slowly.
+> I don't see why the area above PAGE_OFFSET has to be global, or per
+> VM (by which I'm assuming you're meaning the set of pagetables per
+> process, aka group of tasks sharing an mm). 
 
-Actually, that gives us exactly the scenario catastrophic reseeding
-intends to avoid. Presume for a moment that the internal state of the
-PRNG is somehow known to an attacker - the PRNG has been broken. If we
-take eight bits out of the entropy pool, mix them in, then generate a
-new random number, an attacker needs to only test 256 possible pool
-states before he knows the entire state again. If he keeps up this
-state extension attack, /dev/urandom will never return to an unknown
-state. If, on the other hand, /dev/urandom waits until there are, say,
-64 entropy bits to mix in, it can make a leap to a state that the
-attacker will have a very hard time guessing and the PRNG has
-recovered.
+Basic issue: if the VM's aren't _identical_ (in every way, including the 
+kernel one), they cannot share the page tables in an SMP environment with 
+two threads running on two CPU's at the same time.
 
-We merely need to avoid starvation of /dev/random, and I think a
-straightforward low watermark approach will do that nicely. Starving
-/dev/urandom is no worse than feeding it a trickle. 
+And once you cannot share the page tables, you're screwed. 
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+> Assume 3 level page tables and a 3/1 user/kernel split for the sake 
+> of argument.
+
+No, no, that's the wrong way to go about it. You have to show a _portable_ 
+way to do it, not a "if I assume this, I can do it".
+
+For example, on x86 with the regular 2-level page tables, if you want to 
+have different kernel mappings, you have to copy the page directory 
+per-CPU, and then on task switch you have to change the PGD appropriately.
+
+Which, btw, means that you have to invalidate the TLB for that CPU, even
+if you would otherwise not have needed to. Look at how the lazy TLB
+switching works, and realize that two threads can _switch_ CPU's as things
+stand now, without ever a single TLB invalidate happening. They can take 
+over the TLB of the other thread when they move to another CPU. You'd 
+break that, horribly and fundamentally.
+
+So to make this work, you'd have to have:
+ - architecture-specific hacks
+ - realize that not all architectures can do it at all, so the places that 
+   depend on this would have to have some abstraction that makes it go 
+   away when not needed.
+ - fix up lazy TLB switching (conditionally on the hack).
+
+It just sounds really messy to me.
+
+		Linus
+

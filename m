@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRHMTw4>; Mon, 13 Aug 2001 15:52:56 -0400
+	id <S266377AbRHMUCi>; Mon, 13 Aug 2001 16:02:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267018AbRHMTwq>; Mon, 13 Aug 2001 15:52:46 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:1544 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S265249AbRHMTwh>; Mon, 13 Aug 2001 15:52:37 -0400
-Date: Mon, 13 Aug 2001 15:52:37 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
-In-Reply-To: <E15WLxI-0007tC-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0108131550470.3127-100000@terbidium.openservices.net>
+	id <S266696AbRHMUC1>; Mon, 13 Aug 2001 16:02:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:21634 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266377AbRHMUCO>; Mon, 13 Aug 2001 16:02:14 -0400
+Date: Mon, 13 Aug 2001 16:02:06 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Mircea Ciocan <mirceac@interplus.ro>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Is there something that can be done against this ???
+In-Reply-To: <3B7822E5.9AE35D4A@interplus.ro>
+Message-ID: <Pine.LNX.3.95.1010813155456.3825A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Alan Cox wrote:
+On Mon, 13 Aug 2001, Mircea Ciocan wrote:
 
-> > On Mon, Aug 13, 2001, Peter J. Braam <braam@clusterfs.com> wrote:
-> > > I have a Logitech Internet USB keyboard, attached to an IBM TP T20.
-> > >
-> > > In the above system pressing Caps lock twice (i.e. switching capslock
-> > > off) freezes the system completely.
-> > >
-> > > The last system that didn't do so for me was Rosswell's kernel.
-> > > Does anyone know about this?  Thanks a lot!
-> >
-> > Rosswell?
->
-> Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
-> in the USB and input updates in -ac
+> 	The attached piece of script kiddie shit is the first one that worked
+> flawlessly on my Mandrake box :((( ( kernel 2.4.7ac2, glibc-2.2.3 ),
+> instant root access !!!.
+> 	I was stunned, and it seem that is the beginning of a Linux Code Red
+> lookalike worm :(((( using that exploit, probably this is not the most
+> apropriate place to send this, but I'm not subscribed to the glibc
+> mailing list and I just hope that some glibc hackers are on linux kernel
+> list also and they see that and do something before we join the ranks of
+> M$.
+> 
+> 		Dead worried,
+> 
+> 		Mircea C.
+> 
 
-After extracting the kernel package, it looks like 2.4.6-ac5.
+It's a neat trick. It just replaces some 'C' runtime library functions
+with do-nothing functions that return success for the user. It could
+even replace file I/O stuff so the user changes directory, but what
+`ls` shows, never changes (or is blank). A nice preload object library
+could be created that could make a good April-fool joke. You've got
+about 1/2 year to work on it! Install it in /lib, and when you want
+to cause havoc, modify the target's ~/.bashrc file.
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

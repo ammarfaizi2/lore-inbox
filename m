@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286447AbSBCH6e>; Sun, 3 Feb 2002 02:58:34 -0500
+	id <S286462AbSBCIWq>; Sun, 3 Feb 2002 03:22:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286462AbSBCH6Y>; Sun, 3 Feb 2002 02:58:24 -0500
-Received: from relay1.pair.com ([209.68.1.20]:22035 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S286447AbSBCH6F>;
-	Sun, 3 Feb 2002 02:58:05 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C5CEEED.E98D35B7@kegel.com>
-Date: Sun, 03 Feb 2002 00:03:57 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vincent Sweeney <v.sweeney@barrysworld.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "coder-com@undernet.org" <coder-com@undernet.org>
-CC: "Kevin L. Mitchell" <klmitch@mit.edu>
-Subject: Re: PROBLEM: high system usage / poor SMP network performance
-In-Reply-To: <3C56E327.69F8B70F@kegel.com> <001901c1a900$e2bc7420$0201010a@frodo> <3C58D50B.FD44524F@kegel.com> <001d01c1aa8e$2e067e60$0201010a@frodo>
+	id <S286521AbSBCIWg>; Sun, 3 Feb 2002 03:22:36 -0500
+Received: from fes.whowhere.com ([209.185.123.154]:5590 "HELO mailcity.com")
+	by vger.kernel.org with SMTP id <S286462AbSBCIWS>;
+	Sun, 3 Feb 2002 03:22:18 -0500
+To: linux-kernel@vger.kernel.org
+Date: Sun, 03 Feb 2002 13:52:08 +0530
+From: "Alpha Beta" <abbashake007@lycos.com>
+Message-ID: <BNBIFONAELMBOAAA@mailcity.com>
+Mime-Version: 1.0
+Content-Language: en
+Reply-To: abbashake007@lycos.com
+X-Sent-Mail: off
+X-Mailer: MailCity Service
+Subject: Qn: kernel_thread() and init
+X-Priority: 3
+X-Sender-Ip: 203.197.98.3
+Organization: Lycos Mail  (http://mail.lycos.com:80)
 Content-Type: text/plain; charset=us-ascii
+Content-Language: en
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vincent Sweeney wrote:
-> > > [I want to use Linux for my irc server, but performance sucks.]
-> > >     1) Someone is going to have to recode the ircd source we use and
-> > > possibly a modified kernel in the *hope* that performance improves.
-> > >     2) Convert the box to FreeBSD which seems to have a better poll()
-> > > implementation, and where I could support 8K clients easily as other
-> > > admins on my chat network do already....
-> >
-> > No need to use a modified kernel; plain old 2.4.18 or so should do
-> > fine, it supports the rtsig stuff.  But yeah, you may want to
-> > see if the core of ircd can be recoded.  Can you give me the URL
-> > for the source of the version you use?  I can peek at it.
-> > It only took me two days to recode betaftpd to use Poller...
-> 
-> http://dev-com.b2irc.net/ : Undernet's IRCD + Lain 1.1.2 patch
+In the code of 
+int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+in arch/i386/kernel/process.c
 
-Hmm.  Have a look at
-http://www.mail-archive.com/coder-com@undernet.org/msg00060.html
-It looks like the mainline Undernet ircd was rewritten around May 2001
-to support high efficiency techniques like /dev/poll and kqueue.
-The source you pointed to is way behind Undernet's current sources.
+as can be seen in the code here, a system call is made by trigerring the 0x80 interrupt.
+this function kernel_thread() is used to launch the init process during booting by
+start_kernel()	//in init/main.c
+But at that time, the process 0 which calls kernel_thread is executing in Kernel mode, so why should some process in kernel mode make a system call??
 
-Undernet's ircd has engine_{select,poll,devpoll,kqueue}.c, 
-but not yet an engine_rtsig.c, as far as I know.
-If you want ircd to handle zillions of simultaneous connections
-on a stock 2.4 Linux kernel, rtsignals are the way to go at the
-moment.  What's needed is to write ircd's engine_rtsig.c, and 
-modify ircd's os_linux.c to notice EWOULDBLOCK
-return values and feed them to engine_rtsig.c (that's the icky
-part about the way linux currently does this kind of event 
-notification - signals are used for 'I'm ready now', but return
-values from I/O functions are where you learn 'I'm no longer ready').
 
-So I dunno if I'm going to go ahead and do that myself, but at least I've
-scoped out the situation.  Before I did any work, I'd measure CPU
-usage under a simulated load of 2000 clients, just to verify that
-poll() was indeed a bottleneck (ok, can't imagine it not being a
-bottleneck, but it's nice to have a baseline to compare the improved
-version against).
-- Dan
+ANOTHER BIG DOUBT IS THAT process 0 executes in Kernel mode, it then creates the init process ( process 1)- this process according to BACH ends up running in User mode while process 0 runs in kernel mode.
+so why should then we have a kernel thread invoked for init when it is to run in User mode ??
+
+
+
+
+int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+{
+	long retval, d0;
+
+	__asm__ __volatile__(
+		"movl %%esp,%%esi\n\t"
+		"int $0x80\n\t"		/* Linux/i386 system call */
+		"cmpl %%esp,%%esi\n\t"	/* child or parent? */
+		"je 1f\n\t"		/* parent - jump */
+		/* Load the argument into eax, and push it.  That way, it does
+		 * not matter whether the called function is compiled with
+		 * -mregparm or not.  */
+		"movl %4,%%eax\n\t"
+		"pushl %%eax\n\t"		
+		"call *%5\n\t"		/* call fn */
+		"movl %3,%0\n\t"	/* exit */
+		"int $0x80\n"
+		"1:\t"
+		:"=&a" (retval), "=&S" (d0)
+		:"0" (__NR_clone), "i" (__NR_exit),
+		 "r" (arg), "r" (fn),
+		 "b" (flags | CLONE_VM)
+		: "memory");
+	return retval;
+}
+
+
+

@@ -1,76 +1,144 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130878AbQKNJGb>; Tue, 14 Nov 2000 04:06:31 -0500
+	id <S129060AbQKNJIb>; Tue, 14 Nov 2000 04:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130880AbQKNJGW>; Tue, 14 Nov 2000 04:06:22 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:25351 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S130878AbQKNJGG>; Tue, 14 Nov 2000 04:06:06 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27095@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'LKML'" <linux-kernel@vger.kernel.org>
-Cc: "'LNML'" <linux-net@vger.kernel.org>
-Subject: Q: using kdb to trap memory modifications
-Date: Tue, 14 Nov 2000 00:35:48 -0800
+	id <S129061AbQKNJIV>; Tue, 14 Nov 2000 04:08:21 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:33810 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129060AbQKNJIK>; Tue, 14 Nov 2000 04:08:10 -0500
+Message-Id: <200011140838.eAE8c3s01351@wattle.linuxcare.com.au>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [DOCO PATCH] Directory notifications
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <1348.974191083.1@linuxcare.com.au>
+Date: Tue, 14 Nov 2000 19:38:03 +1100
+From: Stephen Rothwell <sfr@linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+Hi Linus,
 
-I'm trying to see when and how a certain variable is being modified and I
-wonder how to get kdb to do that for me.
+This patch just adds some documentation about directory
+notifications.
 
-when I do 'insmod my_module' with my network driver, I noticed that
-dev->refcnt is 0 at first and gets increased to 1 after calling
-register_netdev. When I want to do 'rmmod my_module' somehow dev->refcnt is
-at 2 before the call to unregister_netdev and so the kernel (2.4.0-test9)
-won't let the module to unload. Since I don't increase it explicitly, I want
-to know who does it for me and when to see if I'm doing anything wrong.
+Cheers,
+Stephen
+-- 
+Stephen Rothwell, Open Source Researcher, Linuxcare, Inc.
++61-2-62628990 tel, +61-2-62628991 fax 
+sfr@linuxcare.com, http://www.linuxcare.com/ 
+Linuxcare. Support for the revolution.
 
-So, I modified my module to contain in the global section:
-	static void* ptr;
-	EXPORT_SYMBOL(ptr);
-
-and in my module_init function I added:
-
-	ptr = (void*) &dev->refcnt;
-
-after running 'insmod my_module' I used ksyms and found that ptr is at
-address 0xd081eeb4.
-
-after entering kdb, I did:
-
-	kdb> md 0xd081eeb4
-
-	0xd081eeb4  c470bedc  00000000  00000000  00000000
-	0xd081eec4  00000000  00000000  00000000  00000000
-	.
-	.
-
-	kdb> bph 0xc470bedc
-	Forced Breakpoint at.... #0 ...
-
-	kdb> be 0
-	kdb> go
-
-When I try to return to normal shell, the system is totally hung and won't
-even receive inputs from the remote serial terminal.
-I tried bp, bpa and bpha, but the result is always the same.
-
-
-	Thanks,
-	Shmulik Hen
-      	Software Engineer
-	Linux Advanced Networking Services
-	Network Communications Group, Israel (NCGj)
-	Intel Corporation Ltd.
-
-
-
+diff -ruN 2.4.0-test11pre4/Documentation/00-INDEX 2.4.0-test11pre4-dnot/Documentation/00-INDEX
+--- 2.4.0-test11pre4/Documentation/00-INDEX	Wed Feb  9 06:28:31 2000
++++ 2.4.0-test11pre4-dnot/Documentation/00-INDEX	Mon Nov 13 22:01:52 2000
+@@ -43,6 +43,8 @@
+ 	- info on the Digiboard PC/X{i,e,eve} multiport boards.
+ digiepca.txt
+ 	- info on Digi Intl. {PC,PCI,EISA}Xx and Xem series cards.
++dnotify.txt
++	- info about directory notification in Linux.
+ exception.txt
+ 	- how Linux v2.2 handles exceptions without verify_area etc.
+ fb/
+diff -ruN 2.4.0-test11pre4/Documentation/dnotify.txt 2.4.0-test11pre4-dnot/Documentation/dnotify.txt
+--- 2.4.0-test11pre4/Documentation/dnotify.txt	Thu Jan  1 10:00:00 1970
++++ 2.4.0-test11pre4-dnot/Documentation/dnotify.txt	Tue Nov 14 19:36:17 2000
+@@ -0,0 +1,92 @@
++		Linux Directory Notification
++		============================
++
++	   Stephen Rothwell <sfr@linuxcare.com.au>
++
++The intention of directory notification is to allow user applications
++to be notified when a directory, or any of the files in it, are changed.
++The basic mechanism involves the application registering for notification
++on a directory using a fcntl(2) call and the notifications themselves
++being delivered using signals.
++
++The application decides which "events" it wants to be notified about.
++The currently defined events are:
++
++	DN_ACCESS	A file in the directory was accessed (read)
++	DN_MODIFY	A file in the directory was modified (write,truncate)
++	DN_CREATE	A file was created in the directory
++	DN_DELETE	A file was unlinked from directory
++	DN_RENAME	A file in the directory was renamed
++	DN_ATTRIB	A file in the directory had its attributes
++			changed (chmod,chown)
++
++Usually, the application must reregister after each notification, but
++if DN_MULTISHOT is or'ed with the event mask, then the registration will
++remain until explicitly removed (by registering for no events).
++
++By default, SIGIO will be delivered to the process and no other useful
++information.  However, if the F_SETSIG fcntl(2) call is used to let the
++kernel know which signal to deliver, a siginfo structure will be passed to
++the signal handler and the si_fd member of that structure will contain the
++file descriptor associated with the direcory in which the event occured.
++
++Preferably the application will choose one of the real time signals
++(SIGRTMIN + <n>) so that the notifications may be queued.  This is
++especially important if DN_MULTISHOT is specified.
++
++Implementation expectations (features and bugs :-))
++---------------------------
++
++The notification should work for any local access to files even if the
++actual file system is on a remote server.  This implies that remote
++access to files served by local user mode servers should be notified.
++Also, remote accesses to files served by a local kernel NFS server should
++be notified.
++
++In order to make the impact on the file system code as small as possible,
++the problem of hard links to files has been ignored.  So if a file (x)
++exists in two directories (a and b) then a change to the file using the
++name "a/x" should be notified to a program expecting notifications on
++directory "a", but will not be notified to one expecting notifications on
++directory "b".
++
++Also, files that are unlinked, will still cause notifications in the
++last directory that they were linked to.
++
++Example
++-------
++
++	#define _GNU_SOURCE	/* needed to get the defines */
++	#include <fcntl.h>	/* in glibc 2.2 this has the needed
++					   values defined */
++	#include <signal.h>
++	#include <stdio.h>
++	#include <unistd.h>
++	
++	static volatile int event_fd;
++	
++	static void handler(int sig, siginfo_t *si, void *data)
++	{
++		event_fd = si->si_fd;
++	}
++	
++	int main(void)
++	{
++		struct sigaction act;
++		int fd;
++		
++		act.sa_sigaction = handler;
++		sigemptyset(&act.sa_mask);
++		act.sa_flags = SA_SIGINFO;
++		sigaction(SIGRTMIN, &act, NULL);
++		
++		fd = open(".", O_RDONLY);
++		fcntl(fd, F_SETSIG, SIGRTMIN);
++		fcntl(fd, F_NOTIFY, DN_MODIFY|DN_CREATE|DN_MULTISHOT);
++		/* we will now be notified if any of the files
++		   in "." is modified or new files are created */
++		while (1) {
++			pause();
++			printf("Got event on fd=%d\n", event_fd);
++		}
++	}
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

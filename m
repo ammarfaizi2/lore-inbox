@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265413AbSK1K7T>; Thu, 28 Nov 2002 05:59:19 -0500
+	id <S265126AbSK1L1m>; Thu, 28 Nov 2002 06:27:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265414AbSK1K7T>; Thu, 28 Nov 2002 05:59:19 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:25474 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S265413AbSK1K7L>;
-	Thu, 28 Nov 2002 05:59:11 -0500
-Date: Thu, 28 Nov 2002 12:06:28 +0100
-From: KELEMEN Peter <fuji@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS performance ...
-Message-ID: <20021128110627.GD26875@chiara.elte.hu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200211241521.09981.m.c.p@wolk-project.de>
+	id <S265211AbSK1L1m>; Thu, 28 Nov 2002 06:27:42 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:21009 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S265126AbSK1L1l>;
+	Thu, 28 Nov 2002 06:27:41 -0500
+Date: Thu, 28 Nov 2002 14:34:03 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: john slee <indigoid@higherplane.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ressurection of VISWS support in 2.5-ac
+Message-ID: <20021128113403.GA319@pazke.ipt>
+Mail-Followup-To: john slee <indigoid@higherplane.net>,
+	linux-kernel@vger.kernel.org
+References: <20021127133809.GD401@pazke.ipt> <1038410268.6390.42.camel@irongate.swansea.linux.org.uk> <20021127150058.GA322@pazke.ipt> <20021127232044.GC7915@higherplane.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200211241521.09981.m.c.p@wolk-project.de>
+In-Reply-To: <20021127232044.GC7915@higherplane.net>
 User-Agent: Mutt/1.4i
-Organization: ELTE Eotvos Lorand University of Sciences, Budapest, Hungary
-X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
-X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
-X-PGP-KeyID: 1024/45F83E45 1998/04/04
-X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
-X-Comment: Personal opinion.  Paragraphs might have been reformatted.
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Accept-Language: hu,en
+X-Uname: Linux pazke 2.2.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marc-Christian Petersen (m.c.p@wolk-project.de) [20021124 15:23]:
 
-Marc, Andrea,
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I think Andrea and me have something in our kernels that may
-> cause it. For me I don't know what that can be. I even have no
-> idea what it can be :(
+On Thu, Nov 28, 2002 at 10:20:45AM +1100, john slee wrote:
+> > > > I'm proud to present updated VISWS support for 2.5.xx kernels.
+> > > Ok thats truely demented. Care to port ucLinux to the Amiga 500 next =
+8)
+> > 		  ^^^^^^^^
+> > 		  Hmm, why ? And what is Amiga 500 ?
+>=20
+> oh come on :P if you can't find that with google you have some pretty
+> serious issues :-)
 
-The culprit turned out to be an inherited CONFIG_NFS_DIRECTIO
-setting.  Having the client kernel (2.4.20rc2aa1) this option
-turned off, performance is stable 4 MB/sec (server hasn't
-changed).  This is almost twice as good as with 2.4.19-rmap14b.
+<OFFTOPIC>
 
-I understand the CONFIG_NFS_DIRECTIO warning in Configure.help,
-but why does it affect 1) client performance and 2) shouldn't it
-only matter for files opened with open(..., O_DIRECT)?
+Note .ru part of my email address, because of it i have no warm personal
+reminiscences about Amiga 500 and don't want to waste time googling it :))=
+=20
 
-> Peter, have you also tested v3 over tcp?
+</OFFTOPIC>
 
-No, for various administrative reasons.
+--=20
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
 
-Peter
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Kelemen Péter     /       \       /       \       /      fuji@elte.hu
-.+'         `+...+'         `+...+'         `+...+'         `+...+'
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE95f8rBm4rlNOo3YgRAjMtAJ4xqnCxS5YH8zbqjNz9KjKVL9t5hwCeIvAo
+ozsmYbaRymmbEl9aC3xvVR4=
+=nSWR
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

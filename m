@@ -1,21 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268254AbRGWPAF>; Mon, 23 Jul 2001 11:00:05 -0400
+	id <S268257AbRGWPG0>; Mon, 23 Jul 2001 11:06:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268256AbRGWO7z>; Mon, 23 Jul 2001 10:59:55 -0400
-Received: from polypc17.chem.rug.nl ([129.125.25.92]:30849 "EHLO
-	polypc17.chem.rug.nl") by vger.kernel.org with ESMTP
-	id <S268254AbRGWO7p>; Mon, 23 Jul 2001 10:59:45 -0400
-Date: Mon, 23 Jul 2001 16:59:50 +0200 (CEST)
-From: "J.R. de Jong" <jdejong@chem.rug.nl>
-To: linux-kernel@vger.kernel.org
-Subject: modules for VMware 2.0.4 for Linux do not compile for 2.4.7
-Message-ID: <Pine.LNX.4.21.0107231645130.2210-100000@polypc17.chem.rug.nl>
+	id <S268258AbRGWPGR>; Mon, 23 Jul 2001 11:06:17 -0400
+Received: from mailsorter.in.tmpw.net ([63.121.29.25]:39968 "EHLO
+	mailsorter1.in.tmpw.net") by vger.kernel.org with ESMTP
+	id <S268257AbRGWPGK>; Mon, 23 Jul 2001 11:06:10 -0400
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6DD0@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'J.R. de Jong'" <jdejong@chem.rug.nl>, linux-kernel@vger.kernel.org
+Subject: RE: modules for VMware 2.0.4 for Linux do not compile for 2.4.7
+Date: Mon, 23 Jul 2001 11:05:37 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
+
+Search the archive, This has been brought up already, I believe yesterday,
+and Petr Vandrovec posted a link to a fix.  Hope this helps.
+
+B.
+
+-----Original Message-----
+From: J.R. de Jong [mailto:jdejong@chem.rug.nl]
+Sent: Monday, July 23, 2001 11:00 AM
+To: linux-kernel@vger.kernel.org
+Subject: modules for VMware 2.0.4 for Linux do not compile for 2.4.7
+
 
 Hello,
 
@@ -98,3 +112,8 @@ Unable to build the vmmon module.
 
 Johan.
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

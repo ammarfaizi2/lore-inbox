@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135919AbRD3Vxm>; Mon, 30 Apr 2001 17:53:42 -0400
+	id <S136523AbRD3WF6>; Mon, 30 Apr 2001 18:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135920AbRD3Vxc>; Mon, 30 Apr 2001 17:53:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:129 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135919AbRD3VxX>;
-	Mon, 30 Apr 2001 17:53:23 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15085.57019.228317.281735@pizda.ninka.net>
-Date: Mon, 30 Apr 2001 14:52:59 -0700 (PDT)
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: Fabio Riccardi <fabio@chromium.com>, Ingo Molnar <mingo@elte.hu>,
-        <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <Pine.LNX.4.33.0104301444160.14436-100000@twinlark.arctic.org>
-In-Reply-To: <3AEDBEB8.449D88C3@chromium.com>
-	<Pine.LNX.4.33.0104301444160.14436-100000@twinlark.arctic.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S136524AbRD3WFt>; Mon, 30 Apr 2001 18:05:49 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:36766 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S136523AbRD3WFd>; Mon, 30 Apr 2001 18:05:33 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 30 Apr 2001 15:05:30 -0700
+Message-Id: <200104302205.PAA04835@adam.yggdrasil.com>
+To: chet@nike.ins.cwru.edu
+Subject: Re: Patch(?): bash-2.05/jobs.c loses interrupts
+Cc: bug-bash@gnu.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> 	Linux-2.4.4 has a change, for which I must accept blame,
+>> where fork() runs the child first, reducing unnecessary copy-on-write
+>> page duplications, because the child will usually promptly do an
+>> exec().  I understand this is pretty standard in most unixes.
+>> 
+>> 	Peter Osterlund noticed an annoying side effect of this,
+>> which I think is a bash bug.  He wrote:
+>> 
+>> > Another thing is that the bash loop "while true ; do /bin/true ; done" is
+>> > not possible to interrupt with ctrl-c.
+>> 
+>> 	I have reproduced this problem on a single CPU system.
+>> I also modified my kernel to sometimes run the fork child first
+>> and sometimes not.  In that case, that loop would sometimes
+>> abort on a control-C and sometimes ignore it, but ignoring it
+>> would not make the loop less likely to abort on another control-C.
+>> I'm pretty sure the control-C was being delivered only to the child
+>> due to a race condition in bash, which may be mandated by posix.
 
-dean gaudet writes:
- > On Sun, 29 Apr 2001, David S. Miller wrote:
- > 
- > > If you do the TCP_CORK thing, what you end up with is a scatter gather
- > > entry in the SKB for the header bits, then the page cache segments.
- > 
- > so then the NIC would be sent a 3 entry gather list -- 1 entry for TCP/IP
- > headers, 1 for HTTP headers, and 1 for the initial page cache segment?
+>Did you reconfigure and rebuild bash on your machine running the 2.4
+>kernel, or just use a bash binary built on a previous kernel version?
 
-Basically.  It's weird because we could change tcp_sendmsg() to grab a
-"little bit" of space in skb->data after the TCP headers area, but
-that would screw all the memory allocation advantages carving up pages
-gives us.
+>Bash has an autoconf test that will, if it detects the need to do so,
+>force the job control code to synchronize between parent and child
+>when setting up the process group for a new pipeline.  It may be the
+>case that you have to reconfigure and rebuild bash to enable that code.
 
-TCP used to be really rough on the memory subsystem, and in particular
-going to a page carving scheme helped a lot in this area.
+>Look for PGRP_PIPE in config.h.
 
- > are there any NICs which take only 2 entry lists?  (boo hiss and curses
- > on such things if they exist!)
+	Rebuilding bash from pristine 2.05 sources under such a kernel
+does *not* solve the problem.  PGRP_PIPE is undef'ed in the resulting
+config.h.
 
-Tulip I think falls into this category, I could be wrong.  It has two
-buffer pointers in the RX descriptor, but one might be able to chain
-them.
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-Alexey added SG support to Tulip at some point, and I can probably dig
-up the patch.  It doesn't do hw csumming, though.
-
-Later,
-David S. Miller
-davem@redhat.com

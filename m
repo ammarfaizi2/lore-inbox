@@ -1,85 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQKMPqA>; Mon, 13 Nov 2000 10:46:00 -0500
+	id <S129130AbQKMPrK>; Mon, 13 Nov 2000 10:47:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129130AbQKMPpv>; Mon, 13 Nov 2000 10:45:51 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:10370 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129103AbQKMPpg>; Mon, 13 Nov 2000 10:45:36 -0500
-Date: Mon, 13 Nov 2000 10:44:56 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: David Wragg <dpw@doc.ic.ac.uk>
-cc: David Schwartz <davids@webmaster.com>, tytso@mit.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: What protects f_pos?
-In-Reply-To: <y7rg0kv99rj.fsf@sytry.doc.ic.ac.uk>
-Message-ID: <Pine.LNX.3.95.1001113102742.3756A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129690AbQKMPrA>; Mon, 13 Nov 2000 10:47:00 -0500
+Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:63983 "EHLO
+	intech19.enhanced.com") by vger.kernel.org with ESMTP
+	id <S129130AbQKMPqt>; Mon, 13 Nov 2000 10:46:49 -0500
+To: jim@rubylane.com
+Cc: gadio@netvision.net.il, Alan.Cox@linux.org, linux-kernel@vger.kernel.org
+Subject: Re: IDE tape problem in 2.2.17 on Intel SMP
+In-Reply-To: <20001112164941.14930.qmail@london.rubylane.com>
+From: Camm Maguire <camm@enhanced.com>
+Date: 13 Nov 2000 10:46:11 -0500
+In-Reply-To: jim@rubylane.com's message of "Sun, 12 Nov 2000 08:49:41 -0800 (PST)"
+Message-ID: <54k8a7ub7g.fsf@intech19.enhanced.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Nov 2000, David Wragg wrote:
+Greetings!  You're not running the ide patches, are you?  We're
+running 2.2.17 with the patches, and have found that we must use the
+ide-scsi interface to get verifiable backups.  We still get apparently
+harmless error messages in the logs though.
 
-> "David Schwartz" <davids@webmaster.com> writes:
-[SNIPPED....]
+Here are our modules.conf entries:
 
+pre-install ide-scsi echo ide_scsi:1 > /proc/ide/hdc/settings 
+post-install ide-scsi echo using_dma:0 > /proc/ide/hdc/settings
+pre-install ide-tape echo ide_scsi:0 > /proc/ide/hdc/settings
+pre-install st /sbin/modprobe -k ide-scsi
 
+We then use /dev/nst0.
+
+I believe these sysctrl parameters are only available with the ide
+patches.  You might be able to replicate the functionality with module
+options if you're not using the patches.
+
+Take care,
+
+jim@rubylane.com writes:
+
+> I wrote on Nov 2nd about IDE tapes no longer working in 2.2.17.  The
+> write seems to work fine, but the verify pass causes read errors and
+> a tar abort.
 > 
-> So both threads read the same block, and f_pos only gets incremented
-> once.
+> I tried changing the priority of the tar process to higher than all
+> others (it was running as a very low priority job and I thought that
+> might be a contributing factor), but the higher priority did not help.
 > 
-> (Pipes and sockets are a different matter, of course.)
+> I tried restoring the last file from the tape.  One day it failed with
+> an "unexpected EOF" error, the next day it restored the file correctly
+> (even though we got the 12 read errors on the verify pass and tar
+> aborted).
 > 
-> 2.2 has the same issue, since although the BKL is held, it will get
-> dropped if one of the threads sleeps on I/O.  (Earlier Linux versions
-> might well have the same issue, but I don't have the source around to
-> check.)
+> My conclusion is that the tape write is working.  The drive has
+> hardware read after write verification, so I kinda thought this was
+> the case.  But IDE tape reads appear to be flakey on an active SMP
+> setup (Intel).  This problem started the day we switched from 2.2.16
+> to 2.2.17, without any other software or hardware changes.
 > 
-> POSIX doesn't seem to bar this behaviour.  From 6.4.1.2:
+> If I can be of any further help, let me know.
 > 
->     On a regular file or other file capable of seeking, read() shall
->     start at a position in the file given by the file offset
->     associated with fildes.  Before successful return from read(), the
->     file offset shall be incremented by the number of bytes actually
->     read.
+> Thanks,
+> Jim Wilcoxson
+> Owner, www.rubylane.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 > 
-> Which is exactly what Linux does.  I can't find text anywhere else in
-> POSIX.1 that strengthens that condition for the case of multiple
-> processes/threads reading from the same file.  I'll try to find out
-> what the Austin Group has to say about this.
 > 
 
-Anything that uses f_pos has a problem with multiple readers or multiple
-writers. That's one of the problems that file locking is supposed to
-handle. An application has got to know how to access a file when it can
-be changed by another.
-
-There is a more far-reaching problem that sooner or later will get us.
-That's the built-in problem with lseek. Lseek is supposed to return -1
-if it failed, with errno being set appropriately. This, in principle,
-does not prevent seeking to the last byte of the file as long as errno
-is checked by the caller if the function returns -1.
-
-Linux, internally, uses "-errno" as a return value to show an
-error. So what happens if we `lseek` to -EBADF or -EFAULT, etc.
-
-An otherwise empty lseek routine in a module, that does nothing except
-return the input value, will show errors once the offsets corresponding
-to negative errno values are reached.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- 
+Camm Maguire			     			camm@enhanced.com
+==========================================================================
+"The earth is but one country, and mankind its citizens."  --  Baha'u'llah
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263582AbTJ0Vhm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 16:37:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTJ0Vhl
+	id S263607AbTJ0VpY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 16:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbTJ0VpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 16:37:41 -0500
-Received: from [200.32.106.149] ([200.32.106.149]:61454 "EHLO superhijitus")
-	by vger.kernel.org with ESMTP id S263582AbTJ0Vhl (ORCPT
+	Mon, 27 Oct 2003 16:45:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6047 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263607AbTJ0VpX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 16:37:41 -0500
-Date: Mon, 27 Oct 2003 18:37:36 -0300
-To: linux-kernel@vger.kernel.org
-Subject: Computone Intelliport II EX and 2.4.22
-Message-ID: <20031027213736.GA2968@superhijitus.linux.org.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: diegows@linux.org.ar (Diego Woitasen (Lanux))
+	Mon, 27 Oct 2003 16:45:23 -0500
+Date: Mon, 27 Oct 2003 13:53:42 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: David Ford <david+powerix@blue-labs.org>
+cc: John Mock <kd6pag@qsl.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test9 suspend problems
+In-Reply-To: <3F9D875E.8020302@blue-labs.org>
+Message-ID: <Pine.LNX.4.44.0310271352560.13116-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Anybody knows any compatibility problems with Computone Intelliport II
-EX and Kernel 2.4.22?
+> Unfortunately I use USB mostly for my digital camera.  Losing sound is 
+> pretty annoying too because everything that tries to play sound then 
+> gets into D state as well.
 
-The drivers loads OK, but when i do a setserial and stty over a terminal
-the drivers freeze, and not respond anymore...
+That would most likely be due to your sound driver not supporting 
+suspend/reusme. Which sound driver are you using? 
 
-Diego Woitasen
-LANUX
+Thanks,
+
+
+	Pat
+

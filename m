@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275739AbRJFVJp>; Sat, 6 Oct 2001 17:09:45 -0400
+	id <S275743AbRJFVyF>; Sat, 6 Oct 2001 17:54:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275743AbRJFVJf>; Sat, 6 Oct 2001 17:09:35 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16913 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275739AbRJFVJ2>; Sat, 6 Oct 2001 17:09:28 -0400
-Subject: Re: %u-order allocation failed
-To: mikulas@artax.karlin.mff.cuni.cz
-Date: Sat, 6 Oct 2001 22:13:41 +0100 (BST)
-Cc: anton@samba.org (Anton Blanchard), riel@conectiva.com.br (Rik van Riel),
-        kszysiu@main.braxis.co.uk (Krzysztof Rusocki), linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1011006203014.7808A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Oct 06, 2001 09:07:31 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S275749AbRJFVx4>; Sat, 6 Oct 2001 17:53:56 -0400
+Received: from chmls05.mediaone.net ([24.147.1.143]:3839 "EHLO
+	chmls05.mediaone.net") by vger.kernel.org with ESMTP
+	id <S275743AbRJFVxv>; Sat, 6 Oct 2001 17:53:51 -0400
+Message-ID: <3BBF7C68.1090101@langhorst.com>
+Date: Sat, 06 Oct 2001 17:49:28 -0400
+From: Brad Langhorst <brad@langhorst.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010916
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: dual pdc20268(ultra100tx2) hangs kernel 2.4.9,10 on boot
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15pylR-0002LE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is perfectly OK to have a bit slower access to task_struct with
-> probability 1/1000000.
+I can boot with no trouble with only one of these cards in the system.
+If I insert the other card (no drives connected) the whole system hangs 
+leaving two white blocks on the screen.  This hang appears to occur as 
+soon as the kernel starts detecting hard disk controllers.  
 
-Except that you added a bug where some old driver code would crash the 
-machine by doing so.
+It is running on a PCChips  M810LR motherboard with an  SIS730 on board 
+ide controller.  
+AMD Duron 750
+192M 133MHz SDRAM
+The only identifying mark on the motherboard is on the heatsink of the 
+big IC.  It says TBird AMD K-7.
 
-> Yes, but there are still other dangerous usages of kmalloc and
-> __get_free_pages. (The most offending one is in select.c)
+The system was very stable with 3ware dual channel ata raid controller 
+(200 day uptimes)
+so I don't think it is a hardware problem.
 
-Nothing dangeorus there. The -ac vm isnt triggering these cases.
+I've tried both cards  - each works alone
 
-> not abort his operation when it happens. Instead - they are trying to make
-> high-order allocations fail less often :-/  How should random
-> Joe-driver-developer know, that kmalloc(4096) is safe and kmalloc(4097) is
-> not?
+Both cards have BIOS 2.10 build 23.
 
-4096 is not safe - there is no safe size for a kmalloc, you can always run
-out of memory - deal with it.
+I've tried compiling the kernel both with and without 
+CONFIG_PDC202XX_BURST set
+but this does not appear to have any effect.
 
-Alan
+The motherboard has and AMI bios dated 9/14/01
+
+
+Any suggestions are much appreciated
+
+

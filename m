@@ -1,78 +1,128 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275126AbRKDTln>; Sun, 4 Nov 2001 14:41:43 -0500
+	id <S274875AbRKDTpX>; Sun, 4 Nov 2001 14:45:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274875AbRKDTle>; Sun, 4 Nov 2001 14:41:34 -0500
-Received: from postfix1-2.free.fr ([213.228.0.130]:45228 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S275224AbRKDTlV> convert rfc822-to-8bit; Sun, 4 Nov 2001 14:41:21 -0500
-Date: Sun, 4 Nov 2001 17:56:21 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
-Subject: Re: SYM-2 patches against latest kernels available
-In-Reply-To: <20011104195145.J10022@suse.de>
-Message-ID: <20011104174948.I2222-100000@gerard>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S275224AbRKDTpO>; Sun, 4 Nov 2001 14:45:14 -0500
+Received: from unthought.net ([212.97.129.24]:57304 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S274875AbRKDTpD>;
+	Sun, 4 Nov 2001 14:45:03 -0500
+Date: Sun, 4 Nov 2001 20:45:02 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
+        linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011104204502.O14001@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	Alexander Viro <viro@math.psu.edu>,
+	John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Tim Jansen <tim@tjansen.de>
+In-Reply-To: <20011104200452.L14001@unthought.net> <620744650.1004901876@[195.224.237.69]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <620744650.1004901876@[195.224.237.69]>; from linux-kernel@alex.org.uk on Sun, Nov 04, 2001 at 07:24:36PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Nov 04, 2001 at 07:24:36PM -0000, Alex Bligh - linux-kernel wrote:
+> 
+> 
+> --On Sunday, 04 November, 2001 8:04 PM +0100 Jakob Østergaard 
+> <jakob@unthought.net> wrote:
+> 
+> > I'm a little scared when our VFS guy claims he never heard of excellent
+> > programmers using scanf in a way that led to parse errors.
+> 
+> I'd be far more scared if Al claimed he'd never heard of excellent
+> programmers reading binary formats, compatible between multiple
+> code revisions both forward and backwards, endian-ness etc., which
+> had never lead to parse errors of the binary structure.
 
+Sure there is potential for error anywhere.  And maybe your compiler's
+type-check is broken too.  But that's not an argument for not trying
+to improve on things.
 
-On Sun, 4 Nov 2001, Jens Axboe wrote:
+Please tell me,  is "1610612736" a 32-bit integer, a 64-bit integer, is
+it signed or unsigned   ?
 
-> On Sun, Nov 04 2001, G?rard Roudier wrote:
-> >
-> >
-> > On Sun, 4 Nov 2001, Jeff Garzik wrote:
-> >
-> > > Gérard Roudier wrote:
-> > > > The patch against linux-2.4.13 has been sent to Alan Cox for inclusion in
-> > > > newer stable kernels. Alan wants to test it on his machines which is a
-> > > > good thing. Anyway, those patches just add the new driver version to
-> > > > kernel tree and leave stock sym53c8xx and ncr53c8xx in place.
-> > >
-> > > Are the older sym/ncr drivers going away in 2.5?
-> > >
-> > >
-> > > > Any report, especially on large memory machines using 64 bit DMA (2.4
-> > > > kernels + PCI DAC capable controllers only), is welcome. I can't test 64
-> > > > bit DMA, since my fatest machine has only 512 MB of memory.
-> > > >
-> > > > To configure the driver, you must select "SYM53C8XX version 2 driver" from
-> > > > kernel config. For large memory machines, a new "DMA addressing mode"
-> > > > option is to be configured as follows (help texts have been added to
-> > > > Configure.help):
-> > > >
-> > > > Value 0: 32 bit DMA addressing
-> > > > Value 1: 40 bit DMA addressing (upper 24 bytes set to zero)
-> > > > Value 2: 64 bit DMA addressing limited to 16 segments of 4 GB (64 GB) max.
-> > >
-> > > Are you using the new pci64 API under 2.4.x?
-> >
-> > Didn't see any. Only the dma_addr_t thing can be 32 bit or 64 bit
-> > depending on some magic. Apart this, the driver is asking for the
-> > appropriate dma mask given the configured dma adressing mode.
->
-> I've looked over the sym-2 and it is using pci_map_sg so it's 64-bit
-> safe for sg transfers at least. For non-sg requests you are using
-> pci_map_single, but you can't do any better because the mid layer is
-> handing you virtual addresses in request_buffer currently anyways...
+I could even live with parsing ASCII, as long as there'd just be type
+information to go with the values.  But I see no point in using ASCII
+for something intended purely for machine-to-machine communication.
 
-If there is some platform-specific thing that allows to handle map_single
-more right:), I can go with it. Would be fine to get IA64 and Alpha
-actually PCI-64 bit safe even by using some software shoehorn for that. :)
+/proc text "GUI" files will stay, don't worry  :)
 
-> > PS: There is some pci64* API on some arch., but nobody will want to
-> > ever use it, in my opinion.
->
-> You are doing it right :-)
+> If you feel it's too hard to write use scanf(), use sh, awk, perl
+> etc. which all have their own implementations that appear to have
+> served UNIX quite well for a long while.
 
-You mean as right as possible? :)
+Witness ten lines of vmstat output taking 300+ millions of clock cycles.
 
-  Gérard.
+> Constructive suggestions:
+> 
+> 1. use a textual format, make minimal
+>    changes from current (duplicate new stuff where necessary),
+>    but ensure each /proc interface has something which spits
+>    out a format line (header line or whatever, perhaps an
+>    interface version number). This at least
+>    means that userspace tools can check this against known
+>    previous formats, and don't have to be clairvoyant to
+>    tell what future kernels have the same /proc interfaces.
 
+Then we have text strings as values - some with spaces, some with quotes in
+them.   Then we escape our way out of that (which isn't done today by the way),
+and then we start implementing a parser for that in every /proc using
+application out there.
+
+These interfaces need to be "correct", not "mostly correct".
+
+Example:   I make a symlink from "cat" to "c)(t" (sick example, but that doesn't
+change my point), and do a "./c)(t /proc/self/stat":
+
+[albatros:joe] $ ./c\)\(a /proc/self/stat
+22482 (c)(a) R 22444 22482 22444 34816 22482 0 20 0 126 0 0 0 0 0 14 0 0 0 24933425 1654784 129 4294967295 134512640 134525684 3221223504 3221223112 1074798884 0 0 0 0 0 0 0 17 0
+
+Go parse that one !  What's the name of my applications ? 
+
+It's good enough for human readers - we have the ability to reason and
+make qualified quesses.   Now go implement that in every single piece of
+/proc reading software out there   :)
+
+If you want ASCII, we should at least have some approved parsing library
+to parse this into native-machine binary structures that can be used 
+safely in applications.  I see little point in ASCII then, but maybe it's
+just me.
+
+> 
+> 2. Flag those entries which are sysctl mirrors as such
+>    (perhaps in each /proc directory /proc/foo/bar/, a
+>    /proc/foo/bar/ctl with them all in). Duplicate for the
+>    time being rather than move. Make reading them (at
+>    least those in the ctl directory) have a comment line
+>    starting with a '#' at the top describing the format
+>    (integer, boolean, string, whatever), what it does.
+>    Ignore comment lines on write.
+> 
+> 3. Try and rearrange all the /proc entries this way, which
+>    means sysctl can be implemented by a straight ASCII
+>    write - nice and easy to parse files. Accept that some
+>    /proc reads (especially) are going to be hard.
+
+I just hate to implement a fuzzy parser with an A.I. that makes HAL look like
+kid's toys, every d*mn time I need to get information from the system.
+
+I'm not a big fan of huge re-arrangements. I do like the idea of providing
+a machine-readable version of /proc.
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

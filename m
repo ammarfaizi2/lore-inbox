@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279954AbRJ3OCs>; Tue, 30 Oct 2001 09:02:48 -0500
+	id <S279947AbRJ3OCi>; Tue, 30 Oct 2001 09:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279953AbRJ3OCj>; Tue, 30 Oct 2001 09:02:39 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:34779 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S279955AbRJ3OC2>; Tue, 30 Oct 2001 09:02:28 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 30 Oct 2001 05:39:33 -0800 (PST)
-Subject: Re: ipchains redirect failing in 2.4.5 (and 2.4.13)
-In-Reply-To: <Pine.LNX.4.40.0110300454530.1329-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.40.0110300535390.1329-100000@dlang.diginsite.com>
+	id <S279956AbRJ3OC3>; Tue, 30 Oct 2001 09:02:29 -0500
+Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:18706 "EHLO
+	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S279947AbRJ3OCP>; Tue, 30 Oct 2001 09:02:15 -0500
+Message-Id: <200110301402.PAA00613@lambik.cc.kuleuven.ac.be>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: need help interpreting 'free' output.
+Date: Tue, 30 Oct 2001 15:02:46 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200110301132.MAA22471@lambik.cc.kuleuven.ac.be> <20011030034623.C21884@mikef-linux.matchmail.com>
+In-Reply-To: <20011030034623.C21884@mikef-linux.matchmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just confirmed that the problem still happens on 2.4.13.
-
-I also confirmed that I can suplicate the problem without multiple
-simultanious connections. if I do ab -n 50 (50 connections as fast as an
-athlon 1.2GHz can fire them off) I get the same failure. If the
-connections arrive at a sufficiantly slow rate the redirect works (no idea
-yet what that rate is yet)
-
-doing the test directly to the proxy port results in ~5
-connections/second. I don't see any reason that this should be enough to
-cause problems.
-
-David Lang
-
-
- On Tue, 30 Oct 2001, David Lang wrote:
-
-> Date: Tue, 30 Oct 2001 05:04:35 -0800 (PST)
-> From: David Lang <david.lang@digitalinsight.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: ipchains redirect failing in 2.4.5
+Op dinsdag 30 oktober 2001 12:46, schreef Mike Fedyk:
+> Ahh, are you a new convert from a 2.2 kernel?
 >
-> I am attempting to track down a problem I have run into with 2.4.5
+> In 2.4 the kernel will swap out much earlier to make room for the running
+> programs, and disk cache.  This is normal.
 >
-> I have a firewall that has proxies listening on ports 1433-1437. If I
-> connect to these proxies on these ports I have no problems, however if I
-> put in an ipchains rule to redirect port 1433 on a second IP address to
-> port 1436 (for example) and then hammer the box with ab -n 500 -s 20 the
-> first 20 or so connections get through and then the rest timeout. doing
-> repeated netstat -an on the firewall during this process shows an inital
-> burst of 15 connections that get established, a pause, and then a handfull
-> more get established, followed by those 20 connections being in TIME_WAIT
+> Earlier 2.4 kernels didn't do so well, but I won't go into detail because
+> there is already enough about that in the archives...
 >
-> again, connection to the same IP address on the real port the proxy is
-> listening on has no problems, it's only when going through the redirect
-> that it fails.
->
-> any suggestions, tuning paramaters I missed, or tests I need to run to
-> track this down?
->
-> David Lang
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> When you watch vmstat, if you see a lot of swapping traffic without much
+> good reason, then you should probably report something...
+
+Hi,
+
+i already use 2.4 for some time. the thing that bugs me is the 'used' figures 
+go up, and no processes actually use that memory (not the buffered/cached, 
+well, they go up , but thats normal) , so it seems the memory is 'lost' 
+somewhere, and i don't see any processes using it up, and 200 meg ram in 70 
+seconds is a lot ...
+So or i am misinterpreting something, or i am completely clueless, or there 
+is a leak somewhere..
+
+greetings,
+Frank

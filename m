@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263429AbTJLHdT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 03:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263430AbTJLHdS
+	id S263430AbTJLHzL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 03:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263431AbTJLHzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 03:33:18 -0400
-Received: from holomorphy.com ([66.224.33.161]:60545 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263429AbTJLHdR (ORCPT
+	Sun, 12 Oct 2003 03:55:11 -0400
+Received: from [204.97.230.36] ([204.97.230.36]:1042 "HELO gawab.com")
+	by vger.kernel.org with SMTP id S263430AbTJLHzH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 03:33:17 -0400
-Date: Sun, 12 Oct 2003 00:36:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: silence smp_read_mpc_oem() declared static but never defined warning
-Message-ID: <20031012073628.GA765@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Sun, 12 Oct 2003 03:55:07 -0400
+Message-ID: <3F890894.7080200@gawab.com>
+Date: Sun, 12 Oct 2003 05:53:56 -0200
+From: Ivo Santos Cavalcante Carneiro <iscc@gawab.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: scsi emulation error
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moving the static function prototype within the calling inline silences
-this annoying warning.
+I'm unable to mount cdrom on my system when using ide-scsi. Using 
+ide-cdrom works fine. I first saw this problem on 2.4.21. I'm using 
+2.4.22, tested 2.4.23-pre7 and the problem exist yet. This is a short 
+description of the system:
 
-diff -prauN linux-2.6.0-test7-bk3/include/asm-i386/mach-numaq/mach_mpparse.h numaq-2.6.0-test7-bk3-1/include/asm-i386/mach-numaq/mach_mpparse.h
---- linux-2.6.0-test7-bk3/include/asm-i386/mach-numaq/mach_mpparse.h	2003-10-08 12:24:04.000000000 -0700
-+++ numaq-2.6.0-test7-bk3-1/include/asm-i386/mach-numaq/mach_mpparse.h	2003-10-12 00:22:31.000000000 -0700
-@@ -1,9 +1,6 @@
- #ifndef __ASM_MACH_MPPARSE_H
- #define __ASM_MACH_MPPARSE_H
- 
--static void __init smp_read_mpc_oem(struct mp_config_oemtable *oemtable,
--		        unsigned short oemsize);
--
- static inline void mpc_oem_bus_info(struct mpc_config_bus *m, char *name, 
- 				struct mpc_config_translation *translation)
- {
-@@ -27,6 +24,7 @@ static inline void mpc_oem_pci_bus(struc
- static inline void mps_oem_check(struct mp_config_table *mpc, char *oem, 
- 		char *productid)
- {
-+	static void smp_read_mpc_oem(struct mp_config_oemtable *, unsigned short);
- 	if (strncmp(oem, "IBM NUMA", 8))
- 		printk("Warning!  May not be a NUMA-Q system!\n");
- 	if (mpc->mpc_oemptr)
+asus A7V8X-X mobo
+LG CD-ROM CRD-8400B (rev. 1.08)
+kernel 2.4.22 on Debian Woody
+
+
+These are the error messages took from kernel log:
+]
+ide-scsi: expected 2048 got 4096 limit 2048
+ide-scsi: The scsi wants to send us more data than expected - discarding 
+data
+ide-scsi: [[ 28 0 0 0 0 5f 0 0 1 0 0 0 ]
+]
+ide-scsi: expected 2048 got 4096 limit 2048
+ide-scsi: The scsi wants to send us more data than expected - discarding 
+data
+ide-scsi: [[ 28 0 0 0 0 60 0 0 1 0 0 0 ]
+]
+ide-scsi: expected 2048 got 4096 limit 2048
+ide-scsi: The scsi wants to send us more data than expected - discarding 
+data
+ide-scsi: [[ 28 0 0 0 0 61 0 0 1 0 0 0 ]
+]
+
+...  many times, and then:
+
+ide-scsi: expected 2048 got 4096 limit 2048
+Unable to identify CD-ROM format.
+
+Can you help?
+
+
+
+TIA,
+Ivo
+

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129447AbRBMNtZ>; Tue, 13 Feb 2001 08:49:25 -0500
+	id <S129664AbRBMNzG>; Tue, 13 Feb 2001 08:55:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129798AbRBMNtP>; Tue, 13 Feb 2001 08:49:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33028 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129447AbRBMNtC>;
-	Tue, 13 Feb 2001 08:49:02 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200102131255.f1DCt6p02149@flint.arm.linux.org.uk>
-Subject: Re: LILO and serial speeds over 9600
-To: jas88@cam.ac.uk (James Sutherland)
-Date: Tue, 13 Feb 2001 12:55:06 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hpa@transmeta.com (H. Peter Anvin),
-        timw@splhi.com, Werner.Almesberger@epfl.ch (Werner Almesberger),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.21.0102131056180.15957-100000@yellow.csi.cam.ac.uk> from "James Sutherland" at Feb 13, 2001 10:57:17 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131499AbRBMNy4>; Tue, 13 Feb 2001 08:54:56 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:49092 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129798AbRBMNyq>; Tue, 13 Feb 2001 08:54:46 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: cowboy@vnet.ibm.com (Richard A Nelson), linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre10
+In-Reply-To: <E14SfU5-0001mT-00@the-village.bc.nu>
+Organisation: SAP LinuxLab
+Date: 13 Feb 2001 14:59:35 +0100
+In-Reply-To: <E14SfU5-0001mT-00@the-village.bc.nu>
+Message-ID: <m33ddi7kfs.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland writes:
-> If the kernel starts spewing data faster than you can send it to the far
-> end, either the data gets dropped, or you block the kernel. Having the
-> kernel hang waiting to send a printk to the far end seems like a bad
-> situation...
+Hi Alan,
 
-It can actually be useful.  Why?  Lets take a real life example: the
-recent IDE multi-sector write bug.
+On Tue, 13 Feb 2001, Alan Cox wrote:
+>> Yes, I understand that. But I never got any note that my fix is
+>> broken and I still do not understand what's the concern.
+> 
+> Unless Im misreading the code the segment you poke at has
+> potentially been freed before it is written too.
 
-In that specific case, I was logging through one 115200 baud serial port
-the swapin activity (in do_swap_page), the swap out activity (in
-try_to_swap_out), as well as every IDE request down to individual buffers
-as they were written to/read from the drive.  This produces a rather a
-lot of data, far faster than a 115200 baud serial port can send it.
+Oh yes I was blind, shame on me. Here comes a fixed version.
 
-The ability then to run scripts which can interpret the data and
-pick out errors (eg, we swap in data that is different from the data
-that was swapped out) was invaluable for tracking down the problem.
+Greetings
+		Christoph
 
-Had messages been dropped, this would not have been possible or would
-have indicated false errors.  Blocking the kernel while debug stuff
-was sent was far more preferable to loosing messages in this case.
-I would imagine that that is also true for the majority of cases as
-well.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--- 2.2.19-pre10/ipc/shm.c.orig	Tue Feb 13 14:35:25 2001
++++ 2.2.19-pre10/ipc/shm.c	Tue Feb 13 14:34:49 2001
+@@ -337,6 +337,8 @@
+ 		if (current->euid == shp->u.shm_perm.uid ||
+ 		    current->euid == shp->u.shm_perm.cuid || 
+ 		    capable(CAP_SYS_ADMIN)) {
++			/* Do not find it any more */
++			shp->u.shm_perm.key = IPC_PRIVATE;
+ 			shp->u.shm_perm.mode |= SHM_DEST;
+ 			if (shp->u.shm_nattch <= 0)
+ 				killseg (id);
 

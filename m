@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUHCLUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265281AbUHCL1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUHCLUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 07:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUHCLUV
+	id S265281AbUHCL1B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 07:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUHCL1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 07:20:21 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:48281 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S265772AbUHCLUQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 07:20:16 -0400
-Message-ID: <410F74E1.9020400@bull.net>
-Date: Tue, 03 Aug 2004 13:20:01 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: en
+	Tue, 3 Aug 2004 07:27:01 -0400
+Received: from host-ip82-243.crowley.pl ([62.111.243.82]:16138 "HELO
+	software.com.pl") by vger.kernel.org with SMTP id S265281AbUHCL07
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 07:26:59 -0400
+From: Karol Kozimor <kkozimor@aurox.org>
+Organization: Aurox Sp. z o.o.
+To: linux-kernel@vger.kernel.org
+Subject: Re: -mm swsusp: do not default to platform/firmware
+Date: Tue, 3 Aug 2004 13:28:14 +0200
+User-Agent: KMail/1.6.2
+References: <20040728222445.GA18210@elf.ucw.cz> <Pine.LNX.4.50.0408012313350.4359-100000@monsoon.he.net> <20040802153021.354C9AF200@voldemort.scrye.com>
+In-Reply-To: <20040802153021.354C9AF200@voldemort.scrye.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org, riel@redhat.com
-Subject: Re: [Patch for review] BSD accounting IO stats
-References: <2oJkL-4sl-41@gated-at.bofh.it> <m3r7qpsoa4.fsf@averell.firstfloor.org>
-In-Reply-To: <m3r7qpsoa4.fsf@averell.firstfloor.org>
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 03/08/2004 13:24:51,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 03/08/2004 13:24:54,
-	Serialize complete at 03/08/2004 13:24:54
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <200408031328.14595.kkozimor@aurox.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-
->>diff -uprN -X dontdiff linux-2.6.8-rc2/drivers/block/ll_rw_blk.c linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c
->>--- linux-2.6.8-rc2/drivers/block/ll_rw_blk.c	2004-07-18 06:57:42.000000000 +0200
->>+++ linux-2.6.8-rc2+BSDacct_IO/drivers/block/ll_rw_blk.c	2004-07-27 09:17:33.149321480 +0200
->>@@ -1949,10 +1949,12 @@ void drive_stat_acct(struct request *rq,
->> 
->> 	if (rw == READ) {
->> 		disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
->>+		current->rblk += nr_sectors;
->>    
->>
+On Monday 02 of August 2004 17:30, Kevin Fenzi wrote:
+> Patrick> I'd rather leave it, and put pressure on the platform
+> Patrick> implementations to be made to work. If you want to shutdown,
+> Patrick> then specify it on the command line before you suspend (or
+> Patrick> add it to the suspend script).
 >
->This doesn't look very useful, because most writes which
->are flushed delayed would get accounted to pdflushd.
->Using such inaccurate data for accounting sounds quite dangerous
->to me.
->  
+> Does _anyone_ have a machine where platform works?
 >
-I agree with that. Like you and Andrew said, this metric (write block) 
-is just an estimate (quite wrong indeed) of what really occurred in the 
-system because some writings are accounted elsewhere (pdflush or 
-journaling file system).
+> I can't recally anyone posted on the acpi/swsusp2/kernel lists that
+> they had a platform implementation that worked.
+>
+> Perhaps they had no reason to post? Anyone out there with a laptop
+> with a suspend to disk in formware/platform using ACPI that works?
+> I'd love to be proven wrong...
 
-I also agree that a rough estimation is not very interesting, therefore 
-I'm working on another patch to provide accurate values.
+I guess you mean most users of the original pmdisk code, as it originally 
+defaulted to platform (which in most cases should be ACPI S4). I mean, S4 
+is not even remotely as obscure as S3. Then again, S4BIOS or other 
+firmware methods are different beasts.
 
-Best,
-Guillaume
+For the reference, original pmdisk code worked fine with platform on my 
+laptop the last time I checked (several months ago).
+
+Best regards,
+-- 
+Karol 'sziwan' Kozimor
+kkozimor@aurox.org

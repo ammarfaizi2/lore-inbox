@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264239AbTCXPGN>; Mon, 24 Mar 2003 10:06:13 -0500
+	id <S264227AbTCXPWi>; Mon, 24 Mar 2003 10:22:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264243AbTCXPGN>; Mon, 24 Mar 2003 10:06:13 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.29]:29056 "EHLO
-	mwinf0202.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264239AbTCXPGL>; Mon, 24 Mar 2003 10:06:11 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Spang Oliver <oliver.spang@siemens.com>,
-       "'pbadari@us.ibm.com'" <pbadari@us.ibm.com>
-Subject: Re: 2.5.64 ttyS problem ?
-Date: Mon, 24 Mar 2003 16:17:01 +0100
-User-Agent: KMail/1.5.1
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <AEEEEE93AFA5D411AF8500D0B75E4A16062A4675@BSL203E>
-In-Reply-To: <AEEEEE93AFA5D411AF8500D0B75E4A16062A4675@BSL203E>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S264246AbTCXPWi>; Mon, 24 Mar 2003 10:22:38 -0500
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:1667 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S264227AbTCXPWh>; Mon, 24 Mar 2003 10:22:37 -0500
+From: jlnance@unity.ncsu.edu
+Date: Mon, 24 Mar 2003 10:33:44 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-ID: <20030324153344.GA10519@ncsu.edu>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303241617.01952.baldrick@wanadoo.fr>
+In-Reply-To: <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> has anyone another solution? I tried 2.5.62 to 2.5.65, same result.
+On Sun, Mar 23, 2003 at 08:44:23PM +0100, Martin Mares wrote:
 
-Is this the no "serial" module problem?  It seems to have been renamed
-"8250", but not everything knows that yet...
+> Do you really think that "People should either use vendor kernels or
+> read LKML and be able to gather the fixes from there themselves" is a
+> good strategy?
 
-Duncan.
+Hi Martin,
+    I must say that I think it is an excellent strategy.  I will admit
+though, that I have voiced this opinion several times in the past and
+it seems that most people disagree with me.
+    I think we do a disservice to people by encouraging them to believe
+that the kernels they download from kernel.org can be depended on to
+work.  Kernel.org kernels are effectivly a way for people to participate
+in the development process and to help with QA.  If you dont want to
+be involved with these activities, you really do not want to use those
+kernels.
+    We could try and make that guarantee if we wanted to, but it would
+be a lot of work and the vendors are already doing it.  So why not
+leverage their work?
+
+Thanks,
+
+Jim

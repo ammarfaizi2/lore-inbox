@@ -1,76 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266434AbTBGUfa>; Fri, 7 Feb 2003 15:35:30 -0500
+	id <S266527AbTBGVGW>; Fri, 7 Feb 2003 16:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266453AbTBGUfa>; Fri, 7 Feb 2003 15:35:30 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:58524 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266434AbTBGUf2>; Fri, 7 Feb 2003 15:35:28 -0500
-Date: Fri, 7 Feb 2003 15:47:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: John Bradford <john@grabjohn.com>
-cc: Russell King <rmk@arm.linux.org.uk>, fdavis@si.rr.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c
-In-Reply-To: <200302072003.h17K3t2U002303@darkstar.example.net>
-Message-ID: <Pine.LNX.3.95.1030207152853.31273A-100000@chaos.analogic.com>
+	id <S266564AbTBGVGW>; Fri, 7 Feb 2003 16:06:22 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:5625 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S266527AbTBGVGV> convert rfc822-to-8bit; Fri, 7 Feb 2003 16:06:21 -0500
+content-class: urn:content-classes:message
+Subject: RE: [PATCH] Restore module support.
+Date: Fri, 7 Feb 2003 13:15:54 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Message-ID: <DD755978BA8283409FB0087C39132BD1A07CA5@fmsmsx404.fm.intel.com>
+Content-Transfer-Encoding: 7BIT
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+Thread-Topic: [PATCH] Restore module support.
+Thread-Index: AcLO4j6jfE1P5DrVEdeo8wBQi2jWzAACwfiA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Russell King" <rmk@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Feb 2003 21:15:54.0253 (UTC) FILETIME=[1957FBD0:01C2CEEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Feb 2003, John Bradford wrote:
-
-> > > --- linux/sound/oss/vidc.c.old	2003-01-16 21:21:38.000000000 -0500
-> > > +++ linux/sound/oss/vidc.c	2003-02-07 02:59:44.000000000 -0500
-> > > @@ -225,7 +225,7 @@
-> > >  			newsize = 208;
-> > >  		if (newsize > 4096)
-> > >  			newsize = 4096;
-> > > -		for (new2size = 128; new2size < newsize; new2size <<= 1);
-> > > +		for (new2size = 128; new2size < newsize; new2size <<= 1)
-> > >  			if (new2size - newsize > newsize - (new2size >> 1))
-> > >  				new2size >>= 1;
-> > >  		if (new2size > 4096) {
+Russell King wrote:
+> On Fri, Feb 07, 2003 at 10:43:19AM -0800, Luck, Tony wrote:
+> > > (2) has the disadvantage that its touching 
+> non-architecture specific
+> > > code, but this is the option I'd prefer due to the 
+> obvious performance
+> > > advantage.  However, I'm afraid that it isn't worth the 
+> effort to fix
+> > > up vmalloc and /proc/kcore.  vmalloc fix appears simple, 
+> but /proc/kcore
+> > > has issues (anyone know what KCORE_BASE is all about?)
 > > 
-> > The code is correct as it originally stood.
+> > KCORE_BASE is my fault ... it was an attempt to fix the "modules
+> > below PAGE_OFFSET" problem for the ia64 port.  For a few nanoseconds
+> > the code just here looked like this:
 > > 
-> > It looks like indent has a bug and incorrectly formats this to look wrong.
-> > Back in 2.2 times, the code looks  like this:
-> > 
-> > 		for (new2size = 128; new2size < newsize; new2size <<= 1);
-> > 		if (new2size - newsize > newsize - (new2size >> 1))
-> > 			new2size >>= 1;
-> > 
-> > and this is the intended functionality.  Please do NOT apply the patch.
+> > #if VMALLOC_START < PAGE_OFFSET
+> > #define	KCORE_BASE	VMALLOC_START
+> > #else
+> > #define	KCORE_BASE	PAGE_OFFSET
+> > #endif
 > 
-> I thought we were switching to negative tab indentation, anyway:
+> Ah, ok.  What I'm thinking of is something like the following 
+> (untested
+> and probably improperly thought out patch...):
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=104125431009832&w=2
+> --- orig/fs/proc/kcore.c	Sat Nov  2 18:58:18 2002
+> +++ linux/fs/proc/kcore.c	Fri Feb  7 19:48:35 2003
+> @@ -99,7 +99,10 @@
+>  }
+>  #else /* CONFIG_KCORE_AOUT */
+>  
+> +#ifndef KCORE_BASE
+>  #define	KCORE_BASE	PAGE_OFFSET
+> +) < #define in_vmlist_region(x) ((x) >= VMALLOC_START && (x
+> VMALLOC_END)
+> +#endif
+>  
+>  #define roundup(x, y)  ((((x)+((y)-1))/(y))*(y))
+>  
+> @@ -394,7 +397,7 @@
+>  		tsz = buflen;
+>  		
+>  	while (buflen) {
+> -		if ((start >= VMALLOC_START) && (start < VMALLOC_END)) {
+> +		if (in_vmlist_region(start)) {
+>  			char * elf_buf;
+>  			struct vm_struct *m;
+>  			unsigned long curstart = start;
 > 
-> :-)
-> 
-> John.
+> An architecture could then define KCORE_BASE and in_vmlist_region()
+> alongside their VMALLOC_START definition if they needed to change
+> them.
 
-If the code is correct, it really should be written as:
+Looks pretty good.  What's the motivation for the in_vmlist_region()?
+I don't think that I need that for ia64 ... so it might be better to
+have separate #ifdefs:
 
-   for (new2size = 128; new2size < newsize; new2size <<= 1)
-       ;
+#ifndef KCORE_BASE
+#define	KCORE_BASE	PAGE_OFFSET
+endif
+#ifndef in_vmlist_region
+#define in_vmlist_region(x) ((x) >= VMALLOC_START && (x < VMALLOC_END))
+#endif
 
-The code seems to want to make the value of new2size a power of
-2 and, greater than 128, but less than newsize. It ignores the
-fact that newsize might be less than 128, maybe this is okay.
-But, the code goes on, eventually settling on new2size being
-less than 4096... hmmm. I'll bet this could be greatly
-simplified. I think 'new2size' is really something that will
-fit inside 128-byte groups. Maybe an & or a % will greatly
-simplify?
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+-Tony

@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316604AbSEUVQY>; Tue, 21 May 2002 17:16:24 -0400
+	id <S316606AbSEUVQs>; Tue, 21 May 2002 17:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316607AbSEUVQX>; Tue, 21 May 2002 17:16:23 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:11651 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S316604AbSEUVQW>;
-	Tue, 21 May 2002 17:16:22 -0400
-Date: Tue, 21 May 2002 14:16:14 -0700
-From: Bob Miller <rem@osdl.org>
-To: Ron Niles <Ron.Niles@falconstor.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Oops from local semaphore race condition
-Message-ID: <20020521141614.A13087@doc.pdx.osdl.net>
-In-Reply-To: <E79B8AB303080F4096068F046CD1D89B934D5E@exchange1.FalconStor.Net>
-Mime-Version: 1.0
+	id <S316608AbSEUVQr>; Tue, 21 May 2002 17:16:47 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14601 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316606AbSEUVQp>; Tue, 21 May 2002 17:16:45 -0400
+Subject: Re: Asus a7m266d stability issues
+To: ionut@cs.columbia.edu (Ion Badulescu)
+Date: Tue, 21 May 2002 22:36:25 +0100 (BST)
+Cc: dimperio@physics.dyndns.org (Nicholas L. D'Imperio),
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <200205212044.g4LKi1i21931@buggy.badula.org> from "Ion Badulescu" at May 21, 2002 04:44:01 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AHIv-0000HZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 03:41:19PM -0400, Ron Niles wrote:
-> 
-> 
-> Ron.Niles@falconstor.com said:
-> >> Then I realized it can possibly go corrupt, due to a race condition
-> >> which lets down() continue before up() is complete:
-> 
-> From: David Woodhouse [mailto:dwmw2@infradead.org]
-> 
-> >This is what completions were added for.
-> 
-> Thanks, struct completion is the best way; it's gonna be tough to maintain
-> backward compatibility though.
-> 
-> One comment; it looks like the implementation in sched.c should more
-> properly be using wq_write_lock_irqsave on the lock.
-> 
-I sent patches to Linus to fix this back in February.  Dave Jones picked
-them up and they are still in his tree.  I don't know when/if he is going
-to forward them onto Linus for inclusion into his tree.
+> I had this exact problem a few weeks ago with a dual Athlon 1U setup. It
+> turned out that the aluminum heatsinks I had previously used for the
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+I have to admit given the heat coming off my dual athlon I'd have called
+1U dual athlon "Ambitious"
+
+> 1.2GHz Athlons weren't good enough for the 1900+, and also that the
+> chassis fans were circulating enough air. Switching to copper heatsinks
+> got rid of 95% of the crashes, and adding a chassis fan got rid of the
+> remaining 5%.
+
+Given the power usage I'm seeing I'd second that

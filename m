@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUGPFkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266487AbUGPFpx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266476AbUGPFkY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266477AbUGPFkY
+	id S266487AbUGPFpx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:45:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUGPFpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:40:24 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:50360 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266476AbUGPFkU (ORCPT
+	Fri, 16 Jul 2004 01:45:53 -0400
+Received: from colin2.muc.de ([193.149.48.15]:29701 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S266487AbUGPFpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 01:40:20 -0400
-Date: Thu, 15 Jul 2004 22:40:05 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>, Nick Piggin <nickpiggin@yahoo.com.au>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, John Hawkes <hawkes@sgi.com>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-Message-ID: <2700000.1089956404@[10.10.2.4]>
-In-Reply-To: <200407152158.17605.jbarnes@engr.sgi.com>
-References: <200407151829.20069.jbarnes@engr.sgi.com> <200407152038.32755.jbarnes@engr.sgi.com> <40F733D2.2000309@yahoo.com.au> <200407152158.17605.jbarnes@engr.sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 16 Jul 2004 01:45:51 -0400
+Date: 16 Jul 2004 07:45:50 +0200
+Date: Fri, 16 Jul 2004 07:45:50 +0200
+From: Andi Kleen <ak@muc.de>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com,
+       irda-users@lists.sourceforge.net, jt@hpl.hp.com,
+       the_nihilant@autistici.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Drop ISA dependencies from IRDA drivers
+Message-ID: <20040716054550.GA21819@muc.de>
+References: <20040715215552.GA46635@muc.de> <Pine.LNX.4.44.0407160027410.14037-100000@notebook.home.mdiehl.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0407160027410.14037-100000@notebook.home.mdiehl.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Jesse Barnes <jbarnes@engr.sgi.com> wrote (on Thursday, July 15, 2004 21:58:17 -0400):
-
-> On Thursday, July 15, 2004 9:48 pm, Nick Piggin wrote:
->> Yeah, these numbers actually used to be a lot higher, but someone
->> at Intel (I forget who it was right now) found them to be too high
->> on even a 32 way SMT system. They could probably be raised a *little*
->> bit in the generic code.
+On Fri, Jul 16, 2004 at 12:32:44AM +0200, Martin Diehl wrote:
+> On 15 Jul 2004, Andi Kleen wrote:
 > 
-> Ok, but I wouldn't want to hurt the performance of small machines at all.  If 
-> possible, I'd rather just add another level to the hierarchy if MAX_NUMNODES 
->> some value.
-
-Arch code. Arch code. Arch code ;-) Or at least base it of nr_cpus or 
-numnodes. Seriously ... a 2x or 4x opteron obviously needs different
-parameters from a 16x x440 or a 512x SGI box ... why we have a flexible
-infrastructure that can stand on its head and do backflips, and then
-we don't use it at all is a mystery to me ;-)
-
-I'd even go so far as to suggest there should be NO default settings for
-NUMA, only in arch code - that'd make people actually think about it.
-If there are, they should be based off the topo infrastructure, not static
-values.
- 
->> > We may have enough information to do that already... I'll look.
->> 
->> The plan is to allow arch overridable SD_CPU/NODE_INIT macros for
->> those architectures that just look like a regular SMT+SMP+NUMA, and
->> have the generic code set them up.
+> > Remove wrong ISA dependencies for IRDA drivers.
+> > 
+> > 
+> > diff -u linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig-o linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig
+> > --- linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig-o	2004-07-12 06:09:05.000000000 +0200
+> > +++ linux-2.6.8rc1-amd64/drivers/net/irda/Kconfig	2004-07-15 18:33:48.000000000 +0200
+> > @@ -310,7 +310,7 @@
+> >  
+> >  config NSC_FIR
+> >  	tristate "NSC PC87108/PC87338"
+> > -	depends on IRDA && ISA
+> > +	depends on IRDA
 > 
-> Would simply creating a 'supernode' scheduling domain work with the existing 
-> scheduler?  My thought was that in the ia64 code we'd create them for every N 
-> regular nodes; its children would be the regular nodes with the existing 
-> defaults.
+> 
+> Admittedly I haven't tried either, but I'm pretty sure this patch will 
+> break building those drivers because they are calling irda_setup_dma - 
+> which is CONFIG_ISA. Maybe this can be dropped but I don't see what's 
+> wrong with !64BIT instead.
 
-Nick would know better than I, but I think so ... it seems to cope with
-arbitrary levels, groupings, ... gravitational dimensions, etc ;-)
+Hmm, good point. 
 
-M.
+!64BIT is not needed - apparently they are 64bit clean.
 
+The reason I want to drop the CONFIG_ISA depency is that they *should*
+be built on x86-64 too. 
+
+-Andi

@@ -1,59 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318244AbSG3Mco>; Tue, 30 Jul 2002 08:32:44 -0400
+	id <S318246AbSG3Mj4>; Tue, 30 Jul 2002 08:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318245AbSG3Mco>; Tue, 30 Jul 2002 08:32:44 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8853 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318244AbSG3Mcn>;
-	Tue, 30 Jul 2002 08:32:43 -0400
-Subject: RE: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Bill Hartner <Bill_Hartner@us.ibm.com>, linux-kernel@vger.kernel.org,
-       lse <lse-tech@lists.sourceforge.net>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFAF01BB69.D29E7D2F-ON87256C05.006F1BA4@boulder.ibm.com>
-From: "Mala Anand" <manand@us.ibm.com>
-Date: Tue, 30 Jul 2002 07:36:06 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 07/30/2002 06:36:01 AM
+	id <S318247AbSG3Mj4>; Tue, 30 Jul 2002 08:39:56 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:17120 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S318246AbSG3Mjz>;
+	Tue, 30 Jul 2002 08:39:55 -0400
+Message-ID: <3D4689E5.5000504@gmx.de>
+Date: Tue, 30 Jul 2002 14:43:17 +0200
+From: Kai Engert <kai.engert@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020718
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: ajoshi@unixbox.com
+Subject: Sync bit bug in drivers/video/radeonfb.c ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I suspect the line
+         v_sync_pol = sync & FB_SYNC_VERT_HIGH_ACT ? 0 : 1;
+is incorrect, and probably also line
+         h_sync_pol = sync & FB_SYNC_HOR_HIGH_ACT ? 0 : 1;
 
->Tony Luck writes ..
->You don't specify any details of how the "singly linked list of
->free objects" would be implemented.  You cannot use any of the
->memory in the freed object (as the constructor for a slab is only
->called when memory is first allocated, not when an object is recycled)
->so using any part of the object might confuse a caller by giving them
->a corrupted object.
-I am creating a link list of free objects per cpu. When objects are
-deallocated by the caller they get added to its cpu free object link
-list.  The freed objects do not migrate to other caches, they are put
-back to the present cpu's link list. so they don't have to be
-re-initialized.  I am planning on putting a (configurable) limit on
-the number of free objects that can stay in a free list.
+If I use "fbset -vsync low" the uppermost line is only halfway displayed 
+on my system. With "fbset -vsync high" the uppermost line is fully visible.
 
->Are you going to have some external structure to maintain the linked
->list?  Or secretly enlarge the object to provide space for the link,
->or some other way?
-No I am using the object(beginning space) to store the links. When
-allocated, I can initialize the space occupied by the link address.
+I'm using 2.4.19-rc3-ac4 which has an entry in drivers/video/modedb.c to 
+support a 1280x600 screen resolution on Sony C1M*. That entry defines
+   fb_videomode->sync = FB_SYNC_VERT_HIGH_ACT
 
+However, after booting the top level line is not fully visible.
+I have to correct that manually with "fbset -vsync high".
 
-Regards,
-    Mala
+The patch below makes it work on boot.
 
+Also note, the variables vSyncPol and hSyncPol use the same assignments, 
+but seem to be unused, and should probably get removed.
 
-   Mala Anand
-   IBM Linux Technology Center - Kernel Performance
-   E-mail:manand@us.ibm.com
-   Phone:838-8088; Tie-line:678-8088
+Kai
+
+PS: I'm not subscribed, please cc me on replys. Thanks.
 
 
+--- bad/drivers/video/radeonfb.c        Tue Jul 30 14:38:29 2002
++++ good/drivers/video/radeonfb.c       Tue Jul 30 14:39:10 2002
+@@ -2401,8 +2401,8 @@
+         }
 
+         sync = mode->sync;
+-       h_sync_pol = sync & FB_SYNC_HOR_HIGH_ACT ? 0 : 1;
+-       v_sync_pol = sync & FB_SYNC_VERT_HIGH_ACT ? 0 : 1;
++       h_sync_pol = sync & FB_SYNC_HOR_HIGH_ACT ? 1 : 0;
++       v_sync_pol = sync & FB_SYNC_VERT_HIGH_ACT ? 1 : 0;
 
+         RTRACE("hStart = %d, hEnd = %d, hTotal = %d\n",
+                 hSyncStart, hSyncEnd, hTotal);
 
 

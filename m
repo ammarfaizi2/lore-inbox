@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVAaHZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVAaH2Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVAaHZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVAaHZ0
+	id S261947AbVAaH2Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:28:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVAaH0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:25:26 -0500
-Received: from smtpout.mac.com ([17.250.248.83]:30202 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261896AbVAaHZV (ORCPT
+	Mon, 31 Jan 2005 02:26:05 -0500
+Received: from waste.org ([216.27.176.166]:9452 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261936AbVAaHZy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:25:21 -0500
-In-Reply-To: <41FD8F08.3020000@tequila.co.jp>
-References: <41FD8F08.3020000@tequila.co.jp>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <23fc8bba6baa220cfdbffa7d93303319@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-From: Felipe Alfaro Solana <lkml@mac.com>
-Subject: Re: kernel panic on a 2.6.7
-Date: Mon, 31 Jan 2005 08:24:16 +0100
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-X-Mailer: Apple Mail (2.619.2)
+	Mon, 31 Jan 2005 02:25:54 -0500
+Date: Mon, 31 Jan 2005 01:25:51 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+X-PatchBomber: http://selenic.com/scripts/mailpatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2.687457650@selenic.com>
+Message-Id: <3.687457650@selenic.com>
+Subject: [PATCH 2/8] base-small: shrink major_names hash
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31 Jan 2005, at 02:51, Clemens Schwaighofer wrote:
+CONFIG_BASE_SMALL degrade genhd major names hash to linked list
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Hi,
->
-> I have a RedHat 9.0 box with a self compiled 2.6.7 kernel.
->
-> Today I had this error and a total lockup on the box. Before that (~6h
-> before I had another lockup, but no output to anywhere).
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Have you tried with a more recent kernel? 2.6.7 is a little bit ancient.
-
+Index: tq/drivers/block/genhd.c
+===================================================================
+--- tq.orig/drivers/block/genhd.c	2005-01-26 13:06:16.000000000 -0800
++++ tq/drivers/block/genhd.c	2005-01-26 13:08:23.000000000 -0800
+@@ -15,7 +15,8 @@
+ #include <linux/kmod.h>
+ #include <linux/kobj_map.h>
+ 
+-#define MAX_PROBE_HASH 255	/* random */
++/* degrade to linked list for small systems */
++#define MAX_PROBE_HASH (CONFIG_BASE_SMALL ? 1 : 255)
+ 
+ static struct subsystem block_subsys;
+ 

@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287244AbSBOF0S>; Fri, 15 Feb 2002 00:26:18 -0500
+	id <S286934AbSBOF4L>; Fri, 15 Feb 2002 00:56:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287048AbSBOF0J>; Fri, 15 Feb 2002 00:26:09 -0500
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:17673 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S287106AbSBOFZy>; Fri, 15 Feb 2002 00:25:54 -0500
-Subject: Re: OT: people sending shit to lkml
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1013749151.3630.4.camel@mon-ami>
-In-Reply-To: <20020214222634.C29391@jacana.dyn.dhs.org> 
-	<1013747430.2490.72.camel@eleusis>  <1013749151.3630.4.camel@mon-ami>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 14 Feb 2002 23:25:52 -0600
-Message-Id: <1013750753.29660.8.camel@zeus>
+	id <S287048AbSBOF4C>; Fri, 15 Feb 2002 00:56:02 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:53776 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S286934AbSBOFz6>;
+	Fri, 15 Feb 2002 00:55:58 -0500
+Date: Thu, 14 Feb 2002 22:55:54 -0700
+From: Val Henson <val@nmt.edu>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: smp_send_reschedule vs. smp_migrate_task
+Message-ID: <20020214225554.K1557@boardwalk>
+In-Reply-To: <15466.6058.686853.295549@argo.ozlabs.ibm.com> <20020214150331.P30586@boardwalk> <15468.14888.334751.716019@argo.ozlabs.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15468.14888.334751.716019@argo.ozlabs.ibm.com>; from paulus@samba.org on Fri, Feb 15, 2002 at 09:28:56AM +1100
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-14 at 22:59, Matthew Johnson wrote:
-> On Thu, 2002-02-14 at 20:30, Jeffrey H. Ingber wrote:
-> > Do you kiss your mother with that mouth?
-> > 
+On Fri, Feb 15, 2002 at 09:28:56AM +1100, Paul Mackerras wrote:
+> Val Henson writes:
 > 
-> Oh dear...Here we go. I'd swear someone could make good money out of
-> selling "I got flamed on the Linux Kernel Mailing list and survived"
-> T-shirts.
+> > I had only one IPI for the RPIC (an interrupt controller only used on
+> > Synergy PPC boards) and I implemented a little message queue to
+> > simulate all 4 IPI's.  The mailbox implementation suggested by James
+> > Bottomley ended up having race conditions on our board.  It's probably
+> > not the most elegant solution, but it works and required no change to
+> > the PowerPC SMP code.  See my "Make Gemini boot" patch to linuxppc-dev
+> > and take a look at the files rpic.c and rpic.h.
+> 
+> In that post I was really asking the following questions:
+> 
+> * how often does smp_send_reschedule get called?
+> * how often does smp_migrate_task get called?
+> * if smp_send_reschedule and smp_migrate_task were mutually exclusive,
+>   i.e. both used the same spinlock, could that lead to deadlock?
+> 
+> James Bottomley answered the first two for me but not the third.
 
-LOL. Or how about, "I got flamed on the Linux Kernel Mailing list and
-all I got was this lousy T-shirt." They could go on the rack right next
-to, "I'm with Stupid ->" (and maybe say "Read the FAQ at
-www.tux.org/lkml/" on the back) :-)
+Understood.
 
-Regards
+I'm still a little disgusted by a system that works for 4
+smp_<whatever> functions but not 5. :)
 
+-VAL

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbTEIXts (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263595AbTEIXtY
+	id S263590AbTEIXqy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTEIXm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:49:24 -0400
-Received: from pop.gmx.de ([213.165.65.60]:48755 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263607AbTEIXsb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:48:31 -0400
-Message-ID: <3EBC4119.B5C8F11A@gmx.de>
-Date: Sat, 10 May 2003 02:00:25 +0200
-From: Edgar Toernig <froese@gmx.de>
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: hammer: MAP_32BIT
-References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com> <3EBC2164.6050605@redhat.com> <3EBC29A5.1050005@techsource.com> <3EBC2A3C.8040409@redhat.com> <3EBC3167.2030302@techsource.com> <3EBC38C1.6020305@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 9 May 2003 19:42:56 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:36551 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263590AbTEIXmH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 19:42:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10525245942470@kroah.com>
+Subject: Re: [PATCH] More i2c driver changes for 2.5.69
+In-Reply-To: <10525245932907@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 9 May 2003 16:56:34 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> > Why does there ever need to be an explicit HINT that you would prefer a
-> > <32 bit address, when it's known a priori that <32 is better?  Why
-> > doesn't the mapping code ALWAYS try to use 32-bit addresses before
-> > resorting to 64-bit?
-> 
-> Because not all memory is addressed via GDT entries.  In fact, almost
-> none is, only thread stacks and similar gimicks.  If all mmap memory
-> would by default be served from the low memory pool you soon run out of
-> it and without any good reason.
+ChangeSet 1.1083.2.2, 2003/05/09 13:58:10-07:00, mark@alpha.dyndns.org
 
-As if there are so many apps that would suffer from that...
+[PATCH] I2C: add more classes
 
-Anyway, what's so bad about the idea someone (Linus?) suggested?
-Without MAP_FIXED the address given to mmap is already taken as a
-hint where to start looking for free memory.  So use mmap(4GB,...)
-for regular memory and mmap(4kB, ...) for stacks.  What's wrong
-with that?  And if you are really frightend to run out of "low"
-memory make the above-4GB allocation the default for addr==0.
+Add I2C classes for analog and digital cameras, and fix a typo.
 
-Ciao, ET.
+
+ include/linux/i2c.h |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/include/linux/i2c.h b/include/linux/i2c.h
+--- a/include/linux/i2c.h	Fri May  9 16:48:20 2003
++++ b/include/linux/i2c.h	Fri May  9 16:48:20 2003
+@@ -281,10 +281,12 @@
+ 						/* Must equal I2C_M_TEN below */
+ 
+ /* i2c adapter classes (bitmask) */
+-#define I2C_ADAP_CLASS_SMBUS      (1<<0)        /* lm_sensors, ... */
+-#define I2C_ADAP_CLASS_TV_ANALOG  (1<<1)        /* bttv + friends */
+-#define I2C_ADAP_CLASS_TV_DIGINAL (1<<2)        /* dbv cards */
+-#define I2C_ADAP_CLASS_DDC        (1<<3)        /* i2c-matroxfb ? */
++#define I2C_ADAP_CLASS_SMBUS		(1<<0)	/* lm_sensors, ... */
++#define I2C_ADAP_CLASS_TV_ANALOG	(1<<1)	/* bttv + friends */
++#define I2C_ADAP_CLASS_TV_DIGITAL	(1<<2)	/* dbv cards */
++#define I2C_ADAP_CLASS_DDC		(1<<3)	/* i2c-matroxfb ? */
++#define I2C_ADAP_CLASS_CAM_ANALOG	(1<<4)	/* camera with analog CCD */
++#define I2C_ADAP_CLASS_CAM_DIGITAL	(1<<5)	/* most webcams */
+ 
+ /* i2c_client_address_data is the struct for holding default client
+  * addresses for a driver and for the parameters supplied on the
+

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262409AbSJEQUF>; Sat, 5 Oct 2002 12:20:05 -0400
+	id <S262410AbSJEQUK>; Sat, 5 Oct 2002 12:20:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262410AbSJEQUF>; Sat, 5 Oct 2002 12:20:05 -0400
-Received: from foonix.foonet.net ([216.207.29.74]:38840 "EHLO
-	foonix.foonet.net") by vger.kernel.org with ESMTP
-	id <S262409AbSJEQUE>; Sat, 5 Oct 2002 12:20:04 -0400
-From: "CIT/Paul" <xerox@foonet.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Disabling route-cache?
-Date: Sat, 5 Oct 2002 12:25:47 -0400
-Organization: CIT
-Message-ID: <006601c26c8b$dd16d430$4a00000a@badass>
+	id <S262411AbSJEQUK>; Sat, 5 Oct 2002 12:20:10 -0400
+Received: from mail1.dac.neu.edu ([129.10.1.75]:8198 "EHLO mail1.dac.neu.edu")
+	by vger.kernel.org with ESMTP id <S262410AbSJEQUI>;
+	Sat, 5 Oct 2002 12:20:08 -0400
+Message-ID: <3D9F1346.4020501@ccs.neu.edu>
+Date: Sat, 05 Oct 2002 12:28:54 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b) Gecko/20021004
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Roberto Nibali <ratz@drugphish.ch>
+CC: Sipos Ferenc <sferi@mail.tvnet.hu>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: offtopic: patch for nvidia drivers
+References: <1033291640.1535.3.camel@zeus.city.tvnet.hu> <3D96CC7B.7060801@drugphish.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To: 'linux-kernel@vger.kernel.org'
-Subject: Disabling route-cache?
+Roberto Nibali wrote:
+...
+> -    /* finally, let's do it! */
+> -    err = remap_page_range( (size_t) uaddr, (size_t) start, size_bytes, 
+> +    /* finally, let's do it! */ 
+> +#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 0)
+> +    err = remap_page_rage( (size_t) uaddr, (size_t) start, size_bytes,
+> +                          PAGE_SHARED);    
+> +#else
+
+That remap_page_rage should be remap_page_range as noted in a
+previous thread.  Just a reminder.
+
+-Stan
 
 
-We have some linux routers and wish to disable the route cache. Is there
-a way to do that? 
-The route cache is using so much of the CPU that it is making routing
-ineffective.  We are routing high
-PPS > 100,000 and with the route cache enabled it will not even do half
-of that.   We tested by creating
-a single ip -> ip flow at 100,000 pps and the machine routed it just
-fine, however when we create a 100,000 ip -> 100,000 ip test
-the machine drops 80% of the packets due to creating and tearing down
-massive entries in the route cache.
-I wish for it to work like Cisco's CEF with only an adjacency cache  and
-not a route cache for every flow. 
-I don't know why it doesn't work this way in the first place.  Only the
-ip_conntrack should keep track of flows (on a side note
-if we enable ip_conntrack the whole machine goes to pot, there's no way
-it's going to do it with that module loaded).
-
-Please if anyone has any ideas.  Thanks
 

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267393AbRGLBEr>; Wed, 11 Jul 2001 21:04:47 -0400
+	id <S267395AbRGLBCR>; Wed, 11 Jul 2001 21:02:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267397AbRGLBEh>; Wed, 11 Jul 2001 21:04:37 -0400
-Received: from mail.myrio.com ([63.109.146.2]:32239 "EHLO mailx.myrio.com")
-	by vger.kernel.org with ESMTP id <S267393AbRGLBER>;
-	Wed, 11 Jul 2001 21:04:17 -0400
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211C92A@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'jesse@cats-chateau.net'" <jesse@cats-chateau.net>,
-        Kip Macy <kmacy@netapp.com>, Paul Jakma <paul@clubi.ie>
-Cc: Helge Hafting <helgehaf@idb.hist.no>, "C. Slater" <cslater@wcnet.org>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Switching Kernels without Rebooting?
-Date: Wed, 11 Jul 2001 18:03:53 -0700
+	id <S267394AbRGLBCH>; Wed, 11 Jul 2001 21:02:07 -0400
+Received: from web14402.mail.yahoo.com ([216.136.174.59]:6667 "HELO
+	web14402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267393AbRGLBCD>; Wed, 11 Jul 2001 21:02:03 -0400
+Message-ID: <20010712010204.23084.qmail@web14402.mail.yahoo.com>
+Date: Wed, 11 Jul 2001 18:02:04 -0700 (PDT)
+From: Rajeev Bector <rajeev_bector@yahoo.com>
+Subject: Re: new IPC mechanism ideas
+To: "H. Peter Anvin" <hpa@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
+In-Reply-To: <3B4CF5E8.F9F9C429@transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The point is that you can do IPC using
+this scheme which is
+1) protected (as compared to a shared
+   memory (shm) scheme in which any process
+   can write anywhere and corrupt
+   everything)
 
-Jesse Pollard wrote:
+2) involves only 1 copy.
 
-[why switching kernels is very hard, and...]
- 
-> Before you even try switching kernels, first implement a process
-> checkpoint/restart. The process must be resumed after a boot 
-> using the same
-> kernel, with all I/O resumed. Now get it accepted into the kernel.
+Thanks,
+Rajeev
 
-Hear, hear!  That would be a useful feature, maybe not network servers, 
-but for pure number crunching apps it would save people having to write 
-all the state saving and recovery that is needed now for long term 
-computations.
+--- "H. Peter Anvin" <hpa@transmeta.com> wrote:
+> Rajeev Bector wrote:
+> > 
+> > If your driver is in the kernel,
+> > then you dont need that. All processes
+> > use system-calls (or ioctls) to send
+> > messages and when they do recv(),
+> > they get a pointer to a location
+> > (where they are mapped to via mmap)
+> > and they can read directly. In this
+> > scheme, you dont need any traditional
+> > UNIX IPC mechanism to work.
+> > 
+> 
+> And the point of this is?
+> 
+> 	-hpa
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-For bonus points, make it work for clusters to synchronously save and
-restore state for the apps running on all the nodes at once...
 
-Torrey
-
-
-
-
-
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

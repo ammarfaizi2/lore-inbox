@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSGVL2T>; Mon, 22 Jul 2002 07:28:19 -0400
+	id <S315439AbSGVBFv>; Sun, 21 Jul 2002 21:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316757AbSGVL2S>; Mon, 22 Jul 2002 07:28:18 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:29181 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316768AbSGVL2R>; Mon, 22 Jul 2002 07:28:17 -0400
-Subject: Re: Athlon XP 1800+ segemntation fault
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Karol Olechowskii <karol_olechowski@acn.waw.pl>
+	id <S315442AbSGVBFu>; Sun, 21 Jul 2002 21:05:50 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:34754 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315439AbSGVBFu>;
+	Sun, 21 Jul 2002 21:05:50 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020722133259.A1226@acc69-67.acn.pl>
-References: <20020722133259.A1226@acc69-67.acn.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Jul 2002 13:44:10 +0100
-Message-Id: <1027341850.31782.16.camel@irongate.swansea.linux.org.uk>
+Subject: Re: [patch] 2.5.25 net/core/Makefile 
+In-reply-to: Your message of "Sun, 21 Jul 2002 18:56:24 EST."
+             <Pine.LNX.4.44.0207211853130.16927-100000@chaos.physics.uiowa.edu> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 22 Jul 2002 11:08:41 +1000
+Message-ID: <25972.1027300121@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 14:32, Karol Olechowskii wrote:
-> Hello 
-> 
-> Few days ago I've bought new processor Athlon XP 1800+ to my computer
-> (MSI K7D Master with 256 MB PC2100 DDR).Before that I've got Athlon ThunderBird
-> 900 processor and everything had been working well till I change to the new one.
-> Now for every few minutes I've got segmetation fault or immediate system reboot.
-> Could anyone tell me what's goin' on?
+On Sun, 21 Jul 2002 18:56:24 -0500 (CDT), 
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
+>Makes sense to me. However, the CONFIG_ variables used in the Makefiles 
+>are never "n", they are "y", "m" or undefined.
+>
+>In Config.in scripts you have to cater for "n" or "", and I've seen 
+>various people on l-k carry this behavior into the Makefiles, but there 
+>it's unnecessary for all I can tell.
 
-> nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
-> devfs_register(nvidiactl): could not append to parent, err: -17
-> devfs_register(nvidia0): could not append to parent, err: -17
-
-Please duplicate the problem without ever loading the NVidia nvdriver
-from a clean boot. If you can't do that then talk to Nvidia, if you can
-then post new crash data here
+It is required if you ever want autoconfigure to work, that
+distinguishes between "" (undefined) and "n" (explicitly turned off).
+Forward planning.
 

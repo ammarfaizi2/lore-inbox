@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271686AbRICNDh>; Mon, 3 Sep 2001 09:03:37 -0400
+	id <S271691AbRICNF2>; Mon, 3 Sep 2001 09:05:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271690AbRICND1>; Mon, 3 Sep 2001 09:03:27 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:50953 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S271686AbRICNDQ>;
-	Mon, 3 Sep 2001 09:03:16 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S271692AbRICNFS>; Mon, 3 Sep 2001 09:05:18 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:60010 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271691AbRICNE7>; Mon, 3 Sep 2001 09:04:59 -0400
+Date: Mon, 3 Sep 2001 15:05:29 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac6
+Message-ID: <20010903150529.J699@athlon.random>
+In-Reply-To: <20010903025047.A3117@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15251.29253.68409.428884@tango.paulus.ozlabs.org>
-Date: Mon, 3 Sep 2001 22:06:29 +1000 (EST)
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix include/linux/mc146818rtc.h
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+In-Reply-To: <20010903025047.A3117@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Mon, Sep 03, 2001 at 02:50:47AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-include/linux/mc146818rtc.h declares a spinlock but doesn't include
-<linux/spinlock.h>.  This patch fixes that.
+On Mon, Sep 03, 2001 at 02:50:47AM +0100, Alan Cox wrote:
+> 2.4.9-ac6
+> o	Add MODULE_LICENSE tags to telephony		(Robert Love)
+> o	Add MODULE_LICENSE tags to drivers/video	(Robert Love)
+> o	Add MODULE_LICENSE tags to zorro		(Robert Love)
 
-Paul.
+what's the point of such information? If something I would understand to
+specify the licence of a module when it's _not_ GPL.
 
-diff -urN linux/include/linux/mc146818rtc.h linuxppc_2_4/include/linux/mc146818rtc.h
---- linux/include/linux/mc146818rtc.h	Mon Apr  2 02:21:50 2001
-+++ linuxppc_2_4/include/linux/mc146818rtc.h	Thu Aug 16 07:49:52 2001
-@@ -13,6 +13,7 @@
- 
- #include <asm/io.h>
- #include <linux/rtc.h>			/* get the user-level API */
-+#include <linux/spinlock.h>		/* spinlock_t */
- #include <asm/mc146818rtc.h>		/* register access macros */
- 
- extern spinlock_t rtc_lock;		/* serialize CMOS RAM access */
+Andrea

@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274830AbTHKT5G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:57:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274833AbTHKT5G
+	id S273611AbTHKTs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273906AbTHKTsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:57:06 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:57063 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S274830AbTHKT5D (ORCPT
+	Mon, 11 Aug 2003 15:48:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41139 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S273611AbTHKTsx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:57:03 -0400
-Date: Mon, 11 Aug 2003 21:55:55 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@bytesex.org>,
-       Flameeyes <dgp85@users.sourceforge.net>,
-       Christoph Bartelmus <columbus@hit.handshake.de>,
-       LIRC list <lirc-list@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
-Message-ID: <20030811195554.GR2627@elf.ucw.cz>
-References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz> <20030811191709.GN2627@elf.ucw.cz> <20030811193401.GA8957@ucw.cz>
+	Mon, 11 Aug 2003 15:48:53 -0400
+Date: Mon, 11 Aug 2003 12:46:00 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: M M <mokomull@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.0-test3: make modules; make modules_install problems
+Message-Id: <20030811124600.2fb5b263.rddunlap@osdl.org>
+In-Reply-To: <20030811192453.51395.qmail@web41811.mail.yahoo.com>
+References: <20030811192453.51395.qmail@web41811.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030811193401.GA8957@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 11 Aug 2003 12:24:53 -0700 (PDT) M M <mokomull@yahoo.com> wrote:
 
-> > > > IMHO there's one problem:
-> > > > 
-> > > > If a remote control has e.g. a "1" key this doesn't mean that a user
-> > > > wants a "1" to be written into your editor while editing source code.
-> > > > The "1" key on a remote control simply has a differnt _meaning_ than
-> > > > the "1" key on your keyboard -- depending of course on what the user
-> > > > thinks this key should mean.
-> > > 
-> > > That's what BTN_1 is for. ;)
-> > 
-> > Ahha, I thought BTN_1 would be first mouse button ;-). Will fix that.
-> 
-> No, that'd be BTN_LEFT.
+| I have downloaded kernel 2.6.0-test3 sources twice (in
+| case of error) and the problem still persists.  'make
+| modules' compiles the modules to *.o, but 'make
+| modules_install' expects them to be *.ko.  Am I the
+| only one with this problem or does everyone have this
+| problem?
 
-Okay, then what about this:
+I don't see that.
 
-The control has keypad labeled 0..9 and at the same time it has arrows
-on it (its meant for mouse emulation). Then it has keys DISPLAY/L, and
-LOOP/R. If I mark DISPLAY/L as BTN_LEFT, will it be the "right thing"
-(tm)?
-
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+--
+~Randy				For Linux-2.6, see:
+http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt

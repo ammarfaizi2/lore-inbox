@@ -1,92 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbUEDVxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUEDVtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbUEDVxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUEDVxZ
+	id S261179AbUEDVtR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbUEDVtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:53:25 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:63480 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261197AbUEDVxX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:53:23 -0400
-Subject: Re: Random file I/O regressions in 2.6
-From: Ram Pai <linuxram@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: nickpiggin@yahoo.com.au, peter@mysql.com, alexeyk@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-In-Reply-To: <1083700735.13688.69.camel@localhost.localdomain>
-References: <200405022357.59415.alexeyk@mysql.com>
-	 <409629A5.8070201@yahoo.com.au> <20040503110854.5abcdc7e.akpm@osdl.org>
-	 <1083615727.7949.40.camel@localhost.localdomain>
-	 <20040503135719.423ded06.akpm@osdl.org>
-	 <1083620245.23042.107.camel@abyss.local>
-	 <20040503145922.5a7dee73.akpm@osdl.org> <4096DC89.5020300@yahoo.com.au>
-	 <20040503171005.1e63a745.akpm@osdl.org> <4096E1A6.2010506@yahoo.com.au>
-	 <1083631804.4544.16.camel@localhost.localdomain>
-	 <20040503232928.1b13037c.akpm@osdl.org>
-	 <1083683034.13688.7.camel@localhost.localdomain>
-	 <1083699554.13688.64.camel@localhost.localdomain>
-	 <20040504124800.67e1c819.akpm@osdl.org>
-	 <1083700735.13688.69.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1083707518.13688.88.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 May 2004 14:51:58 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 4 May 2004 17:49:16 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:15791 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261179AbUEDVtO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:49:14 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PATCH] mxcsr patch for i386 & x86-64
+Date: Tue, 4 May 2004 14:47:11 -0700
+Message-ID: <7F740D512C7C1046AB53446D37200173015DBDFC@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] mxcsr patch for i386 & x86-64
+Thread-Index: AcQyG+b236zq/g/fRIOAXAMQzlVcCAAAqgFw
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>, "Linus Torvalds" <torvalds@osdl.org>
+Cc: "Kamble, Nitin A" <nitin.a.kamble@intel.com>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+X-OriginalArrivalTime: 04 May 2004 21:47:11.0950 (UTC) FILETIME=[5B40CEE0:01C43221]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-04 at 12:58, Ram Pai wrote:
-> On Tue, 2004-05-04 at 12:48, Andrew Morton wrote:
-> > Ram Pai <linuxram@us.ibm.com> wrote:
-> > >
-> > > I ran the following command:
-> > > 
-> > >  /root/sysbench-0.2.5/sysbench/sysbench --num-threads=256 --test=fileio
-> > >  --file-total-size=2800M --file-test-mode=rndrw run 
-> > > 
-> > 
-> > Alexey and I have been using 16 threads.
-> >
- /root/sysbench-0.2.5/sysbench/sysbench --num-threads=16 --test=fileio
---file-total-size=2800M --file-test-mode=rndrw run 
+>From: Jeff Garzik [mailto:jgarzik@pobox.com]
+>Sent: Tuesday, May 04, 2004 2:08 PM
+>Linus Torvalds wrote:
+>> --- 1.19/arch/i386/kernel/i387.c	Tue Feb  3 21:30:39 2004
+>> +++ edited/arch/i386/kernel/i387.c	Tue May  4 13:15:10 2004
+>> @@ -24,6 +25,21 @@
+>>  #define HAVE_HWFP 1
+>>  #endif
+>>
+>> +static unsigned long mxcsr_feature_mask = 0xffffffff;
+>
+>> --- 1.10/arch/x86_64/kernel/i387.c	Fri Jan 23 12:17:58 2004
+>> +++ edited/arch/x86_64/kernel/i387.c	Tue May  4 13:07:35 2004
+>> @@ -24,6 +24,18 @@
+>>  #include <asm/ptrace.h>
+>>  #include <asm/uaccess.h>
+>>
+>> +unsigned long mxcsr_feature_mask = 0xffffffff;
+>> +
+>
+>
+>Minor/dumb question:  Is the above intentional?
+>
+>Would be nice to have them the same for consistency if nothing else.
+>i386 and x86-64 common code gets pasted and #include'd all the time.
 
-Without the patch:
-------------------
+If we look at set/get_fpu_xxx in i386 and x86-64, their codes are not
+consistent; functions vs. macros. This is mainly because x86-64 can
+assume the modern CPU features are available, and thus those are
+simplified. 
 
-Operations performed:  6002 Read, 3998 Write, 12800 Other = 22800 Total
-Read 93Mb  Written 62Mb  Total Transferred 156Mb
-   1.967Mb/sec  Transferred
-  126.11 Requests/sec executed
+It's not required to make mxcsr_feature_mask global on i386 because
+nobody else is using it in other files, but I agree that it would be
+better to make it global to avoid potential confusion/mistakes in the
+future.
 
-Test execution Statistics summary:
-Time spent for test:  79.2986s
+> ===== arch/i386/kernel/i387.c 1.19 vs edited =====
+> --- 1.19/arch/i386/kernel/i387.c	Tue Feb  3 21:30:39 2004
+> +++ edited/arch/i386/kernel/i387.c	Tue May  4 13:15:10 2004
+> @@ -10,6 +10,7 @@
+> ...
+> -void set_fpu_mxcsr( struct task_struct *tsk, unsigned short mxcsr )
+> -{
+> -	if ( cpu_has_xmm ) {
+> -		tsk->thread.i387.fxsave.mxcsr = (mxcsr & 0xffbf);
+> -	}
+> -}
+If we do this, then we should check if we can remove other (unused)
+set/get_fpu_xxx to make i386 and x86-64 more consistent. For example,
+set/get_fpu_fwd() are not used as far as I checked.
 
-no of times window reset because of hits: 0
-no of times window reset because of misses: 119
-no of times window was shrunk because of hits: 417
-no of times the page request was non-contiguous: 3809
-no of times the page request was contiguous : 12745
+Jun
 
-With the patch:
---------------
-Operations performed:  6002 Read, 3999 Write, 12672 Other = 22673 Total
-Read 93Mb  Written 62Mb  Total Transferred 156Mb
-   2.927Mb/sec  Transferred
-  187.65 Requests/sec executed
-
-Test execution Statistics summary:
-Time spent for test:  53.2949s
-
-no of times window reset because of hits: 0
-no of times window reset because of misses: 0
-no of times window was shrunk because of hits: 360
-no of times the page request was non-contiguous: 5860
-no of times the page request was contiguous : 20378
-
-
-Impressive results. WOuld be nice to get a confirmation from Alexey.
-RP
+>
+>	Jeff
+>
+>
 

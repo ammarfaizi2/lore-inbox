@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263057AbRE1NHv>; Mon, 28 May 2001 09:07:51 -0400
+	id <S263058AbRE1Nji>; Mon, 28 May 2001 09:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263056AbRE1NHl>; Mon, 28 May 2001 09:07:41 -0400
-Received: from asplinux.ru ([195.133.213.194]:46854 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id <S263055AbRE1NH1>;
-	Mon, 28 May 2001 09:07:27 -0400
-Message-ID: <3B124DD7.1060908@acronis.com>
-Date: Mon, 28 May 2001 17:08:39 +0400
-From: Yuri Per <yuri@acronis.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-0.1.49 i686; en-US; 0.8.1) Gecko/20010407
-X-Accept-Language: en
+	id <S263060AbRE1Nj2>; Mon, 28 May 2001 09:39:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5906 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263058AbRE1NjP>; Mon, 28 May 2001 09:39:15 -0400
+Subject: Re: Linux 2.4.5-ac2
+To: fabio@chromium.com (Fabio Riccardi)
+Date: Mon, 28 May 2001 14:37:00 +0100 (BST)
+Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org,
+        andrea@suse.de (Andrea Arcangeli), bentw@chello.nl (Ben Twijnstra)
+In-Reply-To: <3B11C9AB.72075EC6@chromium.com> from "Fabio Riccardi" at May 27, 2001 08:44:43 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-        Martin von Loewis <loewis@informatik.hu-berlin.de>
-CC: linux-kernel@vger.kernel.org, Linux-ntfs@tiger.informatik.hu-berlin.de,
-        linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [Linux-ntfs] Re: [Linux-NTFS-Dev] Re: ANN: NTFS new   release available (1.1.15)
-In-Reply-To: <3B11E3F1.1090400@acronis.com> <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk> <5.1.0.14.2.20010526000503.04716ec0@pop.cus.cam.ac.uk> <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk> <5.1.0.14.2.20010527123154.00a96640@pop.cus.cam.ac.uk> <200105271253.OAA22557@pandora.informatik.hu-berlin.de> <3B11E3F1.1090400@acronis.com> <5.1.0.14.2.20010528125630.04729ba0@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E154NCe-000375-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+> Performance is back to that of 2.4.2-ac26, and stability is a lot better. Under
+> heavy FS pressure 2.4.5-ac2 is about 5-10% faster than vanilla 2.4.5, the aa1,2
+> kernels have the same performance of vanilla 2.4.5.
+> 
+> Which one of your changes affected performance so much?
 
-> Does anyone know what NTFS version the NT 3.1 / 3.51 volumes had? If I 
-> know  I can make sure we don't mount such beasts considering we know 
-> the driver  would fail on them... - I am aware of only one person stil 
-> using NT 3.51  and he doesn't believe in the NTFS Linux driver any 
-> more, so I guess we can  just say we support NT 4.0 and above only.
-
-NT 3.51 uses exactly the same version of NTFS as NT 4.0 does.
-
-
-Yuri
+Its much more a case that the 2.4.5 tree got fixed and I picked up the 2.4.5
+changes. Its still not perfect (bigmem will deadlock again as in 2.4.5 vanilla
+now) but its a much better basis to work from again
 

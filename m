@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266448AbUBLBTK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 20:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266549AbUBLBTK
+	id S265772AbUBLBTI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 20:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUBLBTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 20:19:10 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:13586 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S266448AbUBLBTH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 11 Feb 2004 20:19:07 -0500
-To: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1076548709@astro.swin.edu.au>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-In-reply-to: <20040212004532.GB29952@hexapodia.org>
-References: <20040209115852.GB877@schottelius.org> <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au> <1076517309.21961.169.camel@shaggy.austin.ibm.com> <20040212004532.GB29952@hexapodia.org>
-X-Face: "/6m>=uJ8[yh+S{nuW'%UG"H-:QZ$'XRk^sOJ/XE{d/7^|mGK<-"*e>]JDh/b[aqj)MSsV`X1*pA~Uk8C:el[*2TT]O/eVz!(BQ8fp9aZ&RM=Ym&8@.dGBW}KDT]MtT"<e(`rn*-w$3tF&:%]KHf"{~`X*i]=gqAi,ScRRkbv&U;7Aw4WvC
-X-Face-Author: David Bonde mailto:i97_bed@i.kth.se.REMOVE.THIS.TO.REPLY -- If you want to use it please also use this Authorline.
-Message-ID: <slrn-0.9.7.4-1003-6481-200402121218-tc@hexane.ssi.swin.edu.au>
-Date: Thu, 12 Feb 2004 12:19:03 +1100
+Received: from fw.osdl.org ([65.172.181.6]:9664 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265772AbUBLBTE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 20:19:04 -0500
+Date: Wed, 11 Feb 2004 17:20:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: thockin@sun.com
+Cc: torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org, jim.houston@ccur.com
+Subject: Re: PATCH - raise max_anon limit
+Message-Id: <20040211172046.37e18a2f.akpm@osdl.org>
+In-Reply-To: <20040212010822.GP9155@sun.com>
+References: <20040211203306.GI9155@sun.com>
+	<Pine.LNX.4.58.0402111236460.2128@home.osdl.org>
+	<20040211210930.GJ9155@sun.com>
+	<20040211135325.7b4b5020.akpm@osdl.org>
+	<20040211222849.GL9155@sun.com>
+	<20040211144844.0e4a2888.akpm@osdl.org>
+	<20040211233852.GN9155@sun.com>
+	<20040211155754.5068332c.akpm@osdl.org>
+	<20040212003840.GO9155@sun.com>
+	<20040211164233.5f233595.akpm@osdl.org>
+	<20040212010822.GP9155@sun.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson <adi@hexapodia.org> said on Wed, 11 Feb 2004 18:45:32 -0600:
-> On Wed, Feb 11, 2004 at 10:35:10AM -0600, Dave Kleikamp wrote:
-> > Yeah, JFS has poor default behavior based on CONFIG_NLS_DEFAULT.  I
-> > attempted to explain why it works that way in the first bug listed above
-> > if anyone is curious.
+Tim Hockin <thockin@sun.com> wrote:
+>
+> On Wed, Feb 11, 2004 at 04:42:33PM -0800, Andrew Morton wrote:
+> On Wed, Feb 11, 2004 at 04:42:33PM -0800, Andrew Morton wrote:
+> > > Indeed.  MKDEV() already masks off the high order stuff, so that is OK.
+> >_
+> > That means that we've lost the original idr key and can no longer remove
+> > the thing, doesn't it?
 > 
-> I think your suggested fix is good, but it begs the question:
+> No, it doesn't store the counter with the id.  They expect you to do that.
+> My best understanding is that thi sis to prevent re-use of the same key.
+> I'm not sure I grok why it is useful.  If you release a key, it should be
+> safe to reuse.  Period.  I assume there was some use case that brought about
+> this "feature" but if so, I don't know what it is.  The big comment about it
+> is just confusing me.
+
+Maybe Jim can tell us why it's there.  Certainly, the idr interface would
+be more useful if it just returned id's which start from zero.
+
+
+> > > On idr_get_new(), we can just check for
+> > > 	dev & ((1<<MINORBITS)-1) == (1<<MINORBITS)-1)
+> > > and return -EMFILE.
+> > >_
+> > > That combined with a gfp mask to idr and the assumption that idr's
+> > > counter
+> > > won't ever grow beyond (sizeof(int)*8 - MINORBITS) (12) bits
+> > >_
+> > > Shall I whip that up and test it?  Do you prefer a gfp mask to idr_init
+> > > that
+> > > sticks around for all allocations or a GFP mask to idr_pre_get?
 > 
-> Why on earth is JFS worried about the filename, anyways?  Why has it
-> *ever* had *any* behavior other than "string of bytes, delimited with /,
-> terminated with \0" ?
+> Offer repeated. :)
 
-Thanks for wording my question better. That was *precisely* the
-question I was trying to ask :)
-
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-Disclaimer: This post owned by the owner
+Please.

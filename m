@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276184AbRI1RVL>; Fri, 28 Sep 2001 13:21:11 -0400
+	id <S276185AbRI1RYa>; Fri, 28 Sep 2001 13:24:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276185AbRI1RVA>; Fri, 28 Sep 2001 13:21:00 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6667 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S276184AbRI1RUt>; Fri, 28 Sep 2001 13:20:49 -0400
-Date: Fri, 28 Sep 2001 14:21:07 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <kuznet@ms2.inr.ac.ru>
-Cc: <mingo@elte.hu>, <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        <alan@lxorguk.ukuu.org.uk>, <bcrl@redhat.com>, <andrea@suse.de>
-Subject: Re: [patch] softirq performance fixes, cleanups, 2.4.10.
-In-Reply-To: <200109281704.VAA04444@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.33L.0109281420180.26495-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S276186AbRI1RYU>; Fri, 28 Sep 2001 13:24:20 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48648 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276185AbRI1RYN>; Fri, 28 Sep 2001 13:24:13 -0400
+Subject: Re: Adding a printk in start_secondary breaks 2.4.10, not 2.4.9 ??
+To: fletch@aracnet.com
+Date: Fri, 28 Sep 2001 18:29:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <945217781.1001672597@[10.10.1.2]> from "Martin J. Bligh" at Sep 28, 2001 10:23:17 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15n1Rz-0007lt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Sep 2001 kuznet@ms2.inr.ac.ru wrote:
+> undiagnosable BINT error - I have no idea why ... maybe
+> the console_lock serialises some action of the procs?)
 
-> Please, explain who exactly obtains an advantage of looping.
-> net_rx_action()? Do you see drops in backlog?
+The console locking changes have I suspect broken your bandaid. I guess
+this time you need to fix it properly. Garbled panics normally occur when
+both cpus panic in parallel. That really wants some kind of timed spinlock
+to try and dump them one after the other
 
-> net_tx_action()? It does not look critical.
-
-Then how would you explain the 10% speed difference
-Ben and others have seen with gigabit ethernet ?
-
-regards,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+Alan

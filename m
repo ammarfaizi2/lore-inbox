@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315554AbSEHXPU>; Wed, 8 May 2002 19:15:20 -0400
+	id <S315555AbSEHXZw>; Wed, 8 May 2002 19:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315555AbSEHXPT>; Wed, 8 May 2002 19:15:19 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42756 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S315552AbSEHXPS>; Wed, 8 May 2002 19:15:18 -0400
-Date: Thu, 9 May 2002 01:15:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Reading page from given block device
-Message-ID: <20020508231520.GC11842@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020508204809.GA2300@elf.ucw.cz> <3CD996E5.BFB5CF9E@zip.com.au> <20020508225603.GA11842@atrey.karlin.mff.cuni.cz> <3CD9AE15.114D13E3@zip.com.au>
-Mime-Version: 1.0
+	id <S315556AbSEHXZv>; Wed, 8 May 2002 19:25:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16374 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315555AbSEHXZu>;
+	Wed, 8 May 2002 19:25:50 -0400
+Message-ID: <3CD9B324.F3251957@mvista.com>
+Date: Wed, 08 May 2002 16:22:12 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Der Herr Hofrat <der.herr@mail.hofr.at>
+CC: Simon Butcher <pickle@alien.net.au>,
+        "Serguei I. Ivantsov" <admin@gsc-game.kiev.ua>,
+        linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Measure time
+In-Reply-To: <200205081658.g48GwmV06862@hofr.at>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> > It is swap partition, but system does not yet know its swap at that
-> > point. This is next boot, that partition was not yet accessed.
-> >                                                                 Pavel
+Der Herr Hofrat wrote:
 > 
-> In that case, I don't know.  Sorry.  sysrq-T is your
-> friend (and kgdb is your god).  Let me know...
+> >
+> > Hi,
+> >
+> > ftime() will return milliseconds, but it's considered an obsolete function.
+> > You could use gettimeofday() (as Richard Johnson suggested) to get
+> > microseconds and divide them to get milliseconds, although I don't know how
+> > time critical your routines are.
+> >
+> > If you're still looking for nanoseconds, I'm told you can use
+> > clock_gettime() but it's still quite unavailable (I've never seen it myself,
+> > yet).. however even if it was available you possibly wouldn't get a very
+> > high resolution from it with current systems..
+> >
+> clock_gettime() is available in the hard realtime extensions like RTLinux .
+> The clock resolution is limited to 32ns though - and atleast on X86 I don't
+> think there is a way to get below that.
 
-Call trace is 
+The high-res-timers patch provides clock_gettime() with resolution to
+the TSC increment.  But you need to understand that this is a system
+call which can take on the order of 1000 or these units.  Add in a
+little cach hit/ miss and interrupt randomness and well...
 
-c01229ed -- bdev_read_page
-c0134b5b -- __bread
+Still, there it is.  Check out the web site below.
 
-That's stable (as expected). Under that, it was seen in
-
-c0134a57 -- __getblk
-	    blk_get_queue
-	    ata_get_queue
-
-Second try:
-
-c0134a28 -- __getblk
-	    __get_hash_table
-
-Third try:
-
-c0134a28 -- __getblk
-c01343cc -- __get_hash_table
-
-Fourth try:
-
-c0134abd -- __getblk
-
-... I should get some sleep I guess...
-								Pavel
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131094AbRABXSg>; Tue, 2 Jan 2001 18:18:36 -0500
+	id <S130075AbRABXW5>; Tue, 2 Jan 2001 18:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130188AbRABXS0>; Tue, 2 Jan 2001 18:18:26 -0500
-Received: from f167.law3.hotmail.com ([209.185.241.167]:40976 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S131083AbRABXSP>;
-	Tue, 2 Jan 2001 18:18:15 -0500
-X-Originating-IP: [204.68.140.34]
-From: "Jim M." <msg124@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: login script Q, did not work!!
-Date: Tue, 02 Jan 2001 22:47:43 -0000
+	id <S130188AbRABXWs>; Tue, 2 Jan 2001 18:22:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56082 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S130075AbRABXWc>;
+	Tue, 2 Jan 2001 18:22:32 -0500
+Date: Tue, 2 Jan 2001 23:51:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Kernel Related Emails <kernel@penguin.linuxhardware.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DVD not functioning
+Message-ID: <20010102235151.C17330@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0101021404050.7900-100000@penguin.linuxhardware.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F167xjA9YTfNt1bimfO0000bad6@hotmail.com>
-X-OriginalArrivalTime: 02 Jan 2001 22:47:43.0703 (UTC) FILETIME=[04CED670:01C0750E]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0101021404050.7900-100000@penguin.linuxhardware.org>; from kernel@penguin.linuxhardware.org on Tue, Jan 02, 2001 at 02:04:44PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Included it in the rc.local file as you told me but it did not
-work. I still had to go to "/dir1/drv" and do "su [password for
-root]" and then type "./upload",  exit.  Maybe some little script that
-can do this in the "bash_profile" or ....
-I am not familiar with scripting...
-This is a custom driver for a custom board.
-J
+On Tue, Jan 02 2001, Kernel Related Emails wrote:
+> It appears that DVD calls have been broken in the new prerelease
+> kernel.  I have been trying to use a DVD application under prerelease that
+> worked under test9 with no luck.
+> 
+> Any ideas?
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+Eh very hard to say, can you say a bit more about what happens? What dvd
+calls? What breaks and how?
 
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

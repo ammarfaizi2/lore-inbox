@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbULBTyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbULBTzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbULBTyz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 14:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbULBTyy
+	id S261742AbULBTzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 14:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbULBTzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 14:54:54 -0500
-Received: from hell.sks3.muni.cz ([147.251.210.30]:59050 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261741AbULBTyw
+	Thu, 2 Dec 2004 14:55:25 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:56055 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261742AbULBTzU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 14:54:52 -0500
-Date: Thu, 2 Dec 2004 20:54:22 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Stefan Schmidt <zaphodb@zaphods.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041202195422.GA20771@mail.muni.cz>
-References: <20041109203348.GD8414@logos.cnet> <20041110212818.GC25410@mail.muni.cz> <20041110181148.GA12867@logos.cnet> <20041111214435.GB29112@mail.muni.cz> <4194A7F9.5080503@cyberone.com.au> <20041113144743.GL20754@zaphods.net> <20041116093311.GD11482@logos.cnet> <20041116170527.GA3525@mail.muni.cz> <20041121014350.GJ4999@zaphods.net> <20041121024226.GK4999@zaphods.net>
+	Thu, 2 Dec 2004 14:55:20 -0500
+Subject: Re: [PATCH 4/6] Add dynamic context transition support to SELinux
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Darrel Goeddel <dgoeddel@trustedcs.com>
+In-Reply-To: <20041202111859.A2357@build.pdx.osdl.net>
+References: <1102002189.26015.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041202103456.O14339@build.pdx.osdl.net>
+	 <1102013788.26015.192.camel@moss-spartans.epoch.ncsc.mil>
+	 <20041202111859.A2357@build.pdx.osdl.net>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1102017022.26015.249.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041121024226.GK4999@zaphods.net>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Dec 2004 14:50:22 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2004-12-02 at 14:18, Chris Wright wrote:
+> No, I was thinking of actually tracking the threads, since you know when
+> they come and go.  One way would be to share task_security_struct via
+> refcnt for threads, although this could get sticky.
 
-I found out that 2.6.6-bk4 kernel is OK. 
+Hmm...that would be a significant change, and I'm not clear that the
+existing security_task_alloc() hook even allows for it (no clone_flags
+passed to it).  ptrace_sid could also be an issue for sharing.
 
-Bugs in 2.6.9 results e.g. in a blocking select on the network socket :(
+Note that the mm checking logic is already after one permission check
+(setcurrent), which will only be allowed to the small set of privileged
+processes that use this feature.  That acts as the gatekeeper for any
+use of this feature, then the dyntransition check controls the possible
+transitions among security contexts using this feature.  In the case of
+exec-based transitions, the corresponding transition check is deferred
+until the actual exec processing.  So even as it stands, arbitrary
+processes aren't allowed to reach the code in question, which is better
+than the [gs]etpriority cases.
 
 -- 
-Luká¹ Hejtmánek
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

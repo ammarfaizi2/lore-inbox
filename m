@@ -1,104 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbULIPts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbULIP5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbULIPts (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbULIPts
+	id S261535AbULIP5J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbULIP5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:49:48 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:9703 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261529AbULIPtd (ORCPT
+	Thu, 9 Dec 2004 10:57:09 -0500
+Received: from main.gmane.org ([80.91.229.2]:63923 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261535AbULIP5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 10:49:33 -0500
-Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement
-From: Arjan van de Ven <arjan@infradead.org>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, sailer@watson.ibm.com,
-       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
-       tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
-References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
-Content-Type: text/plain
-Message-Id: <1102607309.2784.40.camel@laptop.fenrus.org>
+	Thu, 9 Dec 2004 10:57:05 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
+Date: Thu, 09 Dec 2004 10:57:05 -0500
+Message-ID: <87k6rr5usu.fsf@coraid.com>
+References: <87acsrqval.fsf@coraid.com> <20041206215456.GB10499@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 09 Dec 2004 10:48:29 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:tyu4WD1qDhsG++7XSJfZg9fHZ98=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-09 at 09:25 -0600, Kylene Hall wrote:
-> +	/* wait for status */
-> +	add_timer(&status_timer);
-> +	do {
-> +		schedule();
-> +		*data = inb(chip->base + 1);
-> +		if ((*data & mask) == val) {
-> +			del_singleshot_timer_sync(&status_timer);
-> +			return 0;
-> +		}
-> +	} while (!expired);
+Greg KH <greg@kroah.com> writes:
 
-this is busy waiting. Can't you do it with msleep() or some such ?
-Or like 100 iterations without delays (in case the chip returns fast),
-and then start sleeping, but please do sleep for a real time, not just
-yield the cpu. Powermanagement and lots of other things really like to
-see that.
-> +	/* wait for status */
-> +	add_timer(&status_timer);
-> +	do {
-> +		schedule();
-> +		status = inb(chip->base + NSC_STATUS);
-> +		if (status & NSC_STATUS_OBF)
-> +			status = inb(chip->base + NSC_DATA);
-> +		if (status & NSC_STATUS_RDY) {
-> +			del_singleshot_timer_sync(&status_timer);
-> +			return 0;
-> +		}
-> +	} while (!expired);
+...
+>> +typedef struct Bufq Bufq;
+>> +struct Bufq {
+>> +	Buf *head, *tail;
+>> +};
+>
+> What's wrong with the in-kernel list structures that you need to create
+> your own?
 
-same comment. Also the timer handling looks suspect... can you guarantee
-100% sure that the timer is gone when the while falls through ?
+The Buf structures are singly linked (one next pointer).  We could
+convert it to use list.h, but that would mean having another pointer
+per list element.
 
-
-> +	chip->userspace_buffer =
-> +	    kmalloc(TPM_BUFSIZE * sizeof(u8), GFP_KERNEL);
-
-that sounds like a really deceptive name to me ... since it's kernel
-memory ;)
-
-> +static int tpm_release(struct inode *inode, struct file *file)
-> +{
-> +	struct tpm_chip *chip = file->private_data;
-> +
-> +	if (chip == NULL)
-> +		return -ENODEV;
-> +
-> +	spin_lock(&driver_lock);
-> +	chip->num_opens--;
-
-why do you need to keep track of the number of openers? Can't you have
-the kernel fs layer keep track of this ?
-> +	chip->user_read_timer.function = user_reader_timeout;
-> +	chip->user_read_timer.data = (unsigned long) chip;
-> +	chip->user_read_timer.expires = jiffies + (60 * HZ);
-> +	add_timer(&chip->user_read_timer);
-> +
-> +	atomic_set(&chip->data_pending, out_size);
-> +
-> +	return size;
-
-what prevents the module from being unloaded ?
-(eg user calls write(); close(); and then does rmmod before the timer
-expires )
-
-> +/*
-> + * Resume from a power safe. The BIOS already restored
-> + * the TPM state.
-> + */
-
-are there any special security things needed after resume ?
-Or maybe at suspend time, to wipe secrets from the TPM or somesuch..
-
-
-
+-- 
+  Ed L Cashin <ecashin@coraid.com>
 

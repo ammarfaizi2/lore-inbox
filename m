@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316342AbSIJQww>; Tue, 10 Sep 2002 12:52:52 -0400
+	id <S314078AbSIJQ5A>; Tue, 10 Sep 2002 12:57:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSIJQwv>; Tue, 10 Sep 2002 12:52:51 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:457 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316342AbSIJQws>;
-	Tue, 10 Sep 2002 12:52:48 -0400
-Date: Tue, 10 Sep 2002 18:56:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] USB changes for 2.5.34
-Message-ID: <20020910185643.A9912@ucw.cz>
-References: <Pine.LNX.4.44.0209091926320.1911-100000@home.transmeta.com> <Pine.LNX.4.44.0209101044060.3793-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0209101044060.3793-100000@hawkeye.luckynet.adm>; from thunder@lightweight.ods.org on Tue, Sep 10, 2002 at 10:46:27AM -0600
+	id <S315870AbSIJQ47>; Tue, 10 Sep 2002 12:56:59 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:16559 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S314078AbSIJQ47>;
+	Tue, 10 Sep 2002 12:56:59 -0400
+Message-ID: <3D7E2579.3070206@colorfullife.com>
+Date: Tue, 10 Sep 2002 19:01:45 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Calculating kernel logical address ..
+References: <3D7D105D.7050604@colorfullife.com> <3D7D16ED.B09C9B47@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 10:46:27AM -0600, Thunder from the hill wrote:
-> Hi,
+Andrew Morton wrote:
+> Manfred Spraul wrote:
 > 
-> On Mon, 9 Sep 2002, Linus Torvalds wrote:
-> > I'm personally in X 99% of the time except for the reasonably rare case
-> > when I'm chasing down some bug I know I can reproduce and I want the
-> > kernel to have access to the console.
-> > 
-> > And I doubt I'm alone in that. I suspect most people who use Linux in any
-> > interesting situation (and no, I don't think servers are very interesting
-> > from most standpoints) tend to do this. Agreed?
+>>Andrew Morton wrote:
+>>
+>>>Nobody seems to have come forth to implement a thought-out scatter/gather,
+>>>map-user-pages library infrastructure so I'd be a bit reluctant to
+>>>break stuff without offering a replacement.
+>>>
+>>
+>>We'd need one.
+>>
+>>get_user_pages() is broken if a kernel module access the virtual address
+>>of the page and the cpu caches are not coherent:
 > 
-> Our gatekeeper has never even heard of X. And no, I wouldn't call it a 
-> server. The only thing it does is to control which doors and gates are 
-> open and which are closed, and whether or not the runaway is free...
+> 
+> OK.  Most users seem to just want to put the pages under DMA though.
+> 
+> 
+>>Most of the flush functions need the vma pointer, but it's impossible to
+>>guarantee that it still exists when the get_user_pages() user calls
+>>page_cache_release().
+> 
+> 
+> Well presumably, if the driver is altering user memory by hand,
+> it is synchronous and they can hang onto mmap_sem while doing it?
+ >
 
-So you wanted to say that you'd prefer the machine to crash on a BUG()
-than try to keep going in case of a recoverable error? I don't think
-you'd like to stay locked in. At least that was what this discussion was
-about.
+That's how it's done right now, and it works, but IMHO it's ugly.
+You switch from RAID-1 to RAID-5, and suddenly you might get 
+unexplainable data corruptions with O_DIRECT.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+--
+	Manfred
+

@@ -1,76 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317110AbSEXIA1>; Fri, 24 May 2002 04:00:27 -0400
+	id <S317111AbSEXIEo>; Fri, 24 May 2002 04:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317111AbSEXIA0>; Fri, 24 May 2002 04:00:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40715 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317110AbSEXIAZ>;
-	Fri, 24 May 2002 04:00:25 -0400
-Message-ID: <3CEDF413.34B1B649@zip.com.au>
-Date: Fri, 24 May 2002 01:04:35 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>, kuznet@ms2.inr.ac.ru,
-        Andrey Savochkin <saw@saw.sw.com.sg>
-Subject: Re: inode highmem imbalance fix [Re: Bug with shared memory.]
-In-Reply-To: <OF6D316E56.12B1A4B0-ONC1256BB9.004B5DB0@de.ibm.com> <3CE16683.29A888F8@zip.com.au> <20020520043040.GA21806@dualathlon.random> <20020524073341.GJ21164@dualathlon.random>
+	id <S317112AbSEXIEn>; Fri, 24 May 2002 04:04:43 -0400
+Received: from berta.E-Technik.Uni-Dortmund.DE ([129.217.182.12]:9476 "HELO
+	kt.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S317111AbSEXIEm>; Fri, 24 May 2002 04:04:42 -0400
+Date: Fri, 24 May 2002 10:04:34 +0200
+From: Wolfgang Wegner <ww@kt.e-technik.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: sk_buff misunderstanding?
+Message-ID: <20020524100434.B1778@bigmac.e-technik.uni-dortmund.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Mon, May 20, 2002 at 06:30:40AM +0200, Andrea Arcangeli wrote:
-> > As next thing I'll go ahead on the inode/highmem imbalance repored by
-> > Alexey in the weekend.  Then the only pending thing before next -aa is
-> 
-> Here it is, you should apply it together with vm-35 that you need too
-> for the bh/highmem balance (or on top of 2.4.19pre8aa3).
+Hi all,
 
-Looks OK to me.  But I wonder if it should be inside some config
-option - I don't think machines with saner memory architectures
-would want this?
+i am trying to do some modification in the kernel to get some different
+timestamp directly from a modified network driver, and am having some
+difficulty (or maybe misunderstanding) with sk_buff's...
 
-> ...
-> +                                        * in practice. Also keep in mind if somebody
-> +                                        * keeps overwriting data in a flood we'd
-> +                                        * never manage to drop the inode anyways,
-> +                                        * and we really shouldn't do that because
-> +                                        * it's an heavily used one.
-> +                                        */
+- struct sk_buff has a new member, struct ww_timestamp rcvtime, containing
+  the actual timestamp and a flag is_valid
+- the driver (currently orinoco.c from pcmcia_cs) is modified to fill
+  the my_timestamp struct and sets is_valid.
+- when passing the packet to a socket, this new timestamp is evaluated
+  (in sock_recv_timestamp, where both sk_buff _and_ sock are known)
 
-Can anyone actually write to an inode which is on the unused
-list?
+The problem is: in sock_recv_timestamp, is_valid is reset to 0 - and i
+have no idea why.
 
-> +                                       wakeup_bdflush();
-> +                               else if (inode->i_data.nrpages)
-> +                                       /*
-> +                                        * If we're here it means the only reason
-> +                                        * we cannot drop the inode is that its
-> +                                        * due its pagecache so go ahead and trim it
-> +                                        * hard. If it doesn't go away it means
-> +                                        * they're dirty or dirty/pinned pages ala
-> +                                        * ramfs.
-> +                                        *
-> +                                        * invalidate_inode_pages() is a non
-> +                                        * blocking operation but we introduce
-> +                                        * a dependency order between the
-> +                                        * inode_lock and the pagemap_lru_lock,
-> +                                        * the inode_lock must always be taken
-> +                                        * first from now on.
-> +                                        */
-> +                                       invalidate_inode_pages(inode);
+Here are the last relevant lines in orinoco.c: (orinoco_ev_rx)
+        /* WW_TIMESTAMP stuff */
+        skb->rcvtime=rcvtime;
+        printk("orinoco.c: skb=%p\n",skb);
 
-It seems that a call to try_to_free_buffers() has snuck into
-invalidate_inode_pages().  That means that clean ext3 pages
-which are on the checkpoint list won't be released.  Could you
-please change that to try_to_release_page()?
+        skb->rcvtime.is_valid=1;
+        /* Pass the packet to the networking stack */
+        netif_rx(skb);
 
+Here is include/net/sock.h (tsbucket is an extension i made)
+static __inline__ void
+sock_recv_timestamp(struct msghdr *msg, struct sock *sk, struct sk_buff *skb)
+{
+        if (sk->rcvtstamp)
+                put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMP, sizeof(skb->stamp), &skb
+->stamp);
+        else
+                sk->stamp = skb->stamp;
+        if((sk->tsbucket))
+          printk("skb=%p, timestamp.is_valid=%d!\n",skb,skb->rcvtime.is_valid);
 
--
+My first idea was that maybe the skb is copied around before, so i put
+some printk in skb_head_from_pool - but this seems not to be the case.
+Here is what the kernel says: (no lines left out!)
+
+May 24 08:55:43 licht kernel: skb_head_from_pool, skb=cfaa6d80
+May 24 08:55:43 licht kernel: orinoco.c: skb=cfaa6d80
+May 24 08:55:43 licht kernel: skb=cfaa6d80, timestamp.is_valid=0!
+May 24 08:55:43 licht kernel: skb_head_from_pool, skb=cfaa6d80
+May 24 08:55:43 licht kernel: skb_head_from_pool, skb=cf0fa200
+
+I am out of ideas - anybody else?
+(This must be some really stupid bug or misunderstanding of mine, i guess,
+but i really have no idea what i overlooked.)
+
+Any help is appreciated.
+
+Thanks,
+Wolfgang
+

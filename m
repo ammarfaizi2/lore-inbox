@@ -1,99 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267429AbUHTE64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267335AbUHTElU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267429AbUHTE64 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 00:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267556AbUHTE5m
+	id S267335AbUHTElU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 00:41:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267351AbUHTElU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 00:57:42 -0400
-Received: from thunk.org ([140.239.227.29]:16044 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S267429AbUHTE5V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 00:57:21 -0400
-To: linux-kernel@vger.kernel.org
-cc: akpm@osdl.org
-Subject: [PATCH] [3/4] /dev/random: Use separate entropy store for /dev/urandom
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1By1Sq-0001TP-BV@thunk.org>
-Date: Fri, 20 Aug 2004 00:57:20 -0400
+	Fri, 20 Aug 2004 00:41:20 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:4937 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267335AbUHTElS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 00:41:18 -0400
+Date: Fri, 20 Aug 2004 08:41:37 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi device numbering for ide devices)
+Message-ID: <20040820064137.GA7279@mars.ravnborg.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+References: <200408191600.i7JG0Sq25765@tag.witbe.net> <200408191341.07380.gene.heskett@verizon.net> <20040819194724.GA10515@merlin.emma.line.org> <20040819220553.GC7440@mars.ravnborg.org> <20040819205301.GA12251@merlin.emma.line.org> <41252A30.nail8D551I5Z2@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41252A30.nail8D551I5Z2@burner>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This patch adds a separate pool for use with /dev/urandom.  This
-prevents a /dev/urandom read from being able to completely drain the
-entropy in the /dev/random pool, and also makes it much more difficult
-for an attacker to carry out a state extension attack.
-
-patch-random-3-urandom-pool
-
---- random.c	2004/08/19 22:49:48	1.3
-+++ random.c	2004/08/19 22:50:19	1.4
-@@ -401,6 +401,7 @@
-  */
- static struct entropy_store *random_state; /* The default global store */
- static struct entropy_store *sec_random_state; /* secondary store */
-+static struct entropy_store *urandom_state; /* For urandom */
- static DECLARE_WAIT_QUEUE_HEAD(random_read_wait);
- static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
+On Fri, Aug 20, 2004 at 12:31:12AM +0200, Joerg Schilling wrote:
  
-@@ -1474,14 +1475,21 @@
-  */
- void get_random_bytes(void *buf, int nbytes)
- {
--	if (sec_random_state)  
--		extract_entropy(sec_random_state, (char *) buf, nbytes, 
--				EXTRACT_ENTROPY_SECONDARY);
--	else if (random_state)
--		extract_entropy(random_state, (char *) buf, nbytes, 0);
--	else
-+	struct entropy_store *r = urandom_state;
-+	int flags = EXTRACT_ENTROPY_SECONDARY;
-+
-+	if (!r)
-+		r = sec_random_state;
-+	if (!r) {
-+		r = random_state;
-+		flags = 0;
-+	}
-+	if (!r) {
- 		printk(KERN_NOTICE "get_random_bytes called before "
- 				   "random driver initialization\n");
-+		return;
-+	}
-+	extract_entropy(r, (char *) buf, nbytes, flags);
- }
- 
- EXPORT_SYMBOL(get_random_bytes);
-@@ -1532,8 +1540,12 @@
- 	if (create_entropy_store(SECONDARY_POOL_SIZE, "secondary", 
- 				 &sec_random_state))
- 		goto err;
-+	if (create_entropy_store(SECONDARY_POOL_SIZE, "urandom", 
-+				 &urandom_state))
-+		goto err;
- 	clear_entropy_store(random_state);
- 	clear_entropy_store(sec_random_state);
-+	clear_entropy_store(urandom_state);
- 	init_std_data(random_state);
- #ifdef CONFIG_SYSCTL
- 	sysctl_init_random(random_state);
-@@ -1667,9 +1679,15 @@
- urandom_read(struct file * file, char __user * buf,
- 		      size_t nbytes, loff_t *ppos)
- {
--	return extract_entropy(sec_random_state, buf, nbytes,
--			       EXTRACT_ENTROPY_USER |
--			       EXTRACT_ENTROPY_SECONDARY);
-+	int flags = EXTRACT_ENTROPY_USER;
-+	unsigned long cpuflags;
-+
-+	spin_lock_irqsave(&random_state->lock, cpuflags);
-+	if (random_state->entropy_count > random_state->poolinfo.POOLBITS)
-+		flags |= EXTRACT_ENTROPY_SECONDARY;
-+	spin_unlock_irqrestore(&random_state->lock, cpuflags);
-+
-+	return extract_entropy(urandom_state, buf, nbytes, flags);
- }
- 
- static unsigned int
+> -include does not work with Sun's make and it does not cure the bug in GNU make
+> but hides it only.
+> 
+> GNU make just violates the unwritten "golden rule" for all make programs:
+> 
+> 	If you like to "use" anything, first check whether you have a rule
+> 	that could make the file in question.
+> 
+> For makefiles on the Command Line, GNU make follows this rule. If you are in an 
+> empty directory and call "gmake", GNU make will first try if "Makefile" or 
+> "makefile" could be retrieved using e.g. "sccs get Makefile" before GNU make 
+> tries to read the file.
+> 
+> For makefiles that appear as argument to an include statement, GNU make ingnores
+> this rule. GNU make instead, later (too late) executes the rule set and creates 
+> the missing files using known rules. In order to be able to do anything useful, 
+> GNU make then executes "exec gmake <old arg list>" after it is done with 
+> executing the rules. This is complete nonsense.
+> 
+> Smake works this way:
+> 
+> -	if it is going to "include" a file, it checks whether there is a rule 
+> 	to make the file that is going to be included.
+> 
+> -	If the file has been "made", smake includes the file.
+> 
+> -	After including the file, smake clears the "has been made already" 
+> 	cache flags for the included file.
+> 
+> -	After all make files and all recursive include rules have been made and 
+> 	included, smake checks all rules again. This may result in rare cases 
+> 	that the rule for one of the the include file is executed again.
+> 
+> As you noe see that GNU make behaves inconsistent, I hope you believe me that 
+> there is a bug in GNU make that should be fixed.
+
+Please post this on the make-bug list then.
+
+	Sam

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbTFZNXo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 09:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbTFZNXn
+	id S261741AbTFZNY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 09:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbTFZNY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 09:23:43 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:6660 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261454AbTFZNXl (ORCPT
+	Thu, 26 Jun 2003 09:24:57 -0400
+Received: from yin.wanderer.org ([195.218.87.139]:64267 "EHLO yin.wanderer.org")
+	by vger.kernel.org with ESMTP id S261741AbTFZNYd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 09:23:41 -0400
-Date: Thu, 26 Jun 2003 15:38:20 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: rmoser <mlmoser@comcast.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21 pooched?
-Message-Id: <20030626153820.4147ec9a.skraw@ithnet.com>
-In-Reply-To: <200306260006360780.0086B340@smtp.comcast.net>
-References: <200306260006360780.0086B340@smtp.comcast.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 26 Jun 2003 09:24:33 -0400
+Date: Thu, 26 Jun 2003 15:17:07 +0300
+From: Tommi Virtanen 
+	<tv-nospam.da39a3ee5e6b4b0d3255bfef95601890afd80709@tv.debian.net>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Message-ID: <20030626121707.GA10603@lapdog>
+References: <3EE8D038.7090600@mvista.com> <20030612214753.GA1087@kroah.com> <20030612150335.6710a94f.akpm@digeo.com> <20030612225040.GA1492@kroah.com> <20030619165135.C6248@almesberger.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030619165135.C6248@almesberger.net>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jun 2003 00:06:36 -0400
-rmoser <mlmoser@comcast.net> wrote:
-
-> I'm having serious issues with 2.4.21.  It seems it doesn't like
-> ide-scsi, but panics/oops'es (something, it freezes afterwards
-> and blinks my kb) in ide-iops.c somewhere (ZIP/CDRW on
-> ide-scsi).  Also, the USB code seems to crash the system all
-> the time.  Gnome2 can't even begin to load, and when I kill X,
-> it takes the system down with it.
+On Thu, Jun 19, 2003 at 04:51:35PM -0300, Werner Almesberger wrote:
+> 4) Losses:
 > 
-> Everything I do is stable and safe in 2.4.18 through 2.4.20.  I
-> have had absolutely no panics or oopses until now with 2.4
-> series kernels.  I believe that the 2.4.21 kernel may be pooched.
-> Check that out if you haven't already heard of it.
+> Actually, I'm not so sure what really ought to happen with
+> losses. If we have serialization requirements elsewhere,
+> proceeding after unrecovered losses would probably mean that
+> they're being violated. So if they can be violated then,
+> maybe there is some leeway in other circumstances too ?
 > 
-> By the way, some people tell me 2.4.21 is stable, and others
-> (more of 'em) tell me it's evil.  I dunno, play with it.
-> 
-> --Bluefox Icy
+> On the other hand, if any loss means that major surgery is
+> needed, the interface should probably have a "in loss" state,
+> in which it just shuts down until someone cleans up the mess.
+> Also a partial shutdown may be interesting (e.g. implemented
+> by the dispatcher), where events with no interdependencies
+> with other events would still be processed.
 
-If you see oopses then we could have a good chance to read them, too?
+	One thing came to my mind:
 
-Regards,
-Stephan
+	If you have a sysfs-scanning method for startup, couldn't you
+	just make the sequence-number-checking daemon reset its state
+	and redo the sysfs scan on loss of events? (Or even make it
+	just exec itself and use the exact same code as at startup.)
+
+	That way the system recovers from event loss (or a reordering
+	that gets the earlier event too late and is believed to be a
+	loss) in a way that needs to work anyway, and isn't a magic
+	special case.
+
+-- 
+:(){ :|:&};:

@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267307AbSLEM1j>; Thu, 5 Dec 2002 07:27:39 -0500
+	id <S267308AbSLEMfz>; Thu, 5 Dec 2002 07:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267308AbSLEM1j>; Thu, 5 Dec 2002 07:27:39 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56242 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267307AbSLEM1i>; Thu, 5 Dec 2002 07:27:38 -0500
-Date: Thu, 5 Dec 2002 18:11:53 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: yodaiken@fsmlabs.com
-Cc: Andrew Morton <akpm@digeo.com>, Ravikiran G Thirumalai <kiran@in.ibm.com>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
-Message-ID: <20021205181153.C12588@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com> <20021205091217.A11438@in.ibm.com> <3DEED6FA.B179FAFD@digeo.com> <20021205162329.A12588@in.ibm.com> <20021205042312.A12616@hq.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021205042312.A12616@hq.fsmlabs.com>; from yodaiken@fsmlabs.com on Thu, Dec 05, 2002 at 11:33:15AM +0000
+	id <S267309AbSLEMfz>; Thu, 5 Dec 2002 07:35:55 -0500
+Received: from fetch.runbox.com ([193.71.199.211]:22704 "EHLO aibo.runbox.com")
+	by vger.kernel.org with ESMTP id <S267308AbSLEMfy>;
+	Thu, 5 Dec 2002 07:35:54 -0500
+Message-ID: <002701c29c5c$93fab2c0$47614ccb@zaman>
+From: "Shahid" <z-shahid@runbox.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "kernel" <linux-kernel@vger.kernel.org>
+References: <00d101c29b8d$63e45e80$4b614ccb@zaman> <1039009659.15359.16.camel@irongate.swansea.linux.org.uk>
+Date: Thu, 5 Dec 2002 18:46:21 +0600
+MIME-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Subject: Re: testing mouse device driver
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 11:33:15AM +0000, yodaiken@fsmlabs.com wrote:
-> 
-> > 
-> > Well, kernel objects may not be that small, but one would expect
-> > the per-cpu parts of the kernel objects to be sometimes small, often down to
-> > a couple of counters counting statistics.
-> 
-> 
-> Doesn't your allocator increase chances of cache conflict on the same
-> cpu ?
-> 
 
-You mean by increasing the footprint and the chance of eviction ? It
-is a compromise. Or you would face NR_CPUS bloat and non-NUMA-node-local 
-accesses for all CPUs outside the NUMA node where your NR_CPUS array
-is located.
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Shahid" <z-shahid@runbox.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Sent: Wednesday, December 04, 2002 7:47 PM
+Subject: Re: testing mouse device driver
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+
+>
+> Minor 0 is dynamic - you probably want to pick another minor number or
+> look in /proc/misc to see which minor was chosen.
+>
+> The PS/2 port is rather special btw and tied in with the keyboard so
+> isnt one you can treat seperately. Fortunately no PS/2 mouse should need
+> any 2.4 kernel hacks, just user space stuff to handle different command
+> streams
+>
+
+  /******* Eid Mubarok and greetings to all of this kernel mailing list
+                        on the occasion of the Holy Eid
+*********/
+
+hi,
+        thanx for ur quick response. Actually what i need (a part of my
+academic project), is just to comile ur code and load it as a module and
+then to see whether the bare mouse specific events occur. but the painful
+reality is, i failed to do so. FYI,  i just a sophomore undergraduate
+student, and i don't find any resourse inside or outside my faculty to help
+me to do this. So i had to come in the kernel mailing list, though i am
+almost a newbie.
+
+        i tried with minor numbers other than 0. first i tried with ,inor
+number 1, cauze this is the number i got in /proc/misc allocated for psaux,
+in that file. but the result is same. now while i try to load the module,
+the error message is:
+
+        init_module: no such device, invalid parameters
+        hint: invalid IO or irq number
+
+
+        then i arbitary tried with some other minor numbers, but the result
+is same.
+So plz help me to just load the module. as u r the author, certainly u
+compiled that code and load the module. so plz tell me ur parameters, i.e.
+the port address and major-minor number and irq number, or other hints so
+that i load that module.
+TIK
+
+regards -
+Shahid
+
+

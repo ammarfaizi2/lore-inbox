@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310582AbSCGW6i>; Thu, 7 Mar 2002 17:58:38 -0500
+	id <S310584AbSCGW6I>; Thu, 7 Mar 2002 17:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310586AbSCGW63>; Thu, 7 Mar 2002 17:58:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16901 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310582AbSCGW6Q>;
-	Thu, 7 Mar 2002 17:58:16 -0500
-Message-ID: <3C87F01D.322E6154@zip.com.au>
-Date: Thu, 07 Mar 2002 14:56:29 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Cort Dougan <cort@fsmlabs.com>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by 
- LinuxMaintainers
-In-Reply-To: <20020307135043.K9231@host110.fsmlabs.com> <Pine.LNX.4.44L.0203071810460.2181-100000@imladris.surriel.com> <3C87E986.50A6F3C4@zip.com.au>,
-		<3C87E986.50A6F3C4@zip.com.au>; from akpm@zip.com.au on Thu, Mar 07, 2002 at 02:28:22PM -0800 <20020307154720.A1267@host110.fsmlabs.com>
+	id <S310582AbSCGW57>; Thu, 7 Mar 2002 17:57:59 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57838 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S310585AbSCGW5k>; Thu, 7 Mar 2002 17:57:40 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <E16j70R-000463-00@the-village.bc.nu> 
+In-Reply-To: <E16j70R-000463-00@the-village.bc.nu> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: phillips@bonn-fries.net (Daniel Phillips), yodaiken@fsmlabs.com,
+        jdike@karaya.com (Jeff Dike), bcrl@redhat.com (Benjamin LaHaise),
+        hpa@zytor.com (H. Peter Anvin), linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 07 Mar 2002 22:57:12 +0000
+Message-ID: <1916.1015541832@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cort Dougan wrote:
-> 
-> This is great.  We can just throw in some VI vs. emacs discussion and we'll
-> really have something good going!
 
-They both suck.  Be a man: write your own.
+alan@lxorguk.ukuu.org.uk said:
+>  None at all. If you needed the memory before you committed to an
+> operation you should have reserved it before you started. See "sloppy
+> coders"
 
-> } heh.  Now learn kgdb.  You ain't seen nothing yet.
-> }
-> } Ever tried to use a computer with the monitor turned off?
-> } Kernel development without kgdb is like that.
-> 
-> Are there working patches against non-x86 in there, too?
+This is true. I must admit I was having trouble trying to think of a real 
+case where the latter applied in _sane_ code.
 
-Nope, sorry.   All the world's a VAX.
+--
+dwmw2
 
--
+

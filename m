@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278125AbRKAGlr>; Thu, 1 Nov 2001 01:41:47 -0500
+	id <S278163AbRKAG7r>; Thu, 1 Nov 2001 01:59:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278133AbRKAGlh>; Thu, 1 Nov 2001 01:41:37 -0500
-Received: from mail12.speakeasy.net ([216.254.0.212]:4112 "EHLO
+	id <S278159AbRKAG7h>; Thu, 1 Nov 2001 01:59:37 -0500
+Received: from mail12.speakeasy.net ([216.254.0.212]:41477 "EHLO
 	mail12.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S278125AbRKAGld>; Thu, 1 Nov 2001 01:41:33 -0500
+	id <S278177AbRKAG72>; Thu, 1 Nov 2001 01:59:28 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: safemode <safemode@speakeasy.net>
 To: Mark Hahn <hahn@physics.mcmaster.ca>
 Subject: Re: graphical swap comparison of aa and rik vm
-Date: Thu, 1 Nov 2001 01:41:31 -0500
+Date: Thu, 1 Nov 2001 01:59:27 -0500
 X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <Pine.LNX.4.10.10111010056100.31484-100000@coffee.psychology.mcmaster.ca>
 In-Reply-To: <Pine.LNX.4.10.10111010056100.31484-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20011101064134Z278125-17408+8714@vger.kernel.org>
+Message-Id: <20011101065933Z278177-17408+8722@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -42,23 +42,21 @@ On Thursday 01 November 2001 01:23, Mark Hahn wrote:
 > to me, this looks like the same point: Rik being SO-happy,
 > Andrea having to SI a lot more.  interesting also that Andrea wins the
 > race, in spite of poorer SO choices and more swap traffic overall.
->
-> > Neadless to say that while running the test on either box, the entire
-> > computer became unresponsive multiple times for extended lengths of
-> > times.
->
-> yes, unfortunately this corrupts the value of the data, since the
-> timecourses are not really comparable, and samples are only vaguely related
-> to time...
 
-If you miss anything you miss the plateu data that would be found  when the 
-IO peaks.  But i doubt much at all was really lost in this case.  
-> regards, mark hahn.
-
-Actually i found that most if not all of the vmstat's that weren't being 
-displayed were displayed immediately after the "locks", ie. I got flooded 
-with vmstats upon the computer becoming responsive again.   
-Of course I should have been timing each run with a stopwatch, but that never 
-crossed my mind that the vmstat would be lost.   In other words i thought of 
-it as analogous to having burst-lag on irc.  Guess that's for tomorrow after 
-work.  
+My guess is that rik's vm allocates memory too relaxed.  It quickly grabbed 
+all the memory it thought it would need so it wouldn't have to waste time 
+increasing or shrinking it (i guess that's why) and in doing so it started to 
+strangle memory needed for other things, generally decreasing the overall 
+performance of the system.  That could be why you see spikes increasing and 
+decreasing rapidly in rik's vm allocation of swap.  He had allocated 
+everything and needed to shrink it to make room for something else (actual 
+generation of the kde window for kghostview?) which caused it to lose much 
+time and any advantage it had gained by not making actual swap mistakes.  
+AA's memory allocation is more minimalistic but it easily has room for the 
+memory needed to render the kde window and all once processing the ps file 
+was done.  This would also back up what i visually saw during the test.  
+Rik's kernel got done the processing of the ps file before AA's did, but it 
+was stuck at a frozen looking kghostview window with nothing inside it for a 
+while before being able to actually render the contents.   AA's was able to 
+render the contents almost immediately after the window showed up on the 
+screen.  

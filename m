@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbTAAPo7>; Wed, 1 Jan 2003 10:44:59 -0500
+	id <S267256AbTAAPsp>; Wed, 1 Jan 2003 10:48:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbTAAPo7>; Wed, 1 Jan 2003 10:44:59 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21765 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267248AbTAAPo6>; Wed, 1 Jan 2003 10:44:58 -0500
-Date: Wed, 1 Jan 2003 10:51:14 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix os release detection in module-init-tools-0.9.6 
-In-Reply-To: <Pine.LNX.4.33L2.0212291029540.10723-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.3.96.1030101104259.14470A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267257AbTAAPsp>; Wed, 1 Jan 2003 10:48:45 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:22207 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S267256AbTAAPso>; Wed, 1 Jan 2003 10:48:44 -0500
+Date: Wed, 1 Jan 2003 16:57:07 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make CONFIG_ACPI a parent option for the ACPI submenu
+Message-ID: <20030101155707.GC15200@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Dec 2002, Randy.Dunlap wrote:
-
-> On Sun, 29 Dec 2002, Rusty Russell wrote:
-
-> | Um, you read the .config, which hopefully is stored somewhere.
-> | (Although you could resurrect the /proc/config patch which goes around
-> | every so often).  There are many things you can't tell by reading
-> | /proc/ksyms.
-> 
-> Right, the .config file is the answer.  And there are at least 2
-> patch solutions for it, the /proc/config that Rusty mentioned, or
-> the in-kernel config that Khalid Aziz and others from HP did along
-> with me, and it's in 2.4.recent-ac or 2.5.recent-dcl or 2.5.recent-cgl.
-
-It would be useful to have a few global options perhaps included in /proc
-(or wherever) on all kernels. By global I mean those which affect the
-entire kernel, like preempt or smp, rather than driver options. We already
-note 'tainted,' so this is not a totally new idea. It would seem that most
-of the processor options could fall in this class, MCE, IOAPIC, etc.
-
-If the aim is to speed stability, putting any of the "whole config"
-options in and defaulted on might be a step toward that.
+Trivial: make CONFIG_ACPI a parent option for the ACPI submenu.  The submenu
+will only be shown when ACPI support is enabled.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Tomas Szepe <szepe@pinerecords.com>
 
+diff -urN a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+--- a/drivers/acpi/Kconfig	2002-12-16 07:01:47.000000000 +0100
++++ b/drivers/acpi/Kconfig	2003-01-01 16:53:48.000000000 +0100
+@@ -2,8 +2,6 @@
+ # ACPI Configuration
+ #
+ 
+-menu "ACPI Support"
+-
+ config ACPI
+ 	bool "ACPI Support" if X86
+ 	default y if IA64 && (!IA64_HP_SIM || IA64_SGI_SN)
+@@ -35,6 +33,9 @@
+ 	  available at:
+ 	  <http://www.acpi.info>
+ 
++menu "ACPI Support configuration"
++	depends on ACPI
++
+ config ACPI_HT_ONLY
+ 	bool "CPU Enumeration Only"
+ 	depends on X86 && ACPI && X86_LOCAL_APIC

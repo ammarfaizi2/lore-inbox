@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSFEXON>; Wed, 5 Jun 2002 19:14:13 -0400
+	id <S316541AbSFEXQ7>; Wed, 5 Jun 2002 19:16:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSFEXOM>; Wed, 5 Jun 2002 19:14:12 -0400
-Received: from jalon.able.es ([212.97.163.2]:2944 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316535AbSFEXOJ>;
-	Wed, 5 Jun 2002 19:14:09 -0400
-Date: Thu, 6 Jun 2002 01:12:45 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Oliver Wegner <oliver@wilmskamp.dyndns.org>, root@chaos.analogic.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Load kernel module automatically
-Message-ID: <20020605231245.GA1804@werewolf.able.es>
-In-Reply-To: <Pine.LNX.3.95.1020605172819.12226A-100000@chaos.analogic.com> <200206060023.42180.oliver@wilmskamp.dyndns.org> <1023320742.2443.31.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.6
+	id <S316542AbSFEXQ6>; Wed, 5 Jun 2002 19:16:58 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:58525 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S316541AbSFEXQ4>; Wed, 5 Jun 2002 19:16:56 -0400
+Date: Wed, 5 Jun 2002 18:15:36 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Greg KH <greg@kroah.com>
+cc: Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kees Bakker <kees.bakker@xs4all.nl>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Anton Blanchard <anton@samba.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] PCI device matching fix
+In-Reply-To: <20020604051704.GA26058@kroah.com>
+Message-ID: <Pine.LNX.4.44.0206051759440.8309-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.06.06 Alan Cox wrote:
->On Wed, 2002-06-05 at 23:23, Oliver Wegner wrote:
->> all i wanted to point out was that it doesnt seem to be distribution 
->> independent as someone had stated before because that file /etc/modules 
->> for example doesnt exist under SuSE. i wasnt asking anything about it 
->> myself.
->> 
->> anyway i will be able to find out that information if i need to sometime. 
->> thanks.
->
->modules.conf is the standard name for it. A long time ago it was
->sometimes called conf.modules. 
->
+> @@ -101,6 +96,28 @@
+>  		drv->release(drv);
+>  }
+>  
+> +void remove_driver(struct device_driver * drv)
+> +{
+> +	spin_lock(&device_lock);
+> +	atomic_set(&drv->refcount,0);
+> +	spin_unlock(&device_lock);
+> +	__remove_driver(drv);
+> +}
 
-Usually there is an rc script called /etc/rc.d/rc.modules. It
-can load modules directly (perhaps this is the case on SuSE and RH),
-or it reads the list of modules to load from an independent file
-(/etc/modules in Mandrake, for example). In the first case you add
-the 'modprobe xxxx' directly in the rc script, and in the second you
-just add 'xxxx' in /etc/modules, so you do not modify a system file
-and rpm is happy about .rpmnew files.
+> @@ -124,7 +136,7 @@
+>  void
+>  pci_unregister_driver(struct pci_driver *drv)
+>  {
+> -	put_driver(&drv->driver);
+> +	remove_driver(&drv->driver);
+>  }
+>  
+>  static struct pci_driver pci_compat_driver = {
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre10-jam1 #3 SMP jue jun 6 00:00:33 CEST 2002 i686
+Now does that mean you have given up on getting the ref counting right? 
+Forcing the ref count to zero is obviously not a solution, 
+pci_unregister_driver is usually called at module unload time, which means 
+that struct pci_driver will go away immediately after the call returns. If 
+you know that there are no other users at this time (which I doubt), you 
+don't need to do the whole refcounting thing at all (since at all times 
+before the ref count is surely >= 1). If not, you're racy.
+
+I think I brought up that issue before, though nobody seemed interested. 
+AFAICS there are two possible solutions:
+
+o provide a destructor callback which is called from put_driver when we're 
+  about to throw away the last reference which would let whoever registered 
+  the thing in the beginning know that it's all his again now (If it was
+  kmalloced, that would be the time to kfree it). In this case it's 
+  rather that the callback would tell us we can now finish 
+  module_exit().
+o Use a completion or something and do the above inside 
+  pci_unregister_driver (or remove_driver). I.e. have it sleep until
+  all references are gone. That would fix the race for the typical
+
+void my_module_exit(void) { pci_unregister_driver(&my_driver); }
+
+  case.
+
+(The latter would be my preference, as I see no point in having driver
+ authors deal with the complication of waiting for completion of 
+ pci_unregister_driver() themselves)
+
+--Kai
+
+

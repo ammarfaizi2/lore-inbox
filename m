@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbTEBQQj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 12:16:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbTEBQQj
+	id S261965AbTEBUzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 16:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262405AbTEBUze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 12:16:39 -0400
-Received: from pop.gmx.de ([213.165.65.60]:12984 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262014AbTEBQQi (ORCPT
+	Fri, 2 May 2003 16:55:34 -0400
+Received: from ns.suse.de ([213.95.15.193]:26630 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261965AbTEBUzd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 12:16:38 -0400
-Message-ID: <3EB29CC8.1030305@gmx.net>
-Date: Fri, 02 May 2003 18:28:56 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Florian Weimer <fw@deneb.enyo.de>, linux-kernel@vger.kernel.org,
-       kuznet@ms2.inr.ac.ru
-Subject: Re: must-fix list for 2.6.0
-References: <20030429231009$1e6b@gated-at.bofh.it>	 <87k7dcinxg.fsf@deneb.enyo.de> <1051788267.8772.9.camel@rth.ninka.net>	 <87znm6c3fd.fsf@deneb.enyo.de> <1051790736.8772.23.camel@rth.ninka.net>
-In-Reply-To: <1051790736.8772.23.camel@rth.ninka.net>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 2 May 2003 16:55:33 -0400
+Date: Fri, 2 May 2003 23:07:58 +0200
+From: Andi Kleen <ak@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+Message-ID: <20030502210758.GB21239@oldwotan.suse.de>
+References: <Pine.LNX.4.44.0305021325130.6565-100000@devserv.devel.redhat.com.suse.lists.linux.kernel> <200305021829.h42ITclA000178@81-2-122-30.bradfords.org.uk.suse.lists.linux.kernel> <b8udjm$cgq$1@cesium.transmeta.com.suse.lists.linux.kernel> <p73n0i5138g.fsf@oldwotan.suse.de> <3EB2DB8C.70600@zytor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3EB2DB8C.70600@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-
-> On Thu, 2003-05-01 at 04:27, Florian Weimer wrote:
+On Fri, May 02, 2003 at 01:56:44PM -0700, H. Peter Anvin wrote:
+> Andi Kleen wrote:
+> >>
+> >>x86-64 definitely does, and it's the default on Linux/x86-64.
+> > 
+> > No we had to turn it off and now it's too late to turn it back on again.
+> > There is also one bug left that prevents it.
+> > 
 > 
->>"David S. Miller" <davem@redhat.com> writes:
->>
->>>On Tue, 2003-04-29 at 21:55, Florian Weimer wrote:
->>>
->>>>Andrew Morton <akpm@digeo.com> writes:
->>>>
->>>>
->>>>>net/
->>>>>----
->>>>
->>>>What about the dst cache DoS attack?
->>>
->>>Thanks for the lack of detailed description of the problem.
->>>Without it nobody can help you.
->>
->>Shall I post the exploit?
-> 
-> You can't expect us to act on anything based upon vague references
-> to "dst cache DoS" and things like that.
+> Why is that?  And, in particular, why is it "too late to turn it back
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104956079213417
+mprotect() didn't (and probably still does not) work when you change
+PROT_EXEC.
 
+> on"?  It seems as long as it's clearly defined as the ABI that change
+> can be made later, effectively as a bug fix.
 
-Regards,
-Carl-Daniel
+The ABI leaves it undefined. But it does break binaries.
 
+Also gcc needs to be fixed for trampolines (I had some code that enabled 
+the stack exec in there, but it didn't work because of the mprotect
+issues)
+
+-Andi

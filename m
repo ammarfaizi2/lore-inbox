@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281817AbRLLTqk>; Wed, 12 Dec 2001 14:46:40 -0500
+	id <S281843AbRLLUBl>; Wed, 12 Dec 2001 15:01:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281818AbRLLTqb>; Wed, 12 Dec 2001 14:46:31 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25360 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281817AbRLLTqY>; Wed, 12 Dec 2001 14:46:24 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: IP -> hostname lookup in kernel module?
-Date: 12 Dec 2001 11:46:09 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9v8c61$gcn$1@cesium.transmeta.com>
-In-Reply-To: <1008174218.3c17848ab4b69@home.hjc.edu.sg> <Pine.LNX.4.33.0112130035070.2697-100000@localhost.localdomain> <20011212173517.G17064@blu>
-MIME-Version: 1.0
+	id <S281852AbRLLUBa>; Wed, 12 Dec 2001 15:01:30 -0500
+Received: from dsl-213-023-039-104.arcor-ip.net ([213.23.39.104]:27909 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281843AbRLLUBT>;
+	Wed, 12 Dec 2001 15:01:19 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+Date: Wed, 12 Dec 2001 21:03:20 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011211144223.E4801@athlon.random> <E16DooZ-0001J4-00@starship.berlin> <20011212121624.B4801@athlon.random>
+In-Reply-To: <20011212121624.B4801@athlon.random>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Message-Id: <E16EFb9-0000E4-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011212173517.G17064@blu>
-By author:    antirez <antirez@invece.org>
-In newsgroup: linux.dev.kernel
+On December 12, 2001 12:16 pm, Andrea Arcangeli wrote:
+> On Tue, Dec 11, 2001 at 04:27:23PM +0100, Daniel Phillips wrote:
+> > On December 11, 2001 03:23 pm, Andrea Arcangeli wrote:
+> > > As said I wrote some documentation on the VM for my last speech at the
+> > > one of the most important italian linux events, it explains the basic
+> > > design. It should be published on their webside as soon as I find the
+> > > time to send them the slides. I can post a link once it will be online.
+> > 
+> > Why not also post the whole thing as an email, right here?
 > 
-> There isn't, but you can create an UDP socket and to the query..
-> 
+> I uploaded it here:
 
-No you can't.  There is no way that you can find out which nameservers
-are configured.
+ftp://ftp.suse.com//pub/people/andrea/talks/english/2001/pluto-dec-pub-0.tar.gz
 
-> or run an userspace resolver daemon that talks with your
-> module, or some other trick.
-> 
-> BTW it isn't the kind of stuff to do in kernelspace.
-> You may think about do it in a post-processing stage
-> if possible, or to write a module that exports to userspace
-> what you need from the kernel and do the rest in userspace.
+This is really, really useful.
 
-Indeed.
+Helpful hint: to run the slideshow, get magicpoint (debian users: apt-get 
+install mgp) and do:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+   mv pluto.mpg pluto.mgp # ;)
+   mgp pluto.mgp -x vflib
+
+Helpful hint #2: Actually, just gv pluto.ps is gets all the content.
+
+Helpful hint #3: Actually, less pluto.mgp will do the trick (after the 
+rename) and lets you cut and paste the text, as I'm about to do...
+
+Nit: "vm shrinking is not serialized with any other subsystem, it is also 
+                                                              only---^^^^
+threaded against itself."
+
+The big thing I see missing from this presentation is a discussion of how 
+icache, dcache etc fit into the picture, i.e., shrink_caches.
+
+--
+Daniel
+

@@ -1,472 +1,205 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbTLUUHr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 15:07:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264272AbTLUUHr
+	id S263765AbTLUUZd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 15:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbTLUUZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 15:07:47 -0500
-Received: from adsl-216-158-28-251.cust.oldcity.dca.net ([216.158.28.251]:6528
-	"EHLO fukurou.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S264271AbTLUUHL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 15:07:11 -0500
-Date: Sun, 21 Dec 2003 15:07:03 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, jariruusu@users.sourceforge.net
-Subject: Re: [PATCH] loop.c patches, take two
-Message-ID: <20031221200659.GB4721@fukurou.paranoiacs.org>
-Mail-Followup-To: Ben Slusky <sluskyb@paranoiacs.org>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jariruusu@users.sourceforge.net
-References: <20031030134137.GD12147@fukurou.paranoiacs.org> <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org> <20031101002650.GA7397@fukurou.paranoiacs.org> <20031102204624.GA5740@fukurou.paranoiacs.org> <20031221195534.GA4721@fukurou.paranoiacs.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q0rSlbzrZN6k9QnT"
-Content-Disposition: inline
-In-Reply-To: <20031221195534.GA4721@fukurou.paranoiacs.org>
-User-Agent: Mutt/1.4i
+	Sun, 21 Dec 2003 15:25:33 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:10390 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S263765AbTLUUZ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 15:25:28 -0500
+Message-ID: <3FE60190.2000603@zytor.com>
+Date: Sun, 21 Dec 2003 12:24:48 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.0 patch: lib/inflate.c
+Content-Type: multipart/mixed;
+ boundary="------------020609090201000903040607"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020609090201000903040607
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---Q0rSlbzrZN6k9QnT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch fixes the "non-terminating inflate" problem that Russell King 
+complained about on LKML earlier today.  It's against 2.6.0 as pulled 
+from bkcvs.
 
-This patch will localize (and atomicize) the kmaps in loop.c, moving
-them from do_lo_send, do_lo_receive, and loop_transfer_bio into the
-transform functions. The effect is to eliminate the page,offset ->
-vaddr -> page,offset -> vaddr back-and-forth in cryptoloop devices.
+I chose to use "goto" much like zlib does, in order to not require 
+setjmp/longjmp inside the kernel.  It's a bit ugly, but it also lets 
+each function chose how it needs to be terminated on error, which is a 
+good thing.
 
-I've incorporated Andrew's corrections.
+	-hpa
 
-Taken together, the preceding patch and this patch make loop devices
-safe for use as swap. Please apply.
+--------------020609090201000903040607
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
--
--Ben
-
-
--- 
-Ben Slusky                      | Integrity is the key. Once you
-sluskyb@paranoiacs.org          | can fake that...
-sluskyb@stwing.org              |                -Simon Travaglia
-PGP keyID ADA44B3B      
-
---Q0rSlbzrZN6k9QnT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="loop-highmem-mk2.diff"
-
-diff -pu linux-2.6.0/include/linux/loop.h-orig linux-2.6.0/include/linux/loop.h
---- linux-2.6.0/include/linux/loop.h-orig	2003-12-20 21:36:18.579772640 -0500
-+++ linux-2.6.0/include/linux/loop.h	2003-12-20 21:37:22.086118208 -0500
-@@ -34,8 +34,9 @@ struct loop_device {
- 	loff_t		lo_sizelimit;
- 	int		lo_flags;
- 	int		(*transfer)(struct loop_device *, int cmd,
--				    char *raw_buf, char *loop_buf, int size,
--				    sector_t real_block);
-+				    struct page *raw_page, unsigned raw_off,
-+				    struct page *loop_page, unsigned loop_off,
-+				    int size, sector_t real_block);
- 	char		lo_file_name[LO_NAME_SIZE];
- 	char		lo_crypt_name[LO_NAME_SIZE];
- 	char		lo_encrypt_key[LO_KEY_SIZE];
-@@ -128,8 +129,10 @@ struct loop_info64 {
- /* Support for loadable transfer modules */
- struct loop_func_table {
- 	int number;	/* filter type */ 
--	int (*transfer)(struct loop_device *lo, int cmd, char *raw_buf,
--			char *loop_buf, int size, sector_t real_block);
-+	int (*transfer)(struct loop_device *lo, int cmd,
-+			struct page *raw_page, unsigned raw_off,
-+			struct page *loop_page, unsigned loop_off,
-+			int size, sector_t real_block);
- 	int (*init)(struct loop_device *, const struct loop_info64 *); 
- 	/* release is called from loop_unregister_transfer or clr_fd */
- 	int (*release)(struct loop_device *); 
-diff -pu linux-2.6.0/drivers/block/loop.c-orig linux-2.6.0/drivers/block/loop.c
---- linux-2.6.0/drivers/block/loop.c-orig	2003-12-20 21:36:18.614767320 -0500
-+++ linux-2.6.0/drivers/block/loop.c	2003-12-20 21:37:42.488016648 -0500
-@@ -75,24 +75,34 @@ static struct gendisk **disks;
- /*
-  * Transfer functions
-  */
--static int transfer_none(struct loop_device *lo, int cmd, char *raw_buf,
--			 char *loop_buf, int size, sector_t real_block)
-+static int transfer_none(struct loop_device *lo, int cmd,
-+			 struct page *raw_page, unsigned raw_off,
-+			 struct page *loop_page, unsigned loop_off,
-+			 int size, sector_t real_block)
- {
--	if (raw_buf != loop_buf) {
--		if (cmd == READ)
--			memcpy(loop_buf, raw_buf, size);
--		else
--			memcpy(raw_buf, loop_buf, size);
--	}
-+	char *raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
-+	char *loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
- 
-+	if (cmd == READ)
-+		memcpy(loop_buf, raw_buf, size);
-+	else
-+		memcpy(raw_buf, loop_buf, size);
-+
-+	kunmap_atomic(raw_buf, KM_USER0);
-+	kunmap_atomic(loop_buf, KM_USER1);
-+	cond_resched();
- 	return 0;
- }
- 
--static int transfer_xor(struct loop_device *lo, int cmd, char *raw_buf,
--			char *loop_buf, int size, sector_t real_block)
--{
--	char	*in, *out, *key;
--	int	i, keysize;
-+static int transfer_xor(struct loop_device *lo, int cmd,
-+			struct page *raw_page, unsigned raw_off,
-+			struct page *loop_page, unsigned loop_off,
-+			int size, sector_t real_block)
-+{
-+	char *raw_buf = kmap_atomic(raw_page, KM_USER0) + raw_off;
-+	char *loop_buf = kmap_atomic(loop_page, KM_USER1) + loop_off;
-+	char *in, *out, *key;
-+	int i, keysize;
- 
- 	if (cmd == READ) {
- 		in = raw_buf;
-@@ -106,6 +116,10 @@ static int transfer_xor(struct loop_devi
- 	keysize = lo->lo_encrypt_key_size;
- 	for (i = 0; i < size; i++)
- 		*out++ = *in++ ^ key[(i & 511) % keysize];
-+
-+	kunmap_atomic(raw_buf, KM_USER0);
-+	kunmap_atomic(loop_buf, KM_USER1);
-+	cond_resched();
- 	return 0;
- }
- 
-@@ -162,13 +176,15 @@ figure_loop_size(struct loop_device *lo)
- }
- 
- static inline int
--lo_do_transfer(struct loop_device *lo, int cmd, char *rbuf,
--	       char *lbuf, int size, sector_t rblock)
-+lo_do_transfer(struct loop_device *lo, int cmd,
-+	       struct page *rpage, unsigned roffs,
-+	       struct page *lpage, unsigned loffs,
-+	       int size, sector_t rblock)
- {
- 	if (!lo->transfer)
- 		return 0;
- 
--	return lo->transfer(lo, cmd, rbuf, lbuf, size, rblock);
-+	return lo->transfer(lo, cmd, rpage, roffs, lpage, loffs, size, rblock);
- }
- 
- static int
-@@ -178,16 +194,15 @@ do_lo_send(struct loop_device *lo, struc
- 	struct address_space *mapping = file->f_dentry->d_inode->i_mapping;
- 	struct address_space_operations *aops = mapping->a_ops;
- 	struct page *page;
--	char *kaddr, *data;
- 	pgoff_t index;
--	unsigned size, offset;
-+	unsigned size, offset, bv_offs;
- 	int len;
- 	int ret = 0;
- 
- 	down(&mapping->host->i_sem);
- 	index = pos >> PAGE_CACHE_SHIFT;
- 	offset = pos & ((pgoff_t)PAGE_CACHE_SIZE - 1);
--	data = kmap(bvec->bv_page) + bvec->bv_offset;
-+	bv_offs = bvec->bv_offset;
- 	len = bvec->bv_len;
- 	while (len > 0) {
- 		sector_t IV;
-@@ -204,25 +219,28 @@ do_lo_send(struct loop_device *lo, struc
- 			goto fail;
- 		if (aops->prepare_write(file, page, offset, offset+size))
- 			goto unlock;
--		kaddr = kmap(page);
--		transfer_result = lo_do_transfer(lo, WRITE, kaddr + offset,
--						 data, size, IV);
-+		transfer_result = lo_do_transfer(lo, WRITE, page, offset,
-+						 bvec->bv_page, bv_offs,
-+						 size, IV);
- 		if (transfer_result) {
-+			char *kaddr;
-+
- 			/*
- 			 * The transfer failed, but we still write the data to
- 			 * keep prepare/commit calls balanced.
- 			 */
- 			printk(KERN_ERR "loop: transfer error block %llu\n",
- 			       (unsigned long long)index);
-+			kaddr = kmap_atomic(page, KM_USER0);
- 			memset(kaddr + offset, 0, size);
-+			kunmap_atomic(kaddr, KM_USER0);
- 		}
- 		flush_dcache_page(page);
--		kunmap(page);
- 		if (aops->commit_write(file, page, offset, offset+size))
- 			goto unlock;
- 		if (transfer_result)
- 			goto unlock;
--		data += size;
-+		bv_offs += size;
- 		len -= size;
- 		offset = 0;
- 		index++;
-@@ -232,7 +250,6 @@ do_lo_send(struct loop_device *lo, struc
- 	}
- 	up(&mapping->host->i_sem);
- out:
--	kunmap(bvec->bv_page);
- 	return ret;
- 
- unlock:
-@@ -261,7 +278,8 @@ lo_send(struct loop_device *lo, struct b
- 
- struct lo_read_data {
- 	struct loop_device *lo;
--	char *data;
-+	struct page *page;
-+	unsigned offset;
- 	int bsize;
+===================================================================
+RCS file: /home/hpa/kernel/bkcvs/linux-2.5/lib/inflate.c,v
+retrieving revision 1.6
+diff -u -r1.6 inflate.c
+--- lib/inflate.c	10 Sep 2003 07:20:58 -0000	1.6
++++ lib/inflate.c	21 Dec 2003 20:06:41 -0000
+@@ -221,7 +221,7 @@
+     0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
  };
  
-@@ -269,7 +287,6 @@ static int
- lo_read_actor(read_descriptor_t *desc, struct page *page,
- 	      unsigned long offset, unsigned long size)
- {
--	char *kaddr;
- 	unsigned long count = desc->count;
- 	struct lo_read_data *p = (struct lo_read_data*)desc->buf;
- 	struct loop_device *lo = p->lo;
-@@ -280,18 +297,16 @@ lo_read_actor(read_descriptor_t *desc, s
- 	if (size > count)
- 		size = count;
+-#define NEXTBYTE()  (uch)get_byte()
++#define NEXTBYTE()  ({ int v = get_byte(); if (v < 0) goto underrun; (uch)v; })
+ #define NEEDBITS(n) {while(k<(n)){b|=((ulg)NEXTBYTE())<<k;k+=8;}}
+ #define DUMPBITS(n) {b>>=(n);k-=(n);}
  
--	kaddr = kmap(page);
--	if (lo_do_transfer(lo, READ, kaddr + offset, p->data, size, IV)) {
-+	if (lo_do_transfer(lo, READ, page, offset, p->page, p->offset, size, IV)) {
- 		size = 0;
- 		printk(KERN_ERR "loop: transfer error block %ld\n",
- 		       page->index);
- 		desc->error = -EINVAL;
- 	}
--	kunmap(page);
- 	
- 	desc->count = count - size;
- 	desc->written += size;
--	p->data += size;
-+	p->offset += size;
- 	return size;
+@@ -620,6 +620,9 @@
+ 
+   /* done */
+   return 0;
++
++ underrun:
++  return 4;			/* Input underrun */
  }
  
-@@ -304,12 +319,12 @@ do_lo_receive(struct loop_device *lo,
- 	int retval;
  
- 	cookie.lo = lo;
--	cookie.data = kmap(bvec->bv_page) + bvec->bv_offset;
-+	cookie.page = bvec->bv_page;
-+	cookie.offset = bvec->bv_offset;
- 	cookie.bsize = bsize;
- 	file = lo->lo_backing_file;
- 	retval = file->f_op->sendfile(file, &pos, bvec->bv_len,
- 			lo_read_actor, &cookie);
--	kunmap(bvec->bv_page);
- 	return (retval < 0)? retval: 0;
+@@ -676,6 +679,9 @@
+ 
+   DEBG(">");
+   return 0;
++
++ underrun:
++  return 4;			/* Input underrun */
  }
  
-@@ -567,23 +582,17 @@ static int loop_transfer_bio(struct loop
- {
- 	sector_t IV;
- 	struct bio_vec *from_bvec, *to_bvec;
--	char *vto, *vfrom;
- 	int ret = 0, i;
  
- 	IV = from_bio->bi_sector + (lo->lo_offset >> 9);
+@@ -908,6 +914,9 @@
  
- 	__bio_for_each_segment(to_bvec, to_bio, i, from_bio->bi_idx) {
- 		from_bvec = &from_bio->bi_io_vec[i];
--
- 		if (i >= to_bio->bi_idx) {
--			kmap(from_bvec->bv_page);
--			kmap(to_bvec->bv_page);
--			vfrom = page_address(from_bvec->bv_page) + from_bvec->bv_offset;
--			vto = page_address(to_bvec->bv_page) + to_bvec->bv_offset;
--			ret |= lo_do_transfer(lo, bio_data_dir(to_bio), vto, vfrom,
--						from_bvec->bv_len, IV);
--			kunmap(from_bvec->bv_page);
--			kunmap(to_bvec->bv_page);
-+			ret |= lo_do_transfer(lo, bio_data_dir(to_bio),
-+				      to_bvec->bv_page, to_bvec->bv_offset,
-+				      from_bvec->bv_page, from_bvec->bv_offset,
-+				      from_bvec->bv_len, IV);
- 		}
- 		IV += from_bvec->bv_len >> 9;
- 	}
-diff -pu linux-2.6.0/drivers/block/cryptoloop.c-orig linux-2.6.0/drivers/block/cryptoloop.c
---- linux-2.6.0/drivers/block/cryptoloop.c-orig	2003-12-20 21:36:18.630764888 -0500
-+++ linux-2.6.0/drivers/block/cryptoloop.c	2003-12-20 21:37:22.130111520 -0500
-@@ -87,43 +87,49 @@ typedef int (*encdec_ecb_t)(struct crypt
- 
- 
- static int
--cryptoloop_transfer_ecb(struct loop_device *lo, int cmd, char *raw_buf,
--		     char *loop_buf, int size, sector_t IV)
-+cryptoloop_transfer_ecb(struct loop_device *lo, int cmd,
-+			struct page *raw_page, unsigned raw_off,
-+			struct page *loop_page, unsigned loop_off,
-+			int size, sector_t IV)
- {
- 	struct crypto_tfm *tfm = (struct crypto_tfm *) lo->key_data;
- 	struct scatterlist sg_out = { 0, };
- 	struct scatterlist sg_in = { 0, };
- 
- 	encdec_ecb_t encdecfunc;
--	char const *in;
--	char *out;
-+	struct page *in_page, *out_page;
-+	unsigned in_offs, out_offs;
- 
- 	if (cmd == READ) {
--		in = raw_buf;
--		out = loop_buf;
-+		in_page = raw_page;
-+		in_offs = raw_off;
-+		out_page = loop_page;
-+		out_offs = loop_off;
- 		encdecfunc = tfm->crt_u.cipher.cit_decrypt;
- 	} else {
--		in = loop_buf;
--		out = raw_buf;
-+		in_page = loop_page;
-+		in_offs = loop_off;
-+		out_page = raw_page;
-+		out_offs = raw_off;
- 		encdecfunc = tfm->crt_u.cipher.cit_encrypt;
- 	}
- 
- 	while (size > 0) {
- 		const int sz = min(size, LOOP_IV_SECTOR_SIZE);
- 
--		sg_in.page = virt_to_page(in);
--		sg_in.offset = (unsigned long)in & ~PAGE_MASK;
-+		sg_in.page = in_page;
-+		sg_in.offset = in_offs;
- 		sg_in.length = sz;
- 
--		sg_out.page = virt_to_page(out);
--		sg_out.offset = (unsigned long)out & ~PAGE_MASK;
-+		sg_out.page = out_page;
-+		sg_out.offset = out_offs;
- 		sg_out.length = sz;
- 
- 		encdecfunc(tfm, &sg_out, &sg_in, sz);
- 
- 		size -= sz;
--		in += sz;
--		out += sz;
-+		in_offs += sz;
-+		out_offs += sz;
- 	}
- 
- 	return 0;
-@@ -135,24 +141,30 @@ typedef int (*encdec_cbc_t)(struct crypt
- 			unsigned int nsg, u8 *iv);
- 
- static int
--cryptoloop_transfer_cbc(struct loop_device *lo, int cmd, char *raw_buf,
--		     char *loop_buf, int size, sector_t IV)
-+cryptoloop_transfer_cbc(struct loop_device *lo, int cmd,
-+			struct page *raw_page, unsigned raw_off,
-+			struct page *loop_page, unsigned loop_off,
-+			int size, sector_t IV)
- {
- 	struct crypto_tfm *tfm = (struct crypto_tfm *) lo->key_data;
- 	struct scatterlist sg_out = { 0, };
- 	struct scatterlist sg_in = { 0, };
- 
- 	encdec_cbc_t encdecfunc;
--	char const *in;
--	char *out;
-+	struct page *in_page, *out_page;
-+	unsigned in_offs, out_offs;
- 
- 	if (cmd == READ) {
--		in = raw_buf;
--		out = loop_buf;
-+		in_page = raw_page;
-+		in_offs = raw_off;
-+		out_page = loop_page;
-+		out_offs = loop_off;
- 		encdecfunc = tfm->crt_u.cipher.cit_decrypt_iv;
- 	} else {
--		in = loop_buf;
--		out = raw_buf;
-+		in_page = loop_page;
-+		in_offs = loop_off;
-+		out_page = raw_page;
-+		out_offs = raw_off;
- 		encdecfunc = tfm->crt_u.cipher.cit_encrypt_iv;
- 	}
- 
-@@ -161,39 +173,43 @@ cryptoloop_transfer_cbc(struct loop_devi
- 		u32 iv[4] = { 0, };
- 		iv[0] = cpu_to_le32(IV & 0xffffffff);
- 
--		sg_in.page = virt_to_page(in);
--		sg_in.offset = offset_in_page(in);
-+		sg_in.page = in_page;
-+		sg_in.offset = in_offs;
- 		sg_in.length = sz;
- 
--		sg_out.page = virt_to_page(out);
--		sg_out.offset = offset_in_page(out);
-+		sg_out.page = out_page;
-+		sg_out.offset = out_offs;
- 		sg_out.length = sz;
- 
- 		encdecfunc(tfm, &sg_out, &sg_in, sz, (u8 *)iv);
- 
- 		IV++;
- 		size -= sz;
--		in += sz;
--		out += sz;
-+		in_offs += sz;
-+		out_offs += sz;
- 	}
- 
- 	return 0;
+   DEBG(">");
+   return 0;
++
++ underrun:
++  return 4;			/* Input underrun */
  }
  
- static int
--cryptoloop_transfer(struct loop_device *lo, int cmd, char *raw_buf,
--		     char *loop_buf, int size, sector_t IV)
-+cryptoloop_transfer(struct loop_device *lo, int cmd,
-+		    struct page *raw_page, unsigned raw_off,
-+		    struct page *loop_page, unsigned loop_off,
-+		    int size, sector_t IV)
- {
- 	struct crypto_tfm *tfm = (struct crypto_tfm *) lo->key_data;
- 	if(tfm->crt_cipher.cit_mode == CRYPTO_TFM_MODE_ECB)
- 	{
- 		lo->transfer = cryptoloop_transfer_ecb;
--		return cryptoloop_transfer_ecb(lo, cmd, raw_buf, loop_buf, size, IV);
-+		return cryptoloop_transfer_ecb(lo, cmd, raw_page, raw_off,
-+					       loop_page, loop_off, size, IV);
- 	}	
- 	if(tfm->crt_cipher.cit_mode == CRYPTO_TFM_MODE_CBC)
- 	{	
- 		lo->transfer = cryptoloop_transfer_cbc;
--		return cryptoloop_transfer_cbc(lo, cmd, raw_buf, loop_buf, size, IV);
-+		return cryptoloop_transfer_cbc(lo, cmd, raw_page, raw_off,
-+					       loop_page, loop_off, size, IV);
- 	}
- 	
- 	/*  This is not supposed to happen */
+ 
+@@ -956,6 +965,9 @@
+ 
+   /* bad block type */
+   return 2;
++
++ underrun:
++  return 4;			/* Input underrun */
+ }
+ 
+ 
+@@ -1079,9 +1091,9 @@
+     ulg orig_len = 0;       /* original uncompressed length */
+     int res;
+ 
+-    magic[0] = (unsigned char)get_byte();
+-    magic[1] = (unsigned char)get_byte();
+-    method = (unsigned char)get_byte();
++    magic[0] = NEXTBYTE();
++    magic[1] = NEXTBYTE();
++    method   = NEXTBYTE();
+ 
+     if (magic[0] != 037 ||
+ 	((magic[1] != 0213) && (magic[1] != 0236))) {
+@@ -1108,29 +1120,29 @@
+ 	    error("Input has invalid flags");
+ 	    return -1;
+     }
+-    (ulg)get_byte();	/* Get timestamp */
+-    ((ulg)get_byte()) << 8;
+-    ((ulg)get_byte()) << 16;
+-    ((ulg)get_byte()) << 24;
++    (ulg)NEXTBYTE();	/* Get timestamp */
++    ((ulg)NEXTBYTE()) << 8;
++    ((ulg)NEXTBYTE()) << 16;
++    ((ulg)NEXTBYTE()) << 24;
+ 
+-    (void)get_byte();  /* Ignore extra flags for the moment */
+-    (void)get_byte();  /* Ignore OS type for the moment */
++    (void)NEXTBYTE();  /* Ignore extra flags for the moment */
++    (void)NEXTBYTE();  /* Ignore OS type for the moment */
+ 
+     if ((flags & EXTRA_FIELD) != 0) {
+-	    unsigned len = (unsigned)get_byte();
+-	    len |= ((unsigned)get_byte())<<8;
+-	    while (len--) (void)get_byte();
++	    unsigned len = (unsigned)NEXTBYTE();
++	    len |= ((unsigned)NEXTBYTE())<<8;
++	    while (len--) (void)NEXTBYTE();
+     }
+ 
+     /* Get original file name if it was truncated */
+     if ((flags & ORIG_NAME) != 0) {
+ 	    /* Discard the old name */
+-	    while (get_byte() != 0) /* null */ ;
++	    while (NEXTBYTE() != 0) /* null */ ;
+     } 
+ 
+     /* Discard file comment if any */
+     if ((flags & COMMENT) != 0) {
+-	    while (get_byte() != 0) /* null */ ;
++	    while (NEXTBYTE() != 0) /* null */ ;
+     }
+ 
+     /* Decompress */
+@@ -1147,6 +1159,9 @@
+ 	    case 3:
+ 		    error("out of memory");
+ 		    break;
++	    case 4:
++		    error("out of input data");
++		    break;
+ 	    default:
+ 		    error("invalid compressed format (other)");
+ 	    }
+@@ -1157,15 +1172,15 @@
+     /* crc32  (see algorithm.doc)
+      * uncompressed input size modulo 2^32
+      */
+-    orig_crc = (ulg) get_byte();
+-    orig_crc |= (ulg) get_byte() << 8;
+-    orig_crc |= (ulg) get_byte() << 16;
+-    orig_crc |= (ulg) get_byte() << 24;
++    orig_crc = (ulg) NEXTBYTE();
++    orig_crc |= (ulg) NEXTBYTE() << 8;
++    orig_crc |= (ulg) NEXTBYTE() << 16;
++    orig_crc |= (ulg) NEXTBYTE() << 24;
+     
+-    orig_len = (ulg) get_byte();
+-    orig_len |= (ulg) get_byte() << 8;
+-    orig_len |= (ulg) get_byte() << 16;
+-    orig_len |= (ulg) get_byte() << 24;
++    orig_len = (ulg) NEXTBYTE();
++    orig_len |= (ulg) NEXTBYTE() << 8;
++    orig_len |= (ulg) NEXTBYTE() << 16;
++    orig_len |= (ulg) NEXTBYTE() << 24;
+     
+     /* Validate decompression */
+     if (orig_crc != CRC_VALUE) {
+@@ -1177,6 +1192,10 @@
+ 	    return -1;
+     }
+     return 0;
++
++ underrun:			/* NEXTBYTE() goto's here if needed */
++    error("out of input data");
++    return -1;
+ }
+ 
+ 
 
---Q0rSlbzrZN6k9QnT--
+--------------020609090201000903040607--
+

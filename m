@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265188AbTF1N1p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 09:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbTF1N1p
+	id S265209AbTF1Nuk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 09:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbTF1Nuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 09:27:45 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:17873 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265188AbTF1N1o
+	Sat, 28 Jun 2003 09:50:40 -0400
+Received: from mail47-s.fg.online.no ([148.122.161.47]:9154 "EHLO
+	mail47.fg.online.no") by vger.kernel.org with ESMTP id S265209AbTF1Nuj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 09:27:44 -0400
-Date: Sat, 28 Jun 2003 06:41:42 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CaT <cat@zip.com.au>, nick@snowman.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20030628134142.GA6053@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Vojtech Pavlik <vojtech@suse.cz>, Larry McVoy <lm@bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
-	nick@snowman.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030627145727.GB18676@work.bitmover.com> <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net> <20030627163720.GF357@zip.com.au> <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk> <20030627221214.GA11252@work.bitmover.com> <20030627221512.GB11252@work.bitmover.com> <20030628101422.A17530@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Jun 2003 09:50:39 -0400
+From: Svein Ove Aas <svein.ove@aas.no>
+To: Mika Liljeberg <mika.liljeberg@welho.com>
+Subject: Re: TCP send behaviour leads to cable modem woes
+Date: Sat, 28 Jun 2003 16:04:51 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <200306272020.57502.svein.ove@aas.no> <200306272145.22008.svein.ove@aas.no> <1056743877.681.5.camel@hades>
+In-Reply-To: <1056743877.681.5.camel@hades>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030628101422.A17530@ucw.cz>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Message-Id: <200306281604.52876.svein.ove@aas.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 28, 2003 at 10:14:22AM +0200, Vojtech Pavlik wrote:
-> On Fri, Jun 27, 2003 at 03:15:12PM -0700, Larry McVoy wrote:
-> 
-> > Not all of them are there, we were part way through the "l"s which is the
-> > biggest directory (you guys need to be more imaginative in your naming).
-> > All the other letters should be there though, so I want to hear about it
-> > if you are a [a-km-z] project and you can't pull your data.  Pushes don't
-> > work.
-> 
-> Will pushes ever work? It'd save me quite some work.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-We've been back live on bkbits.net since some time yesterday.  Everythings
-back to as normal as it gets.  Just pull/push as you always have.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+fredag 27. juni 2003, 21:57, skrev Mika Liljeberg:
+> On Fri, 2003-06-27 at 22:45, Svein Ove Aas wrote:
+> > Incidentally, while googling I heard someone saying that only works if
+> > it's enabled on both ends? Of course, that might be if upload/download
+> > are 'both' affected, in which case it wouldn't apply to me.
+>
+> It's a sender side only algorithm, so enabling it at your end should be
+> enough to help the uploads. For downloads it needs to be on at the other
+> end, of course.
+
+Well, it doesn't appear to have any effect.
+(What is it *supposed* to do? Something about spurious retransmission 
+timeouts, was it?)
+
+I'm going to research this a bit more on my own, if none of you have any 
+further ideas. If I find a solution it should probably be in a HOWTO 
+somewhere, so I'll get back to you if/when that happens.
+
+- - Svein Ove Aas
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+/aCD9OlFkai3rMARAtzFAKCyfXKjWF9yA6wuQZiJvo11RsIs9gCcCBW/
+Si1UTkOPaDEtXz5Pq+U64NM=
+=kjUX
+-----END PGP SIGNATURE-----
+

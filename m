@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278455AbRJOWEC>; Mon, 15 Oct 2001 18:04:02 -0400
+	id <S278459AbRJOWEC>; Mon, 15 Oct 2001 18:04:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278457AbRJOWDw>; Mon, 15 Oct 2001 18:03:52 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:16121
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S278455AbRJOWDs>; Mon, 15 Oct 2001 18:03:48 -0400
-Date: Mon, 15 Oct 2001 15:04:14 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Dale Amon <amon@vnl.com>
-Subject: Re: Compressed fs's
-Message-ID: <20011015150414.C4482@mikef-linux.matchmail.com>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Dale Amon <amon@vnl.com>
-In-Reply-To: <OF24A34168.0F477E02-ON85256B29.0052E00A@raleigh.ibm.com> <20010829015050.F27869@vnl.com> <20010828205929.C1878@mindspring.com> <20011015222843.A7971@vnl.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011015222843.A7971@vnl.com>
-User-Agent: Mutt/1.3.22i
+	id <S278455AbRJOWDx>; Mon, 15 Oct 2001 18:03:53 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:58635 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S278459AbRJOWDm>; Mon, 15 Oct 2001 18:03:42 -0400
+Date: Mon, 15 Oct 2001 17:58:59 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: cory_h_phillips@yahoo.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Can I compile Slackware kernel and use on Red Hat?
+In-Reply-To: <slrn9skk41.12m.cory@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1011015175449.21451A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 15, 2001 at 10:28:43PM +0100, Dale Amon wrote:
-> Does anyone know what happened to the CBD project?
-> 
-> Or if there is a version of the cloop kernel module
-> updated to work with 2.4.x?
->
+On 14 Oct 2001, Cory Phillips wrote:
 
-I believe there was a thread about this a few weeks back.  At that point
-there wasn't a version against 2.4 yet...
+> I have Red Hat 6.2 with the 2.2.14 kernel installed.  I have a Slackware
+> 7.1 CD with the 2.2.16 kernel on it.  Can I compile the slackware kernel
+> and use it on my Red Hat system?  The kernel should not be specific to
+> Red Hat right?
 
-Mike
+I would download a Linux kernel from kernel.org and use that. There is no
+joy in use an old kernel from anyone (in most cases). I *think* Slackware
+was using a stock Linux kernel, but unless you have a good reason to use
+the older version I'd download the current 2.2.
+
+You might consider updating to something a bit newer in the way of total
+install, but that's up to you.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

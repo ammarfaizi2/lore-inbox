@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269312AbUJQU3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269290AbUJQUb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269312AbUJQU3v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 16:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269296AbUJQU1y
+	id S269290AbUJQUb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 16:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbUJQUaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 16:27:54 -0400
-Received: from zero.aec.at ([193.170.194.10]:49680 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S269290AbUJQU0Z (ORCPT
+	Sun, 17 Oct 2004 16:30:03 -0400
+Received: from relay.pair.com ([209.68.1.20]:25607 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269310AbUJQU3Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 16:26:25 -0400
-To: Ingo Molnar <mingo@elte.hu>
-cc: auouo@tin.it, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/8] replacing/fixing printk with pr_debug/pr_info in
- arch/i386 - intro
-References: <2QlVm-7u4-13@gated-at.bofh.it> <2Qmok-7KK-1@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 17 Oct 2004 22:26:21 +0200
-In-Reply-To: <2Qmok-7KK-1@gated-at.bofh.it> (Ingo Molnar's message of "Sun,
- 17 Oct 2004 18:50:04 +0200")
-Message-ID: <m3ekjxxf9u.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Sun, 17 Oct 2004 16:29:25 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <4172C8E1.4080709@kegel.com>
+Date: Sun, 17 Oct 2004 12:32:49 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Herbert Poetzl <herbert@13thfloor.at>
+CC: Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
+       bertrand marquis <bertrand.marquis@sysgo.com>, albert@users.sf.net
+Subject: Re: Building on case-insensitive systems and systems where -shared
+ doesn't work well
+References: <4164DAC9.8080701@kegel.com> <20041016210024.GB8306@mars.ravnborg.org> <20041016200627.A20488@flint.arm.linux.org.uk> <20041016212440.GA8765@mars.ravnborg.org> <20041016204001.B20488@flint.arm.linux.org.uk> <20041016220427.GE8765@mars.ravnborg.org> <20041017165718.GB23525@mail.13thfloor.at> <4172A0ED.9040906@kegel.com> <20041017182929.GA27637@mail.13thfloor.at> <4172B01B.5080404@kegel.com> <20041017190612.GB27637@mail.13thfloor.at>
+In-Reply-To: <20041017190612.GB27637@mail.13thfloor.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
->
-> 2) i dont like the pr_print name at all. What's wrong with Dprintk or
-> dprintk? Just define them in kernel.h, this will also make your patch
-> much smaller.
+Herbert Poetzl wrote:
+> why not move the intermediate files into a separate
+> subdirectory which can easily be removed on cleanup?
 
-I prefer to declare them in subsystem specific files. This way you
-can easily enable/disable debugging for only specific files, 
-not for everything.
+That would require zero code changes, and is a
+pretty good workaround at least for my case,
+where I can easily build with O=objdir.
+Thanks for pointing it out!
+- Dan
 
--Andi
-
+-- 
+Trying to get a job as a c++ developer?  See http://kegel.com/academy/getting-hired.html

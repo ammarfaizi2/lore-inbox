@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268425AbUHLGva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268427AbUHLG7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268425AbUHLGva (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 02:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268431AbUHLGva
+	id S268427AbUHLG7D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 02:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268428AbUHLG7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 02:51:30 -0400
-Received: from holomorphy.com ([207.189.100.168]:43657 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268425AbUHLGu5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 02:50:57 -0400
-Date: Wed, 11 Aug 2004 23:50:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] 2.6.8-rc4-mm1 - UML fixes
-Message-ID: <20040812065047.GG11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jeff Dike <jdike@addtoit.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org> <20040812033012.GE11200@holomorphy.com> <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 12 Aug 2004 02:59:03 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:50704 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S268427AbUHLG7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 02:59:00 -0400
+Message-ID: <411B1551.4050204@hp.com>
+Date: Thu, 12 Aug 2004 12:29:29 +0530
+From: "Aneesh Kumar K.V" <aneesh.kumar@hp.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040808 Debian/1.7.2-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+Cc: Zenaan Harkness <zen@freedbms.net>, linux-kernel@vger.kernel.org
+Subject: Re: vservers on OpenMosix ??
+References: <fa.e7rnl7c.l0smqm@ifi.uio.no> <fa.ptfdr34.11kiiia@ifi.uio.no>
+In-Reply-To: <fa.ptfdr34.11kiiia@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wli@holomorphy.com said:
->> Out of curiosity, why are you allocating 4*PAGE_SIZE for the stack if
->> you're only going to use 2*PAGE_SIZE of it? I saw no other users for
->> the rest of ->thread_info offhand. 
+Rik van Riel wrote:
+> On Thu, 12 Aug 2004, Zenaan Harkness wrote:
+> 
+> 
+>>Is anyone doing this? Is it possible?
+> 
+> 
+> It might be possible, but is probably quite a lot of work.
+> 
+> 
+>>Wouldn't it be the ultimate clustering solution?
+> 
+> 
+> Not if MOSIX still has the problem that when one machine
+> crashes, you lose all the processes that started on that
+> system or have any services running on that system.
+> 
+> Also, IPC across the network isn't very fast, so it may
+> be better for performance if all the processes from a
+> single virtual system run on one physical system...
+> 
 
-On Thu, Aug 12, 2004 at 01:41:18AM -0400, Jeff Dike wrote:
-> Well, that's slightly misleading.  The other two pages (minus the thread_info)
-> are available for stack if needed.  UML stacks are somewhat larger than the
-> native kernel stacks because of the userspace signal frames, so I allocate
-> 4 pages for now to be safe.
+There you explained some of the things that OpenSSI(www.openssi.org) 
+does :).
 
-This might confuse CONFIG_DEBUG_PAGEALLOC, which uses THREAD_SIZE to
-detect the end of the kernel stack in store_stackinfo() in mm/slab.c
-and kstack_end() in include/linux/sched.h, and the sizing heuristic
-for max_threads in fork_init().
-
-Also, how is this meant to interoperate with CONFIG_KERNEL_STACK_ORDER?
-It seems to ignore the setting from the config option.
-
-
--- wli
+-aneesh

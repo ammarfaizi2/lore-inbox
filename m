@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTLNSEb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 13:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbTLNSEb
+	id S262288AbTLNSJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 13:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTLNSJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 13:04:31 -0500
-Received: from gprs151-130.eurotel.cz ([160.218.151.130]:34435 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262190AbTLNSEa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 13:04:30 -0500
-Date: Sun, 14 Dec 2003 19:05:08 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: S Clark <epicanis+bugreport@dogphilosophy.net>
+	Sun, 14 Dec 2003 13:09:25 -0500
+Received: from relay.pair.com ([209.68.1.20]:37646 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S262288AbTLNSJY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 13:09:24 -0500
+X-pair-Authenticated: 68.42.66.6
+Subject: Re: 2.4 vs 2.6
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ACPI AC event(?) and synaptics touchpad driver "lost sync"
-Message-ID: <20031214180508.GB22488@elf.ucw.cz>
-References: <200312131242.24431.epicanis+bugreport@dogphilosophy.net>
+In-Reply-To: <yw1xekv7skx7.fsf@kth.se>
+References: <20031201062052.GA2022@frodo>
+	 <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet>
+	 <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDBB651.3080706@yahoo.es>
+	 <yw1xekv7skx7.fsf@kth.se>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1071425353.4425.39.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312131242.24431.epicanis+bugreport@dogphilosophy.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Dec 2003 13:09:14 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2003-12-14 at 06:23, Måns Rullgård wrote:
+> Roberto Sanchez <rcsanchez97@yahoo.es> writes:
+> 
+> >> I haven't even gotten to VMware and user-mode Linux, which I also
+> >> need, and I'm not even dreaming about getting my scanner to
+> >> work. Not to mention that on my laptop there would be an entirely
+> >> different set of issues, and software suspend in 2.6 is, well,
+> >> still lacking.
+> > VMWare won't work
+> 
+> I've run vmware on a 2.6 kernel.  I found a little patch somewhere
+> that made it work.
 
-> Changing AC state causes Synaptics Touchpad driver to lose sync.
-
-I have similar problem on arima notebook -- mouse sometimes looses
-sync while reading temperature. Fortunately it resyncs for me...
-								Pavel
+Gentoo automatically applies this patch. :)
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Daniel Gryniewicz <dang@fprintf.net>

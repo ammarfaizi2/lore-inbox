@@ -1,109 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318748AbSHNNyz>; Wed, 14 Aug 2002 09:54:55 -0400
+	id <S318308AbSHNNvH>; Wed, 14 Aug 2002 09:51:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318696AbSHNNyz>; Wed, 14 Aug 2002 09:54:55 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.34]:34246 "HELO mail.bmlv.gv.at")
-	by vger.kernel.org with SMTP id <S318748AbSHNNyy> convert rfc822-to-8bit;
-	Wed, 14 Aug 2002 09:54:54 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: "Ph. Marek" <marek@bmlv.gv.at>
-To: linux-kernel@vger.kernel.org
-Subject: OOPS in proc_get_inode
-Date: Wed, 14 Aug 2002 15:59:17 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208141559.17079.marek@bmlv.gv.at>
+	id <S318561AbSHNNvH>; Wed, 14 Aug 2002 09:51:07 -0400
+Received: from avscan1.sentex.ca ([199.212.134.11]:53764 "EHLO
+	avscan1.sentex.ca") by vger.kernel.org with ESMTP
+	id <S318308AbSHNNvG>; Wed, 14 Aug 2002 09:51:06 -0400
+Message-ID: <004901c2439a$7730b2e0$294b82ce@connecttech.com>
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: <JosMHinkle@netscape.net>, <linux-kernel@vger.kernel.org>
+References: <380543EF.54D883E4.0BD32098@netscape.net>
+Subject: Re: Linux kernel 2.4.19 failure to access a serial port
+Date: Wed, 14 Aug 2002 09:57:01 -0400
+Organization: Connect Tech Inc.
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody,
+Please wrap your lines at less than or equal to 80 columns.
 
-I get an OOPS in proc_get_inode.
-It shows with the sa (sadc) processes hanging in D state and the /proc/net 
-directory inaccessible - every ls in there hangs in D too.
+From: <JosMHinkle@netscape.net>
+> Expansion: The system is a 233MHz Pentium Mmx in a board called
+> "P5SV-B" manufacurer unknown.  There are two serial ports available
 
-This is a dual P III 1GHz. Linux 2.4.19pre1 SMP.
+http://www.ecs.com.tw/products/socket7.htm
 
+> with the mouse using one (ttyS0).  The Rockwell K56Flex modem is
+> installed to use ttyS2 and IRQ 10, set by PnP.  The reason for this
+> is Windows is run on the machine at times, and is the only
+> arrangement it will accept, so the same configuration was intended
+> to be used when Linux was run.  Indeed, when kernel 2.2.21 was used,
+> there was no problem.
+> The kernel was originally configured without support for sharing
+> interrupts  since none were shared.
 
-I can't say for sure just now but it seem to happen on load OR unload of 
-modules - which links this oops to 
-	http://lkml.org/archive/2000/10/2/110/index.html
-Does anybody can tell me about this oops or what informations are needed?
+Sounds like you have an ISA modem, which cannot share interrupts.
 
+>   However, the symptoms are strings sent to the modem might or might
+> not reach it, and when they do, they come in 16 byte segments about
+> once every 30 seconds.  I understand that is typical behaviour when
+> interrupts are shared, and indeed when the serial driver becomes
 
-To track the problem down I already did a 
-	while true
-	do
-		ls -la  ; cat dev ;	cat sockstat
-	done
-in one console and
-	modprobe -a -k \* ; rmmod -a
-in another.
-But this problem does not always show up.
-It MAY be the 8390 module as this is the last in syslog before the oops.
+It's typical behaviour when a device that can't share interrupts is
+sharing its interrupt with someone else.
 
-Every help is appreciated!
+> active on bootup, the annunciation is "Serial driver version 5.05c
+> with MANY_PORTS SHARE_IRQ SERIAL_PCI ISAPNP enabled" whether or not
+> those were selected in the configuration before kernel compilation.
 
+The first three serial options are turned on if you have PCI support
+(in the general setup menu, not the serial menu) turned on. The pci
+side of the serial driver needs those options to support pci based
+serial boards.
 
-Regards,
+>   Initially /dev/ttyS2 is reported as using IRQ4 on bootup even
+> though the isapnp.conf directs it to be IRQ10.  setserial is used
+> later thus: "setserial /dev/ttyS2 irq 10 baud_base 115200 spd_normal
+> skip_test".
+>    Curiously, with or without that, the modem responds the same way
+> whether IRQ4 or IRQ10 is used after the isapnp software has
+> allegedly set it to use IRQ10.
 
-Phil
+I don't have any knowledge of isapnp. But it sounds like you have an
+irq conflict. Here's a couple things to try, apologies if they are
+irrelevant:
+- double check what irq your modem is set to
+- double check in your bios that you have that irq reserved for isa
+  use only
+- if possible try disbling the isapnp.conf, and just trying the port
+  with whatever irq it autodetects at
 
+Hm. This isn't a Winmodem is it?
 
-
-ksymoops 2.4.2 on i686 2.4.19pre1.  Options used
-     -v /tmp/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19pre1/ (default)
-     -m /boot/System.map (specified)
-
-Unable to handle kernel paging request at virtual address f91ac010
-c01541a0
-*pde = 37b05067
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01541a0>]    Not tainted
-EFLAGS: 00010286
-eax: f91ac000   ebx: c3372da0   ecx: 00000001   edx: 00000003
-esi: f48a5800   edi: c3372df3   ebp: f48a59e0   esp: dbe0ff00
-ds: 0018   es: 0018   ss: 0018
-Process find (pid: 26529, stackpage=dbe0f000)
-Stack: c2b92a20 c2b92a83 c0155e0c c201f400 00001233 c3372da0 fffffff4 f48a59e0
-       dbe0e000 c2b92a20 ffffffea c0140ff2 f48a59e0 c2b92a20 dbe0ff74 00000000
-       dbe0ffa4 00000008 c0141728 c2b92aa0 dbe0ff74 00000000 f408d000 00000000
-Call Trace: [<c0155e0c>] [<c0140ff2>] [<c0141728>] [<c014198a>] [<c0141e01>]
-   [<c013e8d9>] [<c0136d2f>] [<c010708f>]
-Code: f0 ff 40 10 8b 43 24 80 48 14 18 8b 43 18 85 c0 74 06 89 86
-
->>EIP; c01541a0 <proc_get_inode+9c/110>   <=====
-Trace; c0155e0c <proc_lookup+70/94>
-Trace; c0140ff2 <real_lookup+7a/108>
-Trace; c0141728 <link_path_walk+590/7d8>
-Trace; c014198a <path_walk+1a/1c>
-Trace; c0141e00 <__user_walk+34/50>
-Trace; c013e8d8 <sys_lstat64+18/70>
-Trace; c0136d2e <sys_close+5a/70>
-Trace; c010708e <system_call+32/38>
-Code;  c01541a0 <proc_get_inode+9c/110>
-00000000 <_EIP>:
-Code;  c01541a0 <proc_get_inode+9c/110>   <=====
-   0:   f0 ff 40 10               lock incl 0x10(%eax)   <=====
-Code;  c01541a4 <proc_get_inode+a0/110>
-   4:   8b 43 24                  mov    0x24(%ebx),%eax
-Code;  c01541a6 <proc_get_inode+a2/110>
-   7:   80 48 14 18               orb    $0x18,0x14(%eax)
-Code;  c01541aa <proc_get_inode+a6/110>
-   b:   8b 43 18                  mov    0x18(%ebx),%eax
-Code;  c01541ae <proc_get_inode+aa/110>
-   e:   85 c0                     test   %eax,%eax
-Code;  c01541b0 <proc_get_inode+ac/110>
-  10:   74 06                     je     18 <_EIP+0x18> c01541b8 
-<proc_get_inode+b4/110>
-Code;  c01541b2 <proc_get_inode+ae/110>
-  12:   89 86 00 00 00 00         mov    %eax,0x0(%esi)
+..Stu
 
 

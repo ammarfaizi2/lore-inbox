@@ -1,83 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266721AbTAOQby>; Wed, 15 Jan 2003 11:31:54 -0500
+	id <S266712AbTAOQaL>; Wed, 15 Jan 2003 11:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266730AbTAOQbx>; Wed, 15 Jan 2003 11:31:53 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266721AbTAOQbw>; Wed, 15 Jan 2003 11:31:52 -0500
-Date: Wed, 15 Jan 2003 11:43:01 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S266721AbTAOQaL>; Wed, 15 Jan 2003 11:30:11 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:23217 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266712AbTAOQaK>; Wed, 15 Jan 2003 11:30:10 -0500
+Message-Id: <200301151639.h0FGdYao009682@eeyore.valparaiso.cl>
 To: Mark Mielke <mark@mark.mielke.cc>
-cc: DervishD <raul@pleyades.net>, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-In-Reply-To: <20030114212113.GF15412@mark.mielke.cc>
-Message-ID: <Pine.LNX.3.95.1030115113606.18233A-200000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-450684888-1042648981=:18233"
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OFFTOPIC] RMS and reactions to him 
+In-Reply-To: Your message of "Tue, 14 Jan 2003 16:08:45 EST."
+             <20030114210845.GE15412@mark.mielke.cc> 
+Date: Wed, 15 Jan 2003 17:39:33 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Mark Mielke <mark@mark.mielke.cc> said:
 
---1678434306-450684888-1042648981=:18233
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+[...]
 
+> In actual fact, I don't want RMS to stop. I believe that his religious
+> attachment to his ideals has allowed a sort of 'grand unification' of
+> compatible beliefs. RMS didn't invent freedom. But he, and his
+> organization, do an excellent job of representing freedom (even if they
+> try to [re]define it to suit their agenda...).
 
-Well, I just can't give this up! Here is a procedure plus a test
-program that reallocates and copies environment strings so the
-process title can be altered. The procedure returns the amount
-of space available for the new name so that strncpy() can be
-used to prevent damage.
+Please do remember that most of the horrors seen last century (and much
+before that too) were the result of people that genuinely believed they
+somehow owned the truth, and if the world did not conform to their visions,
+much the worse for the world. That you might be somewhat in agreement to
+some narrow religious vision doesn't mean your sort of deviationism will be
+tolerated in any form if they happen to succeed.
 
-If you don't like me pretending that main() gets the environment
-after args[], you can access environ directly anyway with the
-same result. Have fun!
+One of the things that attract me to the OSS movement is the tolerance and
+openness (as shown by the existence of an open-for-all forum like this, for
+instance).
 
+[...]
 
-If you don't have enough string-space to make a large enough name,
-just increase the size of your environment.
+> But, he shouldn't have to be. In the linux-devel newsgroups, the
+> opinion that Linus was a pawn in RMS's master plan needs to be
+> squashed. Not only is it completely false, but it is disrespectful to
+> every contributor of Linux up unto this point. RMS's master plan takes
+> it for granted that a large number of skilled people have
+> compatible-enough beliefs. He assumes that this means that they *are*
+> his people, and not that they are willing to collaborate with his
+> movement.
 
+There are people around who are _against_ GPL on quite valid grounds,
+prefering BSD licence, Artistic, Knuth's "do as you wish, don´t distribute
+changed versions", what have you. Others just think GPL is a nice form of a
+(legally binding) licence that usefully preserves certain rights for the
+writers and their licencees, and wouldn't care less for the "free software
+everything" ideas that come with it. Then there are those who prefer to
+pick and choose a license on a case by case basis. They aren't all "willing
+to cooperate" on anything, each one has their own agenda (Bazaar, not
+cathedral, remember?). OSS is much, much larger than FSF.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Also remember that all the previous attempts at creating a meaningful
+community failed (BSD, FSF, X11, etc never got really anywhere on their
+own). The whole thing started going with Linux (the kernel). The
+development model was later applied to (by then) moribund FSF efforts, like
+gcc (remember the EGCS fiasco?), and gave them (new) life.
 
+> Some of us don't mind getting a little mud on ourselves to stand up
+> for what we believe in. Passionate outbursts? Damn right. :-) It means
+> we have a heart beating inside our chests.
 
---1678434306-450684888-1042648981=:18233
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="xxx.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.3.95.1030115114301.18233B@chaos.analogic.com>
-Content-Description: 
-
-I2luY2x1ZGUgPHN0ZGlvLmg+DQojaW5jbHVkZSA8c3RyaW5nLmg+DQojaW5j
-bHVkZSA8dW5pc3RkLmg+DQojaW5jbHVkZSA8bWFsbG9jLmg+DQoNCmV4dGVy
-biBjaGFyICoqZW52aXJvbjsNCg0Kc2l6ZV90IGluaXRfc2V0dGl0bGUoY2hh
-ciAqYXJndltdLCBjaGFyICplbnZbXSkNCnsNCiAgIHNpemVfdCBpLCBsZW47
-DQogICBjaGFyICpsaW1pdDsNCiAgIGNoYXIgKnZhcjsNCiAgIGkgPSAwOw0K
-ICAgd2hpbGUoZW52W2ldICE9IE5VTEwpDQogICB7DQogICAgICAgbGVuID0g
-IHN0cmxlbihlbnZbaV0pICsgMTsgICAgICAvKiBSb29tIGZvciB0aGUgJ1ww
-JyAgICAqLw0KICAgICAgIHZhciA9ICAoY2hhciAqKSBtYWxsb2MobGVuKTsN
-CiAgICAgICBtZW1jcHkodmFyLCBlbnZbaV0sIGxlbik7ICAgICAgIC8qIENv
-cHkgdGhlICdcMCcgYWxzbyAgICovDQogICAgICAgbGltaXQgICAgPSBlbnZb
-aV07ICAgICAgICAgICAgICAvKiBTdGFydCBvZiBsYXN0IHN0cmluZyAqLw0K
-ICAgICAgIGVudltpKytdID0gdmFyOyAgICAgICAgICAgICAgICAgLyogTmV3
-IGVudmlyb25tZW50IHB0ciAgKi8NCiAgIH0NCiAgIHdoaWxlKCpsaW1pdCkg
-ICAgICAgICAgICAgICAgICAgICAgIC8qIEVuZCBvZiBsYXN0IHN0cmluZyAg
-ICovDQogICAgICAgbGltaXQrKzsNCiAgIHJldHVybiAobGltaXQgLSBhcmd2
-WzBdKTsgICAgICAgICAgIC8qIFNwYWNlIHdlIGNhbiB1c2UgICAgICovDQp9
-DQoNCmludCBtYWluKGludCBjLCBjaGFyICphcmd2W10sIGNoYXIgKmVudltd
-KQ0Kew0KICAgIHNpemVfdCBsZW4sIGk7DQogICAgbGVuID0gaW5pdF9zZXR0
-aXRsZShhcmd2LCBlbnYpOw0KICAgIGkgPSAwOw0KICAgIHdoaWxlKGVudmly
-b25baV0gIT0gTlVMTCkNCiAgICAgICAgcHV0cyhlbnZpcm9uW2krK10pOw0K
-ICAgIHByaW50ZigiTGVuZ3RoIGFsbG93ZWQgPSAldVxuIiwgbGVuKTsNCiAg
-ICBmZmx1c2goc3Rkb3V0KTsNCiAgICBzdHJuY3B5KGFyZ3ZbMF0sICJBbnRp
-ZGVzZXN0YWJsaXNobWVudGFyaWFuaXNtIiwgbGVuKTsNCiAgICBpID0gMDsN
-CiAgICB3aGlsZShlbnZpcm9uW2ldICE9IE5VTEwpDQogICAgICAgIHB1dHMo
-ZW52aXJvbltpKytdKTsNCiAgICBmZmx1c2goc3Rkb3V0KTsNCiAgICBwYXVz
-ZSgpOyANCiAgICByZXR1cm4gMDsNCn0NCg0K
---1678434306-450684888-1042648981=:18233--
+Amen.
+--
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

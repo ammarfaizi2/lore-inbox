@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264677AbRFTXSW>; Wed, 20 Jun 2001 19:18:22 -0400
+	id <S264676AbRFTXSW>; Wed, 20 Jun 2001 19:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264673AbRFTXSN>; Wed, 20 Jun 2001 19:18:13 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:40976 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S264676AbRFTXSI>; Wed, 20 Jun 2001 19:18:08 -0400
-Message-ID: <3B312AD6.38D20AFB@netpathway.com>
-Date: Wed, 20 Jun 2001 17:59:34 -0500
-From: "Gary White (Network Administrator)" <admin@netpathway.com>
-Organization: Internet Pathway
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S264677AbRFTXSM>; Wed, 20 Jun 2001 19:18:12 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:57098 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S264673AbRFTXSB>; Wed, 20 Jun 2001 19:18:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+Date: Thu, 21 Jun 2001 01:20:56 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <993069751.10191.0.camel@agate> <E15Cq9u-0000CX-00@the-village.bc.nu> <20010620153345.I3089@work.bitmover.com>
+In-Reply-To: <20010620153345.I3089@work.bitmover.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac16 kernel panic
-In-Reply-To: <3B3116A3.E89360DE@netpathway.com> <E15CqDS-0000DG-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Message-Id: <0106210120560H.00439@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I was so long getting back. I had to step out
-of the office for a minute. Here is the debug message.
+On Thursday 21 June 2001 00:33, Larry McVoy wrote:
+> You can scream all you want that "it isn't free software" but the fact
+> of the matter is that you all scream that and then go do your slides for
+> your Linux talks in PowerPoint.
 
-Initializing RT netlink socket
-kernel BUG at ioremap.c:73
-invalid operand: 0000
+Bad example Larry, most of us do our talks with MagicPoint.  I'll probably 
+use KPresenter for the next one, it's pretty slick.
 
-
-
-> > 2.4.5-ac16 patch applied to clean 2.4.5 tree. 2.4.5-ac15 boots
-> > with no problem.
->
-> Yes I screwed up the bootflag handling
->
-> > EIP:    0010:[<c01112cf>]
-> > EFLAGS: 00010286
-> > eax: 007ec000   ebx: e0800000   ecx: 3f7ec000   edx: c0101000
->
-> Can you build with kernel debug enabled and then say Y to all the debug options
-> and give me the BUG() message where that next build dies. I think I know whats
-> up I want to be sure
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I haven't booted Window in almost 2 years, not because I'm forcing myself to 
+stay away, but because I haven't had the need.  And yes, I do word 
+processing, make spreadsheets, charts, send emails, you name it.
 
 --
-Gary White               Network Administrator
-admin@netpathway.com          Internet Pathway
-Voice 601-776-3355            Fax 601-776-2314
-
-
+Daniel

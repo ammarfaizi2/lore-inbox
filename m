@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264339AbRFNBGS>; Wed, 13 Jun 2001 21:06:18 -0400
+	id <S264352AbRFNBI6>; Wed, 13 Jun 2001 21:08:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264345AbRFNBGI>; Wed, 13 Jun 2001 21:06:08 -0400
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:44299 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S264339AbRFNBFw>;
-	Wed, 13 Jun 2001 21:05:52 -0400
-Message-ID: <004701c0f46e$11a8a9e0$480e6c42@almlba4sy7xn6x>
-From: "Daniel Dickman" <ddickman@nyc.rr.com>
-To: "Andrew Pimlott" <andrew@pimlott.ne.mediaone.net>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> <20010613204729.A18297@pimlott.ne.mediaone.net>
+	id <S264345AbRFNBIs>; Wed, 13 Jun 2001 21:08:48 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:58372 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S264342AbRFNBIf>; Wed, 13 Jun 2001 21:08:35 -0400
+To: linux-kernel@vger.kernel.org
 Subject: Re: obsolete code must die
-Date: Wed, 13 Jun 2001 21:05:05 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+In-Reply-To: <9g91gb$11p$1@ns1.clouddancer.com>
+In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> <9g91gb$11p$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010614010834.2ECD678599@mail.clouddancer.com>
+Date: Wed, 13 Jun 2001 18:08:34 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-Thanks for your email. I am aware of the "traditions" of the Linux kernel,
-and this is really why I wanted to start a discussion going about this.
-Basically one of the things I am wondering is how complex the kernel code
-can grow to become. All I am proposing is that old features start becoming
-deprecated and eventually removed.
-
-What I'd like to know is this -- will support for the i386, say, ever go
-away? What if the hardware is no longer in existence/used by anyone? will
-support stay in the kernel?
-
-This is the main point I wanted to make, and I guess I should have been
-clearer about this.
-
-Daniel
------ Original Message -----
-From: "Andrew Pimlott" <andrew@pimlott.ne.mediaone.net>
-To: "Daniel" <ddickman@nyc.rr.com>
-Sent: Wednesday, June 13, 2001 8:47 PM
-Subject: Re: obsolete code must die
-
-
-> Do you realize how violently your suggestions conflict with the
-> goals, practices, and traditions of Linux?  I don't mean any
-> offense, but you should really learn more about Linux development
-> before making broad suggestions.
+In list.kernel, you wrote:
 >
-> Andrew
+>Anyone concerned about the current size of the kernel source code? I am, and
 
+No.  Since you are up to date with the latest in everything, I cannot
+see why you would be concerned about a few megabytes in your gigabyte
+drives.
+
+
+>i386, i486
+>The Pentium processor has been around since 1995. Support for these older
+
+No.  Both of my cheap on-site systems for occasional access are 486s.
+Why would I spend money for a system that is hardly ever used?
+
+
+>ISA bus, MCA bus, EISA bus
+>PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
+>CONFIG_ISAPNP, etc
+
+No.  There are still plenty of unique ISA cards around.
+
+
+>MFM/RLL/XT/ESDI hard drive support
+>Does anyone still *have* an RLL drive that works? At the very least get rid
+
+OK, I haven't seen one of these for nearly 10 years.
+
+
+>parallel/serial/game ports
+>More controversial to remove this, since they are *still* in pretty wide
+>use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
+
+Send me the funds to replace my laser printers please.
+
+
+>a.out
+>Who needs it anymore. I love ELF.
+
+OK, everything that I had in a.out was converted within a year of
+ELF's introduction.
+
+
+>I really think doing a clean up is worthwhile. Maybe while looking for stuff
+
+You left out all the old non-IDE CDROM drives.
+ 
+
+<PS. thanks for the testing of my new archive>

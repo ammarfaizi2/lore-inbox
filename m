@@ -1,64 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264871AbTK3HYs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 02:24:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264875AbTK3HYs
+	id S264875AbTK3Hs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 02:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTK3Hs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 02:24:48 -0500
-Received: from mail.ic.sunysb.edu ([129.49.1.4]:20956 "EHLO mail.ic.sunysb.edu")
-	by vger.kernel.org with ESMTP id S264871AbTK3HYq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 02:24:46 -0500
-Message-ID: <3FC99B0B.6010701@cs.sunysb.edu>
-Date: Sun, 30 Nov 2003 02:23:55 -0500
-From: Sean Callanan <spyffe@cs.sunysb.edu>
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [MOUSE] "Virtual PC" mouse no longer works
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Nov 2003 02:48:28 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:63499 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S264875AbTK3Hs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 02:48:26 -0500
+Date: Sun, 30 Nov 2003 18:48:14 +1100
+To: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [USB] Fix connect/disconnect race
+Message-ID: <20031130074814.GA13002@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear mailing list,
 
-I'm running Debian inside Connectix Virtual PC 6.0.1. This software 
-simulates Pentium-based hardware on a Macintosh. It lets the guest OS 
-"captue" the Macintosh mouse - when the guest OS wants to use the mouse, 
-the Macintosh pointer disappears and the guest OS receives mouse events. 
-This is done using a virtual PS/2 device.
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This functionality works with the following kernels (with relevant 
-configuration options). They are stock Debian kernels.
+Hi Greg:
 
-2.2.20:
-    CONFIG_MOUSE=y
-    CONFIG_PSMOUSE=y
-2.4.18:
-    CONFIG_PSMOUSE=y
+This patch was integrated by you in 2.4 six months ago.  Unfortunately
+it never got into 2.5.  Without it you can end up with crashes such
+as http://bugs.debian.org/218670
 
-The mouse is free until X starts up (getting mouse events from 
-/dev/psaux) and is then "captured" and usable in X. But with 
-2.6.0-test11, this functionality is broken. The relevant parameters in 
-my .config are:
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-    CONFIG_INPUT=y
-    CONFIG_INPUT_MOUSEDEV=y
-    CONFIG_INPUT_MOUSEDEV_PSAUX=y
-    CONFIG_INPUT_MOUSE=y
-    CONFIG_MOUSE_PS2=y
-    CONFIG_BUSMOUSE=y
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-I have tried:
-  1) Using /dev/input/mice and /dev/psaux in my XF86Config
-  2) Passing psmouse_noext=1 to the kernel
-Neither gave any success.
+Index: kernel-source-2.5/drivers/usb/core/hub.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/usb/core/hub.c,v
+retrieving revision 1.1.1.15
+diff -u -r1.1.1.15 hub.c
+--- kernel-source-2.5/drivers/usb/core/hub.c	28 Sep 2003 04:44:16 -0000	1.1.1.15
++++ kernel-source-2.5/drivers/usb/core/hub.c	30 Nov 2003 07:44:40 -0000
+@@ -926,7 +926,6 @@
+ 			break;
+ 		}
+ 
+-		hub->children[port] = dev;
+ 		dev->state = USB_STATE_POWERED;
+ 
+ 		/* Reset the device, and detect its speed */
+@@ -979,8 +978,10 @@
+ 		dev->dev.parent = dev->parent->dev.parent->parent;
+ 
+ 		/* Run it through the hoops (find a driver, etc) */
+-		if (!usb_new_device(dev, &hub->dev))
++		if (!usb_new_device(dev, &hub->dev)) {
++			hub->children[port] = dev;
+ 			goto done;
++		}
+ 
+ 		/* Free the configuration if there was an error */
+ 		usb_put_dev(dev);
+@@ -989,7 +990,6 @@
+ 		delay = HUB_LONG_RESET_TIME;
+ 	}
+ 
+-	hub->children[port] = NULL;
+ 	hub_port_disable(hub, port);
+ done:
+ 	up(&usb_address0_sem);
 
-Please cc: me on any replies as I am not subscribed. Thank you for your 
-time.
-
-Sincerely,
-Sean Callanan
-
+--HlL+5n6rz5pIUxbD--

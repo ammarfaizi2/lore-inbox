@@ -1,99 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271098AbRHOI7s>; Wed, 15 Aug 2001 04:59:48 -0400
+	id <S271106AbRHOJKI>; Wed, 15 Aug 2001 05:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271099AbRHOI72>; Wed, 15 Aug 2001 04:59:28 -0400
-Received: from marta.ip.pt ([195.23.132.14]:13836 "HELO marta2.ip.pt")
-	by vger.kernel.org with SMTP id <S271098AbRHOI7U>;
-	Wed, 15 Aug 2001 04:59:20 -0400
-Message-ID: <20010815085929.29725.qmail@webmail.clix.pt>
-X-Originating-IP: [198.62.9.29]
-X-Mailer: Clix Webmail 2.0
-In-Reply-To: <3B7A26F3.8070501@rz.uni-potsdam.de>
-In-Reply-To: <3B7A26F3.8070501@rz.uni-potsdam.de> 
-From: "rui.p.m.sousa@clix.pt" <rui.p.m.sousa@clix.pt>
-To: Juergen Rose <rose@rz.uni-potsdam.de>
-Cc: linux-kernel@vger.kernel.org, emu10k1-devel@opensource.creative.com
-Subject: Re: Can't make module emu10k1.o with linux-2.4.8
-Date: Wed, 15 Aug 2001 08:59:29 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+	id <S271105AbRHOJJ6>; Wed, 15 Aug 2001 05:09:58 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:10256 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S271106AbRHOJJs>; Wed, 15 Aug 2001 05:09:48 -0400
+Message-ID: <3B7A3C03.3FD293CD@idb.hist.no>
+Date: Wed, 15 Aug 2001 11:08:19 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre8 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: joseph.bueno@trader.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is there something that can be done against this ???
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMKENKDCAA.davids@webmaster.com> <3B7924C7.31923A8@trader.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+joseph.bueno@trader.com wrote:
+[...]
+> How many users are there that use a specific user account to read
+> their emails on their Linux workstation ?
+> I don't, I use my account to read mails, write documents,
+> develop programs,etc. So even if a malicious program does
+> not do any arm to the system, it can at least destroy or corrupt my
+> own files and I will loose time restoru=ing from last backup and
+> rebuilding recently modified files.
+> 
+So you aren't reading mail as root - which is what any windows
+user do.  I believe few people read mail from a "mail-only"
+account, but reading the mail is seldom dangerous.  If someone
+mails you a unknown program though - definitely run that
+from a test account if you tries it at all.
 
-Juergen Rose writes:
-
-Fixed in 2.4.8pre1. Pre patches are in the
-"testing" directory of ftp.kernel.org/pub/linux
-
-> Hello,ld -m elf_i386  -r -o emu10k1.o audio.o cardmi.o cardmo.o cardwi.o 
-> cardwo.o ecard.o efxmgr.o emuadxmg.o hwaccess.o irqmgr.o joystick.o main.o 
-> midi.o mixer.o passthrough.o recmgr.o timer.o voicemgr.o
-> main.o(.modinfo+0x40): multiple definition of `__module_author'
-> joystick.o(.modinfo+0x80): first defined here
-> ld: Warning: size of symbol `__module_author' changed from 67 to 81 in 
-> main.o
-> main.o(.modinfo+0xa0): multiple definition of `__module_description'
-> joystick.o(.modinfo+0xe0): first defined here
-> ld: Warning: size of symbol `__module_description' changed from 83 to 96 
-> in main.o
-> main.o: In function `init_module':
-> main.o(.text+0x18d0): multiple definition of `init_module'
-> joystick.o(.text+0x240): first defined here
-> main.o: In function `cleanup_module':
-> main.o(.text+0x1910): multiple definition of `cleanup_module'
-> joystick.o(.text+0x280): first defined here
-> make[3]: *** [emu10k1.o] Error 1
-> 
-> 
-> 
-> I have the following tools installed:
-> 
-> Linux mousehomenet 2.4.3 #1 Sun Apr 1 23:25:51 CEST 2001 i686 unknown
-> 
-> Gnu C                  2.95.3
-> Gnu make               3.79
-> binutils               2.11
-> util-linux             2.11b
-> mount                  2.11b
-> modutils               2.4.5
-> e2fsprogs              1.20-WIP
-> PPP                    2.4.0
-> Linux C Library        2.2.2
-> Dynamic linker (ldd)   2.2.2
-> Procps                 2.0.6
-> Net-tools              1.55
-> Kbd                    0.99
-> Sh-utils               1.16
-> Modules Loaded         ipv6 nfs lockd sunrpc i2c-matroxfb lirc_i2c 
-> lirc_dev tvaudio bttv tuner msp3400 i2c-algo-bit videodev ddcmon w83781d 
-> eeprom adm1021 sensors i2c-isa i2c-viapro i2c-core lvm-mod ipchains mga 
-> agpgart autofs4 epic100 emu10k1 soundcore ppp_deflate ppp_async 
-> ppp_generic lp parport_pc parport nls_iso8859-1 nls_cp437 msdos fat
-> 
-> I hope you fix it.
-> 
-> With best regards.
->        Juergen
-> 
-> 
-> make modules gives:
-> 
-> 
-> 
-> 
-> _______________________________________________
-> Emu10k1-devel mailing list
-> Emu10k1-devel@opensource.creative.com
-> http://opensource.creative.com/mailman/listinfo/emu10k1-devel
-
-
-
-
-
-
---
-Crie o seu Email Grátis no Clix em
-http://registo.clix.pt/
+Helge Hafting

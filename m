@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265936AbVBDRWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVBDRYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265936AbVBDRWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 12:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbVBDRWI
+	id S261184AbVBDRYD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 12:24:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbVBDRWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 12:22:08 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:55720 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263722AbVBDRU7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 12:20:59 -0500
-Date: Fri, 4 Feb 2005 11:20:41 -0600
-To: Pekka Enberg <penberg@gmail.com>
-Cc: linuxppc64-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, paulus@samba.org, anton@samba.org,
-       trini@kernel.crashing.org, benh@kernel.crashing.org, hpa@zytor.com,
-       akpm@osdl.org, penberg@cs.helsinki.fi
-Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
-Message-ID: <20050204172041.GA17586@austin.ibm.com>
-References: <20050204072254.GA17565@austin.ibm.com> <84144f0205020400172d89eddf@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <84144f0205020400172d89eddf@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040523i
-From: olof@austin.ibm.com (Olof Johansson)
+	Fri, 4 Feb 2005 12:22:48 -0500
+Received: from web88208.mail.re2.yahoo.com ([206.190.37.223]:22926 "HELO
+	web88208.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S265866AbVBDRU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 12:20:26 -0500
+Message-ID: <20050204172023.76200.qmail@web88208.mail.re2.yahoo.com>
+Date: Fri, 4 Feb 2005 12:20:23 -0500 (EST)
+From: LAWRENCE WILLIAMS <lawrencewilliams@nl.rogers.com>
+Subject: Bug in ns558 affecting gameports
+To: linux-kernel@vger.kernel.org, perex@suse.cz
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-271497898-1107537623=:76052"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 10:17:48AM +0200, Pekka Enberg wrote:
-> Please drop the CPU_FTR_##x macro magic as it makes grepping more
-> complicated. If the enum names are too long, just do s/CPU_FTR_/CPU_/g
-> or something similar. Also, could you please make this a static inline
-> function?
+--0-271497898-1107537623=:76052
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-I considered that for a while, but decided against it because:
+Hello,
 
-* cpu-has-feature(cpu-feature-foo) v cpu-has-feature(foo): I picked the
-latter for readability.
-* Renaming CPU_FTR_<x> -> CPU_<x> makes it less obvious that
-it's actually a cpu feature it's describing (i.e. CPU_ALTIVEC vs
-CPU_FTR_ALTIVEC).
-* Renaming would clobber the namespace, CPU_* definitions are used in
-other places in the tree.
-* Can't make it an inline and still use the preprocessor concatenation.
+I am sending this report because this has been an
+off-again, on-again problem in the 2.6 kernel series.
+Everything was fine when the snd-intel8x0 had built-in
+gameport support from 2.6.5(??) to 2.6.9. I just
+simply had to add a file to /etc/modprobe.d containing
+the following line
 
-That being said, you do have a point about grepability. However,
-personally I'd be more likely to look for CPU_HAS_FEATURE than the
-feature itself when reading the code, and would find that easily. The
-other way around (finding all uses of a feature) is harder, but the
-concatenation macro is right below the bit definitions and easy to spot.
+options snd-intel8x0 joystick=1
 
+And everything worked fine. Now I recently installed
+2.6.10 in Debian and kept getting the same error as
+has been reported by others ( see ). The patch
+attached to that bug report works against 2.6.10 and
+fixes the problem ( at least it did for me ).
 
--Olof
+I would like to see this problem fixed and I'm willing
+to help in any way I can. Attached to this message is
+the patch I mentioned above.
+
+Thanks!
+
+Lawrence Williams
+--0-271497898-1107537623=:76052
+Content-Type: application/octet-stream; name="ns558.patch"
+Content-Transfer-Encoding: base64
+Content-Description: ns558.patch
+Content-Disposition: attachment; filename="ns558.patch"
+
+LS0tIGEvZHJpdmVycy9pbnB1dC9nYW1lcG9ydC9uczU1OC5jCTIwMDQtMDUt
+MTAgMDI6MzM6MTMuMDAwMDAwMDAwICswMDAwCisrKyBiL2RyaXZlcnMvaW5w
+dXQvZ2FtZXBvcnQvbnM1NTguYwkyMDA0LTA2LTI4IDEwOjQzOjI4LjAwMDAw
+MDAwMCArMDAwMApAQCAtMjYwLDE5ICsyNjAsMTkgQEAKIAogI2VuZGlmCiAK
+K3N0YXRpYyBpbnQgcmVnaXN0ZXJlZCA9IDA7CisKIGludCBfX2luaXQgbnM1
+NThfaW5pdCh2b2lkKQogewogCWludCBpID0gMDsKIAotLyoKLSAqIFByb2Jl
+IGZvciBJU0EgcG9ydHMuCi0gKi8KKwlpZiAocG5wX3JlZ2lzdGVyX2RyaXZl
+cigmbnM1NThfcG5wX2RyaXZlcik+PTApCisJCXJlZ2lzdGVyZWQgPSAxOwog
+CiAJd2hpbGUgKG5zNTU4X2lzYV9wb3J0bGlzdFtpXSkKIAkJbnM1NThfaXNh
+X3Byb2JlKG5zNTU4X2lzYV9wb3J0bGlzdFtpKytdKTsKIAotCXBucF9yZWdp
+c3Rlcl9kcml2ZXIoJm5zNTU4X3BucF9kcml2ZXIpOwotCXJldHVybiBsaXN0
+X2VtcHR5KCZuczU1OF9saXN0KSA/IC1FTk9ERVYgOiAwOworCXJldHVybiAw
+OwogfQogCiB2b2lkIF9fZXhpdCBuczU1OF9leGl0KHZvaWQpCkBAIC0yOTYs
+NiArMjk2LDcgQEAKIAkJCQlicmVhazsKIAkJfQogCX0KKwlpZiAocmVnaXN0
+ZXJlZCkKIAlwbnBfdW5yZWdpc3Rlcl9kcml2ZXIoJm5zNTU4X3BucF9kcml2
+ZXIpOwogfQogCg==
+
+--0-271497898-1107537623=:76052--

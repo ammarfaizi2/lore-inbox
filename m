@@ -1,78 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263135AbTCSRAL>; Wed, 19 Mar 2003 12:00:11 -0500
+	id <S263041AbTCSRNq>; Wed, 19 Mar 2003 12:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263139AbTCSRAL>; Wed, 19 Mar 2003 12:00:11 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.29]:60020 "EHLO
-	mwinf0203.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263135AbTCSRAJ>; Wed, 19 Mar 2003 12:00:09 -0500
-From: Duncan Sands <duncan.sands@wanadoo.fr>
-To: chas williams <chas@locutus.cmf.nrl.navy.mil>,
-       Mitchell Blank Jr <mitch@sfgoth.com>
-Subject: Re: [Linux-ATM-General] Re: [ATM] first pass at fixing atm spinlock
-Date: Wed, 19 Mar 2003 18:11:00 +0100
-User-Agent: KMail/1.5.1
-Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200303172325.h2HNPpGi015350@locutus.cmf.nrl.navy.mil>
-In-Reply-To: <200303172325.h2HNPpGi015350@locutus.cmf.nrl.navy.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303191811.00337.duncan.sands@wanadoo.fr>
+	id <S263056AbTCSRNq>; Wed, 19 Mar 2003 12:13:46 -0500
+Received: from smtp-102.noc.nerim.net ([62.4.17.102]:18703 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S263041AbTCSRNp> convert rfc822-to-8bit; Wed, 19 Mar 2003 12:13:45 -0500
+Date: Wed, 19 Mar 2003 18:24:42 +0100
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Alexander Hoogerhuis <alexh@ihatent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hard freeze with 2.5.65-mm1
+Message-Id: <20030319182442.4a9fa86c.philippe.gramoulle@mmania.com>
+In-Reply-To: <8765qfacaz.fsf@lapper.ihatent.com>
+References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
+	<8765qfacaz.fsf@lapper.ihatent.com>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.8.11claws24 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> atm_dev_lock is now a
->> read/write lock that now protects the list of atm devices.
->
->Are you sure you're never sleeping while holding this lock while iterating
->device lists?  I haven't checked but we do a fair number of things there
->(like the proc stuff) so we really need to track those down.
 
-[I hope the following comments are not misplaced: I picked up this
-thread half way through, and I didn't read the code...]
+Hi,
 
-Presumably the only reason you want a spin lock is because drivers
-may be walking the list in interrupt context when the time comes
-to add/remove a member.  My first comment is: what are drivers
-doing walking this list anyway?  Shouldn't it be private to the ATM
-layer?  Drivers can maintain their own list if they need one.  My
-second comment is that the ATM layer should never need to take
-the spinlock itself when walking the list (I'm guessing it always
-walks the list in process context).  You could have the following
-setup: list protected by a semaphore and a spinlock.
+My workstation froze hard again , this time after few hours.
 
-Deleting a member does the following:
-	acquire the semaphore
-	...
-	take the spinlock
-	delete the member
-	release the spinlock
-	...
-	release the semaphore
+There was no disk activiy and nothing on the serial console :-(
 
-Adding a member does the following:
-	acquire the semaphore
-	...
-	take the spinlock
-	add the member
-	release the spinlock
-	...
-	release the semaphore
+The machine didn't freeze even even when i ran several program et the same time
+(opera, mozilla, sylpheed, pan,etc...) but froze as the box was almost idle.
 
-Walking the list in process context does:
-	acquire the semaphore
-	walk the list doing stuff
-	release the semaphore
+Thanks,
 
-Walking the list in interrupt context does:
-	acquire the spinlock
-	walk the list doing stuff that can't sleep
-	release the spinlock
+Philippe
 
-Of course the semaphore could be used as a "big device lock",
-not just a list lock.
+On 19 Mar 2003 11:19:32 +0100
+Alexander Hoogerhuis <alexh@ihatent.com> wrote:
 
-Duncan.
+  | 
+  | Philippe Gramoullé <philippe.gramoulle@mmania.com> writes:
+  | 
+  | > Hi,
+  | >
+  | > [SNIPPED HANG]
+  | >
+  | 
+  | Did your machine have any disk activity? I had a very similar thing
+  | happen, but could still hear my disk move.
+  | 
+  | mvh,
+  | A

@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVDCTGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVDCTQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261865AbVDCTGT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 15:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVDCTGT
+	id S261879AbVDCTQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 15:16:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVDCTQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 15:06:19 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:42668 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261865AbVDCTGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 15:06:16 -0400
-Subject: Re: AIM9 slowdowns between 2.6.11 and 2.6.12-rc1
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504031532570.25594@skynet>
-References: <Pine.LNX.4.58.0504031532570.25594@skynet>
-Content-Type: text/plain
-Date: Sun, 03 Apr 2005 12:06:10 -0700
-Message-Id: <1112555170.7189.34.camel@localhost>
+	Sun, 3 Apr 2005 15:16:59 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:30748 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261880AbVDCTQE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 15:16:04 -0400
+Date: Sun, 3 Apr 2005 21:17:20 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Auto-append localversion for BK users needs to use CONFIG_SHELL
+Message-ID: <20050403191720.GH9014@mars.ravnborg.org>
+References: <422FA817.4060400@ca.ibm.com> <1110420620.32525.145.camel@gaston> <Pine.LNX.4.58.0503091821570.2530@ppc970.osdl.org> <20050310054011.GA8287@mars.ravnborg.org> <20050313043229.GA7828@mythryan2.michonline.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050313043229.GA7828@mythryan2.michonline.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-03 at 15:37 +0100, Mel Gorman wrote:
-> While testing the page placement policy patches on 2.6.12-rc1, I noticed
-> that aim9 is showing significant slowdowns on page allocation-related
-> tests. An excerpt of the results is at the end of this mail but it shows
-> that page_test is allocating 18000 less pages.
+On Sat, Mar 12, 2005 at 11:32:29PM -0500, Ryan Anderson wrote:
 > 
-> I did not check who has been recently changing the buddy allocator but
-> they might want to run a benchmark or two to make sure this is not
-> something specific to my setup.
+> Sam, you'll probably want this on top of the patch I sent.  (I haven't
+> built in a clean tree in a while, found a minor problem when I was
+> transitioning to quilt today.)
 
-Can you get some kernel profiles to see what, exactly, is causing the
-decreased performance?  Also, what kind of system do you have?  Does
-backing this out help?  If not, can you test some BK snapshots to see
-when this started occurring?  
+Combined this to one patch and applied it.
+Let's see what feedback lkml gives.
 
-http://linus.bkbits.net:8080/linux-2.5/cset@422de02c1628MP_noKSum9sGlTaC-Q
-
--- Dave
-
+	Sam

@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265603AbSLWOrt>; Mon, 23 Dec 2002 09:47:49 -0500
+	id <S266460AbSLWOx5>; Mon, 23 Dec 2002 09:53:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265683AbSLWOrt>; Mon, 23 Dec 2002 09:47:49 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:25536 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S265603AbSLWOrt>; Mon, 23 Dec 2002 09:47:49 -0500
-Date: 23 Dec 2002 14:34:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8cR5XRmHw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.33.0212181308380.11644-100000@router.windsormachine.com>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-X-Mailer: CrossPoint v3.12d.kh10 R/C435
+	id <S266491AbSLWOx5>; Mon, 23 Dec 2002 09:53:57 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:8446 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266460AbSLWOx4>;
+	Mon, 23 Dec 2002 09:53:56 -0500
+Date: Mon, 23 Dec 2002 16:00:47 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@infradead.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Stian Jordet <liste@jordet.nu>, Allan Duncan <allan.d@bigpond.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.51
+In-Reply-To: <Pine.LNX.4.33.0212110720540.2617-100000@maxwell.earthlink.net>
+Message-ID: <Pine.GSO.4.21.0212231557460.16361-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <3E00B871.6060408@pobox.com> <Pine.LNX.4.33.0212181308380.11644-100000@router.windsormachine.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdresser_l@windsormachine.com (Mike Dresser)  wrote on 18.12.02 in <Pine.LNX.4.33.0212181308380.11644-100000@router.windsormachine.com>:
+On Wed, 11 Dec 2002, James Simmons wrote:
+> > How well does this driver work if you don't have a firmware
+> > driver initialize the card? aka a pci option ROM.
+> >
+> > I am interested because with LinuxBIOS it is still a pain to run
+> > PCI option roms, and I don't necessarily even have then if it a
+> > motherboard with video.  There are some embedded/non-x86 platforms
+> > with similar issues.
+> >
+> > My primary interest is in the cheap ATI Rage XL chip that is on many
+> > server board. PCI Vendor/device  id 1002:4752 (rev 27) from lspci.
+> >
+> > If nothing else if some one could point me to some resources on
+> > how to get the appropriate documentation from the video chipset
+> > manufacturers I would be happy.
+> >
+> > But I did want to at least point that running a system with out bios
+> > initialized video was certainly among the cases that are used.
+> 
+> Unfortunely ATI doesn't like to release info on what needs to be done to
+> initialize without frimware. I really wish this was the case. I did see
+> email back about someone getting a mach64 card working without firmware.
+> They used a bus analysiser to do this. I will see what kind of patches I
+> can dig up.
 
-> On Wed, 18 Dec 2002, Jeff Garzik wrote:
->
-> > Linux...  with the exception I guess that there are multiple peer Linii
->
-> Perhaps this is the solution.  Would someone please obtain a DNA sample
-> from Linus?
+Indeed, just ask Steve Longerbeam <stevel@mvista.com>.
 
-It's been in the works for quite some time now, I gather, but the process  
-is expected to take maybe two decades more before the first candidate  
-becomes available.
+Gr{oetje,eeting}s,
 
-It *was* announced here, however.
+						Geert
 
-MfG Kai
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
+
+

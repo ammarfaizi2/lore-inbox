@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270308AbTGMRLs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 13:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270311AbTGMRLr
+	id S270303AbTGMRII (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 13:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270306AbTGMRII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 13:11:47 -0400
-Received: from are.twiddle.net ([64.81.246.98]:43197 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S270308AbTGMRLq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 13:11:46 -0400
-Date: Sun, 13 Jul 2003 10:26:23 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Bernardo Innocenti <bernie@develer.com>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: do_div vs sector_t
-Message-ID: <20030713172622.GA13824@twiddle.net>
-Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
-	Bernardo Innocenti <bernie@develer.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-References: <20030711223359.GP20424@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030711223359.GP20424@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
+	Sun, 13 Jul 2003 13:08:08 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:8070 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270303AbTGMRIH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 13:08:07 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 13 Jul 2003 10:15:27 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: Jamie Lokier <jamie@shareable.org>
+cc: Miguel Freitas <miguel@cetuc.puc-rio.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+In-Reply-To: <20030713141121.GG19132@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.55.0307131013510.14680@bigblue.dev.mcafeelabs.com>
+References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com>
+ <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
+ <20030712162029.GE9547@mail.jlokier.co.uk> <1058028064.1196.111.camel@mf>
+ <20030712185157.GC10450@mail.jlokier.co.uk>
+ <Pine.LNX.4.55.0307121806560.4720@bigblue.dev.mcafeelabs.com>
+ <20030713141121.GG19132@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 11:33:59PM +0100, Matthew Wilcox wrote:
-> Better ideas?
+On Sun, 13 Jul 2003, Jamie Lokier wrote:
 
-          if (likely(((n) >> 31 >> 1) == 0)) {
+> Davide Libenzi wrote:
+> > You need per-user policies to achieve fairness, the global allocation
+> > won't work.
+>
+> Agreed that fairness is complicated.  However, a global limit is
+> needed because it's a big security hole to not have one.  I wonder if
+> a global limit can't be implemented very simply?
+
+Yes, it is farily/very simple. I'll write it down today ...
 
 
-r~
+
+- Davide
+

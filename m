@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbTARRY2>; Sat, 18 Jan 2003 12:24:28 -0500
+	id <S264706AbTARRT4>; Sat, 18 Jan 2003 12:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbTARRY2>; Sat, 18 Jan 2003 12:24:28 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:45574 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S264716AbTARRY1>;
-	Sat, 18 Jan 2003 12:24:27 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301181733.h0IHXbkZ001932@darkstar.example.net>
-Subject: Re: reading from devices in RAW mode
-To: folkert@vanheusden.com (Folkert van Heusden)
-Date: Sat, 18 Jan 2003 17:33:37 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <004d01c2bf14$54099340$3640a8c0@boemboem> from "Folkert van Heusden" at Jan 18, 2003 06:09:13 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264716AbTARRT4>; Sat, 18 Jan 2003 12:19:56 -0500
+Received: from BELLINI.MIT.EDU ([18.62.3.197]:12293 "EHLO bellini.mit.edu")
+	by vger.kernel.org with ESMTP id <S264706AbTARRTz>;
+	Sat, 18 Jan 2003 12:19:55 -0500
+From: ghugh Song <ghugh@mit.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops with HIMEM+VM in 2.4.19,20: More INFO
+Message-Id: <20030118172841.5236C8AC1@bellini.mit.edu>
+Date: Sat, 18 Jan 2003 12:28:41 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The closest you could probably get with any modern device would be
-> > "read sector foo, and return data even if ECC appears to have
-> > failed".
+
+I wrote:
+
+> Anthony Lau (anthony@greyweasel.com) wrote:
 > 
-> And that's exactly what I want!
-> (for the situations where the bad data starts, say, halfway the sector)
+> > It took awhile for the next oops to appear. I modifed my boot
+> > procedure by turning off swap with "swapoff -a" and allowed the
+> > system to run. I waited until all of my 1.5GB of physical RAM was
+> > allocated (cached or in use), and let the system to contiue to
+> > run. The system ran stably for 2 days with normal use. I then
+> > switch swap back on with "swapon -a".
+> 
+> Well. In my case, I tried without swap enabled.
+> It still crashed when I issued "tar cf usr.tar /usr"
+> 
+> Regards,
+> 
+> G. H. S.
+> 
 
-You'd have to ask the IDE and SCSI subsystem people for programming
-information about how to do that for disks.
+Sorry.  My problem and many others' problem with 2.4.21-pre3-ac2 are 
+not quite related to that of the original poster.
+I was confused when I saw swap-related posting.
 
-The problem is that as far as I know, if the ECC doesn't work, you
-won't end up getting back back more or less intact data, with just a
-flipped bit here and there.
+Sorry again.
 
-I'm not sure exactly how it works, but the basic theory is something
-along these lines:
-
-Suppose you are storing 5 data bits using 10 actual bits on disk.
-
-Typically, you might expect a read to read to return 8 bits accurately
-and 2 bits inaccurately.  That's enough to re-construct the data.
-When 6 bits are read inaccurately, an un-correctable error occurs.
-Retrying the read might succeed, because only 4 bits might be read
-inaccurately the second time.
-
-Although reading without using error correction will allow you to
-access the unreadable data, is quite likely to return some of the 5
-data bits incorrectly, which could have been corrected, incorrectly.
-
-I hope that explaination is of some use - maybe somebody else can
-improve it.
-
-John.
+G. H. S.

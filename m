@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271707AbRHQVQD>; Fri, 17 Aug 2001 17:16:03 -0400
+	id <S271595AbRHQVNn>; Fri, 17 Aug 2001 17:13:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271694AbRHQVPx>; Fri, 17 Aug 2001 17:15:53 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45488 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S271707AbRHQVPm>;
-	Fri, 17 Aug 2001 17:15:42 -0400
-Date: Fri, 17 Aug 2001 16:15:50 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-cc: Terje Eggestad <terje.eggestad@scali.no>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] processes with shared vm
-Message-ID: <6400000.998082950@baldur>
-In-Reply-To: <20010817225537.B2429@gruyere.muc.suse.de>
-In-Reply-To: <997973469.7632.10.camel@pc-16.suse.lists.linux.kernel>
- <oupelqbw0z4.fsf@pigdrop.muc.suse.de>
- <998038019.7627.21.camel@pc-16.office.scali.no> <36530000.998058370@baldur>
- <20010817225537.B2429@gruyere.muc.suse.de>
-X-Mailer: Mulberry/2.1.0b3 (Linux/x86)
+	id <S271694AbRHQVNZ>; Fri, 17 Aug 2001 17:13:25 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:36819 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S271595AbRHQVNV>;
+	Fri, 17 Aug 2001 17:13:21 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile [PATCH]
+In-Reply-To: <no.id> <E15XVp6-0006EW-00@the-village.bc.nu> <20010816.154858.63131116.davem@redhat.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 17 Aug 2001 23:12:42 +0200
+In-Reply-To: "David S. Miller"'s message of "Thu, 16 Aug 2001 15:48:58 -0700 (PDT)"
+Message-ID: <d3r8ua4chh.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Friday, August 17, 2001 22:55:37 +0200 Andi Kleen <ak@suse.de> wrote:
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-> Even with a tgid you would need some way to avoid its counter wrapping
-> and getting reused.
+David>    From: Alan Cox <alan@lxorguk.ukuu.org.uk> Date: Thu, 16 Aug
+David> 2001 23:41:07 +0100 (BST)
 
-While in theory the pid that is used for tgid should never die while the 
-thread group exists, this case needs to be handled for thread groups in 
-general.  The number shouldn't be re-used for a pid as long as it's in use 
-as a tgid.
+>    Thank you for your detailed discussion of this in advance on
+> the kernel list, your careful consideration of the 2.2
+> compatibility work horrors you introduced and the thoughtful
+> way you notified maintainers.
 
-> Also gtop should display correct results even with the programs
-> that don't use CLONE_THREAD.
+David> Listen:
 
-Are there any programs that use CLONE_VM and not CLONE_THREAD?
+David> 1) All of this was done at the request of Linus.
 
-Actually I think we should make tgid visible in /proc in general because 
-it's a useful thing to know, whether it's the right mechanism for gtop or 
-not.  I'll work up a patch.
+David> 2) You were CC:'d on every single email that Linus and I had on
+David> these changes, and you saw every single revision of the patch.
 
-Dave McCracken
+Alan's point about CC'ing maintainers still stands, where was the CC
+to the individual maintainers of the code you changed?
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+Jes

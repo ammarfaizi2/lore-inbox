@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265329AbTFFFyB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 01:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265330AbTFFFyB
+	id S265330AbTFFFyq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 01:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbTFFFyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 01:54:01 -0400
-Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:40721 "HELO
-	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S265329AbTFFFyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 01:54:00 -0400
-X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
-Message-ID: <264FD2B10B9BFB4BADDD9DD04F0E154B6CD894@blrx2kmbgl202.blr.amer.dell.com>
+	Fri, 6 Jun 2003 01:54:46 -0400
+Received: from ausadmmsrr503.aus.amer.dell.com ([143.166.83.90]:5135 "HELO
+	AUSADMMSRR503.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S265330AbTFFFyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 01:54:40 -0400
+X-Server-Uuid: 91331657-2068-4fb8-8b09-a4fcbc1ed29f
+Message-ID: <264FD2B10B9BFB4BADDD9DD04F0E154B6CD895@blrx2kmbgl202.blr.amer.dell.com>
 From: Ravi_Chuppala@Dell.com
 To: linux-kernel@vger.kernel.org
-Subject: Subscribing to Linux-kernel-daily-digest
-Date: Fri, 6 Jun 2003 01:07:30 -0500
+Subject: Subscribing to Linux-kernel-digest
+Date: Fri, 6 Jun 2003 01:08:09 -0500
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 content-class: urn:content-classes:message
-X-WSS-ID: 12FEF02F2866925-01-01
+X-WSS-ID: 12FEF0471492345-01-01
 Content-Type: text/plain; 
  charset=iso-8859-1
 Content-Transfer-Encoding: 7bit

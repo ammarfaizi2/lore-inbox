@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261372AbTC0U5y>; Thu, 27 Mar 2003 15:57:54 -0500
+	id <S261351AbTC0U44>; Thu, 27 Mar 2003 15:56:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261373AbTC0U5x>; Thu, 27 Mar 2003 15:57:53 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:52668 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S261372AbTC0U5w>;
-	Thu, 27 Mar 2003 15:57:52 -0500
-Subject: process creation/deletions hooks
-From: Shaya Potter <spotter@yucs.org>
-To: linux-kernel@vger.kernel.org
+	id <S261372AbTC0U44>; Thu, 27 Mar 2003 15:56:56 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:17157 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S261351AbTC0U4z>; Thu, 27 Mar 2003 15:56:55 -0500
+Subject: Re: [Linux-fbdev-devel] Framebuffer fixes.
+From: Antonino Daplas <adaplas@pol.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.GSO.4.21.0303272148280.7286-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0303272148280.7286-100000@vervain.sonytel.be>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1048799290.31010.62.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 27 Mar 2003 16:08:10 -0500
 Content-Transfer-Encoding: 7bit
+Message-Id: <1048798158.1035.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 28 Mar 2003 04:49:34 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are trying to write a module that does it's own accounting of
-processes as they are created and deleted.  We have an extremely ugly
-hack of taking care of process creation (wrap fork() and clone() in a
-syscall wrapper, as that's the only way processes can be created).  
+On Fri, 2003-03-28 at 04:49, Geert Uytterhoeven wrote:
+> > > 
+> > > Shouldn't these be info->var.bits_per_pixel instead of fb_logo.depth?
+> > 
+> > Yes, fb_logo.depth == info->var.bits_per_pixel.
+> 
+> Euh, now I get confused... Do you mean
+> `Yes, it should be replaced by info->var.bits_per_pixel' or
+> `No, logo.depth is always equal to info->var.bits_per_pixel'?
 
-However, doing the same for exit() doesn't work, because processes don't
-have to call exit() to die, but can be killed any of number of ways, and
-go straight to the do_exit() code.
+:)  Sorry about that. I meant:
 
-I would imagine one would hook a void * function that takes some sort of
-defined argument, perhaps a pointer to the task_struct (as it will be
-called in do_exit, it would seem locking shouldn't be an issue) and what
-the function is allowed to do would be defined.
 
-Would people be for/against an interface that allows for modules to
-register functions that can be called on process creation/deletion.  It
-would help us avoid the hacks, such as I described, and I imagine could
-have benefit others.
+`No, fb_logo.depth is always equal to info->var.bits_per_pixel'
 
-thanks,
-
-shaya
+Tony
 

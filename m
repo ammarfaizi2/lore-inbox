@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbTI0Ovw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 10:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTI0Ovw
+	id S262458AbTI0PTe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 11:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbTI0PTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 10:51:52 -0400
-Received: from web40904.mail.yahoo.com ([66.218.78.201]:45467 "HELO
-	web40904.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262454AbTI0Ovu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 10:51:50 -0400
-Message-ID: <20030927145149.65265.qmail@web40904.mail.yahoo.com>
-Date: Sat, 27 Sep 2003 07:51:49 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: Kernel panic:Unable to mount root fs (2.6.0-test5)
-To: Jean-Marc@Spaggiari.org
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Sep 2003 11:19:34 -0400
+Received: from 218-bem-2.acn.waw.pl ([62.121.81.218]:60164 "EHLO
+	woland.michal.waw.pl") by vger.kernel.org with ESMTP
+	id S262458AbTI0PTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 11:19:33 -0400
+Date: Sat, 27 Sep 2003 17:19:35 +0200
+From: Michal Kochanowicz <michal@michal.waw.pl>
+To: linux-kernel@vger.kernel.org
+Subject: What to use with 2.6.x instead of iproute2?
+Message-ID: <20030927151935.GD5956@wieszak.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
+Organization: Happy GNU/Linux Users
+X-Signature-Tagline-Copyright: Piotr Zientarski, 1999-2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Spaggari,
+Hi!
 
-> (as you can see, i'm a newbie of english speeking, and linux-kernel posting, so, 
-> excuse me if this is a duplicate contribution, I have search on the web and on the
-> archive and fine nothing about this error.)
->
->
-> Error message :
-> VFS : Cannot open root device "302" or unknown-block(3,2)
-> Please append a corect "root=" boot option
-> Kernel panic: VFS: Unable to mount root fs on unknown-block(3,2)
->
->
-> Kernel version : 2.6.0-test5
->
-> System : Toshiba Satellite laptop
->
-> More information : Linux is installe on /deh/hda2. There 2 other kernel on this
-> computer. A 2.2.20 and a 2.4.22, both of them working fine. Ia have try many 
-> differend option for compile the kernel, but never working any more. My /dev/hda2
-> is on ext3.
->
-> I will try soon on my other systems.
->
-> I will be hapy if I can help in any kind, so, at this time, i'm going back to
-> 2.4.22. (Need I to poste my .config here ?)
+It seems that iproute2 is not maintained any more and it doesn't build
+with kernel 2.6.0-test5.
 
-Please do so. Specifically, post the part of your .config which shows how your
-filesystems are configured. It looks to me like you may have accidentally compiled
-ext3 as a module; if your / filesystem is ext3, it must be compiled into the kernel
-in order for the kernel to mount your root filesystem and run /sbin/init.
+What tool one should use to set the interfaces, bridges and such up on
+2.6.x kernels?
 
-> 
-> Regards,
->
-> Jean-Marc Spaggiari (QC.CA)
-
-Brad
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com
+Regards
+-- 
+--= Michal Kochanowicz =--==--==BOFH==--==--= michal@michal.waw.pl =--
+--= finger me for PGP public key or visit http://michal.waw.pl/PGP =--
+--==--==--==--==--==-- Vodka. Connecting people.--==--==--==--==--==--
+A chodzenie po górach SSIE!!!

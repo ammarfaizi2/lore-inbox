@@ -1,33 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291846AbSBXXaH>; Sun, 24 Feb 2002 18:30:07 -0500
+	id <S291853AbSBXXaH>; Sun, 24 Feb 2002 18:30:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291853AbSBXX3x>; Sun, 24 Feb 2002 18:29:53 -0500
-Received: from callisto.affordablehost.com ([64.23.37.14]:18189 "HELO
-	callisto.affordablehost.com") by vger.kernel.org with SMTP
-	id <S291840AbSBXX3f>; Sun, 24 Feb 2002 18:29:35 -0500
-Message-ID: <3C797770.3000206@keyed-upsoftware.com>
-Date: Sun, 24 Feb 2002 17:29:52 -0600
-From: David Stroupe <dstroupe@keyed-upsoftware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2.1) Gecko/20010901
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Q: Interfacing to driver
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291840AbSBXXaA>; Sun, 24 Feb 2002 18:30:00 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:40708 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S291846AbSBXX3u>; Sun, 24 Feb 2002 18:29:50 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: mingo@elte.hu
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Matthew Kirkwood <matthew@hairy.beasts.org>,
+        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semaphores... 
+In-Reply-To: Your message of "Sat, 23 Feb 2002 16:03:14 BST."
+             <Pine.LNX.4.33.0202231551300.4173-100000@localhost.localdomain> 
+Date: Mon, 25 Feb 2002 10:29:39 +1100
+Message-Id: <E16f85L-0005QM-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have created a driver for a custom board.  This driver exports the 
-functions that I need to access from my user programs to control the 
-card.  How do I declare and call this driver function within my user 
-code so that it will call the device driver function?
-TIA
+In message <Pine.LNX.4.33.0202231551300.4173-100000@localhost.localdomain> you 
+write:
+> 
+> On Sat, 23 Feb 2002, Rusty Russell wrote:
+> 
+> > 1) Interface is: open /dev/usem, pread, pwrite.
+> 
+> i like the patch, but the interface is ugly IMO. Why not new syscalls? I
+> think these lightweight semaphores will become an important part of Linux,
+> so having their own syscall entries is the most correct interface,
+> something like:
+> 
+>   sys_sem_create()
+>   sys_sem_destroy()
 
--- 
-Best regards,
-David Stroupe
-Keyed-Up Software 
+There is no create and destroy (init is purely userspace).  There is
+"this is a semapore: up it".  This is a feature.
 
+>   sys_sem_down()
+>   sys_sem_up()
+> 
+> /dev/usem is such an ... ioctl()-ish approach. It's a scalability problem
+> as well: read()/write() has (or can have) some implicit locking that is
+> imposed on the usem interface as well.
 
+Agreed with implicit locking: good catch.  Disagree with neatness: I
+like finding out in advance that there's no fast semaphore support.
+
+> Plus sys_sem_create() should do some proper resource limit management,
+> pinning down an unlimited number of pages is bad.
+
+Since pages are pinned "on demand" and a process can only do one
+syscall at a time, the maximum number of pinned pages per process ==
+2.  Which is fine.
+
+Will do syscall version, and see if I can actually get it to beat
+fcntl locking on reasonable benchmarks (ie. tdbtorture).
+
+Cheers!
+Rusty.
+PS.  Nomenclature: my fiance suggested FUS (Fast Userspace
+     Semaphores), and I am legally obliged to agree.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

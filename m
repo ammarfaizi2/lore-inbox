@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbTLOCyY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 21:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTLOCyY
+	id S263057AbTLODrY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 22:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTLODrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 21:54:24 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:35769 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262491AbTLOCyX
+	Sun, 14 Dec 2003 22:47:24 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:22190 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263057AbTLODrW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 21:54:23 -0500
-Message-ID: <3FDD205A.6040807@cyberone.com.au>
-Date: Mon, 15 Dec 2003 13:45:46 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Guillaume Foliard <guifo@wanadoo.fr>
-CC: linux-kernel@vger.kernel.org, george anzinger <george@mvista.com>
-Subject: Re: Scheduler degradation since 2.5.66
-References: <200312142048.51579.guifo@wanadoo.fr>
-In-Reply-To: <200312142048.51579.guifo@wanadoo.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Dec 2003 22:47:22 -0500
+Date: Sun, 14 Dec 2003 19:47:16 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
+       bitkeeper-users@bitmover.com
+Subject: Re: RFC - tarball/patch server in BitKeeper
+Message-ID: <20031215034716.GC16554@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Keith Owens <kaos@ocs.com.au>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
+References: <20031214234423.GB15850@work.bitmover.com> <3034.1071447911@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3034.1071447911@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 15, 2003 at 11:25:11AM +1100, Keith Owens wrote:
+> On Sun, 14 Dec 2003 15:44:23 -0800, 
+> Larry McVoy <lm@bitmover.com> wrote:
+> >On Mon, Dec 15, 2003 at 10:05:03AM +1100, Keith Owens wrote:
+> >> On Sun, 14 Dec 2003 09:21:56 -0800, 
+> >> Larry McVoy <lm@bitmover.com> wrote:
+> >> >I've prototyped an extension to BitKeeper that provides tarballs
+> >> >and patches.  ...
+> >> >... You need to understand that this is all you get,
+> >> >we're not going to extend this so you can do anything but track the most
+> >> >recent sources accurately.  No diffs.  No getting anything but the most
+> >> >recent version.  No revision history.  
+> >> 
+> >> Do we get the changelogs from each BK check in?  Without the
+> >> changelogs, patches are going to be much less useful.
+> >
+> >You already get those, use BK/Web.  It's all there and always has been.
+> 
+> Using update and BK/Web means manually reconciling two sets of data
+> which may have different time bases.  If update has not been run for 23
+> days, the user has to look at "Changesets in the last four weeks" and
+> manually determine where in that log of 119 changesets (linux-2.5)
+> their last update was done before they know which changesets are in the
+> current update.
+> 
+> What about this, assuming it does not give away information that you
+> believe will be used for $SCM.  Treat the BK changelog as a file, and
+> have update generate a patch from the last update for the changelog as
+> well as the project files.
 
-
-Guillaume Foliard wrote:
-
->Hello,
->
->I have been playing with kernel 2.5/2.6 for around 6 months now. I was quite 
->pleased with 2.5.65 to see that the soft real-time behaviour was much better 
->than 2.4.x. Since then I tried most of the 2.5/2.6 versions. But recently 
->someone warned me about some degradations with 2.6.0-test6. To show the 
->degradation since 2.5.66 I have run a simple test program on most of the 
->versions. This simple program is measuring the time it takes to a process to 
->be woken up after a call to nanosleep.
->As the results are plots, please visit this small website for more 
->information : http://perso.wanadoo.fr/kayakgabon/linux
->I'm ready to perform more tests or provide more information if necessary.
->
-
-This isn't a problem with the scheduler, its a problem with sys_nanosleep.
-jiffies_to_timespec( {1000000us} ) returns 2 jiffies, and nanosleep adds
-an extra one and asks to sleep for that long (ie. 3ms).
-
-The more erratic timings could be due to interactivity changes as you say,
-but you probably aren't running without RT priority
-
-
+That would be what the BK2CVS export does.  It's perfect for what you want,
+use it.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

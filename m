@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261738AbTHTFLN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 01:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbTHTFLN
+	id S261693AbTHTFTd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 01:19:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbTHTFTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 01:11:13 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:52393 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S261738AbTHTFLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 01:11:12 -0400
-Date: Wed, 20 Aug 2003 01:11:09 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: zaitcev@redhat.com, tmolina@cablespeed.com, linux-kernel@vger.kernel.org
-Subject: Re: Console on USB
-Message-ID: <20030820011109.A24410@devserv.devel.redhat.com>
-References: <mailman.1061346549.9440.linux-kernel2news@redhat.com> <200308200446.h7K4kW211793@devserv.devel.redhat.com> <32801.4.4.25.4.1061355525.squirrel@www.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <32801.4.4.25.4.1061355525.squirrel@www.osdl.org>; from rddunlap@osdl.org on Tue, Aug 19, 2003 at 09:58:45PM -0700
+	Wed, 20 Aug 2003 01:19:33 -0400
+Received: from netcore.fi ([193.94.160.1]:23311 "EHLO netcore.fi")
+	by vger.kernel.org with ESMTP id S261591AbTHTFTa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 01:19:30 -0400
+Date: Wed, 20 Aug 2003 08:18:09 +0300 (EEST)
+From: Pekka Savola <pekkas@netcore.fi>
+To: "David S. Miller" <davem@redhat.com>
+cc: Richard Underwood <richard@aspectgroup.co.uk>, <skraw@ithnet.com>,
+       <willy@w.ods.org>, <alan@lxorguk.ukuu.org.uk>, <carlosev@newipnet.com>,
+       <lamont@scriptkiddie.org>, <davidsen@tmr.com>, <bloemsaa@xs4all.nl>,
+       <marcelo@conectiva.com.br>, <netdev@oss.sgi.com>,
+       <linux-net@vger.kernel.org>, <layes@loran.com>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: host vs interface address ownership [Re: [2.4 PATCH] bugfix: ARP
+ respond on all devices]
+In-Reply-To: <20030819095611.0fb8f9a3.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0308200809280.32417-100000@netcore.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Tue, 19 Aug 2003 21:58:45 -0700 (PDT)
-> From: "Randy.Dunlap" <rddunlap@osdl.org>
+On Tue, 19 Aug 2003, David S. Miller wrote:
 
-> >> Is there any advice I might be able to use to get this going?
-> >
-> > You'd have to write it. Grep for register_console for starters.
+> On Tue, 19 Aug 2003 13:02:20 +0100
+> Richard Underwood <richard@aspectgroup.co.uk> wrote:
 > 
-> usb/serial/console.c:255:         register_console(&usbcons);
-
-Eeek, eating a crow now.
-
-> >>  I really want to be able to catch some oops output.
-> >
-> > If oops happens with interrupts closed, forget about it.
-> > USB needs interrupts to work. This is one of the reasons nobody
-> > bothered to implement console over USB serial.
+> > David S. Miller wrote:
+> > > Under Linux, by default, IP addresses are owned by the system
+> > > not by interfaces.  This increases the likelyhood of successful
+> > > communication on a subnet.
+> > > 
+> > 	This is crap.
 > 
-> The call to register_console() also happens very late in the boot
-> sequence, so if your oops is early, USB console won't help.
+> Nope, the RFCs allow this.
+> 
+> So this is where we must agree to disagree.  Because host ownership of
+> IP addresses is the basis for all of the arguments and it completely
+> justifies Linux's ARP behavior on both sides.
 
-It's true for many consoles, that's why sparc allows
-"-p" in SILO options, for instance. I think either wli or willy
-did "early VGA printk" patch.
+Maybe I'm missing something -- I'm not sure what exactly you're including
+in the models -- but wouldn't it be possible to implement the "host 
+ownership" model so that it would STILL honor any RFC out there (and 
+similarly for "interface ownership")?
 
-Interrupts are a major problem. Also, the USB stack is pretty
-thick.
+For example, many IETF documents may state things like:
 
--- Pete
+                                                                     The
+   Home Agents List MAY be implemented in any manner consistent with the
+   external behavior described in this document.
+
+.. which *seems* (without knowing which RFCs and sections of them you 
+refer to for justifying host/interface ownership) to be a probable intent 
+of allowing either model.  Just as long as the external behaviour is 
+consistent, you can implement it with any internal structure you wish.
+
+-- 
+Pekka Savola                 "You each name yourselves king, yet the
+Netcore Oy                    kingdom bleeds."
+Systems. Networks. Security. -- George R.R. Martin: A Clash of Kings
+
+

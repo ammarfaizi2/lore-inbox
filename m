@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269063AbUIHPE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269056AbUIHPPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269063AbUIHPE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 11:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267683AbUIHPCD
+	id S269056AbUIHPPo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 11:15:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269066AbUIHPPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 11:02:03 -0400
-Received: from cantor.suse.de ([195.135.220.2]:44461 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269007AbUIHO6i (ORCPT
+	Wed, 8 Sep 2004 11:15:44 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35016 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269056AbUIHPPc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:58:38 -0400
-Date: Wed, 8 Sep 2004 16:58:37 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch]   Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
-Message-ID: <20040908145837.GD15444@wotan.suse.de>
-References: <20040907142945.GB20981@wotan.suse.de> <20040907143702.GC1016@mellanox.co.il> <20040907144452.GC20981@wotan.suse.de> <20040907144543.GA1340@mellanox.co.il> <20040907151022.GA32287@wotan.suse.de> <20040907181641.GB2154@mellanox.co.il> <20040908065548.GE27886@wotan.suse.de> <20040908142808.GA11795@mellanox.co.il> <20040908143852.GA27411@wotan.suse.de> <20040908145432.GA12332@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040908145432.GA12332@mellanox.co.il>
+	Wed, 8 Sep 2004 11:15:32 -0400
+Message-ID: <413F2317.4050401@sgi.com>
+Date: Wed, 08 Sep 2004 10:19:51 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com,
+       piggin@cyberone.com.au, mbligh@aracnet.com
+Subject: Re: swapping and the value of /proc/sys/vm/swappiness
+References: <413CB661.6030303@sgi.com> <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet>
+In-Reply-To: <20040907212051.GC3492@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So I wander what goes on here- the syscall returns a long but
-> libc cuts the high 32 bit?
 
-System calls are always long, otherwise the syscall exit code cannot
-check properly for signal restarts. 
 
-glibc seems to indeed truncate. 
+Marcelo Tosatti wrote:
 
+> Ray, I see the additional swapouts increase the dd performance for your particular testcase:
 > 
-> Now that I think about it,for compat if you start returning 0 in low
-> 32 bits you are unlike to get the effect you wanted ...
-> The ioctl_native could be changed but that would make it impossible
-> for compatible ioctls to just use the same pointer in both.
+> on 2.6.6:
+>         Total I/O   Avg Swap   min    max     pg cache    min    max
+>        ----------- --------- ------- ------  --------- ------- -------
+>    0   242.47 MB/s      0 MB (     0,     0)   3195 MB (  3138,  3266)
+>   20   256.06 MB/s      0 MB (     0,     0)   3170 MB (  3074,  3234)
+>   40   267.29 MB/s      0 MB (     0,     0)   3189 MB (  3137,  3234)
+>   60   289.43 MB/s    666 MB (    72,  1680)   3847 MB (  3296,  4817)		<---------- 
 > 
-> So what do you think - should I make just the native ioctl a long,
-> or both, and document that the high 32 bit are cut in the compat call?
-
-both + document. 
-
+> So for this one testcase it is being beneficial. 
 > 
-> > The main thing missing is documentation. You need clear comments what
-> > the locking rules are and what compat is good for.
-> 
-> Would these be best fit in the header file itself, or in a new
-> Documentation/ file?
 
-Header file should be enough.
+True enough, but the general trend is that increasing swapping decreases data 
+rate.  This is even more true for the real applications that we are modelling 
+with this simple benchmark.  In thosec cases, the user has a lot of mapped 
+data that they then write out using buffered I/O.  If the mapped data gets 
+swapped out, then it may have to be swapped back in to be written out to the 
+file system.  It would be faster to keep the mapped data from being swapped 
+out at all provided that there is enough page cache space to keep the devices 
+running at full speed.
 
-> > And you should change the code style to follow Documentation/CodingStyle
-> I'll go over it again. Something specific that I missed?
+(And yes, we've suggested that they mmap() the data files -- but sometimes 
+this is an ISV's code that it causing the problem and we can't necessarily get 
+them to update their codes to use the API's we want.)
 
-e.g. your use of white space.
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 
--Andi

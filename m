@@ -1,43 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131512AbRCWXa0>; Fri, 23 Mar 2001 18:30:26 -0500
+	id <S130317AbRCWXyH>; Fri, 23 Mar 2001 18:54:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131510AbRCWXaQ>; Fri, 23 Mar 2001 18:30:16 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:31237 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S131512AbRCWXaD>; Fri, 23 Mar 2001 18:30:03 -0500
-Message-ID: <3ABBD974.C41B70CD@evision-ventures.com>
-Date: Sat, 24 Mar 2001 00:17:08 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, de
+	id <S129529AbRCWXx5>; Fri, 23 Mar 2001 18:53:57 -0500
+Received: from nrg.org ([216.101.165.106]:7010 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S131524AbRCWXxn>;
+	Fri, 23 Mar 2001 18:53:43 -0500
+Date: Fri, 23 Mar 2001 15:52:54 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Use semaphore for producer/consumer case...
+In-Reply-To: <20010323130722.A8916@come.alcove-fr>
+Message-ID: <Pine.LNX.4.05.10103231541010.6461-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <UTC200103232315.AAA07966.aeb@vlet.cwi.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+On Fri, 23 Mar 2001, Stelian Pop wrote:
+> I want to use a semaphore for the classic producer/consumer case
+> (put the consumer to wait until X items are produced, where X != 1).
 > 
-> [to various people]
+> If X is 1, the semaphore is a simple MUTEX, ok.
 > 
-> No, ulimit does not work. (But it helps a little.)
-> No, /proc/sys/vm/overcommit_memory does not work.
+> But if the consumer wants to wait for several items, it doesn't
+> seem to work (or something is bad in my code).
 > 
-> [to Alan]
+> What is wrong in the following ?
 > 
-> > Nobody feels its very important because nobody has implemented it.
-> 
-> Yes, that is the right response.
-> What can one say? One can only do.
+> 	DECLARE_MUTEX(sem);
 
-Please just expect a patch for tomorrow ;-).
+For the producer/consumer case, you want to initialize the semaphore to
+0, not 1 which DECLARE_MUTEX(sem) does.  So I would use
 
-The only thing I have currently to do is testing.
-I will be using the installation process of the ORACLE iAS 9i for
-linux on my notebook, becouse it used to trigger oom for me VERY
-frequently. So far all things BEHAVE...
+__DECLARE_SEMAPHORE_GENERIC(sem, 0)
+
+The count is then the number of items produced but not yet consumed.
+
+> 	producer() {
+> 		/* One item produced */
+> 		up(&sem);
+> 	}
+> 	
+> 	consumer() {
+> 		/* Let's wait for 10 items */
+> 		atomic_set(&sem->count, -10);
+> 	
+> 		/* This starts the producers, they will call producer()
+> 		   some time in the future */
+> 		start_producers();
+> 	
+> 		/* Wait for completion */
+> 		down(&sem);
+> 	}
+
+Then consumer could be:
+
+	consumer()
+	{
+		int i;
+
+		start_producers();
+
+		/* Wait for 10 items to be produced */
+		for (i = 0; i < 10; i++)
+			down(&sem);
+	}
+
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
+
+MontaVista Software                             nigel@mvista.com
+

@@ -1,66 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbSJ2OQH>; Tue, 29 Oct 2002 09:16:07 -0500
+	id <S261893AbSJ2OYg>; Tue, 29 Oct 2002 09:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261875AbSJ2OQH>; Tue, 29 Oct 2002 09:16:07 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:14537 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261868AbSJ2OQG>;
-	Tue, 29 Oct 2002 09:16:06 -0500
-Date: Tue, 29 Oct 2002 09:22:27 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: christophe.varoqui@free.fr
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC]partitions through device-mapper
-In-Reply-To: <1035898775.3dbe8f97d1a3f@imp.free.fr>
-Message-ID: <Pine.GSO.4.21.0210290916360.9171-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261877AbSJ2OYg>; Tue, 29 Oct 2002 09:24:36 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:990 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S261875AbSJ2OYe>;
+	Tue, 29 Oct 2002 09:24:34 -0500
+To: axboe@suse.de
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] Fix: BK-Current doesn't compile w/o SCSI enabled
+From: tytso@mit.edu
+Message-Id: <E186XOP-0006Z7-00@snap.thunk.org>
+Date: Tue, 29 Oct 2002 09:30:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+BK current doesn't compile without SCSI being enabled, since
+sg_scsi_ioctl() in drivers/block/scsi_ioctl.c is always being compiled,
+regardless of whether or not SCSI is present (since some non-SCSI
+devices now use this infrastructure).  Unfortunately, it makes reference
+to the COMMAND_SIZE() macro, which is defined in drivers/scsi/scsi.c,
+and that is NOT defined on non-SCSI build kernels.
 
-On Tue, 29 Oct 2002 christophe.varoqui@free.fr wrote:
+The simplest solution to this problem seems to be move scsi_command_size
+from drivers/scsi/scsi.c to drivers/block/scsi_ioctl.c, where it is used
+(and since it is always compiled in, this shouldn't break anything on
+SCSI systems).
 
-> Hello, 
->  
-> now that the device mapper is merged into mainline, I would like to open a 
-> discussion on the possible in-kernel partition handling clean-up. 
->  
-> In-kernel partition handling covers : 
-> o parsing of the on-disk partition tables 
-> o partition block devices creation / structs 
->  
-> Along with initramfs will come the possibility to rip off the partition tables 
-> parsing from the kernel : a userspace parser like partx (part of util-linux 
-> toolset) can teach the kernel the partition layout. 
->  
-> As driverfs provides elegantly block device add/remove events to hotplug, calls 
-> to partx can be wrapped into the block.agent 
->  
-> The device-mapper merging could enable the ripping of all kernel partition 
-> understanding by creating linear device-maps over partitions. 
->  
-> As a proof of concept, I've mutated partx to create those mappings. This tool 
-> is available for testing and commenting at : 
-> http://dsit.free.fr/dmpartx.tar.bz2 
->  
-> This tool cannot damage your data : BLKPG_DEL_PARTITION and  
-> BLKPG_ADD_PARTITION ioctls are removed from the source. 
->  
-> I would like to receive feedback over the following points : 
->  
-> * Is this proposal completely out of the point ? Have I overlooked some 
-> important implementation details ? 
+I'm a bit uneasy about the abstraction violation of moving the
+scsi_command_size array outside of the drivers/scsi tree, but that
+problem was introduced when the code in drivers/block/scsi_ioctl.c was
+moved out of the drivers/scsi tree, since drivers/block/scsi_ioctl.c
+already #includes ../scsi/scsi.h, so I haven't introduced a new layering
+violation.
 
-a) devmapper is merged, but it sure as hell is not mandatory
+Jens, do you agree this is the best way of fixing this issue?  If so,
+please push this change to Linus.  Thanks!!
 
-b) relying on the hotplug working right means living dangerously.  Right
-now that code is brittle in the best case.
+					- Ted
 
-c) all existing races in overlapping attach/detach (and $DEITY witness,
-there's a plenty) immediately become much wider [OK, that's part of
-(b), actully]
 
-IOW, right now the thing is nowhere near being ready for such use.
-
+diff -Nru a/drivers/block/scsi_ioctl.c b/drivers/block/scsi_ioctl.c
+--- a/drivers/block/scsi_ioctl.c	Tue Oct 29 09:25:36 2002
++++ b/drivers/block/scsi_ioctl.c	Tue Oct 29 09:25:36 2002
+@@ -39,6 +39,14 @@
+ 
+ #define BLK_DEFAULT_TIMEOUT	(60 * HZ)
+ 
++/* Command group 3 is reserved and should never be used.  */
++const unsigned char scsi_command_size[8] =
++{
++	6, 10, 10, 12,
++	16, 12, 10, 10
++};
++EXPORT_SYMBOL(scsi_command_size);
++
+ int blk_do_rq(request_queue_t *q, struct block_device *bdev, struct request *rq)
+ {
+ 	DECLARE_COMPLETION(wait);
+diff -Nru a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
+--- a/drivers/scsi/scsi.c	Tue Oct 29 09:25:36 2002
++++ b/drivers/scsi/scsi.c	Tue Oct 29 09:25:36 2002
+@@ -123,12 +123,6 @@
+  */
+ unsigned long scsi_pid;
+ Scsi_Cmnd *last_cmnd;
+-/* Command group 3 is reserved and should never be used.  */
+-const unsigned char scsi_command_size[8] =
+-{
+-	6, 10, 10, 12,
+-	16, 12, 10, 10
+-};
+ static unsigned long serial_number;
+ 
+ struct softscsi_data {
+diff -Nru a/drivers/scsi/scsi_syms.c b/drivers/scsi/scsi_syms.c
+--- a/drivers/scsi/scsi_syms.c	Tue Oct 29 09:25:36 2002
++++ b/drivers/scsi/scsi_syms.c	Tue Oct 29 09:25:36 2002
+@@ -39,7 +39,6 @@
+ EXPORT_SYMBOL(scsi_bios_ptable);
+ EXPORT_SYMBOL(scsi_allocate_device);
+ EXPORT_SYMBOL(scsi_do_cmd);
+-EXPORT_SYMBOL(scsi_command_size);
+ EXPORT_SYMBOL(scsi_ioctl);
+ EXPORT_SYMBOL(print_command);
+ EXPORT_SYMBOL(print_sense);

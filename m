@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbSKUUlQ>; Thu, 21 Nov 2002 15:41:16 -0500
+	id <S264730AbSKUUwN>; Thu, 21 Nov 2002 15:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSKUUlQ>; Thu, 21 Nov 2002 15:41:16 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:35061 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S264716AbSKUUlO>; Thu, 21 Nov 2002 15:41:14 -0500
-Message-ID: <3DDD46E0.9040909@mvista.com>
-Date: Thu, 21 Nov 2002 13:49:36 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Joel Becker <Joel.Becker@oracle.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: RFC - new raid superblock layout for md driver
-References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au> <20021120160259.GW806@nic1-pc.us.oracle.com> <15836.7011.785444.979392@notabene.cse.unsw.edu.au> <20021121014625.GA14063@redhat.com> <20021121193424.GB770@nic1-pc.us.oracle.com> <20021121195406.GF14063@redhat.com> <3DDD3AB6.2010105@mvista.com> <20021121203829.GH14063@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S264748AbSKUUwN>; Thu, 21 Nov 2002 15:52:13 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:13448 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264730AbSKUUwK>; Thu, 21 Nov 2002 15:52:10 -0500
+Subject: Re: Setting MAC address in ewrk3 driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Neil Cafferkey <caffer@cs.ucc.ie>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021121195417.A18859@cuc.ucc.ie>
+References: <20021121195417.A18859@cuc.ucc.ie>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Nov 2002 21:28:15 +0000
+Message-Id: <1037914095.9122.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug,
+On Thu, 2002-11-21 at 19:54, Neil Cafferkey wrote:
+> Hi,
+> 
+> I think I may have found a bug in the ewrk3 network driver. When I try to
+> change the MAC address of a Digital DE205 NIC using "ifconfig eth0 hw
+> ether XX:XX:XX:XX:XX:XX", it appears to work ("ifconfig eth0" reports the
+> new address), but in fact it isn't sending or receiving packets any more.
+> I'm using kernel version 2.4.10.
 
-Yup this would be ideal and I think this is what EVMS tries to do, 
-although I haven't tried it.
-
-The advantage of doing such a thing would also be that MD could be made 
-to work with shared LVM VGs for shared storage environments.
-
-now to write the code...
-
--steve
-
-Doug Ledford wrote:
-
->On Thu, Nov 21, 2002 at 12:57:42PM -0700, Steven Dake wrote:
->  
->
->>Doug,
->>
->>EVMS integrates all of this stuff together into one cohesive peice of 
->>technology.
->>
->>But I agree, LVM should be modified to support RAID 1 and RAID 5, or MD 
->>should be modified to support volume management.  Since RAID 1 and RAID 
->>5 are easier to implement, LVM is probably the best place to put all 
->>this stuff.
->>    
->>
->
->Yep.  I tend to agree there.  A little work to make device mapping modular
->in LVM, and a little work to make the md modules plug into LVM, and you
->could be done.  All that would be left then is adding the right stuff into
->the user space tools.  Basically, what irks me about the current situation
->is that right now in the Red Hat installer, if I want LVM features I have
->to create one type of object with a disk, and if I want reasonable
->software RAID I have to create another type of object with partitions.  
->That shouldn't be the case, I should just create an LVM logical volume,
->assign physical disks to it, and then additionally assign the redundancy
->or performance layout I want (IMNSHO) :-)
->
->
->  
->
+The default handler assumes the card mac address is set by the "up"
+method. That driver is old enough it may not do so.
 

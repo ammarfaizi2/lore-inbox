@@ -1,327 +1,292 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUHNThJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUHNTjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUHNThJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 15:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHNTgt
+	id S264960AbUHNTjH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 15:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265099AbUHNTiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 15:36:49 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:51586 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264881AbUHNTbo
+	Sat, 14 Aug 2004 15:38:50 -0400
+Received: from dh138.citi.umich.edu ([141.211.133.138]:52098 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264960AbUHNTce
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 15:31:44 -0400
-Subject: PATCH [4/7] Fix posix locking code
+	Sat, 14 Aug 2004 15:32:34 -0400
+Subject: PATCH [5/7] Fix posix locking code
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
 To: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
        Andrew Morton <akpm@osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092511900.4109.30.camel@lade.trondhjem.org>
+Message-Id: <1092511949.4109.34.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 14 Aug 2004 15:31:40 -0400
+Date: Sat, 14 Aug 2004 15:32:29 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- NLM: fix lockd to use the new posix locking callbacks.
+ NLM: Thanks to the wonder of CLONE_FILES, the value of
+      file_lock->fl_owner may live for longer than the pid
+      of the process that originally created it. Fix NFSv2/v3
+      client locking code to map file_lock->fl_owner into
+      a unique 32-bit number or "pseudo-pid".
 
  Signed-off-by: Trond Myklebust <trond.myklebust@fys.uio.no>
 
- fs/lockd/clntproc.c         |   92 ++++++++++++++++++++++++++++++--------------
- fs/lockd/svc4proc.c         |    1 
- fs/lockd/svclock.c          |   10 ++++
- fs/lockd/svcproc.c          |    1 
- include/linux/lockd/lockd.h |    2 
- 5 files changed, 78 insertions(+), 28 deletions(-)
 
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-03-fix_nfsd/fs/lockd/clntproc.c linux-2.6.8.1-04-fix_lockd/fs/lockd/clntproc.c
---- linux-2.6.8.1-03-fix_nfsd/fs/lockd/clntproc.c	2004-08-14 14:25:49.000000000 -0400
-+++ linux-2.6.8.1-04-fix_lockd/fs/lockd/clntproc.c	2004-08-14 14:29:27.000000000 -0400
-@@ -27,6 +27,7 @@ static int	nlmclnt_unlock(struct nlm_rqs
- static void	nlmclnt_unlock_callback(struct rpc_task *);
- static void	nlmclnt_cancel_callback(struct rpc_task *);
- static int	nlm_stat_to_errno(u32 stat);
-+static void	nlmclnt_locks_init_private(struct file_lock *fl, struct nlm_host *host);
+ fs/lockd/clntlock.c         |    4 +-
+ fs/lockd/clntproc.c         |   79 ++++++++++++++++++++++++++++++++++++++++++--
+ fs/lockd/host.c             |   18 ++++++----
+ include/linux/lockd/lockd.h |   17 ++++++++-
+ include/linux/nfs_fs_i.h    |    4 +-
+ 5 files changed, 108 insertions(+), 14 deletions(-)
+
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-04-fix_lockd/fs/lockd/clntlock.c linux-2.6.8.1-05-nlm_lockowner/fs/lockd/clntlock.c
+--- linux-2.6.8.1-04-fix_lockd/fs/lockd/clntlock.c	2004-08-14 14:27:44.000000000 -0400
++++ linux-2.6.8.1-05-nlm_lockowner/fs/lockd/clntlock.c	2004-08-14 14:29:34.000000000 -0400
+@@ -146,7 +146,7 @@ void nlmclnt_mark_reclaim(struct nlm_hos
+ 		inode = fl->fl_file->f_dentry->d_inode;
+ 		if (inode->i_sb->s_magic != NFS_SUPER_MAGIC)
+ 			continue;
+-		if (fl->fl_u.nfs_fl.host != host)
++		if (fl->fl_u.nfs_fl.owner->host != host)
+ 			continue;
+ 		if (!(fl->fl_u.nfs_fl.flags & NFS_LCK_GRANTED))
+ 			continue;
+@@ -215,7 +215,7 @@ restart:
+ 		inode = fl->fl_file->f_dentry->d_inode;
+ 		if (inode->i_sb->s_magic != NFS_SUPER_MAGIC)
+ 			continue;
+-		if (fl->fl_u.nfs_fl.host != host)
++		if (fl->fl_u.nfs_fl.owner->host != host)
+ 			continue;
+ 		if (!(fl->fl_u.nfs_fl.flags & NFS_LCK_RECLAIM))
+ 			continue;
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-04-fix_lockd/fs/lockd/clntproc.c linux-2.6.8.1-05-nlm_lockowner/fs/lockd/clntproc.c
+--- linux-2.6.8.1-04-fix_lockd/fs/lockd/clntproc.c	2004-08-14 14:29:27.000000000 -0400
++++ linux-2.6.8.1-05-nlm_lockowner/fs/lockd/clntproc.c	2004-08-14 14:29:34.000000000 -0400
+@@ -42,6 +42,79 @@ static inline void nlmclnt_next_cookie(s
+ 	nlm_cookie++;
+ }
  
- /*
-  * Cookie counter for NLM requests
-@@ -44,8 +45,7 @@ static inline void nlmclnt_next_cookie(s
++static struct nlm_lockowner *nlm_get_lockowner(struct nlm_lockowner *lockowner)
++{
++	atomic_inc(&lockowner->count);
++	return lockowner;
++}
++
++static void nlm_put_lockowner(struct nlm_lockowner *lockowner)
++{
++	if (!atomic_dec_and_lock(&lockowner->count, &lockowner->host->h_lock))
++		return;
++	list_del(&lockowner->list);
++	spin_unlock(&lockowner->host->h_lock);
++	nlm_release_host(lockowner->host);
++	kfree(lockowner);
++}
++
++static inline int nlm_pidbusy(struct nlm_host *host, uint32_t pid)
++{
++	struct nlm_lockowner *lockowner;
++	list_for_each_entry(lockowner, &host->h_lockowners, list) {
++		if (lockowner->pid == pid)
++			return -EBUSY;
++	}
++	return 0;
++}
++
++static inline uint32_t __nlm_alloc_pid(struct nlm_host *host)
++{
++	uint32_t res;
++	do {
++		res = host->h_pidcount++;
++	} while (nlm_pidbusy(host, res) < 0);
++	return res;
++}
++
++static struct nlm_lockowner *__nlm_find_lockowner(struct nlm_host *host, fl_owner_t owner)
++{
++	struct nlm_lockowner *lockowner;
++	list_for_each_entry(lockowner, &host->h_lockowners, list) {
++		if (lockowner->owner != owner)
++			continue;
++		return nlm_get_lockowner(lockowner);
++	}
++	return NULL;
++}
++
++static struct nlm_lockowner *nlm_find_lockowner(struct nlm_host *host, fl_owner_t owner)
++{
++	struct nlm_lockowner *res, *new = NULL;
++
++	spin_lock(&host->h_lock);
++	res = __nlm_find_lockowner(host, owner);
++	if (res == NULL) {
++		spin_unlock(&host->h_lock);
++		new = (struct nlm_lockowner *)kmalloc(sizeof(*new), GFP_KERNEL);
++		spin_lock(&host->h_lock);
++		res = __nlm_find_lockowner(host, owner);
++		if (res == NULL && new != NULL) {
++			res = new;
++			atomic_set(&new->count, 1);
++			new->owner = owner;
++			new->pid = __nlm_alloc_pid(host);
++			new->host = nlm_get_host(host);
++			list_add(&new->list, &host->h_lockowners);
++			new = NULL;
++		}
++	}
++	spin_unlock(&host->h_lock);
++	if (new != NULL)
++		kfree(new);
++	return res;
++}
++
  /*
   * Initialize arguments for TEST/LOCK/UNLOCK/CANCEL calls
   */
--static inline void
--nlmclnt_setlockargs(struct nlm_rqst *req, struct file_lock *fl)
-+static void nlmclnt_setlockargs(struct nlm_rqst *req, struct file_lock *fl)
+@@ -418,12 +491,12 @@ nlmclnt_test(struct nlm_rqst *req, struc
+ static void nlmclnt_locks_copy_lock(struct file_lock *new, struct file_lock *fl)
  {
- 	struct nlm_args	*argp = &req->a_args;
- 	struct nlm_lock	*lock = &argp->lock;
-@@ -60,6 +60,14 @@ nlmclnt_setlockargs(struct nlm_rqst *req
- 	locks_copy_lock(&lock->fl, fl);
+ 	memcpy(&new->fl_u.nfs_fl, &fl->fl_u.nfs_fl, sizeof(new->fl_u.nfs_fl));
+-	nlm_get_host(new->fl_u.nfs_fl.host);
++	nlm_get_lockowner(new->fl_u.nfs_fl.owner);
  }
  
-+static void nlmclnt_release_lockargs(struct nlm_rqst *req)
-+{
-+	struct file_lock *fl = &req->a_args.lock.fl;
-+
-+	if (fl->fl_ops && fl->fl_ops->fl_release_private)
-+		fl->fl_ops->fl_release_private(fl);
-+}
-+
- /*
-  * Initialize arguments for GRANTED call. The nlm_rqst structure
-  * has been cleared already.
-@@ -77,8 +85,10 @@ nlmclnt_setgrantargs(struct nlm_rqst *ca
- 
- 	if (lock->oh.len > NLMCLNT_OHSIZE) {
- 		void *data = kmalloc(lock->oh.len, GFP_KERNEL);
--		if (!data)
-+		if (!data) {
-+			nlmclnt_freegrantargs(call);
- 			return 0;
-+		}
- 		call->a_args.lock.oh.data = (u8 *) data;
- 	}
- 
-@@ -89,12 +99,15 @@ nlmclnt_setgrantargs(struct nlm_rqst *ca
- void
- nlmclnt_freegrantargs(struct nlm_rqst *call)
+ static void nlmclnt_locks_release_private(struct file_lock *fl)
  {
-+	struct file_lock *fl = &call->a_args.lock.fl;
- 	/*
- 	 * Check whether we allocated memory for the owner.
- 	 */
- 	if (call->a_args.lock.oh.data != (u8 *) call->a_owner) {
- 		kfree(call->a_args.lock.oh.data);
- 	}
-+	if (fl->fl_ops && fl->fl_ops->fl_release_private)
-+		fl->fl_ops->fl_release_private(fl);
+-	nlm_release_host(fl->fl_u.nfs_fl.host);
++	nlm_put_lockowner(fl->fl_u.nfs_fl.owner);
+ 	fl->fl_ops = NULL;
  }
  
- /*
-@@ -165,6 +178,8 @@ nlmclnt_proc(struct inode *inode, int cm
- 	}
- 	call->a_host = host;
- 
-+	nlmclnt_locks_init_private(fl, host);
-+
- 	/* Set up the argument struct */
- 	nlmclnt_setlockargs(call, fl);
- 
-@@ -179,9 +194,6 @@ nlmclnt_proc(struct inode *inode, int cm
- 	else
- 		status = -EINVAL;
- 
--	if (status < 0 && (call->a_flags & RPC_TASK_ASYNC))
--		kfree(call);
--
-  out_restore:
- 	spin_lock_irqsave(&current->sighand->siglock, flags);
- 	current->blocked = oldset;
-@@ -382,7 +394,9 @@ nlmclnt_test(struct nlm_rqst *req, struc
- {
- 	int	status;
- 
--	if ((status = nlmclnt_call(req, NLMPROC_TEST)) < 0)
-+	status = nlmclnt_call(req, NLMPROC_TEST);
-+	nlmclnt_release_lockargs(req);
-+	if (status < 0)
- 		return status;
- 
- 	status = req->a_res.status;
-@@ -391,10 +405,9 @@ nlmclnt_test(struct nlm_rqst *req, struc
- 	} if (status == NLM_LCK_DENIED) {
- 		/*
- 		 * Report the conflicting lock back to the application.
--		 * FIXME: Is it OK to report the pid back as well?
- 		 */
- 		locks_copy_lock(fl, &req->a_res.lock.fl);
--		/* fl->fl_pid = 0; */
-+		fl->fl_pid = 0;
- 	} else {
- 		return nlm_stat_to_errno(req->a_res.status);
- 	}
-@@ -402,18 +415,30 @@ nlmclnt_test(struct nlm_rqst *req, struc
- 	return 0;
+@@ -437,7 +510,7 @@ static void nlmclnt_locks_init_private(s
+ 	BUG_ON(fl->fl_ops != NULL);
+ 	fl->fl_u.nfs_fl.state = 0;
+ 	fl->fl_u.nfs_fl.flags = 0;
+-	fl->fl_u.nfs_fl.host = nlm_get_host(host);
++	fl->fl_u.nfs_fl.owner = nlm_find_lockowner(host, fl->fl_owner);
+ 	fl->fl_ops = &nlmclnt_lock_ops;
  }
  
--static
--void nlmclnt_insert_lock_callback(struct file_lock *fl)
-+static void nlmclnt_locks_copy_lock(struct file_lock *new, struct file_lock *fl)
- {
--	nlm_get_host(fl->fl_u.nfs_fl.host);
-+	memcpy(&new->fl_u.nfs_fl, &fl->fl_u.nfs_fl, sizeof(new->fl_u.nfs_fl));
-+	nlm_get_host(new->fl_u.nfs_fl.host);
- }
--static
--void nlmclnt_remove_lock_callback(struct file_lock *fl)
-+
-+static void nlmclnt_locks_release_private(struct file_lock *fl)
- {
--	if (fl->fl_u.nfs_fl.host) {
--		nlm_release_host(fl->fl_u.nfs_fl.host);
--		fl->fl_u.nfs_fl.host = NULL;
--	}
-+	nlm_release_host(fl->fl_u.nfs_fl.host);
-+	fl->fl_ops = NULL;
-+}
-+
-+static struct file_lock_operations nlmclnt_lock_ops = {
-+	.fl_copy_lock = nlmclnt_locks_copy_lock,
-+	.fl_release_private = nlmclnt_locks_release_private,
-+};
-+
-+static void nlmclnt_locks_init_private(struct file_lock *fl, struct nlm_host *host)
-+{
-+	BUG_ON(fl->fl_ops != NULL);
-+	fl->fl_u.nfs_fl.state = 0;
-+	fl->fl_u.nfs_fl.flags = 0;
-+	fl->fl_u.nfs_fl.host = nlm_get_host(host);
-+	fl->fl_ops = &nlmclnt_lock_ops;
- }
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-04-fix_lockd/fs/lockd/host.c linux-2.6.8.1-05-nlm_lockowner/fs/lockd/host.c
+--- linux-2.6.8.1-04-fix_lockd/fs/lockd/host.c	2004-08-14 14:26:44.000000000 -0400
++++ linux-2.6.8.1-05-nlm_lockowner/fs/lockd/host.c	2004-08-14 14:29:34.000000000 -0400
+@@ -119,13 +119,15 @@ nlm_lookup_host(int server, struct socka
+ 	init_MUTEX(&host->h_sema);
+ 	host->h_nextrebind = jiffies + NLM_HOST_REBIND;
+ 	host->h_expires    = jiffies + NLM_HOST_EXPIRE;
+-	host->h_count      = 1;
++	atomic_set(&host->h_count, 1);
+ 	init_waitqueue_head(&host->h_gracewait);
+ 	host->h_state      = 0;			/* pseudo NSM state */
+ 	host->h_nsmstate   = 0;			/* real NSM state */
+ 	host->h_server	   = server;
+ 	host->h_next       = nlm_hosts[hash];
+ 	nlm_hosts[hash]    = host;
++	INIT_LIST_HEAD(&host->h_lockowners);
++	spin_lock_init(&host->h_lock);
  
- /*
-@@ -446,7 +471,8 @@ nlmclnt_lock(struct nlm_rqst *req, struc
- 	if (!host->h_monitored && nsm_monitor(host) < 0) {
- 		printk(KERN_NOTICE "lockd: failed to monitor %s\n",
- 					host->h_name);
--		return -ENOLCK;
-+		status = -ENOLCK;
-+		goto out;
+ 	if (++nrhosts > NLM_HOST_MAX)
+ 		next_gc = 0;
+@@ -235,7 +237,7 @@ struct nlm_host * nlm_get_host(struct nl
+ {
+ 	if (host) {
+ 		dprintk("lockd: get host %s\n", host->h_name);
+-		host->h_count ++;
++		atomic_inc(&host->h_count);
+ 		host->h_expires = jiffies + NLM_HOST_EXPIRE;
  	}
+ 	return host;
+@@ -246,9 +248,10 @@ struct nlm_host * nlm_get_host(struct nl
+  */
+ void nlm_release_host(struct nlm_host *host)
+ {
+-	if (host && host->h_count) {
++	if (host != NULL) {
+ 		dprintk("lockd: release host %s\n", host->h_name);
+-		host->h_count --;
++		atomic_dec(&host->h_count);
++		BUG_ON(atomic_read(&host->h_count) < 0);
+ 	}
+ }
  
- 	do {
-@@ -456,18 +482,17 @@ nlmclnt_lock(struct nlm_rqst *req, struc
- 			status = nlmclnt_block(host, fl, &resp->status);
+@@ -283,7 +286,7 @@ nlm_shutdown_hosts(void)
+ 		for (i = 0; i < NLM_HOST_NRHASH; i++) {
+ 			for (host = nlm_hosts[i]; host; host = host->h_next) {
+ 				dprintk("       %s (cnt %d use %d exp %ld)\n",
+-					host->h_name, host->h_count,
++					host->h_name, atomic_read(&host->h_count),
+ 					host->h_inuse, host->h_expires);
+ 			}
  		}
- 		if (status < 0)
--			return status;
-+			goto out;
- 	} while (resp->status == NLM_LCK_BLOCKED && req->a_args.block);
- 
- 	if (resp->status == NLM_LCK_GRANTED) {
- 		fl->fl_u.nfs_fl.state = host->h_state;
- 		fl->fl_u.nfs_fl.flags |= NFS_LCK_GRANTED;
--		fl->fl_u.nfs_fl.host = host;
--		fl->fl_insert = nlmclnt_insert_lock_callback;
--		fl->fl_remove = nlmclnt_remove_lock_callback;
- 	}
--
--	return nlm_stat_to_errno(resp->status);
-+	status = nlm_stat_to_errno(resp->status);
-+out:
-+	nlmclnt_release_lockargs(req);
-+	return status;
- }
- 
- /*
-@@ -527,11 +552,18 @@ nlmclnt_unlock(struct nlm_rqst *req, str
- 	fl->fl_u.nfs_fl.flags &= ~NFS_LCK_GRANTED;
- 
- 	if (req->a_flags & RPC_TASK_ASYNC) {
--		return nlmclnt_async_call(req, NLMPROC_UNLOCK,
-+		status = nlmclnt_async_call(req, NLMPROC_UNLOCK,
- 					nlmclnt_unlock_callback);
-+		if (status < 0) {
-+			nlmclnt_release_lockargs(req);
-+			kfree(req);
-+		}
-+		return status;
- 	}
- 
--	if ((status = nlmclnt_call(req, NLMPROC_UNLOCK)) < 0)
-+	status = nlmclnt_call(req, NLMPROC_UNLOCK);
-+	nlmclnt_release_lockargs(req);
-+	if (status < 0)
- 		return status;
- 
- 	if (resp->status == NLM_LCK_GRANTED)
-@@ -567,6 +599,7 @@ nlmclnt_unlock_callback(struct rpc_task 
- 
- die:
- 	nlm_release_host(req->a_host);
-+	nlmclnt_release_lockargs(req);
- 	kfree(req);
- 	return;
-  retry_rebind:
-@@ -605,8 +638,10 @@ nlmclnt_cancel(struct nlm_host *host, st
- 
- 	status = nlmclnt_async_call(req, NLMPROC_CANCEL,
- 					nlmclnt_cancel_callback);
--	if (status < 0)
-+	if (status < 0) {
-+		nlmclnt_release_lockargs(req);
- 		kfree(req);
-+	}
- 
- 	spin_lock_irqsave(&current->sighand->siglock, flags);
- 	current->blocked = oldset;
-@@ -648,6 +683,7 @@ nlmclnt_cancel_callback(struct rpc_task 
- 
- die:
- 	nlm_release_host(req->a_host);
-+	nlmclnt_release_lockargs(req);
- 	kfree(req);
- 	return;
- 
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-03-fix_nfsd/fs/lockd/svc4proc.c linux-2.6.8.1-04-fix_lockd/fs/lockd/svc4proc.c
---- linux-2.6.8.1-03-fix_nfsd/fs/lockd/svc4proc.c	2004-08-14 14:26:13.000000000 -0400
-+++ linux-2.6.8.1-04-fix_lockd/fs/lockd/svc4proc.c	2004-08-14 14:29:27.000000000 -0400
-@@ -55,6 +55,7 @@ nlm4svc_retrieve_args(struct svc_rqst *r
- 		/* Set up the missing parts of the file_lock structure */
- 		lock->fl.fl_file  = &file->f_file;
- 		lock->fl.fl_owner = (fl_owner_t) host;
-+		lock->fl.fl_lmops = &nlmsvc_lock_operations;
- 	}
- 
- 	return 0;
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-03-fix_nfsd/fs/lockd/svclock.c linux-2.6.8.1-04-fix_lockd/fs/lockd/svclock.c
---- linux-2.6.8.1-03-fix_nfsd/fs/lockd/svclock.c	2004-08-14 14:25:56.000000000 -0400
-+++ linux-2.6.8.1-04-fix_lockd/fs/lockd/svclock.c	2004-08-14 14:29:27.000000000 -0400
-@@ -194,6 +194,7 @@ nlmsvc_create_block(struct svc_rqst *rqs
- 
- 	/* Set notifier function for VFS, and init args */
- 	block->b_call.a_args.lock.fl.fl_notify = nlmsvc_notify_blocked;
-+	block->b_call.a_args.lock.fl.fl_lmops = &nlmsvc_lock_operations;
- 	block->b_call.a_args.cookie = *cookie;	/* see above */
- 
- 	dprintk("lockd: created block %p...\n", block);
-@@ -479,6 +480,15 @@ nlmsvc_notify_blocked(struct file_lock *
- 	printk(KERN_WARNING "lockd: notification for unknown block!\n");
- }
- 
-+static int nlmsvc_same_owner(struct file_lock *fl1, struct file_lock *fl2)
-+{
-+	return fl1->fl_owner == fl2->fl_owner && fl1->fl_pid == fl2->fl_pid;
-+}
-+
-+struct lock_manager_operations nlmsvc_lock_operations = {
-+	.fl_compare_owner = nlmsvc_same_owner,
+@@ -314,10 +317,10 @@ nlm_gc_hosts(void)
+ 	for (i = 0; i < NLM_HOST_NRHASH; i++) {
+ 		q = &nlm_hosts[i];
+ 		while ((host = *q) != NULL) {
+-			if (host->h_count || host->h_inuse
++			if (atomic_read(&host->h_count) || host->h_inuse
+ 			 || time_before(jiffies, host->h_expires)) {
+ 				dprintk("nlm_gc_hosts skipping %s (cnt %d use %d exp %ld)\n",
+-					host->h_name, host->h_count,
++					host->h_name, atomic_read(&host->h_count),
+ 					host->h_inuse, host->h_expires);
+ 				q = &host->h_next;
+ 				continue;
+@@ -336,6 +339,7 @@ nlm_gc_hosts(void)
+ 					rpc_destroy_client(host->h_rpcclnt);
+ 				}
+ 			}
++			BUG_ON(!list_empty(&host->h_lockowners));
+ 			kfree(host);
+ 			nrhosts--;
+ 		}
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-04-fix_lockd/include/linux/lockd/lockd.h linux-2.6.8.1-05-nlm_lockowner/include/linux/lockd/lockd.h
+--- linux-2.6.8.1-04-fix_lockd/include/linux/lockd/lockd.h	2004-08-14 14:29:27.000000000 -0400
++++ linux-2.6.8.1-05-nlm_lockowner/include/linux/lockd/lockd.h	2004-08-14 14:29:34.000000000 -0400
+@@ -52,10 +52,25 @@ struct nlm_host {
+ 	wait_queue_head_t	h_gracewait;	/* wait while reclaiming */
+ 	u32			h_state;	/* pseudo-state counter */
+ 	u32			h_nsmstate;	/* true remote NSM state */
+-	unsigned int		h_count;	/* reference count */
++	u32			h_pidcount;	/* Pseudopids */
++	atomic_t		h_count;	/* reference count */
+ 	struct semaphore	h_sema;		/* mutex for pmap binding */
+ 	unsigned long		h_nextrebind;	/* next portmap call */
+ 	unsigned long		h_expires;	/* eligible for GC */
++	struct list_head	h_lockowners;	/* Lockowners for the client */
++	spinlock_t		h_lock;
 +};
 +
- /*
-  * Try to claim a lock that was previously blocked.
-  *
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-03-fix_nfsd/fs/lockd/svcproc.c linux-2.6.8.1-04-fix_lockd/fs/lockd/svcproc.c
---- linux-2.6.8.1-03-fix_nfsd/fs/lockd/svcproc.c	2004-08-14 14:27:02.000000000 -0400
-+++ linux-2.6.8.1-04-fix_lockd/fs/lockd/svcproc.c	2004-08-14 14:29:27.000000000 -0400
-@@ -84,6 +84,7 @@ nlmsvc_retrieve_args(struct svc_rqst *rq
- 		/* Set up the missing parts of the file_lock structure */
- 		lock->fl.fl_file  = &file->f_file;
- 		lock->fl.fl_owner = (fl_owner_t) host;
-+		lock->fl.fl_lmops = &nlmsvc_lock_operations;
- 	}
- 
- 	return 0;
-diff -u --recursive --new-file --show-c-function linux-2.6.8.1-03-fix_nfsd/include/linux/lockd/lockd.h linux-2.6.8.1-04-fix_lockd/include/linux/lockd/lockd.h
---- linux-2.6.8.1-03-fix_nfsd/include/linux/lockd/lockd.h	2004-08-14 14:25:53.000000000 -0400
-+++ linux-2.6.8.1-04-fix_lockd/include/linux/lockd/lockd.h	2004-08-14 14:29:27.000000000 -0400
-@@ -205,6 +205,8 @@ nlm_compare_locks(struct file_lock *fl1,
- 	     &&(fl1->fl_type  == fl2->fl_type || fl2->fl_type == F_UNLCK);
- }
- 
-+extern struct lock_manager_operations nlmsvc_lock_operations;
++/*
++ * Map an fl_owner_t into a unique 32-bit "pid"
++ */
++struct nlm_lockowner {
++	struct list_head list;
++	atomic_t count;
 +
- #endif /* __KERNEL__ */
++	struct nlm_host *host;
++	fl_owner_t owner;
++	uint32_t pid;
+ };
  
- #endif /* LINUX_LOCKD_LOCKD_H */
+ /*
+diff -u --recursive --new-file --show-c-function linux-2.6.8.1-04-fix_lockd/include/linux/nfs_fs_i.h linux-2.6.8.1-05-nlm_lockowner/include/linux/nfs_fs_i.h
+--- linux-2.6.8.1-04-fix_lockd/include/linux/nfs_fs_i.h	2004-08-14 14:28:02.000000000 -0400
++++ linux-2.6.8.1-05-nlm_lockowner/include/linux/nfs_fs_i.h	2004-08-14 14:29:34.000000000 -0400
+@@ -5,13 +5,15 @@
+ #include <linux/list.h>
+ #include <linux/nfs.h>
+ 
++struct nlm_lockowner;
++
+ /*
+  * NFS lock info
+  */
+ struct nfs_lock_info {
+ 	u32		state;
+ 	u32		flags;
+-	struct nlm_host	*host;
++	struct nlm_lockowner *owner;
+ };
+ 
+ /*
 

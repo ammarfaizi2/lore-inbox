@@ -1,76 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132373AbRDPWmu>; Mon, 16 Apr 2001 18:42:50 -0400
+	id <S132385AbRDPWnK>; Mon, 16 Apr 2001 18:43:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132385AbRDPWmk>; Mon, 16 Apr 2001 18:42:40 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:21602 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S132373AbRDPWmW>; Mon, 16 Apr 2001 18:42:22 -0400
-Message-ID: <3ADB65F9.7020902@kalifornia.com>
-Date: Mon, 16 Apr 2001 14:36:57 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; 0.8.1)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <Pine.LNX.4.31.0104161427400.13558-100000@phobos.fachschaften.tu-muenchen.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132392AbRDPWm7>; Mon, 16 Apr 2001 18:42:59 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:26128 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S132385AbRDPWmv>;
+	Mon, 16 Apr 2001 18:42:51 -0400
+Date: Tue, 17 Apr 2001 00:42:48 +0200
+From: FAVRE Gregoire <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: USB with 2.4.3-ac{1,3,7} without devfs
+Message-ID: <20010417004248.A19914@ulima.unil.ch>
+Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Richter wrote:
+Hello,
 
->On Fri, 13 Apr 2001, Pavel Machek wrote:
->
->>>Then a more general user space tool could be used that would do policy
->>>appropriate stuff, ending with init 0.
->>>
->>init _is_ the tool which is right for defining policy on such issues.
->>
->>Take a look how UPS managment is handled.
->>
->
->A power failure is a different thing from a power button press. There are
->users (me for example) who want to have something different then "init 0"
->mapped to the power button, for example a sleep state (since my box
->doesn't have a dedicated sleep button). I doubt there are many people who
->want something else than a shutdown if the power is out (although I think
->there will be with suspend-to-disk working, so we might have to change UPS
->handling here).
->
->My plan for power management was to have a special daemon that would
->decide what to do based on system state (battery status, local time, ...)
->and events (power/sleep button, last user logged out, ...) [I know that
->from a programmer's POV, both are events]. This daemon could, for example,
->make sure that no services are affected, for example by priming WOL and
->entering a not-so-deep sleep state instead of doing a suspend-to-disk if
->someone is still listening on a port after the "shutdown unimportant
->services" scripts have been run.
->
->   Simon
->
-(root@qwerty)-(02:32pm Mon Apr 16)-(root)
-# cat /etc/inittab | grep -1 CTRL
+Under 2.4.3 I manage uploading photo from my Digital IXUS using USB_UHCI
+with s10h, but under ac series, I don't manage, only other things I have
+changed is removing devfs which I don't need in fact...
 
-# Trap CTRL-ALT-DELETE
-ca::ctrlaltdel:/sbin/shutdown -t3 -r now 
+from dmesg (2.4.3):
+...
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.251 $ time 01:30:35 Mar 31 2001
+usb-uhci.c: High bandwidth mode enabled
+PCI: Found IRQ 7 for device 00:04.2
+PCI: The same IRQ used for device 00:06.0
+usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 7
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+...
+
+And as I power on my camera:
+hub.c: USB new device connect on bus1/1, assigned device number 2
+usb.c: USB device 2 (vend/prod 0x4a9/0x3047) is not claimed by any
+active driver.
 
 
-I believe that what is being referred to is similar.  In which case, you 
-can put whatever the bleep you want here and do anything from popup a 
-message saying, "Shutdown denied" to immediately poweroff.
+from dmesg (2.4.3-ac7):
+...
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.251 $ time 22:57:47 Apr 16 2001
+usb-uhci.c: High bandwidth mode enabled
+PCI: Found IRQ 7 for device 00:04.2
+PCI: The same IRQ used for device 00:06.0
+usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 7
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+...
 
--b
+And as I power on my camera:
 
--- 
-Three things are certain:
-Death, taxes, and lost data
-Guess which has occurred.
-- - - - - - - - - - - - - - - - - - - -
-Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+hub.c: USB new device connect on bus1/1, assigned device number 2
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=2 (error=-110)
+hub.c: USB new device connect on bus1/1, assigned device number 3
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=3 (error=-110)
 
+Do I need some special dev, here are those I have under /dev/usb:
+dabusb0   dabusb3  dc2xx10  dc2xx5  lp12  lp7       mdc80014  mdc8009
+scanner15  ttyUSB0   ttyUSB3
+dabusb1   dabusb4  dc2xx11  dc2xx6  lp13  lp8       mdc80015  rio500
+scanner2   ttyUSB1   ttyUSB4
+dabusb10  dabusb5  dc2xx12  dc2xx7  lp14  lp9       mdc8002   scanner0
+scanner3   ttyUSB10  ttyUSB5
+dabusb11  dabusb6  dc2xx13  dc2xx8  lp15  mdc8000   mdc8003   scanner1
+scanner4   ttyUSB11  ttyUSB6
+dabusb12  dabusb7  dc2xx14  dc2xx9  lp2   mdc8001   mdc8004   scanner10
+scanner5   ttyUSB12  ttyUSB7
+dabusb13  dabusb8  dc2xx15  lp0     lp3   mdc80010  mdc8005   scanner11
+scanner6   ttyUSB13  ttyUSB8
+dabusb14  dabusb9  dc2xx2   lp1     lp4   mdc80011  mdc8006   scanner12
+scanner7   ttyUSB14  ttyUSB9
+dabusb15  dc2xx0   dc2xx3   lp10    lp5   mdc80012  mdc8007   scanner13
+scanner8   ttyUSB15
+dabusb2   dc2xx1   dc2xx4   lp11    lp6   mdc80013  mdc8008   scanner14
+scanner9   ttyUSB2
 
+I don't think, because under 2.4.3 with devfs, /dev/usb is empty...
 
+Thanks you in advance for your help,
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

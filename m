@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbUJYW0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbUJYW0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbUJYW0g (ORCPT <rfc822;willy@w.ods.org>);
+	id S261958AbUJYW0g (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 25 Oct 2004 18:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUJYWX5
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbUJYWYJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 18:23:57 -0400
-Received: from gprs214-185.eurotel.cz ([160.218.214.185]:39809 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262002AbUJYWJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 18:09:40 -0400
-Date: Tue, 26 Oct 2004 00:09:21 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Stelian Pop <stelian@popies.net>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Message-ID: <20041025220921.GA5207@elf.ucw.cz>
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <200410250822.46023.dtor_core@ameritech.net> <20041025135635.GB3161@crusoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025135635.GB3161@crusoe.alcove-fr>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 25 Oct 2004 18:24:09 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:50167 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261946AbUJYWEf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 18:04:35 -0400
+Message-ID: <417D786F.4020101@acm.org>
+Date: Mon, 25 Oct 2004 17:04:31 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
+ kernels II
+References: <417D2305.3020209@acm.org.suse.lists.linux.kernel> <p73u0sik2fa.fsf@verdi.suse.de> <Pine.LNX.4.58L.0410252054370.24374@blysk.ds.pg.gda.pl> <20041025201758.GG9142@wotan.suse.de> <20041025204144.GA27518@wotan.suse.de> <Pine.LNX.4.58L.0410252157440.10974@blysk.ds.pg.gda.pl>
+In-Reply-To: <Pine.LNX.4.58L.0410252157440.10974@blysk.ds.pg.gda.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Maciej W. Rozycki wrote:
 
-> > If you need a hand - I am a bit familiar with the input system...
-> 
-> See the other mail I just send CC:'ed to Vojtech...
-> 
-> > > Some of your changes (those related to module_param(), wait_event()
-> > > use etc) were already in my tree, those related to whitespace cleanup,
-> > > platform instead of sysdev etc are new and I will integrate them.
-> > >
-> > 
-> > The change from sysdev to a platform device is the main reason I did
-> > the change (and getting rid of old pm_register stuff which is useless
-> > now) because swsusp2 (and seems that swsusp1 as well) have trouble
-> > resuming system devices. The rest was just fluff really.
-> 
-> Ok. Suspending never really worked on my laptop so I'll have to assume
-> you're correct. :)
-> 
-> [ Just tried once again to do a suspend to ram, seems that there were
-> some enhancements in this area lately. 
-> 
->   No luck. Machine suspends ok, but upon waking up, the power led goes
->   greek ok, the disk led lights up, but the keyboard is dead, the
->   network card is dead, the screen doesn't turn on...
-> 
->   Since this laptop has no serial port I don't see what else I can do,
->   except wait another 6 months and try again... :(
+>On Mon, 25 Oct 2004, Andi Kleen wrote:
+>
+>  
+>
+>>So it's impossible to check the old value. The original code is the only
+>>way to do this (if it's even needed, Intel also doesn't say anything
+>>about this bit being a flip-flop). Only possible change would be to 
+>>write an alternative index.
+>>    
+>>
+>
+> You can't read the old value, but you can have a shadow variable written
+>every time the real index is written.  Since NMIs are not preemptible and
+>this is a simple producer-consumer access, no mutex around accesses to the
+>variable is needed.
+>
+>  Maciej
+>  
+>
+If you look at my patch, it does create a shadow index.
 
-Debug using pc speaker... Or paralel port, or something like that.
+And you need a mutex for SMP systems.  If one processor is handling an 
+NMI, another processor may still be accessing the device.
 
-								Pavel
+The complexity comes because the claiming of the lock, the CPU that owns 
+the lock, and the index has to be atomic because the NMI handler has to 
+know all these things when the lock is claimed.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+-Corey

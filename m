@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSHBPVw>; Fri, 2 Aug 2002 11:21:52 -0400
+	id <S315259AbSHBPXo>; Fri, 2 Aug 2002 11:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315214AbSHBPVw>; Fri, 2 Aug 2002 11:21:52 -0400
-Received: from mta03bw.bigpond.com ([139.134.6.86]:31998 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S315200AbSHBPVv>; Fri, 2 Aug 2002 11:21:51 -0400
-Message-ID: <3D4AA573.3000705@snapgear.com>
-Date: Sat, 03 Aug 2002 01:29:55 +1000
-From: gerg <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
+	id <S315337AbSHBPXo>; Fri, 2 Aug 2002 11:23:44 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:24046 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S315259AbSHBPXn>;
+	Fri, 2 Aug 2002 11:23:43 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches
-References: <3D4A27FE.8030801@snapgear.com> <20020802141652.E25761@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15690.42180.82563.681075@napali.hpl.hp.com>
+Date: Fri, 2 Aug 2002 08:27:00 -0700
+To: "David S. Miller" <davem@redhat.com>
+Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, gh@us.ibm.com,
+       riel@conectiva.com.br, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, rohit.seth@intel.com, sunil.saxena@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: large page patch 
+In-Reply-To: <20020802.012040.105531210.davem@redhat.com>
+References: <15690.6005.624237.902152@napali.hpl.hp.com>
+	<20020801.222053.20302294.davem@redhat.com>
+	<15690.9727.831144.67179@napali.hpl.hp.com>
+	<20020802.012040.105531210.davem@redhat.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+>>>>> On Fri, 02 Aug 2002 01:20:40 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
 
-Dave Jones wrote:
-> On Fri, Aug 02, 2002 at 04:34:38PM +1000, Greg Ungerer wrote:
->  > I have a new set of uClinux (MMU-less) patches for 2.5.30 at:
->  > 
->  >    http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/
-> 
-> One thing really puzzles me.
-> Why is there SGI VisWS, X86-foo, ACPI and god-knows-what-else
-> in arch/m68knommu/config.in ?
+  Dave.M> A "hint" to use superpages?  That's absurd.
 
-Yep, there sure is some crap in there :-)
-Obviously left over from the original copy out
-from arch/i386/config.in.
+  Dave.M> Any time you are able to translate N pages instead of 1 page
+  Dave.M> with 1 TLB entry it's always preferable.
 
-I have cleaned all that silly stuff out for the
-next patch.
+Yeah, right.  So you think a 256MB page-size is optimal for all apps?
 
-Regards
-Greg
+What you're missing is how you *get* to the point where you can map N
+pages with a single TLB entry.  For that to happen, you need to
+allocate physically contiguous and properly aligned memory (at least
+given the hw that's common today).  Doing has certain costs, no matter
+what your approach is.
 
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
-
+	--david

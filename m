@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264168AbRFFVei>; Wed, 6 Jun 2001 17:34:38 -0400
+	id <S264172AbRFFVg6>; Wed, 6 Jun 2001 17:36:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264169AbRFFVe2>; Wed, 6 Jun 2001 17:34:28 -0400
-Received: from f164.law8.hotmail.com ([216.33.241.164]:23314 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S264168AbRFFVeN>;
-	Wed, 6 Jun 2001 17:34:13 -0400
-X-Originating-IP: [152.14.51.153]
-From: "ashley thomas" <ashlythomas@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: pcap_setfilter: to dump the unread packets
-Date: Wed, 06 Jun 2001 21:34:06 
+	id <S264173AbRFFVgs>; Wed, 6 Jun 2001 17:36:48 -0400
+Received: from asteria.host4u.net ([216.71.64.118]:59922 "EHLO
+	asteria.host4u.net") by vger.kernel.org with ESMTP
+	id <S264172AbRFFVgf>; Wed, 6 Jun 2001 17:36:35 -0400
+Message-Id: <5.1.0.14.2.20010606143453.028ed400@ansa.hostings.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 06 Jun 2001 14:39:50 -0700
+To: torvalds@transmeta.com (Linus Torvalds)
+From: android <linux@ansa.hostings.com>
+Subject: Re: Break 2.4 VM in five easy steps
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9fm4t7$412$1@penguin.transmeta.com>
+In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F1647rzCQI4hrGXKqZG00016228@hotmail.com>
-X-OriginalArrivalTime: 06 Jun 2001 21:34:07.0134 (UTC) FILETIME=[6A5B23E0:01C0EED0]
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am using libpcap 0.6 on Linux to capture packets from the interface.
+>Is anybody interested in making "swapoff()" better? Please speak up..
+>
+>                 Linus
 
-In my application I am using pcap_setfilter to modify the filter
-for capturing packets from the interface.
-But after filter has been modified the libpcap retains the packets
-that libpcap had got using the old filter (ie before pcap_setfilter
-is called)
+I'd be happy to write a new routine in assembly, if I had a clue as to how
+the VM algorithm works in Linux. What should swapoff  do if all physical
+memory is in use? How does the swapping algorithm balance against
+cache memory? Can someone point me to where I can find the exact
+details of the VM mechanism in Linux? Thanks!
 
-This filtering is done using a socket. So in pcap_setfilter is there
-any way we can "dump" all the 'unread' packets captured using the old
-filter which are present in the socket's buffer ?
-
-thanks a lot
-Ashley
-
-
-
-
-
-
-
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+                       -- Ted
 

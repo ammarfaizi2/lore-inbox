@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261386AbREVLvE>; Tue, 22 May 2001 07:51:04 -0400
+	id <S261387AbREVLmZ>; Tue, 22 May 2001 07:42:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261392AbREVLuz>; Tue, 22 May 2001 07:50:55 -0400
-Received: from mgw-x1.nokia.com ([131.228.20.21]:48877 "EHLO mgw-x1.nokia.com")
-	by vger.kernel.org with ESMTP id <S261386AbREVLuf>;
-	Tue, 22 May 2001 07:50:35 -0400
-Date: Tue, 22 May 2001 14:34:07 +0300
+	id <S261384AbREVLmO>; Tue, 22 May 2001 07:42:14 -0400
+Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:36875 "EHLO
+	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
+	id <S261386AbREVLl7>; Tue, 22 May 2001 07:41:59 -0400
+Date: Tue, 22 May 2001 14:36:35 +0300
+From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
 To: linux-kernel@vger.kernel.org
-Subject: Q about ip_local_deliver_finish
-Message-ID: <20010522143407.A590@Hews1193nrc>
+Subject: Re: ECN is on!
+Message-ID: <20010522143635.A2370@kivc.vstu.vinnica.ua>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Tue, May 22, 2001 at 01:10:31PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Tue, May 22, 2001 at 01:10:31PM +0300, Matti Aarnio wrote:
 
-I have a question (maybe stupid but I spent a lot of time trying to find an
-answer)about ip_local_deliver_finish() in 2.4.4. kernel.
-I'll be very grateful if someone explains me what's happening.
+> This list is NOT exhaustive of domains with problems, it
+> primarily lists only those who are subscribers of linux-kernel,
+> and thus accumulated (al lot) more than 1 email with "connection
+> timed out" status into vger's queue.
+> 
+>   DEST. DOMAIN                     SERVER NAME
+> 
+> ic.sunysb.edu                   -> bartman.ic.sunysb.edu
+...
+> geeksimplex.org			-> DNS A: 24.18.90.197 (home.com cable)
+Please, next time you'll send such lists, sort it somehow. For example,
+with vim you can do it by selecting lines with V, and then :!sort
 
-There is the following piece of code in ip_local_deliver_finish()
-(in net/ipv4/ip_input.c):
-
-if(ipprot != NULL) {
-	if(raw_sk == NULL &&
-	   ipprot->next == NULL &&
-	   ipprot->protocol == protocol) {
-		int ret;
-		/* Fast path... */
-		ret = ipprot->handler(skb);
-		return ret;
-	} else {
-		flag = ip_run_ipprot(skb, skb->nh.iph, ipprot, (raw_sk != NULL));
-	}
-
-[some comments skipped]
-
-if(raw_sk != NULL) {	/* Shift to last raw user */
-	raw_rcv(raw_sk, skb);
-	sock_put(raw_sk);
-} else if (!flag) {	/* Free and report errors */
-	icmp_send(skb, ICMP_DEST_UNREACH, ICMP_PROT_UNREACH, 0);	
-out:
-	kfree_skb(skb);
-}
-}
-
-return 0;
-
-
-But in ip_run_ipprot the return value of ipprot->handler is just ignored,
-code below:
-
-if(skb2 != NULL) {
-	ret = 1;
-	ipprot->handler(skb2);
-}
-
-If I understand correctly it means that if we have two different protocols
-with the same (modulo MAX_INET_PROTOS) protocol number then
-ip_local_deliver will return the return value of ipprot->handler for the
-first protocol in the chain
-inet_protos[protocol number modulo MAX_INET_PROTOS] and *always zero* for the
-second. Why? Is it a bug or I just do not understand something?
-
--- 
-Alexey
+Thanks!.

@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263991AbTAKNCU>; Sat, 11 Jan 2003 08:02:20 -0500
+	id <S267208AbTAKNFV>; Sat, 11 Jan 2003 08:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266537AbTAKNCU>; Sat, 11 Jan 2003 08:02:20 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48856 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S263991AbTAKNCT>; Sat, 11 Jan 2003 08:02:19 -0500
-Date: Sat, 11 Jan 2003 14:11:00 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] go to drivers/ide/pci/ even for !CONFIG_BLK_DEV_IDEPCI
-Message-ID: <20030111131059.GK10486@fs.tum.de>
+	id <S267209AbTAKNFV>; Sat, 11 Jan 2003 08:05:21 -0500
+Received: from colin.muc.de ([193.149.48.1]:22278 "HELO colin.muc.de")
+	by vger.kernel.org with SMTP id <S267208AbTAKNFU>;
+	Sat, 11 Jan 2003 08:05:20 -0500
+Message-ID: <20030111141359.58669@colin.muc.de>
+Date: Sat, 11 Jan 2003 14:13:59 +0100
+From: Andi Kleen <ak@muc.de>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Andi Kleen <ak@muc.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: any chance of 2.6.0-test*?
+References: <20030110165441$1a8a@gated-at.bofh.it> <20030110165505$38d9@gated-at.bofh.it> <m3iswv27o3.fsf@averell.firstfloor.org> <20030111130151.A21505@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Mutt 0.88e
+In-Reply-To: <20030111130151.A21505@flint.arm.linux.org.uk>; from Russell King on Sat, Jan 11, 2003 at 02:01:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Sat, Jan 11, 2003 at 02:01:51PM +0100, Russell King wrote:
+> > --- linux-2.5.56-work/drivers/char/tty_io.c-o	2003-01-02 05:13:12.000000000 +0100
+> > +++ linux-2.5.56-work/drivers/char/tty_io.c	2003-01-11 13:23:15.000000000 +0100
+> > @@ -1329,6 +1329,8 @@
+> >  		int major, minor;
+> >  		struct tty_driver *driver;
+> >  
+> > +		lock_kernel(); 
+> > +
+> 
+> Deadlock.  chrdev_open() calls lock_kernel() and then the fops->open
+> method, which is tty_open().
 
-I observed the following problem with the cmd640 driver in 2.5.56:
+No problem, lock_kernel is recursive and dropped on schedule.
 
-- cmd640.c is in the drivers/ide/pci/ subdirectory.
-- BLK_DEV_CMD640 does not depend on BLK_DEV_IDEPCI
-- drivers/ide/Makefile only goes to pci/ if BLK_DEV_IDEPCI is selected
+It is very very hard to get a BKL deadlock.
 
-If the .config contains the following legal configuration:
+> This one needs deeper review.
 
-<--  snip  -->
+I agree, but one has to start somewhere. Please submit any fixes,
+perhaps we can take then close these issues for good.
 
-...
-CONFIG_BLK_DEV_CMD640=y
-...
-# CONFIG_BLK_DEV_IDEPCI is not set
-...
-
-<--  snip  -->
-
-the cmd640 driver isn't built.
-
-The following patch fixes this (similar to 2.4 where pci/ is already 
-visited for !CONFIG_BLK_DEV_IDEPCI):
-
---- linux-2.5.56/drivers/ide/Makefile.old	2003-01-11 13:52:30.000000000 +0100
-+++ linux-2.5.56/drivers/ide/Makefile	2003-01-11 13:52:51.000000000 +0100
-@@ -10,7 +10,7 @@
- export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o
- 
- # First come modules that register themselves with the core
--obj-$(CONFIG_BLK_DEV_IDEPCI)		+= pci/
-+obj-$(CONFIG_BLK_DEV_IDE)		+= pci/
- 
- # Core IDE code - must come before legacy
- 
+Was looking at n_tty.c now, looks like it has some more race 
+problems.
 
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Andi

@@ -1,85 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbUKVQpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbUKVQpe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbUKVQpe (ORCPT <rfc822;willy@w.ods.org>);
+	id S261567AbUKVQpe (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 11:45:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUKVQow
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUKVQon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:44:52 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:43742 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262189AbUKVQaD (ORCPT
+	Mon, 22 Nov 2004 11:44:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35504 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261567AbUKVQ1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:30:03 -0500
-Date: Mon, 22 Nov 2004 17:30:35 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Christoph Hellwig <hch@infradead.org>,
+	Mon, 22 Nov 2004 11:27:54 -0500
+Date: Mon, 22 Nov 2004 08:27:05 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Schwab <schwab@suse.de>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+       Roland McGrath <roland@redhat.com>, Daniel Jacobowitz <dan@debian.org>,
+       Eric Pouech <pouech-eric@wanadoo.fr>, Mike Hearn <mh@codeweavers.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
-Message-ID: <20041122163034.GA3410@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, greg@kroah.com
-References: <20041119193350.GE2700@deep-space-9.dsnet> <20041119195736.GA8466@infradead.org> <20041119213942.GG2700@deep-space-9.dsnet> <20041119230820.GB32455@one-eyed-alien.net> <419FD192.1040604@osdl.org> <20041122103520.GA3550@crusoe.alcove-fr> <41A20D5A.6040004@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A20D5A.6040004@osdl.org>
-User-Agent: Mutt/1.4.1i
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <je7joeywfk.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.58.0411220823581.20993@ppc970.osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+ <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
+ <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
+ <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
+ <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org> <20041120214915.GA6100@tesore.ph.cox.net>
+ <Pine.LNX.4.58.0411211326350.11274@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0411211414460.20993@ppc970.osdl.org> <je7joe91wz.fsf@sykes.suse.de>
+ <Pine.LNX.4.58.0411211703160.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411211947200.11274@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0411212022510.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411212212530.20993@ppc970.osdl.org> <je7joeywfk.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 08:01:30AM -0800, Randy.Dunlap wrote:
 
-> >>>>Maybe we should add, just below the 'USB storage' Kconfig option another
-> >>>>one, let's say 'SCSI disk based USB storage support', which 
-> >>>>documentation
-> >>>>would talk about 'usb keys, memory stick readers, USB floppy drives 
-> >>>>etc',
-> >>>>which should just be a dummy option selecting  BLK_DEV_SD ?
-> >
-> >
-> >>Until 'suggests' is available, does this help any?
-> >>It's tough getting people to read Help messages though.
-> >>
-> >>Add comment/NOTE that USB_STORAGE probably needs BLK_DEV_SD also.
-> >>Add a few device types to help text and reformat it.
-> >
-> >
-> >Isn't my above suggestion even better ? A separate config option
-> >is much more visible IMHO...
+
+On Mon, 22 Nov 2004, Andreas Schwab wrote:
+
+> Linus Torvalds <torvalds@osdl.org> writes:
 > 
-> Sounds good, as long as we don't mind the same option being
-> settable in multiple places.  Did you submit a patch?
+> > IMHO, this is a nice cleanup, and it also means that I can actually debug 
+> > my "program from hell":
+> 
+> Does it also work when trying to single step over it?  I guess all bets
+> are off then.
 
-Nope, I was waiting for the discussion to settle.
+If you single-step over the "popfl", then you need to generate the
+SIGTRAP's by hand too. IOW, it's _possible_ to emulate the behaviour from
+within the debugger, but it gets really really nasty very quickly.
 
-But here it is:
+I think the nastyness in that case is at least acceptable, since if you 
+single-step, you actually _see_ what is happening, and thus you have a 
+chance in hell of figuring it out. Practical? No. But debuggable at least 
+in theory, which it really wasn't before.
 
-===== drivers/usb/storage/Kconfig 1.9 vs edited =====
---- 1.9/drivers/usb/storage/Kconfig	2004-06-13 17:24:10 +02:00
-+++ edited/drivers/usb/storage/Kconfig	2004-11-22 17:27:43 +01:00
-@@ -45,6 +45,16 @@
- 	  If you say N here, the kernel will assume that all disk-like USB
- 	  devices are write-enabled.
- 
-+config USB_STORAGE_SD
-+	bool "USB Mass Storage SCSI-like disks"
-+	depends on USB_STORAGE
-+	select BLK_DEV_SD
-+	help
-+	  Say Y here if you want to enable support for SCSI-like USB
-+	  connected disks. These are the most used USB Mass Storage
-+	  devices, and include USB keys, USB floppy drives, most USB
-+	  flash memory readers, some USB photo cameras etc.
-+
- config USB_STORAGE_DATAFAB
- 	bool "Datafab Compact Flash Reader support (EXPERIMENTAL)"
- 	depends on USB_STORAGE && EXPERIMENTAL
--- 
-Stelian Pop <stelian@popies.net>    
+		Linus

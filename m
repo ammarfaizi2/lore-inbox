@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135804AbRDTFUG>; Fri, 20 Apr 2001 01:20:06 -0400
+	id <S135809AbRDTFiU>; Fri, 20 Apr 2001 01:38:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135805AbRDTFT5>; Fri, 20 Apr 2001 01:19:57 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:55814 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135804AbRDTFTw>;
-	Fri, 20 Apr 2001 01:19:52 -0400
-Date: Fri, 20 Apr 2001 02:17:42 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: Matthew Wilcox <willy@ldl.fc.hp.com>,
-        james rich <james.rich@m.cc.utah.edu>,
-        "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        parisc-linux@parisc-linux.org
-Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
-In-Reply-To: <200104200452.f3K4q3X07411@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.21.0104200217130.1685-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S135810AbRDTFiL>; Fri, 20 Apr 2001 01:38:11 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:23790 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S135809AbRDTFhw>; Fri, 20 Apr 2001 01:37:52 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104200535.f3K5Ze82017093@webber.adilger.int>
+Subject: Re: [Ext2-devel] ext2 inode size (on-disk)
+In-Reply-To: <Pine.GSO.4.21.0104192213060.19860-100000@weyl.math.psu.edu>
+ "from Alexander Viro at Apr 19, 2001 10:23:39 pm"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Thu, 19 Apr 2001 23:35:40 -0600 (MDT)
+CC: tytso@valinux.com, linux-kernel@vger.kernel.org,
+        Andreas Dilger <adilger@turbolinux.com>,
+        "Theodore Y. Ts'o" <tytso@mit.edu>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Apr 2001, Albert D. Cahalan wrote:
+Al writes:
+> I don't think that it's needed - old kernels (up to -CURRENT ;-) will
+> simply refuse to mount if ->s_inode_size != 128. Old utilites may be
+> trickier, though...
 
-> This sucks for users of that architecture. Also, though not
-> applicable to PA-RISC, it sucks for sub-architecture porters.
-> (by sub-architecture I mean: Mac, PReP, PowerCore, BeBox, etc.)
+Probably would need an incompat flag for changing the inode size anyways,
+so old utilities wouldn't set that anyways.
 
-As you said it so eloquently a few paragraphs down:
+> I'm somewhat concerned about the following: last block of inode table
+> fragment may have less inodes than the rest. Reason: number of inodes
+> per group should be a multiple of 8 and with inodes bigger than 128
+> bytes it may give such effect. Comments?
 
-	"send patches!"
+I don't _think_ that there is a requirement for a multiple-of-8 inodes
+per group.  OK, looking into mke2fs (actually lib/ext2fs/initialize.c)
+it _does_ show that it needs to be a multiple of 8, but I'm not sure
+exactly what the "bitmap splicing code" mentioned in the comment is.
 
-cheers,
+In the end, it doesn't really matter much - if we go with multiple-of-2
+inode sizes, all it means is that we may need to have multiple-of-2 (or
+possibly 4 for 512-byte inodes in a 1k block filesystem) inode table
+blocks in each group.  Not a big deal.  The code already handles this.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+> I would really, really like to end up with accurate description of
+> inode table layout somewhere in Documentation/filesystems. Heck, I
+> volunteer to write it down and submit into the tree ;-)
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+I can write a few words as well.
 
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

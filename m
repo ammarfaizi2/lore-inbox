@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262263AbSJOBAL>; Mon, 14 Oct 2002 21:00:11 -0400
+	id <S262213AbSJOA7M>; Mon, 14 Oct 2002 20:59:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262273AbSJOBAK>; Mon, 14 Oct 2002 21:00:10 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:20944 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262263AbSJOBAG>; Mon, 14 Oct 2002 21:00:06 -0400
-Subject: Re: [Lse-tech] Re: [rfc][patch] Memory Binding API v0.3 2.5.41
-From: john stultz <johnstul@us.ibm.com>
-To: Matt <colpatch@us.ibm.com>
+	id <S262258AbSJOA7M>; Mon, 14 Oct 2002 20:59:12 -0400
+Received: from holomorphy.com ([66.224.33.161]:54418 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262213AbSJOA7L>;
+	Mon, 14 Oct 2002 20:59:11 -0400
+Date: Mon, 14 Oct 2002 17:58:10 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
 Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
        linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       LSE Tech <lse-tech@lists.sourceforge.net>,
-       Andrew Morton <akpm@zip.com.au>, Michael Hohnbaum <hohnbaum@us.ibm.com>
-In-Reply-To: <3DAB6385.9000207@us.ibm.com>
-References: <3DAB5DF2.5000002@us.ibm.com>
-	<2004595005.1034616026@[10.10.2.3]>  <3DAB6385.9000207@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Oct 2002 17:55:53 -0700
-Message-Id: <1034643354.19094.149.camel@cog>
+       LSE <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@zip.com.au>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
+Message-ID: <20021015005810.GL4488@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Matthew Dobson <colpatch@us.ibm.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+	LSE <lse-tech@lists.sourceforge.net>,
+	Andrew Morton <akpm@zip.com.au>,
+	Michael Hohnbaum <hohnbaum@us.ibm.com>
+References: <3DAB6385.9000207@us.ibm.com> <2005946728.1034617377@[10.10.2.3]> <3DAB669B.3000801@us.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DAB669B.3000801@us.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-14 at 17:38, Matthew Dobson wrote:
-> Also, right now, memblks map to nodes in a straightforward manner (1-1 
-> on NUMA-Q, the only architecture that has defined them).  It will likely 
-> look the same on most architectures, too.
+On Mon, Oct 14, 2002 at 05:51:39PM -0700, Matthew Dobson wrote:
+> Well, since each node's memory (or memblk in the parlance of my head ;) 
+> has several 'zones' in it (DMA, HIGHMEM, etc), this conversion function 
+> will need 2 parameters.  It may well be called 
+> __node_and_zone_type_to_flat_zone_number(node, DMA|NORMAL|HIGHMEM).
+> Or, we could have:
+> __zone_to_node(5) = node #
+> and
+> __zone_to_zone_type(5) = DMA|NORMAL|HIGHMEM.
+> But either way, we would need to specify both pieces.
+> Cheers!
+> -Matt
 
-Just an FYI: I believe the x440 breaks this assumption. 
+Zone "type" can be found in (page->flags >> ZONE_SHIFT) & 0x3UL and
+similarly node ID can be found in page_zone(page)->zone_pgdat->node_id
+and these are from the page.
 
-There are 2 chunks on the first CEC. The current discontig patch for it
-has to drop the second chunk (anything over 3.5G on the first CEC) in
-order to work w/ the existing code. However, that will probably need to
-be addressed at some point, so be aware that this might affect you as
-well. 
+zone->zone_pgdat->node_id does the zone to node conversion
+zone - zone_pgdat->node_zones does the zone to zone type conversion.
 
-thanks
--john
+Node and zone type to flat zone number would be
+	NODE_DATA(nid)->node_zones[type]
 
+Basically there's a number written in page->flags that should be easy
+to decode if you can go on arithmetic alone, and if you need details,
+there's a zone_table[] you can get at the zones (and hence pgdats) with.
+
+
+Bill

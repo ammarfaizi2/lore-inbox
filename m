@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316951AbSFQSzG>; Mon, 17 Jun 2002 14:55:06 -0400
+	id <S316955AbSFQTHk>; Mon, 17 Jun 2002 15:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316952AbSFQSzF>; Mon, 17 Jun 2002 14:55:05 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:64241 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316951AbSFQSzE>;
-	Mon, 17 Jun 2002 14:55:04 -0400
-Date: Mon, 17 Jun 2002 11:55:05 -0700
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, irda-users@lists.sourceforge.net,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] : ir250_headers_init-2.diff
-Message-ID: <20020617115505.B5818@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020610175143.C21783@bougret.hpl.hp.com> <3D0A7235.9080705@mandrakesoft.com> <3D0C00C2.9030306@evision-ventures.com>
+	id <S316957AbSFQTHi>; Mon, 17 Jun 2002 15:07:38 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1741 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316955AbSFQTHi>;
+	Mon, 17 Jun 2002 15:07:38 -0400
+Date: Mon, 17 Jun 2002 12:07:06 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Oliver Neukum <oliver@neukum.name>, David Brownell <david-b@pacbell.net>,
+       Andries.Brouwer@cwi.nl, garloff@suse.de, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, sancho@dauskardt.de,
+       linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net, dougg@torque.net
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map
+Message-ID: <20020617120706.A16275@eng2.beaverton.ibm.com>
+References: <patmans@us.ibm.com> <200206171642.g5HGg5b03044@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3D0C00C2.9030306@evision-ventures.com>; from dalecki@evision-ventures.com on Sun, Jun 16, 2002 at 05:06:42AM +0200
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200206171642.g5HGg5b03044@localhost.localdomain>; from James.Bottomley@SteelEye.com on Mon, Jun 17, 2002 at 11:42:05AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 16, 2002 at 05:06:42AM +0200, Martin Dalecki wrote:
-> U¿ytkownik Jeff Garzik napisa³:
-> > Patch also did not apply...
-> 
-> 
-> Please use the "white space lazy" flag to the patch command.
+On Mon, Jun 17, 2002 at 11:42:05AM -0500, James Bottomley wrote:
 
-	Don't worry, I'll pick up the pieces. If Jeff's comment is to
-be trusted, it's a bit more than whitespace anyway.
+> OK, how about some hardware scenarios:
+> 
 
-	Jean
+> Ah, but that's the scsi-3 spec which (finally) cleaned up this unique name 
+> business.  However, for SCSI-2 and before, it was an unholy mess, as the two 
+> examples above illustrate.  I agree that for all modern devices which are 
+> SCSI-3 SPC compliant, then just asking for the WWN page probably works.  The 
+> question is what to do about all the legacy hardware out there?
+> 
+> James
+
+Yes, legacy or broken devices need vendor specific code to get a unique
+serial number or uid, but it is not clear to me that putting the code
+in user space is better or worse than kernel space. Maybe we need to
+see some implementations.
+
+For user space get-id code:
+
+What happens at boot time? Do we now need special stripped copies of user
+space get-id commands to boot from scsi (for use with initrd)? Do we just
+wait until the system is booted before getting/setting the ID's?
+
+If I build without sg or /proc, should SCSI ID's still be available?
+
+How can I efficiently handle multi-path code without overallocating
+N Scsi_Devices (where N is the number of paths to each Scsi_Device)?
+
+For kernel implementations, we could add a special entry in the device_list
+or have a new list mapping vendor+product to a get-the-id function.
+
+Module code could be created that contains the functional code to get an
+ID, and adds a pointer to the function in device_list or some other list.
+
+User or kernel code could supply a table with a VPD page to use, and an
+offset or such within the page to a serial number, and flags for other
+special usage such as appending the LUN value to the serial number.
+
+-- Patrick Mansfield

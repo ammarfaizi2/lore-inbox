@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262911AbUC2MbT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 07:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbUC2Ma3
+	id S262907AbUC2Mci (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUC2McV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 07:30:29 -0500
-Received: from ns.suse.de ([195.135.220.2]:22686 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262870AbUC2MZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:25:42 -0500
-Date: Mon, 29 Mar 2004 09:03:01 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, kernel@kolivas.org,
-       rusty@rustcorp.com.au, anton@samba.org, lse-tech@lists.sourceforge.net,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
- sched-2.6.5-rc2-mm2-A3
-Message-Id: <20040329090301.42dc9f97.ak@suse.de>
-In-Reply-To: <20040329114635.GA30093@elte.hu>
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com>
-	<20040325154011.GB30175@wotan.suse.de>
-	<20040325190944.GB12383@elte.hu>
-	<20040325162121.5942df4f.ak@suse.de>
-	<20040325193913.GA14024@elte.hu>
-	<20040325203032.GA15663@elte.hu>
-	<20040329084531.GB29458@wotan.suse.de>
-	<4068066C.507@yahoo.com.au>
-	<20040329080150.4b8fd8ef.ak@suse.de>
-	<20040329114635.GA30093@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 29 Mar 2004 07:32:21 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:45455 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262907AbUC2MaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 07:30:16 -0500
+Date: Mon, 29 Mar 2004 13:42:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Stefan Smietanowski <stesmi@stesmi.com>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+Message-ID: <20040329114210.GF1453@openzaurus.ucw.cz>
+References: <4066021A.20308@pobox.com> <40660877.3090302@stesmi.com> <200403280032.22180.bzolnier@elka.pw.edu.pl> <40660FEC.8080703@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40660FEC.8080703@pobox.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004 13:46:35 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
+Hi!
 
+> >What about latency?
+...
+> merged transfer will top out at 8MB.  You don't see that unless 
+> you're on a totally quiet machine with tons of free, contiguous 
+> pages.  So in practice it winds up being much smaller, the more 
+> loaded the system gets (and pagecache gets fragmented).
 > 
-> * Andi Kleen <ak@suse.de> wrote:
-> 
-> > Sorry ignore this report - I just found out I booted the wrong kernel
-> > by mistake. Currently retesting, also with the proposed change to only
-> > use a single scheduling domain.
-> 
-> here are the items that are in the works:
-> 
->   redhat.com/~mingo/scheduler-patches/sched.patch
+> Latency definitely changes for the default case, but remember that a 
+> lot of that is writeback, or streaming writes.  Latency-sensitive 
+> applications already know how to send small or no-wait I/Os, because 
 
-I'm trying to, but -mm5 doesn't work at all on the 4 way machine.
-It goes through the full boot up sequence, but then never opens a login
-on the console and sshd also doesn't work.
-
-Andrew, maybe that's related to your tty fixes?
-
--Andi
+Well, waiting second for read because 32MB write is being done
+will not be fun...
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

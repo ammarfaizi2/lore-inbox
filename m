@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263577AbVCEBRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263669AbVCEBU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263577AbVCEBRc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 20:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbVCEBHB
+	id S263669AbVCEBU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 20:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbVCEBUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 20:07:01 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:46052 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263482AbVCEA7h convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:59:37 -0500
-From: Jason Gaston <jason.d.gaston@intel.com>
-Organization: Intel Corp.
-To: bzolnier@gmail.com
-Subject: [PATCH] pci_ids.h correction for Intel ICH7M - 2.6.11
-Date: Fri, 4 Mar 2005 18:04:43 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 4 Mar 2005 20:20:45 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1038 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263489AbVCEBMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 20:12:43 -0500
+Date: Sat, 5 Mar 2005 02:12:41 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       adaplas@pol.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [2.6 patch] make savagefb one module
+Message-ID: <20050305011241.GO3327@stusta.de>
+References: <20050301024118.GF4021@stusta.de> <200503040350.51163.adaplas@hotpop.com> <20050303202039.GH4608@stusta.de> <200503040437.43495.adaplas@hotpop.com> <20050303230750.GT4608@stusta.de> <Pine.LNX.4.62.0503041017000.22831@numbat.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503041804.43413.jason.d.gaston@intel.com>
+In-Reply-To: <Pine.LNX.4.62.0503041017000.22831@numbat.sonytel.be>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch corrects the ICH7M LPC controller DID in pci_ids.h from x27B1 to x27B9.  This patch was build against 2.6.11.
-If acceptable, please apply.
+On Fri, Mar 04, 2005 at 10:17:17AM +0100, Geert Uytterhoeven wrote:
+> On Fri, 4 Mar 2005, Adrian Bunk wrote:
+> > This patch links all selected files under drivers/video/savagefb/ into 
+> > one module.
+> > 
+> > This required a renaming of savagefb.c to savagefb_driver.c .
+> > 
+> > As a side effect, the EXPORT_SYMBOL's in this directory are no longer 
+> > required.
+> > 
+> > ---
+> > 
+> > Other names than savagefb_driver.c (e.g. savagefb_main.c) are easily 
+> > possible - I do not claim being good at picking names...
+> 
+> savagefb_core.c?
 
-Thanks,
+Antonino, what's your opinion?
 
-Jason Gaston
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
 
-Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+cu
+Adrian
 
---- linux-2.6.11/include/linux/pci_ids.h.orig	2005-03-04 17:58:10.490587200 -0800
-+++ linux-2.6.11/include/linux/pci_ids.h	2005-03-04 17:58:29.990622744 -0800
-@@ -2261,7 +2261,7 @@
- #define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
- #define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
- #define PCI_DEVICE_ID_INTEL_ICH7_0	0x27b8
--#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b1
-+#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b9
- #define PCI_DEVICE_ID_INTEL_ICH7_2	0x27c0
- #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
- #define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c2
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

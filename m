@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTDGGKQ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTDGGKQ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:10:16 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:35337 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263274AbTDGGKO (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 02:10:14 -0400
-Date: Mon, 7 Apr 2003 07:21:44 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Paul Mackerras <paulus@au1.ibm.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Qemu support for PPC
-Message-ID: <20030407072144.A28096@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Paul Mackerras <paulus@au1.ibm.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Fabrice Bellard <fabrice.bellard@free.fr>,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <20030407024858.C32422C014@lists.samba.org> <20030407065813.A27933@infradead.org> <16017.2065.635724.992168@argo.ozlabs.ibm.com>
+	id S263275AbTDGG1P (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTDGG1P (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:27:15 -0400
+Received: from h24-81-49-25.ca.shawcable.net ([24.81.49.25]:6570 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263275AbTDGG1N (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 02:27:13 -0400
+Date: Sun, 6 Apr 2003 23:38:40 -0700
+From: Jack Bowling <jbinpg@shaw.ca>
+To: linux-kernel@vger.kernel.org
+Subject: ac97_codec.c bombing in 2.4.21-pre7
+Message-ID: <20030407063840.GA24256@nonesuch>
+Reply-To: Jack Bowling <jbinpg@shaw.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16017.2065.635724.992168@argo.ozlabs.ibm.com>; from paulus@au1.ibm.com on Mon, Apr 07, 2003 at 03:09:37PM +1000
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 03:09:37PM +1000, Paul Mackerras wrote:
-> sys_personality will fail if there isn't an exec_domain registered for
-> the personality you want.
+2.4.21-pre6 patch installed and compiled perfectly on my RH 8 box.
+Trying to build the emu10k1 module, 2.4.21-pre7 patch with same .config and same
+compiler bombs. For giggles, I tried the compile command string with and
+without "env LANG=C" to nullify any unicode issues but it made no difference.
 
-But there already is one registered :)  Okay, you\re right.
+Here is just the start of the error output:
 
-> Why?  It's a well-contained patch that affects very little outside its
-> own area, and is quite similar to other things that have been there
-> for ages.
+ac97_codec.c:131: `AC97_NO_PCM_VOLUME' undeclared here (not in a
+function)
+ac97_codec.c:131: initializer element is not constant
+ac97_codec.c:131: (near initialization for `ac97_codec_ids[12].flags')
+ac97_codec.c:131: initializer element is not constant
+ac97_codec.c:131: (near initialization for `ac97_codec_ids[12]')
+ac97_codec.c:132: `AC97_NO_PCM_VOLUME' undeclared here (not in a
+function)
+ac97_codec.c:132: initializer element is not constant
+ac97_codec.c:132: (near initialization for `ac97_codec_ids[13].flags')
+ac97_codec.c:132: initializer element is not constant
+ac97_codec.c:132: (near initialization for `ac97_codec_ids[13]')
+ac97_codec.c:133: `AC97_NO_PCM_VOLUME' undeclared here (not in a
+function)
+ac97_codec.c:133: initializer element is not constant
+ac97_codec.c:133: (near initialization for `ac97_codec_ids[14].flags')
+ac97_codec.c:133: initializer element is not constant
+ac97_codec.c:133: (near initialization for `ac97_codec_ids[14]')
+ac97_codec.c:134: initializer element is not constant
+ac97_codec.c:134: (near initialization for `ac97_codec_ids[15]')
+ac97_codec.c:135: initializer element is not constant
+ac97_codec.c:135: (near initialization for `ac97_codec_ids[16]')
+ac97_codec.c:136: initializer element is not constant
+ac97_codec.c:136: (near initialization for `ac97_codec_ids[17]')
+ac97_codec.c:137: initializer element is not constant
+ac97_codec.c:137: (near initialization for `ac97_codec_ids[18]')
+ac97_codec.c:138: initializer element is not constant
+ac97_codec.c:138: (near initialization for `ac97_codec_ids[19]')
+ac97_codec.c:139: initializer element is not constant
+ac97_codec.c:139: (near initialization for `ac97_codec_ids[20]')
+ac97_codec.c:140: initializer element is not constant
+ac97_codec.c:140: (near initialization for `ac97_codec_ids[21]')
+ac97_codec.c:141: initializer element is not constant
+ac97_codec.c:141: (near initialization for `ac97_codec_ids[22]')
+ac97_codec.c:142: initializer element is not constant
+ac97_codec.c:142: (near initialization for `ac97_codec_ids[23]')
+ac97_codec.c:143: initializer element is not constant
+ac97_codec.c:143: (near initialization for `ac97_codec_ids[24]')
+ac97_codec.c:144: `AC97_DELUDED_MODEM' undeclared here (not in a
+function)
+ac97_codec.c:144: initializer element is not constant
+ac97_codec.c:144: (near initialization for `ac97_codec_ids[25].flags')
+ac97_codec.c:144: initializer element is not constant
+ac97_codec.c:144: (near initialization for `ac97_codec_ids[25]')
+ac97_codec.c:145: initializer element is not constant
+ac97_codec.c:145: (near initialization for `ac97_codec_ids[26]')
+ac97_codec.c:146: initializer element is not constant
+ac97_codec.c:146: (near initialization for `ac97_codec_ids[27]')
+...
 
-Because stuff should go into 2.5 first.    And even if it looks trivial
-there's an important policy decision here:  do we want to clutter up
-our personality system for userspace emulators?   If you look at the
-current list of personalities they all have kernel implementations, even
-if not all of them are currently merged, qemu OTOH is a purely userspace
-thing (and still very new!).  Personally I'd rather prefer qemu doing
-pathname translation in userspace instead of bloating the kernel.  This
-gets even more important when we get qemu-style emulators for other
-architectures - the number of personalities needed just for this ugly
-pathname-translation scheme will get very high.
+I believe these were Alan's changes according to the changelog.
 
-> Anyway, it's not your call.
-
-if you look at MAINTAINERS I'm responsible for personality handling, so
-maybe it actually _is_ my call?
+-- 
+Jack Bowling
+mailto: jbinpg@shaw.ca

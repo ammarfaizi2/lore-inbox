@@ -1,86 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314138AbSHRKsU>; Sun, 18 Aug 2002 06:48:20 -0400
+	id <S313898AbSHRKqO>; Sun, 18 Aug 2002 06:46:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314149AbSHRKsU>; Sun, 18 Aug 2002 06:48:20 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:45697 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP
-	id <S314138AbSHRKsT>; Sun, 18 Aug 2002 06:48:19 -0400
-Message-ID: <3D5F7BFD.90909@cs.auc.dk>
-Date: Sun, 18 Aug 2002 12:50:37 +0200
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-Organization: Aalborg University -- Computer Science Dpt.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
-X-Accept-Language: fr, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Compilation problem in 2.4.19: drivers/scsi/aic7xxx/aicasm/aicasm_gram.y
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314077AbSHRKqO>; Sun, 18 Aug 2002 06:46:14 -0400
+Received: from go-gw.beelinegprs.com ([217.118.66.254]:12924 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S313898AbSHRKqN>; Sun, 18 Aug 2002 06:46:13 -0400
+Date: Sun, 18 Aug 2002 14:49:48 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, dhinds <dhinds@sonic.net>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: New fix for CardBus bridge behind a PCI bridge
+Message-ID: <20020818144948.A1241@localhost.park.msu.ru>
+References: <20020812110431.A14125@sonic.net> <20020812112911.A18947@lucon.org> <20020812122158.A27172@sonic.net> <20020812140730.A21710@lucon.org> <20020812154851.A20073@sonic.net> <20020812202942.A27362@lucon.org> <20020816194825.A7086@jurassic.park.msu.ru> <20020816224950.A17930@lucon.org> <3D5E6B10.9070106@mandrakesoft.com> <20020817083601.A26274@lucon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020817083601.A26274@lucon.org>; from hjl@lucon.org on Sat, Aug 17, 2002 at 08:36:01AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Aug 17, 2002 at 08:36:01AM -0700, H. J. Lu wrote:
+> It could be. But I doubt it. At least, I don't think you can treat a
+> AGP bridge like a 82801BAM/CAM bridge. I think 82801BAM/CAM is a
+> special case. You really have to read the datasheet to know for sure.
 
-As I really don't know who is in charge of this part of the kernel
-(there was no names in the file or around this file), I post directly
-on the Linux Kernel mailing-list.
+You're right by all means. AGP bridges are _always_ positive decoders.
+The problems you've seen were caused by the wrong semicolon somehow
+sneaked into the patch:
 
-Sorry, if I'm wrong.
++static void __init pci_fixup_transparent_bridge(struct pci_dev *dev)
++{
++	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_PCI &&
++	    (dev->device & 0xff00) == 0x2400);
+					     ^ Ugh..
++		dev->class |= 1;
++}
 
-I tried to compile the 2.4.19 for my computer, but I get an error
-message while compiling the file:
-/usr/src/linux-2.4.19smp/drivers/scsi/aic7xxx/aicasm/aicasm_gram.y
+Which means that I'm setting bit 0 in the ProgIf for _all_ Intel devices...
+I'm really sorry about that.
+Thanks for the pci dump - it's very useful anyway.
 
-
-
-[fleury@yggdrasil aicasm]$ pwd
-/usr/src/linux-2.4.19smp/drivers/scsi/aic7xxx/aicasm
-
-[fleury@yggdrasil aicasm]$ make
-*** Install db development libraries
-yacc -d -b aicasm_gram aicasm_gram.y
-aicasm_gram.y:921: warning: previous rule lacks an ending `;'
-aicasm_gram.y:935: warning: previous rule lacks an ending `;'
-mv aicasm_gram.tab.c aicasm_gram.c
-mv aicasm_gram.tab.h aicasm_gram.h
-yacc -d -b aicasm_macro_gram -p mm aicasm_macro_gram.y
-mv aicasm_macro_gram.tab.c aicasm_macro_gram.c
-mv aicasm_macro_gram.tab.h aicasm_macro_gram.h
-lex  -oaicasm_scan.c aicasm_scan.l
-lex  -Pmm -oaicasm_macro_scan.c aicasm_macro_scan.l
-cc -I/usr/include -I. -ldb aicasm.c aicasm_symbol.c aicasm_gram.c
-aicasm_macro_gram.c aicasm_scan.c aicasm_macro_scan.c -o aicasm
-aicasm_symbol.c:47: aicdb.h: No such file or directory
-aicasm_gram.y:1846: warning: type mismatch with previous implicit
-declaration
-/usr/share/bison/bison.simple:924: warning: previous implicit
-declaration of `yyerror'
-aicasm_gram.y:1846: warning: `yyerror' was previously implicitly
-declared to return `int'
-aicasm_macro_gram.y:162: warning: type mismatch with previous implicit
-declaration
-/usr/share/bison/bison.simple:924: warning: previous implicit
-declaration of `mmerror'
-aicasm_macro_gram.y:162: warning: `mmerror' was previously implicitly
-declared to return `int'
-make: *** [aicasm] Error 1
-
-
-Could somebody help me to fix this ?
-
-The two missing `;' are easy to fix, but the missing `aicdb.h' and
-more over the other errors (previously defined and type mismatch) are
-difficult for me.
-
-Thanks
--- 
-Emmanuel
-
-The most important thing in the programming language is the name.
-A language will not succeed without a good name. I have recently
-invented a very good name and now I am looking for a suitable language.
-     -- Donald Knuth
-
-
-
+Ivan.

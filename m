@@ -1,78 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266797AbTAAEPt>; Tue, 31 Dec 2002 23:15:49 -0500
+	id <S266958AbTAAE3x>; Tue, 31 Dec 2002 23:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266958AbTAAEPt>; Tue, 31 Dec 2002 23:15:49 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:51584 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S266797AbTAAEPs>; Tue, 31 Dec 2002 23:15:48 -0500
-Date: Tue, 31 Dec 2002 23:24:07 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: USB-storage and CF reader oddness
-Message-ID: <20030101042407.GA1391@Master.Wizards>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S267089AbTAAE3x>; Tue, 31 Dec 2002 23:29:53 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:17206 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266958AbTAAE3x>;
+	Tue, 31 Dec 2002 23:29:53 -0500
+From: <Hell.Surfers@cwctv.net>
+To: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Date: Wed, 1 Jan 2003 04:37:37 +0000
+Subject: Re: GPL and Nvidia
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-ID: <076541035040113DTVMAIL10@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+lets see, In Britain we dont have "lawyers" we have solicitors, "no legal ground" yes I do have legal ground, having the hardware is irrelevent, I have the drivers, the "improperly" licensed drivers as they are, I dont discriminate againtst nvidia users, I am unhappy I cant help them with those modules, they include GPL routines as well as LGPL ones, so that part of the argument is irrelevent, rejecting non-GPL/LGPL modules is impossible because all modules are GPL (they contain gpl code, to work)but some (illegally) are distributed incorrectly, Nothing is hazy, I rather enjoy using 486s, Nvidia can open source because ATI could reverse engineer anyway, something I may do to get open source drivers released, something I HAVE just done with v.90, Nvidia doesnt even have decent proprietary texture compression, ive never got them to say what company made it, if its not just another excuse at all. A patch is derived work, Linux isnt crippled without Nvidia, and Linus could only switch to LGPL if it was still only his own work, when Nvidia included GPLd files it was a "linked file" and I didnt mention /proc, perhaps its time I seeked legal advice.
 
-kernel 2.5.52 & 53
-
-ASUS P4S533 (SiS645DX chipset)
-P4 2GHz
-1G PC2700 RAM
-SanDisk SDDR-77 ImageMate CF reader
-
-First - I really have no clue how to use this device in linux.
-
-scsi, scsi disk, scsi CD and scsi generic builtin.
-USB and OHCI-HCD builtin (required for ps/2 mouse - no idea why)
-USB-storage as a module with all devices selected.
-
-insert a card, modprobe usb-storage.
-lsmod shows usb-storage with 0 usage
-ls /dev shows sda and sda1
-mount returns "no media found"
-remove card, modprobe -r usb-storage
-get "kernel cannot handle paging request" from process drakupdate-fsta
-lsmod shows nothing
-ls /dev shows no sda or sda1
-insert card, modprobe usb-storage
-lsmod shows usb-storage with usage 0
-ls /dev shows sda and sda1
-mount spews hundreds of lines of debug messages, but appears to mount the card.
-ls /mnt/disk shows the contents of the card
-umount hangs
-lsmod in another term hangs
-ls /dev hangs
-rmmod -f usb-storage unloads usb-storage
-ls /dev doesn't hang (except the one that was already hung)
-lsmod hangs
-modprobe usb-storage hangs
-
-I guess at this point I've totally mangled things and reboot.
-These steps always work the same way.
-
-I can also cause modprobe and lsmod to hang by doing 
-modprobe usb-storage
-rmmod usb-storage
-a few times
-
-Any hints on what I should be REALLY doing to be able to read more than
-one card per boot?
-hotplug doesn't work at all - Mandrake's initscripts only work if everything
-is a module.
-
--- 
-Murray J. Root
-------------------------------------------------
-DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
-------------------------------------------------
-Mandrake on irc.freenode.net:
-  #mandrake & #mandrake-linux = help for newbies 
-  #mdk-cooker = Mandrake Cooker 
-
+Dean. Three ways to kill yourself, and ive been drove in one...

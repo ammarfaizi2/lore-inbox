@@ -1,32 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314136AbSDQVyU>; Wed, 17 Apr 2002 17:54:20 -0400
+	id <S314143AbSDQWEM>; Wed, 17 Apr 2002 18:04:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314143AbSDQVyT>; Wed, 17 Apr 2002 17:54:19 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60422 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314136AbSDQVyS>; Wed, 17 Apr 2002 17:54:18 -0400
-Subject: Re: Hyperthreading
-To: Martin.Bligh@us.ibm.com (Martin J. Bligh)
-Date: Wed, 17 Apr 2002 23:12:00 +0100 (BST)
-Cc: jbourne@MtRoyal.AB.CA (James Bourne), mingo@elte.hu (Ingo Molnar),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <1833210000.1019077852@flay> from "Martin J. Bligh" at Apr 17, 2002 02:10:52 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S314144AbSDQWEL>; Wed, 17 Apr 2002 18:04:11 -0400
+Received: from scl-ims.phoenix.com ([134.122.1.73]:64528 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP
+	id <S314143AbSDQWEL>; Wed, 17 Apr 2002 18:04:11 -0400
+Message-ID: <7FD8B823E5024E44B027221DEB34C087536510@scl-exch.phoenix.com>
+From: Paul Zimmerman <Paul_Zimmerman@inSilicon.com>
+To: "'linux-usb-devel@lists.sourceforge.net'" 
+	<linux-usb-devel@lists.sourceforge.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for 2.5.8
+Date: Wed, 17 Apr 2002 14:09:32 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16xxei-0003ES-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > And, you've gotta like this line:
-> > Total of 4 processors activated (14299.95 BogoMIPS).
-> 
-> Before you get too excited about that, how much performance boost do 
-> you actually get by turning on Hyperthreading? ;-)
+We already have drivers/usb/hcd for "host controller drivers", how about
+drivers/usb/dcd for "device controller drivers"?
 
-10-30% typically. I've actually seen code where you can't measure the
-improvement because the main cpu code path is precision tuned to the 
-cache...
+-Paul

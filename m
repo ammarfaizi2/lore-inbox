@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130130AbRAJIWT>; Wed, 10 Jan 2001 03:22:19 -0500
+	id <S130497AbRAJI0e>; Wed, 10 Jan 2001 03:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130497AbRAJIWJ>; Wed, 10 Jan 2001 03:22:09 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:57075 "EHLO blue.int.wirex.com")
-	by vger.kernel.org with ESMTP id <S130130AbRAJIWC>;
-	Wed, 10 Jan 2001 03:22:02 -0500
-Date: Wed, 10 Jan 2001 00:24:30 -0800
+	id <S131266AbRAJI0Y>; Wed, 10 Jan 2001 03:26:24 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:5364 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130497AbRAJI0M>;
+	Wed, 10 Jan 2001 03:26:12 -0500
+Date: Wed, 10 Jan 2001 00:26:39 -0800
 From: Greg KH <greg@wirex.com>
-To: Benson Chow <blc@q.dyndns.org>
+To: f5ibh <f5ibh@db0bm.ampr.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB Keyboards for x86/uhci in 2.4- kernels?
-Message-ID: <20010110002430.A26680@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>, Benson Chow <blc@q.dyndns.org>,
+Subject: Re: usb mouse, iomega zip and 2.2.19-pre7
+Message-ID: <20010110002639.B26680@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, f5ibh <f5ibh@db0bm.ampr.org>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>
+In-Reply-To: <200101092046.VAA27628@db0bm.ampr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>; from blc@q.dyndns.org on Tue, Jan 09, 2001 at 11:55:14PM -0700
+In-Reply-To: <200101092046.VAA27628@db0bm.ampr.org>; from f5ibh@db0bm.ampr.org on Tue, Jan 09, 2001 at 09:46:14PM +0100
 X-Operating-System: Linux 2.4.0 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 11:55:14PM -0700, Benson Chow wrote:
-> Anyone tried using these beasts on a x86?
+On Tue, Jan 09, 2001 at 09:46:14PM +0100, f5ibh wrote:
+> Hi,
 > 
-> Anyway, what's happening:   In BIOS my USB keyboard works really poorly -
-> it almost seems scancodes get dropped left and right.  Ok, so I don't mind
-> too much, i'm sure BIOS has a very limited driver.  After booting
-> Microsoft's offerring, it would work fine after it installs its driver.
-> I also tried this same keyboard on a HPUX Visualize C3600 workstation and
-> it also works nicely.
+> usb-mouse
+> ---------
+> In 2.2.19-pre6 (and previous) we had a CONFIG_INPUT_MOUSEDEV. It has
+> disapearead in 2.2.19-7. The only alternative for an usb mouse seems 
+> to be CONFIG_USB_MOUSE which is for an USB HIDBP Mouse.
 > 
-> However linux would never fix  this "scancode drop" syndrome even after
-> loading the hid or usbkbd driver.  Both my Via uhci USB motherboard and
-> PIIX3 USB motherboard exhibit this usb keyboard strangeness
-> with the hid or usbkbd driver is installed.  I think the PIIX3
-> motherboard's bios doesnt handle USB properly so it doesn't even work in
-> BIOS setup.  Any idea what's going on?  Is there some other driver or
-> utility I need to install/run to get it working?  Maybe just my bad bios?
+> So there is no mean to get mousedev & input compiled.
+> Maybe "Input core support" is missing with the matching ../drivers/input 
+> directory.
 
-Try turning off the BIOS support for keyboards.  Kinda sounds like Linux
-isn't taking over the USB controller properly.  Does the keyboard work
-without _any_ usb modules loaded?  If so, then that's probably the
-problem.
-
-> BTW: my USB Mouse, and USB Printer seem to work nicely in 2.4.0-release.
-
-But then again, if these are working at the same time as your keyboard,
-it looks like Linux took over the controller nicely.
-
-Sorry, I guess this wasn't much help.
+Crap, I messed up and forgot about this move.  Patch soon to fix this,
+thanks for noticing it.
 
 greg k-h
 

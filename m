@@ -1,53 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281214AbSALBu1>; Fri, 11 Jan 2002 20:50:27 -0500
+	id <S280126AbSALCFB>; Fri, 11 Jan 2002 21:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280984AbSALBuR>; Fri, 11 Jan 2002 20:50:17 -0500
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:11840 "HELO
-	top.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S281214AbSALBuI>; Fri, 11 Jan 2002 20:50:08 -0500
-From: brian@worldcontrol.com
-Date: Fri, 11 Jan 2002 17:48:30 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CIPE vs. GPLONLY_
-Message-ID: <20020112014830.GA6031@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020112010317.GA1765@top.worldcontrol.com> <E16PD12-0000wY-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S280984AbSALCEm>; Fri, 11 Jan 2002 21:04:42 -0500
+Received: from mons.uio.no ([129.240.130.14]:739 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S280126AbSALCEh>;
+	Fri, 11 Jan 2002 21:04:37 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16PD12-0000wY-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23.2i
-X-No-Archive: yes
-X-Noarchive: yes
+Content-Transfer-Encoding: 7bit
+Message-ID: <15423.39344.864108.741338@charged.uio.no>
+Date: Sat, 12 Jan 2002 03:04:32 +0100
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [NFS] some strangeness (at least) with linux-2.4.17-NFS_ALL patch
+In-Reply-To: <20020111191744.7A9CE1426@shrek.lisa.de>
+In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de>
+	<15422.65459.871735.203004@charged.uio.no>
+	<20020111191744.7A9CE1426@shrek.lisa.de>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 12, 2002 at 01:31:24AM +0000, Alan Cox wrote:
-> > running CIPE 1.5.2 I get the error above.  Should I be bother the
-> > CIPE people with this?  Or is this some kernel thingy that needs
-> > to be dealt with?
-> 
-> Add
-> 
-> 	MODULE_LICENSE("GPL");
-> 
-> to the cipe code and all will be well
+>>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
+     >> What server is this?
+     > Oups, sorry:
+     > Linux shrek 2.4.13-ac7 #6 SMP Son Dez 2 20:02:04 CET 2001 i686 unknown
+     > (on patches, IIRC)
 
-Thanks. I added that and now I'm just left with sk_run_filter
-undef'ed without the GPLONLY_ warning.
+And the knfsd server daemons (not the user-space 'unfsd')?
 
-I've deleted my kernel sources and am starting everything over
-from scratch.  I checked that 'CONFIG_FILTER' was defined
-and all seemed in order, but still got the error.
+     > Shouldn't the client invalidate the dcache entry some time?
+     > Now, 5 hours later, the dcache entry isn't invalidated, yet.
 
-I read through the last few months of the CIPE archives and there
-is no mention of such a problem.  Others mention running with
-2.4.17, hence my start over.
+5 hours??? Unless you have set some crazy value for acdirmax, then it
+should indeed have been revalidated under normal circumstances.
 
--- 
-Brian Litzinger <brian@worldcontrol.com>
+The default is for all attribute/dcache entries to time out at least
+once every 60 seconds. That is what happens on my test setup at least.
 
-    Copyright (c) 2002 By Brian Litzinger, All Rights Reserved
+     > I think, this is a thinko.
+
+It shouldn't be. There might be a bug lingering somewhere, but
+revalidation *is* normally supposed to occur.
+
+Are you sure that you didn't mess up the fixups with 2.4.18-pre1? That
+might explain things, since you would be messing with
+nfs_refresh_inode. What you need to do against 2.4.18-pre1 is first to
+revert the patch linux-2.4.17-fattr.dif. After that you should be able
+to apply linux-2.4.17-NFS_ALL.dif directly without any rejections...
+
+     > Please try this:
+
+     > shrek is the server, elfe the client /raid is shared (reiserfs,
+     > no raid), /tmp isn't
+
+<snip>
+
+     > Eingabe-/Ausgabefehler insgesamt 1 drwxr-xr-x 2 root root 55
+     > 11. Jan 20:08 ./ drwxr-xr-x 9 root root 218 11. Jan 20:06 ../
+
+     > Pretty simple. Can you reproduce this?
+
+Nope. With /mnt/trondmy == NFS share, /tmp == local:
+
+[trondmy@fyspc-epf03 gnurr]$ pwd
+/mnt/trondmy/gnurr
+[trondmy@fyspc-epf03 gnurr]$ touch /tmp/huhu
+[trondmy@fyspc-epf03 gnurr]$ ln -s /tmp/huhu
+[trondmy@fyspc-epf03 gnurr]$ ls -al
+totalt 8
+drwxr-xr-x    2 trondmy  trondmy      4096 jan 12 02:43 .
+drwxr-xr-x   41 trondmy  trondmy      4096 jan 12 02:42 ..
+lrwxrwxrwx    1 trondmy  trondmy         9 jan 12 02:43 huhu ->
+/tmp/huhu
+[trondmy@fyspc-epf03 gnurr]$ echo "huhu" > /tmp/huhu
+[trondmy@fyspc-epf03 gnurr]$ ls -al
+totalt 8
+drwxr-xr-x    2 trondmy  trondmy      4096 jan 12 02:43 .
+drwxr-xr-x   41 trondmy  trondmy      4096 jan 12 02:42 ..
+lrwxrwxrwx    1 trondmy  trondmy         9 jan 12 02:43 huhu ->
+/tmp/huhu
+[trondmy@fyspc-epf03 gnurr]$ cat huhu
+huhu
+[trondmy@fyspc-epf03 gnurr]$ rm huhu
+[trondmy@fyspc-epf03 gnurr]$ ls -al
+totalt 8
+drwxr-xr-x    2 trondmy  trondmy      4096 jan 12 02:44 .
+drwxr-xr-x   41 trondmy  trondmy      4096 jan 12 02:42 ..
+[trondmy@fyspc-epf03 gnurr]$ touch huhu
+[trondmy@fyspc-epf03 gnurr]$ ls -al
+totalt 8
+drwxr-xr-x    2 trondmy  trondmy      4096 jan 12 02:44 .
+drwxr-xr-x   41 trondmy  trondmy      4096 jan 12 02:42 ..
+-rw-r--r--    1 trondmy  trondmy         0 jan 12 02:44 huhu
+
+Cheers,
+  Trond

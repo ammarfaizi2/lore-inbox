@@ -1,143 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVB1UQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVB1UXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVB1UQI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:16:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVB1UQH
+	id S261739AbVB1UXr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVB1UXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:16:07 -0500
-Received: from gprs214-130.eurotel.cz ([160.218.214.130]:45211 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261735AbVB1UPt (ORCPT
+	Mon, 28 Feb 2005 15:23:46 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:56242 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261739AbVB1UW1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:15:49 -0500
-Date: Mon, 28 Feb 2005 21:15:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Fix few remaining u32 vs. pm_message_t issues
-Message-ID: <20050228201536.GA12861@elf.ucw.cz>
+	Mon, 28 Feb 2005 15:22:27 -0500
+Date: Mon, 28 Feb 2005 21:22:26 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1 - pcmcia weirdness/breakage
+Message-ID: <20050228202226.GA16284@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+References: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Feb 28, 2005 at 02:48:20PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> Symptoms:  Running '/etc/init.d/pcmcia start' bombs - cardmgr goes into
+> a loop spewing repeated 'Common memory region at 0x0: Generic or SRAM'
+> messages.  In the dmesg, we find:
+> 
+> [4294764.989000]  <6>cs: IO port probe 0xc00-0xcff: clean.
+> [4294859.195000] cs: IO port probe 0xc00-0xcff: clean.
+> [4294859.195000] cs: IO port probe 0xc00-0xcff: clean.
+> [4294859.199000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
+> [4294859.202000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
+> [4294859.205000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
+> [4294859.207000] cs: IO port probe 0xa00-0xaff: clean.
+> [4294859.208000] cs: IO port probe 0xa00-0xaff: clean.
+> [4294859.209000] cs: IO port probe 0xa00-0xaff: clean.
+> [4294859.369000] cs: unable to map card memory!
+> [4294859.369000] cs: unable to map card memory!
+> 
+> Now the odd part:
+> 
+> 2.6.11-rc4 works, doesn't show the last 2 'unable to map' messages.
+> 2.6.11-rc4 + linus.patch from -rc4-mm1 works as well - so it's a -mm patch doing it.
+> 
+> A full -rc4-mm1 fails, *as does* a -rc4-mm1 with all the following patches -R'ed:
+> 
+> broken-out/fix-u32-vs-pm_message_t-confusion-in-pcmcia.patch
+> broken-out/pcmcia-add-pcmcia-devices-autonomously.patch
+> broken-out/pcmcia-bridge-resource-management-fix.patch
+> broken-out/pcmcia-determine-some-useful-information-about-devices.patch
+> broken-out/pcmcia-mark-resource-setup-as-done.patch
+> broken-out/pcmcia-pcmcia_device_add.patch
+> broken-out/pcmcia-pcmcia_device_probe.patch
+> broken-out/pcmcia-pcmcia_device_remove.patch
+> broken-out/pcmcia-pd6729-convert-to-pci_register_driver.patch
+> broken-out/pcmcia-per-device-sysfs-output.patch
+> broken-out/pcmcia-rsrc_nonstatic-sysfs-input.patch
+> broken-out/pcmcia-rsrc_nonstatic-sysfs-output.patch
+> broken-out/pcmcia-update-vrc4171_card.patch
+> broken-out/pcmcia-use-bus_rescan_devices.patch
+> broken-out/pcmcia-yenta_socket-ti4150-support.patch
+> 
+> So the breakage is in *some other* -rc4-mm1 patch.  Any hints to speed up
+> the binary search?
 
--mm is pretty good in u32 vs. pm_message_t area, there are only few
--places missing. Some of them are in usb (and already on their way
--through greg), this should fix the rest. Only code change is
--pci_choose_state in savagefb. Please apply,
-								Pavel
+Most likely it's
+pcmcia-bridge-resource-management-fix.patch
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
---- clean-mm/drivers/base/power/runtime.c	2005-01-12 11:07:39.000000000 +0100
-+++ linux-mm/drivers/base/power/runtime.c	2005-02-28 21:05:15.000000000 +0100
-@@ -16,7 +16,7 @@
- 	if (!dev->power.power_state)
- 		return;
- 	if (!resume_device(dev))
--		dev->power.power_state = 0;
-+		dev->power.power_state = PMSG_ON;
- }
- 
- 
---- clean-mm/drivers/base/power/sysfs.c	2004-08-15 19:14:55.000000000 +0200
-+++ linux-mm/drivers/base/power/sysfs.c	2005-02-28 21:05:15.000000000 +0100
-@@ -31,7 +31,7 @@
- 
- static ssize_t state_store(struct device * dev, const char * buf, size_t n)
- {
--	u32 state;
-+	pm_message_t state;
- 	char * rest;
- 	int error = 0;
- 
-Only in linux-mm/drivers/char: consolemap_deftbl.c
---- clean-mm/drivers/ide/ide-disk.c	2005-02-28 01:13:56.000000000 +0100
-+++ linux-mm/drivers/ide/ide-disk.c	2005-02-28 21:05:15.000000000 +0100
-@@ -1098,7 +1098,7 @@
- 	}
- 
- 	printk("Shutdown: %s\n", drive->name);
--	dev->bus->suspend(dev, PM_SUSPEND_STANDBY);
-+	dev->bus->suspend(dev, PMSG_SUSPEND);
- }
- 
- /*
---- clean-mm/drivers/media/video/msp3400.c	2005-02-03 22:27:14.000000000 +0100
-+++ linux-mm/drivers/media/video/msp3400.c	2005-02-28 21:05:15.000000000 +0100
-@@ -1422,7 +1422,7 @@
- static int msp_probe(struct i2c_adapter *adap);
- static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
- 
--static int msp_suspend(struct device * dev, u32 state, u32 level);
-+static int msp_suspend(struct device * dev, pm_message_t state, u32 level);
- static int msp_resume(struct device * dev, u32 level);
- 
- static void msp_wake_thread(struct i2c_client *client);
-@@ -1830,7 +1830,7 @@
- 	return 0;
- }
- 
--static int msp_suspend(struct device * dev, u32 state, u32 level)
-+static int msp_suspend(struct device * dev, pm_message_t state, u32 level)
- {
- 	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
- 
---- clean-mm/drivers/pci/pci.c	2005-02-28 01:13:58.000000000 +0100
-+++ linux-mm/drivers/pci/pci.c	2005-02-28 21:05:55.000000000 +0100
-@@ -312,13 +312,14 @@
- /**
-  * pci_choose_state - Choose the power state of a PCI device
-  * @dev: PCI device to be suspended
-- * @state: target sleep state for the whole system
-+ * @state: target sleep state for the whole system. This is the value
-+ *	that is passed to suspend() function.
-  *
-  * Returns PCI power state suitable for given device and given system
-  * message.
-  */
- 
--pci_power_t pci_choose_state(struct pci_dev *dev, u32 state)
-+pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t state)
- {
- 	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
- 		return PCI_D0;
---- clean-mm/drivers/video/i810/i810_main.c	2005-02-28 01:14:02.000000000 +0100
-+++ linux-mm/drivers/video/i810/i810_main.c	2005-02-28 21:05:15.000000000 +0100
-@@ -1492,7 +1492,7 @@
- /***********************************************************************
-  *                         Power Management                            *
-  ***********************************************************************/
--static int i810fb_suspend(struct pci_dev *dev, u32 state)
-+static int i810fb_suspend(struct pci_dev *dev, pm_message_t state)
- {
- 	struct fb_info *info = pci_get_drvdata(dev);
- 	struct i810fb_par *par = (struct i810fb_par *) info->par;
---- clean-mm/drivers/video/savage/savagefb.c	2005-02-28 01:14:02.000000000 +0100
-+++ linux-mm/drivers/video/savage/savagefb.c	2005-02-28 21:05:15.000000000 +0100
-@@ -2100,7 +2100,7 @@
- 	}
- }
- 
--static int savagefb_suspend (struct pci_dev* dev, u32 state)
-+static int savagefb_suspend (struct pci_dev* dev, pm_message_t state)
- {
- 	struct fb_info *info =
- 		(struct fb_info *)pci_get_drvdata(dev);
-@@ -2115,7 +2115,7 @@
- 	release_console_sem();
- 
- 	pci_disable_device(dev);
--	pci_set_power_state(dev, state);
-+	pci_set_power_state(dev, pci_choose_state(dev, state));
- 
- 	return 0;
- }
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+	Dominik

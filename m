@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311026AbSCHTHj>; Fri, 8 Mar 2002 14:07:39 -0500
+	id <S311029AbSCHTPJ>; Fri, 8 Mar 2002 14:15:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311024AbSCHTH3>; Fri, 8 Mar 2002 14:07:29 -0500
-Received: from miranda.axis.se ([193.13.178.2]:46023 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S311018AbSCHTHW>;
-	Fri, 8 Mar 2002 14:07:22 -0500
-From: johan.adolfsson@axis.com
-Message-ID: <025b01c1c6d4$63c05500$aab270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: <root@chaos.analogic.com>, "Jamie Lokier" <lk@tantalophile.demon.co.uk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-        "Terje Eggestad" <terje.eggestad@scali.com>,
-        "Ben Greear" <greearb@candelatech.com>,
-        "Davide Libenzi" <davidel@xmailserver.org>,
-        "george anzinger" <george@mvista.com>
-In-Reply-To: <Pine.LNX.3.95.1020308134552.6627A-100000@chaos.analogic.com>
-Subject: Re: gettimeofday() system call timing curiosity
-Date: Fri, 8 Mar 2002 20:06:44 +0100
+	id <S311032AbSCHTO7>; Fri, 8 Mar 2002 14:14:59 -0500
+Received: from rover.mkp.net ([209.217.122.9]:54030 "EHLO rover")
+	by vger.kernel.org with ESMTP id <S311029AbSCHTOo>;
+	Fri, 8 Mar 2002 14:14:44 -0500
+To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+Cc: Stephen Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
+        linux-xfs@oss.sgi.com
+Subject: Re: 2.4.18-rc4-aa1 XFS oopses caused by cpio
+From: "Martin K. Petersen" <mkp@mkp.net>
+Organization: mkp.net
+In-Reply-To: <1015580766.20800.3.camel@svetljo.st-peter.stw.uni-erlangen.de>
+	<3C88B612.1070206@sgi.com>
+	<3C88C9A1.5070502@st-peter.stw.uni-erlangen.de>
+	<3C88CB1C.90203@sgi.com>
+	<1015613123.4301.11.camel@svetljo.st-peter.stw.uni-erlangen.de>
+Date: 08 Mar 2002 14:14:36 -0500
+In-Reply-To: <1015613123.4301.11.camel@svetljo.st-peter.stw.uni-erlangen.de>
+Message-ID: <yq13czax46b.fsf@austin.mkp.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What happens if you remove the printf/puts and simply counts the number
-of times the different cases happen?
+>>>>> "Svetoslav" == Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de> writes:
 
-Another thought: Isn't it quite common that clock generators has a mode
-where the frequency differs around the desired frequency to spread the
-spectrum
-and easier pass EMC tests?
-Could that be the case with the laptop?
-/Johan
+Svetoslav> and a stupid question is there a way to limit the I/O
+Svetoslav> request that XFS sends to the lower layer ( soft RAID or
+Svetoslav> lvm ) without need to modify existing fs just a hack until
+Svetoslav> the raid-0 code in 2.5 is fixed
+
+Not really.  Besides, requests may be merged and that would give the
+same result.
+
+I've been busy with IA-64 stuff the last week - I'll try to get back
+to the RAID hacking this weekend.  I have all of my code merged but
+still need to deal with multi-zone setups.
+
+-- 
+Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
+mkp@linuxcare.com, http://www.linuxcare.com/
+SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/
 

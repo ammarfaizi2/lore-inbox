@@ -1,78 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264666AbTIJFvw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbTIJFvw
+	id S264867AbTIJF6o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbTIJF6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:51:52 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:30424 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S264666AbTIJFvs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:51:48 -0400
-content-class: urn:content-classes:message
+	Wed, 10 Sep 2003 01:58:43 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:58598 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S264867AbTIJF6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:58:42 -0400
+From: Fedor Karpelevitch <fedor@karpelevitch.net>
+To: Russell King <rmk@arm.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       David Jones <davej@suse.de>
+Subject: Re: [2.6.0-test5]oops inserting PCMCIA card
+Date: Tue, 9 Sep 2003 23:01:13 -0700
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200309081630.19263.fedor@karpelevitch.net> <200309091202.03759.fedor@karpelevitch.net> <20030909201455.K4216@flint.arm.linux.org.uk>
+In-Reply-To: <20030909201455.K4216@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [Patch] asm workarounds in generic header files
-Date: Tue, 9 Sep 2003 22:51:39 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AF2B@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch] asm workarounds in generic header files
-Thread-Index: AcN3WVcGwlp8seNhQLGtCBZ6AulCbwAAGPpQ
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: <davidm@HPL.HP.COM>, <torvalds@osdl.org>, <jes@wildopensource.com>,
-       <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 10 Sep 2003 05:51:40.0314 (UTC) FILETIME=[9B08A7A0:01C3775F]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309092301.14112.fedor@karpelevitch.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, ECC is only for IA-64. ICC is for x86. ICC does not require
-intrinsics because it supports asm inline, and it can build the kernel.
-Please look at
-http://lists.insecure.org/lists/linux-kernel/2002/Oct/8790.html for
-example.
+Russell King wrote:
+> On Tue, Sep 09, 2003 at 12:02:03PM -0700, Fedor Karpelevitch wrote:
+> > see attachments. I included couple other items in case they may
+> > be relevant.
+>
+> Well, first driver I looked at - ati-agp.  This should fix all the
+> AGP drivers.
+>
+> Linus please apply.  pci_device_id tables can not and must not be
+> marked discardable.
+>
+> diff -ur orig/drivers/char/agp/ati-agp.c
+....
 
-Note that asm inline support is just one of many GCC extensions required
-to build the kernel, and for optimization purposes Intel compiler for
-IA-64 chose not to support inline asm, but it uses intrinsic to do the
-equivalent things.
+thanks. this seems to fix this issue for me. Is there any more direct 
+way trigger this bug?
 
-Thanks,
-Jun
-
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@osdl.org]
-> Sent: Tuesday, September 09, 2003 10:08 PM
-> To: Siddha, Suresh B
-> Cc: davidm@HPL.HP.COM; torvalds@osdl.org; jes@wildopensource.com;
-> hch@infradead.org; linux-kernel@vger.kernel.org; Nakajima, Jun;
-Mallick,
-> Asit K
-> Subject: Re: [Patch] asm workarounds in generic header files
-> 
-> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
-> >
-> > --- linux/include/linux/compiler-intel.h	Wed Dec 31 16:00:00 1969
-> >  +++ linux-/include/linux/compiler-intel.h	Tue Sep  9 21:34:19 2003
-> >  @@ -0,0 +1,21 @@
-> >  +/* Never include this file directly.  Include <linux/compiler.h>
-> instead.  */
-> >  +
-> >  +#ifdef __ECC
-> >  +
-> >  +/* Some compiler specific definitions are overwritten here
-> >  + * for Intel ECC compiler
-> >  + */
-> >  +
-> >  +#include <asm/intrinsics.h>
-> 
-> This is ia64-only, yes?
-> 
-> Where do we stand with ECC/ia32 support?
-
+Fedor.

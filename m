@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbUAUAdf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 19:33:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265913AbUAUAdf
+	id S265902AbUAUA2L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 19:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265904AbUAUA2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 19:33:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50567 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261152AbUAUAdd (ORCPT
+	Tue, 20 Jan 2004 19:28:10 -0500
+Received: from mail.kroah.org ([65.200.24.183]:16552 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265902AbUAUA1v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 19:33:33 -0500
-Date: Tue, 20 Jan 2004 16:34:52 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Tue, 20 Jan 2004 19:27:51 -0500
+Date: Tue, 20 Jan 2004 16:27:59 -0800
+From: Greg KH <greg@kroah.com>
 To: Thomas Molina <tmolina@cablespeed.com>
-Cc: linux-kernel@vger.kernel.org
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.1-mm5
-Message-Id: <20040120163452.3f407cbd.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
+Message-ID: <20040121002759.GA5472@kroah.com>
 References: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina <tmolina@cablespeed.com> wrote:
->
-> I am getting the following error messages:
-> 
-> Cannot open master raw device '/dev/rawctl' (No such device)
+On Tue, Jan 20, 2004 at 05:56:42PM -0500, Thomas Molina wrote:
+> /etc/hotplug/usb.agent: line 144: [: too many arguments
 
-grr.  Something changed.
+This is a bug in the latest release of the hotplug scripts.  See the
+linux-hotplug-devel mailing list for a patch to solve this.
 
-Do you have
+Sorry,
 
-	alias char-major-162 raw
-
-in /etc/modprobe.conf?
-
-If you do, touching /dev/rawctl does indeed corretly autoload the module,
-but it seems that script still complains for some reason.
-
-
+greg k-h

@@ -1,112 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUKUPx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbUKUPtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUKUPx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 10:53:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUKUPwg
+	id S261694AbUKUPtq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 10:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbUKUPse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 10:52:36 -0500
-Received: from macedonia.mhl.tuc.gr ([147.27.3.60]:23270 "HELO
-	macedonia.mhl.tuc.gr") by vger.kernel.org with SMTP id S261737AbUKUPuB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 10:50:01 -0500
-Subject: PCI resource allocation problem in 2.6.8
-From: Dimitris Lampridis <labis@mhl.tuc.gr>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CchaRRivQh2phM6bSkqs"
-Date: Sun, 21 Nov 2004 14:57:27 +0000
-Message-Id: <1101049047.3201.18.camel@naousa.mhl.tuc.gr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Sun, 21 Nov 2004 10:48:34 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:14723 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261323AbUKUPor (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Sun, 21 Nov 2004 10:44:47 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16800.47063.386282.752478@gargle.gargle.HOWL>
+Date: Sun, 21 Nov 2004 18:44:23 +0300
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Cc: Andrew Morton <AKPM@Osdl.ORG>, Linux MM Mailing List <linux-mm@kvack.org>
+Subject: [PATCH]: 3/4 mm/rmap.c cleanup
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mm/rmap.c:page_referenced_one() and mm/rmap.c:try_to_unmap_one() contain
+identical code that
 
---=-CchaRRivQh2phM6bSkqs
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+ - takes mm->page_table_lock;
 
-Hi,
-I'm writing a driver for a PCI-based USB controller. The work is almost
-done but a few days ago something very ugly happened. I've tried to
-pinpoint the problem but everything is so simple and clear to be
-wrong... I really hope that someone can help me!
+ - drills through page tables;
 
-OK, here's the problem:
-I'm using kernel 2.6.8 on an i386 arch. I want to allocate region 2 of
-my PCI board. Here's the output of lspci:
+ - checks that correct pte is reached.
 
-0000:00:0e.0 Bridge: PLX Technology, Inc.: Unknown device 5406 (rev 0b)
-        Subsystem: PLX Technology, Inc.: Unknown device 9054
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32, Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at df100000 (32-bit, non-prefetchable)
-[size=3D256]
-        Region 1: I/O ports at e400 [size=3D256]
-        Region 2: I/O ports at e800 [size=3D256]
-        Region 3: Memory at df000000 (32-bit, non-prefetchable)
-[size=3D1M]
-        Capabilities: [40] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
-        Capabilities: [48] #06 [0000]
-        Capabilities: [4c] Vital Product Data
+Coalesce this into page_check_address()
 
-As you can see, region 2 begins at e800 and extends up to e8ff.
+(Patch is for 2.6.10-rc2)
 
-When I try to claim the region, I get wrong start-end-length numbers.
-I've written something simple to demonstrate this fact:
+Signed-off-by: Nikita Danilov <nikita@clusterfs.com>
 
-for(pci_region=3D0; pci_region < PCI_ROM_RESOURCE; pci_region++){ =20
-	resource_start =3D pci_resource_start (dev, pci_region);
-	resource_end =3D pci_resource_end (dev,pci_region);
-	printk (KERN_DEBUG "region:%d start:%lx, end:%lx -  ", pci_region,
-resource_start, resource_end);
-	len =3D pci_resource_len (dev, pci_region);
-	printk(KERN_DEBUG "length:%lx\n", len);
-}
+ mm/rmap.c |   95 +++++++++++++++++++++++++++-----------------------------------
+ 1 files changed, 42 insertions(+), 53 deletions(-)
 
-Where "dev" is a pointer to a pci device of course.
-So here's what I get by running this code:
-
-Nov 21 16:28:56 naousa kernel: PCI: Found IRQ 9 for device 0000:00:0e.0
-Nov 21 16:28:56 naousa kernel: region:0	start:0, end:0 -  <7>length:0
-Nov 21 16:28:56 naousa kernel: region:1	start:df1000ff, end:200 -
-<7>length:20f00102
-Nov 21 16:28:56 naousa kernel: region:2	start:e4ff, end:101 -
-<7>length:ffff1c03
-Nov 21 16:28:56 naousa kernel: region:3	start:e8ff, end:101 -
-<7>length:ffff1803
-Nov 21 16:28:56 naousa kernel: region:4	start:df0fffff, end:200 -
-<7>length:20f00202
-Nov 21 16:28:56 naousa kernel: region:5^Istart:0, end:0 -  <7>length:0
-
-As you can see, what "start" claims to be is in reality the end of each
-region, and "end", "length" are nonsense...
-
-Any ideas? Is this something typical???
-I would appreciate any help, please CC me personally as I'm not yet
-subscribed to the list, or find me at the linux-usb-devel list.
-
-Thanx in advance,
---=20
-Dimitris Lampridis <labis@mhl.tuc.gr>
-
---=-CchaRRivQh2phM6bSkqs
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBoKzVgMArLfy6HHMRAucDAKCUS+xJJFmqvW5kc2ae4Dq26EPmaQCeKcaD
-2wyBMCPWEB5eB3qbTz8B8Zk=
-=v7Kb
------END PGP SIGNATURE-----
-
---=-CchaRRivQh2phM6bSkqs--
-
+diff -puN mm/rmap.c~rmap-cleanup mm/rmap.c
+--- bk-linux/mm/rmap.c~rmap-cleanup	2004-11-21 17:01:03.038470288 +0300
++++ bk-linux-nikita/mm/rmap.c	2004-11-21 17:01:03.041469832 +0300
+@@ -250,6 +250,34 @@ unsigned long page_address_in_vma(struct
+ }
+ 
+ /*
++ * Check that @page is mapped at @address into @mm.
++ *
++ * On success returns with mapped pte and locked mm->page_table_lock.
++ */
++static inline pte_t *page_check_address(struct page *page, struct mm_struct *mm,
++					unsigned long address)
++{
++	pgd_t *pgd;
++	pmd_t *pmd;
++	pte_t *pte;
++
++	spin_lock(&mm->page_table_lock);
++	pgd = pgd_offset(mm, address);
++	if (likely(pgd_present(*pgd))) {
++		pmd = pmd_offset(pgd, address);
++		if (likely(pmd_present(*pmd))) {
++			pte = pte_offset_map(pmd, address);
++			if (likely(pte_present(*pte) &&
++				   page_to_pfn(page) == pte_pfn(*pte)))
++				return pte;
++			pte_unmap(pte);
++		}
++	}
++	spin_unlock(&mm->page_table_lock);
++	return ERR_PTR(-ENOENT);
++}
++
++/*
+  * Subfunctions of page_referenced: page_referenced_one called
+  * repeatedly from either page_referenced_anon or page_referenced_file.
+  */
+@@ -258,8 +286,6 @@ static int page_referenced_one(struct pa
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+-	pgd_t *pgd;
+-	pmd_t *pmd;
+ 	pte_t *pte;
+ 	int referenced = 0;
+ 
+@@ -269,35 +295,18 @@ static int page_referenced_one(struct pa
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	spin_lock(&mm->page_table_lock);
+-
+-	pgd = pgd_offset(mm, address);
+-	if (!pgd_present(*pgd))
+-		goto out_unlock;
+-
+-	pmd = pmd_offset(pgd, address);
+-	if (!pmd_present(*pmd))
+-		goto out_unlock;
+-
+-	pte = pte_offset_map(pmd, address);
+-	if (!pte_present(*pte))
+-		goto out_unmap;
+-
+-	if (page_to_pfn(page) != pte_pfn(*pte))
+-		goto out_unmap;
+-
+-	if (ptep_clear_flush_young(vma, address, pte))
+-		referenced++;
+-
+-	if (mm != current->mm && !ignore_token && has_swap_token(mm))
+-		referenced++;
++	pte = page_check_address(page, mm, address);
++	if (!IS_ERR(pte)) {
++		if (ptep_clear_flush_young(vma, address, pte))
++			referenced++;
+ 
+-	(*mapcount)--;
++		if (mm != current->mm && !ignore_token && has_swap_token(mm))
++			referenced++;
+ 
+-out_unmap:
+-	pte_unmap(pte);
+-out_unlock:
+-	spin_unlock(&mm->page_table_lock);
++		(*mapcount)--;
++		pte_unmap(pte);
++		spin_unlock(&mm->page_table_lock);
++	}
+ out:
+ 	return referenced;
+ }
+@@ -501,8 +510,6 @@ static int try_to_unmap_one(struct page 
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long address;
+-	pgd_t *pgd;
+-	pmd_t *pmd;
+ 	pte_t *pte;
+ 	pte_t pteval;
+ 	int ret = SWAP_AGAIN;
+@@ -513,26 +520,9 @@ static int try_to_unmap_one(struct page 
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	/*
+-	 * We need the page_table_lock to protect us from page faults,
+-	 * munmap, fork, etc...
+-	 */
+-	spin_lock(&mm->page_table_lock);
+-
+-	pgd = pgd_offset(mm, address);
+-	if (!pgd_present(*pgd))
+-		goto out_unlock;
+-
+-	pmd = pmd_offset(pgd, address);
+-	if (!pmd_present(*pmd))
+-		goto out_unlock;
+-
+-	pte = pte_offset_map(pmd, address);
+-	if (!pte_present(*pte))
+-		goto out_unmap;
+-
+-	if (page_to_pfn(page) != pte_pfn(*pte))
+-		goto out_unmap;
++	pte = page_check_address(page, mm, address);
++	if (IS_ERR(pte))
++		

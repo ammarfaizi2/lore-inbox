@@ -1,205 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317906AbSGPRc0>; Tue, 16 Jul 2002 13:32:26 -0400
+	id <S317902AbSGPRbw>; Tue, 16 Jul 2002 13:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317907AbSGPRcZ>; Tue, 16 Jul 2002 13:32:25 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:21777 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S317906AbSGPRcS>; Tue, 16 Jul 2002 13:32:18 -0400
-Date: Tue, 16 Jul 2002 10:35:04 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Breakage with "usb-storage: catch bad commands"
-Message-ID: <20020716103503.B14269@one-eyed-alien.net>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020716140722.GM7955@tahoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020716140722.GM7955@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Tue, Jul 16, 2002 at 04:07:22PM +0200
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+	id <S317906AbSGPRbv>; Tue, 16 Jul 2002 13:31:51 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:64141 "EHLO geena.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S317902AbSGPRbt>;
+	Tue, 16 Jul 2002 13:31:49 -0400
+Date: Tue, 16 Jul 2002 10:33:14 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@geena.pdx.osdl.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Removal of pci_find_* in 2.5
+In-Reply-To: <m1ofd8ndoq.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0207161025230.14360-100000@geena.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 16 Jul 2002, Eric W. Biederman wrote:
 
-Can you recompile with the verbose debugging turned on so we can see which
-command caused the problem?
+> Greg KH <greg@kroah.com> writes:
+> 
+> > On Sun, Jul 14, 2002 at 02:07:01PM -0600, Eric W. Biederman wrote:
+> > > 
+> > > The driver is a mtd map driver.  It knows there is a rom chip behind 
+> > > a pci->isa bridge.  And it needs to find the pci->isa bridge to
+> > > properly set it up to access the rom chip (enable writes and the
+> > > like).  
+> > > 
+> > > It isn't a driver for the pci->isa bridge, (I'm not even certain we
+> > > have a good model for that).  So it does not use pci_register_driver.
+> > > 
+> > > If you can give me a good proposal for how to accomplish that kind of
+> > > functionality I would be happy to use the appropriate
+> > > xxx_register_driver.
+> > 
+> > I don't think there is a good way for you to convert over to
+> > _register_driver(), that's the main reason I'm keeping the pci_find_*
+> > functions around, they are quite useful for lots of situations.
+> > 
+> > It doesn't sound like you are worrying about your device working in a
+> > pci hotplug system, and you would probably be willing do any pci device
+> > conversion work to the new driver model yourself, right?  :)
+> 
+> Assuming I can actually fit in better with the new driver model.  As
+> far as hot-plug.  It is an abuse but I regularly hot-swap my rom chips
+> in my development system.
 
-Matt
+No, but you do do firmware, and you have a desire to tell the kernel about 
+which devices are in the system from the firmware. The code path once you 
+discover the device is exactly the same as if you were to actually plug 
+in the device, or probe for it natively.
 
-On Tue, Jul 16, 2002 at 04:07:22PM +0200, Stelian Pop wrote:
-> Hi,
->=20
-> Using the linux 2.5 BK head, I get an oops, just after:
-> 	Initializing USB Mass Storage driver...
-> 	usb.c: registered new driver usb-storage
-> 	scsi0 : SCSI emulation for USB Mass Storage devices
-> 	  Vendor: Sony      Model: MSC-U01N          Rev: 1.00
-> 	  Type:   Direct-Access                      ANSI SCSI revision: 02
->=20
-> Just FYI, since the driver (probably more likely the SCSI layer)
-> stopped working some (2-3) kernel releases ago...
->=20
-> Thanks,
->=20
-> Stelian.
->=20
-> ksymoops 2.4.4 on i586 2.5.25.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.5.25/ (default)
->      -m /boot/System.map-2.5.25 (default)
->=20
-> Warning: You did not tell me where to find symbol information.  I will
-> assume that the log matches the kernel and modules that are running
-> right now and I'll use the default options above for symbol resolution.
-> If the current kernel and/or modules do not match the log, you can get
-> more accurate output by telling me the kernel version and where to find
-> map, modules, ksyms etc.  ksymoops -h explains the options.
->=20
-> kernel BUG at transport.c:351!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c78ed363>]    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010293
-> eax: 000000ff   ebx: c137be00   ecx: c78efc20   edx: 00000024
-> esi: ffffffff   edi: 00000000   ebp: c137be00   esp: c4ebdf34
-> ds: 0018   es: 0018   ss: 0018
-> Stack: c137b800 c137be00 c137b800 c78edd1c c137be00 c137b800 00000000 c78=
-ed7b5=20
->        c137be00 c137b800 00000000 c5650580 00000246 00000000 00000001 c56=
-50580=20
->        c01128e1 c137be00 00000000 c137b800 c137b800 c78ed0ce c137be00 c13=
-7b800=20
-> Call Trace: [<c78edd1c>] [<c78ed7b5>] [<c01128e1>] [<c78ed0ce>] [<c78f126=
-c>]=20
->    [<c78ee74a>] [<c01122f0>] [<c0108519>] [<c78ee447>] [<c0106ea6>] [<c78=
-ee447>]=20
->    [<c78f126c>]=20
-> Code: 0f 0b 5f 01 c4 02 8f c7 5b 89 d0 5e 5f c3 8b 44 24 04 8b 40=20
->=20
-> >>EIP; c78ed363 <[usb-storage]usb_stor_transfer_length+16b/179>   <=3D=3D=
-=3D=3D=3D
-> Trace; c78edd1c <[usb-storage]usb_stor_CB_transport+8c/b9>
-> Trace; c78ed7b5 <[usb-storage]usb_stor_invoke_transport+1b/239>
-> Trace; c01128e1 <default_wake_function+0/36>
-> Trace; c78ed0ce <[usb-storage]usb_stor_ufi_command+10a/132>
-> Trace; c78f126c <[usb-storage]usb_stor_sense_notready+0/14>
-> Trace; c78ee74a <[usb-storage]usb_stor_control_thread+303/3aa>
-> Trace; c01122f0 <schedule_tail+1a/1d>
-> Trace; c0108519 <ret_from_fork+5/14>
-> Trace; c78ee447 <[usb-storage]usb_stor_control_thread+0/3aa>
-> Trace; c0106ea6 <kernel_thread+26/30>
-> Trace; c78ee447 <[usb-storage]usb_stor_control_thread+0/3aa>
-> Trace; c78f126c <[usb-storage]usb_stor_sense_notready+0/14>
-> Code;  c78ed363 <[usb-storage]usb_stor_transfer_length+16b/179>
-> 00000000 <_EIP>:
-> Code;  c78ed363 <[usb-storage]usb_stor_transfer_length+16b/179>   <=3D=3D=
-=3D=3D=3D
->    0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-> Code;  c78ed365 <[usb-storage]usb_stor_transfer_length+16d/179>
->    2:   5f                        pop    %edi
-> Code;  c78ed366 <[usb-storage]usb_stor_transfer_length+16e/179>
->    3:   01 c4                     add    %eax,%esp
-> Code;  c78ed368 <[usb-storage]usb_stor_transfer_length+170/179>
->    5:   02 8f c7 5b 89 d0         add    0xd0895bc7(%edi),%cl
-> Code;  c78ed36e <[usb-storage]usb_stor_transfer_length+176/179>
->    b:   5e                        pop    %esi
-> Code;  c78ed36f <[usb-storage]usb_stor_transfer_length+177/179>
->    c:   5f                        pop    %edi
-> Code;  c78ed370 <[usb-storage]usb_stor_transfer_length+178/179>
->    d:   c3                        ret   =20
-> Code;  c78ed371 <[usb-storage]usb_stor_blocking_completion+0/c>
->    e:   8b 44 24 04               mov    0x4(%esp,1),%eax
-> Code;  c78ed375 <[usb-storage]usb_stor_blocking_completion+4/c>
->   12:   8b 40 00                  mov    0x0(%eax),%eax
->=20
->  kernel BUG at scsiglue.c:150!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c78ec18f>]    Not tainted
-> EFLAGS: 00010002
-> eax: 00000003   ebx: 00000001   ecx: c137be00   edx: c137b800
-> esi: 00000292   edi: c137be00   ebp: c4efff28   esp: c4effef4
-> ds: 0018   es: 0018   ss: 0018
-> Stack: c4efe000 c788356b c137be00 c788303e c137ba00 00000000 00000000 000=
-00000=20
->        c4efff34 c4efff34 43434700 00000086 c0256e90 00000000 00000000 000=
-00000=20
->        c4efff34 c4efff34 00000246 c4efff58 c4efe000 c137be00 c137be58 000=
-00000=20
-> Call Trace: [<c788356b>] [<c788303e>] [<c7883398>] [<c7883f02>] [<c78ec06=
-6>]=20
->    [<c78846aa>] [<c0108519>] [<c78ec066>] [<c0106ea6>] [<c788454a>]=20
-> Code: 0f 0b 96 00 c8 01 8f c7 8b 44 24 0c 89 81 00 01 00 00 89 8a=20
->=20
-> >>EIP; c78ec18f <[usb-storage]queuecommand+32/60>   <=3D=3D=3D=3D=3D
-> Trace; c788356b <[scsi_mod]scsi_send_eh_cmnd+ac/1e0>
-> Trace; c788303e <[scsi_mod]scsi_eh_done+0/6c>
-> Trace; c7883398 <[scsi_mod]scsi_test_unit_ready+85/10b>
-> Trace; c7883f02 <[scsi_mod]scsi_unjam_host+31f/967>
-> Trace; c78ec066 <[usb-storage]detect+0/28>
-> Trace; c78846aa <[scsi_mod]scsi_error_handler+160/1b2>
-> Trace; c0108519 <ret_from_fork+5/14>
-> Trace; c78ec066 <[usb-storage]detect+0/28>
-> Trace; c0106ea6 <kernel_thread+26/30>
-> Trace; c788454a <[scsi_mod]scsi_error_handler+0/1b2>
-> Code;  c78ec18f <[usb-storage]queuecommand+32/60>
-> 00000000 <_EIP>:
-> Code;  c78ec18f <[usb-storage]queuecommand+32/60>   <=3D=3D=3D=3D=3D
->    0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
-> Code;  c78ec191 <[usb-storage]queuecommand+34/60>
->    2:   96                        xchg   %eax,%esi
-> Code;  c78ec192 <[usb-storage]queuecommand+35/60>
->    3:   00 c8                     add    %cl,%al
-> Code;  c78ec194 <[usb-storage]queuecommand+37/60>
->    5:   01 8f c7 8b 44 24         add    %ecx,0x24448bc7(%edi)
-> Code;  c78ec19a <[usb-storage]queuecommand+3d/60>
->    b:   0c 89                     or     $0x89,%al
-> Code;  c78ec19c <[usb-storage]queuecommand+3f/60>
->    d:   81 00 01 00 00 89         addl   $0x89000001,(%eax)
-> Code;  c78ec1a2 <[usb-storage]queuecommand+45/60>
->   13:   8a 00                     mov    (%eax),%al
->=20
->=20
-> 1 warning issued.  Results may not be reliable.
-> --=20
-> Stelian Pop <stelian.pop@fr.alcove.com>
-> Alcove - http://www.alcove.com
+Though making legacy drivers hotpluggable seems absurd, the capability is 
+actually a requirement for supporting many firmwares. 
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+> I am probably looking at this from the wrong angle but my problem with
+> current code base seems to be that I can only have one driver per pci
+> device.
 
-God, root, what is difference?
-					-- Pitr
-User Friendly, 11/11/1999
+Don't most people? :)
 
---4bRzO86E/ozDv8r1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> In any case I would like to have code that fits in nicely with the
+> new driver system.  I can take about one change in kernel API.  For
+> the most part the drivers are trivial, and having non-trivial
+> maintenance for trivial code is less than ideal.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+We don't want to make things difficult. It's a PITA right now, since the 
+documentation is lacking and not all the infrastructure is in place to 
+really start plowing ahead. But, it will get better..
 
-iD8DBQE9NFlHIjReC7bSPZARAvr0AJ9BzUFYvS/NA5kgz8AVzhYxugXKJACfbe+k
-BzDPd5gyqMHitp76/Rzmk1s=
-=8sU0
------END PGP SIGNATURE-----
+	-pat
 
---4bRzO86E/ozDv8r1--

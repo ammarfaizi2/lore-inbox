@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSGIA2C>; Mon, 8 Jul 2002 20:28:02 -0400
+	id <S315619AbSGIAb5>; Mon, 8 Jul 2002 20:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSGIA2B>; Mon, 8 Jul 2002 20:28:01 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:25618 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317282AbSGIA2A>;
-	Mon, 8 Jul 2002 20:28:00 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch] 2.5.25 net/core/Makefile 
-In-reply-to: Your message of "Tue, 09 Jul 2002 01:11:35 +0100."
-             <20020709001135.GA21383@suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 09 Jul 2002 10:30:31 +1000
-Message-ID: <22345.1026174631@ocs3.intra.ocs.com.au>
+	id <S315784AbSGIAb4>; Mon, 8 Jul 2002 20:31:56 -0400
+Received: from klaatu.zianet.com ([204.134.124.201]:20197 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S315619AbSGIAbz>;
+	Mon, 8 Jul 2002 20:31:55 -0400
+Message-ID: <3D2A30E9.1070706@zianet.com>
+Date: Mon, 08 Jul 2002 18:40:09 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ian Molton <spyro@armlinux.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: SERIOUSLY *crap* audio output.
+References: <Pine.LNX.4.44.0207081810520.10105-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jul 2002 01:11:35 +0100, 
-Dave Jones <davej@suse.de> wrote:
->On Sat, Jul 06, 2002 at 06:30:29PM +1000, Keith Owens wrote:
-> > The valid combination of CONFIG_NET=n, CONFIG_LLC undefined incorrectly
-> > builds ext8022.o and gets unresolved references because there is no
-> > network code.  Detected by kbuild 2.5, not detected by the existing
-> > build system.
+That email is old and most likely will not work anymore
+being as the site as long since been moved out of that domain.
+
+Try http://sourceforge.net/projects/emu10k1
+
+There are two links to the developers there as well as the current
+CVS, the docs should probably be updated to a recent email.
+
+
+Steve
+
+Thunder from the hill wrote:
+
+>Hi,
 >
->And this breaks the valid combination of CONFIG_NET=y, CONFIG_LLC undef'd
+>The ones who might help you the best are probably:
+>MAINTAINERS:529: emu10k1-devel@opensource.creative.com
 >
->net/network.o: In function Register_8022_client':
->net/network.o(.text+0xe8b7): undefined reference to Llc_register_sap'
->net/network.o: In function Unregister_8022_client':
->net/network.o(.text+0xe8fe): undefined reference to Llc_unregister_sap'
-
-??? That is the bug that I reported.  My patch fixes that bug.
-
-Index: 25.1/net/core/Makefile
---- 25.1/net/core/Makefile Wed, 19 Jun 2002 14:11:35 +1000 kaos (linux-2.5/p/c/50_Makefile 1.4 444)
-+++ 25.1(w)/net/core/Makefile Sat, 06 Jul 2002 18:27:16 +1000 kaos (linux-2.5/p/c/50_Makefile 1.4 444)
-@@ -16,7 +16,7 @@ obj-$(CONFIG_FILTER) += filter.o
- 
- obj-$(CONFIG_NET) += dev.o dev_mcast.o dst.o neighbour.o rtnetlink.o utils.o
- 
--ifneq ($(CONFIG_LLC),n)
-+ifneq ($(subst n,,$(CONFIG_LLC)),)
- obj-y += ext8022.o
- endif
- 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+>							Regards,
+>							Thunder
+>  
+>
 
 
 

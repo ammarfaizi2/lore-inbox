@@ -1,114 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbTHTAEq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 20:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbTHTAEq
+	id S261547AbTHSX76 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 19:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbTHSX76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 20:04:46 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:56533 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S261606AbTHTAEn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 20:04:43 -0400
-content-class: urn:content-classes:message
+	Tue, 19 Aug 2003 19:59:58 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:21191 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S261547AbTHSX7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 19:59:51 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Date: Wed, 20 Aug 2003 09:59:32 +1000
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: [patch] 2.4.x ACPI updates
-Date: Tue, 19 Aug 2003 20:04:03 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FC7F@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] 2.4.x ACPI updates
-Thread-Index: AcNme3Xu3OYWT/cfQk+fUjIadDoKjwAKoDcw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <acpi-devel@sourceforge.net>
-X-OriginalArrivalTime: 20 Aug 2003 00:04:05.0361 (UTC) FILETIME=[91D69E10:01C366AE]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16194.47588.337951.358727@gargle.gargle.HOWL>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Input issues - key down with no key up
+In-Reply-To: message from Vojtech Pavlik on Tuesday August 19
+References: <16188.27810.50931.158166@gargle.gargle.HOWL>
+	<20030815094604.B2784@pclin040.win.tue.nl>
+	<20030815105802.GA14836@ucw.cz>
+	<16188.54799.675256.608570@gargle.gargle.HOWL>
+	<20030815135248.GA7315@win.tue.nl>
+	<20030815141328.GA16176@ucw.cz>
+	<16189.58357.516036.664166@gargle.gargle.HOWL>
+	<20030818160138.GA31760@ucw.cz>
+	<16194.3240.192318.806260@gargle.gargle.HOWL>
+	<20030819115014.GA5403@ucw.cz>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy/Jeff/Marcelo,
+On Tuesday August 19, vojtech@suse.cz wrote:
+> > It behaved REALLY strangly until I fixed these typoes:
+> > 
+> > > +				mod_timer(&atkbd->timer,
+> > > +					(test_bit(atkbd->keycode[code], &atkbd->dev.key)
+> > > +						? HZ/30 : HZ/4) + HZ/100);
+> > 
+> > should be
+> > 
+> > > +				mod_timer(&atkbd->timer, jiffies + 
+> > > +					(test_bit(atkbd->keycode[code], atkbd->dev.key)
+> > > +						? HZ/30 : HZ/4) + HZ/100);
+> 
+> Thanks for spotting that! I originally had "!test_bit" there, and then
+> removed the ! and forgot to swap the conditional values.
 
-At Jeff's request, I've back ported ACPICA 20030813 from 
-http://linux-acpi.bkbits.net/linux-acpi-2.4 into a new tree for 2.4.22:
-http://linux-acpi.bkbits.net/linux-acpi-2.4.22
+I swapped the "30" and the "4", it is is better still.  Auto-repeat of
+normal keys is ok (I think - didn't test extensively).
+control/shift is still a problem, though not quite as a bad
 
-I've restored acpitable.[ch], which was deleted too late for this
-release cycle; and will live on until 2.4.23 -- as well as restored
-CONFIG_ACPI_HT_ONLY under CONFIG_ACPI; restored the 8-bit characters
-that got expanded to 16-bits in a previous merge; and deleted some dmesg
-verbiage that Jeff didn't think was appropriate for the baseline kernel.
+When I hold right-control down, evtest shows:
 
-I exported this a patch and then imported onto a clone of Marcelo's
-tree, so it appears as a single cset where the changes that got un-done
-never happened.  I've done some sanity tests on it, and will test it
-some more tomorrow.  Take a look at it and let me know if I missed
-anything.  When Andy is happy with it I'll leave it to him to re-issue a
-pull request from Marcelo.
+Event: time 1061335715.975639, type 1 (Key), code 97 (RightCtrl), value 1
+Event: time 1061335715.975639, -------------- Config Sync ------------
+Event: time 1061335716.014658, type 1 (Key), code 97 (RightCtrl), value 0
+Event: time 1061335716.014659, -------------- Config Sync ------------
+Event: time 1061335716.485899, type 1 (Key), code 97 (RightCtrl), value 1
+Event: time 1061335716.485899, -------------- Config Sync ------------
+Event: time 1061335716.734535, type 1 (Key), code 97 (RightCtrl), value 2
+Event: time 1061335716.734536, -------------- Config Sync ------------
+Event: time 1061335716.764555, type 1 (Key), code 97 (RightCtrl), value 2
+Event: time 1061335716.764556, -------------- Config Sync ------------
 
-> This includes a rework of the ACPI config and cmdline options. It now
-> supports DMI-based blacklisting, and cmdline options have been
-> simplified to "acpi=off", "acpi=ht" (use ACPI for CPU enum only) and
-> "acpi=force" (to override the blacklist.)
+so if I type another char between 30ms and 500ms after pressing
+control, the control isn't noticed, else it is.
 
-> It also includes some PCI IRQ routing changes, that seem to help some
-> people's systems work better.
-
-In addition, the "noapic" flag now works properly when full ACPI is
-enabled.
-
-Thanks,
--Len
-
-Ps. The plain patch on top of Marcelo's current tree is available here:
-https://sourceforge.net/project/showfiles.php?group_id=36832
-
-----------
-This will update the following files:
-
- Documentation/kernel-parameters.txt |    8 
- Makefile                            |    2 
- arch/i386/kernel/acpi.c             |   53 ++++-
- arch/i386/kernel/acpitable.c        |   10 
- arch/i386/kernel/acpitable.h        |    4 
- arch/i386/kernel/dmi_scan.c         |  251 +++++++++++++++++++++++-
- arch/i386/kernel/io_apic.c          |   14 -
- arch/i386/kernel/mpparse.c          |   34 ++-
- arch/i386/kernel/setup.c            |   54 ++---
- arch/i386/kernel/smpboot.c          |    2 
- drivers/Makefile                    |    2 
- drivers/acpi/Config.in              |    2 
- drivers/acpi/Makefile               |    7 
- drivers/acpi/bus.c                  |    2 
- drivers/acpi/executer/exutils.c     |    2 
- drivers/acpi/hardware/hwregs.c      |   21 +-
- drivers/acpi/osl.c                  |   27 +-
- drivers/acpi/pci_irq.c              |   15 +
- drivers/acpi/pci_link.c             |  100 ++++++---
- drivers/acpi/processor.c            |    1 
- drivers/acpi/tables.c               |  120 ++++++-----
- drivers/acpi/tables/tbconvrt.c      |    6 
- drivers/acpi/tables/tbget.c         |    4 
- drivers/acpi/tables/tbinstal.c      |   42 ++--
- drivers/acpi/tables/tbrsdt.c        |    2 
- drivers/acpi/tables/tbxfroot.c      |    6 
- drivers/acpi/toshiba_acpi.c         |    3 
- drivers/acpi/utilities/utglobal.c   |    6 
- include/acpi/acconfig.h             |    2 
- include/acpi/acpi_drivers.h         |    2 
- include/acpi/platform/acenv.h       |    6 
- include/asm-i386/io_apic.h          |    2 
- 32 files changed, 598 insertions(+), 214 deletions(-)
-
-through these ChangeSets:
-
-<len.brown@intel.com> (03/08/19 1.1097)
-   patch_2.4.22-rc2_to_acpi-2.4-20030813
-
-
+NeilBrown

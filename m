@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbTDVSwm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 14:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbTDVSwm
+	id S263354AbTDVStf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 14:49:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTDVStf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 14:52:42 -0400
-Received: from customer204.globaltap.com ([206.104.238.204]:27074 "HELO
-	annexa.net") by vger.kernel.org with SMTP id S263365AbTDVSwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 14:52:40 -0400
-Subject: Re: Need help with lockups on tyan s2460 motherboard in SMP mode
-From: James Strandboge <jamie@tpptraining.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051018709.3235.55.camel@sirius.strandboge.cxm>
-References: <1051018709.3235.55.camel@sirius.strandboge.cxm>
-Content-Type: text/plain
-Organization: Targeted Performance Partners, LLC
-Message-Id: <1051038280.4690.26.camel@sirius.strandboge.cxm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 22 Apr 2003 15:04:40 -0400
+	Tue, 22 Apr 2003 14:49:35 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:41737 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263354AbTDVStf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 14:49:35 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: <aglait@nixe.com>
+Subject: Re: Kernel & libc
+Date: Tue, 22 Apr 2003 21:01:28 +0200
+User-Agent: KMail/1.5
+References: <Pine.LNX.4.10.10304221529270.15950-100000@soraya.nixe.com>
+In-Reply-To: <Pine.LNX.4.10.10304221529270.15950-100000@soraya.nixe.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304222101.28725.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-22 at 09:38, James Strandboge wrote:
+On Tuesday 22 April 2003 20:32, aglait@nixe.com wrote:
+> Can you help me ?? 
+maybe :)
 
-> The only way I have found to reliably crash the system is to compile two
-> kernels simultaneously while in smp mode.  If I boot with 'nosmp' the
-> system seems ok (still running and compiling after 9 hours).
+> I want to know if there is a requirement of libc,
+> glibc for kernel 2.4.20 ...
+Kernel doesn't use libc (uses -nostdinc).
+You can't use any library from user-space in kernel.
 
-Well, it crashed after 15 hours with nosmp.  Guess its hardware related.
-
-Jamie
 -- 
-James Strandboge
-Targeted Performance Partners, LLC
-Web: http://www.tpptraining.com
-E-mail: jamie@tpptraining.com
-Tel: (585) 271-8370
-Fax: (585) 271-8373
+Regards Michael Buesch.
+http://www.8ung.at/tuxsoft
+
+$ cat /dev/zero > /dev/null
+/dev/null: That's *not* funny! :(
 

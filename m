@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269978AbTHBSPc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 14:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269987AbTHBSPb
+	id S269994AbTHBSYR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 14:24:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbTHBSYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 14:15:31 -0400
-Received: from pdbn-d9bb864b.pool.mediaWays.net ([217.187.134.75]:40457 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S269978AbTHBSPa (ORCPT
+	Sat, 2 Aug 2003 14:24:17 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:63633 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269994AbTHBSYR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 14:15:30 -0400
-Date: Sat, 2 Aug 2003 20:15:29 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: System locks up hard when i delete a file while burning a DVD-R (seems reiserfs related)
-Message-ID: <20030802181529.GA3038@citd.de>
-References: <Pine.LNX.4.44.0308021930440.2741-100000@korben.citd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308021930440.2741-100000@korben.citd.de>
-User-Agent: Mutt/1.3.27i
+	Sat, 2 Aug 2003 14:24:17 -0400
+Date: Sat, 2 Aug 2003 20:24:12 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jon Masters <jonathan@jonmasters.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>, jcm@printk.net
+Subject: Re: OpenPIC Specifications
+In-Reply-To: <Pine.LNX.4.10.10308021430390.9441-100000@router>
+Message-ID: <Pine.GSO.4.21.0308022023360.595-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 07:45:40PM +0200, Matthias Schniedermeyer wrote:
-> Hi
+On Sat, 2 Aug 2003, Jon Masters wrote:
+> I am after some specifications for OpenPIC as used in various incarnations
+> on Apple PowerPC systems. The embbeded cores generally use UIC/IIC, etc.
+> 
+> Anyone got a link to some datasheets/specification?
 
-First addendum.
+I've sent you a copy by private email.
 
-Deleting files from another HDD doesn't make a difference.
-(I created the next image to burn, while burning the prior. The moment i
-deleted the source-files (4.5 GB in total) the system locked up hard)
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

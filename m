@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbUB2Gee (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 01:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbUB2Gee
+	id S261984AbUB2Gep (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 01:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUB2Geo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 01:34:34 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:40393 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261986AbUB2Gec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 01:34:32 -0500
-Message-ID: <404187EA.6090307@matchmail.com>
-Date: Sat, 28 Feb 2004 22:34:18 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
+	Sun, 29 Feb 2004 01:34:44 -0500
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:51030 "HELO
+	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261984AbUB2Gek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 01:34:40 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Manuel Estrada Sainz <ranty@ranty.pantax.net>
+Subject: [PATCH 1/2] Pin firmware module (was Re: [PATCH] request_firmware(): fixes and polishing.)
+Date: Sun, 29 Feb 2004 01:32:55 -0500
+User-Agent: KMail/1.6
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       jt@hpl.hp.com, Simon Kelley <simon@thekelleys.org.uk>
+References: <10776728882704@kroah.com> <200402290130.47960.dtor_core@ameritech.net>
+In-Reply-To: <200402290130.47960.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
- end)
-References: <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402271350240.1747-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200402290132.57431.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> On Fri, 27 Feb 2004, Andrea Arcangeli wrote:
->>>Then again, your stuff will also find pages the moment they're
->>>cleaned, just at the cost of a (little?) bit more CPU time.
->>
->>exactly, that's an important effect of my patch and that's the only
->>thing that o1 vm is taking care of, I don't think it's enough since the
->>gigs of cache would still be like a memleak without my code.
-> 
-> 
-> ... however, if you have a hundred gigabyte of memory, or
-> even more, then you cannot afford to search the inactive
-> list for clean pages on swapout. It will end up using too
-> much CPU time.
-> 
-> The FreeBSD people found this out the hard way, even on
-> smaller systems...
+===================================================================
 
-So that's what the inact_clean list is for in 2.4-rmap.
 
-But your inactive lists are always much smaller than the active list on 
-the smallish (< 1.5G) machines...
+ChangeSet@1.1694, 2004-02-29 00:06:09-05:00, dtor_core@ameritech.net
+  Firmware loader:
+    We need to pin the firmware loader module until the last reference
+    to the firmware class device is dropped and the class device is
+    destroyed.
+
+
+ firmware_class.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
+--- a/drivers/base/firmware_class.c	Sun Feb 29 01:20:57 2004
++++ b/drivers/base/firmware_class.c	Sun Feb 29 01:20:57 2004
+@@ -263,6 +263,8 @@
+ 
+ 	kfree(fw_priv);
+ 	kfree(class_dev);
++
++	module_put(THIS_MODULE);
+ }
+ 
+ static void
+@@ -325,6 +327,7 @@
+ 	kfree(class_dev);
+ 	return retval;
+ }
++
+ static int
+ fw_setup_class_device(struct firmware *fw, struct class_device **class_dev_p,
+ 		      const char *fw_name, struct device *device)
+@@ -337,6 +340,9 @@
+ 	retval = fw_register_class_device(&class_dev, fw_name, device);
+ 	if (retval)
+ 		goto out;
++
++	/* Need to pin this module until class device is destroyed */
++	__module_get(THIS_MODULE);
+ 
+ 	fw_priv = class_get_devdata(class_dev);
+ 

@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVAaCek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVAaCoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbVAaCek (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 21:34:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVAaCek
+	id S261898AbVAaCoa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 21:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVAaCoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 21:34:40 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:39605 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261897AbVAaCeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 21:34:37 -0500
-Subject: Re: OpenOffice crashes due to incorrect access permissions on
-	/dev/dri/card*
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, ee21rh@surrey.ac.uk
-In-Reply-To: <1107028644.5718.3.camel@localhost.localdomain>
-References: <pan.2005.01.29.10.44.08.856000@surrey.ac.uk>
-	 <E1CurmR-0000H8-00@calista.eckenfels.6bone.ka-ip.net>
-	 <pan.2005.01.29.12.49.13.177016@surrey.ac.uk>
-	 <pan.2005.01.29.13.02.51.478976@surrey.ac.uk>
-	 <9e473391050129112525f4947@mail.gmail.com>
-	 <1107028644.5718.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Sun, 30 Jan 2005 19:34:30 -0700
-Message-Id: <1107138870.3398.3.camel@localhost.localdomain>
+	Sun, 30 Jan 2005 21:44:30 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:732
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261898AbVAaCo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 21:44:29 -0500
+Date: Sun, 30 Jan 2005 18:38:56 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: torvalds@osdl.org, Philippe.Robin@arm.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Re: flush_cache_page()
+Message-Id: <20050130183856.07d92be2.davem@davemloft.net>
+In-Reply-To: <20050129113707.B2233@flint.arm.linux.org.uk>
+References: <20050111223652.D30946@flint.arm.linux.org.uk>
+	<Pine.LNX.4.58.0501111605570.2373@ppc970.osdl.org>
+	<20050129113707.B2233@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.4 (2.1.4-1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My problem is some things changed in the installed package changed and
-some things in my home directory in .openoffice (setup and soffice) were
-incorrect. I erased the symlinks and my problem is over.  I would
-suggest others having problems try the same. This may have NOTHING to do
-with the kernel (as in my case).
+On Sat, 29 Jan 2005 11:37:08 +0000
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Trever
+> Thanks for the response.  However, apart from Ralph, Paul and yourself,
+> it seems none of the other architecture maintainers care about this
+> patch - the original mail was BCC'd to the architecture list.  Maybe
+> that's an implicit acceptance of this patch, I don't know.
 
-On Sat, 2005-01-29 at 12:57 -0700, Trever L. Adams wrote:
-> For the record, this has nothing to do with my crash. Mine still crashes
-> all the time if I try to save a new document.
-> 
-> Trever
-> 
-> On Sat, 2005-01-29 at 14:25 -0500, Jon Smirl wrote:
-> > On Sat, 29 Jan 2005 13:02:51 +0000, Richard Hughes <ee21rh@surrey.ac.uk> wrote:
-> > > On Sat, 29 Jan 2005 12:49:16 +0000, Richard Hughes wrote:
-> > > > Note, that strace glxgears gives exactly the same output, going from 0 to
-> > > > 14 and then seg-faulting, so it's *not just a oo problem*.
-> > > 
-> > > I know it's bad to answer your own post, but here goes.
-> > > 
-> > > I changed my /etc/udev/permissions.d/50-udev.permissions config to read:
-> > > 
-> > > dri/*:root:root:0666
-> > > 
-> > > changing it from
-> > > 
-> > > dri/*:root:root:0660
-> > > 
-> > > And oowriter and glxgears work from bootup. Shall I file a bug with udev?
-> > 
-> > Your user ID needs to belong to group DRI.
-> > 
-> --
-> Legal Warning: Anyone sending me unsolicited/commercial email WILL be
-> charged a $100 proof-reading fee. See US Code Title 47,
-> Sec.227(a)(2)(B), Sec.227(b)(1)(C) and Sec.227(b)(3)(C).
---
-"The Master doesn't talk, he acts. When his work is done, the people
-say, 'Amazing: we did it, all by ourselves!'" -- Lao-tzu
-
+I haven't responded because I simply have no objections to
+your patch. :-)

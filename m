@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316996AbSIMFxT>; Fri, 13 Sep 2002 01:53:19 -0400
+	id <S319532AbSIMGCI>; Fri, 13 Sep 2002 02:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319532AbSIMFxT>; Fri, 13 Sep 2002 01:53:19 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:36104 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316996AbSIMFxS>; Fri, 13 Sep 2002 01:53:18 -0400
-Date: Fri, 13 Sep 2002 07:58:01 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Tony Gale <gale@syntax.dstl.gov.uk>
-Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
-Subject: Re: XFS?
-Message-ID: <20020913055801.GK14900@louise.pinerecords.com>
-References: <200209121553.g8CFrrEh003646@dstl.gov.uk> <1031846624.17349.23.camel@syntax.dstl.gov.uk>
+	id <S319534AbSIMGCI>; Fri, 13 Sep 2002 02:02:08 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20359 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S319532AbSIMGCI>;
+	Fri, 13 Sep 2002 02:02:08 -0400
+Date: Fri, 13 Sep 2002 08:06:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 34-mm2 ide problems - unexpected interrupt
+Message-ID: <20020913060647.GH1847@suse.de>
+References: <200209120838.44092.tomlins@cam.org> <20020912124247.GA11471@suse.de> <200209121830.51285.tomlins@cam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1031846624.17349.23.camel@syntax.dstl.gov.uk>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 16 days, 22:08
+In-Reply-To: <200209121830.51285.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > >EXT2 is a very capable filesystem, and has *years* of proven 
-> > > >reliability. That's why I'm not going to switch away from it for 
-> > > >critical work any time soon. 
-> So does XFS. It just happens to be measured in IRIX years.
+On Thu, Sep 12 2002, Ed Tomlinson wrote:
+> On September 12, 2002 08:42 am, Jens Axboe wrote:
+> > On Thu, Sep 12 2002, Ed Tomlinson wrote:
+> > > Hi,
+> > >
+> > > Got this booting 34-mm2.  Think the are problems with the ide updates...
+> > > UP no preempth.  Everything look ok up to the int loop.
+> >
+> > just delete the printk from ide.c:ide_intr(), it's not useful on adapters
+> > with shared interrupts. patch has already been sent to Linus.
+> >
+> > feedback on success/problems with 34-mm2 (it seems to include bk patches
+> > up until now?) ide would also be appreciated.
+> 
+> No luck.  Without the printk it just sits there.  When the printk is
+> enabled there are hundreds (maybe thousands) of messages.  
 
-Don't forget you're talking four megabytes of ported code.
+"just sits there" how? It stalls a boot? And where?  Does
+2.4.20-pre5-ac4 work for you?
 
-By the way, just out of curiosity, would someone kindly have a go at
-summarizing what's going on inside XFS that would justify its sources
-being almost six times the size of reiserfs?  I have read the XFS
-feature list carefully, however, I still fail to see where the great
-difference is.
+> I also noticed that DMA was disabled on hda.  This drive works at
+> UDMA2 without any problems.  The drives on promise controller should
+> be able use support UDMA4 but timeout within 24hours when using it.
+> Degrading to UDMA2 lets me go weeks with problems (up to 2.4.19-ac2).
 
-T.
+So I'm thinking that you did get it to boot.
+
+Ed, I'm sorry but your report is woefully inadequate to diagnose
+anything :-)
+
+-- 
+Jens Axboe
+

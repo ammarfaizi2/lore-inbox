@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266295AbUGAVgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUGAVg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266295AbUGAVgP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 17:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266305AbUGAVgO
+	id S266291AbUGAVg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 17:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266297AbUGAVg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 17:36:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17130 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266295AbUGAVfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 17:35:40 -0400
-Date: Thu, 1 Jul 2004 23:35:30 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [patch] 2.6.7-mm5: R8169_NAPI help text
-Message-ID: <20040701213529.GW24147@fs.tum.de>
-References: <20040630172656.6949ec60.akpm@osdl.org> <20040701213029.GV24147@fs.tum.de>
+	Thu, 1 Jul 2004 17:36:27 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:54661 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266291AbUGAVex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 17:34:53 -0400
+Subject: Re: [PATCH][PPC64] lparcfg seq_file updates (pass2)
+From: Dave Hansen <haveblue@us.ibm.com>
+To: will schmidt <will_schmidt@vnet.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PPC64 External List <linuxppc64-dev@lists.linuxppc.org>,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>
+In-Reply-To: <40E47EE5.3020002@vnet.ibm.com>
+References: <40E47EE5.3020002@vnet.ibm.com>
+Content-Type: text/plain
+Message-Id: <1088717644.21679.266.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040701213029.GV24147@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 01 Jul 2004 14:34:04 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 11:30:29PM +0200, Adrian Bunk wrote:
-> On Wed, Jun 30, 2004 at 05:26:56PM -0700, Andrew Morton wrote:
-> >...
-> > -r8169_napi-help-text.patch
-> > 
-> >  This broke
-> >...
->...
+On Thu, 2004-07-01 at 14:15, will schmidt wrote:
+>       - Answering Dave's question on the lparcfg_count_active_processors()
+> 	function..  This is for the cases where we have some number of
+> 	virtual processors that are different than the number of physical
+> 	processors in the system.  This doesnt happen on most systems, but
+> 	does occur in some of the partitioned configurations.  I've
+> 	added a similar comment above the function.
 
-Sorry, wrong patch.
+But, shouldn't the number of virtual processors be what shows up in
+sysfs and /proc/cpuinfo?  I can understand exporting the number total in
+the machine, because that's not normally visible, but I think the number
+visible to Linux is redundant.
 
-Correct patch below.
+-- Dave
 
-cu
-Adrian
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.6.7-mm5-full/drivers/net/Kconfig.old	2004-07-01 23:24:49.000000000 +0200
-+++ linux-2.6.7-mm5-full/drivers/net/Kconfig	2004-07-01 23:31:52.000000000 +0200
-@@ -2008,8 +2008,20 @@
- 
- config R8169_NAPI
- 	bool "Use Rx and Tx Polling (NAPI) (EXPERIMENTAL)"
--	depends on R8169 && EXPERIMENTAL 
-+	depends on R8169 && EXPERIMENTAL
-+	help
-+	  NAPI is a new driver API designed to reduce CPU and interrupt load
-+	  when the driver is receiving lots of packets from the card. It is
-+	  still somewhat experimental and thus not yet enabled by default.
-+
-+	  If your estimated Rx load is 10kpps or more, or if the card will be
-+	  deployed on potentially unfriendly networks (e.g. in a firewall),
-+	  then say Y here.
-+
-+	  See <file:Documentation/networking/NAPI_HOWTO.txt> for more
-+	  information.
- 
-+	  If in doubt, say N.
- 
- config SK98LIN
- 	tristate "Marvell Yukon Chipset / SysKonnect SK-98xx Support"

@@ -1,77 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317922AbSG2UlE>; Mon, 29 Jul 2002 16:41:04 -0400
+	id <S317931AbSG2Ulj>; Mon, 29 Jul 2002 16:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317931AbSG2UlE>; Mon, 29 Jul 2002 16:41:04 -0400
-Received: from codepoet.org ([166.70.99.138]:18080 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S317922AbSG2UlD>;
-	Mon, 29 Jul 2002 16:41:03 -0400
-Date: Mon, 29 Jul 2002 14:44:25 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc3-ac4
-Message-ID: <20020729204424.GA4449@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-References: <200207291740.g6THewQ19578@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207291740.g6THewQ19578@devserv.devel.redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S318061AbSG2Uli>; Mon, 29 Jul 2002 16:41:38 -0400
+Received: from imo-m10.mx.aol.com ([64.12.136.165]:7923 "EHLO
+	imo-m10.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S317931AbSG2Ulf>; Mon, 29 Jul 2002 16:41:35 -0400
+Message-ID: <3D4571B7.1000709@netscape.net>
+Date: Mon, 29 Jul 2002 16:47:51 +0000
+From: Adam Belay <ambx1@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: mochel@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] integrate driverfs and devfs (2.5.28)
+References: <Pine.LNX.4.44.0207291214340.22697-100000@cherise.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Jul 29, 2002 at 01:40:58PM -0400, Alan Cox wrote:
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out]
-> 
-> This patch contains SiS IDE updates. Usual caveats apply. The HP merge is
-> now down to 5340 lines.
-> 
-> Linux 2.4.19rc3-ac4
-> o	Lots of gcc 3.1 __FUNCTION__ warning fixes	(me)
 
-make -C drm modules
-make[3]: Entering directory `/usr/src/linux/drivers/char/drm'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE  -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include -DKBUILD_BASENAME=radeon_drv  -c -o radeon_drv.o radeon_drv.c
-In file included from radeon_drv.c:34:
-ati_pcigart.h: In function `radeon_ati_pcigart_init':
-ati_pcigart.h:96: parse error before `)'
-ati_pcigart.h:102: parse error before `)'
-ati_pcigart.h:107: parse error before `)'
-ati_pcigart.h:115: parse error before `)'
-ati_pcigart.h:135: parse error before `)'
-[---------------tons of similar noise snipped-------------------]
-In file included from radeon_drv.c:108:
-drm_stub.h: In function `radeon_stub_register':
-drm_stub.h:125: parse error before `)'
-drm_stub.h:133: parse error before `)'
-drm_stub.h:137: parse error before `)'
-make[3]: *** [radeon_drv.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/char/drm'
-make[2]: *** [_modsubdir_drm] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/char'
-make[1]: *** [_modsubdir_char] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
 
-The problem seems to be that 
-    DRM_ERROR( "no scatter/gather memory!\n" );
+mochel@osdl.org wrote:
 
-expands into
-    printk("<3>"  "[" "drm"  ":%s] *ERROR* "   "cannot allocate PCI GART page!\n"   ,  ) ;
+>Wow. I don't know whether to laugh, or to cry. 
+>
+Nor do I.
 
-I think the __FUNCTION__ changes to DRM_ERROR and friends in drmP.h 
-look awfully bogus.
+>
+>Not a chance. I refuse to apply any devfs interface layers to the device 
+>model core, or any devfs-specific members to the device model data 
+>structures. And, that's just on principle. 
+>
+This patch merely adds one new list to the device struct.  The 
+information it provides is not devfs specific and it only extracts data 
+from the devfs structures that already exist.
 
- -Erik
+>
+>
+>As for technical reasons, why on earth would you want to do this in the 
+>first place? 
+>
+Actually doing this is extremely useful.  Without such an interface it's 
+impossible to tell which device interface in the driver model 
+corresponds to which dev entry both with and without the use of devfs. 
+ Imagine a user trying to configure a serial port through the driverfs. 
+ Without this interface how can the user determine which serial port he 
+is configuring.  With my patch it is possible to determine the !major! 
+and !minor! number of the device as well as a path to devfs in the event 
+that it is used.  It provides information so that the user can determine 
+which device the driver model is talking about.  With the floppy driver 
+that I converted it is especially nice because it lists for the user all 
+the many devices that correspond with that particular floppy drive. 
+ Many user level scripts and programs "will" need this kind of 
+information when the driver model is complete.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+>
+>
+>We've collectively decided that enforcing device naming policy in the 
+>kernel is the Wrong Thing To Do. devfs does this; and your patch furthers 
+>the pain. 
+>
+ My patch does not enforce any policies, it merely extracts information 
+from the already existing devfs.  The major and minor numbers provided 
+are useful to even those who don't use devfs.
+
+>
+>
+>Besides, look at the interace. Tell me devfs_register is not horrid. 8 
+>parameters is rediculous, and you want to add another one? And, change 
+>every driver? 
+>
+You're already changing every driver with this new driver model.  Yes, I 
+agree, it is horrid.  Like I said earlier this is only stage one of this 
+integration.  It currently does not break anything and merely provides 
+the !option! for a driver to register its devfs handle.  I wanted to get 
+this feature in before the freeze.  If you read my comments you'd 
+realize that my function with 9 parameters is an all in one function 
+that is only optional.  Remove it or change it if you like.
+
+>
+>
+>I won't touch devfs, as it's unmaintainable. I won't even look at it, 
+>because it's unreadable. But, if you really want to build a bridge between 
+>the two, I would suggest looking at a way to collapse some of the data 
+>structures and the calls. devfs_register (or the like) should take 1 
+>structure with all the information it needs in it. Most of that data you 
+>can derive from other places (like a higher level). In fact, IMO, it 
+>should be the higher level that is doing the registration of the devices, 
+>not the individual drivers themselves. 
+>
+I agree that should definitely be done, maybe I'll even do it (I'm not 
+the maintainer though).  What do you mean by the higher level should 
+register the devices?
+
+>
+>
+>I appreciate the effort, but I don't support it. We should soon have a 
+>working device class model, which is where you'll start to see devfs-like 
+>concepts handled in a sane way. Please look there for ideas, rather than 
+>devfs. 
+>
+ Device Class Model, hmm, I can't wait to see that.
+ My next driver model patch will be less controversial:-;.
+
+>
+>
+>Thanks,
+>
+>    -pat
+>
+ Please have a more open mind about this.  It may need a bit of 
+adaptation but is still very useful.  If you have any questions or 
+comments feel free to contact me.
+Thanks,
+Adam
+

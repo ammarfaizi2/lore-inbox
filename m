@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbTIYI2B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 04:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTIYI12
+	id S261661AbTIYIyb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 04:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261667AbTIYIyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 04:27:28 -0400
-Received: from dp.samba.org ([66.70.73.150]:10648 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261772AbTIYI1V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 04:27:21 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: davidm@HPL.HP.COM
-Cc: akpm@zip.com.au, neilb@cse.unsw.edu.au, braam@clusterfs.com,
-       davem@redhat.com, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       tridge@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sysctl-controlled number of groups. 
-In-reply-to: Your message of "Wed, 24 Sep 2003 21:19:39 MST."
-             <16242.27867.715648.392875@napali.hpl.hp.com> 
-Date: Thu, 25 Sep 2003 18:08:25 +1000
-Message-Id: <20030925082720.9E6542C3B6@lists.samba.org>
+	Thu, 25 Sep 2003 04:54:31 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26382 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261661AbTIYIya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 04:54:30 -0400
+Date: Thu, 25 Sep 2003 09:54:27 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <gregkh@us.ibm.com>
+Subject: Re: [BUG/MEMLEAK?] struct pci_bus, child busses & bridges
+Message-ID: <20030925095426.B30419@flint.arm.linux.org.uk>
+Mail-Followup-To: Matthew Dobson <colpatch@us.ibm.com>,
+	linux-kernel@vger.kernel.org, Greg KH <gregkh@us.ibm.com>
+References: <3F7237FB.8050509@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F7237FB.8050509@us.ibm.com>; from colpatch@us.ibm.com on Wed, Sep 24, 2003 at 05:34:03PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <16242.27867.715648.392875@napali.hpl.hp.com> you write:
-> >From the ia64-side, it looks mostly fine to me.  Some minor things:
-> 
->  - Typo in first sentence of patch comment (can be -> to be ?)
+On Wed, Sep 24, 2003 at 05:34:03PM -0700, Matthew Dobson wrote:
+> In pci_alloc_child_bus (drivers/pci/probe.c), the child bus is allocated 
+> and it's struct dev * is set to point to the struct dev belonging to the 
+> bridge that this bus is 'on', or 'behind'.  pci_alloc_child_bus is 
+> called in 3 places: pci_add_new_bus and twice in pci_scan_bridge.  The 
+> calls in pci_scan_bridge allocate a new struct pci_bus, but then seem to 
+> throw the references away, *without* freeing them.
 
-Thanks, fixed.
+That is correct - they persist after they have been allocated until the
+bridge device is destroyed (if ever) - it's lifetime is directly equivalent
+to the lifetime of the bridge.
 
->  - If I'm reading the patch right, there will be identical sys32_getgroups16()
->    definitions in .../ia32/sys_ia32.c and and compat_linux.c; did you mean
->    to name the latter compat_getgroups16()?  (ditto for setgroups16 and s390
->    and sparc64, i think)
+If you look carefully at pci_alloc_child_bus(), you will notice that
+bridge->subordinate is setup to point at the pci_bus, which provides
+a method to access the data held in the pci_bus later (eg, while we're
+freeing the structures.)
 
-You're not reading it right: I didn't change the names, but since
-these (your) versions call the normal ones, I added the extern decl.
-
->  - I suspect removing NGROUPS from param.h will break glibc and/or user-level
->    apps.  param.h is one of those kernel files that are directly exposed
->    to user-level; may want to keep NGROUPS inside an #ifndef __KERNEL__.
-
-AFAICT, they should use NGROUPS_MAX from limits.h, which I left.
-
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                      2.6 Serial core

@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265066AbSKVCkK>; Thu, 21 Nov 2002 21:40:10 -0500
+	id <S265102AbSKVDSi>; Thu, 21 Nov 2002 22:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265074AbSKVCkK>; Thu, 21 Nov 2002 21:40:10 -0500
-Received: from leviathan.kumin.ne.jp ([211.9.65.12]:49209 "HELO
-	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
-	id <S265066AbSKVCkJ>; Thu, 21 Nov 2002 21:40:09 -0500
-Message-Id: <200211220246.AA00001@prism.kumin.ne.jp>
-From: Seiichi Nakashima <nakasima@kumin.ne.jp>
-Date: Fri, 22 Nov 2002 11:46:44 +0900
-To: linux-kernel@vger.kernel.org
-Subject: patch-2.5.48-dj1 compile error
-In-Reply-To: <200208311112.AA00120@prism.kumin.ne.jp>
-References: <200208311112.AA00120@prism.kumin.ne.jp>
+	id <S265108AbSKVDSi>; Thu, 21 Nov 2002 22:18:38 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:22770 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S265102AbSKVDSh>; Thu, 21 Nov 2002 22:18:37 -0500
+Message-ID: <25282B06EFB8D31198BF00508B66D4FA03EA5B14@fmsmsx114.fm.intel.com>
+From: "Seth, Rohit" <rohit.seth@intel.com>
+To: "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "Seth, Rohit" <rohit.seth@intel.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       torvalds@transmeta.com
+Subject: RE: hugetlb page patch for 2.5.48-bug fixes
+Date: Thu, 21 Nov 2002 19:23:03 -0800
 MIME-Version: 1.0
-X-Mailer: AL-Mail32 Version 1.12
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-I update linux-2.5.48 to use patch-2.5.48-dj1,
-but a patch error and a compile error occured.
+> At some point in the past, I wrote:
+> >> Okay, first off why are you using a list linked through 
+> >> page->private?
+> >> page->list is fully available for such tasks.
+> 
+> On Thu, Nov 21, 2002 at 05:54:22PM -0800, Seth, Rohit wrote:
+> > Don't really need a list_head kind of thing for always inorder 
+> > complete traversal. list_head (slightly) adds fat in data 
+> structures 
+> > as well as insertaion/removal. Please le me know if anything that 
+> > prohibits the use of page_private field for internal use.
+> 
+> page->private is also available for internal use. The objection here
+> was about not using the standardized list macros. I'm not 
+> convinced about the fat since the keyspace is tightly bounded 
+> and the back pointers are in struct page regardless. (And we 
+> also just happen to know page->lru is also available though 
+> I'd not suggest using it.)
+> 
 
-(1) patch error
+Either way. That is fine. I will make the change.
 
-patching file sound/oss/rme96xx.c
-Hunk #3 FAILED at 54.
-Hunk #4 succeeded at 145 (offset -4 lines).
-Hunk #6 succeeded at 236 (offset -4 lines).
-Hunk #8 succeeded at 352 (offset -4 lines).
-Hunk #10 succeeded at 900 (offset -4 lines).
-Hunk #12 succeeded at 1087 (offset -9 lines).
-Hunk #14 succeeded at 1168 (offset -9 lines).
-Hunk #16 succeeded at 1440 (offset -9 lines).
-Hunk #18 FAILED at 1503.
-Hunk #19 succeeded at 1523 (offset -9 lines).
-Hunk #21 succeeded at 1591 (offset -9 lines).
-Hunk #23 succeeded at 1701 (offset -9 lines).
-Hunk #25 succeeded at 1799 (offset -9 lines).
-2 out of 26 hunks FAILED -- saving rejects to file sound/oss/rme96xx.c.rej
+> 
+> At some point in the past, I wrote:
+> >> Third, the hugetlb_release_key() in unmap_hugepage_range() is
+> >> the one that should be removed [along with its corresponding 
+> >> mark_key_busy()], not the one in sys_free_hugepages(). 
+> >> unmap_hugepage_range() is doing neither setup nor teardown of 
+> >> the key itself, only the pages and PTE's. I would say 
+> >> key-level refcounting belongs to sys_free_hugepages().
+> 
+> On Thu, Nov 21, 2002 at 05:54:22PM -0800, Seth, Rohit wrote:
+> > It is not mandatory that user app calls free_pages.  Or 
+> even in case 
+> > of app aborts this call will not be made.  The internal 
+> structures are 
+> > always released during the exit (with last ref count) along 
+> with free 
+> > of underlying physical pages.
+> 
+> Hmm, I can understand caution wrt. touching core. I suspect 
+> vma->close() should do hugetlb_key_release() instead of 
+> sys_free_hugepages()?
+> 
+That is a good option for 2.5. I will update the patch tomorrow.
 
-(2) compile error
-
-arch/i386/kernel/apm.c:998: warning: `sysrq_poweroff_op' defined but not used
-fs/proc/array.c: In function `proc_pid_stat':
-fs/proc/array.c:395: warning: long long unsigned int format, different type arg (arg 24)
-drivers/base/base.h:35: warning: `class_hotplug' defined but not used
-drivers/base/base.h:35: warning: `class_hotplug' defined but not used
-drivers/base/base.h:35: warning: `class_hotplug' defined but not used
-drivers/base/base.h:35: warning: `class_hotplug' defined but not used
-drivers/base/base.h:35: warning: `class_hotplug' defined but not used
-drivers/char/agp/agp.h:87: warning: `global_cache_flush' defined but not used
-drivers/char/agp/agp.h:87: warning: `global_cache_flush' defined but not used
-drivers/net/eepro100.c:2343: warning: `eepro100_remove_one' defined but not used
-drivers/parport/parport_pc.c: In function `parport_pc_init':
-drivers/parport/parport_pc.c:3048: warning: passing arg 1 of `pnp_register_driver' discards qualifiers from pointer 
-target type
-In file included from include/net/xfrm.h:6,
-                 from net/core/skbuff.c:61:
-include/linux/crypto.h: In function `crypto_tfm_alg_modname':
-include/linux/crypto.h:202: dereferencing pointer to incomplete type
-include/linux/crypto.h:205: warning: control reaches end of non-void function
-make[2]: *** [net/core/skbuff.o] Error 1
-make[1]: *** [net/core] Error 2
-make: *** [net] Error 2
-
---------------------------------
-  Seiichi Nakashima
-  Email   nakasima@kumin.ne.jp
---------------------------------
+rohit

@@ -1,106 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277262AbRJIOg4>; Tue, 9 Oct 2001 10:36:56 -0400
+	id <S277728AbRJIOl4>; Tue, 9 Oct 2001 10:41:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277376AbRJIOgh>; Tue, 9 Oct 2001 10:36:37 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:35204 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277262AbRJIOg3>; Tue, 9 Oct 2001 10:36:29 -0400
-Message-ID: <3BC30B9F.9060609@wipro.com>
-Date: Tue, 09 Oct 2001 20:07:19 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S277730AbRJIOlq>; Tue, 9 Oct 2001 10:41:46 -0400
+Received: from lightning.hereintown.net ([207.196.96.3]:43716 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id <S277728AbRJIOlh>; Tue, 9 Oct 2001 10:41:37 -0400
+Date: Tue, 9 Oct 2001 10:57:45 -0400 (EDT)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Not getting arp replies?
+Message-ID: <Pine.LNX.4.40.0110091001250.114-100000@rc.priv.hereintown.net>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <Pine.LNX.4.21.0110091057470.5604-100000@freak.distro.conectiva>
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have to machines rather identical software wise, but rather different in
+hardware.  They are both plugged into the same ethernet switch, and have
+IPs in the same logical network.
 
-This is a multi-part message in MIME format.
+On the physical network there are 10 RAS boxes, they proxy arp for up to
+46 IPs, but only when they are active.  They also each have their own IP
+that they always answer for.  The RASes and the Linux machines all have
+static routes that let them know that all the logical networks are on the
+same physical network and that they can talk directly to each other
+instead of going through the router.
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Some of the RASes can go unused through the night, so their arp entries
+will expire on the Linux machines.  This is where it gets strange.  One
+Linux machine can instantly discover the MAC address of any of the RASes
+upon needing it, the other machine cannot.
 
-Marcelo Tosatti wrote:
+For instance on Linux box #1, the working one, I type "ping max6", boom
+replies start coming in.  But on the second box the same command just sits
+there, and the "arp" command shows max6's MAC address to be
+"(incomplete)".
 
->
->On Tue, 9 Oct 2001, BALBIR SINGH wrote:
->
->>Most of the traditional unices maintained a pool for each subsystem
->>(this is really useful when u have the memory to spare), so not matter
->>what they use memory only from their pool (and if needed peek outside),
->>but nobody else used the memory from the pool.
->>
->>I have seen cases where, I have run out of physical memory on my system,
->>so I try to log in using the serial console, but since the serial driver
->>does get_free_page (this most likely fails) and the driver complains back.
->>So, I had suggested a while back that important subsystems should maintain
->>their own pool (it will take a new thread to discuss the right size of
->>each pool).
->>
->>Why can't Linux follow the same approach? especially on systems with a lot
->>of memory.
->>
->
->There is nothing which avoids us from doing that (there is one reserved
->pool I remeber right now: the highmem bounce buffering pool, but that one
->is a special case due to the way Linux does IO in high memory and its only
->needed on _real_ emergencies --- it will be removed in 2.5, I hope).
->
->In general, its a better approach to share the memory and have a unified
->pool. If a given subsystem is not using its own "reversed" memory, another
->subsystems can use it.
->
->The problem we are seeing now can be fixed even without the reserved
->pools.
->
-I agree that is the fair and nice thing to do, but I was talking about reserving
-memory for device vs sharing it with a user process, user processes can wait,
-their pages can even be swapped out if needed. But for a device that is not willing
-to wait (GFP_ATOMIC) say in an interrupt context, this might be a issue.
+This is where it gets really funky, Linux box #2 can always resolve the
+hardware address of maxes 1-5, 9 and 10, just not 6-8.  1-5 are in one
+logical network and 6-10 are in a second.  I diffed the configs of 6 and 9
+and they only very exactly as I would expect, name, IP, and gateway for
+the static routes (which is the IP of the box).
 
+Linux box #1 can always resolve the hardware address of any of the RASes
+with no trouble.  Running tcpdump on #1 shows #2 making the arp query,
+then running tcpdump on #2 shows the same thing, the "who-has", but never
+the "reply".
 
-Anyway, how do you plan to solve this ?
-Balbir
+This is really strange, and I can't figure out for what logical reason
+this would be happening.  As I said the hardware between the two machines
+is rather different.  I figure the most important thing to note is the one
+that works has an eepro100 ethernet adaptor, while the one that is having
+the trouble is a tulip.
 
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+Thanks,
+Chris
+-- 
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
 
-
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-
---------------InterScan_NT_MIME_Boundary--

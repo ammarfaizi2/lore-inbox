@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129776AbRAAW0f>; Mon, 1 Jan 2001 17:26:35 -0500
+	id <S130367AbRAAW1p>; Mon, 1 Jan 2001 17:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130367AbRAAW0Z>; Mon, 1 Jan 2001 17:26:25 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:25097
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129776AbRAAW0O>; Mon, 1 Jan 2001 17:26:14 -0500
-Date: Mon, 1 Jan 2001 13:55:26 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Ignore that part of the patch.....
-Message-ID: <Pine.LNX.4.10.10101011351200.22396-100000@master.linux-ide.org>
+	id <S131005AbRAAW1Z>; Mon, 1 Jan 2001 17:27:25 -0500
+Received: from isis.telemach.net ([213.143.65.10]:34063 "HELO
+	isis.telemach.net") by vger.kernel.org with SMTP id <S130367AbRAAW1V>;
+	Mon, 1 Jan 2001 17:27:21 -0500
+Message-ID: <3A50FD1F.A008B64F@telemach.net>
+Date: Mon, 01 Jan 2001 22:56:47 +0100
+From: Jure Pecar <pegasus@telemach.net>
+Organization: Select Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: andrea@suse.de, jef@acme.com
+Cc: linux-kernel@vger.kernel.org, thttpd@bomb.acme.com
+Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?) 
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again,
 
-Sorry about that, it was an undo that happened back at pre10 when the
-correct changes were applied; however, we may rip it out if I can finish
-the execute_diagnostics call to clear the PDIAG line and get the drive to
-report the impedence decay to correctly address the bit13 of word 93.
+After more-than-expected amount of hours spent on this, i managed to
+localize the problem and found a partial solution.
+I ran a series of test with thttpd compiled on rh6 and rh7 serving a
+couple of files on different kernels. In the first run i used 6 average
+sized mp3s and could not reproduce the problem, but then i added a
+couple of 100mb and 200mb mpeg videos and boing, there it was.
 
-For now it was a goof to an incomplete feature, but that was the only
-goof I am aware of at this point.
+		libc		
+kernel		version		result
 
-Regards,
+2.2.18raid	2.1.3		ok
+2.2.18raid	2.1.94		ok
+2.2.18cdhs	2.1.3		crash at the third simultaneous connection
+2.2.18cdhs	2.1.94		ok
+2.2.19pre3aa4	2.1.3		ok
+2.2.19pre3aa4	2.1.94		ok
+2.4.0-test10	2.1.3		ok
+2.4.0-test10	2.1.94		ok
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+Now i use thttpd statically compiled with newer libc with the 2.2.18cdhs
+on the box that was making problems before and so far it runs smooth.
+If anyone is interested of strace outputs of above tests and wants to
+discover the source of the problem, i can help.
 
+-- 
+
+
+Pegasus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276118AbRJILsT>; Tue, 9 Oct 2001 07:48:19 -0400
+	id <S275980AbRJILlt>; Tue, 9 Oct 2001 07:41:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276120AbRJILsJ>; Tue, 9 Oct 2001 07:48:09 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:34311 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S276118AbRJILsB>;
-	Tue, 9 Oct 2001 07:48:01 -0400
-Date: Tue, 9 Oct 2001 08:48:04 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, <linux-xfs@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: %u-order allocation failed
-In-Reply-To: <Pine.LNX.4.33.0110081647550.1064-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0110090846050.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S276118AbRJILlj>; Tue, 9 Oct 2001 07:41:39 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63495 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275980AbRJILla>; Tue, 9 Oct 2001 07:41:30 -0400
+Subject: Re: AIC7xxx panic
+To: dmgrime@appliedtheory.com (David M. Grimes)
+Date: Tue, 9 Oct 2001 12:47:15 +0100 (BST)
+Cc: noth@noth.is.eleet.ca (Jim Crilly), linux-kernel@vger.kernel.org
+In-Reply-To: <20011008205112.C34894@appliedtheory.com> from "David M. Grimes" at Oct 08, 2001 08:51:12 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qvLv-0003ra-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Oct 2001, Linus Torvalds wrote:
-> On Tue, 9 Oct 2001, Mikulas Patocka wrote:
-> >
-> > Linus, what do you think: is it OK if fork randomly fails with very small
-> > probability or not?
->
-> I've never seen it, I've never heard it reported, and I _know_ that
-> vmalloc() causes slowdowns.
+> Were there recent changes in ll_rw_blk which are being addressed by
+> "Elevator flow control"?  As suggested earlier in this thread, the cause
+> might be a few layers up, and this seemed relevant.
 
-I've seen it happen during stresstest of an underpowered
-test box. When that point is reached, the system usually
-is already so far overloaded there's little point in
-allowing extra processes to be started.
-
-> In short, I'm not switching to a vmalloc() fork.
-
-The only real use I could see would be to allow root to
-start up some commands to save the box when it's going
-down the drain.  Probably not worth it since root could
-have just used ulimit for the normal users ;)
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Unrelated I suspect. All it means is that in some cases -ac will have less
+segments queued before blocking. The max sectors per I/O and max segments
+per I/o are controlled by the drivers

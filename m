@@ -1,33 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268779AbUIQONX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268786AbUIQOQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268779AbUIQONX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 10:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268786AbUIQOKS
+	id S268786AbUIQOQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 10:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268776AbUIQOQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 10:10:18 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.61]:55955 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S268779AbUIQOHn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 10:07:43 -0400
-From: =?utf-8?b?0JzQuNC70LXQvSDQpdGA0LjRgdGC0L7Qsg==?= 
-	<jupitered@gamebox.net>
-Reply-To: jupitered@gamebox.net
-Organization: =?utf-8?b?0J3QtdC80LA=?=
-To: linux-kernel@vger.kernel.org
-Date: Fri, 17 Sep 2004 17:08:22 +0300
-User-Agent: KMail/1.6.2
+	Fri, 17 Sep 2004 10:16:48 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:23328 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S268791AbUIQOKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 10:10:49 -0400
+Message-ID: <414AF06F.3090603@hotmail.com>
+Date: Fri, 17 Sep 2004 07:10:55 -0700
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040916
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200409171708.22233.jupitered@gamebox.net>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.9-rc2-bk] Freeze during boot (kernel panic)
+References: <fa.fufkpc9.15ki31p@ifi.uio.no>
+In-Reply-To: <fa.fufkpc9.15ki31p@ifi.uio.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- auth 817c6ca0 subscribe linux-kernel jupitered@gamebox.net
+walt wrote:
+> Something committed in the last 24 hours is causing my machine
+> to halt partway thru bootup...
 
+I compiled everything into the kernel and now I can see that the
+problem is a kernel panic caused by ifconfig while configuring
+the loopback interface (not the ethernet chip, which is a tg3).
+
+I'll copy and post the traceback when I get home from work.

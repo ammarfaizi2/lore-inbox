@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAJC3i>; Tue, 9 Jan 2001 21:29:38 -0500
+	id <S129431AbRAJClP>; Tue, 9 Jan 2001 21:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130399AbRAJC32>; Tue, 9 Jan 2001 21:29:28 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:21002 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129431AbRAJC3J>; Tue, 9 Jan 2001 21:29:09 -0500
-Date: Tue, 9 Jan 2001 20:28:55 -0600
-To: alan@lxorguk.ukuu.org.uk
-Cc: Mike van Smoorenburg <miquels@traveler.cistron-office.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.19pre7
-Message-ID: <20010109202855.C3385@cadcamlab.org>
-In-Reply-To: <3A5B6437.3BC23AD3@metabyte.com> <93g39b$a9b$1@enterprise.cistron.net>
-Mime-Version: 1.0
+	id <S129764AbRAJClG>; Tue, 9 Jan 2001 21:41:06 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:22280 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129431AbRAJCk4>; Tue, 9 Jan 2001 21:40:56 -0500
+Date: Tue, 09 Jan 2001 21:40:46 -0500
+From: Chris Mason <mason@suse.com>
+To: Marc Lehmann <pcg@goof.com>
+cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
+        vs@namesys.botik.ru
+Subject: Re: [reiserfs-list] major security bug in reiserfs (may affect SuSE Linux)
+Message-ID: <85470000.979094446@tiny>
+In-Reply-To: <20010110023208.B296@cerebro.laendle>
+X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <93g39b$a9b$1@enterprise.cistron.net>; from miquels@traveler.cistron-office.nl on Tue, Jan 09, 2001 at 10:27:55PM +0000
-From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Mike van Smoorenburg]
-> Also calling kwhich with multiple arguments was actually the idea
-> behind the script.
 
-Yes, and that's why my optimization patch (in 2.2.19pre3, since
-reverted) broke -- it relied on multiple arguments.
 
-Alan, could you put it back in now?
+On Wednesday, January 10, 2001 02:32:09 AM +0100 Marc Lehmann <pcg@goof.com> wrote:
+>>> EIP; c013f911 <filldir+20b/221>   <=====
+> Trace; c013f706 <filldir+0/221>
+> Trace; c0136e01 <reiserfs_getblk+2a/16d>
+> 
 
-Peter
+Here is a patch against our 2.4 code (3.6.25) that does the
+same as the patch posted for 3.5.29:
 
---- 2.2.19-7/Makefile~	Tue Jan  9 20:20:14 2001
-+++ 2.2.19-7/Makefile	Tue Jan  9 20:27:27 2001
-@@ -24,12 +24,14 @@
- LD	=$(CROSS_COMPILE)ld
- #
- #	foo-bar-gcc for cross builds
--#	gcc272 for Debian's old compiler for kernels
- #	kgcc for Conectiva, Mandrake and Red Hat 7
-+#	gcc272 for Debian
- #	otherwise 'cc'
- #
--CC	=$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else \
--	$(CONFIG_SHELL) scripts/kwhich gcc272 2>/dev/null || $(CONFIG_SHELL) scripts/kwhich kgcc 2>/dev/null || echo cc; fi) \
-+CCFOUND :=$(shell $(CONFIG_SHELL) scripts/kwhich kgcc gcc272 cc gcc)
-+## Better, but requires GNU make 3.78
-+##CC	=$(if $(CROSS_COMPILE),$(CROSS_COMPILE)gcc,$(CCFOUND)) -D__KERNEL__ -I$(HPATH)
-+CC	=$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else echo $(CCFOUND); fi) \
- 	-D__KERNEL__ -I$(HPATH)
- CPP	=$(CC) -E
- AR	=$(CROSS_COMPILE)ar
+-chris
+
+--- linux/include/linux/reiserfs_fs.h.1	Tue Jan  9 21:22:27 2001
++++ linux/include/linux/reiserfs_fs.h	Tue Jan  9 21:22:55 2001
+@@ -926,8 +926,7 @@
+ //((block_size - BLKH_SIZE - IH_SIZE - DEH_SIZE * 2) / 2)
+ 
+ // two entries per block (at least)
+-#define REISERFS_MAX_NAME_LEN(block_size) \
+-((block_size - BLKH_SIZE - IH_SIZE - DEH_SIZE))
++#define REISERFS_MAX_NAME_LEN(block_size) 255
+ 
+ 
+ 
+--- linux/fs/reiserfs/dir.c.1	Tue Jan  9 21:22:19 2001
++++ linux/fs/reiserfs/dir.c	Tue Jan  9 21:21:02 2001
+@@ -142,6 +142,10 @@
+ 		if (!d_name[d_reclen - 1])
+ 		    d_reclen = strlen (d_name);
+ 	
++		if (d_reclen > REISERFS_MAX_NAME_LEN(inode->i_sb->s_blocksize)){
++		    /* too big to send back to VFS */
++		    continue ;
++		}
+ 		d_off = deh_offset (deh);
+ 		filp->f_pos = d_off ;
+ 		d_ino = deh_objectid (deh);
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

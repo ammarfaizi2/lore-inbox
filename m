@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292298AbSBBPND>; Sat, 2 Feb 2002 10:13:03 -0500
+	id <S292300AbSBBPWE>; Sat, 2 Feb 2002 10:22:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292299AbSBBPMy>; Sat, 2 Feb 2002 10:12:54 -0500
-Received: from h24-71-103-168.ss.shawcable.net ([24.71.103.168]:62214 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP
-	id <S292298AbSBBPMg>; Sat, 2 Feb 2002 10:12:36 -0500
-X-Authentication: 6b0a6c24d87cd2d88db5ba834064fe46d7a226f9
-Date: Sat, 2 Feb 2002 09:12:09 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Larry McVoy <lm@work.bitmover.com>
-Subject: Re: Bitkeeper change granularity (was Re: A modest proposal -- We need a patch penguin)
-Message-ID: <20020202091209.A7679@twoflower.internal.do>
-In-Reply-To: <lm@bitmover.com> <200202011111.g11BBVf0009257@tigger.cs.uni-dortmund.de> <20020201083855.C8664@work.bitmover.com> <20020202001058.UXDU10685.femail14.sdc1.sfba.home.com@there> <20020201191928.D2122@twoflower.internal.do> <20020201215040.F27081@work.bitmover.com>
+	id <S292301AbSBBPVo>; Sat, 2 Feb 2002 10:21:44 -0500
+Received: from fysh.org ([212.47.68.126]:19474 "EHLO bowl.fysh.org")
+	by vger.kernel.org with ESMTP id <S292300AbSBBPVg>;
+	Sat, 2 Feb 2002 10:21:36 -0500
+Date: Sat, 2 Feb 2002 15:21:35 +0000
+From: Athanasius <Athanasius@gurus.tf>
+To: Jim <jimd@starshine.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Jiffies from userspace
+Message-ID: <20020202152134.GB19785@gurus.tf>
+Mail-Followup-To: Athanasius <Athanasius@gurus.tf>,
+	Jim <jimd@starshine.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020201123321.A799@mars.starshine.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yNb1oOkm5a9FJOVX"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020201215040.F27081@work.bitmover.com>; from lm@bitmover.com on Fri, Feb 01, 2002 at 09:50:40PM -0800
+In-Reply-To: <20020201123321.A799@mars.starshine.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> wrote:
-> 
->     bk clone main temporary-fork
-> 
-> >   [hack hack hack]
-> >   bk commit
-> >   [hack hack hack]
-> 
->     bk fix -c
-> 
-> >   [hack hack hack]
-> >   bk commit 
-> >   [hack hack hack]
-> >   bk commit
-> 
->     bk push
-> 
-> All exists, works as described, no changes necessary.
 
-But will the changes which were committed and then reverted from the
-temporary tree show up in the main tree after the "push"?  There should be no
-evidence that they ever took place, so as not to clutter Linus' tree with
-changes a developer made and had no intention of sending to Linus.
+--yNb1oOkm5a9FJOVX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
------------------------------------------------------------------------
+On Fri, Feb 01, 2002 at 12:33:21PM -0800, Jim wrote:
+>  reasonable way to get an estimate of the "current" value of the=20
+>  kernel's jiffies:
+>=20
+>  	set -- `cat /proc/self/stat`; echo ${22}
+>=20
+>  The cat will start a new process, field 22? of its "stat" node=20
+>  under proc should have the jiffies value at the time the process
+>  was started; so the echo command execute "shortly" thereafter.
+>=20
+>  But am I right about the struct of stat:  Is that really in ${22}?
+
+   Assuming so try:
+
+	awk '{print $22}' /proc/self/stat
+
+for a 'single process' version.
+
+-Ath
+--=20
+- Athanasius =3D Athanasius(at)gurus.tf / http://www.clan-lovely.org/~athan/
+                  Finger athan(at)fysh.org for PGP key
+	   "And it's me who is my enemy. Me who beats me up.
+Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
+
+--yNb1oOkm5a9FJOVX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjxcA/4ACgkQzbc+I5XfxKe6/ACfR4QJiDyFWw9yj6b7BX4lMPv7
+7HwAniLBhg1DQ+BkV3kT2VcwjEHDE41N
+=t9uT
+-----END PGP SIGNATURE-----
+
+--yNb1oOkm5a9FJOVX--

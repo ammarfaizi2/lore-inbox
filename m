@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131021AbQL1DFj>; Wed, 27 Dec 2000 22:05:39 -0500
+	id <S132325AbQL1DHj>; Wed, 27 Dec 2000 22:07:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132260AbQL1DF3>; Wed, 27 Dec 2000 22:05:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23056 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131021AbQL1DFY>; Wed, 27 Dec 2000 22:05:24 -0500
-Subject: Re: Linux 2.2.19pre3
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Thu, 28 Dec 2000 02:37:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001228021859.A4661@emma1.emma.line.org> from "Matthias Andree" at Dec 28, 2000 02:18:59 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132324AbQL1DH3>; Wed, 27 Dec 2000 22:07:29 -0500
+Received: from m845-mp1-cvx1a.col.ntl.com ([213.104.71.77]:41485 "EHLO
+	[213.104.71.77]") by vger.kernel.org with ESMTP id <S132323AbQL1DHV>;
+	Wed, 27 Dec 2000 22:07:21 -0500
+To: "Jogchem de Groot" <c.dgroot@chello.nl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Kernel panics on sending large ping packets using 'ping'
+In-Reply-To: <00122713500100.00417@kryptology>
+From: "John Fremlin" <vii@penguinpowered.com>
+Date: 28 Dec 2000 00:13:13 +0000
+In-Reply-To: Jogchem de Groot's message of "Wed, 27 Dec 2000 14:13:29 +0100"
+Message-ID: <m2k88lmmhy.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14BSwU-00038p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
-> 
-> I patched my 2.2.18-ma2 with that patch to see if that helps me off my
-> sys time slowness, but it does unfortunately not help.
+ Jogchem de Groot <c.dgroot@chello.nl> writes:
 
-Thats unrelated
+[...]
 
-> I have my system clock drift roughly -1 s/min, though my CMOS clock is
-> fine unless tampered with.
+> 1: Kernel panics on sending large ping packets using 'ping'
 
-Unless its a driver holding off irqs for a long time your only option is
-probably to replace the crystals on the board with ones that are more
-accurate.
+Not for me.
 
-adjtimex will let you tell Linux the clock on the board is crap too
+[...]
 
+> 4: Linux version 2.4.0-test12
+
+Linux 2.4.0-test13-pre4-tosatti
+
+[...]
+
+> 6: #!/bin/sh
+>     ping -s 60000 127.0.0.1
+
+Ping from netkit-combo-0.17:
+
+# ping -s 60000 127.0.0.1
+PING 127.0.0.1 (127.0.0.1): 60000 octets data
+60008 octets from 127.0.0.1: icmp_seq=0 ttl=255 time=5.6 ms
+60008 octets from 127.0.0.1: icmp_seq=1 ttl=255 time=4.8 ms
+60008 octets from 127.0.0.1: icmp_seq=2 ttl=255 time=4.8 ms
+
+[...]
+
+-- 
+
+	http://www.penguinpowered.com/~vii
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

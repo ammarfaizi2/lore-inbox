@@ -1,112 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbQL1M2N>; Thu, 28 Dec 2000 07:28:13 -0500
+	id <S132299AbQL1Man>; Thu, 28 Dec 2000 07:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130109AbQL1M2D>; Thu, 28 Dec 2000 07:28:03 -0500
-Received: from ppp-97-167-an04u-dada6.iunet.it ([151.35.97.167]:6149 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S129774AbQL1M1u>;
-	Thu, 28 Dec 2000 07:27:50 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff), linux-kernel@vger.kernel.org
-Subject: Re: Semaphores slow???
-Date: Thu, 28 Dec 2000 13:27:54 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <200012271415.PAA18730@cave.bitwizard.nl>
-In-Reply-To: <200012271415.PAA18730@cave.bitwizard.nl>
+	id <S132287AbQL1Mad>; Thu, 28 Dec 2000 07:30:33 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:40660 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S132175AbQL1MaW>; Thu, 28 Dec 2000 07:30:22 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] shmem_unuse race fix
+In-Reply-To: <Pine.LNX.4.21.0012272025190.528-100000@dual.transmeta.com>
+From: Christoph Rohland <cr@sap.com>
+Message-ID: <m31yuswyig.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-Message-Id: <00122814171703.00232@linux1.home.bogus>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Date: 28 Dec 2000 13:02:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Dec 2000, Rogier Wolff wrote:
-> Hi,
-> 
-> We have a typical semaphore application that has a producer and a
-> consumer.
-> 
-> Without the semaphores we are limited by the rest of the stuff to
-> 10000 times around the loop per second. That's good.
-> 
-> When we put the "push the semaphore" call in there, the rate drops to
-> around 8000 per second. I'm not happy about that, but ok. When we add
-> the "wait for bufferspace" semaphore wait in there, the rate drops to
-> 4000 per second. This is way too low.
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-This sound weird to me.
-I think that linux semaphores ( not SysV IPC ) are quite fast instead.
-They're based on fast spinlocks and linux scheduling ( no need of predefined
-scheduling points ) code.
+> On 27 Dec 2000, Christoph Rohland wrote:
+> Woul dyou mind testing this alternate fix instead:
 
+Does not work, but is the right direction I think.
 
-> 
-> Does anybody have an idea why linux semaphores are so slow?
-> 
-> init: 
-> 	sem_init (&write_sem, 1, 0);
-> 	sem_init (&write_buffer_sem, 1, 0);
-> 
-> 
-> 
-> producer: 
-> 
-> 	
-> 	while (1) {
->                 sem_wait (&write_buffer_sem);
-> 		... 
-> 
->                 sem_post (&write_sem);
->         }
-> 
-> 
-> consumer: 
-> 	for (i=0;i<nbufs;i++) {
-> 		Create_buffer (i);
-> 		sem_post (&write_buffer_sem);
->         }
-> 
-> 	while (1) {
->                 sem_wait (&write_sem);
-> 		... 
-> 
->                 sem_post (&write_buffer_sem);
-> 	}
-> 
+First we need the following patch since otherwise we use a swap entry
+without having the count increased:
 
-Which kind of syncronization have You used to get 10000 loops/sec ?
+--- 4-13-4/mm/vmscan.c  Fri Dec 22 10:05:38 2000
++++ m4-13-4/mm/vmscan.c Thu Dec 28 11:57:57 2000
+@@ -93,8 +93,8 @@
+                entry.val = page->index;
+                if (pte_dirty(pte))
+                        SetPageDirty(page);
+-set_swap_pte:
+                swap_duplicate(entry);
++set_swap_pte:
+                set_pte(page_table, swp_entry_to_pte(entry));
+ drop_pte:
+                UnlockPage(page);
+@@ -185,7 +185,7 @@
+         * we have the swap cache set up to associate the
+         * page with that swap entry.
+         */
+-       entry = get_swap_page();
++       entry = __get_swap_page(2);
+        if (!entry.val)
+                goto out_unlock_restore; /* No swap space left */
 
 
+Second there look at this in handle_pte_fault:
 
-> (pshared == 0 doesn't work: returns error. The manpage claims that
-> thsi would happen for pshared != 0... )
+		/*
+		 * If it truly wasn't present, we know that kswapd
+		 * and the PTE updates will not touch it later. So
+		 * drop the lock.
+		 */
+		spin_unlock(&mm->page_table_lock);
+		if (pte_none(entry))
+			return do_no_page(mm, vma, address, write_access, pte);
+		return do_swap_page(mm, vma, address, pte, pte_to_swp_entry(entry), write_access);
 
-Which glibc version are You using ?
-This is the code for sem_init() ( 2.1.3 ) :
+The comment is wrong. try_to_unuse will touch it. This stumbles over a
+bad swap entry after try_to_unuse complaining about an undead swap
+entry.
 
-int __new_sem_init(sem_t *sem, int pshared, unsigned int value)
-{
-  if (value > SEM_VALUE_MAX) {
-    errno = EINVAL;
-    return -1;
-  }
-  if (pshared) {
-    errno = ENOSYS;
-    return -1;
-  }
-  __pthread_init_lock((struct _pthread_fastlock *) &sem->__sem_lock);
-  sem->__sem_value = value;
-  sem->__sem_waiting = NULL;
-  return 0;
-}
+If I retry in try_to_unuse it goes into an infinite loop since it
+deadlocks with this.
 
-
-Are You sure You're not using a pthread emulation of GNU Pth library ?
-
-
-
-
-- Davide
+Ideas?
+        Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

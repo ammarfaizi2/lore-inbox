@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269241AbUISO0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269242AbUISOqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269241AbUISO0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 10:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269242AbUISO0A
+	id S269242AbUISOqr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 10:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269245AbUISOqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 10:26:00 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:32661 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S269241AbUISOZ6 (ORCPT
+	Sun, 19 Sep 2004 10:46:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30140 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269242AbUISOqp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 10:25:58 -0400
-Message-ID: <414D96EF.6030302@softhome.net>
-Date: Sun, 19 Sep 2004 16:25:51 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla Thunderbird 0.8 (Macintosh/20040913)
-X-Accept-Language: en-us, en
+	Sun, 19 Sep 2004 10:46:45 -0400
+Date: Sun, 19 Sep 2004 10:46:18 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andreas Gruenbacher <agruen@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/6] xattr consolidation v2 - generic xattr API
+In-Reply-To: <200409191213.57977.agruen@suse.de>
+Message-ID: <Xine.LNX.4.44.0409191044210.17989-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-CC: benh@kernel.crashing.org, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: udev is too slow creating devices
-References: <414C9003.9070707@softhome.net>	<1095568704.6545.17.camel@gaston>	<414D42F6.5010609@softhome.net> <20040919140034.2257b342.Ballarin.Marc@gmx.de>
-In-Reply-To: <20040919140034.2257b342.Ballarin.Marc@gmx.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Ballarin wrote:
-> 
->>   If there is problem, it doesn't mean we just pass it over. Probably 
->>we need to solve it?
-> 
-> How do you want to solve it? We cannot look into the future, so how should
-> we know which device nodes "modprobe xyz" will or should create?
-> dev.d is a nice solution. If any device node is created, your script is
-> called. If it is the node you want, you perform your actions.
-> 
+On Sun, 19 Sep 2004, Andreas Gruenbacher wrote:
 
-   Well, can then anyone explain by which mean (black magic?) kernel 
-mounts root file system? block device might appear any time, file system 
-might take ages to load.
+> Documentation/filesystems/Locking seems to be accurate.
 
-   Hu? How is init/do_mounts.c still works then? Or it is needs to be 
-fixed with messages a-la "root file system will be available shortly, we 
-do hope" and "please plug in again your hard-wired IDE drive"?
+There's an out of date comment in fs/devpts/xattr.c (which is no excuse 
+for screwing it up though).
 
-   People, you must learn doing abstractions carefully. If device is 
-hard-wired - user *will* expect (as kernel itself does) that it is 
-available all the time after modprobe'ing driver.
+> The old handler API was fine at the FS level where locking was guaranteed 
+> anyways. At the VFS level we should do better. Passing in the buffer and the 
+> buffer size at the same time gets us rid of the problem without requiring any 
+> locking.
+
+Ok, I'll incorporate this and resubmit the patches soon.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

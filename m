@@ -1,178 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264831AbTFQQCM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 12:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264832AbTFQQCM
+	id S264829AbTFQQA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 12:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264831AbTFQQA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 12:02:12 -0400
-Received: from monaco.directrouter.com ([66.246.85.232]:61648 "EHLO
-	monaco.directrouter.com") by vger.kernel.org with ESMTP
-	id S264831AbTFQQBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 12:01:40 -0400
-From: Zoup <Zoup@zoup.org>
-Organization: Zoup.org
-To: James Simmons <jsimmons@infradead.org>
-Subject: Re: 2.5.71 Frame Buffer Problem
-Date: Thu, 19 Jun 2003 01:01:05 +0430
-User-Agent: KMail/1.5
-References: <Pine.LNX.4.44.0306162149480.26878-100000@phoenix.infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0306162149480.26878-100000@phoenix.infradead.org>
+	Tue, 17 Jun 2003 12:00:26 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36110 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264828AbTFQQAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 12:00:22 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux 2.5.71
+Date: 17 Jun 2003 09:13:53 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bcneo1$osd$1@cesium.transmeta.com>
+References: <20030615002153.GA20896@work.bitmover.com>
 MIME-Version: 1.0
-Message-Id: <200306190057.14440.Zoup@zoup.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JwM8+yMfXtQgA9R"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - monaco.directrouter.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - zoup.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20030615002153.GA20896@work.bitmover.com>
+By author:    Larry McVoy <lm@bitmover.com>
+In newsgroup: linux.dev.kernel
+> 
+> HPA can help you with that.  In fact, hpa, weren't we going to make a 
+> cvs.kernel.org?  If so, how about pointing that at kernel.bkbits.net for
+> the time being and then if someone steps forward to host that you can
+> just change the DNS entry?
+> 
 
---Boundary-00=_JwM8+yMfXtQgA9R
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Seems reasonable.  I have been up over my ears for a while, and quite
+frankly I'm trying to spend some of my Linux time working on my real
+Linux projects, too...
 
-On Tuesday 17 June 2003 01:21, James Simmons wrote:
-> Ugh. You have the vga16, vesa, and NVIDIA framebuffer drivers enabled.
-> The NVIDIA driver might not work with your card. The VESA will so you
-> should only enable that. Also you enabled both VGA console and frmaebuffer
-> console. Please only enable framebuffer console.
->
->
-> -
-
-i had compile kernel 2.5.71 with VESA support (disabled nvidia driver ) , on 
-boot some lines and dotes dancing around the screen ! :) 
-now i have remove VESA support and VGA Console , there is no blank screen 
-again but , i have seleted vga 791 ( 1025x768x256 ) and its working on 769 ( 
-640x486x256 ) , i dont know why ! :) i have tested many times , you know 
-nvidia driver works under 2.4.* . 
-thanks 
-
-config file attached . 
+	-hpa
 -- 
-Wish You Were Here ...
---Boundary-00=_JwM8+yMfXtQgA9R
-Content-Type: application/x-gzip;
-  name="config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="config.gz"
-
-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
-
---Boundary-00=_JwM8+yMfXtQgA9R--
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

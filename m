@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263548AbUDBBs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 20:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUDBBsZ
+	id S263558AbUDBBwP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 20:52:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbUDBBwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 20:48:25 -0500
-Received: from imap.gmx.net ([213.165.64.20]:59329 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263548AbUDBBsC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 20:48:02 -0500
-X-Authenticated: #1892127
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Transfer-Encoding: 7bit
-Message-Id: <87456E3F-8450-11D8-91A9-0003931E0B62@gmx.li>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Thu, 1 Apr 2004 20:52:15 -0500
+Received: from ds002.xs4all.nl ([213.84.134.134]:48651 "EHLO
+	mail.metropipe.net") by vger.kernel.org with ESMTP id S263558AbUDBBwM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 20:52:12 -0500
+Date: Fri, 02 Apr 2004 03:48:21 00200 (CEST)
 To: linux-kernel@vger.kernel.org
-From: Martin Schaffner <schaffner@gmx.li>
-Subject: [PATCH 2.6.5-rc3] enable compilation on hosts without elf.h
-Date: Fri, 2 Apr 2004 03:50:40 +0100
-X-Mailer: Apple Mail (2.613)
+From: "Job 317" <job317@mailvault.com>
+Subject: Re: Upgrade from 2.4.25 to 2.6.4 kernel
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary = "=_ef9d0d6e0ae7dc15cad4b728708f08ce"
+Message-Id: <20040402015231.877775FB14@mail.metropipe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://membres.lycos.fr/schaffner/non-elf-host.patch
+This is a MIME encoded message.
 
-To compile linux, a host currently has to provide elf.h.
+--=_ef9d0d6e0ae7dc15cad4b728708f08ce
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-The following patch removes this necessity by adding elf.h from 
-glibc-2.3.2 (minus the inclusion of features.h) to scripts/:
+Mark and Darren,
 
-http://membres.lycos.fr/schaffner/non-elf-host.patch
+You've been most helpful.
 
---
-Martin
+Kindest regards,
+
+JOB
+--=_ef9d0d6e0ae7dc15cad4b728708f08ce--
+
 

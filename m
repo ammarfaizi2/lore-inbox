@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263233AbTDRUeN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 16:34:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTDRUeN
+	id S263235AbTDRUr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 16:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTDRUr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 16:34:13 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57276 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263233AbTDRUeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 16:34:12 -0400
-Date: Fri, 18 Apr 2003 16:46:05 -0400
-From: Bill Nottingham <notting@redhat.com>
-To: Dave Mehler <dmehler26@woh.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mkinitrd
-Message-ID: <20030418164605.B2090@devserv.devel.redhat.com>
-Mail-Followup-To: Dave Mehler <dmehler26@woh.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <000501c305cb$a7a8e6b0$0200a8c0@satellite>
-Mime-Version: 1.0
+	Fri, 18 Apr 2003 16:47:26 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:62646 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263235AbTDRUrZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 16:47:25 -0400
+Date: Fri, 18 Apr 2003 13:49:05 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 602] New: warnings on hcd rmmod:  "dangling refs(N) to bus B" (fwd)
+Message-ID: <1382940000.1050698945@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <000501c305cb$a7a8e6b0$0200a8c0@satellite>; from dmehler26@woh.rr.com on Fri, Apr 18, 2003 at 12:57:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Mehler (dmehler26@woh.rr.com) said: 
->     Same deal as before, on my rh9 box i have mkinitrd version 3.4.42-1
->     Is this sufficient for running a 2.5 kernel? I heard there was some
-> update to mkinitrd i might have to get, which might explain why the system
-> is hanging after the initrd image, but have not been able to find it.
+http://bugme.osdl.org/show_bug.cgi?id=602
 
-It needs to be patched to find modules with the new suffix... the simplest
-way is to probably change the reference for $modName.o.gz to $modName.ko.
+           Summary: warnings on hcd rmmod:  "dangling refs(N) to bus B"
+    Kernel Version: 2.5.66
+            Status: NEW
+          Severity: low
+             Owner: greg@kroah.com
+         Submitter: dbrownell@users.sourceforge.net
 
-Bill
+
+The bus refcounting mechanism is broken, it often produces  warning messages like that one when modules are removed.    The problem appears to be an extremely long-standing one,  at least in terms of the how-to-reproduce I saw:     - connect a device that won't immediately enumerate,     so that setting its address needs to be retried (or     similar error, like set_configuration failing)     - unplug that device ... at this point the refcount     is wrong, but you can't tell until     - rmmod the relevant HCD.    This particular cause of that message is because the bus  refcount isn't released on error.  The fix isn't as  straightforward as it should be because of funky calling  conventions ("longstanding", likely since 2.4), but it's  not
+complicated either.
+

@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262385AbSJTLl7>; Sun, 20 Oct 2002 07:41:59 -0400
+	id <S262440AbSJTMAu>; Sun, 20 Oct 2002 08:00:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262440AbSJTLl7>; Sun, 20 Oct 2002 07:41:59 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:521 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S262385AbSJTLl7>; Sun, 20 Oct 2002 07:41:59 -0400
-Message-Id: <200210201142.g9KBgUp18341@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Bert Barbe <BERT.BARBE@oracle.com>, rmk@arm.linux.org.uk
-Subject: Re: Re: 2.4.19 orinoco_cs with Lucent WaveLAN "bronze"
-Date: Sun, 20 Oct 2002 14:35:19 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org
-References: <3187992.1035061003952.JavaMail.nobody@web54.us.oracle.com>
-In-Reply-To: <3187992.1035061003952.JavaMail.nobody@web54.us.oracle.com>
+	id <S262448AbSJTMAu>; Sun, 20 Oct 2002 08:00:50 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:9975 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262440AbSJTMAt>; Sun, 20 Oct 2002 08:00:49 -0400
+Date: Sun, 20 Oct 2002 14:06:50 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: sailer@ife.ee.ethz.ch
+cc: linux-kernel@vger.kernel.org, <trivial@rustcorp.com.au>
+Subject: [2.5 patch] fix kbuild breakage in drivers/net/hamradio/soundmodem
+Message-ID: <Pine.NEB.4.44.0210201353150.28761-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 October 2002 18:56, Bert Barbe wrote:
-> > On Sat, Oct 19, 2002 at 02:14:57PM +0000, Denis Vlasenko wrote:
-> > > Today I played with wireless LAN euqipment for the first time.
-> > > I have ISA-to-PCMCIA converter and a Lucent (IEEE) PCMCIA card.
-> > > I set up everything as directed by HOWTOs. I do:
-> >
-> > Yes, I also noticed many problems with the current orinoco_cs
-> > driver.
->
-> I have an orinocco gold. In 2.4.x<19 it gave me some errors in the
-> logs also, but despite that it seemed to work after setting the right
-> options with iwconfig. I haven't tested 2.4.19 with the orinioco_cs
-> driver yet since I had other problems with .19 before i got to that.
 
-Can you be a bit more specific on that iwconfig options? ;-)
+drivers/net/hamradio/soundmodem/Makefile includes the following:
 
-Also folks directed me to firmware upgrade, but it is for
-Windows. Is there any for Linux? Did you upgrade yours?
---
-vda
+<--  snip  -->
+
+...
+$(obj)/sm_tbl_%: $(obj)/gentbl
+        $(obj)/gentbl
+
+<--  snip  -->
+
+gentbl is a program that generates some header files. The recent kbuild
+changes have the "interesting" effect that this now outputs the header
+files to the root directory of the kernel tree instead of
+drivers/net/hamradio/soundmodem ...
+
+The following patch fixes this breakage:
+
+--- linux-2.5.44-full/drivers/net/hamradio/soundmodem/Makefile.old	2002-10-20 13:58:47.000000000 +0200
++++ linux-2.5.44-full/drivers/net/hamradio/soundmodem/Makefile	2002-10-20 13:59:04.000000000 +0200
+@@ -38,5 +38,5 @@
+ $(obj)/sm_fsk9600.o:    $(obj)/sm_tbl_fsk9600.h
+
+ $(obj)/sm_tbl_%: $(obj)/gentbl
+-	$(obj)/gentbl
++	cd $(obj) && ./gentbl
+
+
+cu
+Adrian
+
+-- 
+
+               "Is there not promise of rain?" Ling Tan asked suddenly out
+                of the darkness. There had been need of rain for many days.
+               "Only a promise," Lao Er said.
+                                               Pearl S. Buck - Dragon Seed
+
+
+
+
+

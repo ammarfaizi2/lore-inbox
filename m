@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263867AbTDZD3l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 23:29:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTDZD3l
+	id S264605AbTDZDep (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 23:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264606AbTDZDep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 23:29:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15277 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263867AbTDZD3k
+	Fri, 25 Apr 2003 23:34:45 -0400
+Received: from lakemtao02.cox.net ([68.1.17.243]:36296 "EHLO
+	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S264605AbTDZDeo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 23:29:40 -0400
-Date: Sat, 26 Apr 2003 04:41:51 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: linux-kernel@vger.kernel.org
-Cc: mikem@beardog.cca.cpqcorp.net
-Subject: [CFT][PATCH] cciss/cpqarray fixes (2.5)
-Message-ID: <20030426034151.GM10374@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 25 Apr 2003 23:34:44 -0400
+Message-ID: <3EAA011B.7040104@cox.net>
+Date: Fri, 25 Apr 2003 22:46:35 -0500
+From: David van Hoose <davidvh@cox.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.6x Sound frustration
+References: <3EA9AC16.4070903@coyotegulch.com>
+In-Reply-To: <3EA9AC16.4070903@coyotegulch.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Folks, if you have access to cciss and/or cpqarray test boxen,
-please check if ftp.linux.org.uk/pub/people/viro/T24-cciss-C68 and
-ftp.linux.org.uk/pub/people/viro/T25-cpqarray-C68 restore the "allow
-root to open device with minor 0 even if nothing had been configured"
-behaviour.
+Scott Robert Ladd wrote:
+> The 2.5.66 kernel loads the ALSA sound drivers for my Intel i8x0 
+> on-board sound, but no sound files make any... well, *sound.*
+> 
+> Note that, other than sound, the machine is performing flawlessly.
+> 
+> I've enabled the ALSA drivers, with (and for one etst, without) OSS 
+> emulation, integrated into the kernel (no modules).
+> 
+> I hear a pop while the OS is loading; the log states:
+> 
+> Apr 25 17:06:18 Tycho kernel: intel8x0: clocking to 41158
+> Apr 25 17:06:18 Tycho kernel: ALSA device list:
+> Apr 25 17:06:18 Tycho kernel:   #0: Intel 82801BA-ICH2 at 0xe800, irq 17
+> 
+> Yes, I'm using the latest ALSA tools.
+> 
+> Yes, I've used a mixer (several, actually) to make sure nothing is muted 
+> and that all volumes are maximized.
+> 
+> Yes, I have the speakers turned on, plugged in, and connected to the 
+> proper connector on the motherboard (an Intel D850EMV2). I've even tried 
+> different speakers, jacks, and cables. The speakers work fine when 
+> attached to a Wintel system, BTW.
+> 
+> I've tried running several different "sound" apps, along with directly 
+> sending sounds to various devices -- and my reward is silence.
+> 
+> This is the first Linux system on which I've wanted the sound working... 
+> I'm willing to admit I may be doing something stupid -- please be 
+> gentle! ;)
 
-	Changes:
-a) we _always_ register gendisk for disk #0 on controller.
-b) it stays registered until we forget about controller.
-c) when old code would remove it, we merely set size to 0.
+Have you tried compiling the intel8x0 ALSA driver as a module? I never 
+could get mine to work from within the kernel, but I got it to work 
+perfectly as modules. Just remember to set the options and whatnot for 
+the snd and intel8x0 modules as stated in the ALSA documentation.
+Just a thought.
 
-	That (presumably) fixes the breakage introduced in 2.5 when we
-started to require registered gendisk for open(2).  Please, check if that
-helps and doesn't introduce new breakage - I don't have either hardware, so
-it's completely untested.  It builds, but that's it.
+-David
+

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263570AbTEWBaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 21:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTEWBaQ
+	id S263578AbTEWBdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 21:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbTEWBdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 21:30:16 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:31651 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S263570AbTEWBaP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 21:30:15 -0400
-Subject: Re: irtty_sir cannot be unloaded
-From: Stian Jordet <liste@jordet.nu>
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030523011349.GA12195@bougret.hpl.hp.com>
-References: <20030522233609.GA11706@bougret.hpl.hp.com>
-	 <1053652200.709.6.camel@chevrolet.hybel>
-	 <20030523011349.GA12195@bougret.hpl.hp.com>
-Content-Type: text/plain
-Message-Id: <1053654253.668.1.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
-Date: 23 May 2003 03:44:13 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 22 May 2003 21:33:09 -0400
+Received: from ausmtp01.au.ibm.com ([202.81.18.186]:10743 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263578AbTEWBcC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 21:32:02 -0400
+From: Rusty Russell <rusty@au1.ibm.com>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       David Mosberger-Tang <davidm@hpl.hp.com>
+Subject: Re: [PATCH 4/3] Replace dynamic percpu implementation 
+In-reply-to: Your message of "Thu, 22 May 2003 16:19:44 +0530."
+             <20030522104944.GE27614@in.ibm.com> 
+Date: Fri, 23 May 2003 09:56:01 +1000
+Message-Id: <20030523014454.AE3401A0F1@ozlabs.au.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre, 23.05.2003 kl. 03.13 skrev Jean Tourrilhes:
-> On Fri, May 23, 2003 at 03:10:00AM +0200, Stian Jordet wrote:
-> > fre, 23.05.2003 kl. 01.36 skrev Jean Tourrilhes: 
-> > > Stian Jordet wrote :
-> > > > 
-> > > > Module irtty_sir cannot be unloaded due to unsafe usage in
-> > > > include/linux/module.h:456
-> > > > 
-> > > > I get this message when trying to use irda with 2.5.x. I know it has
-> > > > been there for a long time, but since nothing happens
-> > > 
-> > > 	This is fixed in the patches I've send to Jeff :
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=105286597418927&w=2
-> > > 	Just be patient ;-)
-> > 
-> > Well, this got rid of the warning :) But actually when I stop irattach
-> > (using Debian's init-script (/etc/init.d/irda stop)) my computer
-> > freezes. This works (of course) fine with 2.4.21-rc2. I thought the
-> > problem was the module unloading, but it seems to be something with
-> > irattach instead. Sorry about that.
+In message <20030522104944.GE27614@in.ibm.com> you write:
+> On Thu, May 22, 2003 at 06:36:31PM +1000, Rusty Russell wrote:
+> > Interesting: personally I consider the cacheline sharing a feature,
+> > and unless you've done something special, the static declaration
+> > should be interlaced too, no?
 > 
-> 	Disable HotPlug in your kernel and recompile. Various network
-> people have been notified of this bug, but this is not an easy one.
+> Yes, the static declartion was interlaced too. What I meant to say is that
+> cacheline sharing feature helped alloc_percpu/static percpu, compensate
+> for the small extra memory reference cost in getting __percpu_offset[]
+> when you compare with kmalloc_percpu_new.
 
-You were right, this was the problem. Then I just have to choose what I
-need the most; irda or pcmcia :)
+Ah, thanks, that clarifies.  Sorry for my misread.
 
-Thanks :)
+> > Aside: if kmalloc_percpu uses the per-cpu offset too, it probably
+> > makes sense to make the per-cpu offset to a first class citizen, and
+> > smp_processor_id to be derived, rather than the other way around as at
+> > the moment.  This would offer further speedup by removing a level of
+> > indirection.
+> > 
+> > If you're interested I can probably produce such a patch for x86...
+> 
+> Sure, it might help per-cpu data but will it cause performance
+> regression elsewhere? (other users of smp_processor_id).
 
-Best regards,
-Stian
+AFAICT, all the time-critical smp_processor_id() things are basically
+for indexing into a per-cpu data array.  Even things like module.h and
+percpu_counter.h would benifit from replacing those huge
+inside-structure [NR_CPUS] arrays with a dynamic allocation.
 
+> I can run it through the same tests and find out.  Maybe it'll make
+> good paper material for later? ;)
+
+I'll try to find time today or early next week.
+
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

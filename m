@@ -1,94 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263645AbTLXPj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 10:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTLXPj0
+	id S263646AbTLXPkU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 10:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTLXPkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 10:39:26 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:13185 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S263645AbTLXPjY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 10:39:24 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-mm1
-Date: Wed, 24 Dec 2003 10:39:21 -0500
-User-Agent: KMail/1.5.1
-References: <20031222211131.70a963fb.akpm@osdl.org>
-In-Reply-To: <20031222211131.70a963fb.akpm@osdl.org>
-Organization: Organization: None that appears to be detectable by casual observers
+	Wed, 24 Dec 2003 10:40:19 -0500
+Received: from adsl-66-124-76-105.dsl.sntc01.pacbell.net ([66.124.76.105]:6106
+	"EHLO www.baywinds.org") by vger.kernel.org with ESMTP
+	id S263646AbTLXPkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 10:40:04 -0500
+Message-ID: <3FE9ADEE.1080103@baywinds.org>
+Date: Wed, 24 Dec 2003 07:17:02 -0800
+From: Bruce Ferrell <bferrell@baywinds.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: is it possible to have a kernel module with a BSD license?!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312241039.21747.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.56.244] at Wed, 24 Dec 2003 09:39:23 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 December 2003 00:11, Andrew Morton wrote:
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-
->test11/2.6.0-mm1/
->
->
->Quite a lot of new material here.  It would be appreciated if people
-> who have significant patches in -mm could retest please.
+from the project announcement on freshmeat:
 
-I don't have anything in -mm1, but heres a report, up about 23 hrs 
-now.
 
-Everything seems to be working fine, and one proggy I couldn't run 
-before, now does, epsons iscan-1.5.2 front end for sane driven 
-scanners now works.  The major thing I see in the logs is audio 
-related, and has been carrying on since last summer.
+  Dazuko 2.0.0-pre5 (Default)
+  by John Ogness - Tuesday, November 11th 2003 06:56 PST
 
-Dec 23 20:35:18 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 21:33:06 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 22:10:50 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 22:25:58 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 22:50:40 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 23:20:37 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 23:33:07 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 23 23:53:43 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 24 00:07:46 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 24 00:22:26 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 24 01:22:55 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 24 01:35:27 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 24 03:47:31 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
-Dec 24 03:59:54 coyote kernel: via82cxxx: timeout while reading AC97 
-codec (0x9A0000)
+About:
+This project provides a kernel module which provides 3rd-party 
+applications with an interface for file access control. It was 
+originally developed for on-access virus scanning. Other uses include a 
+file-access monitor/logger or external security implementations. It 
+operates by intercepting file-access calls and passing the file 
+information to a 3rd-party application. The 3rd-party application then 
+has the opportunity to tell the kernel module to allow or deny the 
+file-access. The 3rd-party application also receives information about 
+the file, such as type of access, process ID, user ID, etc.
 
-I think that each of those is related to the little two tone noise I 
-play when there is new incoming mail.  There's a couple of other 
-non-show stoppers but thats the major log clutterer.  The only alsa 
-is whats in the kernel, and with a couple of very minor exceptions, 
-it all works.  No Ooops, lockups or anything like that.  All pretty 
-smooth and interactive using anticipatory at the moment.
+Release focus: Minor bugfixes
 
-Merry Christmas Andrew!
+Changes:
+Some "in use" problems with spontaneous context-switches when unloading 
+under FreeBSD were fixed. Macros for hooking/unhooking system calls were 
+added. Filename length restrictions were removed. Code for generating 
+protocol13 was abstracted and moved into XP layer. Support for filenames 
+with non-printable characters was added. The ability to compile the 
+interface library without 1.x compatibility was added. An "off by one" 
+bug which occurred when calculating include/exclude path lengths was 
+fixed. Support for Linux 2.6 kernels was added (not yet complete, but 
+very functional).
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+                                 Last release   	 License   	
+Default 	2.0.0-pre5 	24-Dec-2003 	BSD License (revised)
 

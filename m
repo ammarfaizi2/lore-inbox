@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVCIV7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVCIWCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbVCIV7H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:59:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVCIV5s
+	id S262409AbVCIWCK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 17:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVCIWBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:57:48 -0500
-Received: from fep19-0.kolumbus.fi ([193.229.0.45]:15098 "EHLO
-	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262491AbVCIV5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:57:22 -0500
-Date: Wed, 9 Mar 2005 23:58:36 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make st seekable again
-In-Reply-To: <1110401474.3116.241.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0503092338300.6756@kai.makisara.local>
-References: <200503081911.j28JBlxi016013@hera.kernel.org>
- <1110401474.3116.241.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Mar 2005 17:01:49 -0500
+Received: from host-212-158-219-180.bulldogdsl.com ([212.158.219.180]:31954
+	"EHLO aeryn.fluff.org.uk") by vger.kernel.org with ESMTP
+	id S262498AbVCIV7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:59:39 -0500
+Date: Wed, 9 Mar 2005 21:59:32 +0000
+From: Ben Dooks <ben@fluff.org>
+To: Venkat Ramakrishnan <venkatkr@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large Page Support for ARM (Intel Xscale)
+Message-ID: <20050309215932.GA16590@home.fluff.org>
+References: <d05c4df705030817591b86ea92@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d05c4df705030817591b86ea92@mail.gmail.com>
+X-Disclaimer: I speak for me, myself, and the other one of me.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Mar 2005, Alan Cox wrote:
-
-> On Maw, 2005-03-08 at 17:25, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.2030, 2005/03/08 09:25:05-08:00, kai.makisara@kolumbus.fi
-> > 
-> > 	[PATCH] make st seekable again
-> > 	
-> > 	Apparently `tar' errors out if it cannot perform lseek() against a tape.  Work
-> > 	around that in-kernel.
+On Tue, Mar 08, 2005 at 05:59:48PM -0800, Venkat Ramakrishnan wrote:
+> Hello,
 > 
-> Unfortunately this isn't a good idea. Allowing tar to read the tape
-> position makes sense, allowing it to zero the position might but you
-> have to do major surgery on the driver first because
-> 
-> 1.	It doesn't use ppos
-> 2.	It doesn't do locking on the ppos at all
-> 
-> Also allowing apps to randomly seek and report "ok" when they are
-> backing up to tape and might really need to see the error is not what
-> I'd call stable, professional or quality code.
-> 
-The proper fix is to fix tar. I have sent an analysis of the problem and a 
-suggestion how to fix this to the bug-tar list on March 5 but it is still 
-waiting for moderator approval.
+> I am looking for Large Page Implmentation (similar to the hugetlb
+> effort) for ARM processors, specifically Xscale. Is there an ongoing
+> project any one can point me to?  I tried searching for before posting
+> this message but couldn't find anything relevant. If this questions
+> had already been asked, please bear with me and point me to the right
+> URL.
 
-While waiting for the application to be fixed, it was decided to restore 
-the old behaviour of the tape drivers.
-
-lseek on a tape is not a good fit (addressed by block, blocks on tape can 
-have any size, etc.). I don't know any Unix that would really implement 
-lseek on tapes but they usually don't return error. This is probably why 
-the tar bug has not been found earlier.
-
-There has been one useful way of using lseek() with tapes in some systems. 
-Those refuse reads and writes if the file pointer reaches 2 GB. Resetting 
-it with lseek(fd,0,0) now and then has allowed writing/reading more than 2 
-GB.
-
-I don't think implementing proper read-only lseek for tapes is worth the 
-trouble (reliable tracking of the current location is tricky). Purist 
-kernels can refuse lseeks. Pragmatic kernels can allow lseeks until 
-refusing those won't break common applications.
+Try the linux-arm-kernel mailing list, they should be able to
+answer these sort of questions.
 
 -- 
-Kai
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

@@ -1,69 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312619AbSHGUql>; Wed, 7 Aug 2002 16:46:41 -0400
+	id <S313558AbSHGUvE>; Wed, 7 Aug 2002 16:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSHGUqk>; Wed, 7 Aug 2002 16:46:40 -0400
-Received: from dsl-213-023-022-051.arcor-ip.net ([213.23.22.51]:62635 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S312619AbSHGUqH>;
-	Wed, 7 Aug 2002 16:46:07 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] Rmap speedup
-Date: Wed, 7 Aug 2002 22:51:14 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, wli@holomorphy.com,
-       Rik van Riel <riel@conectiva.com.br>
-References: <E17aiJv-0007cr-00@starship> <E17cXFM-0004si-00@starship> <3D518451.812ED63F@zip.com.au>
-In-Reply-To: <3D518451.812ED63F@zip.com.au>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17cXlz-0004y0-00@starship>
+	id <S315491AbSHGUvE>; Wed, 7 Aug 2002 16:51:04 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38704 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S313558AbSHGUvD>; Wed, 7 Aug 2002 16:51:03 -0400
+Date: Wed, 7 Aug 2002 16:54:43 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Buglet in irq compat code in 2.5.30
+Message-ID: <20020807165443.A3730@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 August 2002 22:34, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> > 
-> > On Wednesday 07 August 2002 21:40, Andrew Morton wrote:
-> > > Daniel Phillips wrote:
-> > > > What stands out for me is that rmap is now apparently at parity with
-> > > > (virtual scanning) 2.4.19 for a real application, i.e., parallel make.
-> > > > I'm sure we'll still see the raw setup/teardown overhead if we make a
-> > > > point of going looking for it, but it would be weird if we didn't.
-> > > >
-> > > > So can we tentatively declare victory of the execution overhead issue?
-> > >
-> > > err, no.  It's still adding half a millisecond or so to each fork/exec/exit
-> > > cycle.  And that is arising from, apparently, an extra two cache misses
-> > > per page.  Doubt if we can take this much further.
-> > 
-> > But that overhead did not show up in the kernel build timings you posted,
-> > which do a realistic amount of forking.  So what is the worry, exactly?
-> 
-> Compilation is compute-intensive, not fork-intensive.  Think shell
-> scripts, arch, forking servers, ...
+The save_flags used to save flags, while local_irq_save saves AND
+closes interrupts, and local_irq_save_off simply does not exist.
+I did not see anything on the list, perhaps nobody is bold enough
+to use 2.5.30?
 
-OK, so what is an example of a real application that does tons of forking?
-We need to get numbers for that.  We also need to compare such numbers to
-the supposed advantage in swapping.
-
-> > > Is it useful to instantiate the swapped-in page into everyone's
-> > > pagetables, save some minor faults?
-> > 
-> > That's what I was thinking, then we just have to figure out how to find
-> > all those swapped-out ptes efficiently.
-> 
-> page->pte?
-
-Problem: we went and gave away the page when we swapped it out, but yes,
-we could save the pte chain somewhere and maybe that's a win.  It would
-eat memory just when we're trying to get some back, though.
-
-> It may be a net loss for high sharing levels.  Dunno.
-
-High sharing levels are exactly where the swap-in problem is going to
-rear its ugly head.
-
--- 
-Daniel
+diff -urN -X dontdiff linux-2.5.30/include/linux/interrupt.h linux-2.5.30-sparc/include/linux/interrupt.h
+--- linux-2.5.30/include/linux/interrupt.h	Thu Aug  1 14:16:01 2002
++++ linux-2.5.30-sparc/include/linux/interrupt.h	Wed Aug  7 13:48:25 2002
+@@ -50,9 +50,9 @@
+ #if !CONFIG_SMP
+ # define cli()			local_irq_disable()
+ # define sti()			local_irq_enable()
+-# define save_flags(x)		local_irq_save(x)
++# define save_flags(x)		local_save_flags(x)
+ # define restore_flags(x)	local_irq_restore(x)
+-# define save_and_cli(x)	local_irq_save_off(x)
++# define save_and_cli(x)	local_irq_save(x)
+ #endif
+ 
+ 

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUA3AwR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 19:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUA3AwR
+	id S266212AbUA3Auk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 19:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUA3Auk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 19:52:17 -0500
-Received: from netmail8.mail.umd.edu ([128.8.30.201]:28879 "EHLO mail.umd.edu")
-	by vger.kernel.org with ESMTP id S266263AbUA3AwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 19:52:16 -0500
-Subject: orinoco_cs IRQ problem with 2.6.0
-From: Dan Lenski <lenski@umd.edu>
-To: linux-kernel@vger.kernel.org
-X-Auth-OK: lenski@mail.umd.edu
-X-NIMS-Flags: 513
-Content-Type: text/plain
-Message-Id: <1075423670.1212.12.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 29 Jan 2004 19:50:13 -0500
+	Thu, 29 Jan 2004 19:50:40 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:7582 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id S266212AbUA3Aui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 19:50:38 -0500
+Message-ID: <4019AA2D.7010609@oracle.com>
+Date: Fri, 30 Jan 2004 01:49:49 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Alt-SysRq-B doesn't work in recent 2.6 kernels
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-White-List-Member: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm new to the list.  My D-Link cardbus wireless card worked fine under
-2.4.22 using the orinoco_cs drivers, and the pcmcia-cs-3.2.5 package.
+Now that my oops-on-boot has been fixed thanks to many on lkml
+  and a spot-on tip by Len Brown, I'll chase another one of the
+  issues I still have :)
 
-Under 2.6.0, with the orinoco_cs driver, I get the following errors in
-my syslog:
+The problem in $subject happens reliably at least in 2 cases:
 
-Jan 29 19:29:07 localhost cardmgr[684]: initializing socket 0
-Jan 29 19:29:07 localhost cardmgr[684]: socket 0: D-Link DWL-650
-Jan 29 19:29:07 localhost cardmgr[684]:   product info: "D", "Link DWL-650 11Mbps WLAN Card", "Version 01.02", ""
-Jan 29 19:29:07 localhost cardmgr[684]:   manfid: 0x0156, 0x0002  function: 6 (network)
-Jan 29 19:29:07 localhost cardmgr[684]: executing: 'modprobe orinoco_cs'
-Jan 29 19:29:07 localhost kernel: orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-Jan 29 19:29:07 localhost kernel: orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-Jan 29 19:29:07 localhost kernel: orinoco_cs: RequestIRQ: Unsupported mode
-Jan 29 19:29:08 localhost cardmgr[684]: get dev info on socket 0 failed: Resource temporarily unavailable
+  1. after the ACPI oops-on-boot (-mm tree and 2.6.2-rc2+)
+  2. in 2.6.2-rc1+ after the Cisco VPN client daemon (cvpnd,
+      v.4.0.3.B) gets stuck in D state [__down] and I try to
+      shutdown but obviously that gets stuck in turn
 
-With 2.4.22, the card was assigned irq 3.  With 2.6.0, that irq is not
-listed in my /proc/interrupts.
+In both cases I can Alt-SysRq-{P,T,S,U,O} [though in case 1
+  Off only prints out "Power Off" but doesn't actually do it],
+  and when I attempt a Alt-SysRq-B I only get
 
-Dan Lenski
-lenski@physics.umd.edu
+atkbd.c: Keyboard on isa0060/serio0 reports too many keys pressed.
+
+  and no effect at all.
+
+
+Available for testing, as usual :) thanks in advance & ciao,
+
+--alessandro
+
+  "Two rivers run too deep
+   The seasons change and so do I"
+       (U2, "Indian Summer Sky")
 

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261627AbSIXJqK>; Tue, 24 Sep 2002 05:46:10 -0400
+	id <S261624AbSIXJmR>; Tue, 24 Sep 2002 05:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261630AbSIXJqK>; Tue, 24 Sep 2002 05:46:10 -0400
-Received: from holomorphy.com ([66.224.33.161]:52121 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261627AbSIXJqJ>;
-	Tue, 24 Sep 2002 05:46:09 -0400
-Date: Tue, 24 Sep 2002 02:51:16 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: [patch] pgrp-fix-2.5.38-A2
-Message-ID: <20020924095116.GI6070@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Andries Brouwer <aebr@win.tue.nl>
-References: <Pine.LNX.4.44.0209241059480.12690-100000@localhost.localdomain>
+	id <S261626AbSIXJmR>; Tue, 24 Sep 2002 05:42:17 -0400
+Received: from unthought.net ([212.97.129.24]:59371 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S261624AbSIXJmQ>;
+	Tue, 24 Sep 2002 05:42:16 -0400
+Date: Tue, 24 Sep 2002 11:47:29 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS buglet
+Message-ID: <20020924094728.GG2442@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Hans Reiser <reiser@namesys.com>, Oleg Drokin <green@namesys.com>,
+	linux-kernel@vger.kernel.org
+References: <20020924072455.GE2442@unthought.net> <20020924132110.A22362@namesys.com> <20020924092720.GF2442@unthought.net> <3D903381.2030605@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209241059480.12690-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3D903381.2030605@namesys.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 11:06:51AM +0200, Ingo Molnar wrote:
-> the attached patch, against BK-curr, fixes the emacs bug reported by
-> Andries. It should probably also fix other, terminal handling related
-> the bug was in the session_of_pgrp() function, if no proper session is
-> found in the process group then we must take the session ID from the
-> process that has pgrp PID (which does not necesserily have to be part of
-> the pgrp). The fallback code is only triggered when no process in the
-> process group has a valid session - besides being faster, this also
-> matches the old implementation.
-> [ hey, who needs a POSIX conformance testsuite when we have emacs! ;) ]
-> 	Ingo
+On Tue, Sep 24, 2002 at 01:42:25PM +0400, Hans Reiser wrote:
+> Jakob Oestergaard wrote:
+> 
+..
+> > 
+> >
+> What was the model and brand?
+> 
 
-Fix verified here. aeb's testcase now succeeds.
+Quantum Fireball 1GB IDE
 
+Old one, I know  :)   However, I doubt that newer disks are emulating
+antiquated IDE closer than this one...  I guess we will see stranger
+write patterns on disks the more modern they get.
 
-Cheers,
-Bill
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270163AbSISG5y>; Thu, 19 Sep 2002 02:57:54 -0400
+	id <S270014AbSISGyw>; Thu, 19 Sep 2002 02:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270165AbSISG5y>; Thu, 19 Sep 2002 02:57:54 -0400
-Received: from smtp2.sooninternet.net ([212.246.17.84]:16381 "EHLO
-	smtp2.sooninternet.net") by vger.kernel.org with ESMTP
-	id <S270163AbSISG5x>; Thu, 19 Sep 2002 02:57:53 -0400
-Date: Thu, 19 Sep 2002 10:02:40 +0300
-From: Kari Hameenaho <khaho@koti.soon.fi>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] to fix 2.5.36 MTRR for X  (Was: X freezes and input problems)
-Message-Id: <20020919100240.41be5687.khaho@koti.soon.fi>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S270163AbSISGyw>; Thu, 19 Sep 2002 02:54:52 -0400
+Received: from pD9522C51.dip.t-dialin.net ([217.82.44.81]:34708 "HELO
+	linux.tuxnetwork.de") by vger.kernel.org with SMTP
+	id <S270014AbSISGyv>; Thu, 19 Sep 2002 02:54:51 -0400
+Message-ID: <3D8975E7.2060609@tuxnetwork.de>
+Date: Thu, 19 Sep 2002 08:59:51 +0200
+From: Bjoern Brauel <bjoern@tuxnetwork.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Corrado Cappello <Corrado.Cappello@italtel.it>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: controller qlogic ISP1020 and tape drive
+References: <3D895BC5.EA6C1025@imads2.milano.italtel.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I haven't noticed this problem on my alpha since kernel 2.4 ! Even 
+though Im not entirely sure what was changed I can say that it works for 
+me !
 
-This patch fixes MTRR for me, restoring the mtrr_add_page() old return value behaviour that X seems to need.
+bjoern
 
-The input problem (mouse pointer jumping) seems to be in sylpheed only, so it is application problem. 
 
-diff -urN linux-2.5.36/arch/i386/kernel/cpu/mtrr/main.c linux-2.5.36-kjh/arch/i386/kernel/cpu/mtrr/main.c
---- linux-2.5.36/arch/i386/kernel/cpu/mtrr/main.c	Wed Sep 18 03:58:43 2002+++ linux-2.5.36-kjh/arch/i386/kernel/cpu/mtrr/main.c	Thu Sep 19 09:33:06 2002@@ -348,6 +348,7 @@
- 			       "mtrr: 0x%lx000,0x%lx000 overlaps existing"
- 			       " 0x%lx000,0x%lx000\n", base, size, lbase,
- 			       lsize);
-+			error = -EINVAL;
- 			goto out;
- 		}
- 		/*  New region is enclosed by an existing region  */
-@@ -357,6 +358,7 @@
- 			printk ("mtrr: type mismatch for %lx000,%lx000 old: %s new: %s\n",
- 			     base, size, attrib_to_str(ltype),
- 			     attrib_to_str(type));
-+			error = -EINVAL;
- 			goto out;
- 		}
- 		if (increment)
+Corrado Cappello wrote:
 
----
-Kari Hämeenaho
+>Hello
+>I read in README.qlogicisp that the driver does not support
+>disconnect/reconnect;
+>so tape drives doesn't work; system panics after a tape rewind.
+> 
+>This document dated 1996/12/12.
+>
+>Is it still in this state?
+>
+>If yes, it'is incomplete or there are bugs?
+>
+>Thank you in advance
+>
+>cappelc
+>
+>  
+>
+
+
+

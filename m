@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263675AbTJVNJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 09:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbTJVNJY
+	id S263680AbTJVN1V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 09:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTJVN1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 09:09:24 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:35596 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263675AbTJVNJS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 09:09:18 -0400
-Date: Tue, 21 Oct 2003 20:53:26 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test8-mm1
-Message-ID: <20031021185326.GA1558@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20031020185613.7d670975.akpm@osdl.org> <Pine.LNX.4.44.0310211846210.32738-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310211846210.32738-100000@phoenix.infradead.org>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+	Wed, 22 Oct 2003 09:27:20 -0400
+Received: from data.iemw.tuwien.ac.at ([128.131.70.3]:57474 "EHLO
+	data.iemw.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S263680AbTJVN1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 09:27:19 -0400
+Message-ID: <3F9685BE.3000406@tuwien.ac.at>
+Date: Wed, 22 Oct 2003 15:27:26 +0200
+From: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
+Organization: IEMW TU-Wien
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, de-at, cs
+MIME-Version: 1.0
+To: Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 random lockups - still no solution ?
+References: <3F95748E.8020202@tuwien.ac.at> <200310211113.00326.lkml@lpbproductions.com> <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu>
+In-Reply-To: <20031022085449.GA21393@swszl.szkp.uni-miskolc.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: James Simmons <jsimmons@infradead.org>
-Date: Tue, Oct 21, 2003 at 06:47:41PM +0100
-> 
-> Okay I see people are having alot of problems in the -mm tree. I don't 
-> have any problems but I'm working against Linus tree. Could people try the 
-> patch against 2.6.0-test8 and tell me if they still have the same results. 
-> I have a new patch here:
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
-2.6.0-test8 + this patch boots perfectly here:
+Gabor,
 
-kernel /boot/vmlinuz-260test8fb root=/dev/md3 video=matroxfb:xres:1600,yres:1360,depth:16,pixclock:4116,left:304,right:64,upper:46,lower:1,hslen:192,vslen:3,fv:90,hwcursor=off hdd=scsi atkbd_softrepeat=1
+I'm booting the kernel with acpi=off, noapic and nolapic options and 
+according to syslog it is really disabled. Lockups are very rare (they 
+come either during
+30mins after boot or never) but I cat get them very quickly when using 
+the framegrabber with ivtv driver. The ivtv driver itself works rock 
+solid on older PIII system
+(btw, that PIII runs SMP kernel !). So I think there are definitely DMA 
+problems with nforce2 boards under linux.
 
-This configuration didn't boot in 2.6.0-test8-mm1 (screen stayed in
-80x25 VGA mode and it crashed before the mode-switch).
+Sam
 
-HTH,
-Jurriaan
--- 
-Life's really a chocolate box - some do without - others have plenty.
-	Skyclad - Inequality Street
-Debian (Unstable) GNU/Linux 2.6.0-test8 4276 bogomips 0.39 0.17
+Vitez Gabor wrote:
+
+>If turning off APIC doesn't solve the problem, try a kernel with 
+>LOCAL APIC support turned off. 
+>
+>
+>	Gabor
+>  
+>
+

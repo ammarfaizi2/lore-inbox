@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268508AbTBNVpY>; Fri, 14 Feb 2003 16:45:24 -0500
+	id <S268531AbTBNVwS>; Fri, 14 Feb 2003 16:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268504AbTBNVnl>; Fri, 14 Feb 2003 16:43:41 -0500
-Received: from nextgeneration.speedroad.net ([195.139.232.50]:5787 "HELO
-	mail.speedroad.net") by vger.kernel.org with SMTP
-	id <S268503AbTBNVnY>; Fri, 14 Feb 2003 16:43:24 -0500
-Date: Fri, 14 Feb 2003 22:53:12 +0100
-From: Arnvid Karstad <arnvid@karstad.org>
+	id <S268533AbTBNVwS>; Fri, 14 Feb 2003 16:52:18 -0500
+Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:26756 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S268531AbTBNVwP>; Fri, 14 Feb 2003 16:52:15 -0500
+Date: Fri, 14 Feb 2003 16:02:15 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@localhost.localdomain
 To: linux-kernel@vger.kernel.org
-Subject: Kernel bug at sched.c:682!  ??
-Organization: Int
-Message-Id: <20030214224053.AB58.ARNVID@karstad.org>
+cc: Larry McVoy <lm@bitmover.com>
+Subject: Re: openbkweb-0.0
+In-Reply-To: <20030214203151.GL20159@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0302141553320.1097-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya
+On Fri, 14 Feb 2003, Adrian Bunk wrote:
 
-Upgraded the kernel on my laptop from 2.4.18 to 2.4.20.. After reboot it
-crashes like there is no tomorrow with the following message:
+> On Thu, Feb 13, 2003 at 10:56:21PM +0000, Jamie Lokier wrote:
+> > Larry McVoy wrote:
+> > > Please show me the case law which says we have to give you our technology,
+> > > for free, and we do not have the right to say "no way unless you agree to
+> > > not reverse engineer".
+> >...
+> > Correct.  You have the right to say "no way unless you agree not to
+> > reverse engineer".
+> >...
+> 
+> Wrong.
+> 
+> Current German copyright law says that any contractual appointments that 
+> disallow the allowed cases of reverse engineering are void.
 
-hub.c: 2 ports detected
-Kernel bug at sched.c:682!
-
-Anyone know what this is? 
-
-Please cc me in replies. Since I dont think I'm subsribed to the ml
-anymore.
-
-
-Mvh/Best regards,
-
-Arnvid L. Karstad
-
-
+In my view a great number of things are legal which I consider unethical.  
+I believe Larry has made his position fairly clear and has attempted to 
+construct his license language to implement that plain-spoken intent.  
+Whether or not people agree with the stated position, I doubt there is 
+anyone who doesn't understand it.  Why not just do the clearly right thing 
+and abide by that?  
 

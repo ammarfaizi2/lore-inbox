@@ -1,129 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264039AbRFSVZE>; Tue, 19 Jun 2001 17:25:04 -0400
+	id <S264038AbRFSVYW>; Tue, 19 Jun 2001 17:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264798AbRFSVYx>; Tue, 19 Jun 2001 17:24:53 -0400
-Received: from mail.mediaways.net ([193.189.224.113]:63910 "HELO
-	mail.mediaways.net") by vger.kernel.org with SMTP
-	id <S264039AbRFSVYn>; Tue, 19 Jun 2001 17:24:43 -0400
-Date: Tue, 19 Jun 2001 23:23:28 +0200
-From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac15
-Message-ID: <20010619232328.A19241@frodo.uni-erlangen.de>
-In-Reply-To: <20010615230635.A27708@lightning.swansea.linux.org.uk> <20010617201119.A2331@frodo.uni-erlangen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010617201119.A2331@frodo.uni-erlangen.de>; from walter.hofmann@physik.stud.uni-erlangen.de on Sun, Jun 17, 2001 at 08:11:19PM +0200
+	id <S264039AbRFSVYN>; Tue, 19 Jun 2001 17:24:13 -0400
+Received: from merc94.na.sas.com ([149.173.6.4]:5131 "EHLO merc94.na.sas.com")
+	by vger.kernel.org with ESMTP id <S264038AbRFSVX4>;
+	Tue, 19 Jun 2001 17:23:56 -0400
+Message-ID: <0632CC5F67853B4D96D542BAE8AD008274BA10@merc08.na.sas.com>
+From: Ed Connell <Ed.Connell@sas.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: intermittent hangs with threads (clone() bug?/linuxthreads bug?)
+Date: Tue, 19 Jun 2001 17:23:48 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Jun 2001, Walter Hofmann wrote:
+Hi,
 
-> I had already two crashes with ac15. The system was still ping-able, but
-> login over the network didn't work anymore.
-> 
-> The first crash happened after I started xosview and noticed that the
-> system almost used up the swap (for no apparent reason). The second
-> crash happened shortly after I started fsck on a crypto-loop device.
-> 
-> This does not happen with ac14, even under heavy load.
-> 
-> I noticed a second problem: Sometimes the system hangs completely for
-> approximately ten seconds, but continues just fine after that. I have
-> seen this with ac14 and ac15, but not with ac12.
+I am experiencing intermittent hangs running LinuxThreads programs from a shell script.  This happens with any combination of stock RH 7.1 SMP kernel (2.4.2) or my own 2.4.5 kernel and stock RH 7.1 libc (2.2.2), redhat rawhide libc (2.2.3) and my own 2.2.3 libc.
 
-FWIW, here is the vmstat output for the second (short) hang. Taken with
-ac14, vmstat 1 was started (long) before the hang and interrupted about
-five seconds after it. The machine has 128MB RAM and 256MB swap.
+If I run, for example, linuxthreads/Examples/ex1 (one thread prints 'a', one prints 'b') it will run fine.  If I run it from a shell script (bash or ksh) with 
+   exec ex1
+it almost always hangs.  When I do a "ps" I see the original "ex1" process plus another defunct "ex1" process  with a higher pid.  This defunct process was supposed to be the LinuxThreads manager thread but it seems that clone() is silently failing to create a valid thread.  Attaching a debugger to the original "ex1" and putting print statements in libc/linuxthreads and the kernel (do_fork() and friends) all indicate things are proceeding normally.  Yet the manager thread/process is never scheduled to run...it is immediately defunct.
 
+My hardware is an 8-way i686.  I tried removing CPU's but the problem remains until I get down to a single CPU (or boot a uniprocessor kernel).  When I got down to 2 CPU's I noticed that running my script from console almost always produced a hang while running from an xterm always worked.  Obviously a timing issue.  Also things run fine on other SMP hardware I have access to.
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 1  1  0  77332   1584  15632  67740  44   0   448     0  496   932  84  15   1
- 1  2  0  77456   1848  15944  66960   0   0   372   724  625  2296  62  20  18
- 3  0  1  77456   1780  16208  67044  72   0   336    80  584  1695  20  20  61
- 2  0  0  77404   1464  16672  66652   0   0   572     0  530  2649  26  19  55
- 3  1  0  77344   1464  17000  66480 124   0   656     0  419   879  12  16  72
- 0  3  0  77344   1468  17076  66388 184   0  1080     0  561   654   8   8  84
- 0  5  0  77892   1464  17184  66892 176 128   800   396  415  1050  14  11  74
- 0  5  0  77892   1600  17216  66868  16   0    68  1020  508   295   5   5  90
- 0  3  0  77892   1464  17316  66784  56   0   372    68  464  1287  22  14  64
- 2  3  0  77892   1464  17524  66828  76   0   440     0  398   987   8  12  79
- 1  3  0  77892   1464  17780  66680  32   0   512     0  367  1061  10  10  79
- 1  1  0  77880   1464  18020  66392 224   0   756     0  394  1579  43  12  44
- 2  1  0  77784   2172  18324  64820  16   0   992     0  529  1745  37  19  44
- 0  4  0  77936   1848  18428  65180 124   0   252   920  570   451  23   9  69
- 0  2  0  77888   1680  18564  65656  84   0   744     0  532   721  21  12  67
- 3  0  0  77876   1464  18700  65564   4   0  1176     0  487   804  26  16  58
- 0  3  1  77496   1468  18712  65700 424 100  1296   384  401   532  70  10  20
- 2  0  0  77920   1508  18804  65504  72 248   968   260  525   709  40   9  51
- 2  2  0  77908   1728  18788  65388   0 120  1000   568  568   608  41   8  51
- 0  4  0  77908   1620  18828  65548   0   0   172   356  545   420  22   8  69
- 1  1  0  77904   1712  18472  65464  36   0  1600     0  485   621  52  15  33
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  1  0  78124   1528  18496  64940 116  20   884   288  545   604  54  16  30
- 4  0  0  78124   1468  18548  64260   4   0   468     0  449   663  49   6  46
- 3  0  0  77844   3416  18492  63932 100   0   304     0  431  1915  80  16   4
- 1  2  0  77844   2892  18536  64204  60   0   284   820  583   917  64  13  23
- 1  0  0  77844   2824  18544  64236   0   0    40    68  591   550  36   6  58
- 3  0  0  77844   2604  18568  64372   0   0   120     0  455   474  64  13  23
- 1  0  0  77844   2472  18572  64440   0   0    56     0  399   617  35   9  56
- 1  0  0  77844   2456  18572  64460   0   0     0     0  515   721   8   6  87
- 0  0  0  77844   2448  18572  64468   0   0     4     0  469   655   8   8  83
- 1  0  0  77844   2384  18572  64528   0   0     0   428  538   641   7  10  83
- 0  0  0  77844   2388  18572  64528   0   0     0     0  492   733   3   9  89
- 0  0  0  77844   2368  18572  64548   0   0     0     0  520   804  11   7  82
- 0  0  0  77844   2336  18572  64580   0   0     0     0  473   680   6   6  89
- 1  0  0  77844   2276  18584  64608   0   0    12     0  490   966  30  13  56
- 2  0  0  77844   2228  18584  64648   0   0     0   344  539   589  47   7  47
- 3  0  0  77844   2228  18588  64692   0   0     4     0  381   455  29  11  60
- 2  0  1  77844   2180  18588  64700   0   0     0     0  453   781  33   9  58
- 1  0  0  77844   2160  18604  64708   0   0    16     0  390   852  18   5  77
- 2  0  1  77844   1940  18616  64912 124   0   212     0  318   756  40   8  52
- 3  0  0  77844   1680  18620  65180 240   0   244   576  492  1632  87  13   0
- 2  0  1  77844   1528  18540  65540 584   0   592     0  352  2466  90  10   0
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  0  0  77844   1800  18516  65588  40   0    40     0  357   675  89  11   0
- 3  5  2  77844   1464  18536  65916 1508  44  1660   264  435   852  37  16  47
- 1  0  0  77844   1484  18532  65968 864   0   936     0  386   667  89   7   5
- 1  0  1  77844   1464  18344  66220 1328   0  1416   280  416   519  54   5  41
- 1  0  0  78856   1464  18236  67776 4276 104  4276   228  528   743  25  12  63
- 2  0  1  78820   1540  18220  67748 588  24  1148    92  507  1816  72  11  16
- 1  0  1  78820   1500  18216  67664   0   0     4     0  319   327  92   8   0
- 1  0  0  78820   1484  18216  67684   0   0     0     0  391   308  94   6   0
- 0  0  0  78812   1468  18196  67716 636   0   996   488  578  1106  12  13  75
- 0  0  0  78808   1476  18196  67712   0   0     0     0  337   399  12  10  77
- 0  0  0  78808   1724  18196  67736  16   0    16     0  368   517   6   8  87
- 0  0  0  78808   1676  18220  67760   0   0    24     0  405   475   7   6  88
- 1  0  0  78752   1680  18232  67832 132   0   192     0  412   457  10  11  78
- 0  2  0  78752   1464  18244  67884  64   0    96   620  542  3293   8  27  66
- 5  0  0  77888   1464  18252  68060 896   0  1516     0  519   611  39  13  48
- 0  0  0  77000   2416  18276  67464 600   0  1516   280  592   764  19   8  73
- 2  0  0  77000   2556  18296  67500   4   0    28   268  595  1789  37  10  52
- 3  0  0  77000   1632  18320  67848 188   0   344   128  561   848  30  11  59
- 2  2  1  77000   1464  18404  67688   0   0   228   412  542  2434  42  18  39
- 1  0  0  77000   1464  18444  67324   8   0   152   224  386  1345  26  19  55
- 2  4  2  77084   1524  18396  66904   0 1876   108  2220 2464 66079   1  98   1
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 0  1  0  77076   1608  18500  66452   0   0   456   200  493  1175  21  11  68
- 1  0  0  77108   1464  18512  66124   0   0   688     0  286   509  10   6  85
- 1  0  0  77292   1464  17740  66600   0 472  3580   580  463   872  43  16  41
- 2  0  0  77424   1464  17568  66988  40 288  1604   508  539  1289  38  13  49
- 2  0  1  77448   2520  15880  67100  88 164  3696   304  495  2258  60  21  19
- 1  1  0  77516   1464  15500  68396 200   0  2516   204  573   583  24  12  64
- 1  2  0  77608   1692  15268  68844 672   0  2252     0  543   572  14   9  77
- 0  2  0  77944   1464  15080  69584 532   0  1568     0  488   492   5   5  91
- 0  0  0  78444   1544  15032  70028 156   0   340     0  468   512  11   8  81
- 0  0  0  78444   1524  15032  70048   0   0     0     0  445   452   4   5  91
- 0  0  0  78444   1464  15028  70112  24   0    36   404  502   420   3  10  87
- 0  0  0  78444   1464  15028  70096   0   0     0     0  439   487   2   6  92
- 0  0  0  78444   1464  15032  70100   0   0     4     0  441   488   6   4  90
+If anyone has any idea what is going on, I would love to hear it.  If you need more information please let me know, as well.
 
+Thanks
+Ed Connell
 
-Walter
+Healthy traceback from original "ex1" process where it is waiting for the manager thread to take over.
+(gdb) where
+#0  0x40067ff5 in __sigsuspend (set=0xbffff2e8)
+    at ../sysdeps/unix/sysv/linux/sigsuspend.c:45
+#1  0x4002d25f in __pthread_wait_for_restart_signal (self=0x40036300)
+    at pthread.c:958
+#2  0x4002cbc4 in __pthread_create_2_1 (thread=0xbffff454, attr=0x0, 
+    start_routine=0x8048580 <process>, arg=0x804871d) at restart.h:34
+#3  0x080485e7 in main () at ex1.c:29
+#4  0x400565e7 in __libc_start_main (main=0x80485cc <main>, argc=1, 
+    ubp_av=0xbffff4c4, init=0x80483d0 <_init>, fini=0x80486e0 <_fini>, 
+    rtld_fini=0x4000e154 <_dl_fini>, stack_end=0xbffff4bc)
+    at ../sysdeps/generic/libc-start.c:129
+

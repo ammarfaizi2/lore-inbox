@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318449AbSGSDeF>; Thu, 18 Jul 2002 23:34:05 -0400
+	id <S318460AbSGSDhC>; Thu, 18 Jul 2002 23:37:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318450AbSGSDeF>; Thu, 18 Jul 2002 23:34:05 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:15879 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318451AbSGSDeE>;
-	Thu, 18 Jul 2002 23:34:04 -0400
-Date: Thu, 18 Jul 2002 20:35:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Josh Litherland <fauxpas@temp123.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S318461AbSGSDhC>; Thu, 18 Jul 2002 23:37:02 -0400
+Received: from mta01ps.bigpond.com ([144.135.25.133]:7154 "EHLO
+	mta01ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S318460AbSGSDhB>; Thu, 18 Jul 2002 23:37:01 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Josh Litherland <fauxpas@temp123.org>, Greg KH <greg@kroah.com>
 Subject: Re: USB Keypad
-Message-ID: <20020719033539.GB18456@kroah.com>
-References: <20020719015232.GA20956@temp123.org> <20020719031000.GA18382@kroah.com> <20020719032008.GA22934@temp123.org> <20020719032445.GA18456@kroah.com> <20020719033005.GA23021@temp123.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Fri, 19 Jul 2002 13:36:02 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+References: <20020719015232.GA20956@temp123.org> <20020719031000.GA18382@kroah.com> <20020719032008.GA22934@temp123.org>
+In-Reply-To: <20020719032008.GA22934@temp123.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20020719033005.GA23021@temp123.org>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 21 Jun 2002 02:16:28 -0700
+Message-Id: <200207191336.02403.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 11:30:05PM -0400, Josh Litherland wrote:
-> On Thu, Jul 18, 2002 at 08:24:45PM -0700, Greg KH wrote:
-> 
-> > If the device is detected, how is it detected?  Is the USB HID driver
-> > binding to the device?
-> 
-> hub.c: USB new device connect on bus1/1, assigned device number 4
-> input0: USB HID v1.00 Keyboard [        USB Keypad                    ] on usb1:4.0
+On Fri, 19 Jul 2002 13:20, Josh Litherland wrote:
+> On Thu, Jul 18, 2002 at 08:10:00PM -0700, Greg KH wrote:
+> > Should work just fine today.  What kind of problems do you have when you
+> > try to do it?
+>
+> Just not getting any events from the keypad.  When I load up evdev, and
+> cat the device I get the appropriate gibberish, so the device is
+> detected okay.  This is 2.4.18, if that makes a difference for the
+> purposes of this discussion.
+OK, evdev is on the userspace side of the input core (and USB is on the other).
+If evdev reports events (and you can decode them, if you are interested, using
+tools available from the linuxconsole CVS), then all is probably well with USB and
+the input core.
 
-Looks good to me (from a USB subsystem standpoint.)  As for why it's not
-working for you, I don't know.  Perhaps it's spitting out keycodes that
-you're not expecting to see.
+The obvious error would be not compiling in the input layer keyboard driver (or
+not loading the module, whatever). 
 
-Good luck,
+If that definately isn't wrong (like lsmod shows the module, or a normal USB
+keyboard works fine and the keypad doesn't), then we'll likely need the 
+HID descriptors. Probably easiest to get them from evdev using the evtest
+tool from linuxconsole CVS.
 
-greg k-h
+Brad
+
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

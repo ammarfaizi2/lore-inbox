@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265509AbRFVUuP>; Fri, 22 Jun 2001 16:50:15 -0400
+	id <S265512AbRFVUzO>; Fri, 22 Jun 2001 16:55:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265510AbRFVUuE>; Fri, 22 Jun 2001 16:50:04 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:42274 "EHLO
-	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S265509AbRFVUt4>; Fri, 22 Jun 2001 16:49:56 -0400
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6C02@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'esr@thyrsus.com'" <esr@thyrsus.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Russell King <rmk@arm.linux.org.uk>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: RE: Maintainers master list?
-Date: Fri, 22 Jun 2001 16:48:53 -0400
+	id <S265511AbRFVUzE>; Fri, 22 Jun 2001 16:55:04 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34057 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265510AbRFVUyu>; Fri, 22 Jun 2001 16:54:50 -0400
+Date: Fri, 22 Jun 2001 17:54:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Maintainers master list?
+In-Reply-To: <20010622160002.B16285@thyrsus.com>
+Message-ID: <Pine.LNX.4.33L.0106221753140.4442-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I have proposed that the MAINTAINERS file should be replaced by
->metadata markup in the kernel sources themselves, distributed so that
->it will naturally be kept up to date by the people named in it and
->mechanically gathered into a generated MAINTAINERS at make dep time.
+On Fri, 22 Jun 2001, Eric S. Raymond wrote:
 
->I still think this is the right thing, and was planning to revisit the 
->issue after the 2.5 cutover.  But it certainly doesn't have to be me that
->does it, and between CML2 and the Configure.help file and countering 
->Microsoft's anti-open-source propaganda war I have plenty of other things
->to worry about.  
+> I have proposed that the MAINTAINERS file should be replaced by
+> metadata markup in the kernel sources themselves, distributed so that
+> it will naturally be kept up to date by the people named in it and
+> mechanically gathered into a generated MAINTAINERS at make dep time.
 
->So if you want to take this on, I encourage you to go to it.  Want a
->copy of the metadata schema I wrote up?
+Look, when somebody stops maintaining something, they'll
+stop sending patches. When this happens it's only natural
+that the information you want to use to generate the
+MAINTAINERS file is also out of date.
 
-I would be happy to look at any work that you have already done on this, so
-feel free to send it along to me.  Let's take a look at what you have and
-where we might be able to take this.
+I fail to see how your idea would solve anything.
 
-B.
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUE3G6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUE3HP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUE3G6O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 02:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUE3G6O
+	id S261880AbUE3HP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 03:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbUE3HP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 02:58:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37320 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261879AbUE3G6M convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 02:58:12 -0400
-Date: Sat, 29 May 2004 23:57:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zoltan Boszormenyi <zboszor@freemail.hu>
-Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
+	Sun, 30 May 2004 03:15:29 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:24819 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261880AbUE3HP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 03:15:28 -0400
+Date: Sun, 30 May 2004 08:15:26 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zoltan Boszormenyi <zboszor@freemail.hu>, linux-kernel@vger.kernel.org
 Subject: Re: bk-drm patch missing from 2.6.6-mm2 and later?
-Message-Id: <20040529235734.2d7acfb5.akpm@osdl.org>
-In-Reply-To: <40B982D0.60904@freemail.hu>
-References: <40B97F6A.1030008@freemail.hu>
-	<40B982D0.60904@freemail.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20040529235734.2d7acfb5.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405300814250.30285@skynet>
+References: <40B97F6A.1030008@freemail.hu> <40B982D0.60904@freemail.hu>
+ <20040529235734.2d7acfb5.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
+> > >
+> >
+> > Sorry, I searched for "dri" instead of "drm".
+> > 2.6.7-rc1 has the patch.
 >
-> Zoltan Boszormenyi írta:
-> > Hi,
-> > 
-> > 2.6.6-mm1 has it, 2.6.6-mm2 and later does not
-> > and announce.txt from 2.6.6-mm2 does not say
-> > anything about why it has been dropped.
-> > 2.6.7-rc1 does not seem to have it either.
-> > Would you please include it again or at least
-> > say something about it...
-> > 
-> > Best regards,
-> > Zoltán Böszörményi
-> > 
-> 
-> Sorry, I searched for "dri" instead of "drm".
-> 2.6.7-rc1 has the patch.
+> Yes, but it's empty.   Dave, is the latest DRM devel tree
+> at http://drm.bkbits.net/drm-2.6?
+>
 
-Yes, but it's empty.   Dave, is the latest DRM devel tree
-at http://drm.bkbits.net/drm-2.6?
+its defo in 2.6.7-rc1 I've seen the changes in Linus bk tree, the latest
+tree is still at that address, but I'm not changing it much until 2.6.7 is
+out....
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266277AbRGLRF7>; Thu, 12 Jul 2001 13:05:59 -0400
+	id <S266588AbRGLU6p>; Thu, 12 Jul 2001 16:58:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266271AbRGLRFj>; Thu, 12 Jul 2001 13:05:39 -0400
-Received: from dialup91.kiss.uni-lj.si ([193.2.98.91]:40196 "EHLO
-	redos-go.redos.si") by vger.kernel.org with ESMTP
-	id <S266269AbRGLRFc>; Thu, 12 Jul 2001 13:05:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Sasa Ostrouska <maja.ostrouska@kiss.uni-lj.si>
-Reply-To: info@rcdiostrouska.com
-To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.5 BUG when shutdown
-Date: Sun, 3 Jun 2001 19:42:09 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01060319420900.01287@redos-go>
-Content-Transfer-Encoding: 7BIT
+	id <S266587AbRGLU6e>; Thu, 12 Jul 2001 16:58:34 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:23812 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266582AbRGLU60>;
+	Thu, 12 Jul 2001 16:58:26 -0400
+Date: Mon, 9 Jul 2001 12:17:38 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Dan Maas <dmaas@dcine.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: VM Requirement Document - v0.0
+Message-ID: <20010709121736.B39@toy.ucw.cz>
+In-Reply-To: <fa.jprli0v.qlofoc@ifi.uio.no> <fa.e66agbv.hn0u1v@ifi.uio.no> <002501c104f4/mnt/sendme701a8c0@morph>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <002501c104f4/mnt/sendme701a8c0@morph>; from dmaas@dcine.com on Wed, Jul 04, 2001 at 09:49:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi to all !
+Hi!
 
-	I get the following message when I want to shutdown the machine:
+> > Getting the user's "interactive" programs loaded back
+> > in afterwards is a separate, much more difficult problem
+> > IMHO, but no doubt still has a reasonable solution.
+> 
+> Possibly stupid suggestion... Maybe the interactive/GUI programs should wake
+> up once in a while and touch a couple of their pages? Go too far with this
+> and you'll just get in the way of performance, but I don't think it would
+> hurt to have processes waking up every couple of minutes and touching glibc,
+> libqt, libgtk, etc so they stay hot in memory... A very slow incremental
+> "caress" of the address space could eliminate the
+> "I-just-logged-in-this-morning-and-dammit-everything-has-been-paged-out"
+> problem.
 
-------------
+Ugh... Ouch.... Ugly, indeed.
 
-journal_begin called without kernel lock held
-kernel BUG at journal.c:423!
-invalid operand: 0000
-CPU:    1
-EIP:    0010:[<c0175420>]
-EFLAGS: 00010286
+What you might want to do is 
 
-eax: 0000001d ebx: c12b3f2c ecx: 00000001 edx: 00000001
-esi: c7f41600 edi: c12b3f2c ebp: 0000000a esp: c12b3ec4
-ds: 0018  es: 0018  ss: 0018
+while true; do 
+cat /usr/lib/libc* > /dev/null; sleep 1m
+cat /usr/lib/qt* > /dev/null; sleep 1m
+...
+done
 
-Process umount (pid: 2861, stackpage = c12b3000)
+running on your system...
 
-Stack: c025416c c0254304 000001a7 c017791e c0255321 c12b3f2c c7f41600 c02996a0
-       c7f41644 3b1a4df9 c12b3f98 00000000 3b1a4df9 00000010 c025532f c0177b4e
-       c12b3f2c c7f41600 0000000a 00000000 c0169d7c c12b3f2c c7f41600 0000000a
-
-Call Trace: [<c017791e>] [<c0177b4e>] [<c0169d7c>] [<c013722c>] [<c013725f>]
-            [<c01365a0>] [<c013c2e8>] [<c0137721>] [<c0137754>] [<c0106c6b>]
-
-Code: 0f 0b 83 c4 0c c3 89 f6 31 c0 c3 90 31 c0 c3 90 56 53 31 db
-
-Unmounting any remaining filesystems...
-
--------------
-
-I use linux 2.4.5 and glibc-2.2.2
-with reiserfs
-If somebody can help to solve this would be very apreciated.
-
-Best Regards
-Sasa Ostrouska
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

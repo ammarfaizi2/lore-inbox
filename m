@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263375AbTCUAd1>; Thu, 20 Mar 2003 19:33:27 -0500
+	id <S263374AbTCUAdM>; Thu, 20 Mar 2003 19:33:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263376AbTCUAd1>; Thu, 20 Mar 2003 19:33:27 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:17102 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S263375AbTCUAdZ>; Thu, 20 Mar 2003 19:33:25 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [Bonding-devel] [patch] (2/8) Add 802.3ad support to bonding (released
- to bonding on sourceforge)
-To: "David S. Miller" <davem@redhat.com>
-Cc: hshmulik@intel.com, bonding-devel@lists.sourceforge.net,
-       bonding-announce@lists.sourceforge.net, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF1BD71312.6E4C42DC-ON88256CF0.000314A8@us.ibm.com>
-From: Jay Vosburgh <fubar@us.ibm.com>
-Date: Thu, 20 Mar 2003 16:43:52 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
- 03/20/2003 17:44:04
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S263375AbTCUAdM>; Thu, 20 Mar 2003 19:33:12 -0500
+Received: from lsanca2-ar27-4-46-143-089.lsanca2.dsl-verizon.net ([4.46.143.89]:31617
+	"EHLO BL4ST") by vger.kernel.org with ESMTP id <S263374AbTCUAdL>;
+	Thu, 20 Mar 2003 19:33:11 -0500
+Date: Thu, 20 Mar 2003 16:44:09 -0800
+From: Eric Wong <eric@yhbt.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched-2.5.64-bk10-C4
+Message-ID: <20030321004409.GA16206@bl4st.yhbt.net>
+References: <Pine.LNX.4.44.0303161213200.4930-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0303161213200.4930-100000@localhost.localdomain>
+Organization: Tire Smokers Anonymous
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> the attached patch fixes a fundamental (and long-standing) bug in the
+> sleep-average estimator which is the root cause of the "contest
+> process_load" problems reported by Mike Galbraith and Andrew Morton, and
+> which problem is addressed by Mike's patch.
 
+> --- linux/kernel/sched.c.orig	
+> +++ linux/kernel/sched.c	
+> @@ -342,10 +342,10 @@ static inline void __activate_task(task_
+>   */
+>  static inline int activate_task(task_t *p, runqueue_t *rq)
+>  {
+> -	unsigned long sleep_time = jiffies - p->last_run;
+> +	long sleep_time = jiffies - p->last_run - 1;
+>  	int requeue_waker = 0;
+>  
+> -	if (sleep_time) {
+> +	if (sleep_time > 0) {
+>  		int sleep_avg;
+>  
+>  		/*
+> 
 
+Would this be an equivalent fix for 2.4.20-ck4?
 
+--- kernel/sched.c	2003-03-20 16:33:07.000000000 -0800
++++ kernel/sched.c.orig	2003-03-20 16:38:51.000000000 -0800
+@@ -307,10 +286,10 @@
+ 
+ static inline void activate_task(task_t *p, runqueue_t *rq)
+ {
+-	long sleep_time = jiffies - p->sleep_timestamp - 1;
++	unsigned long sleep_time = jiffies - p->sleep_timestamp;
+ 	prio_array_t *array = rq->active;
+ 
+-	if (!rt_task(p) && (sleep_time > 0)) {
++	if (!rt_task(p) && sleep_time) {
+ 	/*
+ 		 * This code gives a bonus to interactive tasks. We update
+ 		 * an 'average sleep time' value here, based on
 
-
-
-
-
->So when do these changes end up being sent to myself or
->Jeff for mainline inclusion?
->
->I have no objection to the sourceforge project for bonding, but
->I do object to there being such latency between what the sourceforge
->tree has (especially bug fixes) and what gets submitted into the
->mainline.
->
->Personally, I'd prefer that all development occur in the mainline
->tree.  That gives you testing coverage that is impossible otherwise.
-
-      Fair enough; the delay has gotten excessive of late.
-
-      Would it be satisfactory going forward for the sourceforge site to
-contain patches to "standard" releases (e.g., 2.4.20), and do updates to
-the current development kernel and the sourceforge site simultaneously? In
-other words, sourceforge has a patch containing all bonding updates since
-2.4.20 (or whichever version) was released, and each time that patch is
-updated, the incremental update goes out for inclusion in the development
-kernel.
-
-      -J
-
+-- 
+Eric Wong

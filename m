@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbTLUC4J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 21:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTLUC4J
+	id S261974AbTLUD0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 22:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTLUD0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 21:56:09 -0500
-Received: from mail-02.iinet.net.au ([203.59.3.34]:42637 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262081AbTLUC4G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 21:56:06 -0500
-Message-ID: <3FE50BC2.6050602@cyberone.com.au>
-Date: Sun, 21 Dec 2003 13:56:02 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>,
-       John Hawkes <hawkes@sgi.com>
-Subject: Re: [CFT][RFC] HT scheduler
-References: <20031221003020.6F4482C0D1@lists.samba.org>
-In-Reply-To: <20031221003020.6F4482C0D1@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Dec 2003 22:26:16 -0500
+Received: from main.gmane.org ([80.91.224.249]:36781 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261974AbTLUD0O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 22:26:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Firewire/sbp2 troubles with Linux 2.6.0
+Date: Sun, 21 Dec 2003 04:26:11 +0100
+Message-ID: <yw1x8yl66ecs.fsf@ford.guide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:ZkylVM/zzj9A2/w3J7V9UJ+rcMI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I'm having some trouble connecting a Firewire hard disk box to a
+laptop running Linux 2.6.0.  The disk is correctly detected when
+connected, and can be mounted.  The problems start when I try to read
+large files from the disk.  It will start off reading at about 10
+MB/s, which seems a bit slow for Firewire.  The disks I've used are
+capable of much more.  That's not the real problem, though.  After a
+little while, sometimes as little as 1 MB, sometimes after about 50
+MB, the reading will stall and this message is printed in the kernel
+log:
 
-Rusty Russell wrote:
+ieee1394: sbp2: aborting sbp2 command
+0x28 00 03 6f d2 f1 00 00 f8 00 
 
->In message <3FE28529.1010003@cyberone.com.au> you write:
->
->>+ * See comment for set_cpus_allowed. calling rules are different:
->>+ * the task's runqueue lock must be held, and __set_cpus_allowed
->>+ * will return with the runqueue unlocked.
->>
->
->Please, never *ever* do this.
->
->Locking is probably the hardest thing to get right, and code like this
->makes it harder.
->
+After maybe 30 seconds, reading resumes with a few MB, then stops
+again, etc.  By setting max_speed=0 to sbp2 limiting the speed the
+interval between the stalls becomes longer.  Other options seem to
+have no effect to this problem.
 
-Although in this case it is only one lock, and its only used in
-one place, with comments. But yeah its far more complex than a
-blocking semaphore would be.
+The hex codes printed vary a bit.  Some of the ones I've seen are
 
->
->Fortunately, there is a simple solution coming with the hotplug CPU
->code: we need to hold the cpucontrol semaphore here anyway, against
->cpus vanishing.
->
->Perhaps we should just use that in both places.
->
+0x28 00 03 30 00 11 00 00 10 00 
+0x28 00 03 37 82 81 00 00 10 00 
+0x28 00 03 37 a2 89 00 00 10 00 
+0x28 00 00 00 f0 10 00 00 f8 00 
+0x28 00 03 65 be 21 00 00 f8 00 
+0x28 00 03 65 d1 29 00 00 f8 00 
+0x28 00 03 6f d2 f1 00 00 f8 00 
+0x28 00 03 74 b5 71 00 00 f8 00 
+0x28 00 03 76 aa e9 00 00 08 00 
+0x28 00 03 79 48 b9 00 00 f8 00 
 
-We could just use a private semaphore until the hotplug code is in place.
+Writing to the disk works without any problems, except that the
+throughput is only about 10 MB/s.
 
+I'd appreciate if someone could enlighten me about what's going on.
+Is there anything I can do to gather more information about the
+problem?
+
+-- 
+Måns Rullgård
+mru@kth.se
 

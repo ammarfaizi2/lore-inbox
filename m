@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270387AbRHHH2a>; Wed, 8 Aug 2001 03:28:30 -0400
+	id <S270401AbRHHHiA>; Wed, 8 Aug 2001 03:38:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270388AbRHHH2W>; Wed, 8 Aug 2001 03:28:22 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:45572 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270387AbRHHH2E>; Wed, 8 Aug 2001 03:28:04 -0400
-Date: Wed, 8 Aug 2001 00:24:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
-In-Reply-To: <Pine.LNX.4.21.0108080240250.13133-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0108080020120.923-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270403AbRHHHhv>; Wed, 8 Aug 2001 03:37:51 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:51076 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S270401AbRHHHhp>; Wed, 8 Aug 2001 03:37:45 -0400
+Date: Wed, 8 Aug 2001 17:38:00 +1000
+From: john slee <indigoid@higherplane.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1 is available.
+Message-ID: <20010808173800.C2770@higherplane.net>
+In-Reply-To: <31408.997253881@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <31408.997253881@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 08, 2001 at 04:58:01PM +1000, Keith Owens wrote:
+>   Supports separate source and object directories.  You can compile
+>   multiple versions of the kernel from a single source tree, using a
+>   separate object directory and config for each version.  You can even
+>   compile different architectures simultaneously from the same source
+>   tree.
 
-On Wed, 8 Aug 2001, Marcelo Tosatti wrote:
->
-> Having "zone->pages_low" as the low water mark to when start kswapd does
-> _not_ mean we want "zone->pages_low" as the freetarget (or the "free
-> shortage" indicator).
+ace, less cp -al!
 
-Right. We want the free target to obviously be larger than the low target,
-to avoid hysteresis around it.  And at the same time the free target
-obviously has to be smaller than the more-than-enough "plenty" case.
+>   Standard support for shipping generated files.  kbuild 2.4 has had
+>   continual problems with files that are both generated and shipped.
 
-So we actually have _three_ numbers, not two.
+a subtle reference to aic7xxx? :-/
 
-> Could you be more verbose ?
+>   Multiple targets can be specified on the same make command.  You
+>   cannot mix clean or mrproper with other targets but everything else
+>   can be put on one command.
+>     make -j oldconfig installable && sudo make -j install
+>   works beautifully.
 
-I already was, our mails crossed. I think the main thing I have decided to
-be a "Good Feature (tm)" is to consider the free target to be more of a
-global thing, and not a per-zone thing. While the low water mark and
-"plenty" mark obviously have to be per-zone decisions.
+'make dep bzImage modules modules_install' has worked for me for a long
+long time...  am i just lucky?
 
-And we've actually done exactly this - this is how "inactive_target" works
-already, and how "global_free_shortage()" ends up working too. We just
-didn't write it down explicitly.
+>   Install targets such as bzImage, zImage, where to install System.map
+>   and .config, the install path prefix, which commands to run after
+>   install etc. are all CONFIG_ options.  Copy .config from one kernel
+>   to another, run make install and it all happens, hands free.
 
-		Linus
+i think you've fixed my only gripes with existing kbuild.
+much appreciated. :-)
 
+j.
+
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSAIW64>; Wed, 9 Jan 2002 17:58:56 -0500
+	id <S289070AbSAIXCc>; Wed, 9 Jan 2002 18:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289068AbSAIW6e>; Wed, 9 Jan 2002 17:58:34 -0500
-Received: from oyster.morinfr.org ([62.4.22.234]:17572 "EHLO
-	oyster.morinfr.org") by vger.kernel.org with ESMTP
-	id <S285692AbSAIW6Z>; Wed, 9 Jan 2002 17:58:25 -0500
-Date: Wed, 9 Jan 2002 23:58:23 +0100
-From: Guillaume Morin <guillaume@morinfr.org>
-To: walter <walt@nea-fast.com>
+	id <S288566AbSAIXCV>; Wed, 9 Jan 2002 18:02:21 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:51351
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289072AbSAIXCL>; Wed, 9 Jan 2002 18:02:11 -0500
+Date: Wed, 9 Jan 2002 17:46:37 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: new kernel --this is wierd
-Message-ID: <20020109225823.GA20827@morinfr.org>
-Mail-Followup-To: walter <walt@nea-fast.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200201092250.RAA03139@int1.nea-fast.com>
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020109174637.A1742@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Matthew Kirkwood <matthew@hairy.beasts.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020109154742.B28755@thyrsus.com> <Pine.LNX.4.33.0201092238100.29914-100000@sphinx.mythic-beasts.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200201092250.RAA03139@int1.nea-fast.com>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201092238100.29914-100000@sphinx.mythic-beasts.com>; from matthew@hairy.beasts.org on Wed, Jan 09, 2002 at 10:41:59PM +0000
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dans un message du 09 jan à 17:50, walter écrivait :
-> After upgrading to kernel-2.4.14-SGI_XFS_1.0.2 I can no longer connect to 
-> www.zdnet.com. I can connect to any other web site. 
+Matthew Kirkwood <matthew@hairy.beasts.org>:
+> > The underlying problem is that dmidecode needs access to kmem, and I
+> > can't assume that the person running my configurator will be root.
+> 
+> But you can "su -c" (also sudo, I suppose).  If that person
+> doesn't have root, then building a kernel isn't going to do
+> them much good.
 
-It seems that TCP ECN is on. Try echo 0 > /proc/sys/net/ipv4/tcp_ecn
-
+We've been over this already.  No, the configurator user should *not* have
+to su at any point before actual kernel installation.  Bad practice, 
+no doughnut.
 -- 
-Guillaume Morin <guillaume@morinfr.org>
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-       Unwisely, Santa offered a teddy bear to James, unaware that he had
-             been mauled by a grizzly earlier that year (T. Burton)
+"The power to tax involves the power to destroy;...the power to
+destroy may defeat and render useless the power to create...."
+	-- Chief Justice John Marshall, 1819.

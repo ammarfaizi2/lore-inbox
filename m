@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129765AbQLRTk7>; Mon, 18 Dec 2000 14:40:59 -0500
+	id <S129319AbQLRTqK>; Mon, 18 Dec 2000 14:46:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129873AbQLRTky>; Mon, 18 Dec 2000 14:40:54 -0500
-Received: from [204.154.204.233] ([204.154.204.233]:17170 "EHLO
-	ocean.metricom.com") by vger.kernel.org with ESMTP
-	id <S129781AbQLRTk3>; Mon, 18 Dec 2000 14:40:29 -0500
-Message-ID: <A8D6FAF7E44BD411A31E0004AC4CB0F6334AD0@planet.metricom.com>
-From: "Jain, Jayant" <jjain@metricom.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "Jain, Jayant" <jjain@metricom.com>
-Subject: problem with wireless pcmcia modem with linux (Ricochet)
-Date: Mon, 18 Dec 2000 11:10:27 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129391AbQLRTqA>; Mon, 18 Dec 2000 14:46:00 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:14497 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129319AbQLRTpr>;
+	Mon, 18 Dec 2000 14:45:47 -0500
+Date: Mon, 18 Dec 2000 10:58:04 -0800
+Message-Id: <200012181858.KAA05797@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: root@chaos.analogic.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1001218140412.5366A-100000@chaos.analogic.com>
+	(root@chaos.analogic.com)
+Subject: Re: VM performance problem
+In-Reply-To: <Pine.LNX.3.95.1001218140412.5366A-100000@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+   Date: Mon, 18 Dec 2000 14:09:00 -0500 (EST)
+   From: "Richard B. Johnson" <root@chaos.analogic.com>
 
-Ive been working on getting the wireless modem from novatel work with my
-linux box.
-I see that all incoming ip packets larger than 450 bytes get corrupted ..the
-last two bytes (checksum) goes missing when it reaches the ppp driver..
-if the packet is less than that (450 bytes ) everything is fine .
-Ive not been able to isolate the problem to the card or the serial driver
-The  card works very well with windows and mac
+   Well I just use free(), nothing more, nothing special, just like a
+   typical data-base program.  Free should just set a new break
+   address after the reclaimed data falls below some watermarks it has
+   established. Both malloc() and free(), use already allocated
+   data-space for their work-space (last time I looked at library
+   code).
 
-Im using kernel 2.2.16 with pcmcia version 3.1.8 
+malloc and free maintain their free buffers pools using linked lists,
+thus a free() does two stores to the (2 * sizeof(void *)) bytes before
+or after that buffer.  Thus the swapping.
 
-thanks
+Use mmap()/munmap() directly and manage things totally yourself to get
+rid of this.
 
-jayant jain
-
-
-please cc me at 
-
-jjain@metricom.com
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262652AbTCIVRz>; Sun, 9 Mar 2003 16:17:55 -0500
+	id <S262634AbTCIVeB>; Sun, 9 Mar 2003 16:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262653AbTCIVRy>; Sun, 9 Mar 2003 16:17:54 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:42443 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S262652AbTCIVRx>;
-	Sun, 9 Mar 2003 16:17:53 -0500
-Date: Sun, 9 Mar 2003 22:28:15 +0100
-To: Greg KH <greg@kroah.com>
+	id <S262635AbTCIVeB>; Sun, 9 Mar 2003 16:34:01 -0500
+Received: from packet.digeo.com ([12.110.80.53]:21698 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262634AbTCIVeA>;
+	Sun, 9 Mar 2003 16:34:00 -0500
+Date: Sun, 9 Mar 2003 13:45:06 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Andi Kleen <ak@muc.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gen_init_cpio fixes for 2.5.64
-Message-ID: <20030309212815.GC14858@h55p111.delphi.afb.lu.se>
-References: <20030305060817.GC26458@kroah.com> <20030308004249.GA23071@kroah.com> <20030308004340.GB23071@kroah.com> <20030308143745.GB7234@h55p111.delphi.afb.lu.se> <20030309060452.GA28835@kroah.com>
+Subject: Re: [PATCH] Work around console initialization ordering problem
+Message-Id: <20030309134506.5809262b.akpm@digeo.com>
+In-Reply-To: <20030309163242.GA2335@averell>
+References: <20030309163242.GA2335@averell>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030309060452.GA28835@kroah.com>
-X-message-flag: Outlook is bad for you, use mutt
-User-Agent: Mutt/1.5.3i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *18s8L9-0005vc-00*bDXJJFt2.TQ* (0x63.nu)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Mar 2003 21:44:33.0638 (UTC) FILETIME=[1291D060:01C2E685]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 10:04:52PM -0800, Greg KH wrote:
-> On Sat, Mar 08, 2003 at 03:37:45PM +0100, Anders Gustafsson wrote:
-> > On Fri, Mar 07, 2003 at 04:43:40PM -0800, Greg KH wrote:
-> > > 
-> > > ChangeSet 1.1124, 2003/03/07 16:39:06-08:00, greg@kroah.com
-> > > 
-> > > gen_init_cpio: Add the ability to add files to the cpio image.
-> > 
-> > Have you been able to boot the kernel with a cpio-archive that contains
-> > files larger than a few k? The kernel crashes on me when writing to the file
-> > in ramfs.
+Andi Kleen <ak@muc.de> wrote:
+>
 > 
-> I have not tried that, no.
-> 
-> > It crashes i the third or forth flush_window or so..
-> 
-> What does the oops show?
+> Works around the console ordering problem in 2.5.64-bk3. Following 
+> the similar fix I did for x86-64.
+> ...
+> +	if (!strstr(saved_command_line, "console="))
+> +	     strcat(saved_command_line, " console=tty0");
+> +
 
-I don't have the possibility to capture it at the moment, I have no
-serialports on my laptop and no other computer I can test it on at hand at
-the moment. 
+We can do it by shuffling the link order:
 
-But it's really easy to reproduce, just add a:
-        cpio_mkfile("/bin/busybox","/bin/sh",0755,0,0);
-	
-or something similar in usr/gen_init_cpio.c
 
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+diff -puN drivers/Makefile~console-ordering-fix drivers/Makefile
+--- 25/drivers/Makefile~console-ordering-fix	2003-03-09 02:48:33.000000000 -0800
++++ 25-akpm/drivers/Makefile	2003-03-09 02:48:33.000000000 -0800
+@@ -11,9 +11,10 @@ obj-$(CONFIG_ACPI)		+= acpi/
+ # PnP must come after ACPI since it will eventually need to check if acpi
+ # was used and do nothing if so
+ obj-$(CONFIG_PNP)		+= pnp/
++obj-y				+= char/
+ obj-y				+= serial/
+ obj-$(CONFIG_PARPORT)		+= parport/
+-obj-y				+= base/ char/ block/ misc/ net/ media/
++obj-y				+= base/ block/ misc/ net/ media/
+ obj-$(CONFIG_NUBUS)		+= nubus/
+ obj-$(CONFIG_ATM)		+= atm/
+ obj-$(CONFIG_IDE)		+= ide/
+
+_
+

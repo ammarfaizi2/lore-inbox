@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129667AbQKUVzm>; Tue, 21 Nov 2000 16:55:42 -0500
+	id <S129520AbQKUVzm>; Tue, 21 Nov 2000 16:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129410AbQKUVzd>; Tue, 21 Nov 2000 16:55:33 -0500
-Received: from boss.staszic.waw.pl ([195.205.163.66]:15625 "EHLO
+	id <S129667AbQKUVze>; Tue, 21 Nov 2000 16:55:34 -0500
+Received: from boss.staszic.waw.pl ([195.205.163.66]:15881 "EHLO
 	boss.staszic.waw.pl") by vger.kernel.org with ESMTP
-	id <S129868AbQKUVzV>; Tue, 21 Nov 2000 16:55:21 -0500
-Date: Tue, 21 Nov 2000 22:25:29 +0100 (CET)
+	id <S129520AbQKUVz2>; Tue, 21 Nov 2000 16:55:28 -0500
+Date: Tue, 21 Nov 2000 22:25:01 +0100 (CET)
 From: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
 To: torvalds@transmeta.com
 cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix help info about OSB4 and VIA82CXXX IDE chipsets (test11)
-Message-ID: <Pine.LNX.4.21.0011211549080.5487-100000@tricky>
+Subject: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+Message-ID: <Pine.LNX.4.21.0011211438490.756-100000@tricky>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,66 +20,95 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi
 
-- OSB4 isn't marked (EXPERIMENTAL) in drivers/ide/Config.in so it
-  shouldn't be marked so in Configure.help.
-- PDC202XX driver also supports PDC20265.
-- new VIA82CXXX driver removed kernel command line option (FIFO
-  setting) and CONFIG_VIA82CXX_TUNING
+Quick removal of unnecessary initialization to 0.
 
 --
 Bartlomiej Zolnierkiewicz
 <bkz@linux-ide.org>
 
 
---- linux-240t11/drivers/ide/Configure.help	Sun Nov 19 00:22:49 2000
-+++ linux/drivers/ide/Configure.help	Tue Nov 21 15:45:16 2000
-@@ -868,9 +868,9 @@
-   This is a driver for the OPTi 82C621 EIDE controller.
-   Please read the comments at the top of drivers/ide/opti621.c.
+diff -uNr linux-240t11/drivers/ide/ali14xx.c linux/drivers/ide/ali14xx.c
+--- linux-240t11/drivers/ide/ali14xx.c	Tue Jun 13 20:32:00 2000
++++ linux/drivers/ide/ali14xx.c	Tue Nov 21 14:35:59 2000
+@@ -81,9 +81,9 @@
+ 	{0x2d, 0x32, 0x2e, 0x33},     /* drive 3 */
+ };
  
--ServerWorks OSB4 chipset support (EXPERIMENTAL)
-+ServerWorks OSB4 chipset support
- CONFIG_BLK_DEV_OSB4
--  This driver adds PIO/DMA support for the Serverworks OSB4 chipset
-+  This driver adds PIO/(U)DMA support for the ServerWorks OSB4 chipset.
+-static int basePort = 0;	/* base port address */
+-static int regPort = 0;		/* port for register number */
+-static int dataPort = 0;	/* port for register data */
++static int basePort;	/* base port address */
++static int regPort;	/* port for register number */
++static int dataPort;	/* port for register data */
+ static byte regOn;	/* output to base port to access registers */
+ static byte regOff;	/* output to base port to close registers */
  
- Intel PIIXn chipsets support
- CONFIG_BLK_DEV_PIIX
-@@ -898,7 +898,7 @@
+diff -uNr linux-240t11/drivers/ide/alim15x3.c linux/drivers/ide/alim15x3.c
+--- linux-240t11/drivers/ide/alim15x3.c	Wed Nov 15 22:02:55 2000
++++ linux/drivers/ide/alim15x3.c	Tue Nov 21 14:35:59 2000
+@@ -233,8 +233,8 @@
+ }
+ #endif  /* defined(DISPLAY_ALI_TIMINGS) && defined(CONFIG_PROC_FS) */
  
-   If unsure, say N.
+-static byte m5229_revision	= 0;
+-static byte chip_is_1543c_e	= 0;
++static byte m5229_revision;
++static byte chip_is_1543c_e;
  
--PROMISE PDC20246/PDC20262/PDC20267 support
-+PROMISE PDC20246/PDC20262/PDC20265/PDC20267 support
- CONFIG_BLK_DEV_PDC202XX
-   Promise Ultra33 or PDC20246
-   Promise Ultra66 or PDC20262
-@@ -972,23 +972,15 @@
- VIA82CXXX chipset support
- CONFIG_BLK_DEV_VIA82CXXX
-   This allows you to to configure your chipset for a better use while
--  running (U)DMA: it will allow you to enable efficiently the second
--  channel dma usage, as it may not be set by BIOS. It allows you to
--  pass a kernel command line at boot time in order to set fifo
--  config. If no command line is provided, it will try to set fifo
-+  running PIO/(U)DMA, it will allow you to enable efficiently the second
-+  channel dma usage, as it may not be set by BIOS. It will try to set fifo
-   configuration at its best. It will allow you to get information from
--  /proc/ide/via provided you enabled "proc" support.
-+  /proc/ide/via provided you enabled "/proc file system" support.
+ byte ali_proc = 0;
+ static struct pci_dev *isa_dev;
+diff -uNr linux-240t11/drivers/ide/buddha.c linux/drivers/ide/buddha.c
+--- linux-240t11/drivers/ide/buddha.c	Wed Nov 15 22:02:11 2000
++++ linux/drivers/ide/buddha.c	Tue Nov 21 14:35:59 2000
+@@ -87,7 +87,7 @@
+      *  Board information
+      */
  
-   Please read the comments at the top of drivers/ide/via82cxxx.c
+-static u_long buddha_board = 0;
++static u_long buddha_board;
+ static int buddha_num_hwifs = -1;
  
-   If you say Y here, then say Y to "Use DMA by default when available"
-   as well.
--
--  If unsure, say N.
--
--VIA82CXXX Tuning support (WIP)
--CONFIG_VIA82CXXX_TUNING
--  Please read the comments at the top of drivers/ide/via82cxxx.c
  
-   If unsure, say N.
+diff -uNr linux-240t11/drivers/ide/hpt366.c linux/drivers/ide/hpt366.c
+--- linux-240t11/drivers/ide/hpt366.c	Wed Nov 15 22:02:55 2000
++++ linux/drivers/ide/hpt366.c	Tue Nov 21 14:36:27 2000
+@@ -214,8 +214,8 @@
+ byte hpt366_proc = 0;
+ 
+ extern char *ide_xfer_verbose (byte xfer_rate);
+-byte hpt363_shared_irq = 0;
+-byte hpt363_shared_pin = 0;
++byte hpt363_shared_irq;
++byte hpt363_shared_pin;
+ 
+ static unsigned int pci_rev_check_hpt3xx (struct pci_dev *dev)
+ {
+diff -uNr linux-240t11/drivers/ide/ide-pci.c linux/drivers/ide/ide-pci.c
+--- linux-240t11/drivers/ide/ide-pci.c	Wed Nov 15 22:02:55 2000
++++ linux/drivers/ide/ide-pci.c	Tue Nov 21 14:35:59 2000
+@@ -185,8 +185,8 @@
+ #define INIT_HPT366	&ide_init_hpt366
+ #define DMA_HPT366	&ide_dmacapable_hpt366
+ #else
+-static byte hpt363_shared_irq = 0;
+-static byte hpt363_shared_pin = 0;
++static byte hpt363_shared_irq;
++static byte hpt363_shared_pin;
+ #define PCI_HPT366	NULL
+ #define ATA66_HPT366	NULL
+ #define INIT_HPT366	NULL
+diff -uNr linux-240t11/drivers/ide/osb4.c linux/drivers/ide/osb4.c
+--- linux-240t11/drivers/ide/osb4.c	Wed Nov 15 22:02:12 2000
++++ linux/drivers/ide/osb4.c	Tue Nov 21 14:35:59 2000
+@@ -60,7 +60,7 @@
+ #include <linux/stat.h>
+ #include <linux/proc_fs.h>
+ 
+-static byte osb4_revision = 0;
++static byte osb4_revision;
+ static struct pci_dev *bmide_dev;
+ 
+ static int osb4_get_info(char *, char **, off_t, int, int);
 
 
 -

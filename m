@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVCaPA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVCaPDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVCaPA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVCaPA4
+	id S261501AbVCaPDW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 10:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVCaPBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:00:56 -0500
-Received: from pat.uio.no ([129.240.130.16]:35002 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261488AbVCaPAd (ORCPT
+	Thu, 31 Mar 2005 10:01:23 -0500
+Received: from mail.dif.dk ([193.138.115.101]:24802 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261490AbVCaPAp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:00:33 -0500
-Subject: Re: NFS client latencies
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050331145439.GA4896@elte.hu>
-References: <1112237239.26732.8.camel@mindpipe>
-	 <1112240918.10975.4.camel@lade.trondhjem.org>
-	 <20050331065942.GA14952@elte.hu> <20050330231801.129b0715.akpm@osdl.org>
-	 <20050331073017.GA16577@elte.hu>
-	 <1112270304.10975.41.camel@lade.trondhjem.org>
-	 <1112272451.10975.72.camel@lade.trondhjem.org>
-	 <20050331135825.GA2214@elte.hu>
-	 <1112279522.20211.8.camel@lade.trondhjem.org>
-	 <20050331143930.GA4032@elte.hu>  <20050331145439.GA4896@elte.hu>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 10:00:17 -0500
-Message-Id: <1112281217.20211.34.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.567, required 12,
-	autolearn=disabled, AWL 1.38, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 31 Mar 2005 10:00:45 -0500
+Date: Thu, 31 Mar 2005 17:00:26 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: DervishD <lkml@dervishd.net>
+Cc: Mariusz Mazur <mmazur@kernel.pl>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
+In-Reply-To: <20050331141726.GA654@DervishD>
+Message-ID: <Pine.LNX.4.62.0503311659040.7825@jjulnx.backbone.dif.dk>
+References: <20050330162114.GA1028@DervishD> <200503302240.08200.mmazur@kernel.pl>
+ <20050331074526.GA8614@DervishD> <200503311426.48435.mmazur@kernel.pl>
+ <20050331141726.GA654@DervishD>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 31.03.2005 Klokka 16:54 (+0200) skreiv Ingo Molnar:
+On Thu, 31 Mar 2005, DervishD wrote:
 
-> i think it's incorrect in its current form, because 'pos' is not 
-> necessarily safe and might be removed from the commit_list?
+> Date: Thu, 31 Mar 2005 16:17:26 +0200
+> From: DervishD <lkml@dervishd.net>
+> To: Mariusz Mazur <mmazur@kernel.pl>
+> Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+> Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
+> 
+>     Hi Mariusz :)
+> 
+>  * Mariusz Mazur <mmazur@kernel.pl> dixit:
+> > >     I don't know which set of headers will work, and in fact I don't
+> > > know if I must follow 'Linux From Scratch' advice and use raw kernel
+> > > headers for building glibc and LLH headers for any other thing. I
+> > > think I probably will use the LLH headers (including scsi) for
+> > > everything since glibc passes the 'make check' doing that... If I
+> > > screw my system badly, I have lotsa backups at hand.
+> > Like I've said, you're unable to break your system this way.
+> 
+>     I think so... 
+> 
+> > And I don't see any point in LFS suggesting using raw kernel
+> > headers to compile glibc
+> 
+>     I don't know their reasons because I haven't read any rationale
+> (if any exists at all). Anyway, I've used LLH (including the scsi
 
-Right.
 
-> the whole loop could be a "while (!list_empty(head))" thing, if it wasnt 
-> for the possibility for an nfs_set_page_writeback_locked() to skip an 
-> entry. Maybe a local list of 'already processed' requests should be 
-> built, and once the main list is emptied, moved back into the main list? 
-> Then the lock-break could be moved to the end of the loop.
+http://uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html seems to have a 
+bearing on what you are discussing - just FYI.
 
-Should be pretty much unnecessary. See my previous email.
 
-Cheers,
-  Trond
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Jesper Juhl
 

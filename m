@@ -1,101 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317751AbSHZBFB>; Sun, 25 Aug 2002 21:05:01 -0400
+	id <S317755AbSHZBh1>; Sun, 25 Aug 2002 21:37:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317752AbSHZBFB>; Sun, 25 Aug 2002 21:05:01 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:56293 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S317751AbSHZBFA>;
-	Sun, 25 Aug 2002 21:05:00 -0400
-Date: Sun, 25 Aug 2002 21:02:31 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Mala Anand <manand@us.ibm.com>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
-In-Reply-To: <OF7A029023.8004C095-ON87256C20.005B4894@boulder.ibm.com>
-Message-ID: <Pine.GSO.4.30.0208252052320.675-100000@shell.cyberus.ca>
+	id <S317767AbSHZBh0>; Sun, 25 Aug 2002 21:37:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12562 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317755AbSHZBh0>;
+	Sun, 25 Aug 2002 21:37:26 -0400
+Message-ID: <3D6989F7.9ED1948A@zip.com.au>
+Date: Sun, 25 Aug 2002 18:52:55 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: MM patches against 2.5.31
+References: <3D644C70.6D100EA5@zip.com.au> <20020822112806.28099.qmail@thales.mathematik.uni-ulm.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christian Ehrhardt wrote:
+> 
+> On Wed, Aug 21, 2002 at 07:29:04PM -0700, Andrew Morton wrote:
+> >
+> > I've uploaded a rollup of pending fixes and feature work
+> > against 2.5.31 to
+> >
+> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.31/2.5.31-mm1/
+> >
+> > The rolled up patch there is suitable for ongoing testing and
+> > development.  The individual patches are in the broken-out/
+> > directory and should all be documented.
+> 
+> Sorry, but we still have the page release race in multiple places.
+> Look at the following (page starts with page_count == 1):
+> 
+
+So we do.  It's a hugely improbable race, so there's no huge rush
+to fix it.  Looks like the same race is present in -ac kernels,
+actually, if add_to_swap() fails.  Also perhaps 2.4 is exposed if
+swap_writepage() is synchronous, and page reclaim races with 
+zap_page_range.  ho-hum.
 
 
-On Sun, 25 Aug 2002, Mala Anand wrote:
+What I'm inclined to do there is to change __page_cache_release()
+to not attempt to free the page at all.  Just let it sit on the
+LRU until page reclaim encounters it.  With the anon-free-via-pagevec
+patch, very, very, very few pages actually get their final release in
+__page_cache_release() - zero on uniprocessor, I expect.
 
->
-> Jamal wrote ..
->
-> >Can you repeat your tests with the hotlist turned off (i.e set to 0)?
->
->  Even if I turned the hot list, the slab allocator has a per cpu array of
-> objects. In this case it keeps by default 60 objects and hot list keeps
-> 126 objects. So there may be a difference. I will try this.
->
+And change pagevec_release() to take the LRU lock before dropping
+the refcount on the pages.
 
-Well, the hotlist is supposed to be one way to reduce the effect of
-initialization.
+That means there will need to be two flavours of pagevec_release():
+one which expects the pages to become freeable (and takes the LRU
+lock in anticipation of this).  And one which doesn't expect the
+pages to become freeable.  The latter will leave the occasional
+zero-count page on the LRU, as above.
 
->  This skb init work is the result of my probing in to the slab cache work.
-> Read
-> my posting on slab cache:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=102773718023056&w=2
-> This work triggered the skb init patch. To quantify the effect of bouncing
-> the objects between cpus, I choose skb to measure. And it turns out that
-> the
-> limited cpu array is not the culprit in this case, it is how the objects
-> are
-> allocated in one cpu and freed in another cpu is what causing the bouncing
-> of objects between cpus.
->
-
-Same conclusion as us then
-
-> >Also Robert and i did a few tests and we did find skb recycling (based on
-> >a patch from Robert a few years back) was infact giving perfomance
-> >improvements of upto 15% over regular slab.
-> >Did you test with that patch for the e1000 he pointed you at?
-> >I repeated the tests (around June/July) with the tulip with input rates of
-> >a few 100K packets/sec and noticed a improvement over regular NAPI by
-> >about 10%. Theres one bug on the tulip which we are chasing that
-> >might be related to tulips alignment requirements;
->
-> Yes I got the patch from Robert and I am planning on testing the patch. My
-> understanding is that skbs are recylced in other operating systems as well
-> to
-> improve performance. And it particularly helps in architectures where pci
-> mapping is expensive and when skbs are recycled, remapping is eliminated.
-
-standard practise for eons on networking in rtoses at least.
-Slab on Linux was supposed to get rid of this. Thats why Robert
-hid his original patch.
-
->I think the skbinit patch and recycling skbs are mutually exclusive.
-
-I would say they are more orthogonal than mutually exclusive.
-Although ou still need to prove that relocating the code actually helps in
-real life. On paper it looks good.
-
-> Recycling
-> skbs will reduce the number of times we hit alloc_skb and __kfree_skb.
->
-
-Thats what we see.
-
-> >The idea of only freeing on the same CPU a skb allocated is free with
-> >the e1000 NAPI driver style but not in the tulip NAPI  where a txmit
-> >interupt might happen on a different CPU. The skb recycler patch only
-> >recylces if allocation and freeing are happening on the same CPU;
-> >otherwise we let the slab take the hit. On the tulip this happens about
-> >50% of the time.
->  So skbinit patch will help the other case.
->
-
-It will. Note, however that on the e1000 style coding, the hit ration is
-much higher -- almost 100% in theory at least.
-Perhaps its time to convert the tulip ...
-
-cheers,
-jamal
-
-
+Sound sane?

@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264670AbUEUXCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265113AbUEVBwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264670AbUEUXCg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 19:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265017AbUEUWuS
+	id S265113AbUEVBwV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUEVBtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:50:18 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:36774 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265097AbUEUWtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:49:16 -0400
-Message-ID: <40ADF0AC.1090404@tmr.com>
-Date: Fri, 21 May 2004 08:06:04 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Brad Campbell <brad@wasp.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: libata 2.6.5->2.6.6 regression -part II
-References: <40A8E9A8.3080100@wasp.net.au> <200405181513.12920.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405181513.12920.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 21 May 2004 21:49:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36350 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264804AbUEVBqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:46:18 -0400
+Date: Thu, 20 May 2004 15:46:04 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ipslinux@adaptec.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [patch] 2.4.27-pre3: SCSI ips compile error
+Message-ID: <20040520134604.GL24287@fs.tum.de>
+References: <20040518203039.GA9970@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040518203039.GA9970@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Monday 17 of May 2004 18:34, Brad Campbell wrote:
-> 
->>G'day all,
->>I caught the suggestion on my last post in the archives, but because I'm
->>not subscribed and wasn't cc'd I can't keep it threaded.
->>
->>I tried backing out the suggested acpi patch (No difference at all), and I
->>managed to get apic to work but it still hangs solid in the same place.
->>
->>dmesg attached.
->>
->>I managed to figure out that the VIA ATA driver captures my sata drives on
->>the via ports, explaining why sata_via misses them, but writing data to
->>those drives (hde & hdg) causes dma timeouts and locks the machine. No
->>useful debug info produced. The machine becomes non-responsive, throws a
->>couple of dma timeouts to the console and then loses all interactivity
->>(keyboard, serial, network) forcing a reset push.
->>
->>Is there any way I can prevent the VIA ATA driver capturing this device?
->>Unfortunately my boot drive is on hda on the on-board VIA ATA interface so
->>I need it compiled in.
-> 
-> 
-> Disable the fscking PCI IDE generic driver.
-> [ You are not the first one tricked by it. ]
-> 
-> AFAIR support for VIA 8237 was added to it before sata_via.c was ready.
-> [ but my memory is... ]
+On Tue, May 18, 2004 at 05:30:40PM -0300, Marcelo Tosatti wrote:
+>...
+> Summary of changes from v2.4.27-pre2 to v2.4.27-pre3
+> ============================================
+>...
+> Jack Hammer:
+>   o ServeRAID driver update to 7.00.15: sync with v2.6
+>...
 
-What would happen if the generic driver was initialized last? That would 
-let other more specific drivers grab devices first. The model which 
-comes to mind is a route table, smallest subnet (or in this case most 
-specific) being used first. Or would that open a whole other nest of snakes?
+It was nice if people would actually test at least the compilation of
+their changes instead of blindly submitting the latest version of a
+driver...
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+<--  snip  -->
+
+...
+gcc -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon   
+-nostdinc -iwithprefix include -DKBUILD_BASENAME=ips  -c -o ips.o ips.c
+In file included from ips.c:180:
+ips.h:99: error: redefinition of `irqreturn_t'
+/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/include/linux/interrupt.h:16: 
+error: `irqreturn_t' previously declared here
+make[3]: *** [ips.o] Error 1
+make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/drivers/scsi'
+
+<--  snip  -->
+
+
+irqreturn_t was added to interrupt.h in 2.4.23, released nearly
+6 months (!) ago.
+
+Trivial fix below.
+
+cu
+Adrian
+
+
+
+--- linux-2.4.27-pre3-full/drivers/scsi/ips.h.old	2004-05-19 21:40:58.000000000 +0200
++++ linux-2.4.27-pre3-full/drivers/scsi/ips.h	2004-05-19 21:42:01.000000000 +0200
+@@ -95,11 +95,14 @@
+       #define scsi_set_pci_device(sh,dev) (0)
+    #endif
+ 
+-   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
++   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
+       typedef void irqreturn_t;
+       #define IRQ_NONE
+       #define IRQ_HANDLED
+       #define IRQ_RETVAL(x)
++   #endif
++
++   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+       #define IPS_REGISTER_HOSTS(SHT)      scsi_register_module(MODULE_SCSI_HA,SHT)
+       #define IPS_UNREGISTER_HOSTS(SHT)    scsi_unregister_module(MODULE_SCSI_HA,SHT)
+       #define IPS_ADD_HOST(shost,device)

@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269166AbUIHNwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269147AbUIHN5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269166AbUIHNwf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 09:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIHNsl
+	id S269147AbUIHN5N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 09:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUIHNoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 09:48:41 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:4872 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267928AbUIHNsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 09:48:03 -0400
-Date: Wed, 8 Sep 2004 14:47:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>,
+	Wed, 8 Sep 2004 09:44:00 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:7915 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268049AbUIHNmn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 09:42:43 -0400
+Date: Wed, 8 Sep 2004 09:47:12 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Scott Wood <scott@timesys.com>, Andrey Panin <pazke@donpac.ru>
+       Scott Wood <scott@timesys.com>
 Subject: Re: [patch] generic-hardirqs.patch, 2.6.9-rc1-bk14
-Message-ID: <20040908144755.A32156@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>,
-	"La Monte H.P. Yarroll" <piggy@timesys.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Scott Wood <scott@timesys.com>, Andrey Panin <pazke@donpac.ru>
-References: <20040908120613.GA16916@elte.hu> <413EFB11.2000507@timesys.com> <20040908142529.A31922@infradead.org> <20040908134032.GA24201@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040908134032.GA24201@elte.hu>; from mingo@elte.hu on Wed, Sep 08, 2004 at 03:40:32PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <20040908143143.A32002@infradead.org>
+Message-ID: <Pine.LNX.4.53.0409080938470.15087@montezuma.fsmlabs.com>
+References: <20040908120613.GA16916@elte.hu> <20040908133445.A31267@infradead.org>
+ <20040908124547.GA19231@elte.hu> <20040908125755.GC3106@holomorphy.com>
+ <Pine.LNX.4.53.0409080932050.15087@montezuma.fsmlabs.com>
+ <20040908143143.A32002@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 03:40:32PM +0200, Ingo Molnar wrote:
-> 
-> * Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > On Wed, Sep 08, 2004 at 08:29:05AM -0400, La Monte H.P. Yarroll wrote:
-> > > In the interests of full provinence, the TimeSys patches are based on
-> > > work by Andrey Panin.
-> > 
-> > Btw, Andrey's patches got all the things right I complained about :)
-> 
-> do you mean the irq and softirq threading patches?
+On Wed, 8 Sep 2004, Christoph Hellwig wrote:
 
-No, irq.c consolidation.
+> On Wed, Sep 08, 2004 at 09:34:03AM -0400, Zwane Mwaikambo wrote:
+> > Hmm, whenever i've brought up weak functions in a patch it's never well 
+> > received. Frankly i prefer it to littering the architectures with similar 
+> > functions.
+> 
+> That's what we have asm-generic for.
+
+So you have an inline function in a header and include it everywhere? How 
+is that better?
+
+	Zwane

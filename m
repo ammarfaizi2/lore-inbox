@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVBVWIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVBVWKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVBVWIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 17:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBVWIT
+	id S261303AbVBVWKk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 17:10:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVBVWKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 17:08:19 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64456 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261291AbVBVWIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 17:08:13 -0500
-Subject: Re: reading the same entropy twice
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Bob O'Neill" <rmoneill@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4b325ef050222135529a2584a@mail.gmail.com>
-References: <4b325ef050222135529a2584a@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 22 Feb 2005 17:08:11 -0500
-Message-Id: <1109110092.31071.47.camel@krustophenia.net>
+	Tue, 22 Feb 2005 17:10:39 -0500
+Received: from mail.shareable.org ([81.29.64.88]:21672 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261297AbVBVWJR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 17:09:17 -0500
+Date: Tue, 22 Feb 2005 22:09:00 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
+Message-ID: <20050222220900.GJ22555@mail.shareable.org>
+References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org> <20050222210752.GG22555@mail.shareable.org> <20050222211938.GB7079@austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050222211938.GB7079@austin.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-22 at 16:55 -0500, Bob O'Neill wrote:
-> Hello.
+Olof Johansson wrote:
+> > That won't work because the vma lock must be help between key
+> > calculation and get_user() - otherwise futex is not reliable.  It
+> > would work if the futex key calculation was inside the loop.
 > 
-> I have noticed that it is possible on an SMP box for two processes to
-> simultaneously read the same entropy out of /dev/urandom.  This
-> doesn't seem right to me.  I was using the entropy value to generate a
-> random number to use as a session ID, so occasionally there would be a
-> collision on session IDs, causing a login failure as session IDs are
-> required to be unique.  This issue does not appear to be related to
-> entropy depletion.
+> Sure, but that's still true: It's just that the get_user() is done twice
+> instead. The semaphore is never released between the key calculation and
+> the "real" get_user().
+
+Ah, I didn't look at where the loop is used and didn't think there'd
+be _two_ get_user() calls in the fast case.  Not my instinct.
+
+> > A much simpler solution (and sorry for not offering it earlier,
+> > because Andrew Morton pointed out this bug long ago, but I was busy), is:
 > 
-> Could you provide me with some insight into why this is the case, if
-> it is intentional?  It seems like it could be addressed with a
-> spinlock.
+> Either way works for me. Andrew/Linus, got a preference? I'll either
+> post my refresh based on Andrews comments, or code up Jamie's
+> suggestion.
 
-Please check the LKML archives, this was debated at length last month
-IIRC.  I don't recall whether it ended conclusivelty.
+Yours has a couple of problems.
 
-Lee
+   1. It'll make futex waits somewhat slower.  One of the nicer features
+      of 2.6 futexes is that we got rid of the explicit page table lookup.
 
+   2. It's broken because a page can be paged out by another thread
+      after you've forced it in and before the get_user().  We only
+      take mmap_sem, not the page table lock.
+
+-- Jamie

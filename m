@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbSKJS5M>; Sun, 10 Nov 2002 13:57:12 -0500
+	id <S265085AbSKJTBv>; Sun, 10 Nov 2002 14:01:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSKJS5M>; Sun, 10 Nov 2002 13:57:12 -0500
-Received: from mail.hometree.net ([212.34.181.120]:37249 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265065AbSKJS5L>; Sun, 10 Nov 2002 13:57:11 -0500
+	id <S265086AbSKJTBv>; Sun, 10 Nov 2002 14:01:51 -0500
+Received: from eik.ii.uib.no ([129.177.16.3]:6027 "EHLO smtp.ii.uib.no")
+	by vger.kernel.org with ESMTP id <S265085AbSKJTBu>;
+	Sun, 10 Nov 2002 14:01:50 -0500
+Date: Sun, 10 Nov 2002 20:08:34 +0100
+From: Jan-Frode Myklebust <janfrode@parallab.no>
 To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
-Date: Sun, 10 Nov 2002 19:03:57 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aqmait$tmb$1@forge.intermeta.de>
-References: <Pine.LNX.4.44.0211091308250.10475-100000@montezuma.mastecende.com> <Pine.LNX.4.44.0211091044060.12487-100000@home.transmeta.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1036955037 30640 212.34.181.4 (10 Nov 2002 19:03:57 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 10 Nov 2002 19:03:57 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+Message-ID: <20021110200834.A15624@ii.uib.no>
+Mime-Version: 1.0
+Content-Disposition: inline
+Subject: 2.5.46-bk minor fix
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+
+The current 2.5.46-bk failes to build for me. Ends up with:
+
+ gcc -Wp,-MD,net/ipv4/netfilter/.ipt_TCPMSS.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=ipt_TCPMSS   -c -o net/ipv4/netfilter/ipt_TCPMSS.o net/ipv4/netfilter/ipt_TCPMSS.c
+ net/ipv4/netfilter/ipt_TCPMSS.c: In function `ipt_tcpmss_target':
+ net/ipv4/netfilter/ipt_TCPMSS.c:95: structure has no member named
+`pmtu'
+ make[4]: *** [net/ipv4/netfilter/ipt_TCPMSS.o] Error 1
+ make[3]: *** [net/ipv4/netfilter] Error 2
+ make[2]: *** [net/ipv4] Error 2
+ make[1]: *** [net] Error 2
+ make: *** [modules] Error 2
 
 
-> - a kernel compiled for TSC-only. This one simply will not _work_ without 
->   a TSC, since it is statically compiled for the TSC case. Here, "notsc"
->   simply cannot do anything, so it just prints a message saying that it 
->   doesn't work.
-
-IMHO, if you boot a "TSC-only" kernel on a machine without TSC, the correct
-answer should be 
-
-Panic: This kernel is compiled for TSC-only. No TSC found.
-Machine halted.
-
-Same goes IMHO for "i686 on lower", "i586 on lower" and so on. 
-
-Everything else leads to strange effects and hard to decipher bug
-reports. If in doubt, boot i386 compiled kernel.
-
-	Regards
-		Henning
+The following patch seemingly fixes it, but I don't know if it's correct:
 
 
+===== net/ipv4/netfilter/ipt_TCPMSS.c 1.6 vs ? (writable without lock!)  =====
+--- 1.6/net/ipv4/netfilter/ipt_TCPMSS.c	Sat Nov  2 11:25:59 2002
++++ ?/net/ipv4/netfilter/ipt_TCPMSS.c	Sun Nov 10 20:04:34 2002
+@@ -92,7 +92,7 @@
+ 			return NF_DROP; /* or IPT_CONTINUE ?? */
+ 		}
+ 
+-		newmss = dst_pmtu((*pskb)->dst->pmtu) - sizeof(struct iphdr) - sizeof(struct tcphdr);
++		newmss = dst_pmtu((*pskb)->dst) - sizeof(struct iphdr) - sizeof(struct tcphdr);
+ 	} else
+ 		newmss = tcpmssinfo->mss;
+ 
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+  -jf

@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUG2Sev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUG2Sjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264781AbUG2Sev (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 14:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUG2SdQ
+	id S264903AbUG2Sjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 14:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUG2Shj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 14:33:16 -0400
-Received: from omx1-ext.SGI.COM ([192.48.179.11]:15569 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267515AbUG2SbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 14:31:23 -0400
-Date: Thu, 29 Jul 2004 13:31:20 -0500
-From: Greg Edwards <edwardsg@sgi.com>
-To: kai@germaschewski.name, sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] utilize all cpus when building an rpm
-Message-ID: <20040729183120.GC15920@sgi.com>
+	Thu, 29 Jul 2004 14:37:39 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:23549 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267518AbUG2ScQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 14:32:16 -0400
+Subject: Re: [PATCH] reduce swsusp casting
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091049624.2871.464.camel@nighthawk>
+References: <1091043436.2871.320.camel@nighthawk>
+	 <Pine.LNX.4.50.0407281405090.31994-100000@monsoon.he.net>
+	 <1091049624.2871.464.camel@nighthawk>
+Content-Type: text/plain
+Message-Id: <1091125918.2871.1874.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 29 Jul 2004 11:31:58 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Utilize all processors on the system when building an rpm.
+On Wed, 2004-07-28 at 14:20, Dave Hansen wrote:
+> On Wed, 2004-07-28 at 14:07, Patrick Mochel wrote:
+> > I don't understand - have you really tested it or just compile-tested it?
+> > If not, please do try it out for real. There is no reason to be scared of
+> > swsusp, and the more people that use it, the more stable it will get.
+> 
+> I'm not scared, just lazy :)  I'll give it a shot.
 
-Signed-off-by: Greg Edwards <edwardsg@sgi.com>
+Well, I tried with both 2.6.8-rc2-mm1 with and without my patch and got
+the exact same results:
 
+# echo disk > /sys/power/state
+Stopping tasks: =
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/07/29 13:15:17-05:00 edwardsg@attica.americas.sgi.com 
-#   Utilize all processors on the system when building an rpm.
-# 
-# scripts/package/mkspec
-#   2004/07/29 13:15:08-05:00 edwardsg@attica.americas.sgi.com +1 -1
-#   Add %{?_smp_mflags} rpm macro to make command line to utilize the
-#   number of processors on the system.
-# 
-diff -Nru a/scripts/package/mkspec b/scripts/package/mkspec
---- a/scripts/package/mkspec	2004-07-29 13:27:57 -05:00
-+++ b/scripts/package/mkspec	2004-07-29 13:27:57 -05:00
-@@ -40,7 +40,7 @@
- echo "%setup -q"
- echo ""
- echo "%build"
--echo "make clean && make"
-+echo "make clean && make %{?_smp_mflags}"
- echo ""
- echo "%install"
- 
+Then it freezes.  
+
+Pat, since I'm sure you already have swsusp working on your machine,
+would you mind giving my patch a try?  I have the feeling doing a
+compile and a couple of boots will be a lot faster than me trying to
+debug why it's freezing on me. 
+
+-- Dave
+

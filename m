@@ -1,71 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbUKZTAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbUKZTDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbUKZTAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbUKZS7q
+	id S261171AbUKZTDu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 14:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUKZTDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 13:59:46 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:40182 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261153AbUKZS7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 13:59:30 -0500
-Message-ID: <41A7562C.2000906@namesys.com>
-Date: Fri, 26 Nov 2004 08:13:32 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
-CC: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: file as a directory
-References: <2c59f00304112205546349e88e@mail.gmail.com>	 <41A1FFFC.70507@hist.no> <41A21EAA.2090603@dbservice.com>	 <41A23496.505@namesys.com> <1101287762.1267.41.camel@pear.st-and.ac.uk>	 <4d8e3fd304112407023ff0a33d@mail.gmail.com> <1101309954.2779.15.camel@pear.st-and.ac.uk>
-In-Reply-To: <1101309954.2779.15.camel@pear.st-and.ac.uk>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 Nov 2004 14:03:18 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:51608 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261153AbUKZS7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 13:59:48 -0500
+Subject: Re: Suspend 2 merge: 51/51: Notes
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041126000109.GK2909@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101300987.5805.402.camel@desktop.cunninghams>
+	 <20041126000109.GK2909@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101427764.27250.178.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 11:09:24 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Foldiak wrote:
+Hi.
 
->On Wed, 2004-11-24 at 15:02, Paolo Ciarrocchi wrote:
->  
->
->>On 24 Nov 2004 09:16:03 +0000, Peter Foldiak
->><peter.foldiak@st-andrews.ac.uk> wrote:
->>[...] 
->>    
->>
->>>I would really like to implement this for the next version of Hans' file
->>>system.
->>>      
->>>
->>I don't undersand how you want to use Xpath for not XML file.
->>I agree with you that the idea behind Xpath is cool but I fail to
->>unserstand how it can be applied to anything but XML
->>    
->>
->
->My message was mainly about XML, for which it is easy.
->For non-XML, you need some other way of knowing the file format. The
->example that originally came up in this thread was
->
->/etc/passwd/[username]
->
->In this case, the passwd file has a known format.
->Other file types, like LaTex, html, jpeg also have (at least partially)
->known formats. Some selection should be possible even for unknown
->formats (e.g. byte range, line-range). There could also be some way of
->specifying a new format but I don't know how to do this well. You could
->give names (like filenames) to parts of files.
->But I think the first step would be to concentrate on XML, and worry
->about the rest later.   Peter
->
->
->
->  
->
-I think Peter is right.  It would be nice to have an interpreter for 
-each of the common file formats, and  XML is just the biggest one.
+On Fri, 2004-11-26 at 11:01, Pavel Machek wrote:
+> Hi!
+> 
+> > When I started, I thought I did have 51 patches, really! One of them
+> > turned out to be a couple of things I intend to reverse :>
+> 
+> :-))))
+> 
+> > In posting all of this, I recognise of course that no one else
+> > understands how it all fits together. I'm hoping that those who care
+> > enough will ask questions that I'll happily answer, learn from and
+> > through which I'll improve the code.
+> > 
+> > For now, though, I'm going to bed.
+> 
+> I still had not fallen asleep at keyboard, and that is pretty
+> amazing...
+
+:>
+
+> It is just too big. suspend2 is small operating system on its own, and
+> that is not good thing :-(. 
+
+I feel like you overstate your case a lot. I can see what you mean in
+some ways, though.
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

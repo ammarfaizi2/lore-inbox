@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265003AbTIEVzP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 17:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTIEVw6
+	id S262561AbTIEWFe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 18:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbTIEWFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 17:52:58 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:34527 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262854AbTIEVwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 17:52:36 -0400
-Subject: Re: [OOPS] 2.4.22 / HPT372N
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marko Kreen <marko@l-t.ee>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030905145452.GA24201@l-t.ee>
-References: <20030904190426.GA31977@l-t.ee>
-	 <1062712012.22550.72.camel@dhcp23.swansea.linux.org.uk>
-	 <20030905145452.GA24201@l-t.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062798689.689.43.camel@dhcp23.swansea.linux.org.uk>
+	Fri, 5 Sep 2003 18:05:34 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:55693 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262561AbTIEWF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 18:05:27 -0400
+Date: Fri, 5 Sep 2003 23:03:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH] idle using PNI monitor/mwait (take 2)
+Message-ID: <20030905220330.GA6900@mail.jlokier.co.uk>
+References: <7F740D512C7C1046AB53446D3720017304AF0D@scsmsx402.sc.intel.com> <20030905211428.GB6019@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Fri, 05 Sep 2003 22:51:31 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030905211428.GB6019@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-09-05 at 15:54, Marko Kreen wrote:
-> > so your PCI bus is running at somewhere about 35Mhz and outside the
-> > drivers safe threshold. 
+Jamie Lokier wrote:
+> local_irq_disable() isn't required in the monitor/mwait loop, because
+> you check need_resched between the monitor and mwait.  (If Intel had
+> implemented monitor+mwait as a single instruction, then you'd need it).
 > 
-> Thats surprising, nobody has intentionally overclocked it.
-> 
-> Now we did some experimenting with it and no BIOS settings seem
-> to affect the FREQ numbers. (Lower CPU/mem speed, 50/25 AGP/PCI speed.)
-> The FREQ still stays fixed at 85.
-> Any idea how to remove the overclocking?  Otherwise it seems
-> like driver bug to me.
+> So you can remove it from your loop.
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The hardware measures the PCI bus clock against its own sources and the
-85 (0x55) is its timing measurement. The maximum range for the 33Mhz 
-timings on the card is  < 0x55 so it decides your clock is outside the
-safe range. HPT have never given us 40Mhz clock timings for the 372N or
-as far as I can tell published them so we don't know how to drive it at
-40Mhz just 33 and 66.
+Excuse me, I hadn't looked at your code closely.  Everything I said up
+to that last line is fine.  But the last line doesn't apply because
+you don't have a local_irq_disable().
 
-You could tweak the driver to accept 0x55 but either the card clock is
-out or you are overclocking your IDE by doing that.
+You can remove your local_irq_enable() instead, if you want, but for
+a different reason.  That one _is_ defensive. :)
 
+-- Jamie

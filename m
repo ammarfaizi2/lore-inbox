@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266529AbRGRA7u>; Tue, 17 Jul 2001 20:59:50 -0400
+	id <S266059AbRGRBIM>; Tue, 17 Jul 2001 21:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266771AbRGRA7k>; Tue, 17 Jul 2001 20:59:40 -0400
-Received: from anime.net ([63.172.78.150]:34055 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S266529AbRGRA7Y>;
-	Tue, 17 Jul 2001 20:59:24 -0400
-Date: Tue, 17 Jul 2001 17:58:52 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Jussi Laako <jlaako@pp.htv.fi>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
-In-Reply-To: <3B53221B.28B8D5A1@pp.htv.fi>
-Message-ID: <Pine.LNX.4.30.0107171758050.8824-100000@anime.net>
+	id <S266523AbRGRBIC>; Tue, 17 Jul 2001 21:08:02 -0400
+Received: from suntan.tandem.com ([192.216.221.8]:55513 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S266059AbRGRBHt>; Tue, 17 Jul 2001 21:07:49 -0400
+Message-ID: <3B54DEF5.B85F57E4@compaq.com>
+Date: Tue, 17 Jul 2001 17:57:25 -0700
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+        schoebel@eicheinformatik.uni-stuttgart.de
+Subject: Common hash table implementation
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jul 2001, Jussi Laako wrote:
-> Daniel Phillips wrote:
-> > We are not that far away from being able to handle 8K blocks, so that
-> > would bump it up to 32 TB.
-> That's way too small. Something like 32 PB would be better... ;)
-> We need at least one extra bit in volume/file size every year.
+A couple of days ago, I was thinking about a common hash table
+implementation, ala include/linux/list.h. Then I came across
+include/linux/ghash.h, and thought that someone's already done it.
+After that I noticed the copyright line said 1997, and a quick check
+in cscope showed that nobody's including it.
 
-volume size grows faster than file size, doesn't it? maybe extra bit of
-volume and 1/2 bit file size per year...
+Does anyone know if this file is worth studying and working with? I
+have to wonder if nobody's using it after four years.
 
--Dan
+Does anyone see a problem with a common hash table implementation?
+I've implemented a few hash tables from scratch for our clustering
+work, and it's starting to get a little old. Something easy to use
+like list.h would be a lot nicer.
 
 -- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+Brian Watson             | "The common people of England... so 
+Linux Kernel Developer   |  jealous of their liberty, but like the 
+Open SSI Clustering Lab  |  common people of most other countries 
+Compaq Computer Corp     |  never rightly considering wherein it 
+Los Angeles, CA          |  consists..."
+                         |      -Adam Smith, Wealth of Nations, 1776
 
+mailto:Brian.J.Watson@compaq.com
+http://opensource.compaq.com/

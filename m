@@ -1,87 +1,198 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264535AbTEPSRA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTEPSRA
+	id S264543AbTEPSTe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbTEPSTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:17:00 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:37365 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264533AbTEPSQz
+	Fri, 16 May 2003 14:19:34 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:32398 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S264543AbTEPSTX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:16:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: greg@enjellic.com, greg@wind.enjellic.com (Dr. Greg Wettstein),
-       Linus Torvalds <torvalds@transmeta.com>,
-       David Howells <dhowells@warthog.cambridge.redhat.com>
-Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
-Date: Fri, 16 May 2003 13:28:10 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Dean Anderson <dean@av8.com>, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Garance A Drosihn <drosih@rpi.edu>, Jan Harkes <jaharkes@cs.cmu.edu>,
-       David Howells <dhowells@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>
-References: <200305161805.h4GI5buN032216@wind.enjellic.com>
-In-Reply-To: <200305161805.h4GI5buN032216@wind.enjellic.com>
-MIME-Version: 1.0
-Message-Id: <03051613281001.27791@tabby>
-Content-Transfer-Encoding: 7BIT
+	Fri, 16 May 2003 14:19:23 -0400
+Date: Fri, 16 May 2003 20:31:52 +0200
+From: Manuel Estrada Sainz <ranty@debian.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
+       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
+Subject: Re: request_firmware() hotplug interface, third round.
+Message-ID: <20030516183152.GB18732@ranty.ddts.net>
+Reply-To: ranty@debian.org
+References: <20030515200324.GB12949@ranty.ddts.net> <200305161007.31335.oliver@neukum.org> <20030516095624.GA30397@ranty.ddts.net> <200305161753.17198.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305161753.17198.oliver@neukum.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 May 2003 13:05, Dr. Greg Wettstein wrote:
-> On May 15, 10:23am, Linus Torvalds wrote:
-> } Subject: Re: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
->
-> Good morning to everyone discussing this fascinating topic.  I've been
-> reading it for a day or two before joining in.  There have been some
-> excellent points made and I won't even try to paraphrase all of them.
-> I am including a snippet from what I consider the 'Linus definitive
-> statement' on this issue since this is the definitive focal point
-> which discussion must come down to.
->
-> I think the issue comes down to whether or not Linux will incorporate
-> functionality for the sake of correctness vs. expediency.  Based on
-> all the history I think that everyone generally assumes that doing
-> things correctly is the preferable route.
->
-> In this case doing things the 'correct' way also provide the potential
-> opportunity for Linux to do something reasonably creative.  I've been
-> banging on issues with respect to identity management and Linux since
-> about 1998 and it is now interesting to see these issues becoming
-> pragmatically relevant.
+On Fri, May 16, 2003 at 05:53:17PM +0200, Oliver Neukum wrote:
+> Am Freitag, 16. Mai 2003 11:56 schrieb Manuel Estrada Sainz:
+> > On Fri, May 16, 2003 at 10:07:31AM +0200, Oliver Neukum wrote:
+> > > >  How it works:
+> > > > 	- Driver calls request_firmware()
+> > > > 	- 'hotplug firmware' gets called with ACCTION=add
+> > > > 	- /sysfs/class/firmware/dev_name/{data,loading} show up.
+> > > >
+> > > > 	- echo 1 > /sysfs/class/firmware/dev_name/loading
+> > > > 	- cat whatever_fw > /sysfs/class/firmware/dev_name/data
+> > > > 	- echo 0 > /sysfs/class/firmware/dev_name/loading
+> > > >
+> > > > 	- The call to request_firmware() returns with the firmware in a
+> > > > 	  memory buffer and the driver can finish loading.
+> > > > 	- Driver loads the firmware.
+> > > > 	- Driver calls release_firmware().
+> > >
+> > > So, if I understand you correctly, RAM is only saved if a device
+> > > is hotpluggable and needs firmware only upon intial connection.
+> > > Which, if you do suspend to disk correctly, is no device.
+> >
+> >  Hotpluggability is not required, it is the same for any module, which
+> >  gets loaded while the system is running. Drivers don't even need to be
+> >  aware of hotplug.
+> 
+> In that case they can contain the firmware and mark it __init.
+> They need no RAM. They can even mark the code needed to put
+> firmware into the device as __init.
 
-There is also a (desire/need) to be able to integrate this with something
-like IPSec...
+ There are issues with that approach:
 
-In some Kerberos situations:
-	1. authentication can be based on simple name/password
-	2. authentication can be ased on name/password/smart card
+ - Code with firmware will not be accepted in the kernel, there are
+   already two drivers that are being hold back for that reason.
+   	- Licensing issues.
+	- Memory consumption.
+	- "new" kernel policy.
+ - A device may need to reload firmware upon reset. And if you mark it
+   __init, it will not be there.
+ - If you include the firmware in the code you have to recompile the
+   kernel to update the firmware. Pavel, back me up on this one with the
+   ACPI tables issue.
+ 
+> >  And adding some kind of persistence in the mixture so firmware can be
+> >  included in the kernel image and later discarded/reconsidered even
+> >  in-kernel drivers (meaning non modules) can benefit. Coordinating with
+> >  initramfs as Pavel suggested should bring best results in this case.
+> >
+> >  Also, the hotplug event happens every time you call request_firmware(),
+> >  not just on device load or upon initial connection. It is not the
+> >  regular "device plug event" it is an special 'firmware' event. For
+> >  example, on usb devices you would get two invocations of hotplug, one
+> >  'hotplug usb' and one 'hotplug firmware'.
+> >
+> >  In the case of suspending to disk, you would have to make sure that the
+> >  firmware for the device that holds the rest of the firmware is already
+> >  in fwfs or whatever persistence method gets finally implemented.
+> 
+> How and what is the benefit? If you go low on battery you have to suspend,
+> there's no choice. This means that you have to have it in RAM always.
 
-Some sites may acctept #1 or #2. Other sites may only accept #2. (both are
-related to the same realm, or cross realm operation).
+ If the device losses the firmware upon suspend, the driver will have to
+ reinitialize it as if it just got plugged, which somehow makes all
+ devices hotplugable.
 
-> Technical thoughts follow below.
->
-[Big snip]
+ If the driver uses request_firmware(), it doesn't need to handle any
+ special case, just initialize as usual and it will get the firmware
+ when it needs it.
+ 
+ If the device is needed to access the filesystem, some kind of
+ persistence will be needed, so the required firmware is already in
+ kernel space. But the driver doesn't need to care, it will just ask for
+ the firmware as usual.
+ 
+ Which brings me to another issue, the same device can be required to
+ access the filesystem or not:
+	- In a diskless client, it is the network card
+	- In a live-cd it is the cdrom drive
+	- In a multi disk system just one of them will be holding
+	  required firmware.
+ So you can not decide at coding time, the latest at compile time, and
+ ideally at runtime (which is what I am trying to do).
+ 
+> >  At least usb's probe() can sleep, but that is a good point. How about:
+> >
+> >  int request_firmware_nowait (
+> > 		const char *name, const char *device, void *context,
+> > 		void (*cont)(const struct firmware *fw, void context)
+> >  );
+> >
+> >  Then you can call request_firmware_nowait providing an appropriate
+> >  'cont' callback and 'context' pointer. Then when your callback gets
+> >  called with the firmware you finish device setup.
+> 
+> In this form unworkable. Removing a module could kill the machine.
+> That scheme requires that drivers formally register and unregister
+> with fwfs and provide module pointers.
+> An awful lot of overhead.
 
-Much of this can/should be handled outside the Kernel, PROVIDED, the kernel
-can make a unique link between a process and the external security structure,
-and provide communication paths between the service<=>kernel<=>app-server
-("the service" is the security database server and "app-server" may be the
-daemon granting login capability.
+ OK, how about:
 
-This way "the service" may make out-of-band remote requests for additional
-authentication handling (translating remote credentials into local 
-credentials type of thing).
+  int request_firmware_nowait (
+  		struct module *module,
+ 		const char *name, const char *device, void *context,
+ 		void (*cont)(const struct firmware *fw, void context)
+  );
 
-It is VERY possible that a user may have been granted certain LOCAL priviliges
-provided the user is NOT utilitizing unsecured networks. Or just making access
-requests from unapproved locations... and still be permitted to make other
-connections.
+  request_firmware code will try_module_get/module_put as needed.
 
-Assuming transitive privilige handling is NOT your friend (ie. undesired 
-remote connection -> trusted host -> privileged access on third host).
+  Would that fix the issue?
+ 
+> > > You cannot kill a part of the kernel if a script fails to perform
+> > > correctly for some reason.
+> >
+> >  Good point. Since it is easily solvable by hand:
+> >
+> >  echo 1 > /sysfs/class/firmware/dev_name/loading
+> >  echo 0 > /sysfs/class/firmware/dev_name/loading
+> >
+> >  I thought that it was OK. (I'll do the timeout)
+> 
+> No, it isn't. These writes must require CAP_HARDWARE, thus
+> is no good.
 
-This is slightly off the AFS line, but is spot on the "security services" that
-are beginning to be discussed.
+ I'll do the timeout anyway, and make it configurable just in case.
+
+> > > Even worse, you cannot detect the script terminating abnormally in
+> > > that design.
+> >
+> >  Well, the device model doesn't provide that information :(
+> >
+> >  It would be great if it did.
+> >
+> >  Would a patch to wait for hotplug termination and provide termination
+> >  status be accepted?
+> 
+> No, you must not wait for user space.
+
+ And to get notified when userspace is done?
+
+> >  Adding an 'struct completion' and 'int status' to the right place
+> >  should be just about it.
+> >
+> > > You'd have to introduce some arbitrary timeout.
+> >
+> >  OK, I'll do that for now.
+> >
+> > > It seems to me that you introduce three new problems to get rid of
+> > > one old problem.
+> >
+> >  This is the kind of feedback I wanted, thanks a lot.
+> 
+> Sorry.
+
+ Don't be, this is still the kind of feedback I want. Weather I manage
+ or not, I get the chance to fix the issues.
+
+ Thanks
+
+ 	Manuel
+
+-- 
+--- Manuel Estrada Sainz <ranty@debian.org>
+                         <ranty@bigfoot.com>
+			 <ranty@users.sourceforge.net>
+------------------------ <manuel.estrada@hispalinux.es> -------------------
+Let us have the serenity to accept the things we cannot change, courage to
+change the things we can, and wisdom to know the difference.

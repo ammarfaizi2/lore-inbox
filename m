@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285007AbRLQF2e>; Mon, 17 Dec 2001 00:28:34 -0500
+	id <S285014AbRLQFuq>; Mon, 17 Dec 2001 00:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285014AbRLQF2Y>; Mon, 17 Dec 2001 00:28:24 -0500
-Received: from arsenal.visi.net ([206.246.194.60]:40337 "EHLO visi.net")
-	by vger.kernel.org with ESMTP id <S285007AbRLQF2Q>;
-	Mon, 17 Dec 2001 00:28:16 -0500
-Date: Mon, 17 Dec 2001 00:28:12 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.11 is available
-Message-ID: <20011217002812.A377@blimpo.internal.net>
-In-Reply-To: <4738.1008565495@kao2.melbourne.sgi.com>
+	id <S285016AbRLQFug>; Mon, 17 Dec 2001 00:50:36 -0500
+Received: from harddata.com ([216.123.194.198]:56328 "EHLO mail.harddata.com")
+	by vger.kernel.org with ESMTP id <S285014AbRLQFuX>;
+	Mon, 17 Dec 2001 00:50:23 -0500
+Date: Sun, 16 Dec 2001 22:50:13 -0700
+From: Michal Jaegermann <michal@harddata.com>
+To: Peter Rival <frival@zk3.dec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-rc1 does not boot my Alphas
+Message-ID: <20011216225013.A4984@mail.harddata.com>
+In-Reply-To: <20011216160404.A2945@mail.harddata.com> <3C1D4871.82053E7A@zk3.dec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4738.1008565495@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C1D4871.82053E7A@zk3.dec.com>; from frival@zk3.dec.com on Sun, Dec 16, 2001 at 08:20:49PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 04:04:55PM +1100, Keith Owens wrote:
+On Sun, Dec 16, 2001 at 08:20:49PM -0500, Peter Rival wrote:
+> Michal Jaegermann wrote:
 > 
-> The sparc support is against Linus's 2.4.16 kernel, not against the
-> vger tree, the latter is moving too fast.  I expect that some tweaking
-> will be required for the vger sparc changes, in particular the removal
-> of config options for netlink.  Release 1.11 does not contain any
-> changes to the sparc patches, use the release 1.10 patches for sparc.
-> 
+> > I just happen to have an access right now to two Alpha machines,
+> > UP1100 and UP1500, both with Nautilus chipset.  Neither of these
+> > can be booted with 2.4.16 or 2.4.17rc1.
+>
+> Try again, this time adding "srmcons" to the boot flags.  You're croaking
+> before we get the console set up under Linux
 
-If anyone needs them, I can provide a small diff for the sparc/sparc64
-Vger CVS changes to apply on top of the main kbuild-2.5 patch. Very
-minor change (hint, in Vger, netlink is compiled unconditionally now).
+Thanks.  I was not aware of this flag and this is a nice tip.
+Unfortunately things lock up immediately before effects of this flag
+can be felt.  Even with this I am not getting a single line from
+a kernel. I tried both on 1500 and 1100.  Effects are exactly the same.
 
+Tommorow I will try to graft 'arch/alpha' from 2.4.13-ac8 to 2.4.17rc1
+just to see what will happen.  Some changes have to be made before this
+will even compile.  I see that some 'nautilus_init()' function showed up
+in 2.4.17rc1 which was not in 2.4.13-ac8.  Hm....
 
-Ben
+I did boot 2.4.13-ac8 on UP1500 but in a short order I collected an
+impressive array of "Machine checks" both "Fatal", although machine was
+still running to an extent after that, and "Correctable".  If somebody
+wants to look at them I can oblige. :-)  Nothing of that sort showed up
+on UP1100 with the same kerel or with older kernels I was able to boot
+on 1500.
 
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+  Michal

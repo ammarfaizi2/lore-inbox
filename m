@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264039AbTGKQJN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbTGKQJN
+	id S262439AbTGKQSv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbTGKQSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:09:13 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28061 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264039AbTGKQJF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:09:05 -0400
-Date: Fri, 11 Jul 2003 18:23:32 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-In-Reply-To: <20030711155843.GD2210@gtf.org>
-Message-ID: <Pine.SOL.4.30.0307111809500.17195-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Jul 2003 12:18:50 -0400
+Received: from mail.gmx.net ([213.165.64.20]:24962 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262439AbTGKQSt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:18:49 -0400
+Date: Fri, 11 Jul 2003 19:37:38 +0300
+From: Teemu Tervo <teemu.tervo@gmx.net>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: [PATCH] 2.5.75 (repost) Fix head/tail -num
+Message-Id: <20030711193738.5331f3c0.teemu.tervo@gmx.net>
+X-Mailer: Sylpheed version 0.8.6claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 11 Jul 2003, Jeff Garzik wrote:
+The following changes the incorrect head/tail -NUM syntax to the posix
+compliant 'head/tail -n NUM'.
 
-> On Fri, Jul 11, 2003 at 04:55:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > - The hptraid/promise RAID drivers are currently non functional, and
-> > > >   will probably be converted to use device-mapper.
-> >
-> > Please put software RAID here to avoid confusion.
->
-> That introduces confusion with dev/md, which is what people have
-> traditionally called software RAID, IMO...
+- Teemu
 
-s/software RAID/propertiary software RAIDs/
-
-> I like arjan's "fakeraid" or "ataraid" names.  ;-)
-
-"fakeraid" sounds good. :-)
-
-> > > > IDE.
-> > > > ~~~~
-> > > > - Known problems with the current IDE code.
-> > > >   o  Serverworks OSB4 may panic on bad blocks or other non fatal errors
-> > > FIXED
-> > > >   o  PCMCIA IDE hangs on eject
-> > > Should be fixed in 2.5, fixed(ish) in 2.4
-> > > >   o  ide_scsi is completely broken in 2.5.x. Known problem. If you need it
-> > > >      either use 2.4 or fix it 8)
-> > > > - IDE disk geometry translators like OnTrack, EZ Partition, Disk Manager
-> > > >   are no longer supported. The only way forward is to remove the translator
-> > > >   from the drive, and start over.
-> > >
-> > > Or to use device mapper to remap the disk.
-> >
-> > "hdx=remap" and "hdx=remap63" boot options can be used.
-> > Or can I remove them?
->
-> You can remove them... if there is a userspace component that handles
-> this.  As much as I would love to do so, we can't just remove components
-> that DM _can_ handle ;-) ;-)  If so, we could go ahead and remove MD
-> raid0 too, and such.
-
-How userspace component can help if you have ie. On-Track DM
-on your boot device?
-
-I think you missed my point :-).
-
-I think if somebody adds On-Track and EZ auto-detection to device mapper
-I can safely remove these ide boot options...
-
---
-Bartlomiej
-
-> 	Jeff
-
+diff -Naur linux-2.5.75.orig/arch/ppc64/boot/Makefile linux-2.5.75/arch/ppc64/boot/Makefile
+--- linux-2.5.75.orig/arch/ppc64/boot/Makefile	Fri Jul 11 09:27:15 2003
++++ linux-2.5.75/arch/ppc64/boot/Makefile	Fri Jul 11 09:33:21 2003
+@@ -118,7 +118,7 @@
+ 	ls -l vmlinux | \
+ 	awk '{printf "/* generated -- do not edit! */\n" \
+ 		"unsigned long vmlinux_filesize = %d;\n", $$5}' > $(obj)/imagesize.c
+-	$(CROSS_COMPILE)nm -n vmlinux | tail -1 | \
++	$(CROSS_COMPILE)nm -n vmlinux | tail -n 1 | \
+ 	awk '{printf "unsigned long vmlinux_memsize = 0x%s;\n", substr($$1,8)}' \
+ 		>> $(obj)/imagesize.c
+ 
+diff -Naur linux-2.5.75.orig/scripts/mkcompile_h linux-2.5.75/scripts/mkcompile_h
+--- linux-2.5.75.orig/scripts/mkcompile_h	Fri Jul 11 09:29:09 2003
++++ linux-2.5.75/scripts/mkcompile_h	Fri Jul 11 09:33:21 2003
+@@ -54,7 +54,7 @@
+     echo \#define LINUX_COMPILE_DOMAIN
+   fi
+ 
+-  echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | tail -1`\"
++  echo \#define LINUX_COMPILER \"`$CC -v 2>&1 | tail -n 1`\"
+ ) > .tmpcompile
+ 
+ # Only replace the real compile.h if the new one is different,
+diff -Naur linux-2.5.75.orig/scripts/ver_linux linux-2.5.75/scripts/ver_linux
+--- linux-2.5.75.orig/scripts/ver_linux	Fri Jul 11 09:29:09 2003
++++ linux-2.5.75/scripts/ver_linux	Fri Jul 11 09:33:21 2003
+@@ -58,7 +58,7 @@
+ -e 's/\.so$//' | awk -F'[.-]'   '{print "Linux C Library        " \
+ $(NF-2)"."$(NF-1)"."$NF}'
+ 
+-ldd -v > /dev/null 2>&1 && ldd -v || ldd --version |head -1 | awk \
++ldd -v > /dev/null 2>&1 && ldd -v || ldd --version |head -n 1 | awk \
+ 'NR==1{print "Dynamic linker (ldd)  ", $NF}'
+ 
+ ls -l /usr/lib/lib{g,stdc}++.so  2>/dev/null | awk -F. \

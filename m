@@ -1,65 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131376AbRDMOzc>; Fri, 13 Apr 2001 10:55:32 -0400
+	id <S131408AbRDMP2k>; Fri, 13 Apr 2001 11:28:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131382AbRDMOzW>; Fri, 13 Apr 2001 10:55:22 -0400
-Received: from dyn7d0.dhcp.lancs.ac.uk ([148.88.247.208]:14852 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131376AbRDMOzG>; Fri, 13 Apr 2001 10:55:06 -0400
-Date: Fri, 13 Apr 2001 15:53:55 +0000 (GMT)
-From: Stephen Torri <s.torri@lancaster.ac.uk>
-X-X-Sender: <torri@localhost.localdomain>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.3-ac3 XIRCOM_CB only working as module
-In-Reply-To: <m14neyS-000Od1C@amadeus.home.nl>
-Message-ID: <Pine.LNX.4.33.0104131549340.4233-100000@localhost.localdomain>
+	id <S131407AbRDMP2b>; Fri, 13 Apr 2001 11:28:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34060 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131386AbRDMP2P>; Fri, 13 Apr 2001 11:28:15 -0400
+Subject: Re: Problem with k7 optimizations in 2.4.x?
+To: moses@texoma.net (Moses Mcknight)
+Date: Fri, 13 Apr 2001 16:30:16 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AD706C4.8020705@texoma.net> from "Moses Mcknight" at Apr 13, 2001 09:01:40 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14o5Wc-000336-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have built this as a module due to the RedHat system I use (to be
-consistent). I found that the xircom_cb driver works fine as a module
-except for when using dhcp for dynamic ip address. If I set the ip address
-of the network card to a static ip number it work fine. Yet if I choose to
-use the dhcp to get my ip address packets leave, as seen via tcpdump, but
-it doesn't get an address. I watched tcpdump at the dhcp server and saw
-the packets come in from the laptop and the responses go out. The laptop
-either is ignoring the message coming from the dhcp server or some other
-bizarre reason.
+> settings or what, but whenever I try to run a 2.4.x kernel on my machine 
+> with k7 optimizations the computer will never fully boot and seems to 
+> give random errors about being "unable to handle kernel NULL pointer 
+> dereference at virtual address xxxxxxxx" and other errors.
 
-I cannot say if I noticed anything about the yenta_socket driver. If I
-could get dhcp to work fine I would be willing to give it a go.
-
-Stephen
-s.torri@lancaster.ac.uk
-
-On Thu, 12 Apr 2001, Arjan van de Ven wrote:
-
-> In article <3ACC6425.CBF6BCC4@oracle.com> you wrote:
-> > It looks like the new xircom_cb driver only works as module - if built
-> >  in kernel there is no sign of eth0 setup.
->
-> I haven't tried this; I'll look into this once I get back to work (eg where
-> my cardbus machine is). I would not be surprised if it
-> turns out to be of the "yenta_socket is not initialized yet, so the card is
-> invisible at pci scan time" type....
->
-> Greetings,
->    Arjan van de Ven
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
------------------------------------------------
-Buyer's Guide for a Operating System:
-Don't care to know: Mac
-Don't mind knowing but not too much: Windows
-Hit me! I can take it!: Linux
+I run the K7 optimisations in 2.4.x-ac built with gcc 2.96-69 or later with no
+problems. I've not tested them with egcs-1.1.2. The earlier 2.4.* had problems
+on later Athlons which have both fxsave and movntq/sfence. That was fixed a 
+while back tho
 

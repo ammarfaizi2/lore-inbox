@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbUDAAK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 19:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbUDAAKz
+	id S262113AbUDAAOv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 19:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUDAAOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 19:10:55 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6866 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262143AbUDAAKr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 19:10:47 -0500
-Message-ID: <406B5DFA.80201@pobox.com>
-Date: Wed, 31 Mar 2004 19:10:34 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Boutcher <sleddog@us.ibm.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ibmvscsi driver - sixth version
-References: <opr3u0ffo7l6e53g@us.ibm.com> <20040225134518.A4238@infradead.org>  <opr3xta6gbl6e53g@us.ibm.com> <1079027038.2820.57.camel@mulgrave> <opr5qwiyw4l6e53g@us.ibm.com> <406B3FDA.9010507@pobox.com>  <opr5q1enb6l6e53g@us.ibm.com> <1080776399.11299.63.camel@mulgrave> <opr5q28vkql6e53g@us.ibm.com>
-In-Reply-To: <opr5q28vkql6e53g@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 31 Mar 2004 19:14:51 -0500
+Received: from imap.gmx.net ([213.165.64.20]:22442 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262113AbUDAAOt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 19:14:49 -0500
+X-Authenticated: #1892127
+Mime-Version: 1.0 (Apple Message framework v613)
+In-Reply-To: <1080687527.1198.48.camel@gaston>
+References: <321B041D-8298-11D8-AC61-0003931E0B62@gmx.li> <1080687527.1198.48.camel@gaston>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <555BCB50-837A-11D8-8BC8-0003931E0B62@gmx.li>
 Content-Transfer-Encoding: 7bit
+From: Martin Schaffner <schaffner@gmx.li>
+Subject: Re: booting 2.6.4 from OpenFirmware
+Date: Thu, 1 Apr 2004 02:17:24 +0100
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Boutcher wrote:
-> There will always be 1 (no more, no less) of these struct devices in the
-> system, so I'll move the definition of this into iSeries_iommu and then
-> just reference it from the driver.  I think that should abstract things
-> sufficiently.
 
+On 30.03.2004, at 23:58, Benjamin Herrenschmidt wrote:
 
-Sounds like a small module declaring devices such as this would be more 
-appropriate than unrelated iommu code?
+> On Wed, 2004-03-31 at 08:18, Martin Schaffner wrote:
+>> Hi,
+>>
+>> I try to boot linux-2.6.4 from OpenFirmware on my Apple iBook2 (dual
+>> USB). I'm using the image named "vmlinux.elf-pmac". While linux-2.4.25
+>> boots fine, linux-2.6.4 doesn't  [...]
+>>
+>> If I try to boot the stock kernel, OpenFirmware tells me "Claim
+>> failed", and returns to the command prompt.
+>
+> That's strange, I do such netbooting everyday on a wide range of
+> machines without trouble. Are you using some kind of cross compiler ?
+> Maybe there are some issues with cross compiling of the boot wrapper...
 
-In a regular PCI system, the PCI bus probing code creates devices.  For 
-platform-specific virtual devices, ppc64 needs "create my virtual 
-devices" initialization code, it looks like.
+I WAS cross-compiling, but the problem persists when compiling 
+natively. I don't net-boot but load the image from a HFS+ partition. I 
+can't boot
 
-	Jeff
+http://membres.lycos.fr/schaffner/vmlinux.orig
 
+which is a compilation of linux-2.6.4 with
 
+http://membres.lycos.fr/schaffner/.config
+
+I can, however, boot
+
+http://membres.lycos.fr/schaffner/vmlinux.patched
+
+which is the same after the following patch:
+
+http://membres.lycos.fr/schaffner/boot-of-works.patch
+
+Maybe the problem is specific to the model of the machine?
+
+Thanks,
+
+Martin
 

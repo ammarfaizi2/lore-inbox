@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbQLJXrK>; Sun, 10 Dec 2000 18:47:10 -0500
+	id <S130144AbQLJXxW>; Sun, 10 Dec 2000 18:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130211AbQLJXrC>; Sun, 10 Dec 2000 18:47:02 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:17075 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129774AbQLJXqw>; Sun, 10 Dec 2000 18:46:52 -0500
-Message-ID: <3A340EC7.9735E93@haque.net>
-Date: Sun, 10 Dec 2000 18:16:23 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at buffer.c:827! and scsi modules no load at boot w/ 
- initrd - test12pre7
-In-Reply-To: <3A2FF076.946076FC@haque.net> <90p2ds$2hs$1@penguin.transmeta.com>
+	id <S130657AbQLJXxN>; Sun, 10 Dec 2000 18:53:13 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:40465 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130144AbQLJXxA>;
+	Sun, 10 Dec 2000 18:53:00 -0500
+Date: Mon, 11 Dec 2000 00:22:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: clock@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropping chars on 16550
+Message-ID: <20001211002239.N294@suse.de>
+In-Reply-To: <20001210211445.00733@ghost.btnet.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20001210211445.00733@ghost.btnet.cz>; from clock@ghost.btnet.cz on Sun, Dec 10, 2000 at 09:14:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is seems to be fixed in test12-pre8.
+On Sun, Dec 10 2000, clock@ghost.btnet.cz wrote:
+> Hi folks
+> 
+> What should I do, when I run cdda2wav | gogo (riping CD from a ATAPI
+> CD thru mp3 encoder) and get a continuous dropping of characters, on a 16550-
+> enhanced serial port, without handshake, with full-duplex load of 115200 bps?
+> About 1 of 320 bytes is miscommunicated.
+> 
+> The kernel is 2.2.12.
 
-Linus Torvalds wrote:
-> Do you have something special that triggers this? Can you test if it
-> only happens with initrd, for example?
+hdparm -u1 /dev/hdX
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

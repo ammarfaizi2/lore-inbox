@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUGZBIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264770AbUGZBKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUGZBIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 21:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGZBIP
+	id S264770AbUGZBKS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 21:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUGZBKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 21:08:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58002 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264763AbUGZBIO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 21:08:14 -0400
-Date: Sun, 25 Jul 2004 18:06:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: kladit@t-online.de (Klaus Dittrich)
-Cc: ahu@ds9a.nl, kladit@t-online.de, linux-kernel@vger.kernel.org
-Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
-Message-Id: <20040725180648.30a6f3f4.akpm@osdl.org>
-In-Reply-To: <40FBC4E9.2000504@xeon2.local.here>
-References: <20040719091943.GA866@xeon2.local.here>
-	<20040719112047.GA14784@outpost.ds9a.nl>
-	<20040719113228.GA15295@outpost.ds9a.nl>
-	<40FBC4E9.2000504@xeon2.local.here>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 25 Jul 2004 21:10:18 -0400
+Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:15814 "EHLO
+	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264770AbUGZBKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 21:10:10 -0400
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040725174849.75f2ecf6.akpm@osdl.org> <cone.1090803691.689003.20693.502@pc.kolivas.org>
+Message-ID: <cone.1090804198.848689.20693.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Autotune swappiness01
+Date: Mon, 26 Jul 2004 11:09:58 +1000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-pc.kolivas.org-20693-1090804198-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kladit@t-online.de (Klaus Dittrich) wrote:
->
-> The fs is ext2.cat /proc/sys/fs/dentry-state
->  Output of  cat /proc/sys/fs/dentry-state before and after processes got 
->  killed.
->  891083  888395  45      0       0       0
->  1142933 1085759 45      0       0       0
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
 
-This bug is probably unique to yourself and a couple of other people.  If
-it was hitting everyone, all the machines in the world would be going oom
-during the nightly updatedb run.
+--=_mimegpg-pc.kolivas.org-20693-1090804198-0001
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Can you try a different compiler version?  And try disabling any "unusual"
-config options, such as filesystem quotas, extended attributes, etc?
+Con Kolivas writes:
 
-Can you narrow the onset of the problem down to any particular kernel
-snapshot?
+> Andrew Morton writes:
 
-Try disabling laptop_mode, if it's set.
+>> Seriously, we've seen placebo effects before...
+> 
+> I am in full agreement there... It's easy to see that applications do not 
+> swap out overnight; but i'm having difficulty trying to find a way to 
+> demonstrate the other part. I guess timing the "linking the kernel with full 
+> debug" on a low memory box is measurable.
 
-Carefully review the logs for any oopses: oopsing while holding
-shrinker_sem will do this for sure.
+I should have said - finding a swappiness that ensures not swapping out 
+applications with updatedb, then using that same swappiness value to do the 
+linking test.
 
+Con
+
+
+--=_mimegpg-pc.kolivas.org-20693-1090804198-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBBFnmZUg7+tp6mRURAiBrAJ9RC4hNX73ysfVmeuOgfQfF6NGt6gCeMBG6
+VuFip1C3OtUcc3s8XP9VGn4=
+=lVkL
+-----END PGP SIGNATURE-----
+
+--=_mimegpg-pc.kolivas.org-20693-1090804198-0001--

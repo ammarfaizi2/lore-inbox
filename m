@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131322AbRBQLDt>; Sat, 17 Feb 2001 06:03:49 -0500
+	id <S129084AbRBQM0w>; Sat, 17 Feb 2001 07:26:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131196AbRBQLDj>; Sat, 17 Feb 2001 06:03:39 -0500
-Received: from quechua.inka.de ([212.227.14.2]:24925 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S131322AbRBQLDY>;
-	Sat, 17 Feb 2001 06:03:24 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: query about sending udp packets in kernel mode
-In-Reply-To: <CA2569F5.0045056E.00@d73mta05.au.ibm.com>
-Organization: private Linux site, southern Germany
-Date: Sat, 17 Feb 2001 11:44:25 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14U4qu-0008Ku-00@g212.hadiko.de>
+	id <S129136AbRBQM0n>; Sat, 17 Feb 2001 07:26:43 -0500
+Received: from colorfullife.com ([216.156.138.34]:2577 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129084AbRBQM00>;
+	Sat, 17 Feb 2001 07:26:26 -0500
+Message-ID: <3A8E6E0C.2F205328@colorfullife.com>
+Date: Sat, 17 Feb 2001 13:26:52 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+CC: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] a more efficient BUG() macro
+In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sock_creat(PF_INET, SOCK_DGRAM, IPPROTO_UDP, &sock);
-> sin.sin_family = AF_INET;
-> sin.sin_port = htons((unsigned short)serv_port);
-> sin.sin_addr.s_addr = htonl(INADDR_ANY); /*i am not sure about this*/
+Paul Gortmaker wrote:
+> 
+> Anyway this small patch makes sure there is only one "kernel BUG..." string,
+> and dumps __FILE__ in favour of an address value since System.map data is
+> needed to make full use of the BUG() dump anyways.  The memory stats of two
+> otherwise identical kernels:
+>
 
-Needs the target IP address here.
+Shouldn't the linker drop duplicate strings?
 
-> msg.msg_name = &sin;
-> msg.msglen = sizeof(struct sockaddr_in);
-> msg.msg_iov = iovec_containg the message;
-> msg.msg_iovlen = 1;
-> msg.msg_control = NULL;
-> msg.msg_controllen=0;
-> msg.msg_flags =0;
+info gcc mentions that gcc merges duplicate strings, but it seems that
+it doesn't work (gcc-2.96-69, binutils-2.10.0.18-1).
 
-  { mm_segment_t fs=get_fs();
-    set_fs(get_ds());
-
-> sock->ops->sendmsg(sock,&msg,count,0);
-
-    set_fs(fs); }
-
-"count" needs to be the total length of the message. The 0 is
-redundant, sendmsg() takes only three arguments since Linux 2.1 (five
-under 2.0).
-
-Olaf
+--
+	Manfred

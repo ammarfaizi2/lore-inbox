@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbTGMNWs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 09:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbTGMNWs
+	id S265772AbTGMNIk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 09:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbTGMNIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 09:22:48 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:31892 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266555AbTGMNWo
+	Sun, 13 Jul 2003 09:08:40 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:27540 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265772AbTGMNIj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 09:22:44 -0400
-Date: Sun, 13 Jul 2003 14:37:20 +0100
+	Sun, 13 Jul 2003 09:08:39 -0400
+Date: Sun, 13 Jul 2003 14:23:22 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Dave Jones <davej@codemonkey.org.uk>, Jan Dittmer <j.dittmer@portrix.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: agpgart, nforce2, radeon and agp fastwrite
-Message-ID: <20030713133720.GE19132@mail.jlokier.co.uk>
-References: <3F102E8E.4030507@portrix.net> <20030712202622.GB7741@suse.de> <3F10793E.5080202@portrix.net> <20030712211721.GA10207@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS client errors with 2.5.74?
+Message-ID: <20030713132322.GB19132@mail.jlokier.co.uk>
+References: <20030710053944.GA27038@mail.jlokier.co.uk> <16141.15245.367725.364913@charged.uio.no> <20030710150012.GA29113@mail.jlokier.co.uk> <16141.32852.39625.891724@charged.uio.no> <20030710153557.GD29113@mail.jlokier.co.uk> <16141.63602.314666.241727@charged.uio.no> <20030712151343.GA9483@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030712211721.GA10207@suse.de>
+In-Reply-To: <20030712151343.GA9483@mail.jlokier.co.uk>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> Girr. I'm not entirely happy about exporting that if I can help it.
-> It's annoying that the nvidia_insert_memory() routine is 99% the same
-> as the generic routine. If it could use that, we'd not have to worry
-> about the export.
+Jamie Lokier wrote:
+> I haven't tried this yet.  It doesn't apply to 2.5.74 due to the calls
+> to io_schedule().
 
-Is it time to teach the module loader how to patch certain binaries? :)
+I've tried both patches together now, on 2.5.75.  Still seeing fast
+(<0.1s) timeouts with "soft".  Using "hard" seems fairly reliable, but
+that was the same without the patches.
 
 -- Jamie

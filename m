@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267382AbSLSABH>; Wed, 18 Dec 2002 19:01:07 -0500
+	id <S267390AbSLSADc>; Wed, 18 Dec 2002 19:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267390AbSLSABH>; Wed, 18 Dec 2002 19:01:07 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20440 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267382AbSLSABG>; Wed, 18 Dec 2002 19:01:06 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200212190008.gBJ08vw02314@devserv.devel.redhat.com>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-To: lm@bitmover.com (Larry McVoy)
-Date: Wed, 18 Dec 2002 19:08:57 -0500 (EST)
-Cc: john@bradfords.org.uk (John Bradford), lm@bitmover.com (Larry McVoy),
-       alan@redhat.com, torvalds@transmeta.com, davej@codemonkey.org.uk,
-       vonbrand@inf.utfsm.cl, linux-kernel@vger.kernel.org, akpm@digeo.com
-In-Reply-To: <20021218140845.L7976@work.bitmover.com> from "Larry McVoy" at Dec 18, 2002 02:08:45 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267398AbSLSADc>; Wed, 18 Dec 2002 19:03:32 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:27155
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267390AbSLSADb>; Wed, 18 Dec 2002 19:03:31 -0500
+Subject: Re: [PATCH 2.5.52] Use __set_current_state() instead of
+	current->state = (take 1)
+From: Robert Love <rml@tech9.net>
+To: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Cc: torvalds@transmeta.org, linux-kernel@vger.kernel.org
+In-Reply-To: <E18Oo3e-0007gl-00@milikk>
+References: <E18Oo3e-0007gl-00@milikk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1040256697.848.79.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 18 Dec 2002 19:11:38 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't understand why BK is part of the conversation.  It has nothing to
-> do with it.  If every time I post to this list the assumption is that it's
-> "time to beat larry up about BK" then it's time for me to get off the list.
-> 
-> I can understand it when we're discussing BK; other than that, it's pretty
-> friggin lame.  If that's what was behind your posts, Alan, there is an
-> easy procmail fix for that.
+On Wed, 2002-12-18 at 18:56, Inaky Perez-Gonzalez wrote:
 
-It wasnt me who brought up bitkeeper
+> In fs/*.c, many functions manually set the task state directly
+> accessing current->state, or with a macro, kind of
+> inconsistently. This patch changes all of them to use
+> [__]set_current_state().
+
+Some of these should probably be set_current_state().  I realize the
+current code is equivalent to __set_current_state() but it might as well
+be done right.
+
+> diff -u fs/locks.c:1.1.1.6 fs/locks.c:1.1.1.1.6.2
+> --- fs/locks.c:1.1.1.6	Wed Dec 11 11:13:35 2002
+> +++ fs/locks.c	Wed Dec 18 13:20:24 2002
+> @@ -571,7 +571,7 @@
+>  	int result = 0;
+>  	DECLARE_WAITQUEUE(wait, current);
+>  
+> -	current->state = TASK_INTERRUPTIBLE;
+> +	__set_current_state (TASK_INTERRUPTIBLE);
+>  	add_wait_queue(fl_wait, &wait);
+>  	if (timeout == 0)
+
+At least this guy should be set_current_state(), on quick glance.
+
+When in doubt just use set_current_state()..
+
+	Robert Love
+

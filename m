@@ -1,87 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284908AbRLKGaC>; Tue, 11 Dec 2001 01:30:02 -0500
+	id <S284916AbRLKHAQ>; Tue, 11 Dec 2001 02:00:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284911AbRLKG3o>; Tue, 11 Dec 2001 01:29:44 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:54031 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284908AbRLKG3d>; Tue, 11 Dec 2001 01:29:33 -0500
-Message-ID: <3C15A79A.98EC0ADB@zip.com.au>
-Date: Mon, 10 Dec 2001 22:28:42 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
-X-Accept-Language: en
+	id <S284913AbRLKG75>; Tue, 11 Dec 2001 01:59:57 -0500
+Received: from hal.astr.lu.lv ([195.13.134.67]:59784 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S284899AbRLKG7o>;
+	Tue, 11 Dec 2001 01:59:44 -0500
+Message-Id: <200112110659.fBB6xLt24936@hal.astr.lu.lv>
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
+To: Doug Ledford <dledford@redhat.com>
+Subject: Re: [PATCH] i810_audio fix for version 0.11
+Date: Tue, 11 Dec 2001 08:59:20 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Nathan Bryant <nbryant@optonline.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.A41.4.05.10112081022560.23064-100000@ieva06> <200112080945.fB89jAC00998@hal.astr.lu.lv> <3C15566B.7010803@redhat.com>
+In-Reply-To: <3C15566B.7010803@redhat.com>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: gordo@pincoya.com, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] console close race fix resend
-In-Reply-To: <20011210191630.A13679@furble>,
-		<1008035512.4287.1.camel@phantasy> 
-		<20011210191630.A13679@furble> <1008050718.4287.11.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> On Mon, 2001-12-10 at 22:16, Gordon Oliver wrote:
-> 
-> > and (c) appears to still have a race... You should extract
-> > the value from the structure inside the lock, otherwise you
-> > will still race with con_close (though perhaps a smaller race)
-> > but since the call to acquire_console_sem() can sleep, the
-> > vt handle you have may be stale.
-> 
-> Ehh, I don't think so.  Here is the whole patched function:
-> 
-> static void con_flush_chars(struct tty_struct *tty)
-> {
->         struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
->         if (in_interrupt())     /* from flush_to_ldisc */
->                 return;
->         pm_access(pm_con);
->         acquire_console_sem();
->         if (vt)
->                 set_cursor(vt->vc_num);
->         release_console_sem();
-> }
-> 
+On Tuesday 11 December 2001 02:42, Doug Ledford wrote:
+> Andris Pavenis wrote:
+> > Why returning non zero from __start_dac() and similar procedures when
+> > something real has been done there is so bad.
+>
+> Personal preference.
 
-It could be improved - we really should test tty->driver_data inside
-lock_kernel(), and after the possible sleep.
+Thought about slightly different idea but didn't test it (I'm now about 300 km
+away from a box where I did the tests and it will be so up to Cristmas):
 
-How does this look (and how does it test?)
+	move both port operations used before and after call to
+	__start_dac() and __start_adc() inside these inline procedures.
+	In this case we would have waiting for results of __start_dac
+	only when it really needed, so no possibility of deadlock
+	there
 
---- linux-2.4.17-pre8/drivers/char/console.c	Mon Dec 10 13:46:20 2001
-+++ linux-akpm/drivers/char/console.c	Mon Dec 10 22:27:05 2001
-@@ -100,6 +100,7 @@
- #include <linux/tqueue.h>
- #include <linux/bootmem.h>
- #include <linux/pm.h>
-+#include <linux/smp_lock.h>
- 
- #include <asm/io.h>
- #include <asm/system.h>
-@@ -2350,15 +2351,18 @@ static void con_start(struct tty_struct 
- 
- static void con_flush_chars(struct tty_struct *tty)
- {
--	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
-+	struct vt_struct *vt;
- 
- 	if (in_interrupt())	/* from flush_to_ldisc */
- 		return;
--
- 	pm_access(pm_con);
-+	lock_kernel();		/* versus con_close() */
- 	acquire_console_sem();
--	set_cursor(vt->vc_num);
-+	vt = (struct vt_struct *)tty->driver_data;
-+	if (vt)
-+		set_cursor(vt->vc_num);
- 	release_console_sem();
-+	unlock_kernel();
- }
- 
- /*
+>
+> > Using such return code would
+> > ensure we never try to wait for results of __start_dac() if nothing is
+> > done by this procedure.
+>
+> That's part of the point.  In this driver, I try to control when things are
+> done and keep track of them in a deterministic way.  Using a return code to
+> tell us a function we called did nothing when we shouldn't have called it
+> in the first place if it wasn't going to do anything is backwards from the
+> way I prefer to handle things.  Namely, find out why the function was
+> called when it shouldn't have been and solve the problem.  Note: I don't
+
+If we moved 
+                outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
+and 
+                while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
+from inside __i810_update_lvi to __start_adc and __start_dac (inside
+if block) we would avoid deadlocks. If You like to have noticed that
+__start_dac ot __start_adc is called when they should not, then
+add printk with message there (or even disable sound support totally with 
+additional error message in log, so user will complain). I think leaving out 
+possiblility of deadlocks is too dangerous.
+
+> follow that philosophy on all functions, only on very simple ones like
+> this, there are a lot of complex functions where you want the function to
+> make those decisions.  So, like I said, personal preference on how to
+> handle these things.
+>
+> > I think such way is also more safe against possible future
+> > modifications as real conditions are only in a single place. Keeping them
+> > in 2 places is possible source of bitrot if driver will be updated in
+> > future.
+>
+> It's intended to do exactly that.  A lot of what makes this driver work
+> properly right now is the LVI handling.  That was severly busted when I
+> first got hold of the driver.  I *want* things to break if the LVI handling
+> is changed by someone else because that will alert me to the fact that the
+> LVI handling is then busted (at least, if they change it incorrectly, if
+> they do things right then they will catch problems like this and fix them
+> properly and I won't have to do anything).
+
+I would suggest to disable sound support and give reasonable error message
+in this case. So user will able to complain if this happens. It's more 
+difficult to get usefull report when deadlock happens (and many users may not 
+want to debug and provide additional info it in this case any more)
+
+Andris
+
+

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293505AbSCEWui>; Tue, 5 Mar 2002 17:50:38 -0500
+	id <S293623AbSCEWui>; Tue, 5 Mar 2002 17:50:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292968AbSCEWuS>; Tue, 5 Mar 2002 17:50:18 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24326 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S292971AbSCEWuB>; Tue, 5 Mar 2002 17:50:01 -0500
-Date: Tue, 5 Mar 2002 17:48:26 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: jt@hpl.hp.com
-cc: paulus@samba.org, linux-ppp@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: PPP feature request (Tx queue len + close)
-In-Reply-To: <20020304144200.A32397@bougret.hpl.hp.com>
-Message-ID: <Pine.LNX.3.96.1020305174147.28907A-100000@gatekeeper.tmr.com>
+	id <S293505AbSCEWuQ>; Tue, 5 Mar 2002 17:50:16 -0500
+Received: from relay-3v.club-internet.fr ([194.158.96.114]:27329 "HELO
+	relay-3v.club-internet.fr") by vger.kernel.org with SMTP
+	id <S292968AbSCEWuA>; Tue, 5 Mar 2002 17:50:00 -0500
+Message-ID: <3C854B99.1050005@freesurf.fr>
+Date: Tue, 05 Mar 2002 23:50:01 +0100
+From: Kilobug <kilobug@freesurf.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020301
+X-Accept-Language: fr-fr, fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305154147.A6211@vger.timpanogas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Jean Tourrilhes wrote:
+Jeff V. Merkey wrote:
+> All hail the non-profit nazis from Ohio State.
 
-> Tx queue length
-> ---------------
-> 	Problem : IrDA does its buffering (IrTTP is a sliding window
-> protocol). PPP does its buffering (1 packet in ppp_generic +
-> dev->tx_queue_len = 3). End result : a large number of packets queued
-> for transmissions, which result in some network performance issues.
-> 
-> 	Solution : could we allow the PPP channel to overwrite
-> dev->tx_queue_len ?
-> 	This is similar to the channel beeing able to set the MTUs and
-> other parameters...
+Congratulations ! You've won
 
-Random thoughts on this:
-- ifconfig sets txlength, and could channels get into contention?
-- if you reduce buffers too far performance sucks.
-- did you look at just reducing the packet size (MTU)?
++-----------------+
+|       One       |
+|      Godwin     |
+|       Point     |
++-----------------+
 
-You should really use the above methods to diddle parameters and
-benchmark. If nothing else you can point to numbers as a reason to make
-any change.
+You can cut it with an axe and add it to your collection.
+
+http://www.faqs.org/faqs/usenet/legends/godwin/
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+** Gael Le Mignot "Kilobug", Ing3 EPITA - http://kilobug.free.fr **
+Home Mail   : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
+GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
+Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
+
+"Software is like sex it's better when it's free.", Linus Torvalds
 

@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264010AbUEDAHh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUEDAJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264010AbUEDAHh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 20:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUEDAHh
+	id S264058AbUEDAJA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 20:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUEDAJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 20:07:37 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:65530 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264010AbUEDAHf (ORCPT
+	Mon, 3 May 2004 20:09:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:33517 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264058AbUEDAIz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 20:07:35 -0400
-Date: Tue, 4 May 2004 10:05:40 +1000
-From: Greg Banks <gnb@sgi.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Greg Banks <gnb@melbourne.sgi.com>, Nikita Danilov <Nikita@Namesys.COM>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       alexander viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       trond myklebust <trondmy@trondhjem.org>
-Subject: Re: d_splice_alias() problem.
-Message-ID: <20040504000540.GB24969@sgi.com>
-References: <16521.5104.489490.617269@laputa.namesys.com> <16529.56343.764629.37296@cse.unsw.edu.au> <409634B9.8D9484DA@melbourne.sgi.com> <16534.54704.792101.617408@cse.unsw.edu.au>
+	Mon, 3 May 2004 20:08:55 -0400
+Date: Mon, 3 May 2004 17:10:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: peter@mysql.com, linuxram@us.ibm.com, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Random file I/O regressions in 2.6
+Message-Id: <20040503171005.1e63a745.akpm@osdl.org>
+In-Reply-To: <4096DC89.5020300@yahoo.com.au>
+References: <200405022357.59415.alexeyk@mysql.com>
+	<409629A5.8070201@yahoo.com.au>
+	<20040503110854.5abcdc7e.akpm@osdl.org>
+	<1083615727.7949.40.camel@localhost.localdomain>
+	<20040503135719.423ded06.akpm@osdl.org>
+	<1083620245.23042.107.camel@abyss.local>
+	<20040503145922.5a7dee73.akpm@osdl.org>
+	<4096DC89.5020300@yahoo.com.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16534.54704.792101.617408@cse.unsw.edu.au>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 09:28:48AM +1000, Neil Brown wrote:
-> On Monday May 3, gnb@melbourne.sgi.com wrote:
-> > Neil Brown wrote:
-> > > 
-> > *   Dentry_stat.nr_unused can be be spuriously decremented when dput()
-> >     races with __dget_unlocked().  Eventual result is nr_unused<0
-> >     and kswapd loops.  This is the problem I mentioned earlier.  Note
-> >     that this is not an NFS-specific problem.  Fix is:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> > That's one of its usage patterns.  It's also supposed to detect the
+> > fixed-sized-reads-seeking-all-over-the-place situation.  In which case it's
+> > supposed to submit correctly-sized multi-page BIOs.  But it's not working
+> > right for this workload.
 > > 
-> > --- linux.orig/fs/dcache.c	Mon May  3 21:46:30 2004
-> > +++ linux/fs/dcache.c	Mon May  3 21:49:07 2004
-> > @@ -255,8 +255,8 @@
-> >  
-> >  static inline struct dentry * __dget_locked(struct dentry *dentry)
-> >  {
-> > -	atomic_inc(&dentry->d_count);
-> > -	if (atomic_read(&dentry->d_count) == 1) {
-> > +	if (atomic_inc(&dentry->d_count) == 1) {
+> > A naive solution would be to add special-case code which always does the
+> > fixed-size readahead after a seek.  Basically that's
+> > 
+> > 	if (ra->next_size == -1UL)
+> > 		force_page_cache_readahead(...)
+> > 
 > 
-> One problem with this is that (in include/asm-i386/atomic.h at least):
->   static __inline__ void atomic_inc(atomic_t *v)
+> I think a better solution to this case would be to ensure the
+> readahead window is always min(size of read, some large number);
 > 
-> atomic_inc returns "void".
 
-Doh!  This is what comes from doing all coding and testing on minority
-achitectures...I'll think about this a bit more.
-
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+That would cause the kernel to perform lots of pointless pagecache lookups
+when the file is already 100% cached.

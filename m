@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314456AbSEBOKI>; Thu, 2 May 2002 10:10:08 -0400
+	id <S314454AbSEBOIE>; Thu, 2 May 2002 10:08:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314459AbSEBOKH>; Thu, 2 May 2002 10:10:07 -0400
-Received: from dsl-213-023-038-046.arcor-ip.net ([213.23.38.46]:13213 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314457AbSEBOJU>;
-	Thu, 2 May 2002 10:09:20 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: discontiguous memory platforms
-Date: Wed, 1 May 2002 16:08:11 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrea Arcangeli <andrea@suse.de>, Ralf Baechle <ralf@uni-koblenz.de>,
-        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0205021539460.23113-100000@serv>
+	id <S314456AbSEBOID>; Thu, 2 May 2002 10:08:03 -0400
+Received: from [62.112.80.99] ([62.112.80.99]:7692 "HELO k2.dsa-ac.de")
+	by vger.kernel.org with SMTP id <S314454AbSEBOIB>;
+	Thu, 2 May 2002 10:08:01 -0400
+Date: Thu, 2 May 2002 16:07:53 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: ARM Linux kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: airo_cs on ARM 2.4.13 vs. 2.5.6
+Message-ID: <Pine.LNX.4.33.0205021544480.2626-100000@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E172umC-0001zd-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 May 2002 16:00, Roman Zippel wrote:
-> Hi,
-> 
-> On Wed, 1 May 2002, Daniel Phillips wrote:
-> 
-> > > Just to throw in an alternative: On m68k we map currently everything
-> > > together into a single virtual area. This means the virtual<->physical
-> > > conversion is a bit more expensive and mem_map is simply indexed by the
-> > > the virtual address.
-> > 
-> > Are you talking about mm_ptov and friends here?  What are the loops for?
-> 
-> It simply searches through all memory nodes, it's not really efficient.
-> 
-> > Could you please describe the most extreme case of physical discontiguity
-> > you're handling?
-> 
-> I can't assume anything. I'm thinking about calculating the table
-> dynamically and patching the kernel at bootup, we are already doing
-> something similiar in the Amiga/ppc kernel.
+Hello
 
-Maybe this is a good place to try out a hash table variant of
-config_nonlinear.  It's got to be more efficient than searching all the
-nodes, don't you think?
+Brief description of the problem: airo driver (Aironet 350 card) works
+with 2.5.6 and doesn't work with 2.4.13 on a StrongARM (Trizeps) board.
 
--- 
-Daniel
+Details: Loading the modules (airo.o and airo_cs.o) works fine, the
+packets get transmitted, ping host&; tcpdump host host shows packets
+transmitted and received, but ping reports all packets lost. Same if I
+ping the board - tcpdump only sees packets received, none are transmitted.
+In /var/log/messages the IO-address, reported by airo looks like a PC
+(ix86) address - 0xf6000000-0xf600003f. With 2.5.6 everything works and
+the address-range is 0xc2872000-0xc287203f. Any ideas?
+
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
+

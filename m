@@ -1,424 +1,1017 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273487AbRJIHd0>; Tue, 9 Oct 2001 03:33:26 -0400
+	id <S273622AbRJIHgQ>; Tue, 9 Oct 2001 03:36:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273515AbRJIHdS>; Tue, 9 Oct 2001 03:33:18 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:59917 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S273487AbRJIHdL>; Tue, 9 Oct 2001 03:33:11 -0400
-Date: Tue, 9 Oct 2001 10:31:36 +0200
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <15591984536.20011009103136@port.imtp.ilyichevsk.odessa.ua>
+	id <S273534AbRJIHgC>; Tue, 9 Oct 2001 03:36:02 -0400
+Received: from mailserv.intranet.GR ([146.124.14.106]:40619 "EHLO
+	mailserv.intranet.gr") by vger.kernel.org with ESMTP
+	id <S273515AbRJIHfq>; Tue, 9 Oct 2001 03:35:46 -0400
+Message-ID: <3BC2A98C.A57EA360@intracom.gr>
+Date: Tue, 09 Oct 2001 10:38:52 +0300
+From: Pantelis Antoniou <panto@intracom.gr>
+Organization: INTRACOM S.A.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.18pre21 ppc)
+X-Accept-Language: el, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Have problems with big kernel? Here is a loadlin replacement
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="----------10DB32219FFA9E3"
+Subject: Re: [RFC] Standard way of generating assembler offsets
+In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au>
+			<3BC1735F.41CBF5C1@intracom.gr>  <3BC1E294.1A4FB12D@mvista.com> <1002563771.21079.3.camel@keller> <3BC1F7D6.E84D617B@mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------B54AD3F1C510DC8D0A093BAD"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------------10DB32219FFA9E3
+This is a multi-part message in MIME format.
+--------------B54AD3F1C510DC8D0A093BAD
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Oh no, it happens again... forgot to attach the tar...
--- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-------------10DB32219FFA9E3
-Content-Type: application/x-gzip; name="linld02.tar.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linld02.tar.gz"
+george anzinger wrote:
+> 
+> Georg Nikodym wrote:
+> >
+> > At the risk of sticking my foot in it, is there something wrong with the
+> > ANSI C offsetof() macro, defined in <stddef.h>?
+> >
+> > --Georg
+> No, and it could have been (and was) written prio to ANSI C defining
+> it.  Something like:
+> 
+> #define offsetof(x, instruct) &((struct instruct *)0)->x
+> 
+> The issues that CPP resolves have to deal with the following sort of
+> structure:
+> 
+> struct instruct {
+>         struct foo * bar;
+> #ifdef CONFIG_OPTION_DIDDLE
+>         int diddle_flag;
+>         int diddle_array[CONFIG_DIDDLE_SIZE];
+> #endif
+>         int x;
+> }
+> 
+> Or for the simple need for a constant:
+> 
+> #define Const (CONFIG_DIDDLE_SIZE * sizeof(int))
+> 
+> Of course you could have any number of constant operators in the
+> expression.  Note also, that the array in the structure above is defined
+> by a CONFIG symbol.  This could also involve math, i.e.:
+> 
+> #define CONFIG_DIDDLE_SIZE CLOCK_RATE / HZ
+> 
+> and so on.  All in all, it best to let CPP do what it does best and
+> scarf up the result:
+> 
+> #define GENERATE_CONSTANT(name,c) printf(#name " equ %d\n",c)
+> 
+> then:
+> 
+> GENERATE_CONSTANT(diddle_size,CONFIG_DIDDLE_SIZE);
+> 
+> In the code we did, we put all the GENERATE macros in a .h file.  The
+> the code looked like:
+> 
+> #include.... all the headers needed....
+> 
+> #include <generate.h>
+> 
+> GENERATE....  all the generate macro calls...
+> 
+> } // all done (assumes that the "main(){" is in the generate.h file)
+> 
+> This whole mess was included as comments in the asm file.  The make rule
+> then used a sed script to extract it, compile and run it to produce a
+> new header file which the asm source included outside of the above
+> stuff.
+> 
+> George
 
-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
-IQn/m/AvofD8JwBoAQA=
-------------10DB32219FFA9E3--
+My script already handles that, everything is first passed through
+CPP and the member offset are varied correctly according to any
+compilation options.
 
+I included the script and the results of two runs.
+
+1. ./h2inc tst.h >tst.inc
+
+2. ./h2inc --cflags="-DSHOW_HIDDEN -I./" >tst-hidden.inc
+
+Regards
+--------------B54AD3F1C510DC8D0A093BAD
+Content-Type: text/plain; charset=us-ascii;
+ name="h2inc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="h2inc"
+
+#!/usr/bin/perl -w
+
+use integer;
+use Getopt::Long;
+use File::Basename;
+use File::stat;
+
+my $CC       = "cc";
+my $CFLAGS   = "-I./";
+my $CPPFLAGS = "-E -dD";
+my $OBJCOPY  = "objcopy";
+my $OBJFLAGS = "-O binary";
+
+sub find_32bit_type;
+sub target_endianess;
+sub alligned_type_size;
+sub base_type_size;
+sub members_offset;
+sub tmpfile;
+sub inputfile;
+sub decode_type;
+sub decode_member;
+sub find_complex_member_name;
+sub find_matching_brace;
+
+$Getopt::Long::ignorecase = 0;	# Don't ignore case
+
+my @filelist = ();
+
+GetOptions	(
+	"cc=s" 			=> \$CC,
+	"cflags=s" 		=> \$CFLAGS,
+	"cppflags=s" 	=> \$CPPFLAGS,
+	"objcopy=s" 	=> \$OBJCOPY,
+	"objflags=s" 	=> \$OBJFLAGS
+			);
+
+`$CC 2>/dev/null -v`;
+die "Compiler is not present", if $? != 0;
+
+my $u32 		= &find_32bit_type();
+my $endianess 	= &target_endianess($u32);
+
+for ($i = 0; $i <= $#ARGV; $i++) {
+	$_ = $ARGV[$i];
+	# print STDERR "file: $_\n";
+	push @filelist, $_;
+}
+
+$#filelist >= 0 || die "Filename missing\n";
+
+my %members  = ();
+my %typedefs = ();
+my %structs  = ();
+my %unions   = ();
+
+my %ilist = ();	# hash of included files
+my $ilist;
+
+my $defines;
+
+foreach $f (@filelist) {
+
+	$f = basename($f);
+
+	%ilist = ();
+	undef $ilist;
+
+	$defines = "";
+
+	&inputfile($f);
+
+	my @defines = split(/\n/, $defines);
+
+	my $incfile = $f;
+	$incfile =~ s/\.h$/.inc/g;
+	$incfile =~ s/\S*\/(\S+\.inc)/$1/g;
+	my $incfiledef = "_" . uc($incfile);
+	$incfiledef =~ s/\./_/g;
+
+	print "#ifndef $incfiledef\n";
+	print "#define $incfiledef\n\n";
+
+	if (defined ($ilist)) {
+		my $if;
+		foreach $if (split /\s/, $ilist) {
+			$if =~ s/\.h$/.inc/g;
+			$if =~ s/\S*\/(\S+\.inc)/$1/g;
+			$if = basename($if);
+			print "#include \"$if\"\n";
+		}
+		print "\n";
+	}
+
+	my @offsets;
+	my $b;
+	my $i;
+	my $j;
+	my $k;
+	foreach $b (sort keys %members) {
+		my @m = split /\s/, $members{$b};
+		my $m;
+		print "/****************************************************************\n\n";
+		print "\tOffsets for $b\n\n";
+		print "****************************************************************/\n\n";
+
+		my $size_define;
+		my $complete_type;
+
+		if ($typedefs{$b}) {
+			$complete_type = $b;
+			$size_define = $b . "_SIZE";
+		} elsif ($structs{$b}) {
+			$complete_type = "struct $b";
+			$size_define = "struct_" . $b . "_SIZE";
+		} elsif ($unions{$b}) {
+			$complete_type = "union $b";
+			$size_define = "union_" . $b . "_SIZE";
+		} else { die; }
+
+		@offsets = &members_offset($endianess, $u32, "#include \"$f\"\n", $complete_type, \@m);
+
+		$j = 0;
+		foreach (@offsets) {
+			my $cm = $m[$j++];
+			my @cm = split(/\./, $cm);
+			for ($k = 0; $k <= $#defines; $k++) {
+				my @tt = split(/\s+/, $defines[$k]);
+				if (defined($tt[2]) && $tt[2] eq $cm) {
+					# print STDERR "define alias found for $cm\n";
+					$defines[$k] = "/* $tt[1] removed as an alias for $cm */";
+					@cm = ($tt[1]);
+					last;
+				}
+			}
+			$cm = join('_', @cm);
+			printf("#define %-30s %3d\n", $cm, $_);
+		}
+
+		printf("#define %-30s %3d\n", $size_define, &base_type_size($endianess, $u32, "#include \"$f\"\n", $complete_type));
+
+		print "\n";
+	}
+
+	$defines = join("\n", @defines);
+
+	if ($defines ne "") {
+		print "/****************************************************************\n\n";
+		print "\tSimple defines list \n\n";
+		print "****************************************************************/\n\n";
+		print "$defines\n\n";
+	}
+
+	print "#endif\n";
+
+}
+
+sub inputfile {
+	my $file = shift(@_);
+	$file = basename($file);
+	my @wf = ();	# whole file
+	my $wf = '';
+	my $size;
+	my $align;
+
+	# print STDERR "Processing : $file\n";
+
+	my $tmp = &tmpfile();
+	my $tmp_c = $tmp . ".c";
+	my $tmp_o = $tmp . ".o";
+
+	local $SIG{'INT'} =
+		sub {
+			unlink $tmp_c;
+			unlink $tmp_o;
+			die $_[0];
+		};
+	
+	open(TMPFILE, ">$tmp_c") || die;
+	print TMPFILE "#include \"$file\"\n";
+	close(TMPFILE);
+	# first verify that the header file is correct
+	`$CC $CFLAGS -c $tmp_c -o $tmp_o`; 
+	if ($? != 0) {
+		# try system wide include
+		open(TMPFILE, ">$tmp_c") || die;
+		print TMPFILE "#include \<$file\>\n";
+		close(TMPFILE);
+		# first verify that the header file is correct
+		`$CC $CFLAGS -c $tmp_c -o $tmp_o`; die, if ($? != 0);
+	}
+	unlink $tmp_o;	# remove object file
+
+	# open(LOGFILE, ">log.i") || die;
+
+	# print LOGFILE "$CC $CFLAGS $CPPFLAGS $tmp_c |\n";
+
+	open(CPPPIPE, "$CC $CFLAGS $CPPFLAGS $tmp_c |") || die;
+
+	$wf = "";
+	my $cf = "";	# current file - only output for current file 
+
+	my $last;
+	my $lll;
+
+	while (<CPPPIPE>) {
+		# print LOGFILE $_;
+		$lll = $_;
+		chop;
+		if (s/\\$//) {
+			$_ .= <CPPPIPE>; redo;
+		}	# check for escape at the end of line
+		$last = $_;
+		my $ll = $_;
+		if (! /\s*\#\s*/) {
+			if (basename($cf) eq basename($file)) {
+				$wf .= "$_\n";
+			}
+			next;
+		}
+		# print STDERR "\$\_='$_'\n";
+		# print STDERR "o: \$\_='$_', \$\`='$`', \$\&='$&', \$\'='$'\n";
+		if (/\s+[0-9]+\s*\"([^\"].*)\"/) {
+			# print STDERR "$cf - $1\n";
+			my $c = basename($1);
+			if (!defined($ilist{$c})) {
+				next, if ($c eq basename($tmp_c));				# do not add the dummy 
+				if ($c ne basename($file) &&
+					basename($cf) eq basename($file)) { # do not add self, and only directly included
+					# print STDERR "$ll: $1\n";	
+					$ilist{$c} = 1;
+					if (defined($ilist)) {
+						$ilist .= " $c";
+					} else {
+						$ilist = $c;
+					}
+				}
+			}
+			$cf = basename($1);
+		} elsif (/\s*define\s*([a-zA-Z_][a-zA-Z0-9_]*)/) {
+			# $_ = $';
+			next, if ($cf ne $file);
+			# print STDERR "\$lll='$lll'\n\$last='$last'\n\$\_='$_'\n\$\`='$`'\n\$\&='$&'\n\$\'='$'\n";
+			my $defname = $1;
+			next, if (/\(.*\)/);	# ignore arguments
+			$_ = $';
+			if (/\S+.*$/) {
+				my $what = $&;
+				# next, if ($what =~ /[()]/);	# only simple defines pass
+				# $defines .= "#define $defname $1\n";
+				# print STDERR "1-> '$defname' '$what'\n";
+				$defines .= sprintf("#define %-30s %s\n", $defname, $what);
+			} else {
+				# print STDERR "2-> $defname\n";
+				$defines .= sprintf("#define %-30s\n", $defname);
+			}
+		} else {
+			# print STDERR "$_";
+		}
+	}
+
+	# close(LOGFILE);
+
+	# print STDERR "FILE:\n" . $wf ."FEND:\n";
+	$wf =~ s/([*;,.!~{}()+\-\\\/\[\]])/ $1 /gsx;	# add spaces
+	$wf =~ s/\s+/ /gsx;
+	# print STDERR $wf;
+	@wf = split /\s/,  $wf;
+
+	$i  = 0;
+	OUTTER: while ($i < ($#wf + 1)) {
+		# print STDERR "$i: '$wf[$i]'\n";
+		if ($wf[$i] eq "typedef" && $wf[$i+1] eq "struct") {
+			&decode_type(\@wf, \$i);
+		} elsif ($wf[$i] eq "typedef" && $wf[$i+1] eq "union") {
+			&decode_type(\@wf, \$i);
+		} elsif ($wf[$i] eq "struct") {
+			&decode_type(\@wf, \$i);
+		} elsif ($wf[$i] eq "union") {
+			&decode_type(\@wf, \$i);
+		} else {
+			$i++;
+		}
+	}
+	close CPPPIPE;
+
+	unlink $tmp_c;
+
+	local $SIG{'INT'} = 'DEFAULT';
+
+	return 1;
+}
+
+sub decode_member {
+	my $wf = shift(@_);	# reference to the whole body of the file
+	my $ms = shift(@_);	# start of member definition
+	my $me = shift(@_);	# end of member definition
+	my $ii;
+	my $i;
+	my $n;
+
+	# decode right to left
+	$i = $me;
+	$i--, if ($$wf[$i] eq ";");
+	while ($$wf[$i] eq "]") {	# array definition, find match 
+		# print STDERR "'$$wf[$i]'\n";
+		$n = 1;
+		do {
+			$i--;
+			# print STDERR "'$$wf[$i]'\n";
+			$n++, if ($$wf[$i] eq "]");
+			$n--, if ($$wf[$i] eq "[");
+		} while ($n > 0 || $$wf[$i] ne "[");
+		$i--;
+	}
+	while ($$wf[$i] eq ")") {	# function pointer definition, find match 
+		$n = 1;
+		$ii = $i;
+		# print STDERR "'$$wf[$ii]'\n";
+		do {
+			$ii--;
+			# print STDERR "'$$wf[$ii]'\n";
+			$n++, if ($$wf[$ii] eq ")");
+			$n--, if ($$wf[$ii] eq "(");
+		} while ($n > 0 || $$wf[$ii] ne "(");
+		# now check if next token is a pointer then we've found it
+		# print STDERR "i=$i, ii=$ii, '" . $$wf[$ii] . "' '" . $$wf[$ii+1] . "' '" . $$wf[$ii+2] . "'\n";
+		if ($i - $ii == 3 && $$wf[$ii+1] eq "*") {	# found it!
+			$i = $ii + 2;
+		} else {
+			$i = $ii - 1;
+		}
+	}
+	# print STDERR "found; $$wf[$i]\n";
+	return $$wf[$i];
+}
+
+sub find_complex_member_name {
+	my $wf   = shift(@_);	# reference to the whole body of the file
+	my $k    = shift(@_);	# start of member definition
+	my $last = shift(@_);	# end of member definition
+
+	my $ct = $$wf[$k];
+	my $ccs = $k + 2;
+	my $n = 0;
+	do {
+		$k++;
+		$n++, if ($$wf[$k] eq "{");
+		$n--, if ($$wf[$k] eq "}");
+	} while ($n > 0);
+	my $cce = $k;
+	$k++;
+	my $cs = $k;
+	$k++, while ($$wf[$k] ne ";");
+	my $ce = $k;
+	$k++;
+	my $cn = &decode_member($wf, $cs, $ce);
+	return $cn;
+}
+
+sub find_matching_brace {
+	my $wf   = shift(@_);	# reference to the whole body of the file
+	my $k    = shift(@_);	# start of member definition
+	my $last = shift(@_);	# end of member definition
+
+	my $n = 0;
+	do {
+		$k++;
+		$n++, if ($$wf[$k] eq "{");
+		$n--, if ($$wf[$k] eq "}");
+	} while ($n > 0);
+	$k++;
+	$k++, while ($$wf[$k] ne ";");
+	$k++;
+	return $k;
+}
+
+sub get_next_type_name {
+}
+
+sub decode_type {
+	my $wf = shift(@_);	# reference to the whole body of the file
+	my $i  = shift(@_);	# reference to the token index at the file
+	my $n = 0;			# nesting level
+	my $k;
+	my $j;
+	my $anchor;
+	my $first_brace;
+	my $last_brace;
+	my $trailer;
+	my @result = ();
+
+	$anchor = $$i;		# keep this for later
+	# now find the brace
+	$j = $anchor;
+	# first find opening brace or terminating semicolon
+	$j++, while ($$wf[$j] ne "{" && $$wf[$j] ne ";");
+
+	if ($$wf[$j] eq ";") {	# not a structure definition
+		$$i = $j + 1;
+		return "";
+	}
+	$first_brace = $j;
+
+	$n = 1;
+	do {
+		$j++;
+		$n++, if ($$wf[$j] eq "{");
+		$n--, if ($$wf[$j] eq "}");
+	} while ($n > 0 || $$wf[$j] ne "}");
+
+	$last_brace = $j;
+
+	# find terminating semicolon
+	$j++, while ($$wf[$j] ne ";");
+
+	my $is_typedef = $$wf[$anchor] eq "typedef";
+	my $is_struct  = $$wf[$anchor] eq "struct";
+	my $is_union   = $$wf[$anchor] eq "union";
+	my $is_declaration = 0;
+	my $base_type;
+
+	if ($is_typedef) {
+		my $ii = $j - 1;	# remove semicolon
+		# print STDERR "is_typedef\n";
+		# print STDERR "'$$wf[$ii]' ";
+		while ($$wf[$ii] eq "]") {	# array definition, find match 
+			$n = 1;
+			do {
+				$ii--;
+				# print STDERR "'$$wf[$ii]' ";
+				$n++, if ($$wf[$ii] eq "]");
+				$n--, if ($$wf[$ii] eq "[");
+			} while ($n > 0 || $$wf[$ii] ne "[");
+			$ii--;
+		}
+		$base_type = $$wf[$ii];
+		if ($$wf[$j-1] eq "]") {
+			$$i = $j;
+			print STDERR "typedef arrays not supported; skipping $base_type\n";
+			return "";
+		}
+		$typedefs{$base_type} = $is_typedef;
+		$structs{$base_type}  = $is_struct;
+		$unions{$base_type}   = $is_union;
+	} else {
+		# print STDERR "!is_typedef\n";
+		$base_type = $$wf[$anchor] . " " . $$wf[$anchor + 1];
+		$base_type = $$wf[$anchor + 1];
+		if ($base_type ne "{") {
+			$typedefs{$base_type} = $is_typedef;
+			$structs{$base_type}  = $is_struct;
+			$unions{$base_type}   = $is_union;
+		} else {
+			$is_declaration = 1;
+		}
+	}
+
+	# print STDERR "sizeof($base_type)\n";
+	my $ms; my $me; my $member; my @nt = ();
+	my $cs; my $ce; my $ct; my $cn; my $ccs; my $cce;
+
+	$ct = "";
+	$n = 0;
+	for ($ms = $first_brace + 1, $me = $first_brace+1; $me < $last_brace; ) {
+
+		# print STDERR "$$wf[$me-1] \>$$wf[$me]\< $$wf[$me+1]\n";
+
+		if (($$wf[$me] eq "union" || $$wf[$me] eq "struct") && $$wf[$me+1] eq "{") {
+			$cn = &find_complex_member_name($wf, $me, $last_brace);
+			# print STDERR "found $ct $cn\n"; 
+			if (! $is_declaration) {
+				if ($ct eq "struct" || length($cn) > 2) {
+					if (defined($members{$base_type})) {
+						$members{$base_type} .= " $cn";
+					} else {
+						$members{$base_type} = $cn;
+					}
+				}
+			}
+			$ms = $me + 2; $me = $ms;
+			push @nt, $cn;
+			# print STDERR "pushed $cn, \@nt = @nt\n"; 
+			next;
+		}
+		if ($$wf[$me] eq "}") {
+			$me++;
+			$cn = pop @nt;
+			# print STDERR "poped $cn, \@nt = @nt\n"; 
+			$me++, while ($me < $last_brace && $$wf[$me] ne ";");
+			$ms = $me + 1; $me = $ms;
+			next;
+		}
+
+		$me++, while ($me < $last_brace && $$wf[$me] ne ";");
+		last, if ($me >= $last_brace);
+
+		$me--;	# remove semicolon
+		last, if ($ms >= $me);	# protection for empty types
+
+		if (! $is_declaration) {
+			$member = &decode_member($wf, $ms, $me);
+			# print STDERR "offsetof($base_type, $member)\n";
+			$member = join('.', @nt, $member);
+			if (defined($members{$base_type})) {
+				$members{$base_type} .= " $member";
+			} else {
+				$members{$base_type} = $member;
+			}
+		}
+		$ms = $me + 2; $me = $ms;
+	}
+
+	$$i = $j;
+
+	return "";
+}
+
+sub tmpfile {
+	my $tmp_dir  = -d '/tmp' ? '/tmp' : $ENV{TMP} || $ENV{TEMP};
+	my $tmp_name = sprintf("%s/%s-%d-%d", $tmp_dir, basename($0), $$, time());
+	return $tmp_name;
+}
+
+sub target_endianess {
+	my $thirty_two_bits_type = shift(@_);
+	my $extra_code = shift(@_);
+	if (!defined($extra_code)) { $extra_code = ""; }
+	my $tmp_dir  = -d '/tmp' ? '/tmp' : $ENV{TMP} || $ENV{TEMP};
+	my $tmp_name = sprintf("%s/%s-%d-%d", $tmp_dir, basename($0), $$, time());
+	my $tmp_c    = "$tmp_name.c";
+	my $tmp_o    = "$tmp_name.o";
+	my $tmp_bin  = "$tmp_name.bin";
+	my $t_size;
+	my $sb;
+	my $fsize;
+	my $i;
+
+	unlink $tmp_c;
+
+	local $SIG{'INT'} =
+		sub {
+			unlink $tmp_c;
+			unlink $tmp_o;
+			unlink $tmp_bin;
+			die $_[0];
+		};
+	
+	open(TMPFILE, ">$tmp_c") || die "Could not create temp file";
+	print TMPFILE "$extra_code\n";
+	print TMPFILE "const $thirty_two_bits_type tmp_val = 0x01234567LU;\n"; 
+	close(TMPFILE);
+
+	`$CC $CFLAGS -c $tmp_c -o $tmp_o`;		die, if $? != 0;
+	`$OBJCOPY $OBJFLAGS $tmp_o $tmp_bin`;	die, if $? != 0;
+
+	$sb = stat($tmp_bin);
+	$fsize = $sb->size;
+
+	my $read_bytes;
+	my $buf;
+	open(TMPFILE, "<$tmp_bin") || die "Could not open binary file";
+	($read_bytes = read TMPFILE, $buf, 4) == 4 || die "File has illegal size";
+	my @v;
+	($v[0], $v[1], $v[2], $v[3]) = unpack("C4", $buf);
+	close(TMPFILE);
+
+	unlink $tmp_c;
+	unlink $tmp_o;
+	unlink $tmp_bin;
+
+	local $SIG{'INT'} = 'DEFAULT';
+
+	if ($v[0] == 0x01 && $v[1] == 0x23 && $v[2] == 0x45 && $v[3] == 0x67) {
+		return("big");
+	}
+	if ($v[3] == 0x01 && $v[2] == 0x23 && $v[1] == 0x45 && $v[0] == 0x67) {
+		return("little");
+	}
+	return("unknown");
+}
+
+sub alligned_type_size {
+	my $type = shift(@_);
+	my $type_val = shift(@_);
+	if (!defined($type_val)) { $type_val = "0"; }
+	my $array_size = shift(@_);
+	if (!defined($array_size)) { $array_size = 16; }
+	my $extra_code = shift(@_);
+	if (!defined($extra_code)) { $extra_code = ""; }
+
+	my $tmp_dir  = -d '/tmp' ? '/tmp' : $ENV{TMP} || $ENV{TEMP};
+	my $tmp_name = sprintf("%s/%s-%d-%d", $tmp_dir, basename($0), $$, time());
+	my $tmp_c    = "$tmp_name.c";
+	my $tmp_o    = "$tmp_name.o";
+	my $tmp_bin  = "$tmp_name.bin";
+	my $t_size;
+	my $sb;
+	my $fsize;
+	my $i;
+
+	# first find out the size of the size_t type
+
+	unlink $tmp_c;
+
+	local $SIG{'INT'} =
+		sub {
+			unlink $tmp_c;
+			unlink $tmp_o;
+			unlink $tmp_bin;
+			die $_[0];
+		};
+
+	open(TMPFILE, ">$tmp_c") || die "Could not create temp file";
+	print TMPFILE "$extra_code\n";
+	print TMPFILE "const $type tmp_array[$array_size] = {\n";
+	for ($i = 0; $i < $array_size; $i++) {
+		print TMPFILE "$type_val,\n";
+	}
+	print TMPFILE "};\n";
+	close(TMPFILE);
+
+	`$CC $CFLAGS -c $tmp_c -o $tmp_o`;		die, if $? != 0;
+	`$OBJCOPY $OBJFLAGS $tmp_o $tmp_bin`;	die, if $? != 0;
+
+	$sb = stat($tmp_bin);
+	$fsize = $sb->size;
+
+	$t_size = $fsize / $array_size;
+
+	unlink $tmp_c;
+	unlink $tmp_o;
+	unlink $tmp_bin;
+
+	local $SIG{'INT'} = 'DEFAULT';
+
+	return $t_size;
+}
+
+sub members_offset {
+	my $endianess	= shift(@_);	# big or little
+	my $thirty_two_bits_type = shift(@_);
+	my $extra_code  = shift(@_);	# 
+	my $base   		= shift(@_);	# base type
+	my $members		= shift(@_);	# member to find the offset
+	my $offset = 0;
+	my @offsets = ();
+	my $i;
+	my $j;
+
+	my $tmp_dir  = -d '/tmp' ? '/tmp' : $ENV{TMP} || $ENV{TEMP};
+	my $tmp_name = sprintf("%s/%s-%d-%d", $tmp_dir, basename($0), $$, time());
+	my $tmp_c    = "$tmp_name.c";
+	my $tmp_o    = "$tmp_name.o";
+	my $tmp_bin  = "$tmp_name.bin";
+
+	unlink $tmp_c;
+
+	local $SIG{'INT'} =
+		sub {
+			unlink $tmp_c;
+			unlink $tmp_o;
+			unlink $tmp_bin;
+			die $_[0];
+		};
+
+	open(TMPFILE, ">$tmp_c") || die "Could not create temp file";
+	print TMPFILE "$extra_code\n";
+	print TMPFILE "#include <stddef.h>\n";
+
+	$j = $#$members + 1;
+	print TMPFILE "const $thirty_two_bits_type offset_table[$j] = {\n";
+	foreach (@$members) {
+		print TMPFILE "\toffsetof($base, $_),\n";
+	}
+	print TMPFILE "};\n";
+
+	close(TMPFILE);
+
+	`$CC $CFLAGS -c $tmp_c -o $tmp_o`;		die, if $? != 0;
+	`$OBJCOPY $OBJFLAGS $tmp_o $tmp_bin`;	die, if $? != 0;
+
+	my $read_bytes;
+	my $buf;
+	open(TMPFILE, "<$tmp_bin") || die "Could not open binary file";
+	
+	for ($i = 0; $i < $j; $i++) {
+		($read_bytes = read TMPFILE, $buf, 4) == 4 || die "File has illegal size";
+		if ($endianess eq "big") {
+			($offset) = unpack("N", $buf);	# big endian 32 bits
+		} else {
+			($offset) = unpack("V", $buf);	# little endian 32 bits
+		}
+		push @offsets, $offset;
+	}
+
+	close(TMPFILE);
+
+	unlink $tmp_c;
+	unlink $tmp_o;
+	unlink $tmp_bin;
+
+	local $SIG{'INT'} = 'DEFAULT';
+
+	return(@offsets);
+}
+
+
+sub base_type_size {
+	my $endianess	= shift(@_);	# big or little
+	my $thirty_two_bits_type = shift(@_);
+	my $extra_code  = shift(@_);	# 
+	my $base   		= shift(@_);	# base type
+	my $size = 0;
+
+	my $tmp_dir  = -d '/tmp' ? '/tmp' : $ENV{TMP} || $ENV{TEMP};
+	my $tmp_name = sprintf("%s/%s-%d-%d", $tmp_dir, basename($0), $$, time());
+	my $tmp_c    = "$tmp_name.c";
+	my $tmp_o    = "$tmp_name.o";
+	my $tmp_bin  = "$tmp_name.bin";
+
+	unlink $tmp_c;
+
+	local $SIG{'INT'} =
+		sub {
+			unlink $tmp_c;
+			unlink $tmp_o;
+			unlink $tmp_bin;
+			die $_[0];
+		};
+
+	open(TMPFILE, ">$tmp_c") || die "Could not create temp file";
+	print TMPFILE "$extra_code\n";
+	print TMPFILE "#include <stddef.h>\n";
+	print TMPFILE "const $thirty_two_bits_type size = sizeof($base);\n";
+	close(TMPFILE);
+
+	`$CC $CFLAGS -c $tmp_c -o $tmp_o`;		die, if $? != 0;
+	`$OBJCOPY $OBJFLAGS $tmp_o $tmp_bin`;	die, if $? != 0;
+
+	my $read_bytes;
+	my $buf;
+	open(TMPFILE, "<$tmp_bin") || die "Could not open binary file";
+	($read_bytes = read TMPFILE, $buf, 4) == 4 || die "File has illegal size";
+	if ($endianess eq "big") {
+		($size) = unpack("N", $buf);	# big endian 32 bits
+	} else {
+		($size) = unpack("V", $buf);	# little endian 32 bits
+	}
+
+	close(TMPFILE);
+
+	unlink $tmp_c;
+	unlink $tmp_o;
+	unlink $tmp_bin;
+
+	local $SIG{'INT'} = 'DEFAULT';
+
+	return($size);
+}
+
+sub find_32bit_type {
+	my $sizeof_int   = &alligned_type_size("int",    "0", 16, "");
+	my $sizeof_short = &alligned_type_size("short",  "0", 16, "");
+ 	my $sizeof_long  = &alligned_type_size("long",   "0", 16, "");
+	my $u32;
+
+	if ($sizeof_int  == 4) {
+		$u32 = "unsigned int"; $s32 = "signed int"; 
+	} elsif ($sizeof_long == 4) {
+		$u32 = "unsigned long"; $s32 = "signed long"; 
+	} elsif ($sizeof_short == 4) {
+		$u32 = "unsigned short"; $s32 = "signed short"; 
+	} else {
+		die "Not one 32 bit type found!\n";
+	}
+	return $u32;
+}
+
+--------------B54AD3F1C510DC8D0A093BAD
+Content-Type: text/plain; charset=us-ascii;
+ name="tst.h"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tst.h"
+
+#ifndef TST_H
+#define TST_H
+
+#include "tst2.h"
+
+#define TST_DEF	0x10
+
+struct tst {
+	int tst_member_a;
+	union {
+		char *tst_u_str;
+	} tst_member_b;
+#ifdef SHOW_HIDDEN
+	int tst_hidden;
+#endif
+};
+
+#endif
+
+--------------B54AD3F1C510DC8D0A093BAD
+Content-Type: text/plain; charset=us-ascii;
+ name="tst2.h"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tst2.h"
+
+#ifndef TST2_H
+#define TST2_H
+
+#endif
+
+--------------B54AD3F1C510DC8D0A093BAD
+Content-Type: text/plain; charset=us-ascii;
+ name="tst.inc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tst.inc"
+
+#ifndef _TST_INC
+#define _TST_INC
+
+#include "tst2.inc"
+
+/****************************************************************
+
+	Offsets for tst
+
+****************************************************************/
+
+#define tst_member_a                     0
+#define tst_member_b                     4
+#define tst_member_b_tst_u_str           4
+#define struct_tst_SIZE                  8
+
+/****************************************************************
+
+	Simple defines list 
+
+****************************************************************/
+
+#define TST_H                         
+#define TST_DEF                        0x10
+
+#endif
+
+--------------B54AD3F1C510DC8D0A093BAD
+Content-Type: text/plain; charset=us-ascii;
+ name="tst-hidden.inc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tst-hidden.inc"
+
+#ifndef _TST_INC
+#define _TST_INC
+
+#include "tst2.inc"
+
+/****************************************************************
+
+	Offsets for tst
+
+****************************************************************/
+
+#define tst_member_a                     0
+#define tst_member_b                     4
+#define tst_member_b_tst_u_str           4
+#define tst_hidden                       8
+#define struct_tst_SIZE                 12
+
+/****************************************************************
+
+	Simple defines list 
+
+****************************************************************/
+
+#define TST_H                         
+#define TST_DEF                        0x10
+
+#endif
+
+--------------B54AD3F1C510DC8D0A093BAD
+Content-Type: text/plain; charset=us-ascii;
+ name="tst2.inc"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="tst2.inc"
+
+#ifndef _TST2_INC
+#define _TST2_INC
+
+/****************************************************************
+
+	Simple defines list 
+
+****************************************************************/
+
+#define TST2_H                        
+
+#endif
+
+--------------B54AD3F1C510DC8D0A093BAD--
 

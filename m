@@ -1,103 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292893AbSCEJbj>; Tue, 5 Mar 2002 04:31:39 -0500
+	id <S293006AbSCEKN2>; Tue, 5 Mar 2002 05:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292952AbSCEJb3>; Tue, 5 Mar 2002 04:31:29 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:39439 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S292893AbSCEJbM>;
-	Tue, 5 Mar 2002 04:31:12 -0500
-Date: Tue, 5 Mar 2002 12:34:42 +0300
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S293008AbSCEKNS>; Tue, 5 Mar 2002 05:13:18 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:36253 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S293006AbSCEKM7> convert rfc822-to-8bit; Tue, 5 Mar 2002 05:12:59 -0500
+Importance: Normal
+Subject: Re: s390 is totally broken in 2.4.18
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] EXPORT_SYMBOL(i8253_lock) in arch/i386/kernel/time.c
-Message-ID: <20020305093302.GA283@pazke.ipt>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9UV9rz0O2dU/yYYn"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uname: Linux pazke 2.5.6-pre2 
+Cc: zaitcev@redhat.com
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF6510BC1D.720C525B-ONC1256B73.003619EE@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Tue, 5 Mar 2002 11:10:37 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 05/03/2002 11:15:33
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---9UV9rz0O2dU/yYYn
-Content-Type: multipart/mixed; boundary="+xNpyl7Qekk2NvDX"
-Content-Disposition: inline
+>Apparently, NOBODY bothered to test 2.4.18-pre*, 2.4.18 final,
+>or 2.4.19-pre* on s390. The broken patch went into 2.4.18-pre1
+>with a curt changelog:
+>
+>- S390 merge (IBM)
+The patch that was merged in 2.4.18-pre* has been created against
+2.4.17-pre7 and it did work. The problem is that not all of the
+changes I sent Marcelo have been accepted. One of the patches was
+the asm-offsets fix that removes all of the hardcoded offsets from
+entry.S. Another patch was accepted that changed the thread
+structure and this created the inconsistency.
+
+>Patch attached.
+Well your patch halfway fixes one of the problems. Halfway because
+not the fp_regs structure has changed its size but the pt_regs
+pointer has been removed from the thread structure.
+Incidentally I sent an s390 update to Marcelo yesterday and the
+minimal fixes including an rwsem.h implementation and the partition
+detection fixes are about 2000 lines. Want a copy ?
+
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
 
---+xNpyl7Qekk2NvDX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi all,
-
-in arch/i386/kernel/time.c (2.5.6-pre2) we make EXPORT_SYMBOL(i8253_lock), =
-but
-	- linux/module.h isn't included in time.c;
-	- time.o isn't declared as export-objs in Makefile.
-
-So we have theses warnings during kernel compilation:
- time.c:118: warning: type defaults to `int' in declaration of `EXPORT_SYMB=
-OL'
- time.c:118: warning: parameter names (without types) in function declarati=
-on
- time.c:118: warning: data definition has no type or storage class
-
-Attached patch fixes these buglets, please consider applying.
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---+xNpyl7Qekk2NvDX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-time-export-symbol
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN -X /usr/share/dontdiff /linux/arch/i386/kernel/Makefile /root/lin=
-ux/arch/i386/kernel/Makefile
---- /linux/arch/i386/kernel/Makefile	Wed Jan 30 00:58:18 2002
-+++ /root/linux/arch/i386/kernel/Makefile	Mon Mar  4 22:07:12 2002
-@@ -14,7 +14,7 @@
-=20
- O_TARGET :=3D kernel.o
-=20
--export-objs     :=3D mca.o mtrr.o msr.o cpuid.o microcode.o i386_ksyms.o
-+export-objs     :=3D mca.o mtrr.o msr.o cpuid.o microcode.o time.o i386_ks=
-yms.o
-=20
- obj-y	:=3D process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
- 		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
-diff -urN -X /usr/share/dontdiff /linux/arch/i386/kernel/time.c /root/linux=
-/arch/i386/kernel/time.c
---- /linux/arch/i386/kernel/time.c	Thu Jan 31 23:16:50 2002
-+++ /root/linux/arch/i386/kernel/time.c	Mon Mar  4 22:01:43 2002
-@@ -41,6 +41,7 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/smp.h>
-+#include <linux/module.h>
-=20
- #include <asm/io.h>
- #include <asm/smp.h>
-
---+xNpyl7Qekk2NvDX--
-
---9UV9rz0O2dU/yYYn
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8hJEyBm4rlNOo3YgRAl4BAJ42xTSZazfGU59hhvmm12/ljayJLgCeNzff
-6bHQItO94+upM4YGsfIMu84=
-=XvuU
------END PGP SIGNATURE-----
-
---9UV9rz0O2dU/yYYn--

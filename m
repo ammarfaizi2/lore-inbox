@@ -1,129 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317016AbSFQVHX>; Mon, 17 Jun 2002 17:07:23 -0400
+	id <S317021AbSFQVId>; Mon, 17 Jun 2002 17:08:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317018AbSFQVHW>; Mon, 17 Jun 2002 17:07:22 -0400
-Received: from amdext2.amd.com ([163.181.251.1]:9647 "EHLO amdext2.amd.com")
-	by vger.kernel.org with ESMTP id <S317016AbSFQVHT>;
-	Mon, 17 Jun 2002 17:07:19 -0400
-From: richard.brunner@amd.com
-X-Server-Uuid: 18a6aeba-11ae-11d5-983c-00508be33d6d
-Message-ID: <39073472CFF4D111A5AB00805F9FE4B609BA6712@txexmta9.amd.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: another new version of pageattr caching conflict fix for
- 2.4
-Date: Mon, 17 Jun 2002 16:07:11 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 1110900B494829-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	id <S317023AbSFQVIc>; Mon, 17 Jun 2002 17:08:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:32775 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317021AbSFQVIa>;
+	Mon, 17 Jun 2002 17:08:30 -0400
+Date: Mon, 17 Jun 2002 23:08:32 +0200
+From: Dave Jones <davej@suse.de>
+To: Bob Miller <rem@osdl.org>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] v2.5.22 - add wait queue function callback support
+Message-ID: <20020617230831.J758@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Bob Miller <rem@osdl.org>, Benjamin LaHaise <bcrl@redhat.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020617161434.D1457@redhat.com> <20020617222812.I758@suse.de> <20020617135744.A24347@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020617135744.A24347@doc.pdx.osdl.net>; from rem@osdl.org on Mon, Jun 17, 2002 at 01:57:44PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Making the AGP Aperture write-back cacheable is not good from
-a performance perspective. (I can't comment on which is better 
-from a Linux Kernel perspective).
+On Mon, Jun 17, 2002 at 01:57:44PM -0700, Bob Miller wrote:
+ > > I thought we killed off wq_write_lock_irqsave 1-2 kernels ago ?
+ > It depends on what you mean by killed off.  I submitted a patch to Linus back
+ > at 2.5.3 to clean up the way the completion code called the wait queue
+ > interface.  This interface got added then.  You picked up those changes at
+ > that time (and still have them in your kernel tree) but the changes have
+ > never made it into Linus' tree.
+ > 
+ > So, Linus has never had the code to 'kill' and you've never dropped it
+ > after picking it up.
 
-An Aperture Page can be made
-cache-coherent depending on the implementation
-and the AGP 3.0 spec provides an
-architectural way of specifying and controlling these as
-well.  But, by default the area is not made cache-coherent
-due to the performance loss and the lack of software to take
-advantage of it -- the two play off against each
-other. 
+Your patch was to use wq_write_lock and friends in sched.c iirc.
+That change is now removed from my tree (though I've not put up a
+version containing that change yet).
 
-Making it cache-coherent causes every AGP access to
-snoop processor caches and this can be quite a hit in
-performance when you consider the predominant AGP software
-model. Most software that takes advantage of AGP is still
-using the old Intel model of uncacheable, the majority of
-data placed in the Aperture are read-only structures for the
-AGP device -- such as vertex lists, locked vertex arrays,
-and texture data. For the most part this fits the current
-paradigm of throwing textures and vertices at the graphics
-device. The only graphics area found so far that could
-benefit from a coherent aperture is video capture data which
-streams in from the graphics device and requires CPU
-post-processing.
+Since 2.5.20 or so, the wq_write_lock functions are dead as in gone.
+Not around, Extinct. They are ex-functions.
 
+        Dave
 
-
--Rich ...
-[richard.brunner@amd.com    -- (360)-867-0654]
-[Senior Member, Technical Staff, SW R&D @ AMD]
-
-> -----Original Message-----
-> From: Albert D. Cahalan [mailto:acahalan@cs.uml.edu]
-> Sent: Sunday, June 16, 2002 5:09 PM
-> To: ak@suse.de
-> Cc: ebiederm@xmission.com; ak@suse.de; andrea@suse.de; 
-> bcrl@redhat.com;
-> linux-kernel@vger.kernel.org; Brunner, Richard; Langsdorf, Mark
-> Subject: Re: another new version of pageattr caching conflict fix for
-> 2.4
-> 
-> 
-> Andi Kleen writes:
-> 
-> >> the same problems if the agp aperture was marked 
-> write-back, and the
-> >
-> > AGP aperture is uncacheable, not write-back.
-> >
-> >> memory was marked uncacheable.  My gut impression is to 
-> just make the
-> >> agp aperture write-back cacheable, and then we don't have to change
-> >> the kernel page table at all.  Unfortunately I don't 
-> expect the host
-> >
-> > That would violate the AGP specification.
-> >
-> >> bridge with the memory and agp controllers to like that mode,
-> >> especially as there are physical aliasing issues.
-> >
-> > exactly.
-> 
-> You can do whatever you want, as long as...
-> 
-> 1. you have cache control instructions and use them
-> 2. the bridge ignores the coherency protocol (no machine check)
-> 
-> Most likely you should make the AGP memory write-back
-> cacheable. This requires some care regarding cache lines,
-> but ought to be faster.
-> 
-> >>> Fixing the MTRRs is fine, but it is really outside the 
-> scope of my patch.
-> >>> Just changing the kernel map wouldn't be enough to fix 
-> wrong MTRRs,
-> >>> because it wouldn't cover highmem.
-> >>
-> >> My preferred fix is to use PAT, to override the buggy mtrrs.  Which
-> >> brings up the same aliasing issues.  Which makes it related but
-> >> outside the scope of the problem.
-> >
-> > I don't follow you here. IMHO it is much easier to fix the 
-> MTRRs in the
-> > MTRR driver for those rare buggy BIOS (if they exist - I've 
-> never seen one)
-> > than to hack up all of memory management just to get the 
-> right bits set.
-> > I see no disadvantage of using the MTRRs and it is lot simpler than
-> > PAT and pte bits.
-> 
-> For non-x86 one must "hack up all of memory management" anyway.
-> 
-> Example: There aren't any MTRRs on the PowerPC, but every page
-> has 4 memory type bits. It's not OK to map something more than
-> one way at the same time. Large "pages" (256 MB each) are used
-> to cover all of non-highmem physical memory.
-> 
-> 
-> 
-> 
-> 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

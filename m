@@ -1,48 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262921AbTIRBI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 21:08:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbTIRBI1
+	id S262917AbTIRBA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 21:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTIRBA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 21:08:27 -0400
-Received: from imo-d01.mx.aol.com ([205.188.157.33]:65254 "EHLO
-	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S262921AbTIRBI0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 21:08:26 -0400
-Date: Wed, 17 Sep 2003 21:07:42 -0400
-From: bee71e@netscape.net
+	Wed, 17 Sep 2003 21:00:29 -0400
+Received: from neors.cat.cc.md.us ([204.153.79.3]:50626 "EHLO
+	student.ccbc.cc.md.us") by vger.kernel.org with ESMTP
+	id S262917AbTIRBA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 21:00:26 -0400
+Date: Wed, 17 Sep 2003 20:55:44 -0400 (EDT)
+From: John R Moser <jmoser5@student.ccbc.cc.md.us>
 To: linux-kernel@vger.kernel.org
-Subject: excessive swapping in 2.4.x
+Subject: Small security option
+Message-ID: <Pine.A32.3.91.1030917204729.33040A-200000@student.ccbc.cc.md.us>
 MIME-Version: 1.0
-Message-ID: <7E768FF1.7BC13987.0005DAE9@netscape.net>
-X-Mailer: Atlas Mailer 2.0
-X-AOL-IP: 209.131.38.143
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-862367997-143302914-1063846544=:33040"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I am using 2.4.21 and I see an unusually large amount of swapping for relatively low load : 
+---862367997-143302914-1063846544=:33040
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-sample vmstat output: (note that the system is almost idle)
+Why wasn't this done in the first place anyway? 
 
-  procs                      memory    swap          io     system         cpu
-r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
-0  2  0 1850220  10524   9412 703652 3030 1102  3912  1106 1506  1710   1   1  98
-0  2  0 1849188  10572   9388 700568 2780 376  3558   379 1434  1284   1   1  99
-0  5  0 1851576  11668   9404 698228 2999 479  3890   488 1499  1487   1   1  98
+Some sysadmins like to disable the other boot devices and password-protect
+the bios.  Good, but if the person can pass init=, you're screwed. 
 
-Is this a known issue? Whats happening? How do I fix this?
+Here's a small patch that does a very simple thing: Disables "init=" and
+using /bin/sh for init. That'll stop people from rooting the box from grub. 
 
-thanks! 
+The file is attatched.
+---862367997-143302914-1063846544=:33040
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-linux2.4.22-secinit"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.A32.3.91.1030917205544.33040B@student.ccbc.cc.md.us>
+Content-Description: 
 
-
-__________________________________________________________________
-McAfee VirusScan Online from the Netscape Network.
-Comprehensive protection for your entire computer. Get your free trial today!
-http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
-
-Get AOL Instant Messenger 5.1 free of charge.  Download Now!
-http://aim.aol.com/aimnew/Aim/register.adp?promo=380455
+ZGlmZiAtdXIgbGludXgtMi40LjIyL0RvY3VtZW50YXRpb24vQ29uZmlndXJl
+LmhlbHAgbGludXgtMi40LjIyLXNlY3VyZWluaXQvRG9jdW1lbnRhdGlvbi9D
+b25maWd1cmUuaGVscA0KLS0tIGxpbnV4LTIuNC4yMi9Eb2N1bWVudGF0aW9u
+L0NvbmZpZ3VyZS5oZWxwCTIwMDMtMDgtMjUgMDc6NDQ6MzkuMDAwMDAwMDAw
+IC0wNDAwDQorKysgbGludXgtMi40LjIyLXNlY3VyZWluaXQvRG9jdW1lbnRh
+dGlvbi9Db25maWd1cmUuaGVscAkyMDAzLTA5LTE3IDIwOjM4OjE5LjAwMDAw
+MDAwMCAtMDQwMA0KQEAgLTI1MjksNiArMjUyOSwzMiBAQA0KICAgYmVoYXZp
+b3VyIGlzIHBsYXRmb3JtLWRlcGVuZGVudCwgYnV0IG5vcm1hbGx5IHRoZSBm
+bGFzaCBmcmVxdWVuY3kgaXMNCiAgIGEgaHlwZXJib2xpYyBmdW5jdGlvbiBv
+ZiB0aGUgNS1taW51dGUgbG9hZCBhdmVyYWdlLg0KIA0KK1NlY3VyZSBpbml0
+DQorQ09ORklHX1NFQ1VSRV9JTklUDQorICBVbmRlciBub3JtYWwgY2lyY3Vt
+c3RhbmNlcywgdGhlIGtlcm5lbCB0cmllcyB0aGUgZm9sbG93aW5nIGF0IGJv
+b3QNCisgIGFzIGluaXQ6DQorDQorICAgIC9zYmluL2luaXQNCisgICAgL2V0
+Yy9pbml0DQorICAgIC9iaW4vaW5pdA0KKyAgICAvYmluL3NoDQorDQorICBU
+aGlzIGNhbiBiZSBvdmVycmlkZGVuIGJ5IHBhc3NpbmcgaW5pdD0gdG8gdGhl
+IGtlcm5lbCBjb21tYW5kIGxpbmUuDQorICBUaGlzIGlzIGEgc2VjdXJpdHkg
+aGF6YXJkLiAgSWYgeW91IHNheSAnWScgaGVyZSwgaW5pdD0gd2lsbCBiZQ0K
+KyAgaWdub3JlZCAoYWN0dWFsbHkgaXQgd2lsbCBmbGFzaCBhIHdhcm5pbmcg
+YXQgYm9vdCB0aW1lKSwgYW5kIC9iaW4vc2gNCisgIHdpbGwgYWxzbyBuZXZl
+ciBiZSB1c2VkIGFzIGluaXQuICBUaGlzIHByZXZlbnRzIHVzZXJzIHdpdGgg
+cGh5c2ljYWwNCisgIGFjY2VzcyB0byB0aGUgbWFjaGluZSBmcm9tIGdhaW5p
+bmcgcm9vdCBhY2Nlc3MgYnkgcGFzc2luZw0KKyAgaW5pdD0vYmluL2Jhc2gg
+dG8gdGhlIGtlcm5lbC4NCisNCisgIEl0IGlzIGNvbW1vbiB0byBwYXNzIGlu
+aXQ9L2Jpbi9iYXNoIHRvIHRoZSBrZXJuZWwgdG8gZml4IHJlYWxseQ0KKyAg
+bWVzc2VkIHVwIG1hY2hpbmVzLiAgSWYgeW91IHNheSAnWScgaGVyZSwgeW91
+IHNob3VsZCBtYWtlIHN1cmUgeW91DQorICBoYXZlIGEgYm9vdCBmbG9wcHkg
+d2l0aCBhIGtlcm5lbCBjb21waWxlZCB3aXRoIG5vcm1hbCBpbml0IGNvZGUs
+IE9SDQorICBhIHJlc2N1ZSBzeXN0ZW0gc3VjaCBhcyBhIGJvb3Qvcm9vdCBm
+bG9wcHkgb3IgYSBLbm9wcGl4IENELg0KKw0KKyAgTW9zdCB1c2VycyBzaG91
+bGQgc2F5ICdZJyBoZXJlLCB1bmxlc3MgeW91IGtub3cgeW91IHdpbGwgbm90
+IGhhdmUNCisgIGFjY2VzcyB0byBhbHRlcm5hdGUgcmVjb3ZlcnkgbWV0aG9k
+cyBhcyBsaXN0ZWQgaW4gdGhlIGFib3ZlDQorICBwYXJhZ3JhcGguDQorDQog
+TmV0d29ya2luZyBzdXBwb3J0DQogQ09ORklHX05FVA0KICAgVW5sZXNzIHlv
+dSByZWFsbHkga25vdyB3aGF0IHlvdSBhcmUgZG9pbmcsIHlvdSBzaG91bGQg
+c2F5IFkgaGVyZS4NCmRpZmYgLXVyIGxpbnV4LTIuNC4yMi9hcmNoL2kzODYv
+Y29uZmlnLmluIGxpbnV4LTIuNC4yMi1zZWN1cmVpbml0L2FyY2gvaTM4Ni9j
+b25maWcuaW4NCi0tLSBsaW51eC0yLjQuMjIvYXJjaC9pMzg2L2NvbmZpZy5p
+bgkyMDAzLTA4LTI1IDA3OjQ0OjM5LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxp
+bnV4LTIuNC4yMi1zZWN1cmVpbml0L2FyY2gvaTM4Ni9jb25maWcuaW4JMjAw
+My0wOS0xNyAyMDozOTo1OC4wMDAwMDAwMDAgLTA0MDANCkBAIC0yNjEsNiAr
+MjYxLDcgQEANCiBtYWlubWVudV9vcHRpb24gbmV4dF9jb21tZW50DQogY29t
+bWVudCAnR2VuZXJhbCBzZXR1cCcNCiANCitib29sICdTZWN1cmUgaW5pdCcg
+Q09ORklHX1NFQ1VSRV9JTklUDQogYm9vbCAnTmV0d29ya2luZyBzdXBwb3J0
+JyBDT05GSUdfTkVUDQogDQogIyBWaXN1YWwgV29ya3N0YXRpb24gc3VwcG9y
+dCBpcyB1dHRlcmx5IGJyb2tlbi4NCmRpZmYgLXVyIGxpbnV4LTIuNC4yMi9p
+bml0L21haW4uYyBsaW51eC0yLjQuMjItc2VjdXJlaW5pdC9pbml0L21haW4u
+Yw0KLS0tIGxpbnV4LTIuNC4yMi9pbml0L21haW4uYwkyMDAzLTA4LTI1IDA3
+OjQ0OjQ0LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4LTIuNC4yMi1zZWN1
+cmVpbml0L2luaXQvbWFpbi5jCTIwMDMtMDktMTcgMjA6MzU6NTkuMDAwMDAw
+MDAwIC0wNDAwDQpAQCAtNTc0LDExICs1NzQsMjggQEANCiAJICogdHJ5aW5n
+IHRvIHJlY292ZXIgYSByZWFsbHkgYnJva2VuIG1hY2hpbmUuDQogCSAqLw0K
+IA0KKwkvKg0KKwkgKiBpbml0PSBpcyBhIHNlY3VyaXR5IGhhenphcmQuICBM
+ZXQncyBjb25maWd1cmUgaXQgb3V0Lg0KKwkgKi8NCisNCiAJaWYgKGV4ZWN1
+dGVfY29tbWFuZCkNCisjaWZuZGVmIENPTkZJR19TRUNVUkVfSU5JVA0KIAkJ
+ZXhlY3ZlKGV4ZWN1dGVfY29tbWFuZCxhcmd2X2luaXQsZW52cF9pbml0KTsN
+CisjZWxzZQ0KKwl7DQorCQlwcmludGsoIldBUk5JTkc6ICBrZXJuZWwgcGFy
+YW1ldGVyOiAge2luaXQ9Iik7DQorCQlwcmludGsoZXhlY3V0ZV9jb21tYW5k
+KTsNCisJCXByaW50aygifSBwYXNzZWQsIGJ1dCBDT05GSUdfU0VDVVJFX0lO
+SVQgc2V0LiAgaW5pdD0gcGFyYW1ldGVyIElHTk9SRURcbiIpOw0KKwl9DQor
+I2VuZGlmDQogCWV4ZWN2ZSgiL3NiaW4vaW5pdCIsYXJndl9pbml0LGVudnBf
+aW5pdCk7DQogCWV4ZWN2ZSgiL2V0Yy9pbml0Iixhcmd2X2luaXQsZW52cF9p
+bml0KTsNCiAJZXhlY3ZlKCIvYmluL2luaXQiLGFyZ3ZfaW5pdCxlbnZwX2lu
+aXQpOw0KKyNpZm5kZWYgQ09ORklHX1NFQ1VSRV9JTklUDQogCWV4ZWN2ZSgi
+L2Jpbi9zaCIsYXJndl9pbml0LGVudnBfaW5pdCk7DQogCXBhbmljKCJObyBp
+bml0IGZvdW5kLiAgVHJ5IHBhc3NpbmcgaW5pdD0gb3B0aW9uIHRvIGtlcm5l
+bC4iKTsNCisjZWxzZQ0KKwlwcmludGsoIkNPTkZJR19TRUNVUkVfSU5JVCBk
+ZWZpbmVkLCBhbmQgaW5pdCBub3QgZm91bmQuXG4iKTsNCisJcGFuaWMoIk5v
+IGluaXQgZm91bmQuICBJbml0IG11c3QgYmUgaW4gL3NiaW4vaW5pdCwgL2V0
+Yy9pbml0LCBvciAvYmluL2luaXQiKTsNCisjZW5kaWYNCiB9DQo=
+---862367997-143302914-1063846544=:33040--

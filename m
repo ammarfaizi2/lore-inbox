@@ -1,69 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVAUOpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVAUO61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVAUOpD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 09:45:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVAUOpD
+	id S262381AbVAUO61 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 09:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVAUO61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 09:45:03 -0500
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:24583 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262378AbVAUOo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 09:44:56 -0500
-Date: Fri, 21 Jan 2005 15:44:44 +0100
-From: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
-To: linux-kernel@vger.kernel.org
-Subject: ppp0 out of control
-Message-ID: <20050121144444.GA2100@roxor.be>
-Reply-To: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 21 Jan 2005 09:58:27 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:12006 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262381AbVAUO6U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 09:58:20 -0500
+Message-ID: <41F12773.AAC62D5C@tv-sign.ru>
+Date: Fri, 21 Jan 2005 19:01:55 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix put_user under mmap_sem in sys_get_mempolicy()
+References: <41F116DB.3BA37CEB@tv-sign.ru> <20050121142908.GA3487@wotan.suse.de>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+>
+> I suppose this simpler patch has the same effect (also untested).
+>
+> 	if (flags & ~(unsigned long)(MPOL_F_NODE|MPOL_F_ADDR))
+> 		return -EINVAL;
+>@@ -502,6 +502,10 @@
+> 			pol = vma->vm_ops->get_policy(vma, addr);
+> 		else
+> 			pol = vma->vm_policy;
+>+		pol2 = mpol_copy(pol);
+>+		up_read(&mm->mmap_sem);
+>+		if (IS_ERR(pol2)) 
+>+			return PTR_ERR(pol2);
+>
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+I don't think so. With MPOL_F_ADDR|MPOL_F_NODE sys_get_mempolicy
+calls lookup_node()->get_user_pages() few lines below, so we can't
+up_read(&mm->mmap_sem) here.
 
-Hi there,
+> It's hard to figure out what your patch actually does because
+> of all the gratious white space changes.
 
-I am running 2.6.10 from kernel.org on Debian Sid ppc/x86, the same
-issue occurs with 2.6.9. Though, 2.6.8.1 and previous are fine.
+For your convenience here is the code with the patch applied.
 
-When my ISP connection via PPPoE (kernel side) goes down, reconnection
-does not occur, and the kernel displays continuous:
+	if (flags & MPOL_F_ADDR) {
+		struct mm_struct *mm = current->mm;
+		struct vm_area_struct *vma;
 
-kernel: unregister_netdevice: waiting for ppp0 to become free. Usage count = 1
+		err = 0;
+		down_read(&mm->mmap_sem);
+		vma = find_vma_intersection(mm, addr, addr+1);
+		if (!vma)
+			err = -EFAULT;
+		else {
+			if (vma->vm_ops && vma->vm_ops->get_policy)
+				pol = vma->vm_ops->get_policy(vma, addr);
+			else
+				pol = vma->vm_policy;
 
-This is that on both machine: x86 and ppc.
+			if (flags & MPOL_F_NODE) {
+				pval = lookup_node(mm, addr);
+				if (pval < 0)
+					err = pval;
+			}
+		}
+		up_read(&mm->mmap_sem);
+		if (err)
+			goto out;
+	} else if (addr)
+		return -EINVAL;
 
-The only solution is a reboot, because pppd is not killable, and the
-kernel keeps on with this message.
+	if (!pol)
+		pol = &default_policy;
 
-Does anyone have a solution? I am completely clueless. :( I thought
-about stalled sockets, but how can I destroy them?
-
-What is blocking ppp0?
-
-What system outputs do you need to solve this?
-
-Cheers.
-
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB8RVcI2xgxmW0sWIRAgqsAJ9l5uGjqr4ib6YkY9Veo9v4yh993gCgqy2U
-xkssdhLe0bn5cj1hbgIkIM8=
-=PiTb
------END PGP SIGNATURE-----
-
---X1bOJ3K7DJ5YkBrT--
+	if (flags & MPOL_F_NODE) {
+		if (!(flags & MPOL_F_ADDR)) {
+			if (pol == current->mempolicy &&
+					pol->policy == MPOL_INTERLEAVE) {
+				pval = current->il_next;
+			} else {
+				err = -EINVAL;
+				goto out;
+			}
+		}
+	} else
+		pval = pol->policy;

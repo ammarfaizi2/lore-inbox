@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263048AbTDBQSq>; Wed, 2 Apr 2003 11:18:46 -0500
+	id <S263049AbTDBQSu>; Wed, 2 Apr 2003 11:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263051AbTDBQSq>; Wed, 2 Apr 2003 11:18:46 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:48865 "EHLO
+	id <S263051AbTDBQSu>; Wed, 2 Apr 2003 11:18:50 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:49377 "EHLO
 	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S263048AbTDBQSl>; Wed, 2 Apr 2003 11:18:41 -0500
+	id <S263049AbTDBQSl>; Wed, 2 Apr 2003 11:18:41 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 2 Apr 2003 18:36:47 +0200
+Date: Wed, 2 Apr 2003 18:38:48 +0200
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: videobuf update
-Message-ID: <20030402163647.GA24583@bytesex.org>
+Subject: [patch] 21_video_config
+Message-ID: <20030402163848.GA24731@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,128 +22,58 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
   Hi,
 
-This is a minor update for the video-buf module.  It does
-export the videobuf_next_field symbol and adds a few debug
-printks.
+This patch adds a few new config options for modules which are shared
+by multiple video4linux drivers (bttv * saa7134).  This simplifies the
+Makefiles and also prepares the merge of Michael's saa7146 driver which
+will also use these modules.
 
   Gerd
 
-diff -u linux-2.5.66/drivers/media/video/video-buf.c linux/drivers/media/video/video-buf.c
---- linux-2.5.66/drivers/media/video/video-buf.c	2003-04-02 11:42:51.957723625 +0200
-+++ linux/drivers/media/video/video-buf.c	2003-04-02 11:49:35.894628822 +0200
-@@ -16,6 +16,7 @@
-  * (at your option) any later version.
-  */
+diff -u linux-2.5.66/drivers/media/Kconfig linux/drivers/media/Kconfig
+--- linux-2.5.66/drivers/media/Kconfig	2003-04-02 11:42:22.377563247 +0200
++++ linux/drivers/media/Kconfig	2003-04-02 11:49:36.065600766 +0200
+@@ -32,5 +32,19 @@
  
-+#include <linux/version.h>
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/vmalloc.h>
-@@ -362,21 +363,33 @@
- {
- 	int i;
- 	
--	if (q->reading)
-+	if (q->streaming) {
-+		dprintk(1,"busy: streaming active\n");
- 		return 1;
--	if (q->streaming)
-+	}
-+	if (q->reading) {
-+		dprintk(1,"busy: pending read #1\n");
- 		return 1;
--	if (q->read_buf)
-+	}
-+	if (q->read_buf) {
-+		dprintk(1,"busy: pending read #2\n");
- 		return 1;
-+	}
- 	for (i = 0; i < VIDEO_MAX_FRAME; i++) {
- 		if (NULL == q->bufs[i])
- 			continue;
--		if (q->bufs[i]->map)
-+		if (q->bufs[i]->map) {
-+			dprintk(1,"busy: buffer #%d mapped\n",i);
- 			return 1;
--		if (q->bufs[i]->state == STATE_QUEUED)
-+		}
-+		if (q->bufs[i]->state == STATE_QUEUED) {
-+			dprintk(1,"busy: buffer #%d queued\n",i);
- 			return 1;
--		if (q->bufs[i]->state == STATE_ACTIVE)
-+		}
-+		if (q->bufs[i]->state == STATE_ACTIVE) {
-+			dprintk(1,"busy: buffer #%d active\n",i);
- 			return 1;
-+		}
- 	}
- 	return 0;
- }
-@@ -569,7 +582,7 @@
- 	if (list_empty(&q->stream))
- 		goto done;
- 	buf = list_entry(q->stream.next, struct videobuf_buffer, stream);
--	retval = videobuf_waiton(buf,1,1);
-+	retval = videobuf_waiton(buf, file->f_flags & O_NONBLOCK, 1);
- 	if (retval < 0)
- 		goto done;
- 	switch (buf->state) {
-@@ -925,6 +938,9 @@
- videobuf_vm_open(struct vm_area_struct *vma)
- {
- 	struct videobuf_mapping *map = vma->vm_private_data;
+ source "drivers/media/dvb/Kconfig"
+ 
++# source "drivers/media/common/Kconfig"
 +
-+	dprintk(2,"vm_open %p [count=%d,vma=%08lx-%08lx]\n",map,
-+		map->count,vma->vm_start,vma->vm_end);
- 	map->count++;
- }
- 
-@@ -934,6 +950,9 @@
- 	struct videobuf_mapping *map = vma->vm_private_data;
- 	int i;
- 
-+	dprintk(2,"vm_close %p [count=%d,vma=%08lx-%08lx]\n",map,
-+		map->count,vma->vm_start,vma->vm_end);
++config VIDEO_TUNER
++	tristate
++	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
++	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
++	depends on VIDEO_DEV
 +
- 	/* down(&fh->lock); FIXME */
- 	map->count--;
- 	if (0 == map->count) {
-@@ -1081,11 +1100,11 @@
- 		q->bufs[i]->map   = map;
- 		q->bufs[i]->baddr = vma->vm_start + size;
- 	}
--	map->count   = 1;
--	map->start   = vma->vm_start;
--	map->end     = vma->vm_end;
--	map->q       = q;
--	vma->vm_ops  = &videobuf_vm_ops;
-+	map->count    = 1;
-+	map->start    = vma->vm_start;
-+	map->end      = vma->vm_end;
-+	map->q        = q;
-+	vma->vm_ops   = &videobuf_vm_ops;
- 	vma->vm_flags |= VM_DONTEXPAND;
- 	vma->vm_flags &= ~VM_IO; /* using shared anonymous pages */
- 	vma->vm_private_data = map;
-@@ -1119,6 +1138,7 @@
- EXPORT_SYMBOL_GPL(videobuf_queue_cancel);
- EXPORT_SYMBOL_GPL(videobuf_queue_is_busy);
++config VIDEO_BUF
++	tristate
++	default y if VIDEO_BT848=y || VIDEO_SAA7134=y
++	default m if VIDEO_BT848=m || VIDEO_SAA7134=m
++	depends on VIDEO_DEV
++
+ endmenu
  
-+EXPORT_SYMBOL_GPL(videobuf_next_field);
- EXPORT_SYMBOL_GPL(videobuf_status);
- EXPORT_SYMBOL_GPL(videobuf_reqbufs);
- EXPORT_SYMBOL_GPL(videobuf_querybuf);
-diff -u linux-2.5.66/include/media/video-buf.h linux/include/media/video-buf.h
---- linux-2.5.66/include/media/video-buf.h	2003-04-02 11:42:55.103208272 +0200
-+++ linux/include/media/video-buf.h	2003-04-02 11:49:35.895628670 +0200
-@@ -196,6 +196,7 @@
- int  videobuf_queue_is_busy(struct videobuf_queue *q);
- void videobuf_queue_cancel(struct file *file, struct videobuf_queue *q);
+diff -u linux-2.5.66/drivers/media/video/Makefile linux/drivers/media/video/Makefile
+--- linux-2.5.66/drivers/media/video/Makefile	2003-04-02 11:42:44.375963981 +0200
++++ linux/drivers/media/video/Makefile	2003-04-02 11:49:36.066600614 +0200
+@@ -9,7 +9,7 @@
+ obj-$(CONFIG_VIDEO_DEV) += videodev.o v4l2-common.o v4l1-compat.o
  
-+enum v4l2_field videobuf_next_field(struct videobuf_queue *q);
- void videobuf_status(struct v4l2_buffer *b, struct videobuf_buffer *vb,
- 		     enum v4l2_buf_type type);
- int videobuf_reqbufs(struct file *file, struct videobuf_queue *q,
+ obj-$(CONFIG_VIDEO_BT848) += bttv.o msp3400.o tvaudio.o \
+-	tda7432.o tda9875.o tuner.o video-buf.o tda9887.o
++	tda7432.o tda9875.o
+ obj-$(CONFIG_SOUND_TVMIXER) += tvmixer.o
+ 
+ obj-$(CONFIG_VIDEO_ZR36120) += zoran.o
+@@ -29,5 +29,8 @@
+ obj-$(CONFIG_VIDEO_CPIA_PP) += cpia_pp.o
+ obj-$(CONFIG_VIDEO_CPIA_USB) += cpia_usb.o
+ obj-$(CONFIG_VIDEO_MEYE) += meye.o
+-obj-$(CONFIG_VIDEO_SAA7134) += saa7134/ tuner.o tda9887.o video-buf.o
++obj-$(CONFIG_VIDEO_SAA7134) += saa7134/
+ obj-$(CONFIG_TUNER_3036) += tuner-3036.o
++
++obj-$(CONFIG_VIDEO_TUNER) += tuner.o tda9887.o
++obj-$(CONFIG_VIDEO_BUF)   += video-buf.o
 
 -- 
 Michael Moore for president!

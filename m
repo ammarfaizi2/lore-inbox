@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268753AbUHZLOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUHZLSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268753AbUHZLOv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 07:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268760AbUHZLLs
+	id S268832AbUHZLSY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 07:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268767AbUHZLPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 07:11:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34453 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268729AbUHZLIv (ORCPT
+	Thu, 26 Aug 2004 07:15:15 -0400
+Received: from gate.firmix.at ([80.109.18.208]:40669 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S268727AbUHZLLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 07:08:51 -0400
-Date: Thu, 26 Aug 2004 04:04:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-Cc: tim@physik3.uni-rostock.de, johnstul@us.ibm.com,
-       albert@users.sourceforge.net, george@mvista.com,
-       hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       voland@dmz.com.pl, nicolas.george@ens.fr, david+powerix@blue-labs.org
-Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
-Message-Id: <20040826040436.360f05f7.akpm@osdl.org>
-In-Reply-To: <20040819191537.GA24060@elektroni.ee.tut.fi>
-References: <87smcf5zx7.fsf@devron.myhome.or.jp>
-	<20040816124136.27646d14.akpm@osdl.org>
-	<Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
-	<412285A5.9080003@mvista.com>
-	<1092782243.2429.254.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
-	<1092787863.2429.311.camel@cog.beaverton.ibm.com>
-	<1092781172.2301.1654.camel@cube>
-	<1092791363.2429.319.camel@cog.beaverton.ibm.com>
-	<Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
-	<20040819191537.GA24060@elektroni.ee.tut.fi>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 26 Aug 2004 07:11:43 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Spam <spam@tnonline.net>
+Cc: Andrew Morton <akpm@osdl.org>, jra@samba.org, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <742303812.20040826125114@tnonline.net>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
+	 <20040825152805.45a1ce64.akpm@osdl.org>
+	 <112698263.20040826005146@tnonline.net>
+	 <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
+	 <1453698131.20040826011935@tnonline.net>
+	 <20040825163225.4441cfdd.akpm@osdl.org>
+	 <20040825233739.GP10907@legion.cup.hp.com>
+	 <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net>
+	 <20040826024956.08b66b46.akpm@osdl.org>
+	 <839984491.20040826122025@tnonline.net>
+	 <20040826032457.21377e94.akpm@osdl.org>
+	 <742303812.20040826125114@tnonline.net>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Message-Id: <1093518671.2883.19.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.5.5 
+Date: Thu, 26 Aug 2004 13:11:11 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi> wrote:
->
-> On Wed, Aug 18, 2004 at 09:42:17AM +0200, Tim Schmielau wrote:
-> > Updated patch below. It's not very well tested, but it compiles, boots, 
-> > and fixes the problem on i386 with the default HZ=1000 and USER_HZ=100.
+[ shortened Cc: of reiser- and other folks since it is no longer
+reiser-specific - sorry, if it was too much ]
+[ fixed missing attribution ]
+
+On Thu, 2004-08-26 at 12:51 +0200, Spam wrote:
+> On Thu, 2004-08-26 at 03:24 -0700, Andrew Morton wrote:
+> > Spam <spam@tnonline.net> wrote:
+[...]
+> >>   Applications  that support the new features will benefit, all others
+> >>   will continue to work without destroying data.
 > 
-> Yes, it works nicely now.
+> > Sorry, but that all sounds a bit fluffy.   Please provide some examples.
 
-So...  is this settled now?
+It is too fluffy.
 
-If so, could you (Tim) please send out a fresh, changelogged version of the
-patch for review?
+>   We  already had the examples with cp and mv. Both should continue to
+>   work and the files will still be copied. The same with Konqueror and
 
-Thanks.
+... after they are patched to support streams. As stated each stream has
+an own fd, so - from the user-space perspective - one has to open *all*
+streams of this file, read them and write them into the destination.
+
+>   Nautilus.  Files  and  their  meta-files/streams/attributes  will be
+>   retained as long as applications are using the OS API.
+
+The OS-API is *one* file descriptor where you can read, write, mmap, ...
+on. Therefore stream selection must happen with open() since open()
+returns a fd (which uniquely identify a stream). Voila.
+And actually this makes transition actually possible: Old apps simply
+ignore streams (yes, there will be a default stream, which is used id
+nothing else is specified) and throw them away (think of e.g. patch
+which opens a new file, writes into it, unlink's the old one and mv's
+the new one on the old place) until they are modified to support them.
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

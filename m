@@ -1,90 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266286AbTAIMn6>; Thu, 9 Jan 2003 07:43:58 -0500
+	id <S266363AbTAINCU>; Thu, 9 Jan 2003 08:02:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266363AbTAIMn6>; Thu, 9 Jan 2003 07:43:58 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:20715 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266286AbTAIMnr>;
-	Thu, 9 Jan 2003 07:43:47 -0500
-Date: Thu, 9 Jan 2003 12:50:07 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Robert Love <rml@tech9.net>, Adrian Bunk <bunk@fs.tum.de>,
-       "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: observations on 2.5 config screens
-Message-ID: <20030109125007.GA17045@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Bill Davidsen <davidsen@tmr.com>, Robert Love <rml@tech9.net>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	"Robert P. J. Day" <rpjday@mindspring.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20030108195000.GA670@codemonkey.org.uk> <Pine.LNX.3.96.1030108164157.23971A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S266271AbTAINCU>; Thu, 9 Jan 2003 08:02:20 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:59140 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266363AbTAINCT>;
+	Thu, 9 Jan 2003 08:02:19 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301091311.h09DB4Ka001126@darkstar.example.net>
+Subject: [ANNOUNCE] Kernel Bug Database V1.10 on-line
+To: linux-kernel@vger.kernel.org
+Date: Thu, 9 Jan 2003 13:11:04 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030108164157.23971A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 08, 2003 at 05:49:54PM -0500, Bill Davidsen wrote:
+Version 1.10 of my kernel bug database is now on-line at:
 
- > > No-one other than kernel hackers should be playing with that option,
- > > hence it's in the kernel hacking menu.
- >   Anyone who wants to be able to debug a problem should be playing with
- > that
+http://grabjohn.com/kernelbugdatabase/
 
-If someone is debugging a kernel, they are by definition, kernel
-hacking. They should know where the kernel hacking menu is.
+Main updates:
 
- > > SMP isn't a processor option ?
- >   Clearly not, it's not processor dependent or even architecture dependent
+* Automatic account creation
 
-Of course its arch dependant. Some of the archs we support don't do SMP.
-See m68k for one. Sure there may be some boards out there with >1 68k
-welded to them, but Linux doesn't run on them.
+No need to E-Mail a request for an account to me - there is a link to
+create one if you don't have one already.
 
- > generally. It's a characteristic of the os, unlike microcode, mtrr, and
- > other stuff not on some architectures.
+* Generate a config file with the same options as the one that was uploaded
+  with the bug report.
 
-Absolute nonsense. These are _cpu_ features. If you dispute this,
-you have no understanding of what you talking about.
+If the original submitter of a bug uploaded their config file, you can
+download a config file with the same options set.
 
- > You can select it for 386/486/P5
- > (and it works in 2.4 at least, for P5, have several).
+* Patch database 
 
-And thats perfectly valid. Although I've not seen an MP compliant
-386/486 personally, there were patches I beleive at one time for
-some of the strange 486 implementations.
+Patches can be submitted against a bug report, along with comments,
+and the facility is in place to automatically test the patch to see if
+it applies against any number of kernel trees.  This will probably not
+be enabled until the bug database is moved on to another machine which
+has more disk space for the uncompressed kernel trees.
 
-It's also a valid thing to do to do for code coverage reasons.
-Although I doubt anyones testing SMP builds on a 386/486 any more.
+It's also possible to browse the available patches, search for strings
+in patches, and download the patches, (obviously).
 
- >   I would think that processor options would select the processor and any
- > options which are specific to it rather than generally supported. Serial
- > numbers, firmware loads, that sort of feature.
+* Command line interface improvements
 
-serial number stuff is done at run time. Firmware loads. Well, you
-mentioned above that microcode wasn't a CPU feature, now you change
-your mind ?
+Eventually intended to be accessible via E-Mail, you can currently
+test the command line interface via the web.  I've added commands
+related to patch handling.
 
- >   Preempt and smp, are general, I guess not supported on every possible
- > hardware
- 
-Again, more contradiction. Above you said of SMP:
-"Clearly not, it's not processor dependent or even architecture dependent"
-Now you're saying it is arch dependant.
+* Minor enhancements
 
-Which Bill am I arguing with here ?
+Various enhancements, including categorising of drop down lists of
+kernel versions and config options.
 
->From x86 POV, a preemptive SMP 386 kernel should boot.
-Its the only way to guarantee that you get both features in a kernel
-that will run on anything from 386 up.
+* Various bugfixes
 
+Various bugfixes and minor enhancaments to improve the bug database
+overall.
 
-		Dave
+Important note
+========= ====
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Bugs in the database are not assigned any kind of status, nor are they
+assigned to one or more people, for them to work on.
+
+This is intentional - eventually, the best way to use this database
+will be like this:
+
+* A user uploads their config file, (or an oops, or searches using
+  keywords).
+
+* No bugs are found, or only ones that are nothing to do with the bug
+  the user is experiencing.
+
+* The user submits a bug report
+
+* That bug report is re-named, re-numbered, commented on, or even
+  deleted if it is a duplicate, by developers, until eventually a
+  patch is posted that fixes it.
+
+* The original user uploads their config file, again a week later
+  and gets a list of bug reports back which match certain options in
+  it, which the developers have identified as causing the bugs.
+
+* That list now includes the bug that the user is experiencing, and
+  hopefully also includes a patch to fix it.
+
+* The user downloads the patch, and can also get information about
+  which new kernel versions it can be applied to, and by going back to
+  the bug list, can also find out which new kernel versions the bug is
+  actually fixed in.
+
+Note that if a user's original bug report is actually a duplicate of
+an existing bug in the database, the bug report can simply be deleted,
+(possibly after moving comments, patches, etc, from it to the original
+bug).
+
+As long as the original user does not rely on tracking the bug report
+by number, and instead searches via config options, (which can be as
+easy as uploading the relevant .config file), they should still find
+any applicable comments and patches that the developers have
+submitted.  A list of kernels that any available patches successfully
+apply to can easily be downloaded, saving even more time in cases
+where a patch is made against one tree, and the user wants to apply it
+to another tree, (for example, because of other bugs preventing the
+latest kernel version from being usable on their machine).
+
+Comments, flames, etc, welcome.
+
+John.

@@ -1,86 +1,114 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315910AbSE3AST>; Wed, 29 May 2002 20:18:19 -0400
+	id <S315919AbSE3ATO>; Wed, 29 May 2002 20:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315893AbSE3ASS>; Wed, 29 May 2002 20:18:18 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:43675
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S315870AbSE3ASQ>; Wed, 29 May 2002 20:18:16 -0400
-Date: Wed, 29 May 2002 20:17:58 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Thunder from the hill <thunder@ngforever.de>,
-        Tomas Szepe <szepe@pinerecords.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Paul P Komkoff Jr <i@stingr.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.19 - What's up with the kernel build?
-In-Reply-To: <E17DD3f-0006q5-00@starship>
-Message-ID: <Pine.LNX.4.44.0205291947170.23147-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315922AbSE3ATN>; Wed, 29 May 2002 20:19:13 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:32400 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S315919AbSE3ATF>;
+	Wed, 29 May 2002 20:19:05 -0400
+Date: Thu, 30 May 2002 10:18:48 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] missing bit from signal patches
+Message-Id: <20020530101848.2ac84805.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 May 2002, Daniel Phillips wrote:
+Hi Linus,
 
-> On Thursday 30 May 2002 01:18, Nicolas Pitre wrote:
-> 
-> > Or maybe people just don't care enough about the build system for kbuild25
-> > to be worth it...
-> 
-> Omigod, don't even think that.  Kbuild 2.5 is faster and better than the
-> current kbuild.  I, for one, am waiting - impatiently - for the thing to get
-> in the tree.  The current build system is slow and unreliable, and don't even
-> think of trying to build two different architectures in the same source tree
-> at the same time.
+The following should allow the affected architectures to build in
+2.5.19 as currently there will be two definitions of
+copy_siginfo_to_user.
 
-I totally agree with you.
+Please apply.
 
-Then let me rephrase it that way: maybe not enough people care enough about
-the build system for kbuild25 to be worth it...
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-> > > > Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
-> > > > he wanted an evolution to a new build system... not an unreasonable 
-> > > > request to at least consider.  Despite Keith's quality of code (again -- 
-> > > > I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
-> > > > very "take it or leave it dammit".  Not the best way to win friends and 
-> > > > influence people.
-> 
-> OK that's true, but think: how much work has Keith put into this?  How much
-> did he or his employer get paid?  And how many times has he been told to go
-> off and fix something, as a prelude to getting the thing in?  The last time
-> it was the first-time build speed.  He went away and came back with a *huge*
-> improvement, even more than what people were demanding.  You'd think that
-> would be enough.
-
-But is it really enough?
-
-Linus himself once said: "Especially as I don't find the existign system so
-broken." He's not alone according to the amount (or lack) of public
-complains with regards to the current system.
-
-> > Of course, you could have hundreds of patches each consisting of a single
-> > Makefile.in, but how would that make the reviewing/integrating easier? In
-> > the end you'd end up reading the same input, only you'd complement it by
-> > frequently pressing your favorite show-me-the-next-mail key.
-> 
-> I thought BitKeeper was supposed to be able to deal with precisely this sort
-> of merge problem.  In this case, splitting the thing up just seems
-> unnatural, and a dubious use of time.
-
-Indeed, I agree.
-
-But until there is enough people committed to kb25 to the point of pushing
-for its wider adoption, either by releasing traditional kernel patches (like
-the -dj, -aa, -ac or whatever) actually carrying kb25 so to convince Linus
-and others, or producing "piecemeal" patches so it can be merged by Linus
-with less resistance, well nothing will hapen.
-
-If people aren't interested enough and/or willing to comply with Linus'
-requirements this will be a sad dead end, regardless the amount of effort
-Keith put into this.
-
-
-Nicolas
-
+diff -ruN 2.5.19/include/asm-alpha/siginfo.h 2.5.19-si.1/include/asm-alpha/siginfo.h
+--- 2.5.19/include/asm-alpha/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.1/include/asm-alpha/siginfo.h	Mon May 27 00:55:05 2002
+@@ -6,6 +6,7 @@
+ #define SIGEV_PAD_SIZE	((SIGEV_MAX_SIZE/sizeof(int)) - 4)
+ 
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-cris/siginfo.h 2.5.19-si.1/include/asm-cris/siginfo.h
+--- 2.5.19/include/asm-cris/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.1/include/asm-cris/siginfo.h	Mon May 27 00:55:05 2002
+@@ -1,6 +1,8 @@
+ #ifndef _CRIS_SIGINFO_H
+ #define _CRIS_SIGINFO_H
+ 
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
++
+ #include <asm-generic/siginfo.h>
+ 
+ #endif
+diff -ruN 2.5.19/include/asm-ia64/siginfo.h 2.5.19-si.1/include/asm-ia64/siginfo.h
+--- 2.5.19/include/asm-ia64/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.1/include/asm-ia64/siginfo.h	Mon May 27 00:55:05 2002
+@@ -13,6 +13,7 @@
+ #define HAVE_ARCH_SIGINFO_T
+ 
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-mips64/siginfo.h 2.5.19-si.1/include/asm-mips64/siginfo.h
+--- 2.5.19/include/asm-mips64/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.1/include/asm-mips64/siginfo.h	Mon May 27 00:55:05 2002
+@@ -13,6 +13,7 @@
+ 
+ #define HAVE_ARCH_SIGINFO_T
+ #define HAVE_ARCH_SIGEVENT_T
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-parisc/siginfo.h 2.5.19-si.1/include/asm-parisc/siginfo.h
+--- 2.5.19/include/asm-parisc/siginfo.h	Thu May 30 09:44:38 2002
++++ 2.5.19-si.1/include/asm-parisc/siginfo.h	Mon May 27 00:55:05 2002
+@@ -1,6 +1,8 @@
+ #ifndef _PARISC_SIGINFO_H
+ #define _PARISC_SIGINFO_H
+ 
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
++
+ #include <asm-generic/siginfo.h>
+ 
+ /*
+diff -ruN 2.5.19/include/asm-sparc/siginfo.h 2.5.19-si.1/include/asm-sparc/siginfo.h
+--- 2.5.19/include/asm-sparc/siginfo.h	Thu May 30 09:44:39 2002
++++ 2.5.19-si.1/include/asm-sparc/siginfo.h	Mon May 27 00:55:05 2002
+@@ -7,6 +7,7 @@
+ 
+ #define HAVE_ARCH_SIGINFO_T
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 
+diff -ruN 2.5.19/include/asm-sparc64/siginfo.h 2.5.19-si.1/include/asm-sparc64/siginfo.h
+--- 2.5.19/include/asm-sparc64/siginfo.h	Thu May 30 09:44:39 2002
++++ 2.5.19-si.1/include/asm-sparc64/siginfo.h	Mon May 27 00:55:05 2002
+@@ -10,6 +10,7 @@
+ #define HAVE_ARCH_SIGINFO_T
+ 
+ #define HAVE_ARCH_COPY_SIGINFO
++#define HAVE_ARCH_COPY_SIGINFO_TO_USER
+ 
+ #include <asm-generic/siginfo.h>
+ 

@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUJATDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUJATLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUJATDd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUJATDd
+	id S266163AbUJATLo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUJATLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:03:33 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:42130 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266163AbUJATDT (ORCPT
+	Fri, 1 Oct 2004 15:11:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37573 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266163AbUJATLn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:03:19 -0400
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC (xSeries Solutions
-To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Patch 1/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525 - change TARGET_CPUS on x86_64
-Date: Fri, 1 Oct 2004 12:02:40 -0700
-User-Agent: KMail/1.5.4
-Cc: Suresh Siddha <suresh.b.siddha@intel.com>, linux-kernel@vger.kernel.org,
-       tom.l.nguyen@intel.com
-References: <2HSdY-7dr-3@gated-at.bofh.it> <20040930230133.0d4bcc0d.akpm@osdl.org> <20041001071922.GA32950@muc.de>
-In-Reply-To: <20041001071922.GA32950@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 1 Oct 2004 15:11:43 -0400
+Date: Fri, 1 Oct 2004 12:09:26 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm4 ps hang ?
+Message-Id: <20041001120926.4d6f58d5.akpm@osdl.org>
+In-Reply-To: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
+References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410011202.41048.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 October 2004 12:19 am, Andi Kleen wrote:
-> On Thu, Sep 30, 2004 at 11:01:33PM -0700, Andrew Morton wrote:
-> > Suresh Siddha <suresh.b.siddha@intel.com> wrote:
-> > > Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code
-> > > inline with x86 mach-default. Fix MSI_TARGET_CPU code which will
-> > > break with this target_cpus change.
-> >
-> > This gets rejects all over the place against the x86_64 clustered
-> > APIC mode patch.
-> >
-> > Which has priority here?
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
 >
-> Definitely the MSI_TARGET_CPUS thingy.
->
-> The Clustered APIC patch is far off pie in the sky for some future
-> unreleased hardware. MSI workaround fixes basic compilation
-> and the original patch from Suresh fixes shipping Intel chipsets.
->
-> -Andi
+> I randomly see "ps" hangs on my AMD64 system running 2.6.9-rc2-mm4.
+>  I don't remember seeing this on earlier kernels. Is this something
+>  known/fixed ?
 
-Excuse me, but since when is February "far off pie in the sky for some 
-future unreleased hardware"?
+hm.  I can see that access_process_vm() is doing lock_page() inside
+mmap_sem, which is a ranking bug, but it's not that.
 
-Zeus boxes are going out the door 1Q2005.  The question is, will v2.6 
-work on them or not?
+And I see a distinct lack of flush_foo_page() calls after the by-hand
+modification of the user page.  But it's not that either.
 
--- 
-James Cleverdon
-IBM LTC (xSeries Linux Solutions)
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
-
+Can you work out who is holding mmap_sem for writing?

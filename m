@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281103AbRKOVzt>; Thu, 15 Nov 2001 16:55:49 -0500
+	id <S281096AbRKOV43>; Thu, 15 Nov 2001 16:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281096AbRKOVzk>; Thu, 15 Nov 2001 16:55:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55824 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281091AbRKOVzf>; Thu, 15 Nov 2001 16:55:35 -0500
-Subject: Re: generic_file_llseek() broken?
-To: adilger@turbolabs.com (Andreas Dilger)
-Date: Thu, 15 Nov 2001 22:02:45 +0000 (GMT)
-Cc: helgehaf@idb.hist.no (Helge Hafting), linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, viro@math.psu.edu
-In-Reply-To: <20011115140917.Q5739@lynx.no> from "Andreas Dilger" at Nov 15, 2001 02:09:17 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281093AbRKOV4K>; Thu, 15 Nov 2001 16:56:10 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:27785 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S281091AbRKOVzv>; Thu, 15 Nov 2001 16:55:51 -0500
+Message-ID: <F4C5F64C4EBBD51198AD009027D61DB31C8265@otcexc01.otc.adaptec.com>
+From: "Bonds, Deanna" <Deanna_Bonds@adaptec.com>
+To: "'Michael Peddemors'" <michael@wizard.ca>, linux-kernel@vger.kernel.org
+Subject: RE: Problem with 2.4.14 mounting i2o device as root device Adapte
+	c 3200 RAID controller?
+Date: Thu, 15 Nov 2001 16:55:36 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E164Uas-0001pl-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Maybe also sys_truncate should disallow truncating to a size larger
-> than s_maxbytes.  Al? For now, returning EOVERFLOW from do_truncate()
-> when (length > inode->i_sb->s_maxbytes) should be OK.
+This is a RedHat issue.  You can find some info on
+http://people.redhat.com/tcallawa/dpt/ .  We will have the official drivers
+posted on our web site in a few days.  2.2.14 should not have this issue.
+If it does disable the i2o subsystem and make sure our driver is enable
+under Low level scsi drivers->Adaptec I2O RAID.
 
-It should do in the last patches I sent Linus.
+Deanna
+

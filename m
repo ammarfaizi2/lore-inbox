@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265898AbTBTQfs>; Thu, 20 Feb 2003 11:35:48 -0500
+	id <S266041AbTBTQlu>; Thu, 20 Feb 2003 11:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265936AbTBTQfs>; Thu, 20 Feb 2003 11:35:48 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:7061 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S265898AbTBTQfr>;
-	Thu, 20 Feb 2003 11:35:47 -0500
-Date: Thu, 20 Feb 2003 11:45:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Steven French <sfrench@us.ibm.com>
-Cc: Martin Josefsson <gandalf@wlug.westbo.se>, linux-kernel@vger.kernel.org
-Subject: Re: cifs leaks memory like crazy in 2.5.61
-Message-ID: <20030220164547.GB9800@gtf.org>
-References: <OF566C3F49.C8CA5594-ON87256CD3.0058B0B3@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF566C3F49.C8CA5594-ON87256CD3.0058B0B3@us.ibm.com>
-User-Agent: Mutt/1.3.28i
+	id <S266043AbTBTQlu>; Thu, 20 Feb 2003 11:41:50 -0500
+Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:19585
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266041AbTBTQlt> convert rfc822-to-8bit; Thu, 20 Feb 2003 11:41:49 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: James Buchanan <jamesbuch@iprimus.com.au>
+Reply-To: jamesbuch@iprimus.com.au
+To: linux-kernel@vger.kernel.org
+Subject: Linux kernel rant
+Date: Fri, 21 Feb 2003 15:51:28 +1100
+User-Agent: KMail/1.4.3
+X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
+X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
+X-Location: Australia, NSW
+X-Religion: Athiest, Secular
+X-Operating-System: RedHat Linux/GNU
+X-Message: The Truth Is Out There
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302211551.28222.jamesbuch@iprimus.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 10:28:07AM -0600, Steven French wrote:
-> Hadn't run into this - I had been focusing on the readahead and write page
-> improvements (which have improved especially write performance
-> spectacularly) and also have just fixed a problem with redundant lookups of
-> directory inodes but had not been doing readdir (cifs
-> Trans2FindFirst/Trans2FindNext) testing recently.  I just did - and the
+Hello,
 
-Well, here is a humble request to actually test your stuff,
-before adding more features!
+I am just wondering if anyone thinks the same way.  I am thinking 
+about going to BSD for good because of these things.
 
-	Jeff
+Linux is starting to include code written under non-disclosure 
+agreements and other nasties, and for me this kills the magic of 
+Linux.  Doesn't stop anyone from reading the code, but it's the 
+principle that counts.
 
+I don't know.  I feel Linux has lost the plot.  It's supposed to be 
+getting bigger and better (well, at least bigger -- to borrow words 
+from Andy Tanenbaum.  He was referring to the onslaught of 
+"improvements" to Minix being submitted, but now this applies to 
+Linux as well.)
 
+True, there are lots of nice improvements and binary only drivers 
+cannot use ksysms, so I've read somewhere.  (True?  Nice.)  But NDAs?  
+Come on, where do you get off on that?
 
+End rant.
+
+Thanks,
+James

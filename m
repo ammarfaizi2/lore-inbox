@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265078AbUBATlt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 14:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265094AbUBATlt
+	id S265105AbUBATtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 14:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265415AbUBATtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 14:41:49 -0500
-Received: from server19.glai.de ([80.239.154.135]:23681 "EHLO server19.glai.de")
-	by vger.kernel.org with ESMTP id S265078AbUBATlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 14:41:44 -0500
-Date: Sun, 1 Feb 2004 20:40:45 +0100
-From: markus reichelt <mr@lists.notified.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
-Message-ID: <20040201194045.GA2372@lists.notified.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4006C665.3065DFA1@users.sourceforge.net> <Xine.LNX.4.44.0401151315520.16587-100000@thoron.boston.redhat.com> <20040201171928.GG1254@edu.joroinen.fi>
+	Sun, 1 Feb 2004 14:49:32 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:39657 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S265105AbUBATtb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 14:49:31 -0500
+Subject: Re: oops with 2.6.1-rc1 and rc-3
+From: Len Brown <len.brown@intel.com>
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: Micha Feigin <michf@post.tau.ac.il>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0020AEB18@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0020AEB18@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1075664953.2389.12.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; x-action=pgp-signed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040201171928.GG1254@edu.joroinen.fi>
-Organization: still stuck in reorganization mode
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 01 Feb 2004 14:49:13 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 2004-02-01 at 05:36, Prakash K. Cheemplavam wrote:
 
-Pasi Kärkkäinen <pasik@iki.fi> wrote:
-> http://www.tcs.hut.fi/~mjos/doc/herring061103.pdf
-> 
-> That PDF by Markku-Juhani O. Saarinen discusses about these vulnerabilities,
-> and has one solution to them.
+> So there seems to be some serious issue since 2.6.2-rc2 going on.
+> Maybe
+> some ACPI related update?
 
-Interesting... Do you happen to know where one can get hold of that patch he
-mentioned?
+If you find that it goes away when you boot with pci=noacpi, or
+acpi=off, then it is likely an ACPI issue -- otherwise it is likely
+something else -- so give those a try and let me know.
 
-I'd like to try it out with the recent 2.6.2-rc3 kernel.
+thanks,
+-Len
 
-- -- 
-Bastard Administrator in $hell
-GPG-Key at http://lists.notified.de/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAHVY8LMyTO8Kj/uQRAsL3AJwKgmWs1nFx2dyGJvD0LN/1RcMOAQCfUrev
-UkVCitUNB2wdW+v6EdlTxHQ=
-=As2+
------END PGP SIGNATURE-----

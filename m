@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271798AbRIMQg7>; Thu, 13 Sep 2001 12:36:59 -0400
+	id <S271832AbRIMQl3>; Thu, 13 Sep 2001 12:41:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271823AbRIMQgt>; Thu, 13 Sep 2001 12:36:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49670 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271798AbRIMQgb>;
-	Thu, 13 Sep 2001 12:36:31 -0400
-Date: Thu, 13 Sep 2001 13:36:53 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+	id <S271834AbRIMQlT>; Thu, 13 Sep 2001 12:41:19 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:19974 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S271836AbRIMQlN>;
+	Thu, 13 Sep 2001 12:41:13 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
 To: Kent Borg <kentborg@borg.org>
-Cc: linux-kernel@vger.kernel.org
+Date: Thu, 13 Sep 2001 18:41:11 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Subject: Re: Novell Client End?
-Message-ID: <20010913133653.Z8509@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Kent Borg <kentborg@borg.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010913123011.B23220@borg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010913123011.B23220@borg.org>; from kentborg@borg.org on Thu, Sep 13, 2001 at 12:30:11PM -0400
-X-Url: http://advogato.org/person/acme
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <35B26BF008B@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Sep 13, 2001 at 12:30:11PM -0400, Kent Borg escreveu:
+On 13 Sep 01 at 12:30, Kent Borg wrote:
+
 > Has anyone ever done any Linux work on Novell protocols--but the
 > client end?  (Specifically, for a printer?)
 
-> (Anyone know they could write such a thing with ease?)
+What do you think by this? You can use 'pserver' from ncpfs, which
+attaches to some job queue on Netware server and processes jobs in the
+queue.
 
-you mean nprint/rprint? That needs SPX and SPX is humm, unmaintained and
-incomplete in Linux as of now, I plan to do some work on it in the future,
-to have nprint/rprint working in Linux, docs are available at the Novell
-site.
+If you are talking about rprinter protocol, then you are lost, as rprinter
+needs SPX, and SPX implementation in Linux is a bit fragile - and besides
+that, you can configure Netware Printserver to use lpd protocol, so there
+is no need for that.
 
-- Arnaldo
+If you have further questions, you should join linware@sh.cvut.cz (send
+subscribe linware to listserv@sh.cvut.cz), IPX & NCP are discussed there
+(long ago there was linux-ipx on vger.rutgers.edu, but it is really long
+time ago).
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

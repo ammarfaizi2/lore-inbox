@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUDPCxf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 22:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUDPCxf
+	id S262035AbUDPCyW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 22:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUDPCyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 22:53:35 -0400
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:6337 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S262078AbUDPCxc convert rfc822-to-8bit (ORCPT
+	Thu, 15 Apr 2004 22:54:22 -0400
+Received: from adsl-207-214-87-84.dsl.snfc21.pacbell.net ([207.214.87.84]:27797
+	"EHLO lade.trondhjem.org") by vger.kernel.org with ESMTP
+	id S262035AbUDPCyL convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 22:53:32 -0400
-From: Russell Miller <rmiller@duskglow.com>
-To: linux-kernel@vger.kernel.org
-Subject: udp traceroute dropping packets
-Date: Thu, 15 Apr 2004 21:55:13 -0500
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
+	Thu, 15 Apr 2004 22:54:11 -0400
+Subject: Re: NFS and kernel 2.6.x
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: shannon@widomaker.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040415185355.1674115b.akpm@osdl.org>
+References: <20040416011401.GD18329@widomaker.com>
+	 <1082079061.7141.85.camel@lade.trondhjem.org>
+	 <20040415185355.1674115b.akpm@osdl.org>
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200404152155.18724.rmiller@duskglow.com>
+Message-Id: <1082084048.7141.142.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 15 Apr 2004 19:54:08 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+På to , 15/04/2004 klokka 18:53, skreiv Andrew Morton:
+> But Charles was seeing good performance with 2.4-based clients.  When he
+> went to 2.6 everything fell apart.
+> 
+> Do we know why this regression occurred?
 
-I came across this archived linux-kernel message:
+What regression??? You have a statistic of 1 person whose 3 clients
+changed from what was an apparently working setup to what has *always*
+been the usual scenario for most people that tried to use the same
+broken hardware/software combination whether it be in 2.2.x, 2.4.x or
+2.6.x. 
 
-http://www.uwsg.iu.edu/hypermail/linux/net/0007.2/0111.html
+The whole problem is that UDP provides unreliable transport... It offers
+NO guarantees that the packet will arrive at the destination.
+If only 1 fragment out of the 22 that it takes to send a single
+wsize=32k write request to the Sun server gets lost on the way, the
+Sun's networking layer will ignore that entire packet, and so the whole
+write has to time out and get resent.
+Switches can usually cache a few fragments if the clients on the 100Mbit
+network are sending requests at a rate that almost matches the 10Mbit
+bandwidth that the Sun server supports, but if the network is swamped so
+that the switch runs out of cache, then it will start to drop packets.
 
-I am having the exact same problem as is outlined there, from a post three 
-years ago.  Here's a summary:
+This is the whole reason why Sun set TCP to be their default mount
+option when the changed their servers to use 32k read/write.
 
-"I think I've found a bug in UDP/ICMP code in the kernel using 
- traceroute. 
- 
-To reproduce: Launch traceroute -n to some Linux system nearby 
- really quickly 3 times in the row; localhost won't work, it has to go 
- through network. Quick response is crucial. I used systems w/ in 
- the same physical network and a few routers between (still < 5 ms 
- response). 
- 
-The effect: On third traceroute (or perhaps second/first, if you're quick 
- enough), ICMP port unreachable will not be sent to the UDP datagram. "
+My biggest suspect for why this particular setup changed in 2.6.x would
+therefore be the changes to the way in which writes are scheduled on the
+wire. We cache them for longer, and so overall the bandwidth usage goes
+down, but at the expense of more "burstiness" when the user closes the
+file or does some other fsync()-like operation.
 
-I reproduced this on a redhat 8.0 machine running kernel 2.4.23.  Changing to 
-the -I option of traceroute (to use ICMP) works flawlessly.  I'll be glad to 
-provide more information if you need it.  Please CC, as I'm not subscribed.
 
-- --Russell
-- -- 
 
-Russell Miller - rmiller@duskglow.com - Somewhere near Sioux City, IA.
-Youth cannot know age, but age is guilty if it forgets youth
-    - Professor Dumbledore
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+So in fact you have 2 possible workarounds:
 
-iD8DBQFAf0sUURTA4VCI9OARAs52AJ9llhS5KKvSe2nAU3lp82oySZ8c/gCfeyIK
-i5V/P6Qj6ODS3jm6GSMQFrs=
-=vREp
------END PGP SIGNATURE-----
+  - Use the TCP mount option (by far the better option, since TCP *does*
+provide reliable transport).
+  - Keep UDP, but use the wsize mount option to explicitly override the
+server's choice of write sizes. That works by reducing the number of
+fragments per write, and so improving performance by reducing the amount
+of data that need to be resent per fragment lost.
+
+
+Cheers,
+  Trond

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267612AbSLNNve>; Sat, 14 Dec 2002 08:51:34 -0500
+	id <S267613AbSLNNvm>; Sat, 14 Dec 2002 08:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267614AbSLNNve>; Sat, 14 Dec 2002 08:51:34 -0500
-Received: from angband.namesys.com ([212.16.7.85]:10112 "HELO
+	id <S267614AbSLNNvm>; Sat, 14 Dec 2002 08:51:42 -0500
+Received: from angband.namesys.com ([212.16.7.85]:10368 "HELO
 	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S267612AbSLNNvc>; Sat, 14 Dec 2002 08:51:32 -0500
-Date: Sat, 14 Dec 2002 14:44:37 +0300
+	id <S267613AbSLNNve>; Sat, 14 Dec 2002 08:51:34 -0500
+Date: Sat, 14 Dec 2002 16:21:08 +0300
 From: Oleg Drokin <green@namesys.com>
 To: Andrew Morton <akpm@digeo.com>
 Cc: Hans Reiser <reiser@namesys.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [BK][PATCH] ReiserFS CPU and memory bandwidth efficient large writes
-Message-ID: <20021214144437.B13549@namesys.com>
+Message-ID: <20021214162108.A3452@namesys.com>
 References: <3DFA2D4F.3010301@namesys.com> <3DFA53DA.DE6788C1@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=koi8-r
@@ -25,152 +25,257 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Hello!
 
 On Fri, Dec 13, 2002 at 01:40:42PM -0800, Andrew Morton wrote:
-> >     These three changesets implement reiserfs_file_write.
-> What a big patch.
 
-Yup. Also it was around for half a year or something ;)
-Also actually it consists of two parts(changesets).
-
-> I'd be interested in testing it a bit.  Could you please
-> describe under what circumstances the new code paths are
-> executed?  Is it simply appending to a normal old file?  No
-> special mount options?
-
-Well, there are several paths all related to appending.
-One path is to seek far beyond end of file and then write some amount of data
-(or just do a truncate beyond end of file) therefore creating a hole
-(with different code than before).
-Also Just appending to a file in chunks bigger than 4k.
-Somewhat different code paths if you append to just created file, file
-that is smaller than 4k in size and file that is bigger than 4k in size.
-
-> A few little comments, and maybe a security problem....
-
-Hopefuly not a problem.
-
-> > +int reiserfs_can_fit_pages ( struct super_block *sb /* superblock of filesystem
-> > +						       to estimate space */ )
-> > +{
-> > +	unsigned long space;
-> > +
-> > +	spin_lock(&REISERFS_SB(sb)->bitmap_lock);
-> > +	space = (SB_FREE_BLOCKS(sb) - REISERFS_SB(sb)->reserved_blocks) / ( PAGE_CACHE_SIZE/sb->s_blocksize);
-> > +	spin_unlock(&REISERFS_SB(sb)->bitmap_lock);
-> > +
-> > +	return space;
-> >  }
-> Both of the divisions here can be replaced with shifts.  Divides are expensive.
-
-Well, this can be done of course.
-
-> The locking here is peculiar:
-> 
-> 	spin_lock(lock);
-> 	value = calculation();
-> 	spin_unlock(lock);
-> 	return value;
-
-The locking is here for different reason. We protect against somebody 
-changing REISERFS_SB(sb)->reserved_blocks value while we are calculating.
-If you'd look into where we I call reiserfs_can_fit_pages() in file.c,
-you'd notice first I am taking BKL. No other codepath increases
-REISERFS_SB(sb)->reserved_blocks value (we only increase it in the same region),
-also all "old style" allocations are done under BKL as well.
-There is only possible decrease of REISERFS_SB(sb)->reserved_blocks that is
-not under BKL and is the whole reason I need this additional lock.
-Obviously decreasing REISERFS_SB(sb)->reserved_blocks is completely ok
-to happen.
-
-> Surely, if the calculation relies on the lock then the returned value is invalidated
-> as soon as you drop the lock?
-
-Well, kind of, but we only care if the calcutaion may become less and this
-cannot happen.
-
-> > +/* this function from inode.c would be used here, too */
-> > +extern void restart_transaction(struct reiserfs_transaction_handle *th,
-> > +                                struct inode *inode, struct path *path);
-> This decl should be in a header file.
-
-Sure.
-
-> > +/* I really do not want to play with memory shortage right now, so
-> > +   to simplify the code, we are not going to write more than this much pages at
-> > +   a time. This still should considerably improve performance compared to 4k
-> > +   at a time case. */
-> > +#define REISERFS_WRITE_PAGES_AT_A_TIME 32
-> Page sizes vary.  A better value may be
-> 	(128 * 1024) / PAGE_CACHE_SIZE
-> so that consistent behaviour is seem on platforms which have page sizes larger
-> than 4k.
-
-Ok.
-
-> > +int reiserfs_allocate_blocks_for_region(
-> > ...
-> > +    b_blocknr_t allocated_blocks[blocks_to_allocate]; // Pointer to a place where allocated blocknumbers would be stored. Right now statically allocated, later that will change.
-> This is a variable-sized array (aka: alloca).  It's not a problem IMO, but
-> worth pointing out...
-
-Sure.
-
-> > +    reiserfs_blocknr_hint_t hint; // hint structure for block allocator.
-> > +    size_t res; // return value of various functions that we call.
-> > +    int curr_block; // current block used to keep track of unmapped blocks.
-> > +    int i; // loop counter
-> > +    int itempos; // position in item
-> > +    unsigned int from = (pos & (PAGE_CACHE_SIZE - 1)); // writing position in
-> > +						       // first page
-> > +    unsigned int to = ((pos + write_bytes - 1) & (PAGE_CACHE_SIZE - 1)) + 1; /* last modified byte offset in last page */
-> > +    __u64 hole_size ; // amount of blocks for a file hole, if it needed to be created.
-> > +    int modifying_this_item = 0; // Flag for items traversal code to keep track
-> > +				 // of the fact that we already prepared
-> > +				 // current block for journal
-> How much stack is this function using, worst-case?
-
-For 4k blocksize, 4k pages, 32bit arch it will take at most:
-sizeof(struct cpu_key)+sizeof(void *)*3+sizeof(struct reiserfs_transaction_handle)+sizeof(struct path)+sizeof(unsigned int)*32+sizeof(reiserfs_blocknr_hint_t)+sizeof(size_t)+sizeof(int)*6+sizeof(__u64) = 340 bytes (only local variables
-obviously).
-
-For 1k blocksize, 4k pages, 32bit arch it will take at most:
-sizeof(struct cpu_key)+sizeof(void *)*3+sizeof(struct reiserfs_transaction_handle)+sizeof(struct path)+sizeof(unsigned int)*32*4+sizeof(reiserfs_blocknr_hint_t)+sizeof(size_t)+sizeof(int)*6+sizeof(__u64) = 724 bytes (only local variables)
-
-> > +    for ( i = 0; i < num_pages; i++) {
-> > +	prepared_pages[i] = grab_cache_page(mapping, index + i); // locks the page
-> OK.  But note that locking multiple pages here is only free from AB/BA deadlocks
-> because this is the only path which does it, and it is singly-threaded via i_sem.
-
-It just a memo to not forget to release a page later. Also parallel mmap writer
-won't be able to touch these pages if these are yet unallocated.
-
-> > +	if ( from != 0 ) {/* First page needs to be partially zeroed */
-> > +	    char *kaddr = kmap_atomic(prepared_pages[0], KM_USER0);
-> > +	    memset(kaddr, 0, from);
-> > +	    kunmap_atomic( kaddr, KM_USER0);
-> > +	    SetPageUptodate(prepared_pages[0]);
-> > +	}
-> > +	if ( to != PAGE_CACHE_SIZE ) { /* Last page needs to be partially zeroed */
-> > +	    char *kaddr = kmap_atomic(prepared_pages[num_pages-1], KM_USER0);
-> > +	    memset(kaddr+to, 0, PAGE_CACHE_SIZE - to);
-> > +	    kunmap_atomic( kaddr, KM_USER0);
-> > +	    SetPageUptodate(prepared_pages[num_pages-1]);
-> > +	}
 > This seems wrong.  This could be a newly-allocated pagecache page.  It is not
 > yet fully uptodate.  If (say) the subsequent copy_from_user gets a fault then
 > it appears that this now-uptodate pagecache page will leak uninitialised stuff?
 
-No, I do not see it. Even if we have somebody already mmapped this part of file,
-and he got enough of luck that subsequent copy_from_user gets a fault and then
-this someone gets to CPU and tries to access the page, the SIGBUS should happen
-because of access to mmaped area beyond end of file as we have not yet updated
-the file size note that we have this check before this code you pointed out:
-    if ( (pos & ~(PAGE_CACHE_SIZE - 1)) > inode->i_size ) {
+Ok, after all I think we do not need this uptodate stuff at all.
 
-Or am I missing something?
-Ok, actually I see how I can move this check to where I do copy_from_user.
-
-I will take care of replacing multiplys and divisions with shifting.
-Thanks a lot for your review.
+Find below the patch that address all the issues you've brought.
+It is on top of previous one.
+Do you think it is ok now?
 
 Bye,
     Oleg
+
+===== fs/reiserfs/bitmap.c 1.25 vs edited =====
+--- 1.25/fs/reiserfs/bitmap.c	Sat Dec  7 17:08:04 2002
++++ edited/fs/reiserfs/bitmap.c	Sat Dec 14 14:48:15 2002
+@@ -913,7 +913,7 @@
+ 	unsigned long space;
+ 
+ 	spin_lock(&REISERFS_SB(sb)->bitmap_lock);
+-	space = (SB_FREE_BLOCKS(sb) - REISERFS_SB(sb)->reserved_blocks) / ( PAGE_CACHE_SIZE/sb->s_blocksize);
++	space = (SB_FREE_BLOCKS(sb) - REISERFS_SB(sb)->reserved_blocks) >> ( PAGE_CACHE_SHIFT - sb->s_blocksize_bits);
+ 	spin_unlock(&REISERFS_SB(sb)->bitmap_lock);
+ 
+ 	return space;
+===== fs/reiserfs/do_balan.c 1.16 vs edited =====
+--- 1.16/fs/reiserfs/do_balan.c	Sat Dec  7 13:37:19 2002
++++ edited/fs/reiserfs/do_balan.c	Sat Dec 14 15:35:55 2002
+@@ -341,7 +341,7 @@
+ 		    version = ih_version (ih);
+ 
+ 		    /* Calculate key component, item length and body to insert into S[0] */
+-                    set_le_ih_k_offset( ih, le_ih_k_offset( ih ) + tb->lbytes * (is_indirect_le_ih(ih)?tb->tb_sb->s_blocksize/UNFM_P_SIZE:1) );
++                    set_le_ih_k_offset( ih, le_ih_k_offset( ih ) + (tb->lbytes >> (is_indirect_le_ih(ih)?tb->tb_sb->s_blocksize_bits - UNFM_P_SHIFT:0)) );
+ 
+ 		    put_ih_item_len( ih, new_item_len );
+ 		    if ( tb->lbytes >  zeros_num ) {
+@@ -463,7 +463,7 @@
+ 					"PAP-12107: items must be of the same file");
+ 				if (is_indirect_le_ih(B_N_PITEM_HEAD (tb->L[0],
+ 								      n + item_pos - ret_val)))	{
+-				    temp_l = (l_n / UNFM_P_SIZE) * tb->tb_sb->s_blocksize;
++				    temp_l = (l_n / UNFM_P_SIZE) << tb->tb_sb->s_blocksize_bits;
+ 				}
+ 				/* update key of first item in S0 */
+ 				version = ih_version (B_N_PITEM_HEAD (tbS0, 0));
+@@ -581,7 +581,7 @@
+ 		    old_len = ih_item_len(ih);
+ 
+ 		    /* Calculate key component and item length to insert into R[0] */
+-                    offset = le_ih_k_offset( ih ) + (old_len - tb->rbytes )*(is_indirect_le_ih(ih)?tb->tb_sb->s_blocksize/UNFM_P_SIZE:1);
++                    offset = le_ih_k_offset( ih ) + ((old_len - tb->rbytes )>>(is_indirect_le_ih(ih)?tb->tb_sb->s_blocksize_bits - UNFM_P_SHIFT:0));
+                     set_le_ih_k_offset( ih, offset );
+ 		    put_ih_item_len( ih, tb->rbytes);
+ 		    /* Insert part of the item into R[0] */
+@@ -710,8 +710,8 @@
+ 			  
+ 			  version = ih_version (B_N_PITEM_HEAD (tb->R[0],0));
+ 			  if (is_indirect_le_key(version,B_N_PKEY(tb->R[0],0))){
+-			      temp_rem = (n_rem / UNFM_P_SIZE) * 
+-			                 tb->tb_sb->s_blocksize;
++			      temp_rem = n_rem >> (tb->tb_sb->s_blocksize -
++					 UNFM_P_SHIFT);
+ 			  }
+ 			  set_le_key_k_offset (version, B_N_PKEY(tb->R[0],0), 
+ 					       le_key_k_offset (version, B_N_PKEY(tb->R[0],0)) + temp_rem);
+@@ -870,7 +870,7 @@
+ 
+ 		    /* Calculate key component and item length to insert into S_new[i] */
+                     set_le_ih_k_offset( ih,
+-                                le_ih_k_offset(ih) + (old_len - sbytes[i] )*(is_indirect_le_ih(ih)?tb->tb_sb->s_blocksize/UNFM_P_SIZE:1) );
++                                le_ih_k_offset(ih) + ((old_len - sbytes[i] )>>(is_indirect_le_ih(ih)?tb->tb_sb->s_blocksize_bits - UNFM_P_SHIFT:0)) );
+ 
+ 		    put_ih_item_len( ih, sbytes[i] );
+ 
+@@ -1009,8 +1009,7 @@
+ 			    if (is_indirect_le_ih (tmp)) {
+ 				set_ih_free_space (tmp, 0);
+ 				set_le_ih_k_offset( tmp, le_ih_k_offset(tmp) + 
+-					            (n_rem / UNFM_P_SIZE) *
+-						    tb->tb_sb->s_blocksize);
++					            (n_rem >> (tb->tb_sb->s_blocksize_bits - UNFM_P_SHIFT)));
+ 			    } else {
+ 				set_le_ih_k_offset( tmp, le_ih_k_offset(tmp) + 
+ 				                    n_rem );
+===== fs/reiserfs/file.c 1.19 vs edited =====
+--- 1.19/fs/reiserfs/file.c	Sat Dec  7 17:08:04 2002
++++ edited/fs/reiserfs/file.c	Sat Dec 14 16:19:50 2002
+@@ -142,15 +142,11 @@
+     return error ;
+ }
+ 
+-/* this function from inode.c would be used here, too */
+-extern void restart_transaction(struct reiserfs_transaction_handle *th,
+-                                struct inode *inode, struct path *path);
+-
+ /* I really do not want to play with memory shortage right now, so
+    to simplify the code, we are not going to write more than this much pages at
+    a time. This still should considerably improve performance compared to 4k
+-   at a time case. */
+-#define REISERFS_WRITE_PAGES_AT_A_TIME 32
++   at a time case. This is 32 pages of 4k size. */
++#define REISERFS_WRITE_PAGES_AT_A_TIME (128 * 1024) / PAGE_CACHE_SIZE
+ 
+ /* Allocates blocks for a file to fulfil write request.
+    Maps all unmapped but prepared pages from the list.
+@@ -217,7 +213,7 @@
+     hint.inode = inode; // Inode is needed by block allocator too.
+     hint.search_start = 0; // We have no hint on where to search free blocks for block allocator.
+     hint.key = key.on_disk_key; // on disk key of file.
+-    hint.block = inode->i_blocks/(inode->i_sb->s_blocksize/512); // Number of disk blocks this file occupies already.
++    hint.block = inode->i_blocks>>(inode->i_sb->s_blocksize_bits-9); // Number of disk blocks this file occupies already.
+     hint.formatted_node = 0; // We are allocating blocks for unformatted node.
+     hint.preallocate = 0; // We do not do any preallocation for now.
+ 
+@@ -346,7 +342,7 @@
+ 		    restart_transaction(&th, inode, &path);
+ 
+ 		/* Well, need to recalculate path and stuff */
+-		set_cpu_key_k_offset( &key, cpu_key_k_offset(&key) + to_paste * inode->i_sb->s_blocksize );
++		set_cpu_key_k_offset( &key, cpu_key_k_offset(&key) + (to_paste << inode->i_blkbits));
+ 		res = search_for_position_by_key(inode->i_sb, &key, &path);
+ 		if ( res == IO_ERROR ) {
+ 		    res = -EIO;
+@@ -492,7 +488,7 @@
+     }
+ 
+     /* Amount of on-disk blocks used by file have changed, update it */
+-    inode->i_blocks += blocks_to_allocate * (inode->i_sb->s_blocksize / 512);
++    inode->i_blocks += blocks_to_allocate << (inode->i_blkbits - 9);
+     reiserfs_update_sd(&th, inode); // And update on-disk metadata
+     // finish all journal stuff now, We are not going to play with metadata
+     // anymore.
+@@ -775,18 +771,18 @@
+     if ( num_pages > 2 )
+ 	/* These are full-overwritten pages so we count all the blocks in
+ 	   these pages are counted as needed to be allocated */
+-	blocks = (PAGE_CACHE_SIZE/inode->i_sb->s_blocksize) * (num_pages - 2);
++	blocks = (num_pages - 2) << (PAGE_CACHE_SHIFT - inode->i_blkbits);
+ 
+     /* count blocks needed for first page (possibly partially written) */
+-    blocks += ((PAGE_CACHE_SIZE - from) >> inode->i_sb->s_blocksize_bits) +
++    blocks += ((PAGE_CACHE_SIZE - from) >> inode->i_blkbits) +
+ 	   !!(from & (inode->i_sb->s_blocksize-1)); /* roundup */
+ 
+     /* Now we account for last page. If last page == first page (we
+        overwrite only one page), we substract all the blocks past the
+        last writing position in a page out of already calculated number
+        of blocks */
+-    blocks += (PAGE_CACHE_SIZE/inode->i_sb->s_blocksize) * (num_pages > 1) -
+-	   ((PAGE_CACHE_SIZE - to) >> inode->i_sb->s_blocksize_bits);
++    blocks += ((num_pages > 1) << (PAGE_CACHE_SHIFT-inode->i_blkbits)) -
++	   ((PAGE_CACHE_SIZE - to) >> inode->i_blkbits);
+ 	   /* Note how we do not roundup here since partial blocks still
+ 		   should be allocated */
+ 
+@@ -798,13 +794,11 @@
+ 	    char *kaddr = kmap_atomic(prepared_pages[0], KM_USER0);
+ 	    memset(kaddr, 0, from);
+ 	    kunmap_atomic( kaddr, KM_USER0);
+-	    SetPageUptodate(prepared_pages[0]);
+ 	}
+ 	if ( to != PAGE_CACHE_SIZE ) { /* Last page needs to be partially zeroed */
+ 	    char *kaddr = kmap_atomic(prepared_pages[num_pages-1], KM_USER0);
+ 	    memset(kaddr+to, 0, PAGE_CACHE_SIZE - to);
+ 	    kunmap_atomic( kaddr, KM_USER0);
+-	    SetPageUptodate(prepared_pages[num_pages-1]);
+ 	}
+ 
+ 	/* Since all blocks are new - use already calculated value */
+@@ -921,7 +915,7 @@
+ 			char *kaddr = kmap_atomic(prepared_pages[0], KM_USER0);
+ 			memset(kaddr+block_start, 0, from-block_start);
+ 			kunmap_atomic( kaddr, KM_USER0);
+-			set_bit(BH_Uptodate, &bh->b_state);
++			set_buffer_uptodate(bh);
+ 		    }
+ 		}
+ 	    }
+@@ -953,7 +947,7 @@
+ 			char *kaddr = kmap_atomic(prepared_pages[num_pages-1], KM_USER0);
+ 			memset(kaddr+to, 0, block_end-to);
+ 			kunmap_atomic( kaddr, KM_USER0);
+-			set_bit(BH_Uptodate, &bh->b_state);
++			set_buffer_uptodate(bh);
+ 		    }
+ 		}
+ 	    }
+@@ -1127,7 +1121,7 @@
+ 	       for this iteration. */
+ 	    num_pages = min_t(int, REISERFS_WRITE_PAGES_AT_A_TIME, reiserfs_can_fit_pages(inode->i_sb));
+ 	    /* Also we should not forget to set size in bytes accordingly */
+-	    write_bytes = num_pages * PAGE_CACHE_SIZE - 
++	    write_bytes = (num_pages << PAGE_CACHE_SHIFT) - 
+ 			    (pos & (PAGE_CACHE_SIZE-1));
+ 					 /* If position is not on the
+ 					    start of the page, we need
+@@ -1138,7 +1132,7 @@
+ 
+ 	/* reserve the blocks to be allocated later, so that later on
+ 	   we still have the space to write the blocks to */
+-	reiserfs_claim_blocks_to_be_allocated(inode->i_sb, num_pages * (PAGE_CACHE_SIZE/inode->i_sb->s_blocksize));
++	reiserfs_claim_blocks_to_be_allocated(inode->i_sb, num_pages << (PAGE_CACHE_SHIFT - inode->i_blkbits));
+ 	reiserfs_write_unlock(inode->i_sb);
+ 
+ 	if ( !num_pages ) { /* If we do not have enough space even for */
+@@ -1162,12 +1156,12 @@
+ 	blocks_to_allocate = reiserfs_prepare_file_region_for_write(inode, pos, num_pages, write_bytes, prepared_pages);
+ 	if ( blocks_to_allocate < 0 ) {
+ 	    res = blocks_to_allocate;
+-	    reiserfs_release_claimed_blocks(inode->i_sb, num_pages * (PAGE_CACHE_SIZE/inode->i_sb->s_blocksize));
++	    reiserfs_release_claimed_blocks(inode->i_sb, num_pages << (PAGE_CACHE_SHIFT - inode->i_blkbits));
+ 	    break;
+ 	}
+ 
+ 	/* First we correct our estimate of how many blocks we need */
+-	reiserfs_release_claimed_blocks(inode->i_sb, num_pages * (PAGE_CACHE_SIZE>>inode->i_sb->s_blocksize_bits) - blocks_to_allocate );
++	reiserfs_release_claimed_blocks(inode->i_sb, (num_pages << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits)) - blocks_to_allocate );
+ 
+ 	if ( blocks_to_allocate > 0) {/*We only allocate blocks if we need to*/
+ 	    /* Fill in all the possible holes and append the file if needed */
+===== fs/reiserfs/inode.c 1.70 vs edited =====
+--- 1.70/fs/reiserfs/inode.c	Sat Dec  7 17:08:04 2002
++++ edited/fs/reiserfs/inode.c	Sat Dec 14 14:59:00 2002
+@@ -816,7 +816,7 @@
+ 		/* We need to mark new file size in case this function will be
+ 		   interrupted/aborted later on. And we may do this only for
+ 		   holes. */
+-		inode->i_size += inode->i_sb->s_blocksize * blocks_needed;
++		inode->i_size += blocks_needed << inode->i_blkbits;
+ 	    }
+ 	    //mark_tail_converted (inode);
+ 	}
+===== include/linux/reiserfs_fs.h 1.46 vs edited =====
+--- 1.46/include/linux/reiserfs_fs.h	Sat Dec  7 17:08:04 2002
++++ edited/include/linux/reiserfs_fs.h	Sat Dec 14 16:08:21 2002
+@@ -1268,6 +1268,7 @@
+ 
+ /* Size of pointer to the unformatted node. */
+ #define UNFM_P_SIZE (sizeof(unp_t))
++#define UNFM_P_SHIFT 2
+ 
+ // in in-core inode key is stored on le form
+ #define INODE_PKEY(inode) ((struct key *)(REISERFS_I(inode)->i_key))
+@@ -1838,7 +1839,7 @@
+ void padd_item (char * item, int total_length, int length);
+ 
+ /* inode.c */
+-
++void restart_transaction(struct reiserfs_transaction_handle *th, struct inode *inode, struct path *path);
+ void reiserfs_read_locked_inode(struct inode * inode, struct reiserfs_iget_args *args) ;
+ int reiserfs_find_actor(struct inode * inode, void *p) ;
+ int reiserfs_init_locked_inode(struct inode * inode, void *p) ;

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129117AbQKFGTA>; Mon, 6 Nov 2000 01:19:00 -0500
+	id <S129034AbQKFGht>; Mon, 6 Nov 2000 01:37:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbQKFGSu>; Mon, 6 Nov 2000 01:18:50 -0500
-Received: from [204.229.122.220] ([204.229.122.220]:8694 "EHLO eye.micron.net")
-	by vger.kernel.org with ESMTP id <S129117AbQKFGSi>;
-	Mon, 6 Nov 2000 01:18:38 -0500
-Message-ID: <006701c047b9$5918e720$53b613d1@micron.net>
-From: "Anonymous" <anonymos@micron.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: visual gcc
-Date: Sun, 5 Nov 2000 22:18:14 -0800
-Organization: Software Solutions
+	id <S129036AbQKFGhk>; Mon, 6 Nov 2000 01:37:40 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31402 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129034AbQKFGh0>;
+	Mon, 6 Nov 2000 01:37:26 -0500
+Date: Mon, 6 Nov 2000 01:37:24 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Anonymous <anonymos@micron.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: visual gcc
+In-Reply-To: <006701c047b9$5918e720$53b613d1@micron.net>
+Message-ID: <Pine.GSO.4.21.0011060133270.27399-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-X-SMTP-HELO: micron
-X-SMTP-MAIL-FROM: anonymos@micron.net
-X-SMTP-PEER-INFO: [209.19.182.83]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone know where to find a gui for gcc or g++ or any compiler for a
-KDE shell?
 
+
+On Sun, 5 Nov 2000, Anonymous wrote:
+
+> Does anyone know where to find a gui for gcc or g++ or any compiler for a
+> KDE shell?
+
+Yes.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266389AbUFUSju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUFUSrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266389AbUFUSju (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 14:39:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266398AbUFUSju
+	id S264305AbUFUSrI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 14:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266398AbUFUSrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 14:39:50 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:6535 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S266389AbUFUSjs (ORCPT
+	Mon, 21 Jun 2004 14:47:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17368 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264305AbUFUSrF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 14:39:48 -0400
-Date: Mon, 21 Jun 2004 20:39:44 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: walt <wa1ter@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7-bk] NFS-related kernel panic
-In-Reply-To: <40D98C72.3040807@myrealbox.com>
-Message-ID: <Pine.LNX.4.58.0406212037540.28702@alpha.polcom.net>
-References: <40D98C72.3040807@myrealbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jun 2004 14:47:05 -0400
+Date: Mon, 21 Jun 2004 11:46:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: da-x@colinux.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing NULL check in drivers/char/n_tty.c
+Message-Id: <20040621114605.4df2c05e.akpm@osdl.org>
+In-Reply-To: <40D6F986.3010904@microgate.com>
+References: <20040621063845.GA6379@callisto.yi.org>
+	<20040620235824.5407bc4c.akpm@osdl.org>
+	<20040621073644.GA10781@callisto.yi.org>
+	<20040621003944.48f4b4be.akpm@osdl.org>
+	<20040621082430.GA11566@callisto.yi.org>
+	<40D6F986.3010904@microgate.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jun 2004, walt wrote:
-
-> Starting just today with the latest bk changesets I get a kernel
-> panic when starting the rpc.statd daemon (NFS):
+Paul Fulghum <paulkf@microgate.com> wrote:
+>
+> 13 other drivers call ldisc.chars_in_buffer without checking
+>  for ldisc.chars_in_buffer == NULL, but only inside conditional
+>  compilation for debug output. The value is not used, only logged.
+>  These conditional debug items look like cut and paste from
+>  one serial driver to another, and I doubt
+>  they have been recently used (or used at all).
 > 
-> Kernel panic:  Aiee, killing interrupt handler
-> In interrupt handler - not syncing
-> 
-> Anyone else seeing problems with NFS?
+>  Which would be better?
+>  1. Ignore this
+>  2. Fix conditional debug output to check
+>      for ldisc.chars_in_buffer==NULL
+>  3. Remove conditional debug output
 
-This is probably not NFS problem since I have no NFS and I get the same. 
-Look at my report. I sent it minute ago to this list.
+Option 1 is quite valid.  There are no bugs here, yes?
 
-
-Thanks,
-
-Grzegorz Kulewski
+If someone for some reason wants to clean all this up, the best way would
+be to require that ->chars_in_buffer always be valid, hence remove all
+those checks.
 

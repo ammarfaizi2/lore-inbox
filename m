@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261659AbTCMBLc>; Wed, 12 Mar 2003 20:11:32 -0500
+	id <S261693AbTCMBbT>; Wed, 12 Mar 2003 20:31:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261693AbTCMBLc>; Wed, 12 Mar 2003 20:11:32 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:23994 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S261659AbTCMBLb>;
-	Wed, 12 Mar 2003 20:11:31 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.64-mm2->4 hangs on contest
-Date: Thu, 13 Mar 2003 12:22:12 +1100
-User-Agent: KMail/1.5
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-References: <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net> <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
-In-Reply-To: <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303131222.12588.kernel@kolivas.org>
+	id <S261770AbTCMBbT>; Wed, 12 Mar 2003 20:31:19 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:23805 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP
+	id <S261693AbTCMBbS>; Wed, 12 Mar 2003 20:31:18 -0500
+Date: Thu, 13 Mar 2003 14:31:39 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: PowerNow!, cpufreq, and swsusp
+In-reply-to: <3e6f6919.1546.10699@saintmail.net>
+To: theophile@saintmail.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1047519099.2540.22.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <3e6f6919.1546.10699@saintmail.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003 23:30, Mike Galbraith wrote:
-> At 10:19 PM 3/12/2003 +1100, Con Kolivas wrote:
-> >On Wed, 12 Mar 2003 21:37, Mike Galbraith wrote:
-> > > >Is this in addition to your previous errr hack or instead of?
-> > >
-> > > Instead of.  The buttugly patch destroyed interactivity.  This one
-> > > cures starvation, and interactivity is really nice.
-> >
-> >Ok that fixes the "getting stuck in process load" but it still hangs on
-> >contest. I'll just have to give mm5 a go and see if whatever problem that
-> > was went away in the mean time.
->
-> (%$&#!!)
+On Thu, 2003-03-13 at 06:06, Christopher Meredith wrote:
+> # CONFIG_ACPI_SLEEP is not set
 
-No need to curse. Turns out this is an unrelated bug with the anticipatory 
-scheduler which akpm is onto. Your fix worked fine for the scheduler based 
-hang.
+Switching this on will give you /proc/acpi/sleep. Then swsusp should be
+a step closer.
 
-> Oh well, Ingo probably has it nailed already anyway.
+Regards,
 
-> (but meanwhile, where's your website again?)
+Nigel
 
-contest? 
-http://contest.kolivas.org
 
-Con

@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314499AbSEBOzf>; Thu, 2 May 2002 10:55:35 -0400
+	id <S314504AbSEBO4Q>; Thu, 2 May 2002 10:56:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314504AbSEBOze>; Thu, 2 May 2002 10:55:34 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:1225 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314499AbSEBOzc>; Thu, 2 May 2002 10:55:32 -0400
-Date: Thu, 2 May 2002 09:54:58 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <3CD13FF3.5020406@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0205020947510.32217-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314516AbSEBO4P>; Thu, 2 May 2002 10:56:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:26630 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314504AbSEBO4M>;
+	Thu, 2 May 2002 10:56:12 -0400
+Date: Thu, 2 May 2002 16:56:11 +0200
+From: Dave Jones <davej@suse.de>
+To: Andreas Dilger <adilger@turbolabs.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 errors under fsx with 2.5.12-dj1.
+Message-ID: <20020502165611.L16935@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Andreas Dilger <adilger@turbolabs.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020502143250.GA19533@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 May 2002, Martin Dalecki wrote:
+On Thu, May 02, 2002 at 03:32:50PM +0100, Dave Jones wrote:
+ > EXT2-fs error (device ide0(3,65)): ext2_free_blocks: Freeing blocks not
+ > in datazone - block = 2553887680, count = 1
 
-> > Modversions solves a huge number of problems very very well. The fact that
-> > you don't like it doesn't change the reality of the situation.
-> 
-> Could you name *ONE* please? Maybe the following?
+Ugh, I figured out how this was caused, and its somewhat pathological.
 
-Are you sure you know what you're talking about?
+What the script should have been doing was two parallel fsx's
+one on hdb1 and the other on hdb2. Mounted on /mnt/test-hdb1 and
+/mnt/test-hdb2
+Due to a screwup in the script I wrote, both were mounting on /mnt/test
 
-> - It's solving the problem of applying quick security
-> fixes to vendor specific kern src.rpm packeges for the user
-> very well.
+net result: chaos as 1 fsx process had another mount another
+partition over the top of it.
 
-??? If you patch a kernel in a src.rpm, and rebuild from scratch, 
-modversions won't be in your way.
+With the script corrected, it seems to be playing well.
 
-> - It solves the problem of too fast kernel compiles as well fine.
+    Dave.
 
-I doubt you really notice the difference (make dep takes a bit longer, 
-yes, but so what)
-
-> - As an added bonus it makes you use
-> the force flag to insmod more often with binary only modules, which
-> everybody loves... This gives you the good feeling of polite
-> questions you have been missing from DOS for so long:
-> "Do you really wan't to delete this file Y/N"...
-
-If the versioning goes wrong (which does happen with current kbuild, and 
-that's a bug), insmod -f won't help you at all to cope with the unresolved 
-symbols.
-
-> - And then we have no better use for our RAM then
-> storing some extendid redundant string information there of course
-> as well.
-
-Oh well, if you care about these couple of hundred bytes.
-
-> - And of course it is not annoying if you want to move
-> modules which you have just compiled yourself between
-> two machines. Or perhaps a compilation host and some testing systems.
-
-Well, if you have the same config, modules will be interchangeable, if 
-not, modversions will prevent using the wrong modules, that's the very 
-case it's been designed for. 
-
-If you think you know better, or if any of the points above bother you too
-much, you're free to turn off modversions, which I guess most developers
-do. But because they're not useful to you, that doesn't mean they're not
-useful for anyone.
-
---Kai
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

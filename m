@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbTIOXtM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTIOXtM
+	id S261739AbTIOXtP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbTIOXtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 15 Sep 2003 19:49:15 -0400
+Received: from mrout1.yahoo.com ([216.145.54.171]:47889 "EHLO mrout1.yahoo.com")
+	by vger.kernel.org with ESMTP id S261739AbTIOXtM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 15 Sep 2003 19:49:12 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:21166 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261736AbTIOXtJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:49:09 -0400
-content-class: urn:content-classes:message
+Message-ID: <3F664FED.4040609@bigfoot.com>
+Date: Mon, 15 Sep 2003 16:49:01 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: Status of patches: es7000 & picmode
-Date: Mon, 15 Sep 2003 16:49:05 -0700
-Message-ID: <7F740D512C7C1046AB53446D3720017304AF5B@scsmsx402.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Status of patches: es7000 & picmode
-Thread-Index: AcN73ajOhp0BrcBkRdq0DaqruQOXpgABTPnA
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Andrew de Quincey" <adq_dvb@lidskialf.net>,
-       <acpi-devel@lists.sourceforge.net>, "linux-acpi" <linux-acpi@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 15 Sep 2003 23:49:06.0334 (UTC) FILETIME=[F3213BE0:01C37BE3]
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.22-ac3
+References: <200309152306.h8FN6lF04552@devserv.devel.redhat.com>
+In-Reply-To: <200309152306.h8FN6lF04552@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len is traveling today, and he should be available soon. 
-
-We wanted to test it a bit first because of the large changes to how
-IRQs were set up. Looks like we haven't heard complaints about it?
-
-I thought your changes for es7000 were applicable only to 2.6. Is that
-correct?
-
-Thanks,
-Jun
-> -----Original Message-----
-> From: Andrew de Quincey [mailto:adq_dvb@lidskialf.net]
-> Sent: Monday, September 15, 2003 4:02 PM
-> To: acpi-devel@lists.sourceforge.net; linux-acpi
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Status of patches: es7000 & picmode
+Alan Cox wrote:
+> This one should be treated gently initially.
 > 
-> Just checking up so things don't get lost... what is the status of my
-> es7000
-> patch and my picmode patch?
-> 
-> Neither of them is in the acpi test trees at
-http://linux-acpi.bkbits.com/.
+> Linux 2.4.22-ac3
+...
+> o	Add lba48_pio handling				(me)
+> 	| Large disks on controllers that can do PIO LBA48 or DMA LBA28
+> 	| now switch to PIO for large disks, not fail
+
+   does this apply to SATA disks?
+
+   what's the status of support for 137GB+ SATA disks? it required 
+libata5 patches from Jeff Garzik before (as of 2.4.21-ac4). I see some 
+SATA and ata related patches but I can't tell whether those are 
+(equivalent of) libata5. I'd appreciate some status update (of course a 
+pointer to where/how to find it would be appreciated too)
+
+   TIA
+
+	erik
 

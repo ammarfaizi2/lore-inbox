@@ -1,87 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279616AbRJXVTq>; Wed, 24 Oct 2001 17:19:46 -0400
+	id <S279603AbRJXVZG>; Wed, 24 Oct 2001 17:25:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279604AbRJXVT0>; Wed, 24 Oct 2001 17:19:26 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:32707 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S279603AbRJXVTS>;
-	Wed, 24 Oct 2001 17:19:18 -0400
-Message-ID: <3BD7332C.ABF2B2F8@sun.com>
-Date: Wed, 24 Oct 2001 14:31:24 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12C5_V i686)
-X-Accept-Language: en
+	id <S279606AbRJXVYr>; Wed, 24 Oct 2001 17:24:47 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:34526 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S279603AbRJXVYl>; Wed, 24 Oct 2001 17:24:41 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jan Kara <jack@suse.cz>
+Date: Thu, 25 Oct 2001 07:24:53 +1000 (EST)
 MIME-Version: 1.0
-To: andre@linux-ide.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SMART enable early
-Content-Type: multipart/mixed;
- boundary="------------DC313F297F32CE432962D02B"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15319.12709.29314.342313@notabene.cse.unsw.edu.au>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+In-Reply-To: message from Jan Kara on Wednesday October 24
+In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au>
+	<20011024171658.B10075@atrey.karlin.mff.cuni.cz>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DC313F297F32CE432962D02B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wednesday October 24, jack@suse.cz wrote:
+>   Hello,
+> 
+> >  In my ongoing effort to provide centralised file storage that I can
+> >  be proud of, I have put together some code to implement tree quotas.
+> > 
 
->From ATA spec proposal 1e:
+> >                                         du -s $HOME should *always*
+> >  match your usage according to "quota".
+
+>   But how do you solve the following: mv <dir> <some_other_dir>
+> The parent changes. You need to go through all the subdirs of <dir> and change
+> the TID. This is really hard to get right and to avoid deadlocks
+> and races... At least it seems to me so.
+> 
+
+It is possible that at times not all objects in a tree have the same
+tree-id.  This can happen in a number of ways.  One is moving a
+directory between quota-trees.  Another is changing the owner of the
+top directory in a quota tree.  Another is enabling tree quotas for
+the first time in a filesystem (TID is not kept up-to-date if
+treequotas are not enabled).  However:
+
+1/ Non-root users (actually non-CAP_CHOWN processes)  cannot create
+   such a situation. e.g. If the directory move would change the TID,
+   then it is forbidden (EXDEV).
+2/ At every lookup in a path_walk, the TID is checked against the
+   parent.  If it is wrong, it is changed.  This causes TID's to tend
+   towards correctness.
 
 
-8.55.3.8 Description (SMART ENABLE OPERATIONS)
+So if you move a directory between quota trees, then the usages will
+be wrong in the first instance.  But only root can make this happen.
+However, there is an easy way to fix it: just run a find or a du in
+the new tree. 
 
-This command enables access to all SMART capabilities within the device.
-Prior to receipt of this command SMART data are neither monitored nor saved
-by the device.
+If you get a situation where a file is linked into two different
+quota-trees (which non-CAP_CHOWN processes  cannot do, but "root"
+could achieve in several ways), then its usage charge will effectively
+bounce between the two trees as it is accessed from either side.
+Every time this happens, a KERN_WARNING message gets logged.
 
-You HAVE to enable SMART as early as possible to have any meaningful data. 
-And, as best I can tell, it is never DISABLED anywhere.  So once you read
-from /proc/.../smart_values SMART is on.  
+It is not a 'perfect' solution, as some times the real tree usage will
+not match the recorded tree usages.
 
-I think the patch is actually OK.  Unless you can point out where in the
-spec I am missing something.
+It is an 'acceptable' solution.  It keeps the goal that if you do a
+"du" and then look at your quota usage, they will match (though the
+other way round could in unusual circumstances not match).  It also
+prevents non-root users from creating problematic situations.
 
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------DC313F297F32CE432962D02B
-Content-Type: text/plain; charset=us-ascii;
- name="ide-smart.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-smart.diff"
+It is, I think, the 'best' solution that is possible.
 
-diff -ruN dist-2.4.12+patches/drivers/ide/ide-disk.c cvs-2.4.12+patches/drivers/ide/ide-disk.c
---- dist-2.4.12+patches/drivers/ide/ide-disk.c	Mon Oct 15 10:21:49 2001
-+++ cvs-2.4.12+patches/drivers/ide/ide-disk.c	Mon Oct 15 10:21:49 2001
-@@ -569,13 +569,13 @@
- 		drive->special.b.set_multmode = 1;
- }
- 
--#ifdef CONFIG_PROC_FS
--
- static int smart_enable(ide_drive_t *drive)
- {
- 	return ide_wait_cmd(drive, WIN_SMART, 0, SMART_ENABLE, 0, NULL);
- }
- 
-+#ifdef CONFIG_PROC_FS
-+
- static int get_smart_values(ide_drive_t *drive, byte *buf)
- {
- 	(void) smart_enable(drive);
-@@ -799,6 +799,7 @@
- #endif
- 	}
- 	drive->no_io_32bit = id->dword_io ? 1 : 0;
-+	(void) smart_enable(drive);
- }
- 
- static int idedisk_reinit (ide_drive_t *drive)
+Note that the automatic re-assignment of quota that happens on lookup
+if the TID is wrong by-passes quota checks.  It will always succeeed
+no matter who is doing the lookup (I found a use for ATTR_FORCE!!).
 
---------------DC313F297F32CE432962D02B--
+Also the patch that I posted before had a few bugs.
 
+  http://www.cse.unsw.edu.au/~neilb/patches/linux/2.4.13-pre6/patch-A-TreeQuotas
+
+has those bugs removed.
+
+NeilBrown

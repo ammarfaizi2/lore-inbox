@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263108AbTICOj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTICOj0
+	id S263485AbTICOxg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263492AbTICOxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:39:26 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:57227 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263108AbTICOir
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:38:47 -0400
-Date: Wed, 3 Sep 2003 15:38:10 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-Message-ID: <20030903143810.GB21530@mail.jlokier.co.uk>
-References: <20030903073628.GA19920@mail.jlokier.co.uk> <Pine.LNX.4.44.0309031141310.1273-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309031141310.1273-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 3 Sep 2003 10:53:36 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:28942 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S263485AbTICOxc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:53:32 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.6.0-test4(-mmX) via-rhine ethernet onboard C3 mini-itx doesn't work
+Date: Wed, 3 Sep 2003 14:53:31 +0000 (UTC)
+Organization: Cistron
+Message-ID: <bj4v9b$c48$1@news.cistron.nl>
+References: <20030903113737.A3655@pc9391.uni-regensburg.de> <20030903114611.C3655@pc9391.uni-regensburg.de>
+X-Trace: ncc1701.cistron.net 1062600811 12424 62.216.30.38 (3 Sep 2003 14:53:31 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> Will it be worth the code added to handle it?  I wonder the same of
-> non-linear (sys_mremap and sys_remap_file_pages, familiar troublemakers).
-> But all credit for handling them, good to reduce "undefined behaviour"s.
+Christian Guggenberger  <Christian.Guggenberger@physik.uni-regensburg.de> wrote:
+>Some days ago a patch for 2.6 has been posted on bugzilla, (see some of the 
+>last entries of Bug #10).
+>This one got IO-APIC + ACPI working for the first time in a year on my EPOX 
+>8k5a3+.
+>(via-rhine, usb , sound )
+>Please try !
 
-I dismissed remap_file_pages the same as you at first, but since
-Andrew mentioned it, I think it's a fair point.  As long as it's
-there, programmers should get the natural behaviour from it.
+You mean this one? (so small, probably no-one minds)
 
-Databases (tdb I think) use futexes in database files, and
-remap_file_pages is used to look at different views of database files,
-and for huge files, so...  It seems reasonable.  That's quite an easy
-bit of code anyway.  The futexes nicely stay persistent even when
-their particular offset into the file isn't mapped.
+diff -uNr linux-2.6.0-test4-bk2.orig/drivers/acpi/pci_link.c linux-2.6.0-test4-bk2/drivers/acpi/pci_link.c
+--- linux-2.6.0-test4-bk2.orig/drivers/acpi/pci_link.c	2003-08-23 01:52:08.000000000 +0200
++++ linux-2.6.0-test4-bk2/drivers/acpi/pci_link.c	2003-08-30 10:05:20.514059029 +0200
+@@ -360,6 +360,8 @@
+ 		return_VALUE(-ENODEV);
+ 	}
+ 
++
++#ifdef DONT_REMOVE_CHECK
+ 	/* Make sure the active IRQ is the one we requested. */
+ 	result = acpi_pci_link_get_current(link);
+ 	if (result) {
+@@ -375,6 +377,10 @@
+ 		return_VALUE(-ENODEV);
+ 	}
+ 
++#else
++        link->irq.active = irq;
++#endif
++
+ 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Set IRQ %d\n", link->irq.active));
+ 	
+ 	return_VALUE(0);
 
-mremap() is used for moving anonymous data structures around mainly.
-Applications don't really need to depend on the futexes moving in
-that, but it is what the current implementation does so they might
-exist by now.  The code for this is less defensible as it is more
-complicated.
+------------
 
--- Jamie
+Danny
+
+-- 
+I think so Brain, but why does a forklift 
+have to be so big if all it does is lift forks?
 

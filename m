@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132932AbRDUVUy>; Sat, 21 Apr 2001 17:20:54 -0400
+	id <S132934AbRDUVYy>; Sat, 21 Apr 2001 17:24:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132933AbRDUVUo>; Sat, 21 Apr 2001 17:20:44 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:21523 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132932AbRDUVUZ>;
-	Sat, 21 Apr 2001 17:20:25 -0400
-Date: Sat, 21 Apr 2001 17:20:59 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010421172059.B5007@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Francois Romieu <romieu@cogenit.fr>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu> <Pine.GSO.4.21.0104211630130.27021-100000@weyl.math.psu.edu> <20010421164659.A4704@thyrsus.com> <20010421231106.A15828@se1.cogenit.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010421231106.A15828@se1.cogenit.fr>; from romieu@cogenit.fr on Sat, Apr 21, 2001 at 11:11:06PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132935AbRDUVYo>; Sat, 21 Apr 2001 17:24:44 -0400
+Received: from www.teaparty.net ([216.235.253.180]:38927 "EHLO
+	www.teaparty.net") by vger.kernel.org with ESMTP id <S132934AbRDUVY2>;
+	Sat, 21 Apr 2001 17:24:28 -0400
+Date: Sat, 21 Apr 2001 22:24:25 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: Meelis Roos <mroos@linux.ee>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: XFree4/gdm problems with 2.4.4-pre5
+In-Reply-To: <Pine.GSO.4.32.0104212250410.29571-100000@romulus.cs.ut.ee>
+Message-ID: <Pine.LNX.4.10.10104212217530.24186-100000@www.teaparty.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@cogenit.fr>:
->                                   Y    N
-> The kernel will perform better   [ ]  [*]
+On Sat, 21 Apr 2001, Meelis Roos wrote:
 
-> Somebody will have less work     [*]  [ ]
+> The latest XFree4 (4.0.99.33 current cvs snapshot) and gdm
+> 2.0-0.beta4-helix12 have problems with kernel 2.4.4-pre5. gdm has been
+> the same version for long time, kerne and XFree have changed almost
+> together. After logging the user out, no new gdm login appears. Tracing
+> then is hard because ptraced x server runs very slowly. It may be either
+> XFree or kernel.
 
-Yes, anybody trying to figure out how to get a fix made.
+Actually, I have seen this symptom [albeit intermittently: may be a
+different cause] w. kernel 2.2.18/Xfree86-3 2.4.3/Xfree86-4 - gdm doesn't
+say much, except to log one message long the lines of 'client auth
+rejected' or 'connection rejected' or something like that. Haven't been
+able to pin it down, except that when it happens once, it seems to happen
+slightly more often for a while, and then the problem unpredictably goes
+away after/for a while, sometimes for an extended period of time. [weeks
+at a time, sometimes]. So it may not be possible to rule out gdm. [I'm
+using the same version, but the problem occurred w. the previous version
+too]
 
-> It's fun (TM)                    [*]  [ ]
-
-Fun for me.  I like solving global problems rather than just local ones.
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+"I don't want to go to the movies to be horrified and depressed."
+"No, I suppose you've got real life to do that."
 
-"Extremism in the defense of liberty is no vice; moderation in the
-pursuit of justice is no virtue."
-	-- Barry Goldwater (actually written by Karl Hess)

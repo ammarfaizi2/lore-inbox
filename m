@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278086AbRJVIdz>; Mon, 22 Oct 2001 04:33:55 -0400
+	id <S278275AbRJVIdP>; Mon, 22 Oct 2001 04:33:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278281AbRJVIdq>; Mon, 22 Oct 2001 04:33:46 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278086AbRJVId3>; Mon, 22 Oct 2001 04:33:29 -0400
-Subject: Re: [Dri-devel] my X-Kernel question
-To: shurdeek@panorama.sth.ac.at (Peter Surda)
-Date: Mon, 22 Oct 2001 09:39:37 +0100 (BST)
-Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20011022102459.X12359@shurdeek.cb.ac.at> from "Peter Surda" at Oct 22, 2001 10:24:59 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278086AbRJVIdF>; Mon, 22 Oct 2001 04:33:05 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33232 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278062AbRJVIcy>;
+	Mon, 22 Oct 2001 04:32:54 -0400
+Date: Mon, 22 Oct 2001 04:33:27 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
+In-Reply-To: <23837.1003738907@kao2.melbourne.sgi.com>
+Message-ID: <Pine.GSO.4.21.0110220423230.2294-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vacU-0001Cn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> we move the whole driver structure to kernel? Drivers for every other device
 
-Not really. 
 
-> STRUCTURE. For a great UI, we need DMA, vsync and devices communicating with
-> each other directly or with little overhead. Why insist on doing this in
+On Mon, 22 Oct 2001, Keith Owens wrote:
 
-A video driver has to have extremely good latency, syscalls are overhead that
-you generally do not want. There are specific things you want kernel help
-with - agp management (and thus AGP DMA), context switching on DRI and maybe
-some day interrupt handling for video vsync events and wiring them into
-the XSync extension.
+> When the post-install and pre-remove entries for module binfmt_misc are
+> hard coded into modprobe, there is no syntax in modules.conf to prevent
+> modprobe from always issuing those commands.  The next time somebody
+> decides that binfmt_misc needs different commands, everybody using the
+> old modutils on the new kernel will break.  I don't want the hassle,
+> put it in modules.conf where it can easily be changed.
+> 
+> If I can get an iron clad guarantee that binfmt_misc will never, ever
+> change again then I might consider hard coding the entries in modprobe.
+> BTW, I will need a signature in blood that says I can kill you if
+> binfmt_misc is ever changed :).
 
-The rest is a bit questionable as a kernel space candidate, but if you 
-want it in kernel go ahead - XFree86 supports both models. 
+Wait a second.  Who says anything about hardcoding that into modprobe?
+There is such thing as skeleton stuff for modules.conf, right?
+

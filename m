@@ -1,150 +1,179 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131576AbRAOVWY>; Mon, 15 Jan 2001 16:22:24 -0500
+	id <S131585AbRAOV0F>; Mon, 15 Jan 2001 16:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRAOVWO>; Mon, 15 Jan 2001 16:22:14 -0500
-Received: from [66.37.66.32] ([66.37.66.32]:35601 "EHLO crib.corepower.com")
-	by vger.kernel.org with ESMTP id <S131502AbRAOVV5>;
-	Mon, 15 Jan 2001 16:21:57 -0500
-Date: Mon, 15 Jan 2001 16:20:23 -0500 (EST)
-From: Jeff Raubitschek <raubitsj@crib.corepower.com>
-Reply-To: Jeff Raubitschek <raubitsj@writeme.com>
-To: linux-kernel@vger.kernel.org,
-        Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>
-Subject: Bonnie on NBD w/ memory pressure deadlocks (problem in wait_for_tcp_memory?)
-Message-ID: <Pine.LNX.4.21.0101151615190.10348-100000@crib.corepower.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131570AbRAOVZy>; Mon, 15 Jan 2001 16:25:54 -0500
+Received: from pD95071BA.dip.t-dialin.net ([217.80.113.186]:19420 "EHLO
+	linux-buechse.de") by vger.kernel.org with ESMTP id <S131502AbRAOVZg>;
+	Mon, 15 Jan 2001 16:25:36 -0500
+From: Juergen E Fischer <fischer@linux-buechse.de>
+Date: Mon, 15 Jan 2001 22:24:35 +0100
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: SCSI scanner problem with all kernels since 2.3.42
+Message-ID: <20010115222434.A9099@linux-buechse.de>
+In-Reply-To: <3A5B7A2E.E3F964A8@torque.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Kj7319i9nmIyA2yE"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A5B7A2E.E3F964A8@torque.net>; from dougg@torque.net on Tue, Jan 09, 2001 at 03:53:02PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-running 2.4.0 with kdb patch
 
-[1.] Bonnie on NBD w/ memory pressure deadlocks (problem in wait_for_tcp_memory?)
-[2.] Full description
-This bug appears to be totally reproducable on different hardware and kernel versions.
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The conditions that create the problem:
-	2 machines (client, server) (both p4 1.4G) networked with 100Mb 
-	the server runs:  ./nbd-server 8899 /dev/hda6 1937804k
-	the client runs:  ./nbd-client serverip 8899 /dev/nb5
-	                  mke2fs /dev/nb5
-			  mount /dev/nb5 -t ext2 /mnt/nb5
-			  ./Bonnie -d /mnt/nb5 -s 100
+Hi Doug,
 
-(nbd-client and nbd-server from http://atrey.karlin.mff.cuni.cz/~pavel/nbd/nbd.html)
+On Tue, Jan 09, 2001 at 03:53:02PM -0500, Douglas Gilbert wrote:
+> There is also a problem report with the  SnapScan 1236 <--> aha152x 
+> combination also based on SANE 1.0.3 . This one is looking 
+> like an "uninitialized errno" bug fixed in SANE 1.0.4 .
 
-NBD seems to do fine with normal disk use, but when Bonnie is run with large file sizes
-it causes memory pressure and this triggers the problem being seen.
+This should be solved with the attached patch.   As you might remember
+it's the same problem we already discussed with Abel Deuring.
 
-Bonnie output:
-FILE '/mnt/nbd5/Bonnie.8776', ssize: 104857600
-Writing with putc()...done
-Rewriting...  [and here it hangs]
+Normally there should be no need to use REQUEST SENSE from outside,
+when the driver supports auto-sense. It should be wrong as devices are
+required to clear the sense data after the first, automatically issued
+REQUEST SENSE.  BTW the new eh code requires low-level drivers to do
+auto-sense.  The driver assumed that these are wrong and ignores them.
+This behaviour was adopted from the aha1542 driver.
 
-What I think is going on:
-I compiled kdb into the kernel after unsuccessfully being able to figure it out by just
-looking at the source.  Doing this seemed to confirm my suspicions about the cause but
-I was unable to figure out the exact problem.
+But for the SnapScan REQUEST SENSE is not only used on CHECK CONDITION,
+but also to request the warmup time.  Therefore the REQUEST SENSE is
+valid here and proves the assumption wrong for such devices.
 
-using kdb I found the backtraces of important processes in the client and server:
+Even more worse is that the driver returned SUCCESS instead of 0 on
+REQUEST SENSE.  That's plain wrong and apparently tells the mid-level
+code not to queue any more commands.
 
-Client
-------
-pid 5: bdflush
-	schedule+0x2d8
-	schedule+timeout+0x17
-	wait_for_tcp_memory+0x12e
-	tcp_sendmsg+0x666
-	inet_sendmsg+0x40
-	sock_sendmsg+0x7a
-	[nbd]nbd_xmit+0xda
-	[nbd]nbd_send_req+0x8f
-	[nbd]do_nbd_request+0x104
-	__make_request+0x5be
-	generic_make_request+0xd7
-	submit_bh+0x58
-	ll_rw_block+0x12f
-	flush_dirty_buffers+0x81
-	bdflush+0x7b
-	kernel_thread+0x23
-pid 8740: nbd_client
-	schedule+0x2d8
-	__down+0x61
-	__down_failed+0xb
-	[nbd].text.lock+0x19
-	[nbd]nbd_do_it+0x41
-	[nbd]nbd_ioctl+0x316
-	blkdev_ioctl+0x2c
-	sys_ioctl+0x174
-	system_call+0x33
-pid 8753: Bonnie
-	schedule+0x2d8
-	__lock_page+0x8b
-	lock_page+0x18
-	do_generic_file_read+0x29b
-	generic_file_read+0x5d
-	sys_read+0x91
-	system_call+0x33
-
-Server
-------
-pid 8431: nbd-server
-	schedule+0x2d8
-	schedule_timeout+0x17
-	wait_for_tcp_memory+0x12e(0xc6ebe400, 0x7fffffff)
-	tcp_sendmsg+0x666(0xc6ebe400,0xc60bdf7c, 0x1010)
-	inet_sendmsg+0x40(0xc640aa04,0xc60bdf7c,0x1010, 0xc60bdf44, 0xc640aa04)
-	sock_sendmsg+0x7a(0xc640aa04,0xc60bdf7c,0x1010)
-	sock_write+0x8f(0xc7ebd00, 0xbfffa548, 0x1010, 0xc70ebd20)
-	sys_write+0x95(0x4,0xbfffa548, 0x1010, 0x1010, 0xbfffa548)
-	system_call+0x33
-
-both machines are low in memory but have buffer memory still:
-server: mem total=126216 used=124504 free=1712 shared=0 buffers=109844 cached=4912
-        -/+ buffers/cache: 9748 116468
-client: mem total=126216 used=124264 free=1952 shared=0 buffers= 29940 cached=15568
-	-/+ buffers/cache: 78756 47460
-
-What I think is going on is the client is busy reading blocks from the server over nbd
-and dirtying them, eventually the buffer cache consumes all memory.  This memory pressure
-causes bdflush to try to flush dirty buffers which requires it to send the blocks to the
-server.  This does not complete because wait_for_tcp_memory never succeeds ?? (I am still
-a bit unsure of what is going on with wait_for_tcp_memory)
-
-Thus the client can not send any more requests because nbd is locked by bdflush which is
-trying to flush dirty buffers but appearently cannot.
-
-Also the server seems to be in the same wait_for_tcp_memory loop.  I think if I understand
-better what is going on in wait_for_tcp_memory I will be closer to figureing out how to
-solve this problem.
-
-Any help would be appreciated, I have much more info if anything more is
-needed.
-
-Thank you very much,
--jeff
+The warmup time issue with the SnapScan (and maybe other devices) should
+also apply to the aha1542 driver.
 
 
-[3.] keywords: nbd, networking, low memory
-[4.] Linux version 2.4.0-kdb (raubitsj@jr-lnx) (gcc version egcs-2.91.66 19990314/Linux 
-	(egcs-1.1.2 release)) #2 Thu Jan 11 21:00:11 PST 2001
-[5.] no oops
-[6.] this problem is 100% reproducable, seems to be reproducable on different hardware,
-	w/ different kernel versions too
-[7.] Environment (this listing is limited, but can be provided if needed)
-cpuinfo: P4 1.4GHz 128MB ram
-modules: acenic, nbd
+Juergen
+
+-- 
+Juergen E Fischer
 
 
--------------------------------------------------------------------------------
- Jeff Raubitschek 
- Computer Engineer
- raubitsj@writeme.com
--------------------------------------------------------------------------------
+--Kj7319i9nmIyA2yE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="aha152x.diff"
+Content-Transfer-Encoding: 8bit
 
+diff -ur orig/linux/drivers/scsi/aha152x.c linux/drivers/scsi/aha152x.c
+--- orig/linux/drivers/scsi/aha152x.c	Fri Dec 29 23:35:47 2000
++++ linux/drivers/scsi/aha152x.c	Sun Jan 14 21:31:12 2001
+@@ -1,6 +1,6 @@
+ /* aha152x.c -- Adaptec AHA-152x driver
+  * Author: Jürgen E. Fischer, fischer@norbit.de
+- * Copyright 1993-1999 Jürgen E. Fischer
++ * Copyright 1993-2000 Jürgen E. Fischer
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License as published by the
+@@ -13,9 +13,13 @@
+  * General Public License for more details.
+  *
+  *
+- * $Id: aha152x.c,v 2.3 2000/11/04 16:40:26 fischer Exp $
++ * $Id: aha152x.c,v 2.4 2000/12/16 12:53:56 fischer Exp $
+  *
+  * $Log: aha152x.c,v $
++ * Revision 2.4  2000/12/16 12:53:56  fischer
++ * - allow REQUEST SENSE to be queued
++ * - handle shared PCI interrupts
++ *
+  * Revision 2.3  2000/11/04 16:40:26  fischer
+  * - handle data overruns
+  * - extend timeout for data phases
+@@ -932,6 +936,8 @@
+         	printk(KERN_ERR "aha152x%d: catched software interrupt for unknown controller.\n", HOSTNO);
+ 
+ 	HOSTDATA(shpnt)->swint++;
++
++	SETPORT(DMACNTRL0, INTEN);
+ }
+ 
+ 
+@@ -1274,7 +1280,7 @@
+ 		SETPORT(SIMODE0, 0);
+ 		SETPORT(SIMODE1, 0);
+ 
+-		ok = request_irq(shpnt->irq, swintr, SA_INTERRUPT, "aha152x", shpnt);
++		ok = request_irq(shpnt->irq, swintr, SA_INTERRUPT|SA_SHIRQ, "aha152x", shpnt);
+ 		if (ok < 0) {
+ 			if (ok==-EINVAL)
+ 				printk(KERN_ERR "aha152x%d: bad IRQ %d.\n", HOSTNO, shpnt->irq);
+@@ -1308,6 +1314,8 @@
+ 				printk("failed.\n");
+ 			}
+ 
++			SETPORT(DMACNTRL0, INTEN);
++
+ 			printk(KERN_ERR "aha152x%d: IRQ %d possibly wrong.  Please verify.\n", HOSTNO, shpnt->irq);
+ 
+ 			registered_count--;
+@@ -1319,13 +1327,12 @@
+ 		}
+ 		printk("ok.\n");
+ 
+-		SETPORT(DMACNTRL0, INTEN);
+ 
+ 		/* clear interrupts */
+ 		SETPORT(SSTAT0, 0x7f);
+ 		SETPORT(SSTAT1, 0xef);
+ 
+-		if (request_irq(shpnt->irq, intr, SA_INTERRUPT, "aha152x", shpnt) < 0) {
++		if (request_irq(shpnt->irq, intr, SA_INTERRUPT|SA_SHIRQ, "aha152x", shpnt) < 0) {
+ 			printk(KERN_ERR "aha152x%d: failed to reassign interrupt.\n", HOSTNO);
+ 
+ 			scsi_unregister(shpnt);
+@@ -1469,12 +1476,14 @@
+ 
+ int aha152x_queue(Scsi_Cmnd *SCpnt, void (*done)(Scsi_Cmnd *))
+ {
++#if 0
+ 	if(*SCpnt->cmnd == REQUEST_SENSE) {
+ 		SCpnt->result = 0;
+ 		done(SCpnt);
+ 
+-		return SUCCESS;
++		return 0;
+ 	}
++#endif
+ 
+ 	return aha152x_internal_queue(SCpnt, 0, 0, 0, done);
+ }
+diff -ur orig/linux/drivers/scsi/aha152x.h linux/drivers/scsi/aha152x.h
+--- orig/linux/drivers/scsi/aha152x.h	Mon Dec 11 22:19:02 2000
++++ linux/drivers/scsi/aha152x.h	Fri Jan 12 13:18:24 2001
+@@ -2,7 +2,7 @@
+ #define _AHA152X_H
+ 
+ /*
+- * $Id: aha152x.h,v 2.3 2000/11/04 16:41:37 fischer Exp $
++ * $Id: aha152x.h,v 2.4 2000/12/16 12:48:48 fischer Exp $
+  */
+ 
+ #if defined(__KERNEL__)
+@@ -27,7 +27,7 @@
+    (unless we support more than 1 cmd_per_lun this should do) */
+ #define AHA152X_MAXQUEUE 7
+ 
+-#define AHA152X_REVID "Adaptec 152x SCSI driver; $Revision: 2.3 $"
++#define AHA152X_REVID "Adaptec 152x SCSI driver; $Revision: 2.4 $"
+ 
+ /* Initial value of Scsi_Host entry */
+ #define AHA152X { proc_name:			"aha152x",		\
 
-
+--Kj7319i9nmIyA2yE--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

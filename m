@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264030AbSIQJw2>; Tue, 17 Sep 2002 05:52:28 -0400
+	id <S264029AbSIQJ66>; Tue, 17 Sep 2002 05:58:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264029AbSIQJw2>; Tue, 17 Sep 2002 05:52:28 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15203 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264030AbSIQJw1>; Tue, 17 Sep 2002 05:52:27 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200209170957.g8H9vMw17037@devserv.devel.redhat.com>
-Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Tue, 17 Sep 2002 05:57:21 -0400 (EDT)
-Cc: rusty@rustcorp.com.au (Rusty Russell), alan@redhat.com (Alan Cox),
-       linux-kernel@vger.kernel.org, vojtech@suse.cz (Vojtech Pavlik)
-In-Reply-To: <Pine.LNX.4.10.10209170028370.11597-100000@master.linux-ide.org> from "Andre Hedrick" at Sep 17, 2002 12:42:56 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264004AbSIQJ66>; Tue, 17 Sep 2002 05:58:58 -0400
+Received: from AMontpellier-205-1-13-198.abo.wanadoo.fr ([80.14.68.198]:20999
+	"EHLO microsoft.com") by vger.kernel.org with ESMTP
+	id <S264034AbSIQJ65> convert rfc822-to-8bit; Tue, 17 Sep 2002 05:58:57 -0400
+Subject: Re: [PATCH][2.5.35] CPUfreq documentation (4/5)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: torvalds@transmeta.com, hpa@transmeta.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cpufreq@www.linux.org.uk
+In-Reply-To: <20020917113547.H25385@brodo.de>
+References: <20020917113547.H25385@brodo.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 17 Sep 2002 12:03:55 +0200
+Message-Id: <1032257043.2894.24.camel@nomade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 	if (ioctl(devfd, HDIO_GET_IDENTITY, &hdid) < 0) {
-> > 		perror("Getting identity of drive");
-> > 		exit(1);
-> > 	}
-> 
-> Uses and interrupt and nIEN = 0, BUG() for polling
+Le mar 17/09/2002 à 11:35, Dominik Brodowski a écrit :
 
-That data can be captured early, in fact if you trust the data structures
-a little its potentially still there
+> +P4 CPU Clock Modulation:
+> +    Intel Pentium 4 Xeon processors
+> +---------------------------------
+> +    Note that you can only switch the speed of two logical CPUs at
+> +    once - but each phyiscal CPU may have different throttling levels.
+> +    Unfortunately, the cpu_khz value 
+> +
+> +
 
-> > > Be careful here - one or two drives get nIEN backwards, you might just
-> > > want to turn off interrupts and be done with it
-> > 
-> > Hmm... I have interrupts disabled so I don't really care: should be OK
-> > I think.  Or were you thinking of something else?
-> 
-> Kernel interrupts are not Device.
+It seems like there is a glitch here. The sentence isn't terminated
+properly.
 
-Should be fine, except as Andre notes you have to poll, but for the simple
-commands I don't think thats exactly a killer.
 
-> Depends of if you want hard or soft reset and if you care about signature
-> decoding for redetecting presence of attached devices.
 
-I'd guess not. The disk was there, it needs to be in some kind of working
-form so resetting it all and pretending to be DOS should do ?
-
-Alan

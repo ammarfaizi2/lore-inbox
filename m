@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130316AbQKJRkQ>; Fri, 10 Nov 2000 12:40:16 -0500
+	id <S130231AbQKJRq5>; Fri, 10 Nov 2000 12:46:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130364AbQKJRkH>; Fri, 10 Nov 2000 12:40:07 -0500
-Received: from gw.ahoj.pl ([212.45.230.114]:28173 "EHLO tfuj.ahoj.pl")
-	by vger.kernel.org with ESMTP id <S130316AbQKJRju>;
-	Fri, 10 Nov 2000 12:39:50 -0500
-Date: Fri, 10 Nov 2000 18:36:29 +0100 (CET)
-From: Pawe³ Kot <pkot@linuxnews.pl>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0-test11pre2-ac1 and previous problem
-In-Reply-To: <Pine.LNX.4.05.10011101829270.25351-100000@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.30.0011101832310.29502-100000@tfuj.ahoj.pl>
+	id <S130364AbQKJRqq>; Fri, 10 Nov 2000 12:46:46 -0500
+Received: from pmcl.ph.utexas.edu ([128.83.155.100]:9734 "EHLO
+	pmcl.ph.utexas.edu") by vger.kernel.org with ESMTP
+	id <S130231AbQKJRqa>; Fri, 10 Nov 2000 12:46:30 -0500
+Date: Fri, 10 Nov 2000 11:00:24 -0600 (EST)
+From: <michael@pmcl.ph.utexas.edu>
+To: linux-kernel@vger.kernel.org
+Subject: intel etherpro100 on 2.2.18p21 vs 2.2.18p17
+Message-ID: <Pine.LNX.4.10.10011101052400.16982-100000@pmcl.ph.utexas.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We have several Supermicro 370DL3 boards (scsi, built into epro100, dual
+pentium iii) - which are giving the following ethernet card error on
+2.2.18p21, but not on 2.2.18p17.  This error has happened on 3 out of 4
+boards with this configuration.
 
-> On Fri, 10 Nov 2000, [iso-8859-2] Pawe³ Kot wrote:
->
-> > NMI Watchdog detected LOCKUP on CPU3, registers:
->
-> > What can be wrong?
->
-> You forgot to read the REPORTING-BUGS file.
->
-> You told us everything except the really
-> important information ... the backtrace from
-> the info printed by the NMI Oopser...
+Oct 18 12:17:34 db1 kernel: eth0: card reports no RX buffers. 
+The above message repeats itself and the ethernet card does not work.
 
-No ooops was generated. Or at least I can't find it. On console there was
-the  only line. There's nothing in logs.
+On bootup:
+Oct 18 12:17:34 db1 kernel: scsi : detected 1 SCSI disk total.
+Oct 18 12:17:34 db1 kernel: SCSI device sda: hdwr sector= 512 bytes.
+Sectors= 35843671 [17501 MB] [17.5 GB]
+Oct 18 12:17:34 db1 kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro10$
+Oct 18 12:17:34 db1 kernel: eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31
+Modified by Andrey V. Savochkin <saw@saw.sw.c$
+Oct 18 12:17:34 db1 kernel: eth0: Intel PCI EtherExpress Pro100 82557,
+00:30:48:21:2F:9E, I/O at 0xd400, IRQ 31.
+Oct 18 12:17:34 db1 kernel:   Board assembly 000000-000, Physical
+connectors present: RJ45
+Oct 18 12:17:34 db1 kernel:   Primary interface chip i82555 PHY #1.
+Oct 18 12:17:34 db1 kernel:   General self-test: passed.
+Oct 18 12:17:34 db1 kernel:   Serial sub-system self-test: passed.
+Oct 18 12:17:34 db1 kernel:   Internal registers self-test: passed.
+Oct 18 12:17:34 db1 kernel:   ROM checksum self-test: passed (0x04f4518b).
+Oct 18 12:17:34 db1 kernel:   Receiver lock-up workaround activated.
+Oct 18 12:17:34 db1 kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
+http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+Oct 18 12:17:34 db1 kernel: eepro100.c: $Revision: 1.20.2.10 $ 2000/05/31
+Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and o$
+Oct 18 12:17:34 db1 kernel: Partition check:
+Oct 18 12:17:34 db1 kernel:  sda: sda1 sda2 < sda5 sda6 sda7 >
+Oct 18 12:17:34 db1 kernel: VFS: Mounted root (ext2 filesystem) readonly.
+Oct 18 12:17:34 db1 kernel: Freeing unused kernel memory: 52k freed
+Oct 18 12:17:34 db1 kernel: Adding Swap: 136512k swap-space (priority -1)
+Oct 18 12:17:34 db1 kernel: eth0: card reports no RX buffers. 
 
-regards
-pkot
--- 
-mailto:pkot@linuxnews.pl
-http://urtica.linuxnews.pl/~pkot/
-http://newsreader.linuxnews.pl/
+
+I believe this has been an ongoing issue for these intel nics?
+
+--Michael
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

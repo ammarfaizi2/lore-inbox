@@ -1,122 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUIAXAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUIAW4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267926AbUIAXAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUIAVCQ
+	id S268113AbUIAW4O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 18:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267681AbUIAWxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 17:02:16 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:57832 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S268005AbUIAU6A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:58:00 -0400
-Subject: [patch 25/25]  synclink: replace jiffies_from_ms() with 	msecs_to_jiffies()
-To: linux-kernel@vger.kernel.org
-Cc: akpm@digeo.com, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Wed, 01 Sep 2004 22:57:55 +0200
-Message-ID: <E1C2cB2-0007X7-2v@sputnik>
+	Wed, 1 Sep 2004 18:53:08 -0400
+Received: from users.linvision.com ([62.58.92.114]:47580 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S267421AbUIAWvB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 18:51:01 -0400
+Date: Thu, 2 Sep 2004 00:51:00 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pwc+pwcx is not illegal
+Message-ID: <20040901225100.GA28809@bitwizard.nl>
+References: <6.1.2.0.2.20040828141825.01e5e7d8@inet.uni2.dk> <20040828131138.GZ12772@fs.tum.de> <1093788177.27901.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093788177.27901.37.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I don't want to get into the whole discussion. However, 
 
+--------------------
 
+int pwcx_init_decompress_Timon (int a,int b,int c, int d)
 
+{
+  return pwc_init_decompress_common (a, c, d); 
+}
 
+void pwcx_exit_decompress_Timon (void)
+{
+}
 
-I would appreciate any comments from the janitors list.
+int pwcx_init_decompress_Kiara (int a,int b,int c, int d)
 
--Nish
+{
+  return pwc_init_decompress_common (a, c, d); 
+}
 
+void pwcx_exit_decompress_Kiara (void)
+{
+}
 
+--------------------
 
-Description: Uses msecs_to_jiffies() instead of the custom
-jiffies_from_ms().
+compiles with 
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+	gcc -m486 -Wall -O2 pwcx_test.c -S
 
+into the same assembly as found in libpwcx.a ...
 
+	Roger. 
 
----
-
- linux-2.6.9-rc1-bk7-max/drivers/char/synclink.c |   16 +++++++---------
- 1 files changed, 7 insertions(+), 9 deletions(-)
-
-diff -puN drivers/char/synclink.c~use-msecs-to-jiffies-drivers_char_synclink drivers/char/synclink.c
---- linux-2.6.9-rc1-bk7/drivers/char/synclink.c~use-msecs-to-jiffies-drivers_char_synclink	2004-09-01 19:35:56.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/char/synclink.c	2004-09-01 19:35:56.000000000 +0200
-@@ -851,8 +851,6 @@ static int mgsl_rxenable(struct mgsl_str
- static int mgsl_wait_event(struct mgsl_struct * info, int __user *mask);
- static int mgsl_loopmode_send_done( struct mgsl_struct * info );
- 
--#define jiffies_from_ms(a) ((((a) * HZ)/1000)+1)
--
- /* set non-zero on successful registration with PCI subsystem */
- static int pci_registered;
- 
-@@ -4171,7 +4169,7 @@ int load_next_tx_holding_buffer(struct m
- 				info->get_tx_holding_index=0;
- 
- 			/* restart transmit timer */
--			mod_timer(&info->tx_timer, jiffies + jiffies_from_ms(5000));
-+			mod_timer(&info->tx_timer, jiffies + msecs_to_jiffies(5000));
- 
- 			ret = 1;
- 		}
-@@ -5800,7 +5798,7 @@ void usc_start_transmitter( struct mgsl_
- 			
- 			usc_TCmd( info, TCmd_SendFrame );
- 			
--			info->tx_timer.expires = jiffies + jiffies_from_ms(5000);
-+			info->tx_timer.expires = jiffies + msecs_to_jiffies(5000);
- 			add_timer(&info->tx_timer);	
- 		}
- 		info->tx_active = 1;
-@@ -7196,7 +7194,7 @@ BOOLEAN mgsl_irq_test( struct mgsl_struc
- 	EndTime=100;
- 	while( EndTime-- && !info->irq_occurred ) {
- 		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(jiffies_from_ms(10));
-+		schedule_timeout(msecs_to_jiffies(10));
- 	}
- 	
- 	spin_lock_irqsave(&info->irq_spinlock,flags);
-@@ -7335,7 +7333,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
- 	/*************************************************************/
- 
- 	/* Wait 100ms for interrupt. */
--	EndTime = jiffies + jiffies_from_ms(100);
-+	EndTime = jiffies + msecs_to_jiffies(100);
- 
- 	for(;;) {
- 		if (time_after(jiffies, EndTime)) {
-@@ -7391,7 +7389,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
- 	/**********************************/
- 	
- 	/* Wait 100ms */
--	EndTime = jiffies + jiffies_from_ms(100);
-+	EndTime = jiffies + msecs_to_jiffies(100);
- 
- 	for(;;) {
- 		if (time_after(jiffies, EndTime)) {
-@@ -7433,7 +7431,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
- 		/******************************/
- 
- 		/* Wait 100ms */
--		EndTime = jiffies + jiffies_from_ms(100);
-+		EndTime = jiffies + msecs_to_jiffies(100);
- 
- 		/* While timer not expired wait for transmit complete */
- 
-@@ -7464,7 +7462,7 @@ BOOLEAN mgsl_dma_test( struct mgsl_struc
- 		/* WAIT FOR RECEIVE COMPLETE */
- 
- 		/* Wait 100ms */
--		EndTime = jiffies + jiffies_from_ms(100);
-+		EndTime = jiffies + msecs_to_jiffies(100);
- 
- 		/* Wait for 16C32 to write receive status to buffer entry. */
- 		status=info->rx_buffer_list[0].status;
-
-_
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

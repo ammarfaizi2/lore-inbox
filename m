@@ -1,84 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261689AbSJQDyY>; Wed, 16 Oct 2002 23:54:24 -0400
+	id <S261757AbSJQECH>; Thu, 17 Oct 2002 00:02:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261706AbSJQDyY>; Wed, 16 Oct 2002 23:54:24 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:41862
+	id <S261769AbSJQECH>; Thu, 17 Oct 2002 00:02:07 -0400
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:42118
 	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S261689AbSJQDyX>; Wed, 16 Oct 2002 23:54:23 -0400
-Subject: Re: Posix capabilities
+	id <S261757AbSJQECG>; Thu, 17 Oct 2002 00:02:06 -0400
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
 From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021017032619.GA11954@think.thunk.org>
-References: <20021016154459.GA982@TK150122.tuwien.teleweb.at>
-	 <20021017032619.GA11954@think.thunk.org>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: Simon Roscic <simon.roscic@chello.at>, linux-kernel@vger.kernel.org
+In-Reply-To: <3DAE3465.6060006@metaparadigm.com>
+References: <200210152120.13666.simon.roscic@chello.at>
+	 <200210152153.08603.simon.roscic@chello.at>
+	 <3DACD41F.2050405@metaparadigm.com>
+	 <200210161828.18985.simon.roscic@chello.at>
+	 <3DAD988B.40704@metaparadigm.com> <1034824350.26.33.camel@localhost>
+	 <3DAE3465.6060006@metaparadigm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: Digitalroadkill.net
-Message-Id: <1034827220.32333.69.camel@localhost>
+Message-Id: <1034827683.26.76.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 16 Oct 2002 23:00:20 -0500
+Date: 16 Oct 2002 23:08:04 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-16 at 22:26, Theodore Ts'o wrote:
-> On Wed, Oct 16, 2002 at 05:44:59PM +0200, Stefan Schwandter wrote:
+On Wed, 2002-10-16 at 22:54, Michael Clark wrote:
+> On 10/17/02 11:12, GrandMasterLee wrote:
+> > On Wed, 2002-10-16 at 11:49, Michael Clark wrote:
+> >>Seems to be the correlation so far. qlogic driver without lvm works okay.
+> >>qlogic driver with lvm, oopsorama.
 > > 
-> > I saw capabilities and acl patches for ext2/3 enter -mm. Is it possible
-> > now to give an executable (that lives on an ext2/ext3 fs) the necessary
-> > rights to use SCHED_FIFO without being setuid root? Could someone give
-> > me some pointers for these topics (capabilities support in linux, acl)?
+> > 
+> > Michael, what exactly do your servers do? Are they DB servers with ~1Tb
+> > connected, or file-servers with hundreds of gigs, etc?
 > 
-> The patchs which I've been working on do not support capabilities;
-> just extended attributes. 
+> My customer currently has about 400Gb on this particular 4 node Application
+> cluster (actually 2 x 2 node clusters using kimberlite HA software).
 > 
-> Personally, I'm not so convinced that capabilities are such a great
-> idea.  System administrators have a hard enough time keeping 12 bits
-> of permissions correct on executable files; with capabilities they
-> have to keep track of several hundred bits of capabilties flags, which
-> must be set precisely correctly, or the programs will either (a) fail
-> to function, or (b) have a gaping huge security hole.  
+> It has 11 logical hosts (services) spread over the 4 nodes with services such
+> as Oracle 8.1.7, Oracle Financials (11i), a busy openldap server, and busy
+> netatalk AppleShare Servers, Cyrus IMAP server. All are on ext3 partitions
+> and were previously using LVM to slice up the storage.
 
-While working with LIDS in it's early stages of implementation, and
-having written some documentation around CAPs and  extended attributes,
-as well as managing that environment, I see value in CAPs, but I see it
-a difficult task to say, manage 100 servers with very tight CAPs set. 
+On each of the Nodes, correct?
 
-> This probablem could be solved with some really scary, complex user
-> tools (which no one has written yet). 
+> The cluster usually has around 200-300 active users.
+> 
+> We have had oops (in ext3) on differing logical hosts which where running
+> different services. ie. has oopsed on the node mastering the fileserver,
+> and also on the node mastering the oracle database.
 
-Looking at CA Unicenter, they have an ACLs and CAPs product which does
-centralized management of those attributes to keep the configs sane
-across your environment. Not trying to advertise for them, but the point
-is, if a commercial product exists to do this, then it should be highly
-possible in the OSS community as well.
+And again, each was running LVM in a shared storage mode for failover?
 
->  Alternatively you could just
-> let programs continue to be setuid root, but modify the executable to
-> explicitly drop all the capabilities except for the ones that are
-> actually needed as one of the first things that executable does.
+> Cross fingers, since removing LVM (which was the only change we have made,
+> same kernel) we have had 3 times our longest uptime and still counting.
+> 
+> By the sounds, from earlier emails I had posted, users had responded
+> to me who were also using qlogic and none of them had had any problems,
+> the key factor was none of them were running LVM - this is what made
+> me think to try and remove it (it was really just a hunch). We had
+> gone through months of changing kernel versions, changing GigE network
+> adapters, driver versions, etc, to no avail, then finally the LVM removal.
 
-To make management easy for the admins when I dealt with LIDS and making
-it *very* tight, I had to write several wrappers, replace commands, etc
-so they ran chrooted automatically, etc. It was a PITA. Cool when it
-worked, but it was still a PITA.
+Kewl. That makes me feel much better now too. 
 
-> It perhaps only gives you 90% of the benefits of the full-fledged
-> capabilities model, but it's much more fool proof, and much easier to
-> administer.
+> Due to the potential nature of it being a stack problem. The problem
+> really can't just be pointed at LVM but more the additive effect this
+> would have on some underlying stack problem.
+> 
+> I believe the RedHat kernels i tried (rh7.2 2.4.9-34 errata was the most
+> recent) also had this 'stack' problem. I am currently using 2.4.19pre10aa4.
 
-Perhaps exntending the security module to actually have a centralized
-host configuration utility, using say AES or diffie-hellman and SSL or
-SSH to do the configuration management of this. Centralizing, or
-distributing the management of this, but with a decided upon security
-architecture is what, imho, will actually make this type of
-configuration very useable, and manageable. 
+Kewl. I'm using 2.4.19-aa1 (rc5-aa1, but hell, it's the same thing).
 
-> 						- Ted
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I would hate to reccomend you remove LVM and it not work, but i
+> must say it has worked for me (i'm just glad i didn't go to XFS instead
+> of removing LVM as i did - as this was the other option i was pondering).
+
+I hear you. We were pondering changing to EXT3, and not just EXT3, RHAS
+also. i.e. more money, unknown kernel config, etc. I was going to be
+*very* upset.  Are you running FC2(qla2300Fs in FC2 config) or FC1?
+
+TIA
+
+> ~mc
+> 

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265528AbUA0Q1h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 11:27:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbUA0Q1g
+	id S265525AbUA0Q1H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 11:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUA0Q1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 11:27:36 -0500
-Received: from smtp11.eresmas.com ([62.81.235.111]:13805 "EHLO
-	smtp11.eresmas.com") by vger.kernel.org with ESMTP id S265528AbUA0Q1b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 11:27:31 -0500
-Message-ID: <40169019.5040002@wanadoo.es>
-Date: Tue, 27 Jan 2004 17:21:45 +0100
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; es-ES; rv:1.4.1) Gecko/20031114
-X-Accept-Language: gl, es, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-bk30 and C trigraphs bugs
-References: <3F84A15F.6080105@wanadoo.es> <20040119153814.5ebc3a87.rddunlap@osdl.org>
-In-Reply-To: <20040119153814.5ebc3a87.rddunlap@osdl.org>
+	Tue, 27 Jan 2004 11:27:07 -0500
+Received: from colin2.muc.de ([193.149.48.15]:16146 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S265525AbUA0Q1D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 11:27:03 -0500
+Date: 27 Jan 2004 17:26:05 +0100
+Date: Tue, 27 Jan 2004 17:26:05 +0100
+From: Andi Kleen <ak@muc.de>
+To: Eric <eric@cisu.net>
+Cc: Andrew Morton <akpm@osdl.org>, stoffel@lucent.com, ak@muc.de,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, cova@ferrara.linux.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
+Message-ID: <20040127162605.GB98702@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net> <200401262343.35633.eric@cisu.net> <20040126215056.4e891086.akpm@osdl.org> <200401270037.43676.eric@cisu.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+In-Reply-To: <200401270037.43676.eric@cisu.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+On Tue, Jan 27, 2004 at 12:37:43AM -0600, Eric wrote:
+> On Monday 26 January 2004 23:50, Andrew Morton wrote:
+> > Eric <eric@cisu.net> wrote:
+> > > YES. I finally have a working 2.6.2-rc1-mm3 booted kernel.
+> > >  Lets review folks---
+> > >  	reverted -funit-at-a-time
+> > >  	patched test_wp_bit so exception tables are sorted sooner
+> > >  	reverted md-partition patch
+> >
+> > The latter two are understood, but the `-funit-at-a-time' problem is not.
+> >
+> > Can you plesae confirm that restoring only -funit-at-a-time again produces
+> > a crashy kernel?  And that you are using a flavour of gcc-3.3?  If so, I
+> > guess we'll need to only enable it for gcc-3.4 and later.
+> >
+> Yes, confirmed. My  version of gcc, I just sent you adding the 
+> -funit-at-a-time hung after uncompressing the kernel. I booted a secondary 
+> kernel, recompiled without it and all was fine again. Confirmed non-boot for 
+> 2.6.2-rc1-mm3 but without a doubt for all kernels previous where 
+> -funit-at-a-time is active in the makefile.
 
-> On Thu, 09 Oct 2003 01:44:31 +0200 Xose Vazquez Perez <xose@wanadoo.es> wrote:
-> 
-> | hi,
-> | 
-> | There are some mistakes with C trigraphs:
-> | 
-> | arch/m68k/atari/stram.c:                        PRINT_PROC( "??)\n" );
-> | arch/sparc/kernel/traps.c:              die_if_kernel("Penguin instruction from Penguin mode??!?!", regs);
-> | drivers/atm/idt77252.c:         printk("%s: PCI_COMMAND: %04x (???)\n",
-> | drivers/acorn/scsi/acornscsi.c:    "??-out",                    /* 1C */
-> | drivers/acorn/scsi/acornscsi.c:    "??-in",                     /* 1D */
-> | drivers/block/acsi.c:   { 0x00, "No error (??)" },
-> | drivers/block/acsi.c:   { 0x00, "No error (??)" },
-> | drivers/media/video/saa7110.c:          DEBUG(printk(KERN_INFO "unknown saa7110_command??(%d)\n",cmd));
-> | drivers/mtd/maps/sun_uflash.c:          name:           "SUNW,???-????",
-> | drivers/scsi/ppa.c:     printk("ppa: parity error (???)\n");
-> | drivers/scsi/ppa.c:     printk("ppa: bad interrupt (???)\n");
-> | drivers/scsi/imm.c:     printk("imm: parity error (???)\n");
-> | drivers/scsi/imm.c:     printk("imm: bad interrupt (???)\n");
-> | net/rose/af_rose.c:                     callsign = "??????-?";
-> | 
-> | fixes are trivial.
-> | 
-> | Is 2.6.0-pre free of them  :-?
-> 
-> Of course not.  I grepped over 100 of them in 2.6.1.
-> 
-> Are they a problem?
+Ok thanks for the confimration. I will try to reproduce this with the 
+SuSE 8.2 compiler and track it down.
 
-Visually yes, they hurt to the sight ;-)
-
-But unless somebody uses -std or -ansi, by default GCC
-ignores trigraphs.
-
--- 
-Software is like sex, it's better when it's bug free.
-
-
+-Andi

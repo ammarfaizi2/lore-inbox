@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310631AbSCHBKS>; Thu, 7 Mar 2002 20:10:18 -0500
+	id <S310635AbSCHBTT>; Thu, 7 Mar 2002 20:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310632AbSCHBKI>; Thu, 7 Mar 2002 20:10:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15112 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310631AbSCHBKE>;
-	Thu, 7 Mar 2002 20:10:04 -0500
-Message-ID: <3C880EFF.A0789715@zip.com.au>
-Date: Thu, 07 Mar 2002 17:08:15 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: truncate_list_pages()  BUG and confusion
-In-Reply-To: <3C8809BA.4070003@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S310634AbSCHBTJ>; Thu, 7 Mar 2002 20:19:09 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:17156 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S310633AbSCHBS4>; Thu, 7 Mar 2002 20:18:56 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: frankeh@watson.ibm.com
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: furwocks: Fast Userspace Read/Write Locks 
+In-Reply-To: Your message of "Thu, 07 Mar 2002 10:33:32 CDT."
+             <20020307153228.3A6773FE06@smtp.linux.ibm.com> 
+Date: Fri, 08 Mar 2002 12:22:14 +1100
+Message-Id: <E16j95K-00047G-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+In message <20020307153228.3A6773FE06@smtp.linux.ibm.com> you write:
+> On Thursday 07 March 2002 07:50 am, Arjan van de Ven wrote:
+> > Rusty Russell wrote:
+> > > This is a userspace implementation of rwlocks on top of futexes.
+> >
+> > question: if rwlocks aren't actually slower in the fast path than
+> > futexes,
+> > would it make sense to only do the rw variant and in some userspace
+> > layer
+> > map "traditional" semaphores to write locks ?
+> > Saves half the implementation and testing....
 > 
-> in truncate_list_pages()
-> 
->    failed = TryLockPage(page);
-> 
-> So, the page is always locked here.
-> 
->    truncate_complete_page(page);
->          remove_inode_page(page);
->               if (!PageLocked(page))
->                  PAGE_BUG(page);
-> 
->          page_cache_release(page);
->              calls __free_pages_ok(page, 0);
->                  if (PageLocked(page))
->                     BUG();
-> 
-> It is a BUG if the page is not locked in remove_inode_page() and also a
-> bug if it IS locked in __free_pages_ok().  What am I missing?
+> I m not in favor of that. The dominant lock will be mutexes.
 
-the page_cache_release() in truncate_complete_page() is just dropping
-the reference count against the page which is due to that page's
-presence in the pagecache.  We just took it out, so we drop the reference.
+To clarify: I'd love this, but rwlocks in the kernel aren't even
+vaguely fair.  With a steady stream of overlapping readers, a writer
+will never get the lock.
 
-Note that the caller of truncate_complete_page() also took a reference to
-the page, and undoes that reference *after* unlocking the page.  This
-additional reference will prevent __free_pages_ok() from being called
-by truncate_complete_page().
-
-> ksymoopsed output follows:
->
-> kernel BUG at page_alloc.c:109!
-
-Now how did you manage that?  Looks like someone re-locked
-the page after truncate_list_pages unlocked it.
-
--
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

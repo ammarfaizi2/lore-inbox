@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313013AbSDCCVc>; Tue, 2 Apr 2002 21:21:32 -0500
+	id <S313010AbSDCCWW>; Tue, 2 Apr 2002 21:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313012AbSDCCVP>; Tue, 2 Apr 2002 21:21:15 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:64509 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S313010AbSDCCVC>;
-	Tue, 2 Apr 2002 21:21:02 -0500
-Date: Tue, 2 Apr 2002 18:20:59 -0800
+	id <S313012AbSDCCWT>; Tue, 2 Apr 2002 21:22:19 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:12798 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S313010AbSDCCVx>;
+	Tue, 2 Apr 2002 21:21:53 -0500
+Date: Tue, 2 Apr 2002 18:21:49 -0800
 To: Linus Torvalds <torvalds@transmeta.com>, irda-users@lists.sourceforge.net,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: [PATCH] : ir257_sys_max_tx-2.diff
-Message-ID: <20020402182059.D24912@bougret.hpl.hp.com>
+Subject: [PATCH] : ir256_irnet_disc_ind_again.diff
+Message-ID: <20020402182149.E24912@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,124 +24,77 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir257_sys_max_tx-2.diff :
------------------------
-	o [FEATURE] Allow tuning of Max Tx MTU to workaround spec contradiction
+ir256_irnet_disc_ind_again.diff :
+-------------------------------
+	o [CORRECT] Correct fix for IrNET disconnect indication :
+	  if socket is not connected, don't hangup, to allow passive operation
 
-
-diff -u -p linux/net/irda/irsysctl.d5.c linux/net/irda/irsysctl.c
---- linux/net/irda/irsysctl.d5.c	Thu Mar 21 13:22:03 2002
-+++ linux/net/irda/irsysctl.c	Thu Mar 21 13:22:56 2002
-@@ -34,17 +34,19 @@
- #define NET_IRDA 412 /* Random number */
- enum { DISCOVERY=1, DEVNAME, DEBUG, FAST_POLL, DISCOVERY_SLOTS,
-        DISCOVERY_TIMEOUT, SLOT_TIMEOUT, MAX_BAUD_RATE, MIN_TX_TURN_TIME,
--       MAX_NOREPLY_TIME, WARN_NOREPLY_TIME, LAP_KEEPALIVE_TIME };
-+       MAX_TX_DATA_SIZE, MAX_NOREPLY_TIME, WARN_NOREPLY_TIME,
-+       LAP_KEEPALIVE_TIME };
- 
- extern int  sysctl_discovery;
- extern int  sysctl_discovery_slots;
- extern int  sysctl_discovery_timeout;
--extern int  sysctl_slot_timeout;	/* Candidate */
-+extern int  sysctl_slot_timeout;
- extern int  sysctl_fast_poll_increase;
- int         sysctl_compression = 0;
- extern char sysctl_devname[];
- extern int  sysctl_max_baud_rate;
- extern int  sysctl_min_tx_turn_time;
-+extern int  sysctl_max_tx_data_size;
- extern int  sysctl_max_noreply_time;
- extern int  sysctl_warn_noreply_time;
- extern int  sysctl_lap_keepalive_time;
-@@ -64,6 +66,8 @@ static int max_max_baud_rate = 16000000;
- static int min_max_baud_rate = 2400;
- static int max_min_tx_turn_time = 10000;	/* See qos.c - IrLAP spec */
- static int min_min_tx_turn_time = 0;
-+static int max_max_tx_data_size = 2048;		/* See qos.c - IrLAP spec */
-+static int min_max_tx_data_size = 64;
- static int max_max_noreply_time = 40;		/* See qos.c - IrLAP spec */
- static int min_max_noreply_time = 3;
- static int max_warn_noreply_time = 3;		/* 3s == standard */
-@@ -117,6 +121,9 @@ static ctl_table irda_table[] = {
- 	{ MIN_TX_TURN_TIME, "min_tx_turn_time", &sysctl_min_tx_turn_time,
- 	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
- 	  NULL, &min_min_tx_turn_time, &max_min_tx_turn_time },
-+	{ MAX_TX_DATA_SIZE, "max_tx_data_size", &sysctl_max_tx_data_size,
-+	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
-+	  NULL, &min_max_tx_data_size, &max_max_tx_data_size },
- 	{ MAX_NOREPLY_TIME, "max_noreply_time", &sysctl_max_noreply_time,
- 	  sizeof(int), 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec,
- 	  NULL, &min_max_noreply_time, &max_max_noreply_time },
-diff -u -p linux/net/irda/qos.d5.c linux/net/irda/qos.c
---- linux/net/irda/qos.d5.c	Thu Mar 21 13:22:11 2002
-+++ linux/net/irda/qos.c	Thu Mar 21 13:56:08 2002
-@@ -57,10 +57,26 @@ int sysctl_max_noreply_time = 12;
-  * Nonzero values (usec) are used as lower limit to the per-connection
-  * mtt value which was announced by the other end during negotiation.
-  * Might be helpful if the peer device provides too short mtt.
-- * Default is 10 which means using the unmodified value given by the peer
-- * except if it's 0 (0 is likely a bug in the other stack).
-+ * Default is 10us which means using the unmodified value given by the
-+ * peer except if it's 0 (0 is likely a bug in the other stack).
+diff -u -p linux/net/irda/irnet/irnet.d5.h linux/net/irda/irnet/irnet.h
+--- linux/net/irda/irnet/irnet.d5.h	Wed Mar 20 13:26:06 2002
++++ linux/net/irda/irnet/irnet.h	Wed Mar 20 13:30:25 2002
+@@ -211,6 +211,12 @@
+  *	o When receiving a disconnect indication, don't reenable the
+  *	  PPP Tx queue, this will trigger a reconnect. Instead, close
+  *	  the channel, which will kill pppd...
++ *
++ * v11 - 20.3.02 - Jean II
++ *	o Oops ! v10 fix disabled IrNET retries and passive behaviour.
++ *	  Better fix in irnet_disconnect_indication() :
++ *	  - if connected, kill pppd via hangup.
++ *	  - if not connected, reenable ppp Tx, which trigger IrNET retry.
   */
- unsigned sysctl_min_tx_turn_time = 10;
-+/*
-+ * Maximum data size to be used in transmission in payload of LAP frame.
-+ * There is a bit of confusion in the IrDA spec :
-+ * The LAP spec defines the payload of a LAP frame (I field) to be
-+ * 2048 bytes max (IrLAP 1.1, chapt 6.6.5, p40).
-+ * On the other hand, the PHY mention frames of 2048 bytes max (IrPHY
-+ * 1.2, chapt 5.3.2.1, p41). But, this number includes the LAP header
-+ * (2 bytes), and CRC (32 bits at 4 Mb/s). So, for the I field (LAP
-+ * payload), that's only 2042 bytes. Oups !
-+ * I've had trouble trouble transmitting 2048 bytes frames with USB
-+ * dongles and nsc-ircc at 4 Mb/s, so adjust to 2042... I don't know
-+ * if this bug applies only for 2048 bytes frames or all negociated
-+ * frame sizes, but all hardware seem to support "2048 bytes" frames.
-+ * You can use the sysctl to play with this value anyway.
-+ * Jean II */
-+unsigned sysctl_max_tx_data_size = 2042;
  
- static int irlap_param_baud_rate(void *instance, irda_param_t *param, int get);
- static int irlap_param_link_disconnect(void *instance, irda_param_t *parm, 
-@@ -355,10 +371,10 @@ void irlap_adjust_qos_settings(struct qo
- 	while ((qos->data_size.value > line_capacity) && (index > 0)) {
- 		qos->data_size.value = data_sizes[index--];
- 		IRDA_DEBUG(2, __FUNCTION__ 
--			   "(), redusing data size to %d\n",
-+			   "(), reducing data size to %d\n",
- 			   qos->data_size.value);
- 	}
--#else /* Use method descibed in section 6.6.11 of IrLAP */
-+#else /* Use method described in section 6.6.11 of IrLAP */
- 	while (irlap_requested_line_capacity(qos) > line_capacity) {
- 		ASSERT(index != 0, return;);
+ /***************************** INCLUDES *****************************/
+diff -u -p linux/net/irda/irnet/irnet_irda.d5.c linux/net/irda/irnet/irnet_irda.c
+--- linux/net/irda/irnet/irnet_irda.d5.c	Wed Mar 20 13:11:42 2002
++++ linux/net/irda/irnet/irnet_irda.c	Wed Mar 20 13:34:09 2002
+@@ -1070,7 +1070,7 @@ irnet_data_indication(void *	instance,
+  *	o attempted to connect, timeout
+  *	o connected, link is broken, LAP has timeout
+  *	o connected, other side close the link
+- *	o connection request on the server no handled
++ *	o connection request on the server not handled
+  */
+ static void
+ irnet_disconnect_indication(void *	instance,
+@@ -1121,20 +1121,31 @@ irnet_disconnect_indication(void *	insta
+       DEBUG(IRDA_CB_INFO, "Closing our TTP connection.\n");
+       irttp_close_tsap(self->tsap);
+       self->tsap = NULL;
+-
+-      /* Cleanup & close the PPP channel, which will kill pppd and the rest */
+-      if(self->ppp_open)
+-	ppp_unregister_channel(&self->chan);
+-      self->ppp_open = 0;
+     }
+-  /* Cleanup the socket in case we want to reconnect */
++  /* Cleanup the socket in case we want to reconnect in ppp_output_wakeup() */
+   self->stsap_sel = 0;
+   self->daddr = DEV_ADDR_ANY;
+   self->tx_flow = FLOW_START;
  
-@@ -366,18 +382,24 @@ void irlap_adjust_qos_settings(struct qo
- 		if (qos->window_size.value > 1) {
- 			qos->window_size.value--;
- 			IRDA_DEBUG(2, __FUNCTION__ 
--				   "(), redusing window size to %d\n",
-+				   "(), reducing window size to %d\n",
- 				   qos->window_size.value);
- 		} else if (index > 1) {
- 			qos->data_size.value = data_sizes[index--];
- 			IRDA_DEBUG(2, __FUNCTION__ 
--				   "(), redusing data size to %d\n",
-+				   "(), reducing data size to %d\n",
- 				   qos->data_size.value);
- 		} else {
- 			WARNING(__FUNCTION__ "(), nothing more we can do!\n");
- 		}
- 	}
- #endif /* CONFIG_IRDA_DYNAMIC_WINDOW */
-+	/*
-+	 * Fix tx data size according to user limits - Jean II
-+	 */
-+	if (qos->data_size.value > sysctl_max_tx_data_size)
-+		/* Allow non discrete adjustement to avoid loosing capacity */
-+		qos->data_size.value = sysctl_max_tx_data_size;
+-  /* Note : what should we say to ppp ?
+-   * It seem the ppp_generic and pppd are happy that way and will eventually
+-   * timeout gracefully, so don't bother them... */
++  /* Deal with the ppp instance if it's still alive */
++  if(self->ppp_open)
++    {
++      if(test_open)
++	{
++	  /* If we were connected, cleanup & close the PPP channel,
++	   * which will kill pppd (hangup) and the rest */
++	  ppp_unregister_channel(&self->chan);
++	  self->ppp_open = 0;
++	}
++      else
++	{
++	  /* If we were trying to connect, flush (drain) ppp_generic
++	   * Tx queue (most often we have blocked it), which will
++	   * trigger an other attempt to connect. If we are passive,
++	   * this will empty the Tx queue after last try. */
++	  ppp_output_wakeup(&self->chan);
++	}
++    }
+ 
+   DEXIT(IRDA_TCB_TRACE, "\n");
  }
- 
- /*

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbTELWXx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 18:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTELWXx
+	id S262855AbTELWLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 18:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTELWLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 18:23:53 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:59406 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262858AbTELWXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 18:23:51 -0400
-Date: Tue, 13 May 2003 00:36:27 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Dave Jones <davej@codemonkey.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new kconfig goodies
-In-Reply-To: <20030512160029.GJ5376@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0305122257320.5042-100000@serv>
-References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
- <20030512143207.GA6459@suse.de> <20030512160029.GJ5376@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 May 2003 18:11:08 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:38548 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S262855AbTELWLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 18:11:05 -0400
+Date: Mon, 12 May 2003 15:23:39 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MPPE in kernel?
+Message-ID: <20030512152339.E30310@google.com>
+References: <20030512045929.C29781@google.com> <200305121504.h4CF4EJ5007017@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305121504.h4CF4EJ5007017@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Mon, May 12, 2003 at 11:04:14AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 12 May 2003, Tomas Szepe wrote:
-
-> Also, will the config system let the user know that their having
-> enabled a certain option has affected other options (possibly in
-> different submenus)?
-
-The user will see that he can't disable certain options.
-This is basically the same problem as with other dependencies, if the user 
-selects an option other options may become visible. There is no direct 
-information, how the config option depend on each other (except xconfig 
-offers that as a debug option).
-
->  As things work now, there's no way to tell
-> if an option has been switched on "by dependency," so in the above
-> example, in switching GART_IOMMU off after its switching on has
-> enabled AGP, the system won't know to disable AGP again.  I'm not
-> convinced this is a nice feature in fact. :)  Maybe we just need
-> something like grayed-out entries with a comment, for instance:
+On Mon, May 12, 2003 at 11:04:14AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 12 May 2003 04:59:29 PDT, Frank Cusack <fcusack@fcusack.com>  said:
+> > I've written a public domain implementation, which I'd be willing to
+> > relicense under GPL (although I don't see the point), but in any case
 > 
-> /* [ ] IOMMU support (needs "/dev/agpgard (AGP Support)") */
+> Well.. there's a very good reason to relicense under GPL, or BSD, or X11-style.
+> 
+> And that's to cover your ass from being sued.
+> 
+> If you release it as "public domain", you waive *all* rights to it, including:
+> 
+> 1) The right to prohibit or control what people do with it, including taking
+> it private and closed and making lots of money off it and basically ripping
+> you off.
 
-Of course the same can be done with normal dependencies, but this new 
-option offers more flexibility. Important options don't have to be hidden 
-away behind a lot of dependencies. I'm aware that this can be abused, so I 
-have to watch a bit how it will be used.
+The code is trivial (compared to the effort required to use it in any
+larger application).  I understand the value of this for the general
+case, though.
 
-bye, Roman
+> 2) You can't attach a "hold harmless" clause to it.  So if you put it in
+> the public domain, since you don't have copyright on it anymore, you can't
+> say "as a condition of copying, you promise not to sue me if this software
+> turns your hair green".
 
+I thought public domain explicitly meant that you get what you pay for.
+Kind of like good samaritan laws.  It'd be interesting to hear from any
+lawyers, are any on lkml?
+
+/fc

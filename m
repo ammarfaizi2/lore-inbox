@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264944AbTFLSos (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 14:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbTFLSos
+	id S264946AbTFLSo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 14:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264947AbTFLSo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 14:44:48 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:19121 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264944AbTFLSos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 14:44:48 -0400
-Date: Thu, 12 Jun 2003 19:58:19 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: mok@imsb.au.dk
+	Thu, 12 Jun 2003 14:44:57 -0400
+Received: from maild.telia.com ([194.22.190.101]:22761 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S264946AbTFLSoz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 14:44:55 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: CaT <cat@zip.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: fatal error with nForce2 system
-Message-ID: <20030612185819.GA24566@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>, mok@imsb.au.dk,
-	linux-kernel@vger.kernel.org
-References: <6F57D57C-9D02-11D7-AF71-003065529A02@stofanet.dk>
-Mime-Version: 1.0
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030611170246.A4187@ucw.cz>
+	<m27k7sv5si.fsf@telia.com> <20030611203408.A6961@ucw.cz>
+	<m2ptlkqpej.fsf@telia.com> <20030612024814.GB4787@rivenstone.net>
+	<20030612025442.GA566@zip.com.au>
+From: Peter Osterlund <petero2@telia.com>
+Date: 12 Jun 2003 20:58:17 +0200
+In-Reply-To: <20030612025442.GA566@zip.com.au>
+Message-ID: <m27k7rnmwm.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6F57D57C-9D02-11D7-AF71-003065529A02@stofanet.dk>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 08:19:41PM +0200, Morten Kjeldgaard wrote:
+CaT <cat@zip.com.au> writes:
 
- >  I first reported the problem to nVidia, and they were very quick to 
- > repond. I was in contact with a very helpful engineer, and after some 
- > experimentation we concluded that the problem is probably not in their 
- > drivers, since the machine crashes under the same circumstances without 
- > the nvidia drivers loaded. However, I have only seen error messages in 
- > the syslog when the nvidia driver is loaded, but that is most likely a 
- > coincidence.
+> On Wed, Jun 11, 2003 at 10:48:14PM -0400, Joseph Fannin wrote:
+> > > Here is a new patch that sends ABS_ events to user space. I haven't
+> > > modified the XFree86 driver to handle this format yet, but I used
+> > > /dev/input/event* to verify that the driver generates correct data.
+> > 
+> >     How well will GPM (for example) work with this?
+> 
+> Aaaand... will I be able to transparently use my ps2 mouse and touchpad
+> without having to worry about what's plugged in at any one time?
 
-Unfortunatly, they have the Linux kernel source, we do not have their
-source. There's nothing anyone here can do to debug this problem unless
-you can repeat it without ever having had the nvidia module loaded.
+It works on my computer at least. When loading the psmouse module I
+get this:
 
-		Dave
+        input: PS/2 Logitech Mouse on isa0060/serio2
+        Synaptics Touchpad, model: 1
+         Firware: 5.6
+         180 degree mounted touchpad
+         Sensor: 18
+         new absolute packet format
+         Touchpad has extended capability bits
+         -> four buttons
+         -> multifinger detection
+         -> palm detection
+        input: Synaptics Synaptics TouchPad on isa0060/serio4
 
+The touchpad and the mouse operates independently of each other. The
+mouse generates relative events as usual and the touchpad generates
+absolute events as defined by my previous patch.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,74 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269207AbUIHXVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269197AbUIHXWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269207AbUIHXVz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 19:21:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269197AbUIHXVz
+	id S269197AbUIHXWa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 19:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269208AbUIHXWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 19:21:55 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:21071 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269226AbUIHXVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 19:21:18 -0400
-Message-ID: <413F901F.5020901@yahoo.com.au>
-Date: Thu, 09 Sep 2004 09:05:03 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jmerkey@comcast.net
-CC: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: 2.6.8.1 mempool subsystem sickness
-References: <090820041648.7817.413F37F600049F4800001E892200762302970A059D0A0306@comcast.net>
-In-Reply-To: <090820041648.7817.413F37F600049F4800001E892200762302970A059D0A0306@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 19:22:30 -0400
+Received: from unthought.net ([212.97.129.88]:29126 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S269197AbUIHXWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 19:22:12 -0400
+Date: Thu, 9 Sep 2004 01:22:11 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Major XFS problems...
+Message-ID: <20040908232210.GL390@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Nathan Scott <nathans@sgi.com>, linux-xfs@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20040908123524.GZ390@unthought.net> <20040909074046.A3958243@wobbly.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040909074046.A3958243@wobbly.melbourne.sgi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey@comcast.net wrote:
-> On a system with 4GB of memory, and without 
-> the user space patch that spilts user space
-> just a stock kernel, I am seeing memory 
-> allocation failures with X server and simple
-> apps on a machine with a Pentium 4 
-> processor and 500MB of memory.  
+On Thu, Sep 09, 2004 at 07:40:47AM +1000, Nathan Scott wrote:
+> Hi there,
 > 
-> If you load large apps and do a lot of 
-> skb traffic, the mempool abd slab 
-> caches start gobbling up pages
-> and don't seem to balance them 
-> very well, resulting in memory 
-> allocation failures over time if
-> the system stays up for a week 
-> or more.  
+...
+> > 
+> > A fairly simple patch is available, which solves the problem in the most
+> > common cases.  This simple patch has *not*yet* been included in 2.6.8.1.
+> > 
 > 
-> I am also seeing the same behavior 
-> on another system which has been
-> running for almost 30 days with 
-> an skb based traffic regeneration 
-> test calling and sending skb's
-> in kernel between two interfaces.
-> 
-> The pages over time get stuck 
-> in the slab allocator and user
-> space apps start to fail on alloc
-> requests.  
-> 
-> Rebooting the system clears
-> the problem, which slowly over time
-> comes back.  I am seeing this with
-> stock kernels from kernel.org 
-> and on kernels I have patched,
-> so the problem seems to be
-> in the base code.  I have spent
-> the last two weeks observing 
-> the problem to verify I can
-> reproduce it and it keeps 
-> happening.  
-> 
-> Jeff
-> 
+> Have you asked Christoph if he thinks that patch is ready for
+> inclusion?  Its possibly just fallen through the cracks.
 
-Hi Jeff,
-Can you give us a few more details please? Post the allocation failure
-messages in full, and post /proc/meminfo, etc. Thanks.
+With the feedback I've seen thus far, it seems that one possible
+explanation for this is, that the patch only papers over the problem (by
+changing XFS), but that the real problem is not in XFS and thus might be
+fixed for real by a completely different set of patches (which sort of
+makes sense since the small patch only cures the problem in the common
+cases).
+
+We'll know more about this tomorrow, hopefully, if Anders gets the new
+test system up and running.
+
+> > On the 24th of august, William Lee Irwin gives some suggestions and
+> > mentions  "xfs has some known bad slab behavior."
+> 
+> Hmm?  Which message was that?
+
+http://lkml.org/lkml/2004/8/24/140
+
+> 
+> > ...
+> > While the small server seems to be running well now, the large one has
+> > an average uptime of about one day (!)   Backups will crash it reliably,
+> > when XFS doesn't OOM the box at random.
+> 
+> It would be a good idea to track the memory statistics while you're
+> running your workloads to see where in particular the memory is being
+> used when you hit OOM - /proc/{meminfo,slabinfo,buddyinfo}.
+
+Slab usage in kilo-kilo-bytes (one K on the graph is one Megabyte):
+  http://saaby.com/slabused.gif
+
+This was presented earlier in
+  http://lkml.org/lkml/2004/8/24/53
+
+>  I'd also
+> be interested to hear if that vfs_cache_pressure tweak that someone
+> recommended helps your load at all, thanks.
+
+Anders will hopefully get a lot of this testing done tomorrow - by then
+hopefully we'll know a lot more about all this.
+
+> 
+> Is this xfsdump you're running for backups?
+
+Veritas BackupExec was used, as far as I know
+
+xfsdump will be tested soon.
+
+The "small server" is backed up with tar (by Amanda).
+
+> 
+> > Is anyone actually maintaining/bugfixing XFS?
+> 
+> Yes, there's a group of people actively working on it.
+> 
+> > Yes, I know the MAINTAINERS file,
+> 
+> But haven't figured out how to use it yet?
+
+Read on   ;)
+
+> 
+> > ...
+> > trivial-to-trigger bugs that crash the system and have simple fixes,
+> > have not been fixed in current mainline kernels.
+> 
+> If you have trivial-to-trigger bugs (or other bugs) then please let
+> the folks at linux-xfs@oss.sgi.com know all the details (test cases,
+> etc, are quite useful).
+
+They've known for 7 months (bug 309 in your bugzilla), but the problem
+is still trivially triggered in 2.6.8.1.
+
+That's why I posted to LKML.
+
+We got a lot of very useful feedback from a broad audience, and it seems
+that it *might* turn out that this XFS problem was never really a
+problem in XFS itself.
+
+Let's see what tomorrow brings.
+
+Thaks all!
+
+-- 
+
+ / jakob
+

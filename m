@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318360AbSGYH64>; Thu, 25 Jul 2002 03:58:56 -0400
+	id <S318361AbSGYH75>; Thu, 25 Jul 2002 03:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318361AbSGYH6z>; Thu, 25 Jul 2002 03:58:55 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:58295 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S318360AbSGYH6z>;
-	Thu, 25 Jul 2002 03:58:55 -0400
-Message-ID: <3D3FAEB1.6070704@evision.ag>
-Date: Thu, 25 Jul 2002 09:54:25 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Pete Zaitcev <zaitcev@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Safety of IRQ during i/o
-References: <Pine.SOL.4.30.0207250041400.15959-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S318362AbSGYH75>; Thu, 25 Jul 2002 03:59:57 -0400
+Received: from [80.94.163.134] ([80.94.163.134]:22144 "HELO blacklake.uucp")
+	by vger.kernel.org with SMTP id <S318361AbSGYH74>;
+	Thu, 25 Jul 2002 03:59:56 -0400
+Date: Thu, 25 Jul 2002 11:01:56 +0300
+From: Dzmitry Chekmarou <diavolo@mail.ru>
+To: Andy Grover <andrew.grover@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: linux-2.5.28 drivers/acpi/system.c missed interrupt.h
+Message-ID: <20020725080156.GA7422@blacklake>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Wed, 24 Jul 2002, Pete Zaitcev wrote:
-> 
-> 
->>>[...]
->>>I would think that this would be safe when using DMA, and likely to be
->>>safe for PIO and more recent chipsets, but I wouldn't want to actually
->>>tell anyone that.
->>
->>A little story from OLS. I have a 486/75 laptop, which can only
->>do PIO. It always was losing characters evern on 9600 baud on its
->>serial port, and I thought it was simply broken for five years.
-> 
-> 
-> :-)
-> 
-> 
->>A guy who did a security talk showed me that doing hdparm -u
->>fixes the problem. Apparently, the lappy has a non-buffering UART.
->>
->>So, it seems that hdparm -u is a very useful thing for obsotele
->>boxes. If you do DMA, you probably do not care.
-> 
-> 
-> Yup, for PIO unmask (if possible) is a must.
+Hi, Andy
 
-It's even for DMA a good thing, since the IRQ handler in question can
-reenter the RQ handler. The invention of the not unmasking
-behaviour in Linux is the result of some not entierly ATA-2 compliant
-devices long long time ago gone. Basically XT disks on PC. They did have 
-the habbit of splewing IRQs too early for command ACK.
+here it is:
+diff -uNr a/drivers/acpi/system.c b/drivers/acpi/system.c
+--- a/drivers/acpi/system.c     Thu Jul 25 10:50:16 2002
++++ b/drivers/acpi/system.c     Thu Jul 25 10:44:31 2002
+@@ -40,6 +40,7 @@
+ #include <linux/pm.h>
+ #include <linux/device.h>
+ #include <linux/suspend.h>
++#include <linux/interrupt.h>
+ #include <asm/uaccess.h>
+ #include <asm/acpi.h>
+ #include "acpi_bus.h"
 
+-- 
+Best regards,
+zmiter.

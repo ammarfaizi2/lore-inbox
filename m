@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUFTO7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265405AbUFTP0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265500AbUFTO7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 10:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265574AbUFTO7P
+	id S265405AbUFTP0O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 11:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265493AbUFTP0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 10:59:15 -0400
-Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:26546 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S265500AbUFTO7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 10:59:14 -0400
-Message-ID: <40D5A642.6020901@backtobasicsmgmt.com>
-Date: Sun, 20 Jun 2004 07:59:14 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back To Basics Network Management
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
+	Sun, 20 Jun 2004 11:26:14 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:50856 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S265405AbUFTP0K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 11:26:10 -0400
+Message-ID: <02d701c456da$ee397a20$6401a8c0@waterdell>
+From: "Arun Sen" <arunsen@verizon.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Restating the questions
+Date: Sun, 20 Jun 2004 10:26:16 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.7 ACPI OOPS (random dereferrencing)
-References: <Pine.LNX.4.60.0406180957470.977@hosting.rdsbv.ro> <1087571167.22483.20.camel@forum-beta.geizhals.at> <Pine.LNX.4.58.0406201340560.1998@kai.makisara.local>
-In-Reply-To: <Pine.LNX.4.58.0406201340560.1998@kai.makisara.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [4.10.168.165] at Sun, 20 Jun 2004 10:26:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Makisara wrote:
+Earlier I submitted two questions for patches.  I received some responses.
+But as the questions were not properly stated, the responses were not very
+useful.  so, I am restating the questions once again hoping to clear them
+up.  By the way, I am working on a research project that is studying the
+kernel patches of all kind.
 
-> The reports in the list above do not all point to similar symptoms. The 
-> reports from Thomas, Kevin, Pozsar, and me seem to have two things in 
-> common:
-> - an Intel motherboard
-> - hang when enabling ACPI
 
-There is an entry in the RedHat Bugzilla where Len Brown is actively 
-participating on this issue; he has been able to reproduce it (no 
-surprise, he works for Intel and shouldn't have any trouble obtaining 
-the same hardware <G>). There is no fix yet, though.
+Q1.  I want to find out what the steps are for submitting and approving a
+patch in the Linux kernel?   I know that Linus has sent out an email
+regarding the patch approval process and I have read it.
+
+Q2.  I have looked into a mirror site for the kernel (in the university of
+Wisconsin web site) for all kinds of patches for the kernel.  I am looking
+at all patches for all versions of the kernel.  I would like to find out who
+the authors are of these patches.  Can you help me find this info?
+
+Thanks -  Arun
+

@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263922AbRFRK5Y>; Mon, 18 Jun 2001 06:57:24 -0400
+	id <S263923AbRFRLV1>; Mon, 18 Jun 2001 07:21:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263928AbRFRK5F>; Mon, 18 Jun 2001 06:57:05 -0400
-Received: from iris.kkt.bme.hu ([152.66.114.1]:56594 "HELO iris.kkt.bme.hu")
-	by vger.kernel.org with SMTP id <S263922AbRFRK5C>;
-	Mon, 18 Jun 2001 06:57:02 -0400
-Date: Mon, 18 Jun 2001 12:57:00 +0200 (CEST)
-From: PALFFY Daniel <dpalffy@kkt.bme.hu>
-To: Thomas Davis <tadavis@lbl.gov>
-cc: Guus Sliepen <guus@warande3094.warande.uu.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Looking for ifenslave.c
-In-Reply-To: <3B292578.1887366D@lbl.gov>
-Message-ID: <Pine.LNX.4.21.0106181249140.18271-100000@iris.kkt.bme.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263929AbRFRLVH>; Mon, 18 Jun 2001 07:21:07 -0400
+Received: from norma.kjist.ac.kr ([203.237.41.18]:13831 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S263923AbRFRLVD>; Mon, 18 Jun 2001 07:21:03 -0400
+Date: Mon, 18 Jun 2001 20:21:39 +0900
+Message-Id: <200106181121.f5IBLdc02300@norma.kjist.ac.kr>
+From: root <root@norma.kjist.ac.kr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 VM & swap question
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Jun 2001, Thomas Davis wrote:
 
-> Guus, there isn't a really official version of it..
-> 
-> At http://pdsf.nersc.gov/linux/ifenslave.c is the last version I
-> produced, that works with bonding in v2.2 and v2.4 kernels.
+Regarding to the discussion on the swap size,
 
-> Guus Sliepen wrote:
-> > 
-> > Hello,
-> > 
-> > The Ethernet bonding module is useless without ifenslave.c. I'm making a Debian
-> > package for it, and I have tried to find the "offical" distribution of this
-> > small program. I could not find an authorative source, instead a lot of copies
-> > and patched versions are scattered around the Internet (I maintain a patched
-> > version myself too).
-> > 
-> > I would like to combine all the useful extra features and patches into this
-> > Debian package, so if you know of a patched version or maintain one yourself,
-> > please send it to me.
+Recently, Rick van Riel posted a message that there is a bug 
+related to "reclaiming" the swap, and said that it is on his 
+TODO list.
 
-The only bonding driver and ifenslave that worked for me was the patched
-version from http://sourceforge.net/projects/bonding . It runs fine over a
-quad starfire card, with vlans over it (ben's patch). You might consider
-packaging the ifenslave from that patch, and packaging the bonding driver
-as a kernel patch...
+If I believe it, the current trouble we have regarding to the swap 
+size is not because we do not have a sufficient size for the swap, 
+but because there is a bug, although Linus advised us to assign
+2 times the physical memory for the swap.
 
---
-Dani
-			...and Linux for all.
+I don't know.
 
+Anyway, I am trying to put an extra 4GB hard disk on an Alpha UP2000 right now.
 
+Regards,
+
+Hugh

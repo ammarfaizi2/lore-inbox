@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272158AbTG2VYF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 17:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272221AbTG2VYD
+	id S272145AbTG2VeN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 17:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272143AbTG2VdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 17:24:03 -0400
-Received: from [207.231.225.15] ([207.231.225.15]:44481 "EHLO mail")
-	by vger.kernel.org with ESMTP id S272158AbTG2VWU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 17:22:20 -0400
-Message-ID: <3F26E592.4080302@infointeractive.com>
-Date: Tue, 29 Jul 2003 18:22:26 -0300
-From: Rob Shortt <rob@infointeractive.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 17:33:23 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:53511 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S272407AbTG2Vbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 17:31:35 -0400
+Date: Tue, 29 Jul 2003 22:31:30 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Framebuffer: client notification mecanism & PM
+In-Reply-To: <1059510171.8538.53.camel@gaston>
+Message-ID: <Pine.LNX.4.44.0307292231180.5874-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: DMA errors - 2.4.22-pre8 - SiS730 - WD800JB
-References: <3F266B99.1040507@infointeractive.com> <20030729153309.A25792@bouton.inet6-interne.fr> <3F267BC4.8000507@infointeractive.com>
-In-Reply-To: <3F267BC4.8000507@infointeractive.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Shortt wrote:
-> Lionel Bouton wrote:
+
+> > I knew it was a matter of time before "client" management would happen. 
+> > Is this a 2.6.X thing tho or shoudl we wait for the next developement 
+> > cycle. I don't mind working on experimental stuff.
 > 
->> Usually disabling local APIC support solves this (sometimes with nasty
->> side-effects like huge perf drops or lost peripheral support).
->>
->> You can quickly try to pass "noapic" to the kernel and report.
+> We need that now for proper power management.
 
-Done, same deal:
+Okay. 
 
-Kernel command line: root=/dev/hda1 ro noapic
-Local APIC disabled by BIOS -- reenabling.
-Found and enabled local APIC!
-
-
-I guess I'll start searching for some SiS APIC patches.  Does anyone 
-know if the 2.6 kernel has SiS APIC problems?
-
--Rob
 

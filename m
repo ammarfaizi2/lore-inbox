@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132933AbRAGUrW>; Sun, 7 Jan 2001 15:47:22 -0500
+	id <S136062AbRAGUwE>; Sun, 7 Jan 2001 15:52:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135762AbRAGUrM>; Sun, 7 Jan 2001 15:47:12 -0500
-Received: from pop3.web.de ([212.227.116.81]:65039 "HELO smtp.web.de")
-	by vger.kernel.org with SMTP id <S132933AbRAGUrA>;
-	Sun, 7 Jan 2001 15:47:00 -0500
-Date: Sun, 7 Jan 2001 21:48:38 +0100
-From: Michael Duelli <m.duelli@web.de>
-To: linux-kernel@vger.kernel.org
-Subject: Ext2 (dma ?) error
-Message-ID: <20010107214838.A1086@Unimatrix01.surf-callino.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.1
+	id <S136047AbRAGUvz>; Sun, 7 Jan 2001 15:51:55 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42512 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136082AbRAGUvk>; Sun, 7 Jan 2001 15:51:40 -0500
+Subject: Re: Ext2 (dma ?) error
+To: m.duelli@web.de (Michael Duelli)
+Date: Sun, 7 Jan 2001 20:53:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010107214838.A1086@Unimatrix01.surf-callino.de> from "Michael Duelli" at Jan 07, 2001 09:48:38 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FMop-0003Ic-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Fsck discovered an error it wasn't able to fix. This error never
+> appeared before and my Seagate HD actually should be alright.
 
-recently I was on the internet with kernel 2.4.0-prerelease.
-Suddenly Netscape hung and I couldn't help hard rebooting.
+Umm the error says not
 
-Fsck discovered an error it wasn't able to fix. This error never
-appeared before and my Seagate HD actually should be alright.
+> hda: dma_intr: status=0x51 { DriveReady SeekCompleteError }
+> hda: dma_intr: error=0x40 { UncorrectableError } LBAsect = 2421754, sector
+> 210048
+> end_request: I/O error, dev 03:03 (hda), sector 2100448
 
-The following error message appears everytime I check /dev/hda3
-and when I tries to access the blocks involved in this error.
-Now here it is:
-
---------------snip---------------------
-hda: dma_intr: status=0x51 { DriveReady SeekCompleteError }
-hda: dma_intr: error=0x40 { UncorrectableError } LBAsect = 2421754, sector
-210048
-end_request: I/O error, dev 03:03 (hda), sector 2100448
-
-hda: dma_intr: status=0x51 { DriveReady SeekCompleteError }
-hda: dma_intr: error=0x40 { UncorrectableError } LBAsect = 2421754, sector
-210048
-end_request: I/O error, dev 03:03 (hda), sector 2100448
-
-Error reading block 262556 (Attempt to read block from filesystem resultet
-in
-short read) while doing inode scan. Ignore error <y>?
-----------------snip---------------------
-
-badblocks found about 44 bad blocks.
-
-So I really want to know how to get rid of this error.
-Is it a hardware error ( well at least I don't think so )?
-Is it correctable with some special tricks ?
-Would reformating solve the error.
-
-My system configuration is:
-Duron 700, Biostar mainboard, 128 MB, 30 GB Seagate ST-330630A
-
-Any help is appreciated
-
-TIA
-
-P.S.: I am not in the list so please also CC directly to my e-mail
-address, THX.
-_________________________________________
-Michael Duelli
-m.duelli@web.de
-linuxmaths.sourceforge.net
-
+Thats a media error. It may go away if the block is rewritten , on a reformat
+etc. But its the disk reporting a bad block. Now that could be a 2.4 artifact
+(incredibly unlikely) so try fscking with 2.2 just to be sure is not an error
+reporting bug.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

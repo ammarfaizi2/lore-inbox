@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265033AbRFZQs1>; Tue, 26 Jun 2001 12:48:27 -0400
+	id <S265029AbRFZQoS>; Tue, 26 Jun 2001 12:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265038AbRFZQsS>; Tue, 26 Jun 2001 12:48:18 -0400
-Received: from isdn364.s.netic.de ([212.9.163.108]:2308 "EHLO solfire")
-	by vger.kernel.org with ESMTP id <S265033AbRFZQsM>;
-	Tue, 26 Jun 2001 12:48:12 -0400
-To: alan@lxorguk.ukuu.org.uk
-Cc: mccramer@s.netic.de, linux-kernel@vger.kernel.org
-Subject: Re: Problems with 2.4.5ac1[78]
-From: Meino Christian Cramer <mccramer@s.netic.de>
-In-Reply-To: <E15EuO6-0003dz-00@the-village.bc.nu>
-In-Reply-To: <20010626161854G.mccramer@s.netic.de>
-	<E15EuO6-0003dz-00@the-village.bc.nu>
-X-Mailer: Mew version 1.94.2 on XEmacs 21.4 (Academic Rigor)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010626184546H.mccramer@s.netic.de>
-Date: Tue, 26 Jun 2001 18:45:46 +0200
-X-Dispatcher: imput version 20000228(IM140)
+	id <S265033AbRFZQoH>; Tue, 26 Jun 2001 12:44:07 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:30727 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S265029AbRFZQn5>; Tue, 26 Jun 2001 12:43:57 -0400
+Date: Tue, 26 Jun 2001 13:43:50 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Jonathan Corbet <corbet-lk@lwn.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: When the FUD is all around (sniff). 
+In-Reply-To: <20010626151605.12612.qmail@eklektix.com>
+Message-ID: <Pine.LNX.4.33L.0106261342520.23373-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Problems with 2.4.5ac1[78]
-Date: Tue, 26 Jun 2001 16:04:22 +0100 (BST)
-Message-ID: <E15EuO6-0003dz-00@the-village.bc.nu>
+On Tue, 26 Jun 2001, Jonathan Corbet wrote:
+
+> The Repubblica article was bad enough, but if you want serious kernel FUD
+> you should see this bit of delight on AsiaBizTech:
+>
+> 	http://www.nikkeibp.asiabiztech.com/wcs/leaf?CID=onair/asabt/fw/133671
+
+If anybody is interested in ressurecting
+http://fud-counter.nl.linux.org/ please let
+me know. I'll hand out CVS account to interested
+parties.
+
+> Cool.  Linus caused the end of the stock bubble...
+
+*grin*
+
+cheers,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
 
-Thanks a lot, Alan ! :o)
-
-That's it! My build-script only did a make dep _clean_ bzImage modules
-modules_install.
-With a make distclean before all runs smooth...
-
-  keep hacking on the right site of life ! :-)
-  Meino  
-
-> >  I tried to compile linux-2.4.5ac17 with processor type "Athlon"
-> >  settings.
-> > 
-> >  Compilation/Install was successful. But boot produces dozens of
-> >  "unresolved symbols" if trying to insmod any of the modules.
-> > 
-> >  Not one module was insmodded successfully.
-> 
-> Sounds like your build wasnt clean. Save your .config file and make distclean
-> is sometimes needed when changing SMP or CPU types - yes its a bug in the
-> config setup really
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

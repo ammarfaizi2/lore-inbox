@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbTB1VMp>; Fri, 28 Feb 2003 16:12:45 -0500
+	id <S268168AbTB1VPf>; Fri, 28 Feb 2003 16:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263333AbTB1VMp>; Fri, 28 Feb 2003 16:12:45 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:39183
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263204AbTB1VMo>; Fri, 28 Feb 2003 16:12:44 -0500
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-In-Reply-To: <20030228131206.22fc077c.akpm@digeo.com>
-References: <Pine.LNX.4.44.0302281040190.8167-100000@localhost.localdomain>
-	 <20030228131206.22fc077c.akpm@digeo.com>
+	id <S268174AbTB1VPf>; Fri, 28 Feb 2003 16:15:35 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:4506 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S268168AbTB1VPb>;
+	Fri, 28 Feb 2003 16:15:31 -0500
+Subject: Possible FIFO race in lock_sock()
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
 Content-Type: text/plain
-Organization: 
-Message-Id: <1046467381.1346.261.camel@phantasy>
+Organization: Open Source Devlopment Lab
+Message-Id: <1046467548.30194.258.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 28 Feb 2003 16:23:01 -0500
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Feb 2003 13:25:50 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-28 at 16:12, Andrew Morton wrote:
+Doing a review to understand socket locking, found a race by inspection
+but don't have a test to reproduce the problem.
 
-> - The longstanding problem wherein a kernel build makes my X desktop
->   unusable is 90% fixed - it is still possible to trigger stalls, but
->   they are less severe, and you actually have to work at it a bit to
->   make them happen.
+It appears lock_sock() basically reinvents a semaphore in order to have
+FIFO wakeup and allow test semantics for the bottom half.  The problem
+is that when socket is locked, the wakeup is guaranteed FIFO.  It is
+possible for another requester to sneak in the window between when owner
+is cleared and the next queued requester is woken up.
 
-That is odd, because I do not see any changes in here that would improve
-interactivity.  This looks to be pretty much purely the HT stuff.
+Don't know what this impacts, perhaps out of order data on a pipe?
 
-Andrew, if you drop this patch, your X desktop usability drops?
+Scenario:
+	Multiple requesters (A, B, C, D) and new requester N
+	
+	Assume A gets socket lock and is owner. 
+	B, C, D are on the wait queue.
+	A release_lock which ends up waking up B
+	Before B runs and acquires socket lock:
+	   N requests socket lock and sees owner is NULL so it grabs it.
 
-Ingo, is there something in here that I am missing?
+The patch just checks the waitq before proceeding with the fast path.
 
-	Robert Love
+Other alternatives:
+1. Ignore it we aren't guaranteeing FIFO anyway.
+	- then why bother with waitq when spin lock will do.
+2. Replace socket_lock with a semaphore
+	- with changes to BH to get same semantics
+3. Implement a better FIFO spin lock
+
+Comments?
+
+diff -Nru a/include/net/sock.h b/include/net/sock.h
+--- a/include/net/sock.h	Fri Feb 28 13:24:43 2003
++++ b/include/net/sock.h	Fri Feb 28 13:24:43 2003
+@@ -356,7 +356,7 @@
+ #define lock_sock(__sk) \
+ do {	might_sleep(); \
+ 	spin_lock_bh(&((__sk)->lock.slock)); \
+-	if ((__sk)->lock.owner != NULL) \
++	if ((__sk)->lock.owner != NULL || waitqueue_active(&((__sk)->lock.wq))) \
+ 		__lock_sock(__sk); \
+ 	(__sk)->lock.owner = (void *)1; \
+ 	spin_unlock_bh(&((__sk)->lock.slock)); \
+
 

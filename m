@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265159AbUELSGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUELSHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265159AbUELSGu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 14:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUELSEz
+	id S265154AbUELSHs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 14:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUELSHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 14:04:55 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:17607 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265150AbUELSD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 14:03:27 -0400
-Date: Wed, 12 May 2004 19:01:45 +0100
-From: Dave Jones <davej@redhat.com>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, mason@suse.com,
-       reiserfs-dev@namesys.com
-Subject: Re: [PATCH] [2.6] Make reiserfs not to crash on oom
-Message-ID: <20040512180145.GA1573@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Oleg Drokin <green@linuxhacker.ru>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, mason@suse.com,
-	reiserfs-dev@namesys.com
-References: <20040512165038.GA72981@linuxhacker.ru>
+	Wed, 12 May 2004 14:07:00 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:33287 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265152AbUELSFF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 14:05:05 -0400
+Date: Wed, 12 May 2004 19:04:54 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: David Mosberger-Tang <davidm@hpl.hp.com>, linux-ia64@linuxia64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: GCC nested functions?
+Message-ID: <20040512190454.A31410@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	David Mosberger-Tang <davidm@hpl.hp.com>, linux-ia64@linuxia64.org,
+	linux-kernel@vger.kernel.org
+References: <20040512105924.54a8211b@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040512165038.GA72981@linuxhacker.ru>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040512105924.54a8211b@dell_ss3.pdx.osdl.net>; from shemminger@osdl.org on Wed, May 12, 2004 at 10:59:24AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 07:50:38PM +0300, Oleg Drokin wrote:
- > Hello!
- > 
- >   Thanks to Standford guys, a case where reiserfs can dereference NULL pointer
- >   if memory allocation fail during mount was identified.
- > 
- > @@ -2260,8 +2260,10 @@
- >      INIT_LIST_HEAD (&SB_JOURNAL(p_s_sb)->j_prealloc_list);
- >      INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_working_list);
- >      INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_journal_list);
- > -    reiserfs_allocate_list_bitmaps(p_s_sb, SB_JOURNAL(p_s_sb)->j_list_bitmap, 
- > - 				   SB_BMAP_NR(p_s_sb)) ;
- > +    if (reiserfs_allocate_list_bitmaps(p_s_sb,
- > +				       SB_JOURNAL(p_s_sb)->j_list_bitmap, 
- > + 				       SB_BMAP_NR(p_s_sb)))
- > +	goto free_and_return ;
- >      allocate_bitmap_nodes(p_s_sb) ;
+On Wed, May 12, 2004 at 10:59:24AM -0700, Stephen Hemminger wrote:
+> Redoing it as separate functions is easy enough, but the questions are:
+> 	- Are gcc nested functions allowed in the kernel?  If not where should
+> 	  this restriction be put in Documentation? CodingStyles?
 
-Are you leaking the 'journal' allocation here?
-(Ditto some of the other failure paths too)
+nested function are a horrible gcc misfeature.  So far people had enough
+taste to not introduce them without explicitly forbidding it ;-)
 
-There's also a typod 'jornal' a few lines further down.
+Maybe we should add a section to Documentation/CodingStyles that says
+which gcc extensions are okay for kernel use.
 
-		Dave
+> 	- Or is gcc on ia64 just too stupid? or do some more support routines
+> 	  need to exist in arch/ia64?
+> 	- Do other architectures (sparc, ppc) have similar problems?
+
+There's a few architectures needing libgcc help for trampolines, but I
+don't remember which ones exactly.
 

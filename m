@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280997AbRKGW2R>; Wed, 7 Nov 2001 17:28:17 -0500
+	id <S281029AbRKGWa5>; Wed, 7 Nov 2001 17:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281022AbRKGW2I>; Wed, 7 Nov 2001 17:28:08 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:42236
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S281024AbRKGW14>; Wed, 7 Nov 2001 17:27:56 -0500
-Date: Wed, 7 Nov 2001 14:27:50 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 vs resiserfs vs xfs
-Message-ID: <20011107142750.A545@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>, <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au>
+	id <S281022AbRKGWah>; Wed, 7 Nov 2001 17:30:37 -0500
+Received: from zero.tech9.net ([209.61.188.187]:23312 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281024AbRKGWad>;
+	Wed, 7 Nov 2001 17:30:33 -0500
+Subject: Re: disaster with 2.4.14+preempt
+From: Robert Love <rml@tech9.net>
+To: J Sloan <jjs@lexus.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BE9A506.82D64AE4@lexus.com>
+In-Reply-To: <3BE8B460.A23E1A67@pobox.com> <1005109646.884.0.camel@phantasy>
+	 <3BE9A506.82D64AE4@lexus.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 07 Nov 2001 17:30:36 -0500
+Message-Id: <1005172239.939.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE9AF15.50524856@zip.com.au>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 02:00:53PM -0800, Andrew Morton wrote:
-> Mike Fedyk wrote:
-> > 
-> > I have a switch "data=journal" that ext2 will choke on when I boot into an
-> > ext2 only kernel.
-> > 
-> > Is there another way to change the journaling mode besides modifying
-> > /etc/fstab?
-> 
-> Try  adding `rootflags=data=journal' to your kernel boot
-> commandline.
->
+On Wed, 2001-11-07 at 16:17, J Sloan wrote:
+> Is there anything in particular you would
+> like me to try?
 
-Does that work for non-root ext3 mounts also?  ie, will ext3 default to
-data=journaled mode for future mounts?
+Confirm 2.4.13+preempt doesn't cause the problem.
 
-> > It'd be nice if it could be a compile time switch for default journal mode...
-> 
-> It can be done via lilo.conf and /etc/fstab.
+If it doesn't, can you try recompiling with the newest 2.4.13
+preempt-kernel patch.  I forget from which version we removed the atomic
+operators, but I want to confirm this is not the problem.
 
-Mike
+Confirm 2.4.14 doesn't cause the problem.
+
+(if possible) confirm 2.4.14+preempt does indeed cause the problem.
+
+Let me just spit out my thinking here:
+
+	Is it preempt?
+		Is it something in 2.4.14 annoying preempt?
+		Is it the non-atomicity recently introduced?		
+
+	Robert Love
+

@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261892AbTCYLHq>; Tue, 25 Mar 2003 06:07:46 -0500
+	id <S261951AbTCYLY3>; Tue, 25 Mar 2003 06:24:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261898AbTCYLHq>; Tue, 25 Mar 2003 06:07:46 -0500
-Received: from [207.153.214.76] ([207.153.214.76]:1696 "HELO
-	smtp.latinmail.com") by vger.kernel.org with SMTP
-	id <S261892AbTCYLHp>; Tue, 25 Mar 2003 06:07:45 -0500
+	id <S261994AbTCYLY3>; Tue, 25 Mar 2003 06:24:29 -0500
+Received: from mail.hometree.net ([212.34.181.120]:40620 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S261951AbTCYLY2>; Tue, 25 Mar 2003 06:24:28 -0500
 To: linux-kernel@vger.kernel.org
-From: PATRIC MANBO <patric_manbo@latinmail.com>
-Date: Tue, 25 Mar 2003 06:18:55 -0500
-Subject: Pls lets do business together
-X-Mailer: LatinMail v3.0 -- http://www.latinmail.com.com
-Content-Type: text/plain; charset=us-ascii
-X-Priority: 3
-Message-Id: <20030325111852.2F44D18EF4@smtp.latinmail.com>
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Ptrace hole / Linux 2.2.25
+Date: Tue, 25 Mar 2003 11:35:37 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b5peu9$rfu$1@tangens.hometree.net>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org> <402760000.1048451441@[10.10.2.4]>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1048592137 28158 212.34.181.4 (25 Mar 2003 11:35:37 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 25 Mar 2003 11:35:37 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patric Manbo 
-00229-981193 
-patmanbo@maktoob.com 
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Greetings, 
+>The distros inherently have a conflict of interest getting changes merged
+>back into mainline ... it's time consuming to do, it provides them no real
+>benefit (they have to maintain their huge trees anyway), and it actively
+>damages the "value add" they provide.
 
-I crave your indulgence as I contact you in such a surprising manner. But I respectfully insist you read this letter carefully as I am optimistic it will open doors for unimaginable financial reward for both of us. 
+Well, I hope that the fragmentation of Unix in the 80'ies with the
+resulting rise of an unified OS to be marked leader ("DOS", then
+"Windows") should've learned that lesson with the vendors.
 
-This business transaction might not fall within the wide spectrum 
-of your business activities, but I plead your assistance, as your 
-flair for profitable business is needed. 
+Linux ATM is heading exactly in the same direction as Unix went when
+Sun/HP/IBM/DEC decided not to keep an unified Unix base. It isn't
+heading that fast, mainly because the vendors must keep open source
+trees and they work from a central baseline ("Linus kernels") but we
+already have various distributions which sell "Linux" with a hugely
+different kernel. Think e.g.  VM or devfs. Or supported file systems.
 
-Permit me to introduce myself, I am Mr.Patric Manbo , personal account Manager Vladimir Stankov in Continental bank Benin,I am writing this letter to ask for your support and co-operation to carry out this business opportunity in my department. 
+	Regards
+		Henning
 
-Every five years, Benin banks transfer to its treasury millions 
-of dollars of unclaimed deceased depositors funds in compliance 
-with the banking laws and guidelines, in majority of cases with 
-reference to my bank-Continental bank , the money normally runs into several millions of dollars. 
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-A foreigner, Late Engineer Vladimir Stankov, an Oil Merchant/Contractor in Benin ,until his death four years ago in a ghastly air crash has a closing balance of US9,500,000.00(Nine Million,Five Hundred Thousand Dollars)Ever since his death and up till this time of writing, no next-of-kin or relation of his has come forward to claim his money with us. Fervent valuable efforts have been made by Continentak bank to get in touch with any of the Stankov`s family or relatives but proved to no avail. 
-
-Naturally, as long as Vladimir money remains unclaimed, the bank 
-remains richer in free funds with his money. However, with my position, 
-
-I can present you to claim the fund as a relative/next of kin if 
-you agree with me on private basis. Yes, I can present you. 
-
-The request for you as next of kin in this business is occasioned 
-by the fact that the customer was a foreigner and a Beninios cannot stand as next of kin to a foreigner,Hence, I plead for your assistance with the intention of getting this unclaimed money amounting to US9,500,000.00 (Nine Million, Five Hundred Thousand Dollars Only) transferred into a company/private bank account that you will present. 
-
-You stand to gain a negotiable percentage of the fund if you agree to help me actualize this opportunity I will not contact any other person until I am convinced that you are not interested in this proposal. 
-
-Contact me immediately indicating your willingness and also give 
-your direct and confidential fax and phone numbers for the effective communication that this transaction requires. 
-
-I will furnish you with the procedure and also enlighten you on 
-how the funds will be disbursed and shared on receipt of your response. 
-
-I will also require your advice in the areas of investment as 
-I plan to establish a business venture in your country with my share. 
-
-Please reach me only on this private email address:Patmanbo@maktoob.com 
-or Tel:00229-981193 
-
-Remember that a business of this nature needs to be 
-kept confidential. 
-
-Yours Sincerely, 
-
-PATRIC MANBO 
-
-
-
-_________________________________________________________
-http://www.latinmail.com.  Gratuito, latino y en español.
-
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

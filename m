@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318229AbSHMRlm>; Tue, 13 Aug 2002 13:41:42 -0400
+	id <S318254AbSHMRi1>; Tue, 13 Aug 2002 13:38:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318966AbSHMRku>; Tue, 13 Aug 2002 13:40:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7691 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318229AbSHMRj7>;
-	Tue, 13 Aug 2002 13:39:59 -0400
-Message-ID: <3D5947B7.EDE01C2E@zip.com.au>
-Date: Tue, 13 Aug 2002 10:53:59 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: lkml <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch 2/21] reduced locking in buffer.c
-References: <3D561473.40A53C0D@zip.com.au> <Pine.LNX.4.44.0208131032210.7411-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S318976AbSHMRi1>; Tue, 13 Aug 2002 13:38:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:61352 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318254AbSHMRh7>;
+	Tue, 13 Aug 2002 13:37:59 -0400
+Date: Tue, 13 Aug 2002 10:27:37 -0700 (PDT)
+Message-Id: <20020813.102737.04335380.davem@redhat.com>
+To: mroos@linux.ee
+Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+Subject: Re: 2.4.20-pre2 NFS OOPS on sparc64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.43.0208131916340.16824-100000@romulus.cs.ut.ee>
+References: <Pine.GSO.4.43.0208131916340.16824-100000@romulus.cs.ut.ee>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 11 Aug 2002, Andrew Morton wrote:
-> >
-> > Resend.  Replace the buffer lru spinlock protection with
-> > local_irq_disable and a cross-CPU call to invalidate them.
-> 
-> This almost certainly breaks on sparc, where CPU cross-calls are
-> non-maskable, so local_irq_disable doesn't do anything for them.
-> 
-> Talk to Davem about this - there may be some workaround.
+   From: Meelis Roos <mroos@linux.ee>
+   Date: Tue, 13 Aug 2002 19:21:30 +0300 (EEST)
 
-I have discussed it with David - he said it's OK in 2.5, but
-not in 2.4, and he has eyeballed the diff.
+   2 oopses from stock 2.4.20-pre2 during NFS startup 9mountd etc killed as
+   a result). Looks like a bad use of bitops inside sunrpc. egcs64 compiler
+   from debian.
+   
+Neil, sk_flags in struct svc_sock may not be an int, bitops require
+"long".
 
-However there's another thing to think about:
-
-	local_irq_disable();
-	atomic_inc();
-
-If the architecture implements atomic_inc with spinlocks, this will
-schedule with interrupts off with CONFIG_PREEMPT=y, I expect.
-
-I can fix that with a preempt_disable() in there, but ick.
+--- include/linux/sunrpc/svcsock.h.~1~	Tue Aug 13 10:37:10 2002
++++ include/linux/sunrpc/svcsock.h	Tue Aug 13 10:37:15 2002
+@@ -22,7 +22,7 @@
+ 
+ 	struct svc_serv *	sk_server;	/* service for this socket */
+ 	unsigned char		sk_inuse;	/* use count */
+-	unsigned int		sk_flags;
++	unsigned long		sk_flags;
+ #define	SK_BUSY		0			/* enqueued/receiving */
+ #define	SK_CONN		1			/* conn pending */
+ #define	SK_CLOSE	2			/* dead or dying */

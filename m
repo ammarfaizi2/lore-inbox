@@ -1,60 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUFYEDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266172AbUFYEuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266195AbUFYEDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 00:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUFYEDK
+	id S266172AbUFYEuj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 00:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUFYEug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 00:03:10 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49824 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266195AbUFYEDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 00:03:06 -0400
-Date: Thu, 24 Jun 2004 21:01:50 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [2.6 patch] fix arch/i386/pci/Makefile
-Message-Id: <20040624210150.46e68ded.akpm@osdl.org>
-In-Reply-To: <20040625001513.GB18303@fs.tum.de>
-References: <20040625001513.GB18303@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 25 Jun 2004 00:50:36 -0400
+Received: from omr3.netsolmail.com ([216.168.230.164]:37839 "EHLO
+	omr3.netsolmail.com") by vger.kernel.org with ESMTP id S266172AbUFYEud
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 00:50:33 -0400
+Message-Id: <200406250449.BSB05018@ms6.netsolmail.com>
+Reply-To: <shai@ftcon.com>
+From: "Shai Fultheim" <shai@ftcon.com>
+To: "'Yasunori Goto'" <ygoto@us.fujitsu.com>,
+       "'Dave Hansen'" <haveblue@us.ibm.com>
+Cc: "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
+       "'Linux Hotplug Memory Support'" <lhms-devel@lists.sourceforge.net>,
+       "'Linux-Node-Hotplug'" <lhns-devel@lists.sourceforge.net>,
+       "'linux-mm'" <linux-mm@kvack.org>,
+       "'BRADLEY CHRISTIANSEN [imap]'" <bradc1@us.ibm.com>
+Subject: RE: [Lhms-devel] Re: [Lhns-devel] Merging Nonlinear and Numa style memory hotplug
+Date: Thu, 24 Jun 2004 21:49:42 -0700
+Organization: FT Consulting
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2142
+Thread-Index: AcRaOwzyWyhYeVqiTrW1r5RPE+W2RwANA7gQ
+In-Reply-To: <20040624135838.F009.YGOTO@us.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
->
-> I got the following compile error in 2.6.7-mm2 (but it doesn't seem to 
->  be specific to -mm2):
-> ..
->  drivers/built-in.o(.text+0x6c24a): In function `acpi_pci_root_add':
->  : undefined reference to `pci_acpi_scan_root'
->  make: *** [.tmp_vmlinux1] Error 1
-
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Yasunori Goto
+> Sent: Thursday, June 24, 2004 15:20
+> To: Dave Hansen
 > 
->  This problem occurs with
->    CONFIG_ACPI_PCI=y && (CONFIG_X86_VISWS=y || CONFIG_X86_NUMAQ=y)
-> 
-> ....
->  --- linux-2.6.7-mm2-full/arch/i386/pci/Makefile.old	2004-06-25 02:08:29.000000000 +0200
->  +++ linux-2.6.7-mm2-full/arch/i386/pci/Makefile	2004-06-25 02:10:36.000000000 +0200
->  @@ -5,10 +5,11 @@
->   obj-$(CONFIG_PCI_DIRECT)	+= direct.o
->   
->   pci-y				:= fixup.o
->  -pci-$(CONFIG_ACPI_PCI)		+= acpi.o
->   pci-y				+= legacy.o irq.o
->   
->   pci-$(CONFIG_X86_VISWS)		:= visws.o fixup.o
->   pci-$(CONFIG_X86_NUMAQ)		:= numa.o irq.o
->   
->  +pci-$(CONFIG_ACPI_PCI)		+= acpi.o
->  +
+> > Some more comments on the first patch:
 
-This causes my e100 NIC to not work.  Some initcall ordering dependency,
-presumably.  A whole bunch of devices popped up on different IRQs.
+> > +       for(i = 0; i < numnodes; i++) {
+> > +               if (!NODE_DATA(i))
+> > +                       continue;
+> > +               pgdat = NODE_DATA(i);
+> > +               size = pgdat->node_zones[ZONE_HIGHMEM].present_pages;
+> > +               if (!size)
+> > +                       continue;
+> > +               hsp = pgdat->node_zones[ZONE_HIGHMEM].zone_mem_map;
+> > +               if (hsp)
+> > +                       break;
+> > +       }
+> >
+> > Doesn't this just find the lowest-numbered node's highmem?  Are you sure
+> > that no NUMA systems have memory at lower physical addresses on
+> > higher-numbered nodes?  I'm not sure that this is true.
 
-Come to think about it, how can the above patch fix that linkage error
-anyway?
+In addition I'm involved in a NUMA-related project that might have
+zone-normal on other nodes beside node0.  I also think that in some cases it
+might be useful to have the code above and below in case of AMD machines
+that have less than 1GB per processor (or at least less than 1GB on the
+FIRST processor).
+
+> > +
+> > +#ifdef CONFIG_HOTPLUG_MEMORY_OF_NODE
+> > +       for (nid = 0; nid < numnodes; nid++){
+> > +               int start, end;
+> > +
+> > +               if ( !node_online(nid))
+> > +                       continue;
+> > +               if ( node_start_pfn[nid] >= max_low_pfn )
+> > +                       break;
+> > +
+> > +               start = node_start_pfn[nid];
+> > +               end = ( node_end_pfn[nid] < max_low_pfn) ?
+> > +                       node_end_pfn[nid] : max_low_pfn;
+> > +
+> > +               for ( tmp = start; tmp < end; tmp++)
+> > +                       /*
+> > +                        * Only count reserved RAM pages
+> > +                        */
+> > +                       if (page_is_ram(tmp) &&
+> PageReserved(pfn_to_page(tmp)))
+> > +                               reservedpages++;
+> > +       }
+> > +#else
+> >
+> > Again, I don't see what this loop is used for.  You appear to be trying
+> > to detect which nodes have lowmem.  Is there currently any x86 NUMA
+> > architecture that has lowmem on any node but node 0?
+> >
+> >
+> >
+> > -- Dave
+
+As noted above, this is possible, the cost of this code is not much, so I
+would keep it in.
+
+--shai
+

@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279642AbRKFP1J>; Tue, 6 Nov 2001 10:27:09 -0500
+	id <S279596AbRKFP23>; Tue, 6 Nov 2001 10:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279596AbRKFP1A>; Tue, 6 Nov 2001 10:27:00 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58889 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279642AbRKFP0n>; Tue, 6 Nov 2001 10:26:43 -0500
-Subject: Re: oops with 2.4.13-ac8
-To: olh@suse.de (Olaf Hering)
-Date: Tue, 6 Nov 2001 15:33:51 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011106160200.A7291@suse.de> from "Olaf Hering" at Nov 06, 2001 04:02:00 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279688AbRKFP2U>; Tue, 6 Nov 2001 10:28:20 -0500
+Received: from t2.redhat.com ([199.183.24.243]:58357 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S279596AbRKFP2A>; Tue, 6 Nov 2001 10:28:00 -0500
+Message-ID: <3BE8017E.1BFF5E2D@redhat.com>
+Date: Tue, 06 Nov 2001 15:27:58 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-7smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
+Subject: Re: Mylex/Compaq RAID controller placement in config
+In-Reply-To: <E1617xB-0000ln-00@the-village.bc.nu> <Pine.LNX.4.30.0111061612570.23908-100000@mustard.heime.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1618EZ-0000oP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>EIP; c011946a <update_one_process+1a/d4>   <=====
-> Trace; c011953c <update_process_times+18/88>
-> Trace; c011985e <do_timer+22/6c>
-> Trace; c010a8dc <timer_interrupt+d0/18c>
+Roy Sigurd Karlsbakk wrote:
+> 
+> > Because they are ?
+> >
+> > They dont provide scsi as the native interface (nor do some of the others
+> > but thats a seperate saga)
+> 
+> I know it might seem silly, but as to make things clearer for most
+> users/admins, wouldn't it be better to just call them SCSI controllers, as
+> they all indeed connect SCSI drives to the host?
 
-Nice trace. Looks like somehow we took an IRQ with %cr2 not holding valid
-data.
+They're not SCSI _controllers_. They happen to like scsi drivers, but
+there's nothing 
+scsi about the controller. and admins would expect all controllers from
+the
+"SCSI Controllers" menu to show up as /dev/sda etc, which these don't.
 
-Alan
+> ---
+> MCSE, MCNE, CLS, LCA
+
+Maybe this explains it ;)

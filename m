@@ -1,84 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267724AbUHPQQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267759AbUHPQTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267724AbUHPQQd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 12:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267687AbUHPQQc
+	id S267759AbUHPQTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 12:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267758AbUHPQTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 12:16:32 -0400
-Received: from pD9517D3C.dip.t-dialin.net ([217.81.125.60]:51592 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S267756AbUHPQQA (ORCPT
+	Mon, 16 Aug 2004 12:19:24 -0400
+Received: from holomorphy.com ([207.189.100.168]:8104 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267709AbUHPQTD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 12:16:00 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-From: Thomas Charbonnel <thomas@undata.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040816153751.GA15573@elte.hu>
-References: <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092662814.5082.2.camel@localhost> <1092665577.5362.12.camel@localhost>
-	 <1092667804.5362.21.camel@localhost> <20040816145831.GA14195@elte.hu>
-	 <1092669057.5362.31.camel@localhost>  <20040816153751.GA15573@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092672875.5362.49.camel@localhost>
+	Mon, 16 Aug 2004 12:19:03 -0400
+Date: Mon, 16 Aug 2004 09:18:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Ray Bryant <raybry@sgi.com>, "David S. Miller" <davem@redhat.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing pte locks?
+Message-ID: <20040816161845.GA11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christoph Lameter <clameter@sgi.com>, Ray Bryant <raybry@sgi.com>,
+	"David S. Miller" <davem@redhat.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com> <20040815130919.44769735.davem@redhat.com> <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com> <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com> <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com> <41205BAA.9030800@sgi.com> <Pine.LNX.4.58.0408160817210.8293@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 18:14:35 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408160817210.8293@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote :
-> * Thomas Charbonnel <thomas@undata.org> wrote:
-> 
-> > > >  0.000ms (+0.000ms): do_IRQ (default_idle)
-> > > >  0.000ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
-> > > >  0.459ms (+0.459ms): generic_redirect_hardirq (do_IRQ)
-> > > >  0.459ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
-> > > >  0.459ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
-> > > 
-> > > > It definitely looks like the kernel is interrupted by some interrupt
-> > > > source not covered by the patch.
-> > > 
-> > > the only possibility is SMM, which is not handled by Linux. (but by the
-> > > BIOS.) Otherwise we track everything - including NMIs.
-> 
-> > This would confirm the hypothesis of a buggy BIOS, I'm afraid.
-> 
-> there are still other (and more likely) possible reasons like a bug in
-> the latency tracer. (Or a broken TSC - albeit this is less likely.)
-> 
+On Mon, 16 Aug 2004, Ray Bryant wrote:
+>> Something else to worry about here is mm->rss.  Previously, this was updated
+>> only with the page_table_lock held, so concurrent increments were not a
+>> problem.  rss may need to converted be an atomic_t if you use pte_locks.
+>> It may be that an approximate value for rss is good enough, but I'm not sure
+>> how to bound the error that could be introduced by a couple of hundred
+>> processers handling page faults in parallel and updating rss without locking
+>> it or making it an atomic_t.
 
-I don't think the latency tracer is involved. I think this is the same
-phenomenon as the regular latency spikes I reported earlier.
-At some point I thought of a clock issue, indeed, so I switched to
-pmtmr, but this is broken with voluntary preempt (I think it relates to
-the sched_clock code when not using TSC -> precision of the reported
-preempt threshold violations was 1ms). Worth mentioning is that the
-latency spikes interval was the same even if I compiled cpufreq in and
-switched the processor speed at runtime.
+On Mon, Aug 16, 2004 at 08:18:11AM -0700, Christoph Lameter wrote:
+> Correct. There are a number of issues that may have to be addressed but
+> first we need to agree on a general idea how to proceed.
 
-> can you reproduce this phenomenon at will? Does it go away if you turn 
-> ACPI/APM off (both in the kernel and in the BIOS).
-
-I can't turn PM off in the BIOS, but turning ACPI off in the kernel
-suppresses the problem.
-
->  Does it go away if 
-> you use idle=poll?
-> 
-
-I don't think so (the spikes where still here when you first merged
-wli's preempt timing patch and forced idle=poll).
-
-So basically I think the spikes are BIOS related, they've been detected
-so far by the alsa xrun_debug mechanism, by the latency-test suite, and
-now by the latency tracer, which shows that they're not linked to any
-particular code section.
-
-Thomas
+I'd favor a per-cpu counter so the cacheline doesn't bounce.
 
 
+-- wli

@@ -1,39 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285352AbRLXViG>; Mon, 24 Dec 2001 16:38:06 -0500
+	id <S285367AbRLXV5O>; Mon, 24 Dec 2001 16:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285360AbRLXVh4>; Mon, 24 Dec 2001 16:37:56 -0500
-Received: from Ptrillia.EUnet.sk ([193.87.242.40]:22656 "EHLO meduna.org")
-	by vger.kernel.org with ESMTP id <S285352AbRLXVho>;
-	Mon, 24 Dec 2001 16:37:44 -0500
-From: Stanislav Meduna <stano@meduna.org>
-Message-Id: <200112242137.fBOLbcU08347@meduna.org>
-Subject: Re: IDE CDROM locks the system hard on media error
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Mon, 24 Dec 2001 22:37:38 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10112241231000.14431-100000@master.linux-ide.org> from "Andre Hedrick" at dec 24, 2001 12:58:26
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S285369AbRLXV5F>; Mon, 24 Dec 2001 16:57:05 -0500
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:59916 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S285367AbRLXV4u>;
+	Mon, 24 Dec 2001 16:56:50 -0500
+Date: Mon, 24 Dec 2001 22:56:48 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Data sitting and remaining in Send-Q
+Message-ID: <20011224225648.I2461@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011224211726.H2461@lug-owl.de> <1062462662.1009226676@[195.224.237.69]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1062462662.1009226676@[195.224.237.69]>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux mail 2.4.15-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2001-12-24 20:44:37 -0000, Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+wrote in message <1062462662.1009226676@[195.224.237.69]>:
+> >That would give a different result: "functional TCP connections" or
+> >"non-functional TCP connections". Mine are between that. If data gets
+> >sent in small chunks, everything is fine, but if it's a larger
+> >transfer (more than one ethernet frame may transport???), write()
+> >stalls (or non-blocking write returns), but data is kept in
+> >Send-Q rather than being sent down to the client.
 
-> If it is DMAing and there is a 1us transaction delay it is toast.
+Well, some testing done. I've written a small microserver bound to
+port 1111/tcp via inetd:
+--------------------------------------
+#!/bin/sh
 
-Oh... But why does the whole kernel lock up?
+LEN="`cat /root/size`"
 
-> Intel PIIX4 AB/EB is a NO-NO for doing ATAPI on.
+dd bs=$LEN if=/dev/zero count=1 2>/dev/null
+sleep 1
+exit 0
+------------------------------------
 
-Only when using DMA or generally?
+I can control it's output by a file. It seems that I can always
+transmit up to ~920 bytes at a time, but never more than 940.
+All values in between these borders are more-or-less functional,
+depending their size (smaller packets == high chance to reach client,
+larger packets == small chance to reach destination).
 
-Maybe there should be some "quirk" disallowing this or at least
-warn when the user happens to select this?
+> Just to check the completely obvious:
+> 
+> Difficult / impossible to tell without a tcpdump, but last time I
+> saw something like this, one end was silently dropping packets
+> exactly equal to the MTU size (or up to 3 bytes smaller), but
+> transmitting all other packets (in this instance it was a bizarre
+> 802.11 problem).
 
-Regards
+It's quite a problem to do tcpdumping on a host from which you
+never can get more than ~920 bytes at a time, neither by ftp, nor
+by ssh or telnet or whatever:-)
+
+Well, I've tcpdumped now, and it seemy my old WaveSwitch is
+to blame. The "bad" server actually transmits everything
+(and also tries retransmits etc.), but that never leaves the
+switch again... I've changed the switch port as well as the
+cable. It seems the switch and that network card don't
+like each other...
+
+I've now replaced the network card, everything is fine now.
+
+I've never seen a NIC failing partially, I've learned a lot
+this evening...
+
+Thank you very much (to all who send me notes) and have a nice
+X-Mas...
+
+MfG, JBG
+
 -- 
-                                      Stano
-
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/

@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277048AbRJEAfz>; Thu, 4 Oct 2001 20:35:55 -0400
+	id <S277290AbRJEApi>; Thu, 4 Oct 2001 20:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277283AbRJEAfq>; Thu, 4 Oct 2001 20:35:46 -0400
-Received: from [209.237.5.66] ([209.237.5.66]:63194 "EHLO clyde.stargateip.com")
-	by vger.kernel.org with ESMTP id <S277048AbRJEAfe>;
-	Thu, 4 Oct 2001 20:35:34 -0400
-From: "Ian Thompson" <ithompso@stargateip.com>
-To: <root@chaos.analogic.com>
-Cc: "Helge Hafting" <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
-Subject: RE: How can I jump to non-linux address space?
-Date: Thu, 4 Oct 2001 17:35:51 -0700
-Message-ID: <NFBBIBIEHMPDJNKCIKOBGEIOCAAA.ithompso@stargateip.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.3.95.1011004155938.1774A-100000@chaos.analogic.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S277294AbRJEAp2>; Thu, 4 Oct 2001 20:45:28 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:26874 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S277291AbRJEApO>;
+	Thu, 4 Oct 2001 20:45:14 -0400
+Date: Fri, 5 Oct 2001 02:45:26 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+Message-ID: <20011005024526.E724@athlon.random>
+In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com> <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com>; from kravetz@us.ibm.com on Thu, Oct 04, 2001 at 04:41:02PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Dick,
+On Thu, Oct 04, 2001 at 04:41:02PM -0700, Mike Kravetz wrote:
+> I know that running LMbench with 2 active tasks on an 8 CPU system
+> results in those 2 tasks being 'round-robined' among all 8 CPUs.
+> Prior analysis leads me to believe the reason for this is due to
+> IPI latency.  reschedule_idle() chooses the 'best/correct' CPU for
+> a task to run on, but before schedule() runs on that CPU another
+> CPU runs schedule() and the result is that the task runs on a
+> ?less desirable? CPU.  The nature of the LMbench scheduler benchmark
 
-Thanks for the help!  A couple more questions for you...
+doesn't lmbench wakeup only via pipes? Linux uses the sync-wakeup that
+avoids reschedule_idle in such case, to serialize the pipe load in the
+same cpu.
 
-> You use ioremap() to create a virtual address from 0x1000. Then
-> you copy the relocated code, currently in some array, to the relocated
-> address (0x1000), using the cookie returned from ioremap().
-
-How does this make the virtual address the same as the physical address?  Or
-are addr's in the first page (or 1st MB?) automatically mapped to the same
-address when you call ioremap()?  I printed out the __ioremap() addr's for
-0x1000 and 0x3000, and neither of the virt addr's were equal to the physical
-ones.
-
-I tried something slightly different, which didn't work...  Should it have?
-What I did was put the code to turn off the MMU at physical address 0x3000,
-and jumped to it (via branching to __ioremap(0x3000)).  I think the branch
-is working, since I can load the correct instruction via this reloc'ed
-address.  However, running the code that turns off the MMU instead reboots
-the machine. =(
-
-> In the code, you can disable the paging bit and set DS, ES to the
-> page-table selector, which looks at linear addressing. Now you can
-> see and access everything as 32-bit linear address-space.
-
-Should I be looking for something else to twiddle instead of the MMU bit in
-the CPU register?  You mentioned the paging bit; is this different?  Also,
-what are DS & ES?
-
-gracias,
--ian
-
+Andrea

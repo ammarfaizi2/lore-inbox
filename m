@@ -1,72 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269771AbUICUQm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269813AbUICUWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269771AbUICUQm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 16:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269776AbUICUOS
+	id S269813AbUICUWB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 16:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269782AbUICUSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 16:14:18 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:63843 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S269754AbUICUFE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 16:05:04 -0400
-Message-ID: <4138CE6F.10501@cs.aau.dk>
-Date: Fri, 03 Sep 2004 22:05:03 +0200
-From: =?UTF-8?B?S3Jpc3RpYW4gU8O4cmVuc2Vu?= <ks@cs.aau.dk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040814)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: umbrella-devel@lists.sourceforge.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-References: <41385FA5.806@cs.aau.dk> <1094220870.7975.19.camel@localhost.localdomain>
-In-Reply-To: <1094220870.7975.19.camel@localhost.localdomain>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Sep 2004 16:18:00 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:62394 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269770AbUICUQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 16:16:28 -0400
+Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
+       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
+       David Mosberger <davidm@hpl.hp.com>, paulus@samba.org,
+       schwidefsky@de.ibm.com, jimix@us.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
+In-Reply-To: <20040903151710.GB12956@wotan.suse.de>
+References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>
+	 <20040903151710.GB12956@wotan.suse.de>
+Content-Type: text/plain
+Message-Id: <1094242317.14662.556.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 03 Sep 2004 13:11:58 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2004-09-03 at 13:12, Kristian Sørensen wrote:
+On Fri, 2004-09-03 at 08:17, Andi Kleen wrote:
+> On Thu, Sep 02, 2004 at 02:07:19PM -0700, john stultz wrote:
+> > timeofday_hook()
+> > 	now = read();			/* read the timesource */
+> > 	ns = cyc2ns(now - offset_base); /* calc nsecs since last call */
+> > 	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+> > 	system_time += ntp_ns;		/* add scaled value to system_time */
+> > 	ntp_advance(ns);		/* advance ntp state machine by ns */
+> > 	offset_base = now;		/* set new offset_base */
+> > 
+> > monotonic_clock()
+> > 	now = read();			/* read the timesource */
+> > 	ns = cyc2ns(now - offset_base);	/* calculate nsecs since last hook */
+> > 	ntp_ns = ntp_scale(ns);		/* apply ntp scaling */
+> > 	return system_time + ntp_ns; 	/* return system_time and scaled value
 > 
->>I have a short question, concerning how to get the full path of a file 
->>from a LSM hook.
 > 
-> 
-> The full path or a full path. It may have several. They may also have
-> changed under you. 
-> 
-> 
->>Can some one reveal the trick to get the full path nomater if the 
->>filesystem is root or mounted elsewhere in the filesystem?
-> 
-> 
-> You can get the namespace and the name within that namespace that
-> represents at least one of the names of the file within the vfs layer
-> (this is what the VFS itself uses for the struct nameidata).
-> 
-> There may be multiple links to a file, it may be mounted in multiple
-> places and someone on a seperate NFS server may have moved it while you
-> are thinking about it.
-Umbrella is mostly designed for embedded systems (where selinux is 
-overkill) and also it is very easy to understand. Most restrictions will 
-be made to e.g. stop viruses from spreading, and it is quite easy, yet 
-very effective:
+> I am not sure why you have different hooks for timeofday and monotic.
+> It may be better to read the timeonly once and then convert to monotonic
+> or TOD.
 
-If an email client receives an malformed email (like the countless 
-attacks on outlook), a simple restriction could be for the process 
-handeling the mail would be "$HOME/.addressbook", furthermore, you could 
-specify that attachments executed _from_ the emailprogram would not have 
-access to the network. Thus the virus cannot find mail addresses to send 
-itself to - and it cannot even get network access. Simple and effective.
+You might be a bit confused:
+The timeofday_hook (should be timeofday_interrupt_hook, my bad) is
+called by the semi-periodic-irregular-interval(also known as "timer")
+interrupt. Its what does the housekeeping for all the timeofday code so
+we don't run into a counter overflow. 
 
-Also simple bufferoverflows in suid-root programs may be avoided. The 
-simple way would to set the restriction "no fork", and thus if an 
-attacker tries to fork a (root) shell, this would be denied. Another way 
-could be to heavily restrict access to the filesystem. If the program is 
-restricted from /var, the root shell spawned by the attack would not 
-have access either. (restrictions are enherited from parent to children).
+monotonic_clock() is an accessor that returns the amount of time that
+has been accumulated since boot in nanoseconds. 
+
+do_timeofday() is also an accessor which uses monotonic_clock +
+wall_time_offset to calculate wall time.
 
 
-Best regards, Kristian.
+> > 					 */
+> > 
+> > settimeofday(desired)
+> > 	wall_offset = desired - monotonic_clock(); /* set wall offset */
+> > 
+> > gettimeofday()
+> > 	return wall_offset + monotonic_clock();	/* return current timeofday */
+> 
+> 
+> Hmm, I am missing something here, but how do you handle
+> the case where the timer interrupt uses HPET, but the offset
+> from last timer interrupt is determined using TSC.  But
+> some machines don't have a reliable TSC, so it may need
+> to use a different "offset" source.
+> 
+> I guess you would need two different drivers here? 
+
+Not really, this is very doable. Time of day is now completely isolated
+from the timer interrupt code, so it doesn't care who calls the
+timeofday_interrupt_hook (HPET's interrupt or the i8253's interrupt
+could do it). Also it doesn't have to be regular or exact, just frequent
+enough that the timesource doesn't overflow.
+
+> > o vsyscalls/userspace gettimeofday()
+> > 	- Mark functions and data w/  __vsyscall attribute
+> > 	- Use linker to put all __vsyscall data in the same set of pages
+> 
+> That won't work because the kernel needs to write to 
+> these variables (e.g. to update the wall time from the interrupt
+> handler). So in general you need two different mappings, one
+> read only for user space and another writable one for the kernel.
+
+Well, I was thinking about this and I don't see why the kernel and
+userspace can't share the same data and functions for read only access?
+Why exactly does it need to be mapped twice? We only write to the data
+from kernel mode using different functions, so the same symbols should
+be usable. 
+
+I could be missing something, and my userspace implementation plans
+weigh fairly heavily on this, so do please correct me. 
+
+> Regarding your patch, putting the delta in a virtual call
+> seems a bit of overkill. Is that really needed? That was
+> just from a quick grep, i haven't read it in detail.
+
+Yep. Christoph point is starting to get to me. I'll probably swap out
+delta() for a mask variable do the masking in the generic code. However,
+I do feel its a micro-optimization which hurts readability, so I'll put
+off that change until later when the code has been thoroughly reviewed. 
+
+I came up with the read/delta/cyc2ns interface after trying to think of
+the simplest way to use ANY time source, no matter how strange.
+cycle_t's are basically magic cookies given by the timesource that can
+be manipulated generically and converted into nanoseconds. It is likely
+an over-virtualization, but I'd prefer to keep things general and
+flexible until more arch maintainers tell me its unnecessary.
+
+thanks
+-john
+

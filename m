@@ -1,63 +1,211 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265771AbTGDEKs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 00:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTGDEKr
+	id S265763AbTGDEge (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 00:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbTGDEge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 00:10:47 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:64458 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265771AbTGDEKj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 00:10:39 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Subject: Re: 2.5.74-mm1 and Con Kolivas' CPU scheduler work
-Date: Fri, 4 Jul 2003 14:25:29 +1000
-User-Agent: KMail/1.5.2
-Cc: "ismail (cartman) donmez" <kde@myrealbox.com>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200307031936.34458.kde@myrealbox.com> <200307041229.06238.kernel@kolivas.org> <1057291914.5681.11.camel@iso-8590-lx.zeusinc.com>
-In-Reply-To: <1057291914.5681.11.camel@iso-8590-lx.zeusinc.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307041425.29828.kernel@kolivas.org>
+	Fri, 4 Jul 2003 00:36:34 -0400
+Received: from dp.samba.org ([66.70.73.150]:56264 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265763AbTGDEg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 00:36:27 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] module_put_and_exit
+Date: Fri, 04 Jul 2003 14:47:13 +1000
+Message-Id: <20030704045055.B5F692C078@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jul 2003 14:11, Tom Sightler wrote:
-> On Thu, 2003-07-03 at 22:29, Con Kolivas wrote:
-> > Ah yes I believe I know this issue. The problem is the parent spinning
-> > madly waiting for the child and it is the parent that starves the child.
-> > While this is not a fix, if you can reproduce the problem can you try
-> > changing CHILD_PENALTY in kernel/sched.c from 50 to 100 and see if that
-> > makes the problem go away? I mentioned this hidden in a thread a while
-> > ago, and am trying to get a reasonable fix.
->
-> Well, perhaps I spoke too soon about this particular issues.  I have
-> just compiled 2.5.74-mm1 and it seems to be much better behaved that my
-> previous kernel (2.5.72-mm2).  I can no longer reproduce the issue with
-> this new kernel but the problem is easily reproducible with my older
-> kernel.  Does 2.5.74-mm1 have a recent version of your patches (I know
-> it has some variation of your patches but you've been cracking them out
-> pretty quick lately).  I've run testing with my horror cases of
-> Crossover Plugin and multiple Crossover Office applications running
-> simultaneously and all programs seem responsive, these cases caused all
-> kinds of audio skipping and pauses on the system before.
->
-> I'm still running some other tests that seem to be showing some
-> strangeness but I need to do some more test on both kernels before I
-> really reports them.
->
-> Thanks for your hard work on these issues, for my workload things seem
-> to be getting quite a bit better.
+From: Neil Brown
 
-Heh well that's nice. The last patch posted on my site ( 
-kernel.kolivas.org/2.5 ) is the same as in -mm1. There is no newer patch yet, 
-but I've got some changes coming to apply on top pretty soon. Hopefully these 
-will address your "strangeness". :)
+Define module_put_and_exit() and use it for nfsd/lockd
 
-Con
+Both nfsd and lockd have threads which expect to hold a reference
+to the module while the thread is running.  In order for the thread
+to be able to put_module() the module before exiting, the
+put_module code must be call from outside the module.
 
+This patch provides module_put_and_exit in non-modular code which a
+thread-in-a-module can call.  It also gets nfsd and lockd to use it
+as appropriate.
+
+Note that in lockd, we can __get_module in the thread itself as the
+creator of the thread is waiting for the thread to startup.
+
+In nfsd and for the 'reclaimer' threaded started by locked, we
+__get_module first and put_module if the thread failed to start.
+
+ ----------- Diffstat output ------------
+ ./fs/lockd/clntlock.c    |    9 ++++-----
+ ./fs/lockd/svc.c         |    8 ++++++--
+ ./fs/nfsd/nfssvc.c       |    8 +++++---
+ ./include/linux/module.h |    8 ++++++++
+ ./kernel/exit.c          |    1 +
+ ./kernel/module.c        |   12 ++++++++++++
+ 6 files changed, 36 insertions(+), 10 deletions(-)
+
+Name: module_put_and_exit
+Author: Neil Brown
+Status: Booted on 2.5.74-bk1
+
+D: Define module_put_and_exit() and use it for nfsd/lockd
+D: 
+D: Both nfsd and lockd have threads which expect to hold a reference
+D: to the module while the thread is running.  In order for the thread
+D: to be able to put_module() the module before exiting, the
+D: put_module code must be call from outside the module.
+D: 
+D: This patch provides module_put_and_exit in non-modular code which a
+D: thread-in-a-module can call.  It also gets nfsd and lockd to use it
+D: as appropriate.
+D: 
+D: Note that in lockd, we can __get_module in the thread itself as the
+D: creator of the thread is waiting for the thread to startup.
+D: 
+D: In nfsd and for the 'reclaimer' threaded started by locked, we
+D: __get_module first and put_module if the thread failed to start.
+D: 
+D:  ----------- Diffstat output ------------
+D:  ./fs/lockd/clntlock.c    |    9 ++++-----
+D:  ./fs/lockd/svc.c         |    8 ++++++--
+D:  ./fs/nfsd/nfssvc.c       |    8 +++++---
+D:  ./include/linux/module.h |    8 ++++++++
+D:  ./kernel/exit.c          |    1 +
+D:  ./kernel/module.c        |   12 ++++++++++++
+D:  6 files changed, 36 insertions(+), 10 deletions(-)
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/lockd/clntlock.c .25804-linux-2.5.74-bk1.updated/fs/lockd/clntlock.c
+--- .25804-linux-2.5.74-bk1/fs/lockd/clntlock.c	2003-02-17 11:37:52.000000000 +1100
++++ .25804-linux-2.5.74-bk1.updated/fs/lockd/clntlock.c	2003-07-04 07:58:04.000000000 +1000
+@@ -187,8 +187,9 @@ nlmclnt_recovery(struct nlm_host *host, 
+ 	} else {
+ 		nlmclnt_prepare_reclaim(host, newstate);
+ 		nlm_get_host(host);
+-		MOD_INC_USE_COUNT;
+-		kernel_thread(reclaimer, host, CLONE_KERNEL);
++		__module_get(THIS_MODULE);
++		if (kernel_thread(reclaimer, host, CLONE_KERNEL))
++			module_put(THIS_MODULE);
+ 	}
+ }
+ 
+@@ -244,7 +245,5 @@ restart:
+ 	nlm_release_host(host);
+ 	lockd_down();
+ 	unlock_kernel();
+-	MOD_DEC_USE_COUNT;
+-
+-	return 0;
++	module_put_and_exit(0);
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/lockd/svc.c .25804-linux-2.5.74-bk1.updated/fs/lockd/svc.c
+--- .25804-linux-2.5.74-bk1/fs/lockd/svc.c	2003-07-03 09:43:54.000000000 +1000
++++ .25804-linux-2.5.74-bk1.updated/fs/lockd/svc.c	2003-07-04 07:58:04.000000000 +1000
+@@ -88,7 +88,11 @@ lockd(struct svc_rqst *rqstp)
+ 	unsigned long grace_period_expire;
+ 
+ 	/* Lock module and set up kernel thread */
+-	MOD_INC_USE_COUNT;
++	/* lockd_up is waiting for us to startup, so will
++	 * be holding a reference to this module, so it
++	 * is safe to just claim another reference
++	 */
++	__module_get(THIS_MODULE);
+ 	lock_kernel();
+ 
+ 	/*
+@@ -183,7 +187,7 @@ lockd(struct svc_rqst *rqstp)
+ 
+ 	/* Release module */
+ 	unlock_kernel();
+-	MOD_DEC_USE_COUNT;
++	module_put_and_exit(0);
+ }
+ 
+ /*
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/nfsd/nfssvc.c .25804-linux-2.5.74-bk1.updated/fs/nfsd/nfssvc.c
+--- .25804-linux-2.5.74-bk1/fs/nfsd/nfssvc.c	2003-07-03 09:43:54.000000000 +1000
++++ .25804-linux-2.5.74-bk1.updated/fs/nfsd/nfssvc.c	2003-07-04 07:58:04.000000000 +1000
+@@ -115,9 +115,12 @@ nfsd_svc(unsigned short port, int nrserv
+ 	nrservs -= (nfsd_serv->sv_nrthreads-1);
+ 	while (nrservs > 0) {
+ 		nrservs--;
++		__module_get(THIS_MODULE);
+ 		error = svc_create_thread(nfsd, nfsd_serv);
+-		if (error < 0)
++		if (error < 0) {
++			module_put(THIS_MODULE);
+ 			break;
++		}
+ 	}
+ 	victim = nfsd_list.next;
+ 	while (nrservs < 0 && victim != &nfsd_list) {
+@@ -173,7 +176,6 @@ nfsd(struct svc_rqst *rqstp)
+ 	sigset_t shutdown_mask, allowed_mask;
+ 
+ 	/* Lock module and set up kernel thread */
+-	MOD_INC_USE_COUNT;
+ 	lock_kernel();
+ 	daemonize("nfsd");
+ 	current->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+@@ -266,7 +268,7 @@ nfsd(struct svc_rqst *rqstp)
+ 	svc_exit_thread(rqstp);
+ 
+ 	/* Release module */
+-	MOD_DEC_USE_COUNT;
++	module_put_and_exit(0);
+ }
+ 
+ int
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/include/linux/module.h .25804-linux-2.5.74-bk1.updated/include/linux/module.h
+--- .25804-linux-2.5.74-bk1/include/linux/module.h	2003-07-03 09:44:00.000000000 +1000
++++ .25804-linux-2.5.74-bk1.updated/include/linux/module.h	2003-07-04 08:00:09.000000000 +1000
+@@ -276,8 +276,12 @@ struct module *module_get_kallsym(unsign
+ 				  char *type,
+ 				  char namebuf[128]);
+ int is_exported(const char *name, const struct module *mod);
+-#ifdef CONFIG_MODULE_UNLOAD
+ 
++extern void __module_put_and_exit(struct module *mod, long code)
++	__attribute__((noreturn));
++#define module_put_and_exit(code) __module_put_and_exit(THIS_MODULE, code);
++
++#ifdef CONFIG_MODULE_UNLOAD
+ unsigned int module_refcount(struct module *mod);
+ void __symbol_put(const char *symbol);
+ #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
+@@ -445,6 +449,8 @@ static inline int unregister_module_noti
+ 	return 0;
+ }
+ 
++#define module_put_and_exit(code) do_exit(code)
++
+ #endif /* CONFIG_MODULES */
+ 
+ #ifdef MODULE
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/kernel/module.c .25804-linux-2.5.74-bk1.updated/kernel/module.c
+--- .25804-linux-2.5.74-bk1/kernel/module.c	2003-07-03 09:44:01.000000000 +1000
++++ .25804-linux-2.5.74-bk1.updated/kernel/module.c	2003-07-04 07:59:20.000000000 +1000
+@@ -98,6 +98,17 @@ int init_module(void)
+ }
+ EXPORT_SYMBOL(init_module);
+ 
++/* A thread that wants to hold a reference to a module only while it
++ * is running can call ths to safely exit.
++ * nfsd and lockd use this.
++ */
++void __module_put_and_exit(struct module *mod, long code)
++{
++	module_put(mod);
++	do_exit(code);
++}
++EXPORT_SYMBOL(__module_put_and_exit);
++	
+ /* Find a module section: 0 means not found. */
+ static unsigned int find_sec(Elf_Ehdr *hdr,
+ 			     Elf_Shdr *sechdrs,
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

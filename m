@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbRHTKwi>; Mon, 20 Aug 2001 06:52:38 -0400
+	id <S266263AbRHTKqr>; Mon, 20 Aug 2001 06:46:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267852AbRHTKw1>; Mon, 20 Aug 2001 06:52:27 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:6159 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S267520AbRHTKwW>;
-	Mon, 20 Aug 2001 06:52:22 -0400
-Message-ID: <3B80EADC.234B39F0@evision-ventures.com>
-Date: Mon, 20 Aug 2001 12:47:56 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Johan Adolfsson <johan.adolfsson@axis.com>
-CC: Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org> <998193404.653.12.camel@phantasy> <3B80E01B.2C61FF8@evision-ventures.com> <21a701c12963$bcb05b60$0a070d0a@axis.se>
+	id <S267520AbRHTKqi>; Mon, 20 Aug 2001 06:46:38 -0400
+Received: from [203.161.228.202] ([203.161.228.202]:56332 "EHLO
+	spf1.hq.outblaze.com") by vger.kernel.org with ESMTP
+	id <S266263AbRHTKqW>; Mon, 20 Aug 2001 06:46:22 -0400
+Date: Mon, 20 Aug 2001 18:56:56 +0800
+From: Yusuf Goolamabbas <yusufg@outblaze.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Cliff Albert <cliff@oisec.net>, linux-kernel@vger.kernel.org,
+        gibbs@scsiguy.com
+Subject: Re: aic7xxx errors with 2.4.8-ac7 on 440gx mobo
+Message-ID: <20010820185656.A17435@outblaze.com>
+In-Reply-To: <20010820105520.A22087@oisec.net> <E15YmR3-0005mb-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15YmR3-0005mb-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 20, 2001 at 11:37:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johan Adolfsson wrote:
+> > > With 2.4.8-ac7, I get SCSI errors and the kernel fails to boot. If I
+> > > compile with APIC enabled and APIC on UP also enabled, it boots
+> > > cleanly
+> > 
+> > I'm getting similair errors on 2.4.8-ac7 on my P2B-S motherboard using
+> > the NEW AIC7xxx driver, the old isn't experiencing these problems. Further
+> > i've been getting these errors since 2.4.3.
 > 
-> Martin Dalecki <dalecki@evision-ventures.com> wrote:
-> > I think you are just wrong - nobody really needs this patch. /dev/random
-> > or /dev/urandom ar *both* anyway just complete overkill in terms of
-> > practical security. /dev/urandom is in esp silly, since it is providing
-> > a md5 hash implementation inside the kernel, which could be *compleatly*
-> and
-> > entierly done inside user land.
-> 
-> And I think you are wrong, this patch is needed.
-> Keep up the good work Robert!
-> 
-> > You mean - there is no known algorithm with polynomial time
-> > behaviour enabling us to calculate the next value of this function
-> > from the previous ones - Not more nor less - no pysics and
-> > entropy involved. If you assume this holds true it's mathematically
-> > entierly sufficient that a single only seed value is not known.
-> 
-> Where would you get the single seed from in an embedded head
-> less system if you don't have a hardware random generator,
-> no disk and don't seed it from the network interrupts?
+> There is a known BIOS irq routing table problem with a large number of Intel
+> BIOS boards with onboard adaptec controllers. The fact that making it use
+> the io-apic works suggest this is the same thing.
 
-The device get's powerd up at a random time for the attacker.
-That's entierly sufficient if you assume that your checksum function
-f(i) hat the property that there is no function g, where we have
-f(i+1)=g(f(i)), where g has a polynomial order over the time domain.
-i is unknown for the attacker.
+But 2.4.8 and 2.4.9 work without using io-apic. 
+
+-- 
+Yusuf Goolamabbas
+yusufg@outblaze.com

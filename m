@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284033AbRLAJmM>; Sat, 1 Dec 2001 04:42:12 -0500
+	id <S284034AbRLAJpm>; Sat, 1 Dec 2001 04:45:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284040AbRLAJmE>; Sat, 1 Dec 2001 04:42:04 -0500
-Received: from ns.caldera.de ([212.34.180.1]:41629 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S284033AbRLAJlw>;
-	Sat, 1 Dec 2001 04:41:52 -0500
-Date: Sat, 1 Dec 2001 10:41:28 +0100
-Message-Id: <200112010941.fB19fSb24081@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: jread@semiotek.com (Justin Wells)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Please tag tested releases of the 2.4.x kernel
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <20011130220451.9D5AD38326@fever.semiotek.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S284036AbRLAJpc>; Sat, 1 Dec 2001 04:45:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50440 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284034AbRLAJpY>; Sat, 1 Dec 2001 04:45:24 -0500
+Subject: Re: [PATCH] remove BKL from drivers' release functions
+To: ricklind@us.ibm.com (Rick Lindsley)
+Date: Sat, 1 Dec 2001 09:52:57 +0000 (GMT)
+Cc: viro@math.psu.edu (Alexander Viro), dave@sr71.net (David C. Hansen),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200112010047.fB10lA406654@eng4.beaverton.ibm.com> from "Rick Lindsley" at Nov 30, 2001 04:47:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16A6pN-0006d0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011130220451.9D5AD38326@fever.semiotek.com> you wrote:
->
-> It would be great if on kernel.org there were a note indicating which 
-> releases of the linux kernel had been favourably received. 
->
-> If you could organize a bit you could even mark a release as "TESTED",
-> or even "APPROVED". All it would mean is that after it had been out for
-> a week or two nobody found any really serious problems.
+> opens, we CAN announce we are closer, and nothing else will be any more
+> broken than it was before we started. As I said in an earlier post (and
+> I don't think anybody disagrees): this is an incremental task. Any
 
-Approved kernel are usually come in files ending in i386.rpm,
-ia64.rpm or .deb.
+This is why we have a development tree. Its moving things in the right
+direction which is important. I suspect many drivers will want to use
+semaphores rather than atomic counts however, to ensure that an open doesn't
+complete while a previous release is still shutting down hardware
 
-Come on, no one expects stock kernel to be tested.  Distributors
-on the other hand spend a lot of effort on testing their releases,
-so go for a distribution kernel if you need something tested.  Really.
+Alan
 
-	Christoph
-
--- 
-Of course it doesn't work. We've performed a software upgrade.

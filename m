@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261784AbTCMA0C>; Wed, 12 Mar 2003 19:26:02 -0500
+	id <S261830AbTCMA2w>; Wed, 12 Mar 2003 19:28:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261796AbTCMA0C>; Wed, 12 Mar 2003 19:26:02 -0500
-Received: from ponch.itc.health.ufl.edu ([159.178.78.204]:55017 "EHLO
-	ponch.itc.health.ufl.edu") by vger.kernel.org with ESMTP
-	id <S261784AbTCMA0C>; Wed, 12 Mar 2003 19:26:02 -0500
-Message-ID: <1047515807.3e6fd29f92939@webmail.health.ufl.edu>
-Date: Wed, 12 Mar 2003 19:36:47 -0500
-From: sridhar vaidyanathan <sridharv@ufl.edu>
-To: linux-kernel@vger.kernel.org
-Subject: mmaping /dev/mem
+	id <S261833AbTCMA2w>; Wed, 12 Mar 2003 19:28:52 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:42487 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261830AbTCMA2v>; Wed, 12 Mar 2003 19:28:51 -0500
+Date: Wed, 12 Mar 2003 16:29:26 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ben Collins <bcollins@debian.org>
+cc: lm@work.bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <93890000.1047515366@flay>
+In-Reply-To: <20030312184710.GI563@phunnypharm.org>
+References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312193806.2506042c.diegocg@teleline.es> <20030312184710.GI563@phunnypharm.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.0
-X-Originating-IP: 163.181.250.2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> You're missing the point. I am not against the CVS->BK gateway. I'm all
+> for it. But it's kind of sour given that he now wants to change the disk
+> format of the repo to make it harder to get the data from it.
+> 
+> If all he announced was "you now have a CVS->BK repo", I wouldn't be
+> complaining, I'd be patting him on the back.
 
+As long as we continue to get all the data in an open format, I'm
+not sure this really matters, personally. If there's some data loss,
+let's focus on that issue ... but it seems there isn't at the moment.
 
-I have a problem mmaping /dev/mem on some address in RAM. I am aware of 
-caveats,but I am trying to mmap a region which I am sure is not in use by the 
-kernel(some additional code does this and returns a physical address which is 
-what I use for mmap). The mmap call itself succeeds and /proc/pid/maps also 
-shows that region, but I am unable to see what I write in target memory.I also 
-tried with the O_SYNC flag as I was wondering is caching had anything to do 
-with the results that I was seeing.No effect.
-This however works with a mem= option and when the mmap region falls out of the 
-mem= boundary.
-any clues?
-Please cc as I am not subscribed
-sridhar
+I'd rather we *didn't* go trying to clone BK and make it file-format 
+compatible underneath ... that seems more incendiary than useful. 
+Cloning other products is always a loosing game, the best you can do 
+is catch them. Personally, I'd prefer we spent the effort making a 
+usable simple SCM that 95% of us can use that does merges and stuff, 
+and not bother trying to follow someone else in file format.
+
+Of course, I'm in no position to dictate to others what they should
+implement, do what you like ... just my personal opinion. But there's
+always the possiblity we can make something that fits kernel development
+*better*, rather than playing catchup to BK all the time ;-)
+
+M.
 

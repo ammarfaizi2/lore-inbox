@@ -1,47 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264706AbTFLClj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 22:41:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTFLClj
+	id S264705AbTFLCns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 22:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264711AbTFLCns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 22:41:39 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:37033 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264706AbTFLClb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 22:41:31 -0400
-Date: Thu, 12 Jun 2003 12:54:42 +1000
-From: CaT <cat@zip.com.au>
-To: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-Message-ID: <20030612025442.GA566@zip.com.au>
-References: <m2smqhqk4k.fsf@p4.localdomain> <20030611170246.A4187@ucw.cz> <m27k7sv5si.fsf@telia.com> <20030611203408.A6961@ucw.cz> <m2ptlkqpej.fsf@telia.com> <20030612024814.GB4787@rivenstone.net>
+	Wed, 11 Jun 2003 22:43:48 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:9861
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264705AbTFLCnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 22:43:45 -0400
+Date: Thu, 12 Jun 2003 04:58:12 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Chris Mason <mason@suse.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: [PATCH] io stalls
+Message-ID: <20030612025812.GF1415@dualathlon.random>
+References: <1055353360.23697.235.camel@tiny.suse.com> <20030611181217.GX26270@dualathlon.random> <1055356032.24111.240.camel@tiny.suse.com> <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au> <20030612012951.GG1500@dualathlon.random> <1055384547.24111.322.camel@tiny.suse.com> <3EE7E876.80808@cyberone.com.au> <20030612024608.GE1415@dualathlon.random> <3EE7EA4A.5030105@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030612024814.GB4787@rivenstone.net>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+In-Reply-To: <3EE7EA4A.5030105@cyberone.com.au>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 10:48:14PM -0400, Joseph Fannin wrote:
-> > Here is a new patch that sends ABS_ events to user space. I haven't
-> > modified the XFree86 driver to handle this format yet, but I used
-> > /dev/input/event* to verify that the driver generates correct data.
+On Thu, Jun 12, 2003 at 12:49:46PM +1000, Nick Piggin wrote:
 > 
->     How well will GPM (for example) work with this?
+> 
+> Andrea Arcangeli wrote:
+> 
+> >On Thu, Jun 12, 2003 at 12:41:58PM +1000, Nick Piggin wrote:
+> >
+> >>
+> >>Chris Mason wrote:
+> >>
+> >>
+> >>>On Wed, 2003-06-11 at 21:29, Andrea Arcangeli wrote:
+> >>>
+> >>>
+> >>>
+> >>>>this will avoid get_request_wait_wakeup to mess the wakeup, so we can
+> >>>>wakep_nr(rq.count) safely.
+> >>>>
+> >>>>then there's the last issue raised by Chris, that is if we get request
+> >>>>released faster than the tasks can run, still we can generate a not
+> >>>>perfect fairness. My solution to that is to change wake_up to have a
+> >>>>nr_exclusive not obeying to the try_to_wakeup retval. that should
+> >>>>guarantee exact FIFO then, but it's a minor issue because the requests
+> >>>>shouldn't be released systematically in a flood. So I'm leaving it
+> >>>>opened for now, the others already addressed should be the major ones.
+> >>>>
+> >>>>
+> >>>I think the only time we really need to wakeup more than one waiter is
+> >>>when we hit the q->batch_request mark.  After that, each new request
+> >>>that is freed can be matched with a single waiter, and we know that any
+> >>>previously finished requests have probably already been matched to their
+> >>>own waiter.
+> >>>
+> >>>
+> >>>
+> >>Nope. Not even then. Each retiring request should submit
+> >>a wake up, and the process will submit another request.
+> >>So the number of requests will be held at the batch_request
+> >>mark until no more waiters.
+> >>
+> >>Now that begs the question, why have batch_requests anymore?
+> >>It no longer does anything.
+> >>
+> >
+> >it does nothing w/ _exclusive and w/o the wake_up_nr, that's why I added
+> >the wake_up_nr.
+> >
+> >
+> That is pretty pointless as well. You might as well just start
+> waking up at the queue full limit, and wake one at a time.
+> 
+> The purpose for batch_requests was I think for devices with a
+> very small request size, to reduce context switches.
 
-Aaaand... will I be able to transparently use my ps2 mouse and touchpad
-without having to worry about what's plugged in at any one time?
+batch_requests at least in my tree matters only when each request is
+512btyes and you've some thousand of them to compose a 4M queue or so.
+To maximize cpu cache usage etc.. I try to wakeup a task every 512bytes
+written, but every 32*512bytes written or so. Of course w/o the
+wake_up_nr that I added, that wasn't really working w/ the _exlusive
+wakeup.
 
-(not trying to whinge, I just got used to having a ps2 mouse plugged in
-but want to use a synaptics driver to configure certain aspects of the
-touchpaf and would like the best of both worlds. :)
+if you check my tree you'll see that for sequential I/O with 512k in
+each request (not 512bytes!) batch_requests is already a noop.
 
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+Andrea

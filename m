@@ -1,31 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbSLXCSN>; Mon, 23 Dec 2002 21:18:13 -0500
+	id <S267035AbSLXCmm>; Mon, 23 Dec 2002 21:42:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbSLXCSN>; Mon, 23 Dec 2002 21:18:13 -0500
-Received: from Panther.CS.UCLA.EDU ([131.179.128.25]:41668 "EHLO
-	panther.cs.ucla.edu") by vger.kernel.org with ESMTP
-	id <S267034AbSLXCSN>; Mon, 23 Dec 2002 21:18:13 -0500
-Date: Mon, 23 Dec 2002 18:26:18 -0800 (PST)
-From: Jelena Mirkovic <sunshine@CS.UCLA.EDU>
-To: <linux-kernel@vger.kernel.org>
-Subject: Create and send packet from kernel 
-Message-ID: <Pine.SOL.4.33.0212231808170.18050-100000@panther.cs.ucla.edu>
+	id <S267036AbSLXCmm>; Mon, 23 Dec 2002 21:42:42 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:52203 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267035AbSLXCml> convert rfc822-to-8bit; Mon, 23 Dec 2002 21:42:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH][2.4]  generic support for systems with more than 8 CP =?iso-8859-1?q?	Us?= (2/2)
+Date: Mon, 23 Dec 2002 18:48:34 -0800
+User-Agent: KMail/1.4.3
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@UNISYS.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3FAD1088D4556046AEC48D80B47B478C1AEC76@usslc-exch-4.slc.unisys.com>
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C1AEC76@usslc-exch-4.slc.unisys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212231848.34915.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying (in vain) to create and send a single TCP packet from kernel,
-from scratch (i.e. sk_buff and sock both need to be created and
-initialized). I read the source code for various functions in net and
-net/ipv4 but I am not sure I am doing all steps and in correct order, as
-the kernel keeps crashing. Is there a sample code someone could send me or
-a good book on this matter? I am using 2.4.9 version.
+On Sunday 22 December 2002 01:36 pm, Protasevich, Natalie wrote:
+[ Snip! ]
 
-If this question is not appropriate for this list, could someone point me
-to more suitable list?
+>
+> >In the last patch from Venkatesh there was a > 8CPUs option ... that
+> >seems like a direct correlation to clustered apic support to me ...
+> >maybe we could just switch on CONFIG_X86_CLUSTERED_APIC directly and
+> >bypass CONFIG_X86_MANY_CPU? The menu text could stay the same (less
+> >confusing for users than asking them about apic modes) ...
+>
+> Maybe, for other systems MANY_CPU criteria would make sense, but it won't
+> work for us: on ES7000s with Fosters/Gallatins, we can run 1 to 32 CPUs and
+> have to be in flat clustered mode in any case - whether we run 2 do 32 of
 
-Thanks
-Jelena
+What is "flat clustered"?  Has Intel cooked up yet another APIC operating 
+mode?   8^)   As far as I knew, the flat and clustered modes were mutually 
+exclusive, based on the value in the DFR.
+
+> them... This is also true for Cascades running on hierarchical cluster
+> (logical). Our APIC ID's are hard-coded topologically in the BIOS, so we
+> could run 2 processors on the high end of topology, with high APIC IDs. We
+> couldn't get around using just ID's (not the EID's), because hardware needs
+> the full CPU ID address to deliver IPIs.
+>
+> >M.
+
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

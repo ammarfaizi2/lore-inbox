@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUIAQZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267399AbUIAQaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267294AbUIAQZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 12:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUIAQW2
+	id S267399AbUIAQaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 12:30:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbUIAQWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 12:22:28 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:45707 "EHLO
+	Wed, 1 Sep 2004 12:22:11 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:43915 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266463AbUIAQPs convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 12:15:48 -0400
-Subject: Re: silent semantic changes with reiser4
+	id S266666AbUIAQMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 12:12:17 -0400
+Subject: Re: [PATCH] Configure IDE probe delays
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Claus =?ISO-8859-1?Q?F=E4rber?= <claus@faerber.muc.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       reiserfs-list@namesys.com, linux-fsdevel@vger.kernel.org
-In-Reply-To: <9FuGrTY3cDD@3247.org>
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-	 <412E4999.1050504@sover.net>  <9FuGrTY3cDD@3247.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1094051610.2777.20.camel@localhost.localdomain>
+To: Mark Lord <lkml@rtr.ca>
+Cc: bzolnier@milosz.na.pl, Lee Revell <rlrevell@joe-job.com>,
+       Greg Stark <gsstark@mit.edu>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Todd Poynor <tpoynor@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+In-Reply-To: <4135CC9E.5060905@rtr.ca>
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
+	 <200408272005.08407.bzolnier@elka.pw.edu.pl>
+	 <1093630121.837.39.camel@krustophenia.net>
+	 <200408272059.51779.bzolnier@elka.pw.edu.pl>  <4135CC9E.5060905@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094051215.2777.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 01 Sep 2004 16:13:32 +0100
+Date: Wed, 01 Sep 2004 16:06:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-31 at 12:01, Claus Färber wrote:
-> A simple convention that meta data files start with, say ".$", would be  
-> enough.
+On Mer, 2004-09-01 at 14:20, Mark Lord wrote:
+> LBA48 is only needed when (1) the sector count is greater than 256,
+> and/or (2) the ending sector number >= (1<<28).
 
-POSIX/SuS don't permit this. The only "free" namespace is that starting
-"//" (and not as some desktops seem to think foo://). Remember always
-send GUI desktop users files called http://read.me  .. its fun 8)
+I've played with this a bit and in the -ac IDE code it can drop back
+to LBA28 for devices that are small enough not to need LBA48 when the
+controller only supports PIO for LBA48 modes (eg some ALi) as 2.4-ac
+did. 
 
-The // doesn't really help because you don't want extensions at the path
-top. 
+> I regularly include this optimisation in the drivers I have been
+> working on since LBA48 first appeared.
 
-Another interesting question btw with substreams of a file is what the
-semantics of fchown, fstat, fchmod, fchdir etc are, or of mounting a
-file over a substream.
+It isn't always a win. You get cut down to 256 sectors per I/O which for
+some workloads has a cost and you need to factor that into the command
+issue choice as well as the last sector number being accessed.
 
 Alan
 

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264093AbTEGP6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbTEGP4v
+	id S264115AbTEGQJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 12:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTEGQJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:56:51 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:4584 "EHLO
-	antoli.gallimedina.net") by vger.kernel.org with ESMTP
-	id S264093AbTEGP4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:56:44 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: Re: CPUFreq sysfs interface MIA? (since 2.5.69)
-Date: Wed, 7 May 2003 18:09:12 +0200
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Wed, 7 May 2003 12:09:05 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:2477 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264115AbTEGQJE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 12:09:04 -0400
+Date: Wed, 7 May 2003 09:21:38 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.69-osdl2
+Message-Id: <20030507092138.77a0a032.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305071809.12961.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Under both 2.5.68 and 2.5.69 the CPUFreq /sys interface seems to be
-> missing for my machine (IBM A31p), with an Intel 845 Brookdale chipset
-> and SpeedStep support.
+http://prdownloads.sourceforge.net/osdldcl/patch-2.5.69-osdl2.bz2?download
 
-The same here, but it worked in 2.5.68. It's a P3 Speedstep. /proc/cpufreq 
-only shows the header.
+or OSDL Patch Lifecycle Manager (http://www.osdl.org/cgi-bin/plm/)
+	osdl-2.5.69-2	PLM # 1823
 
+No new features, but this is a complete refresh of the contents.
+The latest versions of all these patches have been incorported.
 
-$ cat /sys/class/cpu/cpu0/device/name
-CPU 0
-$ cat /sys/class/cpu/cpu0/device/power
-0
+If you enable LTT then relayfs must be be built-in, not a module.
+See:  http://www.opersys.com/relayfs/ltt-on-relayfs.html
 
+o Linux Trace Toolkit (LTT)             (Karim Yaghmour)
+  includes relayfs
+o Kexec 				(Eric Biederman, Andy Pfiffer)
+o Lockmeter
+o Atomic 64 bit i_size access		(Daniel McNeil)
+o Pentium Performance Counters		(Mikael Pettersson)
+o Kernel Config (ikconfig)		(Randy Dunlap)
+o RCU statistics               		(Dipankar Sarma)
+o Scheduler tunables            	(Robert Love)
 
--- 
-  ricardo galli       GPG id C8114D34

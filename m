@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265782AbUHAKuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUHALGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265782AbUHAKuf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 06:50:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUHAKuf
+	id S265789AbUHALGP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 07:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUHALGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 06:50:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7117 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265782AbUHAKud (ORCPT
+	Sun, 1 Aug 2004 07:06:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265789AbUHALGN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 06:50:33 -0400
-Date: Sun, 1 Aug 2004 06:49:45 -0400 (EDT)
+	Sun, 1 Aug 2004 07:06:13 -0400
+Date: Sun, 1 Aug 2004 07:05:17 -0400 (EDT)
 From: Ingo Molnar <mingo@redhat.com>
 X-X-Sender: mingo@devserv.devel.redhat.com
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
-       Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
-In-Reply-To: <1091322692.1860.5.camel@teapot.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.58.0408010643360.7208@devserv.devel.redhat.com>
-References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
-  <1091209106.2356.3.camel@mars>  <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
-  <1091232345.1677.20.camel@mindpipe>  <1091236384.2672.0.camel@teapot.felipe-alfaro.com>
-  <1091246222.1677.65.camel@mindpipe>  <1091319840.2386.3.camel@teapot.felipe-alfaro.com>
-  <1091320373.20819.74.camel@mindpipe> <1091322692.1860.5.camel@teapot.felipe-alfaro.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: Re: 2.6.8-rc2-mm1
+In-Reply-To: <20040731114714.37359c2d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0408010701460.23711@devserv.devel.redhat.com>
+References: <20040728020444.4dca7e23.akpm@osdl.org>
+ <Pine.LNX.4.58.0407311230330.4095@montezuma.fsmlabs.com>
+ <20040731114714.37359c2d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 1 Aug 2004, Felipe Alfaro Solana wrote:
+On Sat, 31 Jul 2004, Andrew Morton wrote:
 
-> It turns out that my lock ups where related to APIC. Disabling APIC
-> seems to get rid of those lock ups.
+> > Ingo i believe you have a patch for this, could you push it to Andrew?
+> 
+> I suspect Ingo's patch will be livelockable under some circumstances.
 
-ah ... that makes sense. It is most likely level-triggered IO-APIC
-interrupts that break. Could you try to turn off redirection for every
-interrupt that says 'IO-APIC-level' in /proc/interrupts - does that
-stabilize things? (besides the 'noapic' workaround you already
-discovered.) How does your /proc/interrupts look like btw?
+the first versions were - i could even reproduce it. Fixed it up by doing
+less work in this function. But i like your solution of rotating the list
+too. Anyway, the -M5 patch shouldnt be livelockable. (but it might have
+the crash problem).
 
-the 'XT-PIC' interrupt controller (i8259A) is fine for redirection. (and
-that's what i used for testing almost exclusively.)
+btw., breaking the outer loop here is not enough for latencies, it needs
+to happen in the inner loop. (which can take thousands of iterations too.)  
+See the checkpoint.c bits of the -M5 patch:
+
+ http://people.redhat.com/mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc2-mm1-M5
 
 	Ingo

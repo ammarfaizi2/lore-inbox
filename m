@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbTJ3Nri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 08:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTJ3Nri
+	id S262407AbTJ3NzN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 08:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTJ3NzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 08:47:38 -0500
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:45554 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262458AbTJ3Nre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 08:47:34 -0500
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Scott Robert Ladd <coyote@coyotegulch.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Things that Longhorn seems to be doing right
-Date: Thu, 30 Oct 2003 07:46:52 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Erik Andersen <andersen@codepoet.org>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org
-References: <3F9F7F66.9060008@namesys.com> <20031030015212.GD8689@thunk.org> <3FA08C42.6050107@coyotegulch.com>
-In-Reply-To: <3FA08C42.6050107@coyotegulch.com>
+	Thu, 30 Oct 2003 08:55:13 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:36529 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S262407AbTJ3NzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 08:55:08 -0500
+Message-ID: <00c701c39eed$3aae3900$7708720a@wipro.com>
+From: "Anju" <anju.premachandran@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: SMP / HIGHMEM64 affects LKCD
+Date: Thu, 30 Oct 2003 19:23:42 +0530
 MIME-Version: 1.0
-Message-Id: <03103007465200.23446@tabby>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+X-OriginalArrivalTime: 30 Oct 2003 13:53:42.0468 (UTC) FILETIME=[3AA2A040:01C39EED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 October 2003 21:57, Scott Robert Ladd wrote:
-> Theodore Ts'o wrote:
-> > Keep in mind that just because Windows does thing a certain way
-> > doesn't mean we have to provide the same functionality in exactly the
-> > same way.
->
-> Very true. Linux is best defined by those who proactively implement
-> powerful ideas.
->
-> That doesn't mean, however, that the folks in Redmond can't come up with
-> an interesting and useful idea that we might just want to consider.
->
-> > Also keep in mind that Microsoft very deliberately blurs what they do
-> > in their "kernel" versus what they provide via system libraries
-> > (i.e., API's provided via their DLL's, or shared libraries).
->
-> Any database-style file system should be implemented in a modular
-> fashion, just like current Linux file systems.
->
-[snip]
-> > Fortunately, I have enough faith in Linus Torvalds' taste that I'm
-> > not particularly worried what would happen if someone were to send
-> > him a patch that attempted to cram MySQL or Postgres into the guts of
-> > the Linux kernel....  although I would like to watch when someone
-> > proposes such a thing!
->
-> MySQL wouldn't need to be shoved into the kernel; a small, fast database
-> engine (one of my professional specialities, BTW) could provide metadata
-> services in a file system module. SQL is a bloated pig; an effective
-> file system needs to be both useful and efficient, leading me to think
-> that we should consider a more succinct query mechanism for any
-> metadata-based file system.
+Hello All,
 
-Umm... keep in mind that every system that has a in-kernel database system
-has tanked. Remember PIC systems? How about MUMPS?
+I am facing some problems with lkcd in 2.4.19 kernel
+when SMP and HIGHMEM64 are enabled.
 
-The closest thing to this that hasn't died (quite?) has been the VMS
-datatrieve facility. But even that wasn't in the kernel proper, it was
-a layered facility added to the DCL user API that was accessable to
-applications. It basicly provided multiple ISAM support to read/write.
-And no, the files were not portable... they had to be converted to normal
-RMS files/stream files first; and you lost the keys when you did.
+When CONFIG_SMP is set to Y
+and when CONFIG_HIGHMEM64 is set,
+an invalid dump is produced.
 
-The problem with the database system (anywhere) is that it is absolutely
-horrible for I/O throughput. Having to reference schemas, multiple key
-hashing, even key identification all takes multiple I/O operations to do.
-Not to mention the duplications caused by having to store the results in
-addition to storing the raw data.
+But I get proper dump for all other combinations.
+                                      TC1          TC2    TC3   TC4   TC5   TC6 
+CONFIG_SMP                Y               Y          Y        N        N       N
+CONFIG_HIGHMEM     64              4G    OFF    64G    4G    OFF 
 
-And you no longer get to do a simple "read" of data. You have to completely
-drop the concept of "data stream" and data portability. If you DO keep the
-original semantics of a file, then you double/triple the data I/O (once for
-the data, once for the keys, and once for the correlation/compound keys).
-Then you have to deal with the huge amount of metadata that maintains the
-above. On top of that, you also have to include a general purpose locking
-facility (NOT advisory either) or you WILL get a corrupted data file with
-only one writer (do a "tail -f" on a file, and the file gets corrupted during
-updates to the keys or base data).
+TC1 fails while TC2, TC3, TC4,TC5 and TC6 work!
 
-The last time I saw this amount of crap/problems was with a Clearcase file
-system (couldn't even back the system up).
+Following is the behaviour of TC1.
+The current system tasks are displayed with "zeros"
+in all entries which is the output of 'ps' command.
+00000000       0       0       0 0x00 0x00000000     0:0
+00000000       0       0       0 0x00 0x00000000     0:0
+00000000       0       0       0 0x00 0x00000000     0:0
 
-If you REALLY want to test this, make it a user mode NFS server, and mount
-it through a loopback.
+while no output is shown when given the 'trace command'.
+But i can see the output of the 'page' command.
 
-I think it would be more usefull to have file migration support added to the
-current metadata (extra index, extra modes, compressed data, compressed date,
-migrated date, unmigrated date, migration expiration date... possible with
-XFS maybe. and only a little more changes needed...).
+Any suggestions would be of great help
+
+Thanks,
+Anju    
+

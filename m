@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269047AbTCAWSk>; Sat, 1 Mar 2003 17:18:40 -0500
+	id <S269050AbTCAWZA>; Sat, 1 Mar 2003 17:25:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269049AbTCAWSj>; Sat, 1 Mar 2003 17:18:39 -0500
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:13804 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id <S269047AbTCAWSj>;
-	Sat, 1 Mar 2003 17:18:39 -0500
-Date: Sat, 1 Mar 2003 23:29:10 +0100
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Update to 2.5.x snapshots
-Message-ID: <20030301222910.GA3983@finwe.eu.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <3E60FAAB.1080007@pobox.com> <20030301211611.GA23874@finwe.eu.org> <3E612A27.2050200@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S269054AbTCAWZA>; Sat, 1 Mar 2003 17:25:00 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:2535 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S269050AbTCAWY6>; Sat, 1 Mar 2003 17:24:58 -0500
+Date: Sun, 02 Mar 2003 11:35:29 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Stephen Corey <s_corey@netzero.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel tuning for high latency satellite link??
+Message-ID: <132088132.1046604929@[192.168.0.1]>
+In-Reply-To: <000001c2e00b$71bb7d50$0301a8c0@corey>
+References: <000001c2e00b$71bb7d50$0301a8c0@corey>
+X-Mailer: Mulberry/3.0.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3E612A27.2050200@pobox.com>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+It should do OK by default, but you might want to read RFC 3150 for some 
+ideas for things to do to help.
 
-> >>Old 2.5.x BK snapshots on kernel.org are now moved into the "old" 
-> >>sub-directory, instead of being deleted.
-[...]
-> >It may not be related, but  
-> >http://www.kernel.org/pub/linux/kernel/v2.4/testing/cset/
-> >has "BitKeeper patches since v2.4.21-pre4: 354 Changesets"
-> >(not latest -pre).
-> Yep, I know :)
-> The point of nightly snapshots is more for users use and testing 
-> purposes.  The csets are very useful for developers, but a bit of a 
-> moving target for users.
+Andrew
 
-I'm just used to look there from time to time to see 'what is new', and
-AFAIR changes were reported against latest prerelease. 
->From my point of view, as long as patches are in chronological order 
-it's not a problem. :)
+--On Saturday, 1 March 2003 10:58 a.m. -0500 Stephen Corey 
+<s_corey@netzero.com> wrote:
 
-> If users are using the per-cset snapshots, 
-> then it becomes a non-trivial chore to developers to track down exactly 
-> what version of the kernel a problem is reported against.
+> Do I need to tune the linux kernel (2.4.18-3) for high latency
+> connections? I'm installing a linux box on a satellite link (~800 ms
+> roundtrip latency). Will the kernel *automatically* change anything
+> based on latency, to hurt my throughput performance??
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 
-Csets are useful for users- e.g. if the problem you want to report does 
-not exist in latest cset -but generaly you are right. 
-
-	Jacek
 

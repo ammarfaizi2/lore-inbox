@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265613AbUBFW4j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 17:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265620AbUBFW4i
+	id S266537AbUBFWv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 17:51:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266864AbUBFWv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 17:56:38 -0500
-Received: from gprs148-92.eurotel.cz ([160.218.148.92]:3713 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265613AbUBFW4L (ORCPT
+	Fri, 6 Feb 2004 17:51:58 -0500
+Received: from pcp05307510pcs.wanarb01.mi.comcast.net ([68.42.71.170]:44561
+	"HELO pcp05307510pcs.wanarb01.mi.comcast.net") by vger.kernel.org
+	with SMTP id S266537AbUBFWuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 17:56:11 -0500
-Date: Fri, 6 Feb 2004 23:55:35 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: akpm@osdl.org, george@mvista.com, amitkale@emsyssoft.com,
-       Andi Kleen <ak@suse.de>, jim.houston@comcast.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BitKeeper repo for KGDB
-Message-ID: <20040206225535.GB539@elf.ucw.cz>
-References: <20040127184029.GI32525@stop.crashing.org> <20040128165104.GC1200@elf.ucw.cz> <20040128170520.GI6577@stop.crashing.org> <20040128174402.GI340@elf.ucw.cz> <20040128175646.GJ6577@stop.crashing.org> <20040206223517.GD5219@smtp.west.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040206223517.GD5219@smtp.west.cox.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 6 Feb 2004 17:50:21 -0500
+Date: Fri, 06 Feb 2004 22:49:20 +0000
+From: basmith@pcp05307510pcs.wanarb01.mi.comcast.net
+Subject: HYIP Investment   klHmv
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <GD9GJD1HAAEDFL0H@vger.kernel.org>
+In-Reply-To: <GD9GJD1HAAEDFL0H@vger.kernel.org>
+Message-ID: <54IHKC1B85J9AC62@pcp05307510pcs.wanarb01.mi.comcast.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Dear member ,
 
-> > > It's against 2.6 + -netpoll + Amit's patch.
-> > 
-> > But doesn't -mm have a kgdb over enet driver that does work?  It's just
-> > not been ported to Amit's bits, right?
-> 
-> OK.  Based on this, and some other fixes, I've pushed my first cut of
-> KGDB over ethernet.  It's not quite as robust as I'd like right now (I'm
-> still getting it just-right for connecting live), and I've got some not
-> quite finished improvements still locally, but it does work.
+We would like to introduce you our new project HYIPWEB.com It's a new HYIP rating site. 
+Its rating based on how much return we received from each investment program, how long program is online,
+minimum investment amount . We have invested 200$-500$ in many Investment programs and give you 
+oportunity to see how much return we got back from our investment in every investment program.
+Please visit HYIPWEB.com
 
-Is there way to get plain diff (against -mm or against Amit or
-something?)
+If you are admin of investment program you can e-mail us your program and we will consider to invest
+in it and put it in our rating. You don't have to pay anything.
+Best Regards,
+HYIPWEB Team
+HYIPWEB.com
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSLPOrQ>; Mon, 16 Dec 2002 09:47:16 -0500
+	id <S263977AbSLPOru>; Mon, 16 Dec 2002 09:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbSLPOrQ>; Mon, 16 Dec 2002 09:47:16 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:27520 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S263280AbSLPOrP>; Mon, 16 Dec 2002 09:47:15 -0500
-Message-Id: <200212161454.gBGEs47t009027@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-Cc: zwane@holomorphy.com, davej@codemonkey.org.uk, pekon@informatics.muni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions) 
-In-Reply-To: Your message of "Sat, 14 Dec 2002 09:28:19 PST."
-             <336830.1039886899684.JavaMail.nobody@web11.us.oracle.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <336830.1039886899684.JavaMail.nobody@web11.us.oracle.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1199339868P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	id <S264745AbSLPOru>; Mon, 16 Dec 2002 09:47:50 -0500
+Received: from smtp-server4.tampabay.rr.com ([65.32.1.43]:19694 "EHLO
+	smtp-server4.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S263977AbSLPOrs>; Mon, 16 Dec 2002 09:47:48 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: <root@chaos.analogic.com>, "Brian Jackson" <brian-kernel-list@mdrx.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: /proc/cpuinfo and hyperthreading
+Date: Mon, 16 Dec 2002 09:56:27 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJIELIDLAA.scott@coyotegulch.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 16 Dec 2002 09:54:04 -0500
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.3.95.1021216090324.20273A-100000@chaos.analogic.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1199339868P
-Content-Type: text/plain; charset=us-ascii
+Richard Johnson asked:
+> How do you know this? How can I learn what Windows does with
+> Win/2000/professional?
 
-On Sat, 14 Dec 2002 09:28:19 PST, "ALESSANDRO.SUARDI" said:
-> > On Fri, 13 Dec 2002 Valdis.Kletnieks@vt.edu wrote:
-> > > On Fri, 13 Dec 2002 17:36:56 GMT, Dave Jones said:
-> > >
-> > > > It's my understanding that pci_enable_device() *must* be called
-> > > > before we fiddle with dev->resource, dev->irq and the like.
-> > >
-> > > OK.. it looks like the problem only hits if it's a PCMCIA card *with an
-> > > onboard ROM*.
-> > Hmm i just saw this thread, which card is the non working one?;
-> 
-> It's a RBEM56G-100.
-> 
-> Sorry it took me a while to reply - Valdis' patch does fix the problem for
->  me, too. Awaiting for a final form of the fix in the upcoming series :)
+Run the Windows Task Manager and selected the Performance tab; on my system,
+it shows two separate graphs, one for each logical CPU.
 
-Same here.  I was getting bit on a Xircom card:
+> if two CPUs are present...." Direct quote. If you have two logical
 
-03:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
-03:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03)
+> CPUs, you can't remove one, therefore, unless M$ has fixed the problem(s)
+> in XP, you can't use Windows with two logical CPUs, i.e., hyperthreading.
 
-Dave has a point about not poking IRQ's before it's initialized, so I think
-I'll let him and Alan discuss the *right* way to fix it. (Though if there's
-need to test a patch more elegant/correct than mine, I'm more than happy to
-do so...)
+The machine came with Windows XP pre-installed; I ran it a couple of times,
+then blew it away (do I hear cheers?) when I installed Linux. I probably
+didn't run it long-enough to hit any bugs.
 
+..Scott
 
--- 
-				Valdis Kletnieks
-				Computer Systems Senior Engineer
-				Virginia Tech
+--
+Scott Robert Ladd
+Coyote Gulch Productions,  http://www.coyotegulch.com
+No ads -- just very free (and somewhat unusual) code.
 
-
---==_Exmh_1199339868P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE9/ekMcC3lWbTT17ARAmtkAKD72nSkuXcm49wqwoOO/OGx/+JlqgCeOB7V
-zE6aeQbpsdgwY9wkqUeluxQ=
-=GFB6
------END PGP SIGNATURE-----
-
---==_Exmh_1199339868P--

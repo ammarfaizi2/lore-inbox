@@ -1,62 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313477AbSHFQ7l>; Tue, 6 Aug 2002 12:59:41 -0400
+	id <S313711AbSHFREf>; Tue, 6 Aug 2002 13:04:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313558AbSHFQ7l>; Tue, 6 Aug 2002 12:59:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59662 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313477AbSHFQ7k>;
-	Tue, 6 Aug 2002 12:59:40 -0400
-Message-ID: <3D50038B.CF1F572E@zip.com.au>
-Date: Tue, 06 Aug 2002 10:12:43 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steven Cole <elenstev@mesatop.com>
-CC: Bill Davidsen <davidsen@tmr.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19-rc5
-References: <3D4F50F7.2DE00276@zip.com.au> <1028642837.2802.59.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313743AbSHFREf>; Tue, 6 Aug 2002 13:04:35 -0400
+Received: from ithilien.qualcomm.com ([129.46.51.59]:24808 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S313711AbSHFREe>; Tue, 6 Aug 2002 13:04:34 -0400
+Message-Id: <5.1.0.14.2.20020806094253.09734790@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 06 Aug 2002 10:07:49 -0700
+To: Jacek Konieczny <jajcus@bnet.pl>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: "new style" netdevice allocation patch for TUN driver
+  (2.4.18 kernel)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020803140858.GA5314@nic.nigdzie>
+References: <5.1.0.14.2.20020802164143.04da52f8@mail1.qualcomm.com>
+ <20020801133506.GA22073@serwus.bnet.pl>
+ <5.1.0.14.2.20020802164143.04da52f8@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Cole wrote:
-> 
-> ...
-> > If you want good dbench numbers:
-> >
-> > echo 70 > /proc/sys/vm/dirty_background_ratio
-> > echo 75 > /proc/sys/vm/dirty_async_ratio
-> > echo 80 > /proc/sys/vm/dirty_sync_ratio
-> > echo 30000 > /proc/sys/vm/dirty_expire_centisecs
-> 
-> That last one looks like the biggest cheat.  Rather than optimizing for
-> dbench, is there a set of pessimizing numbers which would optimally turn
-> dbench into a semi-useful tool for measuring meaningful IO performance?
-> Or is dbench really only useful for stress testing?
-> 
 
-We tend to use dbench in two modes nowadays.  One is the "RAM only"
-mode, where the run completes before hitting disk at all.  That's
-a very useful and repeatable test for CPU efficiency and lock contention.
+>On Fri, Aug 02, 2002 at 04:54:02PM -0700, Maksim (Max) Krasnyanskiy wrote:
+> > You're fixing the wrong problem.
+>Probably I am. Alexey Kuznietzov told be the same :-)
+>
+> >It seems that some subsystem is not  releasing
+> > tun device during shutdown/deregistration. (See comment in
+> > net/core/dev.c:unregister_netdev).
+> > You're not gonna see "waiting for" warning anymore if you change to new
+> > style allocation.
+>I will not see "waiting for" warning, but I will also be able to control
+>all other network devices. Without this "fix" I am not able to shutdown
+>network at all. Every "ip" command just hangs forever.
+Yeah, this should be fixed. unregister_netdevice() sleeps under rtnl_lock().
+Which means that any other activity that needs this lock will be blocked.
 
-The other mode is of course when there are enough clients and
-enough dirty data for the test to go to disk.  As Rik says, this
-tends to be subject to chaotic effects, and it is also extremely
-non linear.
+Dave, how about this
 
-Because when the run slows down a little bit, it takes longer, so
-more data becomes eligible for time-expiry-based writeback, which
-causes more IO, which causes the run to take longer, etc, etc.
+--- net/core/dev.c.orig Mon Aug  5 21:48:54 2002
++++ net/core/dev.c      Mon Aug  5 21:54:01 2002
+@@ -2577,6 +2577,11 @@
 
-Yes, one does tend still to keep one's eye on the "heavy" dbench
-throughput, but I suspect that tuning for this workload is a bad
-thing overall.  This is because good dbench numbers come from
-allowing a large amount of dirty data to float about in memory
-(it will never get written out).  But for real workloads which
-don't delete their own output 30 seconds later, we want to start
-writeback earlier.  To use the disk bandwidth more smoothly
-and to decrease memory allocation latency.
+          */
+
++       /* We don't have to hold rtnl semaphore while we're waiting for
++          device to become free.
++        */
++       rtnl_unlock();
++
+         now = warning_time = jiffies;
+         while (atomic_read(&dev->refcnt) != 1) {
+                 if ((jiffies - now) > 1*HZ) {
+@@ -2593,6 +2598,10 @@
+                         warning_time = jiffies;
+                 }
+         }
++
++       /* Our caller expects it to be locked */
++       rtnl_lock();
++
+         dev_put(dev);
+         return 0;
+  }
+
+----
+We don't have to hold rtnl look while sleeping. Device is already unlinked
+from the list so nobody can grab and bump refcount.
+
+> > But you're gonna leak tun devices because destructor is not called unless
+> > refcount is zero.
+>But it seems it is eventually called. The refcount eventually goes to 0
+>(1 in factm - selfreference). Without this patch it never went to 0, as
+>system shutdown was stopped "waitnig for...".
+It'd be nice to trace what part of the kernel is actually holding refcount.
+
+>I don't have enough time and probably knowledge to write a proper fix
+>for the problem, however my patch fixes it well enough for me.
+>All this "new style" device allocation would be useless if the kernel
+>was bug-free. With this patch it is more bug-proof.
+:) No, the point of device destructors is not to hide kernel bugs.
+
+>On protuction system it is sometimes even more important, because kernel
+>(or any other big piece of software) will never be bug-free.
+That why it's important to trace and fix the subsystem that is holding devices
+for a long time after deregistration. I may very well be doing it for a 
+good reason
+but warning is helpful anyway.
+And we should fix sleep in unregister_netdevice() (ie patch above).
+
+Max
+

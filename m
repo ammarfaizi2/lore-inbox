@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVA2RoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVA2Rqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVA2RoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 12:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVA2RoZ
+	id S261461AbVA2Rqn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 12:46:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVA2Rqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 12:44:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52390 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261339AbVA2RoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 12:44:22 -0500
-Date: Sat, 29 Jan 2005 09:44:19 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rohit.seth@intel.com,
-       asit.k.mallick@intel.com
-Subject: Re: [Discuss][i386] Platform SMIs and their interferance with tsc
- based delay calibration
-In-Reply-To: <20050128185101.A19117@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.58.0501290927180.2362@ppc970.osdl.org>
-References: <20050128185101.A19117@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 29 Jan 2005 12:46:34 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:29320 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261482AbVA2Rpe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 12:45:34 -0500
+Subject: Re: system calls
+From: Robert Love <rml@novell.com>
+To: Rodrigo Ramos <rodrigo.ramos@triforsec.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1107006832.2732.35.camel@ZeroOne>
+References: <1107006832.2732.35.camel@ZeroOne>
+Content-Type: text/plain
+Date: Sat, 29 Jan 2005 12:47:38 -0500
+Message-Id: <1107020858.11159.15.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2005-01-29 at 10:53 -0300, Rodrigo Ramos wrote:
+
+> I would like to know how many groups of system calls are there at Linux
+> 2.4 and 2.6? Where can I find these informations in the Kernel?
+
+I don't know what you mean by groups (a nonempty set G with binary
+operation * s.t. G is associativity, there exists e in G s.t. e*a=a*e=a,
+and there exists i in G s.t. i*b=b*i=e?).
+
+System calls are implemented per-architecture.  You can see the list at
+the bottom of arch/i386/kernel/entry.S.  There is about 290.
+
+System calls are prefixed by "sys_".  Thus, read(2) is implemented in
+the kernel as sys_read().  It, for example, can be found in
+fs/read_write.c.
+
+Hope this helps.
+
+	Robert Love
 
 
-On Fri, 28 Jan 2005, Venkatesh Pallipadi wrote:
->
-> Current tsc based delay_calibration can result in significant errors in
-> loops_per_jiffy count when the platform events like SMIs (System
-> Management Interrupts that are non-maskable) are present. This could
-> lead to potential kernel panic(). This issue is becoming more visible
-> with 2.6 kernel (as default HZ is 1000) and on platforms with higher SMI
-> handling latencies. During the boot time, SMIs are mostly used by BIOS
-> (for things like legacy keyboard emulation).
 
-Hmm. I see the problem, but I don't know that I'm 100% happy with this
-patch, though.
 
-In particular, I don't see why you didn't just put this in the generic 
-calibrate_delay() routine. You seem to have basically duplicated it, and 
-added the "guess from an external timer" code - and I don't see what's 
-non-generic about that, except for some trivial "what's the current timer" 
-lookup.
-
-		Linus

@@ -1,115 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266540AbTBCOtk>; Mon, 3 Feb 2003 09:49:40 -0500
+	id <S266772AbTBCO66>; Mon, 3 Feb 2003 09:58:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266718AbTBCOou>; Mon, 3 Feb 2003 09:44:50 -0500
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:51849 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S266540AbTBCOmB>; Mon, 3 Feb 2003 09:42:01 -0500
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Organization: IBM Deutschland GmbH
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 fixes (4/12).
-Date: Mon, 3 Feb 2003 15:48:30 +0100
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	id <S266795AbTBCO66>; Mon, 3 Feb 2003 09:58:58 -0500
+Received: from pointblue.com.pl ([62.121.131.135]:30983 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id <S266772AbTBCO6z>;
+	Mon, 3 Feb 2003 09:58:55 -0500
+Subject: [BUG] vmalloc, kmalloc - 2.4.x
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: K4 Labs
+Message-Id: <1044285222.2396.14.camel@gregs>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Feb 2003 15:13:42 +0000
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302031548.30987.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-minor changes to s390 documentation
-diff -urN linux-2.5.59/Documentation/s390/driver-model.txt 
-linux-2.5.59-s390/Documentation/s390/driver-model.txt
---- linux-2.5.59/Documentation/s390/driver-model.txt	Fri Jan 17 03:21:34 2003
-+++ linux-2.5.59-s390/Documentation/s390/driver-model.txt	Mon Feb  3 15:02:46 
-2003
-@@ -51,13 +51,10 @@
- 
- This is done in several steps.
- 
--a. Some drivers need several ccw devices to make up one device. This drivers
--   provide a 'chaining' interface (driver dependend) which allows to specify
--   which ccw devices form a device.
--b. Each driver provides one or more parameter interfaces where parameters can
-+a. Each driver can provide one or more parameter interfaces where parameters 
-can
-    be specified. These interfaces are also in the driver's responsibility.
--c. After a. and b. have been performed, if neccessary, the device is finally
--   brought up via the 'online' interface.
-+b. After a. has been performed, if neccessary, the device is finally brought 
-up
-+   via the 'online' interface.
- 
- 
- 1.2 Writing a driver for ccw devices
-@@ -84,7 +81,6 @@
- 	struct ccw_device_id *ids;	
- 	int (*probe) (struct ccw_device *); 
- 	int (*remove) (struct ccw_device *);
--	void (*release) (struct ccw_driver *); 
- 	int (*set_online) (struct ccw_device *);
- 	int (*set_offline) (struct ccw_device *);
- 	struct device_driver driver;
-@@ -170,6 +166,22 @@
- information about the interrupt from the irb parameter.
- 
- 
-+1.3 ccwgroup devices
-+--------------------
-+
-+The ccwgroup mechanism is designed to handle devices consisting of multiple 
-ccw
-+devices, like lcs or ctc.
-+
-+The ccw driver provides a 'group' attribute. Piping bus ids of ccw devices to
-+this attributes creates a ccwgroup device consisting of these ccw devices (if
-+possible). This ccwgroup device can be set online or offline just like a 
-normal
-+ccw device.
-+
-+To implement a ccwgroup driver, please refer to include/asm/ccwgroup.h. Keep 
-in
-+mind that most drivers will need to implement both a ccwgroup and a ccw 
-driver
-+(unless you have a meta ccw driver, like cu3088 for lcs and ctc).
-+
-+
- 2. System devices
- -----------------
- 
-@@ -189,19 +201,19 @@
- xpram shows up under sys/ as 'xpram'.
- 
- 
--3. 'Legacy' devices
---------------------
--
--The 'legacy' bus is for devices not detected, but specified by the user.
--
-+3. Other devices
-+----------------
- 
- 3.1 Netiucv
- -----------
- 
--Netiucv connections show up under legacy/ as "netiucv<ifnum>". The interface
--number is assigned sequentially at module load.
--
--user			  - the user the connection goes to.
-+The netiucv driver creates an attribute 'connection' under
-+bus/iucv/drivers/NETIUCV. Piping to this attibute creates a new netiucv
-+connection to the specified host.
-+
-+Netiucv connections show up under devices/iucv/ as "netiucv<ifnum>". The 
-interface
-+number is assigned sequentially to the connections defined via the 
-'connection'
-+attribute. 'name' shows the connection partner.
- 
- buffer			  - maximum buffer size.
- 			    Pipe to it to change buffer size.
+few days ago i started to port driver for our hardware in company from
+windows to linux. It is simple ISA card, which gives me interrupt each
+8ms. So i can check it state and latch some sort of watchdog on it -
+saying that i am still running (just for security, if system hangs card
+is blocking all inputs/outputs). 
+
+But anyway, i was collecting all data from the card in dynamically
+allocated memory. This gives me at least 300 * 20 bytes allocated. i
+have sigle small allocation running on each interrupt. 
+
+Driver is working fine under win2k even if i collect as much as 10000
+allocations, afterwards system uses loads of processor. 
+
+Linux (2.4.19 ,2.4.20, 2.4.21-pre[1,2,3,4] i tried so far) gives me oups
+arount 80th allocation.
+
+>From http://hit-six.co.uk/~gj/testmod.tar.bz2 you can download simple
+module that shows what happends. But be carefull, it oupses very fast !
+
+system is running up2dated Debian(stable), and i am using gcc version: 
+gcc version 2.95.4 20011002 
+
+
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 Labs
 

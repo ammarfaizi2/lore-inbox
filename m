@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbTA1JWo>; Tue, 28 Jan 2003 04:22:44 -0500
+	id <S262821AbTA1JWX>; Tue, 28 Jan 2003 04:22:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264683AbTA1JWo>; Tue, 28 Jan 2003 04:22:44 -0500
-Received: from mta04bw.bigpond.com ([139.134.6.87]:53955 "EHLO
-	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S264614AbTA1JWn> convert rfc822-to-8bit; Tue, 28 Jan 2003 04:22:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: Jens Axboe <axboe@suse.de>, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Solved 2.4.21-pre3aa1 and RAID-0 issue (was: Re: 2.4.21-pre3aa1 and RAID0 issue]
-Date: Tue, 28 Jan 2003 20:46:58 +1100
-User-Agent: KMail/1.4.3
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <200212270856.13419.harisri@bigpond.com> <200301271441.11112.harisri@bigpond.com> <20030127113002.GB889@suse.de>
-In-Reply-To: <20030127113002.GB889@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301282046.58473.harisri@bigpond.com>
+	id <S264614AbTA1JWX>; Tue, 28 Jan 2003 04:22:23 -0500
+Received: from host213-121-111-56.in-addr.btopenworld.com ([213.121.111.56]:1258
+	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
+	id <S262821AbTA1JWW>; Tue, 28 Jan 2003 04:22:22 -0500
+Subject: Re: sendfile support in linux
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Stanley Yee <SYee@snapappliance.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <057889C7F1E5D61193620002A537E8690B4387@NCBDC>
+References: <057889C7F1E5D61193620002A537E8690B4387@NCBDC>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-NrPkRLsOL2YtXYLUhU5J"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 28 Jan 2003 09:32:05 +0000
+Message-Id: <1043746326.6975.93.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jens,
 
-On Monday 27 January 2003 22:30, Jens Axboe wrote:
-> Could you please try this patch on top of 2.4.21-pre3aa1 instead of
-> backing out blk-atomic? Does that work, too? Thanks!
+--=-NrPkRLsOL2YtXYLUhU5J
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yes, the RAID-0 works fine on 2.4.21-pre3aa1 after applying your patch on top 
-of it.
+On Tue, 2003-01-28 at 01:45, Stanley Yee wrote:
+> I'm trying to find out more about sendfile(2).  So far, from what I've
+> gathered, it sounds like the requirements for it are (please correct me i=
+f
+> I'm wrong):
+>=20
+> 1.  A kernel with sendfile support (i.e. 2.4.X)
+> 2.  A network card capable of doing the TCP checksum in the hardware
+> 3.  The application must support sendfile=20
 
-Thanks.
--- 
-Hari
-harisri@bigpond.com
+Those are the user requirements yes. Of course the programmer only needs
+to assume (1) to start writing applications. Oh and its probably worth
+mentioning:
+
+ 4. You can't do zero-copy receive.
+
+> Do you know what applications support zerocopy (sendfile)?  I noticed tha=
+t a
+> zerocopy NFS patch was added to the 2.5.x tree.  Does the 2.4.X NFS daemo=
+n
+> support zerocopy?  Does samba support zerocopy and if so what version?
+
+Samba, tux2, apache?, all the big stuff.
+
+Dunno about NFS.
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-NrPkRLsOL2YtXYLUhU5J
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+Nk4VkbV2aYZGvn0RAthuAJ9CAzbxhYdper9UKFTHiqhjsxYrAgCdEfwy
+kouOxknoD0r4yETFcXN8ojM=
+=w2XE
+-----END PGP SIGNATURE-----
+
+--=-NrPkRLsOL2YtXYLUhU5J--
 

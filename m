@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbTALNpN>; Sun, 12 Jan 2003 08:45:13 -0500
+	id <S266478AbTALNwT>; Sun, 12 Jan 2003 08:52:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266433AbTALNpN>; Sun, 12 Jan 2003 08:45:13 -0500
-Received: from tag.witbe.net ([81.88.96.48]:45831 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id <S266367AbTALNpM>;
-	Sun, 12 Jan 2003 08:45:12 -0500
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Jens Axboe'" <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-Cc: "'Sam Ravnborg'" <sam@ravnborg.org>
-Subject: Re: [BUG 2.5.56] IDE/CDROM Oops at boot time without /proc
-Date: Sun, 12 Jan 2003 14:53:59 +0100
-Message-ID: <00a101c2ba42$0ed2d060$2101a8c0@witbe>
+	id <S266546AbTALNwT>; Sun, 12 Jan 2003 08:52:19 -0500
+Received: from gate.perex.cz ([194.212.165.105]:25606 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S266478AbTALNwS>;
+	Sun, 12 Jan 2003 08:52:18 -0500
+Date: Sun, 12 Jan 2003 14:59:38 +0100 (CET)
+From: Jaroslav Kysela <perex@perex.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Paul Rolland <rol@witbe.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Perex@suze.cz" <Perex@suze.cz>, "rol@as2917.net" <rol@as2917.net>
+Subject: Re: [PATCH 2.5.56] Sound core not compiling without /proc support
+In-Reply-To: <008f01c2ba32$3aab6f40$2101a8c0@witbe>
+Message-ID: <Pine.LNX.4.33.0301121458540.611-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <20030112133700.GF14017@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hellon
+On Sun, 12 Jan 2003, Paul Rolland wrote:
 
-> > Please note that, however, I've tested this change, and it is
-> > working fine on my machine.
+> Hello,
 > 
-> Thanks for the raport, the proposed change is fine with me. 
-> Care to generate a real patch?
-> 
-Here it is :
+> Here is a quick patch to allow sound support to compile correctly
+> when not using /proc support.
 
-4 [14:52] rol@donald:/kernels> diff -uN
-linux-2.5.56/drivers/cdrom/cdrom.c
-linux-2.5.56-work/drivers/cdrom/cdrom.c 
---- linux-2.5.56/drivers/cdrom/cdrom.c  2003-01-10 21:11:26.000000000
-+0100
-+++ linux-2.5.56-work/drivers/cdrom/cdrom.c     2003-01-12
-14:30:55.000000000 +0100
-@@ -2579,7 +2579,9 @@
-                return;
- 
-        cdrom_sysctl_header = register_sysctl_table(cdrom_root_table,
-1);
-+#ifdef CONFIG_PROC_FS
-        cdrom_root_table->child->de->owner = THIS_MODULE;
-+#endif
- 
-        /* set the defaults */
-        cdrom_sysctl_settings.autoclose = autoclose;
+It's a bad fix. The null function declarations should go to 
+include/sound/info.h.
 
-Regards,
-Paul Rolland, rol@as2917.net
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 

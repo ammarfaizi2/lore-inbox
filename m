@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbVAYU3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVAYUal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbVAYU3w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVAYU3v
+	id S262115AbVAYUal (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVAYUaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:29:51 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:64699 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262114AbVAYU3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:29:36 -0500
-Message-ID: <41F6AC38.2060307@comcast.net>
-Date: Tue, 25 Jan 2005 15:29:44 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: dtor_core@ameritech.net, Linus Torvalds <torvalds@osdl.org>,
-       Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
-       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <d120d50005012510571d77338d@mail.gmail.com> <41F6A45D.1000804@comcast.net> <20050125202501.GA21764@fieldses.org>
-In-Reply-To: <20050125202501.GA21764@fieldses.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 15:30:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59042 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262115AbVAYU3m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 15:29:42 -0500
+Date: Tue, 25 Jan 2005 15:29:37 -0500
+From: Dave Jones <davej@redhat.com>
+To: Brice.Goglin@ens-lyon.org
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050125202937.GD9267@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Brice.Goglin@ens-lyon.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com> <20050124204458.GD27570@redhat.com> <41F56949.3010505@ens-lyon.fr> <20050125193822.GC9267@redhat.com> <41F6A4E7.6090105@ens-lyon.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <41F6A4E7.6090105@ens-lyon.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Jan 25, 2005 at 08:58:31PM +0100, Brice Goglin wrote:
+ > Dave Jones a écrit :
+ > >This is needed too on top of -mm1.
+ > >
+ > >diff -Nru a/drivers/char/agp/generic.c b/drivers/char/agp/generic.c
+ > >--- a/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
+ > >+++ b/drivers/char/agp/generic.c	2005-01-25 14:34:24 -05:00
+ > >@@ -324,9 +324,9 @@
+ > > 	info->chipset = agp_bridge->type;
+ > > 	info->device = agp_bridge->dev;
+ > > 	if (check_bridge_mode(agp_bridge->dev))
+ > >-		info->mode = agp_bridge->mode & AGP3_RESERVED_MASK;
+ > >+		info->mode = agp_bridge->mode & ~AGP3_RESERVED_MASK;
+ > > 	else
+ > >-		info->mode = agp_bridge->mode & AGP2_RESERVED_MASK;
+ > >+		info->mode = agp_bridge->mode & ~AGP2_RESERVED_MASK;
+ > > 	info->aper_base = agp_bridge->gart_bus_addr;
+ > > 	info->aper_size = agp_return_size();
+ > > 	info->max_memory = agp_bridge->max_memory_agp;
+ > >
+ > 
+ > Maybe that's not important, but on top of my -rc2-mm1, your patch looks 
+ > like the one I attached to this mail.
 
+Doh, yes. Your variant is needed with the multi-gart patches that
+are in -mm. The one I posted is what I just committed to agpgart-bk
 
-
-J. Bruce Fields wrote:
-> On Tue, Jan 25, 2005 at 02:56:13PM -0500, John Richard Moser wrote:
-> 
->>In this context, it doesn't make sense to deploy a protection A or B
->>without the companion protection, which is what I meant.
-> 
-> 
-> But breaking up the introduction of new code into logical steps is still
-> helpful for people trying to understand the new code.
-> 
-> Even if it's true that it's no use locking any door until they are all
-> locked, there's still some value to allowing people to watch you lock
-> each door individually.  It's easier for them to understand what you're
-> doing that way.
-> 
-
-I guess so.
-
-This still doesn't give me any way to take a big patch and make little
-patches without hours of work and (N+2) kernel trees for N patches
-> --Bruce Fields
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB9qw3hDd4aOud5P8RAq+AAJ4ynZrASPcnh87ziZ1ZWrmzF9V44gCdHQXh
-yZQ7Z9J7gJ4GWr3zaXM6Qx8=
-=/4Ze
------END PGP SIGNATURE-----
+		Dave
+ 

@@ -1,67 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbTIOXUW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTIOXUV
+	id S261368AbTIOXOk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbTIOXOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 19:20:21 -0400
-Received: from nelson.SEDSystems.ca ([192.107.131.136]:36843 "EHLO
-	nelson.sedsystems.ca") by vger.kernel.org with ESMTP
-	id S261723AbTIOXUN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:20:13 -0400
-Message-ID: <3F6649A1.6070103@sedsystems.ca>
-Date: Mon, 15 Sep 2003 17:22:09 -0600
-From: Kendrick Hamilton <hamilton@sedsystems.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
-X-Accept-Language: en-us, en
+	Mon, 15 Sep 2003 19:14:40 -0400
+Received: from smtp13.eresmas.com ([62.81.235.113]:33952 "EHLO
+	smtp13.eresmas.com") by vger.kernel.org with ESMTP id S261368AbTIOXNX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 19:13:23 -0400
+Message-ID: <3F664784.8020105@wanadoo.es>
+Date: Tue, 16 Sep 2003 01:13:08 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI probe, please CC hamilton@sedsystems.ca
-References: <3F66441F.3010206@sedsystems.ca> <20030915230949.GA18153@kroah.com>
-In-Reply-To: <20030915230949.GA18153@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+CC: Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] changes at SubmittingDrivers v2
+References: <3F6646C9.8030808@wanadoo.es>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050801060703010408040006"
+X-Spam-Score: -2.1
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
-    We don't have a hardware address to use. What I am looking for is a 
-way to tie it to the slot number. Is there any way of getting the slot 
-number?
-Kendrick
+This is a multi-part message in MIME format.
+--------------050801060703010408040006
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-PS. I just subscribed to the linux kernel mailing list so I don't need 
-the CC hamilton@sedsystems.ca anymore.
+Xose Vazquez Perez wrote:
 
+>  Linux 2.2:
+> -	If the code area has a general maintainer then please submit it to
+> -	the maintainer listed in MAINTAINERS in the kernel file. If the
+> -	maintainer does not respond or you cannot find the appropriate
+> -	maintainer then please contact Alan Cox <alan@lxorguk.ukuu.org.uk>
+> +	The same rules apply as 2.2. The final contact point for submissions
+                                ^^^
 
-Greg KH wrote:
+> +	is Alan Cox <alan@lxorguk.ukuu.org.uk>.
 
->On Mon, Sep 15, 2003 at 04:58:39PM -0600, Kendrick Hamilton wrote:
->  
->
->>Hello,
->>   we are using the Linux 2.2.16 kernel (some of the code we purchased 
->>does not work with 2.4.x kernels and we would have to do a lot of 
->>regression testing to upgrade) on an IBM e-server. We wrote a module for 
->>a modulator card we are using. The code uses pci_find_device to find the 
->>modulator cards. The problem we are having is that it finds the cards in 
->>different orders. One time hss0 is the card in slot 4 and hss1 is the 
->>card in slot5. The next time we power up the computer, hss0 is the card 
->>in slot5 and hss1 is the card in slot 4.
->>   The IBM e-server has about 5 PCI bridges.
->>   Do you have any suggestion as to how I might be able to ensure the 
->>cards are always detected in the same order? Our system requires that 
->>they always be in the same order.
->>    
->>
->
->Are the pci device ids different across different boots?  If not, is
->there any way you can tie a specific device to a specific interface
->(unique hardware addresses, mac addresses, etc.)?
->
->thanks,
->
->greg k-h
->  
->
+my fault, it must be 2.0.
+
+-- 
+Que trabajen los romanos, que tienen el pecho de lata.
+
+--------------050801060703010408040006
+Content-Type: text/plain;
+ name="SubmittingDrivers.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="SubmittingDrivers.diff"
+
+--- linux/Documentation/SubmittingDrivers	2003-01-16 04:26:18.000000000 +0100
++++ linux.new/Documentation/SubmittingDrivers	2003-09-16 01:04:34.000000000 +0200
+@@ -25,21 +25,23 @@
+ ------------------------
+ 
+ Linux 2.0:
+-	No new drivers are accepted for this kernel tree
++	Only _critical_ and security patches are accepted.
++	No new drivers are accepted for this kernel tree.
+ 
+ Linux 2.2:
+-	If the code area has a general maintainer then please submit it to
+-	the maintainer listed in MAINTAINERS in the kernel file. If the
+-	maintainer does not respond or you cannot find the appropriate
+-	maintainer then please contact Alan Cox <alan@lxorguk.ukuu.org.uk>
++	The same rules apply as 2.0. The final contact point for submissions
++	is Alan Cox <alan@lxorguk.ukuu.org.uk>.
+ 
+ Linux 2.4:
+-	The same rules apply as 2.2. The final contact point for Linux 2.4 
+-	submissions is Marcelo Tosatti <marcelo@conectiva.com.br>.
++	If the code area has a general maintainer then please submit it to
++	the maintainer listed in MAINTAINERS in the kernel file. If the
++	maintainer does not respond or you can not find the appropriate
++	maintainer then please contact Marcelo Tosatti
++	<marcelo.tosatti@cyclades.com.br>.
+ 
+-Linux 2.5:
++Linux 2.6:
+ 	The same rules apply as 2.4 except that you should follow linux-kernel
+-	to track changes in API's. The final contact point for Linux 2.5
++	to track changes in API's. The final contact point for Linux 2.6
+ 	submissions is Linus Torvalds <torvalds@transmeta.com>.
+ 
+ What Criteria Determine Acceptance
+
+--------------050801060703010408040006--
 

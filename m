@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319439AbSH2WVR>; Thu, 29 Aug 2002 18:21:17 -0400
+	id <S319371AbSH2Wgs>; Thu, 29 Aug 2002 18:36:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319392AbSH2WU3>; Thu, 29 Aug 2002 18:20:29 -0400
-Received: from smtpout.mac.com ([204.179.120.86]:35028 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319388AbSH2VxM>;
-	Thu, 29 Aug 2002 17:53:12 -0400
-Message-Id: <200208292157.g7TLvZKN026549@smtp-relay03.mac.com>
+	id <S319356AbSH2Wfz>; Thu, 29 Aug 2002 18:35:55 -0400
+Received: from smtpout.mac.com ([204.179.120.86]:29651 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S319375AbSH2VvY>;
+	Thu, 29 Aug 2002 17:51:24 -0400
+Message-Id: <200208292155.g7TLtlZH003783@smtp-relay02.mac.com>
 Date: Thu, 29 Aug 2002 21:56:27 +0200
 Mime-Version: 1.0 (Apple Message framework v482)
 Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 28/41 sound/oss/wavfront.c - convert cli to spinlocks
+Subject: [PATCH] 15/41 sound/oss/uart401.c - convert cli to spinlocks
 From: pwaechtler@mac.com
 To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
@@ -19,48 +19,73 @@ X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/wavfront.c	Sat Aug 10 00:04:15 2002
-+++ linux-2.5-cli-oss/sound/oss/wavfront.c	Thu Aug 15 14:34:05 2002
-@@ -76,7 +76,7 @@
- #include <linux/ptrace.h>
- #include <linux/fcntl.h>
- #include <linux/ioport.h>    
+--- vanilla-2.5.32/sound/oss/uart401.c	Sat Apr 20 18:25:21 2002
++++ linux-2.5-cli-oss/sound/oss/uart401.c	Tue Aug 13 15:47:06 2002
+@@ -23,7 +23,7 @@
+ 
+ #include <linux/init.h>
+ #include <linux/module.h>
 -
 +#include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/config.h>
+ #include "sound_config.h"
  
-@@ -274,6 +274,7 @@
- 	wait_queue_head_t interrupt_sleeper; 
- } dev;
+ #include "mpu401.h"
+@@ -38,6 +38,7 @@
+ 	volatile unsigned char input_byte;
+ 	int             my_dev;
+ 	int             share_irq;
++	spinlock_t	lock;
+ }
+ uart401_devc;
  
-+static spinlock_t lock=SPIN_LOCK_UNLOCKED;
- static int  detect_wffx(void);
- static int  wffx_ioctl (wavefront_fx_info *);
- static int  wffx_init (void);
-@@ -2202,12 +2203,12 @@
- {
+@@ -152,13 +153,11 @@
+ 	 * Test for input since pending input seems to block the output.
+ 	 */
+ 
+-	save_flags(flags);
+-	cli();
+-
++	spin_lock_irqsave(&devc->lock,flags);	
+ 	if (input_avail(devc))
+ 		uart401_input_loop(devc);
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&devc->lock,flags);
+ 
+ 	/*
+ 	 * Sometimes it takes about 13000 loops before the output becomes ready
+@@ -222,8 +221,7 @@
+ 	int ok, timeout;
  	unsigned long flags;
  
--	save_flags (flags);
+-	save_flags(flags);
 -	cli();
-+	/* this will not help on SMP - but at least it compiles */
-+	spin_lock_irqsave(&lock, flags);
- 	dev.irq_ok = 0;
- 	outb (val,port);
- 	interruptible_sleep_on_timeout (&dev.interrupt_sleeper, timeout);
--	restore_flags (flags);
-+	spin_unlock_irqrestore(&lock,flags);
++	spin_lock_irqsave(&devc->lock,flags);	
+ 	for (timeout = 30000; timeout > 0 && !output_ready(devc); timeout--);
+ 
+ 	devc->input_byte = 0;
+@@ -237,7 +235,7 @@
+ 			if (uart401_read(devc) == MPU_ACK)
+ 				ok = 1;
+ 
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&devc->lock,flags);
  }
  
- static int __init wavefront_hw_reset (void)
-@@ -2223,8 +2224,6 @@
+ static int reset_uart401(uart401_devc * devc)
+@@ -320,11 +318,11 @@
+ 	devc->input_byte = 0;
+ 	devc->my_dev = 0;
+ 	devc->share_irq = 0;
++	spin_lock_init(&devc->lock);
  
- 	printk (KERN_DEBUG LOGNAME "autodetecting WaveFront IRQ\n");
+-	save_flags(flags);
+-	cli();
++	spin_lock_irqsave(&devc->lock,flags);	
+ 	ok = reset_uart401(devc);
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&devc->lock,flags);
  
--	sti ();
--
- 	irq_mask = probe_irq_on ();
- 
- 	outb (0x0, dev.control_port); 
+ 	if (!ok)
+ 		goto cleanup_devc;
 

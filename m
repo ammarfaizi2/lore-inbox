@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132577AbRDKNwv>; Wed, 11 Apr 2001 09:52:51 -0400
+	id <S132580AbRDKORr>; Wed, 11 Apr 2001 10:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132578AbRDKNwl>; Wed, 11 Apr 2001 09:52:41 -0400
-Received: from iplsin1-52-230.biz.dsl.gtei.net ([4.3.52.230]:58073 "HELO
-	avenir.dhs.org") by vger.kernel.org with SMTP id <S132577AbRDKNw3>;
-	Wed, 11 Apr 2001 09:52:29 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: John Madden <weez@freelists.org>
-To: juergen mischker <j_mischker@web.de>, linux-kernel@vger.kernel.org
-Subject: Re: k 2.4.2; usb; handspring-visor
-Date: Wed, 11 Apr 2001 08:52:30 -0500
-X-Mailer: KMail [version 1.2]
-Cc: j_mischker@web.de
-In-Reply-To: <01041109595000.00940@horus.arge>
-In-Reply-To: <01041109595000.00940@horus.arge>
-MIME-Version: 1.0
-Message-Id: <0104110852300F.25330@weez>
-Content-Transfer-Encoding: 7BIT
+	id <S132579AbRDKORh>; Wed, 11 Apr 2001 10:17:37 -0400
+Received: from t2.redhat.com ([199.183.24.243]:1275 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S132578AbRDKOR1>; Wed, 11 Apr 2001 10:17:27 -0400
+To: afranck@gmx.de
+Cc: David Howells <dhowells@cambridge.redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2nd try: i386 rw_semaphores fix 
+In-Reply-To: Your message of "Wed, 11 Apr 2001 15:40:21 +0200."
+             <3AD45EC5.81EB82AD@akustik.rwth-aachen.de> 
+Date: Wed, 11 Apr 2001 15:17:19 +0100
+Message-ID: <16795.986998639@warthog.cambridge.redhat.com>
+From: David Howells <dhowells@cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Apr  8 23:33:09 horus kernel: hub.c: USB new device connect on bus1/1,
-> assigned device number 5
-> Apr  8 23:33:12 horus kernel: usb_control/bulk_msg: timeout
-> Apr  8 23:33:12 horus kernel: usb.c: USB device not accepting new
-> address=5 (error=-110)
+> I'd like you to look over it. It seems newer GCC's (snapshots and the
+> upcoming 3.0) will be more strict when modifying some values through
+> assembler-passed pointers - in this case, the passed semaphore structure got
+> freed too early, causing massive stack corruption on early bootup.
+>
+> The solution was to directly mention the modified element (in this case,
+> sem->count) with a "=m" qualifier, which told GCC that the contents of the
+> semaphore structure are still really needed. It does not seem to have any
+> bad side effects on older GCC, but lets the code work on people trying to
+> use the newer snapshots.
 
-Funny, I've been getting the same messages (on 2.4.0 and now 2.4.3) for a 
-while now, and I thought the problem was with my Visor.  (...I haven't 
-been able to sync for months...)
+I've just consulted with one of the gcc people we have here, and he says that
+the '"memory"' constraint should do the trick.
 
-John
+Do I take it that that is actually insufficient?
 
-
-
-
--- 
-# John Madden  weez@freelists.org ICQ: 2EB9EA
-# FreeLists, Free mailing lists for all: http://www.freelists.org
-# UNIX Systems Engineer, Ivy Tech State College: http://www.ivy.tec.in.us
-# Linux, Apache, Perl and C: All the best things in life are free!
+David

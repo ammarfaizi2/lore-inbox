@@ -1,76 +1,257 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266247AbTGEAu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 20:50:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266251AbTGEAu3
+	id S266246AbTGEArn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 20:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266247AbTGEArn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 20:50:29 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18381
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S266247AbTGEAuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 20:50:23 -0400
-Date: Sat, 5 Jul 2003 03:04:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: Status of the IO scheduler fixes for 2.4
-Message-ID: <20030705010448.GE23578@dualathlon.random>
-References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva> <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva> <1057197726.20903.1011.camel@tiny.suse.com> <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva> <1057354654.20903.1280.camel@tiny.suse.com> <20030705000544.GC23578@dualathlon.random> <1057366019.20899.1300.camel@tiny.suse.com>
-Mime-Version: 1.0
+	Fri, 4 Jul 2003 20:47:43 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:56724 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S266246AbTGEAri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 20:47:38 -0400
+Date: Fri, 04 Jul 2003 18:01:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.74-mjb1
+Message-ID: <4580000.1057366910@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1057366019.20899.1300.camel@tiny.suse.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 04, 2003 at 08:47:00PM -0400, Chris Mason wrote:
-> On Fri, 2003-07-04 at 20:05, Andrea Arcangeli wrote:
-> > On Fri, Jul 04, 2003 at 05:37:35PM -0400, Chris Mason wrote:
-> > > I've also attached a patch I've been working on to solve the latencies a
-> > > different way.  bdflush-progress.diff changes balance_dirty to wait on
-> > > bdflush instead of trying to start io.  It helps a lot here (both
-> > > throughput and latency) but hasn't yet been tested on a box with tons of
-> > > drives.
-> > 
-> > that's orthogonal, it changes the write throttling, it doesn't touch the
-> > blkdev layer like the other patches does. So if it helps it solves a
-> > different kind of latencies.
-> 
-> It's also almost useless without elevator-low-latency applied ;-)  One
-> major source of our latencies is a bunch of procs hammering on
-> __get_request_wait, so bdflush-progess helps by reducing the number of
-> procs doing io.  It does push some of the latency problem up higher into
-> balance_dirty, but I believe it is easier to manage there.
-> 
-> bdflush-progress doesn't help at all for non-async workloads.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-agreed.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-> > However the implementation in theory can run the box oom, since it won't
-> > limit the dirty buffers anymore. To be safe you need to wait 2
-> > generations. I doubt in practice it would be easily reproducible though ;).
-> 
-> Hmmm, I think the critical part here is to write some buffers after
-> marking a buffer dirty.  We don't check the generation number until
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.74/patch-2.5.74-mjb1.bz2
 
-btw, not after a buffer, but after as much as "buffers per page" buffers
-(infact for the code to be correct on systems with quite big page size
-the 32 should be replaced with a max(bh_per_page, 32))
+additional patches that can be applied if desired:
 
-> after marking the buffer dirty, so if the generation has incremented at
-> all we've made progress.  What am I missing?
+(these three form the qlogic feral driver)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.72/2.5.72-mm1/broken-out/linux-isp.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.72/2.5.72-mm1/broken-out/isp-update-1.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.72/2.5.72-mm1/broken-out/isp-remove-pci_detect.patch
 
-	write 32 buffers
-				read generation
-	inc generation
-				generation changed -> OOM
+Since 2.5.73-mjb2 (~ = changed, + = added, - = dropped)
 
-Am I missing any smp serialization between the two cpus?
+Notes:  Mostly just a merge up
 
-Andrea
+Now in Linus' tree:
+- uninitialised timer				Mikael Pettersson
+	Fix bogus cleanup so that gcc 2.95.4 works.
+- sysrq_t_fix					Andrew Morton
+	Fix sysrq+t breakage where it showed the same stack for everyone
+- pci_hotplug					Ivan K.
+	Fix up pci hotplug w/o hotplug enabled.
+
+New:
++ gcov						Hubertus / Rajan / Paul Larson
+	Code coverage
++ stack_fix					William Lee Irwin
+	Fix a 4K stack issue
+
+Dropped:
+- upside_down					William Lee Irwin
+	Broke things.
+- schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
+- schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
+- schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+(didn't merge cleanly into 74, awaiting update from Rick).
+
+
+
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
+
+Present in this patch:
+
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+4k_stacks_vs_kgdb				Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
+
+config_debug					Dave Hansen
+	Make '-g' for the kernel a config option
+
+akpm_bear_pit					Andrew Morton
+	Add a printk for some buffer error I was hitting
+
+32bit_dev_t					Andries Brouwer
+	Make dev_t 32 bit
+
+dynamic_hd_struct				Badari Pulavarty
+	Allocate hd_structs dynamically
+
+lotsa_sds					Badari Pulavarty
+	Create some insane number of sds
+
+iosched_hashes					Badari Pulavarty
+	Twiddle with the iosched hash tables for fun & profit
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
+
+lockmeter_tytso					Ted Tso
+	Fix lockmeter
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+fs_aio_1_retry					Suparna Bhattacharya
+	Filesystem aio. Chapter 1
+
+fs_aio_2_read					Suparna Bhattacharya
+	Filesystem aio. Chapter 2
+
+fs_aio_3_write					Suparna Bhattacharya
+	Filesystem aio. Chapter 3
+
+fs_aio_4_down_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 4
+
+fs_aio_5_wrdown_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 5
+
+fs_aio_6_bread_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 6
+
+fs_aio_7_ext2getblk_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 7
+
+fs_aio_8_down_wq-ppc64				Suparna Bhattacharya
+	Filesystem aio. Chapter 8
+
+fs_aio_9_down_wq-x86_64				Suparna Bhattacharya
+	Filesystem aio. Chapter 9
+
+reslabify-pmd-pgd				William Lee Irwin
+	Stick things back in the slab. Or something.
+
+separate_pmd					Dave Hansen
+	Separate kernel pmd per task.
+
+banana_split					Dave Hansen
+	Make PAGE_OFFSET play twister and limbo.
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+nolock						Dave McCracken
+	Nah, we don't like locks.
+
+proc_pid_readdir				Manfred Spraul
+	Make proc_pid_readdir more efficent. Allegedly.
+
+mbind_part1					Matt Dobson
+	Bind some memory for NUMA.
+
+mbind_part2					Matt Dobson
+	Bind some more memory for NUMA.
+
+per_node_rss					Matt Dobson
+	Track which nodes tasks mem is on, so sched can be sensible.
+
+swsusp_state_check				Matt Dobson
+	Fix a check in s/w suspend code
+
+pfn_to_nid					Martin J. Bligh
+	Dance around the twisted rats nest of crap in i386 include.
+
+node_spanned_pages				Dave Hansen
+	Fix up NUMA beancounting
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+

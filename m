@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262110AbUKJTwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbUKJT6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbUKJTwO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUKJTwN
+	id S262113AbUKJT6K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUKJT6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:52:13 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:56040 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262110AbUKJTvn (ORCPT
+	Wed, 10 Nov 2004 14:58:10 -0500
+Received: from [81.23.229.73] ([81.23.229.73]:22156 "EHLO mail.eduonline.nl")
+	by vger.kernel.org with ESMTP id S262113AbUKJT6J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:51:43 -0500
-Date: Wed, 10 Nov 2004 20:52:00 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] drivers/net/pcmcia: use module_param() instead of MODULE_PARM()
-Message-ID: <20041110195200.GJ2706@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.de>,
-	Andrew Morton <akpm@osdl.org>
-References: <20041104112736.GT3472@crusoe.alcove-fr> <418AE490.1010304@pobox.com> <20041110155903.GA8542@sd291.sivit.org> <20041110160058.GB8542@sd291.sivit.org> <41924339.1070809@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Nov 2004 14:58:09 -0500
+From: Norbert van Nobelen <Norbert@edusupport.nl>
+Organization: EduSupport
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Wanted: small number of crazy highpoint IDE  (HPT366-372N/374) controller owners
+Date: Wed, 10 Nov 2004 20:58:05 +0100
+User-Agent: KMail/1.6.2
+References: <1100111436.20556.15.camel@localhost.localdomain>
+In-Reply-To: <1100111436.20556.15.camel@localhost.localdomain>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <41924339.1070809@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411102058.05982.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 08:35:05AM -0800, Randy.Dunlap wrote:
+I can see volunteers line up already with this kind of incentive (-:
 
-> Hi Stelian,
+Sorry, already have a not so trustable SATA controller, a possibly broken IDE  
+disk in a software raid5 array, and just survived another SCSI disk crash. 
+This one will pass me by by lack of the mentioned controller. If someone 
+sends me one, I don't have problem with testing it, machines and disks 
+enough.
 
-Hi.
-> 
-> Several of these changes expose module parameters to sysfs
-> (i.e., have permissions of non-zero value) without need for that IMO.
-> 
-> This came up yesterday on the kernel-janitors mailing list.
-> When asked about it, Greg KH replied:
-
-:)
-
-I shouldn't probably discuss Greg's advice, but...
-> 
-> > Can someone please clarify the "official guidelines" for
-> > module parameter permissions in sysfs?
-> 
-> "When it makes sense to have it exposed to userspace"
-> 
-> Yeah, it's vague, sorry, but it all depends.
-> 
-> For things that can be changed on the fly, expose it.
-
-... with a write permission. Agreed.
-
-> For things that don't really matter, and no one will ever look them up,
-> don't. 
->I think the irq stuff is in the "don't" category, as almost no
-> one messes with them anymore.
-
-In this case why is this a module parameter at all ? If it doesn't
-matter at all then it should get removed from all places.
-
-In fact, I do think that all module parameter should be exposed in
-/sys, and that a '0' in module_param() should really mean 0400.
-
-It can be useful to know what parameters have been passed to a module,
-and I cannot think of a single case where we want to hide this 
-information (and no, security doesn't really apply here. If you have
-root rights than you can also look into the kernel memory and find
-out the value by yourself).
-
-The only questions one should ask himself about a module parameter is
-whether:
-	- it is a R/O or a R/W value (and this is determined by
-	  the code who uses this value, if it is dynamic then let
-	  the parameter be R/W, if it's only used to make assumptions
-	  in the init phase then it must be R/O).
-
-	- it can be shown to everybody, or only root should be able
-	  to read the value (0400 vs 0440/0444). I'm not sure this is
-	  really useful since /etc/modprobe.conf is generaly 0644,
-	  but it could be in some cases...
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+On Wednesday 10 November 2004 19:30, you wrote:
+> I've been debugging and chasing down various HPT IDE problems. I've done
+> some cleanups, fixed the PLL tune and little bits like that. These are
+> the kind of changes that turn your disk into a random number generator
+> if they go wrong but OTOH the HPT372N crashes should be fixed.
+>
+> Now it needs some testers...
+>
+> Alan
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

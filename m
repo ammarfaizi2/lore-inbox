@@ -1,74 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280448AbRLLOv1>; Wed, 12 Dec 2001 09:51:27 -0500
+	id <S280537AbRLLO5S>; Wed, 12 Dec 2001 09:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280531AbRLLOvS>; Wed, 12 Dec 2001 09:51:18 -0500
-Received: from dryas.atms.unca.edu ([152.18.35.216]:36744 "EHLO
-	dryas.atms.unca.edu") by vger.kernel.org with ESMTP
-	id <S280448AbRLLOvF>; Wed, 12 Dec 2001 09:51:05 -0500
-Message-Id: <200112121451.fBCEp1619089@dryas.atms.unca.edu>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Andrea Arcangeli <andrea@suse.de>
-From: Leigh Orf <orf@mailbag.com>
-cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org,
-        Ken Brownfield <brownfld@irridia.com>, Andrew Morton <akpm@zip.com.au>,
-        Anton Altaparmakov <aia21@cam.ac.uk>
-Organization: Department of Tesselating Kumquats
-X-URL: http://orf.cx
-X-face: "(Qpt_9H~41JFy=C&/h^zmz6Dm6]1ZKLat1<W!0bNwz2!LxG-lZ=r@4Me&uUvG>-r\?<DcDb+Y'p'sCMJ
-Subject: Re: 2.4.16 memory badness (reproducible) 
-In-Reply-To: Your message of "Tue, 11 Dec 2001 23:59:08 +0100."
-             <20011211235908.L4801@athlon.random> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Dec 2001 09:51:00 -0500
+	id <S280588AbRLLO5I>; Wed, 12 Dec 2001 09:57:08 -0500
+Received: from zeus.hjc.edu.sg ([203.127.28.34]:31411 "HELO zeus.hjc.edu.sg")
+	by vger.kernel.org with SMTP id <S280537AbRLLO47>;
+	Wed, 12 Dec 2001 09:56:59 -0500
+To: linux-kernel@vger.kernel.org
+Subject: AACRAID & Kernel-2.4.17-pre8
+Message-ID: <1008169010.3c1770320ed43@home.hjc.edu.sg>
+Date: Wed, 12 Dec 2001 22:56:50 +0800 (SGT)
+From: Chen Shiyuan <csy@hjc.edu.sg>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Hwa Chong Junior College Mail System (CMS)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Andrea,
+After applying patch-2.4.17-pre8 on the stock kernel-2.4.16 and 
+recompiling with AACRAID enabled and rebooting, all goes well except for 
+the tons and tons of the following messages which appears whenever I 
+typed DMESG at the shell prompt. The machine in question is a dual CPU 
+Dell PowerEdge 2550 with an AACRAID controller in place.
 
-I disabled ntfs and as you suspected my problem went away. This worked
-for both 2.4.16 and 2.4.17pre4aa1.
+Does anyone know how to get rid of these messages or are they indicative 
+of some bugs in the system?
 
-Thanks a lot,
+Many thanks in advance for any advice or help.
 
-Leigh Orf
+(please CC: replies to me as I am not subscribed to the list)
 
-Andrea Arcangeli wrote:
+---
 
-|   Even better would be to change fs/ntfs/* to avoid using vmalloc for tons
-|   of little pieces. It's not only a matter of wasting direct mapped
-|   address space, but it's also a matter of running fast, mainly on SMP
-|   with the IPI for the tlb flushes...
-|   
-|   attr.c:233:		new = ntfs_vmalloc(new_size);
-|   attr.c:235:			ntfs_error("ntfs_insert_run:
-|   ntfs_vmalloc(new_size = "
-|   attr.c:458:			rlt = ntfs_vmalloc(rl_size);
-|   inode.c:1297:		rl = ntfs_vmalloc(rlen << sizeof(ntfs_runlist));
-|   inode.c:1638:					rlt =
-|   ntfs_vmalloc(rl_size);
-|   inode.c:1942:		rl2 = ntfs_vmalloc(rl2_size);
-|   inode.c:2006:			rlt = ntfs_vmalloc(rl_size);
-|   super.c:810:				rlt = ntfs_vmalloc(rlsize);
-|   super.c:1335:		buf = ntfs_vmalloc(buf_size);
-|   support.h:29:#include <linux/vmalloc.h>
-|   support.h:35:#define ntfs_vmalloc(size)	vmalloc_32(size)
-|   
-|   
-|   In short there are three solutions avaialble:
-|   
-|   1) don't use ntfs
-|   2) fix ntfs
-|   3) enlarge vmalloc address space with the above patch, but this won't be
-|      a final solution because you'll overflow again the vmalloc address
-|      space by adding the double of files in your fs
-|   
-|   So I'd redirect this report to Anton Altaparmakov <aia21@cam.ac.uk> and
-|   I still have no VM bugreport pending from my part.
-|   
-|   thanks,
-|   
-|   Andrea
-
+aachba: received a write(10) command on target 0.
+aac_write[cpu 1]: lba = 2228737, t = 189543.
+fib_send: inserting a queue entry at index 161.
+Fib contents:.
+  Command =               500.
+  XferState  =            830ad.
+write_callback[cpu 1]: lba = 34, t = 189543.
+aachba: received a write(10) command on target 0.
+aac_write[cpu 1]: lba = 2228753, t = 189543.
+fib_send: inserting a queue entry at index 162.
+Fib contents:.
+  Command =               500.
+  XferState  =            830ad.
+write_callback[cpu 0]: lba = 34, t = 189543.
+aachba: received a write(10) command on target 0.
+aac_write[cpu 0]: lba = 2228761, t = 189614.
+fib_send: inserting a queue entry at index 163.
+Fib contents:.
+  Command =               500.
+  XferState  =            830ad.
+write_callback[cpu 0]: lba = 34, t = 189614.
+aachba: received a write(10) command on target 0.
+aac_write[cpu 0]: lba = 2228849, t = 189614.
+fib_send: inserting a queue entry at index 164.
+Fib contents:.
+  Command =               500.
+  XferState  =            830ad.
+write_callback[cpu 1]: lba = 34, t = 189614.

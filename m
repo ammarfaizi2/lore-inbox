@@ -1,56 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289058AbSA0XiW>; Sun, 27 Jan 2002 18:38:22 -0500
+	id <S289062AbSA1ACF>; Sun, 27 Jan 2002 19:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289061AbSA0XiD>; Sun, 27 Jan 2002 18:38:03 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:26386 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S289058AbSA0Xh7>;
-	Sun, 27 Jan 2002 18:37:59 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "kumar M" <kumarm4@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: exporting kernel symbols 
-In-Reply-To: Your message of "Sun, 27 Jan 2002 15:16:10 -0000."
-             <F206dZTLOAnjLGXYB1J00005490@hotmail.com> 
+	id <S289064AbSA1AB5>; Sun, 27 Jan 2002 19:01:57 -0500
+Received: from ns.suse.de ([213.95.15.193]:10513 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289062AbSA1ABn>;
+	Sun, 27 Jan 2002 19:01:43 -0500
+Date: Mon, 28 Jan 2002 01:01:42 +0100
+From: Andi Kleen <ak@suse.de>
+To: Alessandro Suardi <alessandro.suardi@oracle.com>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        John Levon <movement@marcelothewonderpenguin.com>,
+        linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+Message-ID: <20020128010142.A23952@wotan.suse.de>
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk> <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com> <20020125204911.A17190@wotan.suse.de> <20020125133814.U763@lynx.adilger.int> <20020125231555.A22583@wotan.suse.de> <3C54871E.80621B4E@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 28 Jan 2002 10:37:44 +1100
-Message-ID: <27549.1012174664@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <3C54871E.80621B4E@oracle.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jan 2002 15:16:10 +0000, 
-"kumar M" <kumarm4@hotmail.com> wrote:
->I am interested in knowing how mangling the name of symbols
->exported by the kernel to include the checksum of the information related to 
->that symbol is done, whenever MOD VERSIONS
->is used for building a module. Is there any documentation on the
->process of the checksum computation, and which portion of the linux
->sources I need to go through to understand this ?
+On Mon, Jan 28, 2002 at 12:02:54AM +0100, Alessandro Suardi wrote:
+> 
+> 2.5.3-pre5 + this patch still can't boot my system. I haven't had
+>  time to copy down oops at boot, will do if needed.
 
-genksyms.c in the modutils source package[1].  The make dep process
-pre-processes the C sources from each directory feeding the cpp output
-into genksyms.  genksyms calculates a hash for each exported symbol
-based on its type, return values, parameters etc., recursively
-descending parameter types as required.
+Please do. I cannot see anything in the patch that should prevent bootup
+though, so I would also recommend a make clean and recompile first just
+to make sure it isn't a broken build. 
 
-The resulting hashes are written out as #defines to change foo to
-foo_Rxxxxxxxx.  The defines are read back in when the real compile is
-done, change references to foo into foo_Rxxxxxxxx.  In the kernel the
-original symbols are used but the export list includes the suffix.  In
-modules, external references include the suffix.
-
-In theory if a module refers to a symbol and the hashes for that symbol
-match then the symbol has not changed its ABI and it is safe to load
-the module, even if the kernel and module are from different versions.
-In practice, modversions relies far too much on human processes and is
-prone to false positives.  The hashes can match when the ABI is
-different because of human error[2], especially when people compile
-drivers outside the kernel tree.  Kernel and modutils 2.5 will have a
-completely different method for checking ABI compatibility, if kbuild
-2.5 ever gets in.
-
-[1] http://kernel.org/pub/linux/utils/kernel/modutils/v2.4
-[2] http://prdownloads.sourceforge.net/kbuild/kbuild-2.5-history.tar.bz2
-
+-Andi

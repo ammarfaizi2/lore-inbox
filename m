@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268531AbRGYA7X>; Tue, 24 Jul 2001 20:59:23 -0400
+	id <S266353AbRGYBV2>; Tue, 24 Jul 2001 21:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268534AbRGYA7N>; Tue, 24 Jul 2001 20:59:13 -0400
-Received: from ohiper1-9.apex.net ([209.250.47.24]:7694 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S268531AbRGYA7F>; Tue, 24 Jul 2001 20:59:05 -0400
-Date: Tue, 24 Jul 2001 19:55:49 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c update to 2.6.0 for 2.4.7
-Message-ID: <20010724195549.A10410@hapablap.dyn.dhs.org>
-In-Reply-To: <20010725024629.E2308@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010725024629.E2308@werewolf.able.es>; from jamagallon@able.es on Wed, Jul 25, 2001 at 02:46:29AM +0200
-X-Uptime: 7:46pm  up 2 days,  4:13,  0 users,  load average: 1.04, 1.02, 0.93
+	id <S266381AbRGYBVS>; Tue, 24 Jul 2001 21:21:18 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:34316 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S266339AbRGYBVA>; Tue, 24 Jul 2001 21:21:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Patrick Dreker <patrick@dreker.de>,
+        Linus Torvalds <torvalds@transmeta.com>, phillips@bonn-fries.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Optimization for use-once pages
+Date: Wed, 25 Jul 2001 02:18:02 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <200107241648.f6OGmqp29445@penguin.transmeta.com> <E15P8jB-0000Au-00@wintermute>
+In-Reply-To: <E15P8jB-0000Au-00@wintermute>
+MIME-Version: 1.0
+Message-Id: <0107250218020A.00520@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, Jul 25, 2001 at 02:46:29AM +0200, J . A . Magallon wrote:
-> BTW, is there any chance to include lm_sensors also in mainstream kernel ?
+On Tuesday 24 July 2001 22:24, Patrick Dreker wrote:
+> I just decided to give this patch a try, as I have written a little
+> application which does some statistics over traces dumped by another
+> program by mmap()ing a large file and reading it sequentially. The
+> trace file to be analyzed is about 240 megs in size and consists of
+> records each 249 bytes long. The analysis program opens and the
+> mmap()s the trace file doing some small calculations on the data
+> (basically it adds up fields from the records to get overall values).
+>
+> I have tested this on my Athlon 600 with 128 Megs of RAM, and it does
+> not make any difference whether I use plain 2.4.7 or 2.4.5-use-once.
+> The program always takes about 1 minute 6 seconds (+- 2 seconds) to
+> complete, and the machine starts swapping out stuff
 
-This is something that I would really like to see.  I've been using the
-lm_sensors patch on several kernels on at least two different types of
-hardware with no problems whatsoever.
+In this case that's an excellent result:
 
-If there's no technical reason to keep it out, I think this would be a
-good candidate for integration.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+  - The optimization doesn't include mmap's (yet)
+  - It doesn't break swap.  (Good, I didn't check that myself)
+
+This is a case of "no news is good news".
+
+> (thus I have
+> omitted further stats like vmstat output). I have just taken another
+> look into my program to verify it does not do something silly, like
+> keeping old data around, but the program cycle is always the same:
+> copy a record from the mmap into a struct, perform analysis, and copy
+> next record. The struct is always reused for the next struct (so
+> there is only one struct at any time).
+>
+> I can do further tests, if someone asks me to. I could even modify
+> the analysis program to check changes in behaviour...
+
+(Already read your mail where you picked up the 20% improvement, 
+thanks, it warms my heart:-)
+
+--
+Daniel
+

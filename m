@@ -1,146 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263075AbUK0BkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263043AbUK0BgC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263075AbUK0BkH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 20:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbUK0Bhf
+	id S263043AbUK0BgC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 20:36:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUKZTjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 20:37:35 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263042AbUKZTig (ORCPT
+	Fri, 26 Nov 2004 14:39:04 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:18626 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262361AbUKZTVs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:38:36 -0500
-Date: Thu, 25 Nov 2004 11:31:23 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Ian Campbell <icampbell@arcom.com>
-cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: "deadlock" between smc91x driver and link_watch
-In-Reply-To: <1101376796.31459.45.camel@icampbell-debian>
-Message-ID: <Pine.LNX.4.61.0411251128560.8946@xanadu.home>
-References: <1101230194.14370.12.camel@icampbell-debian> 
- <20041123153158.6f20a7d7.akpm@osdl.org>  <1101289309.10841.9.camel@icampbell-debian>
-  <20041124014650.47af8ae4.akpm@osdl.org>  <1101290297.10841.15.camel@icampbell-debian>
-  <Pine.LNX.4.61.0411241014160.8946@xanadu.home>  <1101311558.31459.21.camel@icampbell-debian>
-  <Pine.LNX.4.61.0411241125280.8946@xanadu.home> <1101376796.31459.45.camel@icampbell-debian>
+	Fri, 26 Nov 2004 14:21:48 -0500
+Message-ID: <015701c4d351$802b4e70$0101140a@fortinet.com>
+From: "Wenping  Luo" <wluo@fortinet.com>
+To: "Roger Luethi" <rl@hellgate.ch>
+Cc: <linux-kernel@vger.kernel.org>
+References: <011801c4d270$cca65740$0101140a@fortinet.com> <20041125215413.GC1843@k3.hellgate.ch>
+Subject: Re: ethernet Via-rhine driver 1.1.17 duplex detection issue in linux kernel 2.4.25
+Date: Thu, 25 Nov 2004 16:47:26 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-Fortimail-Filter: processed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Nov 2004, Ian Campbell wrote:
 
-> Hi,
-> 
-> I've taken Nico's comments on board and used lp->work_pending to detect
-> whether smc_phy_configure is pending or not instead of dev_hold/put(). I
-> was able to do away with smc_phy_configure_wq() from the previous
-> version since setting lp->work_pending=0 can safely be done in
-> smc_phy_configure() itself, unlike dev_put().
-> 
-> Also fixed a typo 'ence' -> 'Hence' and renamed smc_detect_phy to
-> smc_phy_detect in order to follow the same pattern as the other
-> smc_phy_* functions, I was typing smc_phy_detect() every time anyway and
-> it was getting on my wick. I hope that's OK...
-> 
-> Signed-off-by: Ian Campbell <icampbell@arcom.com>
-
-Good!  Please add "Signed-off-by: Nicolas Pitre <nico@cam.org>" and 
-send it to Jeff Garzik <jgarzik@pobox.com>.
+----- Original Message ----- 
+From: "Roger Luethi" <rl@hellgate.ch>
+To: "Wenping Luo" <wluo@fortinet.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, November 25, 2004 1:54 PM
+Subject: Re: ethernet Via-rhine driver 1.1.17 duplex detection issue in
+linux kernel 2.4.25
 
 
-> Index: 2.6/drivers/net/smc91x.c
-> ===================================================================
-> --- 2.6.orig/drivers/net/smc91x.c	2004-11-16 09:26:52.000000000 +0000
-> +++ 2.6/drivers/net/smc91x.c	2004-11-25 09:49:38.830953019 +0000
-> @@ -203,7 +203,10 @@
->  	u32	msg_enable;
->  	u32	phy_type;
->  	struct mii_if_info mii;
-> +
-> +	/* work queue */
->  	struct work_struct phy_configure;
-> +	int	work_pending;
->  
->  	spinlock_t lock;
->  
-> @@ -903,7 +906,7 @@
->  /*
->   * Finds and reports the PHY address
->   */
-> -static void smc_detect_phy(struct net_device *dev)
-> +static void smc_phy_detect(struct net_device *dev)
->  {
->  	struct smc_local *lp = netdev_priv(dev);
->  	int phyaddr;
-> @@ -1155,6 +1158,7 @@
->  
->  smc_phy_configure_exit:
->  	spin_unlock_irq(&lp->lock);
-> +	lp->work_pending = 0;
->  }
->  
->  /*
-> @@ -1350,10 +1354,13 @@
->  	/*
->  	 * Reconfiguring the PHY doesn't seem like a bad idea here, but
->  	 * smc_phy_configure() calls msleep() which calls schedule_timeout()
-> -	 * which calls schedule().  Ence we use a work queue.
-> +	 * which calls schedule().  Hence we use a work queue.
->  	 */
-> -	if (lp->phy_type != 0)
-> -		schedule_work(&lp->phy_configure);
-> +	if (lp->phy_type != 0) {
-> +		if (schedule_work(&lp->phy_configure)) {
-> +			lp->work_pending = 1;
-> +		}
-> +	}
->  
->  	/* We can accept TX packets again */
->  	dev->trans_start = jiffies;
-> @@ -1537,7 +1544,18 @@
->  	smc_shutdown(dev);
->  
->  	if (lp->phy_type != 0) {
-> -		flush_scheduled_work();
-> +		/* We need to ensure that no calls to
-> +		   smc_phy_configure are pending. 
-> +
-> +		   flush_scheduled_work() cannot be called because we
-> +		   are running with the netlink semaphore held (from
-> +		   devinet_ioctl()) and the pending work queue
-> +		   contains linkwatch_event() (scheduled by
-> +		   netif_carrier_off() above). linkwatch_event() also
-> +		   wants the netlink semaphore.
-> +		*/
-> +		while(lp->work_pending)
-> +			schedule();
->  		smc_phy_powerdown(dev, lp->mii.phy_id);
->  	}
->  
-> @@ -1904,7 +1922,7 @@
->  	 * Locate the phy, if any.
->  	 */
->  	if (lp->version >= (CHIP_91100 << 4))
-> -		smc_detect_phy(dev);
-> +		smc_phy_detect(dev);
->  
->  	/* Set default parameters */
->  	lp->msg_enable = NETIF_MSG_LINK;
-> 
-> 
-> -- 
-> Ian Campbell, Senior Design Engineer
->                                         Web: http://www.arcom.com
-> Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
-> Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
-> 
-> 
-> _____________________________________________________________________
-> The message in this transmission is sent in confidence for the attention of the addressee only and should not be disclosed to any other party. Unauthorised recipients are requested to preserve this confidentiality. Please advise the sender if the addressee is not resident at the receiving end.  Email to and from Arcom is automatically monitored for operational and lawful business reasons.
-> 
-> This message has been virus scanned by MessageLabs.
-> 
+> On Wed, 24 Nov 2004 13:58:58 -0800, Wenping  Luo wrote:
+> > I used crossed ethernet cable to connect one ethernet NIC to a Via Rhine
+III
+> > VT6105M NIC. I set the speed mode of Rhine Nic to be "auto" whereas I
+forced
+> > the peer NIC to be "100 Full Duplex". The Rhine NIC connected in mode of
+> > "100 Half Duplex" , instead of "100 Full Duplex", after detecting the
+peer.
+> >
+> > I searched the Internet and I found another reported for similiar issue
+at
+> > http://lunar-linux.org/pipermail/lunar/2004-April/003894.html. However,
+> > there is no answer for this issue yet.
+>
+> Does it work with 2.6.10-rc? Do other card/driver combinations correctly
+> detect the setting of your peer NIC?
+Both of my NICs are running in 2.4.25. What I found out is that the Rhine
+that sets to be "100 full duplex" doesn't send the advertisement correctly.
+I made a fix to set the advertisement register accordingly and then to turn
+on the autonegotiation bit. It worked for Via Rhine III.
 
+It seems other NIC, like e100(Intel Pro 100M), has similiar issue. However,
+the similiar fix doesn't work for it.
 
-Nicolas
+I don't have 2.6.10-rc installed so that I don't know. But I looked at the
+patch related to via-rhine.c. It doesn't look like it has been fixed.
+>
+> Roger
+

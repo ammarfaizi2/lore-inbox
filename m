@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVCZD6s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVCZEBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVCZD6s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:58:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVCZD6a
+	id S261990AbVCZEBl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 23:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVCZEBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:58:30 -0500
-Received: from 201-15-164-252.nhoce700-nrp6.dsl.brasiltelecom.net.br ([201.15.164.252]:58121
-	"HELO [201.15.164.252]") by vger.kernel.org with SMTP
-	id S261952AbVCZD57 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 22:57:59 -0500
-Date: Fri, 25 Mar 2005 13:59:28 +0000
-From: Dwight Bray <vohurazof@sammail.com>
-X-Mailer: The Bat! (v3.01 RC4) UNREG / XKZ8NUV5OBGQAT
-Reply-To: Dwight Bray <vohurazof@sammail.com>
-X-Priority: 3 (Normal)
-Message-ID: <0008744928.38899425752841041@[201.15.164.252]>
-To: linux-kernel@vger.kernel.org
-Subject: 9HY: A custom Logo that expresses your company!
-MIME-Version: 1.0
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 8bit
+	Fri, 25 Mar 2005 23:01:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:52106 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261962AbVCZD7u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 22:59:50 -0500
+Date: Fri, 25 Mar 2005 19:58:46 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Hua Zhong <hzhong@cisco.com>
+Cc: "'Chris Wright'" <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: Linux 2.6.11.6
+Message-ID: <20050326035846.GX30522@shell0.pdx.osdl.net>
+References: <20050326034142.GW30522@shell0.pdx.osdl.net> <200503260347.AXR12129@mira-sjc5-e.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503260347.AXR12129@mira-sjc5-e.cisco.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your business lacks visual identity?
+* Hua Zhong (hzhong@cisco.com) wrote:
+>  >  int bt_sock_unregister(int proto)
+> >  {
+> > -	if (proto >= BT_MAX_PROTO)
+> > +	if (proto < 0 || proto >= BT_MAX_PROTO)
+> >  		return -EINVAL;
+> 
+> Just curious: would it be better to say
+> 
+> if ((unsigned int)proto >= BT_MAX_PTORO)
 
-Marketing efforts falling short?
+the first check makes it painfully obvious what it's checking.  i think
+it's a wash (-O2 seems to collapse to the same check), with a win for
+readability.
 
-Invisible among a sea of competitors?
-
-You're on the right track for a solution - keep reading...
-Our professional designers specialize in the creation of custom logos and business/corporate identities. Our design needs to be seen only once to gain customer attention and recognition. With one of our unique, eye-catching mages you'll never have to introduce yourself twice!
-We promise fast turnaround and 100% customer satisfaction. Choose from as any design ideas as necessary, select as many colors as you wish, order any modifications you like, and request any format. Our prices are affordable for any size of business, and get this: there are no hidden fees.
-
-Follow the link below to browse our portfolio and check out our Sweet Deals.
-Wipe the "in" from "invisible" in just a few days - with us!
-http://www.innerlogos.com/
-
-Sincerely,
-Dwight Bray
-
-
-
-
-======
-If you want to be removed, click here:
-http://www.innerlogos.com/u.php
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,71 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275968AbRI1HyY>; Fri, 28 Sep 2001 03:54:24 -0400
+	id <S275970AbRI1H4o>; Fri, 28 Sep 2001 03:56:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275969AbRI1HyO>; Fri, 28 Sep 2001 03:54:14 -0400
-Received: from mailfarm.ipfnet.net ([195.211.129.222]:18954 "EHLO
-	mailfarm.ipfnet.net") by vger.kernel.org with ESMTP
-	id <S275968AbRI1HyI>; Fri, 28 Sep 2001 03:54:08 -0400
-Date: Fri, 28 Sep 2001 09:54:29 +0200 (MET DST)
-From: Thomas Glanzmann <tg@ipfnet.net>
-X-X-Sender: sithglan@cssun.rrze.uni-erlangen.de
-To: Jesper Juhl <juhl@eisenstein.dk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM killer
-In-Reply-To: <3BB427F1.5070403@eisenstein.dk>
-Message-ID: <Pine.GSO.4.40.0109280950410.20899-100000@cssun.rrze.uni-erlangen.de>
+	id <S275969AbRI1H4e>; Fri, 28 Sep 2001 03:56:34 -0400
+Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:44044
+	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
+	id <S275970AbRI1H43>; Fri, 28 Sep 2001 03:56:29 -0400
+From: Tim Hockin <thockin@hockin.org>
+Message-Id: <200109280738.f8S7cQr17973@www.hockin.org>
+Subject: Re: copy_from_user() overhead
+To: rmurali@iastate.edu (Murali Ravirala)
+Date: Fri, 28 Sep 2001 00:38:26 -0700 (PDT)
+Cc: linux-kernel@vger.kernel.org, rmurali@iastate.edu
+In-Reply-To: <200109280657.f8S6vbBG010382@mailhub-2.iastate.edu> from "Murali Ravirala" at Sep 28, 2001 01:57:40 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-have look at the following posting some time ago:
-http://uwsg.iu.edu/hypermail/linux/kernel/0003.2/0303.html
+> We are interested in finding out the overhead in kernel->user buffer copy and
+> vice-versa for disk reads and network writes resp. in copy_from_user() and
+> copy_to_user() calls. Are there any quantitative data available for this? We
+> plan to eliminate this overhead, if significant, in our integrated disk-read and
+> network-write architecture. Any pointers/references related to this type of
+> work?
 
-greetings Thomas,
-
---
-
-
-On Fri, 28 Sep 2001, Jesper Juhl wrote:
-
-> Alan Cox wrote:
->
-> >>> shed:~# echo 0 >/proc/sys/vm/overcommit_memory
-> >>> shed:~# cat /proc/sys/vm/overcommit_memory
-> >>> 0
-> >>
-> >> ahh, I see. Well, you live and learn ;)
-> >>
-> >> I think I've got to do my research better before writing mails to lkml.
-> >
-> >
-> > In part.
-> >
-> > The option you want is '2' which isnt implemented 8)
-> >
-> > 0	-	I don't care
-> > 1	-	Use heuristics to guesstimate avoiding overcommit
->
->
-> Thank you for that info :)
->
-> I wrote a small test program that allocated memory in increasingly
-> larger chunks, and I saw no major difference with a setting of "0" or
-> "1", it seemed both settings allowed my program to allocate exactely the
-> same amount of mem before ENOMEM was returned (I can send the test
-> program on request).
->
-> I'll be looking forward to a setting of "2" becomming available :)
->
->
-> Best regards
-> Jesper Juhl
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Perhaps you are thinking of something like IO-Lite?  Has anyone in the
+linux world ever implemented IO-Lite?  Sure would be interesting to have
+essentially zero-copy file operations..

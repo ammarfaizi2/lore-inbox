@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTHJLMh (ORCPT <rfc822;willy@w.ods.org>);
+	id S263637AbTHJLMh (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Aug 2003 07:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTHJLLM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTHJLK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 07:11:12 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:39180 "EHLO
+	Sun, 10 Aug 2003 07:10:59 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:37900 "EHLO
 	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S263638AbTHJLKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 07:10:04 -0400
-Date: Sun, 10 Aug 2003 20:10:13 +0900 (JST)
-Message-Id: <20030810.201013.124121938.yoshfuji@linux-ipv6.org>
+	id S263637AbTHJLKC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 07:10:02 -0400
+Date: Sun, 10 Aug 2003 20:10:11 +0900 (JST)
+Message-Id: <20030810.201011.34756119.yoshfuji@linux-ipv6.org>
 To: davem@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 9/9] convert fs/jbd to virt_to_pageoff()
+Subject: [PATCH 8/9] convert drivers/usb to virt_to_pageoff()
 From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
 	<yoshfuji@linux-ipv6.org>
 In-Reply-To: <20030810020444.48cb740b.davem@redhat.com>
@@ -33,47 +33,40 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[9/9] convert fs/jbd to virt_to_pageoff().
+[8/9] convert drivers/usb to virt_to_pageoff().
 
-Index: linux-2.6/fs/jbd/journal.c
+Index: linux-2.6/drivers/usb/misc/usbtest.c
 ===================================================================
-RCS file: /home/cvs/linux-2.5/fs/jbd/journal.c,v
-retrieving revision 1.62
-diff -u -r1.62 journal.c
---- linux-2.6/fs/jbd/journal.c	11 Jul 2003 07:04:11 -0000	1.62
-+++ linux-2.6/fs/jbd/journal.c	10 Aug 2003 08:40:54 -0000
-@@ -278,9 +278,6 @@
-  * Bit 1 set == buffer copy-out performed (kfree the data after IO)
-  */
+RCS file: /home/cvs/linux-2.5/drivers/usb/misc/usbtest.c,v
+retrieving revision 1.19
+diff -u -r1.19 usbtest.c
+--- linux-2.6/drivers/usb/misc/usbtest.c	1 Aug 2003 18:12:47 -0000	1.19
++++ linux-2.6/drivers/usb/misc/usbtest.c	10 Aug 2003 08:40:53 -0000
+@@ -271,7 +271,7 @@
  
--static inline unsigned long virt_to_offset(void *p) 
--{return ((unsigned long) p) & ~PAGE_MASK;}
--					       
- int journal_write_metadata_buffer(transaction_t *transaction,
- 				  struct journal_head  *jh_in,
- 				  struct journal_head **jh_out,
-@@ -318,10 +315,10 @@
- 	if (jh_in->b_frozen_data) {
- 		done_copy_out = 1;
- 		new_page = virt_to_page(jh_in->b_frozen_data);
--		new_offset = virt_to_offset(jh_in->b_frozen_data);
-+		new_offset = virt_to_pageoff(jh_in->b_frozen_data);
- 	} else {
- 		new_page = jh2bh(jh_in)->b_page;
--		new_offset = virt_to_offset(jh2bh(jh_in)->b_data);
-+		new_offset = virt_to_pageoff(jh2bh(jh_in)->b_data);
- 	}
+ 		/* kmalloc pages are always physically contiguous! */
+ 		sg [i].page = virt_to_page (buf);
+-		sg [i].offset = ((unsigned) buf) & ~PAGE_MASK;
++		sg [i].offset = virt_to_pageoff (buf);
+ 		sg [i].length = size;
  
- 	mapped_data = kmap_atomic(new_page, KM_USER0);
-@@ -358,7 +355,7 @@
- 		   address kmapped so that we can clear the escaped
- 		   magic number below. */
- 		new_page = virt_to_page(tmp);
--		new_offset = virt_to_offset(tmp);
-+		new_offset = virt_to_pageoff(tmp);
- 		done_copy_out = 1;
- 	}
- 
+ 		if (vary) {
+Index: linux-2.6/drivers/usb/storage/sddr09.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/usb/storage/sddr09.c,v
+retrieving revision 1.23
+diff -u -r1.23 sddr09.c
+--- linux-2.6/drivers/usb/storage/sddr09.c	17 Jul 2003 22:58:33 -0000	1.23
++++ linux-2.6/drivers/usb/storage/sddr09.c	10 Aug 2003 08:40:54 -0000
+@@ -1127,7 +1127,7 @@
+ 		char *vaddr = kmalloc(alloc_req, GFP_NOIO);
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,3)
+ 		sg[i].page = virt_to_page(vaddr);
+-		sg[i].offset = ((unsigned long)vaddr & ~PAGE_MASK);
++		sg[i].offset = virt_to_pageoff(vaddr);
+ #else
+ 		sg[i].address = vaddr;
+ #endif
 
 -- 
 Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>

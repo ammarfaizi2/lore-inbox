@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267208AbTAAImu>; Wed, 1 Jan 2003 03:42:50 -0500
+	id <S267211AbTAAIuL>; Wed, 1 Jan 2003 03:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267211AbTAAImu>; Wed, 1 Jan 2003 03:42:50 -0500
-Received: from eriador.apana.org.au ([203.14.152.116]:275 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S267208AbTAAImt>; Wed, 1 Jan 2003 03:42:49 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: marekm@amelek.gda.pl (Marek Michalkiewicz), linux-kernel@vger.kernel.org
-Subject: Re: Recent 2.4.x PPP bug? (PPPIOCDETACH file->f_count=3)
-In-Reply-To: <E18TOnK-0007Tp-00@alf.amelek.gda.pl>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.20-686-smp (i686))
-Message-Id: <E18TeaM-0006MC-00@gondolin.me.apana.org.au>
-Date: Wed, 01 Jan 2003 19:50:46 +1100
+	id <S267212AbTAAIuL>; Wed, 1 Jan 2003 03:50:11 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:33733 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267211AbTAAIuK>; Wed, 1 Jan 2003 03:50:10 -0500
+Message-ID: <3E12AD96.1070503@iku-ag.de>
+Date: Wed, 01 Jan 2003 09:57:58 +0100
+From: Kurt Huwig <k.huwig@iku-ag.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Aaron Lehmann <aaronl@vitelus.com>
+CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org, ronsse@elis.rug.ac.be
+Subject: Re: Oops with 2.4.20 when accessing SVCDs
+References: <3E11B976.3010306@iku-ag.de> <200301010150.13274.m.c.p@wolk-project.de> <3E126B33.7000807@iku-ag.de> <20030101065733.GD3174@vitelus.com>
+In-Reply-To: <3E11B976.3010306@iku-ag.de>
+X-Enigmail-Version: 0.70.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marek Michalkiewicz <marekm@amelek.gda.pl> wrote:
-> 
-> Starting with recent 2.4.19 and 2.4.20 kernels, when any
-> one (or both) of my two permanent PPP connections goes
-> down (usually due to the ISP rebooting their equipment),
-> quite often something bad happens.
-> 
-> Dec 31 16:31:52 alf kernel: PPPIOCDETACH file->f_count=3
-> Dec 31 16:31:52 alf kernel: PPPIOCDETACH file->f_count=3
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't know the cause of this, but this patch should let
-pppd continue to work:
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-Index: sys-linux.c
-===================================================================
-RCS file: /var/cvs/snwb/packages/ppp/pppd/sys-linux.c,v
-retrieving revision 1.1.1.1
-retrieving revision 1.6
-diff -u -r1.1.1.1 -r1.6
---- sys-linux.c	2002/07/25 03:42:01	1.1.1.1
-+++ sys-linux.c	2002/10/14 01:53:01	1.6
-@@ -531,10 +531,21 @@
-     if (new_style_driver) {
- 	close(ppp_fd);
- 	ppp_fd = -1;
--	if (!looped && ifunit >= 0 && ioctl(ppp_dev_fd, PPPIOCDETACH) < 0)
--	    error("Couldn't release PPP unit: %m");
- 	if (!multilink)
- 	    remove_fd(ppp_dev_fd);
-+	if (!looped && ifunit >= 0 && ioctl(ppp_dev_fd, PPPIOCDETACH) < 0) {
-+	    int flags;
-+
-+	    error("Couldn't release PPP unit: %m");
-+	    close(ppp_dev_fd);
-+	    ppp_dev_fd = open("/dev/ppp", O_RDWR);
-+	    if (ppp_dev_fd < 0)
-+		fatal("Couldn't open /dev/ppp: %m");
-+	    flags = fcntl(ppp_dev_fd, F_GETFL);
-+	    if (flags == -1
-+		|| fcntl(ppp_dev_fd, F_SETFL, flags | O_NONBLOCK) == -1)
-+		warn("Couldn't set /dev/ppp to nonblock: %m");
-+	}
-     }
- }
- 
+Aaron Lehmann wrote:
+
+| On Wed, Jan 01, 2003 at 05:14:43AM +0100, Kurt Huwig wrote:
+|
+| >Without cdfs, I don't know how to access SVCDs ;-) Images of "normal"
+| >CDs work fine.
+|
+|
+| You could use a userspace solution, like vcdimager (and its vcdxrip
+| tool).
+
+vcdxrip works fine, so I guess it is the cdfs patch.
+
+
+Thanks,
+
+Kurt
+- --
+Kurt Huwig             iKu Systemhaus AG        http://www.iku-ag.de/
+Vorstand               Am Roemerkastell 4       Telefon 0681/96751-0
+k.huwig@iku-ag.de      66121 Saarbrücken        Telefax 0681/96751-66
+GnuPG 1024D/99DD9468 64B1 0C5B 82BC E16E 8940  EB6D 4C32 F908 99DD 9468
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+Eq2TTDL5CJndlGgRAnxvAJ9zG9q5jlMBZJVYuzMnM29DQEywLACdEqDc
+C5zRpfBndjYuFTfPP3f6qFU=
+=6b1x
+-----END PGP SIGNATURE-----
+

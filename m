@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264096AbRFFTIY>; Wed, 6 Jun 2001 15:08:24 -0400
+	id <S264099AbRFFTHo>; Wed, 6 Jun 2001 15:07:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264101AbRFFTIP>; Wed, 6 Jun 2001 15:08:15 -0400
-Received: from asteria.host4u.net ([216.71.64.118]:55049 "EHLO
-	asteria.host4u.net") by vger.kernel.org with ESMTP
-	id <S264096AbRFFTH7>; Wed, 6 Jun 2001 15:07:59 -0400
-Message-Id: <5.1.0.14.2.20010606120521.028dbc20@ansa.hostings.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 06 Jun 2001 12:11:12 -0700
-To: Sean Hunter <sean@dev.sportingbet.com>
-From: android <linux@ansa.hostings.com>
+	id <S264097AbRFFTHf>; Wed, 6 Jun 2001 15:07:35 -0400
+Received: from www.wen-online.de ([212.223.88.39]:47367 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S264096AbRFFTHU>;
+	Wed, 6 Jun 2001 15:07:20 -0400
+Date: Wed, 6 Jun 2001 21:06:52 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Derek Glidden <dglidden@illusionary.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
 Subject: Re: Break 2.4 VM in five easy steps
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010606112207.H15199@dev.sportingbet.com>
-In-Reply-To: <Pine.SOL.3.96.1010606103559.20297A-100000@draco.cus.cam.ac.uk>
- <20010606095431.C15199@dev.sportingbet.com>
- <Pine.SOL.3.96.1010606103559.20297A-100000@draco.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <m1ofs15tm0.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0106062102060.404-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6 Jun 2001, Eric W. Biederman wrote:
 
->Furthermore, I am not demanding anything, much less "priority fixing"
->for this bug. Its my personal opinion that this is the most critical bug
->in the 2.4 series, and if I had the time and skill, this is what I would
->be working on. Because I don't have the time and skill, I am perfectly
->happy to wait until those that do fix the problem. To say it isn't a
->problem because I can buy more disk is nonsense, and its that sort of
->thinking that leads to constant need to upgrade hardware in the
->proprietary OS world.
+> Derek Glidden <dglidden@illusionary.com> writes:
 >
->Sean
+>
+> > The problem I reported is not that 2.4 uses huge amounts of swap but
+> > that trying to recover that swap off of disk under 2.4 can leave the
+> > machine in an entirely unresponsive state, while 2.2 handles identical
+> > situations gracefully.
+> >
+>
+> The interesting thing from other reports is that it appears to be kswapd
+> using up CPU resources.  Not the swapout code at all.  So it appears
+> to be a fundamental VM issue.  And calling swapoff is just a good way
+> to trigger it.
+>
+> If you could confirm this by calling swapoff sometime other than at
+> reboot time.  That might help.  Say by running top on the console.
 
-This would reflect the Microsoft way of programming:
-If there's a bug in the system, don't fix it, but upgrade your hardware.
-Why do you think the requirements for Windows is so great?
-Most of their code is very inefficient. I'm sure they programmed
-their kernel in Visual Basic. The worst part is that they get
-paid to do this! I program in Linux because I don't want to be
-associated with that mindset that made Microsoft such a [fill in the blank].
-As for the 2.4 VM problem, what are you doing with your machine that's
-making it use up so much memory? I have several processes running
-on mine all the time, including a slew in X, and I have yet to see
-significant swap activity.
+The thing goes comatose here too. SCHED_RR vmstat doesn't run, console
+switch is nogo...
 
-                                           -- Ted
+After running his memory hog, swapoff took 18 seconds.  I hacked a
+bleeder valve for dead swap pages, and it dropped to 4 seconds.. still
+utterly comatose for those 4 seconds though.
 
-P.S. My faithful Timex Sinclair from the 80's never had swap :-)
+	-Mike
 

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVAELie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVAELlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbVAELie (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 06:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVAELie
+	id S262344AbVAELlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 06:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVAELlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 06:38:34 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:5777 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262346AbVAELhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 06:37:04 -0500
-Date: Wed, 5 Jan 2005 11:37:01 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Gildas LE NADAN <gildas.le-nadan@inha.fr>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: unkillable processes using samba, xfs and lvm2 snapshots (k 2.6.10)
-Message-ID: <20050105113701.GA31391@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Gildas LE NADAN <gildas.le-nadan@inha.fr>,
-	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-References: <41D14251.4030704@inha.fr>
-Mime-Version: 1.0
+	Wed, 5 Jan 2005 06:41:36 -0500
+Received: from [194.230.129.26] ([194.230.129.26]:47410 "EHLO wine.dyndns.org")
+	by vger.kernel.org with ESMTP id S262344AbVAELlN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 06:41:13 -0500
+To: Mike Hearn <mh@codeweavers.com>
+Cc: Thomas Sailer <sailer@scs.ch>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, wine-devel@winehq.com,
+       mingo@elte.hu
+Subject: Re: ptrace single-stepping change breaks Wine
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	<200412311413.16313.sailer@scs.ch>
+	<1104499860.3594.5.camel@littlegreen>
+	<200412311651.12516.sailer@scs.ch>
+	<1104873315.3557.87.camel@littlegreen>
+From: Alexandre Julliard <julliard@winehq.org>
+Date: 05 Jan 2005 12:40:33 +0100
+In-Reply-To: <1104873315.3557.87.camel@littlegreen>
+Message-ID: <874qhwje8e.fsf@wine.dyndns.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D14251.4030704@inha.fr>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 28, 2004 at 12:24:01PM +0100, Gildas LE NADAN wrote:
-> Hi,
-> 
-> I experience hangs on samba processes on a filer using xfs over lvm2 as 
-> data partitions, when there is active snapshots of the xfs partitions.
-> 
-> I have a clone of the production server (same software, same hardware) 
-> where the situation can be reproduced perfectly.
-> 
-> Testings showed that the result was the same, whether the snapshots were 
-> mounted or not : smbd processes are locked and unkillable while the 
-> machine is normaly working otherwise, except software reboot is 
-> impossible and hardware reset is needed.
-> 
-> I noticed Brad Fitzpatrick's case in kernel 2.6.10 changelog 
-> (http://lkml.org/lkml/2004/11/14/98) and tested kernel 2.6.10 today 
-> without success.
-> 
-> Configuration is the following :
-> - supermicro m/b with dual Xeon 2,8Ghz (SMT is active)
-> - 1 GB ram,
-> - adaptec u320 raid controler
-> - kernel 2.6.10
-> - debian sarge
-> - samba 3
-> - LVM2
-> - XFS with quota turned on
-> 
-> All software are from debian sarge packages, except the kernel.
-> 
-> I'm not able to determine if the problem is more xfs, device mapper or 
-> samba related, and was not able to do extensive testings (using a 
-> different filesystem, testing with a different daemon, etc...), but 
-> SMT/SMP testings showed that this is not a SMP/SMT related problem.
-> 
-> I've compiled the kernel with the debugging options, so I might provide 
-> additional informations if needed as in Brad's case.
+Mike Hearn <mh@codeweavers.com> writes:
 
-I'll try to reproduce your problems soon.
+> - Another possibility would be to create a new mmap API that lets
+>   us ask for exactly what we want, instead of second-guessing the
+>   kernel. I don't know exactly what sort of an API Alexandre has in
+>   mind here, perhaps he could describe it.
 
+Probably the easiest would be to have a way for an app to specify the
+mmap range it wants. So instead of having the kernel try to guess from
+brk and stack ulimit, both of which are meaningless for Win32 apps, we
+could set the range from "end of win32 exe" to 0x7ff0000. This would
+also avoid the need to preallocate everything above 0x80000000 that we
+currently do and that plays havoc with address space limits.
+
+-- 
+Alexandre Julliard
+julliard@winehq.org

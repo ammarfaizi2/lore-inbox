@@ -1,104 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVBVMSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVBVMYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVBVMSm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 07:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVBVMQh
+	id S262297AbVBVMYE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 07:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbVBVMYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 07:16:37 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:56014 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262287AbVBVMME (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 07:12:04 -0500
-Date: Tue, 22 Feb 2005 13:12:03 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrew Morton <akpm@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: [Patch 3/6] Bind Mount Extensions 0.06
-Message-ID: <20050222121203.GD3682@mail.13thfloor.at>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Tue, 22 Feb 2005 07:24:04 -0500
+Received: from titan.server-plant.co.uk ([80.71.3.50]:44435 "EHLO
+	titan.server-plant.co.uk") by vger.kernel.org with ESMTP
+	id S262288AbVBVMXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 07:23:39 -0500
+Message-ID: <5982.195.212.29.67.1109074991.squirrel@195.212.29.67>
+In-Reply-To: <421B1F12.7050601@gmx.de>
+References: <20041206185416.GE7153@smtp.west.cox.net>
+    <Pine.SOC.4.61.0502221031230.6097@math.ut.ee>
+    <421B1F12.7050601@gmx.de>
+Date: Tue, 22 Feb 2005 12:23:11 -0000 (GMT)
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII 
+     Utah) PCI IRQ map
+From: "Leigh Brown" <leigh@solinno.co.uk>
+To: "Sebastian Heutling" <sheutlin@gmx.de>
+Cc: "Meelis Roos" <mroos@linux.ee>, "Tom Rini" <trini@kernel.crashing.org>,
+       "Sven Hartge" <hartge@ds9.gnuu.de>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Christian Kujau" <evil@g-house.de>, linuxppc-dev@ozlabs.org
+User-Agent: SquirrelMail/1.4.3a-0.1.7.x
+X-Mailer: SquirrelMail/1.4.3a-0.1.7.x
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sebastian Heutling said:
+> Meelis Roos wrote:
+>
+>>> The PCI IRQ map for the old Motorola PowerStackII (Utah) boards was
+>>> incorrect, but this breakage wasn't exposed until 2.5, and finally
+>>> fixed
+>>> until recently by Sebastian Heutling <sheutlin@gmx.de>.
+>>
+>>
+>> Yesterday I finally got around to testing it. It seems the patch has
+>> been applied in Linus's tree so I downloaded the latest BK and tried it.
+>>
+>> Still does not work for me but this time it's different. Before the
+>> patch SCSI worked fine but PCI NICs caused hangs. Now I can't test PCI
+>> NICs because even the onboard 53c825 SCSI hangs - seems it gets no
+>> interrupts.
+>>
+>> It detects the HBA, tries device discovery, gets a timeout, ABORT,
+>> timeout, TARGET RESET, timeout, BUS RESET, timeout, HOST RESET and
+>> there it hangs.
+>>
+>> Does it work for anyone else on Powerstack II Pro4000 (Utah)?
+>>
+> It does work in 2.6.8 using backported patches (e.g. the debian 2.6.8
+> kernel). But it doesn't work above that version because of other patches
+> in arch/ppc/platforms/prep_pci.c and arch/ppc/platforms/prep_setup.c
+> (made by Tom Rini?). I couldn't find out what exactly is causing this
+> problem yet (because lack of time and the fact that my Powerstack is
+> used as a router).
 
+Ah, this could well be my fault.  Those patches were to improve support
+of IBM RS/6000 PReP boxes.  Do those machines have residual data?  If
+so, could anyone who has one send me the contents of /proc/residual?
 
-;
-; Bind Mount Extensions
-;
-; This part propagates the vfsmount into chown_common() to allow
-; vfsmount based checks there, and verifies that the vfsmount
-; isn't RDONLY (in chown_common)
-;
-; Copyright (C) 2003-2005 Herbert Pötzl <herbert@13thfloor.at>
-;
-; Changelog:
-;
-;   0.01  - broken out part from bme0.05
-;
-; this patch is free software; you can redistribute it and/or
-; modify it under the terms of the GNU General Public License
-; as published by the Free Software Foundation; either version 2
-; of the License, or (at your option) any later version.
-;
-; this patch is distributed in the hope that it will be useful,
-; but WITHOUT ANY WARRANTY; without even the implied warranty of
-; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-; GNU General Public License for more details.
-;
+Also, a full boot log when working and failing would be cool.
 
-diff -NurpP --minimal linux-2.6.11-rc4-bme0.06-bm0.01-at0.01/fs/open.c linux-2.6.11-rc4-bme0.06-bm0.01-at0.01-cc0.01/fs/open.c
---- linux-2.6.11-rc4-bme0.06-bm0.01-at0.01/fs/open.c	2005-02-13 17:16:58 +0100
-+++ linux-2.6.11-rc4-bme0.06-bm0.01-at0.01-cc0.01/fs/open.c	2005-02-19 06:31:43 +0100
-@@ -661,7 +661,8 @@ out:
- 	return error;
- }
- 
--static int chown_common(struct dentry * dentry, uid_t user, gid_t group)
-+static int chown_common(struct dentry *dentry, struct vfsmount *mnt,
-+	uid_t user, gid_t group)
- {
- 	struct inode * inode;
- 	int error;
-@@ -673,7 +674,7 @@ static int chown_common(struct dentry * 
- 		goto out;
- 	}
- 	error = -EROFS;
--	if (IS_RDONLY(inode))
-+	if (IS_RDONLY(inode) || MNT_IS_RDONLY(mnt))
- 		goto out;
- 	error = -EPERM;
- 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
-@@ -703,7 +704,7 @@ asmlinkage long sys_chown(const char __u
- 
- 	error = user_path_walk(filename, &nd);
- 	if (!error) {
--		error = chown_common(nd.dentry, user, group);
-+		error = chown_common(nd.dentry, nd.mnt, user, group);
- 		path_release(&nd);
- 	}
- 	return error;
-@@ -716,7 +717,7 @@ asmlinkage long sys_lchown(const char __
- 
- 	error = user_path_walk_link(filename, &nd);
- 	if (!error) {
--		error = chown_common(nd.dentry, user, group);
-+		error = chown_common(nd.dentry, nd.mnt, user, group);
- 		path_release(&nd);
- 	}
- 	return error;
-@@ -730,7 +731,7 @@ asmlinkage long sys_fchown(unsigned int 
- 
- 	file = fget(fd);
- 	if (file) {
--		error = chown_common(file->f_dentry, user, group);
-+		error = chown_common(file->f_dentry, file->f_vfsmnt, user, group);
- 		fput(file);
- 	}
- 	return error;

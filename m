@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSIWSZY>; Mon, 23 Sep 2002 14:25:24 -0400
+	id <S261371AbSIWS0q>; Mon, 23 Sep 2002 14:26:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261366AbSIWSZX>; Mon, 23 Sep 2002 14:25:23 -0400
-Received: from mail106.mail.bellsouth.net ([205.152.58.46]:41766 "EHLO
-	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S261365AbSIWSZX>; Mon, 23 Sep 2002 14:25:23 -0400
-Date: Mon, 23 Sep 2002 14:30:29 -0400 (EDT)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
-To: linux-kernel@vger.kernel.org
-cc: tytso@rsts-11.mit.edu
-Subject: [2.5.38] Warning: null TTY for (88:##) in tty_fasync
-Message-ID: <Pine.LNX.4.43.0209231419070.5735-100000@morpheus>
+	id <S261372AbSIWS0p>; Mon, 23 Sep 2002 14:26:45 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:899 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261371AbSIWS0n>; Mon, 23 Sep 2002 14:26:43 -0400
+Date: Mon, 23 Sep 2002 14:34:27 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH] LTT for 2.5.37 2/9: Trace driver
+In-Reply-To: <20020922003837.A35@toy.ucw.cz>
+Message-ID: <Pine.LNX.3.95.1020923142959.6231A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are these cause for concern?
+On Sun, 22 Sep 2002, Pavel Machek wrote:
 
-Sep 23 14:16:56 razor kernel: Warning: null TTY for (88:01) in tty_fasync
-Sep 23 14:16:56 razor kernel: Warning: null TTY for (88:00) in tty_fasync
-Sep 23 14:24:30 razor kernel: Warning: null TTY for (88:02) in tty_fasync
+> Hi!
+> 
+> > +/*  Driver */
+> > +static int		sMajorNumber;		/* Major number of the tracer */
+> > +static int		sOpenCount;		/* Number of times device is open */
+> > +/*  Locking */
+> 
+> Why *s*OpenCount? Some creeping infection by hungarian notation?
+> 
 
-I see that they can come from drivers/char/tty_io.c:
-     "Warning: null TTY for (%s) in %s\n";
+int YesItLooksAsThoughSomeOfThisHasCreptIntoTheKernelAsWell = TRUE;
 
-I'm able to reproduce these at will.
+Methinks it started in a BusLogic driver and wasn't stamped out
+before it spread and infected everything else!
 
-Linux version 2.5.38 (bwindle@razor) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 Mon Sep 23 10:07:19 EST 2002
-
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.19
-e2fsprogs              1.27
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.12
-
-
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

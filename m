@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbUBYHDu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 02:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262639AbUBYHDu
+	id S262639AbUBYHIH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 02:08:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbUBYHIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 02:03:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54422 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262643AbUBYHDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 02:03:49 -0500
-Date: Tue, 24 Feb 2004 23:03:18 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: dsw@gelato.unsw.edu.au, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [BUG] 2.6.3 Slab corruption: errors are triggered when memory
- exceeds 2.5GB (correction)
-Message-Id: <20040224230318.19a0e6b9.davem@redhat.com>
-In-Reply-To: <403C3F04.20601@colorfullife.com>
-References: <403AF155.1080305@colorfullife.com>
-	<20040223225659.4c58c880.akpm@osdl.org>
-	<403B8C78.2020606@colorfullife.com>
-	<20040225005804.GE18070@cse.unsw.EDU.AU>
-	<403C3F04.20601@colorfullife.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 25 Feb 2004 02:08:07 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:41221 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262639AbUBYHIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 02:08:04 -0500
+Date: Wed, 25 Feb 2004 08:00:19 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Len Brown <len.brown@intel.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: [RFC] ACPI power-off on P4 HT
+Message-ID: <20040225070019.GA30971@alpha.home.local>
+References: <1076145024.8687.32.camel@dhcppc4> <20040208082059.GD29363@alpha.home.local> <20040208090854.GE29363@alpha.home.local> <20040214081726.GH29363@alpha.home.local> <1076824106.25344.78.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1076824106.25344.78.camel@dhcppc4>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Feb 2004 07:21:56 +0100
-Manfred Spraul <manfred@colorfullife.com> wrote:
+Hi Len & Marcelo,
 
-> 0x620 (1568) is behind the end of the actual eth frame. Who could modify 
-> that?
+as I previously said, the patch I sent which fixes the poweroff on my VAIO is
+not enough to shut down the supermicro P4 HT. So I borrowed some code from
+machine_restart() to try to :
+  - disable APIC  => was not enough, but I must retry on the VAIO
+  - stop the second CPU => was not enough either
+  - bounce on boot_cpu and stop the others => it did work.
 
-At the end of the SKB data area is where we keep struct skb_shared_info, something
-is messing with the SKB state after a free it appears.
+So I think that ACPI is not SMP-proof nor HT-proof on some hardware. My new
+problem is that I feel like the code I have included in acpi_power_off() to
+do this is a bit too much x86 specific, so I'd like to move this to
+arch/i386/kernel/process.c with all the rest, but I don't know how to cut
+this. I think that a general function such as machine_prepare_shutdown() or
+something like this would be useful and could be shared by both ACPI and
+machine_restart(). It would basically to everything that is needed in such
+a case :
+  - on SMP, bounce on boot_cpu, then halt the current CPU if != boot_cpu
+  - on SMP, stop all other CPUs
+  - on UP, disable IOAPIC
+  - disable local APIC
 
-And since it's turning the debugging value 0x6b to 0x6a it must be the
-"atomic_t dataref;" that is being mucked with.
+I suspect that this function would be useful for some suspend cases, but I'm
+not sure. My other problem is to know what we should do then with other
+arches. Create an identical function for everyone, or just call it from
+ACPI on CONFIG_X86, or even add a CONFIG_MACHINE_PREPARE_SHUTDOWN ?
+
+I need some feedback here. Any suggestions ?
+
+Regards,
+Willy
+

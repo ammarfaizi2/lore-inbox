@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264024AbTCUUbA>; Fri, 21 Mar 2003 15:31:00 -0500
+	id <S264035AbTCUUf6>; Fri, 21 Mar 2003 15:35:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264026AbTCUU3v>; Fri, 21 Mar 2003 15:29:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:39632 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264024AbTCUU3P>;
-	Fri, 21 Mar 2003 15:29:15 -0500
-Date: Fri, 21 Mar 2003 12:39:19 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [BUG] 2.5.65-mm3 kernel BUG at fs/ext3/super.c:1795!
-Message-Id: <20030321123919.0b8b1b86.akpm@digeo.com>
-In-Reply-To: <8765qchhgo.fsf@lapper.ihatent.com>
-References: <20030320235821.1e4ff308.akpm@digeo.com>
-	<8765qchhgo.fsf@lapper.ihatent.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S264034AbTCUUep>; Fri, 21 Mar 2003 15:34:45 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:38602 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP
+	id <S264031AbTCUUeM>; Fri, 21 Mar 2003 15:34:12 -0500
+Message-ID: <3E7B79D5.3060903@cox.net>
+Date: Fri, 21 Mar 2003 13:45:09 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: small devfs patch for 2.5.65, plan to replace /sbin/hotplug
+References: <20030321014048.A19537@baldur.yggdrasil.com>
+In-Reply-To: <20030321014048.A19537@baldur.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Mar 2003 20:39:15.0590 (UTC) FILETIME=[F0302260:01C2EFE9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Hoogerhuis <alexh@ihatent.com> wrote:
->
-> Andrew Morton <akpm@digeo.com> writes:
-> >
-> > [SNIP]
-> >
-> 
-> Disk I/O on my machine froze up during very light work after a few
-> hours, luckily I had a window open on another machine so I could do a
-> simple capture and save the info:
-> 
-> kernel BUG at fs/ext3/super.c:1795!
-> invalid operand: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<c018b522>]    Not tainted VLI
-> EFLAGS: 00010246
-> EIP is at ext3_write_super+0x36/0x94
-> eax: 00000000   ebx: c8834000   ecx: efb5904c   edx: efb59000
-> esi: efb59000   edi: c8834000   ebp: c8835ecc   esp: c8835ec0
-> ds: 007b   es: 007b   ss: 0068
-> Process pdflush (pid: 7853, threadinfo=c8834000 task=ed0a5880)
-> Stack: c8835ee4 00000287 efb5904c c8835ee4 c0153148 efb59000 00000077 51eb851f
->        c8835fcc c8835fa4 c0137fd0 c03892fc 007b9f47 007b168f 00000000 00000000
->        c8835ef4 00000000 00000001 00000000 00000001 00000000 00000053 00000000
-> Call Trace:
->  [<c0153148>] sync_supers+0xde/0xea
->  [<c0137fd0>] wb_kupdate+0x68/0x161
->  [<c0118985>] schedule+0x1a4/0x3ac
->  [<c01386e8>] __pdflush+0xdc/0x1d8
->  [<c01387e4>] pdflush+0x0/0x15
->  [<c01387f5>] pdflush+0x11/0x15
->  [<c0137f68>] wb_kupdate+0x0/0x161
->  [<c0108e69>] kernel_thread_helper+0x5/0xb
+Adam J. Richter wrote:
+> 	I believe that the only change in this version of devfs is
+> moving the code to invoke the user level devfs_helper program to a
+> separate file, fs/devfs/notify.c.  This change will simplify a future
+> code shrink inspired by David Brownell's suggesting that I think about
+> unifying hotplug with devfs.  In the future I would like to lift
+> fs/devfs/notify.c out of devfs so that the code that currently invokes
+> user level helpers for hot plug events can be replaced with two calls
+> to a renamed devfs_event() on
+> /sys/bus/<bustype>/devices/<bus#>/<whatever>, one for insertion and
+> one for removal.
 
-How on earth did you do that?
+Are you still considering smalldevfs for 2.6 inclusion? If not, then I'd like to 
+discuss with you (and Greg KH) the possibility of just eliminating devfs 
+entirely, and moving to a userspace version that is driven entirely by 
+/sbin/hotplug.
 
-sync_supers() does lock_super, then calls ext3_write_super.
+There are already adequate hotplug events generated in 2.5.65+ to create and 
+remove all necessary /dev entries, other than /dev/console (and that gets 
+created by the initramfs being unpacked). If the devfs concept of "devfs_only" 
+(no major/minor access to device drivers) is truly gone (as it appears to be), 
+then the userspace variant of devfs would be quite simple: process the hotplug 
+event and read the appropriate information out of sysfs to get the dev_t for the 
+device, then follow user-specified policies to create /dev entries.
 
-ext3_write_super() does a down_trylock() on sb->s_lock and goes BUG
-if it acquired the lock.
+Unless I'm missing something obvious, "devfs" could be just a synonym for a 
+specific tmpfs instance, with no built-in behavior at all. At initramfs unpack 
+time it would be mounted on /dev, /dev/console would be created, and then 
+/sbin/hotplug would create/remove entries as the drivers to their thing.
 
-So you've effectively done this:
-
-	down(&sem);
-	if (down_trylock(&sem))
-		BUG();
-
-This can only be a random memory scribble, a hardware bug or a
-preempt-related bug in down_trylock().
+When the real root filesystem gets mounted, devfs could then be mounted again on 
+the new /dev (just like devfs now) and everything's running smoothly.
 

@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266689AbUBQXjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 18:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUBQXjy
+	id S266626AbUBQXfM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbUBQXfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 18:39:54 -0500
-Received: from gate.crashing.org ([63.228.1.57]:60579 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266689AbUBQXjn (ORCPT
+	Tue, 17 Feb 2004 18:35:12 -0500
+Received: from gate.crashing.org ([63.228.1.57]:59299 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266626AbUBQXfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 18:39:43 -0500
-Subject: Radeon issue on x86
+	Tue, 17 Feb 2004 18:35:04 -0500
+Subject: Re: Linux 2.6.3-rc4 Massive strange corruption with new radeonfb
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
+To: Charles Johnston <cjohnston@networld.com>
 Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402171503150.2154@home.osdl.org>
-References: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-	 <20040217184543.GA18495@lsc.hu>
-	 <Pine.LNX.4.58.0402171107040.2154@home.osdl.org>
-	 <20040217200545.GP1308@fs.tum.de>
-	 <Pine.LNX.4.58.0402171214230.2154@home.osdl.org>
-	 <20040217225905.GQ1308@fs.tum.de>
-	 <Pine.LNX.4.58.0402171503150.2154@home.osdl.org>
+In-Reply-To: <40329B57.9060901@networld.com>
+References: <403274D2.4020407@networld.com>
+	 <1077055997.1076.23.camel@gaston>  <40329B57.9060901@networld.com>
 Content-Type: text/plain
-Message-Id: <1077061068.1080.46.camel@gaston>
+Message-Id: <1077060699.1078.38.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 10:37:49 +1100
+Date: Wed, 18 Feb 2004 10:31:39 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus !
 
-One of the issue I'm having with raeonfb on x86 is the need
-to retreive the panel informations out of the BIOS. My current
-algorithm is to try to retreive that from the PCI ROM of the
-video chip, and if I cannot find any, then look at the BIOS ROM
-image in low memory.
+> Ok, it worked fine with that line commented out.  I can switch vt's, be 
+> in X, etc. no problems.
 
-However, I got a few reports of that not working. Usually, on
-laptops, apparently, the PCI ROM doesn't exist and it can all
-be found in the low memory image (I suppose the video BIOS on
-these is hidden somewhere with the main BIOS and copied to RAM
-at aboot). BUT, some laptops like some Dell inspirons will show
-a valid PCI ROM (valid signature) on the video chip, though
-this ROM appear to not contain any useable panel information
-table :( However, on these, the RAM image do seem to contain
-the table... So I would need to reverse my algorithm and
-default to the RAM BIOS on laptops at least...
+Can you send me the dmesg log still please ?
 
-The problem with the RAM image is that it's only there for the
-primary display chip that was initialized at boot. So I would
-need to "know" which PCI card is the primary display. That's all
-x86 architecture black magic, so I'd like your advice on the best
-way to do that. Also, that low memory region at c0000, what is
-it's exact format ? I currently copied a search routine from
-XFree but it does very little verifications in there, I'm a bit
-paranoid about picking the wrong thing...
+> The only issue I see is when I do a 'clear' on the vt, it doesn't clear 
+> the text, but blanks every nth row of pixels.  Switching vt's and back 
+> clears the screen.
 
-What do you suggest ?
+Does this happen even without using XFree ? There is a known problem
+with clears when switching _from_ XFree... I'm working on a fix.
 
-Ben.
+> There are also a few rows of garbage pixels at the bottom that linger 
+> across vt switches.
+
+Yes, same as above afaik
 
 

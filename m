@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267550AbUG3AI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267562AbUG3ALN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267550AbUG3AI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 20:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267555AbUG3AIZ
+	id S267562AbUG3ALN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 20:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267535AbUG3AJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 20:08:25 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:59818 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S267550AbUG3AFb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 20:05:31 -0400
-Date: Thu, 29 Jul 2004 17:02:16 -0700
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Rajesh Shah <rajesh.shah@intel.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Christoph Hellwig <hch@infradead.org>, Jesse Barnes <jbarnes@sgi.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] [RFC][PATCH] Change pcibus_to_cpumask() to pcibus_to_node()
-Message-ID: <20040729170215.A15930@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <1090887007.16676.18.camel@arrakis> <200407270822.43870.jbarnes@engr.sgi.com> <1090953179.18747.19.camel@arrakis> <200407271140.29818.jbarnes@engr.sgi.com> <1091059607.19459.69.camel@arrakis> <20040729100235.A11986@unix-os.sc.intel.com> <1091140066.4070.9.camel@arrakis>
+	Thu, 29 Jul 2004 20:09:14 -0400
+Received: from mail.homelink.ru ([81.9.33.123]:44719 "EHLO eltel.net")
+	by vger.kernel.org with ESMTP id S267551AbUG3AGr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 20:06:47 -0400
+Date: Fri, 30 Jul 2004 04:06:45 +0400
+From: Andrew Zabolotny <zap@homelink.ru>
+To: John Lenz <jelenz@students.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Backlight and LCD module patches [2]
+Message-Id: <20040730040645.169e4024.zap@homelink.ru>
+In-Reply-To: <20040729232547.GA4565@hydra.mshome.net>
+References: <20040617223517.59a56c7e.zap@homelink.ru>
+	<20040725215917.GA7279@hydra.mshome.net>
+	<20040728221141.158d8f14.zap@homelink.ru>
+	<20040729232547.GA4565@hydra.mshome.net>
+Organization: home
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
+ epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
+ rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1091140066.4070.9.camel@arrakis>; from colpatch@us.ibm.com on Thu, Jul 29, 2004 at 03:27:46PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 03:27:46PM -0700, Matthew Dobson wrote:
-> On Thu, 2004-07-29 at 10:02, Rajesh Shah wrote:
-> > On Wed, Jul 28, 2004 at 05:06:48PM -0700, Matthew Dobson wrote:
-> > > 
-> > > and even initialize it to a reasonable value (ie: NODE_MASK_ALL) since
-> > > there's the convenient pci_alloc_bus() function in drivers/pci/probe.c. 
-> > > The problem is where to put hooks for individual arches to put the
-> > > *real* nodemask in this field...  My only thought right now is to create
-> > > a per-arch callback function, arch_get_pcibus_nodemask() or something,
-> > > and use the value it returns to populate pci_bus->nodemask.  We would
-> > > have to call this function anywhere a struct pci_bus is allocated, and
-> > > probably pass along the PCI bus number so the arch could determine which
-> > > nodes it belongs to.  Would that work for everyone that cares?  We could
-> > 
-> > With PCI root/p2p bridge hotplug, the code dealing with the
-> > hotplug (e.g. ACPI hotplug code) will have this information, not 
-> > arch specific code. How about having the PCI subsystem export
-> > an interface to set the nodemask, and have the arch or hotplug
-> > code call it to change the defaults? That way, pci_alloc_bus()
-> > simply sets the default and does not perform any callback.
-> > Does that work for everyone?
-> > 
-> 
-> Does the patch I just posted in this thread work for you?  You could
-> have ACPI define the get_pcibus_nodemask(bus) call, and all should work
-> fine...
-> 
-Yes, the patch you posted is fine. I was talking about the part
-that was not in the patch but mentioned above (arch callbacks).
-I'm working on ACPI based root/p2p bridge hotplug but am far from
-being done. I can post the patches to get/set nodemask later, when
-my work is farther along.
+On Thu, 29 Jul 2004 18:25:47 -0500
+John Lenz <jelenz@students.wisc.edu> wrote:
 
-Rajesh
+> Actually, now that I think about it a bit more, I think the  
+> lcd_properties->match function should take a device * as a paramater  
+> instead of a fb_info *.  Insead of passing the fb_info pointer to the  
+> match function, we really should be passing the actual device  
+> structure.  For example, in the pxafb driver, it would register the  
+> platform_device that it creates with either the class code (if  
+> class_match is used) or with the lcdbase code.  This way the lcd driver  
+> could examine the device * and look at for example which resources it  
+> used, which memory region it was using, etc. and make its decision.
+If you look here: http://lkml.org/lkml/2004/6/26/84 you can see that this is
+exactly what I was proposing minus your proposal for a more generic
+class device match function. I was imagining that it would happen this way:
+the framebuffer device during initialization calls lcd_find_device() and
+passes his own 'struct device' to it; then lcd_find_device calls the match
+function of every previously registered LCD device with this parameter. The
+first one that says 'match' is returned. Same about backlight.
+
+I don't see many reasons for a generic class match function. Last but not
+least the lcd_find_device() function is very small, so it will be a negligible
+gain but a lot of hassle (as you said, framebuffer drivers will have to be
+rewritten to not use the simple_class device class).
+
+--
+Greetings,
+   Andrew

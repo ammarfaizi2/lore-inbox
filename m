@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267269AbUHOXpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUHOXui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267269AbUHOXpP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 19:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267272AbUHOXpO
+	id S267259AbUHOXui (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 19:50:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267272AbUHOXuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 19:45:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40845 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267259AbUHOXo5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 19:44:57 -0400
-Message-ID: <411FF568.8030202@pobox.com>
-Date: Sun, 15 Aug 2004 19:44:40 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: new tool:  blktool
-References: <411FD744.2090308@pobox.com> <411FF170.9070700@rtr.ca> <411FF2FA.4000602@rtr.ca>
-In-Reply-To: <411FF2FA.4000602@rtr.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 15 Aug 2004 19:50:37 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:29396 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267259AbUHOXug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 19:50:36 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040815115649.GA26259@elte.hu>
+References: <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu>  <20040815115649.GA26259@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092613882.867.33.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 15 Aug 2004 19:51:23 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
-> Supplementary or Alternatively, all of the ATA device commands issued by 
-> hdparm
-> can be supported in a driver by simply implementing the HDIO_DRIVE_CMD
-> ioctl -- This is only a few lines of code in a typical SATA/SCSI driver,
-> and I could easily supply a patch to implement it in libata.
+On Sun, 2004-08-15 at 07:56, Ingo Molnar wrote:
+> i've uploaded the -P0 patch:
 > 
-> Sure it's old, looks clunky, but it is simple code that works
-> and is used by many more tools than just hdparm today.
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P0
+> 
+> those who had APIC (and USB, under SMP) problems under previous
+> versions, are the problems still present in -P0?
+>  
 
+The mlockall issue is still not resolved; however, I did manage to get a
+trace, which was probably not possible before because some higher
+latency but lower frequency event was overwriting /proc/latency_trace. 
+So, maybe mlockall does cause xruns by having many shorter, but long
+enough to be problematic, non-preemptible sections.
 
-True but I'm wrestling with one of its design flaws...  it doesn't 
-provide the taskfile protocol.
+http://krustophenia.net/testresults.php?dataset=2.6.8.1-P0
 
-I really really want to know before the command is submitted whether I 
-am going to be receiving data, sending data, or neither.  The current 
-IDE driver "guesses" by virtue of DRQ flag behavior, but such a guess is 
-impossible on modern SATA controllers.
+Also it seems that extract_entropy still causes high latencies, even
+though a call to preempt_schedule was added.  I looked at the code in
+random.c a bit and this strikes me as an area where the algorithm could
+be improved, rather than adding a scheduling point.  Do we really need
+*that* much entropy, right then?  And if so, isn't there a zero-copy
+solution?
 
-You either have to provide a lookup table (command opcode -> protocol), 
-or specify it through the userland API.  HDIO_DRIVE_TASKFILE does this 
-via 'data_phase'.
+Lee
 
-On a more general note, though, I certainly welcome libata patches from 
-any and all sources.  Hack away!
-
-	Jeff
 
 

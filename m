@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268998AbTGJG5x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 02:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269006AbTGJG5x
+	id S269030AbTGJHHb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 03:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269047AbTGJHHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 02:57:53 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:19466 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S268998AbTGJG5h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 02:57:37 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.74 CONFIG_USB_SERIAL_CONSOLE gone?
-Date: Thu, 10 Jul 2003 14:53:57 +0800
-User-Agent: KMail/1.5.2
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 10 Jul 2003 03:07:30 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:47260 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269030AbTGJHDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 03:03:52 -0400
+Date: Thu, 10 Jul 2003 00:18:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: piet@www.piet.net, schlicht@uni-mannheim.de, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.74-mm3 - apm_save_cpus() Macro still bombs out
+Message-Id: <20030710001853.5a3597b7.akpm@osdl.org>
+In-Reply-To: <20030710071035.GR15452@holomorphy.com>
+References: <20030708223548.791247f5.akpm@osdl.org>
+	<200307091106.00781.schlicht@uni-mannheim.de>
+	<20030709021849.31eb3aec.akpm@osdl.org>
+	<1057815890.22772.19.camel@www.piet.net>
+	<20030710060841.GQ15452@holomorphy.com>
+	<20030710071035.GR15452@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307101453.57857.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried to config usb serial console on 2.5.74 but it's no more configurable.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+>  -#define apm_save_cpus()	0
+>  +#define apm_save_cpus()	({ cpumask_t __mask__ = CPU_MASK_NONE; __mask__; })
 
-Searched the tree and these are the only references
+Taking a look at what the APM code is actually doing, I think using
+current->cpus_allowed just more sense in here.
 
-./BitKeeper/deleted/.del-Config.help~23cda2581f02cfcb
-./BitKeeper/deleted/.del-Config.in~92fe774f90db89d
-./drivers/usb/serial/Makefile
-./drivers/usb/serial/usb-serial.h
-
-Has this been deleted?
-
-Regards
-Michael
-
--- 
-Powered by linux-2.5.74-mm3. Compiled with gcc-2.95-3 - mature and rock solid
-
-My current linux related activities:
-- 2.5 yenta_socket testing
-- Test development and testing of swsusp for 2.4/2.5 and ACPI S3 of 2.5 kernel 
-- Everyday usage of 2.5 kernel
-
-More info on 2.5 kernel: http://www.codemonkey.org.uk/post-halloween-2.5.txt
-More info on swsusp: http://sourceforge.net/projects/swsusp/
-
+Not that it matters at all.
